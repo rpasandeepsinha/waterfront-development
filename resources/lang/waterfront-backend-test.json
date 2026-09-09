@@ -1,0 +1,14 @@
+{
+    "validation.caa_content": {
+        "locales": {
+            "nl": {
+                "translated_string": "Dit veld is geen valide CAA record waarde, bijvoorbeeld: 0 issue \"letsencrypt.org\".",
+                "updated_at": "2021-12-07T07:25:23.000000Z",
+                "created_at": "2021-11-24T07:57:49.000000Z"
+            }
+        },
+        "source": "waterfront-backend",
+        "updated_at": "2021-12-07T07:25:18.000000Z",
+        "created_at": "2021-11-24T07:57:49.000000Z"
+    }
+}

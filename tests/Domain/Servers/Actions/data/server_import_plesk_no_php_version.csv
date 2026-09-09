@@ -1,0 +1,2 @@
+owner,hostname,port,ipv4,ipv6,secret_key,allow_new_websites,maximum_websites,php_version,use_ssl
+yourhosting,import-no-php-version.dev,8443,127.0.0.1,::1,test_secret_key,1,400,,1

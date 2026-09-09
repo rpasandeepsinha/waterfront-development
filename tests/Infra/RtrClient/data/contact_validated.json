@@ -1,0 +1,14 @@
+{
+    "customer": "billing-handle",
+    "handle": null,
+    "brand": "sandwave",
+    "name": "Test Contact",
+    "addressLine": ["123 Test Street"],
+    "postalCode": "1234AB",
+    "city": "Amsterdam",
+    "country": "NL",
+    "email": "test@example.com",
+    "voice": "+31.612345678",
+    "createdDate": "2025-01-01T00:00:00Z",
+    "validations": []
+}

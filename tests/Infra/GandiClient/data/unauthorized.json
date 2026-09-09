@@ -1,0 +1,6 @@
+{
+    "object": "HTTPUnauthorized",
+    "cause": "Unauthorized",
+    "code": 401,
+    "message": "Access was unauthorized."
+}

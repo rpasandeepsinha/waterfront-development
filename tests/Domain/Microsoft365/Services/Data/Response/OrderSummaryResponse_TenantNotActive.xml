@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<OrderSummaryResponse_V1>
+    <Status>
+        <Messages />
+        <Code>Success</Code>
+    </Status>
+    <PagedResult>
+        <Skip>0</Skip>
+        <Take>2500</Take>
+        <TotalNumberOfRecords>1</TotalNumberOfRecords>
+        <Results>
+            <OrderSummary_V1>
+                <OrderId>3</OrderId>
+                <ReferenceOrderId>3</ReferenceOrderId>
+                <ParentId>3</ParentId>
+                <CustomerId>1</CustomerId>
+                <ProductId>282A00001B</ProductId>
+                <ProductName>Microsoft Tenant</ProductName>
+                <ProductGroup>Administrative</ProductGroup>
+                <ProductCommercialTypeName>product</ProductCommercialTypeName>
+                <DateCreated>2015-06-20T14:37:00</DateCreated>
+                <DateActive />
+                <DateModified>2015-06-20T14:37:00</DateModified>
+                <DateTerminate />
+                <DateTerminated />
+                <Label>label</Label>
+                <Attribute>attribute</Attribute>
+                <OrderState>Placed</OrderState>
+                <Quantity>1</Quantity>
+                <ServiceLevelAgreement>BestEffort</ServiceLevelAgreement>
+            </OrderSummary_V1>
+        </Results>
+    </PagedResult>
+</OrderSummaryResponse_V1>

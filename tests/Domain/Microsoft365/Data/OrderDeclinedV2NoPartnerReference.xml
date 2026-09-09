@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OrderDeclined_V2>
+    <Header>
+        <DateCreated>2024-12-02T11:10:36.100678</DateCreated>
+    </Header>
+    <Status>
+        <Code>Rejected</Code>
+        <Messages>
+            <string>{"Type":null,"Title":"Invalid or no response received (NotFound)","Status":404,"Detail":null,"Instance":null,"Extensions":{}}</string>
+        </Messages>
+    </Status>
+    <CustomerId>1323371</CustomerId>
+    <OrderId>10264351</OrderId>
+    <ParentOrderId p2:nil="true" xmlns:p2="http://www.w3.org/2001/XMLSchema-instance" />
+</OrderDeclined_V2>

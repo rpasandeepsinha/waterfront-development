@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OrderDeclined_V2>
+    <Header>
+        <PartnerReference>WF-ORDER-1-KPN_DEPLOYMENT_ID</PartnerReference>
+        <DateCreated>2024-10-22T14:48:24.0730114+02:00</DateCreated>
+    </Header>
+    <Status>
+        <Code>ValidationError</Code>
+        <Messages>
+            <string>TenantName: Het domein mist de custom DNS TXT record. Voeg dit record (KPNOnboardingPac - KPN_CUSTOMER_ID) toe via 'portal.office.com' of bij niet onmicrosoft domeinnaam (.nl of.com etc.) bij je hosting provider.</string>
+        </Messages>
+    </Status>
+    <CustomerId p2:nil="true" xmlns:p2="http://www.w3.org/2001/XMLSchema-instance" />
+    <OrderId p2:nil="true" xmlns:p2="http://www.w3.org/2001/XMLSchema-instance" />
+    <ParentOrderId p2:nil="true" xmlns:p2="http://www.w3.org/2001/XMLSchema-instance" />
+</OrderDeclined_V2>

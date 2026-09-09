@@ -1,0 +1,67 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Waterfront\Infra\PleskClient\Messages\CustomerDelete;
+
+use Exception;
+use SimpleXMLElement;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\DeleteCustomer\Result;
+use Waterfront\Infra\PleskClient\Messages\BaseResponse;
+
+class Response extends BaseResponse
+{
+    private int $errorCode;
+
+    private string $errorText;
+
+    public function getErrorCode(): int
+    {
+        return $this->errorCode;
+    }
+
+    public function getErrorText(): string
+    {
+        return $this->errorText;
+    }
+
+    public function getResult(): Result
+    {
+        $result = new Result();
+        $result->setStatus($this->status);
+        if ($this->status !== self::STATUS_OK) {
+            $result->setErrorCode($this->errorCode);
+            $result->setErrorMessage($this->errorText);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function parseReply(string $reply): void
+    {
+        // If the HTTP response is not 200, we won't get a valid xml body to parse.
+        if ($this->statusCode !== 200) {
+            $this->status = self::STATUS_ERROR;
+            $this->errorCode = $this->statusCode;
+            $this->errorText = $this->statusMessage;
+
+            return;
+        }
+
+        $xmlResponse = new SimpleXMLElement($reply);
+
+        $result = $xmlResponse->system;
+        if ($result->count() === 0) {
+            $result = $xmlResponse->customer->del->result;
+        }
+
+        $this->status = (string) $result->status;
+        if ($this->status !== self::STATUS_OK) {
+            $this->errorCode = (int) $result->errcode;
+            $this->errorText = (string) $result->errtext;
+        }
+    }
+}

@@ -1,0 +1,27 @@
+{
+    "name": "swag_plate",
+    "records": [
+        {
+            "name": "test.@",
+            "content": "127.0.0.1",
+            "type": "A",
+            "ttl": 3600,
+            "disabled": false
+        },
+        {
+            "type": "CNAME",
+            "name": "bla.test.@",
+            "content": "test.@",
+            "ttl": 600,
+            "disabled": false
+        },
+        {
+            "type": "SRV",
+            "name": "bla.test.@",
+            "content": "test.@",
+            "weight": 55,
+            "ttl": 600,
+            "disabled": false
+        }
+    ]
+}

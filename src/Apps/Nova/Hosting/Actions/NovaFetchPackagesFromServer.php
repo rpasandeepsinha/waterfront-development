@@ -1,0 +1,73 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Waterfront\Apps\Nova\Hosting\Actions;
+
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Collection;
+use JsonException;
+use Laravel\Nova\Actions\Action;
+use Laravel\Nova\Actions\ActionResponse;
+use Laravel\Nova\Fields\ActionFields;
+use Waterfront\Domain\Hosting\Services\HostingService;
+use Waterfront\Domain\Servers\Exceptions\ServerNotFoundException;
+use Waterfront\Domain\Servers\Models\Server;
+use Waterfront\Infra\Translation\TranslatorInterface;
+use Waterfront\Support\Exceptions\NotImplementedException;
+
+class NovaFetchPackagesFromServer extends Action
+{
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+        private readonly HostingService $hostingService
+    ) {
+        $this->sole();
+    }
+
+    public function name(): string
+    {
+        return $this->translator->translate('nova-action.fetch_packages_from_server');
+    }
+
+    /**
+     * @param Collection<int, Server> $models
+     *
+     * @throws JsonException
+     */
+    public function handle(ActionFields $fields, Collection $models): ActionResponse|static
+    {
+        /** @var Server $server */
+        $server = $models->firstOrFail();
+
+        $fetchedPackages = [];
+        $message         = null;
+        $trace           = null;
+        $code            = null;
+
+        try {
+            $fetchedPackages = $this->hostingService->getPackagesOnServer($server);
+        } catch (ServerNotFoundException|GuzzleException|NotImplementedException $exception) {
+            $message = $exception->getMessage();
+            $trace   = $exception->getTraceAsString();
+            $code    = $exception->getCode();
+        }
+
+        $data = [
+            'packages'  => $fetchedPackages,
+            'exception' => $message,
+            'code'      => $code,
+            'trace'     => $trace,
+        ];
+
+        $title = sprintf(
+            'Fetched packages from server with hostname {%s} with response:',
+            $server->hostname
+        );
+
+        return self::modal('modal-response', [
+            'title' => $title,
+            'code' => json_encode($data, JSON_PRETTY_PRINT),
+        ]);
+    }
+}

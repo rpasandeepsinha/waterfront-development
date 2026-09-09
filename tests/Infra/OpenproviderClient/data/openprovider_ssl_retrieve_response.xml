@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openXML>
+    <reply>
+        <code>0</code>
+        <desc/>
+        <data>
+            <id>30160</id>
+            <productId>31</productId>
+            <commonName>dddsfsfdfddf.nl</commonName>
+            <productName>EssentialSSL</productName>
+            <brandName>Comodo</brandName>
+            <status>REQ</status>
+            <orderDate>2019-04-26 09:32:38</orderDate>
+            <activeDate></activeDate>
+            <expirationDate></expirationDate>
+            <hostNames>
+                <array>
+                    <item>dddsfsfdfddf.nl</item>
+                </array>
+            </hostNames>
+            <organizationHandle>RJ904505-NL</organizationHandle>
+            <administrativeHandle>RJ904505-NL</administrativeHandle>
+            <technicalHandle>BA904019-NL</technicalHandle>
+            <billingHandle>HANDLE-WITH-CARE</billingHandle>
+            <emailApprover>admin@dddsfsfdfddf.nl</emailApprover>
+            <emailReissue>klant@testing.test</emailReissue>
+            <csr>-----BEGIN CERTIFICATE REQUEST-----
+MIICsDCCAZgCAQAwazELMAkGA1UEBhMCTkwxEDAOBgNVBAgMB1V0cmVjaHQxEDAO
+BgNVBAcMB1V0cmVjaHQxEDAOBgNVBAoMB1dheTJXZWIxDDAKBgNVBAsMA0RldjEY
+MBYGA1UEAwwPZGRkc2ZzZmRmZGRmLm5sMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A
+MIIBCgKCAQEA8VEk/Z9lZL5gBIGCswCDuVpnOI0xCNva0iw60SO8QPAZLDz5svig
+BCde6ukWAseCjOsIjDyBAtVdS0V5lJYCwoO2c3WQp7wT4iTi0CToqXD3g8zjAa2I
+DWL796RChogyY3ECT+pA4JqwbZH8nSsnZRqyPaNqh3IlADbH2QA7YMFJceNUZGe0
+054O9XxBG8YfKLfuJwYAT2V3z9hWEWBEbjJfjbzXMKWgNBAOarcIfDa/VHCNrFbV
+/oDRtTJP819biVowwQLp6onO/E0jaOE6Ip4NdFXSLqXF1RbIV/X1Yyziflfqlhoj
+l8qvNYgcWUQiIE2GyuHlbQCYX9L02SL47QIDAQABoAAwDQYJKoZIhvcNAQELBQAD
+ggEBAKEUryVtoxEOvUc85ObXXzAVOepQDxZqt7kRQ6Cp+bzuh17FwV86O6r1JeJR
+yXXgYko2fRUD1nVKqlDHQegZiW3Jye8sk3Xa+mH5QZjtDpmHtIJqW1sFJrFyEDcJ
+otOVBd5ysq22dQKSmjE9qSNod/TYzS20JL/Y52p6cGHxejP6ruQTdsQRHNa9A8Vd
+OHkIQO7Ulz2zZXsCyjKX6H4wUkxX4iMzmL9UJVyK9Id48RzNUa6iHc1nhyhkgb42
+R+05LVS81OIeEWuUsKr3MaeRhWrKxCloA0fZI9N6TQ0hCUsxeILO7VoRelCB5acJ
+LP7jm526ePEFCiKKuf63OM9FOXw=
+-----END CERTIFICATE REQUEST-----
+</csr>
+            <period>1</period>
+            <software>linux</software>
+            <certificate></certificate>
+            <intermediateCertificate></intermediateCertificate>
+            <rootCertificate></rootCertificate>
+            <vendorReferenceId>960000000</vendorReferenceId>
+            <vendorOrderId>960000000</vendorOrderId>
+            <options>
+                <features></features>
+            </options><features/>
+            <validationMethod>domain</validationMethod>
+            <domainValidationMethods>
+                <array>
+                    <item>
+                        <hostName>dddsfsfdfddf.nl</hostName>
+                        <method>dns</method>
+                    </item>
+                </array>
+            </domainValidationMethods>
+            <domainValidationStatuses>
+                <status>open</status>
+                <caOrderStatus>in_progress</caOrderStatus>
+                <caStatus>requested</caStatus>
+                <caOperation>request</caOperation>
+            </domainValidationStatuses>
+            <additionalData>
+                <array>
+                    <item>
+                        <md5>990def0862163bf175976daceb192883</md5>
+                        <sha1>abbadcf82b8e29d246017fec6c52e8dc3d763c840eac90b65b883772360a6d25</sha1>
+                        <sha256>abbadcf82b8e29d246017fec6c52e8dc3d763c840eac90b65b883772360a6d25</sha256>
+                        <dnsValue>abbadcf82b8e29d246017fec6c52e8dc.3d763c840eac90b65b883772360a6d25.NXl18ZS0Mzz8EImpRmKr.sectigo.com</dnsValue>
+                        <dnsRecord>_990def0862163bf175976daceb192883.domain.com</dnsRecord>
+                        <domain>domain.com</domain>
+                    </item>
+                </array>
+            </additionalData>
+            <sslinhvaOrderId>a2297f8c-46cb-41d1-9fa0-17cbc0dc0dbf</sslinhvaOrderId>
+            <autorenew>off</autorenew>
+        </data>
+    </reply>
+</openXML>

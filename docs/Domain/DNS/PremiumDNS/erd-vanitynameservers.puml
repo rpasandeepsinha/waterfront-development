@@ -1,0 +1,35 @@
+@startuml
+skinparam linetype ortho
+entity "dns_deployments" {
+*id : int <<PK>>
+--
+*subscription_uuid : char(36)
+last_result_received : timestamp
+last_result : text
+last_result_premium_provider_received : timestamp
+last_result_premium_provider : text
+created_at : timestamp
+updated_at : timestamp
+deleted_at: timestamp
+}
+
+entity "dns_vanity_nameservers" {
+*id : int <<PK>>
+--
+nameserver : varchar(255)
+created_at : timestamp
+updated_at : timestamp
+}
+
+entity "dns_deployment_vanity_nameservers" {
+*dns_deployment_id : int <<FK>>
+*dns_vanity_nameserver_id : int <<FK>>
+--
+created_at : timestamp
+updated_at : timestamp
+}
+
+dns_deployment_vanity_nameservers }|--|| dns_deployments
+dns_deployment_vanity_nameservers }|--|{ dns_vanity_nameservers
+
+@enduml

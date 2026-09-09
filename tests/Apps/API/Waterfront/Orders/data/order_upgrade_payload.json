@@ -1,0 +1,29 @@
+{
+    "customer_id": null,
+    "payment_method": "credit",
+    "subscriptions": {
+        "hosting": [
+            {
+                "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "slug": "groot",
+                "status": "prolongation",
+                "period": 12,
+                "billing_period": 12,
+                "contract_period": 12,
+                "subscription_uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "server": 0,
+                "children": {
+                    "add-on": [
+                        {
+                            "uuid": "fda0da0b-4678-4716-ae8b-b30c62139137",
+                            "status": "registration",
+                            "billing_period": 12,
+                            "contract_period": 12,
+                            "slug": "booking"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

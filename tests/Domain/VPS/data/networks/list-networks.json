@@ -1,0 +1,209 @@
+{
+    "count": 11,
+    "network": [
+        {
+            "acltype": "Domain",
+            "broadcastdomaintype": "Vlan",
+            "canusefordeploy": true,
+            "cidr": "185.109.217.128/25",
+            "created": "2020-04-15T13:52:36+0200",
+            "displaytext": "VPS Network 2",
+            "dns1": "93.180.70.22",
+            "dns2": "93.180.70.30",
+            "domain": "ROOT",
+            "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+            "domainpath": "/",
+            "gateway": "185.109.217.131",
+            "hasannotations": false,
+            "id": "1f428807-11c1-488a-a640-dc6c3f615eeb",
+            "ip6cidr": "2a05:1500:600:5::/64",
+            "ip6dns1": "2a00:f10:ff04:153::53",
+            "ip6dns2": "2a00:f10:ff04:253::53",
+            "ip6gateway": "2a05:1500:600:5::1",
+            "ispersistent": false,
+            "issystem": false,
+            "name": "VPS Network 2",
+            "netmask": "255.255.255.128",
+            "networkdomain": "cs1vm.zone03.ams02.cldin.net",
+            "networkofferingavailability": "Optional",
+            "networkofferingconservemode": true,
+            "networkofferingdisplaytext": "Offering for Shared Security group enabled networks",
+            "networkofferingid": "001dc2f0-eedf-419a-9eff-f272a13850e8",
+            "networkofferingname": "DefaultSharedNetworkOfferingWithSGService",
+            "physicalnetworkid": "ba21880e-c2e6-4586-9ca6-3fef52a21b95",
+            "receivedbytes": 468398980256030,
+            "redundantrouter": false,
+            "related": "1f428807-11c1-488a-a640-dc6c3f615eeb",
+            "restartrequired": false,
+            "sentbytes": 735824622347014,
+            "service": [
+                {
+                    "capability": [
+                        {
+                            "canchooseservicecapability": false,
+                            "name": "AllowDnsSuffixModification",
+                            "value": "true"
+                        }
+                    ],
+                    "name": "Dns",
+                    "provider": [
+                        {
+                            "name": "VirtualRouter"
+                        }
+                    ]
+                },
+                {
+                    "capability": [
+                        {
+                            "canchooseservicecapability": false,
+                            "name": "DhcpAccrossMultipleSubnets",
+                            "value": "true"
+                        }
+                    ],
+                    "name": "Dhcp",
+                    "provider": [
+                        {
+                            "name": "VirtualRouter"
+                        }
+                    ]
+                },
+                {
+                    "capability": [],
+                    "name": "SecurityGroup",
+                    "provider": [
+                        {
+                            "name": "SecurityGroupProvider"
+                        }
+                    ]
+                },
+                {
+                    "capability": [],
+                    "name": "UserData",
+                    "provider": [
+                        {
+                            "name": "VirtualRouter"
+                        }
+                    ]
+                }
+            ],
+            "specifyipranges": true,
+            "specifyvlan": true,
+            "state": "Setup",
+            "strechedl2subnet": false,
+            "subdomainaccess": true,
+            "supportsvmautoscaling": false,
+            "tags": [
+                {
+                    "key": "type",
+                    "value": "vps_network"
+                }
+            ],
+            "traffictype": "Guest",
+            "type": "Shared",
+            "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+            "zonename": "zone03.ams02.cldin.net"
+        },
+        {
+            "acltype": "Domain",
+            "broadcastdomaintype": "Vlan",
+            "canusefordeploy": true,
+            "cidr": "185.109.216.0/24",
+            "created": "2019-07-12T14:43:17+0200",
+            "displaytext": "VPS Network 1",
+            "dns1": "93.180.70.22",
+            "dns2": "93.180.70.30",
+            "domain": "ROOT",
+            "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+            "domainpath": "/",
+            "gateway": "185.109.216.3",
+            "hasannotations": false,
+            "id": "a0234ec3-bdb6-46b8-80a1-37144d7c3928",
+            "ip6cidr": "2a05:1500:600::/64",
+            "ip6dns1": "2a00:f10:ff04:153::53",
+            "ip6dns2": "2a00:f10:ff04:253::53",
+            "ip6gateway": "2a05:1500:600::1",
+            "ispersistent": false,
+            "issystem": false,
+            "name": "VPS Network 1",
+            "netmask": "255.255.255.0",
+            "networkdomain": "cs1cloud.internal",
+            "networkofferingavailability": "Optional",
+            "networkofferingconservemode": true,
+            "networkofferingdisplaytext": "Offering for Shared Security group enabled networks",
+            "networkofferingid": "001dc2f0-eedf-419a-9eff-f272a13850e8",
+            "networkofferingname": "DefaultSharedNetworkOfferingWithSGService",
+            "physicalnetworkid": "ba21880e-c2e6-4586-9ca6-3fef52a21b95",
+            "receivedbytes": 5508976565732456,
+            "redundantrouter": false,
+            "related": "a0234ec3-bdb6-46b8-80a1-37144d7c3928",
+            "restartrequired": false,
+            "sentbytes": 5076938160487315,
+            "service": [
+                {
+                    "capability": [
+                        {
+                            "canchooseservicecapability": false,
+                            "name": "AllowDnsSuffixModification",
+                            "value": "true"
+                        }
+                    ],
+                    "name": "Dns",
+                    "provider": [
+                        {
+                            "name": "VirtualRouter"
+                        }
+                    ]
+                },
+                {
+                    "capability": [
+                        {
+                            "canchooseservicecapability": false,
+                            "name": "DhcpAccrossMultipleSubnets",
+                            "value": "true"
+                        }
+                    ],
+                    "name": "Dhcp",
+                    "provider": [
+                        {
+                            "name": "VirtualRouter"
+                        }
+                    ]
+                },
+                {
+                    "capability": [],
+                    "name": "SecurityGroup",
+                    "provider": [
+                        {
+                            "name": "SecurityGroupProvider"
+                        }
+                    ]
+                },
+                {
+                    "capability": [],
+                    "name": "UserData",
+                    "provider": [
+                        {
+                            "name": "VirtualRouter"
+                        }
+                    ]
+                }
+            ],
+            "specifyipranges": true,
+            "specifyvlan": true,
+            "state": "Setup",
+            "strechedl2subnet": false,
+            "subdomainaccess": true,
+            "supportsvmautoscaling": false,
+            "tags": [
+                {
+                    "key": "type",
+                    "value": "vps_network"
+                }
+            ],
+            "traffictype": "Guest",
+            "type": "Shared",
+            "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+            "zonename": "zone03.ams02.cldin.net"
+        }
+    ]
+}

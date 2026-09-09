@@ -1,0 +1,104 @@
+{
+    "account": "LiveDns",
+    "api_rectify": true,
+    "catalog": "",
+    "dnssec": false,
+    "edited_serial": 2024061001,
+    "id": "domain-order-test.nl.",
+    "kind": "Master",
+    "last_check": 0,
+    "master_tsig_key_ids": [],
+    "masters": [],
+    "name": "domain-order-test.nl.",
+    "notified_serial": 0,
+    "nsec3narrow": false,
+    "nsec3param": "",
+    "rrsets": [
+        {
+            "comments": [],
+            "name": "localhost.domain-order-test.nl.",
+            "records": [
+                {
+                    "content": "127.0.0.1",
+                    "disabled": false
+                }
+            ],
+            "ttl": 600,
+            "type": "A"
+        },
+        {
+            "comments": [],
+            "name": "domain-order-test.nl.",
+            "records": [
+                {
+                    "content": "ns210.vanity-test.nl. domain-admin.testing.test. 2024061001 3600 600 86400 3600",
+                    "disabled": false
+                }
+            ],
+            "ttl": 3600,
+            "type": "SOA"
+        },
+        {
+            "comments": [],
+            "name": "domain-order-test.nl.",
+            "records": [
+                {
+                    "content": "ns210.vanity-test.nl.",
+                    "disabled": false
+                },
+                {
+                    "content": "ns97.vanity-test.de.",
+                    "disabled": false
+                },
+                {
+                    "content": "ns89.vanity-test.be.",
+                    "disabled": false
+                }
+            ],
+            "ttl": 3600,
+            "type": "NS"
+        }
+    ],
+    "serial": 2024061001,
+    "slave_tsig_key_ids": [],
+    "soa_edit": "INCEPTION_INCREMENT",
+    "soa_edit_api": "DEFAULT",
+    "url": "/api/v1/servers/localhost/zones/domain-order-test.nl.",
+    "metadata": [
+        {
+            "kind": "ALLOW-AXFR-FROM",
+            "metadata": [
+                "2001:4b98:6::9"
+            ],
+            "type": "Metadata"
+        },
+        {
+            "kind": "ALSO-NOTIFY",
+            "metadata": [
+                "2001:4b98:6::9"
+            ],
+            "type": "Metadata"
+        },
+        {
+            "kind": "API-RECTIFY",
+            "metadata": [
+                "1"
+            ],
+            "type": "Metadata"
+        },
+        {
+            "kind": "SOA-EDIT",
+            "metadata": [
+                "INCEPTION-INCREMENT"
+            ],
+            "type": "Metadata"
+        },
+        {
+            "kind": "SOA-EDIT-API",
+            "metadata": [
+                "DEFAULT"
+            ],
+            "type": "Metadata"
+        }
+    ]
+}

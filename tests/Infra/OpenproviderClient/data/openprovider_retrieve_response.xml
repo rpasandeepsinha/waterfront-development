@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openXML>
+    <reply>
+        <code>0</code>
+        <desc></desc>
+        <data>
+            <domain>
+                <name>testdomain</name>
+                <extension>com</extension>
+            </domain>
+            <nameServers>
+                <array>
+                    <item>
+                        <id>312592</id>
+                        <seqNr>0</seqNr>
+                        <name>ns1.customserver.nl</name>
+                        <ip>52.57.114.204</ip>
+                        <ip6>2a05:d014:0f80:6e00:bde7:af96:9434:75d5</ip6>
+                    </item>
+                    <item>
+                        <id>312595</id>
+                        <seqNr>1</seqNr>
+                        <name>ns2.customserver.be</name>
+                        <ip>52.214.115.96</ip>
+                        <ip6>2a05:d018:061d:bd00:21bc:c938:d548:dab1</ip6>
+                    </item>
+                    <item>
+                        <id>312598</id>
+                        <seqNr>2</seqNr>
+                        <name>ns3.customserver.eu</name>
+                        <ip>52.56.134.244</ip>
+                        <ip6>2a05:d01c:0433:e000:e62c:faa3:9834:41e7</ip6>
+                    </item>
+                </array>
+            </nameServers>
+            <id>1152316</id>
+            <resellerId>169576</resellerId>
+            <nsgroupId>120691</nsgroupId>
+            <isLockable>1</isLockable>
+            <isLocked>1</isLocked>
+            <comments></comments>
+            <commentsLastChangedAt>2019-06-13 16:22:21</commentsLastChangedAt>
+            <creationDate>2019-06-13 14:22:22</creationDate>
+            <lastChanged>2019-06-13 16:22:24</lastChanged>
+            <orderDate>2019-06-13 16:22:21</orderDate>
+            <activeDate>2019-06-13 16:22:22</activeDate>
+            <expirationDate>2020-06-13 14:22:22</expirationDate>
+            <registryExpirationDate>2020-06-13 14:22:22</registryExpirationDate>
+            <renewalDate>2020-06-13 14:22:22</renewalDate>
+            <isHostedWhois>1</isHostedWhois>
+            <isDnssecEnabled>1</isDnssecEnabled>
+            <dnssec>unsigned</dnssec>
+            <registryDetails>
+                <eppStatuses>
+                    <array>
+                        <item>ok</item>
+                        <item>clientTransferProhibited</item>
+                    </array>
+                </eppStatuses>
+                <contacts/>
+                <domainRoid>117988286_DOMAIN_COM-VRSN</domainRoid>
+            </registryDetails>
+            <status>ACT</status>
+            <canRenew>1</canRenew>
+            <renew>0</renew>
+            <modifyOwnerAllowed>1</modifyOwnerAllowed>
+            <autorenew>default</autorenew>
+            <domType>NEW</domType>
+            <ownerHandle>FL969344-NL</ownerHandle>
+            <adminHandle>FL969344-NL</adminHandle>
+            <techHandle>FL969344-NL</techHandle>
+            <billingHandle>HANDLE-WITH-CARE</billingHandle>
+            <resellerHandle></resellerHandle>
+            <owner>
+                <companyName>Way2Web</companyName>
+                <fullName>Firstname Lastname</fullName>
+            </owner>
+            <nsGroup>test_nameservergroup</nsGroup>
+            <nsTemplateId>0</nsTemplateId>
+            <nsTemplateName></nsTemplateName>
+            <type>NEW</type>
+            <authCode>x7SMn%$7%Xn9</authCode>
+            <internalAuthCode>0</internalAuthCode>
+            <tradeAuthCodeRequired>no</tradeAuthCodeRequired>
+            <transferAuthCodeRequired>yes</transferAuthCodeRequired>
+            <transferCancelSupported>1</transferCancelSupported>
+            <tradeAllowed>0</tradeAllowed>
+            <useDomicile>0</useDomicile>
+            <deletedAt>0000-00-00 00:00:00</deletedAt>
+            <isDeleted></isDeleted>
+            <isPrivateWhoisEnabled></isPrivateWhoisEnabled>
+            <isPrivateWhoisAllowed>1</isPrivateWhoisAllowed>
+            <deleteStatus></deleteStatus>
+            <applicationSmd></applicationSmd>
+            <applicationNoticeId></applicationNoticeId>
+            <applicationId></applicationId>
+            <hasHistory>0</hasHistory>
+            <isPremium>0</isPremium>
+            <isAbusive>0</isAbusive>
+            <isSpamexpertsEnabled></isSpamexpertsEnabled>
+            <unit>y</unit>
+            <additionalData/>
+            <ownerName>
+                <fullName>Firstname Lastname</fullName>
+                <initials></initials>
+                <firstName>Firstname</firstName>
+                <prefix></prefix>
+                <lastName>Lastname</lastName>
+            </ownerName>
+            <ownerCompanyName>Way2Web</ownerCompanyName>
+            <expirationDateOpenprovider>2020-06-13 14:22:22</expirationDateOpenprovider>
+        </data>
+    </reply>
+</openXML>

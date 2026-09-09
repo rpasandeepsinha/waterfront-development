@@ -1,0 +1,57 @@
+flowchart TD
+    Start([DiagnoseFailedDomainSubscriptionJob::handle]) --> Determine[FailedDomainSubscriptionRepairService::determineRepair]
+
+    Determine --> HasDomain{subscription.domain<br/>set?}
+    HasDomain -- No --> Skip[SKIP]
+    HasDomain -- Yes --> HasDeploy{domainDeployment<br/>exists?}
+    HasDeploy -- No --> Skip
+    HasDeploy -- Yes --> HasDns{DnsDeployment<br/>found?}
+    HasDns -- No --> Skip
+    HasDns -- Yes --> Fetch[RtrService::fetchDomain]
+
+    Fetch -- throws DomainDoesNotExist<br/>or 'Not found.' --> ListProc[RtrService::listProcessesForDomain]
+    ListProc --> HasProc{processes > 0?}
+    HasProc -- Yes --> RestorePath[RESTORE_FROM_PROCESS]
+    HasProc -- No --> RetryPath[RETRY_PROVISIONING]
+
+    Fetch -- throws other --> Skip
+
+    Fetch -- success --> StatusOk{remote status<br/>contains OK?}
+
+    StatusOk -- No --> NsDiff{remote ns differs<br/>from stored ns?}
+    StatusOk -- Yes --> SyncOk[SYNC_STATUS_ONLY]/
+    NsDiff -- Yes --> RepairNs[REPAIR_NAMESERVERS]
+    NsDiff -- No --> SyncOk[SYNC_STATUS_ONLY]
+
+    %% Direct mapping to repair jobs
+    Skip --> Noop([No job dispatched])
+    RepairNs --> JobNs[RepairMissingRemoteNameserversJob]
+    RestorePath --> JobRestore[RestorePendingFromOpenPrevalidationProcessJob]
+    RetryPath --> JobRetry[RetryDomainProvisioningJob]
+    SyncOk --> JobSync[SyncDomainSubscriptionStatusFromRemoteJob]
+
+
+    %% Job behaviors
+    JobNs --> NsRun[Service::repairMissingRemoteNameservers]
+    NsRun --> NsFetch[fetchDomain]
+    NsFetch -- missing/error --> NsSkip([log skip])
+    NsFetch -- has remote ns --> SyncFromRemote[syncLocalStatusFromRemoteDomain]
+    NsFetch -- no remote ns --> NsStored{stored ns empty<br/>& INTERNAL?}
+    NsStored -- Yes --> Assign[DnsNameserverAssigner::assign] --> NsStored2{stored ns still empty?}
+    NsStored -- No --> NsStored2
+    NsStored2 -- Yes --> NsSkip
+    NsStored2 -- No --> Update[RtrService::updateNameServers + refetch] --> SyncFromRemote
+
+    JobRestore --> ResRun[Service::restorePendingFromOpenPrevalidationProcess]
+    ResRun --> ResFind[findOpenPrevalidationProcessForDomain]
+    ResFind -- none --> ResSkip([log skip])
+    ResFind -- found --> ResSet[subscription.technical_status = PENDING<br/>+ save + record result]
+
+    JobRetry --> RetEnsure{domainDeployment<br/>exists?}
+    RetEnsure -- No --> RetBuild[EventSubscriptionDataBuilder::buildDomainDeployment]
+    RetEnsure -- Yes --> RetDispatch
+    RetBuild --> RetDispatch[dispatch RegisterDomainNameJob]
+
+    JobSync --> SyncSvc[Service::syncStatusFromRemote] --> SyncFromRemote
+
+    SyncFromRemote --> Persist[update technical_status<br/>+ persist deployment result]

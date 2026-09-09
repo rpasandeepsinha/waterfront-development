@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MicrosoftCustomerAgreementResponse_V1>
+    <Status>
+        <Messages />
+        <Code>Success</Code>
+    </Status>
+    <McaSigned>true</McaSigned>
+    <AttestationStatus p2:nil="true" xmlns:p2="http://www.w3.org/2001/XMLSchema-instance" />
+    <AttestationId />
+    <DateAgreed>2025-09-10T00:00:00</DateAgreed>
+</MicrosoftCustomerAgreementResponse_V1>

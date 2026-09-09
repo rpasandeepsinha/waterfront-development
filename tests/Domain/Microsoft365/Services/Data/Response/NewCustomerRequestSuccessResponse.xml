@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<NewCustomerResponse_V3>
+    <Header>
+        <PartnerReference>21139</PartnerReference>
+        <DateCreated>2022-02-15T15:15:11.0149751+01:00</DateCreated>
+    </Header>
+    <State>
+        <Code>0</Code>
+    </State>
+    <CustomerData>
+        <CustomerId>CID1323372</CustomerId>
+        <Name>Sandwave test</Name>
+        <Street>StraatNaam</Street>
+        <HouseNr>38</HouseNr>
+        <ZipCode>1234AB</ZipCode>
+        <City>Amsterdam</City>
+        <CountryCode>NLD</CountryCode>
+        <Phone1>0612345678</Phone1>
+        <Email>klant@email.nl</Email>
+        <LegalStatus>CV</LegalStatus>
+    </CustomerData>
+</NewCustomerResponse_V3>

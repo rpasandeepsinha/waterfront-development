@@ -1,0 +1,41 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'address'                 => [
+        'city'          => 'Haarlem',
+        'country_code'  => 'NL',
+        'created_at'    => '2019-05-03 11:54:51',
+        'customer_id'   => '10',
+        'id'            => '10',
+        'street_name'   => 'Wateringweg',
+        'street_number' => '143',
+        'updated_at'    => '2019-05-03 11:54:51',
+        'zip_code'      => '2031EG',
+    ],
+    'coc_number'              => null,
+    'created_at'              => '2019-05-03 11:54:28',
+    'credit_limit'            => '5000000',
+    'customer_number'         => '17272',
+    'department'              => null,
+    'email'                   => 'email@testing.test',
+    'first_name'              => 'Firstname',
+    'gender'                  => '',
+    'icp'                     => '0',
+    'id'                      => '10',
+    'internal_comment'        => null,
+    'last_name'               => 'Lastname',
+    'locale'                  => '',
+    'organization'            => 'Test organization',
+    'phone_area_code'         => '22',
+    'phone_country_code'      => '31',
+    'phone_subscriber_number' => '12312312',
+    'purchase_reference'      => null,
+    'terms_accepted'          => '0',
+    'terms_of_payment'        => '14',
+    'updated_at'              => '2019-05-03 11:55:04',
+    'uuid'                    => '70afdcc0-6d89-11e9-9157-fb9f97a2b345',
+    'vat_number'              => null,
+    'name'                    => 'Test name',
+];

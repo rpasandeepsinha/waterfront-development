@@ -1,0 +1,420 @@
+{
+    "@attributes": {
+        "version": "1.6.9.1"
+    },
+    "webspace": {
+        "get": {
+            "result": {
+                "status": "ok",
+                "filter-id": "pdvzjqvczhjnopjmocnp",
+                "id": "288",
+                "data": {
+                    "gen_info": {
+                        "cr_date": "2025-01-22",
+                        "name": "test136.nl",
+                        "ascii-name": "test136.nl",
+                        "status": "0",
+                        "real_size": "776330",
+                        "owner-id": "278",
+                        "dns_ip_address": [
+                            "1.2.3.4",
+                            "::1"
+                        ],
+                        "htype": "vrt_hst",
+                        "guid": "b9a5a496-ab36-4f31-a73f-0959b8bd32fc",
+                        "vendor-guid": "c1552b55-8d39-4c01-b75a-b1eafec87f82",
+                        "external-id": [],
+                        "sb-site-uuid": [],
+                        "description": [],
+                        "admin-description": []
+                    },
+                    "hosting": {
+                        "vrt_hst": {
+                            "property": [
+                                {
+                                    "name": "seo-redirect",
+                                    "value": "none"
+                                },
+                                {
+                                    "name": "ftp_login",
+                                    "value": "pdvzjqvczhjnopjmocnp"
+                                },
+                                {
+                                    "name": "ftp_password",
+                                    "value": "ZznUykMRuvXxeecr47421~~"
+                                },
+                                {
+                                    "name": "ftp_password_type",
+                                    "value": "plain"
+                                },
+                                {
+                                    "name": "ftp_quota",
+                                    "value": "53687091200"
+                                },
+                                {
+                                    "name": "ssl",
+                                    "value": "true"
+                                },
+                                {
+                                    "name": "ssl-redirect",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "shell",
+                                    "value": "\/bin\/false"
+                                },
+                                {
+                                    "name": "php",
+                                    "value": "true"
+                                },
+                                {
+                                    "name": "php_handler_id",
+                                    "value": "x-httpd-lsphp-82"
+                                },
+                                {
+                                    "name": "unpaid_website_status",
+                                    "value": "suspended"
+                                },
+                                {
+                                    "name": "ssi",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "cgi",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "perl",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "python",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "asp",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "asp_dot_net",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "webstat",
+                                    "value": "awstats"
+                                },
+                                {
+                                    "name": "webstat_protected",
+                                    "value": "true"
+                                },
+                                {
+                                    "name": "errdocs",
+                                    "value": "true"
+                                },
+                                {
+                                    "name": "wuscripts",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "at_domains",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "fastcgi",
+                                    "value": "true"
+                                },
+                                {
+                                    "name": "cgi_mode",
+                                    "value": []
+                                },
+                                {
+                                    "name": "www_root",
+                                    "value": "\/var\/www\/vhosts\/test136.nl\/httpdocs"
+                                },
+                                {
+                                    "name": "open_basedir",
+                                    "value": "none"
+                                },
+                                {
+                                    "name": "error_reporting",
+                                    "value": "E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED"
+                                },
+                                {
+                                    "name": "memory_limit",
+                                    "value": "256M"
+                                },
+                                {
+                                    "name": "max_execution_time",
+                                    "value": "900"
+                                },
+                                {
+                                    "name": "max_input_time",
+                                    "value": "900"
+                                },
+                                {
+                                    "name": "post_max_size",
+                                    "value": "1024M"
+                                },
+                                {
+                                    "name": "upload_max_filesize",
+                                    "value": "1024M"
+                                },
+                                {
+                                    "name": "disable_functions",
+                                    "value": "exec, system, passthru, shell_exec, proc_close, proc_open, dl, popen, show_source, posix_kill, posix_mkfifo, posix_getpwuid, posix_setpgid, posix_setsid, posix_setuid, posix_setgid, posix_uname, pcntl_exec, expect_popen, opcache_get_status,"
+                                },
+                                {
+                                    "name": "pm.max_children",
+                                    "value": "10"
+                                },
+                                {
+                                    "name": "pm",
+                                    "value": "ondemand"
+                                },
+                                {
+                                    "name": "pm.start_servers",
+                                    "value": "1"
+                                },
+                                {
+                                    "name": "pm.min_spare_servers",
+                                    "value": "1"
+                                },
+                                {
+                                    "name": "pm.max_spare_servers",
+                                    "value": "1"
+                                },
+                                {
+                                    "name": "web-server-expires-static-only",
+                                    "value": "true"
+                                },
+                                {
+                                    "name": "apache-restrict-follow-sym-links",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "nginx-proxy-mode",
+                                    "value": "true"
+                                },
+                                {
+                                    "name": "nginx-transparent-mode",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "nginx-serve-static",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "nginx-client-max-body-size",
+                                    "value": "134217728"
+                                },
+                                {
+                                    "name": "nginx-cache-enabled",
+                                    "value": "true"
+                                },
+                                {
+                                    "name": "nginx-cache-size",
+                                    "value": "67108864"
+                                },
+                                {
+                                    "name": "nginx-cache-timeout",
+                                    "value": "5"
+                                },
+                                {
+                                    "name": "nginx-cache-key",
+                                    "value": "$scheme$request_method$host$request_uri"
+                                },
+                                {
+                                    "name": "nginx-cache-bypass-header-nocache",
+                                    "value": "true"
+                                },
+                                {
+                                    "name": "nginx-cache-bypass-header-auth",
+                                    "value": "true"
+                                },
+                                {
+                                    "name": "nginx-cache-bypass-get-nocache",
+                                    "value": "true"
+                                },
+                                {
+                                    "name": "nginx-cache-use-stale-5xx",
+                                    "value": "true"
+                                },
+                                {
+                                    "name": "nginx-cache-use-stale-4xx",
+                                    "value": "false"
+                                },
+                                {
+                                    "name": "nginx-cache-use-stale-updating",
+                                    "value": "true"
+                                },
+                                {
+                                    "name": "waf-rule-engine",
+                                    "value": "on"
+                                }
+                            ],
+                            "ip_address": [
+                                "1.2.3.4",
+                                "::1"
+                            ]
+                        }
+                    },
+                    "limits": {
+                        "overuse": "block",
+                        "limit": [
+                            {
+                                "name": "max_site",
+                                "value": "1"
+                            },
+                            {
+                                "name": "max_subdom",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "max_dom_aliases",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "disk_space",
+                                "value": "53687091200"
+                            },
+                            {
+                                "name": "disk_space_soft",
+                                "value": "90"
+                            },
+                            {
+                                "name": "max_traffic",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "max_traffic_soft",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "max_wu",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "max_subftp_users",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "max_db",
+                                "value": "1"
+                            },
+                            {
+                                "name": "max_box",
+                                "value": "0"
+                            },
+                            {
+                                "name": "mbox_quota",
+                                "value": "0"
+                            },
+                            {
+                                "name": "max_maillists",
+                                "value": "0"
+                            },
+                            {
+                                "name": "expiration",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "expiration_soft",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "ext_limit_wp_toolkit_wp_instances",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "ext_limit_wp_toolkit_wp_backups",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "ext_limit_wp_toolkit_smart_update_instances",
+                                "value": "0"
+                            },
+                            {
+                                "name": "ext_limit_wp_toolkit_virtual_patches_instances",
+                                "value": "0"
+                            },
+                            {
+                                "name": "ext_limit_xovi_max_keywords",
+                                "value": "0"
+                            },
+                            {
+                                "name": "ext_limit_acronis_backup_recovery_points",
+                                "value": "7"
+                            }
+                        ]
+                    },
+                    "stat": {
+                        "traffic": "6460935",
+                        "subdom": "0",
+                        "wu": "0",
+                        "box": "0",
+                        "redir": "0",
+                        "mg": "0",
+                        "resp": "0",
+                        "maillists": "0",
+                        "db": "0",
+                        "mssql_db": "0",
+                        "traffic_prevday": "1654023",
+                        "domains": "1",
+                        "sites": "0"
+                    },
+                    "prefs": {
+                        "www": "true",
+                        "stat_ttl": "15"
+                    },
+                    "disk_usage": {
+                        "httpdocs": "289886",
+                        "httpsdocs": "0",
+                        "subdomains": "0",
+                        "web_users": "0",
+                        "anonftp": "0",
+                        "logs": "486148",
+                        "dbases": "0",
+                        "mailboxes": "6",
+                        "maillists": "0",
+                        "domaindumps": "0",
+                        "configs": "269",
+                        "chroot": "21"
+                    },
+                    "performance": {
+                        "bandwidth": "-1",
+                        "max_connections": "-1"
+                    },
+                    "subscriptions": {
+                        "subscription": {
+                            "locked": "false",
+                            "synchronized": "true",
+                            "plan": {
+                                "plan-guid": "f80f6c5e-14c5-36c6-2908-12a860ba05ed"
+                            }
+                        }
+                    },
+                    "mail": {
+                        "nonexistent-user": {
+                            "reject": []
+                        },
+                        "webmail": "none",
+                        "spam-protect-sign": "false",
+                        "greylisting": "true",
+                        "mailservice": "false",
+                        "ip_address": [
+                            "1.2.3.4",
+                            "::1"
+                        ],
+                        "mail-provider": {
+                            "local": []
+                        },
+                        "outgoing-messages-mbox-limit": "100",
+                        "outgoing-messages-domain-limit": "500",
+                        "outgoing-messages-subscription-limit": "500",
+                        "outgoing-messages-enable-sendmail": "default"
+                    }
+                }
+            }
+        }
+    }
+}

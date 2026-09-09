@@ -1,0 +1,17 @@
+{
+    "customer_id": null,
+    "payment_method": "credit",
+    "subscriptions": {
+        "hosting": [
+            {
+                "uuid": "fda0da0b-4678-4716-ae8b-b30c62139137",
+                "slug": "small",
+                "status": "prolongation",
+                "period": 12,
+                "billing_period": 12,
+                "contract_period": 12,
+                "subscription_uuid": "fda0da0b-4678-4716-ae8b-b30c62139137"
+            }
+        ]
+    }
+}

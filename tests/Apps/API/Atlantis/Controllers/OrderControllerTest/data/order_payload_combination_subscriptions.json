@@ -1,0 +1,33 @@
+{
+    "customer_id": null,
+    "subscriptions": {
+        "hosting": [
+            {
+                "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "name": "premium",
+                "slug": "hosting_premium",
+                "status": "registration",
+                "price": 199,
+                "gross_price": 96,
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12,
+                "server": 0
+            }
+        ],
+        "manual-subscription": [
+            {
+                "uuid": "aff7e779-6a88-4419-80e6-a368d78a304e",
+                "name": "ManualTestProduct",
+                "slug": "manual-testproduct",
+                "status": "registration",
+                "price": 199,
+                "gross_price": 96,
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12
+            }
+        ]
+    },
+    "payment_method": "ideal"
+}

@@ -1,0 +1,429 @@
+{
+    "bandwidth": "123",
+    "comments": "",
+    "db_quota": "0",
+    "domainptr": "5",
+    "domains": {
+        "0": {
+            "domain": "example.com",
+            "bandwidth": {
+                "limit": "shared",
+                "usage": "0.000000"
+            },
+            "quota": {
+                "limit": "shared",
+                "usage": "0.117413"
+            },
+            "log_usage": "0.000333786",
+            "nsubdomains": "0",
+            "suspended": "no",
+            "settings": {
+                "cgi": "OFF",
+                "domainptr": [],
+                "php": "OFF",
+                "ssl": "ON"
+            }
+        },
+        "1": {
+            "domain": "random.com",
+            "bandwidth": {
+                "limit": "shared",
+                "usage": "0.000000"
+            },
+            "quota": {
+                "limit": "shared",
+                "usage": "0.117413"
+            },
+            "log_usage": "0.000333786",
+            "nsubdomains": "0",
+            "suspended": "no",
+            "settings": {
+                "cgi": "OFF",
+                "domainptr": [],
+                "php": "OFF",
+                "ssl": "ON"
+            }
+        },
+        "2": {
+            "domain": "subdomain.example.com",
+            "bandwidth": {
+                "limit": "shared",
+                "usage": "0.000000"
+            },
+            "quota": {
+                "limit": "shared",
+                "usage": "0.117413"
+            },
+            "log_usage": "0.000333786",
+            "nsubdomains": "0",
+            "suspended": "no",
+            "settings": {
+                "cgi": "OFF",
+                "domainptr": [],
+                "php": "OFF",
+                "ssl": "ON"
+            }
+        },
+        "info": {
+            "columns": {
+                "domain": "1",
+                "bandwidth": "2",
+                "quota": "3",
+                "log_usage": "4",
+                "nsubdomains": "5",
+                "suspended": "6",
+                "settings": "7"
+            },
+            "current_page": "1",
+            "ipp": "50",
+            "rows": "1",
+            "total_pages": "1"
+        }
+    },
+    "email_deliveries": "0",
+    "email_deliveries_incoming": "0",
+    "email_deliveries_outgoing": "0",
+    "email_quota": "33",
+    "feature_sets": {
+        "core_functions": {
+            "checked": "no",
+            "name": "Core Functions"
+        },
+        "dns_only": {
+            "checked": "no",
+            "name": "DNS-Only"
+        },
+        "email_only": {
+            "checked": "no",
+            "name": "E-Mail-Only"
+        }
+    },
+    "ftp": "1",
+    "inode": "173",
+    "is_reseller_skin": "0",
+    "mysql": "0",
+    "nemailf": "0",
+    "nemailml": "0",
+    "nemailr": "0",
+    "nemails": "1",
+    "nsubdomains": "0",
+    "other_quota": "0",
+    "plugins": {
+        "all_plugins": {
+            "backuprestore": "backuprestore",
+            "cagefs": "cagefs",
+            "csf": "csf",
+            "custombuild": "custombuild",
+            "hsts": "hsts",
+            "lvemanager_spa": "lvemanager_spa",
+            "nodejs_selector": "nodejs_selector",
+            "phpselector": "phpselector",
+            "python_selector": "python_selector",
+            "resource_usage": "resource_usage",
+            "softaculous": "softaculous",
+            "spamexperts": "spamexperts",
+            "sshwhitelist": "sshwhitelist"
+        }
+    },
+    "quota": "456",
+    "quota_without_system": "0.0000",
+    "reseller_can_reset_email_count": "0",
+    "stats": {
+        "0": {
+            "setting": "bandwidth",
+            "usage": "2.67",
+            "max_usage": "1337"
+        },
+        "1": {
+            "setting": "additional_bandwidth",
+            "usage": "0",
+            "max_usage": "available"
+        },
+        "10": {
+            "setting": "nemailml",
+            "usage": "0",
+            "max_usage": "0"
+        },
+        "11": {
+            "setting": "nemailr",
+            "usage": "0",
+            "max_usage": "10"
+        },
+        "12": {
+            "setting": "email_deliveries_outgoing",
+            "usage": "0",
+            "max_usage": "1000"
+        },
+        "13": {
+            "setting": "email_deliveries_incoming",
+            "usage": "0",
+            "max_usage": ""
+        },
+        "14": {
+            "setting": "max_per_email_send_limit",
+            "usage": "",
+            "max_usage": "200"
+        },
+        "15": {
+            "setting": "mysql",
+            "usage": "0",
+            "max_usage": "5"
+        },
+        "16": {
+            "setting": "domainptr",
+            "usage": "0",
+            "max_usage": "0"
+        },
+        "17": {
+            "setting": "ftp",
+            "usage": "1",
+            "max_usage": "1"
+        },
+        "18": {
+            "setting": "email",
+            "usage": "user@user.nl",
+            "max_usage": "<input name=email type=submit value=\"Save E-Mail\">"
+        },
+        "19": {
+            "setting": "name",
+            "usage": "user",
+            "max_usage": "<input name=name type=submit value=\"Save Name\">"
+        },
+        "2": {
+            "setting": "quota",
+            "usage": "0.1523",
+            "max_usage": "337"
+        },
+        "20": {
+            "setting": "language",
+            "usage": [
+                {
+                    "text": "ar",
+                    "value": "ar"
+                },
+                {
+                    "selected": "yes",
+                    "text": "en",
+                    "value": "en"
+                },
+                {
+                    "text": "es",
+                    "value": "es"
+                },
+                {
+                    "text": "fa",
+                    "value": "fa"
+                },
+                {
+                    "text": "fr",
+                    "value": "fr"
+                },
+                {
+                    "text": "hu",
+                    "value": "hu"
+                },
+                {
+                    "text": "nl",
+                    "value": "nl"
+                },
+                {
+                    "text": "pl",
+                    "value": "pl"
+                },
+                {
+                    "text": "pt_BR",
+                    "value": "pt_BR"
+                },
+                {
+                    "text": "ru",
+                    "value": "ru"
+                },
+                {
+                    "text": "sv",
+                    "value": "sv"
+                },
+                {
+                    "text": "tr",
+                    "value": "tr"
+                },
+                {
+                    "text": "uk",
+                    "value": "uk"
+                },
+                {
+                    "text": "zh",
+                    "value": "zh"
+                },
+                {
+                    "text": "zh_Hans",
+                    "value": "zh_Hans"
+                }
+            ],
+            "max_usage": "<input type=submit name=language value=\"Save Language\">"
+        },
+        "21": {
+            "setting": "ip",
+            "usage": [
+                "92.63.169.145"
+            ],
+            "max_usage": ""
+        },
+        "22": {
+            "setting": "ns1",
+            "usage": "ns1.axc.nl",
+            "max_usage": ""
+        },
+        "23": {
+            "setting": "ns2",
+            "usage": "ns2.axc.nl",
+            "max_usage": ""
+        },
+        "24": {
+            "setting": "ssh",
+            "usage": "OFF",
+            "max_usage": ""
+        },
+        "25": {
+            "setting": "ssl",
+            "usage": "ON",
+            "max_usage": ""
+        },
+        "26": {
+            "setting": "cgi",
+            "usage": "ON",
+            "max_usage": ""
+        },
+        "27": {
+            "setting": "php",
+            "usage": "ON",
+            "max_usage": ""
+        },
+        "28": {
+            "setting": "spam",
+            "usage": "ON",
+            "max_usage": ""
+        },
+        "29": {
+            "setting": "catchall",
+            "usage": "OFF",
+            "max_usage": ""
+        },
+        "3": {
+            "setting": "email_quota",
+            "usage": "33 B",
+            "max_usage": ""
+        },
+        "30": {
+            "setting": "aftp",
+            "usage": "OFF",
+            "max_usage": ""
+        },
+        "31": {
+            "setting": "cron",
+            "usage": "ON",
+            "max_usage": ""
+        },
+        "32": {
+            "setting": "sysinfo",
+            "usage": "ON",
+            "max_usage": ""
+        },
+        "33": {
+            "setting": "login_keys",
+            "usage": "ON",
+            "max_usage": ""
+        },
+        "34": {
+            "setting": "dnscontrol",
+            "usage": "ON",
+            "max_usage": ""
+        },
+        "35": {
+            "setting": "suspend_at_limit",
+            "usage": "ON",
+            "max_usage": ""
+        },
+        "36": {
+            "setting": "date_created",
+            "usage": "Mon Jun 20 13:37:26 2022",
+            "max_usage": ""
+        },
+        "37": {
+            "setting": "creator",
+            "usage": "reseller",
+            "max_usage": ""
+        },
+        "38": {
+            "setting": "suspended",
+            "usage": "no"
+        },
+        "39": {
+            "setting": "package",
+            "usage": "userpackage",
+            "max_usage": ""
+        },
+        "4": {
+            "setting": "db_quota",
+            "usage": "0 B",
+            "max_usage": ""
+        },
+        "40": {
+            "setting": "skin",
+            "usage": [
+                {
+                    "selected": "yes",
+                    "text": "Evolution",
+                    "value": "evolution"
+                }
+            ],
+            "max_usage": ""
+        },
+        "41": {
+            "setting": "usertype",
+            "usage": "user",
+            "max_usage": ""
+        },
+        "42": {
+            "setting": "<input type=button onClick=\"location.href=\"\/CMD_USER_HISTORY?user=user\"\" value=\"User History\">"
+        },
+        "5": {
+            "setting": "inode",
+            "usage": "173",
+            "max_usage": "unlimited"
+        },
+        "6": {
+            "setting": "vdomains",
+            "usage": "1",
+            "max_usage": "1"
+        },
+        "7": {
+            "setting": "nsubdomains",
+            "usage": "0",
+            "max_usage": "10"
+        },
+        "8": {
+            "setting": "nemails",
+            "usage": "1",
+            "max_usage": "10"
+        },
+        "9": {
+            "setting": "nemailf",
+            "usage": "0",
+            "max_usage": "0"
+        },
+        "info": {
+            "columns": {
+                "setting": "1",
+                "usage": "2",
+                "max_usage": "3",
+                "extra": "4"
+            },
+            "current_page": "1",
+            "ipp": "99999",
+            "rows": "43",
+            "total_pages": "1"
+        }
+    },
+    "user_email": "user@user.nl, admin@install-versio-da.axc.nl",
+    "vdomains": "1"
+}

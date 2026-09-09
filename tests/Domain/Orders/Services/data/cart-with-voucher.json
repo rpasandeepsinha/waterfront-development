@@ -1,0 +1,18 @@
+{
+    "vouchers": ["voucher-code"],
+    "subscriptions": {
+        "vps": [
+            {
+                "uuid": "82ababbd-45a5-4f03-88f1-4c97f91bf742",
+                "slug": "vps-32-red",
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12,
+                "price": 96,
+                "gross_price": 96,
+                "status": "registration"
+            }
+        ]
+    },
+    "payment_method": "ideal"
+}

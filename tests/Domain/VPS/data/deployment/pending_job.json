@@ -1,0 +1,12 @@
+{
+    "accountid": "4a1c5e71-959d-4020-8d99-72ea104a16d2",
+    "userid": "325c6b09-5a3e-4fa5-8e93-489ec4002555",
+    "cmd": "org.apache.cloudstack.api.command.user.vm.DeployVMCmd",
+    "jobstatus": 0,
+    "jobprocstatus": 0,
+    "jobresultcode": 0,
+    "jobinstancetype": "VirtualMachine",
+    "jobinstanceid": "ead7ee95-bda1-4fd3-9093-4d37238f435b",
+    "created": "2022-12-20T10:57:44+0100",
+    "jobid": "fbede33e-aa89-40ac-bc5f-320b9ae27151"
+}

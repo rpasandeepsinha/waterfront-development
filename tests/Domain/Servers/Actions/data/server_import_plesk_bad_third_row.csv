@@ -1,0 +1,5 @@
+owner,hostname,port,ipv4,ipv6,secret_key,allow_new_websites,maximum_websites,php_version,use_ssl
+sandwave,import-one.dev,2222,127.0.0.1,::1,key-one,0,400,plesk-php82-fastcgi,0
+sandwave,import-two.dev,2222,127.0.0.2,::2,key-two,0,400,plesk-php82-fastcgi,0
+sandwave,not-a-domain,2222,notanipv4,::3,key-three,0,400,plesk-php82-fastcgi,0
+sandwave,import-four.dev,2222,127.0.0.4,::4,key-four,0,400,plesk-php82-fastcgi,0

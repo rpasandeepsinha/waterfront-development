@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet><webspace><add><gen_setup><name>test-domain.com</name><owner-id>1234</owner-id><htype>std_fwd</htype><ip_address>192.0.2.123</ip_address></gen_setup><hosting><std_fwd><dest_url>https://forwarding-domain.com/</dest_url><ip_address>192.0.2.123</ip_address></std_fwd></hosting></add></webspace></packet>

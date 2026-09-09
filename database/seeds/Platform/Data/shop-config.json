@@ -1,0 +1,197 @@
+{
+    "telco": {
+        "changeContractPeriod": 36,
+        "sections": {
+            "domainPeriodSelection": {
+                "show": true,
+                "description": {
+                    "nl": "Selecteer voor hoe lang je het domein vast wilt leggen",
+                    "en": "Select the period for which you want to register the domain"
+                }
+            },
+            "dns": {
+                "show": true,
+                "defaultAddProduct": "premium-dns",
+                "description": {
+                    "nl": "Onze geavanceerde DNS-service zorgt ervoor dat je het domein van optimale prestaties en beveiliging voorziet.",
+                    "en": "Give your domain a speed boost with our new premium service."
+                },
+                "blocks": [
+                    {
+                        "product": "free-dns",
+                        "title": {
+                            "nl": "Standaard",
+                            "en": "Standard"
+                        }
+                    },
+                    {
+                        "badge": {
+                            "nl": "Meest gekozen",
+                            "en": "Popular"
+                        },
+                        "product": "premium-dns",
+                        "usps": {
+                            "nl": "Optimaal beveiligd tegen DDoS aanvallen\nNog hogere snelheid voor je bezoekers\nVerbeterde bereikbaarheid door wereldwijd servernetwerk",
+                            "en": "Optimal security agains DDoS\nHigher speed for you users\nImproved availability through worldwide network of servers"
+                        }
+                    }
+                ]
+            },
+            "web": {
+                "show": true,
+                "defaultAddProduct": "local-web-basic",
+                "description": {
+                    "nl": "Alles wat je nodig hebt voor jouw online succes: het begint met hosting. Welke hosting past bij jou?",
+                    "en": "Everything you need for your online success: it starts with hosting. What hosting suits your needs?"
+                },
+                "blocks": [
+                    {
+                        "title": {
+                            "nl": "Geen",
+                            "en": "None"
+                        },
+                        "description": {
+                            "nl": "Ik wil geen diensten koppelen aan mijn domeinnaam of wil dit later toevoegen via de hosting manager",
+                            "en": "I do not want to link services to my domain name or want to add them later via the hosting manager"
+                        }
+                    },
+                    {
+                        "product": "redirect",
+                        "description": {
+                            "nl": "Stuur je domeinnaam door naar een bestaande website.",
+                            "en": "Redirect your domain to an existing website."
+                        },
+                        "usps": {
+                            "nl": "Verlies geen website bezoekers\nJe content blijft vindbaar in zoekmachines zoals Google\nLokale domeinnamen met één centrale website",
+                            "en": "Don't loose any visitors\nYour content remains listed in search engines like Google\nLocal domains with one central website"
+                        }
+                    },
+                    {
+                        "badge": {
+                            "nl": "73% kiest een website",
+                            "en": "73% choose a website"
+                        },
+                        "product": "local-webonly-grow",
+                        "modalProducts": [
+                            "local-webonly-basic",
+                            "local-webonly-grow",
+                            "local-webonly-start",
+                            "local-webonly-plus"
+                        ],
+                        "usps": {
+                            "nl": "Dit pakket is geschikt voor een WordPress website\n24/7 bescherming tegen virussen, malware en spam\nZakelijke e-mail met je eigen domeinnaam",
+                            "en": "This package is suited to a WordPress website\n24/7 protection from viruses, malware and spam\nBusiness email from your own domain"
+                        }
+                    }
+                ]
+            },
+            "email": {
+                "show": true,
+                "description": {
+                    "nl": "Gebruik zakelijke e-mail met bijv. contact@{domainName} of profiteer ook van alle Microsoft 365 voordelen, zoals Office, Outlook, Teams en OneDrive.",
+                    "en": "Use business email with e.g. contact@{domainName} or also benefit from all Microsoft 365 advantages, such as Office, Outlook, Teams and OneDrive."
+                },
+                "blocks": [
+                    {
+                        "title": {
+                            "nl": "Geen",
+                            "en": "None"
+                        },
+                        "description": {
+                            "nl": "Ik wil geen zakelijke e-mail of Microsoft 365.",
+                            "en": "I don't want business email or Microsoft 365."
+                        }
+                    },
+                    {
+                        "product": "local-mailonly-grow",
+                        "title": {
+                            "nl": "Alleen e-mail",
+                            "en": "Email only"
+                        },
+                        "subtitleProductName": true,
+                        "description": {
+                            "nl": "Mailen met je eigen domeinnaam voor een professionele uitstraling.",
+                            "en": "Send mail with your own domain name for a professional look."
+                        },
+                        "usps": {
+                            "nl": "Webmail\nAntivirus & spamfilter\nRuime e-mailopslag",
+                            "en": "Webmail\nAntivirus & spamfilter\nLarge email storage"
+                        },
+                        "modalProducts": [
+                            "local-mailonly-basic",
+                            "local-mailonly-grow",
+                            "local-mailonly-start",
+                            "local-mailonly-plus"
+                        ]
+                    },
+                    {
+                        "badge": {
+                            "nl": "Aanbevolen",
+                            "en": "Recommended"
+                        },
+                        "product": "microsoft-business-basic",
+                        "title": {
+                            "nl": "Slimme online werkplek",
+                            "en": "Smart online workspace"
+                        },
+                        "subtitleProductName": true,
+                        "description": {
+                            "nl": "Overal in de cloud werken met Outlook, Office apps en Teams, inclusief e-mail.",
+                            "en": "Work anywhere in the cloud with Outlook, Office apps and Teams, including email."
+                        },
+                        "usps": {
+                            "nl": "Office & Outlook web apps\nAgenda beheer\n1000GB OneDrive opslag\nMicrosoft Teams",
+                            "en": "Office & Outlook web apps\nCalendar management\n1000GB OneDrive storage\nMicrosoft Teams"
+                        }
+                    }
+                ]
+            },
+            "ssl": {
+                "show": true,
+                "defaultAddProduct": "Domain Validation SSL",
+                "description": {
+                    "nl": "Beveilig je de verbinding van je website met een SSL-certificaat en laat een veilige verbinding aan je website bezoekers zien.",
+                    "en": "Secure your website connection with an SSL certificate and show a secure connection to your website visitors."
+                },
+                "blocks": [
+                    {
+                        "title": {
+                            "nl": "Ik installeer zelf SSL",
+                            "en": "I will install SSL manually"
+                        },
+                        "cons": {
+                            "nl": "Technische kennis vereist\nZelf verantwoordelijk voor installatie\nEventuele problemen zelf oplossen",
+                            "en": "Requires technical expertise\nYou are responsible for the installation\nYou need to solve all problems"
+                        }
+                    },
+                    {
+                        "badge": {
+                            "nl": "Meest gekozen",
+                            "en": "Popular"
+                        },
+                        "product": "Domain Validation SSL",
+                        "modalProducts": [
+                            "ssl_extended_validation",
+                            "ssl_wildcard",
+                            "Domain Validation SSL"
+                        ],
+                        "usps": {
+                            "nl": "Wij regelen de installatie en onderhoud\nAltijd up-to-date SSL certificaat\nProfessionele ondersteuning van experts",
+                            "en": "We take care of the installation and maintenance\nAlways an up-to-date SSL certificate\nProfessional support by experts"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "m365": {
+        "copilot": {
+            "product": "microsoft-copilot-for-microsoft-365",
+            "usps": {
+                "nl": "AI-assistent schrijft je e-mails, documenten en presentaties in enkele seconden\nOntdek supersnel trends en risico's uit je data die je zelf over het hoofd zou zien\nAutomatische actiepunten en samenvattingen van online vergaderingen",
+                "en": "AI-assistant writes your e-mails, documents and presentations in seconds\nQuickly discover trends and risks from your data that otherwise you would've missed\nAutomatic items and summaries from online meetings"
+            }
+        }
+    },
+    "experiments": {}
+}

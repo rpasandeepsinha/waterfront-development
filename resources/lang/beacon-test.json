@@ -1,0 +1,19 @@
+{
+    "general.form-labels.email": {
+        "locales": {
+            "nl": {
+                "translated_string": "E-mail",
+                "updated_at": "2022-03-18T10:17:07.000000Z",
+                "created_at": "2022-03-18T10:16:24.000000Z"
+            },
+            "en": {
+                "translated_string": "Email",
+                "updated_at": "2022-03-18T10:17:02.000000Z",
+                "created_at": "2022-03-18T10:16:24.000000Z"
+            }
+        },
+        "source": "beacon",
+        "updated_at": "2022-03-18T10:16:24.000000Z",
+        "created_at": "2022-03-18T10:16:24.000000Z"
+    }
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet version="1.6.9.1">
+    <ip>
+        <get>
+            <result>
+                <status>ok</status>
+                <addresses>
+                    <ip_info>
+                        <ip_address>1.1.1.1</ip_address>
+                        <netmask>255.255.255.128</netmask>
+                        <type>shared</type>
+                        <interface>ens3</interface>
+                    </ip_info>
+                    <ip_info>
+                        <ip_address>2a05:1111:222:7:1c00:2bff:fe00:f18</ip_address>
+                        <netmask>64</netmask>
+                        <type>shared</type>
+                        <interface>ens3</interface>
+                    </ip_info>
+                </addresses>
+            </result>
+        </get>
+    </ip>
+</packet>

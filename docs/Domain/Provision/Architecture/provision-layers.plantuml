@@ -1,0 +1,43 @@
+@startuml
+storage Provision {
+    storage Hosting {
+      storage DirectAdmin-Provider {
+        storage DirectAdminClient
+      }
+      storage Plesk-Provider {
+        storage PleskClient
+      }
+    }
+    storage Sitebuilder {
+      storage BaseKit-Provider {
+        storage BaseKitClient
+      }
+    }
+    storage Redirect {
+      storage Caddy-Provider {
+        storage CaddyClient
+      }
+    }
+    storage Backup {
+      storage Acronis-Provider {
+        storage AcronisClient
+      }
+    }
+    storage M365 {
+      storage MicrosoftOnline-Provider {
+        storage MicrosoftOnlineClient
+      }
+      storage MicrosoftGraph-Provider {
+        storage GraphServiceClient
+      }
+    }
+    storage DomainNameCoupling {
+      storage InternalProvider
+    }
+}
+Hosting -[hidden]- Sitebuilder
+Sitebuilder -[hidden]- Redirect
+Redirect -[hidden]- Backup
+Backup -[hidden]- M365
+M365 -[hidden]- DomainNameCoupling
+@enduml

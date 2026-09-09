@@ -1,0 +1,104 @@
+{
+    "metadata": {
+        "renewDomainPeriods": [
+            1,
+            12
+        ],
+        "adjustableAuthCode": true,
+        "createDomainPeriods": [
+            1,
+            12
+        ],
+        "customAuthcodeSupport": true,
+        "adminContacts": {
+            "min": 0,
+            "max": 1,
+            "required": false,
+            "organizationRequired": false,
+            "organizationAllowed": true
+        },
+        "billingContacts": {
+            "min": 0,
+            "max": 1,
+            "required": false,
+            "organizationRequired": false,
+            "organizationAllowed": true
+        },
+        "techContacts": {
+            "min": 0,
+            "max": 3,
+            "required": false,
+            "organizationRequired": false,
+            "organizationAllowed": true
+        },
+        "nameservers": {
+            "min": 2,
+            "max": 13,
+            "required": true
+        },
+        "possibleClientDomainStatuses": [
+            "CLIENT_HOLD"
+        ],
+        "domainSyntax": {
+            "minLength": 1,
+            "maxLength": 63,
+            "idnType": "UTS46_2003_TRANSITIONAL",
+            "allowedCharacters": "0123456789abcdefghijklmnopqrstuvwxyz-áàăâåäãąāæćĉčċçďđéèĕêěëėęēğĝġģĥħíìĭîïĩįīıĵķĺľļłńňñņŋóòŏôöőõøōœĸŕřŗśŝšşßťţŧúùŭûůüűũųūŵýŷÿźžżðþ",
+            "idnSupport": true
+        },
+        "autoRenewDomainPeriods": [
+            1,
+            12
+        ],
+        "allowedDnssecRecords": 5,
+        "allowedDnssecAlgorithms": [
+            3,
+            5,
+            6,
+            7,
+            8,
+            10,
+            12,
+            13,
+            14
+        ],
+        "transferDomainPeriods": [
+            1,
+            12
+        ],
+        "transferRequiresAuthcode": true,
+        "transferSupportsAuthcode": true,
+        "premiumSupport": "NO",
+        "registrantChangeTransferLock": false,
+        "sendWdrpNotifications": false,
+        "sendErrpNotifications": true,
+        "renewalOnTransfer": "RENEW_UNLESS_GRACE",
+        "restoreIncludesRenew": false,
+        "transferLockDays": null,
+        "registrant": {
+            "organizationRequired": false,
+            "organizationAllowed": true
+        },
+        "expiryDateOffset": 21600,
+        "registrantChangeApprovalRequired": false,
+        "featuresAvailable": [
+            "TRANSFER",
+            "UPDATE",
+            "PUSH_TRANSFER",
+            "RESTORE",
+            "CREATE"
+        ],
+        "creationRequiresPreValidation": false,
+        "transferFOA": false,
+        "zoneCheck": "http://www.denic.de/en/background/nast.html",
+        "jurisdiction": "DE",
+        "termsOfService": "https://www.denic.de/en/domain-terms-and-conditions/",
+        "privacyPolicy": "https://www.denic.de/en/about-denic/data-privacy-statement/",
+        "whoisExposure": "FULL",
+        "gdprCategory": "EU_BASED"
+    },
+    "provider": "Denic",
+    "applicableFor": [
+        "de"
+    ]
+}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openXML>
+    <reply>
+        <code>0</code>
+        <desc></desc>
+        <data>
+            <companyName>Hosting Unlimited</companyName>
+            <name>
+                <initials>J.B.</initials>
+                <firstName>John</firstName>
+                <prefix>van</prefix>
+                <lastName>Halen</lastName>
+            </name>
+            <gender>M</gender>
+            <phone>
+                <countryCode>+31</countryCode>
+                <areaCode>6</areaCode>
+                <subscriberNumber>12345678</subscriberNumber>
+            </phone>
+            <fax>
+                <countryCode>+31</countryCode>
+                <areaCode>6</areaCode>
+                <subscriberNumber>12345678</subscriberNumber>
+            </fax>
+            <address>
+                <street>Main Street</street>
+                <number>2</number>
+                <zipcode>630060</zipcode>
+                <city>Washington</city>
+                <country>US</country>
+                <suffix>a</suffix>
+            </address>
+            <email>info@openprovider.nl</email>
+            <handle>JH000001-US</handle>
+            <comments></comments>
+        </data>
+    </reply>
+</openXML>

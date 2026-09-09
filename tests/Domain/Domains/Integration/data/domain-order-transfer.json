@@ -1,0 +1,43 @@
+{
+    "customer_id": 1001,
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [
+            {
+                "uuid": "fda0da0b-4678-4716-ae8b-b30c62139137",
+                "status": "registration",
+                "domain": "domain-order-test.nl",
+                "children": {
+                    "dns": [
+                        {
+                            "uuid": "ad673cf3-f128-456a-8c01-498d48ba12f8",
+                            "billing_period": 12,
+                            "contract_period": 12,
+                            "price": 0,
+                            "gross_price": 0,
+                            "name": "Gratis DNS",
+                            "slug": "free-dns",
+                            "status": "registration",
+                            "domain": "domain-order-test.nl"
+                        }
+                    ]
+                },
+                "billing_period": 12,
+                "contract_period": 12,
+                "price": 99,
+                "gross_price": 99,
+                "name": ".nl",
+                "slug": "extension_nl",
+                "transfer_secret": "transfer-code"
+            }
+        ],
+        "hosting": [],
+        "ssl": [],
+        "vps": [],
+        "microsoft-365": [],
+        "reseller-hosting": [],
+        "add-on": [],
+        "other": []
+    },
+    "create_direct_debit_mandate": false
+}

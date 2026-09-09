@@ -1,0 +1,74 @@
+[
+    {
+        "id": 1,
+        "title": "Category#1",
+        "created_by": null,
+        "updated_by": 5,
+        "created_at": "2020-06-17T07:09:20.000Z",
+        "updated_at": "2021-07-30T08:19:09.000Z",
+        "locale": "en",
+        "blogs": [
+            {
+                "id": 1002,
+                "title": "BlogPost#2",
+                "slug": "blog-post-2",
+                "language": "en",
+                "publish_at": "2020-09-04T10:00:00.000Z",
+                "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris aliquet mi finibus erat lobortis porta. Vestibulum congue nulla eget lobortis cursus. Duis erat nisl, scelerisque ac pretium eu, dictum a ex. Donec sit amet leo dapibus, pharetra nisl in, scelerisque nunc. Ut non augue lorem. Aenean accumsan ex quis dapibus feugiat. Sed in accumsan purus. Mauris magna orci, accumsan eu magna et, vestibulum vehicula ante. Curabitur ultricies quam quis odio lobortis interdum. Vivamus efficitur euismod leo at rhoncus. Aenean facilisis molestie suscipit. Maecenas eget eros risus.",
+                "author": {
+                    "id": 4,
+                    "name": "Daphne den Hartogh",
+                    "created_by": null,
+                    "updated_by": null,
+                    "created_at": "2020-06-16T13:58:58.000Z",
+                    "updated_at": "2020-06-16T14:07:16.000Z"
+                },
+                "created_at": "2020-09-04T14:49:29.000Z",
+                "updated_at": "2021-07-30T08:43:33.000Z",
+                "category": 1,
+                "description": "Get started right away with these four tips, and give your website an SEO boost in a short time.",
+                "created_by": 2,
+                "updated_by": 5,
+                "publishat": null,
+                "locale": "en",
+                "oembed": null
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "title": "Category#2",
+        "created_by": null,
+        "updated_by": 5,
+        "created_at": "2020-07-03T11:41:28.000Z",
+        "updated_at": "2021-07-30T08:19:29.000Z",
+        "locale": "en",
+        "blogs": [
+            {
+                "id": 1002,
+                "title": "BlogPost#2",
+                "slug": "can-i-install-an-ssl-certificate-without-a-dedicated-ip-address",
+                "language": "en",
+                "publish_at": "2021-01-01T07:47:39.000Z",
+                "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris aliquet mi finibus erat lobortis porta. Vestibulum congue nulla eget lobortis cursus. Duis erat nisl, scelerisque ac pretium eu, dictum a ex. Donec sit amet leo dapibus, pharetra nisl in, scelerisque nunc. Ut non augue lorem. Aenean accumsan ex quis dapibus feugiat. Sed in accumsan purus. Mauris magna orci, accumsan eu magna et, vestibulum vehicula ante. Curabitur ultricies quam quis odio lobortis interdum. Vivamus efficitur euismod leo at rhoncus. Aenean facilisis molestie suscipit. Maecenas eget eros risus.",
+                "author": {
+                    "id": 2,
+                    "name": "Support Versio",
+                    "created_by": null,
+                    "updated_by": 2,
+                    "created_at": "2020-06-16T13:58:41.000Z",
+                    "updated_at": "2021-05-12T11:07:31.000Z"
+                },
+                "created_at": "2021-05-12T10:09:16.000Z",
+                "updated_at": "2022-03-11T10:46:33.000Z",
+                "category": null,
+                "description": "",
+                "created_by": null,
+                "updated_by": 5,
+                "publishat": null,
+                "locale": "en",
+                "oembed": null
+            }
+        ]
+    }
+]

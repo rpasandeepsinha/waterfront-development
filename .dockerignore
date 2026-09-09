@@ -1,0 +1,4 @@
+vendor
+storage/logs/*
+.git
+resources/assets/admin/node_modules

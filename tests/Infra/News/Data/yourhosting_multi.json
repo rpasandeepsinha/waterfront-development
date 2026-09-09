@@ -1,0 +1,31 @@
+{
+    "data": {
+        "1": {
+            "id": 1,
+            "title": "Gratis YourWebshop eerste maand",
+            "url": "https:\/\/yourhosting.nl",
+            "language": "Dutch",
+            "date": "14\/11\/2023",
+            "description": "Altijd al gedroomd?",
+            "cover": {
+                "medium": "https:\/\/upload.wikimedia.org\/wikipedia\/commons\/thumb\/a\/a2\/BBC_News_2022_%28Alt%29.svg\/1200px-BBC_News_2022_%28Alt%29.svg.png"
+            },
+            "ishtml": true
+        },
+        "2": {
+            "id": 2,
+            "title": "Gratis YourWebshop tweende maand",
+            "url": "https:\/\/yourhosting.nl",
+            "language": "Dutch",
+            "date": "14\/11\/2023",
+            "description": "bla",
+            "cover": {
+                "medium": "https:\/\/upload.wikimedia.org\/wikipedia\/commons\/thumb\/a\/a2\/BBC_News_2022_%28Alt%29.svg\/1200px-BBC_News_2022_%28Alt%29.svg.png"
+            },
+            "ishtml": true
+        }
+    },
+    "links": {
+        "overview": "https:\/\/www.yourhosting.nl\/blog\/"
+    }
+}

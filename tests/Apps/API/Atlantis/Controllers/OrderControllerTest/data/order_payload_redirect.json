@@ -1,0 +1,25 @@
+{
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [],
+        "hosting": [],
+        "ssl": [],
+        "vps": [],
+        "reseller-hosting": [],
+        "add-on": [],
+        "redirect" : [
+            {
+                "uuid": "ad673cf3-f128-456a-8c01-498d48ba12f8",
+                "slug": "redirect",
+                "name": "redirect",
+                "billing_period": 12,
+                "contract_period": 12,
+                "domain": "test-redirect-domain.com",
+                "period": 12,
+                "price": 1120,
+                "gross_price": 1120,
+                "status": "registration"
+            }
+        ]
+    }
+}

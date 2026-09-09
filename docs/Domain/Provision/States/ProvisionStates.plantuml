@@ -1,0 +1,24 @@
+@startuml
+title Provision status
+
+[*] -->  PENDING : Start Provision Request
+PENDING --> SUCCESS : Provision\nsuccess
+PENDING --> FAILED : Provision failed
+PENDING --> VALIDATION_FAILED : Validation failed
+PENDING --> RETRYING
+PENDING <-- RETRYING
+
+SUCCESS --> PENDING : Request from\nexisting provision\ni.e. update
+
+SUCCESS : Rest state for Provision
+RETRYING : Retrying provision internally
+
+SUCCESS --> DELETING : Starting termination
+DELETING --> DELETED : Deletion success
+DELETING --> DELETION_FAILED : Deletion failed
+
+FAILED --> [*]
+DELETED --> [*]
+DELETION_FAILED --> [*]
+VALIDATION_FAILED --> [*]
+@enduml

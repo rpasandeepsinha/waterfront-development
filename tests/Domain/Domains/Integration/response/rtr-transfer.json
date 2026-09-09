@@ -1,0 +1,17 @@
+{
+    "domainName": "domain-order-test.nl",
+    "expiryDate": "2024-09-11T09:15:20Z",
+    "actionDate":  "2024-06-11T09:16:27Z",
+    "status": "completed",
+    "requestedDate": "2024-06-11T09:16:25Z",
+    "type": "IN",
+    "log": [
+        {
+            "date": "2024-06-11T09:16:27Z",
+            "status": "completed",
+            "message": "Transfer completed"
+        }
+    ],
+    "processId": 57623861,
+    "registrar":  "sandwave-ote1"
+}

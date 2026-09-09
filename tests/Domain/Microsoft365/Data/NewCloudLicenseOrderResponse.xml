@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<NewCloudLicenseOrderResponse_V4>
+    <Header>
+        <DateCreated>2022-12-01T17:42:57.3914412+01:00</DateCreated>
+    </Header>
+    <Status>
+        <Code>Active</Code>
+    </Status>
+    <CloudLicense>
+        <OrderId>10264351</OrderId>
+        <CustomerId>1323371</CustomerId>
+        <ProductCode>120A00180B</ProductCode>
+        <Quantity>1</Quantity>
+    </CloudLicense>
+</NewCloudLicenseOrderResponse_V4>

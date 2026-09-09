@@ -1,0 +1,3542 @@
+{
+    "general.copyright-disclaimer": {
+        "locales": {
+            "nl": {
+                "translated_string": "Copyright © 2008-{currentYear} {brandUrl}"
+            },
+            "en": {
+                "translated_string": "Copyright © 2008-{currentYear} {brandUrl}"
+            }
+        }
+    },
+    "general.footer.customer-rating-total": {
+        "locales": {
+            "nl": {
+                "translated_string": "4,2 van de 5"
+            },
+            "en": {
+                "translated_string": "4.2 out of 5"
+            }
+        }
+    },
+    "general.form-labels.email": {
+        "locales": {
+            "nl": {
+                "translated_string": "E-mail"
+            },
+            "en": {
+                "translated_string": "Email"
+            }
+        }
+    },
+    "general.form-labels.email-confirm": {
+        "locales": {
+            "nl": {
+                "translated_string": "Bevestig e-mail"
+            },
+            "en": {
+                "translated_string": "Confirm email"
+            }
+        }
+    },
+    "general.form-labels.email-address": {
+        "locales": {
+            "nl": {
+                "translated_string": "E-mailadres"
+            },
+            "en": {
+                "translated_string": "Email address"
+            }
+        }
+    },
+    "general.form-labels.username": {
+        "locales": {
+            "nl": {
+                "translated_string": "Gebruikersnaam / Klantnummer"
+            },
+            "en": {
+                "translated_string": "Username / Customer number"
+            }
+        }
+    },
+    "general.form-labels.password": {
+        "locales": {
+            "nl": {
+                "translated_string": "Wachtwoord"
+            },
+            "en": {
+                "translated_string": "Password"
+            }
+        }
+    },
+    "general.form-labels.password-confirm": {
+        "locales": {
+            "nl": {
+                "translated_string": "Bevestig wachtwoord"
+            },
+            "en": {
+                "translated_string": "Confirm password"
+            }
+        }
+    },
+    "general.form-labels.password.hint": {
+        "locales": {
+            "nl": {
+                "translated_string": "Minimaal 8 tekens lang"
+            },
+            "en": {
+                "translated_string": "At least 8 characters long"
+            }
+        }
+    },
+    "general.form-labels.two-factor": {
+        "locales": {
+            "nl": {
+                "translated_string": "Two-factor verificatiecode"
+            },
+            "en": {
+                "translated_string": "Two-factor verification code"
+            }
+        }
+    },
+    "general.form-labels.optional": {
+        "locales": {
+            "nl": {
+                "translated_string": "Optioneel"
+            },
+            "en": {
+                "translated_string": "Optional"
+            }
+        }
+    },
+    "general.form-labels.totp": {
+        "locales": {
+            "nl": {
+                "translated_string": "Multi-factor"
+            },
+            "en": {
+                "translated_string": "Multi-factor"
+            }
+        }
+    },
+    "general.form-labels.verify-code": {
+        "locales": {
+            "nl": {
+                "translated_string": "Verificatiecode"
+            },
+            "en": {
+                "translated_string": "Verify code"
+            }
+        }
+    },
+    "general.submit": {
+        "locales": {
+            "nl": {
+                "translated_string": "Indienen"
+            },
+            "en": {
+                "translated_string": "Submit"
+            }
+        }
+    },
+    "general.login": {
+        "locales": {
+            "nl": {
+                "translated_string": "Log in"
+            },
+            "en": {
+                "translated_string": "Log in"
+            }
+        }
+    },
+    "general.loading": {
+        "locales": {
+            "nl": {
+                "translated_string": "Laden"
+            },
+            "en": {
+                "translated_string": "Loading"
+            }
+        }
+    },
+    "general.navigation.products": {
+        "locales": {
+            "nl": {
+                "translated_string": "Mijn producten"
+            },
+            "en": {
+                "translated_string": "My products"
+            }
+        }
+    },
+    "general.navigation.order": {
+        "locales": {
+            "nl": {
+                "translated_string": "Bestellen"
+            },
+            "en": {
+                "translated_string": "Order"
+            }
+        }
+    },
+    "general.navigation.order-button": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ga naar de shop"
+            },
+            "en": {
+                "translated_string": "Go to the shop"
+            }
+        }
+    },
+    "general.navigation.dashboard": {
+        "locales": {
+            "nl": {
+                "translated_string": "Dashboard"
+            },
+            "en": {
+                "translated_string": "Dashboard"
+            }
+        }
+    },
+    "general.navigation.domains": {
+        "locales": {
+            "nl": {
+                "translated_string": "Domeinnamen"
+            },
+            "en": {
+                "translated_string": "Domains"
+            }
+        }
+    },
+    "general.navigation.hosting": {
+        "locales": {
+            "nl": {
+                "translated_string": "Hosting & E-mail"
+            },
+            "en": {
+                "translated_string": "Hosting & Email"
+            }
+        }
+    },
+    "general.navigation.ssl": {
+        "locales": {
+            "nl": {
+                "translated_string": "SSL"
+            },
+            "en": {
+                "translated_string": "SSL"
+            }
+        }
+    },
+    "general.navigation.vps": {
+        "locales": {
+            "nl": {
+                "translated_string": "VPS"
+            },
+            "en": {
+                "translated_string": "VPS"
+            }
+        }
+    },
+    "general.navigation.transfer": {
+        "locales": {
+            "nl": {
+                "translated_string": "Productoverdrachten"
+            },
+            "en": {
+                "translated_string": "Product transfers"
+            }
+        }
+    },
+    "general.navigation.account": {
+        "locales": {
+            "nl": {
+                "translated_string": "Account"
+            },
+            "en": {
+                "translated_string": "Account"
+            }
+        }
+    },
+    "general.navigation.profile": {
+        "locales": {
+            "nl": {
+                "translated_string": "Mijn gegevens"
+            },
+            "en": {
+                "translated_string": "My profile"
+            }
+        }
+    },
+    "general.navigation.profile-and-settings": {
+        "locales": {
+            "nl": {
+                "translated_string": "Gegevens & instellingen"
+            },
+            "en": {
+                "translated_string": "Profile & settings"
+            }
+        }
+    },
+    "general.navigation.identities": {
+        "locales": {
+            "nl": {
+                "translated_string": "Gebruikers"
+            },
+            "en": {
+                "translated_string": "Users"
+            }
+        }
+    },
+    "general.navigation.invoices": {
+        "locales": {
+            "nl": {
+                "translated_string": "Facturen"
+            },
+            "en": {
+                "translated_string": "Invoices"
+            }
+        }
+    },
+    "general.navigation.security": {
+        "locales": {
+            "nl": {
+                "translated_string": "Beveiliging"
+            },
+            "en": {
+                "translated_string": "Security"
+            }
+        }
+    },
+    "general.navigation.contact": {
+        "locales": {
+            "nl": {
+                "translated_string": "Contact"
+            },
+            "en": {
+                "translated_string": "Contact"
+            }
+        }
+    },
+    "general.navigation.other-products": {
+        "locales": {
+            "nl": {
+                "translated_string": "Overige producten"
+            },
+            "en": {
+                "translated_string": "Other products"
+            }
+        }
+    },
+    "general.navigation.microsoft-365": {
+        "locales": {
+            "nl": {
+                "translated_string": "Microsoft 365"
+            },
+            "en": {
+                "translated_string": "Microsoft 365"
+            }
+        }
+    },
+    "general.navigation.cookie-statement": {
+        "locales": {
+            "nl": {
+                "translated_string": "Cookieverklaring"
+            },
+            "en": {
+                "translated_string": "Cookie Statement"
+            }
+        }
+    },
+    "general.navigation.disclaimer": {
+        "locales": {
+            "nl": {
+                "translated_string": "Disclaimer"
+            },
+            "en": {
+                "translated_string": "Disclaimer"
+            }
+        }
+    },
+    "general.navigation.help": {
+        "locales": {
+            "nl": {
+                "translated_string": "Hulp nodig?"
+            },
+            "en": {
+                "translated_string": "Need help?"
+            }
+        }
+    },
+    "general.navigation.helpdesk": {
+        "locales": {
+            "nl": {
+                "translated_string": "Klantenservice"
+            },
+            "en": {
+                "translated_string": "Customer service"
+            }
+        }
+    },
+    "general.navigation.phone": {
+        "locales": {
+            "nl": {
+                "translated_string": "038 - 850 9600"
+            },
+            "en": {
+                "translated_string": "038 - 850 9600"
+            }
+        }
+    },
+    "general.navigation.phone-link": {
+        "locales": {
+            "nl": {
+                "translated_string": "tel:0031388509600"
+            },
+            "en": {
+                "translated_string": "tel:0031388509600"
+            }
+        }
+    },
+    "general.navigation.privacy-policy": {
+        "locales": {
+            "nl": {
+                "translated_string": "Privacy policy"
+            },
+            "en": {
+                "translated_string": "Privacy Policy"
+            }
+        }
+    },
+    "general.navigation.processing-agreement": {
+        "locales": {
+            "nl": {
+                "translated_string": "Verwerkersovereenkomst"
+            },
+            "en": {
+                "translated_string": "Processing Agreement"
+            }
+        }
+    },
+    "general.navigation.terms-and-conditions": {
+        "locales": {
+            "nl": {
+                "translated_string": "Algemene Voorwaarden"
+            },
+            "en": {
+                "translated_string": "Terms and Conditions"
+            }
+        }
+    },
+    "general.navigation.customer-journey.steps.step-1": {
+        "locales": {
+            "nl": {
+                "translated_string": "Kies je dienst"
+            },
+            "en": {
+                "translated_string": "Choose your service"
+            }
+        }
+    },
+    "general.navigation.customer-journey.steps.step-2": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je gegevens"
+            },
+            "en": {
+                "translated_string": "Your details"
+            }
+        }
+    },
+    "general.navigation.customer-journey.steps.step-3": {
+        "locales": {
+            "nl": {
+                "translated_string": "Kassa"
+            },
+            "en": {
+                "translated_string": "Checkout"
+            }
+        }
+    },
+    "general.payment-options": {
+        "locales": {
+            "nl": {
+                "translated_string": "Betaalmethoden"
+            },
+            "en": {
+                "translated_string": "Payment Options"
+            }
+        }
+    },
+    "general.hide-password": {
+        "locales": {
+            "nl": {
+                "translated_string": "Verberg wachtwoord"
+            },
+            "en": {
+                "translated_string": "Hide password"
+            }
+        }
+    },
+    "general.show-password": {
+        "locales": {
+            "nl": {
+                "translated_string": "Toon wachtwoord"
+            },
+            "en": {
+                "translated_string": "Show password"
+            }
+        }
+    },
+    "general.social-media": {
+        "locales": {
+            "nl": {
+                "translated_string": "Volg ons op social media..."
+            },
+            "en": {
+                "translated_string": "Follow us on social media..."
+            }
+        }
+    },
+    "general.to-login": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ga terug naar de loginpagina."
+            },
+            "en": {
+                "translated_string": "Go back to the login page."
+            }
+        }
+    },
+    "modules.api-client.http_unsuccesful_notification": {
+        "locales": {
+            "nl": {
+                "translated_string": "Er ging iets mis bij het verwerken van jouw aanvraag. Probeer het a.u.b. opnieuw, of neem contact op met de klantenservice."
+            },
+            "en": {
+                "translated_string": "Something went wrong while processing your request. Please try again, or contact customer service."
+            }
+        }
+    },
+    "general.cancel": {
+        "locales": {
+            "nl": {
+                "translated_string": "Annuleren"
+            },
+            "en": {
+                "translated_string": "Cancel"
+            }
+        }
+    },
+    "pages.404.header": {
+        "locales": {
+            "nl": {
+                "translated_string": "Deze pagina bestaat niet"
+            },
+            "en": {
+                "translated_string": "This page does not exist"
+            }
+        }
+    },
+    "pages.404.go_back": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ga terug"
+            },
+            "en": {
+                "translated_string": "Go back"
+            }
+        }
+    },
+    "pages.auth.existing-customer": {
+        "locales": {
+            "nl": {
+                "translated_string": "Bestaande klant"
+            },
+            "en": {
+                "translated_string": "Existing customer"
+            }
+        }
+    },
+    "pages.auth.login-or-register": {
+        "locales": {
+            "nl": {
+                "translated_string": "Inloggen of aanmelden"
+            },
+            "en": {
+                "translated_string": "Login or register"
+            }
+        }
+    },
+    "pages.auth.identity-input.hint": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ook je gebruikersnaam of klantnummer werkt."
+            },
+            "en": {
+                "translated_string": "Your username or customer number also works."
+            }
+        }
+    },
+    "pages.auth.identity-input.new-customer": {
+        "locales": {
+            "nl": {
+                "translated_string": "Nog geen account? Die maak je op de volgende stap aan."
+            },
+            "en": {
+                "translated_string": "No account yet? You can create one in the next step."
+            }
+        }
+    },
+    "pages.auth.general.client.error": {
+        "locales": {
+            "nl": {
+                "translated_string": "Inloggen mislukt, als dit zich blijft voordoen neem a.u.b. contact op met de helpdesk."
+            },
+            "en": {
+                "translated_string": "Failed to log in, please try again. If this error keeps occuring please contact our help desk."
+            }
+        }
+    },
+    "pages.auth.general.login.error": {
+        "locales": {
+            "nl": {
+                "translated_string": "Uw identiteit/wachtwoord zijn onjuist."
+            },
+            "en": {
+                "translated_string": "Your identity/password are invalid."
+            }
+        }
+    },
+    "pages.auth.login-button": {
+        "locales": {
+            "nl": {
+                "translated_string": "Inloggen"
+            },
+            "en": {
+                "translated_string": "Log in"
+            }
+        }
+    },
+    "pages.auth.login.via-google": {
+        "locales": {
+            "nl": {
+                "translated_string": "Via Google"
+            },
+            "en": {
+                "translated_string": "Via Google"
+            }
+        }
+    },
+    "pages.auth.login.or": {
+        "locales": {
+            "nl": {
+                "translated_string": "OF"
+            },
+            "en": {
+                "translated_string": "OR"
+            }
+        }
+    },
+    "pages.auth.not-a-customer-yet": {
+        "locales": {
+            "nl": {
+                "translated_string": "Nog geen klant bij {brand}?"
+            },
+            "en": {
+                "translated_string": "Not a {brand} customer yet?"
+            }
+        }
+    },
+    "pages.auth.not-a-customer-yet.intro-text": {
+        "locales": {
+            "nl": {
+                "translated_string": "Om gebruik te maken van het klantenpaneel van {brand} heb je een account nodig. Door te registreren profiteer je direct van de vele voordelen van ons gebruiksvriendelijke klantenpaneel"
+            },
+            "en": {
+                "translated_string": "In order to use the {brand} customer panel you need an account. By signing up you experience many advantages of our easy to use customer panel "
+            }
+        }
+    },
+    "pages.auth.not-a-customer-yet.up-sells": {
+        "locales": {
+            "nl": {
+                "translated_string": "Realtime domeinregistratie|Realtime beheer van al uw producten|Al uw facturen op één plek|En veel meer..."
+            },
+            "en": {
+                "translated_string": "Realtime domain registration|Realtime product management|All invoices in one place|And more..."
+            }
+        }
+    },
+    "pages.auth.choose-business-unit": {
+        "locales": {
+            "nl": {
+                "translated_string": "Welkom terug bij {brand}"
+            },
+            "en": {
+                "translated_string": "Welcome back to {brand}"
+            }
+        }
+    },
+    "pages.auth.choose-business-unit.intro-text": {
+        "locales": {
+            "nl": {
+                "translated_string": "Kies een paneel om door te gaan"
+            },
+            "en": {
+                "translated_string": "Choose a panel to continue"
+            }
+        }
+    },
+    "pages.auth.choose-business-unit.up-sells": {
+        "locales": {
+            "nl": {
+                "translated_string": "Realtime domeinregistratie|Realtime beheer van al uw producten|Al uw facturen op één plek|En veel meer..."
+            },
+            "en": {
+                "translated_string": "Realtime domain registration|Realtime product management|All invoices in one place|And more..."
+            }
+        }
+    },
+    "pages.auth.general.register.error": {
+        "locales": {
+            "nl": {
+                "translated_string": "Registreren mislukt, als dit zich blijft voordoen neem a.u.b. contact op met de helpdesk."
+            },
+            "en": {
+                "translated_string": "Failed to register, please try again. If this error keeps occurring please contact our help desk."
+            }
+        }
+    },
+    "pages.auth.general.register.error-email-mismatch": {
+        "locales": {
+            "nl": {
+                "translated_string": "De email velden komen niet overeen"
+            },
+            "en": {
+                "translated_string": "The email fields do not match"
+            }
+        }
+    },
+    "pages.auth.general.register.error-password-mismatch": {
+        "locales": {
+            "nl": {
+                "translated_string": "De wachtwoord velden komen niet overeen"
+            },
+            "en": {
+                "translated_string": "The password fields do not match"
+            }
+        }
+    },
+    "pages.kratos-register.title": {
+        "locales": {
+            "nl": {
+                "translated_string": "Maak je account aan"
+            },
+            "en": {
+                "translated_string": "Create your account"
+            }
+        }
+    },
+    "pages.kratos-register.subtitle": {
+        "locales": {
+            "nl": {
+                "translated_string": "Hiermee log je straks in op Mijn {brand} om je diensten te beheren."
+            },
+            "en": {
+                "translated_string": "You will use this to log in to My {brand} later to manage your services."
+            }
+        }
+    },
+    "pages.kratos-register.unknown-email": {
+        "locales": {
+            "nl": {
+                "translated_string": "We kennen dit e-mailadres nog niet:"
+            },
+            "en": {
+                "translated_string": "We do not know this email address yet:"
+            }
+        }
+    },
+    "pages.kratos-register.choose-password": {
+        "locales": {
+            "nl": {
+                "translated_string": "Kies een wachtwoord."
+            },
+            "en": {
+                "translated_string": "Choose a password."
+            }
+        }
+    },
+    "pages.register.address": {
+        "locales": {
+            "nl": {
+                "translated_string": "Adres"
+            },
+            "en": {
+                "translated_string": "Address"
+            }
+        }
+    },
+    "pages.register.already-registered": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ik heb al een account"
+            },
+            "en": {
+                "translated_string": "I already have an account"
+            }
+        }
+    },
+    "pages.register.business": {
+        "locales": {
+            "nl": {
+                "translated_string": "Zakelijk"
+            },
+            "en": {
+                "translated_string": "Business"
+            }
+        }
+    },
+    "pages.register.contact": {
+        "locales": {
+            "nl": {
+                "translated_string": "Contactpersoon"
+            },
+            "en": {
+                "translated_string": "Contact"
+            }
+        }
+    },
+    "pages.register.contactdata": {
+        "locales": {
+            "nl": {
+                "translated_string": "Contactgegevens"
+            },
+            "en": {
+                "translated_string": "Contact data"
+            }
+        }
+    },
+    "pages.register.alreadyknownpart1": {
+        "locales": {
+            "nl": {
+                "translated_string": "Heb je al een account? Klik"
+            },
+            "en": {
+                "translated_string": "Already own an account? Click"
+            }
+        }
+    },
+    "pages.register.alreadyknownpart2": {
+        "locales": {
+            "nl": {
+                "translated_string": "om in te loggen."
+            },
+            "en": {
+                "translated_string": "to log in."
+            }
+        }
+    },
+    "pages.register.createaccountasnewcustomer": {
+        "locales": {
+            "nl": {
+                "translated_string": "Aanmelden als nieuwe klant"
+            },
+            "en": {
+                "translated_string": "Sign up as new customer"
+            }
+        }
+    },
+    "pages.register.existing-customers-usp.pre": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je bent in goed gezelschap"
+            },
+            "en": {
+                "translated_string": "You're in good company"
+            }
+        }
+    },
+    "pages.register.existing-customers-usp.main": {
+        "locales": {
+            "nl": {
+                "translated_string": "176.814 Klanten"
+            },
+            "en": {
+                "translated_string": "176,814 Customers"
+            }
+        }
+    },
+    "pages.register.existing-customers-usp.post": {
+        "locales": {
+            "nl": {
+                "translated_string": "voelen zich al thuis bij Versio!"
+            },
+            "en": {
+                "translated_string": "already feel at home with Versio!"
+            }
+        }
+    },
+    "pages.register.fillyourdata": {
+        "locales": {
+            "nl": {
+                "translated_string": "Vul je gegevens in om je te registreren bij {brand}."
+            },
+            "en": {
+                "translated_string": "Fill in this form to register at {brand}."
+            }
+        }
+    },
+    "pages.register.private": {
+        "locales": {
+            "nl": {
+                "translated_string": "Privé"
+            },
+            "en": {
+                "translated_string": "Private"
+            }
+        }
+    },
+    "pages.register.salutation": {
+        "locales": {
+            "nl": {
+                "translated_string": "Aanhef"
+            },
+            "en": {
+                "translated_string": "Salutation"
+            }
+        }
+    },
+    "pages.register.salutation.m": {
+        "locales": {
+            "nl": {
+                "translated_string": "Dhr"
+            },
+            "en": {
+                "translated_string": "Mr"
+            }
+        }
+    },
+    "pages.register.salutation.f": {
+        "locales": {
+            "nl": {
+                "translated_string": "Mevr"
+            },
+            "en": {
+                "translated_string": "Ms"
+            }
+        }
+    },
+    "pages.register.salutation.x": {
+        "locales": {
+            "nl": {
+                "translated_string": "Liever geen van beide"
+            },
+            "en": {
+                "translated_string": "Preferably neither"
+            }
+        }
+    },
+    "pages.register.secure-usp.header": {
+        "locales": {
+            "nl": {
+                "translated_string": "Beveiligde verbinding"
+            },
+            "en": {
+                "translated_string": "Secure connection"
+            }
+        }
+    },
+    "pages.register.secure-usp.text": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je bevindt je op een beveiligde verbinding met Versio. Alle gegevens worden versleuteld over het internet verstuurd."
+            },
+            "en": {
+                "translated_string": "You are on a secure connection to Versio. All data will be transmitted over the internet safely encrypted."
+            }
+        }
+    },
+    "pages.register.illustration.alt": {
+        "locales": {
+            "nl": {
+                "translated_string": "Een foto van een glimlachende man die een gebogen stuk board vasthoudt die lijkt op een deel van het Versio logo"
+            },
+            "en": {
+                "translated_string": "A picture of a smiling man holding a curved piece of board representing part of the Versio logo"
+            }
+        }
+    },
+    "pages.register.usp-1-yourhosting": {
+        "locales": {
+            "nl": {
+                "translated_string": "Grootste hostingprovider van Nederland"
+            },
+            "en": {
+                "translated_string": "Largest hosting provider in the Netherlands"
+            }
+        }
+    },
+    "pages.register.usp-2-yourhosting": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ondersteuning via telefoon, e-mail en chat "
+            },
+            "en": {
+                "translated_string": "Support via phone, email and chat "
+            }
+        }
+    },
+    "pages.register.usp-3-yourhosting": {
+        "locales": {
+            "nl": {
+                "translated_string": "20 jaar ervaring"
+            },
+            "en": {
+                "translated_string": "20 years of experience"
+            }
+        }
+    },
+    "pages.register.usp-4-yourhosting": {
+        "locales": {
+            "nl": {
+                "translated_string": "Begeleiding van ervaren IT-experts"
+            },
+            "en": {
+                "translated_string": "Guidance from experienced IT experts"
+            }
+        }
+    },
+    "pages.register.usp-5-yourhosting": {
+        "locales": {
+            "nl": {
+                "translated_string": "Klanten geven ons een 8,5 gemiddeld"
+            },
+            "en": {
+                "translated_string": "Customers give us an average of 8.5"
+            }
+        }
+    },
+    "pages.register.why-yourhosting": {
+        "locales": {
+            "nl": {
+                "translated_string": "Waarom Yourhosting?"
+            },
+            "en": {
+                "translated_string": "Why Yourhosting?"
+            }
+        }
+    },
+    "pages.register.success": {
+        "locales": {
+            "nl": {
+                "translated_string": "Jouw account is aangemaakt, je hebt een email ontvangen om het account te activeren."
+            },
+            "en": {
+                "translated_string": "Your account has been created, you have received an email to activate your account."
+            }
+        }
+    },
+    "pages.register.vatnumber": {
+        "locales": {
+            "nl": {
+                "translated_string": "BTW-nummer"
+            },
+            "en": {
+                "translated_string": "VAT Code"
+            }
+        }
+    },
+    "pages.settings.sidebar.profile": {
+        "locales": {
+            "nl": {
+                "translated_string": "Profiel"
+            },
+            "en": {
+                "translated_string": "Profile"
+            }
+        }
+    },
+    "pages.settings.sidebar.password": {
+        "locales": {
+            "nl": {
+                "translated_string": "Wachtwoord"
+            },
+            "en": {
+                "translated_string": "Password"
+            }
+        }
+    },
+    "pages.settings.sidebar.totp": {
+        "locales": {
+            "nl": {
+                "translated_string": "Authenticatie app"
+            },
+            "en": {
+                "translated_string": "Authenticator app"
+            }
+        }
+    },
+    "pages.settings.sidebar.logout": {
+        "locales": {
+            "nl": {
+                "translated_string": "Uitloggen"
+            },
+            "en": {
+                "translated_string": "Logout"
+            }
+        }
+    },
+    "pages.settings.button.profile": {
+        "locales": {
+            "nl": {
+                "translated_string": "Update profiel"
+            },
+            "en": {
+                "translated_string": "Update profile"
+            }
+        }
+    },
+    "pages.settings.button.password": {
+        "locales": {
+            "nl": {
+                "translated_string": "Update wachtwoord"
+            },
+            "en": {
+                "translated_string": "Update password"
+            }
+        }
+    },
+    "pages.settings.unlink-totp": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het ontkoppelen van je authenticatie app schakelt multi factor authenticatie uit."
+            },
+            "en": {
+                "translated_string": "Unlinking your authenticator app will disable multi factor authentication."
+            }
+        }
+    },
+    "pages.settings.intro": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je bent ingelogd als {email}\nHier kun je jouw accountinstellingen wijzigen. Voor sommige acties moet je opnieuw inloggen"
+            },
+            "en": {
+                "translated_string": "You are currently logged in as {email}\nHere you can manage settings related to your account. Keep in mind that certain actions require you to re-authenticate"
+            }
+        }
+    },
+    "pages.settings.profile": {
+        "locales": {
+            "nl": {
+                "translated_string": "Profielinstellingen"
+            },
+            "en": {
+                "translated_string": "Profile settings"
+            }
+        }
+    },
+    "pages.settings.profile-success": {
+        "locales": {
+            "nl": {
+                "translated_string": "Jouw accountinstellingen zijn opgeslagen!"
+            },
+            "en": {
+                "translated_string": "Your account settings are saved!"
+            }
+        }
+    },
+    "pages.settings.password": {
+        "locales": {
+            "nl": {
+                "translated_string": "Wijzig wachtwoord"
+            },
+            "en": {
+                "translated_string": "Change password"
+            }
+        }
+    },
+    "pages.settings.password-success": {
+        "locales": {
+            "nl": {
+                "translated_string": "Jouw nieuwe wachtwoord is opgeslagen!"
+            },
+            "en": {
+                "translated_string": "Your new password is saved!"
+            }
+        }
+    },
+    "pages.settings.totp": {
+        "locales": {
+            "nl": {
+                "translated_string": "Beheer 2FA TOTP Authenticator App"
+            },
+            "en": {
+                "translated_string": "Manage 2FA TOTP Authenticator App"
+            }
+        }
+    },
+    "pages.settings.totp-success": {
+        "locales": {
+            "nl": {
+                "translated_string": "Multi-factor is ingeschakeld!"
+            },
+            "en": {
+                "translated_string": "Multi-factor is added!"
+            }
+        }
+    },
+    "pages.settings.manage": {
+        "locales": {
+            "nl": {
+                "translated_string": "Beheer uw accountinstellingen"
+            },
+            "en": {
+                "translated_string": "Manage your account settings"
+            }
+        }
+    },
+    "pages.settings.update-error": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het opslaan van uw instellingen is niet gelukt. Probeer het a.u.b. opnieuw, of neem contact op met de klantenservice."
+            },
+            "en": {
+                "translated_string": "Something went wrong while saving your settings. Please try again, or contact customer service."
+            }
+        }
+    },
+    "pages.settings.qrcode": {
+        "locales": {
+            "nl": {
+                "translated_string": "Authenticator app QR code"
+            },
+            "en": {
+                "translated_string": "Authenticator app QR code"
+            }
+        }
+    },
+    "pages.settings.secret": {
+        "locales": {
+            "nl": {
+                "translated_string": "Dit is de geheime code voor je authenticator. Deze kun je gebruiken als je de QR code niet kunt scannen."
+            },
+            "en": {
+                "translated_string": "This is your authenticator app secret. Use it if you can not scan the QR code."
+            }
+        }
+    },
+    "pages.settings.manage-customer-settings": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ga naar het klantpaneel"
+            },
+            "en": {
+                "translated_string": "Go to the customer portal"
+            }
+        }
+    },
+    "pages.settings.totp-required": {
+        "locales": {
+            "nl": {
+                "translated_string": "Tweestapsverificatie moet verplicht aan staan op dit account."
+            },
+            "en": {
+                "translated_string": "Two step verification is required to be set-up on this account."
+            }
+        }
+    },
+    "pages.auth.go_back": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ga terug"
+            },
+            "en": {
+                "translated_string": "Go back"
+            }
+        }
+    },
+    "pages.auth.title": {
+        "locales": {
+            "nl": {
+                "translated_string": "Log in"
+            },
+            "en": {
+                "translated_string": "Log in"
+            }
+        }
+    },
+    "pages.auth.two-fa-required": {
+        "locales": {
+            "nl": {
+                "translated_string": "Een tweestapsverificatiecode is verplicht"
+            },
+            "en": {
+                "translated_string": "A two step verification code is required."
+            }
+        }
+    },
+    "pages.auth.reset-password": {
+        "locales": {
+            "nl": {
+                "translated_string": "Wachtwoord vergeten?"
+            },
+            "en": {
+                "translated_string": "Forgot password?"
+            }
+        }
+    },
+    "pages.auth.signup": {
+        "locales": {
+            "nl": {
+                "translated_string": "Registreren"
+            },
+            "en": {
+                "translated_string": "Sign up"
+            }
+        }
+    },
+    "pages.destination.title": {
+        "locales": {
+            "nl": {
+                "translated_string": "Kies uw bestemming"
+            },
+            "en": {
+                "translated_string": "Pick your destination"
+            }
+        }
+    },
+    "pages.destination.multiple-description": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je hebt met jouw account toegang tot meerdere klantpanelen. Kies hieronder het klantpaneel waar je naartoe wilt gaan."
+            },
+            "en": {
+                "translated_string": "With your account you have access to multiple customer panels. Select the customer panel you would like to go to down below."
+            }
+        }
+    },
+    "pages.destination.waterfront-microsoft-only": {
+        "locales": {
+            "nl": {
+                "translated_string": "Beheer Microsoft 365 producten"
+            },
+            "en": {
+                "translated_string": "Manage Microsoft 365 products"
+            }
+        }
+    },
+    "pages.password-reset.forgot-password": {
+        "locales": {
+            "nl": {
+                "translated_string": "Wachtwoord vergeten"
+            },
+            "en": {
+                "translated_string": "Forgot password"
+            }
+        }
+    },
+    "pages.password-reset.go-back": {
+        "locales": {
+            "nl": {
+                "translated_string": "Terug naar de loginpagina"
+            },
+            "en": {
+                "translated_string": "Back to login page"
+            }
+        }
+    },
+    "pages.password-reset.info": {
+        "locales": {
+            "nl": {
+                "translated_string": "Als uw email bestaat zal u een email met instructies ontvangen."
+            },
+            "en": {
+                "translated_string": "If your email exists you will receive an email with instructions."
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010001": {
+        "locales": {
+            "nl": {
+                "translated_string": "Inloggen"
+            },
+            "en": {
+                "translated_string": "Sign in"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010002": {
+        "locales": {
+            "nl": {
+                "translated_string": "Inloggen met provider"
+            },
+            "en": {
+                "translated_string": "Sign in with provider"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010003": {
+        "locales": {
+            "nl": {
+                "translated_string": "Bevestig deze actie door te verifiëren dat jij het bent."
+            },
+            "en": {
+                "translated_string": "Please confirm this action by verifying that it is you."
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010004": {
+        "locales": {
+            "nl": {
+                "translated_string": "Voltooi de tweede authenticatie stap."
+            },
+            "en": {
+                "translated_string": "Please complete the second authentication challenge."
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010005": {
+        "locales": {
+            "nl": {
+                "translated_string": "Verifieer"
+            },
+            "en": {
+                "translated_string": "Verify"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010006": {
+        "locales": {
+            "nl": {
+                "translated_string": "Authenticatiecode"
+            },
+            "en": {
+                "translated_string": "Authentication code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010007": {
+        "locales": {
+            "nl": {
+                "translated_string": "Backup herstelcode"
+            },
+            "en": {
+                "translated_string": "Backup recovery code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010008": {
+        "locales": {
+            "nl": {
+                "translated_string": "Gebruik hardwaresleutel"
+            },
+            "en": {
+                "translated_string": "Use security key"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010009": {
+        "locales": {
+            "nl": {
+                "translated_string": "Gebruik je authenticator"
+            },
+            "en": {
+                "translated_string": "Use Authenticator"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010010": {
+        "locales": {
+            "nl": {
+                "translated_string": "Gebruik backup herstelcode"
+            },
+            "en": {
+                "translated_string": "Use backup recovery code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010011": {
+        "locales": {
+            "nl": {
+                "translated_string": "Doorgaan met hardwaresleutel"
+            },
+            "en": {
+                "translated_string": "Continue with security key"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010012": {
+        "locales": {
+            "nl": {
+                "translated_string": "Stel je WebAuthn apparaat in en klik op doorgaan."
+            },
+            "en": {
+                "translated_string": "Prepare your WebAuthn device and press continue."
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010013": {
+        "locales": {
+            "nl": {
+                "translated_string": "Doorgaan"
+            },
+            "en": {
+                "translated_string": "Continue"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010014": {
+        "locales": {
+            "nl": {
+                "translated_string": "Er is een e-mail met een code verzonden naar het e-mailadres dat je hebt opgegeven. Als je geen e-mail hebt ontvangen, controleer dan de spelling van de email en probeer opnieuw om in te loggen."
+            },
+            "en": {
+                "translated_string": "An email containing a code has been sent to the email address you provided. If you have not received an email, check the spelling of the address and retry the login."
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010015": {
+        "locales": {
+            "nl": {
+                "translated_string": "Log in met de code"
+            },
+            "en": {
+                "translated_string": "Sign in with code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010016": {
+        "locales": {
+            "nl": {
+                "translated_string": "Als je inlogt, wordt je account gekoppeld aan {duplicateEmail}."
+            },
+            "en": {
+                "translated_string": "Signing in will link your account to {duplicateEmail}."
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010017": {
+        "locales": {
+            "nl": {
+                "translated_string": "Login en link"
+            },
+            "en": {
+                "translated_string": "Sign in and link"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010018": {
+        "locales": {
+            "nl": {
+                "translated_string": "Login met {provider} en link je gegevens"
+            },
+            "en": {
+                "translated_string": "Sign in with {provider} and link credential"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010019": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ga verder met de code"
+            },
+            "en": {
+                "translated_string": "Continue with code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010020": {
+        "locales": {
+            "nl": {
+                "translated_string": "We sturen een code naar {maskedIdentifier}. Voer het hier in om te controleren of dit uw adres is."
+            },
+            "en": {
+                "translated_string": "We will send a code to {maskedIdentifier}. To verify that this is your address please enter it here."
+            }
+        }
+    },
+    "kratos.validation-error-codes.1010021": {
+        "locales": {
+            "nl": {
+                "translated_string": "Log in met passkey"
+            },
+            "en": {
+                "translated_string": "Sign in with passkey"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1040001": {
+        "locales": {
+            "nl": {
+                "translated_string": "Registreren"
+            },
+            "en": {
+                "translated_string": "Sign up"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1040002": {
+        "locales": {
+            "nl": {
+                "translated_string": "Registreer met provider"
+            },
+            "en": {
+                "translated_string": "Sign up with provider"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1040003": {
+        "locales": {
+            "nl": {
+                "translated_string": "Doorgaan"
+            },
+            "en": {
+                "translated_string": "Continue"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1040004": {
+        "locales": {
+            "nl": {
+                "translated_string": "Registreren met een hardwaresleutel"
+            },
+            "en": {
+                "translated_string": "Sign up with security key"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1040005": {
+        "locales": {
+            "nl": {
+                "translated_string": "Er is een e-mail met een code verzonden naar het e-mailadres dat je hebt opgegeven. Als je geen e-mail hebt ontvangen, controleer dan de spelling van het adres en probeer de registratie opnieuw."
+            },
+            "en": {
+                "translated_string": "An email containing a code has been sent to the email address you provided. If you have not received an email, check the spelling of the address and retry the registration."
+            }
+        }
+    },
+    "kratos.validation-error-codes.1040006": {
+        "locales": {
+            "nl": {
+                "translated_string": "Registreer met de code"
+            },
+            "en": {
+                "translated_string": "Sign up with code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1040007": {
+        "locales": {
+            "nl": {
+                "translated_string": "Registreer met passkey"
+            },
+            "en": {
+                "translated_string": "Sign up with passkey"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1040008": {
+        "locales": {
+            "nl": {
+                "translated_string": "Terug"
+            },
+            "en": {
+                "translated_string": "Back"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1040009": {
+        "locales": {
+            "nl": {
+                "translated_string": "Kies een referentie om jezelf mee te verifiëren."
+            },
+            "en": {
+                "translated_string": "Please choose a credential to authenticate yourself with."
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050001": {
+        "locales": {
+            "nl": {
+                "translated_string": "De wijzigingen zijn opgeslagen!"
+            },
+            "en": {
+                "translated_string": "Your changes have been saved!"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050002": {
+        "locales": {
+            "nl": {
+                "translated_string": "Koppel provider"
+            },
+            "en": {
+                "translated_string": "Link provider"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050003": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ontkoppel provider"
+            },
+            "en": {
+                "translated_string": "Unlink provider"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050004": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ontkoppel authenticator app"
+            },
+            "en": {
+                "translated_string": "Unlink Authenticator App"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050005": {
+        "locales": {
+            "nl": {
+                "translated_string": "Authenticator app QR-code"
+            },
+            "en": {
+                "translated_string": "Authenticator app QR code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050006": {
+        "locales": {
+            "nl": {
+                "translated_string": "Code"
+            },
+            "en": {
+                "translated_string": "Code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050007": {
+        "locales": {
+            "nl": {
+                "translated_string": "Toon backup herstelcodes"
+            },
+            "en": {
+                "translated_string": "Reveal backup recovery codes"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050008": {
+        "locales": {
+            "nl": {
+                "translated_string": "Genereer nieuwe backup herstelcodes"
+            },
+            "en": {
+                "translated_string": "Generate new backup recovery codes"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050009": {
+        "locales": {
+            "nl": {
+                "translated_string": "Code"
+            },
+            "en": {
+                "translated_string": "Code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050010": {
+        "locales": {
+            "nl": {
+                "translated_string": "Dit zijn de backup herstelcodes. Bewaar ze op een veilige plaats!"
+            },
+            "en": {
+                "translated_string": "These are your backup recovery codes. Please keep them in a safe place!"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050011": {
+        "locales": {
+            "nl": {
+                "translated_string": "Bevestig backup herstelcodes"
+            },
+            "en": {
+                "translated_string": "Confirm backup recovery codes"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050012": {
+        "locales": {
+            "nl": {
+                "translated_string": "Voeg hardwaresleutel toe"
+            },
+            "en": {
+                "translated_string": "Add security key"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050013": {
+        "locales": {
+            "nl": {
+                "translated_string": "Naam van de hardwaresleutel"
+            },
+            "en": {
+                "translated_string": "Name of the security key"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050014": {
+        "locales": {
+            "nl": {
+                "translated_string": "Laatst gebruikte code"
+            },
+            "en": {
+                "translated_string": "Last secret usage"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050015": {
+        "locales": {
+            "nl": {
+                "translated_string": "Codes"
+            },
+            "en": {
+                "translated_string": "Codes"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050016": {
+        "locales": {
+            "nl": {
+                "translated_string": "Schakel deze methode uit"
+            },
+            "en": {
+                "translated_string": "Disable this method"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050017": {
+        "locales": {
+            "nl": {
+                "translated_string": "Gebruik deze code als het scannen van de QR-code niet mogelijk is."
+            },
+            "en": {
+                "translated_string": "This is your authenticator app secret. Use it if you can not scan the QR code."
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050018": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ontkoppel hardwaresleutel"
+            },
+            "en": {
+                "translated_string": "Remove security key"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050019": {
+        "locales": {
+            "nl": {
+                "translated_string": "Passkey toevoegen"
+            },
+            "en": {
+                "translated_string": "Add passkey"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1050020": {
+        "locales": {
+            "nl": {
+                "translated_string": "Passkey {display_name} verwijderen"
+            },
+            "en": {
+                "translated_string": "Remove passkey {display_name}"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1060001": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je account is hersteld. Wijzig je wachtwoord om verder te gaan"
+            },
+            "en": {
+                "translated_string": "You successfully recovered your account. Please change your password to continue"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1060002": {
+        "locales": {
+            "nl": {
+                "translated_string": "Een e-mail met een herstel-link is verstuurd naar het opgegeven adres."
+            },
+            "en": {
+                "translated_string": "An email containing a recovery link has been sent to the email address you provided."
+            }
+        }
+    },
+    "kratos.validation-error-codes.1060003": {
+        "locales": {
+            "nl": {
+                "translated_string": "Een e-mail met een herstelcode is verstuurd naar het opgegeven adres."
+            },
+            "en": {
+                "translated_string": "An email containing a recovery code has been sent to the email address you provided."
+            }
+        }
+    },
+    "kratos.validation-error-codes.1070001": {
+        "locales": {
+            "nl": {
+                "translated_string": "Wachtwoord"
+            },
+            "en": {
+                "translated_string": "Password"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1070002": {
+        "locales": {
+            "nl": {
+                "translated_string": "Generieke error"
+            },
+            "en": {
+                "translated_string": "Generic error"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1070003": {
+        "locales": {
+            "nl": {
+                "translated_string": "Opslaan"
+            },
+            "en": {
+                "translated_string": "Save"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1070004": {
+        "locales": {
+            "nl": {
+                "translated_string": "Identificatie"
+            },
+            "en": {
+                "translated_string": "Identifier"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1070005": {
+        "locales": {
+            "nl": {
+                "translated_string": "Verstuur"
+            },
+            "en": {
+                "translated_string": "Submit"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1070006": {
+        "locales": {
+            "nl": {
+                "translated_string": "Verificatiecode"
+            },
+            "en": {
+                "translated_string": "Verify code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1070007": {
+        "locales": {
+            "nl": {
+                "translated_string": "E-mail"
+            },
+            "en": {
+                "translated_string": "Email"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1070008": {
+        "locales": {
+            "nl": {
+                "translated_string": "Verstuur code"
+            },
+            "en": {
+                "translated_string": "Resend code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1070009": {
+        "locales": {
+            "nl": {
+                "translated_string": "Doorgaan"
+            },
+            "en": {
+                "translated_string": "Continue"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1070010": {
+        "locales": {
+            "nl": {
+                "translated_string": "Herstelcode"
+            },
+            "en": {
+                "translated_string": "Recovery code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1070011": {
+        "locales": {
+            "nl": {
+                "translated_string": "Verificatiecode"
+            },
+            "en": {
+                "translated_string": "Verification code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1070012": {
+        "locales": {
+            "nl": {
+                "translated_string": "Registratiecode"
+            },
+            "en": {
+                "translated_string": "Registration code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1070013": {
+        "locales": {
+            "nl": {
+                "translated_string": "Login code"
+            },
+            "en": {
+                "translated_string": "Login code"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1070014": {
+        "locales": {
+            "nl": {
+                "translated_string": "Login en link gegevens"
+            },
+            "en": {
+                "translated_string": "Login and link credentials"
+            }
+        }
+    },
+    "kratos.validation-error-codes.1080001": {
+        "locales": {
+            "nl": {
+                "translated_string": "Een e-mail met een verificatie-link is verstuurd naar het opgegeven adres."
+            },
+            "en": {
+                "translated_string": "An email containing a verification link has been sent to the email address you provided."
+            }
+        }
+    },
+    "kratos.validation-error-codes.1080002": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je e-mailadres is geverifieerd."
+            },
+            "en": {
+                "translated_string": "You successfully verified your email address."
+            }
+        }
+    },
+    "kratos.validation-error-codes.1080003": {
+        "locales": {
+            "nl": {
+                "translated_string": "Een e-mail met een verificatiecode is verstuurd naar het opgegeven adres."
+            },
+            "en": {
+                "translated_string": "An email containing a verification code has been sent to the email address you provided."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000001": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het gekozen e-mailadres is ongeldig"
+            },
+            "en": {
+                "translated_string": "Provided email address is invalid"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000002": {
+        "locales": {
+            "nl": {
+                "translated_string": "Er mist een waarde."
+            },
+            "en": {
+                "translated_string": "A field is missing."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000003": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ongeldige lengte"
+            },
+            "en": {
+                "translated_string": "Invalid length"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000004": {
+        "locales": {
+            "nl": {
+                "translated_string": "Alleen karakters van a-z zijn toegestaan"
+            },
+            "en": {
+                "translated_string": "Only characters from a-z are allowed"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000005": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het gekozen wachtwoord voldoet niet aan de gestelde eisen"
+            },
+            "en": {
+                "translated_string": "The chosen password does not meet the password policy"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000006": {
+        "locales": {
+            "nl": {
+                "translated_string": "De opgegeven gegevens zijn incorrect."
+            },
+            "en": {
+                "translated_string": "The provided credentials are invalid, please verify your input."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000007": {
+        "locales": {
+            "nl": {
+                "translated_string": "Er bestaat al een account met dit e-mailadres."
+            },
+            "en": {
+                "translated_string": "An account with the same email exists already."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000008": {
+        "locales": {
+            "nl": {
+                "translated_string": "De opgegeven code is incorrect, probeer het opnieuw."
+            },
+            "en": {
+                "translated_string": "The provided authentication code is invalid, please try again."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000009": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het is niet mogelijk om in te loggen. Neem contact op met support."
+            },
+            "en": {
+                "translated_string": "Unable to login to your account. Please contact support."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000010": {
+        "locales": {
+            "nl": {
+                "translated_string": "Dit account is nog niet actief. Verifieer je account om door te gaan"
+            },
+            "en": {
+                "translated_string": "Account not active yet. Verify your account to continue"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000011": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je hebt geen authenticator app opgezet."
+            },
+            "en": {
+                "translated_string": "You have no Authenticator app set up."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000012": {
+        "locales": {
+            "nl": {
+                "translated_string": "Deze backup herstelcode is al gebruikt."
+            },
+            "en": {
+                "translated_string": "This backup recovery code has already been used."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000013": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je hebt geen WebAuthn apparaat gekoppeld."
+            },
+            "en": {
+                "translated_string": "You have no WebAuthn device set up."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000014": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je hebt geen backup herstelcodes ingesteld."
+            },
+            "en": {
+                "translated_string": "You have no backup recovery codes set up."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000015": {
+        "locales": {
+            "nl": {
+                "translated_string": "Dit account bestaat niet of heeft geen hardwaretoken gekoppeld."
+            },
+            "en": {
+                "translated_string": "This account does not exist or has no security key set up."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000016": {
+        "locales": {
+            "nl": {
+                "translated_string": "De backup herstelcode is ongeldig."
+            },
+            "en": {
+                "translated_string": "The backup recovery code is not valid."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000017": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ongeldige waarde ontvangen"
+            },
+            "en": {
+                "translated_string": "Invalid value received"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000018": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ongeldige waarde ontvangen"
+            },
+            "en": {
+                "translated_string": "Invalid value received"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000019": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ongeldige waarde ontvangen"
+            },
+            "en": {
+                "translated_string": "Invalid value received"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000020": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ongeldige waarde ontvangen"
+            },
+            "en": {
+                "translated_string": "Invalid value received"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000021": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ongeldige waarde ontvangen"
+            },
+            "en": {
+                "translated_string": "Invalid value received"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000022": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ongeldige waarde ontvangen"
+            },
+            "en": {
+                "translated_string": "Invalid value received"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000023": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ongeldige waarde ontvangen"
+            },
+            "en": {
+                "translated_string": "Invalid value received"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000024": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ongeldige waarde ontvangen"
+            },
+            "en": {
+                "translated_string": "Invalid value received"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000025": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ongeldige waarde ontvangen"
+            },
+            "en": {
+                "translated_string": "Invalid value received"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000026": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ongeldige waarde ontvangen"
+            },
+            "en": {
+                "translated_string": "Invalid value received"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000027": {
+        "locales": {
+            "nl": {
+                "translated_string": "Er bestaat al een account met dit e-mailadres. Log in met je bestaande account."
+            },
+            "en": {
+                "translated_string": "An account with the same email exists already. Please sign in to your existing account."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000028": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je probeerde je aan te melden met {credential_identifier_hint} die al in gebruik is door een ander account. U kunt zich aanmelden met {available_credential_types_list}. U kunt zich aanmelden met een van de volgende sociale aanmeldingsproviders: {Available_oidc_providers_list}."
+            },
+            "en": {
+                "translated_string": "You tried signing in with {credential_identifier_hint} which is already in use by another account. You can sign in using {available_credential_types_list}. You can sign in using one of the following social sign in providers: {Available_oidc_providers_list}."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000029": {
+        "locales": {
+            "nl": {
+                "translated_string": "moet gelijk zijn aan de constante {expected}"
+            },
+            "en": {
+                "translated_string": "must be equal to constant {expected}"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000030": {
+        "locales": {
+            "nl": {
+                "translated_string": "constant is gefaald"
+            },
+            "en": {
+                "translated_string": "const failed"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000031": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het wachtwoord kan niet worden gebruikt omdat het te veel lijkt op de e-mail."
+            },
+            "en": {
+                "translated_string": "The password can not be used because it is too similar to the email."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000032": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het wachtwoord moet minstens 8 tekens lang zijn."
+            },
+            "en": {
+                "translated_string": "The password must be at least 8 characters long."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000033": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het wachtwoord mag maximaal 72 tekens lang zijn."
+            },
+            "en": {
+                "translated_string": "The password must be at most 72 characters long."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000034": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het wachtwoord is aangetroffen in datalekken en mag niet langer worden gebruikt."
+            },
+            "en": {
+                "translated_string": "The password has been found in data breaches and must no longer be used."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000035": {
+        "locales": {
+            "nl": {
+                "translated_string": "Dit account bestaat niet of is niet ingesteld op aanmelden met code."
+            },
+            "en": {
+                "translated_string": "This account does not exist or has not set up sign-in with code."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000036": {
+        "locales": {
+            "nl": {
+                "translated_string": "De aangeleverde traits komen niet overheen met de eerder associeerde taits op deze flow."
+            },
+            "en": {
+                "translated_string": "The provided traits do not match the traits previously associated with this flow."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4010001": {
+        "locales": {
+            "nl": {
+                "translated_string": "Inloggen is verlopen, probeer het opnieuw."
+            },
+            "en": {
+                "translated_string": "The login flow expired, please try again."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4010002": {
+        "locales": {
+            "nl": {
+                "translated_string": "Inloggen is mislukt. Vul correcte gegevens in om door te gaan"
+            },
+            "en": {
+                "translated_string": "Could not log in to your account. Please fill out the form correctly"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4010003": {
+        "locales": {
+            "nl": {
+                "translated_string": "Registreren is mislukt. Vul correcte gegevens in om door te gaan"
+            },
+            "en": {
+                "translated_string": "Could not register your account. Please fill out the form correctly"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4010004": {
+        "locales": {
+            "nl": {
+                "translated_string": "Updaten is mislukt. Vul correcte gegevens in om door te gaan"
+            },
+            "en": {
+                "translated_string": "Could not update your account. Please fill out the form correctly"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4010005": {
+        "locales": {
+            "nl": {
+                "translated_string": "Herstellen is mislukt. Vul correcte gegevens in om door te gaan"
+            },
+            "en": {
+                "translated_string": "Could not recover your account. Please fill out the form correctly"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4010006": {
+        "locales": {
+            "nl": {
+                "translated_string": "Verificatie is mislukt. Vul correcte gegevens in om door te gaan"
+            },
+            "en": {
+                "translated_string": "Could not verify your account. Please fill out the form correctly"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4010007": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het verzoek is al succesvol afgerond en kan niet opnieuw worden geprobeerd."
+            },
+            "en": {
+                "translated_string": "The request was already completed successfully and can not be retried."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4010008": {
+        "locales": {
+            "nl": {
+                "translated_string": "De inlogcode is ongeldig of is al gebruikt. Probeer het opnieuw."
+            },
+            "en": {
+                "translated_string": "The login code is invalid or has already been used. Please try again."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4010009": {
+        "locales": {
+            "nl": {
+                "translated_string": "de gelinkte gegevens komen niet overeen."
+            },
+            "en": {
+                "translated_string": "Linked credentials do not match."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4010010": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het ingevoerde adres komt niet overeen met bekende adressen in het huidige account."
+            },
+            "en": {
+                "translated_string": "The address you entered does not match any known addresses in the current account."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4040001": {
+        "locales": {
+            "nl": {
+                "translated_string": "De registratie flow is verlopen. Probeer het opnieuw."
+            },
+            "en": {
+                "translated_string": "The registration flow expired, please try again."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4040002": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het verzoek is al succesvol afgerond en kan niet opnieuw worden geprobeerd."
+            },
+            "en": {
+                "translated_string": "The request was already completed successfully and can not be retried."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4040003": {
+        "locales": {
+            "nl": {
+                "translated_string": "De registratiecode is ongeldig of is al gebruikt. Probeer het opnieuw."
+            },
+            "en": {
+                "translated_string": "The registration code is invalid or has already been used. Please try again."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4050001": {
+        "locales": {
+            "nl": {
+                "translated_string": "De herstelcode is verlopen. Probeer het opnieuw."
+            },
+            "en": {
+                "translated_string": "The settings flow expired, please try again."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4060001": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het verzoek is al voltooid en kan niet opnieuw geprobeerd worden."
+            },
+            "en": {
+                "translated_string": "The request was already completed successfully and can not be retried."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4060002": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het verzoek is al voltooid en kan niet opnieuw geprobeerd worden."
+            },
+            "en": {
+                "translated_string": "The recovery flow reached a failure state and must be retried."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4060004": {
+        "locales": {
+            "nl": {
+                "translated_string": "De herstelcode is ongeldig of al gebruikt. Probeer het opnieuw."
+            },
+            "en": {
+                "translated_string": "The recovery token is invalid or has already been used. Please retry the flow."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4060005": {
+        "locales": {
+            "nl": {
+                "translated_string": "De herstelcode is verlopen. Probeer het opnieuw."
+            },
+            "en": {
+                "translated_string": "The recovery flow expired, please try again."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4060006": {
+        "locales": {
+            "nl": {
+                "translated_string": "De herstelcode is ongeldig of al gebruikt. Probeer het opnieuw."
+            },
+            "en": {
+                "translated_string": "The recovery code is invalid or has already been used. Please try again."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4070001": {
+        "locales": {
+            "nl": {
+                "translated_string": "De verificatiecode is ongeldig of al gebruikt. Probeer het opnieuw."
+            },
+            "en": {
+                "translated_string": "The verification token is invalid or has already been used. Please retry the flow."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4070002": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het verzoek is al voltooid en kan niet opnieuw geprobeerd worden."
+            },
+            "en": {
+                "translated_string": "The request was already completed successfully and can not be retried."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4070003": {
+        "locales": {
+            "nl": {
+                "translated_string": "De verificatie flow is mislukt. Probeer het opnieuw."
+            },
+            "en": {
+                "translated_string": "The verification flow reached a failure state and must be retried."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4070005": {
+        "locales": {
+            "nl": {
+                "translated_string": "De verificatie flow is verlopen, probeer het opnieuw."
+            },
+            "en": {
+                "translated_string": "The verification flow expired, please try again."
+            }
+        }
+    },
+    "kratos.validation-error-codes.4070006": {
+        "locales": {
+            "nl": {
+                "translated_string": "De verificatiecode is ongeldig of al gebruikt. Probeer het opnieuw."
+            },
+            "en": {
+                "translated_string": "The verification code is invalid or has already been used. Please try again."
+            }
+        }
+    },
+    "kratos.validation-error-codes.5000001": {
+        "locales": {
+            "nl": {
+                "translated_string": "Er is iets misgegaan"
+            },
+            "en": {
+                "translated_string": "General error"
+            }
+        }
+    },
+    "pages.verification.header": {
+        "locales": {
+            "nl": {
+                "translated_string": "Verifieer je email"
+            },
+            "en": {
+                "translated_string": "Verify your email"
+            }
+        }
+    },
+    "pages.verification.aal2-required": {
+        "locales": {
+            "nl": {
+                "translated_string": "Tweestapsverificatie is verplicht op dit account"
+            },
+            "en": {
+                "translated_string": "Two-step verification is required on this account"
+            }
+        }
+    },
+    "pages.register.form.email": {
+        "locales": {
+            "nl": {
+                "translated_string": "E-mailadres"
+            },
+            "en": {
+                "translated_string": "Email address"
+            }
+        }
+    },
+    "pages.register.form.first_name": {
+        "locales": {
+            "nl": {
+                "translated_string": "Voornaam"
+            },
+            "en": {
+                "translated_string": "First name"
+            }
+        }
+    },
+    "pages.register.form.last_name": {
+        "locales": {
+            "nl": {
+                "translated_string": "Achternaam"
+            },
+            "en": {
+                "translated_string": "Last name"
+            }
+        }
+    },
+    "pages.register.form.phone_number": {
+        "locales": {
+            "nl": {
+                "translated_string": "Telefoonnummer"
+            },
+            "en": {
+                "translated_string": "Phone number"
+            }
+        }
+    },
+    "pages.register.form.organization": {
+        "locales": {
+            "nl": {
+                "translated_string": "Bedrijfsnaam"
+            },
+            "en": {
+                "translated_string": "Organization"
+            }
+        }
+    },
+    "pages.register.form.street_name": {
+        "locales": {
+            "nl": {
+                "translated_string": "Straat"
+            },
+            "en": {
+                "translated_string": "Street"
+            }
+        }
+    },
+    "pages.register.form.street_number": {
+        "locales": {
+            "nl": {
+                "translated_string": "Huisnummer"
+            },
+            "en": {
+                "translated_string": "Number"
+            }
+        }
+    },
+    "pages.register.form.street_number_addition": {
+        "locales": {
+            "nl": {
+                "translated_string": "Toevoeging"
+            },
+            "en": {
+                "translated_string": "Apartment/Suite"
+            }
+        }
+    },
+    "pages.register.form.zip_code": {
+        "locales": {
+            "nl": {
+                "translated_string": "Postcode"
+            },
+            "en": {
+                "translated_string": "Zip code"
+            }
+        }
+    },
+    "pages.register.form.city": {
+        "locales": {
+            "nl": {
+                "translated_string": "Plaats"
+            },
+            "en": {
+                "translated_string": "City"
+            }
+        }
+    },
+    "pages.register.form.country": {
+        "locales": {
+            "nl": {
+                "translated_string": "Land"
+            },
+            "en": {
+                "translated_string": "Country"
+            }
+        }
+    },
+    "pages.register.form.i_agree_with_the": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ja, ik ga akkoord met de"
+            },
+            "en": {
+                "translated_string": "Yes, I agree with the"
+            }
+        }
+    },
+    "pages.register.form.terms_of_service": {
+        "locales": {
+            "nl": {
+                "translated_string": "algemene voorwaarden & aanvullende voorwaarden"
+            },
+            "en": {
+                "translated_string": "terms of service & additional conditions"
+            }
+        }
+    },
+    "pages.verify.expired-code": {
+        "locales": {
+            "nl": {
+                "translated_string": "De opgegeven verificatiecode is verlopen, vraag een nieuwe code aan via je email."
+            },
+            "en": {
+                "translated_string": "The given verification code is expired, request a new verification code with your email."
+            }
+        }
+    },
+    "pages.verify.email_sent": {
+        "locales": {
+            "nl": {
+                "translated_string": "Als jouw email in ons systeem bestaat zul je een email ontvangen met daarin instructies om je account te verifiëren."
+            },
+            "en": {
+                "translated_string": "If your email exists in our system you'll receive an email with instructions to verify your account."
+            }
+        }
+    },
+    "pages.verification.success": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je email verificatie is succesvol afgerond!"
+            },
+            "en": {
+                "translated_string": "Your email is successfully verified!"
+            }
+        }
+    },
+    "general.form-labels.code": {
+        "locales": {
+            "nl": {
+                "translated_string": "Verificatiecode"
+            },
+            "en": {
+                "translated_string": "Verification code"
+            }
+        }
+    },
+    "pages.register.success-header": {
+        "locales": {
+            "nl": {
+                "translated_string": "Registratie succesvol"
+            },
+            "en": {
+                "translated_string": "Registration successful"
+            }
+        }
+    },
+    "pages.verify.invalid-code": {
+        "locales": {
+            "nl": {
+                "translated_string": "De ingevulde code is invalide!"
+            },
+            "en": {
+                "translated_string": "The filled in code is invalid!"
+            }
+        }
+    },
+    "pages.registration.success-verify-info": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je registratie is succesvol verlopen, er is een email verstuurd met instructies om je account validatie af te ronden."
+            },
+            "en": {
+                "translated_string": "Your registration has been successful, an email has been sent with instructions to finish your account validation"
+            }
+        }
+    },
+    "pages.verification.redo": {
+        "locales": {
+            "nl": {
+                "translated_string": "Nieuwe code"
+            },
+            "en": {
+                "translated_string": "New code"
+            }
+        }
+    },
+    "pages.verify.request-new-code": {
+        "locales": {
+            "nl": {
+                "translated_string": "Code aanvragen"
+            },
+            "en": {
+                "translated_string": "Request code"
+            }
+        }
+    },
+    "pages.verify.forget-code": {
+        "locales": {
+            "nl": {
+                "translated_string": "Verificatiecode verloren?"
+            },
+            "en": {
+                "translated_string": "Lost verification code?"
+            }
+        }
+    },
+    "pages.recovery.invalid-code": {
+        "locales": {
+            "nl": {
+                "translated_string": "De ingevulde code is ongeldig!"
+            },
+            "en": {
+                "translated_string": "The filled in code is invalid!"
+            }
+        }
+    },
+    "pages.recovery.reset-password.title": {
+        "locales": {
+            "nl": {
+                "translated_string": "Wachtwoord veranderen"
+            },
+            "en": {
+                "translated_string": "Change password"
+            }
+        }
+    },
+    "pages.reset-password.password-mismatch": {
+        "locales": {
+            "nl": {
+                "translated_string": "De gegeven wachtwoorden komen niet overeen."
+            },
+            "en": {
+                "translated_string": "The given passwords do not match."
+            }
+        }
+    },
+    "pages.reset-password.reset-success": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je wachtwoord is succesvol gewijzigd, je wordt binnen 5 seconden automatisch naar de loginpagina gestuurd."
+            },
+            "en": {
+                "translated_string": "Your password reset was successful, you will be automatically redirected to the login page in 5 seconds."
+            }
+        }
+    },
+    "pages.reset-password.password-not-up-to-standard": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het wachtwoord voldoet niet aan de veiligheidseisen."
+            },
+            "en": {
+                "translated_string": "The password does not meet the security standards."
+            }
+        }
+    },
+    "pages.reset-password.password-too-short": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het wachtwoord bevat minder dan 8 karakters."
+            },
+            "en": {
+                "translated_string": "The password does not have the minimum of 8 characters."
+            }
+        }
+    },
+    "general.form-labels.confirm_password": {
+        "locales": {
+            "nl": {
+                "translated_string": "Herhaal wachtwoord"
+            },
+            "en": {
+                "translated_string": "Confirm password"
+            }
+        }
+    },
+    "pages.reset-password.success.redirect-me": {
+        "locales": {
+            "nl": {
+                "translated_string": "Stuur mij door!"
+            },
+            "en": {
+                "translated_string": "Redirect me!"
+            }
+        }
+    },
+    "general.error": {
+        "locales": {
+            "nl": {
+                "translated_string": "Er is iets fout gegaan"
+            },
+            "en": {
+                "translated_string": "General error"
+            }
+        }
+    },
+    "pages.logout.logging_out": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je wordt uitgelogd"
+            },
+            "en": {
+                "translated_string": "You are being logged out"
+            }
+        }
+    },
+    "general.business_relation.waterfront": {
+        "locales": {
+            "nl": {
+                "translated_string": "Waterfront"
+            },
+            "en": {
+                "translated_string": "Waterfront"
+            }
+        }
+    },
+    "general.business_relation.yourhosting": {
+        "locales": {
+            "nl": {
+                "translated_string": "Yourhosting"
+            },
+            "en": {
+                "translated_string": "Yourhosting"
+            }
+        }
+    },
+    "general.business_relation.alphamega": {
+        "locales": {
+            "nl": {
+                "translated_string": "Alphamega"
+            },
+            "en": {
+                "translated_string": "Alphamega"
+            }
+        }
+    },
+    "general.business_relation.deheeg": {
+        "locales": {
+            "nl": {
+                "translated_string": "DeHeeg"
+            },
+            "en": {
+                "translated_string": "DeHeeg"
+            }
+        }
+    },
+    "general.business_relation.pcextreme": {
+        "locales": {
+            "nl": {
+                "translated_string": "PCextreme"
+            },
+            "en": {
+                "translated_string": "PCextreme"
+            }
+        }
+    },
+    "general.business_relation.realhosting": {
+        "locales": {
+            "nl": {
+                "translated_string": "RealHosting"
+            },
+            "en": {
+                "translated_string": "RealHosting"
+            }
+        }
+    },
+    "general.business_relation.sohosted": {
+        "locales": {
+            "nl": {
+                "translated_string": "Sohosted"
+            },
+            "en": {
+                "translated_string": "Sohosted"
+            }
+        }
+    },
+    "general.business_relation.versio": {
+        "locales": {
+            "nl": {
+                "translated_string": "Versio"
+            },
+            "en": {
+                "translated_string": "Versio"
+            }
+        }
+    },
+    "general.business_relation.vevida": {
+        "locales": {
+            "nl": {
+                "translated_string": "Vevida"
+            },
+            "en": {
+                "translated_string": "Vevida"
+            }
+        }
+    },
+    "general.business_relation.vipclient": {
+        "locales": {
+            "nl": {
+                "translated_string": "VIPClient"
+            },
+            "en": {
+                "translated_string": "VIPClient"
+            }
+        }
+    },
+    "general.business_relation.compass": {
+        "locales": {
+            "nl": {
+                "translated_string": "Compass"
+            },
+            "en": {
+                "translated_string": "Compass"
+            }
+        }
+    },
+    "general.business_relation.harbor": {
+        "locales": {
+            "nl": {
+                "translated_string": "Harbor"
+            },
+            "en": {
+                "translated_string": "Harbor"
+            }
+        }
+    },
+    "general.business_relation.nova": {
+        "locales": {
+            "nl": {
+                "translated_string": "Nova"
+            },
+            "en": {
+                "translated_string": "Nova"
+            }
+        }
+    },
+    "pages.registration.optional": {
+        "locales": {
+            "nl": {
+                "translated_string": "(optioneel)"
+            },
+            "en": {
+                "translated_string": "(optional)"
+            }
+        }
+    },
+    "pages.settings.sidebar.destination": {
+        "locales": {
+            "nl": {
+                "translated_string": "Beheerpanelen"
+            },
+            "en": {
+                "translated_string": "Control panels"
+            }
+        }
+    },
+    "pages.settings.totp-is-enabled": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je hebt Multi Factor Authenticatie aan staan"
+            },
+            "en": {
+                "translated_string": "You have Multi Factor Authentication enabled"
+            }
+        }
+    },
+    "pages.auth.login.totp.verify": {
+        "locales": {
+            "nl": {
+                "translated_string": "Verder gaan"
+            },
+            "en": {
+                "translated_string": "Continue"
+            }
+        }
+    },
+    "pages.auth.confirmation": {
+        "locales": {
+            "nl": {
+                "translated_string": "2 Staps authenticatie"
+            },
+            "en": {
+                "translated_string": "2 Step authentication"
+            }
+        }
+    },
+    "pages.auth.continue-button": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ga verder"
+            },
+            "en": {
+                "translated_string": "Continue"
+            }
+        }
+    },
+    "pages.auth.continue-button.checkout": {
+        "locales": {
+            "nl": {
+                "translated_string": "Doorgaan naar kassa"
+            },
+            "en": {
+                "translated_string": "Proceed to checkout"
+            }
+        }
+    },
+    "pages.auth.continue": {
+        "locales": {
+            "nl": {
+                "translated_string": "Kies naar welk paneel je wilt gaan"
+            },
+            "en": {
+                "translated_string": "Choose the panel you want to be redirected to"
+            }
+        }
+    },
+    "pages.auth.settings.destination.selected.loading": {
+        "locales": {
+            "nl": {
+                "translated_string": "Doorverwijzing voor {destination} wordt geladen, je wordt automatisch doorverwezen."
+            },
+            "en": {
+                "translated_string": "Redirect for {destination} is being loaded, you will be redirected automatically."
+            }
+        }
+    },
+    "pages.auth.go-back": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ga terug"
+            },
+            "en": {
+                "translated_string": "Go back"
+            }
+        }
+    },
+    "modal.auth.expired.title": {
+        "locales": {
+            "nl": {
+                "translated_string": "Sessie verlopen"
+            },
+            "en": {
+                "translated_string": "Session expired"
+            }
+        }
+    },
+    "modal.auth.expired.description": {
+        "locales": {
+            "nl": {
+                "translated_string": "Jouw sessie is verlopen: log alsjeblieft opnieuw in."
+            },
+            "en": {
+                "translated_string": "Your session has expired: please log in again."
+            }
+        }
+    },
+    "modal.auth.expired.confirm": {
+        "locales": {
+            "nl": {
+                "translated_string": "Begrepen"
+            },
+            "en": {
+                "translated_string": "Understood"
+            }
+        }
+    },
+    "general.navigation.backup": {
+        "locales": {
+            "nl": {
+                "translated_string": "Backup"
+            },
+            "en": {
+                "translated_string": "Backup"
+            }
+        }
+    },
+    "general.navigation.configuration": {
+        "locales": {
+            "nl": {
+                "translated_string": "Configuratie"
+            },
+            "en": {
+                "translated_string": "Configuration"
+            }
+        }
+    },
+    "pages.auth.settings.destination.loading": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ophalen mogelijke eindpunten"
+            },
+            "en": {
+                "translated_string": "Loading possible destinations"
+            }
+        }
+    },
+    "pages.auth.settings.destination.no_destinations": {
+        "locales": {
+            "nl": {
+                "translated_string": "Geen eindpunten gevonden"
+            },
+            "en": {
+                "translated_string": "No destinations found"
+            }
+        }
+    },
+    "pages.auth.chooseMethod": {
+        "locales": {
+            "nl": {
+                "translated_string": "Hoe wil je inloggen"
+            },
+            "en": {
+                "translated_string": "How do you want to log in"
+            }
+        }
+    },
+    "pages.auth.password": {
+        "locales": {
+            "nl": {
+                "translated_string": "Vul je wachtwoord in!"
+            },
+            "en": {
+                "translated_string": "Enter your password"
+            }
+        }
+    },
+    "pages.auth.redirect": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je wordt doorgestuurd!"
+            },
+            "en": {
+                "translated_string": "Getting redirected"
+            }
+        }
+    },
+    "pages.auth.method.password": {
+        "locales": {
+            "nl": {
+                "translated_string": "Wachtwoord"
+            },
+            "en": {
+                "translated_string": "Password"
+            }
+        }
+    },
+    "pages.auth.method.oidc": {
+        "locales": {
+            "nl": {
+                "translated_string": "OIDC / SSO"
+            },
+            "en": {
+                "translated_string": "OIDC / SSO"
+            }
+        }
+    },
+    "pages.auth.method.totp": {
+        "locales": {
+            "nl": {
+                "translated_string": "Two-factor authentication"
+            },
+            "en": {
+                "translated_string": "Two-factor authentication"
+            }
+        }
+    },
+    "kratos.validation-error-codes.4000037": {
+        "locales": {
+            "nl": {
+                "translated_string": "Account / email kan niet gevonden worden"
+            },
+            "en": {
+                "translated_string": "Account / email cannot be found"
+            }
+        }
+    },
+    "pages.auth.login.warning.customer-number-not-found": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het lijkt erop dat je probeert in te loggen met klantnummer {identifier} maar daar konden we geen account van vinden. Controleer het klantnummer of log in met je e-mailadres."
+            },
+            "en": {
+                "translated_string": "It looks like you are trying to log in with customer number {identifier} but we could not find that account. Check your customer number or login with your email address."
+            }
+        }
+    },
+    "pages.auth.login.warning.user-name-not-found": {
+        "locales": {
+            "nl": {
+                "translated_string": "Het lijkt erop dat je probeert in te loggen met gebruikersnaam {identifier} maar daar konden we geen account van vinden. Controleer de gebruikersnaam of log in met je e-mailadres."
+            },
+            "en": {
+                "translated_string": "It looks like you are trying to log in with user name {identifier} but we could not find that account. Check your user name or login with your email address."
+            }
+        }
+    },
+    "pages.auth.login.via-microsoft": {
+        "locales": {
+            "nl": {
+                "translated_string": "Via Microsoft"
+            },
+            "en": {
+                "translated_string": "Via Microsoft"
+            }
+        }
+    },
+    "pages.error.header": {
+        "locales": {
+            "nl": {
+                "translated_string": "Er is iets misgegaan"
+            },
+            "en": {
+                "translated_string": "Something went wrong"
+            }
+        }
+    },
+    "pages.error.description": {
+        "locales": {
+            "nl": {
+                "translated_string": "Probeer het nogmaals, als de error zichzelf blijft voordoen, neem contact op met support."
+            },
+            "en": {
+                "translated_string": "Try again, if the error keeps persisting please contact support."
+            }
+        }
+    },
+    "pages.error.go_back": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ga terug"
+            },
+            "en": {
+                "translated_string": "Go back"
+            }
+        }
+    },
+    "pages.settings.button.link": {
+        "locales": {
+            "nl": {
+                "translated_string": "Koppel"
+            },
+            "en": {
+                "translated_string": "Link"
+            }
+        }
+    },
+    "pages.settings.button.unlink": {
+        "locales": {
+            "nl": {
+                "translated_string": "Ontkoppel"
+            },
+            "en": {
+                "translated_string": "Unlink"
+            }
+        }
+    },
+    "general.sso_provider.google": {
+        "locales": {
+            "nl": {
+                "translated_string": "Google"
+            },
+            "en": {
+                "translated_string": "Google"
+            }
+        }
+    },
+    "general.sso_provider.microsoft": {
+        "locales": {
+            "nl": {
+                "translated_string": "Microsoft"
+            },
+            "en": {
+                "translated_string": "Microsoft"
+            }
+        }
+    },
+    "pages.settings.sso": {
+        "locales": {
+            "nl": {
+                "translated_string": "Single Sign On"
+            },
+            "en": {
+                "translated_string": "Single Sign On"
+            }
+        }
+    },
+    "pages.settings.sidebar.sso": {
+        "locales": {
+            "nl": {
+                "translated_string": "Single Sign On"
+            },
+            "en": {
+                "translated_string": "Single Sign On"
+            }
+        }
+    },
+    "atlantis.layout.social-proof.number": {
+        "locales": {
+            "nl": {
+                "translated_string": "344.000+"
+            },
+            "en": {
+                "translated_string": "344.000+"
+            }
+        }
+    },
+    "atlantis.layout.social-proof": {
+        "locales": {
+            "nl": {
+                "translated_string": "ondernemers vertrouwen ons"
+            },
+            "en": {
+                "translated_string": "business owners trust us"
+            }
+        }
+    },
+    "atlantis.layout.usps": {
+        "locales": {
+            "nl": {
+                "translated_string": "Jouw data veilig in Nederland\nGratis telefonische support\nSnel online met WordPress AI"
+            },
+            "en": {
+                "translated_string": "Your data secure in the Netherlands\nFree customer support by phone\nGet online quickly with WordPress AI"
+            }
+        }
+    }
+}

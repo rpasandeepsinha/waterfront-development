@@ -1,0 +1,38 @@
+{
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [],
+        "hosting": [],
+        "ssl": [],
+        "addons": [],
+        "vps": [
+            {
+                "uuid": "27cdbe0d-559f-43a1-a1d2-917f30b0c57d",
+                "slug": "vps-32-red",
+                "name": "VPS 32 Redundant",
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12,
+                "price": 96,
+                "gross_price": 96,
+                "status": "registration",
+                "children": {
+                    "cloudstack-os": [
+                        {
+                            "uuid": "27cdbe0d-559f-43a1-a1d2-917f30b0c214",
+                            "status": "registration",
+                            "domain": "example.org",
+                            "billing_period": 1,
+                            "contract_period": 1,
+                            "price": 10,
+                            "gross_price": 10,
+                            "name": "Ubuntu LTS 20.04",
+                            "slug": "ubuntu-lts-20.04"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "vouchers": []
+}

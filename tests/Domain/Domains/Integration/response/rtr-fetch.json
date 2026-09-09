@@ -1,0 +1,36 @@
+{
+    "domainName": "domain-order-test.nl",
+    "registrant": "sandwave-ote1",
+    "status": [
+        "OK"
+    ],
+    "authcode": "3E6RWBR5tUW6",
+    "createdDate": "2024-06-07T14:30:29Z",
+    "updatedDate": "2024-06-10T09:43:02Z",
+    "expiryDate": "2025-06-07T00:00:00Z",
+    "ns": [
+        "ns1.axc.eu",
+        "ns2.axc.eu"
+    ],
+    "autoRenew": true,
+    "autoRenewPeriod": 12,
+    "privacyProtect": false,
+    "gateway": false,
+    "premium": false,
+    "contacts": [
+        {
+            "role": "TECH",
+            "handle": "sandwave-ote1"
+        },
+        {
+            "role": "ADMIN",
+            "handle": "sandwave-ote1"
+        },
+        {
+            "role": "BILLING",
+            "handle": "sandwave-ote1"
+        }
+    ],
+    "registry": "Sidn",
+    "customer": "sandwave-ote1"
+}

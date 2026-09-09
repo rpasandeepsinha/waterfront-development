@@ -1,0 +1,25 @@
+{
+    "customer_id":1,
+    "subscriptions":{
+        "extension":[
+        ],
+        "hosting":[
+        ],
+        "vps": [
+            {
+                "status": "registration",
+                "name": "VPS HA 1G",
+                "slug": "vps-ha-1g",
+                "period":12,
+                "price": 1337,
+                "gross_price":1337
+            }
+        ],
+        "ssl":[
+        ],
+        "addons":[
+        ]
+    },
+    "vouchers":[
+    ]
+}

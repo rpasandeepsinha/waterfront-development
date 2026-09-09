@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet><customer><get-domain-list><filter><login>website1234</login></filter></get-domain-list></customer></packet>

@@ -1,0 +1,12 @@
+{
+    "audit-log-summary.subscription": {
+        "locales": {
+            "nl": {
+                "translated_string": ":actor heeft :entity :domain :event"
+            },
+            "en": {
+                "translated_string": ":actor has :event :entity :domain"
+            }
+        }
+    }
+}

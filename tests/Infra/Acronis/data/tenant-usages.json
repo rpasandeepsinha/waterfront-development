@@ -1,0 +1,54 @@
+{
+  "items": [
+    {
+      "application_id": "c6ab7fb4-b461-4214-9257-86fbad8efb85",
+      "name": "adv_vms",
+      "edition": "advanced",
+      "usage_name": "vms",
+      "type": "count",
+      "measurement_unit": "quantity",
+      "range_start": "2017-06-01T00:00:00",
+      "absolute_value": 800,
+      "value": 800,
+      "offering_item": {
+        "status": 1,
+        "quota": {
+          "value": 10,
+          "overage": 10,
+          "version": 1486479690324
+        }
+      }
+    },
+    {
+      "application_id": "c6ab7fb4-b461-4214-9257-86fbad8efb85",
+      "name": "storage",
+      "edition": "standard",
+      "usage_name": "storage",
+      "type": "infra",
+      "measurement_unit": "bytes",
+      "infra_id": "df476eec-c470-40b0-9b10-37223b7f4a2b",
+      "range_start": "2017-06-22T00:00:00",
+      "absolute_value": 800,
+      "value": 800,
+      "offering_item": {
+        "status": 1,
+        "quota": {
+          "value": 1000,
+          "overage": 2000,
+          "version": 1486479690324
+        }
+      }
+    },
+    {
+      "application_id": "c6ab7fb4-b461-4214-9257-86fbad8efb85",
+      "name": "vm_storage",
+      "edition": "standard",
+      "usage_name": "vm_storage",
+      "range_start": "2017-06-01T00:00:00",
+      "type": "infra",
+      "measurement_unit": "bytes",
+      "absolute_value": 100000,
+      "value": 100000
+    }
+  ]
+}

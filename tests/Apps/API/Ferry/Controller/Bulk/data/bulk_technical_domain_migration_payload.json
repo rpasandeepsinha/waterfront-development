@@ -1,0 +1,30 @@
+[
+    {
+        "waterfront_customer_id": 21,
+        "subscriptions": [
+            {
+                "reference_subscription_id": "my_subscription_id",
+                "domain_data": {
+                    "reference_dns_template_id": "my_dns_template_id_test123"
+                }
+            },
+            {
+                "reference_subscription_id": "my_subscription_id_another_one"
+            }
+        ]
+    },
+    {
+        "waterfront_customer_id": 212222,
+        "subscriptions": [
+            {
+                "reference_subscription_id": "my_subscription_id_second",
+                "domain_data": {
+                    "reference_dns_template_id": "my_dns_template_id_test1235"
+                }
+            },
+            {
+                "reference_subscription_id": "my_subscription_id_another_one_second"
+            }
+        ]
+    }
+]

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet version="1.6.9.1">
+    <customer>
+        <add>
+            <result>
+                <status>ok</status>
+                <id>3</id>
+                <guid>6b1ecc2a-99b9-471f-9e5e-49932a6e9da0</guid>
+            </result>
+        </add>
+    </customer>
+</packet>

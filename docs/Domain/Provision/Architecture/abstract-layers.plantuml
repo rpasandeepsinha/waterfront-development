@@ -1,0 +1,9 @@
+@startuml
+storage Provision {
+    storage Types {
+      storage Providers {
+        storage Client
+      }
+    }
+}
+@enduml

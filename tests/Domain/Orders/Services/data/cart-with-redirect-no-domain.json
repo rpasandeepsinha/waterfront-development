@@ -1,0 +1,23 @@
+{
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [],
+        "hosting": [],
+        "ssl": [],
+        "vps": [],
+        "reseller-hosting": [],
+        "add-on": [],
+        "redirect" : [
+            {
+                "uuid": "ad673cf3-f128-456a-8c01-498d48ba12f8",
+                "slug": "redirect",
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12,
+                "price": 96,
+                "gross_price": 96,
+                "status": "registration"
+            }
+        ]
+    }
+}

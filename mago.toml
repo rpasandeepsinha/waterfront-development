@@ -1,0 +1,265 @@
+# Welcome to Mago!
+# For full documentation, see https://mago.carthage.software/tools/overview
+php-version = "8.4.0"
+
+[source]
+workspace = "."
+paths = ["src/", "config/", "database/", "routes/", "tests/"]
+includes = ["vendor"]
+excludes = ["storage/", "bootstrap/", "vendor/bin/", "tests/PhpStan/", "public/"]
+
+[formatter]
+preset = "psr-12"
+method-brace-style = "next-line"
+preserve-breaking-argument-list = true
+empty-line-before-return = true
+space-after-logical-not-unary-prefix-operator = true
+empty-line-after-control-structure = true
+first-method-chain-on-new-line = false
+space-before-arrow-function-parameter-list-parenthesis = true
+print-width = 120
+control-brace-style = "same-line"
+space-around-assignment-in-declare = false
+sort-uses = true
+trailing-comma = true
+space-after-cast-unary-prefix-operators = true
+space-within-grouping-parenthesis = false
+separate-use-types = false
+indent-heredoc = false
+
+
+[linter]
+baseline = "mago-linter-baseline.toml"
+integrations = ["symfony", "laravel", "phpunit"]
+
+[linter.rules]
+ambiguous-function-call = { enabled = false }
+literal-named-argument = { enabled = false }
+assert-description = { enabled = false}
+excessive-parameter-list = { enabled = false }
+final-controller = { enabled = false }
+halstead = { volume-threshold = 2000, difficulty-threshold = 20, effort-threshold = 20000 }
+cyclomatic-complexity = { enabled = false }
+too-many-methods = { enabled = false }
+kan-defect = { enabled = false }
+no-literal-password = { enabled = false }
+sensitive-parameter = { enabled = false }
+no-insecure-comparison = { enabled = false }
+too-many-enum-cases = { enabled = false }
+braced-string-interpolation = { enabled = false }
+readable-literal = { enabled = false }
+tagged-todo = { enabled = false }
+prefer-static-closure = { enabled = false }
+prefer-early-continue = { enabled = false }
+inline-variable-return = { enabled = false }
+assertion-style = { enabled = false }
+no-empty-catch-clause = { enabled = false, level = "error" }
+no-assign-in-argument = { enabled = true }
+no-dead-store = { enabled = true }
+no-redundant-variable = { enabled = true }
+no-unused-closure-capture = { enabled = true }
+no-unused-static = { enabled = true }
+no-unused-global = { enabled = true }
+switch-continue-to-break = { enabled = true }
+no-debug-symbols = { level = "error" }
+
+# Replaces phpstan-disallow-laravel-helpers.neon (disallowedFunctionCalls).
+# `config` and `env` are intentionally omitted (commented out in the original neon).
+[linter.rules.disallowed-functions]
+enabled = true
+level = "error"
+functions = [
+  { name = "abort", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "abort_if", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "abort_unless", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "action", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "app", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "app_path", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "append_config", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "asset", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "auth", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "back", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "base_path", help = "Deprecated global Laravel helper, use real paths or the application base path" },
+  { name = "blank", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "bcrypt", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "broadcast", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "cache", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "class_basename", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "class_uses_recursive", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "config_path", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "collect", help = "Deprecated global Laravel helper, use new Collection()" },
+  { name = "cookie", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "csrf_field", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "csrf_token", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "database_path", help = "Deprecated global Laravel helper, use real paths or the application base path" },
+  { name = "decrypt", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "dispatch", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "dispatch_sync", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "dispatch_now", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "e", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "encrypt", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "event", help = "Deprecated global Laravel helper, use DI to get the right service: Illuminate\\Contracts\\Events\\Dispatcher" },
+  { name = "fake", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "filled", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "head", help = "Deprecated global Laravel helper, use reset()" },
+  { name = "info", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "logger", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "lang_path", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "last", help = "Deprecated global Laravel helper, use end()" },
+  { name = "logs", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "method_field", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "mix", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "now", help = "Deprecated global Laravel helper, use CarbonImmutable::now()" },
+  { name = "object_get", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "old", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "optional", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "policy", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "public_path", help = "Deprecated global Laravel helper, use real paths or the application base path" },
+  { name = "preg_replace_array", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "redirect", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "report", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "request", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "rescue", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "resolve", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "resource_path", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "response", help = "Deprecated global Laravel helper, construct a new Response instead" },
+  { name = "retry", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "route", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "secure_asset", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "secure_url", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "session", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "storage_path", help = "Deprecated global Laravel helper, use real paths or the application base path" },
+  { name = "str", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "tap", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "throw_if", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "throw_unless", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "to_route", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "today", help = "Deprecated global Laravel helper, use CarbonImmutable::today()" },
+  { name = "trait_uses_recursive", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "trans", help = "Deprecated global Laravel helper, use DI to get the translator service: \\Illuminate\\Contracts\\Translation\\Translator" },
+  { name = "trans_choice", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "transform", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "__", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "url", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "validator", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "value", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "view", help = "Deprecated global Laravel helper, use DI to get the right service" },
+  { name = "windows_os", help = "Deprecated global Laravel helper, dont use it" },
+  { name = "with", help = "Deprecated global Laravel helper, dont use it" },
+
+  # Replaces ekino/phpstan-banned-code (banned_code.nodes).
+  # `echo`, `print`, `exit` and `die` are language constructs and cannot be banned here.
+  { name = "debug_backtrace", help = "Banned debug function, dont commit debug code" },
+  { name = "exec", help = "Banned function, do not execute shell commands from PHP" },
+  { name = "passthru", help = "Banned function, do not execute shell commands from PHP" },
+  { name = "proc_open", help = "Banned function, do not execute shell commands from PHP" },
+  { name = "shell_exec", help = "Banned function, do not execute shell commands from PHP" },
+  { name = "system", help = "Banned function, do not execute shell commands from PHP" },
+
+  # Replaces spaze/phpstan-disallowed-calls disallowed-dangerous-calls.neon.
+  { name = "apache_setenv", help = "Might overwrite existing variables" },
+  { name = "create_function", help = "The function is about as evil as using eval()" },
+  { name = "dl", help = "Removed from most SAPIs, might load untrusted code" },
+  { name = "extract", help = "Do not use extract() and especially not on untrusted data" },
+  { name = "highlight_file", help = "Might reveal source code or config files" },
+  { name = "pfsockopen", help = "Use fsockopen() to create non-persistent socket connections" },
+  { name = "phpinfo", help = "Might reveal session id or other tokens in cookies" },
+  { name = "posix_getpwuid", help = "Might reveal system user information" },
+  { name = "posix_kill", help = "Do not send signals to processes from the script" },
+  { name = "posix_mkfifo", help = "Do not create named pipes in the script" },
+  { name = "posix_mknod", help = "Do not create special files in the script" },
+  { name = "proc_nice", help = "Changes the priority of the current process" },
+  { name = "putenv", help = "Might overwrite existing variables" },
+  { name = "show_source", help = "Might reveal source code or config files (alias of highlight_file())" },
+  { name = "socket_create_listen", help = "Do not accept new socket connections in the PHP script" },
+  { name = "socket_listen", help = "Do not accept new socket connections in the PHP script" },
+  { name = "var_export", help = "Use some logger instead" },
+
+  # Replaces ergebnis Expressions\NoCompactRule.
+  { name = "compact", help = "Do not use compact(), build the array explicitly" },
+]
+
+# Replaces phpstan.neon.dist `disallowedClasses`.
+# Note: only catches `new ClassName(...)` direct instantiation, but gives a better message there.
+# Static calls (Mockery::mock, Carbon::now, ...) are covered by [guard.perimeter.restrictions] below.
+[linter.rules.disallowed-type-instantiation]
+enabled = true
+level = "error"
+types = [
+  { name = "Mockery", help = "Mockery should not be used, please use PHPUnit for mocking" },
+  { name = "Carbon\\Carbon", help = "Carbon is mutable, please use CarbonImmutable instead." },
+  { name = "Illuminate\\Support\\Carbon", help = "Carbon is mutable, please use CarbonImmutable instead." },
+]
+
+[analyzer]
+baseline = "mago-analyzer-baseline.toml"
+plugins = []
+find-unused-definitions = true
+find-unused-expressions = true
+analyze-dead-code = true
+memoize-properties = true
+check-throws = false
+check-missing-override = true
+find-unused-parameters = true
+strict-list-index-checks = true
+strict-array-index-existence = true
+no-boolean-literal-comparison = true
+check-missing-type-hints = true
+check-closure-missing-type-hints = true
+check-arrow-function-missing-type-hints = true
+check-use-statements = true
+check-name-casing = true
+check-property-initialization = true
+find-overly-wide-return-types = true
+register-super-globals = false
+# enforce-class-finality is intentionally left unset (defaults to false): it reports classes that are
+# NOT final, the inverse of what this project enforces. See [[guard.structural.rules]] below.
+unchecked-exceptions = ["LogicException"]
+class-initializers = [
+  "PHPUnit\\Framework\\TestCase::setUp",
+  "PHPUnit\\Framework\\TestCase::setUpBeforeClass",
+]
+ignore = [
+    "missing-override-attribute",
+    "possibly-undefined-int-array-index",
+    "possibly-undefined-string-array-index",
+    "avoid-catching-error", #why would we not catch errors ?
+  { code = "missing-return-type", in = ["tests/", "database/"] },
+  # False positive: Factory::$model has no native type, so PHP invariance does not apply, and the
+  # child already binds TModel through `@extends Factory<Model>`. Reported against the vendor file,
+  # so a @mago-expect pragma in the factory cannot attach to it.
+  { code = "incompatible-property-type", pattern = 'Tests\\Factories\\\w+::\$model' },
+]
+
+# Replaces phpstan.neon.dist `disallowedClasses` for everything that is not a `new` expression:
+# static calls (Mockery::mock, Carbon::now), use statements, type hints and facade access.
+[guard]
+mode = "default"
+
+[[guard.perimeter.restrictions]]
+# Mockery should not be used, please use PHPUnit for mocking.
+dependency = "Mockery\\**"
+deny-from = ["App\\", "Tests\\", "Database\\", "@global"]
+
+[[guard.perimeter.restrictions]]
+# Carbon is mutable, please use CarbonImmutable instead.
+dependency = "Carbon\\Carbon"
+deny-from = ["App\\", "Tests\\", "Database\\", "@global"]
+
+[[guard.perimeter.restrictions]]
+# Carbon is mutable, please use CarbonImmutable instead.
+dependency = "Illuminate\\Support\\Carbon"
+deny-from = ["App\\", "Tests\\", "Database\\", "@global"]
+
+[[guard.perimeter.restrictions]]
+# Deprecated Laravel facade, construct a new Response instead.
+dependency = "Illuminate\\Support\\Facades\\Response"
+deny-from = ["App\\", "Tests\\", "Database\\", "@global"]
+
+# Replaces the first half of tests/PhpStan/NoFinalClassesAndOnlyAllowClassExtendingOnAbstractClasses.
+# The second half (may only extend abstract classes) has no Mago equivalent and stays in PHPStan.
+[[guard.structural.rules]]
+on = "App\\**"
+target = "class"
+must-be-final = false
+reason = "Making a class final is not allowed, it prevents mocking in testing."

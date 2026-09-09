@@ -1,0 +1,40 @@
+{
+    "customer_id": null,
+    "payment_method": "direct",
+    "redirect_url": "https://example.com",
+    "subscriptions": {
+        "hosting": [
+            {
+                "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70d",
+                "status": "prolongation",
+                "subscription_uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "billing_period": 12,
+                "contract_period": 12,
+                "name": "groot",
+                "slug": "groot"
+            }
+        ],
+        "ssl": [
+            {
+                "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e704",
+                "status": "registration",
+                "billing_period": 12,
+                "contract_period": 12,
+                "name": "ssl",
+                "slug": "ssl",
+                "domain": "test.com"
+            }
+        ],
+        "add-on": [
+            {
+                "uuid": "fda0da0b-4678-4716-ae8b-b30c62139137",
+                "status": "registration",
+                "parent_subscription_uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "billing_period": 12,
+                "contract_period": 12,
+                "name": "Booking",
+                "slug": "booking"
+            }
+        ]
+    }
+}

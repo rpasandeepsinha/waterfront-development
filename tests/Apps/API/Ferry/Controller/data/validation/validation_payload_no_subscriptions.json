@@ -1,0 +1,21 @@
+{
+    "reference": "unique_reference_for_adf",
+    "customer": {
+        "firstName": "Test",
+        "lastName": "Dummy",
+        "email": "t.dummy@sandwave2.io",
+        "gender": "M",
+        "phone": "09 353 42 00",
+        "paymentTerms": 12,
+        "referenceName": "testmigration",
+        "referenceCustomerId": "identifier",
+        "groupType": "testgroup",
+        "addresses": [{
+            "streetName": "straat",
+            "streetNumber": "12",
+            "zipCode": " 1030 30",
+            "city": "city",
+            "countryCode": "BE"
+        }]
+    }
+}

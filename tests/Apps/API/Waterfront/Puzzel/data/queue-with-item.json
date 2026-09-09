@@ -1,0 +1,49 @@
+{
+    "result": [
+        {
+            "requestId": "1001",
+            "serviceId": 50,
+            "timeInQueue": 120,
+            "vip": 0,
+            "mediaType": "Phone",
+            "requestRemoteAddress": "004712345678",
+            "destination": "81549300",
+            "reservedUserId": 0,
+            "requestStatus": "InQueue",
+            "sla": 60,
+            "adjustedTimeInQueue": 120,
+            "ciq": 0,
+            "reservedUserFlag": 0,
+            "reservedUserName": null,
+            "category": "Sales",
+            "description": "General inquiry",
+            "personalType": "Undefined",
+            "queueId": 10,
+            "callbackScheduledTime": null
+        },
+        {
+            "requestId": "1002",
+            "serviceId": 50,
+            "timeInQueue": 45,
+            "vip": 1,
+            "mediaType": "Chat",
+            "requestRemoteAddress": "192.168.1.1",
+            "destination": "ChatService",
+            "reservedUserId": 12345,
+            "requestStatus": "Allocated",
+            "sla": 30,
+            "adjustedTimeInQueue": 40,
+            "ciq": 0,
+            "reservedUserFlag": 1,
+            "reservedUserName": "Agent Smith",
+            "category": "Support",
+            "description": "Technical issue with login",
+            "personalType": "Pick",
+            "queueId": 12,
+            "callbackScheduledTime": "2023-10-27T10:30:00Z"
+        }
+    ],
+    "code": 0,
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "message": "OK"
+}

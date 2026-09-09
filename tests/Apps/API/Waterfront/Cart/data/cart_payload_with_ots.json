@@ -1,0 +1,36 @@
+{
+    "items": [
+        {
+            "itemUuid": "951fab39-c95c-468b-afa4-76a334460ed5",
+            "productSlug": "extension_com",
+            "priceType": "registration",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "quantity": 1,
+            "metadata": {
+                "domain": "test.com"
+            }
+        },
+        {
+            "itemUuid": "a51403da-4725-48f0-9383-2040d82acfe7",
+            "parentItemUuid": "951fab39-c95c-468b-afa4-76a334460ed5",
+            "productSlug": "free-dns",
+            "priceType": "registration",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "quantity": 1
+        },
+        {
+            "itemUuid": "404eac13-7257-4722-8f85-ab6e1e15daf1",
+            "parentItemUuid": "090dabb1-5c4d-4971-a932-bb119bb8740b",
+            "productSlug": "one_time_service",
+            "billingPeriod": 1,
+            "contractPeriod": 1,
+            "priceType": "registration",
+            "quantity": 1,
+            "metaData": {}
+        }
+    ],
+    "vouchers": [],
+    "paymentMethod": "ideal"
+}

@@ -1,0 +1,81 @@
+{
+    "exp": 1713184146,
+    "iat": 1713183246,
+    "iss": "http://iap:4456/",
+    "jti": "b05de86a-16dc-4961-b428-e0778cc5e828",
+    "nbf": 1713183246,
+    "session": {
+        "extra": {
+            "active": true,
+            "authenticated_at": "2024-04-15T11:56:51.133999Z",
+            "authentication_methods": [
+                {
+                    "aal": "aal1",
+                    "completed_at": "2024-04-15T11:56:51.133996488Z",
+                    "method": "password"
+                },
+                {
+                    "aal": "aal2",
+                    "completed_at": "2024-04-15T11:56:51.133996488Z",
+                    "method": "totp"
+                }
+            ],
+            "authenticator_assurance_level": "aal2",
+            "devices": [
+                {
+                    "id": "907f8ab3-29ed-4854-86dc-0309744f92f0",
+                    "ip_address": "",
+                    "location": "",
+                    "user_agent": "Mozilla\/5.0 (X11; Linux x86_64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/122.0.0.0 Safari\/537.36"
+                }
+            ],
+            "expires_at": "2024-04-16T11:56:51.133999Z",
+            "id": "8640a980-d0f3-447f-85ad-531581ad72b2",
+            "identity": {
+                "created_at": "2024-04-15T11:56:49.284039Z",
+                "id": "64ae13b2-fdf7-44c4-a142-6c6f6eafec0a",
+                "metadata_public": {
+                    "business_relations": [
+                        "waterfront"
+                    ],
+                    "customers": [
+                        1, 2
+                    ],
+                    "displayLanguage": "nl_NL"
+                },
+                "recovery_addresses": [
+                    {
+                        "created_at": "2024-04-15T11:56:49.284711Z",
+                        "id": "668dbc55-b780-4347-9e5b-4f8b847ac3ef",
+                        "updated_at": "2024-04-15T11:56:49.284711Z",
+                        "value": "test.kees@sandwave.io",
+                        "via": "email"
+                    }
+                ],
+                "schema_id": "customer",
+                "schema_url": "http:\/\/kratos\/schemas\/Y3VzdG9tZXI",
+                "state": "active",
+                "state_changed_at": "2024-04-15T11:56:49.283187Z",
+                "traits": {
+                    "email": "test.kees@sandwave.io"
+                },
+                "updated_at": "2024-04-15T11:56:49.284039Z",
+                "verifiable_addresses": [
+                    {
+                        "created_at": "2024-04-15T11:56:49.28448Z",
+                        "id": "f6afe2a0-c421-4d86-9589-0d22f94c5825",
+                        "status": "completed",
+                        "updated_at": "2024-04-15T11:56:49.28448Z",
+                        "value": "test.kees@sandwave.io",
+                        "verified": true,
+                        "verified_at": "2024-04-15T11:56:49Z",
+                        "via": "email"
+                    }
+                ]
+            },
+            "issued_at": "2024-04-15T11:56:51.133999Z"
+        },
+        "kind": "user"
+    },
+    "sub": "64ae13b2-fdf7-44c4-a142-6c6f6eafec0a"
+}

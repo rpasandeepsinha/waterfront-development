@@ -1,0 +1,36 @@
+{
+    "customer_id": 1,
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [],
+        "hosting": [],
+        "ssl": [],
+        "cloudstack-virtual-machine": [],
+        "microsoft-365": [
+            {
+                "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "status": "registration",
+                "billing_period": 1,
+                "contract_period": 1,
+                "price": 1399,
+                "gross_price": 1399,
+                "slug": "microsoft-business-standard",
+                "tenant_name": "yourhosting.onmicrosoft.com"
+            },
+            {
+                "uuid": "fda0da0b-4678-4716-ae8b-b30c62139137",
+                "status": "registration",
+                "billing_period": 1,
+                "contract_period": 1,
+                "price": 1399,
+                "gross_price": 1399,
+                "slug": "microsoft-business-standard",
+                "tenant_name": "yourhosting.onmicrosoft.com"
+            }
+        ],
+        "reseller-hosting": [],
+        "add-on": []
+    },
+    "vouchers": [],
+    "newsletter": false
+}

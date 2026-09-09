@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MicrosoftCustomerAgreementAttestationResponse_V1>
+    <Status>
+        <Messages />
+        <Code>Success</Code>
+    </Status>
+    <AttestationId>49a69a39-8244-4c51-9805-4f5aa3adac6b</AttestationId>
+    <AttestationUrl>https://cdn.partner.microsoft.com/mca/?attestationid=49a69a39-8244-4c51-9805-4f5aa3adac6b</AttestationUrl>
+    <AttestationStatus>Pending</AttestationStatus>
+</MicrosoftCustomerAgreementAttestationResponse_V1>

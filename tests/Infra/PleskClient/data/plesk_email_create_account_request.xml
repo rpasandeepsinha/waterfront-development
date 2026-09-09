@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet><mail><create><filter><site-id>27</site-id><mailname><name>info</name><mailbox><enabled>true</enabled></mailbox><password><value>test-password</value><type>plain</type></password><antivir>inout</antivir></mailname></filter></create></mail></packet>

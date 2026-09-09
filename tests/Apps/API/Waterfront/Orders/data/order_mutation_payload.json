@@ -1,0 +1,18 @@
+{
+    "customer_id": null,
+    "payment_method": "credit",
+    "subscriptions": {
+        "extension": [
+            {
+                "uuid": "fda0da0b-4678-4716-ae8b-b30c62139137",
+                "domain": "test.com",
+                "slug": "extension_com",
+                "status": "prolongation",
+                "period": 24,
+                "billing_period": 24,
+                "contract_period": 24,
+                "subscription_uuid": "fda0da0b-4678-4716-ae8b-b30c62139137"
+            }
+        ]
+    }
+}

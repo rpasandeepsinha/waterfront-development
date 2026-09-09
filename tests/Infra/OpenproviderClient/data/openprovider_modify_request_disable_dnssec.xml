@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openXML>
+    <credentials>
+        <username>test-user</username>
+        <password>password</password>
+    </credentials>
+    <modifyDomainRequest>
+        <domain>
+            <name>example</name>
+            <extension>org</extension>
+        </domain>
+        <isDnssecEnabled>0</isDnssecEnabled>
+        <dnssecKeys/>
+    </modifyDomainRequest>
+</openXML>

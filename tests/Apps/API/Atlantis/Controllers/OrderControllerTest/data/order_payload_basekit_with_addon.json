@@ -1,0 +1,36 @@
+{
+    "customer_id": null,
+    "payment_method": "ideal",
+    "subscriptions": {
+        "hosting": [
+            {
+                "uuid": "17e4407c-ceab-40bc-9de5-4574640b3eff",
+                "name": "hosting_test",
+                "slug": "sitebuilder",
+                "status": "registration",
+                "price": 199,
+                "gross_price": 1120,
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12,
+                "server": null,
+
+                "children":{
+                    "add-on":[
+                        {
+                            "uuid":"fda0da0b-4678-4716-ae8b-b30c62139137",
+                            "status":"registration",
+                            "domain":"test.com",
+                            "billing_period":12,
+                            "contract_period":12,
+                            "price":0,
+                            "gross_price":0,
+                            "name":"Booking",
+                            "slug":"booking"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

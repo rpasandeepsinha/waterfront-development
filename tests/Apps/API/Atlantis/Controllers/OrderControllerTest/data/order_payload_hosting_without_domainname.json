@@ -1,0 +1,20 @@
+{
+    "customer_id": null,
+    "payment_method": "ideal",
+    "subscriptions": {
+        "hosting": [
+            {
+                "uuid": "17e4407c-ceab-40bc-9de5-4574640b3eff",
+                "name": "hosting_test",
+                "slug": "hosting_test",
+                "status": "registration",
+                "price": 199,
+                "gross_price": 1120,
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12,
+                "server": null
+            }
+        ]
+    }
+}

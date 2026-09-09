@@ -1,0 +1,29 @@
+@startuml
+start
+
+:Receiver domain order;
+
+if (ZoneCheck or NS required?) then (yes)
+  :Do nothing;
+else (no)
+  :Register domain without
+   nameservers and dnssec;
+endif
+
+: Provisioning of DNS for domain
+  DnsProvisioned Event dispatched;
+
+: DnsProvisionedListener triggered;
+
+if (ZoneCheck or NS required?) then (yes)
+  :Register domain with
+   nameservers and dnssec;
+else (no)
+  :Update existing domain
+   with nameservers and dnssec;
+endif
+
+: Domain registered with correct nameservers and dnssec;
+
+stop
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+
+left to right direction
+skinparam linetype ortho
+
+class AddOnLineItem extends LineItem
+class DnsLineItem extends LineItem
+class DomainExtensionLineItem extends LineItem
+class ExtensionLineItem extends LineItem
+class HostingLineItem extends LineItem
+class LineItem {
+   +billingPeriod
+   +children
+   +price
+   +domain
+   +name
+   +grossPrice
+   +parentSubscriptionUuid
+   +slug
+   +contractPeriod
+   +status
+}
+class Microsoft365LineItem extends LineItem
+
+class ResellerHostingLineItem extends LineItem
+class SslLineItem extends LineItem
+class VpsLineItem extends LineItem
+class VpsOsLineItem extends LineItem
+
+@enduml

@@ -1,0 +1,123 @@
+@startuml
+skinparam defaultTextAlignment center
+
+split
+  partition "**Process** Commands" {
+
+  -[hidden]->
+  :Scheduled\ncommands;
+  split
+    split
+        :Missing\ncustomers\ncommand;
+    split again
+        :Out of sync\ncustomers\ncommand;
+    end split
+    :Loop: Create\ncustomer jobs;
+    :Sync\nCustomer To\nHubspot Job;
+    end
+  split again
+    split
+         :Missing\nsubscriptions\ncommand;
+     split again
+       :Out of sync\nsubscriptions\ncommand;
+     end split
+    :Loop: Create\nsubscription jobs;
+     :Sync\nSubscription To\nHubspot Job;
+     end
+  end split
+}
+
+partition "**Process** Nova product update" {
+    split
+    -[hidden]->
+    :Update\nproduct\ngroup name\nor slug;
+    split again
+    -[hidden]->
+    :Update\nproduct\nname or slug;
+    end split
+    :Update\nsubscription\nupdated at;
+}
+
+partition "**Process** Commands" {
+    :Scheduled\ncommand;
+    :Out of sync\nsubscriptions\ncommand;
+    :Loop: Create\nsubscription jobs;
+}
+:Sync\nSubscription To\nHubspot Job;
+end
+
+partition "**Process** Nova action" {
+    :Sync customer to HubSpot;
+}
+
+partition "**Process** Commands" {
+    :Sync customer and\nsubscription\ncommand;
+}
+:Sync Customer To\nHubspot Job with\n$syncSubscriptions=true;
+end
+
+partition "**Process** Nova action" {
+    :Anonymize customer;
+}
+:Anonymize Contact\nIn Hubspot Job;
+end
+
+partition "**Process** Modal events" {
+    split
+    -[hidden]->
+    :Create customer;
+    :Customer Created\nEvent;
+    split again
+    -[hidden]->
+        split
+        -[hidden]->
+        :Update customer;
+        split again
+        -[hidden]->
+        :Update address;
+        end split
+        :Customer Data\nChanged Event;
+    end split
+}
+:Sync\nCustomer To\nHubspot Job;
+end
+
+partition "**Process** Modal events" {
+    split
+    -[hidden]->
+    :Create subscription;
+    :Subscription Created\nEvent;
+    split again
+    -[hidden]->
+    :Update subscription;
+    :Subscription Data\nChanged Event;
+    end split
+}
+:Sync Subscription\nTo Hubspot Job;
+end
+
+partition "**Process** API" {
+    :Newsletter API;
+    split
+    :Is subscribed;
+    :Direct API call:\nfind contact by\nSandwave UUID;
+    end
+    split again
+    :Unsubscribe;
+    :Disable Marketing\nEmails Job;
+    end
+    split again
+    :Subscribe;
+    if (Is customer synced?) then (yes)
+        :Enable Marketing\nEmails Job;
+            end
+
+    else (no)
+    :Sync Customer\nTo Hubspot Job with\n$enableMarketingMails=true;
+        end
+
+    endif
+    end split
+}
+
+@enduml

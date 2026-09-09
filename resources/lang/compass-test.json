@@ -1,0 +1,12 @@
+{
+    "general.previous": {
+        "locales": {
+            "nl": {
+                "translated_string": "Vorige"
+            },
+            "en": {
+                "translated_string": "Previous"
+            }
+        }
+    }
+}

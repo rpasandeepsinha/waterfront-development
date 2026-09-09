@@ -1,0 +1,124 @@
+{
+    "@attributes": {
+        "version": "1.6.9.1"
+    },
+    "webspace": {
+        "get": {
+            "result": {
+                "status": "ok",
+                "filter-id": "yezbcrfdbb",
+                "id": "63",
+                "data": {
+                    "gen_info": {
+                        "cr_date": "2025-01-22",
+                        "name": "test1337.nl",
+                        "ascii-name": "test1337.nl",
+                        "status": "0",
+                        "real_size": "6844946",
+                        "owner-id": "56",
+                        "dns_ip_address": [
+                            "1.2.3.4",
+                            "::1"
+                        ],
+                        "htype": "vrt_hst",
+                        "guid": "1a34115d-7f71-4e79-87e5-bda5ef407cf6",
+                        "vendor-guid": "c1552b55-8d39-4c01-b75a-b1eafec87f82",
+                        "external-id": [],
+                        "sb-site-uuid": [],
+                        "description": [],
+                        "admin-description": []
+                    },
+                    "limits": {
+                        "overuse": "block",
+                        "limit": [
+                            {
+                                "name": "max_site",
+                                "value": "10"
+                            },
+                            {
+                                "name": "max_subdom",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "max_dom_aliases",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "disk_space",
+                                "value": "53687091200"
+                            },
+                            {
+                                "name": "disk_space_soft",
+                                "value": "90"
+                            },
+                            {
+                                "name": "max_traffic",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "max_traffic_soft",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "max_wu",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "max_subftp_users",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "max_db",
+                                "value": "1"
+                            },
+                            {
+                                "name": "max_box",
+                                "value": "0"
+                            },
+                            {
+                                "name": "mbox_quota",
+                                "value": "0"
+                            },
+                            {
+                                "name": "max_maillists",
+                                "value": "0"
+                            },
+                            {
+                                "name": "expiration",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "expiration_soft",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "ext_limit_wp_toolkit_wp_instances",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "ext_limit_wp_toolkit_wp_backups",
+                                "value": "-1"
+                            },
+                            {
+                                "name": "ext_limit_wp_toolkit_smart_update_instances",
+                                "value": "0"
+                            },
+                            {
+                                "name": "ext_limit_wp_toolkit_virtual_patches_instances",
+                                "value": "0"
+                            },
+                            {
+                                "name": "ext_limit_xovi_max_keywords",
+                                "value": "0"
+                            },
+                            {
+                                "name": "ext_limit_acronis_backup_recovery_points",
+                                "value": "7"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

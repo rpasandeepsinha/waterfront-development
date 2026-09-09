@@ -1,0 +1,188 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    - vendor/phpstan/phpstan-mockery/extension.neon
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-phpunit/rules.neon
+    - vendor/phpstan/phpstan-webmozart-assert/extension.neon
+    - vendor/ergebnis/phpstan-rules/rules.neon
+    - vendor/ekino/phpstan-banned-code/extension.neon
+    - vendor/spaze/phpstan-disallowed-calls/extension.neon
+    - vendor/thecodingmachine/phpstan-strict-rules/phpstan-strict-rules.neon
+    - phpstan-deprecated-functions.neon
+    - phpstan-baseline.neon
+parameters:
+    editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
+    editorUrlTitle: '%%relFile%%:%%line%%'
+    noEnvCallsOutsideOfConfig: true
+    strictRules:
+        # TODO remove when https://github.com/phpstan/phpstan-strict-rules/issues/140 is resolved
+        # See also: https://github.com/larastan/larastan/issues/1272
+        dynamicCallOnStaticMethod: false
+    paths:
+        - 'config'
+        - 'database'
+        - 'routes'
+        - 'src'
+        - 'tests'
+    excludePaths:
+        - 'tests/PhpStan'
+    parallel:
+    	processTimeout: 300.0
+    level: 9
+    universalObjectCratesClasses:
+        - Illuminate\Database\Eloquent\Relations\Pivot
+    disableSchemaScan: true
+    disallowedClasses:
+        -
+            class: 'Carbon\Carbon'
+            message: 'Carbon is mutable, please use CarbonImmutable instead.'
+        -
+            class: 'Illuminate\Support\Carbon'
+            message: 'Carbon is mutable, please use CarbonImmutable instead.'
+        -
+            class: 'Mockery'
+            message: 'Use of Mockery is deprecated. Please use PHPUnit for mocking'
+        -
+            class: 'Illuminate\Foundation\Bus\Dispatchable'
+            message: 'Do not use the Dispatchable trait. Dispatch a job using the Illuminate\Contracts\Bus\Dispatcher service'
+
+    ergebnis:
+        noParameterWithNullDefaultValue:
+            enabled: false
+        noParameterWithNullableTypeDeclaration:
+            enabled: false
+        noNamedArgument:
+        	enabled: false
+        noNullableReturnTypeDeclaration:
+            enabled: false
+        noConstructorParameterWithDefaultValue:
+            enabled: false
+        noExtends:
+            enabled: false
+        finalInAbstractClass:
+            enabled: false
+        final:
+            enabled: false
+        noSwitch:
+            enabled: false
+        noPhpstanIgnore:
+            enabled: false
+    ignoreErrors:
+        - "#^Cannot call method [a-zA-Z0-9\\_]+\\(\\) on Illuminate\\\\Testing\\\\PendingCommand\\|int\\.$#"
+
+        # Unfixable Nova errors
+        - '#Access to an undefined property Laravel\\Nova\\Fields\\ActionFields::\$[a-zA-Z0-9\\_]+.#'
+        - '#Access to an undefined property Waterfront\\Domain\\Subscriptions\\Models\\Subscription::\$[a-zA-Z0-9\\_]+.#'
+        - "#^Method Waterfront\\\\Apps\\\\Nova\\\\[a-zA-Z0-9\\_]+\\\\[a-zA-Z0-9\\_]+\\\\[a-zA-Z0-9\\_]+\\:\\:(redirectAfterCreate|redirectAfterUpdate)\\(\\) has parameter \\$resource with generic class Laravel\\\\Nova\\\\Resource but does not specify its types\\: TModel$#"
+
+        # Saloon clients are allowed to catch a broad exception when registering
+        # the Sentry middleware. We want our application livecycle to continue
+        # when we can not register a Sentry middleware to a Saloon client.
+        -
+            message: '#^In method "Waterfront\\Infra\\SaloonClient\\AbstractConnector::registerSentryMiddleware", caught "Exception" must be rethrown\.$#'
+            identifier: thecodingmachine.exceptionMustBeRethrown
+            path: src/Infra/SaloonClient/AbstractConnector.php
+
+        # Provision Gateway is allowed to catch broad exception to ensure that any
+        # exception during provisioning is caught and handled and returned with
+        # a ProvisionResultInterface object containing the exception details
+        -
+            message: '#^In method "Waterfront\\Domain\\Provision\\[a-zA-Z0-9\\_:]+", caught "Exception" must be rethrown\.$#'
+            identifier: thecodingmachine.exceptionMustBeRethrown
+            path: src/Domain/Provision/ProvisionGateway.php
+        -
+            message: '#^In method "Waterfront\\Domain\\Email\\Actions\\AddSubscriptionDomainToSpamFilterAction::execute", caught "Throwable" must be rethrown\.$#'
+            identifier: thecodingmachine.exceptionMustBeRethrown
+            path: src/Domain/Email/Actions/AddSubscriptionDomainToSpamFilterAction.php
+
+        # Ignore extension of non abstract classes for Result DTO's in the provisioning code domain.
+        -
+            message: '#^Class "Waterfront\\Domain\\Provision\\[a-zA-Z0-9]+\\Results\\[a-zA-Z0-9]+" is not allowed to extend "Waterfront\\Domain\\Provision\\[a-zA-Z0-9]+\\Results\\[a-zA-Z0-9]+"\. Try to extend abstract classes only\.$#'
+            identifier: sandwave.custom
+
+        # Ignore extending RealtimeRegister class in the RtrClient domain, it is an external package not made abstract.
+        -
+            message: '#^Class "Waterfront\\Infra\\RtrClient\\Clients\\RealtimeRegister" is not allowed to extend "RealtimeRegister\\RealtimeRegister"\. Try to extend abstract classes only\.$#'
+            identifier: sandwave.custom
+
+        # False positive: PHPStan does not yet understand parent property hook
+        # delegation (parent::$prop::get()) and misreports it as static access
+        # to an instance property. Provision Result classes use this to extend
+        # the $failed/$succeeded hooks of AbstractProvisionResult.
+        # Remove when resolved: https://github.com/phpstan/phpstan/issues/12336
+        -
+            message: '#^Static access to instance property Waterfront\\Domain\\Provision\\[a-zA-Z0-9\\_]*Results\\[a-zA-Z0-9_]+::\$(failed|succeeded)\.$#'
+            identifier: property.staticAccess
+            path: src/Domain/Provision
+
+services:
+    -
+        class: \Tests\PhpStan\LoggingContextKeysRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: \Tests\PhpStan\LoggingContextKeysRuleFacade
+        tags:
+            - phpstan.rules.rule
+    -
+        class: \Tests\PhpStan\NoAcronisClientInjectionRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: \Tests\PhpStan\CoversClassPresentRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: \Tests\PhpStan\NoFinalClassesAndOnlyAllowClassExtendingOnAbstractClasses
+        arguments:
+            classesAllowedToBeExtended:
+                - InteractionDesignFoundation\HtmlCard\HtmlCard
+                - Illuminate\Auth\AuthenticationException
+                - Illuminate\Cookie\Middleware\EncryptCookies
+                - Illuminate\Console\Command
+                - Illuminate\Database\Eloquent\Builder
+                - Illuminate\Foundation\Auth\User
+                - Illuminate\Foundation\Console\Kernel
+                - Illuminate\Foundation\Exceptions\Handler
+                - Illuminate\Foundation\Http\FormRequest
+                - Illuminate\Foundation\Http\Kernel
+                - Illuminate\Foundation\Http\Middleware\TrimStrings
+                - Illuminate\Foundation\Support\Providers\AuthServiceProvider
+                - Illuminate\Database\Console\Seeds\SeedCommand
+                - Illuminate\Foundation\Support\Providers\EventServiceProvider
+                - Illuminate\Foundation\Support\Providers\RouteServiceProvider
+                - Illuminate\Http\Resources\Json\JsonResource
+                - Illuminate\Http\Resources\Json\ResourceCollection
+                - Illuminate\Support\Collection
+                - Illuminate\Translation\TranslationServiceProvider
+                - Illuminate\Translation\Translator
+                - Illuminate\Validation\Factory
+                - Illuminate\Validation\Validator
+                - Laravel\Horizon\HorizonApplicationServiceProvider
+                - Laravel\Nova\Actions\Action
+                - Laravel\Nova\Actions\ActionEvent
+                - Laravel\Nova\Actions\DestructiveAction
+                - Laravel\Nova\Dashboards\Main
+                - Laravel\Nova\Exceptions\NovaExceptionHandler
+                - Laravel\Nova\Fields\BelongsTo
+                - Laravel\Nova\NovaApplicationServiceProvider
+                - Monolog\Formatter\JsonFormatter
+                - OwenIt\Auditing\Models\Audit
+                - Symfony\Component\HttpKernel\Exception\HttpException
+                - Tests\Infra\DirectAdminClient\DirectAdminTestCase
+                - Waterfront\Apps\Nova\Hosting\Resources\NovaHostingDeploymentResource
+                - Waterfront\Apps\Nova\Subscriptions\Resources\NovaSubscriptionResource
+                - SandwaveIo\LighthouseAuthBase\Identity\Identity
+
+        tags:
+            - phpstan.rules.rule
+    -
+        class: \Tests\PhpStan\ProvisionTestMustMatchDirectoryConventionRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: \Tests\PhpStan\ProvisionRequestContextMustImplementInterfaceRule
+        tags:
+            - phpstan.rules.rule

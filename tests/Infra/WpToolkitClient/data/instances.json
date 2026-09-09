@@ -1,0 +1,35 @@
+{
+    "id": 1,
+    "title": "Mock instance 1",
+    "url": "https:\/\/marketing.apachewatchdog.nl",
+    "version": "6.6.2",
+    "path": "\/var\/www\/vhosts\/marketing.apachewatchdog.nl\/httpdocs",
+    "labels": [],
+    "displayTitle": "marketing.apachewatchdog.nl",
+    "server": null,
+    "errorMessage": null,
+    "installationType": "localPleskLinux",
+    "domain": {
+        "name": "marketing.apachewatchdog.nl",
+        "url": "\/admin\/subscription\/login\/id\/401?pageUrl=\/smb\/web\/overview\/id\/401\/type\/domain",
+        "sslRedirectEnabled": true,
+        "ssl": {
+            "enabled": true,
+            "redirectToHttpsEnabled": true,
+            "urlProtocolHttps": true,
+            "certificate": {
+                "installed": true,
+                "selfSigned": false,
+                "actual": true,
+                "suitableForDomain": true,
+                "issuerName": "Let's Encrypt"
+            },
+            "enableSslActionUrl": "\/admin\/subscription\/login\/id\/401\/?pageUrl=%2Fsmb%2Fweb%2Fsettings%2Fid%2F401",
+            "buyOrInstallSslActionUrl": "\/admin\/subscription\/login\/id\/401\/?pageUrl=%2Fmodules%2Fsslit%2Findex.php%2Findex%2Fcertificate%2Fid%2F401",
+            "enableRedirectToHttpsActionUrl": "\/admin\/subscription\/login\/id\/401\/?pageUrl=%2Fsmb%2Fweb%2Fsettings%2Fid%2F401"
+        },
+        "installationsLimit": null,
+        "installationsCount": 1
+    }
+}
+

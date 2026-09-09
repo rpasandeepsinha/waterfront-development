@@ -1,0 +1,12 @@
+{
+    "accountid": "8a386f62-9a33-457c-b607-001358b7bf2c",
+    "userid": "164b93ff-4f5a-4b1d-a1e8-ca05d93c6cca",
+    "cmd": "org.apache.cloudstack.api.command.user.vm.ResetSSHKeyForVirtualMachine",
+    "jobstatus": 0,
+    "jobprocstatus": 0,
+    "jobresultcode": 0,
+    "jobinstancetype": "VirtualMachine",
+    "jobinstanceid": "44df3fc3-ad2d-4b28-a81a-0f5758124105",
+    "created": "2023-08-07T16:28:56+0200",
+    "jobid": "741c702b-8857-4e3c-8b88-0157e1321cad"
+}

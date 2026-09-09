@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet version="1.6.9.1">
+    <mail>
+        <get_prefs>
+            <result>
+                <status>ok</status>
+                <site-id>1</site-id>
+                <prefs>
+                    <nonexistent-user>
+                        <forward>forwarded@catchall.nl</forward>
+                    </nonexistent-user>
+                    <webmail>none</webmail>
+                    <spam-protect-sign>false</spam-protect-sign>
+                    <mailservice>true</mailservice>
+                    <webmail-certificate>Default Certificate</webmail-certificate>
+                </prefs>
+            </result>
+        </get_prefs>
+    </mail>
+</packet>

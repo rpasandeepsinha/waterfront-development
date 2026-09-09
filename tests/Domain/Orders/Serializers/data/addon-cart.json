@@ -1,0 +1,27 @@
+{
+    "customer_id": 1,
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [],
+        "hosting": [],
+        "ssl": [],
+        "cloudstack-virtual-machine": [],
+        "microsoft-365": [],
+        "reseller-hosting": [],
+        "add-on": [
+            {
+                "uuid": "5becce3c-a175-4738-8e28-1ad31f22e2f0",
+                "parent_subscription_uuid": "19f00910-3b70-11ee-87b9-024265528047",
+                "domain": null,
+                "status": "registration",
+                "billing_period": 12,
+                "contract_period": 12,
+                "price": 96,
+                "gross_price": 120,
+                "slug": "fancy_installer"
+            }
+        ]
+    },
+    "vouchers": [],
+    "newsletter": false
+}

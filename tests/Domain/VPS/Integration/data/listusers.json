@@ -1,0 +1,27 @@
+{
+    "listusersresponse": {
+        "count": 1,
+        "user": [
+            {
+                "id": "1d68d828-a3e3-4047-a4d2-10cd066c6e59",
+                "username": "cs84583951",
+                "firstname": "John",
+                "lastname": "Doe",
+                "email": "john.doe@example.com",
+                "created": "2021-09-16T08:38:09+0200",
+                "state": "enabled",
+                "account": "cs84583951",
+                "accounttype": 0,
+                "usersource": "native",
+                "roleid": "49cc9d10-a4a1-11e9-814e-5254000588f7",
+                "roletype": "User",
+                "rolename": "User",
+                "domainid": "251243d0-8dfa-4c58-b005-cdb46bfded5a",
+                "domain": "cs84583951",
+                "accountid": "9c6c1fc0-4599-4e1c-98e1-d28c1e618f2b",
+                "iscallerchilddomain": true,
+                "isdefault": false
+            }
+        ]
+    }
+}

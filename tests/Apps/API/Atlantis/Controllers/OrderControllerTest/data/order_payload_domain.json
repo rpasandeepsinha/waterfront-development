@@ -1,0 +1,42 @@
+{
+    "payment_method": "ideal",
+    "vouchers": [],
+    "subscriptions": {
+        "extension": [
+            {
+                "uuid": "aff7e779-6a88-4419-80e6-a368d78a304e",
+                "status": "registration",
+                "contact_id": 45,
+                "domain": "domain-order-test.nl",
+                "billing_period": 12,
+                "contract_period": 12,
+                "price": 499,
+                "gross_price": 499,
+                "name": ".nl",
+                "slug": "extension_nl",
+                "children": {
+                    "dns": [
+                        {
+                            "uuid": "17e4407c-ceab-40bc-9de5-4574640b3eff",
+                            "status": "registration",
+                            "domain": "domain-order-test.nl",
+                            "billing_period": 12,
+                            "contract_period": 12,
+                            "price": 0,
+                            "gross_price": 0,
+                            "name": "Free DNS",
+                            "slug": "free-dns"
+                        }
+                    ]
+                }
+            }
+        ],
+        "hosting": [],
+        "ssl": [],
+        "vps": [],
+        "microsoft-365": [],
+        "reseller-hosting": [],
+        "add-on": [],
+        "other": []
+    }
+}

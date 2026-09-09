@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet><webspace><add><gen_setup><name>test-domain.com</name><owner-id>1234</owner-id><htype>vrt_hst</htype><ip_address>192.0.2.123</ip_address></gen_setup><hosting><vrt_hst><property><name>ssl</name><value>1</value></property><property><name>ftp_login</name><value>testuser</value></property><property><name>ftp_password</name><value>********</value></property><ip_address>192.0.2.123</ip_address></vrt_hst></hosting><plan-name>standard</plan-name></add></webspace></packet>

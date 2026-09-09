@@ -1,0 +1,12 @@
+{
+    "consoleendpoint": {
+        "success": true,
+        "url": "https://13.37.13.37.infra.cldin.net/resource/noVNC/vnc.html?autoconnect=true&port=8443&token=legit-token",
+        "websocket": {
+            "host": "13.37.13.37.infra.cldin.net",
+            "path": "websockify",
+            "port": "8443",
+            "token": "legit-token"
+        }
+    }
+}

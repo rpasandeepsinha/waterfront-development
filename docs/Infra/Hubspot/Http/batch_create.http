@@ -1,0 +1,55 @@
+## Create multiple custom objects and associate them with contacts
+# https://developers.hubspot.com/docs/api/crm/crm-custom-objects
+#
+# The subscription object ID can be found in Hubspot UI
+# Associations are comparable to foreign key relations, you can find the ID using the datamodel explorer
+#
+# Note: one error results in the whole batch failing. This behavior can be changed by implementing an objectWriteTraceId. See:
+# https://developers.hubspot.com/docs/api-reference/error-handling#multi-status-errors
+
+POST https://api.hubapi.com/crm/objects/v3/{{ subscriptionObjectTypeId }}/batch/create
+Content-Type: application/json
+Authorization: Bearer {{ hubspotApiKey }}
+
+{
+    "inputs": [
+        {
+            "associations": [
+                {
+                    "types": [
+                        {
+                            "associationCategory": "USER_DEFINED",
+                            "associationTypeId": {{ contactAssociationTypeId }}
+                        }
+                    ],
+                    "to": {
+                        "id": "310056955096"
+                    }
+                }
+            ],
+            "properties": {
+                "domain": "test1.nl",
+                "sw_subscription_id": "12324"
+            }
+        },
+        {
+            "associations": [
+                {
+                    "types": [
+                        {
+                            "associationCategory": "USER_DEFINED",
+                            "associationTypeId": {{ contactAssociationTypeId }}
+                        }
+                    ],
+                    "to": {
+                        "id": "410194186465"
+                    }
+                }
+            ],
+            "properties": {
+                "domain": "test2.nl",
+                "sw_subscription_id": "12352"
+            }
+        }
+    ]
+}

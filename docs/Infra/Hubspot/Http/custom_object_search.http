@@ -1,0 +1,17 @@
+# See:
+# https://developers.hubspot.com/docs/api-reference/crm-custom-objects-v3/search/post-crm-v3-objects-objectType-search
+
+POST https://api.hubapi.com/crm/objects/v3/{{ subscriptionObjectTypeId }}/search
+Content-Type: application/json
+Authorization: Bearer {{ hubspotApiKey }}
+
+{
+    "filterGroups": [{
+        "filters": [{
+            "propertyName": "sw_uuid",
+            "operator": "IN",
+            "values": ["1d503aaf-5a7b-4ce6-bba7-bb9f608f1ec0", "b40cfa50-d09a-4c34-a039-95aee35a087a"]
+        }]
+    }],
+    "properties": ["id", "sw_uuid", "ots_status"]
+}

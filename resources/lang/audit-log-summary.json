@@ -1,0 +1,362 @@
+{
+    "audit-log-summary.subscription": {
+        "locales": {
+            "nl": {
+                "translated_string": ":actor heeft :entity :domain :event"
+            },
+            "en": {
+                "translated_string": ":actor has :event :entity :domain"
+            }
+        }
+    },
+    "audit-log-summary.invoice": {
+        "locales": {
+            "nl": {
+                "translated_string": ":actor heeft :entity :description :event"
+            },
+            "en": {
+                "translated_string": ":actor has :event :entity :description"
+            }
+        }
+    },
+    "audit-log-summary.entity.invoice": {
+        "locales": {
+            "nl": {
+                "translated_string": "(WF) factuurregel"
+            },
+            "en": {
+                "translated_string": "(WF) invoice line"
+            }
+        }
+    },
+    "audit-log-summary.customer": {
+        "locales": {
+            "nl": {
+                "translated_string": ":actor heeft :entity :name :event"
+            },
+            "en": {
+                "translated_string": ":actor has :event :entity :name"
+            }
+        }
+    },
+    "audit-log-summary.entity.subscription.hosting": {
+        "locales": {
+            "nl": {
+                "translated_string": "hosting abonnement"
+            },
+            "en": {
+                "translated_string": "hosting subscription"
+            }
+        }
+    },
+    "audit-log-summary.entity.subscription.extension": {
+        "locales": {
+            "nl": {
+                "translated_string": "domein abonnement"
+            },
+            "en": {
+                "translated_string": "domain subscription"
+            }
+        }
+    },
+    "audit-log-summary.entity.subscription.ssl": {
+        "locales": {
+            "nl": {
+                "translated_string": "SSL abonnement"
+            },
+            "en": {
+                "translated_string": "SSL subscription"
+            }
+        }
+    },
+    "audit-log-summary.entity.subscription.cloudstack-virtual-machine": {
+        "locales": {
+            "nl": {
+                "translated_string": "cloudstack VM abonnement"
+            },
+            "en": {
+                "translated_string": "cloudstack VM subscription"
+            }
+        }
+    },
+    "audit-log-summary.entity.subscription.cloudstack-volumne": {
+        "locales": {
+            "nl": {
+                "translated_string": "cloudstack volume abonnement"
+            },
+            "en": {
+                "translated_string": "cloudstack volumne subscription"
+            }
+        }
+    },
+    "audit-log-summary.entity.subscription.microsoft-365": {
+        "locales": {
+            "nl": {
+                "translated_string": "Microsoft365 abonnement"
+            },
+            "en": {
+                "translated_string": "Microsoft365 subscription"
+            }
+        }
+    },
+    "audit-log-summary.entity.subscription.reseller-hosting": {
+        "locales": {
+            "nl": {
+                "translated_string": "Reseller hosting"
+            },
+            "en": {
+                "translated_string": "Reseller hosting"
+            }
+        }
+    },
+    "audit-log-summary.entity.subscription.reseller-discount": {
+        "locales": {
+            "nl": {
+                "translated_string": "reseller korting"
+            },
+            "en": {
+                "translated_string": "reseller discount"
+            }
+        }
+    },
+    "audit-log-summary.entity.subscription.domein-uitbreiding": {
+        "locales": {
+            "nl": {
+                "translated_string": "domein uitbreiding"
+            },
+            "en": {
+                "translated_string": "domain expansion"
+            }
+        }
+    },
+    "audit-log-summary.entity.subscription.dns": {
+        "locales": {
+            "nl": {
+                "translated_string": "DNS abonnement"
+            },
+            "en": {
+                "translated_string": "DNS subscription"
+            }
+        }
+    },
+    "audit-log-summary.entity.subscription.manual-subscription": {
+        "locales": {
+            "nl": {
+                "translated_string": "handmatig abonnement"
+            },
+            "en": {
+                "translated_string": "manual subscription"
+            }
+        }
+    },
+    "audit-log-summary.entity.subscription.cloudstack-manager-domain": {
+        "locales": {
+            "nl": {
+                "translated_string": "cloudstack domein beheerder"
+            },
+            "en": {
+                "translated_string": "cloudstack domain manager"
+            }
+        }
+    },
+    "audit-log-summary.entity.customer": {
+        "locales": {
+            "nl": {
+                "translated_string": "klant"
+            },
+            "en": {
+                "translated_string": "customer"
+            }
+        }
+    },
+    "audit-log-summary.entity.customer.user": {
+        "locales": {
+            "nl": {
+                "translated_string": "gebruiker"
+            },
+            "en": {
+                "translated_string": "user"
+            }
+        }
+    },
+    "audit-log-summary.entity.customer.address": {
+        "locales": {
+            "nl": {
+                "translated_string": "klantadres"
+            },
+            "en": {
+                "translated_string": "customer address"
+            }
+        }
+    },
+    "audit-log-summary.entity.customer.customercontact": {
+        "locales": {
+            "nl": {
+                "translated_string": "klant contact"
+            },
+            "en": {
+                "translated_string": "customer contact"
+            }
+        }
+    },
+    "audit-log-summary.entity.user": {
+        "locales": {
+            "nl": {
+                "translated_string": "gebruiker"
+            },
+            "en": {
+                "translated_string": "user"
+            }
+        }
+    },
+    "audit-log-summary.event.updated": {
+        "locales": {
+            "nl": {
+                "translated_string": "bijgewerkt"
+            },
+            "en": {
+                "translated_string": "updated"
+            }
+        }
+    },
+    "audit-log-summary.event.created": {
+        "locales": {
+            "nl": {
+                "translated_string": "aangemaakt"
+            },
+            "en": {
+                "translated_string": "created"
+            }
+        }
+    },
+    "audit-log-summary.event.deleted": {
+        "locales": {
+            "nl": {
+                "translated_string": "verdwijderd"
+            },
+            "en": {
+                "translated_string": "deleted"
+            }
+        }
+    },
+    "audit-log-summary.event.loggedout": {
+        "locales": {
+            "nl": {
+                "translated_string": "uitgelogd"
+            },
+            "en": {
+                "translated_string": "logged out"
+            }
+        }
+    },
+    "audit-log-summary.actor.sw-admin": {
+        "locales": {
+            "nl": {
+                "translated_string": "SW Admin"
+            },
+            "en": {
+                "translated_string": "SW Admin"
+            }
+        }
+    },
+    "audit-log-summary.actor.anonymized-customer": {
+        "locales": {
+            "nl": {
+                "translated_string": "Geanonimiseerde klant"
+            },
+            "en": {
+                "translated_string": "Anonymized customer"
+            }
+        }
+    },
+    "audit-log-summary.actor.customer": {
+        "locales": {
+            "nl": {
+                "translated_string": "Klant"
+            },
+            "en": {
+                "translated_string": "Customer"
+            }
+        }
+    },
+    "audit-log-summary.actor.unknown": {
+        "locales": {
+            "nl": {
+                "translated_string": "Onbekend"
+            },
+            "en": {
+                "translated_string": "Unknown"
+            }
+        }
+    },
+    "audit-log-summary.actor.system": {
+        "locales": {
+            "nl": {
+                "translated_string": "Systeem"
+            },
+            "en": {
+                "translated_string": "System"
+            }
+        }
+    },
+    "audit-log-summary.entity.subscription.volume-discount": {
+        "locales": {
+            "nl": {
+                "translated_string": "Volume discount"
+            },
+            "en": {
+                "translated_string": "Volume discount"
+            }
+        }
+    },
+    "audit-log-summary.entity.subscription-mutation": {
+        "locales": {
+            "nl": {
+                "translated_string": "Abonnement wijzigingen"
+            },
+            "en": {
+                "translated_string": "Subscription mutations"
+            }
+        }
+    },
+    "audit-log-summary.subscription-mutation.default": {
+        "locales": {
+            "nl": {
+                "translated_string": "Prijsafspraak"
+            },
+            "en": {
+                "translated_string": "Price agreement"
+            }
+        }
+    },
+    "audit-log-summary.subscription-mutation.contract-extension": {
+        "locales": {
+            "nl": {
+                "translated_string": "Contractverlenging"
+            },
+            "en": {
+                "translated_string": "Contract extension"
+            }
+        }
+    },
+    "audit-log-summary.subscription-mutation.product-change": {
+        "locales": {
+            "nl": {
+                "translated_string": "Productwijziging"
+            },
+            "en": {
+                "translated_string": "Product change"
+            }
+        }
+    },
+    "audit-log-summary.subscription-mutation": {
+        "locales": {
+            "nl": {
+                "translated_string": ":actor heeft :entity :domain :event klaar gezet"
+            },
+            "en": {
+                "translated_string": ":actor has :event :entity :domain prepared"
+            }
+        }
+    }
+}

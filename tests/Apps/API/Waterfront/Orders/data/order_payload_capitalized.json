@@ -1,0 +1,29 @@
+{
+    "customer_id": null,
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [
+            {
+                "uuid": "5becce3c-a175-4738-8e28-1ad31f22e2f0",
+                "domain": "CAPITALIZEDDOMAIN.com",
+                "slug": "extension_com",
+                "status": "registration",
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12,
+                "children": {
+                    "dns": [
+                        {
+                            "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                            "status": "registration",
+                            "domain": "CAPITALIZEDDOMAIN.com",
+                            "billing_period": 12,
+                            "contract_period": 12,
+                            "slug": "free-dns"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

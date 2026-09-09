@@ -1,0 +1,20 @@
+{
+    "customer_id": null,
+    "subscriptions": {
+        "add-on": [
+            {
+                "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "name": "Extra ipv4",
+                "domain": "test-extra-ipv4.nl",
+                "slug": "addon_ipv4",
+                "status": "registration",
+                "parent_subscription_uuid": null,
+                "price": 96,
+                "gross_price": 120,
+                "contract_period": 12,
+                "billing_period": 12
+            }
+        ]
+    },
+    "payment_method": "ideal"
+}

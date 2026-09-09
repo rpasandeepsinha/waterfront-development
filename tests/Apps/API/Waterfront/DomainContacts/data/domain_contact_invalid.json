@@ -1,0 +1,11 @@
+{
+    "email": "developer@sandwave.io",
+    "first_name":  "first",
+    "last_name": "last",
+    "phone_number": "(+31) 6-12345679",
+    "street_name": "Straat",
+    "street_number": 1,
+    "zip_code": "4382 AB",
+    "city": "Vlissingen",
+    "country_code": "fdsfdsfsdfsd"
+}

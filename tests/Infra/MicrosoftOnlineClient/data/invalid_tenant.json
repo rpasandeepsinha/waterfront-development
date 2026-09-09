@@ -1,0 +1,11 @@
+{
+    "error": "invalid_tenant",
+    "error_description": "AADSTS90002: Tenant 'invalidtenant.onmicrosoft.com' not found. Check to make sure you have the correct tenant ID and are signing into the correct cloud. Check with your subscription administrator, this may happen if there are no active subscriptions for the tenant.",
+    "error_codes": [
+        90002
+    ],
+    "timestamp": "2024-06-26 00:00:00Z",
+    "trace_id": "00000000-0000-4444-00000000000000000",
+    "correlation_id": "00000000-0000-4444-00000000000000000",
+    "error_uri": "https://login.microsoftonline.com/error?code=90002"
+}

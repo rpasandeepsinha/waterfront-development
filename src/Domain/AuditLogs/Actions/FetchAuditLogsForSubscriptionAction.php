@@ -1,0 +1,122 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Waterfront\Domain\AuditLogs\Actions;
+
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Waterfront\Domain\Domains\Models\DomainDeployment;
+use Waterfront\Domain\History\Models\Audit;
+use Waterfront\Domain\Hosting\Models\HostingDeployment;
+use Waterfront\Domain\Invoices\Models\Invoice;
+use Waterfront\Domain\Microsoft365\Models\Microsoft365Deployment;
+use Waterfront\Domain\ResellerHosting\Models\ResellerHostingDeployment;
+use Waterfront\Domain\Ssl\Models\SslDeployment;
+use Waterfront\Domain\Subscriptions\Models\Subscription;
+use Waterfront\Domain\Subscriptions\Models\SubscriptionMutation;
+use Waterfront\Domain\VPS\Models\ManagerDomainDeployment;
+use Waterfront\Domain\VPS\Models\VirtualMachineDeployment;
+use Waterfront\Domain\VPS\Models\VolumeDeployment;
+
+class FetchAuditLogsForSubscriptionAction
+{
+    public const array LOCATION_DEPLOYMENT_DOMAIN = [DomainDeployment::class, 'Modules\DomainService\Models\Subscription', 'Waterfront\Domain\Domains\Models\DomainSubscription'];
+    public const array LOCATION_DEPLOYMENT_HOSTING = [HostingDeployment::class, 'Modules\HostingService\Models\Subscription', 'Waterfront\Domain\Hosting\Models\HostingSubscription'];
+    public const array LOCATION_DEPLOYMENT_SSL = [SslDeployment::class, 'Modules\SslService\Models\Subscription', 'Waterfront\Domain\Ssl\Models\SslSubscription'];
+    public const array LOCATION_DEPLOYMENT_RESELLERHOSTING = [ResellerHostingDeployment::class, 'App\Models\ResellerHostingSubscription', 'Waterfront\Domain\ResellerHosting\Models\ResellerHostingSubscription'];
+    public const array LOCATION_DEPLOYMENT_M365 = [Microsoft365Deployment::class, 'Waterfront\Domain\Microsoft365\Models\Microsoft365Subscription'];
+    public const array LOCATION_DEPLOYMENT_VOLUME = [VolumeDeployment::class, 'Waterfront\Domain\VPS\Models\VolumeSubscription'];
+    public const array LOCATION_DEPLOYMENT_VIRTUALMACHINE = [VirtualMachineDeployment::class, 'Waterfront\Domain\VPS\Models\ManagerMachineSubscription'];
+
+    /**
+     * @return LengthAwarePaginator<int, Audit>
+     */
+    public function execute(Subscription $subscription, int $pageSize): LengthAwarePaginator
+    {
+        $domainSubscriptionIds = DomainDeployment::query()
+            ->select('id')
+            ->where('subscription_uuid', $subscription->uuid)
+            ->get();
+        $hostingSubscriptionIds = HostingDeployment::query()
+            ->select('id')
+            ->where('subscription_uuid', $subscription->uuid)
+            ->get();
+        $resellerHostingDeploymentIds = ResellerHostingDeployment::query()
+            ->select('id')
+            ->where('subscription_uuid', $subscription->uuid)
+            ->get();
+        $sslDeploymentIds = SslDeployment::query()
+            ->select('id')
+            ->where('subscription_uuid', $subscription->uuid)
+            ->get();
+        $microsoft365SubscriptionIds = Microsoft365Deployment::query()
+            ->select('id')
+            ->where('subscription_id', $subscription->id)
+            ->get();
+        $csVirtualMachineSubscriptionIds = VirtualMachineDeployment::query()
+            ->select('id')
+            ->where('subscription_uuid', $subscription->uuid)
+            ->get();
+        $csVolumeSubscriptionIds = VolumeDeployment::query()
+            ->select('id')
+            ->where('subscription_uuid', $subscription->uuid)
+            ->get();
+        $invoiceIds = Invoice::query()
+            ->select('id')
+            ->where('subscription_id', $subscription->id)
+            ->get();
+
+        $mutationIds = SubscriptionMutation::query()
+            ->select('id')
+            ->where('subscription_id', $subscription->id)
+            ->get();
+
+        return Audit::query()
+            /**
+             * The auditable relation is a morph relation, that means a certain string will be morphed into a model
+             * e.g. 'SubscriptionMorph' can be morphed into the Subscription Class. In this case we're also using it to
+             * eager load certain relations.
+             */
+            ->with(['auditable' => function (MorphTo $morphTo) {
+                $morphTo->morphWith(
+                    [
+                        ...Subscription::namespaceWith(),
+                        ...DomainDeployment::namespaceWith(),
+                        ...HostingDeployment::namespacesWith(),
+                        ...SslDeployment::namespaceWith(),
+                        ...Microsoft365Deployment::namespaceWith(),
+                        ...ManagerDomainDeployment::namespaceWith(),
+                        ...VirtualMachineDeployment::namespaceWith(),
+                        ...VolumeDeployment::namespaceWith(),
+                        ...ResellerHostingDeployment::namespacesWith(),
+                        ...Invoice::namespaceWith(),
+                        ...SubscriptionMutation::namespaceWith(),
+                    ]
+                );
+            }])
+            ->orWhere(fn (Builder $builder) => $builder->where('auditable_type', Subscription::class)
+                ->where('auditable_id', $subscription->id))
+            ->orWhere(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_DOMAIN)
+                ->whereIn('auditable_id', $domainSubscriptionIds))
+            ->orWhere(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_HOSTING)
+                ->whereIn('auditable_id', $hostingSubscriptionIds))
+            ->orWhere(fn (Builder $builder) => $builder->where('auditable_type', self::LOCATION_DEPLOYMENT_RESELLERHOSTING)
+                ->whereIn('auditable_id', $resellerHostingDeploymentIds))
+            ->orWhere(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_SSL)
+                ->whereIn('auditable_id', $sslDeploymentIds))
+            ->orWhere(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_M365)
+                ->whereIn('auditable_id', $microsoft365SubscriptionIds))
+            ->orWhere(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_VIRTUALMACHINE)
+                ->whereIn('auditable_id', $csVirtualMachineSubscriptionIds))
+            ->orWhere(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_VOLUME)
+                ->whereIn('auditable_id', $csVolumeSubscriptionIds))
+            ->orWhere(fn (Builder $builder) => $builder->where('auditable_type', Invoice::class)
+                ->whereIn('auditable_id', $invoiceIds))
+            ->orWhere(fn (Builder $builder) => $builder->where('auditable_type', SubscriptionMutation::class)
+                ->whereIn('auditable_id', $mutationIds))
+            ->orderBy('id', 'desc')
+            ->paginate($pageSize);
+    }
+}

@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet><site><get><filter><name>test-domain.com</name></filter><dataset><gen_info/><hosting/></dataset></get></site></packet>

@@ -1,0 +1,12 @@
+{
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [],
+        "hosting": [],
+        "ssl": [],
+        "vps": [],
+        "reseller-hosting": [],
+        "add-on": [],
+        "redirect" : []
+    }
+}

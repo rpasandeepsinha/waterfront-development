@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet version="1.6.9.1">
+    <reseller>
+        <set>
+            <result>
+                <status>error</status>
+                <errcode>1013</errcode>
+                <errtext>Reseller does not exist</errtext>
+                <filter-id>12345</filter-id>
+                    <id>12345</id>
+            </result>
+        </set>
+    </reseller>
+</packet>

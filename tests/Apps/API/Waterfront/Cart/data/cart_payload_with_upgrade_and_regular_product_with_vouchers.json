@@ -1,0 +1,25 @@
+{
+    "items": [
+        {
+            "itemUuid": "951fab39-c95c-468b-afa4-76a334460ed5",
+            "parentSubscriptionUuid": "23e59c49-16bd-410e-85d6-5c2b6bf3400a",
+            "productSlug": "upgrade",
+            "priceType": "prolongation",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "quantity": 1
+        },
+        {
+            "itemUuid": "951fab39-c95c-468b-afa4-76a334460ed5",
+            "productSlug": "extension_nl",
+            "priceType": "registration",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "quantity": 1,
+            "metaData": {
+                "domain": "test.com"
+            }
+        }
+    ],
+    "vouchers":["fietsen"]
+}

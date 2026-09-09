@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Seeders\Platform;
+
+enum PlatformReference
+{
+    case EXPERIMENT_PRICE_LADDER;
+    case MAIL_TEMPLATE_ACTIVATE_ACCOUNT;
+    case MAIL_TEMPLATE_PLESK_DETAILS;
+    case MAIL_TEMPLATE_RECOVERY_CODE;
+    case PRODUCT_EXPERIMENT_OFFERING_SECURITY_BUNDLE_ALL_FREE;
+    case PRODUCT_EXPERIMENT_OFFERING_SECURITY_BUNDLE_ACRONIS_PAID;
+}

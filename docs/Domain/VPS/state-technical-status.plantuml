@@ -1,0 +1,18 @@
+@startuml
+title VPS Technical status
+
+[*] -->  Pending : Deploying VPS order
+Pending --> OK : Deploying success
+Pending --> Failed : Deploying failed
+
+OK : Rest state for VM
+
+OK --> Deleting : Starting termination
+Deleting --> Deleted : Deleting success
+Deleting --> DeletedFailed : Deleting failed
+
+Failed --> [*]
+Deleted --> [*]
+DeletedFailed --> [*]
+
+@enduml

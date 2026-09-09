@@ -1,0 +1,8 @@
+#nova > div:first-child > header > div > :is(a, div):not([dusk="global-search-component"]) {
+    flex-shrink: 0;
+}
+
+#nova > div:first-child > header > div > div[dusk="global-search-component"] {
+    max-width: 100%;
+    margin-right: 0.5em;
+}

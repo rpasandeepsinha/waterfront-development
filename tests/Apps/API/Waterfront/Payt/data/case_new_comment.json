@@ -1,0 +1,67 @@
+{
+    "event": {
+        "context": {
+            "id": 1200000,
+            "link": "https://app.paytsoftware.com/administrations/4111/creditcases/1200000",
+            "debtor": {
+                "id": 3000000,
+                "link": "https://app.paytsoftware.com/administrations/4111/debtors/3000000",
+                "name": "Ano niem",
+                "category": null,
+                "debtor_code": "200000",
+                "public_link": "https://factuurinzien.nl/d/debtor-hi96g79bjr5ck4wg3iojdy4yz",
+                "company_name": "Bedrijfje"
+            },
+            "labels": [],
+            "interest": "6.04",
+            "invoices": [
+                {
+                    "id": 400000000,
+                    "link": "https://app.paytsoftware.com/administrations/4111/invoices/400000000",
+                    "category": null,
+                    "due_date": "2026-03-03",
+                    "interest": "6.04",
+                    "amount_open": "287.9",
+                    "public_link": "https://factuurinzien.nl/d/debtor-hi96g79bjr5ck4wg3iojdy4yz/i/invoice-1gqn6rrmsg4ul3x65aomsim5",
+                    "amount_total": "628.9",
+                    "document_url": "https://backend.paytsoftware.com/inzien/facturen/invoice-1gqn6rrmsg4ul3x65aomsim5/download",
+                    "invoice_date": "2026-02-17",
+                    "order_number": null,
+                    "currency_code": "EUR",
+                    "invoice_number": "20261000001",
+                    "book_amount_open": "287.9",
+                    "collection_costs": "43.18",
+                    "ubl_document_url": null,
+                    "book_amount_total": "628.9",
+                    "payment_condition": "SB",
+                    "book_currency_code": "EUR",
+                    "interest_costs_open": "6.04",
+                    "interest_costs_total": "6.04",
+                    "purchase_order_number": null,
+                    "open_administration_costs": "0.0",
+                    "debt_collection_costs_open": "43.18",
+                    "total_administration_costs": "15.0",
+                    "debt_collection_costs_total": "43.18"
+                }
+            ],
+            "started_at": "2026-04-23T09:08:40.621048Z",
+            "case_number": "111 222  333",
+            "public_link": "https://factuurinzien.nl/d/debtor-hi96g79bjr5ck4wg3iojdy4yz/c/case-osx6oead3uz79fd57fq3eva2o4",
+            "currency_code": "EUR",
+            "resource_type": "credit_case",
+            "administration": {
+                "id": 4111,
+                "name": "Yourhosting",
+                "origin_id": "yourhosting",
+                "company_code": null
+            },
+            "collection_costs": "43.18",
+            "psp_transactions": [],
+            "credit_case_number": "111 222  333",
+            "internal_note_email_address": "internal+36a83a0a-9187-432a-b60f-8bbddf09bc23@reply.paytsoftware.com",
+            "open_interest_and_collection_costs": "49.22"
+        },
+        "event_name": "case_new_comment",
+        "event_time": "2026-04-24T12:06:18.041525Z"
+    }
+}

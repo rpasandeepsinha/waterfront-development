@@ -1,0 +1,586 @@
+{
+    "listtemplatesresponse": {
+        "count": 9,
+        "template": [
+            {
+                "id": "3d1d4220-3d00-44e4-8a32-d431e9b2091a",
+                "name": "AlmaLinux-Pre cPanel-Cloud",
+                "displaytext": "AlmaLinux 8 pre installed for cPanel, only install cPanel after deploying this VM",
+                "ispublic": true,
+                "created": "2021-11-17T14:33:36+0100",
+                "isready": true,
+                "passwordenabled": true,
+                "format": "QCOW2",
+                "isfeatured": true,
+                "crossZones": false,
+                "ostypeid": "4ba6aae8-a4a1-11e9-814e-5254000588f7",
+                "ostypename": "Other PV Virtio-SCSI (64-bit)",
+                "account": "neo-prod-user",
+                "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+                "zonename": "zone03.ams02.cldin.net",
+                "size": 53687091200,
+                "physicalsize": 9825615872,
+                "templatetype": "USER",
+                "hypervisor": "KVM",
+                "domain": "neostrada",
+                "domainid": "4f4b5f2b-6458-4a34-851a-530142d8ec3f",
+                "isextractable": false,
+                "sourcetemplateid": "92af6b7a-6aa1-4897-80c2-767dd6c54126",
+                "details": {
+                    "SSH.PublicKey": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDBXvmjE97EeS9Q5Rz1JKkS/3noDZGGzKElyIuetCLJ4Jo6vnLMtc3rAP8szolqLokmmMP2GeHmwVaAYBAEl3t+TRkM3r85W6O1nqLYDeH+FxEG9JdowQUbuYmyhoOEXrBByWmQvatFHvrxkLxO4kW5TUfyQ9OwatwdiOTwTr0ROlR/xee18PNai2QoqNYM+XWtSHNg3mUn5vcGPd5/gau6dfOacRwBTUIEQaVdcFLptmGFQ4/+HyU43IcIQLF726HODuQwK9PNPL3jWyryMtulbpEPiNp+etKvHxgDAMhCHTBrvzklX06MH3lwto+pyULqzse7H4EUTY20Ky8/orB3nBG24S7OJQZOWNp4u0NNxdrQit/kIbbZiY68K9EWtU/GNPBbEumrr5ury74e1I5r2J4vbS5ro7ohEFZQmM2eHiqGiKvUwmT/SoIh20cF+QIlTuXI9QcjvoeEesYug2hFJ6RrMGjyGrtmOMMIf2iNtFq4uOvTS1ptY/ro3zFnghMS1UXOHxgCPOCkCLKrgZ/WxG73ojaeY9gXYvcRrjDqUujmtJoP8UR2WkPvZ503faHJgZLpVlnfuF6uMoI40eHCEeTpRxpH79qrLqpqSBT9p13u6NcbRDOv0tCV6N6yqBWTWdXv22Sh+97X0o16lMTdTLZAZVleaDYfB5o4DCoraQ==",
+                    "cpuOvercommitRatio": "4.0",
+                    "rootdisksize": "50",
+                    "memoryOvercommitRatio": "1.0",
+                    "Message.ReservedCapacityFreed.Flag": "false",
+                    "rootDiskController": "osdefault"
+                },
+                "downloaddetails": [
+                    {
+                        "downloadState": "DOWNLOADED",
+                        "datastore": "ss01",
+                        "downloadPercent": "100"
+                    }
+                ],
+                "bits": 0,
+                "sshkeyenabled": false,
+                "isdynamicallyscalable": true,
+                "directdownload": false,
+                "deployasis": false,
+                "requireshvm": false,
+                "tags": []
+            },
+            {
+                "id": "92af6b7a-6aa1-4897-80c2-767dd6c54126",
+                "name": "AlmaLinux 8",
+                "displaytext": "AlmaLinux 8",
+                "ispublic": true,
+                "created": "2021-09-23T17:12:57+0200",
+                "isready": true,
+                "passwordenabled": false,
+                "format": "QCOW2",
+                "isfeatured": true,
+                "crossZones": true,
+                "ostypeid": "4ba6aae8-a4a1-11e9-814e-5254000588f7",
+                "ostypename": "Other PV Virtio-SCSI (64-bit)",
+                "account": "admin",
+                "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+                "zonename": "zone03.ams02.cldin.net",
+                "size": 8589934592,
+                "physicalsize": 962971648,
+                "templatetype": "USER",
+                "hypervisor": "KVM",
+                "domain": "ROOT",
+                "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                "isextractable": false,
+                "checksum": "f7b86a478e3761c9b824a373d40e390db0564301aa53ffa7a6a3cbef59d03eee3509893c8093214cac1244e96dd797940df769cc0b03fb488eceb462ecd52ebc",
+                "details": {
+                    "rootDiskController": "osdefault"
+                },
+                "downloaddetails": [
+                    {
+                        "downloadState": "DOWNLOADED",
+                        "datastore": "ss01",
+                        "downloadPercent": "100"
+                    }
+                ],
+                "bits": 0,
+                "sshkeyenabled": false,
+                "isdynamicallyscalable": true,
+                "directdownload": false,
+                "deployasis": false,
+                "requireshvm": true,
+                "tags": [
+                    {
+                        "key": "template_slug",
+                        "value": "almalinux-8",
+                        "resourcetype": "Template",
+                        "resourceid": "92af6b7a-6aa1-4897-80c2-767dd6c54126",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    },
+                    {
+                        "key": "osversion",
+                        "value": "8",
+                        "resourcetype": "Template",
+                        "resourceid": "92af6b7a-6aa1-4897-80c2-767dd6c54126",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    },
+                    {
+                        "key": "oscategory",
+                        "value": "almalinux",
+                        "resourcetype": "Template",
+                        "resourceid": "92af6b7a-6aa1-4897-80c2-767dd6c54126",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    }
+                ]
+            },
+            {
+                "id": "f1a7bb83-553c-4a3d-942e-a8ffce8860e9",
+                "name": "CloudLinux 8",
+                "displaytext": "CloudLinux 8",
+                "ispublic": true,
+                "created": "2021-03-23T10:39:16+0100",
+                "isready": true,
+                "passwordenabled": true,
+                "format": "QCOW2",
+                "isfeatured": true,
+                "crossZones": true,
+                "ostypeid": "4ba6aae8-a4a1-11e9-814e-5254000588f7",
+                "ostypename": "Other PV Virtio-SCSI (64-bit)",
+                "account": "admin",
+                "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+                "zonename": "zone03.ams02.cldin.net",
+                "size": 8589934592,
+                "physicalsize": 916347904,
+                "templatetype": "USER",
+                "hypervisor": "KVM",
+                "domain": "ROOT",
+                "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                "isextractable": false,
+                "checksum": "b30f426a5f5f7b0436e625c989f45cff3200bcdd357989a1c1e2c3e93c55e8a559197e934881cd51a3ae136b9a51f907092c3303299dd6e62630c83e8f7654b3",
+                "details": {
+                    "rootDiskController": "osdefault"
+                },
+                "downloaddetails": [
+                    {
+                        "downloadState": "DOWNLOADED",
+                        "datastore": "ss01",
+                        "downloadPercent": "100"
+                    }
+                ],
+                "bits": 0,
+                "sshkeyenabled": false,
+                "isdynamicallyscalable": true,
+                "directdownload": false,
+                "deployasis": false,
+                "requireshvm": true,
+                "tags": [
+                    {
+                        "key": "template_slug",
+                        "value": "cloudlinux-8",
+                        "resourcetype": "Template",
+                        "resourceid": "f1a7bb83-553c-4a3d-942e-a8ffce8860e9",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    },
+                    {
+                        "key": "osversion",
+                        "value": "8",
+                        "resourcetype": "Template",
+                        "resourceid": "f1a7bb83-553c-4a3d-942e-a8ffce8860e9",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    },
+                    {
+                        "key": "oscategory",
+                        "value": "cloudlinux",
+                        "resourcetype": "Template",
+                        "resourceid": "f1a7bb83-553c-4a3d-942e-a8ffce8860e9",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    }
+                ]
+            },
+            {
+                "id": "425b83f3-f262-490b-800d-beb3eedf26d4",
+                "name": "CentOS 8",
+                "displaytext": "CentOS 8",
+                "ispublic": true,
+                "created": "2021-03-18T20:05:25+0100",
+                "isready": true,
+                "passwordenabled": false,
+                "format": "QCOW2",
+                "isfeatured": true,
+                "crossZones": true,
+                "ostypeid": "4ba6aae8-a4a1-11e9-814e-5254000588f7",
+                "ostypename": "Other PV Virtio-SCSI (64-bit)",
+                "account": "admin",
+                "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+                "zonename": "zone03.ams02.cldin.net",
+                "size": 8589934592,
+                "physicalsize": 1043231232,
+                "templatetype": "USER",
+                "hypervisor": "KVM",
+                "domain": "ROOT",
+                "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                "isextractable": false,
+                "checksum": "41ec362360e75adaa53f9a0f440db2cbb1425e06224b48be58d3cfce17d73b4ebd177f406f0cc3782ec0a2853f6ec4b30647ed0f37bf31bed77530ad95444894",
+                "details": {
+                    "rootDiskController": "osdefault"
+                },
+                "downloaddetails": [
+                    {
+                        "downloadState": "DOWNLOADED",
+                        "datastore": "ss01",
+                        "downloadPercent": "100"
+                    }
+                ],
+                "bits": 0,
+                "sshkeyenabled": false,
+                "isdynamicallyscalable": true,
+                "directdownload": false,
+                "deployasis": false,
+                "requireshvm": true,
+                "tags": [
+                    {
+                        "key": "template_slug",
+                        "value": "centos-8",
+                        "resourcetype": "Template",
+                        "resourceid": "425b83f3-f262-490b-800d-beb3eedf26d4",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    },
+                    {
+                        "key": "osversion",
+                        "value": "8",
+                        "resourcetype": "Template",
+                        "resourceid": "425b83f3-f262-490b-800d-beb3eedf26d4",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    },
+                    {
+                        "key": "oscategory",
+                        "value": "centos",
+                        "resourcetype": "Template",
+                        "resourceid": "425b83f3-f262-490b-800d-beb3eedf26d4",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    }
+                ]
+            },
+            {
+                "id": "d7ea6b4f-1404-47fe-87c4-1d92ef3f73d9",
+                "name": "CentOS 7",
+                "displaytext": "CentOS 7",
+                "ispublic": true,
+                "created": "2021-03-18T20:00:12+0100",
+                "isready": true,
+                "passwordenabled": false,
+                "format": "QCOW2",
+                "isfeatured": true,
+                "crossZones": true,
+                "ostypeid": "4ba6aae8-a4a1-11e9-814e-5254000588f7",
+                "ostypename": "Other PV Virtio-SCSI (64-bit)",
+                "account": "admin",
+                "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+                "zonename": "zone03.ams02.cldin.net",
+                "size": 8589934592,
+                "physicalsize": 718116352,
+                "templatetype": "USER",
+                "hypervisor": "KVM",
+                "domain": "ROOT",
+                "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                "isextractable": false,
+                "checksum": "7b6f645eac3d818c2a1b73bb650ac70c7aed85b016fccbc40bb987823166ca5c4636b72978c896b9ef6b87a90a3abca66ccc536f706d62393d2c78e88b879f1e",
+                "details": {
+                    "rootDiskController": "osdefault"
+                },
+                "downloaddetails": [
+                    {
+                        "downloadState": "DOWNLOADED",
+                        "datastore": "ss01",
+                        "downloadPercent": "100"
+                    }
+                ],
+                "bits": 0,
+                "sshkeyenabled": false,
+                "isdynamicallyscalable": true,
+                "directdownload": false,
+                "deployasis": false,
+                "requireshvm": true,
+                "tags": [
+                    {
+                        "key": "template_slug",
+                        "value": "centos-7",
+                        "resourcetype": "Template",
+                        "resourceid": "d7ea6b4f-1404-47fe-87c4-1d92ef3f73d9",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    },
+                    {
+                        "key": "osversion",
+                        "value": "7",
+                        "resourcetype": "Template",
+                        "resourceid": "d7ea6b4f-1404-47fe-87c4-1d92ef3f73d9",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    },
+                    {
+                        "key": "oscategory",
+                        "value": "centos",
+                        "resourcetype": "Template",
+                        "resourceid": "d7ea6b4f-1404-47fe-87c4-1d92ef3f73d9",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    }
+                ]
+            },
+            {
+                "id": "f3b266cd-273b-4aaf-9e9e-8b55ab07307a",
+                "name": "Ubuntu 18.04",
+                "displaytext": "Ubuntu 18.04",
+                "ispublic": true,
+                "created": "2021-02-10T14:59:57+0100",
+                "isready": true,
+                "passwordenabled": false,
+                "format": "QCOW2",
+                "isfeatured": true,
+                "crossZones": true,
+                "ostypeid": "4ba6aae8-a4a1-11e9-814e-5254000588f7",
+                "ostypename": "Other PV Virtio-SCSI (64-bit)",
+                "account": "admin",
+                "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+                "zonename": "zone03.ams02.cldin.net",
+                "size": 8589934592,
+                "physicalsize": 1408449536,
+                "templatetype": "USER",
+                "hypervisor": "KVM",
+                "domain": "ROOT",
+                "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                "isextractable": false,
+                "checksum": "092d3d8b616d3dea88deb6f5f4fc6d39f4a42d6106bc40585a7062828cd669833736c48dd050d6fc6916041dc2a7753880352042f76ec2d2e3a12748bca565fe",
+                "details": {
+                    "rootDiskController": "osdefault"
+                },
+                "downloaddetails": [
+                    {
+                        "downloadState": "DOWNLOADED",
+                        "datastore": "ss01",
+                        "downloadPercent": "100"
+                    }
+                ],
+                "bits": 0,
+                "sshkeyenabled": false,
+                "isdynamicallyscalable": true,
+                "directdownload": false,
+                "deployasis": false,
+                "requireshvm": true,
+                "tags": [
+                    {
+                        "key": "oscategory",
+                        "value": "ubuntu",
+                        "resourcetype": "Template",
+                        "resourceid": "f3b266cd-273b-4aaf-9e9e-8b55ab07307a",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    },
+                    {
+                        "key": "template_slug",
+                        "value": "ubuntu-18.04",
+                        "resourcetype": "Template",
+                        "resourceid": "f3b266cd-273b-4aaf-9e9e-8b55ab07307a",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    },
+                    {
+                        "key": "osversion",
+                        "value": "18.04",
+                        "resourcetype": "Template",
+                        "resourceid": "f3b266cd-273b-4aaf-9e9e-8b55ab07307a",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    }
+                ]
+            },
+            {
+                "id": "a888e313-9c09-4d3d-8703-c9f0778f1c25",
+                "name": "Ubuntu 20.04",
+                "displaytext": "Ubuntu 20.04",
+                "ispublic": true,
+                "created": "2021-02-02T16:25:27+0100",
+                "isready": true,
+                "passwordenabled": false,
+                "format": "QCOW2",
+                "isfeatured": true,
+                "crossZones": true,
+                "ostypeid": "4ba6aae8-a4a1-11e9-814e-5254000588f7",
+                "ostypename": "Other PV Virtio-SCSI (64-bit)",
+                "account": "admin",
+                "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+                "zonename": "zone03.ams02.cldin.net",
+                "size": 8589934592,
+                "physicalsize": 1182597120,
+                "templatetype": "USER",
+                "hypervisor": "KVM",
+                "domain": "ROOT",
+                "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                "isextractable": false,
+                "checksum": "2d3e2ae51bac412786ef7f275bd150d26cc9953536122a1d0b00d49582e0f33888b0d357c14a4df1874445509b8ec7412fed93525e50dd409b1b7e51116bd906",
+                "details": {
+                    "rootDiskController": "osdefault"
+                },
+                "downloaddetails": [
+                    {
+                        "downloadState": "DOWNLOADED",
+                        "datastore": "ss01",
+                        "downloadPercent": "100"
+                    }
+                ],
+                "bits": 0,
+                "sshkeyenabled": false,
+                "isdynamicallyscalable": true,
+                "directdownload": false,
+                "deployasis": false,
+                "requireshvm": true,
+                "tags": [
+                    {
+                        "key": "template_slug",
+                        "value": "ubuntu-20.04",
+                        "resourcetype": "Template",
+                        "resourceid": "a888e313-9c09-4d3d-8703-c9f0778f1c25",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    },
+                    {
+                        "key": "osversion",
+                        "value": "20.04",
+                        "resourcetype": "Template",
+                        "resourceid": "a888e313-9c09-4d3d-8703-c9f0778f1c25",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    },
+                    {
+                        "key": "oscategory",
+                        "value": "ubuntu",
+                        "resourcetype": "Template",
+                        "resourceid": "a888e313-9c09-4d3d-8703-c9f0778f1c25",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    }
+                ]
+            },
+            {
+                "id": "2cbb2073-523d-477b-af5b-c913076a8586",
+                "name": "Debian 10",
+                "displaytext": "Debian 10",
+                "ispublic": true,
+                "created": "2021-02-02T16:22:45+0100",
+                "isready": true,
+                "passwordenabled": false,
+                "format": "QCOW2",
+                "isfeatured": true,
+                "crossZones": true,
+                "ostypeid": "4ba6aae8-a4a1-11e9-814e-5254000588f7",
+                "ostypename": "Other PV Virtio-SCSI (64-bit)",
+                "account": "admin",
+                "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+                "zonename": "zone03.ams02.cldin.net",
+                "size": 8589934592,
+                "physicalsize": 506655744,
+                "templatetype": "USER",
+                "hypervisor": "KVM",
+                "domain": "ROOT",
+                "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                "isextractable": false,
+                "checksum": "3b9a51c88c5911eee5a882b460f3784793c0f28e9bdf5820077eabbcf6cb3d4838a78aab62786c47c677fba552a16c665672da5a608a2e52fd0dcdbc0529288e",
+                "details": {
+                    "rootDiskController": "osdefault"
+                },
+                "downloaddetails": [
+                    {
+                        "downloadState": "DOWNLOADED",
+                        "datastore": "ss01",
+                        "downloadPercent": "100"
+                    }
+                ],
+                "bits": 0,
+                "sshkeyenabled": false,
+                "isdynamicallyscalable": true,
+                "directdownload": false,
+                "deployasis": false,
+                "requireshvm": true,
+                "tags": [
+                    {
+                        "key": "template_slug",
+                        "value": "debian-10",
+                        "resourcetype": "Template",
+                        "resourceid": "2cbb2073-523d-477b-af5b-c913076a8586",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    },
+                    {
+                        "key": "osversion",
+                        "value": "10",
+                        "resourcetype": "Template",
+                        "resourceid": "2cbb2073-523d-477b-af5b-c913076a8586",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    },
+                    {
+                        "key": "oscategory",
+                        "value": "debian",
+                        "resourcetype": "Template",
+                        "resourceid": "2cbb2073-523d-477b-af5b-c913076a8586",
+                        "account": "admin",
+                        "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                        "domain": "ROOT"
+                    }
+                ]
+            },
+            {
+                "id": "164c7104-afee-414a-a5cc-f5724cfd305d",
+                "name": "CentOS 8 - Password enabled",
+                "displaytext": "CentOS 8 - Password enabled",
+                "ispublic": true,
+                "created": "2020-12-11T16:17:46+0100",
+                "isready": true,
+                "passwordenabled": true,
+                "format": "QCOW2",
+                "isfeatured": true,
+                "crossZones": true,
+                "ostypeid": "5839f324-1203-11eb-9213-5254000588f7",
+                "ostypename": "CentOS 8",
+                "account": "admin",
+                "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+                "zonename": "zone03.ams02.cldin.net",
+                "size": 10737418240,
+                "physicalsize": 908534784,
+                "templatetype": "USER",
+                "hypervisor": "KVM",
+                "domain": "ROOT",
+                "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                "isextractable": false,
+                "checksum": "b5389e537a48d04dc38763087db5b94c306ba0edf2da0ed99cf8aa57c8e0052b685a5793d576a7e2b71bb9aaec29a7b6b11fc39d67aa4481538aaa6ee487de0f",
+                "details": {
+                    "rootDiskController": "osdefault"
+                },
+                "downloaddetails": [
+                    {
+                        "downloadState": "DOWNLOADED",
+                        "datastore": "ss01",
+                        "downloadPercent": "100"
+                    }
+                ],
+                "bits": 0,
+                "sshkeyenabled": false,
+                "isdynamicallyscalable": true,
+                "directdownload": false,
+                "deployasis": false,
+                "requireshvm": true,
+                "tags": []
+            }
+        ]
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "accountid": "59dbd609-f280-4707-bf01-786492c314b4",
+    "userid": "afa4ba8f-66aa-4493-acd1-a70e7227cf50",
+    "cmd": "org.apache.cloudstack.api.command.user.vm.RestoreVMCmd",
+    "jobstatus": 0,
+    "jobprocstatus": 0,
+    "jobresultcode": 0,
+    "created": "2023-07-27T16:48:22+0200",
+    "jobid": "fbhdt34e-bb25-40hj-bd5f-320b9cq27151"
+}

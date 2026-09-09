@@ -1,0 +1,21 @@
+{
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [
+            {
+                "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "domain": "test.com",
+                "slug": "extension_com",
+                "status": "registration",
+                "billing_period": 36,
+                "contract_period": 36
+            }
+        ],
+        "hosting": [],
+        "ssl": [],
+        "domein-uitbreiding": [],
+        "vps": [],
+        "reseller-hosting": [],
+        "add-on": []
+    }
+}

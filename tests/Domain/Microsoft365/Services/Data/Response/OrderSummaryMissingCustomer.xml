@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<OrderSummaryResponse_V1>
+    <Status>
+        <Messages>
+            <string>CustomerId 1 not found</string>
+        </Messages>
+        <Code>ValidationError</Code>
+    </Status>
+    <PagedResult>
+        <Skip>0</Skip>
+        <Take>2500</Take>
+        <TotalNumberOfRecords>0</TotalNumberOfRecords>
+        <Results />
+    </PagedResult>
+</OrderSummaryResponse_V1>

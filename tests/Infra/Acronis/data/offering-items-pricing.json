@@ -1,0 +1,17 @@
+{
+  "items": [
+    {
+      "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+      "name": "storage",
+      "infra_id": "276ee581-514f-4922-9ebf-61e53aacad5a",
+      "price": "0.05",
+      "version": 1497533157730
+    },
+    {
+      "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+      "name": "servers",
+      "price": "600",
+      "version": 1497533157730
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+@startuml
+
+
+abstract class AbstractQueueableJob
+note left of AbstractQueueableJob : Laravel internal framework Job
+
+abstract class CloudstackAsyncJob extends AbstractQueueableJob {
+   # string $RETRY_DELAY_SECONDS
+   # int $tries
+   # string $JOB_TYPE
+   - VirtualMachineDeployment $deployment:
+   - CloudstackJob $cloudstackJob:
+   # void handleFailed(AsynchronousJobResponse)
+   # void handleSuccess(AsynchronousJobResponse)
+   # void handlePending()
+   + void failed(CloudstackJobException)
+   + void handle($cloudstackService)
+   # QueueName getQueueName()
+}
+
+note left of CloudstackAsyncJob::$RETRY_DELAY_SECONDS
+  Defaults to 30 seconds
+end note
+
+note left of CloudstackAsyncJob::$tries
+  Defaults to 10 (re)tries
+end note
+
+note left of CloudstackAsyncJob::handle($cloudstackServi
+  When released the $RETRY_DELAY_SECONDS will
+  be multipled by the attempts that have been retried.
+
+  2nd attempt waits 60 seconds
+  3rd attempt waits 90 seconds
+  etc...
+end note
+
+note left of CloudstackAsyncJob::getQueueName
+  Defaults to Cloudstack queue
+  (QueueName::CLOUDSTACK)
+end note
+
+class DeployVirtualMachineJob extends CloudstackAsyncJob {
+   # string $JOB_TYPE:
+   # void handleSuccess(AsynchronousJobResponse)
+   # void failed(CloudstackJobException)
+}
+
+class ReinstallVirtualMachineJob extends CloudstackAsyncJob {
+   # string $JOB_TYPE
+   # void handleSuccess(AsynchronousJobResponse)
+   # void failed(CloudstackJobException)
+   # void handlePending()
+}
+
+class DestroyVirtualMachineJob extends CloudstackAsyncJob {
+   # string $JOB_TYPE
+   # void handleSuccess(AsynchronousJobResponse)
+   # void failed(CloudstackJobException)
+   # void handlePending()
+}
+@enduml

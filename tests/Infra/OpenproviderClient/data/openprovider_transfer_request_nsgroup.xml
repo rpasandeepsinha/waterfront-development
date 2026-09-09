@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openXML>
+    <credentials>
+        <username>test-user</username>
+        <password>password</password>
+    </credentials>
+    <transferDomainRequest>
+        <ownerHandle>BA904019-NL</ownerHandle>
+        <adminHandle>BA904019-NL</adminHandle>
+        <techHandle>BA904019-NL</techHandle>
+        <billingHandle>HANDLE-WITH-CARE</billingHandle>
+        <domain>
+            <name>example</name>
+            <extension>org</extension>
+        </domain>
+        <period>1</period>
+        <authCode>asdf1234</authCode>
+        <autorenew>on</autorenew>
+        <nsGroup>test_nameservergroup</nsGroup>
+    </transferDomainRequest>
+</openXML>

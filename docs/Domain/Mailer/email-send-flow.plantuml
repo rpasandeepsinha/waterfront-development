@@ -1,0 +1,34 @@
+@startuml
+skinparam defaultTextAlignment center
+
+
+:Send e-mail;
+
+:**Create email history record**
+//Hubspot status: <null>//
+//Hubspot ID: <null>//
+//Requested at: <null>//;
+
+if (Is hubspot template?) then (yes)
+    repeat :**Send hubspot email job** \n //Payload: <email history id>//;
+        :Call hubspot API;
+    repeat while (Succes?) is (no)
+
+    :**Update email history record**
+    //Hubspot status: <response status>//
+    //Hubspot ID: <response id>//
+    //requested at: <now>//;
+
+    else (no)
+    :**Send legacy email job**
+    //Payload: <email history id>//;
+
+    :Call legacy mailer;
+
+    :**Update email history record**
+    //requested at: <now>//;
+endif
+
+:finished;
+
+@enduml

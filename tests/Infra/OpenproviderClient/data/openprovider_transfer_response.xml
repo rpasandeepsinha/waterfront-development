@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openXML>
+    <reply>
+        <code>0</code>
+        <desc></desc>
+        <data>
+            <status>REQ</status>
+            <authCode>asdf1234</authCode>
+            <renewalDate>2020-07-03 11:29:53</renewalDate>
+            <expirationDate>2020-07-03 11:29:53</expirationDate>
+        </data>
+        <warnings>
+            <array>
+                <item>
+                    <desc>Nameserver addresses are automatically resolved by system</desc>
+                    <code>250</code>
+                    <data>Nameserver IP addresses are only saved for glue records</data>
+                </item>
+            </array>
+        </warnings>
+    </reply>
+</openXML>

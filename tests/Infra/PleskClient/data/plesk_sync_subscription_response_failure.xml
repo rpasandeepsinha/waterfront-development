@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet version="1.6.9.1">
+  <webspace>
+    <sync-subscription>
+      <result>
+        <status>error</status>
+        <errcode>1013</errcode>
+        <errtext>Webspace does not exist</errtext>
+        <filter-id>42903</filter-id>
+        <id>42903</id>
+      </result>
+    </sync-subscription>
+  </webspace>
+</packet>

@@ -1,0 +1,20 @@
+@startuml
+title "Provision Sitebuilder deployment from Request without Context UUID"
+actor :Consumer: as consumer
+
+database "Context_BaseKit_UserReference \n\n context_uuid \n basekit_user_reference " as basekitcontext
+usecase "CreateSitebuilderRequest" as FirstRequest
+usecase "CheckContextUuid" as CheckContextUuid
+usecase "Create basekit user_reference" as user_ref
+usecase "Provision Basekit Sitebuilder" as provision
+
+consumer --> FirstRequest : "domain: x.nl\npackage_id: 12\ncontext_uuid: 12a-eb1..."
+
+FirstRequest --> CheckContextUuid
+CheckContextUuid <.. basekitcontext : "no user_reference\nfor context_uuid 12a-eb1..."
+CheckContextUuid --> user_ref : "Create new basekit user_reference"
+user_ref --> provision
+basekitcontext <-- user_ref : "Store user_ref with\ncontext_uuid 12a-eb1..."
+provision --> consumer : "ProvisionResult"
+
+@enduml

@@ -1,0 +1,31 @@
+{
+    "customer_id": null,
+    "subscriptions": {
+        "add-on": [
+            {
+                "uuid": "ad673cf3-f128-456a-8c01-498d48ba12f8",
+                "name": "Add-on ipv4",
+                "domain": "test-extra-ipv4.com",
+                "slug": "addon_ipv4",
+                "status": "registration",
+                "parent_subscription_uuid": "%this-is-replaced-in-test%",
+                "price": 96,
+                "gross_price": 120,
+                "contract_period": 12,
+                "billing_period": 12
+            },{
+                "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "parent_subscription_uuid": "%this-is-replaced-in-test%",
+                "name": "Extra Databases",
+                "slug": "extra_db",
+                "domain": null,
+                "status": "registration",
+                "price": 96,
+                "gross_price": 120,
+                "billing_period": 12,
+                "contract_period": 12
+            }
+        ]
+    },
+    "payment_method": "ideal"
+}

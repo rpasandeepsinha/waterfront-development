@@ -1,0 +1,25 @@
+@startuml
+
+skinparam linetype ortho
+
+class LineItem {
+   +billingPeriod
+   +children
+   +price
+   +domain
+   +name
+   +grossPrice
+   +parentSubscriptionUuid
+   +slug
+   +contractPeriod
+   +status
+}
+interface OrderLineCreatorFactory {
+   getLineCreator():
+}
+
+class Microsoft365LineItem extends LineItem implements OrderLineCreatorFactory {
+   getLineCreator()
+}
+
+@enduml

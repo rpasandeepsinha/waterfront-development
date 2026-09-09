@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TerminateOrderResponse_V1>
+    <Header>
+        <DateCreated>2023-03-27T14:17:39.9631563</DateCreated>
+    </Header>
+    <State>
+        <Code>207</Code>
+        <Message>Order opheffen</Message>
+    </State>
+    <OrderId>OID10264351</OrderId>
+    <PlanDate>2023-03-27T00:00:00</PlanDate>
+</TerminateOrderResponse_V1>

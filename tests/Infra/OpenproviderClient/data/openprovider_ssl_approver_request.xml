@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openXML><credentials><username>test-user</username><password>password</password></credentials><retrieveApproverEmailListSslCertRequest><domain>example.org</domain><productId>31</productId></retrieveApproverEmailListSslCertRequest></openXML>

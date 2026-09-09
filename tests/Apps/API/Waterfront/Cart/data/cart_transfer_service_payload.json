@@ -1,0 +1,65 @@
+{
+    "items": [
+        {
+            "itemUuid": "951fab39-c95c-468b-afa4-76a334460ed5",
+            "productSlug": "extension_nl",
+            "priceType": "registration",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "quantity": 1,
+            "metaData": {
+                "domain": "test.com"
+            }
+        },
+        {
+            "itemUuid": "f5a0fe98-27f1-4def-bb5f-2cd31e5faffa",
+            "productSlug": "hosting_brons",
+            "priceType": "registration",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "quantity": 1,
+            "metaData": {
+                "domain": "test.com"
+            }
+        },
+        {
+            "itemUuid": "f1c1b7e7-6bd1-4da2-9c68-7b96611ff4d2",
+            "parentItemUuid": "f5a0fe98-27f1-4def-bb5f-2cd31e5faffa",
+            "productSlug": "transfer_service",
+            "priceType": "registration",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "quantity": 1
+        },
+        {
+            "itemUuid": "b2b2166c-2f88-48d2-b871-e5c1c39e9911",
+            "productSlug": "hosting_klein",
+            "priceType": "registration",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "quantity": 1,
+            "metaData": {
+                "domain": "test.com"
+            }
+        },
+        {
+            "itemUuid": "f1c1b7e7-6bd1-4da2-9c68-7b96611ff4d2",
+            "parentItemUuid": "b2b2166c-2f88-48d2-b871-e5c1c39e9911",
+            "productSlug": "transfer_service",
+            "priceType": "registration",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "quantity": 1
+        },
+        {
+            "itemUuid": "a51403da-4725-48f0-9383-2040d82acfe7",
+            "parentItemUuid": "951fab39-c95c-468b-afa4-76a334460ed5",
+            "productSlug": "free-dns",
+            "priceType": "registration",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "quantity": 1
+        }
+    ],
+    "vouchers":[]
+}

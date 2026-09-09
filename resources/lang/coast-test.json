@@ -1,0 +1,19 @@
+{
+    "ui-kit.layout.page-container.impersonation_header_short": {
+        "locales": {
+            "en": {
+                "translated_string": "Logged in as ",
+                "updated_at": "2021-12-07T09:25:19.000000Z",
+                "created_at": "2021-12-07T09:25:19.000000Z"
+            },
+            "nl": {
+                "translated_string": "Ingelogd als ",
+                "updated_at": "2021-12-07T09:25:19.000000Z",
+                "created_at": "2021-12-07T09:25:19.000000Z"
+            }
+        },
+        "source": "coast",
+        "updated_at": "2021-12-07T09:25:17.000000Z",
+        "created_at": "2021-12-07T09:25:17.000000Z"
+    }
+}

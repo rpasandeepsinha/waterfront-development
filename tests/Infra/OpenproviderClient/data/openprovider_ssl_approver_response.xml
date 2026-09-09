@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openXML>
+  <reply>
+    <code>0</code>
+    <desc />
+    <data>
+      <array>
+        <item>admin@example.org</item>
+        <item>webmaster@example.org</item>
+        <item>hostmaster@example.org</item>
+      </array>
+    </data>
+  </reply>
+</openXML>

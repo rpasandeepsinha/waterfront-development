@@ -1,0 +1,40 @@
+{
+    "customer_id": 1,
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [],
+        "hosting": [],
+        "ssl": [],
+        "cloudstack-virtual-machine": [],
+        "microsoft-365": [
+            {
+                "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "name": "Business Standard",
+                "slug": "microsoft-business-standard",
+                "status": "registration",
+                "domain": "test.com",
+                "price": 12,
+                "gross_price": 12,
+                "billing_period": 1,
+                "contract_period": 1,
+                "period": 1,
+                "server": 0,
+                "tenant_name": null,
+                "tenant_id": null
+            },
+            {
+                "uuid": "ad673cf3-f128-456a-8c01-498d48ba12f8",
+                "name": "Business Standard",
+                "slug": "microsoft-business-standard",
+                "domain": "test.com",
+                "status": "registration",
+                "price": 12,
+                "gross_price": 12,
+                "billing_period": 1,
+                "contract_period": 1,
+                "period": 1,
+                "server": 0
+            }
+        ]
+    }
+}

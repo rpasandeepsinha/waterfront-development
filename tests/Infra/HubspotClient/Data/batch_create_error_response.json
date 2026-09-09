@@ -1,0 +1,39 @@
+{
+    "completedAt": "2025-09-16T12:38:13.648Z",
+    "status": "PENDING",
+    "startedAt": "2025-09-16T12:38:13.040Z",
+    "results": [
+        {
+            "id": "237684293823",
+            "properties": {
+                "domain": "test1.nl",
+                "hs_createdate": "2025-09-16T12:38:13.101Z",
+                "hs_lastmodifieddate": "2025-09-16T12:38:13.101Z",
+                "hs_object_id": "237684293823",
+                "hs_object_source": "INTEGRATION",
+                "hs_object_source_id": "1186931",
+                "hs_object_source_label": "INTEGRATION",
+                "sw_subscription_id": "12324"
+            },
+            "createdAt": "2025-09-16T12:38:13.101Z",
+            "updatedAt": "2025-09-16T12:38:13.101Z",
+            "archived": false
+        },
+        {
+            "id": "237684293822",
+            "properties": {
+                "domain": "test2.nl",
+                "hs_createdate": "2025-09-16T12:38:13.101Z",
+                "hs_lastmodifieddate": "2025-09-16T12:38:13.101Z",
+                "hs_object_id": "237684293822",
+                "hs_object_source": "INTEGRATION",
+                "hs_object_source_id": "1186931",
+                "hs_object_source_label": "INTEGRATION",
+                "sw_subscription_id": "12352"
+            },
+            "createdAt": "2025-09-16T12:38:13.101Z",
+            "updatedAt": "2025-09-16T12:38:13.101Z",
+            "archived": false
+        }
+    ]
+}

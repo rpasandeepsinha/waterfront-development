@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'data' => [
+        [
+            'administration_id' => '1234',
+            'bank_account_name' => 'Tester de Test',
+            'bank_account_number' => 'NL18RABO0123459876',
+            'debtor_id' => '10001234',
+            'id' => '5678',
+            'mandate_identifier' => 'mdt_Uq9stfyFwz',
+            'provider' => 'mollie',
+        ],
+    ],
+    'pagination' => [
+        'cursor' => 'cursortje=',
+    ],
+];

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<NewCustomerDeclined_V1>
+    <Header>
+        <PartnerReference>WF-CUSTOMER-1-KPN_CUSTOMER_ID</PartnerReference>
+        <DateCreated>2024-05-28T09:59:51.1263066+02:00</DateCreated>
+    </Header>
+    <State>
+        <Code>214</Code>
+        <Message>Model validatie mislukt</Message>
+        <Comments>
+            <string>HouseNr: Huisnummer moet groter dan 0 zijn</string>
+        </Comments>
+    </State>
+</NewCustomerDeclined_V1>

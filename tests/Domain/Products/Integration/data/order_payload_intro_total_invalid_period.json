@@ -1,0 +1,35 @@
+{
+    "customer_id": null,
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [
+            {
+                "uuid": "ad673cf3-f128-456a-8c01-498d48ba12f8",
+                "domain": "test-domein.nl",
+                "name": ".nl",
+                "slug": "nl_domain",
+                "status": "registration",
+                "price": 1000,
+                "gross_price": 1000,
+                "billing_period": 24,
+                "contract_period": 24,
+                "period": 24,
+                "children": {
+                    "dns": [
+                        {
+                            "uuid": "5becce3c-a175-4738-8e28-1ad31f22e2f0",
+                            "status": "registration",
+                            "domain": "test-domein.nl",
+                            "billing_period": 12,
+                            "contract_period": 12,
+                            "price": 0,
+                            "gross_price": 0,
+                            "name": "Free DNS",
+                            "slug": "free-dns"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

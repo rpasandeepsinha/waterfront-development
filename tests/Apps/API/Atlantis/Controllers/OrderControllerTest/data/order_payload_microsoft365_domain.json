@@ -1,0 +1,66 @@
+{
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [
+            {
+                "uuid": "17e4407c-ceab-40bc-9de5-4574640b3eff",
+                "status": "registration",
+                "domain": "domain-order-test.nl",
+                "billing_period": 12,
+                "contract_period": 12,
+                "price": 99,
+                "gross_price": 99,
+                "name": ".nl",
+                "slug": "extension_nl",
+                "children": {
+                    "dns": [
+                        {
+                            "uuid": "605609f3-9940-446a-9b9c-4ebd10659dc6",
+                            "billing_period": 12,
+                            "contract_period": 12,
+                            "price": 0,
+                            "gross_price": 0,
+                            "name": "Gratis DNS",
+                            "slug": "free-dns",
+                            "status": "registration",
+                            "domain": "domain-order-test.nl"
+                        }
+                    ]
+                }
+            }
+        ],
+        "hosting": [],
+        "ssl": [],
+        "cloudstack-virtual-machine": [],
+        "microsoft-365": [
+            {
+                "uuid": "ad673cf3-f128-456a-8c01-498d48ba12f8",
+                "name": "Business Standard",
+                "slug": "microsoft-business-standard",
+                "status": "registration",
+                "domain": "test.com",
+                "price": 12,
+                "gross_price": 12,
+                "billing_period": 1,
+                "contract_period": 1,
+                "period": 1,
+                "server": 0,
+                "tenant_name": "newyhtenant"
+            },
+            {
+                "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "name": "Business Standard",
+                "slug": "microsoft-business-standard",
+                "domain": "test.com",
+                "status": "registration",
+                "price": 12,
+                "gross_price": 12,
+                "billing_period": 1,
+                "contract_period": 1,
+                "period": 1,
+                "server": 0,
+                "tenant_name": "newyhtenant"
+            }
+        ]
+    }
+}

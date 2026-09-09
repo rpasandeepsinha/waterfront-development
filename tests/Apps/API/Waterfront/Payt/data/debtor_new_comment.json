@@ -1,0 +1,78 @@
+{
+    "event": {
+        "context": {
+            "id": 12345678,
+            "link": "https://app.paytsoftware.com/administrations/4111/debtors/12345678",
+            "name": "Jane Doh!",
+            "labels": [],
+            "contact": {
+                "id": "CONTACTCE4WKR4GDJKCONTACT",
+                "name": "Jane Doh!",
+                "resource_type": "contact",
+                "contact_identifier": null,
+                "custom_email_address": null,
+                "default_email_address": "jane.doh@gmail.com",
+                "invoice_email_address": null,
+                "reminder_email_address": null,
+                "invoice_custom_email_address": null
+            },
+            "category": null,
+            "invoices": [
+                {
+                    "id": 200000001,
+                    "category": null,
+                    "invoice_number": "20240000001",
+                    "payment_condition": "VB"
+                },
+                {
+                    "id": 200000002,
+                    "category": null,
+                    "invoice_number": "20250000001",
+                    "payment_condition": "VB"
+                },
+                {
+                    "id": 200000003,
+                    "category": null,
+                    "invoice_number": "20250000002",
+                    "payment_condition": "VB"
+                },
+                {
+                    "id": 200000004,
+                    "category": null,
+                    "invoice_number": "20250000003",
+                    "payment_condition": "SB"
+                },
+                {
+                    "id": 200000005,
+                    "category": null,
+                    "invoice_number": "20260000001",
+                    "payment_condition": "SB"
+                }
+            ],
+            "debtor_code": "1000001",
+            "psp_mandate": {
+                "status": "signed",
+                "provider": "mollie",
+                "limit_amount": null,
+                "bank_account_name": "companyOfJaneDoh",
+                "mandate_identifier": "mdt_sfXVHmpfky",
+                "bank_account_number": "NL77RABO6787979517",
+                "customer_identifier": "cst_DA8KKRbhhY"
+            },
+            "public_link": "https://factuurinzien.nl/d/debtor-bzvpg19h8p7p2gefzpu22jh3z",
+            "company_name": "companyOfJaneDoh",
+            "resource_type": "debtor",
+            "administration": {
+                "id": 4111,
+                "name": "Yourhosting",
+                "origin_id": "yourhosting",
+                "company_code": null
+            },
+            "book_open_amount": 419.26,
+            "credit_limit_amount": null,
+            "revoked_psp_mandates": []
+        },
+        "event_name": "debtor_new_comment",
+        "event_time": "2026-04-06T09:52:07.265299Z"
+    }
+}

@@ -1,0 +1,47 @@
+{
+    "customer_id": 1,
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [
+            {
+                "uuid": "fda0da0b-4678-4716-ae8b-b30c62139137",
+                "status": "registration",
+                "domain": "cart-to-order.nl",
+                "billing_period": 12,
+                "contract_period": 12,
+                "slug": "extension_nl"
+            }
+        ],
+        "hosting": [
+            {
+                "uuid": "ad673cf3-f128-456a-8c01-498d48ba12f8",
+                "status": "registration",
+                "domain": "cart-to-order.nl",
+                "server": 0,
+                "wordpress": false,
+                "billing_period": 12,
+                "contract_period": 12,
+                "slug": "hosting_basic"
+            }
+        ],
+        "ssl": [
+            {
+                "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "status": "registration",
+                "domain": "cart-to-order.nl",
+                "csr": "",
+                "generateCsr": false,
+                "billing_period": 12,
+                "contract_period": 12,
+                "slug": "ssl_single_domain"
+            }
+        ],
+        "vps": [],
+        "microsoft-365": [],
+        "reseller-hosting": [],
+        "add-on": []
+    },
+    "vouchers": [
+        "ADWGB44432DFHBV12343"
+    ]
+}

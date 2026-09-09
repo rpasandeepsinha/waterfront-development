@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet><certificate><install><name>test-domain.com-certificate</name><webspace>test-domain.com</webspace><content><csr>-----BEGIN CERTIFICATE REQUEST-----
+MIICwTCCAakCAQAwfDELMAkGA1UEBhMCVVMxEDAOBgNVBAgTB2dlb3JnaWExEDAOZZbX2Vbskz0WJ1IcxsfWDJ/HFdho7GrrD/wujNpwkTPc3xe2AHcfQX8c/92xyra/kdzxsDdFD7IwA5bBWGm8QwlL9yWuDPiZ8vSGw96D/Qije9UVkA==
+-----END CERTIFICATE REQUEST-----</csr><pvt>-----BEGIN RSA PRIVATE KEY-----
+MIIEpQIBAAKCAQEAyxfczy4HqgwOI6yxEa+dLaMLe5zC0ijcawsha8oFtJlxv/DMBxq2AbPRohXasWEAdfgfss1mcwX9xnKO/DhnxXE8KVFXKVehGmUth0WqA5qtL4xDh4hm3V7DcMqYbVzpmlWXFz5Is1fIflAhlfeX4h3s1rirTj+T6hODVf4=
+-----END RSA PRIVATE KEY-----</pvt><cert>-----BEGIN CERTIFICATE-----
+MIIDiTCCAnECBETUDecwDQYJKoZIhvcNAQEEBQAwgYgxCzAJBgNVBAYTAlJVMQwwi3Cm04Gz1h9W/yzkcYCqiwUMIzSgUSBLn0hBeTid1u/NaDtic776YGuyaI+/
+-----END CERTIFICATE-----</cert><ca>-----BEGIN CERTIFICATE-----
+MIIEjDCCA3SgAwIBAgIJAL4AGzKhkL5wMA0GCSqGSIb3DQEBBQUAMIGKMQswCQYD2Q/sUQaWgJhe4RDoth6w7E9GE8733WGhC1mIjxyJMx4vmu4ofLAwN6XUzJJ3eC7sP34vOGq/sqxG/U+BbUu71A==
+-----END CERTIFICATE-----</ca></content></install></certificate></packet>

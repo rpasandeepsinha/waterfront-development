@@ -1,0 +1,2575 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Parameter \#1 \$array of static method Illuminate\\Support\\Arr\:\:get\(\) expects array\|ArrayAccess, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: database/seeds/Platform/TranslationStringSeeder.php
+
+		-
+			message: '#^Method Database\\Seeders\\Scenarios\\BulkSeeder\:\:expandCustomerDataAndSeedSubscriptions\(\) should return array\<string, array\<int, array\<string, int\|string\|Waterfront\\Domain\\Domains\\Enums\\DomainStatus\|null\>\>\> but returns array\<string, array\<mixed\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: database/seeds/Scenarios/BulkSeeder.php
+
+		-
+			message: '#^Method Database\\Seeders\\Scenarios\\BulkSeeder\:\:imitateMerge\(\) has parameter \$array1 that is passed by reference\.$#'
+			identifier: ergebnis.noParameterPassedByReference
+			count: 1
+			path: database/seeds/Scenarios/BulkSeeder.php
+
+		-
+			message: '#^Method Database\\Seeders\\Scenarios\\BulkSeeder\:\:imitateMerge\(\) has parameter \$array2 that is passed by reference\.$#'
+			identifier: ergebnis.noParameterPassedByReference
+			count: 1
+			path: database/seeds/Scenarios/BulkSeeder.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Domain\\Customers\\Models\\MigratedCustomer is not subtype of type object\{pivot\: Illuminate\\Database\\Eloquent\\Relations\\Pivot\}&Waterfront\\Domain\\Customers\\Models\\MigratedCustomer\.$#'
+			identifier: varTag.type
+			count: 1
+			path: database/seeds/Scenarios/BulkSeeder.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Domain\\Customers\\Models\\MigratedSubscription is not subtype of type object\{pivot\: Illuminate\\Database\\Eloquent\\Relations\\Pivot\}&Waterfront\\Domain\\Customers\\Models\\MigratedSubscription\.$#'
+			identifier: varTag.type
+			count: 1
+			path: database/seeds/Scenarios/BulkSeeder.php
+
+		-
+			message: '#^Thrown exceptions in a catch block must bundle the previous exception \(see throw statement line 46\)\.$#'
+			identifier: thecodingmachine.previousExceptionNotBundled
+			count: 1
+			path: src/Apps/API/Compass/Controllers/ManualMigrationController.php
+
+		-
+			message: '#^Do not throw the \\Exception base class\.$#'
+			identifier: thecodingmachine.exceptionBaseClassThrown
+			count: 2
+			path: src/Apps/API/Compass/Controllers/ShopConfigController.php
+
+		-
+			message: '#^In method "Waterfront\\Apps\\API\\Compass\\Resources\\Domains\\DomainHostingResource\:\:toArray", caught "RuntimeException" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Apps/API/Compass/Resources/Domains/DomainHostingResource.php
+
+		-
+			message: '#^Method Waterfront\\Apps\\API\\Compass\\Resources\\Domains\\DomainNameserversResource\:\:toArray\(\) should return array\<string, array\<int, string\|null\>\|null\> but returns array\<string, array\<array\<mixed\>\>\|null\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Apps/API/Compass/Resources/Domains/DomainNameserversResource.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<int, array\<string, mixed\>\> is not subtype of type array\<string, mixed\>\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Apps/API/Ferry/Controllers/DomainMigrationController.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<int, array\<string, string\>\> is not subtype of type array\<string, mixed\>\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Apps/API/Ferry/Controllers/RedirectMigrationController.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<int, array\<string, array\<string, string\>\|string\>\> is not subtype of type array\<string, mixed\>\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Apps/API/Ferry/Controllers/SitebuilderMigrationController.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant RESELLER_DISCOUNT of enum Waterfront\\Domain\\Products\\Enums\\ProductGroupType\:
+				This group is just here for historical purposes\. Use the volume discount group$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Apps/API/Ferry/Enum/ImplementableProducts.php
+
+		-
+			message: '#^Parameter \#1 \$dnsTemplates of static method Waterfront\\Apps\\API\\Ferry\\Request\\MigrationValidationLibrary\:\:getDnsTemplateRecordRules\(\) expects array\<int, array\<string, array\<string, array\<string, mixed\>\>\>\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Apps/API/Ferry/Request/MigrationValidationLibrary.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Infra\\Configuration\\ConfigurationInterface is not subtype of type Waterfront\\Infra\\Configuration\\Configuration\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Apps/API/Partners/Providers/RouteServiceProvider.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_unique expects an array of values castable to string, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Apps/API/Waterfront/Controllers/CancellationFlowController.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$values of method Illuminate\\Support\\Collection\<int,Waterfront\\Domain\\DNS\\Models\\DnsCustomerTemplateRecord\>\:\:push\(\) expects Waterfront\\Domain\\DNS\\Models\\DnsCustomerTemplateRecord, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/DnsTemplateController.php
+
+		-
+			message: '#^In method "Waterfront\\Apps\\API\\Waterfront\\Controllers\\DomainContactController\:\:link", caught "Throwable" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/DomainContactController.php
+
+		-
+			message: '#^Parameter \#1 \$domains of method Waterfront\\Apps\\API\\Waterfront\\Policies\\DomainContactPolicy\:\:assertCanLink\(\) expects array\<string, string\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/DomainContactController.php
+
+		-
+			message: '#^Parameter \#1 \$domains of method Waterfront\\Domain\\Domains\\DomainService\:\:linkContactHandle\(\) expects array\<int, array\<string, string\>\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/DomainContactController.php
+
+		-
+			message: '#^Thrown exceptions in a catch block must bundle the previous exception \(see throw statement line 238\)\.$#'
+			identifier: thecodingmachine.previousExceptionNotBundled
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/DomainContactController.php
+
+		-
+			message: '#^In method "Waterfront\\Apps\\API\\Waterfront\\Controllers\\DomainNameController\:\:transferCode", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/DomainNameController.php
+
+		-
+			message: '#^In method "Waterfront\\Apps\\API\\Waterfront\\Controllers\\HostingController\:\:modifyCustomer", caught "Throwable" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/HostingController.php
+
+		-
+			message: '#^Parameter \#2 \$callback of method Illuminate\\Database\\Eloquent\\Builder\<Waterfront\\Domain\\Domains\\Models\\DomainDeployment\>\:\:whereHas\(\) expects \(Closure\(Illuminate\\Database\\Eloquent\\Builder\<Waterfront\\Domain\\Subscriptions\\Models\\Subscription\>\)\: mixed\)\|null, Closure\(Waterfront\\Domain\\Subscriptions\\QueryBuilders\\SubscriptionQueryBuilder\)\: void given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/HostingController.php
+
+		-
+			message: '#^In method "Waterfront\\Apps\\API\\Waterfront\\Controllers\\MailController\:\:createUser", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/MailController.php
+
+		-
+			message: '#^In method "Waterfront\\Apps\\API\\Waterfront\\Controllers\\MailController\:\:deleteUser", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/MailController.php
+
+		-
+			message: '#^In method "Waterfront\\Apps\\API\\Waterfront\\Controllers\\MailController\:\:resetUser", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/MailController.php
+
+		-
+			message: '#^In method "Waterfront\\Apps\\API\\Waterfront\\Controllers\\MailController\:\:users", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/MailController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<\(int\|string\),mixed\>\:\:map\(\) expects callable\(mixed, int\|string\)\: array\{username\: string\}, Closure\(string\)\: array\{username\: string\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/MailController.php
+
+		-
+			message: '#^Parameter \#3 \$destinationEmailAddresses of method Waterfront\\Domain\\MailManagement\\Services\\MailManagementService\:\:createEmailForward\(\) expects array\<int, string\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/MailController.php
+
+		-
+			message: '#^In method "Waterfront\\Apps\\API\\Waterfront\\Controllers\\NameServerController\:\:reset", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/NameServerController.php
+
+		-
+			message: '#^In method "Waterfront\\Apps\\API\\Waterfront\\Controllers\\NewsController\:\:get", caught "Throwable" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/NewsController.php
+
+		-
+			message: '#^In method "Waterfront\\Apps\\API\\Waterfront\\Controllers\\ResellerHostingController\:\:coupleExistingDomain", caught "RuntimeException" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/ResellerHostingController.php
+
+		-
+			message: '#^Parameter \#1 \$server of method Waterfront\\Domain\\Hosting\\Actions\\GetSsoUrlAction\:\:execute\(\) expects Waterfront\\Domain\\Servers\\Models\\Server, Waterfront\\Domain\\Servers\\Models\\Server\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Apps/API/Waterfront/Controllers/ResellerHostingController.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 1
+			path: src/Apps/API/Waterfront/Policies/SubscriptionPolicy.php
+
+		-
+			message: '#^Dead catch \- Illuminate\\Auth\\AuthenticationException is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Apps/API/Waterfront/Policies/SubscriptionPolicy.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Infra\\Translation\\TranslatorInterface is not subtype of type Waterfront\\Infra\\Translation\\Translator\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Apps/API/Waterfront/Requests/Customer/Rules/VatCode.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Infra\\Translation\\TranslatorInterface is not subtype of type Waterfront\\Infra\\Translation\\Translator\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Apps/API/Waterfront/Requests/CustomerWallet/Rules/IBAN.php
+
+		-
+			message: '#^PHPDoc tag @var with type Illuminate\\Contracts\\Validation\\Validator\|null is not subtype of type Illuminate\\Contracts\\Validation\\Validator\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Apps/API/Waterfront/Requests/Dns/BaseRequest.php
+
+		-
+			message: '#^Parameter \#1 \$type of method Waterfront\\Domain\\DNS\\Services\\DnsRecordsValidationService\:\:getRecordRules\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Apps/API/Waterfront/Requests/Dns/Rules/DnsCustomerRecord.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<mixed\> is not subtype of native type list\<\(int\|string\)\>\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Apps/API/Waterfront/Requests/DomainContact/StoreRequest.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Infra\\Translation\\TranslatorInterface is not subtype of type Waterfront\\Infra\\Translation\\Translator\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Apps/API/Waterfront/Resources/DnsRecordChangeResource.php
+
+		-
+			message: '#^Access to an undefined property Waterfront\\Apps\\API\\Waterfront\\Resources\\SubscriptionResource\:\:\$price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Apps/API/Waterfront/Resources/SubscriptionResource.php
+
+		-
+			message: '#^AnonymousClass671af2af8fdd32416599298b50800325\:\:__construct\(\) does not call parent constructor from Waterfront\\Infra\\Authentication\\AuthenticationManager\.$#'
+			identifier: constructor.missingParentCall
+			count: 1
+			path: src/Apps/Console/Commands/Debug/CartCheck.php
+
+		-
+			message: '#^Method Waterfront\\Apps\\Console\\Commands\\Translations\\TranslationsToDatabase\:\:getTranslationItems\(\) should return array\<string, array\<string, array\<string\>\>\> but returns array\<mixed, mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Apps/Console/Commands/Translations/TranslationsToDatabase.php
+
+		-
+			message: '#^Parameter \#1 \$array of static method Illuminate\\Support\\Arr\:\:get\(\) expects array\|ArrayAccess, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Apps/Console/Commands/Translations/TranslationsToDatabase.php
+
+		-
+			message: '#^Parameter \#2 \$models \(Illuminate\\Support\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\) of method Waterfront\\Apps\\Nova\\ActionEvents\\IdentityAwareActionEvent\:\:forResourceDelete\(\) should be contravariant with parameter \$models \(Illuminate\\Support\\Collection\) of method Laravel\\Nova\\Actions\\ActionEvent\:\:forResourceDelete\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: src/Apps/Nova/ActionEvents/IdentityAwareActionEvent.php
+
+		-
+			message: '#^Parameter \#2 \$models \(Illuminate\\Support\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\) of method Waterfront\\Apps\\Nova\\ActionEvents\\IdentityAwareActionEvent\:\:forResourceRestore\(\) should be contravariant with parameter \$models \(Illuminate\\Support\\Collection\) of method Laravel\\Nova\\Actions\\ActionEvent\:\:forResourceRestore\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: src/Apps/Nova/ActionEvents/IdentityAwareActionEvent.php
+
+		-
+			message: '#^Parameter \#3 \$models \(Illuminate\\Support\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\) of method Waterfront\\Apps\\Nova\\ActionEvents\\IdentityAwareActionEvent\:\:forResourceDetach\(\) should be contravariant with parameter \$models \(Illuminate\\Support\\Collection\) of method Laravel\\Nova\\Actions\\ActionEvent\:\:forResourceDetach\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: src/Apps/Nova/ActionEvents/IdentityAwareActionEvent.php
+
+		-
+			message: '#^Parameter \#3 \$models \(Illuminate\\Support\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\) of method Waterfront\\Apps\\Nova\\ActionEvents\\IdentityAwareActionEvent\:\:forSoftDeleteAction\(\) should be contravariant with parameter \$models \(Illuminate\\Support\\Collection\) of method Laravel\\Nova\\Actions\\ActionEvent\:\:forSoftDeleteAction\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: src/Apps/Nova/ActionEvents/IdentityAwareActionEvent.php
+
+		-
+			message: '#^Class "Waterfront\\Apps\\Nova\\ActionEvents\\IdentityAwareActionResource" is not allowed to extend "Laravel\\Nova\\Actions\\ActionResource"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Apps/Nova/ActionEvents/IdentityAwareActionResource.php
+
+		-
+			message: '#^Variable method call on Laravel\\Nova\\Resource\<Illuminate\\Database\\Eloquent\\Model\>\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: src/Apps/Nova/Customers/Resources/NovaCustomerResource.php
+
+		-
+			message: '#^Class "Waterfront\\Apps\\Nova\\Fields\\Credential" is not allowed to extend "Laravel\\Nova\\Fields\\Password"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Apps/Nova/Fields/Credential.php
+
+		-
+			message: '#^PHPDoc tag @var with type Laravel\\Nova\\Actions\\ActionCollection\<int, Laravel\\Nova\\Actions\\Action\> is not subtype of type Laravel\\Nova\\Actions\\ActionCollection\<int, Waterfront\\Apps\\Nova\\General\\Actions\\NovaNoActionsPlaceholderAction\>\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Apps/Nova/General/Resources/Resource.php
+
+		-
+			message: '#^Dead catch \- Waterfront\\Domain\\Servers\\Exceptions\\ServerNotFoundException is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Apps/Nova/Hosting/Actions/NovaFetchPackageFromServer.php
+
+		-
+			message: '#^Dead catch \- Waterfront\\Support\\Exceptions\\NotImplementedException is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Apps/Nova/Hosting/Actions/NovaFetchPackageFromServer.php
+
+		-
+			message: '#^Dead catch \- Waterfront\\Domain\\Servers\\Exceptions\\ServerNotFoundException is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Apps/Nova/Hosting/Actions/NovaFetchPackagesFromServer.php
+
+		-
+			message: '#^Dead catch \- Waterfront\\Support\\Exceptions\\NotImplementedException is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Apps/Nova/Hosting/Actions/NovaFetchPackagesFromServer.php
+
+		-
+			message: '#^In method "Waterfront\\Apps\\Nova\\Hosting\\Actions\\NovaFetchSsoFromSpamExpertsCluster\:\:handle", caught "Throwable" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Apps/Nova/Hosting/Actions/NovaFetchSsoFromSpamExpertsCluster.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\|Laravel\\Nova\\Support\\Fluent\:\:\$password\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Apps/Nova/Hosting/Actions/NovaGenerateSecretKeyAction.php
+
+		-
+			message: '#^Parameter \#3 \$fail of method Waterfront\\Domain\\Hosting\\Rules\\ValidServerRule\:\:validate\(\) expects Closure\(string, string\|null\=\)\: Illuminate\\Translation\\PotentiallyTranslatedString, Closure\(string\)\: string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Apps/Nova/Hosting/Resources/NovaServerResource.php
+
+		-
+			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Apps/Nova/Migrations/Resources/NovaMigratedSubscriptionResource.php
+
+		-
+			message: '#^Calling config\(\) is forbidden, Deprecated global Laravel helper, use DI to get the configuration service\: \\Waterfront\\Infra\\Configuration\\ConfigurationInterface\.$#'
+			identifier: disallowed.function
+			count: 3
+			path: src/Apps/Nova/NovaServiceProvider.php
+
+		-
+			message: '#^Parameter \#2 \$callback of function array_filter expects \(callable\(mixed\)\: bool\)\|null, Closure\(mixed\)\: mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Apps/Nova/OneTimeServices/Filters/NovaStatusFilter.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Waterfront\\Domain\\Products\\Models\\Product\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 2
+			path: src/Apps/Nova/Products/Fields/NovaProductSelectField.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Foundation\\Bus\\PendingClosureDispatch\:\:name\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Apps/Nova/Subscriptions/Actions/NovaResetDnsSecBulkAction.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant INACTIVE of enum Waterfront\\Domain\\Subscriptions\\Enums\\AdministrativeStatus\:
+				This status was used in the m365 migration to have it be renewed but not invoiced\. Do not use this anymore\.$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Apps/Nova/Subscriptions/Actions/NovaSubscriptionAction.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant INACTIVE of enum Waterfront\\Domain\\Subscriptions\\Enums\\AdministrativeStatus\:
+				This status was used in the m365 migration to have it be renewed but not invoiced\. Do not use this anymore\.$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Apps/Nova/Subscriptions/Fields/NovaSubscriptionAdministrativeStatusSelectField.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant INACTIVE of enum Waterfront\\Domain\\Subscriptions\\Enums\\AdministrativeStatus\:
+				This status was used in the m365 migration to have it be renewed but not invoiced\. Do not use this anymore\.$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Apps/Nova/Subscriptions/Filters/NovaSubscriptionAdministrativeTypeFilter.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant INACTIVE of enum Waterfront\\Domain\\Subscriptions\\Enums\\AdministrativeStatus\:
+				This status was used in the m365 migration to have it be renewed but not invoiced\. Do not use this anymore\.$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Apps/Nova/Subscriptions/Resources/NovaExpiredSubscriptionResource.php
+
+		-
+			message: '#^Variable method call on Laravel\\Nova\\Resource\<Illuminate\\Database\\Eloquent\\Model\>\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: src/Apps/Nova/Subscriptions/Resources/NovaSubscriptionResource.php
+
+		-
+			message: '#^Only booleans are allowed in a negated boolean, mixed given\.$#'
+			identifier: booleanNot.exprNotBoolean
+			count: 1
+			path: src/Apps/Nova/Translations/Filters/NovaTranslationStatusFilter.php
+
+		-
+			message: '#^Parameter \#1 \$relations of method Illuminate\\Database\\Eloquent\\Builder\<Waterfront\\Domain\\History\\Models\\Audit\>\:\:with\(\) expects array\<array\|\(Closure\(Illuminate\\Database\\Eloquent\\Relations\\Relation\<\*, \*, \*\>\)\: mixed\)\|string\>\|string, array\{auditable\: Closure\(Illuminate\\Database\\Eloquent\\Relations\\MorphTo\)\: void\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/AuditLogs/Actions/FetchAuditLogsForCustomerAction.php
+
+		-
+			message: '#^Parameter \#1 \$relations of method Illuminate\\Database\\Eloquent\\Builder\<Waterfront\\Domain\\History\\Models\\Audit\>\:\:with\(\) expects array\<array\|\(Closure\(Illuminate\\Database\\Eloquent\\Relations\\Relation\<\*, \*, \*\>\)\: mixed\)\|string\>\|string, array\{auditable\: Closure\(Illuminate\\Database\\Eloquent\\Relations\\MorphTo\)\: void\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/AuditLogs/Actions/FetchAuditLogsForDomainAction.php
+
+		-
+			message: '#^Parameter \#1 \$relations of method Illuminate\\Database\\Eloquent\\Builder\<Waterfront\\Domain\\History\\Models\\Audit\>\:\:with\(\) expects array\<array\|\(Closure\(Illuminate\\Database\\Eloquent\\Relations\\Relation\<\*, \*, \*\>\)\: mixed\)\|string\>\|string, array\{auditable\: Closure\(Illuminate\\Database\\Eloquent\\Relations\\MorphTo\)\: void\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/AuditLogs/Actions/FetchAuditLogsForSubscriptionAction.php
+
+		-
+			message: '#^Do not throw the \\Exception base class\.$#'
+			identifier: thecodingmachine.exceptionBaseClassThrown
+			count: 2
+			path: src/Domain/Backup/Services/BackupService.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_unique expects an array of values castable to string, list\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Cart/Validators/Rules/AddonIsCorrectlyAttached.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between int and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: src/Domain/Customers/Actions/StoreCustomerAddressAction.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<string, string\> is not subtype of type string\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/Customers/DTO/ContactSetDTO.php
+
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/Domain/Customers/DTO/CreateSubscriptionsDTO.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Infra\\Translation\\TranslatorInterface is not subtype of type Waterfront\\Infra\\Translation\\Translator\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/Customers/Models/Customer.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between int and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: src/Domain/Customers/Observers/CustomerObserver.php
+
+		-
+			message: '#^Do not throw the \\Exception base class\.$#'
+			identifier: thecodingmachine.exceptionBaseClassThrown
+			count: 1
+			path: src/Domain/DNS/Actions/RedeployDnsAction.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\DNS\\Listeners\\DnsUpdatingListener\:\:handle", caught "Throwable" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/DNS/Listeners/DnsUpdatingListener.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Infra\\Translation\\TranslatorInterface is not subtype of type Waterfront\\Infra\\Translation\\Translator\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/DNS/Rules/NoDuplicate.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 1
+			path: src/Domain/DNS/Rules/TlsaContent.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''0''\|''1'' and ''2'' will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: src/Domain/DNS/Rules/TlsaContent.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\DNS\\Services\\DnsLogService\:\:logSystemDnsRecordChange\(\) has Waterfront\\Domain\\Subscriptions\\Exceptions\\SubscriptionNotFoundException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Domain/DNS/Services/DnsLogService.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\DNS\\Services\\DnsLogService\:\:logUserDnsRecordChange\(\) has Waterfront\\Domain\\Subscriptions\\Exceptions\\SubscriptionNotFoundException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Domain/DNS/Services/DnsLogService.php
+
+		-
+			message: '#^Parameter \#1 \$input of method Waterfront\\Domain\\DNS\\Hydrators\\DnsRecordHydrator\:\:hydrate\(\) expects array\<mixed\>, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/DNS/Services/DnsZoneFactories/DnsZoneFromArrayTemplateFactory.php
+
+		-
+			message: '#^Parameter \#2 \$replace of function str_replace expects array\<string\>\|string, array\<string\|null\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/DNS/Services/DnsZoneFactories/DnsZoneFromArrayTemplateFactory.php
+
+		-
+			message: '#^Parameter \#2 \$replace of function str_replace expects array\<string\>\|string, array\<string\|null\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/DNS/Services/DnsZoneFactories/DnsZoneFromDatabaseTemplateFactory.php
+
+		-
+			message: '#^Parameter \#1 \$records of method Illuminate\\Database\\Eloquent\\Relations\\HasOneOrMany\<Waterfront\\Domain\\DNS\\Models\\DnsCustomerTemplateRecord,Waterfront\\Domain\\DNS\\Models\\DnsCustomerTemplate,Illuminate\\Database\\Eloquent\\Collection\<int, Waterfront\\Domain\\DNS\\Models\\DnsCustomerTemplateRecord\>\>\:\:createMany\(\) expects iterable\<array\<string, mixed\>\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/DNS/Services/Templates/TemplateService.php
+
+		-
+			message: '#^Parameter \#1 \$records of method Illuminate\\Database\\Eloquent\\Relations\\HasOneOrMany\<Waterfront\\Domain\\DNS\\Models\\DnsCustomerTemplateRecord,Waterfront\\Domain\\DNS\\Models\\DnsCustomerTemplate,Illuminate\\Database\\Eloquent\\Collection\<int, Waterfront\\Domain\\DNS\\Models\\DnsCustomerTemplateRecord\>\>\:\:createMany\(\) expects iterable\<array\<string, mixed\>\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/DNS/Services/Templates/TemplateService.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Domains/DTO/Extension.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Domains\\DTO\\Extension\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Domains/DTO/Extension.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Domains/DTO/HandleParameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Domains\\DTO\\HandleParameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Domains/DTO/HandleParameters.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Domains/DTO/ModifyHandles.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Domains\\DTO\\ModifyParameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Domains/DTO/ModifyParameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Domains\\DTO\\ModifyParameters\:\:create\(\) should return static\(Waterfront\\Domain\\Domains\\DTO\\ModifyParameters\) but returns Waterfront\\Domain\\Domains\\DTO\\ModifyParameters\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Domain/Domains/DTO/ModifyParameters.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Domains/DTO/RegistrationParameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Domains\\DTO\\RegistrationParameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Domains/DTO/RegistrationParameters.php
+
+		-
+			message: '#^PHPDoc tag @var with type string is not subtype of native type non\-empty\-string\|false\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Domain/Domains/DTO/RetrieveResult.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Domains/DTO/TransferParameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Domains\\DTO\\TransferParameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Domains/DTO/TransferParameters.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Domains\\DomainService\:\:destroyContactRemote", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Domains/DomainService.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Domains\\DomainService\:\:disableDnssec", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Domains/DomainService.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Domains\\DomainService\:\:enableDnssec", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Domains/DomainService.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Domains\\DomainService\:\:modify", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Domains/DomainService.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Domains\\DomainService\:\:register", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Domains/DomainService.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Domains\\DomainService\:\:transfer", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Domains/DomainService.php
+
+		-
+			message: '#^Parameter \#2 \$handleData of method Waterfront\\Domain\\Domains\\Interfaces\\DomainDriverInterface\:\:modifyHandle\(\) expects array\{handle\: string, name\?\: string\|null, addressline\?\: array\<string\>\|null, postalCode\?\: string\|null, city\?\: string\|null, country\?\: string\|null, email\?\: string\|null, voice\?\: string\|null, \.\.\.\}, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Domains/DomainService.php
+
+		-
+			message: '#^Parameter \#2 \$parameters of method Waterfront\\Domain\\Domains\\Interfaces\\DomainDriverInterface\:\:modify\(\) expects array\{registrant\?\: string\|null, isPrivateWhoisEnabled\?\: bool\|null, period\?\: int\|null, authCode\?\: string\|null, languageCode\?\: string\|null, autoRenew\?\: bool\|null, ns\?\: array\<string\>\|null, status\?\: array\<string\>\|null, \.\.\.\}, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Domains/DomainService.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Infra\\Translation\\TranslatorInterface is not subtype of type Waterfront\\Infra\\Translation\\Translator\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/Domains/Models/DomainContact.php
+
+		-
+			message: '#^Parameter \#2 \$callback of method Illuminate\\Database\\Eloquent\\Builder\<Waterfront\\Domain\\Domains\\Models\\DomainDeployment\>\:\:whereHas\(\) expects \(Closure\(Illuminate\\Database\\Eloquent\\Builder\<Waterfront\\Domain\\Subscriptions\\Models\\Subscription\>\)\: mixed\)\|null, Closure\(Waterfront\\Domain\\Subscriptions\\QueryBuilders\\SubscriptionQueryBuilder\)\: void given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Domains/Repositories/DomainDeploymentRepository.php
+
+		-
+			message: '#^Parameter \#1 \$domainName of class Waterfront\\Domain\\Domains\\Jobs\\CancelDomainSubscriptionJob constructor expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Domains/Services/CancelDomainDeployments.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Domains\\Services\\OpenproviderService\:\:hasZone", caught "Throwable" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Domains/Services/OpenproviderService.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between int and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: src/Domain/Ferry/Actions/Customers/StoreMigratedCustomerAction.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Foundation\\Bus\\PendingClosureDispatch\:\:name\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Domain/Ferry/Actions/DNS/ModifyHostingDnsSettingsAction.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Domain\\Customers\\Models\\MigratedCustomer is not subtype of type object\{pivot\: Illuminate\\Database\\Eloquent\\Relations\\Pivot\}&Waterfront\\Domain\\Customers\\Models\\MigratedCustomer\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/Ferry/Actions/Subscriptions/StoreSubscriptionAction.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Domain\\Customers\\Models\\MigratedSubscription is not subtype of type object\{pivot\: Illuminate\\Database\\Eloquent\\Relations\\Pivot\}&Waterfront\\Domain\\Customers\\Models\\MigratedSubscription\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/Ferry/Mappers/DomainMapper.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<string, array\<mixed\>\> is not subtype of type array\<string, string\>\|string\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/Ferry/Mappers/SitebuilderMapper.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<int, array\<string, int\|string\>\>\|false is not subtype of type array\<array\<string, string\>\>\|false\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/Ferry/Pipes/DnsConfigurationPipe.php
+
+		-
+			message: '#^Dead catch \- Symfony\\Component\\Serializer\\Exception\\MissingConstructorArgumentsException is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Domain/Ferry/Pipes/HostingMigrationPipe.php
+
+		-
+			message: '#^Dead catch \- Symfony\\Component\\Serializer\\Exception\\MissingConstructorArgumentsException is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Domain/Ferry/Pipes/MailOnlyMigrationPipe.php
+
+		-
+			message: '#^Dead catch \- Symfony\\Component\\Serializer\\Exception\\MissingConstructorArgumentsException is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Domain/Ferry/Pipes/ResellerHostingMigrationPipe.php
+
+		-
+			message: '#^Dead catch \- Symfony\\Component\\Serializer\\Exception\\MissingConstructorArgumentsException is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Domain/Ferry/Pipes/SslMigrationPipe.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Domain\\Customers\\Models\\MigratedCustomer is not subtype of type object\{pivot\: Illuminate\\Database\\Eloquent\\Relations\\Pivot\}&Waterfront\\Domain\\Customers\\Models\\MigratedCustomer\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/Ferry/Repositories/MigratableSubscriptionRepository.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Domain\\Customers\\Models\\MigratedSubscription is not subtype of type object\{pivot\: Illuminate\\Database\\Eloquent\\Relations\\Pivot\}&Waterfront\\Domain\\Customers\\Models\\MigratedSubscription\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/Ferry/Repositories/MigratableSubscriptionRepository.php
+
+		-
+			message: '#^PHPDoc tag @var with type SandwaveIo\\HarborMessages\\Message\\DebtorInvoiceLines\\InvoiceLine is not subtype of type array\<mixed\>\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/Harbor/Services/Harbor.php
+
+		-
+			message: '#^Parameter \#1 \$serializableDataObject of method SandwaveIo\\HarborMessages\\Message\\Serializer\\JsonSerializer\:\:encode\(\) expects SandwaveIo\\HarborMessages\\SerializableDataInterface\<mixed, mixed\>, SandwaveIo\\HarborMessages\\Message\\DebtorInvoiceLines given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Harbor/Services/Harbor.php
+
+		-
+			message: '#^Result of \|\| is always false\.$#'
+			identifier: booleanOr.alwaysFalse
+			count: 1
+			path: src/Domain/Harbor/Services/Harbor.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between float and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: src/Domain/Harbor/Services/Harbor.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: src/Domain/Harbor/Services/Harbor.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between Waterfront\\Domain\\Customers\\Models\\Customer and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 2
+			path: src/Domain/Harbor/Services/Invoice/InvoiceSingleCrediter.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Domain/Harbor/Services/Message/DebtorBuilder.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 2
+			path: src/Domain/History/Models/Audit.php
+
+		-
+			message: '#^Class Waterfront\\Domain\\History\\Models\\Audit has PHPDoc tag @property for property \$new_values with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/History/Models/Audit.php
+
+		-
+			message: '#^Class Waterfront\\Domain\\History\\Models\\Audit has PHPDoc tag @property for property \$old_values with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/History/Models/Audit.php
+
+		-
+			message: '#^Class Waterfront\\Domain\\History\\Models\\Audit has PHPDoc tag @property for property \$tags with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/History/Models/Audit.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\History\\Models\\Audit\:\:auditable\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Domain/History/Models/Audit.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Infra\\Translation\\TranslatorInterface is not subtype of type Waterfront\\Infra\\Translation\\Translator\.$#'
+			identifier: varTag.type
+			count: 2
+			path: src/Domain/History/Models/Audit.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<mixed\>\|string is not subtype of type array\.$#'
+			identifier: varTag.type
+			count: 2
+			path: src/Domain/History/Models/Audit.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Hosting\\DirectAdmin\\Services\\DirectAdminHostingService\:\:installCertificate", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Hosting/DirectAdmin/Services/DirectAdminHostingService.php
+
+		-
+			message: '#^Parameter \#1 \$domainData of method Waterfront\\Infra\\DirectAdminClient\\Commands\\Domains\\ModifyDomain\:\:setDomainData\(\) expects array\<string\>, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Hosting/DirectAdmin/Services/DirectAdminHostingService.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Drivers\\HostingServiceInterface\:\:create\(\) has parameter \$specs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Drivers/HostingServiceInterface.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Drivers\\HostingServiceInterface\:\:create\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Drivers/HostingServiceInterface.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\ChangeHostingPackageStatus\\Parameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/ChangeHostingPackageStatus/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\ChangeHostingPackageStatus\\Parameters\:\:create\(\) should return static\(Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\ChangeHostingPackageStatus\\Parameters\) but returns Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\ChangeHostingPackageStatus\\Parameters\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/ChangeHostingPackageStatus/Parameters.php
+
+		-
+			message: '#^Class "Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\CreateCustomer\\Result" is not allowed to extend "Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\Result"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/CreateCustomer/Result.php
+
+		-
+			message: '#^Class "Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\CreateResellerHosting\\Result" is not allowed to extend "Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\Result"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/CreateResellerHosting/Result.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\DeleteCustomer\\Parameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/DeleteCustomer/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\DeleteCustomer\\Parameters\:\:create\(\) should return static\(Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\DeleteCustomer\\Parameters\) but returns Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\DeleteCustomer\\Parameters\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/DeleteCustomer/Parameters.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/DeleteCustomer/Result.php
+
+		-
+			message: '#^Class "Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\DeleteCustomer\\Result" is not allowed to extend "Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\Result"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/DeleteCustomer/Result.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\DeleteWebsite\\Parameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/DeleteWebsite/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\DeleteWebsite\\Parameters\:\:create\(\) should return static\(Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\DeleteWebsite\\Parameters\) but returns Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\DeleteWebsite\\Parameters\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/DeleteWebsite/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\EmailForwardingCreate\\Parameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/EmailForwardingCreate/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\EmailForwardingCreate\\Parameters\:\:create\(\) should return static\(Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\EmailForwardingCreate\\Parameters\) but returns Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\EmailForwardingCreate\\Parameters\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/EmailForwardingCreate/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\EmailGetAccountSettings\\Parameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/EmailGetAccountSettings/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\EmailGetAccountSettings\\Parameters\:\:create\(\) should return static\(Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\EmailGetAccountSettings\\Parameters\) but returns Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\EmailGetAccountSettings\\Parameters\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/EmailGetAccountSettings/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\EmailSetCatchAll\\Parameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/EmailSetCatchAll/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\EmailSetCatchAll\\Parameters\:\:create\(\) should return static\(Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\EmailSetCatchAll\\Parameters\) but returns Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\EmailSetCatchAll\\Parameters\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/EmailSetCatchAll/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\Parameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\Parameters\:\:create\(\) should return static\(Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\Parameters\) but returns Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\Parameters\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\SecretKeyCreate\\Result\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/SecretKeyCreate/Result.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/SecretKeyGet/Result.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\SecretKeyGet\\Result\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Hosting/Interfaces/Hosting/Models/SecretKeyGet/Result.php
+
+		-
+			message: '#^Parameter \#1 \$payload of method Illuminate\\Encryption\\Encrypter\:\:decrypt\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Hosting/Models/SpamExpertsCluster.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Hosting/Plesk/Services/PleskHostingService.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Hosting\\Plesk\\Services\\PleskHostingService\:\:installCertificate", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Hosting/Plesk/Services/PleskHostingService.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Hosting\\Plesk\\Services\\PleskHostingService\:\:selectCertificate", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Hosting/Plesk/Services/PleskHostingService.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Plesk\\Services\\PleskHostingService\:\:create\(\) has parameter \$specs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Hosting/Plesk/Services/PleskHostingService.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Plesk\\Services\\PleskHostingService\:\:create\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Hosting/Plesk/Services/PleskHostingService.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Domain\\Hosting\\DTO\\DnsRecord is not subtype of type Waterfront\\Infra\\PleskClient\\DTO\\DnsRecord\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/Hosting/Plesk/Services/PleskHostingService.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Hosting\\Repositories\\HostingDeploymentRepository\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Hosting/Repositories/HostingDeploymentRepository.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Hosting\\Services\\HostingService\:\:create", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Hosting/Services/HostingService.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Hosting\\Services\\HostingService\:\:getServerSsoUrl", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Hosting/Services/HostingService.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Infra\\DirectAdminClient\\Commands\\EmailForwards\\DeleteEmailForward is not subtype of type Waterfront\\Infra\\DirectAdminClient\\Commands\\EmailForwards\\CreateEmailForward\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/MailManagement/Services/MailManagementDirectAdminService.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\MailManagement\\Services\\MailManagementService\:\:getEmailUsersRaw\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/MailManagement/Services/MailManagementService.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(array\<string, mixed\>\.\)\: Unexpected token "\.", expected TOKEN_HORIZONTAL_WS at offset 39 on line 2$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Domain/MailManagement/Services/MailManagementService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<\(int\|string\),mixed\>\:\:filter\(\) expects \(callable\(mixed, int\|string\)\: bool\)\|null, Closure\(string\)\: bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/MailManagement/Services/MailManagementService.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Mailer/PayloadSerializer.php
+
+		-
+			message: '#^Access to an undefined property Waterfront\\Infra\\HubspotClient\\DTO\\HubspotContactRequestDTO\:\:\$isMarketable\.$#'
+			identifier: property.notFound
+			count: 2
+			path: src/Domain/Marketing/Crm.php
+
+		-
+			message: '#^Access to an undefined property Waterfront\\Infra\\HubspotClient\\DTO\\HubspotContactRequestDTO\:\:\$isOptedInMailActions\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Domain/Marketing/Crm.php
+
+		-
+			message: '#^Access to an undefined property Waterfront\\Infra\\HubspotClient\\DTO\\HubspotContactRequestDTO\:\:\$isOptedInMailSurveys\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Domain/Marketing/Crm.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Microsoft365\\Http\\Controllers\\WebhookController\:\:incomingCall", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Microsoft365/Http/Controllers/WebhookController.php
+
+		-
+			message: '#^Parameter \#1 \$value of static method Waterfront\\Domain\\Microsoft365\\Enums\\Microsoft365ProcessStatus\:\:from\(\) expects int\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Microsoft365/Models/Microsoft365CustomerInfo.php
+
+		-
+			message: '#^Parameter \#1 \$value of static method Waterfront\\Domain\\Microsoft365\\Enums\\Microsoft365OrderStatus\:\:from\(\) expects int\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Microsoft365/Models/Microsoft365Deployment.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Microsoft365\\Services\\Microsoft365SubscriptionService\:\:create\(\) has parameter \$subscriptions with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Domain/Microsoft365/Services/Microsoft365SubscriptionService.php
+
+		-
+			message: '#^Call to method Illuminate\\Support\\Collection\<\*NEVER\*,\*NEVER\*\>\:\:isEmpty\(\) will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/Domain/OneTimeServices/Services/OneTimeServiceInvoiceService.php
+
+		-
+			message: '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
+			identifier: function.strict
+			count: 1
+			path: src/Domain/Orders/Jobs/ProcessOrderJob.php
+
+		-
+			message: '#^PHPDoc tag @var with type Psr\\Log\\LoggerInterface is not subtype of type Illuminate\\Log\\LogManager\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/Orders/Jobs/ProcessOrderJob.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant INACTIVE of enum Waterfront\\Domain\\Subscriptions\\Enums\\AdministrativeStatus\:
+				This status was used in the m365 migration to have it be renewed but not invoiced\. Do not use this anymore\.$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Domain/Orders/Services/OrderBiller.php
+
+		-
+			message: '#^Invalid array key type float\.$#'
+			identifier: offsetAccess.invalidOffset
+			count: 1
+			path: src/Domain/Payments/Helpers/Format.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Waterfront\\Infra\\MollieClient\\DTO\\Mandates\\MollieMandateResponseDTO\>\:\:first\(\) expects \(callable\(Waterfront\\Infra\\MollieClient\\DTO\\Mandates\\MollieMandateResponseDTO, int\)\: bool\)\|null, Closure\(Waterfront\\Infra\\MollieClient\\DTO\\Mandates\\MollieMandateResponseDTO\)\: \(Waterfront\\Infra\\MollieClient\\DTO\\Mandates\\MollieMandateResponseDTO\|null\) given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Payments/Managers/MollieMandateManager.php
+
+		-
+			message: '#^Parameter \#1 \$value of static method Waterfront\\Domain\\Payments\\Enums\\PaymentStatus\:\:tryFrom\(\) expects int\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Payments/Models/Payment.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Payments/Models/Result.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Payments\\Models\\Result\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Payments/Models/Result.php
+
+		-
+			message: '#^Parameter \#1 \$string of static method Waterfront\\Domain\\Payments\\Helpers\\Format\:\:stringToNumber\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Payments/Services/PaymentService.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Placeholder\\Services\\HostingPlaceholderService\:\:create\(\) has parameter \$specs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Placeholder/Services/HostingPlaceholderService.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Placeholder\\Services\\HostingPlaceholderService\:\:create\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Placeholder/Services/HostingPlaceholderService.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Products\\CalculatePriceService\:\:findAndPop\(\) has parameter \$input that is passed by reference\.$#'
+			identifier: ergebnis.noParameterPassedByReference
+			count: 1
+			path: src/Domain/Products/CalculatePriceService.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Products\\DTO\\PriceList\:\:getPrices\(\) should return array\<Waterfront\\Domain\\Products\\DTO\\Price\> but returns array\<mixed, mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Domain/Products/DTO/PriceList.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$arrays of function array_merge expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Products/DTO/PriceList.php
+
+		-
+			message: '#^Property Waterfront\\Domain\\Products\\Rules\\ProductSpecValue\:\:\$type \(string\) does not accept mixed\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Domain/Products/Rules/ProductSpecValue.php
+
+		-
+			message: '#^Parameter \$domain of class Waterfront\\Domain\\ResellerHosting\\Parameters\\AppResellerHostingDomainCoupleParameters constructor expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/ResellerHosting/Parameters/AppResellerHostingDomainCoupleParameters.php
+
+		-
+			message: '#^Parameter \$username of class Waterfront\\Domain\\ResellerHosting\\Parameters\\AppResellerHostingDomainCoupleParameters constructor expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/ResellerHosting/Parameters/AppResellerHostingDomainCoupleParameters.php
+
+		-
+			message: '#^Parameter \$uuid of class Waterfront\\Domain\\ResellerHosting\\Parameters\\AppResellerHostingDomainCoupleParameters constructor expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/ResellerHosting/Parameters/AppResellerHostingDomainCoupleParameters.php
+
+		-
+			message: '#^Cannot access property \$port on Waterfront\\Domain\\Servers\\Models\\Server\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: src/Domain/ResellerHosting/Services/DirectAdminResellerHostingService.php
+
+		-
+			message: '#^Cannot access property \$type on Waterfront\\Domain\\Servers\\Models\\Server\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: src/Domain/ResellerHosting/Services/DirectAdminResellerHostingService.php
+
+		-
+			message: '#^Cannot access property \$use_ssl on Waterfront\\Domain\\Servers\\Models\\Server\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: src/Domain/ResellerHosting/Services/DirectAdminResellerHostingService.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\ResellerHosting\\Services\\DirectAdminResellerHostingService\:\:create\(\) should return string but returns string\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Domain/ResellerHosting/Services/DirectAdminResellerHostingService.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Infra\\DirectAdminClient\\Connection\\DirectAdminServer is not subtype of type Waterfront\\Domain\\Servers\\Models\\Server\|null\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/ResellerHosting/Services/DirectAdminResellerHostingService.php
+
+		-
+			message: '#^Parameter \#1 \$hostname of class Waterfront\\Domain\\DNS\\DTO\\Nameserver constructor expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Domain/ResellerHosting/Services/DirectAdminResellerHostingService.php
+
+		-
+			message: '#^Parameter \#1 \$resellerData of method Waterfront\\Infra\\DirectAdminClient\\DirectAdmin\\Reseller\:\:create\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/ResellerHosting/Services/DirectAdminResellerHostingService.php
+
+		-
+			message: '#^Parameter \#1 \$server of method Waterfront\\Domain\\ResellerHosting\\Services\\DirectAdminResellerHostingService\:\:installCertificate\(\) expects Waterfront\\Domain\\Servers\\Models\\Server, Waterfront\\Domain\\Servers\\Models\\Server\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/ResellerHosting/Services/DirectAdminResellerHostingService.php
+
+		-
+			message: '#^Parameter \#1 \$server of method Waterfront\\Infra\\DirectAdminClient\\BehavesAsDirectAdmin\:\:useServer\(\) expects Waterfront\\Infra\\DirectAdminClient\\Connection\\DirectAdminServer, Waterfront\\Domain\\Servers\\Models\\Server\|null given\.$#'
+			identifier: argument.type
+			count: 3
+			path: src/Domain/ResellerHosting/Services/DirectAdminResellerHostingService.php
+
+		-
+			message: '#^Parameter \#2 \$server of method Waterfront\\Domain\\ResellerHosting\\Services\\DirectAdminResellerHostingService\:\:setNameserversForDomain\(\) expects Waterfront\\Domain\\Servers\\Models\\Server, Waterfront\\Domain\\Servers\\Models\\Server\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/ResellerHosting/Services/DirectAdminResellerHostingService.php
+
+		-
+			message: '#^Parameter \#6 \$specs \(array\<int, array\<string, mixed\>\>\) of method Waterfront\\Domain\\ResellerHosting\\Services\\DirectAdminResellerHostingService\:\:create\(\) should be compatible with parameter \$specs \(array\<string, string\>\) of method Waterfront\\Domain\\ResellerHosting\\Interfaces\\ResellerHostingServiceInterface\:\:create\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: src/Domain/ResellerHosting/Services/DirectAdminResellerHostingService.php
+
+		-
+			message: '#^Cannot access property \$ipv4 on Waterfront\\Domain\\Servers\\Models\\Server\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: src/Domain/ResellerHosting/Services/ResellerHostingService.php
+
+		-
+			message: '#^Parameter \$specs of method Waterfront\\Domain\\ResellerHosting\\Interfaces\\ResellerHostingServiceInterface\:\:create\(\) expects array\<string, string\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/ResellerHosting/Services/ResellerHostingService.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Servers\\Models\\Server\:\:getLoginKeyAttribute\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Domain/Servers/Models/Server.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Servers\\Models\\Server\:\:getPasswordAttribute\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Domain/Servers/Models/Server.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Servers\\Models\\Server\:\:getSecretKeyAttribute\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Domain/Servers/Models/Server.php
+
+		-
+			message: '#^Parameter \#1 \$payload of method Illuminate\\Encryption\\Encrypter\:\:decrypt\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 6
+			path: src/Domain/Servers/Models/Server.php
+
+		-
+			message: '#^Do not throw the \\Exception base class\.$#'
+			identifier: thecodingmachine.exceptionBaseClassThrown
+			count: 1
+			path: src/Domain/Sitebuilder/Services/BaseKitService.php
+
+		-
+			message: '#^Do not throw the \\Exception base class\.$#'
+			identifier: thecodingmachine.exceptionBaseClassThrown
+			count: 4
+			path: src/Domain/Sitebuilder/SitebuilderService.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Ssl\\Clients\\RemoteSslServiceClient\:\:create", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Ssl/Clients/RemoteSslServiceClient.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Ssl\\Clients\\RemoteSslServiceClient\:\:csrValidate", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Ssl/Clients/RemoteSslServiceClient.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Ssl\\Clients\\RemoteSslServiceClient\:\:reissue", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Ssl/Clients/RemoteSslServiceClient.php
+
+		-
+			message: '#^In method "Waterfront\\Domain\\Ssl\\Clients\\RemoteSslServiceClient\:\:renew", caught "Exception" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Domain/Ssl/Clients/RemoteSslServiceClient.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 1
+			path: src/Domain/Ssl/CsrPersistanceStrategies/OpenSslExtensionStrategy.php
+
+		-
+			message: '#^Parameter \#1 \$csr of function openssl_csr_export_to_file expects OpenSSLCertificateSigningRequest\|string, OpenSSLCertificateSigningRequest\|true given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Ssl/CsrPersistanceStrategies/OpenSslExtensionStrategy.php
+
+		-
+			message: '#^Access to an undefined property Waterfront\\Domain\\Products\\Models\\Product\:\:\$productsSslProvider\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Domain/Ssl/Factories/SslServiceFactory.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Ssl/Interfaces/Models/Approver/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Ssl\\Interfaces\\Models\\Approver\\Parameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Ssl/Interfaces/Models/Approver/Parameters.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Ssl/Interfaces/Models/Approver/Result.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Ssl\\Interfaces\\Models\\Approver\\Result\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Ssl/Interfaces/Models/Approver/Result.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Ssl/Interfaces/Models/CertificateInstall/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Ssl\\Interfaces\\Models\\CertificateInstall\\Parameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Ssl/Interfaces/Models/CertificateInstall/Parameters.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Ssl/Interfaces/Models/Parameters.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Ssl\\Interfaces\\Models\\Parameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Ssl/Interfaces/Models/Parameters.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Ssl/Interfaces/Models/Result.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Ssl\\Interfaces\\Models\\Result\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Ssl/Interfaces/Models/Result.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Domain/Ssl/Models/CsrData.php
+
+		-
+			message: '#^Namespace Carbon\\Carbon is forbidden, Carbon is mutable, please use CarbonImmutable instead\.$#'
+			identifier: disallowed.namespace
+			count: 2
+			path: src/Domain/Ssl/Services/CertificateService.php
+
+		-
+			message: '#^PHPDoc tag @var with type string\|null is not subtype of type string\.$#'
+			identifier: varTag.type
+			count: 2
+			path: src/Domain/Ssl/Services/CustomerSharedSslService.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant RESELLER_DISCOUNT of enum Waterfront\\Domain\\Products\\Enums\\ProductGroupType\:
+				This group is just here for historical purposes\. Use the volume discount group$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Domain/Subscriptions/Actions/GracefullyExpireSubscriptionAction.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant INACTIVE of enum Waterfront\\Domain\\Subscriptions\\Enums\\AdministrativeStatus\:
+				This status was used in the m365 migration to have it be renewed but not invoiced\. Do not use this anymore\.$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Domain/Subscriptions/Enums/AdministrativeStatus.php
+
+		-
+			message: '#^PHPDoc tag @property for property Waterfront\\Domain\\Subscriptions\\Models\\SubscriptionMutation\:\:\$billing_period contains unresolvable type\.$#'
+			identifier: propertyTag.unresolvableType
+			count: 1
+			path: src/Domain/Subscriptions/Models/SubscriptionMutation.php
+
+		-
+			message: '#^PHPDoc tag @property for property Waterfront\\Domain\\Subscriptions\\Models\\SubscriptionMutation\:\:\$contract_period contains unresolvable type\.$#'
+			identifier: propertyTag.unresolvableType
+			count: 1
+			path: src/Domain/Subscriptions/Models/SubscriptionMutation.php
+
+		-
+			message: '#^PHPDoc tag @var with type Carbon\\CarbonImmutable\|null is not subtype of type Carbon\\CarbonImmutable\.$#'
+			identifier: varTag.type
+			count: 2
+			path: src/Domain/Subscriptions/Observers/SubscriptionObserver.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Subscriptions\\Repositories\\SubscriptionRepository\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Domain/Subscriptions/Repositories/SubscriptionRepository.php
+
+		-
+			message: '#^Parameter \#1 \$key of method Illuminate\\Support\\Collection\<\*NEVER\*,\*NEVER\*\>\:\:unique\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: src/Domain/Subscriptions/Repositories/SubscriptionRepository.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant RESELLER_DISCOUNT of enum Waterfront\\Domain\\Products\\Enums\\ProductGroupType\:
+				This group is just here for historical purposes\. Use the volume discount group$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Domain/Subscriptions/Services/CancellationFlowService.php
+
+		-
+			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Domain/Subscriptions/Services/CancellationFlowService.php
+
+		-
+			message: '#^Do not throw the \\Exception base class\.$#'
+			identifier: thecodingmachine.exceptionBaseClassThrown
+			count: 2
+			path: src/Domain/Subscriptions/Services/ChangeProvisioningService.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant RESELLER_DISCOUNT of enum Waterfront\\Domain\\Products\\Enums\\ProductGroupType\:
+				This group is just here for historical purposes\. Use the volume discount group$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Domain/Subscriptions/Services/ChangeProvisioningService.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant RESELLER_DISCOUNT of enum Waterfront\\Domain\\Products\\Enums\\ProductGroupType\:
+				This group is just here for historical purposes\. Use the volume discount group$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Domain/Subscriptions/Services/DeprovisionService.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant RESELLER_DISCOUNT of enum Waterfront\\Domain\\Products\\Enums\\ProductGroupType\:
+				This group is just here for historical purposes\. Use the volume discount group$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Domain/Subscriptions/Services/ProvisionService.php
+
+		-
+			message: '#^Do not throw the \\Exception base class\.$#'
+			identifier: thecodingmachine.exceptionBaseClassThrown
+			count: 3
+			path: src/Domain/Subscriptions/Services/ReProvisionService.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant RESELLER_DISCOUNT of enum Waterfront\\Domain\\Products\\Enums\\ProductGroupType\:
+				This group is just here for historical purposes\. Use the volume discount group$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Domain/Subscriptions/Services/ReProvisionService.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant RESELLER_DISCOUNT of enum Waterfront\\Domain\\Products\\Enums\\ProductGroupType\:
+				This group is just here for historical purposes\. Use the volume discount group$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Domain/Subscriptions/Services/SubscriptionChangeService.php
+
+		-
+			message: '#^Thrown exceptions in a catch block must bundle the previous exception \(see throw statement line 64\)\.$#'
+			identifier: thecodingmachine.previousExceptionNotBundled
+			count: 1
+			path: src/Domain/Subscriptions/Services/SubscriptionMetadataService.php
+
+		-
+			message: '#^PHPDoc tag @var with type Illuminate\\Contracts\\Routing\\UrlGenerator is not subtype of type Illuminate\\Routing\\UrlGenerator\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Domain/Subscriptions/SubscriptionResource.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: src/Domain/Transfers/Models/Transfer.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant RESELLER_DISCOUNT of enum Waterfront\\Domain\\Products\\Enums\\ProductGroupType\:
+				This group is just here for historical purposes\. Use the volume discount group$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: src/Domain/Transfers/Services/ExecuteTransferService.php
+
+		-
+			message: '#^Method Waterfront\\Domain\\Translations\\Loaders\\TranslationLoader\:\:loadPath\(\) should return array\<string\> but returns array\<mixed, mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Domain/Translations/Loaders/TranslationLoader.php
+
+		-
+			message: '#^PHPDoc tag @property for property Waterfront\\Domain\\Voucher\\Models\\VoucherClaim\:\:\$amount_claimed contains unresolvable type\.$#'
+			identifier: propertyTag.unresolvableType
+			count: 1
+			path: src/Domain/Voucher/Models/VoucherClaim.php
+
+		-
+			message: '#^PHPDoc tag @property for property Waterfront\\Domain\\Voucher\\Models\\VoucherClaim\:\:\$id contains unresolvable type\.$#'
+			identifier: propertyTag.unresolvableType
+			count: 1
+			path: src/Domain/Voucher/Models/VoucherClaim.php
+
+		-
+			message: '#^PHPDoc tag @property for property Waterfront\\Domain\\Voucher\\Models\\VoucherClaim\:\:\$order_line_item_id contains unresolvable type\.$#'
+			identifier: propertyTag.unresolvableType
+			count: 1
+			path: src/Domain/Voucher/Models/VoucherClaim.php
+
+		-
+			message: '#^PHPDoc tag @property for property Waterfront\\Domain\\Voucher\\Models\\VoucherClaim\:\:\$voucher_id contains unresolvable type\.$#'
+			identifier: propertyTag.unresolvableType
+			count: 1
+			path: src/Domain/Voucher/Models/VoucherClaim.php
+
+		-
+			message: '#^Thrown exceptions in a catch block must bundle the previous exception \(see throw statement line 120\)\.$#'
+			identifier: thecodingmachine.previousExceptionNotBundled
+			count: 1
+			path: src/Infra/Authentication/AuthenticationManager.php
+
+		-
+			message: '#^Method Waterfront\\Infra\\CloudStackClient\\CloudStackBaseClient\:\:parseResponse\(\) should return array\<mixed\> but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Infra/CloudStackClient/CloudStackBaseClient.php
+
+		-
+			message: '#^Parameter \#1 \$data of callable Waterfront\\Infra\\CloudStackClient\\Mapper\\ZoneMapper expects array\<mixed\>, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Infra/CloudStackClient/CloudStackClient.php
+
+		-
+			message: '#^Method Waterfront\\Infra\\CloudStackClient\\CloudStackPaginationIterator\:\:count\(\) should return int\<0, max\> but returns int\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Infra/CloudStackClient/CloudStackPaginationIterator.php
+
+		-
+			message: '#^Parameter \$nic of class Waterfront\\Infra\\CloudStackClient\\DTO\\VirtualMachine constructor expects array\<Waterfront\\Infra\\CloudStackClient\\DTO\\Nic\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Infra/CloudStackClient/Mapper/VirtualMachineMapper.php
+
+		-
+			message: '#^Loose comparison via "\!\=" is not allowed\.$#'
+			identifier: notEqual.notAllowed
+			count: 2
+			path: src/Infra/Configuration/Configuration.php
+
+		-
+			message: '#^Variable property access on \$this\(Waterfront\\Infra\\DirectAdminClient\\Commands\\DirectAdminCommand\)\.$#'
+			identifier: property.dynamicName
+			count: 1
+			path: src/Infra/DirectAdminClient/Commands/DirectAdminCommand.php
+
+		-
+			message: '#^Cannot access offset ''type'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Infra/DirectAdminClient/Commands/Domains/FetchDkimRecord.php
+
+		-
+			message: '#^Cannot access offset ''value'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Infra/DirectAdminClient/Commands/Domains/FetchDkimRecord.php
+
+		-
+			message: '#^Parameter \#1 \$haystack of function str_contains expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Infra/DirectAdminClient/Commands/Domains/FetchDkimRecord.php
+
+		-
+			message: '#^Property Waterfront\\Infra\\DirectAdminClient\\Commands\\Domains\\FetchDkimRecord\:\:\$dkimRecord \(array\<string\>\|null\) does not accept mixed\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Infra/DirectAdminClient/Commands/Domains/FetchDkimRecord.php
+
+		-
+			message: '#^Property Waterfront\\Infra\\DirectAdminClient\\Commands\\Domains\\ShowDomain\:\:\$showDomainData \(array\<array\<mixed\>\>\) does not accept array\<mixed, mixed\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Infra/DirectAdminClient/Commands/Domains/ShowDomain.php
+
+		-
+			message: '#^Access to an undefined property Waterfront\\Infra\\DirectAdminClient\\Commands\\Packages\\ManageUserPackages\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Infra/DirectAdminClient/Commands/Packages/ManageUserPackages.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: src/Infra/DirectAdminClient/Commands/Packages/ManageUserPackages.php
+
+		-
+			message: '#^Variable method call on Waterfront\\Infra\\DirectAdminClient\\Commands\\Packages\\ManageUserPackages\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: src/Infra/DirectAdminClient/DirectAdmin/Package.php
+
+		-
+			message: '#^Variable method call on Waterfront\\Infra\\DirectAdminClient\\Commands\\Resellers\\CreateReseller\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: src/Infra/DirectAdminClient/DirectAdmin/Reseller.php
+
+		-
+			message: '#^Variable method call on Waterfront\\Infra\\DirectAdminClient\\Commands\\Resellers\\ModifyReseller\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: src/Infra/DirectAdminClient/DirectAdmin/Reseller.php
+
+		-
+			message: '#^Variable method call on Waterfront\\Infra\\DirectAdminClient\\Commands\\Packages\\ManageResellerPackages\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: src/Infra/DirectAdminClient/DirectAdmin/ResellerPackage.php
+
+		-
+			message: '#^Variable method call on Waterfront\\Infra\\DirectAdminClient\\Commands\\Users\\CreateUser\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: src/Infra/DirectAdminClient/DirectAdmin/User.php
+
+		-
+			message: '#^Variable method call on Waterfront\\Infra\\DirectAdminClient\\Commands\\Users\\ModifyUser\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: src/Infra/DirectAdminClient/DirectAdmin/User.php
+
+		-
+			message: '#^Cannot access offset ''id'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Infra/HubspotClient/Serializer/PropertiesNormalizer.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_diff_key expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Infra/Logging/Formatters/InsightsFormatter.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_intersect_key expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Infra/Logging/Formatters/InsightsFormatter.php
+
+		-
+			message: '#^Method Waterfront\\Infra\\Logging\\Processors\\ThrowableExceptionContext\:\:extractExceptionFromRecordContext\(\) has parameter \$context that is passed by reference\.$#'
+			identifier: ergebnis.noParameterPassedByReference
+			count: 1
+			path: src/Infra/Logging/Processors/ThrowableExceptionContext.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between int\<1, max\> and 0 will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: src/Infra/MicrosoftOnlineClient/MicrosoftOnlineClient.php
+
+		-
+			message: '#^Do not throw the \\Exception base class\.$#'
+			identifier: thecodingmachine.exceptionBaseClassThrown
+			count: 2
+			path: src/Infra/Migrations/RequestOldBuInvoices.php
+
+		-
+			message: '#^Class "Waterfront\\Infra\\MollieClient\\Fakers\\MolliePaymentClientFaker" is not allowed to extend "Waterfront\\Infra\\MollieClient\\MolliePaymentClient"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Infra/MollieClient/Fakers/MolliePaymentClientFaker.php
+
+		-
+			message: '#^Method Waterfront\\Infra\\MollieClient\\MollieMandateClient\:\:listMandates\(\) should return array\<int, Waterfront\\Infra\\MollieClient\\DTO\\Mandates\\MollieMandateResponseDTO\> but returns array\<mixed, mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Infra/MollieClient/MollieMandateClient.php
+
+		-
+			message: '#^Method Waterfront\\Infra\\News\\Repositories\\CachedNewsRepository\:\:get\(\) should return array\<Waterfront\\Infra\\News\\DTO\\News\> but returns array\<mixed, mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Infra/News/Repositories/CachedNewsRepository.php
+
+		-
+			message: '#^Class "Waterfront\\Infra\\OpenproviderClient\\Fakers\\OpenproviderClientFaker" is not allowed to extend "Waterfront\\Infra\\OpenproviderClient\\OpenproviderClient"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Infra/OpenproviderClient/Fakers/OpenproviderClientFaker.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 2
+			path: src/Infra/OpenproviderClient/Messages/CustomerDeleteResponse.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 1
+			path: src/Infra/OpenproviderClient/Messages/DomainCheckResponse.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 1
+			path: src/Infra/OpenproviderClient/Messages/DomainHandleResponse.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Infra/OpenproviderClient/Messages/DomainModifyRequest.php
+
+		-
+			message: '#^Parameter \#1 \$message of method Waterfront\\Infra\\OpenproviderClient\\Messages\\DomainModifyRequest\:\:setPrivateWhois\(\) expects array\<array\<mixed\>\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Infra/OpenproviderClient/Messages/DomainModifyRequest.php
+
+		-
+			message: '#^Parameter \#1 \$message of method Waterfront\\Infra\\OpenproviderClient\\Messages\\DomainRegistrationRequest\:\:setPrivateWhois\(\) expects array\<array\<mixed\>\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Infra/OpenproviderClient/Messages/DomainRegistrationRequest.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 1
+			path: src/Infra/OpenproviderClient/Messages/DomainRegistrationResponse.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 2
+			path: src/Infra/OpenproviderClient/Messages/DomainTransferResponse.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 1
+			path: src/Infra/OpenproviderClient/Messages/ExtensionRetrieveResponse.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Infra/OpenproviderClient/Messages/NameServer.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 2
+			path: src/Infra/OpenproviderClient/Messages/SslApproverResponse.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 2
+			path: src/Infra/OpenproviderClient/Messages/SslCreateResponse.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 2
+			path: src/Infra/OpenproviderClient/Messages/SslReissueResponse.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 2
+			path: src/Infra/OpenproviderClient/Messages/SslRenewResponse.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 2
+			path: src/Infra/OpenproviderClient/Messages/SslRetrieveResponse.php
+
+		-
+			message: '#^Do not throw the \\Exception base class\.$#'
+			identifier: thecodingmachine.exceptionBaseClassThrown
+			count: 1
+			path: src/Infra/OpenproviderClient/OpenproviderClient.php
+
+		-
+			message: '#^Class "Waterfront\\Infra\\PleskClient\\Fakers\\CustomerClientFaker" is not allowed to extend "Waterfront\\Infra\\PleskClient\\Services\\CustomerClient"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Infra/PleskClient/Fakers/CustomerClientFaker.php
+
+		-
+			message: '#^Cannot access offset ''data'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Infra/PleskClient/Fakers/HostingPackageClientFaker.php
+
+		-
+			message: '#^Cannot access offset ''gen_info'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Infra/PleskClient/Fakers/HostingPackageClientFaker.php
+
+		-
+			message: '#^Cannot access offset ''htype'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Infra/PleskClient/Fakers/HostingPackageClientFaker.php
+
+		-
+			message: '#^Cannot access offset ''result'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Infra/PleskClient/Fakers/HostingPackageClientFaker.php
+
+		-
+			message: '#^Class "Waterfront\\Infra\\PleskClient\\Fakers\\HostingPackageClientFaker" is not allowed to extend "Waterfront\\Infra\\PleskClient\\Services\\HostingPackageClient"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Infra/PleskClient/Fakers/HostingPackageClientFaker.php
+
+		-
+			message: '#^Class "Waterfront\\Infra\\PleskClient\\Fakers\\PleskClientFaker" is not allowed to extend "Waterfront\\Infra\\PleskClient\\PleskClient"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Infra/PleskClient/Fakers/PleskClientFaker.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Infra/PleskClient/Messages/CustomerGetDomainList/CustomerGetDomainListResult.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Infra/PleskClient/Messages/DnsGetRecords/DnsRecordsResult.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Infra/PleskClient/Messages/EmailGetAccountSettings/Result.php
+
+		-
+			message: '#^Cannot access offset ''result'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Infra/PleskClient/Messages/EmailGetAccountSettings/Result.php
+
+		-
+			message: '#^Method Waterfront\\Infra\\PleskClient\\Messages\\EmailGetAccountSettings\\Result\:\:parseForwardAddresses\(\) should return array\<int, string\>\|null but returns array\<mixed, mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Infra/PleskClient/Messages/EmailGetAccountSettings/Result.php
+
+		-
+			message: '#^Parameter \#2 \$array of function array_key_exists expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Infra/PleskClient/Messages/EmailGetAccountSettings/Result.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Infra/PleskClient/Messages/EmailGetPreferences/Result.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Infra/PleskClient/Messages/HostingCreate/MailOnlyRequest.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Infra/PleskClient/Messages/HostingCreate/Request.php
+
+		-
+			message: '#^Loose comparison via "\!\=" is not allowed\.$#'
+			identifier: notEqual.notAllowed
+			count: 1
+			path: src/Infra/PleskClient/Messages/ServicePlanGet/Response.php
+
+		-
+			message: '#^Class "Waterfront\\Infra\\PleskClient\\Services\\CustomerClient" is not allowed to extend "Waterfront\\Infra\\PleskClient\\PleskClient"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Infra/PleskClient/Services/CustomerClient.php
+
+		-
+			message: '#^Cannot access offset ''id'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Infra/PleskClient/Services/HostingPackageClient.php
+
+		-
+			message: '#^Cannot access offset ''result'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Infra/PleskClient/Services/HostingPackageClient.php
+
+		-
+			message: '#^Class "Waterfront\\Infra\\PleskClient\\Services\\HostingPackageClient" is not allowed to extend "Waterfront\\Infra\\PleskClient\\PleskClient"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Infra/PleskClient/Services/HostingPackageClient.php
+
+		-
+			message: '#^Parameter \#2 \$array of function array_key_exists expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Infra/PleskClient/Services/HostingPackageClient.php
+
+		-
+			message: '#^Class "Waterfront\\Infra\\PleskClient\\Services\\ResellerHostingClient" is not allowed to extend "Waterfront\\Infra\\PleskClient\\PleskClient"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Infra/PleskClient/Services/ResellerHostingClient.php
+
+		-
+			message: '#^Parameter \#1 \$keys of static method Waterfront\\Infra\\PowerDnsClient\\Entities\\PowerDnsSecKeySet\:\:fromArray\(\) expects array\<array\<mixed\>\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Infra/PowerDnsClient/Entities/PowerDnsSecKeySet.php
+
+		-
+			message: '#^Parameter \#1 \$keys of static method Waterfront\\Infra\\PowerDnsClient\\Entities\\PowerDnsSecKeySet\:\:fromArray\(\) expects array\<array\<mixed\>\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Infra/PowerDnsClient/PowerDnsClient.php
+
+		-
+			message: '#^In method "Waterfront\\Infra\\RtrClient\\Services\\RtrService\:\:hasZone", caught "Throwable" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Infra/RtrClient/Services/RtrService.php
+
+		-
+			message: '#^In method "Waterfront\\Infra\\RtrClient\\Services\\RtrService\:\:register", caught "Throwable" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Infra/RtrClient/Services/RtrService.php
+
+		-
+			message: '#^In method "Waterfront\\Infra\\RtrClient\\Services\\RtrService\:\:transfer", caught "Throwable" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: src/Infra/RtrClient/Services/RtrService.php
+
+		-
+			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Infra/RtrClient/Services/RtrService.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: src/Infra/RtrClient/Services/Ssl/CertificateDownloader.php
+
+		-
+			message: '#^Class "Waterfront\\Infra\\SpamExpertsClient\\SpamExpertsClientFaker" is not allowed to extend "Waterfront\\Infra\\SpamExpertsClient\\SpamExpertsClient"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Infra/SpamExpertsClient/SpamExpertsClientFaker.php
+
+		-
+			message: '#^PHPDoc tag @var with type Ramsey\\Uuid\\UuidInterface\|string is not subtype of type string\|null\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Support/Database/UuidCast.php
+
+		-
+			message: '#^Method Waterfront\\Support\\Helpers\\DnsHelper\:\:dnsGetRecord\(\) has parameter \$additional_records that is passed by reference\.$#'
+			identifier: ergebnis.noParameterPassedByReference
+			count: 1
+			path: src/Support/Helpers/DnsHelper.php
+
+		-
+			message: '#^Method Waterfront\\Support\\Helpers\\DnsHelper\:\:dnsGetRecord\(\) has parameter \$authoritative_name_servers that is passed by reference\.$#'
+			identifier: ergebnis.noParameterPassedByReference
+			count: 1
+			path: src/Support/Helpers/DnsHelper.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Infra\\Translation\\TranslatorInterface is not subtype of type Waterfront\\Infra\\Translation\\Translator\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Support/Helpers/ValidationRules/FilterSpecialChars.php
+
+		-
+			message: '#^PHPDoc tag @var with type Waterfront\\Infra\\Translation\\TranslatorInterface is not subtype of type Waterfront\\Infra\\Translation\\Translator\.$#'
+			identifier: varTag.type
+			count: 1
+			path: src/Support/Helpers/ValidationRules/ReservedBankAccounts.php
+
+		-
+			message: '#^Parameter \#1 \$array of static method Illuminate\\Support\\Arr\:\:get\(\) expects array\|ArrayAccess, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: tests/Apps/API/Atlantis/Controllers/ProductControllerTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type string is not subtype of type array\<array\<int\|string\>\>\|int\.$#'
+			identifier: varTag.type
+			count: 2
+			path: tests/Apps/API/Compass/Controllers/CustomersControllerTest.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant INACTIVE of enum Waterfront\\Domain\\Subscriptions\\Enums\\AdministrativeStatus\:
+				This status was used in the m365 migration to have it be renewed but not invoiced\. Do not use this anymore\.$#
+			'''
+			identifier: classConstant.deprecated
+			count: 3
+			path: tests/Apps/API/Ferry/Controller/ConfigureDnsControllerTest.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant INACTIVE of enum Waterfront\\Domain\\Subscriptions\\Enums\\AdministrativeStatus\:
+				This status was used in the m365 migration to have it be renewed but not invoiced\. Do not use this anymore\.$#
+			'''
+			identifier: classConstant.deprecated
+			count: 3
+			path: tests/Apps/API/Ferry/Controller/DomainMigrationControllerTest.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant INACTIVE of enum Waterfront\\Domain\\Subscriptions\\Enums\\AdministrativeStatus\:
+				This status was used in the m365 migration to have it be renewed but not invoiced\. Do not use this anymore\.$#
+			'''
+			identifier: classConstant.deprecated
+			count: 3
+			path: tests/Apps/API/Ferry/Controller/NameserverMigrationControllerTest.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant INACTIVE of enum Waterfront\\Domain\\Subscriptions\\Enums\\AdministrativeStatus\:
+				This status was used in the m365 migration to have it be renewed but not invoiced\. Do not use this anymore\.$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: tests/Apps/API/Ferry/Controller/RedirectMigrationControllerTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array\<string\> will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 4
+			path: tests/Apps/API/Harbor/Controllers/InvoiceControllerTest.php
+
+		-
+			message: '#^Cannot access offset ''contact_id'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: tests/Apps/API/Waterfront/Cart/OrderControllerTest.php
+
+		-
+			message: '#^Cannot access offset ''extension'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: tests/Apps/API/Waterfront/Cart/OrderControllerTest.php
+
+		-
+			message: '#^Cannot access offset 0 on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: tests/Apps/API/Waterfront/Cart/OrderControllerTest.php
+
+		-
+			message: '#^Parameter \#1 \$constraint of method PHPUnit\\Framework\\MockObject\\InvocationStubber\:\:method\(\) expects PHPUnit\\Framework\\Constraint\\Constraint\|PHPUnit\\Framework\\MockObject\\Runtime\\PropertyHook\|non\-empty\-string, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: tests/Apps/API/Waterfront/CloudStack/VirtualMachineTest.php
+
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: tests/Apps/API/Waterfront/DnsTemplates/DnsTemplateCrudTest.php
+
+		-
+			message: '#^Cannot access offset ''records\.2'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: tests/Apps/API/Waterfront/DnsTemplates/DnsTemplateCrudTest.php
+
+		-
+			message: '#^Cannot access offset 0 on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: tests/Apps/API/Waterfront/DnsTemplates/DnsTemplateCrudTest.php
+
+		-
+			message: '#^Parameter \#2 \$data of method Illuminate\\Foundation\\Testing\\TestCase\:\:assertDatabaseHas\(\) expects array\<string, mixed\>, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Apps/API/Waterfront/DnsTemplates/DnsTemplateCrudTest.php
+
+		-
+			message: '#^Parameter \#2 \$data of method Illuminate\\Foundation\\Testing\\TestCase\:\:postJson\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Apps/API/Waterfront/DnsTemplates/DnsTemplateCrudTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert\:\:assertCount\(\) expects Countable\|iterable, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Apps/API/Waterfront/DnsTemplates/DnsTemplateCrudTest.php
+
+		-
+			message: '#^Cannot access offset ''email'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: tests/Apps/API/Waterfront/DomainContacts/DomainContactCrudTest.php
+
+		-
+			message: '#^Cannot access offset 0 on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: tests/Apps/API/Waterfront/DomainContacts/DomainContactCrudTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert\:\:assertCount\(\) expects Countable\|iterable, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Apps/API/Waterfront/DomainContacts/DomainContactCrudTest.php
+
+		-
+			message: '#^Cannot access offset ''contact_id'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: tests/Apps/API/Waterfront/Orders/OrderDomainTest.php
+
+		-
+			message: '#^Cannot access offset 0 on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: tests/Apps/API/Waterfront/Orders/OrderDomainTest.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant INACTIVE of enum Waterfront\\Domain\\Subscriptions\\Enums\\AdministrativeStatus\:
+				This status was used in the m365 migration to have it be renewed but not invoiced\. Do not use this anymore\.$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: tests/Apps/API/Waterfront/Policies/SubscriptionPolicyTest.php
+
+		-
+			message: '#^Parameter \#1 \$array of static method Illuminate\\Support\\Arr\:\:get\(\) expects array\|ArrayAccess, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: tests/Apps/API/Waterfront/Subscriptions/PotentialUpgradesTest.php
+
+		-
+			message: '#^Parameter \#2 \$array of static method Illuminate\\Testing\\Assert\:\:assertArraySubset\(\) expects array\|ArrayAccess, mixed given\.$#'
+			identifier: argument.type
+			count: 6
+			path: tests/Apps/API/Waterfront/Transfers/TransferIndexIncomingTest.php
+
+		-
+			message: '#^Parameter \#2 \$array of static method Illuminate\\Testing\\Assert\:\:assertArraySubset\(\) expects array\|ArrayAccess, mixed given\.$#'
+			identifier: argument.type
+			count: 6
+			path: tests/Apps/API/Waterfront/Transfers/TransferIndexOutgoingTest.php
+
+		-
+			message: '#^Cannot call method toDateTimeString\(\) on Carbon\\CarbonImmutable\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/Apps/Console/Commands/Microsoft365SyncWatcherTest.php
+
+		-
+			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
+			identifier: equal.notAllowed
+			count: 1
+			path: tests/Apps/Console/Commands/SubscriptionRenewalAndInvoicingTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<Carbon\\CarbonImmutable\> is not subtype of type array\<int, Carbon\\CarbonImmutable\>\|false\.$#'
+			identifier: varTag.type
+			count: 1
+			path: tests/Apps/Console/Commands/SubscriptionRenewalAndInvoicingTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<string\> is not subtype of native type Laravel\\Nova\\Actions\\ActionResponse\|Waterfront\\Apps\\Nova\\Customers\\Actions\\NovaCustomerWalletDownloadOverviewCsvAction\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: tests/Apps/Nova/Customers/Actions/NovaCustomerWalletDownloadOverviewCsvActionTest.php
+
+		-
+			message: '#^Method Tests\\Apps\\Nova\\Hosting\\Actions\\ImportHostingServersTest\:\:getTestActionRequestAndActionFields\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Apps/Nova/Hosting/Actions/ImportHostingServersTest.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(array\{0\: ActionRequest, 1\: ActionFields\}\>\)\: Unexpected token "\>", expected TOKEN_HORIZONTAL_WS at offset 59 on line 2$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: tests/Apps/Nova/Hosting/Actions/ImportHostingServersTest.php
+
+		-
+			message: '#^Cannot access offset ''id'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: tests/Apps/Nova/Payments/Actions/ListMandateActionTest.php
+
+		-
+			message: '#^Anonymous function should return Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\SiteConfigInterface but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: tests/Apps/Nova/Ssl/Actions/NovaSslRenewalHealthCheckActionTest.php
+
+		-
+			message: '#^Access to an undefined property Waterfront\\Domain\\History\\Models\\Audit\:\:\$customer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Domain/AuditLogs/Action/GetAuditableNameActionTest.php
+
+		-
+			message: '#^Parameter \#1 \$models of method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<Waterfront\\Domain\\DNS\\Models\\DnsNameserver,Waterfront\\Domain\\DNS\\Models\\DnsDeployment,Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:saveMany\(\) expects array\<Waterfront\\Domain\\DNS\\Models\\DnsNameserver\>\|Illuminate\\Support\\Collection\<\(int\|string\), Waterfront\\Domain\\DNS\\Models\\DnsNameserver\>, list\<Waterfront\\Domain\\DNS\\Models\\DnsNameserver\|null\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Domain/DNS/Services/DnsNameserverRetrieverTest.php
+
+		-
+			message: '#^Unable to resolve the template type TContainer in call to method Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\<Waterfront\\Domain\\DNS\\Models\\DnsNameserver,Waterfront\\Domain\\DNS\\Models\\DnsDeployment,Illuminate\\Database\\Eloquent\\Relations\\Pivot,string\>\:\:saveMany\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: tests/Domain/DNS/Services/DnsNameserverRetrieverTest.php
+
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 2
+			path: tests/Domain/Domains/Integration/OrderDomainIntegrationTest.php
+
+		-
+			message: '#^Cannot access offset ''content'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: tests/Domain/Domains/Integration/OrderDomainIntegrationTest.php
+
+		-
+			message: '#^Possibly invalid array key type mixed\.$#'
+			identifier: offsetAccess.invalidOffset
+			count: 2
+			path: tests/Domain/Domains/Integration/OrderDomainIntegrationTest.php
+
+		-
+			message: '#^In method "Tests\\Domain\\Ferry\\Jobs\\TechnicalDomainMigrationJobTest\:\:rollbackWithExceptions", caught "Throwable" must be rethrown\.$#'
+			identifier: thecodingmachine.exceptionMustBeRethrown
+			count: 1
+			path: tests/Domain/Ferry/Jobs/TechnicalDomainMigrationJobTest.php
+
+		-
+			message: '#^Class "Tests\\Domain\\Ferry\\Listeners\\ExtendedTechnicalDomainMigrationJob" is not allowed to extend "Waterfront\\Domain\\Ferry\\Jobs\\TechnicalDomainMigrationJob"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: tests/Domain/Ferry/Listeners/ExtendedTechnicalDomainMigrationJob.php
+
+		-
+			message: '#^Method PHPUnit\\Framework\\MockObject\\InvocationStubber\:\:willReturnOnConsecutiveCalls\(\) invoked with unpacked array with possibly string key, but it''s not allowed because of @no\-named\-arguments\.$#'
+			identifier: argument.named
+			count: 1
+			path: tests/Domain/Ferry/Pipes/DnsConfigurationPipeTest.php
+
+		-
+			message: '#^Anonymous function should return Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\SiteConfigInterface but returns array\.$#'
+			identifier: return.type
+			count: 2
+			path: tests/Domain/Ferry/Pipes/MailOnlyMigrationPipeTest.php
+
+		-
+			message: '#^Parameter \#1 \$models of method Illuminate\\Database\\Eloquent\\Relations\\HasOneOrMany\<Waterfront\\Domain\\Orders\\Models\\OrderLineItem,Waterfront\\Domain\\Orders\\Models\\Order,Illuminate\\Database\\Eloquent\\Collection\<int, Waterfront\\Domain\\Orders\\Models\\OrderLineItem\>\>\:\:saveMany\(\) expects iterable\<Waterfront\\Domain\\Orders\\Models\\OrderLineItem\>, array\<int, Illuminate\\Database\\Eloquent\\Collection\<int, Waterfront\\Domain\\Orders\\Models\\OrderLineItem\>\|Waterfront\\Domain\\Orders\\Models\\OrderLineItem\> given\.$#'
+			identifier: argument.type
+			count: 6
+			path: tests/Domain/Harbor/Services/HarborPropagationArbiterTest.php
+
+		-
+			message: '#^Parameter \#1 \$models of method Illuminate\\Database\\Eloquent\\Relations\\HasOneOrMany\<Waterfront\\Domain\\Orders\\Models\\OrderLineItem,Waterfront\\Domain\\Orders\\Models\\Order,Illuminate\\Database\\Eloquent\\Collection\<int, Waterfront\\Domain\\Orders\\Models\\OrderLineItem\>\>\:\:saveMany\(\) expects iterable\<Waterfront\\Domain\\Orders\\Models\\OrderLineItem\>, array\<int, Illuminate\\Database\\Eloquent\\Collection\<int, Waterfront\\Domain\\Orders\\Models\\OrderLineItem\>\|Waterfront\\Domain\\Orders\\Models\\OrderLineItem\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: tests/Domain/Harbor/Services/HarborPropagatorTest.php
+
+		-
+			message: '#^Namespace Mockery is forbidden, Use of Mockery is deprecated\. Please use PHPUnit for mocking\.$#'
+			identifier: disallowed.namespace
+			count: 7
+			path: tests/Domain/Harbor/Services/HarborTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type Mockery\\MockInterface is not subtype of type PhpAmqpLib\\Channel\\AMQPChannel\.$#'
+			identifier: varTag.type
+			count: 1
+			path: tests/Domain/Harbor/Services/HarborTest.php
+
+		-
+			message: '#^Cannot call method getStreetNumberLetters\(\) on Waterfront\\Domain\\Customers\\Models\\CustomerAddress\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Domain/Microsoft365/Services/Microsoft365ServiceTest.php
+
+		-
+			message: '#^Cannot call method toDateTimeString\(\) on Carbon\\CarbonImmutable\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Domain/Microsoft365/Unit/EventListener/CloudLicenseListenerTest.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant INACTIVE of enum Waterfront\\Domain\\Subscriptions\\Enums\\AdministrativeStatus\:
+				This status was used in the m365 migration to have it be renewed but not invoiced\. Do not use this anymore\.$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: tests/Domain/Orders/Services/OrderBillerTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method getPrice\(\) of class Waterfront\\Domain\\Products\\DTO\\PriceList\:
+				Don't use this function, it's only here for legacy reasons\. You want `getProductPrice\(\)` below\.$#
+			'''
+			identifier: method.deprecated
+			count: 13
+			path: tests/Domain/Products/Integration/PriceResolverTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Waterfront\\\\Domain\\\\Redirects\\\\Services\\\\RedirectsDatabase\\\\Redirect'' and Waterfront\\Domain\\Redirects\\Services\\RedirectsDatabase\\Redirect will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 2
+			path: tests/Domain/Redirects/Services/RedirectServiceTest.php
+
+		-
+			message: '#^Method Tests\\Domain\\Ssl\\CertificateDownloadTest\:\:getReceivedCertificates\(\) has parameter \$response with generic class Illuminate\\Testing\\TestResponse but does not specify its types\: TResponse$#'
+			identifier: missingType.generics
+			count: 1
+			path: tests/Domain/Ssl/CertificateDownloadTest.php
+
+		-
+			message: '#^Method Tests\\Domain\\Ssl\\CertificateDownloadTest\:\:makeServicesRequest\(\) return type with generic class Illuminate\\Testing\\TestResponse does not specify its types\: TResponse$#'
+			identifier: missingType.generics
+			count: 1
+			path: tests/Domain/Ssl/CertificateDownloadTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<int, array\<string, int\>\> is not subtype of type Illuminate\\Support\\Collection\<int, array\{product\: array\<mixed\>, full_charge\: int, charge\: int\}\>\.$#'
+			identifier: varTag.type
+			count: 1
+			path: tests/Domain/Subscriptions/Services/SubscriptionChangeServiceTest.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant RESELLER_DISCOUNT of enum Waterfront\\Domain\\Products\\Enums\\ProductGroupType\:
+				This group is just here for historical purposes\. Use the volume discount group$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: tests/Domain/Transfers/Services/ExecuteTransferServiceTest.php
+
+		-
+			message: '''
+				#^Fetching deprecated class constant INACTIVE of enum Waterfront\\Domain\\Subscriptions\\Enums\\AdministrativeStatus\:
+				This status was used in the m365 migration to have it be renewed but not invoiced\. Do not use this anymore\.$#
+			'''
+			identifier: classConstant.deprecated
+			count: 1
+			path: tests/Factories/SubscriptionFactory.php
+
+		-
+			message: '#^Parameter \#1 \$array of static method Illuminate\\Support\\Arr\:\:forget\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Infra/PleskClientLive/PleskClientTest.php
+
+		-
+			message: '#^Method Tests\\Infra\\RtrClient\\Services\\RtrServiceTest\:\:getJsonString\(\) has RuntimeException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: tests/Infra/RtrClient/Services/RtrServiceTest.php

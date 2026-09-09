@@ -1,0 +1,25 @@
+{
+    "result": [
+        {
+            "id": 100,
+            "key": "Q_SUPPORT",
+            "description": "Customer Support",
+            "serviceId": 50
+        },
+        {
+            "id": 101,
+            "key": "Q_SALES",
+            "description": "Sales Department",
+            "serviceId": 50
+        },
+        {
+            "id": 38342,
+            "key": "q_testing_queue",
+            "description": "Testing Queue",
+            "serviceId": 60
+        }
+    ],
+    "code": 0,
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "message": "OK"
+}

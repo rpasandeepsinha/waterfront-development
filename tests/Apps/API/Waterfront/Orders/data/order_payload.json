@@ -1,0 +1,54 @@
+{
+    "customer_id": null,
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [
+            {
+                "uuid": "fda0da0b-4678-4716-ae8b-b30c62139137",
+                "domain": "test.com",
+                "slug": "extension_com",
+                "status": "registration",
+                "period": 12,
+                "billing_period": 12,
+                "contract_period": 12,
+                "children": {
+                    "dns": [
+                        {
+                            "uuid": "ad673cf3-f128-456a-8c01-498d48ba12f8",
+                            "status": "registration",
+                            "domain": "test.com",
+                            "billing_period": 12,
+                            "contract_period": 12,
+                            "price": 0,
+                            "gross_price": 0,
+                            "slug": "free-dns"
+                        }
+                    ]
+                }
+            }
+        ],
+        "hosting": [
+            {
+                "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "slug": "hosting_premium",
+                "domain": "test.com",
+                "status": "registration",
+                "period": 12,
+                "billing_period": 12,
+                "contract_period": 12,
+                "server": 0
+            }
+        ],
+        "ssl": [
+            {
+                "uuid": "5becce3c-a175-4738-8e28-1ad31f22e2f0",
+                "slug": "ssl_single_domain",
+                "domain": "test.com",
+                "status": "registration",
+                "period": 12,
+                "billing_period": 12,
+                "contract_period": 12
+            }
+        ]
+    }
+}

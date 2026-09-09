@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openXML>
+    <credentials>
+        <username>test-user</username>
+        <password>password</password>
+    </credentials>
+    <renewSslCertRequest>
+        <id>2480</id>
+    </renewSslCertRequest>
+</openXML>

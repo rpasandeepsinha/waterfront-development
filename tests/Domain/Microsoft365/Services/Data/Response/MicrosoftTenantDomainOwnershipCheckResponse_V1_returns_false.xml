@@ -1,0 +1,11 @@
+<MicrosoftTenantDomainOwnershipCheckResponse_V1>
+    <Status>
+        <Messages />
+        <Code>Success</Code>
+    </Status>
+    <IsDelegatedAccessAllowed>false</IsDelegatedAccessAllowed>
+    <IsAcceptanceMcaRequired>false</IsAcceptanceMcaRequired>
+    <IsOnboardingReady>false</IsOnboardingReady>
+    <DnsBoardingRecordName>KPNOnboardingPac</DnsBoardingRecordName>
+    <DnsBoardingRecordValue>498346</DnsBoardingRecordValue>
+</MicrosoftTenantDomainOwnershipCheckResponse_V1>

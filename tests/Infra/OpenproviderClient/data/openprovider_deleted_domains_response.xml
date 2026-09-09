@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openXML>
+    <reply>
+        <code>0</code>
+        <desc />
+        <data>
+            <results>
+                <array>
+                    <item>
+                        <domain>
+                            <name>openprovidertestaccept</name>
+                            <extension>nl</extension>
+                        </domain>
+                        <nameServers>
+                            <array>
+                                <item>
+                                    <id>420882</id>
+                                    <seqNr>0</seqNr>
+                                    <name>ns1.openprovider.nl</name>
+                                    <ip>52.57.114.204</ip>
+                                    <ip6>2a05:d014:0f80:6e00:bde7:af96:9434:75d5</ip6>
+                                </item>
+                                <item>
+                                    <id>420885</id>
+                                    <seqNr>1</seqNr>
+                                    <name>ns2.openprovider.be</name>
+                                    <ip>52.214.115.96</ip>
+                                    <ip6>2a05:d018:061d:bd00:21bc:c938:d548:dab1</ip6>
+                                </item>
+                                <item>
+                                    <id>420888</id>
+                                    <seqNr>2</seqNr>
+                                    <name>ns3.openprovider.eu</name>
+                                    <ip>52.56.134.244</ip>
+                                    <ip6>2a05:d01c:0433:e000:e62c:faa3:9834:41e7</ip6>
+                                </item>
+                            </array>
+                        </nameServers>
+                        <id>1200036</id>
+                        <resellerId>292458</resellerId>
+                        <nsgroupId>160317</nsgroupId>
+                        <isLockable>0</isLockable>
+                        <isLocked>0</isLocked>
+                        <comments />
+                        <commentsLastChangedAt>2021-02-24 15:52:00</commentsLastChangedAt>
+                        <creationDate>2021-02-24 14:51:33</creationDate>
+                        <lastChanged>2022-04-12 11:57:19</lastChanged>
+                        <orderDate>2021-02-24 15:52:00</orderDate>
+                        <activeDate>2022-04-12 12:03:52</activeDate>
+                        <expirationDate>2023-02-24 14:51:33</expirationDate>
+                        <registryExpirationDate>2023-02-24 14:51:33</registryExpirationDate>
+                        <renewalDate>2023-02-22 14:51:33</renewalDate>
+                        <isHostedWhois>0</isHostedWhois>
+                        <isDnssecEnabled>1</isDnssecEnabled>
+                        <dnssec>signedDelegation</dnssec>
+                        <registryDetails>
+                            <eppStatuses>
+                                <array>
+                                    <item>ok</item>
+                                </array>
+                            </eppStatuses>
+                            <contacts>
+                                <owner>SAN023090-OPENP</owner>
+                                <tech>SAN023090-OPENP</tech>
+                                <admin>SAN023090-OPENP</admin>
+                                <opHandles>
+                                    <owner>
+                                        <array>
+                                            <item>SP904439-NL</item>
+                                        </array>
+                                    </owner>
+                                    <tech>
+                                        <array>
+                                            <item>SP904439-NL</item>
+                                        </array>
+                                    </tech>
+                                    <admin>
+                                        <array>
+                                            <item>SP904439-NL</item>
+                                        </array>
+                                    </admin>
+                                </opHandles>
+                            </contacts>
+                            <domainRoid>DNM_9206439-SIDN</domainRoid>
+                        </registryDetails>
+                        <status>DEL</status>
+                        <quarantineExpirationDate>2022-05-20 12:07:00</quarantineExpirationDate>
+                        <restorableUntil>2022-05-20 12:07:00</restorableUntil>
+                        <hardQuarantineExpiryDate>2022-05-20 12:07:00</hardQuarantineExpiryDate>
+                        <canRenew>0</canRenew>
+                        <renew>2</renew>
+                        <modifyOwnerAllowed>1</modifyOwnerAllowed>
+                        <autorenew>default</autorenew>
+                        <domType>NEW</domType>
+                        <ownerHandle>SP904439-NL</ownerHandle>
+                        <adminHandle>SP904439-NL</adminHandle>
+                        <techHandle>SP904439-NL</techHandle>
+                        <billingHandle />
+                        <resellerHandle />
+                        <owner>
+                            <companyName>Sandwave.io</companyName>
+                            <fullName>Sandwave Partner</fullName>
+                        </owner>
+                        <nsGroup>test_nameservergroup</nsGroup>
+                        <nsTemplateId>0</nsTemplateId>
+                        <nsTemplateName />
+                        <type>NEW</type>
+                        <authCode>W8BTTVcUEkRR</authCode>
+                        <internalAuthCode>0</internalAuthCode>
+                        <tradeAuthCodeRequired>no</tradeAuthCodeRequired>
+                        <transferAuthCodeRequired>yes</transferAuthCodeRequired>
+                        <transferCancelSupported>1</transferCancelSupported>
+                        <tradeAllowed>0</tradeAllowed>
+                        <useDomicile>0</useDomicile>
+                        <deletedAt>0000-00-00 00:00:00</deletedAt>
+                        <isDeleted />
+                        <isPrivateWhoisEnabled />
+                        <isPrivateWhoisAllowed>1</isPrivateWhoisAllowed>
+                        <deleteStatus>quarantine</deleteStatus>
+                        <applicationSmd />
+                        <applicationNoticeId />
+                        <applicationId />
+                        <hasHistory>1</hasHistory>
+                        <isPremium>0</isPremium>
+                        <isAbusive>0</isAbusive>
+                        <isSpamexpertsEnabled />
+                        <unit>y</unit>
+                        <dnssecKeys>
+                            <array>
+                                <item>
+                                    <flags>257</flags>
+                                    <alg>13</alg>
+                                    <protocol>3</protocol>
+                                    <pubKey>x4ge4qFSHLvjWru5fnrdIetbhfsKPfzrk+cfvgTQisssqQWrlQT749gGGokKOSk7PJQ7rSUp6VPHzLbniCVZ1A==</pubKey>
+                                </item>
+                            </array>
+                        </dnssecKeys>
+                        <ownerName>
+                            <fullName>Sandwave Partner</fullName>
+                            <initials />
+                            <firstName>Sandwave</firstName>
+                            <prefix />
+                            <lastName>Partner</lastName>
+                        </ownerName>
+                        <ownerCompanyName>Sandwave.io</ownerCompanyName>
+                        <expirationDateOpenprovider>2023-02-22 14:51:33</expirationDateOpenprovider>
+                    </item>
+                    <item>
+                        <domain>
+                            <name>fddffds</name>
+                            <extension>com</extension>
+                        </domain>
+                        <nameServers>
+                            <array>
+                                <item>
+                                    <id>420882</id>
+                                    <seqNr>0</seqNr>
+                                    <name>ns1.openprovider.nl</name>
+                                    <ip>52.57.114.204</ip>
+                                    <ip6>2a05:d014:0f80:6e00:bde7:af96:9434:75d5</ip6>
+                                </item>
+                                <item>
+                                    <id>420885</id>
+                                    <seqNr>1</seqNr>
+                                    <name>ns2.openprovider.be</name>
+                                    <ip>52.214.115.96</ip>
+                                    <ip6>2a05:d018:061d:bd00:21bc:c938:d548:dab1</ip6>
+                                </item>
+                                <item>
+                                    <id>420888</id>
+                                    <seqNr>2</seqNr>
+                                    <name>ns3.openprovider.eu</name>
+                                    <ip>52.56.134.244</ip>
+                                    <ip6>2a05:d01c:0433:e000:e62c:faa3:9834:41e7</ip6>
+                                </item>
+                            </array>
+                        </nameServers>
+                        <id>1200042</id>
+                        <resellerId>292458</resellerId>
+                        <nsgroupId>160317</nsgroupId>
+                        <isLockable>1</isLockable>
+                        <isLocked>0</isLocked>
+                        <comments />
+                        <commentsLastChangedAt>2021-02-24 15:59:33</commentsLastChangedAt>
+                        <creationDate>2021-02-24 14:59:05</creationDate>
+                        <lastChanged>2022-04-13 13:41:02</lastChanged>
+                        <orderDate>2021-02-24 15:59:33</orderDate>
+                        <activeDate>2022-04-13 13:50:34</activeDate>
+                        <expirationDate>2023-02-24 14:59:05</expirationDate>
+                        <registryExpirationDate>2023-02-24 14:59:05</registryExpirationDate>
+                        <renewalDate>2023-02-24 14:59:05</renewalDate>
+                        <isHostedWhois>1</isHostedWhois>
+                        <isDnssecEnabled>1</isDnssecEnabled>
+                        <dnssec>signedDelegation</dnssec>
+                        <registryDetails>
+                            <eppStatuses>
+                                <array>
+                                    <item>ok</item>
+                                </array>
+                            </eppStatuses>
+                            <domainRoid>123811444_DOMAIN_COM-VRSN</domainRoid>
+                        </registryDetails>
+                        <status>DEL</status>
+                        <quarantineExpirationDate>2022-05-11 13:50:45</quarantineExpirationDate>
+                        <restorableUntil>2022-05-11 13:50:45</restorableUntil>
+                        <hardQuarantineExpiryDate>2022-05-11 13:50:45</hardQuarantineExpiryDate>
+                        <canRenew>0</canRenew>
+                        <renew>2</renew>
+                        <modifyOwnerAllowed>1</modifyOwnerAllowed>
+                        <autorenew>default</autorenew>
+                        <domType>NEW</domType>
+                        <ownerHandle>SP904441-NL</ownerHandle>
+                        <adminHandle>SP904441-NL</adminHandle>
+                        <techHandle>SP904441-NL</techHandle>
+                        <billingHandle>YN000764-NL</billingHandle>
+                        <resellerHandle />
+                        <owner>
+                            <companyName>Sandwave.io</companyName>
+                            <fullName>Sandwave Partner</fullName>
+                        </owner>
+                        <nsGroup>test_nameservergroup</nsGroup>
+                        <nsTemplateId>0</nsTemplateId>
+                        <nsTemplateName />
+                        <type>NEW</type>
+                        <authCode>f5bP3J%A8#z%</authCode>
+                        <internalAuthCode>0</internalAuthCode>
+                        <tradeAuthCodeRequired>no</tradeAuthCodeRequired>
+                        <transferAuthCodeRequired>yes</transferAuthCodeRequired>
+                        <transferCancelSupported>1</transferCancelSupported>
+                        <tradeAllowed>0</tradeAllowed>
+                        <useDomicile>0</useDomicile>
+                        <deletedAt>0000-00-00 00:00:00</deletedAt>
+                        <isDeleted />
+                        <isPrivateWhoisEnabled />
+                        <isPrivateWhoisAllowed>1</isPrivateWhoisAllowed>
+                        <deleteStatus>quarantine</deleteStatus>
+                        <applicationSmd />
+                        <applicationNoticeId />
+                        <applicationId />
+                        <hasHistory>1</hasHistory>
+                        <isPremium>0</isPremium>
+                        <isAbusive>0</isAbusive>
+                        <isSpamexpertsEnabled />
+                        <unit>y</unit>
+                        <dnssecKeys>
+                            <array>
+                                <item>
+                                    <flags>257</flags>
+                                    <alg>13</alg>
+                                    <protocol>3</protocol>
+                                    <pubKey>LuCrFi8SWJ61ZN9X+5GYxFM7jgrGrci/ol7T3Lw5m4xbo6YMOU/lm78C/bhiBN7DnkVNtX7Ph7NlbuBSJdmLRA==</pubKey>
+                                </item>
+                            </array>
+                        </dnssecKeys>
+                        <ownerName>
+                            <fullName>Sandwave Partner</fullName>
+                            <initials />
+                            <firstName>Sandwave</firstName>
+                            <prefix />
+                            <lastName>Partner</lastName>
+                        </ownerName>
+                        <ownerCompanyName>Sandwave.io</ownerCompanyName>
+                        <expirationDateOpenprovider>2023-02-24 14:59:05</expirationDateOpenprovider>
+                    </item>
+                </array>
+            </results>
+            <total>2</total>
+        </data>
+    </reply>
+</openXML>

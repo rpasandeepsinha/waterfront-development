@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openXML>
+    <reply>
+        <code>0</code>
+        <desc></desc>
+        <data>
+            <status>ACT</status>
+            <activationDate>2011-04-22 14:14:32</activationDate>
+            <expirationDate>2012-04-22 14:41:32</expirationDate>
+            <expirationDateOpenprovider>2012-04-22 14:41:32</expirationDateOpenprovider>
+            <authCode>123456</authCode>
+        </data>
+    </reply>
+</openXML>

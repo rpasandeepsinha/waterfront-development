@@ -1,0 +1,2 @@
+owner,hostname,port,ipv4,ipv6,secret_key,allow_new_websites,maximum_websites,php_version,use_ssl
+sandwave,https://needs-to-be-domain.dev/,2222,notanipv4,notanipv6,,0,400,,0

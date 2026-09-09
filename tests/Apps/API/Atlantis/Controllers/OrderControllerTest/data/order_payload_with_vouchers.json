@@ -1,0 +1,50 @@
+{
+    "customer_id": null,
+    "vouchers": ["code","fiets","code-zonder-product"],
+    "subscriptions": {
+        "extension": [
+            {
+                "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "domain": "test.com",
+                "name": ".com",
+                "slug": "extension_com",
+                "status": "registration",
+                "price": 96,
+                "gross_price": 120,
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12111
+            }
+        ],
+        "hosting": [
+            {
+                "uuid": "ad673cf3-f128-456a-8c01-498d48ba12f8",
+                "name": "premium",
+                "slug": "hosting_premium",
+                "domain": "test.com",
+                "status": "registration",
+                "price": 96,
+                "gross_price": 120,
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12,
+                "server": 0
+            }
+        ],
+        "ssl": [
+            {
+                "uuid": "fda0da0b-4678-4716-ae8b-b30c62139137",
+                "name": "Single Domain",
+                "slug": "ssl_single_domain",
+                "domain": "test.com",
+                "status": "registration",
+                "price": 96,
+                "gross_price": 120,
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12
+            }
+        ]
+    },
+    "payment_method": "ideal"
+}

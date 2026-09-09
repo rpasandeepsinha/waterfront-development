@@ -1,0 +1,300 @@
+{
+    "reference": "unique_reference_for_adf",
+    "subscriptions": {
+        "domain_extensions": [{
+            "domain": "test-dns-intern-10.nl",
+            "extension": ".nl",
+            "start_date": "2023-02-06",
+            "next_contract_date": "2023-03-06",
+            "next_billing_date": "2023-03-06",
+            "contract_period": 12,
+            "billing_period": 12,
+            "slug": "extension_nl",
+            "reference_product_id": "Domeinnaam nl",
+            "reference_subscription_id": "353580",
+            "reference_net_price": 1120,
+            "driver": "realtime_register",
+            "domain_data": {
+                "reference_dns_template_id": "dns_template_123"
+            }
+        },
+        {
+            "domain": "test-dns-intern-11.nl",
+            "extension": ".nl",
+            "start_date": "2023-02-06",
+            "next_contract_date": "2023-03-07",
+            "next_billing_date": "2023-08-06",
+            "cancel_date": "2023-06-14",
+            "contract_period": 12,
+            "billing_period": 12,
+            "slug": "extension_nl",
+            "reference_product_id": "Domeinnaam nl",
+            "reference_subscription_id": "353581",
+            "reference_net_price": 1120
+        }],
+        "hosting": [
+            {
+                "domain": "test-dns-intern-10.nl",
+                "start_date": "2023-02-06",
+                "next_contract_date": "2023-03-06",
+                "next_billing_date": "2023-03-06",
+                "contract_period": 12,
+                "billing_period": 12,
+                "slug": "directadmin_basic",
+                "labels": ["hosting-label"],
+                "reference_product_id": "legacy hosting basic",
+                "reference_subscription_id": "3535",
+                "reference_net_price": 1120,
+                "hostname" : "my_hostname.nl",
+                "driver" : "directadmin",
+                "server_data": {
+                    "directadmin_customer_name": "i_do_exist"
+                }
+            },
+            {
+                "domain": "test-dns-intern-11.nl",
+                "start_date": "2023-02-06",
+                "next_contract_date": "2023-03-06",
+                "next_billing_date": "2023-03-06",
+                "contract_period": 12,
+                "billing_period": 12,
+                "slug": "plesk_basic",
+                "labels": ["hosting-label"],
+                "reference_product_id": "legacy hosting medium",
+                "reference_subscription_id": "3536",
+                "reference_net_price": 1120,
+                "hostname" : "plesk.server.test",
+                "driver" : "integratedservice",
+                "server_data": {
+                    "plesk_customer_username": "plesk_username_test"
+                }
+            }
+        ],
+        "reseller-hosting": [
+            {
+                "start_date": "2023-02-06",
+                "next_contract_date": "2023-03-06",
+                "next_billing_date": "2023-03-06",
+                "contract_period": 12,
+                "billing_period": 12,
+                "slug": "reseller-brons",
+                "labels": ["hosting-label"],
+                "reference_product_id": "legacy_reseller_brons",
+                "reference_subscription_id": "84111",
+                "reference_net_price": 13200,
+                "hostname" : "my_hostname.nl",
+                "driver" : "directadmin",
+                "server_data": {
+                    "directadmin_customer_name": "i_do_exist_for_reseller"
+                }
+            }
+        ],
+        "mail-only": [{
+            "domain": "test-dns-intern-mail-11.nl",
+            "start_date": "2023-02-06",
+            "next_contract_date": "2023-03-06",
+            "next_billing_date": "2023-03-06",
+            "contract_period": 12,
+            "billing_period": 12,
+            "slug": "mail_start",
+            "reference_product_id": "legacy mail basic",
+            "reference_subscription_id": "3535",
+            "reference_net_price": 1120,
+            "hostname" : "mail_server.nl",
+            "driver" : "directadmin",
+            "server_data": {
+                "directadmin_customer_name": "i_do_also_exist_for_mail"
+            }
+        }],
+        "sitebuilder": [{
+            "domain": "test-dns-intern-mail-11.nl",
+            "start_date": "2023-02-06",
+            "next_contract_date": "2023-03-06",
+            "next_billing_date": "2023-03-06",
+            "contract_period": 12,
+            "billing_period": 12,
+            "slug": "sitebuilder",
+            "reference_product_id": "legacy mail basic",
+            "reference_subscription_id": "3535",
+            "reference_net_price": 1120,
+            "bundle": {
+                "mail_only": {
+                    "driver": "directadmin",
+                    "hostname": "mail_server.nl",
+                    "server_data": {
+                        "directadmin_customer_name": "i_do_also_exist_for_mail_combined_with_sitebuilder"
+                    }
+                },
+                "sitebuilder": {
+                    "driver": "basekit",
+                    "hostname": "basekit.test",
+                    "server_data": {
+                        "basekit_user_ref": 123,
+                        "basekit_site_ref": 456
+                    }
+                }
+            }
+        }],
+        "redirects": [{
+            "domain": "test-dns-intern-10.nl",
+            "start_date": "2023-02-06",
+            "next_contract_date": "2023-03-06",
+            "next_billing_date": "2023-03-06",
+            "contract_period": 12,
+            "billing_period": 12,
+            "slug": "free-redirect",
+            "reference_product_id": "legacy redirect",
+            "reference_subscription_id": "3536",
+            "reference_net_price": 1120,
+            "internal_comment": "example redirect comment",
+            "redirect_data": [
+                {
+                    "source": "test-dns-intern-10.nl",
+                    "destination": "http://destination1.test"
+                },
+                {
+                    "source": "subdomain.test-dns-intern-10.nl",
+                    "destination": "http://destination2.test",
+                    "type": "302"
+                }
+            ]
+        }],
+        "ssl": [
+            {
+                "domain": "test-dns-intern-10.nl",
+                "extension": ".nl",
+                "start_date": "2023-02-06",
+                "next_contract_date": "2024-01-01",
+                "next_billing_date": "2024-01-01",
+                "contract_period": 12,
+                "billing_period": 12,
+                "slug": "ssl_single_domain",
+                "reference_product_id": "ssl_product_from_bu",
+                "reference_subscription_id": "353581"
+            },
+            {
+                "domain": "subdomain.test-dns-intern-10.nl",
+                "extension": ".nl",
+                "start_date": "2023-02-06",
+                "next_contract_date": "2024-01-01",
+                "next_billing_date": "2024-01-01",
+                "contract_period": 12,
+                "billing_period": 12,
+                "slug": "ssl_single_domain",
+                "reference_product_id": "ssl_product_from_bu",
+                "reference_subscription_id": "353582"
+            }
+        ],
+        "reseller-discount": [],
+        "manual-subscription": [],
+        "dns": [
+            {
+                "domain": "test-dns-intern-12.nl",
+                "extension": ".nl",
+                "start_date": "2023-02-06",
+                "next_contract_date": "2023-03-07",
+                "next_billing_date": "2023-08-06",
+                "contract_period": 12,
+                "billing_period": 12,
+                "slug": "dns_free",
+                "reference_product_id": "Domeinnaam nl",
+                "reference_subscription_id": "353581",
+                "reference_net_price": 1120
+            }
+        ],
+        "volume_discounts": [
+            {
+                "reference_product_id": "employee",
+                "reference_subscription_id": "353581",
+                "start_date" : "2023-02-06",
+                "next_contract_date" : "2023-03-07",
+                "next_billing_date" : "2023-08-06",
+                "contract_period" : 12,
+                "billing_period" : 12,
+                "slug": "volume_discount_brons"
+            }
+        ],
+        "backups": [{
+            "start_date": "2027-02-06",
+            "next_contract_date": "2027-03-06",
+            "next_billing_date": "2027-03-06",
+            "contract_period": 12,
+            "billing_period": 12,
+            "slug": "home_50",
+            "reference_product_id": "legacy-product-name",
+            "reference_subscription_id": "3535",
+            "backup_data": {
+                "bu_tenant_uuid": "190f3136-02e3-424d-8dab-51f3a4acca7e",
+                "customer_tenant_uuid": "0f2d2f3a-7c2b-4f6a-9d66-0b8e3c2d1a11",
+                "user_uuid": "0f2d2f3b-7c2b-4f6a-9d66-0b8e3c2d1a14"
+            }
+        },
+        {
+            "start_date": "2026-02-06",
+            "next_contract_date": "2026-03-06",
+            "next_billing_date": "2026-03-06",
+            "contract_period": 12,
+            "billing_period": 12,
+            "slug": "acronis-personal-100",
+            "reference_product_id": "legacy-product-personal",
+            "reference_subscription_id": "20",
+            "backup_data": {
+                "bu_tenant_uuid": "190f3136-02e3-424d-8dab-51f3a4acca7e",
+                "customer_tenant_uuid": "0f2d2f3a-7c2b-4f6a-9d66-0b8e3c2d1a11",
+                "user_uuid": "0f2d2f3b-7c2b-4f6a-9d66-0b8e3c2d1a14"
+            }
+        }],
+        "other": []
+    },
+    "customer": {
+        "firstName": "Test",
+        "lastName": "Dummy",
+        "email": "t.dummy@sandwave2.io",
+        "gender": "M",
+        "phone": "+32 9 353 42 00",
+        "paymentTerms": 12,
+        "referenceName": "testmigrationBusinessUnitName",
+        "referenceCustomerId": "identifier",
+        "groupType": "testgroupBatchName",
+        "addresses": [{
+            "streetName": "straat",
+            "streetNumber": "12",
+            "zipCode": "1001MH",
+            "city": "city",
+            "countryCode": "BE"
+        }],
+        "mandates": [],
+        "dnsTemplates": [{
+            "name": "testname",
+            "reference_template_id": "dns_template_123",
+            "records": [{
+                "reference_record_id": "777",
+                "name": "@",
+                "type": "AAAA",
+                "content": "::1",
+                "priority": null,
+                "ttl": 3600,
+                "disabled": false
+            }, {
+                "reference_record_id": "999",
+                "name": "subdomain.@",
+                "type": "MX",
+                "content": "mail.@",
+                "priority": 10,
+                "ttl": 600,
+                "disabled": true
+            }]
+        }],
+        "labels": ["validation", "testing", "hosting-label"],
+        "product_group_discounts": [
+            {
+                "product_group_type": "extension",
+                "discount_percentage": 50
+            },
+            {
+                "product_group_type": "hosting",
+                "discount_percentage": 25
+            }
+        ]
+    }
+}

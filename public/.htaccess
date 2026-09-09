@@ -1,0 +1,10 @@
+RewriteEngine on
+
+#ssl force
+RewriteCond %{HTTPS} !=on [NC]
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+#www force
+RewriteCond %{HTTP_HOST} !^(.*)2web.nl [NC]
+RewriteCond %{HTTP_HOST} !^www [NC]
+RewriteRule ^ http://www.%{HTTP_HOST}/%{REQUEST_URI} [R=301,L]

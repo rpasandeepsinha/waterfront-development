@@ -1,0 +1,13 @@
+{
+    "items": [
+        {
+            "itemUuid": "28244650-efb3-42b7-816f-676ac3c9143d",
+            "productSlug": "hosting_brons",
+            "priceType": "registration",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "quantity": 1
+        }
+    ],
+    "vouchers":["hosting-5"]
+}

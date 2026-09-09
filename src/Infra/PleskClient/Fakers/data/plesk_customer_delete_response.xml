@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet version="1.6.9.1">
+    <customer>
+        <del>
+            <result>
+                <status>ok</status>
+                <id>1234</id>
+            </result>
+        </del>
+    </customer>
+</packet>

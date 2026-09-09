@@ -1,0 +1,2 @@
+type,hostname,port,ipv4,ipv6,username,password,login_key,secret_key,allow_new_websites,maximum_websites,php_version,use_ssl
+plesk,import-nameserver-two.testing,2222,127.0.0.2,::2,,,,0,400

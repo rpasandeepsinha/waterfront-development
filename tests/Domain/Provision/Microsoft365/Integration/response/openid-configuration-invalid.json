@@ -1,0 +1,11 @@
+{
+    "error": "invalid_tenant",
+    "error_description": "AADSTS90002: Tenant 'test-tenant' not found. Check to make sure you have the correct tenant ID and are signing into the correct cloud. Check with your subscription administrator, this may happen if there are no active subscriptions for the tenant. Trace ID: 6a1ef15c-50ce-4bc9-84c0-6bfae82b2b00 Correlation ID: 8738a944-e722-451c-a758-abd3be45d203 Timestamp: 2024-10-11 07:38:56Z",
+    "error_codes": [
+        90002
+    ],
+    "timestamp": "2024-10-11 07:38:56Z",
+    "trace_id": "6a1ef15c-50ce-4bc9-84c0-6bfae82b2b00",
+    "correlation_id": "8738a944-e722-451c-a758-abd3be45d203",
+    "error_uri": "https://login.microsoftonline.com/error?code=90002"
+}

@@ -1,0 +1,6 @@
+{
+    "_comment": "Copy this file to auth.json (same directory as composer.json) and fill in a git.sandwave.io GitLab Personal Access Token with scope 'read_api' (or 'read_package_registry'). auth.json is git-ignored. Without it, composer install cannot fetch laravel/nova, sandwave-io/*, realtimeregister/realtimeregister-php.",
+    "gitlab-token": {
+        "git.sandwave.io": "PASTE_YOUR_GITLAB_PERSONAL_ACCESS_TOKEN_HERE"
+    }
+}

@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet><mail><create><filter><site-id>27</site-id><mailname><name>testuser</name><forwarding><enabled>true</enabled><address>forward@test-domain.com</address></forwarding></mailname></filter></create></mail></packet>

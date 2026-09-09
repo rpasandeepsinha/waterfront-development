@@ -1,0 +1,26 @@
+{
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [],
+        "hosting": [],
+        "ssl": [],
+        "vps": [],
+        "microsoft-365": [],
+        "reseller-hosting": [],
+        "backup": [
+            {
+                "billing_period": 12,
+                "contract_period": 12,
+                "price": 96,
+                "gross_price": 120,
+                "uuid": "1c50f54c-0b87-476a-b668-7c1289400109",
+                "slug": "backup-50",
+                "status": "registration"
+            }
+        ],
+        "other": [],
+        "redirect": []
+    },
+    "vouchers": [],
+    "create_direct_debit_mandate": false
+}

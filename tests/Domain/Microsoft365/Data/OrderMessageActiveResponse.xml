@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OrderMessage_V1>
+  <Header>
+    <DateCreated>2026-06-01T09:56:48.8597277</DateCreated>
+  </Header>
+  <Status>
+    <Code>Active</Code>
+  </Status>
+  <OrderData>
+    <CustomerId>1323371</CustomerId>
+    <OrderId>10264351</OrderId>
+    <ReferenceOrderId p3:nil="true" xmlns:p3="http://www.w3.org/2001/XMLSchema-instance" />
+    <ParentId p3:nil="true" xmlns:p3="http://www.w3.org/2001/XMLSchema-instance" />
+    <ProductId>282A00001B</ProductId>
+    <ProductName>Microsoft Tenant</ProductName>
+    <ProductGroup>Cloud</ProductGroup>
+    <ProductCommercialTypeName>Microsoft Tenant</ProductCommercialTypeName>
+    <DateCreated>2026-06-01T09:51:40.69</DateCreated>
+    <DateModified>2026-06-01T09:56:48.83</DateModified>
+    <DateActive>2026-06-01T09:56:48.83</DateActive>
+    <DateTerminated p3:nil="true" xmlns:p3="http://www.w3.org/2001/XMLSchema-instance" />
+    <DateFirstInvoice p3:nil="true" xmlns:p3="http://www.w3.org/2001/XMLSchema-instance" />
+    <DateLastInvoice p3:nil="true" xmlns:p3="http://www.w3.org/2001/XMLSchema-instance" />
+    <OrderState>Active</OrderState>
+    <Quantity>1</Quantity>
+    <ServiceLevelAgreement>NextBusinessDay</ServiceLevelAgreement>
+  </OrderData>
+</OrderMessage_V1>

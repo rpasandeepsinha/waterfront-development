@@ -1,0 +1,53 @@
+{
+    "id": "8de11411-6e39-4a5a-9634-8393c36d63a2",
+    "credentials": {
+        "password": {
+            "type": "password",
+            "identifiers": [
+                "john@example.dev"
+            ],
+            "version": 0,
+            "created_at": "2022-08-24T21:22:18.573795Z",
+            "updated_at": "2022-08-24T21:39:32.202116Z"
+        }
+    },
+    "schema_id": "customer",
+    "schema_url": "https://auth.sandwaveio.dev/schemas/ZGVmYXVsdA",
+    "state": "active",
+    "state_changed_at": "2022-08-24T21:22:18.543319Z",
+    "traits": {
+        "email": "john@example.dev",
+        "customers": [1]
+    },
+    "verifiable_addresses": [
+        {
+            "id": "926b9e1b-8441-42d3-a5b1-c3a261ee7359",
+            "value": "john@example.dev",
+            "verified": true,
+            "via": "email",
+            "status": "completed",
+            "verified_at": "2022-08-24T21:24:00.552729Z",
+            "created_at": "2022-08-24T21:22:18.54731Z",
+            "updated_at": "2022-08-24T21:39:32.201349Z"
+        }
+    ],
+    "recovery_addresses": [
+        {
+            "id": "04f053b9-2920-4215-b636-9309fa786338",
+            "value": "john@example.dev",
+            "via": "email",
+            "created_at": "2022-08-24T21:22:18.570079Z",
+            "updated_at": "2022-08-24T21:39:32.201709Z"
+        }
+    ],
+    "metadata_public": {
+        "customers": [
+            1,
+            2
+        ]
+    },
+    "created_at": "2022-08-24T21:22:18.546644Z",
+    "updated_at": "2022-08-24T21:22:18.546644Z"
+}
+
+

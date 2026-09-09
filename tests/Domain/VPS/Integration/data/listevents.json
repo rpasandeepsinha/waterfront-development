@@ -1,0 +1,17 @@
+{
+    "listeventsresponse": {
+        "count": 1,
+        "event": [
+            {
+                "id": "1d68d828-a3e3-4047-a4d2-10cd066c6e59",
+                "type": "VM.CREATE",
+                "description": "foo bar baz",
+                "level": "INFO",
+                "domainid": "abcdef01-abcd-ef01-2345-0123456789ab",
+                "created": "2021-09-16T08:38:09+0200",
+                "state": "Completed",
+                "account": "cs84583951"
+            }
+        ]
+    }
+}

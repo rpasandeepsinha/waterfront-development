@@ -1,0 +1,41 @@
+{
+    "name": "invalid_plate",
+    "records": [
+        {
+            "name": "test.@",
+            "content": "127.0.0.1 asdfasdfs",
+            "type": "A",
+            "ttl": "3600",
+            "disabled": false
+        },
+        {
+            "type": "CNAME",
+            "name": "bla.test.@",
+            "content": "test.@",
+            "disabled": false
+        },
+        {
+            "type": "SRV",
+            "name": "bla.test.@",
+            "content": "test.@",
+            "weight": 55,
+            "ttl": 600,
+            "disabled": false
+        },
+        {
+            "name": "@",
+            "content": "20 mx1.@.",
+            "priority": 20,
+            "type": "MX",
+            "ttl": 600,
+            "disabled": false
+        },
+        {
+            "name": "test.@@",
+            "content": "127.0.0.1",
+            "type": "A",
+            "ttl": "3600",
+            "disabled": false
+        }
+    ]
+}

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openXML>
+    <reply>
+        <code>0</code>
+        <desc></desc>
+        <data>
+            <name>ai</name>
+            <minPeriod>2</minPeriod>
+            <maxPeriod>2</maxPeriod>
+            <transferAvailable>1</transferAvailable>
+            <tradeAvailable>0</tradeAvailable>
+            <renewAvailable>0</renewAvailable>
+            <isTransferAuthCodeRequired>yes</isTransferAuthCodeRequired>
+            <isTradeAuthCodeRequired>no</isTradeAuthCodeRequired>
+            <isAuthCodeRequested>0</isAuthCodeRequested>
+            <isAuthCodeAvailable>0</isAuthCodeAvailable>
+            <isAuthCodeChangeable>0</isAuthCodeChangeable>
+            <isPrivateWhoisAllowed>0</isPrivateWhoisAllowed>
+            <domicileAvailable>0</domicileAvailable>
+            <softQuarantinePeriod>0</softQuarantinePeriod>
+            <quarantinePeriod>0</quarantinePeriod>
+            <dnssecAllowed>0</dnssecAllowed>
+            <status>ACT</status>
+            <supportedApplicationMode/>
+            <billingHandleEnabled>0</billingHandleEnabled>
+            <resellerHandleEnabled>0</resellerHandleEnabled>
+            <supportedIdnScripts/>
+            <ownerHandleSupported>1</ownerHandleSupported>
+            <adminHandleSupported>1</adminHandleSupported>
+            <techHandleSupported>1</techHandleSupported>
+            <billingHandleSupported></billingHandleSupported>
+            <resellerHandleSupported></resellerHandleSupported>
+        </data>
+    </reply>
+</openXML>

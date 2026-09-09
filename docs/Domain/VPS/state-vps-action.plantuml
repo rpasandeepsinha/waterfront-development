@@ -1,0 +1,16 @@
+@startuml
+title VPS Action Status
+
+[*] --> Reinstalling : Reinstalling VPS
+Reinstalling --> ReinstallFailed
+Reinstalling --> ReinstallSuccess
+
+[*] --> ResetCredentials : Resetting VPS credentials
+ResetCredentials --> ResetCredentialsFailed
+ResetCredentials --> ResetCredentialsSuccess
+
+[*] --> ResetSshKey : Resetting VPS Ssh Key
+ResetSshKey --> ResetSshKeyFailed
+ResetSshKey --> ResetSshKeySuccess
+
+@enduml

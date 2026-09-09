@@ -1,0 +1,18 @@
+{
+    "accountid": "8a386f62-9a33-457c-b607-001358b7bf2c",
+    "userid": "164b93ff-4f5a-4b1d-a1e8-ca05d93c6cca",
+    "cmd": "org.apache.cloudstack.api.command.user.vm.ResetSSHKeyForVirtualMachine",
+    "jobstatus": 2,
+    "jobprocstatus": 0,
+    "jobresultcode": 530,
+    "jobinstancetype": "VirtualMachine",
+    "jobinstanceid": "44df3fc3-ad2d-4b28-a81a-0f5758124105",
+    "created": "2023-08-07T16:28:56+0200",
+    "jobid": "741c702b-8857-4e3c-8b88-0157e1321cad",
+    "jobresulttype": "object",
+    "jobresult": {
+        "errorcode": 530,
+        "errortext": "Unable to reset SSH key {id: \"17594\", name: \"i-3497-17594-VM\", uuid: \"44df3fc3-ad2d-4b28-a81a-0f5758124105\", type=\"User\"}"
+    },
+    "completed": "2022-12-20T09:53:03+0100"
+}

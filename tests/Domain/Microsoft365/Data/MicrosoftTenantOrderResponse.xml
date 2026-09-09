@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MicrosoftTenantOrderResponse_V1>
+  <Header>
+    <PartnerReference>WF-CUSTOMER-3547-1054</PartnerReference>
+    <DateCreated>2026-06-01T09:51:39.1496042+02:00</DateCreated>
+  </Header>
+  <Status>
+    <Code>Accepted</Code>
+  </Status>
+  <MicrosoftTenantOrderResponseData>
+    <OrderId>10264351</OrderId>
+    <CustomerId>1323371</CustomerId>
+    <ProductCode>282A00001B</ProductCode>
+    <MicrosoftTenant>
+      <TenantName>testm33456.onmicrosoft.com</TenantName>
+      <TenantId p4:nil="true" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance" />
+      <FirstName>steffan</FirstName>
+      <LastName>kohnke</LastName>
+      <EmailAddress>nieuwadresSteffankohnke90@gmail.com</EmailAddress>
+    </MicrosoftTenant>
+  </MicrosoftTenantOrderResponseData>
+</MicrosoftTenantOrderResponse_V1>

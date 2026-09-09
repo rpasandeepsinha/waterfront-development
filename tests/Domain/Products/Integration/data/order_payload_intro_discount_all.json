@@ -1,0 +1,62 @@
+{
+    "customer_id": null,
+    "payment_method": "ideal",
+    "subscriptions": {
+        "extension": [
+            {
+                "uuid": "fda0da0b-4678-4716-ae8b-b30c62139137",
+                "domain": "test-domein.nl",
+                "name": ".nl",
+                "slug": "nl_domain",
+                "status": "registration",
+                "price": 100,
+                "gross_price": 1000,
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12,
+                "children": {
+                    "dns": [
+                        {
+                            "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                            "status": "registration",
+                            "domain": "test-domein.nl",
+                            "billing_period": 12,
+                            "contract_period": 12,
+                            "price": 0,
+                            "gross_price": 0,
+                            "name": "Free DNS",
+                            "slug": "free-dns"
+                        }
+                    ]
+                }
+            },
+            {
+                "uuid": "5becce3c-a175-4738-8e28-1ad31f22e2f0",
+                "domain": "domein-test.nl",
+                "name": ".nl",
+                "slug": "nl_domain",
+                "status": "registration",
+                "price": 100,
+                "gross_price": 1000,
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12,
+                "children": {
+                    "dns": [
+                        {
+                            "uuid": "ad673cf3-f128-456a-8c01-498d48ba12f8",
+                            "status": "registration",
+                            "domain": "domein-test.nl",
+                            "billing_period": 12,
+                            "contract_period": 12,
+                            "price": 0,
+                            "gross_price": 0,
+                            "name": "Free DNS",
+                            "slug": "free-dns"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

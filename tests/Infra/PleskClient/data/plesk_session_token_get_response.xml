@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet version="1.6.9.1">
+    <server>
+        <create_session>
+            <result>
+                <status>ok</status>
+                <id>64b6f51df8b3e33875744dc1d194526f</id>
+            </result>
+        </create_session>
+    </server>
+</packet>

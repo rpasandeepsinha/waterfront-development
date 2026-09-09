@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OrderSummaryResponse_V1>
+    <Status>
+        <Messages />
+        <Code>Success</Code>
+    </Status>
+    <PagedResult>
+        <Skip>0</Skip>
+        <Take>2500</Take>
+        <TotalNumberOfRecords>3</TotalNumberOfRecords>
+        <Results>
+            <OrderSummary_V1>
+                <OrderId>11118966</OrderId>
+                <ReferenceOrderId>10858514</ReferenceOrderId>
+                <ParentId p5:nil="true" xmlns:p5="http://www.w3.org/2001/XMLSchema-instance" />
+                <CustomerId>543598</CustomerId>
+                <ProductId>120A00179B</ProductId>
+                <ProductName>Microsoft 365 Business Standard (NCE maand)</ProductName>
+                <ProductGroup>Cloud</ProductGroup>
+                <ProductCommercialTypeName>Exchange Online</ProductCommercialTypeName>
+                <DateCreated>2022-08-08T11:47:41.82</DateCreated>
+                <DateActive>2022-08-08T11:49:52</DateActive>
+                <DateModified>2022-08-08T11:49:52</DateModified>
+                <DateTerminate p5:nil="true" xmlns:p5="http://www.w3.org/2001/XMLSchema-instance" />
+                <DateTerminated p5:nil="true" xmlns:p5="http://www.w3.org/2001/XMLSchema-instance" />
+                <OrderState>Active</OrderState>
+                <Quantity>5</Quantity>
+                <ServiceLevelAgreement>NextBusinessDay</ServiceLevelAgreement>
+            </OrderSummary_V1>
+            <OrderSummary_V1>
+                <OrderId>11118967</OrderId>
+                <ReferenceOrderId p5:nil="true" xmlns:p5="http://www.w3.org/2001/XMLSchema-instance" />
+                <ParentId p5:nil="true" xmlns:p5="http://www.w3.org/2001/XMLSchema-instance" />
+                <CustomerId>543598</CustomerId>
+                <ProductId>120A00178B</ProductId>
+                <ProductName>Microsoft 365 Business Basic (NCE maand) </ProductName>
+                <ProductGroup>Cloud</ProductGroup>
+                <ProductCommercialTypeName>Microsoft 365</ProductCommercialTypeName>
+                <DateCreated>2022-08-08T11:47:42.39</DateCreated>
+                <DateActive>2022-08-08T11:53:38.7</DateActive>
+                <DateModified>2022-08-08T11:53:38.7</DateModified>
+                <DateTerminate p5:nil="true" xmlns:p5="http://www.w3.org/2001/XMLSchema-instance" />
+                <DateTerminated p5:nil="true" xmlns:p5="http://www.w3.org/2001/XMLSchema-instance" />
+                <OrderState>Active</OrderState>
+                <Quantity>3</Quantity>
+                <ServiceLevelAgreement>NextBusinessDay</ServiceLevelAgreement>
+            </OrderSummary_V1>
+            <OrderSummary_V1>
+                <OrderId>1000000</OrderId>
+                <ReferenceOrderId p5:nil="true" xmlns:p5="http://www.w3.org/2001/XMLSchema-instance" />
+                <ParentId p5:nil="true" xmlns:p5="http://www.w3.org/2001/XMLSchema-instance" />
+                <CustomerId>543598</CustomerId>
+                <ProductId>282A00001B</ProductId>
+                <ProductName>Microsoft Tenant</ProductName>
+                <ProductGroup>Administrative</ProductGroup>
+                <ProductCommercialTypeName>Microsoft 365</ProductCommercialTypeName>
+                <DateCreated>2022-08-08T11:47:42.39</DateCreated>
+                <DateActive>2022-08-08T11:53:38.7</DateActive>
+                <DateModified>2022-08-08T11:53:38.7</DateModified>
+                <DateTerminate p5:nil="true" xmlns:p5="http://www.w3.org/2001/XMLSchema-instance" />
+                <DateTerminated p5:nil="true" xmlns:p5="http://www.w3.org/2001/XMLSchema-instance" />
+                <OrderState>Active</OrderState>
+                <Quantity>1</Quantity>
+                <ServiceLevelAgreement>NextBusinessDay</ServiceLevelAgreement>
+            </OrderSummary_V1>
+        </Results>
+    </PagedResult>
+</OrderSummaryResponse_V1>

@@ -1,0 +1,46 @@
+@startuml
+title Provision VM Cloudstack API
+
+start
+if (User already has Account) then (yes)
+
+else (no)
+  :Generate account (e.g. cs12345);
+
+  #cyan:listDomainChildren;
+  note left: Admin API
+
+  if(Domain exist) then (no)
+      #cyan:createDomain;
+      note left: Admin API
+    else (yes)
+    endif
+
+  #cyan:listAccounts;
+  note left: Admin API
+  if(Account exist) then (no)
+    #cyan:createAccount;
+    note left: Admin API
+  else (yes)
+  endif
+endif
+#cyan:listUsers;
+note left: Admin API
+#cyan:getUserKeys;
+note left: Admin API
+if(User has keys) then (no)
+#cyan:registerUserKeys;
+note left: Admin API
+endif
+#cyan:listTemplates;
+note left: Admin API
+#cyan:listNetworks;
+note left: User API
+#cyan:deployVirtualMachine;
+note left: User API
+repeat
+#cyan:queryAsyncJobResult;
+note left: User API
+repeat while (Job status) is (pending) not (fail or success)
+stop
+@enduml

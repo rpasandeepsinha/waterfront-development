@@ -1,0 +1,267 @@
+[
+    {
+        "revision": 2221463478,
+        "date": "2026-06-25T12:33:32Z",
+        "type": "MOD",
+        "processId": 3,
+        "entity": {
+            "domainName": "far-pupil.com",
+            "registrant": "Jazmin24",
+            "status": [
+                "CLIENT_HOLD"
+            ],
+            "authcode": "HUCzhRwK",
+            "createdDate": "2021-06-25T12:33:32Z",
+            "updatedDate": "2026-05-26T12:33:32Z",
+            "expiryDate": "2029-06-25T12:33:32Z",
+            "autoRenew": false,
+            "autoRenewPeriod": 12,
+            "privacyProtect": true,
+            "premium": false,
+            "gateway": false,
+            "contacts": [
+                {
+                    "role": "ADMIN",
+                    "handle": "Jazmin24"
+                },
+                {
+                    "role": "BILLING",
+                    "handle": "Jazmin24"
+                },
+                {
+                    "role": "TECH",
+                    "handle": "Jazmin24"
+                }
+            ],
+            "registry": "Verisign",
+            "customer": "versio-2"
+        }
+    },
+    {
+        "revision": 2176886518,
+        "date": "2026-06-25T12:33:32Z",
+        "type": "MOD",
+        "processId": 2174341035,
+        "entity": {
+            "domainName": "far-pupil.com",
+            "registrant": "Jazmin24",
+            "status": [
+                "CLIENT_HOLD"
+            ],
+            "authcode": "HUCzhRwK",
+            "createdDate": "2021-06-25T12:33:32Z",
+            "updatedDate": "2026-05-26T12:33:32Z",
+            "expiryDate": "2029-06-25T12:33:32Z",
+            "autoRenew": true,
+            "autoRenewPeriod": 12,
+            "privacyProtect": true,
+            "premium": false,
+            "gateway": false,
+            "contacts": [
+                {
+                    "role": "ADMIN",
+                    "handle": "Jazmin24"
+                },
+                {
+                    "role": "BILLING",
+                    "handle": "Jazmin24"
+                },
+                {
+                    "role": "TECH",
+                    "handle": "Jazmin24"
+                }
+            ],
+            "registry": "Verisign",
+            "customer": "versio-2"
+        }
+    },
+    {
+        "revision": 2175078942,
+        "date": "2026-06-25T12:33:32Z",
+        "type": "MOD",
+        "processId": 2175078919,
+        "entity": {
+            "domainName": "far-pupil.com",
+            "registrant": "Jazmin24",
+            "status": [
+                "CLIENT_HOLD",
+                "PENDING_RENEW"
+            ],
+            "authcode": "HUCzhRwK",
+            "createdDate": "2021-06-25T12:33:32Z",
+            "updatedDate": "2026-05-26T12:33:32Z",
+            "expiryDate": "2029-06-25T12:33:32Z",
+            "autoRenew": true,
+            "autoRenewPeriod": 12,
+            "privacyProtect": true,
+            "premium": false,
+            "gateway": false,
+            "contacts": [
+                {
+                    "role": "ADMIN",
+                    "handle": "Jazmin24"
+                },
+                {
+                    "role": "BILLING",
+                    "handle": "Jazmin24"
+                },
+                {
+                    "role": "TECH",
+                    "handle": "Jazmin24"
+                }
+            ],
+            "registry": "Verisign",
+            "customer": "versio-2"
+        }
+    },
+    {
+        "revision": 2174341083,
+        "date": "2026-06-25T12:33:32Z",
+        "type": "MOD",
+        "processId": 2174341035,
+        "entity": {
+            "domainName": "far-pupil.com",
+            "registrant": "Jazmin24",
+            "status": [
+                "INACTIVE",
+                "PENDING_RENEW"
+            ],
+            "authcode": "HUCzhRwK",
+            "createdDate": "2021-06-25T12:33:32Z",
+            "updatedDate": "2026-05-26T12:33:32Z",
+            "expiryDate": "2029-06-25T12:33:32Z",
+            "autoRenew": true,
+            "autoRenewPeriod": 12,
+            "privacyProtect": true,
+            "premium": false,
+            "gateway": false,
+            "contacts": [
+                {
+                    "role": "ADMIN",
+                    "handle": "Jazmin24"
+                },
+                {
+                    "role": "BILLING",
+                    "handle": "Jazmin24"
+                },
+                {
+                    "role": "TECH",
+                    "handle": "Jazmin24"
+                }
+            ],
+            "registry": "Verisign",
+            "customer": "versio-2"
+        }
+    },
+    {
+        "revision": 2159553452,
+        "date": "2026-06-25T12:33:32Z",
+        "type": "MOD",
+        "entity": {
+            "domainName": "far-pupil.com",
+            "registrant": "Jazmin24",
+            "status": [
+                "INACTIVE"
+            ],
+            "authcode": "HUCzhRwK",
+            "createdDate": "2021-06-25T12:33:32Z",
+            "updatedDate": "2026-05-26T12:33:32Z",
+            "expiryDate": "2029-06-25T12:33:32Z",
+            "autoRenew": true,
+            "autoRenewPeriod": 12,
+            "privacyProtect": true,
+            "premium": false,
+            "gateway": false,
+            "contacts": [
+                {
+                    "role": "ADMIN",
+                    "handle": "Jazmin24"
+                },
+                {
+                    "role": "BILLING",
+                    "handle": "Jazmin24"
+                },
+                {
+                    "role": "TECH",
+                    "handle": "Jazmin24"
+                }
+            ],
+            "registry": "Verisign",
+            "customer": "versio-2"
+        }
+    },
+    {
+        "revision": 2122482535,
+        "date": "2026-06-25T12:33:32Z",
+        "type": "MOD",
+        "entity": {
+            "domainName": "far-pupil.com",
+            "registrant": "Jazmin24",
+            "status": [
+                "INACTIVE"
+            ],
+            "authcode": "HUCzhRwK",
+            "createdDate": "2021-06-25T12:33:32Z",
+            "updatedDate": "2026-05-26T12:33:32Z",
+            "expiryDate": "2029-06-25T12:33:32Z",
+            "autoRenew": true,
+            "autoRenewPeriod": 12,
+            "privacyProtect": true,
+            "premium": false,
+            "gateway": false,
+            "contacts": [
+                {
+                    "role": "ADMIN",
+                    "handle": "Jazmin24"
+                },
+                {
+                    "role": "BILLING",
+                    "handle": "Jazmin24"
+                },
+                {
+                    "role": "TECH",
+                    "handle": "Jazmin24"
+                }
+            ],
+            "registry": "Verisign",
+            "customer": "versio-2"
+        }
+    },
+    {
+        "revision": 1724681384,
+        "date": "2026-06-25T12:33:32Z",
+        "type": "ADD",
+        "processId": 1724681355,
+        "entity": {
+            "domainName": "far-pupil.com",
+            "registrant": "Jazmin24",
+            "status": [
+                "INACTIVE"
+            ],
+            "authcode": "HUCzhRwK",
+            "createdDate": "2021-06-25T12:33:32Z",
+            "expiryDate": "2029-06-25T12:33:32Z",
+            "autoRenew": true,
+            "autoRenewPeriod": 12,
+            "privacyProtect": true,
+            "premium": false,
+            "gateway": false,
+            "contacts": [
+                {
+                    "role": "ADMIN",
+                    "handle": "Jazmin24"
+                },
+                {
+                    "role": "BILLING",
+                    "handle": "Jazmin24"
+                },
+                {
+                    "role": "TECH",
+                    "handle": "Jazmin24"
+                }
+            ],
+            "registry": "Verisign",
+            "customer": "versio-2"
+        }
+    }
+]

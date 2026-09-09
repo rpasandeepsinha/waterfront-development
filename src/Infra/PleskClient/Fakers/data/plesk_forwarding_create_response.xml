@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet version="1.6.9.1">
+    <webspace>
+        <add>
+            <result>
+                <status>ok</status>
+                <id>2</id>
+                <guid>04dbd74b-21c8-4458-9107-9fdf66ce8090</guid>
+            </result>
+        </add>
+    </webspace>
+</packet>

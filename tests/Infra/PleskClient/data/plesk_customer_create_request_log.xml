@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet><customer><add><gen_info><pname>Test</pname><login>testuser</login><passwd>********</passwd><email>test@email.com</email></gen_info></add></customer></packet>

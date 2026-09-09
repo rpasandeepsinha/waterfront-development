@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet version="1.6.9.1">
+    <mail>
+        <set_prefs>
+            <result>
+                <status>ok</status>
+                <site-id>27</site-id>
+            </result>
+        </set_prefs>
+    </mail>
+</packet>

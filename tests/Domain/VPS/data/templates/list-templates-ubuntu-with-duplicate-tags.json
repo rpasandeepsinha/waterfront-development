@@ -1,0 +1,219 @@
+{
+    "count": 3,
+    "template": [
+        {
+            "account": "admin",
+            "bits": 0,
+            "checksum": "f52a758ea8e6f2d237da92eba6d789e739e4a0490326ea38636b4ebf81b8fda136155d2c74e16f320756b0da2d64049233d4b6b5fd34c7f5d189cfc5fbf907cb",
+            "created": "2025-02-04T14:10:30+0100",
+            "crossZones": true,
+            "deployasis": false,
+            "details": {
+                "iothreads": "true",
+                "rootDiskController": "scsi"
+            },
+            "directdownload": false,
+            "displaytext": "Ubuntu 24.04 - 39132",
+            "domain": "ROOT",
+            "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+            "downloaddetails": [
+                {
+                    "datastore": "ss01",
+                    "downloadPercent": "100",
+                    "downloadState": "DOWNLOADED"
+                }
+            ],
+            "format": "QCOW2",
+            "hasannotations": false,
+            "hypervisor": "KVM",
+            "id": "9948bc15-31ab-4762-939e-7e02d082126a",
+            "isdynamicallyscalable": true,
+            "isextractable": false,
+            "isfeatured": true,
+            "ispublic": true,
+            "isready": true,
+            "name": "Ubuntu 24.04",
+            "ostypeid": "4ba6aae8-a4a1-11e9-814e-5254000588f7",
+            "ostypename": "Other PV Virtio-SCSI (64-bit)",
+            "passwordenabled": false,
+            "physicalsize": 1452082176,
+            "requireshvm": true,
+            "size": 8589934592,
+            "sshkeyenabled": true,
+            "tags": [
+                {
+                    "account": "admin",
+                    "domain": "ROOT",
+                    "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                    "key": "oscategory",
+                    "resourceid": "9948bc15-31ab-4762-939e-7e02d082126a",
+                    "resourcetype": "Template",
+                    "value": "Ubuntu"
+                },
+                {
+                    "account": "admin",
+                    "domain": "ROOT",
+                    "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                    "key": "osversion",
+                    "resourceid": "9948bc15-31ab-4762-939e-7e02d082126a",
+                    "resourcetype": "Template",
+                    "value": "24.04"
+                },
+                {
+                    "account": "admin",
+                    "domain": "ROOT",
+                    "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                    "key": "template_slug",
+                    "resourceid": "9948bc15-31ab-4762-939e-7e02d082126a",
+                    "resourcetype": "Template",
+                    "value": "Ubuntu-24.04"
+                }
+            ],
+            "templatetype": "USER",
+            "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+            "zonename": "zone03.ams02.cldin.net"
+        },{
+            "account": "admin",
+            "bits": 0,
+            "checksum": "f52a758ea8e6f2d237da92eba6d789e739e4a0490326ea38636b4ebf81b8fda136155d2c74e16f320756b0da2d64049233d4b6b5fd34c7f5d189cfc5fbf907cb",
+            "created": "2025-02-04T14:10:30+0100",
+            "crossZones": true,
+            "deployasis": false,
+            "details": {
+                "iothreads": "true",
+                "rootDiskController": "scsi"
+            },
+            "directdownload": false,
+            "displaytext": "Ubuntu 24.04 - 39139",
+            "domain": "ROOT",
+            "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+            "downloaddetails": [
+                {
+                    "datastore": "ss01",
+                    "downloadPercent": "100",
+                    "downloadState": "DOWNLOADED"
+                }
+            ],
+            "format": "QCOW2",
+            "hasannotations": false,
+            "hypervisor": "KVM",
+            "id": "4fd4c8e9-9139-4c54-aad6-6044c5f4c082",
+            "isdynamicallyscalable": true,
+            "isextractable": false,
+            "isfeatured": true,
+            "ispublic": true,
+            "isready": true,
+            "name": "Ubuntu 24.04",
+            "ostypeid": "4ba6aae8-a4a1-11e9-814e-5254000588f7",
+            "ostypename": "Other PV Virtio-SCSI (64-bit)",
+            "passwordenabled": false,
+            "physicalsize": 1452082176,
+            "requireshvm": true,
+            "size": 8589934592,
+            "sshkeyenabled": true,
+            "tags": [
+                {
+                    "account": "admin",
+                    "domain": "ROOT",
+                    "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                    "key": "oscategory",
+                    "resourceid": "9948bc15-31ab-4762-939e-7e02d082126a",
+                    "resourcetype": "Template",
+                    "value": "Ubuntu"
+                },
+                {
+                    "account": "admin",
+                    "domain": "ROOT",
+                    "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                    "key": "osversion",
+                    "resourceid": "9948bc15-31ab-4762-939e-7e02d082126a",
+                    "resourcetype": "Template",
+                    "value": "24.04"
+                },
+                {
+                    "account": "admin",
+                    "domain": "ROOT",
+                    "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                    "key": "template_slug",
+                    "resourceid": "9948bc15-31ab-4762-939e-7e02d082126a",
+                    "resourcetype": "Template",
+                    "value": "Ubuntu-24.04"
+                }
+            ],
+            "templatetype": "USER",
+            "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+            "zonename": "zone03.ams02.cldin.net"
+        },{
+            "account": "admin",
+            "bits": 0,
+            "checksum": "f52a758ea8e6f2d237da92eba6d789e739e4a0490326ea38636b4ebf81b8fda136155d2c74e16f320756b0da2d64049233d4b6b5fd34c7f5d189cfc5fbf907cb",
+            "created": "2025-02-04T14:10:30+0100",
+            "crossZones": true,
+            "deployasis": false,
+            "details": {
+                "iothreads": "true",
+                "rootDiskController": "scsi"
+            },
+            "directdownload": false,
+            "displaytext": "Ubuntu 24.04 - 39138",
+            "domain": "ROOT",
+            "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+            "downloaddetails": [
+                {
+                    "datastore": "ss01",
+                    "downloadPercent": "100",
+                    "downloadState": "DOWNLOADED"
+                }
+            ],
+            "format": "QCOW2",
+            "hasannotations": false,
+            "hypervisor": "KVM",
+            "id": "a008d6fe-39a8-4d28-bfd7-e77fff177618",
+            "isdynamicallyscalable": true,
+            "isextractable": false,
+            "isfeatured": true,
+            "ispublic": true,
+            "isready": true,
+            "name": "Ubuntu 24.04",
+            "ostypeid": "4ba6aae8-a4a1-11e9-814e-5254000588f7",
+            "ostypename": "Other PV Virtio-SCSI (64-bit)",
+            "passwordenabled": false,
+            "physicalsize": 1452082176,
+            "requireshvm": true,
+            "size": 8589934592,
+            "sshkeyenabled": true,
+            "tags": [
+                {
+                    "account": "admin",
+                    "domain": "ROOT",
+                    "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                    "key": "oscategory",
+                    "resourceid": "9948bc15-31ab-4762-939e-7e02d082126a",
+                    "resourcetype": "Template",
+                    "value": "Ubuntu"
+                },
+                {
+                    "account": "admin",
+                    "domain": "ROOT",
+                    "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                    "key": "osversion",
+                    "resourceid": "9948bc15-31ab-4762-939e-7e02d082126a",
+                    "resourcetype": "Template",
+                    "value": "24.04"
+                },
+                {
+                    "account": "admin",
+                    "domain": "ROOT",
+                    "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                    "key": "template_slug",
+                    "resourceid": "9948bc15-31ab-4762-939e-7e02d082126a",
+                    "resourcetype": "Template",
+                    "value": "Ubuntu-24.04"
+                }
+            ],
+            "templatetype": "USER",
+            "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+            "zonename": "zone03.ams02.cldin.net"
+        }
+    ]
+}

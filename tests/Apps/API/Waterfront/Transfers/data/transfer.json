@@ -1,0 +1,14 @@
+{
+    "subscriptions": [
+        {
+            "uuid": "my-uuid-good-1"
+        },
+        {
+            "uuid": "my-uuid-good-2"
+        }
+    ],
+    "receiver": {
+        "customer_number": 33441,
+        "email": "my@mail.com"
+    }
+}

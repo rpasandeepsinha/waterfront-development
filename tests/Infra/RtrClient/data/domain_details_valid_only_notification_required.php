@@ -1,0 +1,27 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'domainName' => 'sandwave.io',
+    'registry' => 'sidn',
+    'customer' => 'johndoe',
+    'registrant' => 'johndoe',
+    'privacyProtect' => false,
+    'status' => ['OK', 'SERVER_UPDATE_PROHIBITED'],
+    'authcode' => '294759302',
+    'languageCode' => 'nl',
+    'autoRenew' => true,
+    'autoRenewPeriod' => 12,
+    'ns' => [
+        'ns01.example.com',
+        'ns02.example.com',
+    ],
+    'childHosts' => [
+        'example.com',
+    ],
+    'createdDate' => '2020-08-30T01:02:03Z',
+    'updatedDate' => '2020-08-30T01:02:03Z',
+    'expiryDate' => '2020-11-30T01:02:03Z',
+    'premium' => false,
+];

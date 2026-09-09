@@ -1,0 +1,74 @@
+{
+    "provider": "IIS",
+    "applicableFor": ["nu"],
+    "metadata": {
+        "createDomainPeriods": [12],
+        "renewDomainPeriods": [12],
+        "autoRenewDomainPeriods": [12],
+        "transferDomainPeriods": [12],
+        "redemptionPeriod": 1,
+        "pendingDeletePeriod": 1,
+        "addGracePeriod": 1,
+        "renewGracePeriod": 1,
+        "autoRenewGracePeriod": 1,
+        "transferGracePeriod": 1,
+        "expiryDateOffset": 1,
+        "transferFOA": false,
+        "adjustableAuthCode": false,
+        "customAuthcodeSupport": false,
+        "transferSupportsAuthcode": true,
+        "transferRequiresAuthcode": true,
+        "creationRequiresPreValidation": true,
+        "validationCategory": null,
+        "featuresAvailable": ["CREATE", "RENEW", "TRANSFER"],
+        "registrantChangeApprovalRequired": false,
+        "allowDesignatedAgent": "NONE",
+        "jurisdiction": "Sweden",
+        "whoisExposure": "NONE",
+        "gdprCategory": "EU_BASED",
+        "premiumSupport": "NO",
+        "domainSyntax": {
+            "minLength": 2,
+            "maxLength": 63,
+            "idnSupport": false
+        },
+        "nameservers": {
+            "min": 2,
+            "max": 13,
+            "required": false
+        },
+        "registrant": {
+            "organizationAllowed": true,
+            "organizationRequired": false
+        },
+        "adminContacts": {
+            "min": 0,
+            "max": 1,
+            "required": false,
+            "organizationAllowed": true,
+            "organizationRequired": false
+        },
+        "billingContacts": {
+            "min": 0,
+            "max": 1,
+            "required": false,
+            "organizationAllowed": true,
+            "organizationRequired": false
+        },
+        "techContacts": {
+            "min": 0,
+            "max": 1,
+            "required": false,
+            "organizationAllowed": true,
+            "organizationRequired": false
+        },
+        "contactProperties": [],
+        "launchPhases": [],
+        "transferLockDays": null,
+        "sendWdrpNotifications": false,
+        "sendErrpNotifications": true,
+        "renewalOnTransfer": "RENEW_UNLESS_GRACE",
+        "registrantChangeTransferLock": false,
+        "restoreIncludesRenew": false
+    }
+}

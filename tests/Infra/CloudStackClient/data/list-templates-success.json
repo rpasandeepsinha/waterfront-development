@@ -1,0 +1,121 @@
+{
+    "count": 2,
+    "template": [
+        {
+            "account": "admin",
+            "bits": 0,
+            "checksum": "a88712c956758f994ce42e3e2dddb6dc501431d8db23c0ac2a5d2a3122ab8cd982c67fd3cd32e66a40b755a634f33f170d387a620cd90976f2542b50ea8ee2f6",
+            "created": "2025-03-10T10:10:41+0100",
+            "crossZones": true,
+            "deployasis": false,
+            "details": {
+                "iothreads": "True",
+                "rootDiskController": "scsi"
+            },
+            "directdownload": false,
+            "displaytext": "Almalinux 9 - Password enabled - 40063",
+            "domain": "ROOT",
+            "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+            "downloaddetails": [
+                {
+                    "datastore": "ss01",
+                    "downloadPercent": "100",
+                    "downloadState": "DOWNLOADED"
+                }
+            ],
+            "format": "QCOW2",
+            "hasannotations": false,
+            "hypervisor": "KVM",
+            "id": "fa685028-1f5f-4acd-82a3-1693b91e605a",
+            "isdynamicallyscalable": true,
+            "isextractable": false,
+            "isfeatured": true,
+            "ispublic": true,
+            "isready": true,
+            "name": "Almalinux 9 - Password enabled",
+            "ostypeid": "4ba6aae8-a4a1-11e9-814e-5254000588f7",
+            "ostypename": "Other PV Virtio-SCSI (64-bit)",
+            "passwordenabled": true,
+            "physicalsize": 1309054464,
+            "requireshvm": true,
+            "size": 8589934592,
+            "sshkeyenabled": false,
+            "tags": [],
+            "templatetype": "USER",
+            "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+            "zonename": "zone03.ams02.cldin.net"
+        },
+        {
+            "account": "admin",
+            "bits": 0,
+            "checksum": "a88712c956758f994ce42e3e2dddb6dc501431d8db23c0ac2a5d2a3122ab8cd982c67fd3cd32e66a40b755a634f33f170d387a620cd90976f2542b50ea8ee2f6",
+            "created": "2025-03-10T10:10:39+0100",
+            "crossZones": true,
+            "deployasis": false,
+            "details": {
+                "iothreads": "True",
+                "rootDiskController": "scsi"
+            },
+            "directdownload": false,
+            "displaytext": "Almalinux 9 - 40063",
+            "domain": "ROOT",
+            "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+            "downloaddetails": [
+                {
+                    "datastore": "ss01",
+                    "downloadPercent": "100",
+                    "downloadState": "DOWNLOADED"
+                }
+            ],
+            "format": "QCOW2",
+            "hasannotations": false,
+            "hypervisor": "KVM",
+            "id": "512dcdf9-6db3-4520-a596-40c09e5dfab8",
+            "isdynamicallyscalable": true,
+            "isextractable": false,
+            "isfeatured": true,
+            "ispublic": true,
+            "isready": true,
+            "name": "Almalinux 9",
+            "ostypeid": "4ba6aae8-a4a1-11e9-814e-5254000588f7",
+            "ostypename": "Other PV Virtio-SCSI (64-bit)",
+            "passwordenabled": false,
+            "physicalsize": 1309054464,
+            "requireshvm": true,
+            "size": 8589934592,
+            "sshkeyenabled": true,
+            "tags": [
+                {
+                    "account": "admin",
+                    "domain": "ROOT",
+                    "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                    "key": "oscategory",
+                    "resourceid": "512dcdf9-6db3-4520-a596-40c09e5dfab8",
+                    "resourcetype": "Template",
+                    "value": "Almalinux"
+                },
+                {
+                    "account": "admin",
+                    "domain": "ROOT",
+                    "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                    "key": "osversion",
+                    "resourceid": "512dcdf9-6db3-4520-a596-40c09e5dfab8",
+                    "resourcetype": "Template",
+                    "value": "9"
+                },
+                {
+                    "account": "admin",
+                    "domain": "ROOT",
+                    "domainid": "2275b6ca-a4a1-11e9-814e-5254000588f7",
+                    "key": "template_slug",
+                    "resourceid": "512dcdf9-6db3-4520-a596-40c09e5dfab8",
+                    "resourcetype": "Template",
+                    "value": "Almalinux-9"
+                }
+            ],
+            "templatetype": "USER",
+            "zoneid": "10c85e3a-b499-4b73-a78d-f2f48ca2a3ba",
+            "zonename": "zone03.ams02.cldin.net"
+        }
+    ]
+}

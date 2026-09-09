@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet>
+    <webspace>
+        <sync-subscription>
+            <filter>
+                <name>example.com</name>
+            </filter>
+        </sync-subscription>
+    </webspace>
+</packet>

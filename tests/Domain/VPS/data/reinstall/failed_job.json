@@ -1,0 +1,17 @@
+{
+    "accountid": "ff15ffa3-0358-4c1b-8af0-c21ea1a2f433",
+    "userid": "79221589-70ac-44f2-973c-652798f46340",
+    "cmd": "org.apache.cloudstack.api.command.user.vm.RestoreVMCmd",
+    "jobstatus": 2,
+    "jobprocstatus": 0,
+    "jobresultcode": 530,
+    "jobresulttype": "object",
+    "jobresult": {
+        "errorcode": 533,
+        "errortext": "Some error given by Cloudstack {id: \"12593\", name: \"i-2541-12593-VM\", uuid: \"91c46703-3702-4f28-9cd8-965196970db0\", type=\"User\"}"
+    },
+    "jobinstanceid": "91c46703-3702-4f28-9cd8-965196970db0",
+    "created": "2022-12-20T09:53:02+0100",
+    "completed": "2022-12-20T09:53:03+0100",
+    "jobid": "fbhdt34e-bb25-40hj-bd5f-320b9cq27151"
+}

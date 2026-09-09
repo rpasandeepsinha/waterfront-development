@@ -1,0 +1,21 @@
+[
+    {
+        "rrset_name": "@",
+        "rrset_ttl": 10800,
+        "rrset_type": "A",
+        "rrset_values": [
+            "192.0.2.1"
+        ],
+        "rrset_href": null
+    },
+    {
+        "rrset_name": "www",
+        "rrset_ttl": 1337,
+        "rrset_type": "A",
+        "rrset_values": [
+            "192.0.2.2",
+            "13.37.13.37"
+        ],
+        "rrset_href": "https://api.test/v5/livedns/domains/testgetrecords.nl/records/%40/A"
+    }
+]

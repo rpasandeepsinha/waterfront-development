@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packet version="1.6.9.1">
+    <mail>
+        <remove>
+            <result>
+                <status>ok</status>
+                <mailname>
+                    <name>info</name>
+                </mailname>
+            </result>
+        </remove>
+    </mail>
+</packet>

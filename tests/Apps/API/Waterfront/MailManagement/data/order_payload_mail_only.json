@@ -1,0 +1,32 @@
+{
+    "customer_id": null,
+    "subscriptions": {
+        "extension": [
+            {
+                "domain": "test.com",
+                "name": ".com",
+                "slug": "extension_com",
+                "status": "registration",
+                "price": 96,
+                "gross_price": 96,
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12
+            }
+        ],
+        "hosting": [
+            {
+                "name": "Mail Only",
+                "slug": "hosting_mail_only",
+                "domain": "test.com",
+                "status": "registration",
+                "price": 96,
+                "gross_price": 96,
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12,
+                "server": null
+            }
+        ]
+    }
+}

@@ -1,0 +1,18 @@
+[
+    {
+        "active": true,
+        "algorithm": "ECDSAP256SHA256",
+        "bits": 256,
+        "dnskey": "257 3 13 0+fI2D1RnKAgyuqLvVVBUMN1COWyv7Wth/N+vl/FN6Vsle+mmtgjuovHrXNH2nubAvrWG0g7eNfUDPgp0nppgw==",
+        "ds": [
+            "4479 13 1 bef94c0261a7846de53a2a62413d9addcac18cec",
+            "4479 13 2 8962287cf4fbf862e111903272a2e0880d164fc087fade414943926889cc3203",
+            "4479 13 4 12afc2033f0bfbf3b230b18b77b6eba654b6cf57d90c24ae035c0facf338c2881e8d70e8e38c2f93548d5c3fd1594750"
+        ],
+        "flags": 257,
+        "id": 1,
+        "keytype": "csk",
+        "published": true,
+        "type": "Cryptokey"
+    }
+]

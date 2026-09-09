@@ -1,0 +1,27 @@
+[
+    {
+        "id": 1,
+        "title": "Mock instance 1",
+        "url": "https:\/\/mockdomain-1.nl",
+        "domain": {
+            "name": "mockdomain-1.nl"
+        }
+    },
+    {
+        "id": 2,
+        "title": "Mock instance 2",
+        "url": "https:\/\/mockdomain-2.nl",
+        "domain": {
+            "name": "mockdomain-2.nl"
+        }
+    },
+    {
+        "id": 3,
+        "title": "Mock instance 3",
+        "url": "https:\/\/mockdomain-3.nl",
+        "domain": {
+            "name": "mockdomain-3.nl"
+        }
+    }
+]
+

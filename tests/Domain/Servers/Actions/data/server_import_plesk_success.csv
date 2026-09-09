@@ -1,0 +1,2 @@
+owner,hostname,port,ipv4,ipv6,secret_key,allow_new_websites,maximum_websites,php_version,use_ssl
+sandwave,import-nameserver-plesk.dev,2222,127.0.0.1,::1,test_secret_key,0,400,plesk-php82-fastcgi,0

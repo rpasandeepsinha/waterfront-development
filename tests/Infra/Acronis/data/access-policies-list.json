@@ -1,0 +1,20 @@
+{
+    "timestamp": "2016-06-22T18:25:16",
+    "items": [
+        {
+            "id": "00000000-0000-0000-0000-000000000005",
+            "version": 0,
+            "trustee_id": "08eb6187-70a7-4b31-b632-9d264fd8bb0f",
+            "trustee_type": "user",
+            "issuer_id": null,
+            "tenant_id": "b7028817-d180-44c1-ae3d-b99f4b3f844a",
+            "role_id": "hci_admin",
+            "created_at": "1970-01-01T00:00:00Z",
+            "updated_at": "2022-03-22T21:45:47Z",
+            "deleted_at": null,
+            "resource_server_id": "53a2a450-8e4e-11e7-96dd-f45c89947331",
+            "resource_namespace": "hci",
+            "resource_path": "res1"
+        }
+    ]
+}

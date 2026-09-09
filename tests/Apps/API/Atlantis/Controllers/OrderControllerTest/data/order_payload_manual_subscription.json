@@ -1,0 +1,19 @@
+{
+    "customer_id": null,
+    "subscriptions": {
+        "manual-subscription": [
+            {
+                "uuid": "ad673cf3-f128-456a-8c01-498d48ba12f8",
+                "name": "ManualTestProduct",
+                "slug": "manual-testproduct",
+                "status": "registration",
+                "price": 199,
+                "gross_price": 96,
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12
+            }
+        ]
+    },
+    "payment_method": "ideal"
+}

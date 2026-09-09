@@ -1,0 +1,15 @@
+{
+    "@attributes": {
+        "version": "1.6.9.1"
+    },
+    "webspace": {
+        "get": {
+            "result": {
+                "status": "error",
+                "errcode": "1015",
+                "errtext": "Owner does not exist",
+                "filter-id": "pdvzjqvczhjnopjmocnpasdfasdf"
+            }
+        }
+    }
+}

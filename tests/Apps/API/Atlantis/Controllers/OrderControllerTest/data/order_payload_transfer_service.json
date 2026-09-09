@@ -1,0 +1,77 @@
+{
+    "customer_id": null,
+    "vouchers": [],
+    "subscriptions": {
+        "extension": [
+            {
+                "uuid": "24ab093c-d742-4637-b3f4-fc4c4823e70f",
+                "domain": "test.com",
+                "name": ".com",
+                "slug": "extension_com",
+                "status": "registration",
+                "price": 96,
+                "gross_price": 120,
+                "billing_period": 12,
+                "contract_period": 12,
+                "children": {
+                    "dns": [
+                        {
+                            "uuid": "fda0da0b-4678-4716-ae8b-b30c62139137",
+                            "status": "registration",
+                            "domain": "test.com",
+                            "billing_period": 12,
+                            "contract_period": 12,
+                            "price": 0,
+                            "gross_price": 0,
+                            "name": "Free DNS",
+                            "slug": "free-dns"
+                        }
+                    ]
+                }
+            }
+        ],
+        "hosting": [
+            {
+                "uuid": "5becce3c-a175-4738-8e28-1ad31f22e2f0",
+                "name": "premium",
+                "slug": "hosting_brons",
+                "domain": "test.com",
+                "status": "registration",
+                "price": 96,
+                "gross_price": 120,
+                "billing_period": 12,
+                "contract_period": 12,
+                "server": 0,
+                "one_time_services": [
+                    {
+                        "uuid": "b7e59554-c2c7-4501-ab3a-3f5d1757a961",
+                        "slug": "transfer_service",
+                        "price": 7500,
+                        "gross_price": 7500
+                    }
+                ]
+            },
+            {
+                "uuid": "53df1467-1943-4af4-8088-79e302a3e5d1",
+                "name": "premium",
+                "slug": "hosting_premium",
+                "domain": "already-existing-domain.com",
+                "status": "registration",
+                "price": 96,
+                "gross_price": 120,
+                "billing_period": 12,
+                "contract_period": 12,
+                "server": 0,
+                "one_time_services": [
+                    {
+                        "uuid": "10265f73-73e8-4c39-8f1a-0332a742db75",
+                        "slug": "transfer_service",
+                        "price": 0,
+                        "gross_price": 7500
+                    }
+                ]
+            }
+        ]
+    },
+    "payment_method": "ideal"
+}

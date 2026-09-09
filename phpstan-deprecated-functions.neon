@@ -1,0 +1,245 @@
+parameters:
+    disallowedFunctionCalls:
+        -
+            function: 'abort'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'abort_if'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'abort_unless'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'action'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'app'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'app_path'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'append_config'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'asset'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'auth'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'back'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'base_path'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'blank'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'bcrypt'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'broadcast'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'cache'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'class_basename'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'class_uses_recursive'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'config'
+            message: 'Deprecated global Laravel helper, use DI to get the configuration service: \Waterfront\Infra\Configuration\ConfigurationInterface'
+        -
+            function: 'config_path'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'collect'
+            message: 'Deprecated global Laravel helper, use new Collection()'
+        -
+            function: 'cookie'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'csrf_field'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'csrf_token'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'database_path'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'decrypt'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'dispatch'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'dispatch_sync'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'dispatch_now'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'e'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'env'
+            message: 'Deprecated global Laravel helper, use Env::get()'
+        -
+            function: 'encrypt'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'event'
+            message: 'Deprecated global Laravel helper, use DI to get the right service: Illuminate\Contracts\Events\Dispatcher'
+        -
+            function: 'fake'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'filled'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'head'
+            message: 'Deprecated global Laravel helper, use reset()'
+        -
+            function: 'info'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'logger'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'lang_path'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'last'
+            message: 'Deprecated global Laravel helper, use end()'
+        -
+            function: 'logs'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'method_field'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'mix'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'now'
+            message: 'Deprecated global Laravel helper, use CarbonImmutable::now()'
+        -
+            function: 'object_get'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'old'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'optional'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'policy'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'public_path'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'preg_replace_array'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'redirect'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'report'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'request'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'rescue'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'resolve'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+            allowIn:
+                - 'src/Apps/Nova/*'
+                - 'tests/IntegrationTestCase.php'
+        -
+            function: 'resource_path'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'response'
+            message: 'Deprecated global Laravel helper, construct a new Response object instead'
+        -
+            function: 'retry'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'route'
+            message: 'Deprecated global Laravel helper, use DI to get the right service: \Illuminate\Contracts\Routing\UrlGenerator'
+            allowIn:
+                - 'tests/*'
+                - '*/Tests/*'
+        -
+            function: 'secure_asset'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'secure_url'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'session'
+            message: 'Deprecated global Laravel helper, use DI to get the right service: \Illuminate\Session\SessionManager'
+        -
+            function: 'storage_path'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'str'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'tap'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'throw_if'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'throw_unless'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'to_route'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'today'
+            message: 'Deprecated global Laravel helper, use CarbonImmutable::today()'
+        -
+            function: 'trait_uses_recursive'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'trans'
+            message: 'Deprecated global Laravel helper, use DI to get the right service: \Waterfront\Infra\Translation\TranslatorInterface'
+        -
+            function: 'trans_choice'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'transform'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: '__'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'url'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'validator'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'value'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'view'
+            message: 'Deprecated global Laravel helper, use DI to get the right service'
+        -
+            function: 'windows_os'
+            message: 'Deprecated global Laravel helper, dont use it'
+        -
+            function: 'with'
+            message: 'Deprecated global Laravel helper, dont use it'

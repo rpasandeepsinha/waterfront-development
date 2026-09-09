@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openXML>
+    <credentials>
+        <username>test-user</username>
+        <password>password</password>
+    </credentials>
+    <modifyDomainRequest>
+        <domain>
+            <name>example</name>
+            <extension>org</extension>
+        </domain>
+        <isDnssecEnabled>1</isDnssecEnabled>
+        <dnssecKeys>
+            <array>
+                <item>
+                    <flags>257</flags>
+                    <alg>13</alg>
+                    <protocol>3</protocol>
+                    <pubKey>kJugvFdAwIy1cLirD3H23rJuf8Ul1XFwponZ7y8qq7rMBN3/Hdvs9PnRTD6Hm4R8sANAh5Cqfn2EZcXvROIxLw==</pubKey>
+                </item>
+            </array>
+        </dnssecKeys>
+    </modifyDomainRequest>
+</openXML>

@@ -1,0 +1,311 @@
+{
+    "result": [
+        {
+            "id": 97797,
+            "description": "📞Internal - CS Tech",
+            "queues": [
+                {
+                    "id": 36439,
+                    "key": "q_versio_internal_escalation",
+                    "description": "Internal - CS Versio",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 36440,
+                    "key": "q_yourhosting_internal_escalatio",
+                    "description": "Internal - CS Yourhosting",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 97798,
+            "description": "📞Frontdesk",
+            "queues": [
+                {
+                    "id": 34674,
+                    "key": "q_frontdesk_yh",
+                    "description": "Frontdesk Yourhosting",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 34675,
+                    "key": "q_frontdesk_argeweb",
+                    "description": "Frontdesk Argeweb",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 34676,
+                    "key": "q_frontdesk_versio",
+                    "description": "Frontdesk Versio",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 36441,
+                    "key": "q_frontdesk_internal_escalation",
+                    "description": "Internal - Frontdesk",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 100122,
+            "description": "📞Retentieteam",
+            "queues": [
+                {
+                    "id": 36433,
+                    "key": "q_retentiedesk_yh",
+                    "description": "Retentiedesk - Yourhosting",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 36434,
+                    "key": "q_retentiedesk_argeweb",
+                    "description": "Retentiedesk - Argeweb",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 36435,
+                    "key": "q_retentiedesk_versio",
+                    "description": "Retentiedesk - Versio",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 36443,
+                    "key": "q_retentiedesk_internal",
+                    "description": "Internal - Retentiedesk",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 40320,
+                    "key": "q_retentiedesk_terugbelverzoeken",
+                    "description": "Retentiedesk - Terugbelverzoeken",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 100123,
+            "description": "📞Premium Account Team",
+            "queues": [
+                {
+                    "id": 36438,
+                    "key": "q_premium_account_team",
+                    "description": "Premium Account Team",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 36442,
+                    "key": "q_premium_account_team_internal",
+                    "description": "Internal - Premium Account Team",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 100124,
+            "description": "📞Premium Support",
+            "queues": [
+                {
+                    "id": 36436,
+                    "key": "q_premium_support",
+                    "description": "Premium Support",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 100160,
+            "description": "📧Retentieteam",
+            "queues": [
+                {
+                    "id": 36584,
+                    "key": "q_pcm_retentieteam",
+                    "description": "PCM Retentieteam",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 38373,
+                    "key": "q_pcm_retentieteam_inbox",
+                    "description": "PCM Retentieteam Inbox",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 100161,
+            "description": "📧Credit Management",
+            "queues": [
+                {
+                    "id": 36581,
+                    "key": "q_pcm_credit_management",
+                    "description": "PCM Credit Management",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 100162,
+            "description": "📧CS Tech",
+            "queues": [
+                {
+                    "id": 36580,
+                    "key": "q_pcm_cs_tech",
+                    "description": "PCM CS Tech",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 100164,
+            "description": "📧Premium account Team",
+            "queues": [
+                {
+                    "id": 36583,
+                    "key": "q_pcm_premium_account_team",
+                    "description": "PCM Premium Account Team",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 100166,
+            "description": "📧Systeemberichten",
+            "queues": [
+                {
+                    "id": 36586,
+                    "key": "q_pcm_systeemberichten",
+                    "description": "PCM Systeemberichten",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 100167,
+            "description": "📧Technische Helpdesk",
+            "queues": [
+                {
+                    "id": 36587,
+                    "key": "q_pcm_technische_helpdesk",
+                    "description": "PCM Technische Helpdesk",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 100168,
+            "description": "📧Webdesign",
+            "queues": [
+                {
+                    "id": 36588,
+                    "key": "q_pcm_webdesign",
+                    "description": "PCM Webdesign",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 101191,
+            "description": "📧CS Admin",
+            "queues": [
+                {
+                    "id": 38083,
+                    "key": "q_pcm_cs_admin",
+                    "description": "PCM CS Admin",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 41767,
+                    "key": "q_pcm_cs_admin_followups",
+                    "description": "PCM CS Admin Followups",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 101724,
+            "description": "📧Manual Domein Registraties",
+            "queues": [
+                {
+                    "id": 38742,
+                    "key": "q_pcm_manual_domein_registraties",
+                    "description": "PCM Manual Domein Registraties",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 104817,
+            "description": "🅰️Phone Testing Queue",
+            "queues": [
+                {
+                    "id": 36958,
+                    "key": "q_puzzel_test",
+                    "description": "Puzzel Test",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 37685,
+                    "key": "q_puzzel_test_2",
+                    "description": "Puzzel Test 2",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 38342,
+                    "key": "q_testing_queue",
+                    "description": "Testing Queue",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 39163,
+                    "key": "q_testing_queue_email",
+                    "description": "Testing Queue Email",
+                    "serviceId": 1028
+                },
+                {
+                    "id": 41923,
+                    "key": "q_testing_internal_queue",
+                    "description": "Testing - Internal Queue",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 104835,
+            "description": "📧Webhosting Migrations",
+            "queues": [
+                {
+                    "id": 40064,
+                    "key": "q_pcm_webhosting_migrations",
+                    "description": "PCM Webhosting Migrations",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 104843,
+            "description": "📧Domain Registrars",
+            "queues": [
+                {
+                    "id": 40233,
+                    "key": "q_pcm_domain_registrars",
+                    "description": "PCM Domain Registrars",
+                    "serviceId": 1028
+                }
+            ]
+        },
+        {
+            "id": 106764,
+            "description": "📧CS Admin Followups",
+            "queues": [
+                {
+                    "id": 41767,
+                    "key": "q_pcm_cs_admin_followups",
+                    "description": "PCM CS Admin Followups",
+                    "serviceId": 1028
+                }
+            ]
+        }
+    ],
+    "code": 0
+}

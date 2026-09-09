@@ -1,0 +1,28 @@
+@startuml
+storage Provision {
+    storage HostingCreateRequest
+    storage HostingGetSsoRequest
+    storage [Type]\nHosting as Hosting {
+      storage HostingServiceFactory
+      storage HostingRequestValidationInterface
+      storage HostingProvisionService
+      storage [Provider]\nDirectAdmin as DirectAdmin {
+        storage DirectAdminClient
+        storage DirectAdminValidator
+        storage DirectAdminProvisionService
+      }
+      storage [Provider]\nPlesk as Plesk {
+        storage PleskClient
+        storage PleskValidator
+        storage PleskProvisionService
+      }
+    }
+}
+
+HostingCreateRequest -[hidden]- Hosting
+HostingGetSsoRequest -[hidden]- Hosting
+HostingProvisionService -[hidden]- DirectAdminProvisionService
+HostingProvisionService -[hidden]- PleskProvisionService
+HostingRequestValidationInterface -[hidden]- DirectAdminValidator
+HostingRequestValidationInterface -[hidden]- PleskValidator
+@enduml

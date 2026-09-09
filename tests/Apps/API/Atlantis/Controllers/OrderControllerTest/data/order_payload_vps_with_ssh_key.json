@@ -1,0 +1,36 @@
+{
+    "customer_id": null,
+    "subscriptions": {
+        "vps": [
+            {
+                "uuid": "fda0da0b-4678-4716-ae8b-b30c62139137",
+                "name": "VPS 32 Redundant",
+                "slug": "vps-32-red",
+                "status": "registration",
+                "price": 96,
+                "gross_price": 120,
+                "billing_period": 12,
+                "contract_period": 12,
+                "period": 12,
+                "children": {
+                    "cloudstack-os": [
+                        {
+                            "uuid": "ad673cf3-f128-456a-8c01-498d48ba12f8",
+                            "status": "registration",
+                            "billing_period": 1,
+                            "contract_period": 1,
+                            "price": 0,
+                            "gross_price": 0,
+                            "name": "Ubuntu LTS 20.04 (with SSH)",
+                            "slug": "ubuntu-lts-20.04-ssh",
+                            "ssh_key_uuid": "80782a1b-b337-42c5-bb84-7d461420e1ea"
+                        }
+                    ]
+                }
+            }
+        ],
+        "hosting": [],
+        "ssl": []
+    },
+    "payment_method": "ideal"
+}

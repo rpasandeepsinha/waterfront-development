@@ -1,0 +1,70 @@
+{
+    "items": [
+        {
+            "itemUuid": "3b5c96a9-b5c6-4e7f-a87a-c028b976ec2c",
+            "productSlug": "extension_nl",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "priceType": "registration",
+            "quantity": 1,
+            "metaData": {
+                "domain": "efwafwefwe.nl"
+            }
+        },
+        {
+            "itemUuid": "284635f4-7bd7-4dfb-bb94-c7c41bd2c43c",
+            "parentItemUuid": "3b5c96a9-b5c6-4e7f-a87a-c028b976ec2c",
+            "productSlug": "free-dns",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "priceType": "registration",
+            "quantity": 1,
+            "metaData": {}
+        },
+        {
+            "itemUuid": "73f0387e-6f7f-468b-b369-90a69a9fff23",
+            "productSlug": "extension_nl",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "priceType": "registration",
+            "quantity": 1,
+            "metaData": {
+                "domain": "efwafwef2we.nl"
+            }
+        },
+        {
+            "itemUuid": "b47a34c5-fe5c-47f8-832d-e23feb266842",
+            "parentItemUuid": "73f0387e-6f7f-468b-b369-90a69a9fff23",
+            "productSlug": "free-dns",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "priceType": "registration",
+            "quantity": 1,
+            "metaData": {}
+        },
+        {
+            "itemUuid": "7650714d-8140-439b-9b2b-00f36124fbc3",
+            "productSlug": "extension_nl",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "priceType": "registration",
+            "quantity": 1,
+            "metaData": {
+                "domain": "efwafwef1we.nl"
+            }
+        },
+        {
+            "itemUuid": "8fc9fd89-b59b-4d2c-92e9-af335f665d24",
+            "parentItemUuid": "7650714d-8140-439b-9b2b-00f36124fbc3",
+            "productSlug": "free-dns",
+            "billingPeriod": 12,
+            "contractPeriod": 12,
+            "priceType": "registration",
+            "quantity": 1,
+            "metaData": {}
+        }
+    ],
+    "vouchers": [
+        "KORTING"
+    ]
+}

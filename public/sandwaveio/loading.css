@@ -1,0 +1,24 @@
+.loading {
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.loading:before {
+    content: '\21BB';
+    animation: rotateLoadingIcon 2s linear;
+    animation-iteration-count: infinite;
+    margin-right: 1em;
+}
+@keyframes rotateLoadingIcon  {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

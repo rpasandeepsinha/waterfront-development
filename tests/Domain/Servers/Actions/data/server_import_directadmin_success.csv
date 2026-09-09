@@ -1,0 +1,2 @@
+owner,hostname,port,ipv4,ipv6,username,password,login_key,allow_new_websites,maximum_websites,use_ssl
+sandwave,import-nameserver-directadmin.dev,1111,127.0.0.1,::1,test_username,test_password,test_login_key,1,300,1

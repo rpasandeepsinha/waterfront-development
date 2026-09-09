@@ -1,0 +1,12 @@
+{
+    "general.action": {
+        "locales": {
+            "nl": {
+                "translated_string": "Actie"
+            },
+            "en": {
+                "translated_string": "Action"
+            }
+        }
+    }
+}

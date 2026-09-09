@@ -1,0 +1,16 @@
+@startuml
+title "Provision Sitebuilder deployment from Request with Context UUID"
+actor :Consumer: as consumer
+
+database "Context_BaseKit_UserReference \n\n context_uuid \n basekit_user_reference " as basekitcontext
+usecase "CreateSitebuilderRequest" as FirstRequest
+usecase "Use basekit user_reference from DB" as user_ref
+usecase "Provision Basekit Sitebuilder" as provision
+
+consumer --> FirstRequest : "domain: x.nl\npackage_id: 12\ncontext_uuid: 46d-eb1..."
+FirstRequest <.. basekitcontext : "Found user_reference 456 \nfor context_uuid `46d-eb1...`"
+FirstRequest --> user_ref
+user_ref --> provision
+provision --> consumer : "ProvisionResult"
+
+@enduml

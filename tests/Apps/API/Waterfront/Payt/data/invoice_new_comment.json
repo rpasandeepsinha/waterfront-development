@@ -1,0 +1,50 @@
+{
+    "event": {
+        "context": {
+            "id": 123456789,
+            "link": "https://app.paytsoftware.com/administrations/4123/invoices/123456789",
+            "debtor": {
+                "id": 33345678,
+                "link": "https://app.paytsoftware.com/administrations/4123/debtors/33345678",
+                "name": "John Doe",
+                "category": null,
+                "debtor_code": "1100000",
+                "public_link": "https://factuurinzien.nl/d/debtor-cxyys2k2pjgvqvody4lj3hmcj",
+                "company_name": null
+            },
+            "labels": [],
+            "category": null,
+            "due_date": "2026-04-16",
+            "amount_open": "362.85",
+            "public_link": "https://factuurinzien.nl/d/debtor-cxyys2k2pjgvqvody4lj3hmcj/i/invoice-nbpwas211pau0k7cagm7sunf9",
+            "amount_total": "362.85",
+            "document_url": "https://backend.paytsoftware.com/inzien/facturen/invoice-nbpwas211pau0k7cagm7sunf9/download",
+            "invoice_date": "2026-04-02",
+            "order_number": null,
+            "currency_code": "EUR",
+            "resource_type": "invoice",
+            "administration": {
+                "id": 4123,
+                "name": "Yourhosting",
+                "origin_id": "yourhosting",
+                "company_code": null
+            },
+            "invoice_number": "20261046600",
+            "book_amount_open": "362.85",
+            "psp_transactions": [],
+            "ubl_document_url": null,
+            "book_amount_total": "362.85",
+            "payment_condition": "SB",
+            "book_currency_code": "EUR",
+            "interest_costs_open": "0.0",
+            "interest_costs_total": "0.0",
+            "purchase_order_number": null,
+            "open_administration_costs": "0.0",
+            "debt_collection_costs_open": "0.0",
+            "total_administration_costs": "0.0",
+            "debt_collection_costs_total": "0.0"
+        },
+        "event_name": "invoice_new_comment",
+        "event_time": "2026-04-29T12:37:04.039371Z"
+    }
+}

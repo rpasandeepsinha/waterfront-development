@@ -1,0 +1,10 @@
+{
+    "event": {
+        "context": {
+            "id": 123456789,
+            "resource_type": "invoice"
+        },
+        "event_name": "invoice_new_comment",
+        "event_time": "2026-04-29T12:37:04.039371Z"
+    }
+}
