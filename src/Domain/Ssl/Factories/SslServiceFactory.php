@@ -34,6 +34,7 @@ class SslServiceFactory
             ProviderSlug::ACRONIS,
             ProviderSlug::DIRECTADMIN,
             ProviderSlug::XOLPHIN,
+            ProviderSlug::OPEN_SRS,
             ProviderSlug::PLESK => throw new RuntimeException()
         };
     }

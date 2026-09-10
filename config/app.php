@@ -59,6 +59,7 @@ use Waterfront\Infra\MicrosoftOnlineClient\Providers\MicrosoftOnlineClientServic
 use Waterfront\Infra\MollieClient\Providers\MollieClientServiceProvider;
 use Waterfront\Infra\News\Providers\NewsServiceProvider;
 use Waterfront\Infra\OpenproviderClient\Providers\OpenproviderClientProvider;
+use Waterfront\Infra\OpenSrsClient\Providers\OpenSrsClientProvider;
 use Waterfront\Infra\PaytClient\Providers\PaytClientServiceProvider;
 use Waterfront\Infra\PleskClient\Providers\PleskClientProvider;
 use Waterfront\Infra\PowerDnsClient\Providers\PowerDnsClientServiceProvider;
@@ -166,6 +167,7 @@ return [
         MollieClientServiceProvider::class,
         NewsServiceProvider::class,
         OpenproviderClientProvider::class,
+        OpenSrsClientProvider::class,
         PaytClientServiceProvider::class,
         PleskClientProvider::class,
         PowerDnsClientServiceProvider::class,

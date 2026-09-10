@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no"?>
+<!DOCTYPE OPS_envelope SYSTEM "ops.dtd">
+<OPS_envelope>
+    <header>
+        <version>0.9</version>
+    </header>
+    <body>
+        <data_block>
+            <dt_assoc>
+                <item key="protocol">XCP</item>
+                <item key="object">DOMAIN</item>
+                <item key="action">REPLY</item>
+                <item key="response_code">200</item>
+                <item key="response_text">Command successful</item>
+                <item key="is_success">1</item>
+                <item key="attributes">
+                    <dt_assoc>
+                        <item key="auto_renew">1</item>
+                        <item key="lock_state">1</item>
+                        <item key="expiredate">2027-04-22 14:14:32</item>
+                        <item key="registry_createdate">2025-04-22 14:14:32</item>
+                        <item key="registry_expiredate">2027-04-22 14:14:32</item>
+                        <item key="whois_privacy_state">enabled</item>
+                        <item key="nameserver_list">
+                            <dt_array>
+                                <item key="0">
+                                    <dt_assoc>
+                                        <item key="name">ns1.systemdns.com</item>
+                                        <item key="sortorder">1</item>
+                                    </dt_assoc>
+                                </item>
+                                <item key="1">
+                                    <dt_assoc>
+                                        <item key="name">ns2.systemdns.com</item>
+                                        <item key="sortorder">2</item>
+                                    </dt_assoc>
+                                </item>
+                            </dt_array>
+                        </item>
+                        <item key="contact_set">
+                            <dt_assoc>
+                                <item key="owner">
+                                    <dt_assoc>
+                                        <item key="first_name">Firstname</item>
+                                        <item key="last_name">Lastname</item>
+                                        <item key="email">support@sandwave.io</item>
+                                    </dt_assoc>
+                                </item>
+                                <item key="admin">
+                                    <dt_assoc>
+                                        <item key="email">support@sandwave.io</item>
+                                    </dt_assoc>
+                                </item>
+                                <item key="tech">
+                                    <dt_assoc>
+                                        <item key="email">support@sandwave.io</item>
+                                    </dt_assoc>
+                                </item>
+                                <item key="billing">
+                                    <dt_assoc>
+                                        <item key="email">support@sandwave.io</item>
+                                    </dt_assoc>
+                                </item>
+                            </dt_assoc>
+                        </item>
+                    </dt_assoc>
+                </item>
+            </dt_assoc>
+        </data_block>
+    </body>
+</OPS_envelope>

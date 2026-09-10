@@ -32,6 +32,7 @@ use Waterfront\Apps\Nova\Customers\Resources\NovaCustomerWalletResource;
 use Waterfront\Apps\Nova\Domains\Resources\NovaDomainContactAnonymousHandleResource;
 use Waterfront\Apps\Nova\Domains\Resources\NovaDomainSubscriptionResource;
 use Waterfront\Apps\Nova\Domains\Resources\NovaOpenproviderProviderCredentials;
+use Waterfront\Apps\Nova\Domains\Resources\NovaOpenSrsProviderCredentials;
 use Waterfront\Apps\Nova\Domains\Resources\NovaRtrProviderCredentials;
 use Waterfront\Apps\Nova\General\Dashboards\NovaMainDashboard;
 use Waterfront\Apps\Nova\General\Dashboards\NovaStatisticsDashboard;
@@ -283,6 +284,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
                 MenuItem::resource(NovaFerryInternalNameserverResource::class),
                 MenuItem::resource(NovaRtrProviderCredentials::class),
                 MenuItem::resource(NovaOpenproviderProviderCredentials::class),
+                MenuItem::resource(NovaOpenSrsProviderCredentials::class),
                 MenuItem::resource(NovaRedirectLegacyServerResource::class),
                 MenuItem::resource(NovaSpamExpertsClusterResource::class),
             ])->collapsable(),

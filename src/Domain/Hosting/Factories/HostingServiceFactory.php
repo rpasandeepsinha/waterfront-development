@@ -39,6 +39,7 @@ class HostingServiceFactory
             ProviderSlug::ACRONIS,
             ProviderSlug::REALTIME_REGISTER,
             ProviderSlug::XOLPHIN,
+            ProviderSlug::OPEN_SRS,
             ProviderSlug::OPEN_PROVIDER => throw new RuntimeException()
         };
     }

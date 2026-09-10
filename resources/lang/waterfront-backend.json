@@ -18283,6 +18283,56 @@
       }
     }
   },
+  "opensrs-provider-credentials.plural": {
+    "locales": {
+      "nl": {
+        "translated_string": "OpenSRS provider credentials"
+      },
+      "en": {
+        "translated_string": "OpenSRS provider credentials"
+      }
+    }
+  },
+  "opensrs-provider-credentials.singular": {
+    "locales": {
+      "nl": {
+        "translated_string": "OpenSRS provider credential"
+      },
+      "en": {
+        "translated_string": "OpenSRS provider credential"
+      }
+    }
+  },
+  "opensrs-provider-credentials.api_url": {
+    "locales": {
+      "nl": {
+        "translated_string": "API url"
+      },
+      "en": {
+        "translated_string": "API url"
+      }
+    }
+  },
+  "opensrs-provider-credentials.username": {
+    "locales": {
+      "nl": {
+        "translated_string": "Gebruikersnaam"
+      },
+      "en": {
+        "translated_string": "Username"
+      }
+    }
+  },
+  "opensrs-provider-credentials.api_key": {
+    "locales": {
+      "nl": {
+        "translated_string": "API key"
+      },
+      "en": {
+        "translated_string": "API key"
+      }
+    }
+  },
   "acronis-providers.plural": {
     "locales": {
       "nl": {

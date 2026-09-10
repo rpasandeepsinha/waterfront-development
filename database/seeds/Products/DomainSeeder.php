@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use Waterfront\Domain\Domains\Models\DomainProviderBusinessUnit;
 use Waterfront\Domain\Domains\Models\OpenproviderProviderCredentials;
+use Waterfront\Domain\Domains\Models\OpenSrsProviderCredentials;
 use Waterfront\Domain\Domains\Models\RtrProviderCredentials;
 use Waterfront\Domain\Pricing\Enums\PriceComponentType;
 use Waterfront\Domain\Pricing\Models\ProductIntroductionDiscount;
@@ -884,6 +885,13 @@ class DomainSeeder extends Seeder
         $opProvider->enabled = false;
         $opProvider->default = false;
         $opProvider->save();
+
+        $openSrsProvider = new Provider();
+        $openSrsProvider->type = ProviderType::DOMAIN;
+        $openSrsProvider->slug = ProviderSlug::OPEN_SRS;
+        $openSrsProvider->enabled = false;
+        $openSrsProvider->default = false;
+        $openSrsProvider->save();
     }
 
     private function getDefaultProviderId(): int
@@ -939,5 +947,19 @@ class DomainSeeder extends Seeder
         $argeWebOpProviderCredentials->password = 'password';
         $argeWebOpProviderCredentials->domain_business_unit_id = $argeWebBusinessUnit->id;
         $argeWebOpProviderCredentials->save();
+
+        $wfOpenSrsProviderCredentials = new OpenSrsProviderCredentials();
+        $wfOpenSrsProviderCredentials->api_url = 'http://mock:3000/opensrs';
+        $wfOpenSrsProviderCredentials->username = 'username';
+        $wfOpenSrsProviderCredentials->api_key = 'api_key';
+        $wfOpenSrsProviderCredentials->domain_business_unit_id = $wfBusinessUnit->id;
+        $wfOpenSrsProviderCredentials->save();
+
+        $argeWebOpenSrsProviderCredentials = new OpenSrsProviderCredentials();
+        $argeWebOpenSrsProviderCredentials->api_url = 'http://mock:3000/opensrs';
+        $argeWebOpenSrsProviderCredentials->username = 'username';
+        $argeWebOpenSrsProviderCredentials->api_key = 'api_key';
+        $argeWebOpenSrsProviderCredentials->domain_business_unit_id = $argeWebBusinessUnit->id;
+        $argeWebOpenSrsProviderCredentials->save();
     }
 }

@@ -10,6 +10,7 @@ use Waterfront\Domain\Customers\Models\Customer;
 use Waterfront\Domain\Domains\Models\DomainDeployment;
 use Waterfront\Domain\Domains\Models\DomainProviderBusinessUnit;
 use Waterfront\Domain\Domains\Models\OpenproviderProviderCredentials;
+use Waterfront\Domain\Domains\Models\OpenSrsProviderCredentials;
 use Waterfront\Domain\Domains\Models\RtrProviderCredentials;
 use Waterfront\Domain\Products\Enums\ProductGroupType;
 use Waterfront\Domain\Providers\Enums\ProviderSlug;
@@ -21,11 +22,12 @@ use Waterfront\Infra\RtrClient\Services\Enums\DomainStatus;
 
 class DomainDeploymentRepository
 {
-    public function getDomainProviderCredentials(ProviderSlug $providerSlug, DomainProviderBusinessUnit $businessUnit): RtrProviderCredentials|OpenproviderProviderCredentials
+    public function getDomainProviderCredentials(ProviderSlug $providerSlug, DomainProviderBusinessUnit $businessUnit): RtrProviderCredentials|OpenproviderProviderCredentials|OpenSrsProviderCredentials
     {
         $credentialQueryBuilder = match ($providerSlug) {
             ProviderSlug::REALTIME_REGISTER => RtrProviderCredentials::query(),
             ProviderSlug::OPEN_PROVIDER => OpenproviderProviderCredentials::query(),
+            ProviderSlug::OPEN_SRS => OpenSrsProviderCredentials::query(),
             default => throw new InvalidArgumentException(
                 sprintf(
                     'Invalid provider type [%s] for domain provider credentials',

@@ -9,9 +9,11 @@ use RuntimeException;
 use Waterfront\Domain\Domains\Interfaces\DomainDriverInterface;
 use Waterfront\Domain\Domains\Models\DomainProviderBusinessUnit;
 use Waterfront\Domain\Domains\Models\OpenproviderProviderCredentials;
+use Waterfront\Domain\Domains\Models\OpenSrsProviderCredentials;
 use Waterfront\Domain\Domains\Models\RtrProviderCredentials;
 use Waterfront\Domain\Domains\Repositories\DomainDeploymentRepository;
 use Waterfront\Domain\Domains\Services\OpenproviderService;
+use Waterfront\Domain\Domains\Services\OpenSrsService;
 use Waterfront\Domain\Placeholder\Services\DomainPlaceholderService;
 use Waterfront\Domain\Products\Models\Product;
 use Waterfront\Domain\Products\Models\ProductSpec;
@@ -21,6 +23,7 @@ use Waterfront\Domain\Providers\Models\Provider;
 use Waterfront\Domain\Provision\Enums\ProvisionProvider;
 use Waterfront\Domain\Provision\Enums\ProvisionType;
 use Waterfront\Infra\OpenproviderClient\Factories\OpenproviderClientFactory;
+use Waterfront\Infra\OpenSrsClient\Factories\OpenSrsClientFactory;
 use Waterfront\Infra\RtrClient\Factories\RtrClientFactory;
 use Waterfront\Infra\RtrClient\Services\RtrService;
 use Waterfront\Support\Enums\LoggingContextKeys;
@@ -36,6 +39,8 @@ class DomainServiceFactory
         private readonly DomainPlaceholderService $placeholderService,
         private readonly DomainDeploymentRepository $domainDeploymentRepository,
         private readonly LoggerInterface $logger,
+        private readonly OpenSrsService $openSrsService,
+        private readonly OpenSrsClientFactory $openSrsClientFactory,
     ) {
     }
 
@@ -44,6 +49,7 @@ class DomainServiceFactory
         return match ($providerSlug) {
             ProviderSlug::REALTIME_REGISTER => $this->getRtrService($businessUnit),
             ProviderSlug::OPEN_PROVIDER => $this->getOpenproviderService($businessUnit),
+            ProviderSlug::OPEN_SRS => $this->getOpenSrsService($businessUnit),
             ProviderSlug::PLACEHOLDER => $this->placeholderService,
             // Should never happen, if it does blow up everything.
             ProviderSlug::BASEKIT,
@@ -112,6 +118,36 @@ class DomainServiceFactory
         return $this->rtrService
             ->setHandle($credentials->handle)
             ->setClient($rtrClient);
+    }
+
+    private function getOpenSrsService(?DomainProviderBusinessUnit $businessUnit): OpenSrsService
+    {
+        /**
+         * If no business unit is set for a DomainDeployment with OpenSRS as provider
+         * we will use the environment credentials bound in the OpenSrsClientProvider.
+         */
+        if ($businessUnit === null) {
+            return $this->openSrsService->setClient($this->openSrsClientFactory->create());
+        }
+
+        $this->logger->debug(
+            sprintf('Updating OpenSRS client to domain provider business unit "%s"', $businessUnit->slug),
+            [
+                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
+                LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::OPENSRS,
+                LoggingContextKeys::META => [
+                    'business_unit' => $businessUnit,
+                ],
+            ]
+        );
+
+        $credentials = $this->domainDeploymentRepository->getDomainProviderCredentials(ProviderSlug::OPEN_SRS, $businessUnit);
+
+        Assert::isInstanceOf($credentials, OpenSrsProviderCredentials::class);
+
+        $client = $this->openSrsClientFactory->create($credentials);
+
+        return $this->openSrsService->setClient($client);
     }
 
     private function getOpenproviderService(?DomainProviderBusinessUnit $businessUnit): OpenproviderService

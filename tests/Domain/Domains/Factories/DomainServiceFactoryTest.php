@@ -13,6 +13,7 @@ use RealtimeRegister\RealtimeRegister;
 use ReflectionClass;
 use Tests\Factories\DomainProviderBusinessUnitFactory;
 use Tests\Factories\OpenproviderProviderCredentialsFactory;
+use Tests\Factories\OpenSrsProviderCredentialsFactory;
 use Tests\Factories\ProductFactory;
 use Tests\Factories\ProductGroupFactory;
 use Tests\Factories\ProductSpecFactory;
@@ -22,6 +23,7 @@ use Tests\IntegrationTestCase;
 use Waterfront\Domain\Domains\Factories\DomainServiceFactory;
 use Waterfront\Domain\Domains\Repositories\DomainDeploymentRepository;
 use Waterfront\Domain\Domains\Services\OpenproviderService;
+use Waterfront\Domain\Domains\Services\OpenSrsService;
 use Waterfront\Domain\Placeholder\Services\DomainPlaceholderService;
 use Waterfront\Domain\Providers\Enums\ProviderSlug;
 use Waterfront\Domain\Providers\Enums\ProviderType;
@@ -29,6 +31,7 @@ use Waterfront\Domain\Provision\Enums\ProvisionProvider;
 use Waterfront\Domain\Provision\Enums\ProvisionType;
 use Waterfront\Infra\Configuration\ConfigurationInterface;
 use Waterfront\Infra\OpenproviderClient\Factories\OpenproviderClientFactory;
+use Waterfront\Infra\OpenSrsClient\Factories\OpenSrsClientFactory;
 use Waterfront\Infra\RtrClient\Factories\RtrClientFactory;
 use Waterfront\Infra\RtrClient\Services\RtrService;
 use Waterfront\Support\Enums\LoggingContextKeys;
@@ -57,6 +60,15 @@ class DomainServiceFactoryTest extends IntegrationTestCase
     {
         $this->expectNotToPerformAssertions();
         $this->domainServiceFactory->driver(ProviderSlug::OPEN_PROVIDER);
+    }
+
+    #[Test]
+    public function driverResolvesOpenSrs(): void
+    {
+        self::assertInstanceOf(
+            OpenSrsService::class,
+            $this->domainServiceFactory->driver(ProviderSlug::OPEN_SRS),
+        );
     }
 
     #[Test]
@@ -135,6 +147,8 @@ class DomainServiceFactoryTest extends IntegrationTestCase
             self::createStub(DomainPlaceholderService::class),
             $domainDeploymentRepository,
             self::createStub(LoggerInterface::class),
+            self::createStub(OpenSrsService::class),
+            self::createStub(OpenSrsClientFactory::class),
         );
 
         $domainServiceFactory->driver($providerSlug);
@@ -174,7 +188,9 @@ class DomainServiceFactoryTest extends IntegrationTestCase
             self::createStub(OpenproviderClientFactory::class),
             self::createStub(DomainPlaceholderService::class),
             $domainDeploymentRepository,
-            self::createStub(LoggerInterface::class)
+            self::createStub(LoggerInterface::class),
+            self::createStub(OpenSrsService::class),
+            self::createStub(OpenSrsClientFactory::class),
         );
 
         $factory->driver($providerSlug);
@@ -243,7 +259,70 @@ class DomainServiceFactoryTest extends IntegrationTestCase
             $openproviderClientFactory,
             self::createStub(DomainPlaceholderService::class),
             $domainDeploymentRepository,
-            $logger
+            $logger,
+            self::createStub(OpenSrsService::class),
+            self::createStub(OpenSrsClientFactory::class),
+        );
+
+        $domainServiceFactory->driver($providerSlug);
+        $domainServiceFactory->driver($providerSlug, $businessUnit);
+        $domainServiceFactory->driver($providerSlug);
+    }
+
+    #[Test]
+    public function getDriverWithOpenSrsBusinessUnit(): void
+    {
+        $providerSlug = ProviderSlug::OPEN_SRS;
+        $businessUnit = new DomainProviderBusinessUnitFactory()->waterfront()->makeOne();
+        $credentialsDto = new OpenSrsProviderCredentialsFactory()->makeOne();
+
+        $domainDeploymentRepository = self::createMock(DomainDeploymentRepository::class);
+
+        $domainDeploymentRepository->expects(self::once())
+            ->method('getDomainProviderCredentials')
+            ->with($providerSlug, $businessUnit)
+            ->willReturn($credentialsDto);
+
+        $openSrsClientFactory = self::createMock(OpenSrsClientFactory::class);
+
+        $openSrsClientFactory->expects(self::exactly(3))
+            ->method('create')
+            ->with(
+                ...self::withConsecutive(
+                    [null],
+                    [$credentialsDto],
+                    [null],
+                )
+            );
+
+        $logger = self::createMock(LoggerInterface::class);
+
+        $logger->expects(self::once())
+            ->method('debug')
+            ->with(
+                sprintf(
+                    'Updating OpenSRS client to domain provider business unit "%s"',
+                    $businessUnit->slug
+                ),
+                [
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
+                    LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::OPENSRS,
+                    LoggingContextKeys::META                 => [
+                        'business_unit' => $businessUnit,
+                    ],
+                ]
+            );
+
+        $domainServiceFactory = new DomainServiceFactory(
+            self::createStub(RtrService::class),
+            self::createStub(RtrClientFactory::class),
+            self::createStub(OpenproviderService::class),
+            self::createStub(OpenproviderClientFactory::class),
+            self::createStub(DomainPlaceholderService::class),
+            $domainDeploymentRepository,
+            $logger,
+            self::createStub(OpenSrsService::class),
+            $openSrsClientFactory,
         );
 
         $domainServiceFactory->driver($providerSlug);

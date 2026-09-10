@@ -10,6 +10,7 @@ enum ProvisionProvider: string
     case DIRECTADMIN = 'directadmin';
     case RTR = 'realtimeregister';
     case OPENPROVIDER = 'openprovider';
+    case OPENSRS = 'opensrs';
     case GANDI = 'gandi';
     case MICROSOFT_ONLINE = 'microsoft_online';
     case MICROSOFT_GRAPH = 'microsoft_graph';
