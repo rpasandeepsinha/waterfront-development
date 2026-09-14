@@ -41,8 +41,10 @@ use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\CreateCustomer\Result as
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\DeleteCustomer\Parameters as CustomerDeleteParameters;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\DeleteCustomer\Result as CustomerDeleteResult;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\DeleteWebsite\Parameters as WebsiteDeleteParameters;
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailForwardingCreate\Parameters as EmailForwardingCreateParameters;
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailGetAccountSettings\Parameters as EmailGetAccountSettingsParameters;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailForwardingCreate\Parameters as EmailForwardingCreateParameters
+;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailGetAccountSettings\Parameters as EmailGetAccountSettingsParameters
+;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailSetCatchAll\Parameters as EmailSetCatchAllParameters;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Parameters;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Result;
@@ -121,15 +123,16 @@ class PleskHostingService implements HostingServiceInterface
             if ($result->getStatus() !== Result::STATUS_OK) {
                 throw new PleskServerException(sprintf('Server is not valid. [%s]', $result->getErrorMessage()));
             }
+
             return true;
-        } catch (GuzzleException | PleskClientException | PleskServerException $exception) {
+        } catch (GuzzleException|PleskClientException|PleskServerException $exception) {
             $this->logger->notice(
                 'Validation of hosting server failed with server: [{server.id}] - {server.name}',
                 [
                     LoggingContextKeys::SERVER_ID => $server->id,
                     LoggingContextKeys::SERVER_HOSTNAME => $server->hostname,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return false;
@@ -169,7 +172,10 @@ class PleskHostingService implements HostingServiceInterface
         $createCustomerResult = $this->customerClient->createCustomer($parameters);
 
         if ($createCustomerResult->getStatus() === CreateCustomerResult::STATUS_ERROR) {
-            throw new RuntimeException($createCustomerResult->getErrorMessage() ?? '', $createCustomerResult->getErrorCode() ?? 0);
+            throw new RuntimeException(
+                $createCustomerResult->getErrorMessage() ?? '',
+                $createCustomerResult->getErrorCode() ?? 0,
+            );
         }
 
         return $createCustomerResult;
@@ -191,7 +197,7 @@ class PleskHostingService implements HostingServiceInterface
         $customerConfig = Arr::get(
             $this->getUserConfig($username, $server),
             'response_body.customer.get',
-            []
+            [],
         );
 
         return $customerConfig;
@@ -211,11 +217,13 @@ class PleskHostingService implements HostingServiceInterface
      */
     public function createPackage(Parameters $parameters): Result
     {
-        // TODO: RELAPP-199: Use a job or something to take care of the hosting creation.
         $createPackageResult = $this->hostingPackageClient->createHosting($parameters);
 
         if ($createPackageResult->getStatus() === Result::STATUS_ERROR) {
-            throw new RuntimeException($createPackageResult->getErrorMessage() ?? '', $createPackageResult->getErrorCode() ?? 0);
+            throw new RuntimeException(
+                $createPackageResult->getErrorMessage() ?? '',
+                $createPackageResult->getErrorCode() ?? 0,
+            );
         }
 
         return $createPackageResult;
@@ -230,7 +238,7 @@ class PleskHostingService implements HostingServiceInterface
         array $specs,
         ?Server $server = null,
         ?string $forwardingUrl = null,
-        ?string $domain = null
+        ?string $domain = null,
     ): array {
         $return = [];
         $generatingFakeDomain = is_null($domain);
@@ -253,10 +261,6 @@ class PleskHostingService implements HostingServiceInterface
             $domain = $username . '.' . $server->hostname;
         }
 
-        /**
-         * todo : Refactor this in such a way that we no longer have to pass the server object and credentials.
-         *        see ticket https://yh-jira.atlassian.net/browse/WATER-2512.
-         */
         $this->customerClient->setServer($server);
         $this->hostingPackageClient->setServer($server);
 
@@ -270,12 +274,12 @@ class PleskHostingService implements HostingServiceInterface
                     'contact_email' => $contactEmail,
                     'customer_email' => $customerEmail,
                 ],
-            ]
+            ],
         );
 
         $hasWebsiteSpec = $this->productSpecRepository->findBySpecification(
             $subscription->product,
-            ProductSpecName::HOSTING_HAS_WEBSITE->value
+            ProductSpecName::HOSTING_HAS_WEBSITE->value,
         );
         $isMailOnlyHosting = $hasWebsiteSpec?->value === '0';
 
@@ -297,7 +301,7 @@ class PleskHostingService implements HostingServiceInterface
                 'notify' => 'yes',
                 'package' => $currentServicePlan,
                 'mailOnlyHosting' => $isMailOnlyHosting,
-            ]
+            ],
         );
 
         if (! $this->hostingPackageClient->servicePlanExists($parameters)) {
@@ -311,15 +315,13 @@ class PleskHostingService implements HostingServiceInterface
         }
 
         if ($hostingDeployment === null) {
-            // N.B. This saves the plesk customer password as plaintext in the database!!
-            // TODO: Get a login token and save that instead.
             $hostingDeployment = $this->deploymentRepository->create(
                 [
                     'plesk_customer_username' => $parameters->getUsername(),
                     'plesk_customer_id' => $parameters->getCustomerId(),
                 ],
                 $subscriptionUuid,
-                $server
+                $server,
             );
         } else {
             $hostingDeployment->update([
@@ -399,7 +401,7 @@ class PleskHostingService implements HostingServiceInterface
                     'contact_email' => $contactEmail,
                     'customer_email' => $customerEmail,
                 ],
-            ]
+            ],
         );
 
         $parameters = Parameters::create(
@@ -420,7 +422,7 @@ class PleskHostingService implements HostingServiceInterface
                 'notify' => 'yes',
                 'package' => $currentServicePlan,
                 'mailOnlyHosting' => true,
-            ]
+            ],
         );
 
         if (! $this->hostingPackageClient->servicePlanExists($parameters)) {
@@ -450,7 +452,7 @@ class PleskHostingService implements HostingServiceInterface
                     'password' => $parameters->getPassword(),
                     'domain' => $parameters->getDomain(),
                     'ipv4_address' => $parameters->getIpv4Address(),
-                ]
+                ],
             );
 
             $recipient = new Recipient($contactPersonName, $contactEmail, $customerUuid);
@@ -473,14 +475,14 @@ class PleskHostingService implements HostingServiceInterface
         Server $server,
         string $domain,
         string $sourceEmailAddressUsername,
-        string $destinationEmailAddresses
+        string $destinationEmailAddresses,
     ): string {
         $parameters = EmailForwardingCreateParameters::create(
             [
                 'domain' => $domain,
                 'sourceEmailAddressUsername' => $sourceEmailAddressUsername,
                 'destinationEmailAddresses' => [$destinationEmailAddresses],
-            ]
+            ],
         );
 
         $this->hostingPackageClient->setServer($server);
@@ -507,7 +509,10 @@ class PleskHostingService implements HostingServiceInterface
     {
         $this->hostingPackageClient->setServer($server);
         $siteId = $this->hostingPackageClient->getSiteIdByDomain($domain);
-        return $this->hostingPackageClient->getExistingEmailAccounts(EmailGetAccountSettingsParameters::create(['siteId' => $siteId]))->getEmailAccounts();
+
+        return $this->hostingPackageClient
+            ->getExistingEmailAccounts(EmailGetAccountSettingsParameters::create(['siteId' => $siteId]))
+            ->getEmailAccounts();
     }
 
     public function getUserStats(Parameters $parameters): UserStatistics
@@ -524,19 +529,23 @@ class PleskHostingService implements HostingServiceInterface
         /** @var array<string, string> $stats */
         $stats = Arr::get($result, 'response_body.customer.get.result.data.stat', []);
         $mailAccounts = $this->getMailAccounts($server, $parameters->getDomain());
-        $mailDiskSpace = array_reduce($mailAccounts, fn (int $usage, MailAccount $account): int => $usage + $account->mailboxUsage, 0);
+        $mailDiskSpace = array_reduce(
+            $mailAccounts,
+            fn (int $usage, MailAccount $account): int => $usage + $account->mailboxUsage,
+            0,
+        );
 
         return new UserStatistics(
             activeDomains: (int) $stats['active_domains'],
             subdomains: (int) $stats['subdomains'],
-            diskSpaceInMb: (int) (round((int) $stats['disk_space']) / 1024 / 1024),
-            mailDiskSpaceInMb: (int) round($mailDiskSpace / 1024 / 1024),
+            diskSpaceInMb: (int) ((round((int) $stats['disk_space']) / 1024) / 1024),
+            mailDiskSpaceInMb: (int) round(($mailDiskSpace / 1024) / 1024),
             mailBoxes: (int) $stats['postboxs'],
             mailLists: (int) $stats['mail_lists'],
             mailAutoResponders: (int) $stats['mail_resps'],
             redirects: (int) $stats['redirects'],
             databases: (int) $stats['data_bases'],
-            traffic: (int) $stats['traffic']
+            traffic: (int) $stats['traffic'],
         );
     }
 
@@ -551,7 +560,7 @@ class PleskHostingService implements HostingServiceInterface
                 'Install certificate',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
         }
 
@@ -574,7 +583,7 @@ class PleskHostingService implements HostingServiceInterface
                 'Install certificate',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return 'error';
@@ -604,15 +613,16 @@ class PleskHostingService implements HostingServiceInterface
                 sprintf(
                     'The hosting deployment for domain %s could not be terminated because it does not exist. SubscriptionInfo uuid : %s',
                     $domain,
-                    $subscriptionUuid
+                    $subscriptionUuid,
                 ),
                 [
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscriptionUuid,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::PLESK,
-                ]
+                ],
             );
+
             return true;
         }
 
@@ -643,7 +653,7 @@ class PleskHostingService implements HostingServiceInterface
                 LoggingContextKeys::META => [
                     'plesk_customer_username' => $hostingDeployment->plesk_customer_username,
                 ],
-            ]
+            ],
         );
 
         $websiteDeleteResult = $this->hostingPackageClient->deleteWebsite($websiteDeleteParameters);
@@ -661,11 +671,12 @@ class PleskHostingService implements HostingServiceInterface
                     LoggingContextKeys::META => [
                         'error_message' => $websiteDeleteResult->getErrorMessage(),
                     ],
-                ]
+                ],
             );
 
             return false;
         }
+
         $this->logger->info(
             sprintf(
                 'Deleted hosting for domain %s, now checking if their are any webspaces left',
@@ -682,7 +693,7 @@ class PleskHostingService implements HostingServiceInterface
                 LoggingContextKeys::META => [
                     'plesk_customer_username' => $hostingDeployment->plesk_customer_username,
                 ],
-            ]
+            ],
         );
 
         if (! $this->userHasWebspaces($hostingDeployment)) {
@@ -702,7 +713,7 @@ class PleskHostingService implements HostingServiceInterface
                     LoggingContextKeys::META => [
                         'plesk_customer_username' => $hostingDeployment->plesk_customer_username,
                     ],
-                ]
+                ],
             );
 
             //Remove the customer
@@ -711,7 +722,7 @@ class PleskHostingService implements HostingServiceInterface
             $parameters = CustomerDeleteParameters::create(
                 [
                     'customerLogin' => $hostingDeployment->plesk_customer_username,
-                ]
+                ],
             );
 
             $result = $this->customerClient->deleteCustomer($parameters);
@@ -730,7 +741,7 @@ class PleskHostingService implements HostingServiceInterface
                         LoggingContextKeys::META => [
                             'error_message' => $websiteDeleteResult->getErrorMessage(),
                         ],
-                    ]
+                    ],
                 );
 
                 return false;
@@ -753,7 +764,7 @@ class PleskHostingService implements HostingServiceInterface
                 LoggingContextKeys::META => [
                     'error_message' => $websiteDeleteResult->getErrorMessage(),
                 ],
-            ]
+            ],
         );
 
         $this->jobDispatcher->dispatch(new RemoveDomainFromSpamFilter($domain, $spamExpertsCluster));
@@ -774,7 +785,7 @@ class PleskHostingService implements HostingServiceInterface
         $parameters = CustomerDeleteParameters::create(
             [
                 'customerLogin' => $hostingDeployment->plesk_customer_username,
-            ]
+            ],
         );
 
         $result = $this->customerClient->deleteCustomer($parameters);
@@ -785,7 +796,7 @@ class PleskHostingService implements HostingServiceInterface
                 [
                     LoggingContextKeys::RESPONSE_CODE => $result->getErrorCode(),
                     LoggingContextKeys::RESPONSE_DATA => $result->getErrorMessage(),
-                ]
+                ],
             );
 
             return Result::STATUS_ERROR;
@@ -805,18 +816,21 @@ class PleskHostingService implements HostingServiceInterface
     public function resetEmailPassword(Server $server, string $mailAccount, string $domain, string $password): Result
     {
         $this->hostingPackageClient->setServer($server);
+
         return $this->hostingPackageClient->resetEmailPassword($domain, $mailAccount, $password)->getResult();
     }
 
     public function deleteEmailAccount(Server $server, string $domain, string $emailAccount): Result
     {
         $this->hostingPackageClient->setServer($server);
+
         return $this->hostingPackageClient->deleteEmailAccount($domain, $emailAccount)->getResult();
     }
 
     public function createEmailAccount(Server $server, string $mailAccount, string $domain, string $password): Result
     {
         $this->hostingPackageClient->setServer($server);
+
         return $this->hostingPackageClient->createEmailAccount($domain, $mailAccount, $password)->getResult();
     }
 
@@ -832,7 +846,7 @@ class PleskHostingService implements HostingServiceInterface
                 [
                     LoggingContextKeys::RESPONSE_CODE => 422,
                     LoggingContextKeys::RESPONSE_DATA => $result->getErrorMessage(),
-                ]
+                ],
             );
 
             return $result;
@@ -847,16 +861,19 @@ class PleskHostingService implements HostingServiceInterface
 
         $sourceHasWebsite = $this->productSpecRepository->getStringValueOfSpecification(
             $oldProduct,
-            ProductSpecName::HOSTING_HAS_WEBSITE
+            ProductSpecName::HOSTING_HAS_WEBSITE,
         );
 
         $targetHasWebsite = $this->productSpecRepository->getStringValueOfSpecification(
             $newProduct,
-            ProductSpecName::HOSTING_HAS_WEBSITE
+            ProductSpecName::HOSTING_HAS_WEBSITE,
         );
 
         // If this is a migrated subscription we should NEVER delete the website (in the changeServicePlanSwitchBetweenHostingType function)
-        if ($deployment->subscription->migratedSubscriptions()->exists() || $this->hostingPackageClient->isServicePlanChangeable($domain, $servicePlanGuuid)) {
+        if (
+            $deployment->subscription->migratedSubscriptions()->exists()
+            || $this->hostingPackageClient->isServicePlanChangeable($domain, $servicePlanGuuid)
+        ) {
             $result = $this->hostingPackageClient->changeServicePlan($domain, $servicePlanGuuid);
         } else {
             $parameters = Parameters::create(
@@ -877,10 +894,14 @@ class PleskHostingService implements HostingServiceInterface
                     'notify' => 'yes',
                     'package' => $deployment->subscription->product->slug,
                     'customer_id' => (string) $deployment->plesk_customer_id,
-                ]
+                ],
             );
 
-            $result = $this->hostingPackageClient->changeServicePlanSwitchBetweenHostingType($parameters, $domain, $servicePlanGuuid);
+            $result = $this->hostingPackageClient->changeServicePlanSwitchBetweenHostingType(
+                $parameters,
+                $domain,
+                $servicePlanGuuid,
+            );
         }
 
         if ($sourceHasWebsite === '0' && $targetHasWebsite === '1') {
@@ -890,7 +911,7 @@ class PleskHostingService implements HostingServiceInterface
                     [
                         LoggingContextKeys::SUBSCRIPTION_UUID => $deployment->subscription->uuid,
                         LoggingContextKeys::DOMAIN_NAME => $domain,
-                    ]
+                    ],
                 );
             }
 
@@ -903,7 +924,7 @@ class PleskHostingService implements HostingServiceInterface
                         LoggingContextKeys::DOMAIN_NAME => $domain,
                         LoggingContextKeys::RESPONSE_CODE => $syncResult->getErrorCode(),
                         LoggingContextKeys::RESPONSE_DATA => $syncResult->getErrorMessage(),
-                    ]
+                    ],
                 );
                 $result->setStatus(Result::STATUS_ERROR);
                 $result->setErrorCode($syncResult->getErrorCode() ?? 0);
@@ -920,7 +941,7 @@ class PleskHostingService implements HostingServiceInterface
             [
                 'domain' => $domain,
                 'destinationEmailAddress' => $destinationEmailAddresses,
-            ]
+            ],
         );
 
         $this->hostingPackageClient->setServer($server);
@@ -931,7 +952,7 @@ class PleskHostingService implements HostingServiceInterface
 
     public function coupleDomainToExistingHosting(
         DomainDeployment $domainDeployment,
-        HostingDeployment $hostingDeployment
+        HostingDeployment $hostingDeployment,
     ): bool {
         $pleskUsername = $hostingDeployment->plesk_customer_username;
         $domain = $domainDeployment->subscription->domain;
@@ -948,7 +969,7 @@ class PleskHostingService implements HostingServiceInterface
                     'server' => $hostingDeployment->server?->domain,
                     'server_id' => $hostingDeployment->server?->id,
                 ],
-            ]
+            ],
         );
 
         Assert::stringNotEmpty($pleskUsername);
@@ -985,7 +1006,7 @@ class PleskHostingService implements HostingServiceInterface
                     'server' => $hostingDeployment->server->domain,
                     'server_id' => $hostingDeployment->server->id,
                 ],
-            ]
+            ],
         );
 
         return false;
@@ -996,7 +1017,7 @@ class PleskHostingService implements HostingServiceInterface
         $changes = $this->dnsZoneService->getHostingDnsRecords(
             $domain,
             $server->getIpv4(),
-            $server->getIpv6()
+            $server->getIpv6(),
         );
 
         $this->eventDispatcher->dispatch(new ReplaceParkingAndUpdateDns($domain, $changes));
@@ -1010,7 +1031,13 @@ class PleskHostingService implements HostingServiceInterface
         $ipv4HostMail = $mailOnlyServer->getIpv4();
         $ipv6HostMail = $mailOnlyServer->getIpv6();
 
-        $changes = $this->dnsZoneService->getExternalHostingDnsRecords($domain, $ipv4Host, $ipv6Host, $ipv4HostMail, $ipv6HostMail);
+        $changes = $this->dnsZoneService->getExternalHostingDnsRecords(
+            $domain,
+            $ipv4Host,
+            $ipv6Host,
+            $ipv4HostMail,
+            $ipv6HostMail,
+        );
 
         $this->eventDispatcher->dispatch(new ReplaceParkingAndUpdateDns($domain, $changes));
     }
@@ -1032,8 +1059,8 @@ class PleskHostingService implements HostingServiceInterface
                     'Could not remove domaindeployment %d (%s) from Plesk. RemoveSite failed with response: %s',
                     $domainDeployment->id,
                     $domainDeployment->subscription->domain,
-                    $result->getErrorMessage()
-                )
+                    $result->getErrorMessage(),
+                ),
             );
         }
     }
@@ -1069,7 +1096,10 @@ class PleskHostingService implements HostingServiceInterface
             ->first();
 
         if ($maxDomainString === null) {
-            throw new HostingException(sprintf('Could not retrieve max domains from Plesk for user %s.', $pleskUsername));
+            throw new HostingException(sprintf(
+                'Could not retrieve max domains from Plesk for user %s.',
+                $pleskUsername,
+            ));
         }
 
         $maxDomains = intval($maxDomainString);
@@ -1079,7 +1109,7 @@ class PleskHostingService implements HostingServiceInterface
             domains: $domainsOnServer,
             domainsInUse: $domainsInUse,
             domainsAvailable: $maxDomains - $domainsInUse,
-            maxDomains: $maxDomains
+            maxDomains: $maxDomains,
         );
     }
 
@@ -1087,7 +1117,7 @@ class PleskHostingService implements HostingServiceInterface
         string $username,
         Server $server,
         string $ipAddress,
-        bool $redirectToMail = false
+        bool $redirectToMail = false,
     ): string {
         return $this->pleskGetSsoUrlAction->execute($server, $username, $ipAddress, $redirectToMail);
     }
@@ -1105,8 +1135,8 @@ class PleskHostingService implements HostingServiceInterface
             throw new InvalidArgumentException(
                 sprintf(
                     'Server is not set for subscription uuid: %s',
-                    $hostingDeployment->subscription->uuid
-                )
+                    $hostingDeployment->subscription->uuid,
+                ),
             );
         }
 
@@ -1126,8 +1156,8 @@ class PleskHostingService implements HostingServiceInterface
             throw new InvalidArgumentException(
                 sprintf(
                     'Server is not set for subscription uuid: %s',
-                    $hostingDeployment->subscription->uuid
-                )
+                    $hostingDeployment->subscription->uuid,
+                ),
             );
         }
 
@@ -1141,9 +1171,7 @@ class PleskHostingService implements HostingServiceInterface
         $params = new Parameters();
         $params->setUsername($identifier);
 
-        return $this->customerClient
-            ->fetchCustomer($params)
-            ->toArray();
+        return $this->customerClient->fetchCustomer($params)->toArray();
     }
 
     /**
@@ -1170,7 +1198,7 @@ class PleskHostingService implements HostingServiceInterface
             $error = sprintf(
                 'getUserConfigAsDto error: %s for identifier: %s',
                 $space->getErrorMessage(),
-                $identifier
+                $identifier,
             );
 
             throw new PleskClientException($error);
@@ -1183,7 +1211,10 @@ class PleskHostingService implements HostingServiceInterface
         // turn be coupled to a single subscription with a single plan
         // so it's safe in our use case to take the first.
         /** @var string|null $planGuid */
-        $planGuid = Arr::get($space->getResponseBody(), 'webspace.get.result.data.subscriptions.subscription.plan.plan-guid');
+        $planGuid = Arr::get(
+            $space->getResponseBody(),
+            'webspace.get.result.data.subscriptions.subscription.plan.plan-guid',
+        );
         $plan = 'unknown';
 
         if ($planGuid !== null) {
@@ -1235,14 +1266,14 @@ class PleskHostingService implements HostingServiceInterface
             maxAmountMailAccounts: $maxMailAccounts,
             maxAmountDatabases: $maxDb,
             // max network traffic per month
-            maxNetworkTrafficInMB: $maxNetwork > -1 ? (int) round($maxNetwork / 1024 / 1024) : $maxNetwork,
+            maxNetworkTrafficInMB: $maxNetwork > -1 ? (int) round(($maxNetwork / 1024) / 1024) : $maxNetwork,
             // base maxDisk in bytes. DTO needs megabytes
-            maxDiskSpaceInMB: $maxDisk > -1 ? (int) round($maxDisk / 1024 / 1024) : $maxDisk,
+            maxDiskSpaceInMB: $maxDisk > -1 ? (int) round(($maxDisk / 1024) / 1024) : $maxDisk,
             domain: $defaultDomain,
         );
     }
 
-    public function getDefaultDomain(string $username, Server $server): string|null
+    public function getDefaultDomain(string $username, Server $server): ?string
     {
         $this->hostingPackageClient->setServer($server);
         $space = $this->hostingPackageClient->getWebspaces($username);
@@ -1251,7 +1282,7 @@ class PleskHostingService implements HostingServiceInterface
             $error = sprintf(
                 'getDefaultDomain error: %s for identifier: %s',
                 $space->getErrorMessage(),
-                $username
+                $username,
             );
 
             throw new PleskClientException($error);
@@ -1282,11 +1313,15 @@ class PleskHostingService implements HostingServiceInterface
 
         $password = $this->pleskPassword->generatePassword();
 
-        return $this->hostingPackageClient->setFtpPassword(
-            domain: $hostingDeployment->subscription->domain,
-            user: $hostingDeployment->plesk_customer_username,
-            password: $password,
-        )->getStatus() === Result::STATUS_OK;
+        return (
+            $this->hostingPackageClient
+                ->setFtpPassword(
+                    domain: $hostingDeployment->subscription->domain,
+                    user: $hostingDeployment->plesk_customer_username,
+                    password: $password,
+                )
+                ->getStatus() === Result::STATUS_OK
+        );
     }
 
     public function getPackageOnServer(Server $server, string $packageName): array
@@ -1339,15 +1374,18 @@ class PleskHostingService implements HostingServiceInterface
             maxAmountMailAccounts: $maxMailAccounts,
             maxAmountDatabases: $maxDb,
             // max network traffic per month
-            maxNetworkTrafficInMB: $maxNetwork > -1 ? (int) round($maxNetwork / 1024 / 1024) : $maxNetwork,
+            maxNetworkTrafficInMB: $maxNetwork > -1 ? (int) round(($maxNetwork / 1024) / 1024) : $maxNetwork,
             // base maxDisk in bytes. DTO needs megabytes
-            maxDiskSpaceInMB: $maxDisk > -1 ? (int) round($maxDisk / 1024 / 1024) : $maxDisk,
+            maxDiskSpaceInMB: $maxDisk > -1 ? (int) round(($maxDisk / 1024) / 1024) : $maxDisk,
             package: $packageName,
         );
     }
 
-    public function isUsingHostingServerAsNameserver(string|null $ipv4HostingServer, string|null $ipv6HostingServer, SiteConfigInterface $userConfig): bool
-    {
+    public function isUsingHostingServerAsNameserver(
+        ?string $ipv4HostingServer,
+        ?string $ipv6HostingServer,
+        SiteConfigInterface $userConfig,
+    ): bool {
         $domain = $userConfig->getDomain();
 
         if ($domain === null) {
@@ -1362,13 +1400,12 @@ class PleskHostingService implements HostingServiceInterface
 
         $nsIPAddresses = array_map(
             fn (array $record): string => $this->dnsHelper->getHostByName($record['target']),
-            $nsRecords
+            $nsRecords,
         );
 
-        return new Collection($nsIPAddresses)
-            ->contains(
-                fn ($nsIPAddress): bool => $nsIPAddress === $ipv4HostingServer || $nsIPAddress === $ipv6HostingServer
-            );
+        return new Collection($nsIPAddresses)->contains(
+            fn ($nsIPAddress): bool => $nsIPAddress === $ipv4HostingServer || $nsIPAddress === $ipv6HostingServer,
+        );
     }
 
     public function getCustomerDomainsForDkim(HostingDeployment $hostingDeployment): array
@@ -1381,10 +1418,7 @@ class PleskHostingService implements HostingServiceInterface
 
         $domains = [];
         foreach ($result->domains as $domain) {
-            if (
-                $domain->type === self::DOMAIN_TYPE_ALIAS
-                || $domain->type === self::DOMAIN_TYPE_SUBDOMAIN
-            ) {
+            if ($domain->type === self::DOMAIN_TYPE_ALIAS || $domain->type === self::DOMAIN_TYPE_SUBDOMAIN) {
                 continue;
             }
 
@@ -1399,6 +1433,7 @@ class PleskHostingService implements HostingServiceInterface
         Assert::notNull($hostingDeployment->server);
 
         $this->hostingPackageClient->setServer($hostingDeployment->server);
+
         return $this->hostingPackageClient->isDkimEnabled($domain);
     }
 
@@ -1417,7 +1452,10 @@ class PleskHostingService implements HostingServiceInterface
         $this->hostingPackageClient->setServer($hostingDeployment->server);
         $result = $this->hostingPackageClient->getDnsRecords($domain);
 
-        $dkimRecords = array_filter($result->records, fn ($record) => $record->type === 'TXT' && str_contains($record->value, 'v=DKIM1'));
+        $dkimRecords = array_filter(
+            $result->records,
+            fn ($record) => $record->type === 'TXT' && str_contains($record->value, 'v=DKIM1'),
+        );
 
         if (count($dkimRecords) === 0) {
             return null;
@@ -1428,7 +1466,7 @@ class PleskHostingService implements HostingServiceInterface
                 'Multiple dkim records found for domain {domain.name}, picking the first one.',
                 [
                     LoggingContextKeys::DOMAIN_NAME => $hostingDeployment->subscription->domain,
-                ]
+                ],
             );
         }
 
@@ -1485,7 +1523,7 @@ class PleskHostingService implements HostingServiceInterface
                     LoggingContextKeys::META => [
                         'plesk_customer_username' => $hostingDeployment->plesk_customer_username,
                     ],
-                ]
+                ],
             );
 
             return true;
@@ -1498,7 +1536,7 @@ class PleskHostingService implements HostingServiceInterface
             sprintf(
                 'Retrieving plesk customer [%s] webspaces. Found %d',
                 $hostingDeployment->plesk_customer_username,
-                $sites !== null ? count($sites) : 0
+                $sites !== null ? count($sites) : 0,
             ),
             [
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
@@ -1512,7 +1550,7 @@ class PleskHostingService implements HostingServiceInterface
                 LoggingContextKeys::META => [
                     'plesk_customer_username' => $hostingDeployment->plesk_customer_username,
                 ],
-            ]
+            ],
         );
 
         return $sites !== null && count($sites) > 0;
@@ -1607,7 +1645,7 @@ class PleskHostingService implements HostingServiceInterface
                     domain: $domain,
                     ipv4_address: $ipv4Address,
                     password: $password,
-                )
+                ),
             );
 
             return;
@@ -1620,7 +1658,7 @@ class PleskHostingService implements HostingServiceInterface
                 domain: $domain,
                 ipv4_address: $ipv4Address,
                 password: $password,
-            )
+            ),
         );
     }
 
@@ -1664,7 +1702,7 @@ class PleskHostingService implements HostingServiceInterface
 
         if ($pleskSlugConfig === null) {
             $this->logger->warning(
-                'No plesk mail only slugs have been set. Check the .env for PLESK_MAIL_ONLY_START_SLUG & PLESK_MAIL_ONLY_MAX_SLUG'
+                'No plesk mail only slugs have been set. Check the .env for PLESK_MAIL_ONLY_START_SLUG & PLESK_MAIL_ONLY_MAX_SLUG',
             );
 
             return false;
@@ -1673,7 +1711,7 @@ class PleskHostingService implements HostingServiceInterface
         assert(is_array($pleskSlugConfig));
 
         /** @var string[] $mailOnlySlugs */
-        $mailOnlySlugs = array_filter($pleskSlugConfig);
+        $mailOnlySlugs = array_filter($pleskSlugConfig, fn (mixed $value): bool => (bool) $value);
 
         return in_array($product->slug, $mailOnlySlugs, true);
     }
@@ -1690,7 +1728,7 @@ class PleskHostingService implements HostingServiceInterface
             : sprintf(
                 '%s.%s',
                 $identifier,
-                $server->hostname
+                $server->hostname,
             );
     }
 }

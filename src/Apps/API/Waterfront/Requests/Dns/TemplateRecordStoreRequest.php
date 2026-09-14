@@ -18,6 +18,7 @@ class TemplateRecordStoreRequest extends FormRequest
     {
         /** @var DnsRecordsValidationService $service */
         $service = $this->container->make(DnsRecordsValidationService::class);
+
         return $service->getRecordRules(strval($this->string('type', '')), []);
     }
 }

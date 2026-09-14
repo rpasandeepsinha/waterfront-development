@@ -28,8 +28,9 @@ class DisableMarketingEmailsJob extends AbstractQueueableJob
      */
     public int $backoff = 3;
 
-    public function __construct(private readonly Customer $customer)
-    {
+    public function __construct(
+        private readonly Customer $customer,
+    ) {
         parent::__construct();
     }
 
@@ -55,7 +56,10 @@ class DisableMarketingEmailsJob extends AbstractQueueableJob
 
             $this->release(self::RATE_LIMIT_DELAY);
         } catch (HubspotClientException $exception) {
-            $hubspotEventRepository->markEventAsFailed($event, sprintf('Communication with hubspot failed: %s', $exception->getMessage()));
+            $hubspotEventRepository->markEventAsFailed($event, sprintf(
+                'Communication with hubspot failed: %s',
+                $exception->getMessage(),
+            ));
         } catch (CrmException $exception) {
             $hubspotEventRepository->markEventAsFailed($event, sprintf('CRM Error: %s', $exception->getMessage()));
         } catch (Exception $exception) {

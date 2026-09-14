@@ -18,7 +18,7 @@ class GeneratorTest extends TestCase
     #[Test]
     public function overrideMinLengthThroughInheritance(): void
     {
-        $generator = new class () extends AbstractGenerator {
+        $generator = new class() extends AbstractGenerator {
             public const int MIN_LENGTH = 100;
 
             public function __construct()
@@ -34,7 +34,7 @@ class GeneratorTest extends TestCase
     public function setLengthFailedToShort(): void
     {
         $length = 4;
-        $generator = new class () extends AbstractGenerator {
+        $generator = new class() extends AbstractGenerator {
             public function __construct()
             {
                 $this->addRule(new Rule(CharacterSet::LOWERCASE));
@@ -46,8 +46,8 @@ class GeneratorTest extends TestCase
             sprintf(
                 'The given PasswordLength (%d) is too short, the minimum is %d',
                 $length,
-                AbstractGenerator::MIN_LENGTH
-            )
+                AbstractGenerator::MIN_LENGTH,
+            ),
         );
 
         $generator->generatePassword($length);
@@ -59,8 +59,7 @@ class GeneratorTest extends TestCase
         $this->expectException(PasswordGeneratorException::class);
         $this->expectExceptionMessageIs('There are no rules attached, so we can not generate a password');
 
-        $generator = new class () extends AbstractGenerator {
-        };
+        $generator = new class() extends AbstractGenerator {};
 
         $generator->generatePassword();
     }
@@ -73,10 +72,10 @@ class GeneratorTest extends TestCase
             sprintf(
                 'There is already a rule for the charset : %s applied',
                 CharacterSet::LOWERCASE->name,
-            )
+            ),
         );
 
-        $generator = new class () extends AbstractGenerator {
+        $generator = new class() extends AbstractGenerator {
             public function __construct()
             {
                 $this->addRule(new Rule(CharacterSet::LOWERCASE));
@@ -95,11 +94,11 @@ class GeneratorTest extends TestCase
             sprintf(
                 'The maximum length (%d) will be exceeded by te total of minimum occurrences (%d) of the rules',
                 AbstractGenerator::MIN_LENGTH,
-                12
-            )
+                12,
+            ),
         );
 
-        $generator = new class () extends AbstractGenerator {
+        $generator = new class() extends AbstractGenerator {
             public function __construct()
             {
                 $this->addRule(new Rule(CharacterSet::LOWERCASE));
@@ -114,7 +113,7 @@ class GeneratorTest extends TestCase
     #[Test]
     public function generatePasswordRightLength(): void
     {
-        $generator = new class () extends AbstractGenerator {
+        $generator = new class() extends AbstractGenerator {
             public function __construct()
             {
                 $this->addRule(new Rule(CharacterSet::LOWERCASE));
@@ -128,7 +127,7 @@ class GeneratorTest extends TestCase
     #[Test]
     public function generatePassword(): void
     {
-        $generator = new class () extends AbstractGenerator {
+        $generator = new class() extends AbstractGenerator {
             public function __construct()
             {
                 $this->addRule(new Rule(CharacterSet::LOWERCASE));
@@ -149,7 +148,7 @@ class GeneratorTest extends TestCase
     #[Test]
     public function generatePasswordWithMaxOccurrence(): void
     {
-        $generator = new class () extends AbstractGenerator {
+        $generator = new class() extends AbstractGenerator {
             public function __construct()
             {
                 $this->addRule(new Rule(CharacterSet::LOWERCASE));
@@ -170,7 +169,7 @@ class GeneratorTest extends TestCase
     #[Test]
     public function generatePasswordWithMinOccurrence(): void
     {
-        $generator = new class () extends AbstractGenerator {
+        $generator = new class() extends AbstractGenerator {
             public function __construct()
             {
                 $this->addRule(new Rule(CharacterSet::LOWERCASE));
@@ -191,7 +190,7 @@ class GeneratorTest extends TestCase
     #[Test]
     public function generatePasswordWithExactOneOccurrence(): void
     {
-        $generator = new class () extends AbstractGenerator {
+        $generator = new class() extends AbstractGenerator {
             public function __construct()
             {
                 $this->addRule(new Rule(CharacterSet::LOWERCASE));
@@ -212,7 +211,7 @@ class GeneratorTest extends TestCase
     #[Test]
     public function generatePasswordWithExclusions(): void
     {
-        $generator = new class () extends AbstractGenerator {
+        $generator = new class() extends AbstractGenerator {
             public function __construct()
             {
                 $this->addRule(new Rule(CharacterSet::LOWERCASE, exclusions: 'k'));

@@ -68,7 +68,7 @@ class HostingProductChangeTest extends IntegrationTestCase
 
         ProductAllowedChangeFactory::new()->upgradeChange()->create([
             'from_product_id' => $basicHostingProduct,
-            'to_product_id' =>  $superHostingProduct,
+            'to_product_id' => $superHostingProduct,
         ]);
 
         $this->standardSubscription = new SubscriptionFactory()->for($this->customer)->createOne([
@@ -100,13 +100,16 @@ class HostingProductChangeTest extends IntegrationTestCase
         $expectedUrl = 'https://directadmin.sso.testing:1337/login-hash';
 
         $mockClient = self::createMock(DirectAdminClient::class);
-        $mockClient->expects(self::once())
-            ->method('createLoginUrl')
-            ->willReturn($expectedUrl);
+        $mockClient->expects(self::once())->method('createLoginUrl')->willReturn($expectedUrl);
 
         $this->app->bind(DirectAdminClient::class, fn () => $mockClient);
 
-        $directAdmin = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        $directAdmin = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $directAdminServer = new ServerFactory()->directadmin()->createOne();
 
         $hostingSub = new HostingDeploymentFactory()->createOne([
@@ -131,17 +134,15 @@ class HostingProductChangeTest extends IntegrationTestCase
         $this->app->bind(DirectAdminGetSsoUrlAction::class, fn () => $ssoMockAction);
 
         $mailOnlyProduct = new ProductFactory()->createOne([
-           'product_group_id' => $this->hostingProductGroup->id,
-           'name' => 'mail_only',
-           'slug' => 'mail_only',
+            'product_group_id' => $this->hostingProductGroup->id,
+            'name' => 'mail_only',
+            'slug' => 'mail_only',
         ]);
 
-        new ProductSpecFactory()
-            ->for($mailOnlyProduct)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
-                'value' => '1',
-            ]);
+        new ProductSpecFactory()->for($mailOnlyProduct)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '1',
+        ]);
 
         $sub = new SubscriptionFactory()->for($this->customer)->createOne([
             'product_uuid' => $mailOnlyProduct->uuid,
@@ -150,9 +151,11 @@ class HostingProductChangeTest extends IntegrationTestCase
             'contract_period' => 12,
         ]);
 
-        $hostingDeployment = new HostingDeploymentFactory()->withMailOnlyProvider()->createOne([
-            'subscription_uuid' => $sub->uuid,
-        ]);
+        $hostingDeployment = new HostingDeploymentFactory()
+            ->withMailOnlyProvider()
+            ->createOne([
+                'subscription_uuid' => $sub->uuid,
+            ]);
         self::assertNotNull($hostingDeployment->mailOnlyServer);
 
         $ssoMockAction
@@ -160,7 +163,7 @@ class HostingProductChangeTest extends IntegrationTestCase
             ->method('execute')
             ->with(
                 self::assertCallbackIsModel($hostingDeployment->mailOnlyServer),
-                $hostingDeployment->directadmin_customer_username
+                $hostingDeployment->directadmin_customer_username,
             )
             ->willReturn($ssoUrl);
 
@@ -171,11 +174,10 @@ class HostingProductChangeTest extends IntegrationTestCase
             ]))
             ->assertOk()
             ->assertJson(
-                fn (AssertableJson $json) =>
-                $json->where(
+                fn (AssertableJson $json) => $json->where(
                     'url',
-                    $ssoUrl
-                )
+                    $ssoUrl,
+                ),
             );
     }
 
@@ -187,8 +189,10 @@ class HostingProductChangeTest extends IntegrationTestCase
         ]);
 
         $randomCustomer = new CustomerFactory()->createOne();
-        $this->actingAsCustomer($randomCustomer)->getJson(
-            $this->generateRoute('partners.hosting.sso', $hostingDeployment->subscription_uuid),
-        )->assertForbidden();
+        $this->actingAsCustomer($randomCustomer)
+            ->getJson(
+                $this->generateRoute('partners.hosting.sso', $hostingDeployment->subscription_uuid),
+            )
+            ->assertForbidden();
     }
 }

@@ -13,7 +13,7 @@ class ValidationResult
      */
     public function __construct(
         public bool $isValid = true,
-        public array $messages = []
+        public array $messages = [],
     ) {
     }
 
@@ -22,6 +22,7 @@ class ValidationResult
         $this->isValid = false;
         if (array_key_exists($valueName, $this->messages)) {
             $this->messages[$valueName][] = $message;
+
             return;
         }
 
@@ -43,6 +44,7 @@ class ValidationResult
         foreach ($validator->errors()->messages() as $key => $messages) {
             $validationResult->addValidationErrors($key, $messages);
         }
+
         return $validationResult;
     }
 }

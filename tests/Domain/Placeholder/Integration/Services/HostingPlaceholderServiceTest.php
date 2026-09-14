@@ -52,7 +52,12 @@ class HostingPlaceholderServiceTest extends IntegrationTestCase
             'slug' => 'basic_hosting',
         ]);
 
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $this->placeholderService = self::resolve(HostingPlaceholderService::class);
     }
@@ -66,9 +71,17 @@ class HostingPlaceholderServiceTest extends IntegrationTestCase
 
         $this->placeholderService = self::resolve(HostingPlaceholderService::class);
 
-        $provider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLACEHOLDER, 'enabled' => true, 'default' => true]);
+        $provider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLACEHOLDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($this->product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->createOne();
 
         $result = $this->placeholderService->create(
             contactPersonName: $this->customer->contact_name,
@@ -98,9 +111,17 @@ class HostingPlaceholderServiceTest extends IntegrationTestCase
 
         $this->placeholderService = self::resolve(HostingPlaceholderService::class);
 
-        $provider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLACEHOLDER, 'enabled' => true, 'default' => true]);
+        $provider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLACEHOLDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($this->product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->createOne();
         new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
         ]);
@@ -129,7 +150,10 @@ class HostingPlaceholderServiceTest extends IntegrationTestCase
     {
         $this->expectException(ModelNotFoundException::class);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($this->product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->createOne();
 
         $this->placeholderService->create(
             contactPersonName: $this->customer->contact_name,
@@ -148,9 +172,12 @@ class HostingPlaceholderServiceTest extends IntegrationTestCase
             CanceledManualSubscriptionEmployee::class,
         ]);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($this->product)->createOne([
-            'domain' => 'testdomain.nl',
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->createOne([
+                'domain' => 'testdomain.nl',
+            ]);
 
         new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
@@ -171,7 +198,12 @@ class HostingPlaceholderServiceTest extends IntegrationTestCase
         $this->app->bind(MailerInterface::class, fn (): MailerInterface => $mockMail);
 
         $subscriptionUuid = Str::uuid();
-        $provider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLACEHOLDER, 'enabled' => true, 'default' => true]);
+        $provider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLACEHOLDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $subscription = new SubscriptionFactory()
             ->withCustomer()
             ->for($this->product)
@@ -187,16 +219,19 @@ class HostingPlaceholderServiceTest extends IntegrationTestCase
         $subscription->hostingDeployment()->save($hostingDeployment);
         $subscription->save();
 
-        $mockMail->expects(self::once())
+        $mockMail
+            ->expects(self::once())
             ->method('send')
             ->with(
                 self::callback(function (array $recipients) use ($subscription) {
                     self::assertSame($subscription->customer->getEmail(), $recipients[0]->getEmail());
                     self::assertCount(1, $recipients);
+
                     return true;
                 }),
                 self::callback(function (MailTemplateInterface $template) {
                     self::assertInstanceOf(ActivatedManualSubscriptionCustomer::class, $template);
+
                     return true;
                 }),
             );

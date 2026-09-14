@@ -16,7 +16,7 @@ use Waterfront\Infra\Translation\TranslatorInterface;
 class NovaMigratedStateStatusFilter extends BooleanFilter
 {
     public function __construct(
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -31,7 +31,8 @@ class NovaMigratedStateStatusFilter extends BooleanFilter
             assert(is_array($value));
 
             if (Arr::get($value, 'placeholder') === true) {
-                $builder->whereRelation('domainDeployment.provider', 'slug', ProviderSlug::PLACEHOLDER->value)
+                $builder
+                    ->whereRelation('domainDeployment.provider', 'slug', ProviderSlug::PLACEHOLDER->value)
                     ->orWhereRelation('hostingDeployment.provider', 'slug', ProviderSlug::PLACEHOLDER->value)
                     ->orWhereRelation('hostingDeployment.mailProvider', 'slug', ProviderSlug::PLACEHOLDER->value)
                     ->orWhereRelation('hostingDeployment.sitebuilderProvider', 'slug', ProviderSlug::PLACEHOLDER->value)
@@ -39,10 +40,16 @@ class NovaMigratedStateStatusFilter extends BooleanFilter
             }
 
             if (Arr::get($value, 'not-placeholder') === true) {
-                $builder->whereRelation('domainDeployment.provider', 'slug', '!=', ProviderSlug::PLACEHOLDER->value)
+                $builder
+                    ->whereRelation('domainDeployment.provider', 'slug', '!=', ProviderSlug::PLACEHOLDER->value)
                     ->orWhereRelation('hostingDeployment.provider', 'slug', '!=', ProviderSlug::PLACEHOLDER->value)
                     ->orWhereRelation('hostingDeployment.mailProvider', 'slug', '!=', ProviderSlug::PLACEHOLDER->value)
-                    ->orWhereRelation('hostingDeployment.sitebuilderProvider', 'slug', '!=', ProviderSlug::PLACEHOLDER->value)
+                    ->orWhereRelation(
+                        'hostingDeployment.sitebuilderProvider',
+                        'slug',
+                        '!=',
+                        ProviderSlug::PLACEHOLDER->value,
+                    )
                     ->orWhereRelation('sslDeployment.provider', 'slug', '!=', ProviderSlug::PLACEHOLDER->value);
             }
 
@@ -51,7 +58,11 @@ class NovaMigratedStateStatusFilter extends BooleanFilter
             }
 
             if (Arr::get($value, 'failed') === true) {
-                $builder->whereIn('technical_status', [TechnicalStatus::FAILED->value, TechnicalStatus::PENDING->value, DomainStatus::FAILED]);
+                $builder->whereIn('technical_status', [
+                    TechnicalStatus::FAILED->value,
+                    TechnicalStatus::PENDING->value,
+                    DomainStatus::FAILED,
+                ]);
             }
 
             if (Arr::get($value, 'administratively-not-successful') === true) {
@@ -75,12 +86,20 @@ class NovaMigratedStateStatusFilter extends BooleanFilter
     {
         return [
             $this->translator->translate('nova-filter.migration_state.status_filter.placeholder') => 'placeholder',
-            $this->translator->translate('nova-filter.migration_state.status_filter.not_placeholder') => 'not-placeholder',
+            $this->translator->translate(
+                'nova-filter.migration_state.status_filter.not_placeholder',
+            ) => 'not-placeholder',
             $this->translator->translate('nova-filter.migration_state.status_filter.ok') => 'ok',
             $this->translator->translate('nova-filter.migration_state.status_filter.failed') => 'failed',
-            $this->translator->translate('nova-filter.migration_state.status_filter.administratively-not-successful') => 'administratively-not-successful',
-            $this->translator->translate('nova-filter.migration_state.status_filter.invoicing-not-enabled') => 'invoicing-not-enabled',
-            $this->translator->translate('nova-filter.migration_state.status_filter.migration-not-successful') => 'migration-not-successful',
+            $this->translator->translate(
+                'nova-filter.migration_state.status_filter.administratively-not-successful',
+            ) => 'administratively-not-successful',
+            $this->translator->translate(
+                'nova-filter.migration_state.status_filter.invoicing-not-enabled',
+            ) => 'invoicing-not-enabled',
+            $this->translator->translate(
+                'nova-filter.migration_state.status_filter.migration-not-successful',
+            ) => 'migration-not-successful',
         ];
     }
 }

@@ -46,7 +46,7 @@ class NovaShowAcronisOfferingItemsForTenantAction extends Action
         return [
             Text::make(
                 $this->translator->translate('nova-action.acronis-provider.offering-items.tenant_uuid'),
-                'tenant_uuid'
+                'tenant_uuid',
             )->rules('required', 'uuid'),
         ];
     }
@@ -70,15 +70,20 @@ class NovaShowAcronisOfferingItemsForTenantAction extends Action
                     $tenantUuid,
                     $provider->id,
                     $provider->name,
-                    $exception->getMessage()
+                    $exception->getMessage(),
                 ),
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
-                ]
+                ],
             );
-            return self::danger($this->translator->translate('nova-action.acronis-provider.offering-items.failure') . ' => ' . $exception::class);
+
+            return self::danger(
+                $this->translator->translate('nova-action.acronis-provider.offering-items.failure')
+                . ' => '
+                . $exception::class,
+            );
         }
 
         return self::modal('modal-response', [

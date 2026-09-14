@@ -42,9 +42,7 @@ class AcronisValidatorTest extends TestCase
         $this->app->bind(ProvisioningRequestRepository::class, fn () => $this->mockRequestRepository);
 
         $translator = self::createStub(Translator::class);
-        $translator
-            ->method('get')
-            ->willReturnCallback(fn (string $message): mixed => $message);
+        $translator->method('get')->willReturnCallback(fn (string $message): mixed => $message);
 
         $this->validationFactory = new Factory($translator);
 
@@ -118,7 +116,7 @@ class AcronisValidatorTest extends TestCase
             lastname: 'kees',
             cloudStorageInGb: 10,
             localStorageInGb: 5,
-            language: Language::CHINESE
+            language: Language::CHINESE,
         );
 
         $validator = $this->validator->getCreateBackupValidator($createBackupRequest);
@@ -165,7 +163,10 @@ class AcronisValidatorTest extends TestCase
         $validator = $this->validator->getBackupSsoRequestValidator($getBackupSsoRequest);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['The tag has multiple create requests linked for [backup] type.'], $validator->messages()->get('tag'));
+        self::assertSame(
+            ['The tag has multiple create requests linked for [backup] type.'],
+            $validator->messages()->get('tag'),
+        );
     }
 
     #[Test]
@@ -236,7 +237,7 @@ class AcronisValidatorTest extends TestCase
         self::assertTrue($validator->fails());
         self::assertSame(
             ['The tag has multiple create requests linked for [backup] type.'],
-            $validator->messages()->get('tag')
+            $validator->messages()->get('tag'),
         );
     }
 
@@ -292,8 +293,14 @@ class AcronisValidatorTest extends TestCase
         self::assertSame(['validation.max.string'], $validator->messages()->get('firstname'));
         self::assertSame(['validation.max.string'], $validator->messages()->get('lastname'));
         self::assertSame(['validation.max.string'], $validator->messages()->get('username'));
-        self::assertSame(['A create request for tag already exists in the [backup] type.'], $validator->messages()->get('tagUuid'));
-        self::assertSame(['validation.min.string', 'validation.password.mixed', 'validation.password.numbers'], $validator->messages()->get('password'));
+        self::assertSame(
+            ['A create request for tag already exists in the [backup] type.'],
+            $validator->messages()->get('tagUuid'),
+        );
+        self::assertSame(
+            ['validation.min.string', 'validation.password.mixed', 'validation.password.numbers'],
+            $validator->messages()->get('password'),
+        );
     }
 
     #[Test]
@@ -359,7 +366,10 @@ class AcronisValidatorTest extends TestCase
         $validator = $this->validator->updateBackupValidator($updateBackupRequest);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['validation.min.string', 'validation.password.mixed', 'validation.password.numbers'], $validator->messages()->get('password'));
+        self::assertSame(
+            ['validation.min.string', 'validation.password.mixed', 'validation.password.numbers'],
+            $validator->messages()->get('password'),
+        );
     }
 
     #[Test]
@@ -424,7 +434,10 @@ class AcronisValidatorTest extends TestCase
         $validator = $this->validator->setBackupSuspensionStateValidator($request);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['The tag has multiple create requests linked for [backup] type.'], $validator->messages()->get('tag'));
+        self::assertSame(
+            ['The tag has multiple create requests linked for [backup] type.'],
+            $validator->messages()->get('tag'),
+        );
     }
 
     #[Test]
@@ -507,6 +520,9 @@ class AcronisValidatorTest extends TestCase
         $validator = $this->validator->getBackupUsageRequestValidator($getBackupUsageRequest);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['The tag has multiple create requests linked for [backup] type.'], $validator->messages()->get('tag'));
+        self::assertSame(
+            ['The tag has multiple create requests linked for [backup] type.'],
+            $validator->messages()->get('tag'),
+        );
     }
 }

@@ -38,11 +38,11 @@ class PleskClientFaker extends PleskClient
     {
         return SecretKeyGetResult::create(
             [
-                'status'     => SecretKeyGetResult::STATUS_OK,
+                'status' => SecretKeyGetResult::STATUS_OK,
                 'secretKeys' => [
                     '1.2.3.4' => 'example_key',
                 ],
-            ]
+            ],
         );
     }
 
@@ -50,9 +50,9 @@ class PleskClientFaker extends PleskClient
     {
         return SecretKeyCreateResult::create(
             [
-                'status'     => SecretKeyCreateResult::STATUS_OK,
+                'status' => SecretKeyCreateResult::STATUS_OK,
                 'secret_key' => 'example_key',
-            ]
+            ],
         );
     }
 

@@ -10,7 +10,7 @@ class CsrData
         private readonly CsrSubjectData $subjectData,
         private readonly string $publicKeyAlgorithm,
         private readonly int $encryptionStrength,
-        private readonly ?string $signatureAlgorithm = null
+        private readonly ?string $signatureAlgorithm = null,
     ) {
     }
 
@@ -40,11 +40,13 @@ class CsrData
     public function toArray(): array
     {
         return array_filter(
-            $this->subjectData->toArray() + [
+            $this->subjectData->toArray()
+            + [
                 'publicKeyAlgorithm' => $this->getPublicKeyAlgorithm(),
                 'encryptionStrength' => $this->getEncryptionStrength(),
                 'signatureAlgorithm' => $this->getSignatureAlgorithm(),
-            ]
+            ],
+            fn (mixed $value): bool => (bool) $value,
         );
     }
 }

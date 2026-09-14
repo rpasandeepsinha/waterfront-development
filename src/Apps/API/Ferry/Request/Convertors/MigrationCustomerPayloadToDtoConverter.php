@@ -58,7 +58,7 @@ class MigrationCustomerPayloadToDtoConverter
         /** @var array<int, ProductGroupDiscountDTO> $productGroupDiscounts */
         $productGroupDiscounts = $this->serializer->denormalize(
             Arr::get($customerPayload, 'product_group_discounts', []),
-            ProductGroupDiscountDTO::class . '[]'
+            ProductGroupDiscountDTO::class . '[]',
         );
 
         /** @var array<int, array<string, string>> $mandates */
@@ -69,7 +69,7 @@ class MigrationCustomerPayloadToDtoConverter
         /** @var array<int, DnsTemplateDTO> $dnsTemplates */
         $dnsTemplates = $this->serializer->denormalize(
             Arr::get($customerPayload, 'dnsTemplates', []),
-            DnsTemplateDTO::class . '[]'
+            DnsTemplateDTO::class . '[]',
         );
 
         return new CustomerDTO(
@@ -94,12 +94,15 @@ class MigrationCustomerPayloadToDtoConverter
             paymentType: $this->getAsBoolean($customerPayload, 'validated') ? PaymentType::CREDIT : PaymentType::DIRECT,
             internalNote: $this->getAsStringOrNull($customerPayload, 'internalNote'),
             walletCreditBalance: $this->getAsIntegerOrNull($customerPayload, 'wallet_credit_balance'),
-            discounts: DiscountSetDTO::fromArray($productsDiscountsWithProducts, $this->getPriceList($productsDiscountsWithProducts)),
+            discounts: DiscountSetDTO::fromArray(
+                $productsDiscountsWithProducts,
+                $this->getPriceList($productsDiscountsWithProducts),
+            ),
             productGroupDiscounts: $productGroupDiscounts,
             mandates: MandateSetDTO::fromArray($mandates),
             dnsTemplates: $dnsTemplates,
             labels: $labels,
-            customerSince: new CarbonImmutable($this->getAsStringOrNull($customerPayload, 'customerSince'))
+            customerSince: new CarbonImmutable($this->getAsStringOrNull($customerPayload, 'customerSince')),
         );
     }
 
@@ -132,7 +135,7 @@ class MigrationCustomerPayloadToDtoConverter
     /**
      * @param array<mixed> $payload
      */
-    private function getAsStringOrNull(array $payload, string $key): string|null
+    private function getAsStringOrNull(array $payload, string $key): ?string
     {
         /** @var string|null $value */
         $value = Arr::get($payload, $key);
@@ -141,8 +144,8 @@ class MigrationCustomerPayloadToDtoConverter
             throw new UnexpectedValueException(
                 sprintf(
                     'Value for %s needs to be a non-empty string or null',
-                    $key
-                )
+                    $key,
+                ),
             );
         }
 
@@ -162,8 +165,8 @@ class MigrationCustomerPayloadToDtoConverter
             throw new UnexpectedValueException(
                 sprintf(
                     'Value for %s needs to be a non-empty string',
-                    $key
-                )
+                    $key,
+                ),
             );
         }
 
@@ -173,7 +176,7 @@ class MigrationCustomerPayloadToDtoConverter
     /**
      * @param array<mixed> $payload
      */
-    private function getAsIntegerOrNull(array $payload, string $key): int|null
+    private function getAsIntegerOrNull(array $payload, string $key): ?int
     {
         /** @var string|null $value */
         $value = Arr::get($payload, $key);
@@ -182,8 +185,8 @@ class MigrationCustomerPayloadToDtoConverter
             throw new UnexpectedValueException(
                 sprintf(
                     'Value for %s needs to be a number or null',
-                    $key
-                )
+                    $key,
+                ),
             );
         }
 
@@ -201,8 +204,8 @@ class MigrationCustomerPayloadToDtoConverter
             throw new UnexpectedValueException(
                 sprintf(
                     'Value for %s needs to be a number',
-                    $key
-                )
+                    $key,
+                ),
             );
         }
 

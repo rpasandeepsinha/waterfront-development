@@ -52,10 +52,12 @@ class TransferObserverTest extends IntegrationTestCase
             'name' => '.com',
             'slug' => 'extension_com',
         ]);
-        $this->subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product->uuid,
-            'customer_id' => $this->customer1->id,
-        ]);
+        $this->subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product->uuid,
+                'customer_id' => $this->customer1->id,
+            ]);
     }
 
     #[Test]
@@ -68,7 +70,7 @@ class TransferObserverTest extends IntegrationTestCase
 
         $transfer = Transfer::create([
             'from_customer_id' => $this->customer1->id,
-            'to_customer_id'   => $this->customer2->id,
+            'to_customer_id' => $this->customer2->id,
         ]);
 
         self::assertTrue($transfer->accept());
@@ -85,7 +87,7 @@ class TransferObserverTest extends IntegrationTestCase
         ]);
         $transfer = Transfer::create([
             'from_customer_id' => $this->customer1->id,
-            'to_customer_id'   => $this->customer2->id,
+            'to_customer_id' => $this->customer2->id,
         ]);
 
         self::assertTrue($transfer->accept(), "The transfer was not accepted! ID: {$transfer->id}");
@@ -101,7 +103,7 @@ class TransferObserverTest extends IntegrationTestCase
         ]);
         $transfer = Transfer::create([
             'from_customer_id' => $this->customer1->id,
-            'to_customer_id'   => $this->customer2->id,
+            'to_customer_id' => $this->customer2->id,
         ]);
 
         self::assertTrue($transfer->cancel());
@@ -120,7 +122,7 @@ class TransferObserverTest extends IntegrationTestCase
         ]);
         $transfer = Transfer::create([
             'from_customer_id' => $this->customer1->id,
-            'to_customer_id'   => $this->customer2->id,
+            'to_customer_id' => $this->customer2->id,
         ]);
 
         self::assertTrue($transfer->accept());
@@ -137,7 +139,7 @@ class TransferObserverTest extends IntegrationTestCase
         ]);
         $transfer = Transfer::create([
             'from_customer_id' => $this->customer1->id,
-            'to_customer_id'   => $this->customer2->id,
+            'to_customer_id' => $this->customer2->id,
         ]);
 
         self::assertTrue($transfer->reject());
@@ -156,7 +158,7 @@ class TransferObserverTest extends IntegrationTestCase
         ]);
         $transfer = Transfer::create([
             'from_customer_id' => $this->customer1->id,
-            'to_customer_id'   => $this->customer2->id,
+            'to_customer_id' => $this->customer2->id,
         ]);
 
         self::assertTrue($transfer->accept());

@@ -12,7 +12,7 @@ readonly class Microsoft365SeatsChanged implements MailTemplateInterface
         public string $productGroupName,
         public string $productName,
         public int $old_seats,
-        public int $new_seats
+        public int $new_seats,
     ) {
     }
 

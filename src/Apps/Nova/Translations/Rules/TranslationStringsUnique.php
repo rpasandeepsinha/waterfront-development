@@ -23,6 +23,7 @@ class TranslationStringsUnique extends AbstractValidator implements DataAwareRul
     public function setData($data): static
     {
         $this->data = $data;
+
         return $this;
     }
 
@@ -30,10 +31,14 @@ class TranslationStringsUnique extends AbstractValidator implements DataAwareRul
     {
         if ($this->data['editMode'] === 'create') {
             $tableName = new TranslationString()->getTable();
-            $query = DB::table($tableName)->where('key_id', $this->data['translationkey'])->where('language_id', $this->data['language'])->value('translated_string');
+            $query = DB::table($tableName)
+                ->where('key_id', $this->data['translationkey'])
+                ->where('language_id', $this->data['language'])
+                ->value('translated_string');
 
             return $query === '';
         }
+
         return true;
     }
 

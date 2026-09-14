@@ -28,9 +28,12 @@ class UpdateCustomerActionTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->customer = new CustomerFactory()->withAddress()->withFinancialContact([
-            'email' => $this->financialEmail,
-        ])->createOne();
+        $this->customer = new CustomerFactory()
+            ->withAddress()
+            ->withFinancialContact([
+                'email' => $this->financialEmail,
+            ])
+            ->createOne();
         $this->updateCustomerContactAction = self::resolve(UpdateCustomerContactEmailAction::class);
     }
 
@@ -50,7 +53,7 @@ class UpdateCustomerActionTest extends IntegrationTestCase
         $this->updateCustomerContactAction->execute(
             $this->customer,
             $financialContact,
-            $financialEmail
+            $financialEmail,
         );
 
         $financialContact->refresh();
@@ -74,7 +77,7 @@ class UpdateCustomerActionTest extends IntegrationTestCase
             $this->updateCustomerContactAction->execute(
                 $wrongCustomer,
                 $financialContact,
-                $financialEmail
+                $financialEmail,
             );
         } finally {
             $financialContact->refresh();

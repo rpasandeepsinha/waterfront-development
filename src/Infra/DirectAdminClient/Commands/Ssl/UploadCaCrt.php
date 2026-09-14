@@ -34,12 +34,14 @@ class UploadCaCrt extends DirectAdminCommand
     public function setDomain(string $domain): UploadCaCrt
     {
         $this->domain = $domain;
+
         return $this;
     }
 
     public function setCaCert(string $caCert): UploadCaCrt
     {
         $this->caCert = $caCert;
+
         return $this;
     }
 
@@ -51,6 +53,7 @@ class UploadCaCrt extends DirectAdminCommand
     public function setKey(string $key): UploadCaCrt
     {
         $this->key = $key;
+
         return $this;
     }
 
@@ -73,11 +76,11 @@ class UploadCaCrt extends DirectAdminCommand
     private function getPostBody(): StreamInterface
     {
         $params = [
-            'action'    => 'save',
-            'type'      => 'cacert',
-            'active'    => 'yes',
-            'domain'    => $this->getDomain(),
-            'cacert'    => $this->getFullCert(),
+            'action' => 'save',
+            'type' => 'cacert',
+            'active' => 'yes',
+            'domain' => $this->getDomain(),
+            'cacert' => $this->getFullCert(),
         ];
 
         return Utils::streamFor(http_build_query($params));

@@ -43,7 +43,7 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
         protected Client $client,
         private readonly ConfigurationInterface $configuration,
         protected LoggerInterface $logger,
-        ?Connection $connection = null
+        ?Connection $connection = null,
     ) {
         $this->setConnection($connection ?? new Connection());
     }
@@ -60,14 +60,19 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
         $response = new SessionTokenGetResponse($httpResponse);
 
         if ($response->getStatusCode() !== 200) {
-            throw PleskClientException::noPleskClientSessionTokenFound($username, $ipAddress, $response->getStatusMessage(), $response->getStatusCode());
+            throw PleskClientException::noPleskClientSessionTokenFound(
+                $username,
+                $ipAddress,
+                $response->getStatusMessage(),
+                $response->getStatusCode(),
+            );
         }
 
         $this->logger->info(
             self::class . '::getSessionToken - session token retrieved',
             [
                 LoggingContextKeys::RESPONSE_DATA => $response->getToken(),
-            ]
+            ],
         );
 
         if ($response->getToken() === '') {
@@ -76,17 +81,15 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
                 [
                     LoggingContextKeys::RESPONSE_CODE => $response->getStatusCode(),
                     LoggingContextKeys::RESPONSE_DATA => $response->getToken(),
-                    LoggingContextKeys::META =>
-                        [
-                            'statusMessage' => $response->getStatusMessage(),
-                            'username' => $username,
-                            'ipAddress' => $ipAddress,
-                        ],
-
-                ]
+                    LoggingContextKeys::META => [
+                        'statusMessage' => $response->getStatusMessage(),
+                        'username' => $username,
+                        'ipAddress' => $ipAddress,
+                    ],
+                ],
             );
 
-            throw  PleskClientException::InvalidArgumentException('The session token is empty.');
+            throw PleskClientException::InvalidArgumentException('The session token is empty.');
         }
 
         return $response->getToken();
@@ -100,7 +103,7 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
     public function getSsoUrl(
         string $username,
         string $ipAddress,
-        bool $redirectToMail = false
+        bool $redirectToMail = false,
     ): string {
         $token = $this->getSessionToken($username, $ipAddress);
 
@@ -110,7 +113,11 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
             $query['success_redirect_url'] = self::EMAIL_ACCOUNTS_URL;
         }
 
-        return sprintf('%s/enterprise/rsession_init.php?%s', $this->server->getApiUrlAttribute(), http_build_query($query));
+        return sprintf(
+            '%s/enterprise/rsession_init.php?%s',
+            $this->server->getApiUrlAttribute(),
+            http_build_query($query),
+        );
     }
 
     /**
@@ -132,7 +139,7 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
             self::class . '::installCertificate - initiate',
             [
                 LoggingContextKeys::DOMAIN_NAME => $parameters->getDomain(),
-            ]
+            ],
         );
 
         $request = new InstallCertificateRequest($parameters);
@@ -140,7 +147,10 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
         $response = new InstallCertificateResponse($httpResponse);
 
         if ($response->getStatusCode() !== 200) {
-            throw PleskClientException::installingCertificateFailed($parameters->getDomain(), $response->getStatusCode());
+            throw PleskClientException::installingCertificateFailed(
+                $parameters->getDomain(),
+                $response->getStatusCode(),
+            );
         }
 
         $this->logger->info(
@@ -148,12 +158,11 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
             [
                 LoggingContextKeys::DOMAIN_NAME => $parameters->getDomain(),
                 LoggingContextKeys::RESPONSE_DATA => $response->getResult(),
-                LoggingContextKeys::META =>
-                    [
-                        'errorCode' => $response->getErrorCode(),
-                        'errorText' => $response->getErrorText(),
-                    ],
-            ]
+                LoggingContextKeys::META => [
+                    'errorCode' => $response->getErrorCode(),
+                    'errorText' => $response->getErrorText(),
+                ],
+            ],
         );
 
         return $response->getResult();
@@ -170,7 +179,7 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
             self::class . '::selectCertificate - initiate',
             [
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-            ]
+            ],
         );
 
         $request = new SelectCertificateRequest($domain, $certificateName);
@@ -178,7 +187,7 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
         $response = new SelectCertificateResponse($httpResponse);
 
         if ($response->getStatusCode() !== 200) {
-            throw  PleskClientException::selectCertificateFailed($domain, $response->getStatusCode());
+            throw PleskClientException::selectCertificateFailed($domain, $response->getStatusCode());
         }
 
         $this->logger->info(
@@ -186,12 +195,11 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
             [
                 LoggingContextKeys::DOMAIN_NAME => $domain,
                 LoggingContextKeys::RESPONSE_DATA => $response->getResult(),
-                LoggingContextKeys::META =>
-                    [
-                        'errorCode' => $response->getErrorCode(),
-                        'errorText' => $response->getErrorText(),
-                    ],
-            ]
+                LoggingContextKeys::META => [
+                    'errorCode' => $response->getErrorCode(),
+                    'errorText' => $response->getErrorText(),
+                ],
+            ],
         );
 
         return $response->getResult();
@@ -231,7 +239,7 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
                     'status' => $status,
                     'errorCode' => (string) $results->errcode,
                     'errorMessage' => (string) $results->errtext,
-                ]
+                ],
             );
         }
 
@@ -249,7 +257,7 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
             [
                 'status' => $status,
                 'secretKeys' => $secretKeys,
-            ]
+            ],
         );
     }
 
@@ -285,7 +293,7 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
                 [
                     'status' => $status,
                     'secret_key' => (string) $result->key,
-                ]
+                ],
             );
         }
 
@@ -294,7 +302,7 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
                 'status' => $status,
                 'error_code' => (string) $result->errcode,
                 'error_message' => (string) $result->errtext,
-            ]
+            ],
         );
     }
 
@@ -323,7 +331,7 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
         Assert::notNull($this->connection->getApiUrl());
 
         return $this->client->request('POST', $this->connection->getApiUrl() . '/enterprise/control/agent.php', [
-            'verify' =>  $this->configuration->getAsBoolean('hosting-service-client.connection.verify_ssl'),
+            'verify' => $this->configuration->getAsBoolean('hosting-service-client.connection.verify_ssl'),
             'headers' => $headers,
             'body' => $this->getXml($request),
             'http_errors' => false,
@@ -348,7 +356,7 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
                 ],
                 'body' => $xmlMessage,
                 'http_errors' => false,
-            ]
+            ],
         );
     }
 
@@ -358,6 +366,8 @@ class PleskClient implements SessionTokenInterface, InstallInterface, SelectInte
             $request->maskSecrets = $logOutput;
         }
 
-        return ArrayToXml::convert($request->getMessage(), 'packet', false, 'UTF-8', options: ['convertNullToXsiNil' => true]);
+        return ArrayToXml::convert($request->getMessage(), 'packet', false, 'UTF-8', options: [
+            'convertNullToXsiNil' => true,
+        ]);
     }
 }

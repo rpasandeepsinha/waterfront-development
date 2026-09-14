@@ -38,7 +38,7 @@ class InvoiceToCreditBatch
     {
         return array_filter(
             $this->getInvoicesToCredit(),
-            fn (InvoiceToCredit $invoiceToCredit): bool => $invoiceToCredit->shouldCreateNewInvoice()
+            fn (InvoiceToCredit $invoiceToCredit): bool => $invoiceToCredit->shouldCreateNewInvoice(),
         );
     }
 

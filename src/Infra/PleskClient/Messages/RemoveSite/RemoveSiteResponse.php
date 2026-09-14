@@ -50,6 +50,7 @@ class RemoveSiteResponse extends BaseResponse
             $this->status = self::STATUS_ERROR;
             $this->errorCode = $this->statusCode;
             $this->errorText = $this->statusMessage;
+
             return;
         }
 
@@ -60,6 +61,7 @@ class RemoveSiteResponse extends BaseResponse
             $this->status = self::STATUS_ERROR;
             $this->errorCode = 0;
             $this->errorText = 'No result element found in response';
+
             return;
         }
 

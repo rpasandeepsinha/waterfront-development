@@ -25,12 +25,12 @@ class IdentityMetadataCast implements CastsAttributes
         $decoded = json_decode($value, true);
 
         if (
-            ! is_array($decoded) ||
-            ! array_key_exists('uuid', $decoded)  ||
-            ! array_key_exists('email', $decoded) ||
-            ! is_string($decoded['uuid'])  ||
-            ! Uuid::isValid($decoded['uuid']) ||
-            ! is_string($decoded['email'])
+            ! is_array($decoded)
+            || ! array_key_exists('uuid', $decoded)
+            || ! array_key_exists('email', $decoded)
+            || ! is_string($decoded['uuid'])
+            || ! Uuid::isValid($decoded['uuid'])
+            || ! is_string($decoded['email'])
         ) {
             return null;
         }

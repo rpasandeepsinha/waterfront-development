@@ -64,9 +64,18 @@ class CreateSubscriptionInvoicesTest extends IntegrationTestCase
             'weight' => 1,
         ]);
 
-        $this->nlRegistrationPrice = new ProductPriceComponentFactory()->for($this->product)->registration()->createOne(['price' => 1099]);
-        new ProductPriceComponentFactory()->for($this->product)->introduction()->createOne(['price' => 49]);
-        new ProductPriceComponentFactory()->for($this->product)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 49]);
+        $this->nlRegistrationPrice = new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->registration()
+            ->createOne(['price' => 1099]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->introduction()
+            ->createOne(['price' => 49]);
+        new ProductPriceComponentFactory()->for($this->product)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 49,
+        ]);
     }
 
     protected function tearDown(): void

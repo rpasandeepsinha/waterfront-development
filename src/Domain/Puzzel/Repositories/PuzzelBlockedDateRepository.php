@@ -17,9 +17,7 @@ class PuzzelBlockedDateRepository
      */
     public function getTodayAndFutureDates(): Collection
     {
-        return PuzzelBlockedDate::query()
-            ->whereTodayOrAfter('date')
-            ->get();
+        return PuzzelBlockedDate::query()->whereTodayOrAfter('date')->get();
     }
 
     /**
@@ -27,16 +25,12 @@ class PuzzelBlockedDateRepository
      */
     public function getTodayAndFutureDatesPagination(int $pageSize = 100): LengthAwarePaginator
     {
-        return PuzzelBlockedDate::query()
-            ->whereTodayOrAfter('date')
-            ->paginate($pageSize);
+        return PuzzelBlockedDate::query()->whereTodayOrAfter('date')->paginate($pageSize);
     }
 
     public function dateIsBlocked(CarbonImmutable $date): bool
     {
-        return PuzzelBlockedDate::query()
-            ->whereDate('date', $date)
-            ->exists();
+        return PuzzelBlockedDate::query()->whereDate('date', $date)->exists();
     }
 
     /**

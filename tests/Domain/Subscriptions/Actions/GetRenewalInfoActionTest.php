@@ -7,10 +7,13 @@ namespace Tests\Domain\Subscriptions\Actions;
 use Carbon\CarbonImmutable;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Factories\ExperimentFactory;
 use Tests\Factories\ProductFactory;
 use Tests\Factories\ProductPriceComponentFactory;
 use Tests\Factories\SubscriptionFactory;
 use Tests\Factories\SubscriptionMutationFactory;
+use Tests\Factories\SubscriptionPriceComponentFactory;
+use Tests\Factories\SubscriptionPriceFactory;
 use Tests\IntegrationTestCase;
 use Waterfront\Domain\Pricing\Enums\PriceComponentType;
 use Waterfront\Domain\Pricing\Models\ProductPriceComponent;
@@ -44,14 +47,23 @@ class GetRenewalInfoActionTest extends IntegrationTestCase
 
         $this->product = new ProductFactory()->hostingBrons()->createOne();
 
-        $registrationPrice = new ProductPriceComponentFactory()->for($this->product)->registration()->createOne(['price' => 200]);
-        $promotionPrice = new ProductPriceComponentFactory()->for($this->product)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 100]);
-
-        $this->prolongationPrice = new ProductPriceComponentFactory()->for($this->product)->prolongation()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 300,
+        $registrationPrice = new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->registration()
+            ->createOne(['price' => 200]);
+        $promotionPrice = new ProductPriceComponentFactory()->for($this->product)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 100,
         ]);
+
+        $this->prolongationPrice = new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 300,
+            ]);
 
         $this->subscription = new SubscriptionFactory()
             ->withCustomer()
@@ -76,8 +88,14 @@ class GetRenewalInfoActionTest extends IntegrationTestCase
         self::assertSame($this->subscription->billing_period, $renewalInfo->billingPeriod);
         self::assertSame($this->prolongationPrice->price, $renewalInfo->grossPrice);
         self::assertSame($this->prolongationPrice->price, $renewalInfo->netPrice);
-        self::assertSame(CarbonImmutable::now()->startOfDay()->getTimestamp(), $renewalInfo->startDate->startOfDay()->getTimestamp());
-        self::assertSame(CarbonImmutable::now()->addMonths($this->subscription->contract_period)->startOfDay()->getTimestamp(), $renewalInfo->endDate->startOfDay()->getTimestamp());
+        self::assertSame(
+            CarbonImmutable::now()->startOfDay()->getTimestamp(),
+            $renewalInfo->startDate->startOfDay()->getTimestamp(),
+        );
+        self::assertSame(
+            CarbonImmutable::now()->addMonths($this->subscription->contract_period)->startOfDay()->getTimestamp(),
+            $renewalInfo->endDate->startOfDay()->getTimestamp(),
+        );
     }
 
     #[Test]
@@ -102,8 +120,14 @@ class GetRenewalInfoActionTest extends IntegrationTestCase
         self::assertSame(1, $renewalInfo->billingPeriod);
         self::assertSame(50, $renewalInfo->grossPrice);
         self::assertSame(40, $renewalInfo->netPrice);
-        self::assertSame(CarbonImmutable::now()->startOfDay()->getTimestamp(), $renewalInfo->startDate->startOfDay()->getTimestamp());
-        self::assertSame(CarbonImmutable::now()->addMonth()->startOfDay()->getTimestamp(), $renewalInfo->endDate->startOfDay()->getTimestamp());
+        self::assertSame(
+            CarbonImmutable::now()->startOfDay()->getTimestamp(),
+            $renewalInfo->startDate->startOfDay()->getTimestamp(),
+        );
+        self::assertSame(
+            CarbonImmutable::now()->addMonth()->startOfDay()->getTimestamp(),
+            $renewalInfo->endDate->startOfDay()->getTimestamp(),
+        );
     }
 
     #[Test]
@@ -118,7 +142,7 @@ class GetRenewalInfoActionTest extends IntegrationTestCase
             12,
             true,
             true,
-            calculatedPrice: 999
+            calculatedPrice: 999,
         );
 
         $priceList = self::createStub(PriceList::class);
@@ -138,11 +162,75 @@ class GetRenewalInfoActionTest extends IntegrationTestCase
     {
         $persistPersistService = self::resolve(PricePersistService::class);
 
-        $persistPersistService->persistCustomPrice($this->subscription, 123, false, CustomPriceReasonType::FIXED_MIGRATION_PRICE);
+        $persistPersistService->persistCustomPrice(
+            $this->subscription,
+            123,
+            false,
+            CustomPriceReasonType::FIXED_MIGRATION_PRICE,
+        );
 
         $renewalInfo = $this->getRenewalInfoAction->execute($this->subscription, null);
 
         self::assertSame(200, $renewalInfo->grossPrice);
         self::assertSame(123, $renewalInfo->netPrice);
+    }
+
+    #[Test]
+    public function experimentPriceIsAppliedOnTheFirstRenewal(): void
+    {
+        $this->givenAnExperimentProlongationPriceOf(150);
+        $this->enrolInExperiment();
+
+        $renewalInfo = $this->getRenewalInfoAction->execute($this->subscription, null);
+
+        self::assertSame(150, $renewalInfo->grossPrice);
+        self::assertSame(150, $renewalInfo->netPrice);
+    }
+
+    #[Test]
+    public function experimentPriceIsNotAppliedAgainOnLaterRenewals(): void
+    {
+        $this->givenAnExperimentProlongationPriceOf(150);
+        $this->enrolInExperiment();
+        $this->givenAnEarlierPriceWithComponent(PriceComponentType::EXPERIMENT_PRICE_LADDER);
+
+        $renewalInfo = $this->getRenewalInfoAction->execute($this->subscription, null);
+
+        self::assertSame(300, $renewalInfo->grossPrice);
+        self::assertSame(300, $renewalInfo->netPrice);
+    }
+
+    #[Test]
+    public function experimentPriceIsNotAppliedWhenTheSubscriptionDidNotRegisterUnderTheExperiment(): void
+    {
+        $this->givenAnExperimentProlongationPriceOf(150);
+
+        $renewalInfo = $this->getRenewalInfoAction->execute($this->subscription, null);
+
+        self::assertSame(300, $renewalInfo->netPrice);
+    }
+
+    private function givenAnExperimentProlongationPriceOf(int $price): void
+    {
+        new ProductPriceComponentFactory()->for($this->product)->createOne([
+            'type' => PriceComponentType::EXPERIMENT_PRICE_LADDER,
+            'billing_period' => $this->subscription->billing_period,
+            'contract_period' => $this->subscription->contract_period,
+            'price' => $price,
+        ]);
+    }
+
+    private function enrolInExperiment(): void
+    {
+        $experiment = new ExperimentFactory()->createOne();
+        $experiment->subscriptions()->attach($this->subscription->id);
+        $experiment->products()->attach($this->product->id);
+    }
+
+    private function givenAnEarlierPriceWithComponent(PriceComponentType $type): void
+    {
+        $subscriptionPrice = new SubscriptionPriceFactory()->for($this->subscription)->createOne();
+
+        new SubscriptionPriceComponentFactory()->for($subscriptionPrice)->createOne(['type' => $type]);
     }
 }

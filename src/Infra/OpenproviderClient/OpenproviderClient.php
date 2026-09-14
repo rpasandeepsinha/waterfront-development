@@ -107,7 +107,7 @@ class OpenproviderClient
         assert(is_string($billingHandleId));
 
         $adminHandleId = $this->createHandle(
-            HandleParameters::createFromCustomerArray($customer)
+            HandleParameters::createFromCustomerArray($customer),
         );
 
         $class = Handles::class;
@@ -205,11 +205,14 @@ class OpenproviderClient
     /**
      * @throws Exception
      */
-    public function getRegisterDomainRequest(RegistrationParameters $parameters, HandleInterface $handles): DomainRegistrationRequest
-    {
+    public function getRegisterDomainRequest(
+        RegistrationParameters $parameters,
+        HandleInterface $handles,
+    ): DomainRegistrationRequest {
         $request = new DomainRegistrationRequest($this->httpClient, $this->connection, $parameters->getDomain());
         $request->setHandles($handles);
         $request->setParameters($parameters);
+
         return $request;
     }
 
@@ -237,7 +240,7 @@ class OpenproviderClient
                 LoggingContextKeys::META => [
                     'ssl_certificate_id' => $certificateId,
                 ],
-            ]
+            ],
         );
 
         return $this->retrieveSsl($certificateId);
@@ -270,7 +273,7 @@ class OpenproviderClient
                 LoggingContextKeys::META => [
                     'handles' => $handles->toArray(),
                 ],
-            ]
+            ],
         );
 
         $request = $this->getRegisterDomainRequest($parameters, $handles);
@@ -293,11 +296,14 @@ class OpenproviderClient
     /**
      * @throws Exception
      */
-    public function getTransferDomainRequest(TransferParameters $parameters, HandleInterface $handles): DomainTransferRequest
-    {
+    public function getTransferDomainRequest(
+        TransferParameters $parameters,
+        HandleInterface $handles,
+    ): DomainTransferRequest {
         $request = new DomainTransferRequest($this->httpClient, $this->connection, $parameters->getDomain());
         $request->setHandles($handles);
         $request->setParameters($parameters);
+
         return $request;
     }
 
@@ -314,7 +320,7 @@ class OpenproviderClient
         $handles = $this->createHandles($parameters->getCustomer());
 
         $approverParameters = ApproverParameters::create([
-            'domain'    => $parameters->getDomain(),
+            'domain' => $parameters->getDomain(),
             'productId' => $parameters->getProductId(),
         ]);
         $approverEmail = $this->sslApproverEmail($approverParameters);
@@ -323,7 +329,7 @@ class OpenproviderClient
         $parameters->setDomainValidationMethods([
             [
                 'hostName' => $parameters->getDomain(),
-                'method'   => 'dns',
+                'method' => 'dns',
             ],
         ]);
 
@@ -342,14 +348,17 @@ class OpenproviderClient
                 LoggingContextKeys::META => [
                     'ssl_certificate_id' => $certificateId,
                 ],
-            ]
+            ],
         );
 
         return $this->retrieveSsl($certificateId);
     }
 
-    public function getReissueSslRequest(int $certificateId, SslParameters $parameters, HandleInterface $handles): SslReissueRequest
-    {
+    public function getReissueSslRequest(
+        int $certificateId,
+        SslParameters $parameters,
+        HandleInterface $handles,
+    ): SslReissueRequest {
         $request = new SslReissueRequest($this->httpClient, $this->connection);
         $request->setCertificateId($certificateId);
         $request->setParameters($parameters);
@@ -407,6 +416,7 @@ class OpenproviderClient
         if (array_key_exists('activeDate', $data) && $data['activeDate'] !== '' && is_string($data['activeDate'])) {
             $result->setActiveDate($data['activeDate']);
         }
+
         $result->setExpirationDate($data['expirationDate']);
         $result->setExpirationDateOpenprovider($data['expirationDateOpenprovider']);
         $result->setHandles(
@@ -414,8 +424,8 @@ class OpenproviderClient
                 $this->castHandle($data['ownerHandle']),
                 $this->castHandle($data['adminHandle']),
                 $this->castHandle($data['techHandle']),
-                $this->castHandle($data['billingHandle'])
-            )
+                $this->castHandle($data['billingHandle']),
+            ),
         );
         $result->setNsGroup($data['nsGroup'] ?? null);
 
@@ -456,13 +466,23 @@ class OpenproviderClient
         $result->setAutoRenewAsString($data['autorenew']);
         $result->setIsLocked((bool) $data['isLocked']);
 
-        if (array_key_exists('isDnssecEnabled', $data) && $data['isDnssecEnabled'] !== '' && $data['isDnssecEnabled'] !== '0' && is_string($data['isDnssecEnabled'])) {
+        if (
+            array_key_exists('isDnssecEnabled', $data)
+            && $data['isDnssecEnabled'] !== ''
+            && $data['isDnssecEnabled'] !== '0'
+            && is_string($data['isDnssecEnabled'])
+        ) {
             $result->setIsDnssecEnabled(true);
         } else {
             $result->setIsDnssecEnabled(false);
         }
 
-        if (array_key_exists('isPrivateWhoisEnabled', $data) && $data['isPrivateWhoisEnabled'] !== '' && $data['isPrivateWhoisEnabled'] !== '0' && is_string($data['isPrivateWhoisEnabled'])) {
+        if (
+            array_key_exists('isPrivateWhoisEnabled', $data)
+            && $data['isPrivateWhoisEnabled'] !== ''
+            && $data['isPrivateWhoisEnabled'] !== '0'
+            && is_string($data['isPrivateWhoisEnabled'])
+        ) {
             $result->setIsPrivateWhoisEnabled(true);
         } else {
             $result->setIsPrivateWhoisEnabled(false);
@@ -478,11 +498,14 @@ class OpenproviderClient
     /**
      * @throws Exception
      */
-    public function getModifyDomainRequest(ModifyParameters $parameters, ?HandleInterface $handles = null): DomainModifyRequest
-    {
+    public function getModifyDomainRequest(
+        ModifyParameters $parameters,
+        ?HandleInterface $handles = null,
+    ): DomainModifyRequest {
         $request = new DomainModifyRequest($this->httpClient, $this->connection, $parameters->getDomain());
         $request->setParameters($parameters);
         $request->setHandles($handles);
+
         return $request;
     }
 
@@ -498,7 +521,7 @@ class OpenproviderClient
         $handles = $this->getSslReissueHandles($parameters);
 
         $approverParameters = ApproverParameters::create([
-            'domain'    => $parameters->getDomain(),
+            'domain' => $parameters->getDomain(),
             'productId' => $parameters->getProductId(),
         ]);
         $approverEmail = $this->sslApproverEmail($approverParameters);
@@ -507,7 +530,7 @@ class OpenproviderClient
         $parameters->setDomainValidationMethods([
             [
                 'hostName' => $parameters->getDomain(),
-                'method'   => 'dns',
+                'method' => 'dns',
             ],
         ]);
 
@@ -526,10 +549,10 @@ class OpenproviderClient
                 LoggingContextKeys::META => [
                     'ssl_certificate_id' => $certificateId,
                 ],
-            ]
+            ],
         );
 
-        $result =  $this->retrieveSsl($certificateId);
+        $result = $this->retrieveSsl($certificateId);
 
         $job = new UpdateDns($parameters->getDomain(), false);
         $job->onConnection('sync');
@@ -585,16 +608,14 @@ class OpenproviderClient
             return new DestroyContactResult($response->isSuccess());
         } catch (Throwable $exception) {
             Log::error(
-                'Failed to delete a contact: '
-                . $exception->getMessage()
-                . "\nStack trace:\n"
-                . $exception->getTraceAsString()
+                'Failed to delete a contact: ' . $exception->getMessage() . "\nStack trace:\n"
+                    . $exception->getTraceAsString(),
             );
 
             throw new LogicException(
                 $exception->getMessage(),
                 $exception->getCode(),
-                $exception
+                $exception,
             );
         }
     }
@@ -626,7 +647,7 @@ class OpenproviderClient
                 LoggingContextKeys::META => [
                     'handle_id' => $handleId,
                 ],
-            ]
+            ],
         );
 
         return $handleId;
@@ -790,7 +811,7 @@ class OpenproviderClient
                 LoggingContextKeys::META => [
                     'approver_emails' => $approver->getEmails(),
                 ],
-            ]
+            ],
         );
 
         $approverEmails = $approver->getEmails();
@@ -825,7 +846,12 @@ class OpenproviderClient
             throw new OpenProviderResultException((string) $xmlResponse->reply->desc, $statusCode);
         }
 
-        $decoded = json_decode(json_encode((array) $xmlResponse->reply->data, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
+        $decoded = json_decode(
+            json_encode((array) $xmlResponse->reply->data, JSON_THROW_ON_ERROR),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
         assert(is_array($decoded));
 
         return $decoded;
@@ -857,12 +883,12 @@ class OpenproviderClient
                 $domainResponse->getOwnerHandle(),
                 $domainResponse->getAdminHandle(),
                 $domainResponse->getTechHandle(),
-                $domainResponse->getBillingHandle()
+                $domainResponse->getBillingHandle(),
             ),
             320 => $this->createHandles($parameters->getCustomer()),
             default => throw new Exception(sprintf(
                 'Unable to find or create handles for %s',
-                $parameters->getDomain()
+                $parameters->getDomain(),
             )),
         };
     }
@@ -874,7 +900,8 @@ class OpenproviderClient
      */
     private function storeDomainInformation(array $data, string $domain): void
     {
-        $subscription = Subscription::query()->whereProductGroupType(ProductGroupType::EXTENSION)
+        $subscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::EXTENSION)
             ->where('domain', $domain)
             ->first();
 

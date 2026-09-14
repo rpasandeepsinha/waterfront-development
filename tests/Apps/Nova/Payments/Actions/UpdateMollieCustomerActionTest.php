@@ -46,14 +46,13 @@ class UpdateMollieCustomerActionTest extends IntegrationTestCase
         $this->app->bind(function (): MollieCustomerManager {
             $mock = self::createStub(MollieCustomerManager::class);
 
-            $mock->method('updateCustomer')
-                ->willReturn($this->getMollieCustomerResponseDTO());
+            $mock->method('updateCustomer')->willReturn($this->getMollieCustomerResponseDTO());
 
             return $mock;
         });
 
-        $action   = self::resolve(NovaUpdateMollieCustomerAction::class);
-        $fields   = $this->getActionFields();
+        $action = self::resolve(NovaUpdateMollieCustomerAction::class);
+        $fields = $this->getActionFields();
         $response = $action->handle($fields, $this->mollieCustomers);
 
         self::assertInstanceOf(ActionResponse::class, $response);
@@ -70,7 +69,7 @@ class UpdateMollieCustomerActionTest extends IntegrationTestCase
             new Collection([
                 'mollie_customer_reference_id' => 'cst_test_1',
             ]),
-            new Collection([])
+            new Collection([]),
         );
     }
 
@@ -85,7 +84,7 @@ class UpdateMollieCustomerActionTest extends IntegrationTestCase
             metadata: new MollieCustomerMetadataDTO(
                 debtorId: 100124,
             ),
-            createdAt: $this->baseTime
+            createdAt: $this->baseTime,
         );
     }
 }

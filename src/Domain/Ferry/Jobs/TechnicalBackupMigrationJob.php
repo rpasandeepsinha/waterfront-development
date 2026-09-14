@@ -24,7 +24,7 @@ class TechnicalBackupMigrationJob extends MigrationJob implements ShouldQueue
 
     public function __construct(
         public Subscription $subscription,
-        protected string|null $failedTechnicalStatus,
+        protected ?string $failedTechnicalStatus,
         protected BackupMigrationPayload $backupTechnicalPayload,
     ) {
         parent::__construct($this->subscription, $this->failedTechnicalStatus);
@@ -56,7 +56,7 @@ class TechnicalBackupMigrationJob extends MigrationJob implements ShouldQueue
         $this->verifyBackup(
             provider: $provider,
             customerTenantUuid: $customerTenantUuid,
-            userUuid: $userUuid
+            userUuid: $userUuid,
         );
 
         $this->migrateBackup(
@@ -76,14 +76,14 @@ class TechnicalBackupMigrationJob extends MigrationJob implements ShouldQueue
     {
         try {
             $this->backupService->getApplicationListFromProvider(
-                provider: $provider
+                provider: $provider,
             );
         } catch (Throwable $exception) { // @phpstan-ignore-line Broad catch is valid for testing provider.
             $message = sprintf(
                 'Error when testing Acronis Provider [%d (%s)]: %s',
                 $provider->id,
                 $provider->name,
-                $exception->getMessage()
+                $exception->getMessage(),
             );
 
             $this->logger->error(
@@ -93,14 +93,14 @@ class TechnicalBackupMigrationJob extends MigrationJob implements ShouldQueue
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
                     LoggingContextKeys::QUEUE_JOB_ID => $this->getJobId(),
-                ]
+                ],
             );
         }
 
         try {
             $this->backupService->getOfferingItemsForProviderByTenant(
                 provider: $provider,
-                tenantUuid: $customerTenantUuid
+                tenantUuid: $customerTenantUuid,
             );
         } catch (Throwable $exception) { // @phpstan-ignore-line No leaking allowed
             $message = sprintf(
@@ -108,7 +108,7 @@ class TechnicalBackupMigrationJob extends MigrationJob implements ShouldQueue
                 $customerTenantUuid,
                 $provider->id,
                 $provider->name,
-                $exception->getMessage()
+                $exception->getMessage(),
             );
 
             $this->logger->error(
@@ -118,7 +118,7 @@ class TechnicalBackupMigrationJob extends MigrationJob implements ShouldQueue
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
                     LoggingContextKeys::QUEUE_JOB_ID => $this->getJobId(),
-                ]
+                ],
             );
         }
 
@@ -127,13 +127,13 @@ class TechnicalBackupMigrationJob extends MigrationJob implements ShouldQueue
                 provider: $provider,
                 userUuid: $userUuid,
             );
-        } catch (Throwable $exception) {  // @phpstan-ignore-line No leaking allowed
+        } catch (Throwable $exception) { // @phpstan-ignore-line No leaking allowed
             $message = sprintf(
                 'Error generating Acronis SSO link for user [%s] via provider [%d (%s)]: %s',
                 $userUuid,
                 $provider->id,
                 $provider->name,
-                $exception->getMessage()
+                $exception->getMessage(),
             );
 
             $this->logger->error(
@@ -143,20 +143,22 @@ class TechnicalBackupMigrationJob extends MigrationJob implements ShouldQueue
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
                     LoggingContextKeys::QUEUE_JOB_ID => $this->getJobId(),
-                ]
+                ],
             );
         }
     }
 
     private function fetchAcronisProvider(string $buTenantUuid): AcronisProvider
     {
-        return AcronisProvider::query()
-            ->where('tenant_uuid', $buTenantUuid)
-            ->firstOrFail();
+        return AcronisProvider::query()->where('tenant_uuid', $buTenantUuid)->firstOrFail();
     }
 
-    private function migrateBackup(int $providerId, UuidInterface $tenantUuid, UuidInterface $userUuid, UuidInterface $subscriptionUuid): void
-    {
+    private function migrateBackup(
+        int $providerId,
+        UuidInterface $tenantUuid,
+        UuidInterface $userUuid,
+        UuidInterface $subscriptionUuid,
+    ): void {
         $result = $this->backupService->createAcronisBackupDeployment(
             $providerId,
             $tenantUuid,
@@ -172,7 +174,7 @@ class TechnicalBackupMigrationJob extends MigrationJob implements ShouldQueue
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
                     LoggingContextKeys::QUEUE_JOB_ID => $this->getJobId(),
-                ]
+                ],
             );
         }
     }

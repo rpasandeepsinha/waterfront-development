@@ -26,7 +26,7 @@ class HostingIsUsingServerHostnameAsNameservers
         MigratedCustomer $migratedCustomer,
         Server $server,
         SiteConfigInterface $siteConfig,
-        string $jobUuid
+        string $jobUuid,
     ): bool {
         $username = $payload->hostingDetails->getUsername();
 
@@ -40,7 +40,7 @@ class HostingIsUsingServerHostnameAsNameservers
                 LoggingContextKeys::META => [
                     'username' => $username,
                 ],
-            ]
+            ],
         );
 
         try {
@@ -48,7 +48,7 @@ class HostingIsUsingServerHostnameAsNameservers
                 $payload->driver,
                 $server->ipv4,
                 $server->ipv6,
-                $siteConfig
+                $siteConfig,
             );
         } catch (ErrorException $exception) {
             $this->logger->error(
@@ -58,7 +58,7 @@ class HostingIsUsingServerHostnameAsNameservers
                     LoggingContextKeys::REQUEST_DATA => (string) json_encode($payload->toArray()),
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $migratedCustomer->reference_customer_number,
-                ]
+                ],
             );
 
             return false;

@@ -49,7 +49,9 @@ class UpdateServerActionTest extends IntegrationTestCase
     #[Test]
     public function executeKeepsStoredCredentialsWhenNoneAreSubmitted(): void
     {
-        $server = new ServerFactory()->directadmin()->createOne(['secret_key' => 'stored-secret-key']);
+        $server = new ServerFactory()
+            ->directadmin()
+            ->createOne(['secret_key' => 'stored-secret-key']);
 
         $this->updateServerAction->execute($server, $this->serverData(
             password: null,
@@ -66,7 +68,9 @@ class UpdateServerActionTest extends IntegrationTestCase
     #[Test]
     public function executeReplacesStoredCredentialsWhenNewOnesAreSubmitted(): void
     {
-        $server = new ServerFactory()->directadmin()->createOne(['secret_key' => 'stored-secret-key']);
+        $server = new ServerFactory()
+            ->directadmin()
+            ->createOne(['secret_key' => 'stored-secret-key']);
 
         $this->updateServerAction->execute($server, $this->serverData(
             password: 'rotated-password',

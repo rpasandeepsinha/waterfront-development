@@ -33,7 +33,10 @@ class PaymentUpdatedListener
         $payment = $event->getPayment();
 
         $this->logger->debug('Handling payment updated event', [
-            LoggingContextKeys::REQUEST_DATA => (string) json_encode([$event->getPayment(), $event->getPaymentResult()]),
+            LoggingContextKeys::REQUEST_DATA => (string) json_encode([
+                $event->getPayment(),
+                $event->getPaymentResult(),
+            ]),
         ]);
 
         if ($payment->order === null || $payment->status !== PaymentStatus::PAID) {
@@ -43,7 +46,10 @@ class PaymentUpdatedListener
         $this->subscriptionService->dispatchProcessOrderJob($payment->order);
 
         if ($payment->create_direct_debit_mandate === true) {
-            $this->paymentService->createDirectDebitMandateFromPaymentResult($payment->customer, $event->getPaymentResult());
+            $this->paymentService->createDirectDebitMandateFromPaymentResult(
+                $payment->customer,
+                $event->getPaymentResult(),
+            );
         }
     }
 }

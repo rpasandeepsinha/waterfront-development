@@ -55,12 +55,11 @@ class MandateRevokeManagerTest extends IntegrationTestCase
     public function revokeSuccessfulDoesntExistAtMollie(): void
     {
         Http::fake([
-            'api.paytsoftware.test/v1/psp_mandates?administration_id=1234&ids=5678' =>
-                function (Request $request) {
-                    self::assertSame('GET', $request->method());
+            'api.paytsoftware.test/v1/psp_mandates?administration_id=1234&ids=5678' => function (Request $request) {
+                self::assertSame('GET', $request->method());
 
-                    return Http::response(['data' => []]);
-                },
+                return Http::response(['data' => []]);
+            },
 
             "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates/$this->mollieMandateId" =>
                 function (Request $request) {
@@ -81,12 +80,11 @@ class MandateRevokeManagerTest extends IntegrationTestCase
     public function revokeSuccessfulExistsAtMollie(): void
     {
         Http::fake([
-            'api.paytsoftware.test/v1/psp_mandates?administration_id=1234&ids=5678' =>
-                function (Request $request) {
-                    self::assertSame('GET', $request->method());
+            'api.paytsoftware.test/v1/psp_mandates?administration_id=1234&ids=5678' => function (Request $request) {
+                self::assertSame('GET', $request->method());
 
-                    return Http::response(['data' => []]);
-                },
+                return Http::response(['data' => []]);
+            },
 
             "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates/$this->mollieMandateId" =>
                 function (Request $request) {
@@ -107,16 +105,17 @@ class MandateRevokeManagerTest extends IntegrationTestCase
     public function revokeThrowsPaytMandateStillExistsException(): void
     {
         Http::fake([
-            'api.paytsoftware.test/v1/psp_mandates?administration_id=1234&ids=5678' =>
-                function (Request $request) {
-                    self::assertSame('GET', $request->method());
+            'api.paytsoftware.test/v1/psp_mandates?administration_id=1234&ids=5678' => function (Request $request) {
+                self::assertSame('GET', $request->method());
 
-                    return Http::response(include __DIR__ . '/data/payt_mandates/get_psp_mandates_response.php');
-                },
+                return Http::response(include __DIR__ . '/data/payt_mandates/get_psp_mandates_response.php');
+            },
         ]);
 
         self::expectException(PaytMandateStillExistsException::class);
-        self::expectExceptionMessageIsOrContains('Payt mandate ID 5678 still exists for mollie mandate mdt_Uq9stfyFwz and mollie customer cst_gbPhDjoPSn');
+        self::expectExceptionMessageIsOrContains(
+            'Payt mandate ID 5678 still exists for mollie mandate mdt_Uq9stfyFwz and mollie customer cst_gbPhDjoPSn',
+        );
 
         $this->manager->revokeMandate($this->mandate);
     }

@@ -147,8 +147,8 @@ class DnsZoneTest extends TestCase
                 'test',
                 'ns1.sandwaveio.dev.',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $zone->addRecord(
@@ -157,8 +157,8 @@ class DnsZoneTest extends TestCase
                 'test',
                 'ns2.sandwaveio.dev.',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $zone->addRecord(
@@ -167,8 +167,8 @@ class DnsZoneTest extends TestCase
                 'test',
                 'ns1.sandwaveio.dev sandwaveio.dev 1970101000000',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $records = $zone->getRecordsOfType('NS');
@@ -189,8 +189,8 @@ class DnsZoneTest extends TestCase
                 'test',
                 'ns1.sandwaveio.dev.',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $record = $zone->getRecordOfType('NS');
@@ -207,7 +207,7 @@ class DnsZoneTest extends TestCase
             name: 'test',
             content: 'ns1.sandwaveio.dev.',
             ttl: 3600,
-            disabled: false
+            disabled: false,
         );
 
         $zone = new DnsZone(new Fqdn('test-domain.nl'));
@@ -219,8 +219,8 @@ class DnsZoneTest extends TestCase
                 name: 'other-test-not-in-result',
                 content: 'ns1.other.dev.',
                 ttl: 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $records = $zone->getRecordsOfTypeAndName('NS', 'test');

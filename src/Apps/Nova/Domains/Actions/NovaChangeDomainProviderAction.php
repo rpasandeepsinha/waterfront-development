@@ -27,12 +27,13 @@ class NovaChangeDomainProviderAction extends NovaSubscriptionAction
 
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private readonly ProviderRepository $providerRepository
+        private readonly ProviderRepository $providerRepository,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool =>
+            fn (NovaRequest $request): bool => (
                 $this->onlyForSingleSubscription($request)
                 && $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::EXTENSION)
+            ),
         );
 
         $this->sole();
@@ -51,10 +52,17 @@ class NovaChangeDomainProviderAction extends NovaSubscriptionAction
         $subscription = $models->first();
         Assert::isInstanceOf($subscription, Subscription::class, 'Only Base Subscriptions allowed');
 
-        $newProvider = $this->providerRepository->getByType(ProviderType::DOMAIN, ProviderSlug::from($fields->provider));
+        $newProvider = $this->providerRepository->getByType(
+            ProviderType::DOMAIN,
+            ProviderSlug::from($fields->provider),
+        );
 
         $domainDeployment = $subscription->domainDeployment;
-        Assert::isInstanceOf($domainDeployment, DomainDeployment::class, 'Only allowed with a Domain subscription attached');
+        Assert::isInstanceOf(
+            $domainDeployment,
+            DomainDeployment::class,
+            'Only allowed with a Domain subscription attached',
+        );
 
         $domainDeployment->provider_id = $newProvider->id;
         $domainDeployment->save();

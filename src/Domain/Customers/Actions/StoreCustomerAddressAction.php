@@ -23,11 +23,11 @@ class StoreCustomerAddressAction
         Customer $customer,
         string $streetName,
         string $streetNumber,
-        string|null $streetNumberAddition,
+        ?string $streetNumberAddition,
         string $zipCode,
         string $city,
         string $countryCode,
-        string|null $type = null,
+        ?string $type = null,
     ): CustomerAddress {
         if ($customer->id === null) {
             throw new StoreCustomerAddressNoExistingCustomerException([

@@ -33,10 +33,12 @@ class DomainNameCoupleAction
      */
     public function execute(string $domain, Subscription $subscription): void
     {
-        $provisionData = $this->provisionGateway->fetch(
-            filters: new ProvisioningResultQueryFilters(tag: Uuid::fromString($subscription->uuid)),
-            limit: 1
-        )->first();
+        $provisionData = $this->provisionGateway
+            ->fetch(
+                filters: new ProvisioningResultQueryFilters(tag: Uuid::fromString($subscription->uuid)),
+                limit: 1,
+            )
+            ->first();
 
         if ($provisionData === null) {
             $this->logger->warning(
@@ -47,14 +49,17 @@ class DomainNameCoupleAction
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                ]
+                ],
             );
 
-            throw new DomainNameCoupleActionException(sprintf('No provisioning data found for subscription %s', $subscription->uuid));
+            throw new DomainNameCoupleActionException(sprintf(
+                'No provisioning data found for subscription %s',
+                $subscription->uuid,
+            ));
         }
 
         $domainNameCoupleResult = $this->provisionGateway->request(
-            new DomainNameCoupleRequest($domain, $provisionData->requestUuid, Str::uuid())
+            new DomainNameCoupleRequest($domain, $provisionData->requestUuid, Str::uuid()),
         );
 
         Assert::isInstanceOf($domainNameCoupleResult, DomainNameCoupleResult::class);
@@ -71,7 +76,7 @@ class DomainNameCoupleAction
                         'couple_request_uuid' => $provisionData->requestUuid,
                     ],
                     LoggingContextKeys::EXCEPTION => $domainNameCoupleResult->exception,
-                ]
+                ],
             );
 
             if ($domainNameCoupleResult->exception instanceof ValidationException) {
@@ -80,7 +85,7 @@ class DomainNameCoupleAction
 
             throw new DomainNameCoupleActionException(
                 message: sprintf('Domain couple action failed for domain [%s]', $domain),
-                previous: $domainNameCoupleResult->exception
+                previous: $domainNameCoupleResult->exception,
             );
         }
     }

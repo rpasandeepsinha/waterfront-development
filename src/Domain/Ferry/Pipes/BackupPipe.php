@@ -36,12 +36,12 @@ class BackupPipe extends ValidationPipe
             [
                 LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
-            ]
+            ],
         );
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Start'
+            message: 'Start',
         );
 
         /** @var array<array<string, string|int|array<string, string>>> $backups */
@@ -49,7 +49,7 @@ class BackupPipe extends ValidationPipe
 
         $validator = $this->validatorFactory->make(
             $backups,
-            MigrationValidationLibrary::getBackupBaseRules()
+            MigrationValidationLibrary::getBackupBaseRules(),
         );
 
         try {
@@ -63,7 +63,7 @@ class BackupPipe extends ValidationPipe
 
             $payload->addValidationTimeline(
                 pipeline: $this->getValidationIdentifier(),
-                message: 'Validation'
+                message: 'Validation',
             );
 
             return $this->finishPipe(MigrationValidation::BACKUP_PIPE_PASSED, $payload, $this->logger, $next);
@@ -74,23 +74,21 @@ class BackupPipe extends ValidationPipe
             $backupData = $backup['backup_data'];
             $buTenantUuid = $backupData['bu_tenant_uuid'];
             $customerTenantUuid = $backupData['customer_tenant_uuid'];
-            $userUuid   = $backupData['user_uuid'];
+            $userUuid = $backupData['user_uuid'];
 
             // pre-checked in validation
-            $provider = AcronisProvider::query()
-                ->where('tenant_uuid', $buTenantUuid)
-                ->firstOrFail();
+            $provider = AcronisProvider::query()->where('tenant_uuid', $buTenantUuid)->firstOrFail();
 
             try {
                 $this->backupService->getApplicationListFromProvider(
-                    provider: $provider
+                    provider: $provider,
                 );
             } catch (Throwable $exception) { // @phpstan-ignore-line Broad catch is valid for testing provider.
                 $message = sprintf(
                     'Error when testing Acronis Provider [%d (%s)]: %s',
                     $provider->id,
                     $provider->name,
-                    $exception->getMessage()
+                    $exception->getMessage(),
                 );
 
                 $this->logger->error(
@@ -101,20 +99,20 @@ class BackupPipe extends ValidationPipe
                         LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
                         LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                         LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
-                    ]
+                    ],
                 );
 
                 $this->addValidationResult(
                     $payload,
                     MigrationValidation::BACKUP_MIGRATION_BU_TENANT_ERROR,
-                    $message
+                    $message,
                 );
             }
 
             try {
                 $this->backupService->getOfferingItemsForProviderByTenant(
                     provider: $provider,
-                    tenantUuid: $customerTenantUuid
+                    tenantUuid: $customerTenantUuid,
                 );
             } catch (Throwable $exception) { // @phpstan-ignore-line No leaking allowed
                 $message = sprintf(
@@ -122,7 +120,7 @@ class BackupPipe extends ValidationPipe
                     $customerTenantUuid,
                     $provider->id,
                     $provider->name,
-                    $exception->getMessage()
+                    $exception->getMessage(),
                 );
 
                 $this->logger->error(
@@ -133,13 +131,13 @@ class BackupPipe extends ValidationPipe
                         LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
                         LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                         LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
-                    ]
+                    ],
                 );
 
                 $this->addValidationResult(
                     $payload,
                     MigrationValidation::BACKUP_MIGRATION_CUSTOMER_TENANT_ERROR,
-                    $message
+                    $message,
                 );
             }
 
@@ -148,13 +146,13 @@ class BackupPipe extends ValidationPipe
                     provider: $provider,
                     userUuid: $userUuid,
                 );
-            } catch (Throwable $exception) {  // @phpstan-ignore-line No leaking allowed
+            } catch (Throwable $exception) { // @phpstan-ignore-line No leaking allowed
                 $message = sprintf(
                     'Error generating Acronis SSO link for user [%s] via provider [%d (%s)]: %s',
                     $userUuid,
                     $provider->id,
                     $provider->name,
-                    $exception->getMessage()
+                    $exception->getMessage(),
                 );
 
                 $this->logger->error(
@@ -165,20 +163,20 @@ class BackupPipe extends ValidationPipe
                         LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
                         LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                         LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
-                    ]
+                    ],
                 );
 
                 $this->addValidationResult(
                     $payload,
                     MigrationValidation::BACKUP_MIGRATION_SSO_ERROR,
-                    $message
+                    $message,
                 );
             }
         }
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Finish'
+            message: 'Finish',
         );
 
         return $this->finishPipe(MigrationValidation::BACKUP_PIPE_PASSED, $payload, $this->logger, $next);

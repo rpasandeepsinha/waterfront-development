@@ -37,7 +37,7 @@ class CreateEmailForwardTest extends DirectAdminTestCase
 
         $api = new DirectAdminApi(
             $this->getTestServer(),
-            new Client(['handler' => $handlerStack])
+            new Client(['handler' => $handlerStack]),
         );
 
         $command = $api->loginAs('fake-user')->call($command);
@@ -48,12 +48,12 @@ class CreateEmailForwardTest extends DirectAdminTestCase
                 'result' => "Alias source@test.test -> destination1@test.test,destination2@test.test has been created\n",
                 'success' => 'Forwarder created',
             ],
-            $command->getFormValues()
+            $command->getFormValues(),
         );
 
         self::assertSame(
             'action=create&domain=test.test&user=source&email=destination1%40test.test%2Cdestination2%40test.test',
-            $command->getRequest()->getBody()->getContents()
+            $command->getRequest()->getBody()->getContents(),
         );
     }
 
@@ -81,11 +81,13 @@ class CreateEmailForwardTest extends DirectAdminTestCase
                 // Since we are injecting a custom client we need to ensure the same error handling
                 // as the client set through the normal flow.
                 'http_errors' => false,
-            ])
+            ]),
         );
 
         $this->expectException(DirectAdminCommandException::class);
-        $this->expectExceptionMessageIs('Failed [CreateEmailForward]: Could not execute your request - You do not own that domain');
+        $this->expectExceptionMessageIs(
+            'Failed [CreateEmailForward]: Could not execute your request - You do not own that domain',
+        );
 
         $api->loginAs('fake-user')->call($command);
     }

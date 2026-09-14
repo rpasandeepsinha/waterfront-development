@@ -36,20 +36,18 @@ class StoreCustomerContactActionTest extends IntegrationTestCase
         $this->customer = new CustomerFactory()->withAddress()->createOne();
 
         $harbor = self::createMock(Harbor::class);
-        $harbor->expects(self::once())
-            ->method('propagateCustomer');
+        $harbor->expects(self::once())->method('propagateCustomer');
 
         $this->app->singleton(CommunicatesWithHarbor::class, fn (): CommunicatesWithHarbor => $harbor);
 
-        $customerContact = $this->storeCustomerContactAction
-            ->execute(
-                customer: $this->customer,
-                type: CustomerContactType::FINANCIAL,
-                email: $financialEmail,
-                firstName: $firstName,
-                lastName: $lastName,
-                company: null,
-            );
+        $customerContact = $this->storeCustomerContactAction->execute(
+            customer: $this->customer,
+            type: CustomerContactType::FINANCIAL,
+            email: $financialEmail,
+            firstName: $firstName,
+            lastName: $lastName,
+            company: null,
+        );
 
         self::assertSame($financialEmail, $customerContact->email);
         self::assertSame($firstName, $customerContact->first_name);
@@ -64,20 +62,18 @@ class StoreCustomerContactActionTest extends IntegrationTestCase
         $this->customer = new CustomerFactory()->withAddress()->createOne();
 
         $harbor = self::createMock(Harbor::class);
-        $harbor->expects(self::once())
-            ->method('propagateCustomer');
+        $harbor->expects(self::once())->method('propagateCustomer');
 
         $this->app->singleton(CommunicatesWithHarbor::class, fn (): CommunicatesWithHarbor => $harbor);
 
-        $customerContact = $this->storeCustomerContactAction
-            ->execute(
-                customer: $this->customer,
-                type: CustomerContactType::FINANCIAL,
-                email: $financialEmail,
-                firstName: null,
-                lastName: null,
-                company: null,
-            );
+        $customerContact = $this->storeCustomerContactAction->execute(
+            customer: $this->customer,
+            type: CustomerContactType::FINANCIAL,
+            email: $financialEmail,
+            firstName: null,
+            lastName: null,
+            company: null,
+        );
 
         self::assertSame($financialEmail, $customerContact->email);
         self::assertSame($this->customer->first_name, $customerContact->first_name);

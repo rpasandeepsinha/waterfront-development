@@ -46,7 +46,8 @@ return [
     'wallet_credit_balance' => 1,
     'mandates' => [],
     'labels' => [
-        'test-label', 'existing-label',
+        'test-label',
+        'existing-label',
     ],
     'dnsTemplates' => [
         [
@@ -61,7 +62,8 @@ return [
                     'priority' => null,
                     'ttl' => 3600,
                     'disabled' => false,
-                ], [
+                ],
+                [
                     'reference_record_id' => '999',
                     'name' => 'subdomain.@',
                     'type' => 'MX',

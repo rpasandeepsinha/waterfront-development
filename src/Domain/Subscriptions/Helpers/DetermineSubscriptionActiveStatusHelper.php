@@ -16,17 +16,29 @@ class DetermineSubscriptionActiveStatusHelper
     {
         switch ($subscription->administrative_status) {
             case AdministrativeStatus::ACTIVE->value:
-                if (in_array($subscription->technical_status, [TechnicalStatus::OK->value, DomainStatus::ACTIVE->value], true)) {
+                if (in_array(
+                    $subscription->technical_status,
+                    [TechnicalStatus::OK->value, DomainStatus::ACTIVE->value],
+                    true,
+                )) {
                     return AdministrativeStatus::ACTIVE->value;
-                } elseif (in_array($subscription->technical_status, [TechnicalStatus::FAILED->value, DomainStatus::FAILED->value], true)) {
-                    return $subscription->orderLineItem?->status === OrderLineItemStatus::TRANSFER ? 'transfer_failed' : 'registration_failed';
+                } elseif (in_array(
+                    $subscription->technical_status,
+                    [TechnicalStatus::FAILED->value, DomainStatus::FAILED->value],
+                    true,
+                )) {
+                    return $subscription->orderLineItem?->status === OrderLineItemStatus::TRANSFER
+                        ? 'transfer_failed'
+                        : 'registration_failed';
                 }
+
                 break;
             case AdministrativeStatus::CANCELED->value:
                 return AdministrativeStatus::CANCELED->value;
             case AdministrativeStatus::EXPIRED->value:
                 return AdministrativeStatus::EXPIRED->value;
         }
+
         return 'processing';
     }
 }

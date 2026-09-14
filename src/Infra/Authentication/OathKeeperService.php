@@ -31,7 +31,7 @@ class OathKeeperService
 {
     public function __construct(
         private readonly ConfigurationInterface $configuration,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -63,6 +63,7 @@ class OathKeeperService
             $this->logger->notice('Error in getting JWKS from Oathkeeper: {exception.message}', [
                 LoggingContextKeys::EXCEPTION => $exception,
             ]);
+
             return null;
         }
 
@@ -98,6 +99,7 @@ class OathKeeperService
             $this->logger->notice('Error in verifying keyset from Oathkeeper: {exception.message}', [
                 LoggingContextKeys::EXCEPTION => $exception,
             ]);
+
             return null;
         }
 
@@ -139,6 +141,7 @@ class OathKeeperService
             $this->logger->notice('Error in verifying JWT claim: {exception.message}', [
                 LoggingContextKeys::EXCEPTION => $exception,
             ]);
+
             return false;
         }
 

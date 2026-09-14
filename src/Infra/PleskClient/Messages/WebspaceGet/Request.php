@@ -8,8 +8,9 @@ use Waterfront\Domain\Hosting\Interfaces\Hosting\RequestInterface;
 
 class Request implements RequestInterface
 {
-    public function __construct(private readonly string $username)
-    {
+    public function __construct(
+        private readonly string $username,
+    ) {
     }
 
     /**

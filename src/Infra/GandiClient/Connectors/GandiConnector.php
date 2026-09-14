@@ -24,7 +24,7 @@ class GandiConnector extends AbstractConnector
         parent::__construct(
             logger: $this->logger,
             logMasker: $this->logMasker,
-            retryConfig: $this->gandiConfig->retryConfig
+            retryConfig: $this->gandiConfig->retryConfig,
         );
     }
 
@@ -59,7 +59,7 @@ class GandiConnector extends AbstractConnector
     protected function defaultAuth(): TokenAuthenticator
     {
         return new TokenAuthenticator(
-            token: $this->gandiConfig->authToken
+            token: $this->gandiConfig->authToken,
         );
     }
 }

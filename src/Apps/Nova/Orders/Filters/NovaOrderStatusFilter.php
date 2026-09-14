@@ -21,6 +21,7 @@ class NovaOrderStatusFilter extends Filter
     public function options(NovaRequest $request): array
     {
         $translator = resolve(TranslatorInterface::class);
+
         return [
             $translator->translate('orders.order_status.on_hold') => OrderStatus::ON_HOLD->value,
             $translator->translate('orders.order_status.in_progress') => OrderStatus::IN_PROGRESS->value,

@@ -84,7 +84,7 @@ interface DomainDriverInterface
         Customer $customer,
         Handles $handles,
         bool $isPrivateWhoisEnabled = false,
-        bool $dnssecEnabled = false
+        bool $dnssecEnabled = false,
     ): RegistrationResult;
 
     /**
@@ -129,6 +129,11 @@ interface DomainDriverInterface
     public function hasZoneCheck(string $domain): bool;
 
     public function creationRequiresPreValidation(string $domain): bool;
+
+    /**
+     * @return array<int, string>
+     */
+    public function getContactValidationCategoriesForDomain(string $domain): array;
 
     /**
      * @throws Exception

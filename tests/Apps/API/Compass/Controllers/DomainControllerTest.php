@@ -23,7 +23,11 @@ use Waterfront\Domain\DNS\DnsService;
 use Waterfront\Domain\DNS\Entities\DnsRecords\ARecord;
 use Waterfront\Domain\DNS\Entities\DnsRecords\CnameRecord;
 use Waterfront\Domain\DNS\Exceptions\DnsZoneNotFoundException;
+use Waterfront\Domain\Domains\DTO\DomainDetailsDTO;
+use Waterfront\Domain\Domains\DTO\RetrieveCustomerResponse;
 use Waterfront\Domain\Domains\Factories\DomainServiceFactory;
+use Waterfront\Domain\Domains\Interfaces\DomainDriverInterface;
+use Waterfront\Domain\Domains\Models\DomainContact;
 use Waterfront\Domain\Products\Enums\ProductGroupType;
 use Waterfront\Domain\Providers\Enums\ProviderSlug;
 use Waterfront\Domain\Providers\Enums\ProviderType;
@@ -54,15 +58,14 @@ class DomainControllerTest extends IntegrationTestCase
             ->for(new CustomerFactory()->createOne())
             ->for(new ProductFactory()->nlDomain())
             ->createOne(['domain' => self::DOMAIN]);
-        new DomainDeploymentFactory()
-            ->for($provider)
-            ->createOne([
-                'subscription_uuid' => $subscription->uuid,
-                'contact_owner_id' => $domainContact->id,
-            ]);
+        new DomainDeploymentFactory()->for($provider)->createOne([
+            'subscription_uuid' => $subscription->uuid,
+            'contact_owner_id' => $domainContact->id,
+        ]);
 
         $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.domain.contact', ['domain' => self::DOMAIN]))->assertOk();
+            ->getJson($this->generateRoute('admin.domain.contact', ['domain' => self::DOMAIN]))
+            ->assertOk();
 
         $content = $response->json();
 
@@ -71,9 +74,119 @@ class DomainControllerTest extends IntegrationTestCase
     }
 
     #[Test]
+    public function syncDomainContactReturnsNotFoundWhenDomainDoesNotExist(): void
+    {
+        $translator = self::resolve(TranslatorInterface::class);
+
+        $this->actingAsEmployee()
+            ->postJson($this->generateRoute('admin.domain.contact.sync', ['domain' => self::DOMAIN]))
+            ->assertNotFound()
+            ->assertExactJson(['message' => $translator->translate('domain-contact.domain-not-found')]);
+    }
+
+    #[Test]
+    public function syncDomainContactReturnsSuccessWhenDomainExists(): void
+    {
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for(new ProductFactory()->nlDomain())
+            ->createOne(['domain' => self::DOMAIN]);
+
+        $deployment = new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->createOne(['subscription_uuid' => $subscription->uuid]);
+
+        $domainDriver = self::createMock(DomainDriverInterface::class);
+        $domainDriver
+            ->expects(
+                self::once(),
+            )
+            ->method('fetchDomain')
+            ->with(self::DOMAIN)
+            ->willReturn(new DomainDetailsDTO(
+                domainName: self::DOMAIN,
+                registrant: 'REGISTRANT',
+                status: ['ACTIVE'],
+                autoRenew: true,
+                autoRenewPeriod: 1,
+                ns: ['ns1.example.nl'],
+                premium: false,
+            ));
+        $domainDriver
+            ->expects(self::once())
+            ->method('retrieveCustomerHandle')
+            ->with('REGISTRANT')
+            ->willReturn(new RetrieveCustomerResponse(
+                status: null,
+                reason: null,
+                responseCode: 0,
+                handle: 'REGISTRANT',
+                organization: 'Acme',
+                vat: 'NL000000000B01',
+                firstName: 'John',
+                lastName: 'Doe',
+                gender: 'M',
+                phone: '+31612345678',
+                email: 'john.doe@example.com',
+                streetName: 'Street',
+                streetNumber: '1',
+                zip: '1234AB',
+                city: 'Amsterdam',
+                countryCode: 'NL',
+            ));
+
+        $domainServiceFactory = self::createMock(DomainServiceFactory::class);
+        $domainServiceFactory
+            ->expects(
+                self::once(),
+            )
+            ->method('driver')
+            ->with(ProviderSlug::REALTIME_REGISTER, null)
+            ->willReturn($domainDriver);
+
+        $this->app->bind(DomainServiceFactory::class, fn () => $domainServiceFactory);
+
+        $translator = self::resolve(TranslatorInterface::class);
+
+        $this->actingAsEmployee()
+            ->postJson($this->generateRoute('admin.domain.contact.sync', ['domain' => self::DOMAIN]))
+            ->assertOk()
+            ->assertExactJson(['message' => $translator->translate('domain-contact.synced-successfully')]);
+
+        $deployment->refresh();
+        self::assertNotNull($deployment->contact_owner_id);
+        $contactOwner = $deployment->contactOwner;
+        self::assertInstanceOf(DomainContact::class, $contactOwner);
+        self::assertSame('john.doe@example.com', $contactOwner->email);
+        self::assertSame('John', $contactOwner->first_name);
+        self::assertSame('Doe', $contactOwner->last_name);
+        self::assertSame('Acme', $contactOwner->organization);
+        self::assertSame('31', $contactOwner->phone_country_code);
+        self::assertSame('6', $contactOwner->phone_area_code);
+        self::assertSame('12345678', $contactOwner->phone_subscriber_number);
+        self::assertSame('Street', $contactOwner->street_name);
+        self::assertSame('1', $contactOwner->street_number);
+        self::assertSame('1234AB', $contactOwner->zip_code);
+        self::assertSame('Amsterdam', $contactOwner->city);
+        self::assertSame('NL', $contactOwner->country_code);
+
+        self::assertDatabaseHas('domain_contact_provider', [
+            'domain_contact_id' => $contactOwner->id,
+            'provider_id' => $deployment->provider_id,
+            'external_contact' => 'REGISTRANT',
+            'domain_business_unit_id' => $deployment->domain_business_unit_id,
+        ]);
+    }
+
+    #[Test]
     public function showNameserversForDomain(): void
     {
-        $provider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => true, 'slug' => ProviderSlug::OPEN_PROVIDER]);
+        $provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'enabled' => true,
+            'default' => true,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+        ]);
 
         $groupExtension = new ProductGroupFactory()->createOne([
             'slug' => ProductGroupType::EXTENSION,
@@ -96,54 +209,56 @@ class DomainControllerTest extends IntegrationTestCase
             'subscription_uuid' => $subscription->uuid,
         ]);
 
-        $this->actingAsEmployee()->getJson(
-            $this->generateRoute('admin.domain.nameservers', ['domain' => self::DOMAIN])
-        )->assertExactJson([
-                    'nameservers' => [
-                        [
-                            'id' => '312592',
-                            'seqNr' => '0',
-                            'name' => 'ns1.customserver.nl',
-                            'ip' => '52.57.114.204',
-                            'ip6' => '2a05:d014:0f80:6e00:bde7:af96:9434:75d5',
-                        ],
-                        [
-                            'id' => '312595',
-                            'seqNr' => '1',
-                            'name' => 'ns2.customserver.be',
-                            'ip' => '52.214.115.96',
-                            'ip6' => '2a05:d018:061d:bd00:21bc:c938:d548:dab1',
-                        ],
-                        [
-                            'id' => '312598',
-                            'seqNr' => '2',
-                            'name' => 'ns3.customserver.eu',
-                            'ip' => '52.56.134.244',
-                            'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
-                        ],
-                        [
-                            'id' => '312598',
-                            'seqNr' => '3',
-                            'name' => 'ns4.customserver.eu',
-                            'ip' => '52.56.134.244',
-                            'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
-                        ],
-                        [
-                            'id' => '312598',
-                            'seqNr' => '4',
-                            'name' => 'ns5.customserver.eu',
-                            'ip' => '52.56.134.244',
-                            'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
-                        ],
-                        [
-                            'id' => '312598',
-                            'seqNr' => '5',
-                            'name' => 'ns6.customserver.eu',
-                            'ip' => '52.56.134.244',
-                            'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
-                        ],
+        $this->actingAsEmployee()
+            ->getJson(
+                $this->generateRoute('admin.domain.nameservers', ['domain' => self::DOMAIN]),
+            )
+            ->assertExactJson([
+                'nameservers' => [
+                    [
+                        'id' => '312592',
+                        'seqNr' => '0',
+                        'name' => 'ns1.customserver.nl',
+                        'ip' => '52.57.114.204',
+                        'ip6' => '2a05:d014:0f80:6e00:bde7:af96:9434:75d5',
                     ],
-                ]);
+                    [
+                        'id' => '312595',
+                        'seqNr' => '1',
+                        'name' => 'ns2.customserver.be',
+                        'ip' => '52.214.115.96',
+                        'ip6' => '2a05:d018:061d:bd00:21bc:c938:d548:dab1',
+                    ],
+                    [
+                        'id' => '312598',
+                        'seqNr' => '2',
+                        'name' => 'ns3.customserver.eu',
+                        'ip' => '52.56.134.244',
+                        'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
+                    ],
+                    [
+                        'id' => '312598',
+                        'seqNr' => '3',
+                        'name' => 'ns4.customserver.eu',
+                        'ip' => '52.56.134.244',
+                        'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
+                    ],
+                    [
+                        'id' => '312598',
+                        'seqNr' => '4',
+                        'name' => 'ns5.customserver.eu',
+                        'ip' => '52.56.134.244',
+                        'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
+                    ],
+                    [
+                        'id' => '312598',
+                        'seqNr' => '5',
+                        'name' => 'ns6.customserver.eu',
+                        'ip' => '52.56.134.244',
+                        'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
+                    ],
+                ],
+            ]);
     }
 
     /**
@@ -158,9 +273,11 @@ class DomainControllerTest extends IntegrationTestCase
         $dnsRecordCollection = new Collection([$aRecord, $cName]);
 
         $dnsMock = self::createMock(DnsService::class);
-        $dnsMock->expects(
-            self::once()
-        )->method('getDnsRecordsForDomain')
+        $dnsMock
+            ->expects(
+                self::once(),
+            )
+            ->method('getDnsRecordsForDomain')
             ->with(self::DOMAIN)
             ->willReturn($dnsRecordCollection);
 
@@ -179,9 +296,11 @@ class DomainControllerTest extends IntegrationTestCase
     public function showDnsZoneNotFound(): void
     {
         $dnsMock = self::createMock(DnsService::class);
-        $dnsMock->expects(
-            self::once()
-        )->method('getDnsRecordsForDomain')
+        $dnsMock
+            ->expects(
+                self::once(),
+            )
+            ->method('getDnsRecordsForDomain')
             ->with(self::DOMAIN)
             ->willThrowException(new DnsZoneNotFoundException('Dns zone not found'));
 
@@ -232,16 +351,20 @@ class DomainControllerTest extends IntegrationTestCase
         ]);
 
         $rtrService = self::createMock(RtrService::class);
-        $rtrService->expects(
-            self::once()
-        )->method('listProcessesForDomain')
+        $rtrService
+            ->expects(
+                self::once(),
+            )
+            ->method('listProcessesForDomain')
             ->with(self::DOMAIN)
             ->willReturn($processCollection);
 
         $domainServiceFactory = self::createMock(DomainServiceFactory::class);
-        $domainServiceFactory->expects(
-            self::once()
-        )->method('driver')
+        $domainServiceFactory
+            ->expects(
+                self::once(),
+            )
+            ->method('driver')
             ->with(ProviderSlug::REALTIME_REGISTER, null)
             ->willReturn($rtrService);
 
@@ -277,9 +400,11 @@ class DomainControllerTest extends IntegrationTestCase
             ->createOne(['subscription_uuid' => $subscription->uuid]);
 
         $domainServiceFactory = self::createMock(DomainServiceFactory::class);
-        $domainServiceFactory->expects(
-            self::never()
-        )->method('driver');
+        $domainServiceFactory
+            ->expects(
+                self::never(),
+            )
+            ->method('driver');
 
         $this->app->bind(DomainServiceFactory::class, fn () => $domainServiceFactory);
 

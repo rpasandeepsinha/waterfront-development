@@ -18,7 +18,7 @@ class BackupUpdateResult extends AbstractProvisionResult
         ProvisionStatus $provisionStatus,
         public ?OfferingItems $offeringItems = null,
         ?Exception $exception = null,
-        ?ValidationResult $validationResult = null
+        ?ValidationResult $validationResult = null,
     ) {
         parent::__construct($provisionData, $provisionStatus, $exception, $validationResult);
     }

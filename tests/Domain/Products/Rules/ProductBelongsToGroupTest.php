@@ -39,7 +39,8 @@ class ProductBelongsToGroupTest extends TestCase
     {
         $uuid = Uuid::uuid4()->toString();
 
-        $this->mockProductRepository->expects(self::once())
+        $this->mockProductRepository
+            ->expects(self::once())
             ->method('productExistsForGroup')
             ->with($uuid, ProductGroupType::ONE_TIME_SERVICE)
             ->willReturn(true);
@@ -61,12 +62,14 @@ class ProductBelongsToGroupTest extends TestCase
     {
         $uuid = Uuid::uuid4()->toString();
 
-        $this->mockProductRepository->expects(self::once())
+        $this->mockProductRepository
+            ->expects(self::once())
             ->method('productExistsForGroup')
             ->with($uuid, ProductGroupType::ONE_TIME_SERVICE)
             ->willReturn(false);
 
-        $this->mockTranslator->expects(self::once())
+        $this->mockTranslator
+            ->expects(self::once())
             ->method('translate')
             ->with('validation.product_not_in_group')
             ->willReturn('The selected product does not belong to the given product group.');
@@ -86,7 +89,8 @@ class ProductBelongsToGroupTest extends TestCase
     {
         $this->mockProductRepository->expects(self::never())->method('productExistsForGroup');
 
-        $this->mockTranslator->expects(self::once())
+        $this->mockTranslator
+            ->expects(self::once())
             ->method('translate')
             ->with('validation.product_not_in_group')
             ->willReturn('The selected product does not belong to the given product group.');
@@ -106,7 +110,8 @@ class ProductBelongsToGroupTest extends TestCase
     {
         $uuid = Uuid::uuid4()->toString();
 
-        $this->mockProductRepository->expects(self::once())
+        $this->mockProductRepository
+            ->expects(self::once())
             ->method('productExistsForGroup')
             ->with($uuid, ProductGroupType::HOSTING)
             ->willReturn(true);

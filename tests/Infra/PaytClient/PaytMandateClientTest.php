@@ -32,35 +32,34 @@ class PaytMandateClientTest extends IntegrationTestCase
     public function createMandateSuccess(): void
     {
         Http::fake([
-            'api.paytsoftware.test/v1/psp_mandates' =>
-                function (Request $request) {
-                    self::assertSame('POST', $request->method());
+            'api.paytsoftware.test/v1/psp_mandates' => function (Request $request) {
+                self::assertSame('POST', $request->method());
 
-                    self::assertSame(
-                        [
-                            'administration_id' => '1234',
-                            'psp_mandates' => [
-                                [
-                                    'bank_account_name' => 'Tester de Test',
-                                    'bank_account_number' => 'NL18RABO0123459876',
-                                    'mandate_identifier' => 'mdt_test1234',
-                                    'debtor_code' => '10001234',
-                                    'customer_identifier' => 'cst_test1234',
-                                    'provider_code' => 'mollie',
-                                ],
-                            ],
-                            'fields' => [
-                                'only' => [
-                                    'id',
-                                    'mandate_identifier',
-                                ],
+                self::assertSame(
+                    [
+                        'administration_id' => '1234',
+                        'psp_mandates' => [
+                            [
+                                'bank_account_name' => 'Tester de Test',
+                                'bank_account_number' => 'NL18RABO0123459876',
+                                'mandate_identifier' => 'mdt_test1234',
+                                'debtor_code' => '10001234',
+                                'customer_identifier' => 'cst_test1234',
+                                'provider_code' => 'mollie',
                             ],
                         ],
-                        $request->data()
-                    );
+                        'fields' => [
+                            'only' => [
+                                'id',
+                                'mandate_identifier',
+                            ],
+                        ],
+                    ],
+                    $request->data(),
+                );
 
-                    return Http::response(include __DIR__ . '/data/psp_mandates/create_psp_mandates_response.php', 201);
-                },
+                return Http::response(include __DIR__ . '/data/psp_mandates/create_psp_mandates_response.php', 201);
+            },
         ]);
 
         $paytMandate = new PaytMandateCreateDTO(
@@ -103,12 +102,11 @@ class PaytMandateClientTest extends IntegrationTestCase
     public function getPspMandatesByPaytIdSuccess(): void
     {
         Http::fake([
-            'api.paytsoftware.test/v1/psp_mandates?administration_id=1234&ids=5' =>
-                function (Request $request) {
-                    self::assertSame('GET', $request->method());
+            'api.paytsoftware.test/v1/psp_mandates?administration_id=1234&ids=5' => function (Request $request) {
+                self::assertSame('GET', $request->method());
 
-                    return Http::response(include __DIR__ . '/data/psp_mandates/get_psp_mandates_response.php');
-                },
+                return Http::response(include __DIR__ . '/data/psp_mandates/get_psp_mandates_response.php');
+            },
         ]);
 
         $pspMandate = $this->client->getPspMandatesByPaytId('5');
@@ -131,12 +129,11 @@ class PaytMandateClientTest extends IntegrationTestCase
     public function getPspMandateByPaytIdNotFoundEmptyResponse(): void
     {
         Http::fake([
-            'api.paytsoftware.test/v1/psp_mandates?administration_id=1234&ids=5' =>
-                function (Request $request) {
-                    self::assertSame('GET', $request->method());
+            'api.paytsoftware.test/v1/psp_mandates?administration_id=1234&ids=5' => function (Request $request) {
+                self::assertSame('GET', $request->method());
 
-                    return Http::response(['data' => []]);
-                },
+                return Http::response(['data' => []]);
+            },
         ]);
 
         $pspMandates = $this->client->getPspMandatesByPaytId('5');
@@ -147,12 +144,11 @@ class PaytMandateClientTest extends IntegrationTestCase
     public function createMandateUnprocessableEntity(): void
     {
         Http::fake([
-            'api.paytsoftware.test/v1/psp_mandates' =>
-                function (Request $request) {
-                    self::assertSame('POST', $request->method());
+            'api.paytsoftware.test/v1/psp_mandates' => function (Request $request) {
+                self::assertSame('POST', $request->method());
 
-                    return Http::response(include __DIR__ . '/data/errors/unprocessable_entity.php', 422);
-                },
+                return Http::response(include __DIR__ . '/data/errors/unprocessable_entity.php', 422);
+            },
         ]);
 
         $paytMandate = new PaytMandateCreateDTO(

@@ -24,9 +24,12 @@ class MigratedCustomersRepositoryTest extends IntegrationTestCase
         $this->migratedCustomersRepository = self::resolve(MigratedCustomersRepository::class);
 
         $customerFromWrongGroup = new CustomerFactory()->createOne();
-        new MigratedCustomersFactory()->createOne([
-            'group_type' => 'wrongGroup',
-        ])->customers()->attach($customerFromWrongGroup);
+        new MigratedCustomersFactory()
+            ->createOne([
+                'group_type' => 'wrongGroup',
+            ])
+            ->customers()
+            ->attach($customerFromWrongGroup);
     }
 
     #[Test]
@@ -49,7 +52,10 @@ class MigratedCustomersRepositoryTest extends IntegrationTestCase
         self::assertCount(2, $migratedCustomers);
         self::assertInstanceOf(MigratedCustomer::class, $migratedCustomers[0]);
         self::assertInstanceOf(MigratedCustomer::class, $migratedCustomers[1]);
-        self::assertEqualsCanonicalizing([$migratedCustomer1->id, $migratedCustomer2->id], [$migratedCustomers[0]->id, $migratedCustomers[1]->id]);
+        self::assertEqualsCanonicalizing([$migratedCustomer1->id, $migratedCustomer2->id], [
+            $migratedCustomers[0]->id,
+            $migratedCustomers[1]->id,
+        ]);
 
         $emptyGroupTypeResult = $this->migratedCustomersRepository->getMigratedCustomersByGroupType('');
         self::assertCount(0, $emptyGroupTypeResult);

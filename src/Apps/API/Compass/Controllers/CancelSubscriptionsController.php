@@ -85,19 +85,17 @@ class CancelSubscriptionsController
             }
 
             $this->cancelSubscriptionsAction->execute($cancellation);
-        } catch (
-            InvalidArgumentException | CreditSubscriptionsException | CancelCreditSubscriptionsException $exception
-        ) {
+        } catch (InvalidArgumentException|CreditSubscriptionsException|CancelCreditSubscriptionsException $exception) {
             $this->logger->error(
                 'Cancelling and crediting subscriptions failed with exception',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return new Response(
                 ['message' => $this->translator->translate('subscription.cancel.failure_execution')],
-                Response::HTTP_INTERNAL_SERVER_ERROR
+                Response::HTTP_INTERNAL_SERVER_ERROR,
             );
         }
 
@@ -117,9 +115,8 @@ class CancelSubscriptionsController
 
         $cancelReason = $request->cancelReason();
         $cancelType = $request->cancelType();
-        $creditAllowed = $problems === []
-            && $cancelReason?->allowedToCredit() === true
-            && $cancelType?->allowedToCredit() === true;
+        $creditAllowed =
+            $problems === [] && $cancelReason?->allowedToCredit() === true && $cancelType?->allowedToCredit() === true;
 
         try {
             $cancellation = $creditAllowed
@@ -136,7 +133,9 @@ class CancelSubscriptionsController
                 maxSelectableEndDate: $this->getMaxSelectableEndDate($affectedSubscriptions),
                 creditableInvoiceLines: $cancellation === null ? [] : $this->getCreditableInvoiceLines($cancellation),
                 creditInvoiceLines: $creditApplied
-                    ? $this->creditSubscriptionService->getInvoiceLinesToCreditBatch($cancellation)->getInvoicesToCredit()
+                    ? $this->creditSubscriptionService
+                        ->getInvoiceLinesToCreditBatch($cancellation)
+                        ->getInvoicesToCredit()
                     : [],
             );
         } catch (InvalidArgumentException $exception) {
@@ -144,12 +143,12 @@ class CancelSubscriptionsController
                 'Previewing the cancellation and credit of subscriptions failed with exception',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return new JsonResponse(
                 ['message' => $this->translator->translate('subscription.cancel.failure_preview')],
-                Response::HTTP_INTERNAL_SERVER_ERROR
+                Response::HTTP_INTERNAL_SERVER_ERROR,
             );
         }
 
@@ -172,7 +171,7 @@ class CancelSubscriptionsController
         throw ValidationException::withMessages([
             'subscription_uuids' => array_values(array_unique(array_map(
                 fn (CancellationProblemDTO $problem): string => $problem->message,
-                $problems
+                $problems,
             ))),
         ]);
     }
@@ -190,7 +189,9 @@ class CancelSubscriptionsController
         foreach ($selectedSubscriptions as $subscription) {
             $subscriptions->add($subscription);
 
-            foreach ($this->subscriptionRepository->getDependentSubscriptions($subscription) as $dependentSubscription) {
+            foreach ($this->subscriptionRepository->getDependentSubscriptions(
+                $subscription,
+            ) as $dependentSubscription) {
                 if (
                     $dependentSubscription->administrative_status === AdministrativeStatus::ARCHIVED->value
                     || $dependentSubscription->administrative_status === AdministrativeStatus::ARCHIVING->value
@@ -202,9 +203,7 @@ class CancelSubscriptionsController
             }
         }
 
-        return $subscriptions
-            ->filter()
-            ->unique(fn (Subscription $subscription): int => $subscription->id);
+        return $subscriptions->filter()->unique(fn (Subscription $subscription): int => $subscription->id);
     }
 
     /**
@@ -254,7 +253,7 @@ class CancelSubscriptionsController
         foreach ($cancellation->getSubscriptions() as $subscription) {
             $subscriptionInvoiceLines = $this->invoiceRepository->getNonCreditInvoiceLinesForSubscriptionAndEndDate(
                 $subscription,
-                $cancellation->getCancellationEndDate($subscription)
+                $cancellation->getCancellationEndDate($subscription),
             );
 
             foreach ($subscriptionInvoiceLines as $invoiceLine) {
@@ -278,7 +277,7 @@ class CancelSubscriptionsController
 
     private function resolveSelectedCancelEndDate(
         SubscriptionCancelType $cancelType,
-        string $selectedDate
+        string $selectedDate,
     ): ?CarbonImmutable {
         if ($cancelType === SubscriptionCancelType::CANCEL_END_DATE) {
             return null;
@@ -295,9 +294,11 @@ class CancelSubscriptionsController
      */
     private function findMultipleCustomersProblem(EloquentCollection $subscriptions): ?CancellationProblemDTO
     {
-        $customerIds = $subscriptions->unique(
-            fn (Subscription $subscription): int => $subscription->customer_id
-        )->pluck('customer_id');
+        $customerIds = $subscriptions
+            ->unique(
+                fn (Subscription $subscription): int => $subscription->customer_id,
+            )
+            ->pluck('customer_id');
 
         if ($customerIds->count() === 1) {
             return null;
@@ -305,7 +306,7 @@ class CancelSubscriptionsController
 
         return new CancellationProblemDTO(
             null,
-            $this->translator->translate('subscription.cancel.failure_multi_customers')
+            $this->translator->translate('subscription.cancel.failure_multi_customers'),
         );
     }
 
@@ -325,7 +326,7 @@ class CancelSubscriptionsController
             ) {
                 $problems[] = new CancellationProblemDTO(
                     $subscription->id,
-                    $this->translator->translate('subscription.cancel.failure_non_cancellable')
+                    $this->translator->translate('subscription.cancel.failure_non_cancellable'),
                 );
             }
         }
@@ -349,14 +350,18 @@ class CancelSubscriptionsController
 
             $allowCancelAsChild = $this->productSpecRepository->booleanSpecificationIsTrue(
                 product: $subscription->product,
-                specName: ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD
+                specName: ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD,
             );
 
             if ($allowCancelAsChild) {
                 continue;
             }
 
-            $parentIsPresent = $subscriptions->contains(fn (Subscription $iteratedSubscription) => $iteratedSubscription->id === $subscription->parent_subscription_id);
+            $parentIsPresent = $subscriptions->contains(
+                fn (Subscription $iteratedSubscription) => (
+                    $iteratedSubscription->id === $subscription->parent_subscription_id
+                ),
+            );
 
             if ($parentIsPresent) {
                 continue;
@@ -364,7 +369,7 @@ class CancelSubscriptionsController
 
             $problems[] = new CancellationProblemDTO(
                 $subscription->id,
-                $this->translator->translate('subscription.cancel.failure_cancel_with_parent')
+                $this->translator->translate('subscription.cancel.failure_cancel_with_parent'),
             );
         }
 

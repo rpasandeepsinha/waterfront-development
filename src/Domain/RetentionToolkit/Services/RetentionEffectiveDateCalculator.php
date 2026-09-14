@@ -28,10 +28,7 @@ class RetentionEffectiveDateCalculator
         SelectedAction $selectedAction,
         ExecutionDate $executionDate,
     ): CarbonImmutable {
-        if (
-            $customerType === CustomerType::BUSINESS
-            && $executionDate === ExecutionDate::IMMEDIATE
-        ) {
+        if ($customerType === CustomerType::BUSINESS && $executionDate === ExecutionDate::IMMEDIATE) {
             throw new InvalidRetentionEffectiveDateException(
                 'Business retention offers cannot be executed immediately.',
             );
@@ -51,9 +48,8 @@ class RetentionEffectiveDateCalculator
                 return $subscription->end_date;
             }
 
-            $contractPeriod = $this->subscriptionMutationRepository
-                ->findOpenMutation($subscription)
-                ->contract_period
+            $contractPeriod =
+                $this->subscriptionMutationRepository->findOpenMutation($subscription)->contract_period
                 ?? $subscription->contract_period;
 
             return $subscription->end_date->addMonths($contractPeriod);

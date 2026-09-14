@@ -29,9 +29,12 @@ class DeleteCustomerContactActionTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->customer = new CustomerFactory()->withAddress()->withFinancialContact([
-            'email' => $this->financialEmail,
-        ])->createOne();
+        $this->customer = new CustomerFactory()
+            ->withAddress()
+            ->withFinancialContact([
+                'email' => $this->financialEmail,
+            ])
+            ->createOne();
         $this->deleteCustomerContactAction = self::resolve(DeleteCustomerContactAction::class);
     }
 
@@ -39,14 +42,13 @@ class DeleteCustomerContactActionTest extends IntegrationTestCase
     public function execute(): void
     {
         new CustomerContactFactory()->createOne([
-           'customer_id' => $this->customer->id,
+            'customer_id' => $this->customer->id,
         ]);
 
         self::assertCount(2, $this->customer->customerContacts()->get());
 
         $harbor = self::createMock(Harbor::class);
-        $harbor->expects(self::once())
-            ->method('propagateCustomer');
+        $harbor->expects(self::once())->method('propagateCustomer');
 
         $this->app->singleton(CommunicatesWithHarbor::class, fn (): CommunicatesWithHarbor => $harbor);
 

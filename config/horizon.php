@@ -11,7 +11,6 @@ $appName = Env::get('APP_NAME');
 assert(is_string($appName));
 
 return [
-
     //Horizon domain
     'domain' => Env::get('HORIZON_DOMAIN'),
 
@@ -24,7 +23,7 @@ return [
     //Horizon redis prefix
     'prefix' => Env::get(
         'HORIZON_PREFIX',
-        Str::slug($appName, '_') . '_horizon:'
+        Str::slug($appName, '_') . '_horizon:',
     ),
 
     //Horizon route middleware

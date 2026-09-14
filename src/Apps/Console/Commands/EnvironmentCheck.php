@@ -23,6 +23,7 @@ class EnvironmentCheck extends Command
         if (($diff = array_diff($requiredVariables, $loadedVariables)) !== []) {
             $this->output->warning('Missing environment variables:');
             $this->output->listing($diff);
+
             return self::FAILURE;
         }
 

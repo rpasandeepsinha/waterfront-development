@@ -27,7 +27,7 @@ class SubscriptionMetadataService
     ) {
     }
 
-    public function assignCategory(Subscription $subscription, SubscriptionCategory|null $category): void
+    public function assignCategory(Subscription $subscription, ?SubscriptionCategory $category): void
     {
         $categoryModel = $subscription->category ?? new SubscriptionCategories();
 
@@ -39,7 +39,7 @@ class SubscriptionMetadataService
         $categoryModel->save();
     }
 
-    public function assignEmployee(Subscription $subscription, UuidInterface|null $assigneeUuid): void
+    public function assignEmployee(Subscription $subscription, ?UuidInterface $assigneeUuid): void
     {
         $category = $subscription->category ?? new SubscriptionCategories();
 
@@ -47,7 +47,11 @@ class SubscriptionMetadataService
             $category->subscription_id = $subscription->id;
         }
 
-        if ($category->assignee_metadata !== null && $assigneeUuid !== null && $category->assignee_metadata->uuid->toString() === $assigneeUuid->toString()) {
+        if (
+            $category->assignee_metadata !== null
+            && $assigneeUuid !== null
+            && $category->assignee_metadata->uuid->toString() === $assigneeUuid->toString()
+        ) {
             return;
         }
 
@@ -56,7 +60,7 @@ class SubscriptionMetadataService
         } else {
             try {
                 $identity = $this->lighthouseApiService->getKratosIdentityByIdentifier($assigneeUuid->toString());
-            } catch (ResourceNotFoundException | LighthouseException | JsonException $e) {
+            } catch (ResourceNotFoundException|LighthouseException|JsonException $e) {
                 $this->logger->info('Failed to retrieve required information', [
                     LoggingContextKeys::EXCEPTION => $e->getMessage(),
                     LoggingContextKeys::META => ['identifier' => $assigneeUuid->toString()],

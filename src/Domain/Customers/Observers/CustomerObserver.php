@@ -51,7 +51,7 @@ class CustomerObserver
                 'last_name',
                 'locale',
                 'customer_number',
-            ]
+            ],
         )) {
             // Checkup for migration compatibility if migrations ever get squashed
             // this check could be removed. (Customers get edited in migrations before

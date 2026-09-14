@@ -47,9 +47,7 @@ class DiagnoseFailedDomainSubscriptionJobTest extends TestCase
         $this->dispatcher = self::createMock(Dispatcher::class);
         $this->failedDomainSubscriptionRepairService = self::createMock(FailedDomainSubscriptionRepairService::class);
 
-        $this->subscription = SubscriptionFactory::new()
-            ->forDomain('example.test')
-            ->makeOne();
+        $this->subscription = SubscriptionFactory::new()->forDomain('example.test')->makeOne();
 
         $this->domainDeployment = new DomainDeployment();
         $this->domainDeployment->id = 101;
@@ -63,11 +61,13 @@ class DiagnoseFailedDomainSubscriptionJobTest extends TestCase
     {
         Queue::fake();
 
-        $this->app->make(Dispatcher::class)->dispatch(new DiagnoseFailedDomainSubscriptionJob(
-            subscription: $this->subscription,
-            dryRun: true,
-            triggeredBy: self::TRIGGERED_BY,
-        ));
+        $this->app
+            ->make(Dispatcher::class)
+            ->dispatch(new DiagnoseFailedDomainSubscriptionJob(
+                subscription: $this->subscription,
+                dryRun: true,
+                triggeredBy: self::TRIGGERED_BY,
+            ));
 
         Queue::assertPushedOn(QueueName::DEFAULT->value, DiagnoseFailedDomainSubscriptionJob::class);
     }
@@ -77,11 +77,13 @@ class DiagnoseFailedDomainSubscriptionJobTest extends TestCase
     {
         Bus::fake();
 
-        $this->app->make(Dispatcher::class)->dispatch(new DiagnoseFailedDomainSubscriptionJob(
-            subscription: $this->subscription,
-            dryRun: true,
-            triggeredBy: self::TRIGGERED_BY,
-        ));
+        $this->app
+            ->make(Dispatcher::class)
+            ->dispatch(new DiagnoseFailedDomainSubscriptionJob(
+                subscription: $this->subscription,
+                dryRun: true,
+                triggeredBy: self::TRIGGERED_BY,
+            ));
 
         Bus::assertNotDispatchedSync(DiagnoseFailedDomainSubscriptionJob::class);
     }
@@ -114,10 +116,7 @@ class DiagnoseFailedDomainSubscriptionJobTest extends TestCase
             ->with($repairPlan, $this->subscription, false, self::TRIGGERED_BY)
             ->willReturn($expectedJob);
 
-        $this->dispatcher
-            ->expects(self::once())
-            ->method('dispatch')
-            ->with($expectedJob);
+        $this->dispatcher->expects(self::once())->method('dispatch')->with($expectedJob);
 
         $job = new DiagnoseFailedDomainSubscriptionJob(
             subscription: $this->subscription,
@@ -155,9 +154,7 @@ class DiagnoseFailedDomainSubscriptionJobTest extends TestCase
             ->with($repairPlan, $this->subscription, true, self::TRIGGERED_BY)
             ->willReturn(null);
 
-        $this->dispatcher
-            ->expects(self::never())
-            ->method('dispatch');
+        $this->dispatcher->expects(self::never())->method('dispatch');
 
         $job = new DiagnoseFailedDomainSubscriptionJob(
             subscription: $this->subscription,
@@ -204,10 +201,7 @@ class DiagnoseFailedDomainSubscriptionJobTest extends TestCase
             ->with($repairPlan, $this->subscription, false, self::TRIGGERED_BY)
             ->willReturn($expectedJob);
 
-        $this->dispatcher
-            ->expects(self::once())
-            ->method('dispatch')
-            ->with($expectedJob);
+        $this->dispatcher->expects(self::once())->method('dispatch')->with($expectedJob);
 
         $logger = self::createMock(LoggerInterface::class);
         $logger

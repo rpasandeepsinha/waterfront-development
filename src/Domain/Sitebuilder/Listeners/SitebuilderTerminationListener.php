@@ -10,8 +10,9 @@ use Waterfront\Domain\Sitebuilder\Jobs\TerminateSitebuilderHosting as TerminateS
 
 class SitebuilderTerminationListener
 {
-    public function __construct(private readonly Dispatcher $dispatcher)
-    {
+    public function __construct(
+        private readonly Dispatcher $dispatcher,
+    ) {
     }
 
     public function handle(TerminateSitebuilderHosting $event): void

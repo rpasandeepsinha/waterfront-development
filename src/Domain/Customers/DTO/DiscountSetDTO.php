@@ -56,7 +56,7 @@ readonly class DiscountSetDTO implements Countable, IteratorAggregate
                 $productsDiscount['price'],
                 $productsDiscount['contract_period'],
                 $productsDiscount['billing_period'],
-                $baseProductPrice
+                $baseProductPrice,
             );
         }
 

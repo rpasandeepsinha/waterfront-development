@@ -26,7 +26,7 @@ class BaseClientTest extends TestCase
             new Response(
                 200,
                 ['Content-type' => 'application/json;charset=utf-8'],
-                '{"listvirtualmachinesresponse":[]}'
+                '{"listvirtualmachinesresponse":[]}',
             ),
         ]));
 
@@ -37,13 +37,13 @@ class BaseClientTest extends TestCase
             'http://url',
             'API-KEY',
             'SECRET-KEY',
-            new GuzzleClient(['handler' => $stack])
+            new GuzzleClient(['handler' => $stack]),
         );
         $response = $client->execute('listVirtualMachines', ['listall' => 'true']);
 
         self::assertSame(
             'http://url?apikey=API-KEY&command=listVirtualMachines&listall=true&response=json&signature=nNdd9m%2FModwHmUh9Y0SM4VFZIus%3D',
-            (string) $container[0]['request']->getUri()
+            (string) $container[0]['request']->getUri(),
         );
         self::assertSame('GET', $container[0]['request']->getMethod());
         self::assertCount(0, $response);
@@ -54,10 +54,15 @@ class BaseClientTest extends TestCase
      */
     #[DataProvider('exceptionRequests')]
     #[Test]
-    public function exception(int $statusCode, array $headers, string $body, string $exceptionMessage, int $exceptionCode): void
-    {
+    public function exception(
+        int $statusCode,
+        array $headers,
+        string $body,
+        string $exceptionMessage,
+        int $exceptionCode,
+    ): void {
         $mockHandler = new MockHandler(
-            [new Response($statusCode, $headers, $body)]
+            [new Response($statusCode, $headers, $body)],
         );
         $stack = HandlerStack::create($mockHandler);
         $client = new CloudStackBaseClient('', '', '', new GuzzleClient(['handler' => $stack]));

@@ -23,7 +23,7 @@ class UpdateTechnicalStatusJob extends AbstractQueueableJob
     {
         $subscriptionRepository->setTechnicalStatus(
             $this->subscription,
-            $this->status
+            $this->status,
         );
     }
 

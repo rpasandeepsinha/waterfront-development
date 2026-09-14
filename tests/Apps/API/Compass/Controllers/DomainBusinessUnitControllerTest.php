@@ -30,10 +30,9 @@ class DomainBusinessUnitControllerTest extends IntegrationTestCase
         $customer = CustomerFactory::new()->createOne();
         $product = ProductFactory::new()->nlDomain()->createOne();
 
-        $this->subscription = SubscriptionFactory::new()
-            ->for($customer)
-            ->for($product)
-            ->createOne(['domain' => self::DOMAIN]);
+        $this->subscription = SubscriptionFactory::new()->for($customer)->for($product)->createOne([
+            'domain' => self::DOMAIN,
+        ]);
     }
 
     #[Test]
@@ -45,10 +44,12 @@ class DomainBusinessUnitControllerTest extends IntegrationTestCase
         $this->actingAsEmployee()
             ->getJson($this->generateRoute('admin.domain.business-units'))
             ->assertOk()
-            ->assertExactJson(['data' => [
-                ['slug' => 'argeweb', 'name' => 'Argeweb'],
-                ['slug' => 'waterfront', 'name' => 'Waterfront'],
-            ]]);
+            ->assertExactJson([
+                'data' => [
+                    ['slug' => 'argeweb', 'name' => 'Argeweb'],
+                    ['slug' => 'waterfront', 'name' => 'Waterfront'],
+                ],
+            ]);
     }
 
     #[Test]
@@ -56,17 +57,15 @@ class DomainBusinessUnitControllerTest extends IntegrationTestCase
     {
         $businessUnit = DomainProviderBusinessUnitFactory::new()->argeweb()->createOne();
 
-        $domainDeployment = DomainDeploymentFactory::new()
-            ->withOpenProvider()
-            ->createOne([
-                'subscription_uuid' => $this->subscription->uuid,
-                'domain_business_unit_id' => null,
-            ]);
+        $domainDeployment = DomainDeploymentFactory::new()->withOpenProvider()->createOne([
+            'subscription_uuid' => $this->subscription->uuid,
+            'domain_business_unit_id' => null,
+        ]);
 
         $this->actingAsEmployee()
             ->patchJson(
                 $this->generateRoute('admin.domain.business-unit.update', ['domain' => self::DOMAIN]),
-                ['business_unit' => 'argeweb']
+                ['business_unit' => 'argeweb'],
             )
             ->assertOk()
             ->assertJsonStructure(['message', 'errors']);
@@ -80,17 +79,15 @@ class DomainBusinessUnitControllerTest extends IntegrationTestCase
     {
         $businessUnit = DomainProviderBusinessUnitFactory::new()->argeweb()->createOne();
 
-        $domainDeployment = DomainDeploymentFactory::new()
-            ->withOpenProvider()
-            ->createOne([
-                'subscription_uuid' => $this->subscription->uuid,
-                'domain_business_unit_id' => $businessUnit->id,
-            ]);
+        $domainDeployment = DomainDeploymentFactory::new()->withOpenProvider()->createOne([
+            'subscription_uuid' => $this->subscription->uuid,
+            'domain_business_unit_id' => $businessUnit->id,
+        ]);
 
         $this->actingAsEmployee()
             ->patchJson(
                 $this->generateRoute('admin.domain.business-unit.update', ['domain' => self::DOMAIN]),
-                ['business_unit' => null]
+                ['business_unit' => null],
             )
             ->assertOk();
 
@@ -103,17 +100,15 @@ class DomainBusinessUnitControllerTest extends IntegrationTestCase
     {
         $businessUnit = DomainProviderBusinessUnitFactory::new()->waterfront()->createOne();
 
-        $domainDeployment = DomainDeploymentFactory::new()
-            ->withOpenProvider()
-            ->createOne([
-                'subscription_uuid' => $this->subscription->uuid,
-                'domain_business_unit_id' => $businessUnit->id,
-            ]);
+        $domainDeployment = DomainDeploymentFactory::new()->withOpenProvider()->createOne([
+            'subscription_uuid' => $this->subscription->uuid,
+            'domain_business_unit_id' => $businessUnit->id,
+        ]);
 
         $this->actingAsEmployee()
             ->patchJson(
                 $this->generateRoute('admin.domain.business-unit.update', ['domain' => self::DOMAIN]),
-                ['business_unit' => 'does-not-exist']
+                ['business_unit' => 'does-not-exist'],
             )
             ->assertUnprocessable()
             ->assertJsonStructure(['message']);
@@ -130,7 +125,7 @@ class DomainBusinessUnitControllerTest extends IntegrationTestCase
         $this->actingAsEmployee()
             ->patchJson(
                 $this->generateRoute('admin.domain.business-unit.update', ['domain' => 'non-existent-domain.nl']),
-                ['business_unit' => 'argeweb']
+                ['business_unit' => 'argeweb'],
             )
             ->assertNotFound()
             ->assertJsonStructure(['message']);
@@ -144,7 +139,7 @@ class DomainBusinessUnitControllerTest extends IntegrationTestCase
         $this->actingAsEmployee()
             ->patchJson(
                 $this->generateRoute('admin.domain.business-unit.update', ['domain' => self::DOMAIN]),
-                ['business_unit' => 'argeweb']
+                ['business_unit' => 'argeweb'],
             )
             ->assertNotFound()
             ->assertJsonStructure(['message']);
@@ -158,7 +153,7 @@ class DomainBusinessUnitControllerTest extends IntegrationTestCase
         $this->actingAsEmployee()
             ->patchJson(
                 $this->generateRoute('admin.domain.business-unit.update', ['domain' => self::DOMAIN]),
-                []
+                [],
             )
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['business_unit']);

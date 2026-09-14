@@ -73,12 +73,14 @@ class DowngradeSingleYearTest extends IntegrationTestCase
                 'price' => 1000,
             ]);
 
-        new ProductAllowedChangeFactory()->downgradeChange()->createOne(
-            [
-                'from_product_id' => $this->currentProduct->id,
-                'to_product_id' => $this->targetProduct->id,
-            ]
-        );
+        new ProductAllowedChangeFactory()
+            ->downgradeChange()
+            ->createOne(
+                [
+                    'from_product_id' => $this->currentProduct->id,
+                    'to_product_id' => $this->targetProduct->id,
+                ],
+            );
 
         $this->subscription = new SubscriptionFactory()
             ->administrativeStatusActive()
@@ -118,7 +120,7 @@ class DowngradeSingleYearTest extends IntegrationTestCase
         $result = $results[0];
         self::assertSame(
             RetentionOfferCalculationStatus::CALCULATED,
-            $result->status
+            $result->status,
         );
         self::assertSame(0, $result->creditTotal);
         self::assertNotNull($result->price);
@@ -152,7 +154,7 @@ class DowngradeSingleYearTest extends IntegrationTestCase
         $result = $results[0];
         self::assertSame(
             RetentionOfferCalculationStatus::CALCULATED,
-            $result->status
+            $result->status,
         );
         self::assertSame(220, $result->creditTotal);
         self::assertNotNull($result->price);
@@ -176,18 +178,19 @@ class DowngradeSingleYearTest extends IntegrationTestCase
     #[Test]
     public function applyBusiness(): void
     {
-        $results = self::resolve(RetentionToolkitService::class)->apply(
-            request: $this->getRetentionOfferRequestDto(
-                $this->subscription,
-            ),
-            createdByMetadata: new IdentityMetadataDTO(Uuid::uuid4(), 'employee@yourhosting.nl'),
-        );
+        $results = self::resolve(RetentionToolkitService::class)
+            ->apply(
+                request: $this->getRetentionOfferRequestDto(
+                    $this->subscription,
+                ),
+                createdByMetadata: new IdentityMetadataDTO(Uuid::uuid4(), 'employee@yourhosting.nl'),
+            );
 
         self::assertCount(1, $results);
         $result = $results[0];
         self::assertSame(
             RetentionOfferCalculationStatus::CALCULATED,
-            $result->status
+            $result->status,
         );
         self::assertSame(0, $result->creditTotal);
         self::assertNotNull($result->price);
@@ -233,19 +236,20 @@ class DowngradeSingleYearTest extends IntegrationTestCase
             fn (): HarborApi => self::createStub(HarborApi::class),
         );
 
-        $results = self::resolve(RetentionToolkitService::class)->apply(
-            request: $this->getRetentionOfferRequestDto(
-                $this->subscription,
-                CustomerType::CONSUMER,
-            ),
-            createdByMetadata: new IdentityMetadataDTO(Uuid::uuid4(), 'employee@yourhosting.nl'),
-        );
+        $results = self::resolve(RetentionToolkitService::class)
+            ->apply(
+                request: $this->getRetentionOfferRequestDto(
+                    $this->subscription,
+                    CustomerType::CONSUMER,
+                ),
+                createdByMetadata: new IdentityMetadataDTO(Uuid::uuid4(), 'employee@yourhosting.nl'),
+            );
 
         self::assertCount(1, $results);
         $result = $results[0];
         self::assertSame(
             RetentionOfferCalculationStatus::CALCULATED,
-            $result->status
+            $result->status,
         );
         self::assertSame(220, $result->creditTotal);
         self::assertNotNull($result->price);
@@ -322,7 +326,9 @@ class DowngradeSingleYearTest extends IntegrationTestCase
                 new RetentionOfferItemDTO(
                     subscription: $subscription,
                     selectedAction: SelectedAction::DG_OPTION_1A,
-                    executionDate: $customerType === CustomerType::BUSINESS ? ExecutionDate::CONTRACT_END : ExecutionDate::IMMEDIATE,
+                    executionDate: $customerType === CustomerType::BUSINESS
+                        ? ExecutionDate::CONTRACT_END
+                        : ExecutionDate::IMMEDIATE,
                     contractPeriod: 12,
                     billingPeriod: $billingPeriod,
                     targetProduct: $this->targetProduct,

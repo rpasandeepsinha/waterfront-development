@@ -71,17 +71,27 @@ class WebhookTest extends IntegrationTestCase
             'slug' => 'microsoft-business-standard',
         ]);
 
-        $this->parentSubscription = new SubscriptionFactory()->withCustomer()->technicalStatusOk()->createOne([
-            'product_uuid' => $parentProduct->uuid,
-        ]);
+        $this->parentSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->technicalStatusOk()
+            ->createOne([
+                'product_uuid' => $parentProduct->uuid,
+            ]);
 
-        $this->firstChildSubscription = new SubscriptionFactory()->withCustomer()->parentSubscription($this->parentSubscription)->technicalStatusOk()->createOne([
-            'product_uuid' => $childProduct->uuid,
-        ]);
+        $this->firstChildSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->parentSubscription($this->parentSubscription)
+            ->technicalStatusOk()
+            ->createOne([
+                'product_uuid' => $childProduct->uuid,
+            ]);
 
-        $this->microsoft365Deployment = new Microsoft365DeploymentFactory()->for($this->parentSubscription)->for($this->microsoft365CustomerInfo)->createOne([
-            'kpn_order_id' => self::KPN_ORDER_ID,
-        ]);
+        $this->microsoft365Deployment = new Microsoft365DeploymentFactory()
+            ->for($this->parentSubscription)
+            ->for($this->microsoft365CustomerInfo)
+            ->createOne([
+                'kpn_order_id' => self::KPN_ORDER_ID,
+            ]);
 
         $this->loggerMock = self::createMock(LoggerInterface::class);
     }
@@ -95,7 +105,7 @@ class WebhookTest extends IntegrationTestCase
 
         self::assertStringContainsString(
             '<ModifyOrderQuantityResponse_V1>',
-            (string) $log->log
+            (string) $log->log,
         );
     }
 
@@ -178,10 +188,13 @@ class WebhookTest extends IntegrationTestCase
         $this->microsoft365CustomerInfo->save();
 
         $microsoft365ServiceMock = self::createMock(Microsoft365Service::class);
-        $microsoft365ServiceMock->expects(self::once())
+        $microsoft365ServiceMock
+            ->expects(self::once())
             ->method('prepareOrders')
             ->with(self::callback(
-                fn (Microsoft365CustomerInfo $customerInfo): bool => $customerInfo->id === $this->microsoft365CustomerInfo->id
+                fn (Microsoft365CustomerInfo $customerInfo): bool => (
+                    $customerInfo->id === $this->microsoft365CustomerInfo->id
+                ),
             ));
         $this->app->bind(Microsoft365Service::class, fn (): Microsoft365Service => $microsoft365ServiceMock);
 
@@ -244,7 +257,11 @@ class WebhookTest extends IntegrationTestCase
     public function incomingNewCustomerDeclinedRequest(): void
     {
         $newCustomerDeclinedXml = (string) file_get_contents(__DIR__ . '/../Data/NewCustomerDeclinedV1.xml');
-        $this->processIncomingCall('NewCustomerDeclined_V1', str_replace('KPN_CUSTOMER_ID', strval($this->microsoft365CustomerInfo->id), $newCustomerDeclinedXml));
+        $this->processIncomingCall('NewCustomerDeclined_V1', str_replace(
+            'KPN_CUSTOMER_ID',
+            strval($this->microsoft365CustomerInfo->id),
+            $newCustomerDeclinedXml,
+        ));
 
         $log = Microsoft365HttpLog::where('xml_root_name', 'NewCustomerDeclined_V1')->firstOrFail();
 
@@ -259,7 +276,11 @@ class WebhookTest extends IntegrationTestCase
         $this->microsoft365Deployment->save();
 
         $newOrderDeclinedXml = (string) file_get_contents(__DIR__ . '/../Data/OrderDeclinedV2.xml');
-        $this->processIncomingCall('OrderDeclinedV2', str_replace('KPN_DEPLOYMENT_ID', strval($this->microsoft365Deployment->id), $newOrderDeclinedXml));
+        $this->processIncomingCall('OrderDeclinedV2', str_replace(
+            'KPN_DEPLOYMENT_ID',
+            strval($this->microsoft365Deployment->id),
+            $newOrderDeclinedXml,
+        ));
 
         $log = Microsoft365HttpLog::where('xml_root_name', 'OrderDeclined_V2')->firstOrFail();
 
@@ -275,7 +296,11 @@ class WebhookTest extends IntegrationTestCase
         $this->microsoft365Deployment->save();
 
         $newOrderDeclinedXml = (string) file_get_contents(__DIR__ . '/../Data/OrderDeclinedV2_TenantOrder.xml');
-        $this->processIncomingCall('NewCustomerDeclined_V1', str_replace('KPN_CUSTOMER_ID', strval($this->microsoft365CustomerInfo->id), $newOrderDeclinedXml));
+        $this->processIncomingCall('NewCustomerDeclined_V1', str_replace(
+            'KPN_CUSTOMER_ID',
+            strval($this->microsoft365CustomerInfo->id),
+            $newOrderDeclinedXml,
+        ));
 
         $log = Microsoft365HttpLog::where('xml_root_name', 'OrderDeclined_V2')->firstOrFail();
 
@@ -301,9 +326,13 @@ class WebhookTest extends IntegrationTestCase
         $exception = new Exception();
         $mockMicrosoft365WebhookLogListener = self::createMock(Microsoft365WebhookLogListener::class);
         $mockMicrosoft365WebhookLogListener->method('handle')->willThrowException($exception);
-        $this->app->bind(Microsoft365WebhookLogListener::class, fn (): Microsoft365WebhookLogListener => $mockMicrosoft365WebhookLogListener);
+        $this->app->bind(
+            Microsoft365WebhookLogListener::class,
+            fn (): Microsoft365WebhookLogListener => $mockMicrosoft365WebhookLogListener,
+        );
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with('Something went wrong while logging the Microsoft365 webhook', [
                 LoggingContextKeys::EXCEPTION => $exception,
@@ -317,18 +346,19 @@ class WebhookTest extends IntegrationTestCase
         $client = new OfficeClient('example.com', 'test', 'test');
 
         $request = new Request(
-            content: $fileContent ?? (string) file_get_contents($fileName)
+            content: $fileContent ?? (string) file_get_contents($fileName),
         );
 
-        self::resolve(WebhookController::class)->incomingCall(
-            request: $request,
-            microsoftClient: $client,
-            cloudLicenseListener: new CloudLicenseListener(self::createStub(Microsoft365Service::class)),
-            customerCreateListener: self::resolve(CustomerCreateListener::class),
-            tenantCreateListener: self::resolve(TenantCreateListener::class),
-            orderMessageListener: self::resolve(OrderMessageListener::class),
-            eventDispatcher: self::resolve(Dispatcher::class),
-            logger: $this->loggerMock,
-        );
+        self::resolve(WebhookController::class)
+            ->incomingCall(
+                request: $request,
+                microsoftClient: $client,
+                cloudLicenseListener: new CloudLicenseListener(self::createStub(Microsoft365Service::class)),
+                customerCreateListener: self::resolve(CustomerCreateListener::class),
+                tenantCreateListener: self::resolve(TenantCreateListener::class),
+                orderMessageListener: self::resolve(OrderMessageListener::class),
+                eventDispatcher: self::resolve(Dispatcher::class),
+                logger: $this->loggerMock,
+            );
     }
 }

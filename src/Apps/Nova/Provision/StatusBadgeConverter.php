@@ -13,18 +13,16 @@ class StatusBadgeConverter
 
     public static function createProvisionStatusBadge(string $name, string $attribute = 'status'): Badge
     {
-        return Badge::make($name, $attribute)
-            ->map([
-                ProvisionStatus::SUCCESS->value => 'success',
-                ProvisionStatus::FAILED->value => 'danger',
-                ProvisionStatus::VALIDATION_ERROR->value => 'danger',
-                ProvisionStatus::RETRYING->value => 'info',
-                ProvisionStatus::DELETED->value => 'success',
-                ProvisionStatus::DELETING->value => 'warning',
-                ProvisionStatus::DELETION_FAILED->value => 'danger',
-                ProvisionStatus::PENDING->value => 'info',
-                self::MISSING => 'warning',
-            ])
-            ->withIcons();
+        return Badge::make($name, $attribute)->map([
+            ProvisionStatus::SUCCESS->value => 'success',
+            ProvisionStatus::FAILED->value => 'danger',
+            ProvisionStatus::VALIDATION_ERROR->value => 'danger',
+            ProvisionStatus::RETRYING->value => 'info',
+            ProvisionStatus::DELETED->value => 'success',
+            ProvisionStatus::DELETING->value => 'warning',
+            ProvisionStatus::DELETION_FAILED->value => 'danger',
+            ProvisionStatus::PENDING->value => 'info',
+            self::MISSING => 'warning',
+        ])->withIcons();
     }
 }

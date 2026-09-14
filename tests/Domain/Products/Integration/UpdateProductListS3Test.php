@@ -22,6 +22,7 @@ use Tests\IntegrationTestCase;
 use Waterfront\Apps\API\Atlantis\Resources\Products\ProductListResourceFactory;
 use Waterfront\Domain\Experiment\Enums\ExperimentType;
 use Waterfront\Domain\Pricing\Enums\PriceComponentType;
+use Waterfront\Domain\Pricing\Services\PriceExperimentService;
 use Waterfront\Domain\Products\DTO\PriceList;
 use Waterfront\Domain\Products\Models\ProductGroup;
 use Waterfront\Domain\Products\ProductListUpdater;
@@ -57,19 +58,38 @@ class UpdateProductListS3Test extends IntegrationTestCase
             'weight' => 5,
         ]);
 
-        ProductPriceComponentFactory::new()->for($nlProduct)->registration()->createOne([
-            'billing_period' => 12,
+        ProductPriceComponentFactory::new()
+            ->for($nlProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 10,
+            ]);
+
+        new ProductPriceComponentFactory()
+            ->for($nlProduct)
+            ->priceLadder()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 50,
+            ]);
+
+        new ProductIntroductionDiscountsFactory()->for($nlProduct)->createOne([
+            'max_uses_per_customer' => 5,
+            'first_months_discount_period' => 3,
             'contract_period' => 12,
-            'price' => 10,
         ]);
 
-        new ProductIntroductionDiscountsFactory()->for($nlProduct)->createOne(['max_uses_per_customer' => 5, 'first_months_discount_period' => 3, 'contract_period' => 12]);
-
-        ProductPriceComponentFactory::new()->for($nlProduct)->introduction()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 8,
-        ]);
+        ProductPriceComponentFactory::new()
+            ->for($nlProduct)
+            ->introduction()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 8,
+            ]);
 
         $beProduct = ProductFactory::new()->for($extensionProductGroup)->createOne([
             'name' => '.be',
@@ -78,11 +98,14 @@ class UpdateProductListS3Test extends IntegrationTestCase
             'weight' => 4,
         ]);
 
-        ProductPriceComponentFactory::new()->for($beProduct)->registration()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 10,
-        ]);
+        ProductPriceComponentFactory::new()
+            ->for($beProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 10,
+            ]);
 
         $hostingProductGroup = ProductGroupFactory::new()->hosting()->createOne();
 
@@ -110,11 +133,14 @@ class UpdateProductListS3Test extends IntegrationTestCase
             'type' => PriceComponentType::PROMOTION,
             'price' => 5,
         ]);
-        new ProductPriceComponentFactory()->for($hostingProduct)->prolongation()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 10,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 10,
+            ]);
 
         $wpHostingProduct = ProductFactory::new()->for($hostingProductGroup)->createOne([
             'description' => 'Hosting with WP',
@@ -134,11 +160,14 @@ class UpdateProductListS3Test extends IntegrationTestCase
             'type' => PriceComponentType::REGISTRATION,
             'price' => 50,
         ]);
-        new ProductPriceComponentFactory()->for($wpHostingProduct)->prolongation()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 50,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($wpHostingProduct)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 50,
+            ]);
 
         $webOnlyHostingProduct = ProductFactory::new()->for($hostingProductGroup)->createOne([
             'slug' => 'web_only_1',
@@ -158,11 +187,14 @@ class UpdateProductListS3Test extends IntegrationTestCase
             'type' => PriceComponentType::REGISTRATION,
             'price' => 50,
         ]);
-        new ProductPriceComponentFactory()->for($webOnlyHostingProduct)->prolongation()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 50,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($webOnlyHostingProduct)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 50,
+            ]);
 
         $wpWebOnlyHostingProduct = ProductFactory::new()->for($hostingProductGroup)->createOne([
             'slug' => 'web_only_wp_1',
@@ -182,11 +214,14 @@ class UpdateProductListS3Test extends IntegrationTestCase
             'type' => PriceComponentType::REGISTRATION,
             'price' => 50,
         ]);
-        new ProductPriceComponentFactory()->for($wpWebOnlyHostingProduct)->prolongation()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 50,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($wpWebOnlyHostingProduct)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 50,
+            ]);
 
         $mailOnlyHostingProduct = ProductFactory::new()->for($hostingProductGroup)->createOne([
             'slug' => 'mail_only_1',
@@ -206,11 +241,14 @@ class UpdateProductListS3Test extends IntegrationTestCase
             'type' => PriceComponentType::REGISTRATION,
             'price' => 50,
         ]);
-        new ProductPriceComponentFactory()->for($mailOnlyHostingProduct)->prolongation()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 50,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($mailOnlyHostingProduct)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 50,
+            ]);
 
         $experiment = new ExperimentFactory()->createOne(['id' => 1234, 'slug' => ExperimentType::PRICING_LADDER]);
 
@@ -264,9 +302,7 @@ class UpdateProductListS3Test extends IntegrationTestCase
         $validProductPriceList = json_encode($productArray, JSON_THROW_ON_ERROR);
 
         $filesystem = self::createMock(Filesystem::class);
-        $filesystem->expects(self::once())
-            ->method('put')
-            ->with('product-list.json', $validProductPriceList);
+        $filesystem->expects(self::once())->method('put')->with('product-list.json', $validProductPriceList);
 
         $productListService = new ProductListUpdater(
             self::resolve(PriceResolver::class),
@@ -275,6 +311,7 @@ class UpdateProductListS3Test extends IntegrationTestCase
             self::createStub(ProductPromotionsRepository::class),
             self::resolve(HostingProductCompositionRepository::class),
             self::resolve(ProductRepository::class),
+            self::resolve(PriceExperimentService::class),
         );
         $productListService->update();
     }
@@ -282,16 +319,14 @@ class UpdateProductListS3Test extends IntegrationTestCase
     #[Test]
     public function updateProductListWillNotExportProductsWithoutPrices(): void
     {
-        $productWithoutPrice = new ProductFactory()->for($this->extensionProductGroup)->createOne();
+        $product = new ProductFactory()->for($this->extensionProductGroup)->createOne();
 
         $productArray = include __DIR__ . '/data/valid_product_list.php';
         $productArray['productPromotions'] = null;
         $validProductPriceList = json_encode($productArray, JSON_THROW_ON_ERROR);
 
         $filesystem = self::createMock(Filesystem::class);
-        $filesystem->expects(self::once())
-            ->method('put')
-            ->with('product-list.json', $validProductPriceList);
+        $filesystem->expects(self::once())->method('put')->with('product-list.json', $validProductPriceList);
 
         $productListService = new ProductListUpdater(
             self::resolve(PriceResolver::class),
@@ -300,6 +335,7 @@ class UpdateProductListS3Test extends IntegrationTestCase
             self::createStub(ProductPromotionsRepository::class),
             self::resolve(HostingProductCompositionRepository::class),
             self::resolve(ProductRepository::class),
+            self::resolve(PriceExperimentService::class),
         );
         $productListService->update();
     }
@@ -309,12 +345,10 @@ class UpdateProductListS3Test extends IntegrationTestCase
     {
         $priceList = new PriceList();
         $resolver = self::createStub(PriceResolver::class);
-        $resolver->method('getPriceList')
-            ->willReturn($priceList);
+        $resolver->method('getPriceList')->willReturn($priceList);
 
         $filesystem = self::createMock(Filesystem::class);
-        $filesystem->expects(self::never())
-            ->method('put');
+        $filesystem->expects(self::never())->method('put');
 
         $productListService = new ProductListUpdater(
             $resolver,
@@ -323,6 +357,7 @@ class UpdateProductListS3Test extends IntegrationTestCase
             self::createStub(ProductPromotionsRepository::class),
             self::resolve(HostingProductCompositionRepository::class),
             self::resolve(ProductRepository::class),
+            self::resolve(PriceExperimentService::class),
         );
         $productListService->update();
     }

@@ -14,8 +14,9 @@ class PuzzelSeeder extends Seeder
 {
     private const int CAPACITY = 5;
 
-    public function __construct(private readonly ReferenceRepository $referenceRepository)
-    {
+    public function __construct(
+        private readonly ReferenceRepository $referenceRepository,
+    ) {
     }
 
     public function run(): void
@@ -46,7 +47,7 @@ class PuzzelSeeder extends Seeder
             if ($index === 0) {
                 $this->referenceRepository->set(
                     ScenarioReference::TEST_KEES_PUZZEL_FIRST_CALLBACK_TIMESLOT,
-                    $timeslot
+                    $timeslot,
                 );
             }
         }

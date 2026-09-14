@@ -68,10 +68,12 @@ class CaddyProvisionServiceTest extends TestCase
         $context = Uuid::uuid4();
         $caddyId = 'yh12345';
 
-        $provisioningRequest = new ProvisioningRequestFactory()->redirect()->makeOne([
-            'request_name' => ProvisionRequestName::CREATE_REDIRECT,
-            'id' => 1,
-        ]);
+        $provisioningRequest = new ProvisioningRequestFactory()
+            ->redirect()
+            ->makeOne([
+                'request_name' => ProvisionRequestName::CREATE_REDIRECT,
+                'id' => 1,
+            ]);
 
         $createRedirectRequest = new CreateRedirectRequest(
             domain: $domain,
@@ -108,7 +110,7 @@ class CaddyProvisionServiceTest extends TestCase
                 $destination,
                 CaddyRedirectType::MOVED_PERMANENTLY,
                 null,
-                null
+                null,
             )
             ->willReturn($caddyId);
 
@@ -133,7 +135,8 @@ class CaddyProvisionServiceTest extends TestCase
             ->willReturn($caddyRedirectDeployment);
 
         $caddyProvisionClientMapper = self::createMock(CaddyProvisionClientMapper::class);
-        $caddyProvisionClientMapper->expects(self::once())
+        $caddyProvisionClientMapper
+            ->expects(self::once())
             ->method('getCaddyRedirectType')
             ->with(RedirectType::PERMANENT)
             ->willReturn(CaddyRedirectType::MOVED_PERMANENTLY);
@@ -170,10 +173,12 @@ class CaddyProvisionServiceTest extends TestCase
         $context = Uuid::uuid4();
         $caddyId = 'yh12345';
 
-        $provisioningRequest = new ProvisioningRequestFactory()->redirect()->makeOne([
-            'request_name' => ProvisionRequestName::CREATE_REDIRECT,
-            'id' => 1,
-        ]);
+        $provisioningRequest = new ProvisioningRequestFactory()
+            ->redirect()
+            ->makeOne([
+                'request_name' => ProvisionRequestName::CREATE_REDIRECT,
+                'id' => 1,
+            ]);
 
         $createRedirectRequest = new CreateRedirectRequest(
             domain: $domain,
@@ -235,12 +240,14 @@ class CaddyProvisionServiceTest extends TestCase
             ->willReturn($caddyRedirectDeployment);
 
         $caddyProvisionClientMapper = self::createMock(CaddyProvisionClientMapper::class);
-        $caddyProvisionClientMapper->expects(self::once())
+        $caddyProvisionClientMapper
+            ->expects(self::once())
             ->method('getCaddyRedirectType')
             ->with(RedirectType::PERMANENT)
             ->willReturn(CaddyRedirectType::MOVED_PERMANENTLY);
 
-        $caddyProvisionClientMapper->expects(self::once())
+        $caddyProvisionClientMapper
+            ->expects(self::once())
             ->method('parseSourceMatchers')
             ->with($createRedirectRequest->domain)
             ->willReturn(new RedirectSourceMatchers(
@@ -271,10 +278,12 @@ class CaddyProvisionServiceTest extends TestCase
         $context = Uuid::uuid4();
         $caddyId = 'yh12345';
 
-        $provisioningRequest = new ProvisioningRequestFactory()->redirect()->makeOne([
-            'request_name' => ProvisionRequestName::CREATE_REDIRECT,
-            'id' => 1,
-        ]);
+        $provisioningRequest = new ProvisioningRequestFactory()
+            ->redirect()
+            ->makeOne([
+                'request_name' => ProvisionRequestName::CREATE_REDIRECT,
+                'id' => 1,
+            ]);
 
         $createRedirectRequest = new CreateRedirectRequest(
             domain: $domain,
@@ -311,7 +320,7 @@ class CaddyProvisionServiceTest extends TestCase
                 $destination,
                 CaddyRedirectType::MOVED_PERMANENTLY,
                 ['/lol/'],
-                ['x' => ['1', '2']]
+                ['x' => ['1', '2']],
             )
             ->willReturn($caddyId);
 
@@ -336,12 +345,14 @@ class CaddyProvisionServiceTest extends TestCase
             ->willReturn($caddyRedirectDeployment);
 
         $caddyProvisionClientMapper = self::createMock(CaddyProvisionClientMapper::class);
-        $caddyProvisionClientMapper->expects(self::once())
+        $caddyProvisionClientMapper
+            ->expects(self::once())
             ->method('getCaddyRedirectType')
             ->with(RedirectType::PERMANENT)
             ->willReturn(CaddyRedirectType::MOVED_PERMANENTLY);
 
-        $caddyProvisionClientMapper->expects(self::once())
+        $caddyProvisionClientMapper
+            ->expects(self::once())
             ->method('parseSourceMatchers')
             ->with($createRedirectRequest->domain)
             ->willReturn(new RedirectSourceMatchers(
@@ -372,10 +383,12 @@ class CaddyProvisionServiceTest extends TestCase
         $destination = 'versio.com';
         $context = Uuid::uuid4();
 
-        $provisioningRequest = new ProvisioningRequestFactory()->redirect()->makeOne([
-            'request_name' => ProvisionRequestName::CREATE_REDIRECT,
-            'id' => 1,
-        ]);
+        $provisioningRequest = new ProvisioningRequestFactory()
+            ->redirect()
+            ->makeOne([
+                'request_name' => ProvisionRequestName::CREATE_REDIRECT,
+                'id' => 1,
+            ]);
 
         $createRedirectRequest = new CreateRedirectRequest(
             domain: $domain,
@@ -398,28 +411,23 @@ class CaddyProvisionServiceTest extends TestCase
             ->willReturn($caddyContext);
 
         $requestException = self::createStub(RequestException::class);
-        $this->caddyClient
-            ->expects(self::once())
-            ->method('createRedirect')
-            ->willThrowException($requestException);
+        $this->caddyClient->expects(self::once())->method('createRedirect')->willThrowException($requestException);
 
         $redirectDeploymentRepository = self::createMock(RedirectDeploymentRepository::class);
-        $redirectDeploymentRepository
-            ->expects(self::never())
-            ->method('create');
+        $redirectDeploymentRepository->expects(self::never())->method('create');
 
         $caddyRedirectDeploymentRepository = self::createMock(CaddyRedirectDeploymentRepository::class);
-        $caddyRedirectDeploymentRepository
-            ->expects(self::never())
-            ->method('create');
+        $caddyRedirectDeploymentRepository->expects(self::never())->method('create');
 
         $caddyProvisionClientMapper = self::createMock(CaddyProvisionClientMapper::class);
-        $caddyProvisionClientMapper->expects(self::once())
+        $caddyProvisionClientMapper
+            ->expects(self::once())
             ->method('getCaddyRedirectType')
             ->with(RedirectType::PERMANENT)
             ->willReturn(CaddyRedirectType::MOVED_PERMANENTLY);
 
-        $caddyProvisionClientMapper->expects(self::once())
+        $caddyProvisionClientMapper
+            ->expects(self::once())
             ->method('parseSourceMatchers')
             ->with($createRedirectRequest->domain)
             ->willReturn(new RedirectSourceMatchers(
@@ -469,19 +477,17 @@ class CaddyProvisionServiceTest extends TestCase
         $redirecDeployment = $this->makeRedirectDeployment($domain, $context, $caddyId);
 
         $redirectDeploymentRepo = self::createMock(RedirectDeploymentRepository::class);
-        $redirectDeploymentRepo->expects(self::once())
+        $redirectDeploymentRepo
+            ->expects(self::once())
             ->method('findBySourceAndContext')
             ->with($domain, $context)
             ->willReturn($redirecDeployment);
 
-        $this->caddyClient
-            ->expects(self::once())
-            ->method('getRedirect')
-            ->with($caddyId)
-            ->willReturn($expectedRedirect);
+        $this->caddyClient->expects(self::once())->method('getRedirect')->with($caddyId)->willReturn($expectedRedirect);
 
         $caddyMapper = self::createMock(CaddyProvisionClientMapper::class);
-        $caddyMapper->expects(self::once())
+        $caddyMapper
+            ->expects(self::once())
             ->method('getRedirectDtoFromCaddyDto')
             ->with($expectedRedirect)
             ->willReturn($expectedRedirectResult->redirect);
@@ -499,6 +505,7 @@ class CaddyProvisionServiceTest extends TestCase
 
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
         self::assertInstanceOf(Redirect::class, $result->redirect);
+        self::assertSame($domain, $result->redirect->source);
     }
 
     #[Test]
@@ -513,7 +520,8 @@ class CaddyProvisionServiceTest extends TestCase
         $redirecDeployment = $this->makeRedirectDeployment($domain, $context, $caddyId);
 
         $redirectDeploymentRepo = self::createMock(RedirectDeploymentRepository::class);
-        $redirectDeploymentRepo->expects(self::once())
+        $redirectDeploymentRepo
+            ->expects(self::once())
             ->method('findBySourceAndContext')
             ->with($domain, $context)
             ->willReturn($redirecDeployment);
@@ -524,11 +532,11 @@ class CaddyProvisionServiceTest extends TestCase
             ->willThrowException($exception = new SaloonException('Failed to get redirect'));
 
         $caddyMapper = self::createMock(CaddyProvisionClientMapper::class);
-        $caddyMapper->expects(self::never())
-            ->method('getRedirectDtoFromCaddyDto');
+        $caddyMapper->expects(self::never())->method('getRedirectDtoFromCaddyDto');
 
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 sprintf('Could not retrieve redirects by key: [%s]', $caddyId),
@@ -541,7 +549,7 @@ class CaddyProvisionServiceTest extends TestCase
                     LoggingContextKeys::META => [
                         'caddy_id' => $caddyId,
                     ],
-                ]
+                ],
             );
 
         $service = new CaddyProvisionService(
@@ -569,14 +577,13 @@ class CaddyProvisionServiceTest extends TestCase
         $request = new GetRedirectRequest($domain, $context);
 
         $redirectDeploymentRepo = self::createMock(RedirectDeploymentRepository::class);
-        $redirectDeploymentRepo->expects(self::once())
+        $redirectDeploymentRepo
+            ->expects(self::once())
             ->method('findBySourceAndContext')
             ->with($domain, $context)
             ->willReturn(null);
 
-        $this->caddyClient
-            ->expects(self::never())
-            ->method('getRedirect');
+        $this->caddyClient->expects(self::never())->method('getRedirect');
 
         $service = new CaddyProvisionService(
             caddyClient: $this->caddyClient,
@@ -642,7 +649,8 @@ class CaddyProvisionServiceTest extends TestCase
         $redirects[] = $this->makeRedirectDeployment('shop.' . $domain, $context, $caddyIds[1]);
 
         $redirectDeploymentRepo = self::createMock(RedirectDeploymentRepository::class);
-        $redirectDeploymentRepo->expects(self::once())
+        $redirectDeploymentRepo
+            ->expects(self::once())
             ->method('findAllByContext')
             ->with($context)
             ->willReturn(new Collection($redirects));
@@ -654,7 +662,7 @@ class CaddyProvisionServiceTest extends TestCase
                 ...self::withConsecutive(
                     [$caddyIds[0]],
                     [$caddyIds[1]],
-                )
+                ),
             )
             ->willReturnOnConsecutiveCalls(
                 $expectedRedirects[0],
@@ -662,13 +670,14 @@ class CaddyProvisionServiceTest extends TestCase
             );
 
         $caddyMapper = self::createMock(CaddyProvisionClientMapper::class);
-        $caddyMapper->expects(self::exactly(2))
+        $caddyMapper
+            ->expects(self::exactly(2))
             ->method('getRedirectDtoFromCaddyDto')
             ->with(
                 ...self::withConsecutive(
                     [$expectedRedirects[0]],
                     [$expectedRedirects[1]],
-                )
+                ),
             )
             ->willReturnOnConsecutiveCalls(
                 $expectedRedirectResults[0]->redirect,
@@ -689,6 +698,8 @@ class CaddyProvisionServiceTest extends TestCase
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
         self::assertNotNull($result->redirects);
         self::assertCount(2, $result->redirects);
+        self::assertSame($domain, $result->redirects[0]->redirect?->source);
+        self::assertSame('shop.' . $domain, $result->redirects[1]->redirect?->source);
     }
 
     #[Test]
@@ -705,7 +716,8 @@ class CaddyProvisionServiceTest extends TestCase
         $redirects[] = $this->makeRedirectDeployment('shop.' . $domain, $context, $caddyIds[1]);
 
         $redirectDeploymentRepo = self::createMock(RedirectDeploymentRepository::class);
-        $redirectDeploymentRepo->expects(self::once())
+        $redirectDeploymentRepo
+            ->expects(self::once())
             ->method('findAllByContext')
             ->with($context)
             ->willReturn(new Collection($redirects));
@@ -716,11 +728,11 @@ class CaddyProvisionServiceTest extends TestCase
             ->willThrowException($exception = new SaloonException('Failed to get redirect'));
 
         $caddyMapper = self::createMock(CaddyProvisionClientMapper::class);
-        $caddyMapper->expects(self::never())
-            ->method('getRedirectDtoFromCaddyDto');
+        $caddyMapper->expects(self::never())->method('getRedirectDtoFromCaddyDto');
 
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::exactly(2))
+        $logger
+            ->expects(self::exactly(2))
             ->method('error')
             ->with(
                 ...self::withConsecutive(
@@ -750,7 +762,7 @@ class CaddyProvisionServiceTest extends TestCase
                             ],
                         ],
                     ],
-                )
+                ),
             );
 
         $service = new CaddyProvisionService(
@@ -780,14 +792,13 @@ class CaddyProvisionServiceTest extends TestCase
         $request = new ListRedirectsRequest($context);
 
         $redirectDeploymentRepo = self::createMock(RedirectDeploymentRepository::class);
-        $redirectDeploymentRepo->expects(self::once())
+        $redirectDeploymentRepo
+            ->expects(self::once())
             ->method('findAllByContext')
             ->with($context)
             ->willReturn(new Collection());
 
-        $this->caddyClient
-            ->expects(self::never())
-            ->method('getRedirect');
+        $this->caddyClient->expects(self::never())->method('getRedirect');
 
         $service = new CaddyProvisionService(
             caddyClient: $this->caddyClient,
@@ -840,8 +851,8 @@ class CaddyProvisionServiceTest extends TestCase
         ])->setRelation(
             'caddyRedirectDeployment',
             CaddyRedirectDeploymentFactory::new()->makeOne([
-                    'caddy_id' => $existingCaddyId,
-                ])
+                'caddy_id' => $existingCaddyId,
+            ]),
         );
 
         RedirectDeploymentFactory::new()->makeOne([
@@ -853,8 +864,8 @@ class CaddyProvisionServiceTest extends TestCase
         ])->setRelation(
             'caddyRedirectDeployment',
             CaddyRedirectDeploymentFactory::new()->makeOne([
-                    'caddy_id' => $existingCaddyId,
-                ])
+                'caddy_id' => $existingCaddyId,
+            ]),
         );
 
         $redirectDeploymentRepository = self::createMock(RedirectDeploymentRepository::class);
@@ -953,8 +964,8 @@ class CaddyProvisionServiceTest extends TestCase
         ])->setRelation(
             'caddyRedirectDeployment',
             CaddyRedirectDeploymentFactory::new()->makeOne([
-                    'caddy_id' => $existingCaddyId,
-                ])
+                'caddy_id' => $existingCaddyId,
+            ]),
         );
 
         RedirectDeploymentFactory::new()->makeOne([
@@ -966,8 +977,8 @@ class CaddyProvisionServiceTest extends TestCase
         ])->setRelation(
             'caddyRedirectDeployment',
             CaddyRedirectDeploymentFactory::new()->makeOne([
-                    'caddy_id' => $existingCaddyId,
-                ])
+                'caddy_id' => $existingCaddyId,
+            ]),
         );
 
         $redirectDeploymentRepository = self::createMock(RedirectDeploymentRepository::class);
@@ -1066,8 +1077,8 @@ class CaddyProvisionServiceTest extends TestCase
         ])->setRelation(
             'caddyRedirectDeployment',
             CaddyRedirectDeploymentFactory::new()->makeOne([
-                    'caddy_id' => $existingCaddyId,
-                ])
+                'caddy_id' => $existingCaddyId,
+            ]),
         );
 
         $redirectDeploymentRepository = self::createMock(RedirectDeploymentRepository::class);
@@ -1167,8 +1178,8 @@ class CaddyProvisionServiceTest extends TestCase
         ])->setRelation(
             'caddyRedirectDeployment',
             CaddyRedirectDeploymentFactory::new()->makeOne([
-                    'caddy_id' => $existingCaddyId,
-                ])
+                'caddy_id' => $existingCaddyId,
+            ]),
         );
 
         $requestException = self::createStub(RequestException::class);
@@ -1180,9 +1191,7 @@ class CaddyProvisionServiceTest extends TestCase
             ->with($oldSource, $context)
             ->willReturn($existingRedirectDeployment);
 
-        $redirectDeploymentRepository
-            ->expects(self::never())
-            ->method('update');
+        $redirectDeploymentRepository->expects(self::never())->method('update');
 
         $this->caddyClient
             ->expects(self::once())
@@ -1239,15 +1248,13 @@ class CaddyProvisionServiceTest extends TestCase
         $redirecDeployment = $this->makeRedirectDeployment($domain, $context, $caddyId);
 
         $redirectDeploymentRepo = self::createMock(RedirectDeploymentRepository::class);
-        $redirectDeploymentRepo->expects(self::once())
+        $redirectDeploymentRepo
+            ->expects(self::once())
             ->method('findBySourceAndContext')
             ->with($domain, $context)
             ->willReturn($redirecDeployment);
 
-        $this->caddyClient
-            ->expects(self::once())
-            ->method('deleteRedirect')
-            ->with($caddyId);
+        $this->caddyClient->expects(self::once())->method('deleteRedirect')->with($caddyId);
 
         $service = new CaddyProvisionService(
             caddyClient: $this->caddyClient,
@@ -1275,7 +1282,8 @@ class CaddyProvisionServiceTest extends TestCase
         $redirecDeployment = $this->makeRedirectDeployment($domain, $context, $caddyId);
 
         $redirectDeploymentRepo = self::createMock(RedirectDeploymentRepository::class);
-        $redirectDeploymentRepo->expects(self::once())
+        $redirectDeploymentRepo
+            ->expects(self::once())
             ->method('findBySourceAndContext')
             ->with($domain, $context)
             ->willReturn($redirecDeployment);
@@ -1286,7 +1294,8 @@ class CaddyProvisionServiceTest extends TestCase
             ->willThrowException($exception = new SaloonException('Failed to delete redirect'));
 
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 sprintf('Could not retrieve redirects by key: [%s]', $caddyId),
@@ -1299,7 +1308,7 @@ class CaddyProvisionServiceTest extends TestCase
                     LoggingContextKeys::META => [
                         'caddy_id' => $caddyId,
                     ],
-                ]
+                ],
             );
 
         $service = new CaddyProvisionService(
@@ -1327,14 +1336,13 @@ class CaddyProvisionServiceTest extends TestCase
         $request->requestId = 1;
 
         $redirectDeploymentRepo = self::createMock(RedirectDeploymentRepository::class);
-        $redirectDeploymentRepo->expects(self::once())
+        $redirectDeploymentRepo
+            ->expects(self::once())
             ->method('findBySourceAndContext')
             ->with($domain, $context)
             ->willReturn(null);
 
-        $this->caddyClient
-            ->expects(self::never())
-            ->method('getRedirect');
+        $this->caddyClient->expects(self::never())->method('getRedirect');
 
         $service = new CaddyProvisionService(
             caddyClient: $this->caddyClient,
@@ -1365,7 +1373,8 @@ class CaddyProvisionServiceTest extends TestCase
         $redirects[] = $this->makeRedirectDeployment('shop.' . $domain, $context, $caddyIds[1]);
 
         $redirectDeploymentRepo = self::createMock(RedirectDeploymentRepository::class);
-        $redirectDeploymentRepo->expects(self::once())
+        $redirectDeploymentRepo
+            ->expects(self::once())
             ->method('findAllByContext')
             ->with($context)
             ->willReturn(new Collection($redirects));
@@ -1377,7 +1386,7 @@ class CaddyProvisionServiceTest extends TestCase
                 ...self::withConsecutive(
                     [$caddyIds[0]],
                     [$caddyIds[1]],
-                )
+                ),
             );
 
         $service = new CaddyProvisionService(
@@ -1408,7 +1417,8 @@ class CaddyProvisionServiceTest extends TestCase
         $redirects[] = $this->makeRedirectDeployment('shop.' . $domain, $context, $caddyIds[1]);
 
         $redirectDeploymentRepo = self::createMock(RedirectDeploymentRepository::class);
-        $redirectDeploymentRepo->expects(self::once())
+        $redirectDeploymentRepo
+            ->expects(self::once())
             ->method('findAllByContext')
             ->with($context)
             ->willReturn(new Collection($redirects));
@@ -1420,7 +1430,8 @@ class CaddyProvisionServiceTest extends TestCase
             ->willThrowException($exception = new SaloonException($expectedMessage));
 
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 sprintf('Could not retrieve redirects by key: [%s]', $caddyIds[0]),
@@ -1460,14 +1471,13 @@ class CaddyProvisionServiceTest extends TestCase
         $request->requestId = 1;
 
         $redirectDeploymentRepo = self::createMock(RedirectDeploymentRepository::class);
-        $redirectDeploymentRepo->expects(self::once())
+        $redirectDeploymentRepo
+            ->expects(self::once())
             ->method('findAllByContext')
             ->with($context)
             ->willReturn(new Collection());
 
-        $this->caddyClient
-            ->expects(self::never())
-            ->method('deleteRedirect');
+        $this->caddyClient->expects(self::never())->method('deleteRedirect');
 
         $service = new CaddyProvisionService(
             caddyClient: $this->caddyClient,
@@ -1515,7 +1525,7 @@ class CaddyProvisionServiceTest extends TestCase
                 ...self::withConsecutive(
                     [$caddyIds[0]],
                     [$caddyIds[1]],
-                )
+                ),
             );
 
         $caddyRedirectDeploymentRepository = self::createMock(CaddyRedirectDeploymentRepository::class);
@@ -1526,7 +1536,7 @@ class CaddyProvisionServiceTest extends TestCase
                 ...self::withConsecutive(
                     [$firstDeployment->caddyRedirectDeployment],
                     [$secondDeployment->caddyRedirectDeployment],
-                )
+                ),
             );
 
         $service = new CaddyProvisionService(
@@ -1558,14 +1568,10 @@ class CaddyProvisionServiceTest extends TestCase
             ->with($context)
             ->willReturn(new Collection());
 
-        $this->caddyClient
-            ->expects(self::never())
-            ->method('deleteRedirect');
+        $this->caddyClient->expects(self::never())->method('deleteRedirect');
 
         $caddyRedirectDeploymentRepository = self::createMock(CaddyRedirectDeploymentRepository::class);
-        $caddyRedirectDeploymentRepository
-            ->expects(self::never())
-            ->method('forceDelete');
+        $caddyRedirectDeploymentRepository->expects(self::never())->method('forceDelete');
 
         $service = new CaddyProvisionService(
             caddyClient: $this->caddyClient,
@@ -1607,9 +1613,7 @@ class CaddyProvisionServiceTest extends TestCase
             ->willThrowException($expectedException);
 
         $caddyRedirectDeploymentRepository = self::createMock(CaddyRedirectDeploymentRepository::class);
-        $caddyRedirectDeploymentRepository
-            ->expects(self::never())
-            ->method('forceDelete');
+        $caddyRedirectDeploymentRepository->expects(self::never())->method('forceDelete');
 
         $logger = self::createMock(LoggerInterface::class);
         $logger->expects(self::once())->method('error');
@@ -1793,14 +1797,10 @@ class CaddyProvisionServiceTest extends TestCase
             ->with($context)
             ->willReturn(new Collection());
 
-        $this->caddyClient
-            ->expects(self::never())
-            ->method('createRedirect');
+        $this->caddyClient->expects(self::never())->method('createRedirect');
 
         $caddyRedirectDeploymentRepository = self::createMock(CaddyRedirectDeploymentRepository::class);
-        $caddyRedirectDeploymentRepository
-            ->expects(self::never())
-            ->method('create');
+        $caddyRedirectDeploymentRepository->expects(self::never())->method('create');
 
         $service = new CaddyProvisionService(
             caddyClient: $this->caddyClient,
@@ -1868,9 +1868,7 @@ class CaddyProvisionServiceTest extends TestCase
             ->willThrowException($expectedException);
 
         $caddyRedirectDeploymentRepository = self::createMock(CaddyRedirectDeploymentRepository::class);
-        $caddyRedirectDeploymentRepository
-            ->expects(self::never())
-            ->method('create');
+        $caddyRedirectDeploymentRepository->expects(self::never())->method('create');
 
         $logger = self::createMock(LoggerInterface::class);
         $logger->expects(self::once())->method('error');
@@ -1892,16 +1890,14 @@ class CaddyProvisionServiceTest extends TestCase
 
     private function makeRedirectDeployment(string $domain, UuidInterface $context, string $caddyId): RedirectDeployment
     {
-        return new RedirectDeploymentFactory()
-            ->makeOne(
-                [
-                    'source' => $domain,
-                    'context_uuid' => $context->toString(),
-                ]
-            )
-            ->setRelation(
-                'caddyRedirectDeployment',
-                new CaddyRedirectDeploymentFactory()->makeOne(['caddy_id' => $caddyId])
-            );
+        return new RedirectDeploymentFactory()->makeOne(
+            [
+                'source' => $domain,
+                'context_uuid' => $context->toString(),
+            ],
+        )->setRelation(
+            'caddyRedirectDeployment',
+            new CaddyRedirectDeploymentFactory()->makeOne(['caddy_id' => $caddyId]),
+        );
     }
 }

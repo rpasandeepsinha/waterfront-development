@@ -26,7 +26,7 @@ class SshKeyController
         private readonly AuthenticationManager $authenticationManager,
         private readonly SshKeyRepository $sshKeyRepository,
         private readonly DeleteSshKeyAction $deleteSshKeyAction,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -57,7 +57,7 @@ class SshKeyController
                             'ssh_key' => [$this->translator->translate('ssh-key.not-unique')],
                         ],
                     ],
-                    Response::HTTP_UNPROCESSABLE_ENTITY
+                    Response::HTTP_UNPROCESSABLE_ENTITY,
                 );
             }
 
@@ -72,7 +72,7 @@ class SshKeyController
                 $customer,
                 $sshKeyNameString,
                 $publicKey->toString('OpenSSH', ['comment' => $comment]),
-                $fingerprint
+                $fingerprint,
             );
 
             return new JsonResponse([
@@ -88,7 +88,7 @@ class SshKeyController
                         'ssh_key' => [$this->translator->translate('ssh-key.invalid-pubkey-format')],
                     ],
                 ],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
     }
@@ -104,18 +104,20 @@ class SshKeyController
         $errorMessage = sprintf(
             '%s %s',
             $sshKey->key_name,
-            $this->translator->translate('ssh-key.delete.error')
+            $this->translator->translate('ssh-key.delete.error'),
         );
 
         try {
-            return $this->deleteSshKeyAction->execute($sshKey, $customer)
-                ? new JsonResponse([], Response::HTTP_NO_CONTENT)
-                : new JsonResponse(['message' => $errorMessage], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return (
+                $this->deleteSshKeyAction->execute($sshKey, $customer)
+                    ? new JsonResponse([], Response::HTTP_NO_CONTENT)
+                    : new JsonResponse(['message' => $errorMessage], Response::HTTP_UNPROCESSABLE_ENTITY)
+            );
         } catch (SshKeyNotDeletableException) {
             $errorMessage = sprintf(
                 '%s %s',
                 $sshKey->key_name,
-                $this->translator->translate('ssh-key.not-deletable.error')
+                $this->translator->translate('ssh-key.not-deletable.error'),
             );
 
             return new JsonResponse(['message' => $errorMessage], Response::HTTP_UNPROCESSABLE_ENTITY);

@@ -50,13 +50,9 @@ class MicrosoftGraphServiceTest extends TestCase
         $graphMock = self::mock(GraphServiceClient::class);
 
         $this->graphServiceClientFactory = self::createStub(GraphServiceClientFactory::class);
-        $this->graphServiceClientFactory
-            ->method('createForCustomer')
-            ->willReturn($graphMock);
+        $this->graphServiceClientFactory->method('createForCustomer')->willReturn($graphMock);
 
-        $this->graphServiceClientFactory
-            ->method('createForAdmin')
-            ->willReturn($graphMock);
+        $this->graphServiceClientFactory->method('createForAdmin')->willReturn($graphMock);
 
         $this->mockGraphServiceClient = $graphMock;
     }
@@ -67,13 +63,13 @@ class MicrosoftGraphServiceTest extends TestCase
         $domainModel = new Domain();
         $domainModel->setId(self::DOMAIN_NAME);
 
-        $this->mockGraphServiceClient
-            ->shouldReceive('domains->byDomainId->get->wait')
-            ->andReturn($domainModel);
+        $this->mockGraphServiceClient->shouldReceive('domains->byDomainId->get->wait')->andReturn($domainModel);
 
         $service = new MicrosoftGraphService($this->graphServiceClientFactory);
 
-        $result = $service->getDomain(new Microsoft365GetDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid));
+        $result = $service->getDomain(
+            new Microsoft365GetDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid),
+        );
 
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
         self::assertEquals($domainModel, $result->domain);
@@ -84,13 +80,13 @@ class MicrosoftGraphServiceTest extends TestCase
     #[Test]
     public function getDomainFailedWhenNull(): void
     {
-        $this->mockGraphServiceClient
-            ->shouldReceive('domains->byDomainId->get->wait')
-            ->andReturn(null);
+        $this->mockGraphServiceClient->shouldReceive('domains->byDomainId->get->wait')->andReturn(null);
 
         $service = new MicrosoftGraphService($this->graphServiceClientFactory);
 
-        $result = $service->getDomain(new Microsoft365GetDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid));
+        $result = $service->getDomain(
+            new Microsoft365GetDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid),
+        );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertInstanceOf(DomainNotFoundException::class, $result->exception);
@@ -102,13 +98,13 @@ class MicrosoftGraphServiceTest extends TestCase
     public function getDomainFailedWhenExceptionOccurs(): void
     {
         $testException = new Exception('Generic exception');
-        $this->mockGraphServiceClient
-            ->shouldReceive('domains->byDomainId->get->wait')
-            ->andThrow($testException);
+        $this->mockGraphServiceClient->shouldReceive('domains->byDomainId->get->wait')->andThrow($testException);
 
         $service = new MicrosoftGraphService($this->graphServiceClientFactory);
 
-        $result = $service->getDomain(new Microsoft365GetDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid));
+        $result = $service->getDomain(
+            new Microsoft365GetDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid),
+        );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertEquals($testException, $result->exception);
@@ -122,13 +118,13 @@ class MicrosoftGraphServiceTest extends TestCase
         $domainModel = new Domain();
         $domainModel->setId(self::DOMAIN_NAME);
 
-        $this->mockGraphServiceClient
-            ->shouldReceive('domains->post->wait')
-            ->andReturn($domainModel);
+        $this->mockGraphServiceClient->shouldReceive('domains->post->wait')->andReturn($domainModel);
 
         $service = new MicrosoftGraphService($this->graphServiceClientFactory);
 
-        $result = $service->createDomain(new Microsoft365CreateDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid));
+        $result = $service->createDomain(
+            new Microsoft365CreateDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid),
+        );
 
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
         self::assertSame($domainModel, $result->domain);
@@ -139,13 +135,13 @@ class MicrosoftGraphServiceTest extends TestCase
     #[Test]
     public function createDomainFailedWhenNull(): void
     {
-        $this->mockGraphServiceClient
-            ->shouldReceive('domains->post->wait')
-            ->andReturn(null);
+        $this->mockGraphServiceClient->shouldReceive('domains->post->wait')->andReturn(null);
 
         $service = new MicrosoftGraphService($this->graphServiceClientFactory);
 
-        $result = $service->createDomain(new Microsoft365CreateDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid));
+        $result = $service->createDomain(
+            new Microsoft365CreateDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid),
+        );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertInstanceOf(DomainNotCreatedException::class, $result->exception);
@@ -156,13 +152,13 @@ class MicrosoftGraphServiceTest extends TestCase
     public function createDomainFailedWhenExceptionOccurs(): void
     {
         $testException = new Exception('Generic exception');
-        $this->mockGraphServiceClient
-            ->shouldReceive('domains->post->wait')
-            ->andThrow($testException);
+        $this->mockGraphServiceClient->shouldReceive('domains->post->wait')->andThrow($testException);
 
         $service = new MicrosoftGraphService($this->graphServiceClientFactory);
 
-        $result = $service->createDomain(new Microsoft365CreateDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid));
+        $result = $service->createDomain(
+            new Microsoft365CreateDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid),
+        );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertEquals($testException, $result->exception);
@@ -181,7 +177,9 @@ class MicrosoftGraphServiceTest extends TestCase
 
         $service = new MicrosoftGraphService($this->graphServiceClientFactory);
 
-        $result = $service->promoteDomain(new Microsoft365PromoteDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid));
+        $result = $service->promoteDomain(
+            new Microsoft365PromoteDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid),
+        );
 
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
         self::assertTrue($result->isPromoted);
@@ -192,13 +190,13 @@ class MicrosoftGraphServiceTest extends TestCase
     #[Test]
     public function promoteDomainFailedWhenNull(): void
     {
-        $this->mockGraphServiceClient
-            ->shouldReceive('domains->byDomainId->promote->post->wait')
-            ->andReturn(null);
+        $this->mockGraphServiceClient->shouldReceive('domains->byDomainId->promote->post->wait')->andReturn(null);
 
         $service = new MicrosoftGraphService($this->graphServiceClientFactory);
 
-        $result = $service->promoteDomain(new Microsoft365PromoteDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid));
+        $result = $service->promoteDomain(
+            new Microsoft365PromoteDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid),
+        );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertInstanceOf(DomainNotPromotedException::class, $result->exception);
@@ -218,7 +216,9 @@ class MicrosoftGraphServiceTest extends TestCase
 
         $service = new MicrosoftGraphService($this->graphServiceClientFactory);
 
-        $result = $service->promoteDomain(new Microsoft365PromoteDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid));
+        $result = $service->promoteDomain(
+            new Microsoft365PromoteDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid),
+        );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertInstanceOf(DomainNotPromotedException::class, $result->exception);
@@ -236,7 +236,9 @@ class MicrosoftGraphServiceTest extends TestCase
 
         $service = new MicrosoftGraphService($this->graphServiceClientFactory);
 
-        $result = $service->promoteDomain(new Microsoft365PromoteDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid));
+        $result = $service->promoteDomain(
+            new Microsoft365PromoteDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid),
+        );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertEquals($testException, $result->exception);
@@ -256,7 +258,9 @@ class MicrosoftGraphServiceTest extends TestCase
 
         $service = new MicrosoftGraphService($this->graphServiceClientFactory);
 
-        $result = $service->verifyDomain(new Microsoft365VerifyDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid));
+        $result = $service->verifyDomain(
+            new Microsoft365VerifyDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid),
+        );
 
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
         self::assertNotNull($result->domain);
@@ -268,13 +272,13 @@ class MicrosoftGraphServiceTest extends TestCase
     #[Test]
     public function verifyDomainFailedWhenNull(): void
     {
-        $this->mockGraphServiceClient
-            ->shouldReceive('domains->byDomainId->verify->post->wait')
-            ->andReturn(null);
+        $this->mockGraphServiceClient->shouldReceive('domains->byDomainId->verify->post->wait')->andReturn(null);
 
         $service = new MicrosoftGraphService($this->graphServiceClientFactory);
 
-        $result = $service->verifyDomain(new Microsoft365VerifyDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid));
+        $result = $service->verifyDomain(
+            new Microsoft365VerifyDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid),
+        );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertInstanceOf(DomainNotVerifiedException::class, $result->exception);
@@ -294,7 +298,9 @@ class MicrosoftGraphServiceTest extends TestCase
 
         $service = new MicrosoftGraphService($this->graphServiceClientFactory);
 
-        $result = $service->verifyDomain(new Microsoft365VerifyDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid));
+        $result = $service->verifyDomain(
+            new Microsoft365VerifyDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid),
+        );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertInstanceOf(DomainNotVerifiedException::class, $result->exception);
@@ -312,7 +318,9 @@ class MicrosoftGraphServiceTest extends TestCase
 
         $service = new MicrosoftGraphService($this->graphServiceClientFactory);
 
-        $result = $service->verifyDomain(new Microsoft365VerifyDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid));
+        $result = $service->verifyDomain(
+            new Microsoft365VerifyDomainRequest(self::DOMAIN_NAME, Uuid::fromString(self::TENANT_ID), $this->tagUuid),
+        );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertEquals($testException, $result->exception);

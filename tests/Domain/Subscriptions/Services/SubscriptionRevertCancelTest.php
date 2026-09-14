@@ -49,17 +49,17 @@ class SubscriptionRevertCancelTest extends IntegrationTestCase
 
         $group = new ProductGroupFactory()->extension()->createOne();
         $this->product = new ProductFactory()->for($group)->createOne(
-            ['name' => '.nl', 'slug' => 'extension_nl']
+            ['name' => '.nl', 'slug' => 'extension_nl'],
         );
         $this->subscription = new SubscriptionFactory()->for($this->product)->createOne(
             [
-                'customer_id'  => $this->customer->id,
-                'domain'       => $this->domainName,
-                'start_date'   => CarbonImmutable::now(),
-                'end_date'     => CarbonImmutable::now()->addWeek(),
-                'gross_price'  => 100,
-                'net_price'    => 100,
-            ]
+                'customer_id' => $this->customer->id,
+                'domain' => $this->domainName,
+                'start_date' => CarbonImmutable::now(),
+                'end_date' => CarbonImmutable::now()->addWeek(),
+                'gross_price' => 100,
+                'net_price' => 100,
+            ],
         );
 
         new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne())->createOne([
@@ -88,24 +88,28 @@ class SubscriptionRevertCancelTest extends IntegrationTestCase
         self::assertDatabaseHas(
             'subscriptions',
             [
-                'id'                     => $this->subscription->id,
-                'uuid'                   => $this->subscription->uuid,
-                'product_uuid'           => $this->product->uuid,
-                'customer_id'            => $this->customer->id,
-                'technical_status'       => null,
-                'administrative_status'  => AdministrativeStatus::ACTIVE->value,
-                'contract_period'        => '12',
-                'billing_period'         => '12',
-                'net_price'              => 100,
-                'gross_price'            => 100,
+                'id' => $this->subscription->id,
+                'uuid' => $this->subscription->uuid,
+                'product_uuid' => $this->product->uuid,
+                'customer_id' => $this->customer->id,
+                'technical_status' => null,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                'contract_period' => '12',
+                'billing_period' => '12',
+                'net_price' => 100,
+                'gross_price' => 100,
                 'parent_subscription_id' => null,
-                'cancel_date'            => null,
-            ]
+                'cancel_date' => null,
+            ],
         );
 
         $service = self::resolve(CancellationService::class);
 
-        $service->cancel($this->subscription, SubscriptionCancelType::CANCEL_END_DATE, SubscriptionCancelReason::REASON_CANCELLATION);
+        $service->cancel(
+            $this->subscription,
+            SubscriptionCancelType::CANCEL_END_DATE,
+            SubscriptionCancelReason::REASON_CANCELLATION,
+        );
 
         self::assertSame(AdministrativeStatus::CANCELED->value, $this->subscription->administrative_status);
         self::assertNotNull($this->subscription->cancel_date);
@@ -220,20 +224,24 @@ class SubscriptionRevertCancelTest extends IntegrationTestCase
             MailSubscriptionCancelReverted::class,
         ]);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne(
-            [
-                'product_uuid'          => $this->product->uuid,
-                'customer_id'           => $this->customer->id,
-                'start_date'            => $start_date,
-                'end_date'              => $end_date,
-                'cancel_date'           => $cancel_date,
-                'administrative_status' => AdministrativeStatus::CANCELED->value,
-            ]
-        );
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne(
+                [
+                    'product_uuid' => $this->product->uuid,
+                    'customer_id' => $this->customer->id,
+                    'start_date' => $start_date,
+                    'end_date' => $end_date,
+                    'cancel_date' => $cancel_date,
+                    'administrative_status' => AdministrativeStatus::CANCELED->value,
+                ],
+            );
 
-        $response = $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.subscriptions.cancel.revert', $subscription->uuid)
-        )->assertOk();
+        $response = $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.subscriptions.cancel.revert', $subscription->uuid),
+            )
+            ->assertOk();
 
         $subscription->refresh();
 
@@ -270,27 +278,31 @@ class SubscriptionRevertCancelTest extends IntegrationTestCase
     public function subscriptionRevertCancelExpired(): void
     {
         $mailer = self::createMock(Mailer::class);
-        $mailer->expects(self::never())
-            ->method('send');
+        $mailer->expects(self::never())->method('send');
         $this->app->bind(Mailer::class, fn () => $mailer);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne(
-            [
-                'product_uuid'          => $this->product->uuid,
-                'customer_id'           => $this->customer->id,
-                'start_date'            => CarbonImmutable::today(),
-                'end_date'              => CarbonImmutable::today()->subWeek(),
-                'cancel_date'           => CarbonImmutable::today(),
-                'administrative_status' => AdministrativeStatus::CANCELED->value,
-            ]
-        );
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne(
+                [
+                    'product_uuid' => $this->product->uuid,
+                    'customer_id' => $this->customer->id,
+                    'start_date' => CarbonImmutable::today(),
+                    'end_date' => CarbonImmutable::today()->subWeek(),
+                    'cancel_date' => CarbonImmutable::today(),
+                    'administrative_status' => AdministrativeStatus::CANCELED->value,
+                ],
+            );
         $subscription->refresh();
 
         $response = $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.subscriptions.cancel.revert', $subscription->uuid)
+            $this->generateRoute('partners.subscriptions.cancel.revert', $subscription->uuid),
         );
 
-        $response->assertJsonPath('message', self::resolve(TranslatorInterface::class)->translate('services.revert-cancel-subscription.failed'));
+        $response->assertJsonPath(
+            'message',
+            self::resolve(TranslatorInterface::class)->translate('services.revert-cancel-subscription.failed'),
+        );
 
         self::assertSame(AdministrativeStatus::CANCELED->value, $subscription->administrative_status);
         self::assertNotNull($subscription->cancel_date);

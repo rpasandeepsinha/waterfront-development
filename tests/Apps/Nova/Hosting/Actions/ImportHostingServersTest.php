@@ -23,7 +23,8 @@ class ImportHostingServersTest extends IntegrationTestCase
     #[Test]
     public function canImportPleskCSVSuccessfully(): void
     {
-        [$actionRequest, $actionFields] = $this->getTestActionRequestAndActionFields(__DIR__ . '/data/server_import_plesk_success.csv');
+        [$actionRequest, $actionFields] = $this->getTestActionRequestAndActionFields(__DIR__
+        . '/data/server_import_plesk_success.csv');
 
         self::assertDatabaseCount('hosting_servers', 0);
 
@@ -53,7 +54,8 @@ class ImportHostingServersTest extends IntegrationTestCase
     #[Test]
     public function canImportDirectAdminCSVSuccessfully(): void
     {
-        [$actionRequest, $actionFields] = $this->getTestActionRequestAndActionFields(__DIR__ . '/data/server_import_directadmin_success.csv');
+        [$actionRequest, $actionFields] = $this->getTestActionRequestAndActionFields(__DIR__
+        . '/data/server_import_directadmin_success.csv');
 
         self::assertDatabaseCount('hosting_servers', 0);
 
@@ -83,7 +85,8 @@ class ImportHostingServersTest extends IntegrationTestCase
     #[Test]
     public function numberOfColumnsDoesNotMatch(): void
     {
-        [$actionRequest, $actionFields] = $this->getTestActionRequestAndActionFields(__DIR__ . '/data/server_import_columns_dont_match.csv');
+        [$actionRequest, $actionFields] = $this->getTestActionRequestAndActionFields(__DIR__
+        . '/data/server_import_columns_dont_match.csv');
 
         self::assertDatabaseCount('hosting_servers', 0);
 
@@ -103,17 +106,18 @@ class ImportHostingServersTest extends IntegrationTestCase
     #[Test]
     public function validationErrors(): void
     {
-        [$actionRequest, $actionFields] = $this->getTestActionRequestAndActionFields(__DIR__ . '/data/server_import_validation_errors.csv');
+        [$actionRequest, $actionFields] = $this->getTestActionRequestAndActionFields(__DIR__
+        . '/data/server_import_validation_errors.csv');
 
         self::assertDatabaseCount('hosting_servers', 0);
 
         $this->expectException(ValidationException::class);
         $this->expectExceptionMessageIs(
-            '0.php_version: Dit veld is verplicht.<br/>' .
-            '0.secret_key: Dit veld is verplicht.<br/>' .
-            '0.ipv4: Dit veld is geen valide versie 4 ip adres.<br/>' .
-            '0.ipv6: Dit veld is geen valide versie 6 ip adres.<br/>' .
-            '0.hostname: Dit veld bevat geen geldige domeinnaam.<br/>'
+            '0.php_version: Dit veld is verplicht.<br/>'
+            . '0.secret_key: Dit veld is verplicht.<br/>'
+            . '0.ipv4: Dit veld is geen valide versie 4 ip adres.<br/>'
+            . '0.ipv6: Dit veld is geen valide versie 6 ip adres.<br/>'
+            . '0.hostname: Dit veld bevat geen geldige domeinnaam.<br/>',
         );
 
         $action = self::resolve(NovaImportPleskHostingServersAction::class);
@@ -134,11 +138,10 @@ class ImportHostingServersTest extends IntegrationTestCase
         $csv = (string) file_get_contents($fileLocation);
 
         $payload = [
-            'csv_upload' => UploadedFile::fake()
-                ->createWithContent(
-                    'server_import.csv',
-                    $csv,
-                ),
+            'csv_upload' => UploadedFile::fake()->createWithContent(
+                'server_import.csv',
+                $csv,
+            ),
         ];
 
         return [

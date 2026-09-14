@@ -31,8 +31,9 @@ trait CustomerTrait
      */
     private function createCreditFlowCustomerWithAddress(array $attributes = []): Customer
     {
-        return new CustomerFactory()
-            ->withAddress(['country_code' => 'NL'])
-            ->createOne(array_merge($this->debtorRequiredCustomerValues, $attributes));
+        return new CustomerFactory()->withAddress(['country_code' => 'NL'])->createOne(array_merge(
+            $this->debtorRequiredCustomerValues,
+            $attributes,
+        ));
     }
 }

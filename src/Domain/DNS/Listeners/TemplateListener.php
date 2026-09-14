@@ -16,14 +16,15 @@ class TemplateListener implements ShouldQueue
 
     public string $queue = QueueName::DNS->value;
 
-    public function __construct(private readonly TemplateService $template)
-    {
+    public function __construct(
+        private readonly TemplateService $template,
+    ) {
     }
 
     public function handle(ZoneOutdated $event): void
     {
         $template = $event->template;
-        $zone     = $event->zone;
+        $zone = $event->zone;
         $pdnsZone = $event->pdnsZone;
 
         $this->template->applyTemplateToZone($template, $zone, $pdnsZone);

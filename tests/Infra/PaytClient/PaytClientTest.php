@@ -97,7 +97,11 @@ class PaytClientTest extends TestCase
     public function getDebtorByDebtorNumberThrowsOnServerError(): void
     {
         $client = $this->makeClient(HandlerStack::create(new MockHandler([
-            new Response(500, [], (string) json_encode(['code' => 'server_error', 'message' => 'Internal server error'])),
+            new Response(
+                500,
+                [],
+                (string) json_encode(['code' => 'server_error', 'message' => 'Internal server error']),
+            ),
         ])));
 
         $this->expectException(GuzzleException::class);
@@ -111,22 +115,22 @@ class PaytClientTest extends TestCase
         $responseBody = (string) json_encode([
             'data' => [
                 [
-                    'id'             => '10959712',
-                    'sender_type'    => 'debtor',
-                    'subject'        => null,
+                    'id' => '10959712',
+                    'sender_type' => 'debtor',
+                    'subject' => null,
                     'credit_case_id' => null,
-                    'content'        => 'Hallo, ik heb een vraag.',
-                    'sent_at'        => null,
-                    'received_at'    => '2026-04-04T14:54:09.706377Z',
+                    'content' => 'Hallo, ik heb een vraag.',
+                    'sent_at' => null,
+                    'received_at' => '2026-04-04T14:54:09.706377Z',
                 ],
                 [
-                    'id'             => '10959713',
-                    'sender_type'    => 'creditor',
-                    'subject'        => null,
+                    'id' => '10959713',
+                    'sender_type' => 'creditor',
+                    'subject' => null,
                     'credit_case_id' => null,
-                    'content'        => 'Beste klant, bedankt voor uw bericht.',
-                    'sent_at'        => '2026-04-04T14:54:28.519681Z',
-                    'received_at'    => null,
+                    'content' => 'Beste klant, bedankt voor uw bericht.',
+                    'sent_at' => '2026-04-04T14:54:28.519681Z',
+                    'received_at' => null,
                 ],
             ],
             'pagination' => ['cursor' => 'abc123'],
@@ -164,20 +168,20 @@ class PaytClientTest extends TestCase
         $responseBody = (string) json_encode([
             'data' => [
                 [
-                    'id'             => '10959712',
-                    'sender_type'    => 'debtor',
-                    'subject'        => null,
+                    'id' => '10959712',
+                    'sender_type' => 'debtor',
+                    'subject' => null,
                     'credit_case_id' => null,
-                    'content'        => 'Hallo, ik heb een vraag.',
-                    'sent_at'        => '2026-04-04T14:54:09.706377Z',
+                    'content' => 'Hallo, ik heb een vraag.',
+                    'sent_at' => '2026-04-04T14:54:09.706377Z',
                 ],
                 [
-                    'id'             => '10959713',
-                    'sender_type'    => 'creditor',
-                    'subject'        => null,
+                    'id' => '10959713',
+                    'sender_type' => 'creditor',
+                    'subject' => null,
                     'credit_case_id' => null,
-                    'content'        => 'Beste klant, bedankt voor uw bericht.',
-                    'sent_at'        => '2026-04-04T14:54:28.519681Z',
+                    'content' => 'Beste klant, bedankt voor uw bericht.',
+                    'sent_at' => '2026-04-04T14:54:28.519681Z',
                 ],
             ],
             'pagination' => ['cursor' => 'abc123'],
@@ -207,20 +211,20 @@ class PaytClientTest extends TestCase
         $responseBody = (string) json_encode([
             'data' => [
                 [
-                    'id'             => '10959712',
-                    'sender_type'    => 'debtor',
-                    'subject'        => null,
+                    'id' => '10959712',
+                    'sender_type' => 'debtor',
+                    'subject' => null,
                     'credit_case_id' => '1219278',
-                    'content'        => 'Hallo, ik heb een vraag.',
-                    'sent_at'        => '2026-04-04T14:54:09.706377Z',
+                    'content' => 'Hallo, ik heb een vraag.',
+                    'sent_at' => '2026-04-04T14:54:09.706377Z',
                 ],
                 [
-                    'id'             => '10959713',
-                    'sender_type'    => 'creditor',
-                    'subject'        => null,
+                    'id' => '10959713',
+                    'sender_type' => 'creditor',
+                    'subject' => null,
                     'credit_case_id' => '1219278',
-                    'content'        => 'Beste klant, bedankt voor uw bericht.',
-                    'sent_at'        => '2026-04-04T14:54:28.519681Z',
+                    'content' => 'Beste klant, bedankt voor uw bericht.',
+                    'sent_at' => '2026-04-04T14:54:28.519681Z',
                 ],
             ],
             'pagination' => ['cursor' => 'abc123'],

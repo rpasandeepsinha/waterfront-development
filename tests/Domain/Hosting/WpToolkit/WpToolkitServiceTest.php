@@ -37,7 +37,7 @@ class WpToolkitServiceTest extends IntegrationTestCase
 
         $this->wordpressService = new WpToolkitService(
             serializerFactory: self::resolve(WpToolkitSerializerFactory::class),
-            logger: $this->loggerMock
+            logger: $this->loggerMock,
         );
     }
 
@@ -46,7 +46,8 @@ class WpToolkitServiceTest extends IntegrationTestCase
     {
         $server = ServerFactory::new()->createOne(['secret_key' => 'gdgdgdggdgdgd']);
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('debug')
             ->with(
                 'Instantiate WpToolkitClient',
@@ -57,7 +58,7 @@ class WpToolkitServiceTest extends IntegrationTestCase
                     LoggingContextKeys::META => [
                         'Authentication-type' => 'Token Authentication',
                     ],
-                ]
+                ],
             );
 
         $this->wordpressService->instantiateClient($server);
@@ -70,10 +71,11 @@ class WpToolkitServiceTest extends IntegrationTestCase
             [
                 'username' => 'test',
                 'password' => 'test',
-            ]
+            ],
         );
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('debug')
             ->with(
                 'Instantiate WpToolkitClient',
@@ -84,7 +86,7 @@ class WpToolkitServiceTest extends IntegrationTestCase
                     LoggingContextKeys::META => [
                         'Authentication-type' => 'User-Password Authentication',
                     ],
-                ]
+                ],
             );
 
         $this->wordpressService->instantiateClient($server);
@@ -96,8 +98,7 @@ class WpToolkitServiceTest extends IntegrationTestCase
         ServerFactory::new()->createOne();
 
         $this->expectException(LogicException::class);
-        $this->wordpressService
-            ->getWpInstallationId('test-domain.nl');
+        $this->wordpressService->getWpInstallationId('test-domain.nl');
     }
 
     #[Test]
@@ -106,8 +107,7 @@ class WpToolkitServiceTest extends IntegrationTestCase
         ServerFactory::new()->createOne();
 
         $this->expectException(LogicException::class);
-        $this->wordpressService
-            ->getWpLogin(installationId: 1);
+        $this->wordpressService->getWpLogin(installationId: 1);
     }
 
     #[Test]
@@ -134,13 +134,17 @@ class WpToolkitServiceTest extends IntegrationTestCase
         $server = ServerFactory::new()->createOne(['secret_key' => 'gdgdgdggdgdgd']);
 
         $clientResponseMock = new MockHandler([
-            new Response(200, [], '{"credentials": {"login": "username", "password": "password"}, "loginUrl": "https://test-domain.nl/wp-login.php"}'),
+            new Response(
+                200,
+                [],
+                '{"credentials": {"login": "username", "password": "password"}, "loginUrl": "https://test-domain.nl/wp-login.php"}',
+            ),
         ]);
 
         $wpCredentials = $this->wordpressService
             ->instantiateClient(
                 server: $server,
-                guzzleClient: new GuzzleClient(['handler' => HandlerStack::create($clientResponseMock)])
+                guzzleClient: new GuzzleClient(['handler' => HandlerStack::create($clientResponseMock)]),
             )
             ->getWpLogin(installationId: 1);
 
@@ -153,19 +157,24 @@ class WpToolkitServiceTest extends IntegrationTestCase
         $server = ServerFactory::new()->createOne(['secret_key' => 'gdgdgdggdgdgd']);
 
         $clientResponseMock = new MockHandler([
-            new Response(404, [], '{"meta":{"status":404,"message":"Kan de WordPress-installatie met het opgegeven kenmerk niet vinden"}}'),
+            new Response(
+                404,
+                [],
+                '{"meta":{"status":404,"message":"Kan de WordPress-installatie met het opgegeven kenmerk niet vinden"}}',
+            ),
         ]);
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with('There are no credentials found for installationId');
 
-        $credentials =  $this->wordpressService
-             ->instantiateClient(
-                 server: $server,
-                 guzzleClient: new GuzzleClient(['handler' => HandlerStack::create($clientResponseMock)])
-             )
-             ->getWpLogin(installationId: 1);
+        $credentials = $this->wordpressService
+            ->instantiateClient(
+                server: $server,
+                guzzleClient: new GuzzleClient(['handler' => HandlerStack::create($clientResponseMock)]),
+            )
+            ->getWpLogin(installationId: 1);
 
         self::assertNull($credentials);
     }

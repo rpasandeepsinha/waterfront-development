@@ -38,10 +38,12 @@ class CreateDirectDebitMandateJobTest extends IntegrationTestCase
 
         $this->customer = CustomerFactory::new()->createOne();
 
-        $this->customer->migratedCustomers()->save(MigratedCustomersFactory::new()->makeOne([
-            'reference_customer_number' => 'reference12345',
-            'reference_name' => 'testBU',
-        ]));
+        $this->customer
+            ->migratedCustomers()
+            ->save(MigratedCustomersFactory::new()->makeOne([
+                'reference_customer_number' => 'reference12345',
+                'reference_name' => 'testBU',
+            ]));
 
         $this->migratedCustomer = $this->customer->migratedCustomers->firstOrFail();
     }
@@ -51,23 +53,22 @@ class CreateDirectDebitMandateJobTest extends IntegrationTestCase
     {
         $mock = self::createStub(CreateDirectDebitMandateAction::class);
 
-        $mock->method('execute')
-            ->willReturnCallback(function (): Mandate {
-                $mollieCustomer = new MollieCustomer();
-                $mollieCustomer->mollie_customer_reference_id = 'cst_1';
+        $mock->method('execute')->willReturnCallback(function (): Mandate {
+            $mollieCustomer = new MollieCustomer();
+            $mollieCustomer->mollie_customer_reference_id = 'cst_1';
 
-                $this->customer->mollieCustomer()->save($mollieCustomer);
+            $this->customer->mollieCustomer()->save($mollieCustomer);
 
-                $mandate = new Mandate();
-                $mandate->mollie_mandate_reference_id = 'mdt_1';
-                $mandate->payt_mandate_reference_id = '5';
-                $mandate->signature_date = CarbonImmutable::createFromDate(2023, 8, 31)->toImmutable();
-                $mandate->method = MollieMandateMethod::DIRECTDEBIT;
+            $mandate = new Mandate();
+            $mandate->mollie_mandate_reference_id = 'mdt_1';
+            $mandate->payt_mandate_reference_id = '5';
+            $mandate->signature_date = CarbonImmutable::createFromDate(2023, 8, 31)->toImmutable();
+            $mandate->method = MollieMandateMethod::DIRECTDEBIT;
 
-                $mollieCustomer->mandates()->save($mandate);
+            $mollieCustomer->mandates()->save($mandate);
 
-                return $mandate->refresh();
-            });
+            return $mandate->refresh();
+        });
 
         $logger = self::resolve(LoggerInterface::class);
         $dispatcher = self::resolve(Dispatcher::class);
@@ -82,7 +83,7 @@ class CreateDirectDebitMandateJobTest extends IntegrationTestCase
         $job = new CreateDirectDebitMandateJob(
             customer: $this->customer,
             mollieMandateDirectDebitCreateDTO: $mollieMandateCreateDTO,
-            migratedCustomer: $this->migratedCustomer
+            migratedCustomer: $this->migratedCustomer,
         );
 
         $job->handle($mock, $logger, $dispatcher);
@@ -101,22 +102,21 @@ class CreateDirectDebitMandateJobTest extends IntegrationTestCase
     public function createDirectDebitMandateJobFail(): void
     {
         Http::fake([
-            'ferry.azurewebsites.net//api/ConsumeFerryResponse' =>
-                function (Request $request) {
-                    self::assertSame('POST', $request->method());
+            'ferry.azurewebsites.net//api/ConsumeFerryResponse' => function (Request $request) {
+                self::assertSame('POST', $request->method());
 
-                    $data = $request->data();
+                $data = $request->data();
 
-                    /** @var string|int $error */
-                    $error = Arr::get($data, 'data.error');
+                /** @var string|int $error */
+                $error = Arr::get($data, 'data.error');
 
-                    self::assertSame('direct_debit_creation_unsuccessful', Arr::get($data, 'type'));
-                    self::assertSame('reference12345', Arr::get($data, 'data.reference_customer_number'));
-                    self::assertSame('testBU', Arr::get($data, 'data.reference_name'));
-                    self::assertStringContainsString('Mollie API exception', (string) $error);
+                self::assertSame('direct_debit_creation_unsuccessful', Arr::get($data, 'type'));
+                self::assertSame('reference12345', Arr::get($data, 'data.reference_customer_number'));
+                self::assertSame('testBU', Arr::get($data, 'data.reference_name'));
+                self::assertStringContainsString('Mollie API exception', (string) $error);
 
-                    return Http::response();
-                },
+                return Http::response();
+            },
         ]);
 
         $mock = self::createStub(CreateDirectDebitMandateAction::class);
@@ -131,15 +131,14 @@ class CreateDirectDebitMandateJobTest extends IntegrationTestCase
         $mandate->method = MollieMandateMethod::DIRECTDEBIT;
         $mandate->mollieCustomer = $mollieCustomer;
 
-        $mock->method('execute')
-            ->willThrowException(
-                new MollieMandateApiException(
-                    422,
-                    'error',
-                    'detail',
-                    null
-                )
-            );
+        $mock->method('execute')->willThrowException(
+            new MollieMandateApiException(
+                422,
+                'error',
+                'detail',
+                null,
+            ),
+        );
 
         $logger = self::resolve(LoggerInterface::class);
         $dispatcher = self::resolve(Dispatcher::class);
@@ -154,7 +153,7 @@ class CreateDirectDebitMandateJobTest extends IntegrationTestCase
         $job = new CreateDirectDebitMandateJob(
             customer: $this->customer,
             mollieMandateDirectDebitCreateDTO: $mollieMandateCreateDTO,
-            migratedCustomer: $this->migratedCustomer
+            migratedCustomer: $this->migratedCustomer,
         );
 
         self::expectException(MollieMandateApiException::class);
@@ -184,7 +183,8 @@ class CreateDirectDebitMandateJobTest extends IntegrationTestCase
         );
 
         $mock = self::createMock(CreateDirectDebitMandateAction::class);
-        $mock->expects(self::exactly(2))
+        $mock
+            ->expects(self::exactly(2))
             ->method('execute')
             ->with(
                 ...self::withConsecutive(
@@ -201,8 +201,8 @@ class CreateDirectDebitMandateJobTest extends IntegrationTestCase
                         $mollieMandateCreateDTO->consumerAccount,
                         new CarbonImmutable($mollieMandateCreateDTO->signatureDate),
                         null, // Without BIC!
-                    ]
-                )
+                    ],
+                ),
             )
             ->willReturnCallback(
                 function (
@@ -210,14 +210,14 @@ class CreateDirectDebitMandateJobTest extends IntegrationTestCase
                     string $consumerName,
                     string $consumerAccount, // IBAN
                     CarbonImmutable $signatureDate, // Y-m-d will be used
-                    string|null $consumerBic = null
+                    ?string $consumerBic = null,
                 ): Mandate {
                     if ($consumerBic !== null) {
                         throw new MollieMandateApiException(
                             status: 422,
                             title: 'Unprocessable Entity',
                             detail: 'The BIC is invalid',
-                            field: 'consumerBic'
+                            field: 'consumerBic',
                         );
                     }
 
@@ -236,13 +236,13 @@ class CreateDirectDebitMandateJobTest extends IntegrationTestCase
                     $mollieCustomer->mandates()->save($mandate);
 
                     return $mandate->refresh();
-                }
+                },
             );
 
         $job = new CreateDirectDebitMandateJob(
             customer: $this->customer,
             mollieMandateDirectDebitCreateDTO: $mollieMandateCreateDTO,
-            migratedCustomer: $this->migratedCustomer
+            migratedCustomer: $this->migratedCustomer,
         );
 
         $job->handle(

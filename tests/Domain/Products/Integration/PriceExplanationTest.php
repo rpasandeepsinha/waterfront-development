@@ -39,7 +39,11 @@ class PriceExplanationTest extends IntegrationTestCase
     public function priceExplanations(): void
     {
         $productGroup = new ProductGroupFactory()->createOne(['name' => 'Hosting Products', 'slug' => 'hosting']);
-        $product = new ProductFactory()->for($productGroup)->createOne(['name' => 'Test 1', 'slug' => 'test-1', 'weight' => 1]);
+        $product = new ProductFactory()->for($productGroup)->createOne([
+            'name' => 'Test 1',
+            'slug' => 'test-1',
+            'weight' => 1,
+        ]);
 
         $language1 = new TranslationLanguageFactory()->createOne(['locale' => 'en']);
         $language2 = new TranslationLanguageFactory()->createOne(['locale' => 'nl']);
@@ -49,7 +53,10 @@ class PriceExplanationTest extends IntegrationTestCase
             ->withTranslatedString($language2, 'test vertaling')
             ->createOne(['key' => 'test.price.explanation']);
 
-        new ProductPeriodFactory()->for($product)->for($priceExplanation, 'priceExplanation')->createOne(['contract_period' => 12, 'billing_period' => 12]);
+        new ProductPeriodFactory()
+            ->for($product)
+            ->for($priceExplanation, 'priceExplanation')
+            ->createOne(['contract_period' => 12, 'billing_period' => 12]);
         new ProductPriceComponentFactory()
             ->for($product)
             ->registration()

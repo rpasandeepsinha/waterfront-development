@@ -35,13 +35,20 @@ class NovaChangeStatusAction extends Action
     public function handle(ActionFields $fields, Collection $models): ActionResponse|static
     {
         $statusString = $fields->get('status');
-        Assert::stringNotEmpty($statusString, $this->translator->translate('nova-action.one-time-service.change-status.error.empty'));
+        Assert::stringNotEmpty(
+            $statusString,
+            $this->translator->translate('nova-action.one-time-service.change-status.error.empty'),
+        );
         $status = OneTimeServiceStatus::from($statusString);
 
-        $oneTimeServices = OneTimeService::query()
-            ->whereIn('id', array_map(fn (OneTimeService $service): int => $service->id, $models->all()));
+        $oneTimeServices = OneTimeService::query()->whereIn('id', array_map(
+            fn (OneTimeService $service): int => $service->id,
+            $models->all(),
+        ));
 
-        $oneTimeServices->each(fn (OneTimeService $service) => $this->oneTimeServiceUpdater->updateStatus($service, $status));
+        $oneTimeServices->each(
+            fn (OneTimeService $service) => $this->oneTimeServiceUpdater->updateStatus($service, $status),
+        );
 
         return self::message(
             $this->translator->translate('nova-action.one-time-service.change-status.success'),
@@ -58,9 +65,15 @@ class NovaChangeStatusAction extends Action
                 $this->translator->translate('nova-resource-labels.one-time-service.field.status'),
                 'status',
             )->options([
-                OneTimeServiceStatus::OPEN->value => $this->translator->translate('one-time-service.status.' . strtolower(OneTimeServiceStatus::OPEN->name)),
-                OneTimeServiceStatus::IN_PROGRESS->value => $this->translator->translate('one-time-service.status.' . strtolower(OneTimeServiceStatus::IN_PROGRESS->name)),
-                OneTimeServiceStatus::DONE->value => $this->translator->translate('one-time-service.status.' . strtolower(OneTimeServiceStatus::DONE->name)),
+                OneTimeServiceStatus::OPEN->value => $this->translator->translate(
+                    'one-time-service.status.' . strtolower(OneTimeServiceStatus::OPEN->name),
+                ),
+                OneTimeServiceStatus::IN_PROGRESS->value => $this->translator->translate(
+                    'one-time-service.status.' . strtolower(OneTimeServiceStatus::IN_PROGRESS->name),
+                ),
+                OneTimeServiceStatus::DONE->value => $this->translator->translate(
+                    'one-time-service.status.' . strtolower(OneTimeServiceStatus::DONE->name),
+                ),
             ]),
         ];
     }

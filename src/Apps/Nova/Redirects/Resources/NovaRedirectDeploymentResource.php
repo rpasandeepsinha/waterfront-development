@@ -40,23 +40,23 @@ class NovaRedirectDeploymentResource extends Resource
     public function fields(NovaRequest $request): array
     {
         return [
-            ID::make()
-                ->onlyOnDetail(),
-            Text::make('UUID', 'uuid')
-                ->copyable()
-                ->readonly(),
-            HasOne::make(self::translate('provisioning-request.singular'), 'request', NovaProvisionRequestResource::class)
+            ID::make()->onlyOnDetail(),
+            Text::make('UUID', 'uuid')->copyable()->readonly(),
+            HasOne::make(
+                self::translate('provisioning-request.singular'),
+                'request',
+                NovaProvisionRequestResource::class,
+            )
                 ->onlyOnDetail()
                 ->readonly(),
-            Text::make(self::translate('redirect-deployment.source'), 'source')
-                ->copyable()
-                ->readonly(),
-            Text::make(self::translate('redirect-deployment.destination'), 'destination')
-                ->copyable()
-                ->readonly(),
-            Text::make(self::translate('redirect-deployment.type'), 'type')
-                ->readonly(),
-            HasOne::make(self::translate('caddy-redirect-deployment.singular'), 'caddyRedirectDeployment', NovaCaddyRedirectDeploymentResource::class),
+            Text::make(self::translate('redirect-deployment.source'), 'source')->copyable()->readonly(),
+            Text::make(self::translate('redirect-deployment.destination'), 'destination')->copyable()->readonly(),
+            Text::make(self::translate('redirect-deployment.type'), 'type')->readonly(),
+            HasOne::make(
+                self::translate('caddy-redirect-deployment.singular'),
+                'caddyRedirectDeployment',
+                NovaCaddyRedirectDeploymentResource::class,
+            ),
         ];
     }
 }

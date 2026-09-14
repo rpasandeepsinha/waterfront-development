@@ -52,12 +52,27 @@ class NovaNotesResource extends Resource
 
         $customerSubscriptions = new Collection();
         if ($viaResource === 'nova-customer-resources' && $viaResourceId !== null) {
-            $customerSubscriptions = Subscription::query()->where('customer_id', $viaResourceId)->with('product')->get();
+            $customerSubscriptions = Subscription::query()
+                ->where('customer_id', $viaResourceId)
+                ->with('product')
+                ->get();
         }
 
         return [
-            BelongsTo::make(self::translate('nova-resource-labels.note.relation.customer'), 'customer', NovaCustomerResource::class)->onlyOnDetail()->showOnPreview(),
-            BelongsTo::make(self::translate('nova-resource-labels.subscription'), 'subscription', NovaSubscriptionResource::class)->hideWhenCreating()->showOnPreview(),
+            BelongsTo::make(
+                self::translate('nova-resource-labels.note.relation.customer'),
+                'customer',
+                NovaCustomerResource::class,
+            )
+                ->onlyOnDetail()
+                ->showOnPreview(),
+            BelongsTo::make(
+                self::translate('nova-resource-labels.subscription'),
+                'subscription',
+                NovaSubscriptionResource::class,
+            )
+                ->hideWhenCreating()
+                ->showOnPreview(),
             Date::make(self::translate('nova-resource-labels.created_at'), 'created_at')
                 ->displayUsing(fn () => $this->resource->created_at?->format(DateTimeFormat::DUTCHNOTIME))
                 ->sortable()
@@ -68,14 +83,19 @@ class NovaNotesResource extends Resource
                     if (! is_string($data)) {
                         return 'System';
                     }
+
                     $decoded = json_decode($data, true, flags: JSON_THROW_ON_ERROR);
+
                     return is_array($decoded) ? $decoded['email'] : '';
                 })
                 ->hideWhenCreating()
                 ->showOnPreview(),
             Select::make(self::translate('nova-resource-labels.subscription'), 'subscription_id')
                 ->canSee(
-                    fn ($request): bool => $customerSubscriptions->count() !== 0 && $request->input('viaResource') !== 'nova-subscription-resources'
+                    fn ($request): bool => (
+                        $customerSubscriptions->count() !== 0
+                        && $request->input('viaResource') !== 'nova-subscription-resources'
+                    ),
                 )
                 ->options(function () use ($request, $customerSubscriptions): array {
                     if ($request->input('viaResource') !== 'nova-customer-resources') {
@@ -86,7 +106,8 @@ class NovaNotesResource extends Resource
 
                     /** @var Subscription $customerSubscription */
                     foreach ($customerSubscriptions as $customerSubscription) {
-                        $options[$customerSubscription->id] = $customerSubscription->product->name . ' - ' . $customerSubscription->domain;
+                        $options[$customerSubscription->id] =
+                            $customerSubscription->product->name . ' - ' . $customerSubscription->domain;
                     }
 
                     return $options;
@@ -96,12 +117,16 @@ class NovaNotesResource extends Resource
             Text::make(self::translate('nova-resource-labels.note'), 'note')
                 ->displayUsing(function ($value) {
                     assert(is_string($value));
+
                     return Str::limit($value, 50);
                 })
                 ->onlyOnIndex()
                 ->hideFromDetail()
                 ->showOnPreview(false),
-            Markdown::make(self::translate('nova-resource-labels.note'), 'note')->alwaysShow()->hideFromIndex()->showOnPreview(),
+            Markdown::make(self::translate('nova-resource-labels.note'), 'note')
+                ->alwaysShow()
+                ->hideFromIndex()
+                ->showOnPreview(),
         ];
     }
 

@@ -22,10 +22,8 @@ class MultipleCustomersException extends SubscriptionCrediterException
         ];
 
         parent::__construct(sprintf(
-            (
-                'Attempted to construct a message for multiple customers at a time. '
-                . 'Got customer id %d on invoice line id %d, but only invoice lines for customer id %d are expected.'
-            ),
+            'Attempted to construct a message for multiple customers at a time. '
+            . 'Got customer id %d on invoice line id %d, but only invoice lines for customer id %d are expected.',
             $invoiceLine->customer->id,
             $invoiceLine->id,
             $customerId,

@@ -25,6 +25,7 @@ class DispatchInvoicingForCustomerAction
 
         if ($customerInvoices->count() === 0) {
             $this->logger->info("Customer `{$customer->id}` does not have invoices.");
+
             return;
         }
 
@@ -39,8 +40,9 @@ class DispatchInvoicingForCustomerAction
                     LoggingContextKeys::CUSTOMER_NUMBER => $customer->customer_number,
                     LoggingContextKeys::INVOICE_LINE_ID => $customerInvoice->id,
                     LoggingContextKeys::MIGRATION_REFERENCE_NAME => $migratedCustomer?->reference_name,
-                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $migratedCustomer?->reference_customer_number,
-                ]
+                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                        $migratedCustomer?->reference_customer_number,
+                ],
             );
 
             $this->eventDispatcher->dispatch(new InvoiceCreatedEvent($customerInvoice, false));

@@ -70,11 +70,12 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
 
-        $subscription  = new SubscriptionFactory()
+        $subscription = new SubscriptionFactory()
             ->for($this->customer)
             ->for(
-                new ProductFactory()->vps()
-            )->createOne();
+                new ProductFactory()->vps(),
+            )
+            ->createOne();
 
         $environment = new CloudstackEnvironmentFactory()->createOne();
         $this->managerDomainDeployment = new CloudstackManagerDomainDeploymentFactory()
@@ -87,9 +88,7 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
             ->for($this->managerDomainDeployment)
             ->createOne();
 
-        $this->currentSshKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $this->currentSshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
         $this->managerDomainDeployment->sshKeys()->save($this->currentSshKey);
         $this->virtualMachineDeployment->sshKeys()->save($this->currentSshKey);
@@ -98,10 +97,10 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
         $this->cloudStackClientFactoryMock = $this->createMock(ClientFactoryInterface::class);
 
         $this->action = new ResetVirtualMachineSshKeyAction(
-            virtualMachineService:  $this->virtualMachineServiceMock,
+            virtualMachineService: $this->virtualMachineServiceMock,
             sshKeyRepository: $this->sshKeyRepositoryMock,
-            cloudStackClientFactory:  $this->cloudStackClientFactoryMock,
-            logger:$this->loggerMock
+            cloudStackClientFactory: $this->cloudStackClientFactoryMock,
+            logger: $this->loggerMock,
         );
     }
 
@@ -113,11 +112,10 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
     #[Test]
     public function resetVirtualMachineSshKeyActionWithNewKey(): void
     {
-        $newSshKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $newSshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
-        $this->virtualMachineServiceMock->expects(self::once())
+        $this->virtualMachineServiceMock
+            ->expects(self::once())
             ->method('findByDeployment')
             ->willReturn(new VirtualMachine(
                 id: '63223f6d-83dd-4fd7-be8c-9832336d9e14',
@@ -128,31 +126,34 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
                 nic: [],
                 state: CloudstackMachineState::STOPPED,
                 serviceOfferingId: 'c983361b-0e5d-462a-af2c-e18afeaa4be4',
-                password: 'secret'
+                password: 'secret',
             ));
 
-        $this->sshKeyRepositoryMock->expects(self::once())
+        $this->sshKeyRepositoryMock
+            ->expects(self::once())
             ->method('keyLinkedToManagerDomain')
             ->with($newSshKey, $this->managerDomainDeployment->id)
             ->willReturn(false);
 
-        $this->cloudStackClientFactoryMock->expects(self::once())
+        $this->cloudStackClientFactoryMock
+            ->expects(self::once())
             ->method('create')
             ->willReturn($this->cloudStackClientMock);
 
-        $this->cloudStackClientMock->expects(self::once())
-            ->method('registerSshKeyPair');
+        $this->cloudStackClientMock->expects(self::once())->method('registerSshKeyPair');
 
-        $this->virtualMachineServiceMock->expects(self::once())
+        $this->virtualMachineServiceMock
+            ->expects(self::once())
             ->method('resetSshKey')
             ->with($this->virtualMachineDeployment, $newSshKey->cloudstack_ssh_name)
             ->willReturn(true);
 
         $logMessage = sprintf(
             'Resetting SSH key for virtual machine with subscription uuid : %s',
-            $this->virtualMachineDeployment->subscription_uuid
+            $this->virtualMachineDeployment->subscription_uuid,
         );
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('info')
             ->with($logMessage, [
                 LoggingContextKeys::CUSTOMER_ID => $this->virtualMachineDeployment->subscription->customer_id,
@@ -169,7 +170,7 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
 
         $actionResult = $this->action->execute(
             virtualMachineDeployment: $this->virtualMachineDeployment,
-            newSshKey: $newSshKey
+            newSshKey: $newSshKey,
         );
 
         Assert::assertTrue($actionResult);
@@ -195,13 +196,12 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
     #[Test]
     public function resetVirtualMachineSshKeyActionWithExistingKey(): void
     {
-        $newSshKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $newSshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
         $this->managerDomainDeployment->sshKeys()->save($newSshKey);
 
-        $this->virtualMachineServiceMock->expects(self::once())
+        $this->virtualMachineServiceMock
+            ->expects(self::once())
             ->method('findByDeployment')
             ->willReturn(new VirtualMachine(
                 id: '63223f6d-83dd-4fd7-be8c-9832336d9e14',
@@ -212,30 +212,31 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
                 nic: [],
                 state: CloudstackMachineState::STOPPED,
                 serviceOfferingId: 'c983361b-0e5d-462a-af2c-e18afeaa4be4',
-                password: 'secret'
+                password: 'secret',
             ));
 
-        $this->sshKeyRepositoryMock->expects(self::once())
+        $this->sshKeyRepositoryMock
+            ->expects(self::once())
             ->method('keyLinkedToManagerDomain')
             ->with($newSshKey, $this->managerDomainDeployment->id)
             ->willReturn(true);
 
-        $this->cloudStackClientFactoryMock->expects(self::never())
-            ->method('create');
+        $this->cloudStackClientFactoryMock->expects(self::never())->method('create');
 
-        $this->cloudStackClientMock->expects(self::never())
-            ->method('registerSshKeyPair');
+        $this->cloudStackClientMock->expects(self::never())->method('registerSshKeyPair');
 
-        $this->virtualMachineServiceMock->expects(self::once())
+        $this->virtualMachineServiceMock
+            ->expects(self::once())
             ->method('resetSshKey')
             ->with($this->virtualMachineDeployment, $newSshKey->cloudstack_ssh_name)
             ->willReturn(true);
 
         $logMessage = sprintf(
             'Resetting SSH key for virtual machine with subscription uuid : %s',
-            $this->virtualMachineDeployment->subscription_uuid
+            $this->virtualMachineDeployment->subscription_uuid,
         );
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('info')
             ->with($logMessage, [
                 LoggingContextKeys::CUSTOMER_ID => $this->virtualMachineDeployment->subscription->customer_id,
@@ -252,7 +253,7 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
 
         $actionResult = $this->action->execute(
             virtualMachineDeployment: $this->virtualMachineDeployment,
-            newSshKey: $newSshKey
+            newSshKey: $newSshKey,
         );
 
         Assert::assertTrue($actionResult);
@@ -273,11 +274,10 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
     #[Test]
     public function resetVirtualMachineSshKeyActionFailedNotInAStoppedState(): void
     {
-        $newSshKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $newSshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with('Cant reset virtual Machine SSH key | The machine is not in a stopped state', [
                 LoggingContextKeys::CUSTOMER_ID => $this->virtualMachineDeployment->subscription->customer_id,
@@ -289,7 +289,8 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
                 ],
             ]);
 
-        $this->virtualMachineServiceMock->expects(self::once())
+        $this->virtualMachineServiceMock
+            ->expects(self::once())
             ->method('findByDeployment')
             ->willReturn(new VirtualMachine(
                 id: '63223f6d-83dd-4fd7-be8c-9832336d9e14',
@@ -300,18 +301,16 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
                 nic: [],
                 state: CloudstackMachineState::RUNNING,
                 serviceOfferingId: 'c983361b-0e5d-462a-af2c-e18afeaa4be4',
-                password: 'secret'
+                password: 'secret',
             ));
 
-        $this->cloudStackClientFactoryMock->expects(self::never())
-            ->method('create');
+        $this->cloudStackClientFactoryMock->expects(self::never())->method('create');
 
-        $this->virtualMachineServiceMock->expects(self::never())
-            ->method('resetSshKey');
+        $this->virtualMachineServiceMock->expects(self::never())->method('resetSshKey');
 
         $actionResult = $this->action->execute(
             virtualMachineDeployment: $this->virtualMachineDeployment,
-            newSshKey: $newSshKey
+            newSshKey: $newSshKey,
         );
 
         Assert::assertFalse($actionResult);
@@ -320,71 +319,57 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
     #[Test]
     public function resetVirtualMachineSshKeyActionFailedNotFoundThroughApi(): void
     {
-        $newSshKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $newSshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
-        $this->virtualMachineServiceMock->expects(self::once())
+        $this->virtualMachineServiceMock
+            ->expects(self::once())
             ->method('findByDeployment')
             ->willThrowException(new CloudstackNotFoundException());
 
-        $this->virtualMachineServiceMock->expects(self::never())
-            ->method('resetSshKey');
+        $this->virtualMachineServiceMock->expects(self::never())->method('resetSshKey');
 
-        $this->sshKeyRepositoryMock->expects(self::never())
-            ->method('keyLinkedToManagerDomain');
+        $this->sshKeyRepositoryMock->expects(self::never())->method('keyLinkedToManagerDomain');
 
-        $this->cloudStackClientFactoryMock->expects(self::never())
-            ->method('create');
+        $this->cloudStackClientFactoryMock->expects(self::never())->method('create');
 
-        $this->cloudStackClientMock->expects(self::never())
-            ->method('registerSshKeyPair');
+        $this->cloudStackClientMock->expects(self::never())->method('registerSshKeyPair');
 
         $this->expectException(VirtualMachineNotFoundException::class);
         $this->action->execute(
             virtualMachineDeployment: $this->virtualMachineDeployment,
-            newSshKey: $newSshKey
+            newSshKey: $newSshKey,
         );
     }
 
     #[Test]
     public function resetVirtualMachineSshKeyActionFailedNullReturned(): void
     {
-        $newSshKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $newSshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
-        $this->virtualMachineServiceMock->expects(self::once())
-            ->method('findByDeployment')
-            ->willReturn(null);
+        $this->virtualMachineServiceMock->expects(self::once())->method('findByDeployment')->willReturn(null);
 
-        $this->virtualMachineServiceMock->expects(self::never())
-            ->method('resetSshKey');
+        $this->virtualMachineServiceMock->expects(self::never())->method('resetSshKey');
 
-        $this->sshKeyRepositoryMock->expects(self::never())
-            ->method('keyLinkedToManagerDomain');
+        $this->sshKeyRepositoryMock->expects(self::never())->method('keyLinkedToManagerDomain');
 
-        $this->cloudStackClientFactoryMock->expects(self::never())
-            ->method('create');
+        $this->cloudStackClientFactoryMock->expects(self::never())->method('create');
 
-        $this->cloudStackClientMock->expects(self::never())
-            ->method('registerSshKeyPair');
+        $this->cloudStackClientMock->expects(self::never())->method('registerSshKeyPair');
 
         $this->expectException(VirtualMachineNotFoundException::class);
         $this->action->execute(
             virtualMachineDeployment: $this->virtualMachineDeployment,
-            newSshKey: $newSshKey
+            newSshKey: $newSshKey,
         );
     }
 
     #[Test]
     public function resetVirtualMachineSshKeyActionNotLinkedToEnvironment(): void
     {
-        $newSshKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $newSshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
-        $this->virtualMachineServiceMock->expects(self::once())
+        $this->virtualMachineServiceMock
+            ->expects(self::once())
             ->method('findByDeployment')
             ->willReturn(new VirtualMachine(
                 id: '63223f6d-83dd-4fd7-be8c-9832336d9e14',
@@ -395,33 +380,34 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
                 nic: [],
                 state: CloudstackMachineState::STOPPED,
                 serviceOfferingId: 'c983361b-0e5d-462a-af2c-e18afeaa4be4',
-                password: 'secret'
+                password: 'secret',
             ));
 
-        $this->virtualMachineServiceMock->expects(self::once())
-            ->method('resetSshKey')
-            ->willReturn(true);
+        $this->virtualMachineServiceMock->expects(self::once())->method('resetSshKey')->willReturn(true);
 
-        $this->sshKeyRepositoryMock->expects(self::once())
+        $this->sshKeyRepositoryMock
+            ->expects(self::once())
             ->method('keyLinkedToManagerDomain')
             ->with($newSshKey, $this->managerDomainDeployment->id)
             ->willReturn(false);
 
-        $this->cloudStackClientFactoryMock->expects(self::once())
+        $this->cloudStackClientFactoryMock
+            ->expects(self::once())
             ->method('create')
             ->with($this->virtualMachineDeployment->managerDomainDeployment)
             ->willReturn($this->cloudStackClientMock);
 
-        $this->cloudStackClientMock->expects(self::once())
+        $this->cloudStackClientMock
+            ->expects(self::once())
             ->method('registerSshKeyPair')
             ->with(
                 $newSshKey->cloudstack_ssh_name,
-                $newSshKey->public_key
+                $newSshKey->public_key,
             );
 
         $actionResult = $this->action->execute(
             virtualMachineDeployment: $this->virtualMachineDeployment,
-            newSshKey: $newSshKey
+            newSshKey: $newSshKey,
         );
 
         Assert::assertTrue($actionResult);
@@ -446,20 +432,16 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
          */
         $this->virtualMachineDeployment->sshKeys()->detach($this->currentSshKey);
 
-        $newSshKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $newSshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
-        $this->cloudStackClientFactoryMock->expects(self::never())
-            ->method('create');
+        $this->cloudStackClientFactoryMock->expects(self::never())->method('create');
 
-        $this->virtualMachineServiceMock->expects(self::never())
-            ->method('findByDeployment');
+        $this->virtualMachineServiceMock->expects(self::never())->method('findByDeployment');
 
-        $this->virtualMachineServiceMock->expects(self::never())
-            ->method('resetSshKey');
+        $this->virtualMachineServiceMock->expects(self::never())->method('resetSshKey');
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with('Cant reset virtual Machine SSH key | There is no key set yet on the virtual machine', [
                 LoggingContextKeys::CUSTOMER_ID => $this->customer->id,
@@ -473,7 +455,7 @@ class ResetVirtualMachineSshKeyActionTest extends IntegrationTestCase
 
         $actionResult = $this->action->execute(
             virtualMachineDeployment: $this->virtualMachineDeployment,
-            newSshKey:$newSshKey
+            newSshKey: $newSshKey,
         );
 
         Assert::assertFalse($actionResult);

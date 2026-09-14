@@ -56,7 +56,7 @@ class NovaMigrateBasekitDeploymentsAction extends NovaOneOffScriptAbstractAction
             [
                 LoggingContextKeys::ONE_OFF_SCRIPT => $this->getOneOffScriptSlug(),
                 LoggingContextKeys::META => ['dry-run' => $isDryRun, 'limit' => $limit],
-            ]
+            ],
         );
 
         $this->registerExecution();
@@ -69,7 +69,7 @@ class NovaMigrateBasekitDeploymentsAction extends NovaOneOffScriptAbstractAction
                 LoggingContextKeys::ONE_OFF_SCRIPT => $this->getOneOffScriptSlug(),
                 LoggingContextKeys::META => array_merge(
                     ['dry-run' => true, 'limit' => $limit],
-                    $counters->logContext()
+                    $counters->logContext(),
                 ),
             ]);
 
@@ -84,6 +84,7 @@ class NovaMigrateBasekitDeploymentsAction extends NovaOneOffScriptAbstractAction
         }
 
         $dispatched = $this->dispatchEligibleJobs($limit);
+
         return self::message(sprintf('Queued %d migration job(s).', $dispatched));
     }
 
@@ -115,7 +116,7 @@ class NovaMigrateBasekitDeploymentsAction extends NovaOneOffScriptAbstractAction
                 }
 
                 return $continue;
-            }
+            },
         );
     }
 
@@ -139,13 +140,13 @@ class NovaMigrateBasekitDeploymentsAction extends NovaOneOffScriptAbstractAction
                     }
 
                     $this->dispatcher->dispatch(
-                        new MigrateBasekitSubscriptionJob($this->getOneOffScriptSlug(), $subscription->uuid)
+                        new MigrateBasekitSubscriptionJob($this->getOneOffScriptSlug(), $subscription->uuid),
                     );
                     $dispatched++;
                 }
 
                 return $continue;
-            }
+            },
         );
 
         return $dispatched;

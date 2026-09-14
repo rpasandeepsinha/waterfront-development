@@ -130,7 +130,7 @@ class PaytClient
         while (sizeof($currentPage->data) >= $perPage) {
             $previousPage = $currentPage;
             $currentPage = $this->getMessages(
-                ['cursor' => $previousPage->pagination?->cursor] + $defaultParams + $queryParams
+                ['cursor' => $previousPage->pagination?->cursor] + $defaultParams + $queryParams,
             );
         }
 
@@ -139,6 +139,7 @@ class PaytClient
         } elseif ($previousPage !== null && sizeof($currentPage->data) === 0) {
             return array_last($previousPage->data);
         }
+
         return array_last($currentPage->data);
     }
 
@@ -177,6 +178,7 @@ class PaytClient
         ]);
 
         $decoded = json_decode($body, true);
+
         return $this->serializer->denormalize($decoded, PaytMessagesResponseDTO::class, 'array');
     }
 }

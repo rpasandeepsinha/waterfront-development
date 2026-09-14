@@ -37,7 +37,7 @@ class ResellerHostingService
 {
     public function __construct(
         private readonly ResellerHostingServiceFactory $resellerHostingServiceFactory,
-        private readonly DirectAdminPassword $passwordGenerator
+        private readonly DirectAdminPassword $passwordGenerator,
     ) {
     }
 
@@ -59,7 +59,8 @@ class ResellerHostingService
      */
     public function getCustomerPackages(Customer $customer): Collection
     {
-        return $customer->subscriptions()
+        return $customer
+            ->subscriptions()
             ->whereIn('administrative_status', [
                 AdministrativeStatus::ACTIVE->value,
                 AdministrativeStatus::CANCELED->value,
@@ -75,7 +76,8 @@ class ResellerHostingService
      */
     public function getCustomerPackage(Customer $customer, string $subscriptionUuid): Subscription
     {
-        $subscription = $customer->subscriptions()
+        $subscription = $customer
+            ->subscriptions()
             ->where(['uuid' => $subscriptionUuid])
             ->whereIn('administrative_status', [
                 AdministrativeStatus::ACTIVE->value,
@@ -100,9 +102,9 @@ class ResellerHostingService
         string $subscriptionUuid,
         string $contactPersonName,
         string $contactEmail,
-        int|null $serverId,
+        ?int $serverId,
         Product $product,
-        Customer $customer
+        Customer $customer,
     ): void {
         $server = $serverId !== null
             ? Server::find($serverId)
@@ -116,33 +118,35 @@ class ResellerHostingService
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscriptionUuid,
                 LoggingContextKeys::SERVER_ID => $server->id,
                 LoggingContextKeys::META => [
-                    'contact email'  => $contactEmail,
+                    'contact email' => $contactEmail,
                     'contact person' => $contactPersonName,
-                    'email'          => $contactEmail,
+                    'email' => $contactEmail,
                 ],
-            ]
+            ],
         );
 
         try {
             $provider = $this->defaultDriverModel();
 
-            $status = $this->resellerHostingServiceFactory
-                ->defaultDriver()
-                ->create(
-                    contactPersonName: $contactPersonName,
-                    contactEmail: $contactEmail,
-                    customerEmail: $customer->email,
-                    customerUuid: $customer->uuid,
-                    subscriptionUuid: $subscriptionUuid,
-                    specs: $product->productSpecs->toArray(),
-                    providerId: $provider->id,
-                    server: $server
-                );
-        } catch (ResellerHostingException | ModelNotFoundException $exception) {
+            $status = $this->resellerHostingServiceFactory->defaultDriver()->create(
+                contactPersonName: $contactPersonName,
+                contactEmail: $contactEmail,
+                customerEmail: $customer->email,
+                customerUuid: $customer->uuid,
+                subscriptionUuid: $subscriptionUuid,
+                specs: $product->productSpecs->toArray(),
+                providerId: $provider->id,
+                server: $server,
+            );
+        } catch (ResellerHostingException|ModelNotFoundException $exception) {
             Log::error(
-                self::class . '::create - status code: ' . $exception->getCode()
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString()
+                self::class
+                    . '::create - status code: '
+                    . $exception->getCode()
+                    . ', message: '
+                    . $exception->getMessage()
+                    . ', trace: '
+                    . $exception->getTraceAsString(),
             );
 
             $status = Result::STATUS_ERROR;
@@ -158,7 +162,7 @@ class ResellerHostingService
         Subscription::where('uuid', $subscriptionUuid)->update(
             [
                 'technical_status' => $status,
-            ]
+            ],
         );
     }
 
@@ -168,12 +172,10 @@ class ResellerHostingService
             self::class . '::terminate - Terminating reseller hosting',
             [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $deployment->subscription_uuid,
-            ]
+            ],
         );
 
-        $success = $this->resellerHostingServiceFactory
-            ->driver($deployment->provider->slug)
-            ->terminate($deployment);
+        $success = $this->resellerHostingServiceFactory->driver($deployment->provider->slug)->terminate($deployment);
 
         if ($success) {
             $deployment->subscription->technical_status = TechnicalStatus::DELETED->value;
@@ -199,7 +201,7 @@ class ResellerHostingService
         $parameters = $this->getResetPasswordParameters(
             $customer,
             $resellerHostingDeployment->subscription->product,
-            $resellerHostingDeployment
+            $resellerHostingDeployment,
         );
 
         Log::info(
@@ -209,21 +211,17 @@ class ResellerHostingService
                 LoggingContextKeys::CUSTOMER_NUMBER => $customer->customer_number,
                 LoggingContextKeys::DOMAIN_NAME => $resellerHostingDeployment->subscription->domain,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $resellerHostingDeployment->subscription->uuid,
-            ]
+            ],
         );
 
-        return $this->resellerHostingServiceFactory
-            ->driver($driver)
-            ->resetPassword($parameters, $customer->uuid);
+        return $this->resellerHostingServiceFactory->driver($driver)->resetPassword($parameters, $customer->uuid);
     }
 
     public function modifyCustomerForResellerMigrations(
         ProviderSlug $driver,
         string $username,
     ): bool {
-        return $this->resellerHostingServiceFactory
-            ->driver($driver)
-            ->modifyCustomerForResellerMigrations($username);
+        return $this->resellerHostingServiceFactory->driver($driver)->modifyCustomerForResellerMigrations($username);
     }
 
     /**
@@ -249,16 +247,14 @@ class ResellerHostingService
                     'parameters_username' => $parameters->getUserName(),
                     'parameters_uuid' => $parameters->getUuid(),
                 ],
-            ]
+            ],
         );
 
-        $this->resellerHostingServiceFactory
-            ->driver($resellerHostingDeployment->provider->slug)
-            ->coupleExistingDomain(
-                $resellerHostingDeployment,
-                $domainSubscription,
-                $parameters,
-            );
+        $this->resellerHostingServiceFactory->driver($resellerHostingDeployment->provider->slug)->coupleExistingDomain(
+            $resellerHostingDeployment,
+            $domainSubscription,
+            $parameters,
+        );
     }
 
     /**
@@ -273,8 +269,11 @@ class ResellerHostingService
      * Todo : Make return conditional after PleskImplementation.
      *        This wil be done when we handle the story WATER-1772.
      */
-    private function getResetPasswordParameters(Customer $customer, Product $product, ResellerHostingDeployment $deployment): DirectAdminParameters
-    {
+    private function getResetPasswordParameters(
+        Customer $customer,
+        Product $product,
+        ResellerHostingDeployment $deployment,
+    ): DirectAdminParameters {
         assert($deployment->directadmin_customer_username !== null);
 
         return new DirectAdminParameters(

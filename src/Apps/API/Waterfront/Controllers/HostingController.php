@@ -83,6 +83,7 @@ class HostingController
     {
         $hostingDeployment->loadMissing('subscription');
         $this->subscriptionPolicy->assertCanManageHosting($hostingDeployment->subscription);
+
         return $this->hostingDeploymentResource->toArray($hostingDeployment);
     }
 
@@ -106,7 +107,7 @@ class HostingController
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING,
                     LoggingContextKeys::PROVISIONING_PROVIDER => $provider,
                     LoggingContextKeys::PROVISIONING_ID => $hostingDeployment->id,
-                ]
+                ],
             );
 
             return new JsonResponse([
@@ -134,7 +135,11 @@ class HostingController
             throw new UnauthorizedException();
         }
 
-        $dnsSubscription = $this->subscriptionRepository->getSubscriptionByCustomerDomainAndType($domainDeployment->subscription->customer, $domain, ProductGroupType::DNS);
+        $dnsSubscription = $this->subscriptionRepository->getSubscriptionByCustomerDomainAndType(
+            $domainDeployment->subscription->customer,
+            $domain,
+            ProductGroupType::DNS,
+        );
 
         if ($dnsSubscription === null) {
             throw new UnauthorizedException();
@@ -152,7 +157,7 @@ class HostingController
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING,
-                ]
+                ],
             );
 
             return new JsonResponse([
@@ -165,7 +170,7 @@ class HostingController
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING,
-                ]
+                ],
             );
 
             return new JsonResponse([
@@ -199,10 +204,13 @@ class HostingController
                     LoggingContextKeys::DOMAIN_NAME => $domainDeployment->subscription->domain,
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING,
-                ]
+                ],
             );
+
             return new JsonResponse([
-                'message' => $this->translator->translate('hosting-controller.get-coupled-hosting-by-domain.exception.message'),
+                'message' => $this->translator->translate(
+                    'hosting-controller.get-coupled-hosting-by-domain.exception.message',
+                ),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -241,7 +249,11 @@ class HostingController
         $this->subscriptionPolicy->assertCanManageDomain($domainDeployment->subscription);
 
         assert($domainDeployment->subscription->domain !== null);
-        $dnsSubscription = $this->subscriptionRepository->getSubscriptionByCustomerDomainAndType($domainDeployment->subscription->customer, $domainDeployment->subscription->domain, ProductGroupType::DNS);
+        $dnsSubscription = $this->subscriptionRepository->getSubscriptionByCustomerDomainAndType(
+            $domainDeployment->subscription->customer,
+            $domainDeployment->subscription->domain,
+            ProductGroupType::DNS,
+        );
 
         if ($dnsSubscription === null) {
             throw new UnauthorizedException();
@@ -251,7 +263,7 @@ class HostingController
 
         $isOk = $this->hostingService->coupleDomainToExistingHosting(
             domainDeployment: $domainDeployment,
-            hostingDeployment: $hostingDeployment
+            hostingDeployment: $hostingDeployment,
         );
 
         if ($isOk === false) {
@@ -282,7 +294,7 @@ class HostingController
             $url = $this->hostingService->getSsoUrl(
                 $hostingDeployment,
                 $ipAddress,
-                $redirectToMail
+                $redirectToMail,
             );
         } catch (SsoResolveException|NotImplementedException) {
             return new JsonResponse([
@@ -319,7 +331,7 @@ class HostingController
 
         // We can add more fields when needed
         return new JsonResponse(
-            Arr::only($config, ['dnscontrol', 'ssl', 'ssh'])
+            Arr::only($config, ['dnscontrol', 'ssl', 'ssh']),
         );
     }
 
@@ -376,7 +388,7 @@ class HostingController
 
         $response = $this->hostingService->resetPassword(
             $subscription,
-            ProviderSlug::from($providerSlug)
+            ProviderSlug::from($providerSlug),
         );
 
         if ($response === []) {
@@ -411,7 +423,7 @@ class HostingController
 
         $response = $this->hostingService->getUserStats(
             $subscription,
-            ProviderSlug::from($providerSlug)
+            ProviderSlug::from($providerSlug),
         );
 
         if ($response === null) {
@@ -507,7 +519,7 @@ class HostingController
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING,
                     LoggingContextKeys::PROVISIONING_ID => $hostingDeployment->id,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return new JsonResponse([
@@ -547,7 +559,7 @@ class HostingController
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING,
                     LoggingContextKeys::PROVISIONING_ID => $hostingDeployment->id,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return new JsonResponse([
@@ -609,7 +621,7 @@ class HostingController
                         name: $dkimRecord->host,
                         content: $dkimRecord->value,
                         ttl: self::TTL,
-                    )
+                    ),
                 );
             }
 
@@ -624,11 +636,13 @@ class HostingController
                             name: $dkimRecord->host,
                             content: $dkimRecord->value,
                             ttl: self::TTL,
-                        )
+                        ),
                     );
                 }
             }
-        } catch (DirectAdminCommandException|PleskClientException|DnsZoneNotFoundException|PdnsResponseException|GuzzleException|JsonException $exception) {
+        } catch (
+            DirectAdminCommandException|PleskClientException|DnsZoneNotFoundException|PdnsResponseException|GuzzleException|JsonException $exception
+        ) {
             $this->logger->warning(
                 'Could not toggle dkim for domain {domain.name}',
                 [
@@ -636,7 +650,7 @@ class HostingController
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING,
                     LoggingContextKeys::PROVISIONING_ID => $hostingDeployment->id,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return new JsonResponse([

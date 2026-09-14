@@ -32,7 +32,8 @@ class PowerDnsClientTest extends TestCase
         $clientMock = self::createMock(ClientInterface::class);
         $responseCode = 200;
 
-        $mockLog->shouldReceive('debug')
+        $mockLog
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 'Send custom CLDIN Gandi notify for domain: {domain.name}',
@@ -40,14 +41,16 @@ class PowerDnsClientTest extends TestCase
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::GANDI,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
                     LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                ]
+                ],
             );
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('send')
             ->willReturn(new Response($responseCode, [], ''));
 
-        $mockLog->shouldReceive('debug')
+        $mockLog
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 sprintf('Custom CLDIN Gandi notify response for {domain.name} is %d', $responseCode),
@@ -55,7 +58,7 @@ class PowerDnsClientTest extends TestCase
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::GANDI,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
                     LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                ]
+                ],
             );
 
         $powerDnsClient = new PowerDnsClient(
@@ -74,7 +77,8 @@ class PowerDnsClientTest extends TestCase
         $clientMock = self::createMock(ClientInterface::class);
         $httpErrorCode = 500;
 
-        $mockLog->shouldReceive('debug')
+        $mockLog
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 'Send custom CLDIN Gandi notify for domain: {domain.name}',
@@ -82,14 +86,16 @@ class PowerDnsClientTest extends TestCase
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::GANDI,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
                     LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                ]
+                ],
             );
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('send')
             ->willReturn(new Response($httpErrorCode, [], ''));
 
-        $mockLog->shouldReceive('error')
+        $mockLog
+            ->shouldReceive('error')
             ->once()
             ->with(
                 sprintf(
@@ -98,9 +104,9 @@ class PowerDnsClientTest extends TestCase
                 ),
                 [
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::GANDI,
-                    LoggingContextKeys::PROVISIONING_TYPE     => ProvisionType::DNS,
-                    LoggingContextKeys::DOMAIN_NAME           => self::DOMAIN,
-                ]
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
+                    LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                ],
             );
 
         $powerDnsClient = new PowerDnsClient(
@@ -116,10 +122,13 @@ class PowerDnsClientTest extends TestCase
     public function changeDnsRecordsUsesAsciiZonePathForIdnDomain(): void
     {
         $clientMock = self::createMock(ClientInterface::class);
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('send')
             ->with(self::callback(
-                fn (RequestInterface $request): bool => $request->getUri()->getPath() === 'api/v1/servers/localhost/zones/xn--sportgemlde-s8a.de'
+                fn (RequestInterface $request): bool => (
+                    $request->getUri()->getPath() === 'api/v1/servers/localhost/zones/xn--sportgemlde-s8a.de'
+                ),
             ))
             ->willReturn(new Response(200, [], ''));
 
@@ -132,7 +141,7 @@ class PowerDnsClientTest extends TestCase
         $powerDnsClient->changeDnsRecords(
             'sportgemälde.de',
             [new DefaultRecord('TXT', 'sportgemälde.de', 'random text', 600)],
-            PowerDnsRecordChangeType::REPLACE
+            PowerDnsRecordChangeType::REPLACE,
         );
     }
 }

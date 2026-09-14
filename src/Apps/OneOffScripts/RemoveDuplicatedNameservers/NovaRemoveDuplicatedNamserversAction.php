@@ -36,8 +36,7 @@ class NovaRemoveDuplicatedNamserversAction extends NovaOneOffScriptAbstractActio
     {
         return [
             ...$this->getOneOffScriptInfoFields(),
-            Boolean::make('Dry run', 'dry-run')
-                ->withMeta(['value' => true]),
+            Boolean::make('Dry run', 'dry-run')->withMeta(['value' => true]),
             Number::make('Batch amount', 'amount')->default(100),
         ];
     }
@@ -53,11 +52,11 @@ class NovaRemoveDuplicatedNamserversAction extends NovaOneOffScriptAbstractActio
             sprintf(
                 'Executing one-time script %s in %s mode',
                 $this->getOneOffScriptSlug(),
-                $mode
+                $mode,
             ),
             [
                 LoggingContextKeys::ONE_OFF_SCRIPT => $this->getOneOffScriptSlug(),
-            ]
+            ],
         );
 
         $dnsDeploymentIdsWithDuplicatedNameservers = $this->getDnsDeploymentIdsWithDuplicatedNameservers($limit);
@@ -67,10 +66,16 @@ class NovaRemoveDuplicatedNamserversAction extends NovaOneOffScriptAbstractActio
                 $this->jobDispatcher->dispatch(new RemoveDuplicatedNameserversJob($dnsDeploymentId));
             }
 
-            return self::message(sprintf('Found %d dns deployments with duplicated nameservers. Removing duplicates will be done async', count($dnsDeploymentIdsWithDuplicatedNameservers)));
+            return self::message(sprintf(
+                'Found %d dns deployments with duplicated nameservers. Removing duplicates will be done async',
+                count($dnsDeploymentIdsWithDuplicatedNameservers),
+            ));
         }
 
-        return self::message(sprintf('The dry run found %d dns deployments which still have to be unduplicated.', count($dnsDeploymentIdsWithDuplicatedNameservers)));
+        return self::message(sprintf(
+            'The dry run found %d dns deployments which still have to be unduplicated.',
+            count($dnsDeploymentIdsWithDuplicatedNameservers),
+        ));
     }
 
     protected function getOneOffScriptSlug(): string

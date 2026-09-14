@@ -30,11 +30,10 @@ class DownloadFileFromS3BucketAction extends NovaOneOffScriptAbstractAction
     {
         /** @var string $disk */
         $disk = Env::get('S3_PRODUCTS_BUCKET', 'products');
-        $tmpUrl = Storage::disk($disk)
-            ->temporaryUrl(
-                'tldinfo.json',
-                CarbonImmutable::now()->addMinutes(5)
-            );
+        $tmpUrl = Storage::disk($disk)->temporaryUrl(
+            'tldinfo.json',
+            CarbonImmutable::now()->addMinutes(5),
+        );
 
         return ActionResponse::download('tldinfo.json', $tmpUrl);
     }

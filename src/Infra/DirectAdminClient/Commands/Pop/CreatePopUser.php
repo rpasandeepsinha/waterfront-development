@@ -115,13 +115,13 @@ class CreatePopUser extends DirectAdminCommand
     private function getPostBody(): StreamInterface
     {
         $params = [
-            'action'	=> 'create',
-            'domain'	=> $this->getDomain(),
-            'user'	    => $this->getUser(),
-            'passwd'	=> $this->getPassword(),
-            'passwd2'	=> $this->getPassword(),
-            'quota'	    => $this->getQuota(),
-            'limit'  	=> $this->getLimit(),
+            'action' => 'create',
+            'domain' => $this->getDomain(),
+            'user' => $this->getUser(),
+            'passwd' => $this->getPassword(),
+            'passwd2' => $this->getPassword(),
+            'quota' => $this->getQuota(),
+            'limit' => $this->getLimit(),
         ];
 
         return Utils::streamFor(http_build_query($params));

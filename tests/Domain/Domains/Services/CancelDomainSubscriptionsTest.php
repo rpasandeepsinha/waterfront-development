@@ -39,24 +39,26 @@ class CancelDomainSubscriptionsTest extends IntegrationTestCase
         $resource = fopen(__DIR__ . '/data/success.csv', 'r');
         assert($resource !== false);
 
-        $this->dispatcher->expects(self::once())
+        $this->dispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(
-                new CancelDomainSubscriptionJob('example.com')
+                new CancelDomainSubscriptionJob('example.com'),
             );
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 sprintf(
                     CancelDomainDeployments::DISPATCH_JOB_MSG,
-                    self::EXAMPLE_DOMAIN
-                )
+                    self::EXAMPLE_DOMAIN,
+                ),
             );
 
         $service = new CancelDomainDeployments(
             $this->dispatcher,
-            $this->logger
+            $this->logger,
         );
         $service->cancelFromStream(false, $resource);
     }
@@ -67,24 +69,26 @@ class CancelDomainSubscriptionsTest extends IntegrationTestCase
         $resource = fopen(__DIR__ . '/data/success.csv', 'r');
         assert($resource !== false);
 
-        $this->dispatcher->expects(self::never())
+        $this->dispatcher
+            ->expects(self::never())
             ->method('dispatch')
             ->with(
-                new CancelDomainSubscriptionJob('example.com')
+                new CancelDomainSubscriptionJob('example.com'),
             );
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 sprintf(
                     CancelDomainDeployments::DRY_RUN_MSG,
-                    self::EXAMPLE_DOMAIN
-                )
+                    self::EXAMPLE_DOMAIN,
+                ),
             );
 
         $service = new CancelDomainDeployments(
             $this->dispatcher,
-            $this->logger
+            $this->logger,
         );
         $service->cancelFromStream(true, $resource);
     }
@@ -95,19 +99,20 @@ class CancelDomainSubscriptionsTest extends IntegrationTestCase
         $resource = fopen(__DIR__ . '/data/to-many-columns.csv', 'r');
         assert($resource !== false);
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 sprintf(
                     CancelDomainDeployments::TOO_MANY_COLUMNS_ERROR,
                     1,
-                    2
-                )
+                    2,
+                ),
             );
 
         $service = new CancelDomainDeployments(
             $this->dispatcher,
-            $this->logger
+            $this->logger,
         );
         $this->expectException(RuntimeException::class);
         $service->cancelFromStream(false, $resource);

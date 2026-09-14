@@ -15,7 +15,7 @@ class CaddySerializerException extends CaddyException
     {
         parent::__construct(
             message: sprintf('Failed to deserialize Caddy response to class "%s", data: "%s"', $class, $data),
-            previous: $previous
+            previous: $previous,
         );
     }
 }

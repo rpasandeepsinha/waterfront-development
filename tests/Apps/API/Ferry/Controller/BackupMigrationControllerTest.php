@@ -112,36 +112,49 @@ class BackupMigrationControllerTest extends IntegrationTestCase
         ];
 
         $backupGenericClient = $this->createMock(AcronisGenericClient::class);
-        $backupGenericClient->expects(self::atLeastOnce())->method('listApplications')->willReturn(new ApplicationsList(items: []));
+        $backupGenericClient
+            ->expects(self::atLeastOnce())
+            ->method('listApplications')
+            ->willReturn(new ApplicationsList(items: []));
         $backupOfferingClient = $this->createMock(AcronisOfferingItemsClient::class);
-        $backupOfferingClient->expects(self::atLeastOnce())->method('get')->willReturn(new OfferingItems(checkUsage: false, offeringItems: []));
+        $backupOfferingClient
+            ->expects(self::atLeastOnce())
+            ->method('get')
+            ->willReturn(new OfferingItems(checkUsage: false, offeringItems: []));
         $backupUserClient = $this->createMock(AcronisUserClient::class);
         $backupUserClient->expects(self::atLeastOnce())->method('getSso')->willReturn(new OneTimeToken(ott: 'test'));
 
         $acronisClientFactory = $this->createMock(AcronisClientFactory::class);
-        $acronisClientFactory->expects(self::atLeastOnce())->method('create')->willReturn(new AcronisClient(
-            tenantId: $this->acronisProvider->tenant_uuid,
-            userClient: $backupUserClient,
-            offeringItemsClient: $backupOfferingClient,
-            tenantClient: $this->createStub(AcronisTenantClient::class),
-            genericClient: $backupGenericClient
-        ));
+        $acronisClientFactory
+            ->expects(self::atLeastOnce())
+            ->method('create')
+            ->willReturn(new AcronisClient(
+                tenantId: $this->acronisProvider->tenant_uuid,
+                userClient: $backupUserClient,
+                offeringItemsClient: $backupOfferingClient,
+                tenantClient: $this->createStub(AcronisTenantClient::class),
+                genericClient: $backupGenericClient,
+            ));
 
-        $this->app->bind(AcronisClientFactory::class, fn () =>  $acronisClientFactory);
+        $this->app->bind(AcronisClientFactory::class, fn () => $acronisClientFactory);
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_backups', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_backups', [
+                    'customer' => $this->customer->id,
+                ]),
                 $postData,
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
+                ],
             )
             ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [
                     [
-                        'message' => 'Backup migration step not allowed for subscription: ' . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::EXPIRED->value)->getMessage(),
+                        'message' =>
+                            'Backup migration step not allowed for subscription: '
+                                . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::EXPIRED->value)->getMessage(),
                         'parameters' => [
                             'customerId' => $this->customer->id,
                             'subscriptionId' => $this->invalidBackupSubscription->id,

@@ -23,6 +23,9 @@ class DomainBulkMigrationController
 
         $this->dispatcher->dispatch(new HandleTechnicalDomainBulkPayloadJob($domainPayloads));
 
-        return new HttpResponse('Successfully created bulk technical domain migration jobs', Response::HTTP_MULTI_STATUS);
+        return new HttpResponse(
+            'Successfully created bulk technical domain migration jobs',
+            Response::HTTP_MULTI_STATUS,
+        );
     }
 }

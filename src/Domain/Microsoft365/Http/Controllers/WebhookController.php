@@ -43,6 +43,7 @@ class WebhookController
             $logger->error('Something went wrong while logging the Microsoft365 webhook', [
                 LoggingContextKeys::EXCEPTION => $e,
             ]);
+
             return new Response(status: Response::HTTP_NO_CONTENT);
         }
 

@@ -69,9 +69,10 @@ class NameServer
         return array_filter(
             [
                 'name' => $this->getHostname(),
-                'ip'   => $this->getIpv4(),
-                'ip6'  => $this->getIpv6(),
-            ]
+                'ip' => $this->getIpv4(),
+                'ip6' => $this->getIpv6(),
+            ],
+            fn (mixed $value): bool => (bool) $value,
         );
     }
 

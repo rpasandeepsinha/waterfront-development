@@ -11,8 +11,9 @@ use Waterfront\Domain\OneTimeServices\Models\OneTimeService;
 
 class OneTimeServiceFilter
 {
-    public function __construct(private readonly Sorting $sorting)
-    {
+    public function __construct(
+        private readonly Sorting $sorting,
+    ) {
     }
 
     /**
@@ -42,10 +43,8 @@ class OneTimeServiceFilter
         $query->where(function (Builder $q) use ($search): void {
             $q->whereHas('subscription', function (Builder $subscription) use ($search): void {
                 $subscription->where('domain', 'ilike', "%{$search}%");
-            })
-            ->orWhereHas('product', function (Builder $product) use ($search): void {
-                $product->where('name', 'ilike', "%{$search}%")
-                    ->orWhere('slug', 'ilike', "%{$search}%");
+            })->orWhereHas('product', function (Builder $product) use ($search): void {
+                $product->where('name', 'ilike', "%{$search}%")->orWhere('slug', 'ilike', "%{$search}%");
             });
         });
     }

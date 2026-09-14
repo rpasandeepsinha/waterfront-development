@@ -41,7 +41,7 @@ class ThrowableExceptionContext implements ProcessorInterface
         $context['exception.previous'] = (string) $exception->getPrevious();
 
         return $record->with(
-            context: $context
+            context: $context,
         );
     }
 
@@ -53,6 +53,7 @@ class ThrowableExceptionContext implements ProcessorInterface
         $exception = $context[LoggingContextKeys::EXCEPTION] ?? null;
         if ($exception instanceof Throwable) {
             unset($context[LoggingContextKeys::EXCEPTION]);
+
             return $exception;
         }
 

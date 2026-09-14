@@ -6,7 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
+return new class() extends Migration {
     public function up(): void
     {
         Schema::table('cloudstack_managerdomain_deployments', function (Blueprint $table) {
@@ -14,8 +14,8 @@ return new class () extends Migration {
         });
 
         $updateCustomerId = <<<SQL
-UPDATE cloudstack_managerdomain_deployments SET customer_id = (SELECT customer_id FROM subscriptions WHERE uuid=subscription_uuid);
-SQL;
+        UPDATE cloudstack_managerdomain_deployments SET customer_id = (SELECT customer_id FROM subscriptions WHERE uuid=subscription_uuid);
+        SQL;
 
         DB::statement($updateCustomerId);
 

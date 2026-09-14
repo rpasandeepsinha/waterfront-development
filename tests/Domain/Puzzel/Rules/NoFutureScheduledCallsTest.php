@@ -28,7 +28,8 @@ class NoFutureScheduledCallsTest extends IntegrationTestCase
         $fail = false;
 
         $mockAuth = self::createMock(AuthenticationManager::class);
-        $mockAuth->expects($this->once())
+        $mockAuth
+            ->expects($this->once())
             ->method('getAuthenticatedCustomer')
             ->willReturn(new AuthenticatedCustomer(
                 customer: $existingRequest->customer,
@@ -37,21 +38,21 @@ class NoFutureScheduledCallsTest extends IntegrationTestCase
             ));
 
         $mockTranslator = self::createMock(WaterfrontTranslator::class);
-        $mockTranslator->expects($this->once())
+        $mockTranslator
+            ->expects($this->once())
             ->method('translate')
             ->with('validation.puzzel-existing-request')
             ->willReturn('validation.puzzel-existing-request');
 
         $mockCallbackRepo = self::createMock(PuzzelCallbackRequestRepository::class);
-        $mockCallbackRepo->expects($this->once())
-            ->method('findFirstFutureForCustomer')
-            ->willReturn($existingRequest);
+        $mockCallbackRepo->expects($this->once())->method('findFirstFutureForCustomer')->willReturn($existingRequest);
 
         $rule = new NoFutureScheduledCalls($mockTranslator, $mockCallbackRepo, $mockAuth);
 
         $rule->validate('attribute', 123, function (string $message, ?string $attribute = null) use (&$fail) {
             self::assertSame('validation.puzzel-existing-request', $message);
             $fail = true;
+
             return new PotentiallyTranslatedString('fail', $this->app->make(Translator::class));
         });
 

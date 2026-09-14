@@ -48,7 +48,7 @@ class TranslationLoader implements Loader
                 $fileTranslations = $this->loadFileTranslations($group, $locale, $namespace);
 
                 return array_merge($databaseTranslations, $fileTranslations);
-            }
+            },
         );
     }
 
@@ -102,6 +102,7 @@ class TranslationLoader implements Loader
         if ($this->files->exists($full = "{$path}/{$locale}/{$group}.php")) {
             $content = $this->files->getRequire($full);
             assert(is_array($content));
+
             return $content;
         }
 

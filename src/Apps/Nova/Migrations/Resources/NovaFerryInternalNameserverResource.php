@@ -35,7 +35,10 @@ class NovaFerryInternalNameserverResource extends Resource
             Text::make(self::translate('dns-nameserver.singular'), 'nameserver_hostname')
                 ->required()
                 ->creationRules('required', 'unique:migrated_dns_internal_nameservers,nameserver_hostname')
-                ->updateRules('required', 'unique:migrated_dns_internal_nameservers,nameserver_hostname,{{resourceId}}'),
+                ->updateRules(
+                    'required',
+                    'unique:migrated_dns_internal_nameservers,nameserver_hostname,{{resourceId}}',
+                ),
             DateTime::make(self::translate('nova-resource-labels.created_at'), 'created_at')
                 ->readonly()
                 ->hideWhenCreating()

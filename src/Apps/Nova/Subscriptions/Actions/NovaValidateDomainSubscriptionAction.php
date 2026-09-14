@@ -44,9 +44,10 @@ class NovaValidateDomainSubscriptionAction extends NovaSubscriptionAction
         private readonly GandiClient $gandiClient,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool => (
-                $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::EXTENSION)
-            )
+            fn (NovaRequest $request): bool => $this->onlyForSubscriptionsWithProductGroupType(
+                $request,
+                ProductGroupType::EXTENSION,
+            ),
         );
 
         $this->sole();
@@ -80,6 +81,7 @@ class NovaValidateDomainSubscriptionAction extends NovaSubscriptionAction
         foreach ($this->validationResult as $item) {
             $html .= sprintf('<li>%s</li>', $item);
         }
+
         return $html . '</ul>';
     }
 
@@ -88,26 +90,47 @@ class NovaValidateDomainSubscriptionAction extends NovaSubscriptionAction
         $domain = $subscription->domain;
 
         if ($domain === null) {
-            $this->addInvalidValidationResult($this->translator->translate('nova-action.validate-dns-domain.no-domain'), true);
+            $this->addInvalidValidationResult(
+                $this->translator->translate('nova-action.validate-dns-domain.no-domain'),
+                true,
+            );
+
             return;
         }
 
-        $this->addValidationResult($this->translator->translate('nova-action.validate-dns-domain.has-domain', ['domain' => $domain]));
+        $this->addValidationResult($this->translator->translate('nova-action.validate-dns-domain.has-domain', [
+            'domain' => $domain,
+        ]));
 
         if ($subscription->product->productGroup->slug !== ProductGroupType::EXTENSION) {
-            $this->addInvalidValidationResult($this->translator->translate('nova-action.validate-dns-domain.no-product-group-extension', ['product_group' => $subscription->product->productGroup->slug->name]), true);
+            $this->addInvalidValidationResult(
+                $this->translator->translate('nova-action.validate-dns-domain.no-product-group-extension', [
+                    'product_group' => $subscription->product->productGroup->slug->name,
+                ]),
+                true,
+            );
+
             return;
         }
-        $this->addValidationResult($this->translator->translate('nova-action.validate-dns-domain.is-product-group-extension'));
+
+        $this->addValidationResult($this->translator->translate(
+            'nova-action.validate-dns-domain.is-product-group-extension',
+        ));
 
         $domainDeployment = $subscription->domainDeployment;
 
         if (! $domainDeployment instanceof DomainDeployment) {
-            $this->addInvalidValidationResult($this->translator->translate('nova-action.validate-dns-domain.no-domain-deployment'), true);
+            $this->addInvalidValidationResult(
+                $this->translator->translate('nova-action.validate-dns-domain.no-domain-deployment'),
+                true,
+            );
+
             return;
         }
 
-        $this->addValidationResult($this->translator->translate('nova-action.validate-dns-domain.has-domain-deployment'));
+        $this->addValidationResult($this->translator->translate(
+            'nova-action.validate-dns-domain.has-domain-deployment',
+        ));
 
         $providerSlug = $domainDeployment->provider->slug;
 
@@ -121,10 +144,11 @@ class NovaValidateDomainSubscriptionAction extends NovaSubscriptionAction
                         'domain' => $domain,
                         'registry' => $providerSlug->value,
                         'error' => $exception->getMessage(),
-                    ]
+                    ],
                 ),
-                true
+                true,
             );
+
             return;
         }
 
@@ -134,21 +158,31 @@ class NovaValidateDomainSubscriptionAction extends NovaSubscriptionAction
                 [
                     'domain' => $domain,
                     'registry' => $providerSlug->value,
-                ]
-            )
+                ],
+            ),
         );
 
         try {
-            $dnsSubscription = $this->subscriptionRepository->getSubscriptionByCustomerDomainAndType($subscription->customer, $domain, ProductGroupType::DNS);
+            $dnsSubscription = $this->subscriptionRepository->getSubscriptionByCustomerDomainAndType(
+                $subscription->customer,
+                $domain,
+                ProductGroupType::DNS,
+            );
             if ($dnsSubscription === null || ! $dnsSubscription->product->isDnsProduct()) {
                 throw new ModelNotFoundException();
             }
         } catch (ModelNotFoundException) {
-            $this->addInvalidValidationResult($this->translator->translate('nova-action.validate-dns-domain.no-dns-subscription'), true);
+            $this->addInvalidValidationResult(
+                $this->translator->translate('nova-action.validate-dns-domain.no-dns-subscription'),
+                true,
+            );
+
             return;
         }
 
-        $this->addValidationResult($this->translator->translate('nova-action.validate-dns-domain.has-domain', ['product_name' => $dnsSubscription->product->name]));
+        $this->addValidationResult($this->translator->translate('nova-action.validate-dns-domain.has-domain', [
+            'product_name' => $dnsSubscription->product->name,
+        ]));
 
         $dnsDeployment = $dnsSubscription->dnsDeployment;
 
@@ -160,26 +194,42 @@ class NovaValidateDomainSubscriptionAction extends NovaSubscriptionAction
         try {
             $wfNameservers = $this->dnsDeploymentRepository->getNameservers($dnsDeployment);
         } catch (FailedToFetchNameserversException $e) {
-            $this->addInvalidValidationResult($this->translator->translate('nova-action.validate-dns-domain.dns-deployment-no-nameserver', ['error' => $e->getMessage()]));
+            $this->addInvalidValidationResult($this->translator->translate('nova-action.validate-dns-domain.dns-deployment-no-nameserver', [
+                'error' => $e->getMessage(),
+            ]));
             $validWfNameservers = false;
         }
 
         if ($validWfNameservers) {
-            $this->addValidationResult($this->translator->translate('nova-action.validate-dns-domain.dns-subscription-nameservers', ['nameservers' => $this->nameserversToString($wfNameservers)]));
+            $this->addValidationResult($this->translator->translate('nova-action.validate-dns-domain.dns-subscription-nameservers', [
+                'nameservers' => $this->nameserversToString($wfNameservers),
+            ]));
         }
 
         $validRegistryNameservers = count($domainDetails->ns) !== 0;
 
         if (! $validRegistryNameservers) {
-            $this->addInvalidValidationResult($this->translator->translate('nova-action.validate-dns-domain.no-domain-nameservers-registry'));
+            $this->addInvalidValidationResult($this->translator->translate(
+                'nova-action.validate-dns-domain.no-domain-nameservers-registry',
+            ));
         }
+
         $registryNameservers = array_map(fn (string $nameserver) => new Nameserver($nameserver), $domainDetails->ns);
-        $this->addValidationResult($this->translator->translate('nova-action.validate-dns-domain.domain-nameservers-registry', ['nameservers' => $this->nameserversToString($registryNameservers)]));
+        $this->addValidationResult($this->translator->translate('nova-action.validate-dns-domain.domain-nameservers-registry', [
+            'nameservers' => $this->nameserversToString($registryNameservers),
+        ]));
 
         try {
             $dnsNameserverResponse = $this->dnsService->getDnsZone($domain)->getRecordsOfType('NS');
         } catch (DnsZoneNotFoundException $e) {
-            $this->addInvalidValidationResult($this->translator->translate('nova-action.validate-dns-domain.no-dns-zone', ['domain' => $domain, 'error' => $e->getMessage()]), true);
+            $this->addInvalidValidationResult(
+                $this->translator->translate('nova-action.validate-dns-domain.no-dns-zone', [
+                    'domain' => $domain,
+                    'error' => $e->getMessage(),
+                ]),
+                true,
+            );
+
             return;
         }
 
@@ -189,26 +239,46 @@ class NovaValidateDomainSubscriptionAction extends NovaSubscriptionAction
             try {
                 $gandiDnsZone = $this->gandiClient->getDnsRecords($domain);
             } catch (NotFoundException $e) {
-                $this->addInvalidValidationResult($this->translator->translate('nova-action.validate-dns-domain.gandi-no-dns-zone', ['domain' => $domain, 'error' => $e->getMessage()]), true);
+                $this->addInvalidValidationResult(
+                    $this->translator->translate('nova-action.validate-dns-domain.gandi-no-dns-zone', [
+                        'domain' => $domain,
+                        'error' => $e->getMessage(),
+                    ]),
+                    true,
+                );
+
                 return;
             }
 
             $validGandiDnsZone = count($gandiDnsZone) !== 0;
 
             if ($validGandiDnsZone) {
-                $this->addValidationResult($this->translator->translate('nova-action.validate-dns-domain.gandi-dns-zone-retrieved'));
+                $this->addValidationResult($this->translator->translate(
+                    'nova-action.validate-dns-domain.gandi-dns-zone-retrieved',
+                ));
             }
         }
 
         if (! $validDnsNameservers) {
-            $this->addInvalidValidationResult($this->translator->translate('nova-action.validate-dns-domain.no-domain-nameservers-dns-server'));
+            $this->addInvalidValidationResult($this->translator->translate(
+                'nova-action.validate-dns-domain.no-domain-nameservers-dns-server',
+            ));
         } else {
-            $dnsNameservers = array_map(fn (DnsRecordInterface $record) => new Nameserver(rtrim($record->getContent(), '.')), $dnsNameserverResponse);
-            $this->addValidationResult($this->translator->translate('nova-action.validate-dns-domain.domain-nameservers-dns-server', ['nameservers' => $this->nameserversToString($dnsNameservers)]));
+            $dnsNameservers = array_map(
+                fn (DnsRecordInterface $record) => new Nameserver(rtrim($record->getContent(), '.')),
+                $dnsNameserverResponse,
+            );
+            $this->addValidationResult($this->translator->translate('nova-action.validate-dns-domain.domain-nameservers-dns-server', [
+                'nameservers' => $this->nameserversToString($dnsNameservers),
+            ]));
         }
 
         if (! $validWfNameservers || ! $validRegistryNameservers || ! $validDnsNameservers) {
-            $this->addInvalidValidationResult($this->translator->translate('nova-action.validate-dns-domain.no-nameservers'), true);
+            $this->addInvalidValidationResult(
+                $this->translator->translate('nova-action.validate-dns-domain.no-nameservers'),
+                true,
+            );
+
             return;
         }
 
@@ -225,8 +295,8 @@ class NovaValidateDomainSubscriptionAction extends NovaSubscriptionAction
                             'nameserver' => $registryNsHostname,
                             'at' => 'registry',
                             'notat' => 'DNS server',
-                        ]
-                    )
+                        ],
+                    ),
                 );
             } else {
                 $this->addValidationResult(
@@ -236,8 +306,8 @@ class NovaValidateDomainSubscriptionAction extends NovaSubscriptionAction
                             'nameserver' => $registryNsHostname,
                             'at' => 'registry',
                             'at1' => 'DNS server',
-                        ]
-                    )
+                        ],
+                    ),
                 );
             }
 
@@ -249,8 +319,8 @@ class NovaValidateDomainSubscriptionAction extends NovaSubscriptionAction
                             'nameserver' => $registryNsHostname,
                             'at' => 'registry',
                             'notat' => 'DNS child',
-                        ]
-                    )
+                        ],
+                    ),
                 );
             } else {
                 $this->addValidationResult(
@@ -260,8 +330,8 @@ class NovaValidateDomainSubscriptionAction extends NovaSubscriptionAction
                             'nameserver' => $registryNsHostname,
                             'at' => 'registry',
                             'at1' => 'DNS child',
-                        ]
-                    )
+                        ],
+                    ),
                 );
             }
         }
@@ -275,8 +345,8 @@ class NovaValidateDomainSubscriptionAction extends NovaSubscriptionAction
                             'nameserver' => $wfNsHostname,
                             'at' => 'DNS child',
                             'notat' => 'DNS server',
-                        ]
-                    )
+                        ],
+                    ),
                 );
             } else {
                 $this->addValidationResult(
@@ -286,8 +356,8 @@ class NovaValidateDomainSubscriptionAction extends NovaSubscriptionAction
                             'nameserver' => $wfNsHostname,
                             'at' => 'DNS child',
                             'at1' => 'DNS server',
-                        ]
-                    )
+                        ],
+                    ),
                 );
             }
         }

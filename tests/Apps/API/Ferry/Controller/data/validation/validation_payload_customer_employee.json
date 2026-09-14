@@ -1,0 +1,32 @@
+{
+    "reference": "unique_reference_for_adf",
+    "subscriptions": {
+        "domain_extensions": [],
+        "hosting": [],
+        "ssl": [],
+        "reseller-discount": [],
+        "manual-subscription": [],
+        "dns": [],
+        "other": []
+    },
+    "customer": {
+        "firstName": "Test",
+        "lastName": "Dummy",
+        "email": "t.dummy@yourhosting.nl",
+        "gender": "M",
+        "phone": "+31612345678",
+        "paymentTerms": 12,
+        "referenceName": "testmigration",
+        "referenceCustomerId": "identifier",
+        "groupType": "testgroup",
+        "addresses": [
+            {
+                "streetName": "straat",
+                "streetNumber": "12",
+                "zipCode": " 1030 30",
+                "city": "city",
+                "countryCode": "BE"
+            }
+        ]
+    }
+}

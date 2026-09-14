@@ -21,17 +21,13 @@ class InvoiceablesReporterTest extends TestCase
     public function report(): void
     {
         CarbonImmutable::setTestNow(
-            CarbonImmutable::now()
+            CarbonImmutable::now(),
         );
 
         $invoiceRepository = self::createMock(InvoiceRepository::class);
-        $invoiceRepository->expects(self::once())
-            ->method('countNotSentToHarbor')
-            ->willReturn(3);
+        $invoiceRepository->expects(self::once())->method('countNotSentToHarbor')->willReturn(3);
 
-        $invoiceRepository->expects(self::once())
-            ->method('countMigratedNotSentToHarbor')
-            ->willReturn(1);
+        $invoiceRepository->expects(self::once())->method('countMigratedNotSentToHarbor')->willReturn(1);
 
         $subscriptionPartnerRepository = self::createMock(SubscriptionRepository::class);
 
@@ -42,15 +38,18 @@ class InvoiceablesReporterTest extends TestCase
             ->willReturn(5);
 
         $logger = self::createMock(Logger::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Daily invoiceables reporting',
-                [ LoggingContextKeys::REPORTING_DATA => [
-                    'invoices' => 3,
-                    'subscriptions' => 5,
-                    'migrated' => 1,
-                ]],
+                [
+                    LoggingContextKeys::REPORTING_DATA => [
+                        'invoices' => 3,
+                        'subscriptions' => 5,
+                        'migrated' => 1,
+                    ],
+                ],
             );
 
         $reporter = new InvoiceablesReporter(

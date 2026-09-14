@@ -79,7 +79,7 @@ class NovaTestAcronisUserSsoActionTest extends IntegrationTestCase
             ->with(
                 $this->provider,
                 $this->userUuid,
-                $expectedEmployeeUuid
+                $expectedEmployeeUuid,
             )
             ->willReturn(new OneTimeToken('one-time-token-value'));
 
@@ -109,14 +109,9 @@ class NovaTestAcronisUserSsoActionTest extends IntegrationTestCase
     {
         $exception = new Exception('boom');
 
-        $this->backupService
-            ->expects(self::once())
-            ->method('getSsoForProviderByUuids')
-            ->willThrowException($exception);
+        $this->backupService->expects(self::once())->method('getSsoForProviderByUuids')->willThrowException($exception);
 
-        $this->logger
-            ->expects(self::once())
-            ->method('error');
+        $this->logger->expects(self::once())->method('error');
 
         $result = $this->makeAction()->handle(
             $this->newActionFields(['user_uuid' => $this->userUuid]),

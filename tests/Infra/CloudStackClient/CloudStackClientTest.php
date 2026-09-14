@@ -21,7 +21,8 @@ class CloudStackClientTest extends IntegrationTestCase
     {
         $mockClient = $this->mock(CloudStackBaseClient::class);
 
-        $mockClient->shouldReceive('execute')
+        $mockClient
+            ->shouldReceive('execute')
             ->once()
             ->with('listTemplates', ['templatefilter' => 'featured', 'listall' => true])
             ->andReturn([
@@ -39,9 +40,15 @@ class CloudStackClientTest extends IntegrationTestCase
     public function listTemplates(): void
     {
         $mockClient = $this->mock(CloudStackBaseClient::class);
-        $data = json_decode((string) file_get_contents(__DIR__ . '/data/list-templates-success.json'), true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/list-templates-success.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
-        $mockClient->shouldReceive('execute')
+        $mockClient
+            ->shouldReceive('execute')
             ->once()
             ->with('listTemplates', ['templatefilter' => 'featured', 'listall' => true])
             ->andReturn($data);
@@ -61,18 +68,24 @@ class CloudStackClientTest extends IntegrationTestCase
     public function listNetworks(): void
     {
         $mockClient = $this->mock(CloudStackBaseClient::class);
-        $data = json_decode((string) file_get_contents(__DIR__ . '/data/list-networks-success.json'), true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/list-networks-success.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
-        $mockClient->shouldReceive('execute')
+        $mockClient
+            ->shouldReceive('execute')
             ->once()
             ->with('listNetworks', [
-                'traffictype'     => 'Guest',
-                'listall'         => 'true',
-                'type'            => 'shared',
+                'traffictype' => 'Guest',
+                'listall' => 'true',
+                'type' => 'shared',
                 'canusefordeploy' => 'true',
-                'tags'            => [
+                'tags' => [
                     [
-                        'key'   => TagFilter::VPS_NETWORK_KEY->value,
+                        'key' => TagFilter::VPS_NETWORK_KEY->value,
                         'value' => TagFilter::VPS_NETWORK->value,
                     ],
                 ],
@@ -96,9 +109,15 @@ class CloudStackClientTest extends IntegrationTestCase
         $expectedTag = 'Almalinux-9';
 
         $mockClient = $this->mock(CloudStackBaseClient::class);
-        $data = json_decode((string) file_get_contents(__DIR__ . '/data/list-templates-success.json'), true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/list-templates-success.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
-        $mockClient->shouldReceive('execute')
+        $mockClient
+            ->shouldReceive('execute')
             ->once()
             ->with(
                 'listTemplates',
@@ -111,7 +130,7 @@ class CloudStackClientTest extends IntegrationTestCase
                             'value' => $expectedTag,
                         ],
                     ],
-                ]
+                ],
             )
             ->andReturn($data);
 
@@ -131,7 +150,8 @@ class CloudStackClientTest extends IntegrationTestCase
     {
         $mockClient = $this->mock(CloudStackBaseClient::class);
 
-        $mockClient->shouldReceive('execute')
+        $mockClient
+            ->shouldReceive('execute')
             ->once()
             ->with('listTemplates', ['templatefilter' => 'featured', 'listall' => true])
             ->andReturn([
@@ -152,11 +172,17 @@ class CloudStackClientTest extends IntegrationTestCase
     {
         $vmId = '86f44477-86eb-41a9-a2f7-3384612fa20a';
 
-        $data = json_decode((string) file_get_contents(__DIR__ . '/data/create-console-endpoint.json'), true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/create-console-endpoint.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
         $mockClient = $this->mock(CloudStackBaseClient::class);
 
-        $mockClient->shouldReceive('execute')
+        $mockClient
+            ->shouldReceive('execute')
             ->once()
             ->with('createConsoleEndpoint', ['virtualmachineid' => $vmId])
             ->andReturn($data);
@@ -187,7 +213,8 @@ class CloudStackClientTest extends IntegrationTestCase
 
         $mockClient = $this->mock(CloudStackBaseClient::class);
 
-        $mockClient->shouldReceive('execute')
+        $mockClient
+            ->shouldReceive('execute')
             ->once()
             ->with('createConsoleEndpoint', ['virtualmachineid' => $vmId])
             ->andReturn([]);
@@ -206,7 +233,8 @@ class CloudStackClientTest extends IntegrationTestCase
 
         $mockClient = $this->mock(CloudStackBaseClient::class);
 
-        $mockClient->shouldReceive('execute')
+        $mockClient
+            ->shouldReceive('execute')
             ->once()
             ->with('createConsoleEndpoint', ['virtualmachineid' => $vmId])
             ->andReturn(['consoleendpoint' => []]);
@@ -226,7 +254,8 @@ class CloudStackClientTest extends IntegrationTestCase
 
         $mockClient = $this->mock(CloudStackBaseClient::class);
 
-        $mockClient->shouldReceive('execute')
+        $mockClient
+            ->shouldReceive('execute')
             ->once()
             ->with('deleteDomain', ['id' => $domainId, 'cleanup' => true])
             ->andReturn([

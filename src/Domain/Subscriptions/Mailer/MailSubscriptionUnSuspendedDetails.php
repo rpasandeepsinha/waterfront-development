@@ -8,8 +8,9 @@ use Waterfront\Domain\Mailer\MailTemplateInterface;
 
 class MailSubscriptionUnSuspendedDetails implements MailTemplateInterface
 {
-    public function __construct(public readonly string $domain)
-    {
+    public function __construct(
+        public readonly string $domain,
+    ) {
     }
 
     public static function getTemplateSlug(): string

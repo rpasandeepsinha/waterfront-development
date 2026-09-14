@@ -8,7 +8,8 @@ $application = Application::getInstance();
 
 return [
     'sources' => [
-        'nova', 'laravel',
+        'nova',
+        'laravel',
     ],
 
     'cache_time' => 60 * 60 * 24,

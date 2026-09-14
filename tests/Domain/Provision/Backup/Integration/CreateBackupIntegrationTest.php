@@ -85,7 +85,7 @@ class CreateBackupIntegrationTest extends IntegrationTestCase
                     offeringItemsClient: $this->offeringItemsClient,
                     tenantClient: $this->tenantClient,
                     genericClient: self::createStub(AcronisGenericClient::class),
-                )
+                ),
             );
 
         $this->app->bind(AcronisClientFactory::class, fn () => $stubAcronisClientFactory);
@@ -118,28 +118,15 @@ class CreateBackupIntegrationTest extends IntegrationTestCase
         );
 
         $tenant = $this->getTenantDto();
-        $this->tenantClient
-            ->expects('create')
-            ->once()
-            ->andReturn($tenant);
+        $this->tenantClient->expects('create')->once()->andReturn($tenant);
 
         $users = new TenantUsers([]);
-        $this->userClient
-            ->expects('list')
-            ->once()
-            ->with($tenant->id)
-            ->andReturn($users);
+        $this->userClient->expects('list')->once()->with($tenant->id)->andReturn($users);
 
         $user = $this->getUserDto($username);
-        $this->userClient
-            ->expects('create')
-            ->once()
-            ->andReturn($user);
+        $this->userClient->expects('create')->once()->andReturn($user);
 
-        $this->userClient
-            ->expects('updatePassword')
-            ->once()
-            ->with($user->id, self::anything());
+        $this->userClient->expects('updatePassword')->once()->with($user->id, self::anything());
 
         $offeringItems = new OfferingItems(
             checkUsage: false,
@@ -147,11 +134,7 @@ class CreateBackupIntegrationTest extends IntegrationTestCase
             items: [],
             timestamp: '2026-01-28T00:00:00Z',
         );
-        $this->offeringItemsClient
-            ->expects('get')
-            ->once()
-            ->with($tenant->id)
-            ->andReturn($offeringItems);
+        $this->offeringItemsClient->expects('get')->once()->with($tenant->id)->andReturn($offeringItems);
 
         $this->offeringItemsClient
             ->expects('update')
@@ -159,10 +142,7 @@ class CreateBackupIntegrationTest extends IntegrationTestCase
             ->with($tenant->id, self::anything())
             ->andReturn($offeringItems);
 
-        $this->userClient
-            ->expects('updateUserAccessPolicies')
-            ->once()
-            ->with($user->id, self::anything());
+        $this->userClient->expects('updateUserAccessPolicies')->once()->with($user->id, self::anything());
 
         $receivedPricingSetting = new TenantPricingSettings(
             version: time(),
@@ -182,10 +162,13 @@ class CreateBackupIntegrationTest extends IntegrationTestCase
             ->once()
             ->with(
                 $tenant->id,
-                self::callback(fn (TenantPricingSettings $settings) =>
-                    $settings->mode === PricingMode::PRODUCTION
-                    && $settings->currency === $receivedPricingSetting->currency
-                    && $settings->version === $receivedPricingSetting->version)
+                self::callback(
+                    fn (TenantPricingSettings $settings) => (
+                        $settings->mode === PricingMode::PRODUCTION
+                        && $settings->currency === $receivedPricingSetting->currency
+                        && $settings->version === $receivedPricingSetting->version
+                    ),
+                ),
             );
 
         self::assertDatabaseCount(ProvisioningResult::class, 0);
@@ -233,7 +216,7 @@ class CreateBackupIntegrationTest extends IntegrationTestCase
             lastname: 'Doe',
             cloudStorageInGb: 100.0,
             localStorageInGb: 100.0,
-            language: Language::CHINESE_TRADITIONAL
+            language: Language::CHINESE_TRADITIONAL,
         );
 
         $this->tenantClient
@@ -241,13 +224,9 @@ class CreateBackupIntegrationTest extends IntegrationTestCase
             ->once()
             ->andThrow(new AcronisClientFactoryException('Failed to create tenant'));
 
-        $this->userClient
-            ->expects('list')
-            ->never();
+        $this->userClient->expects('list')->never();
 
-        $this->userClient
-            ->expects('create')
-            ->never();
+        $this->userClient->expects('create')->never();
 
         self::assertDatabaseCount(ProvisioningResult::class, 0);
         self::assertDatabaseCount(ProvisioningRequest::class, 0);
@@ -295,13 +274,9 @@ class CreateBackupIntegrationTest extends IntegrationTestCase
             tag: $tagUuid,
         );
 
-        $this->tenantClient
-            ->expects('create')
-            ->never();
+        $this->tenantClient->expects('create')->never();
 
-        $this->userClient
-            ->expects('create')
-            ->never();
+        $this->userClient->expects('create')->never();
 
         self::assertDatabaseCount(ProvisioningResult::class, 0);
         self::assertDatabaseCount(ProvisioningRequest::class, 0);

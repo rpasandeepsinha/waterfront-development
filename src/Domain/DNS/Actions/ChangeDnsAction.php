@@ -31,7 +31,7 @@ class ChangeDnsAction
         private readonly LoggerInterface $logger,
         private readonly GandiClient $gandiClient,
         private readonly DnsVanityNameserverAssigner $dnsVanityNameserverAssigner,
-        private readonly DnsNameserverAssigner $dnsNameserverAssigner
+        private readonly DnsNameserverAssigner $dnsNameserverAssigner,
     ) {
     }
 
@@ -43,7 +43,7 @@ class ChangeDnsAction
      */
     public function execute(
         Subscription $subscription,
-        ProductChangeType $changeType
+        ProductChangeType $changeType,
     ): void {
         $this->validateSubscriptionGroup($subscription);
 
@@ -70,7 +70,7 @@ class ChangeDnsAction
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-            ]
+            ],
         );
 
         $dnsDeployment = $subscription->dnsDeployment;
@@ -82,7 +82,7 @@ class ChangeDnsAction
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-                ]
+                ],
             );
             throw new DnsDeploymentNotFoundException($subscription->domain);
         }
@@ -93,7 +93,7 @@ class ChangeDnsAction
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-            ]
+            ],
         );
 
         $dnsDeployment->nameserver_type = NameserverType::VANITY;
@@ -111,7 +111,7 @@ class ChangeDnsAction
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-            ]
+            ],
         );
 
         $this->dnsNameserverAssigner->clear($dnsDeployment);
@@ -132,7 +132,7 @@ class ChangeDnsAction
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-            ]
+            ],
         );
 
         $dnsDeployment = $subscription->dnsDeployment;
@@ -144,7 +144,7 @@ class ChangeDnsAction
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-                ]
+                ],
             );
             throw new DnsDeploymentNotFoundException($subscription->domain);
         }
@@ -160,7 +160,7 @@ class ChangeDnsAction
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-            ]
+            ],
         );
 
         $this->dnsVanityNameserverAssigner->clear($dnsDeployment);
@@ -182,7 +182,7 @@ class ChangeDnsAction
                         'expected.product_group' => ProductGroupType::DNS->value,
                         'actual.product_group' => $subscription->product->productGroup->slug->value,
                     ],
-                ]
+                ],
             );
 
             throw new DnsChangeException(
@@ -190,8 +190,8 @@ class ChangeDnsAction
                     'Invalid subscription %s for DNS change. Expected subscription with product group %s but got %s',
                     $subscription->domain,
                     ProductGroupType::DNS->value,
-                    $subscription->product->productGroup->slug->value
-                )
+                    $subscription->product->productGroup->slug->value,
+                ),
             );
         }
     }

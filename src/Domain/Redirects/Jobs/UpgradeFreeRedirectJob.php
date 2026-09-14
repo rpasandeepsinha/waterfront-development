@@ -51,7 +51,9 @@ class UpgradeFreeRedirectJob extends AbstractQueueableJob
         $redirects = [];
 
         if ($this->subscription->domain !== null) {
-            $redirectResult = $provisionGateway->request(new ListRedirectsRequest(context: Uuid::fromString($this->subscription->uuid)));
+            $redirectResult = $provisionGateway->request(
+                new ListRedirectsRequest(context: Uuid::fromString($this->subscription->uuid)),
+            );
             assert($redirectResult instanceof ListRedirectResult);
 
             $redirects = $redirectResult->redirects;
@@ -70,7 +72,7 @@ class UpgradeFreeRedirectJob extends AbstractQueueableJob
                     LoggingContextKeys::META => [
                         'redirects' => $metaData,
                     ],
-                ]
+                ],
             );
         }
 
@@ -83,7 +85,7 @@ class UpgradeFreeRedirectJob extends AbstractQueueableJob
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING->value,
                     LoggingContextKeys::PROVISIONING_ID => $this->subscription->hostingDeployment?->id,
                     LoggingContextKeys::ONE_OFF_SCRIPT => NovaUpgradeFreeRedirectAction::SLUG,
-                ]
+                ],
             );
 
             $cancellationService->cancel(
@@ -93,6 +95,7 @@ class UpgradeFreeRedirectJob extends AbstractQueueableJob
                 sendMail: false,
                 cancelNote: 'Customer does not use this subscription.',
             );
+
             return;
         }
 
@@ -104,7 +107,7 @@ class UpgradeFreeRedirectJob extends AbstractQueueableJob
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING->value,
                 LoggingContextKeys::PROVISIONING_ID => $this->subscription->hostingDeployment?->id,
                 LoggingContextKeys::ONE_OFF_SCRIPT => NovaUpgradeFreeRedirectAction::SLUG,
-            ]
+            ],
         );
 
         $redirectProduct = $productRepository->findProductBySlug(ProductType::REDIRECT->value);
@@ -140,6 +143,7 @@ class UpgradeFreeRedirectJob extends AbstractQueueableJob
                 'type' => $redirectResult->redirect->redirectType->value,
             ];
         }
+
         return $metaData;
     }
 
@@ -148,8 +152,10 @@ class UpgradeFreeRedirectJob extends AbstractQueueableJob
         return QueueName::DEFAULT;
     }
 
-    private function isValidRedirectSubscription(LoggerInterface $logger, DomainDeploymentRepository $domainDeploymentRepository): bool
-    {
+    private function isValidRedirectSubscription(
+        LoggerInterface $logger,
+        DomainDeploymentRepository $domainDeploymentRepository,
+    ): bool {
         if ($this->subscription->product->slug !== ProductType::FREE_REDIRECT->value) {
             $logger->warning(
                 'Tried to upgrade a subscription which was not a free redirect subscription with the CancelFreeRedirectJob',
@@ -158,7 +164,7 @@ class UpgradeFreeRedirectJob extends AbstractQueueableJob
                     LoggingContextKeys::PRODUCT_SLUG => $this->subscription->product->slug,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING->value,
                     LoggingContextKeys::ONE_OFF_SCRIPT => NovaUpgradeFreeRedirectAction::SLUG,
-                ]
+                ],
             );
             $this->delete();
 
@@ -175,7 +181,7 @@ class UpgradeFreeRedirectJob extends AbstractQueueableJob
                         LoggingContextKeys::PRODUCT_SLUG => $this->subscription->product->slug,
                         LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING->value,
                         LoggingContextKeys::ONE_OFF_SCRIPT => NovaUpgradeFreeRedirectAction::SLUG,
-                    ]
+                    ],
                 );
                 $this->delete();
 

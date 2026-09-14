@@ -236,6 +236,7 @@ class CreateReseller extends DirectAdminCommand
     public function setUsername(string $username): CreateReseller
     {
         $this->username = $username;
+
         return $this;
     }
 
@@ -253,6 +254,7 @@ class CreateReseller extends DirectAdminCommand
     public function setEmail(string $email): CreateReseller
     {
         $this->email = $email;
+
         return $this;
     }
 
@@ -270,6 +272,7 @@ class CreateReseller extends DirectAdminCommand
     public function setPasswd(string $passwd): CreateReseller
     {
         $this->passwd = $passwd;
+
         return $this;
     }
 
@@ -287,6 +290,7 @@ class CreateReseller extends DirectAdminCommand
     public function setDomain(string $domain): CreateReseller
     {
         $this->domain = $domain;
+
         return $this;
     }
 
@@ -304,6 +308,7 @@ class CreateReseller extends DirectAdminCommand
     public function setPackage(string $package): CreateReseller
     {
         $this->package = $package;
+
         return $this;
     }
 
@@ -322,6 +327,7 @@ class CreateReseller extends DirectAdminCommand
     public function setIp(string $ip): CreateReseller
     {
         $this->ip = $ip;
+
         return $this;
     }
 
@@ -339,6 +345,7 @@ class CreateReseller extends DirectAdminCommand
     public function setNotify(string $notify): CreateReseller
     {
         $this->notify = $notify;
+
         return $this;
     }
 
@@ -350,6 +357,7 @@ class CreateReseller extends DirectAdminCommand
     public function setBandwidth(string $bandwidth): CreateReseller
     {
         $this->bandwidth = $bandwidth;
+
         return $this;
     }
 
@@ -361,6 +369,7 @@ class CreateReseller extends DirectAdminCommand
     public function setUbandwidth(string $ubandwidth): CreateReseller
     {
         $this->ubandwidth = $ubandwidth;
+
         return $this;
     }
 
@@ -372,6 +381,7 @@ class CreateReseller extends DirectAdminCommand
     public function setQuota(string $quota): CreateReseller
     {
         $this->quota = $quota;
+
         return $this;
     }
 
@@ -383,6 +393,7 @@ class CreateReseller extends DirectAdminCommand
     public function setUquota(string $uquota): CreateReseller
     {
         $this->uquota = $uquota;
+
         return $this;
     }
 
@@ -394,6 +405,7 @@ class CreateReseller extends DirectAdminCommand
     public function setVdomains(string $vdomains): CreateReseller
     {
         $this->vdomains = $vdomains;
+
         return $this;
     }
 
@@ -405,6 +417,7 @@ class CreateReseller extends DirectAdminCommand
     public function setUvdomains(string $uvdomains): CreateReseller
     {
         $this->uvdomains = $uvdomains;
+
         return $this;
     }
 
@@ -416,6 +429,7 @@ class CreateReseller extends DirectAdminCommand
     public function setNsubdomains(string $nsubdomains): CreateReseller
     {
         $this->nsubdomains = $nsubdomains;
+
         return $this;
     }
 
@@ -427,6 +441,7 @@ class CreateReseller extends DirectAdminCommand
     public function setUnsubdomains(string $unsubdomains): CreateReseller
     {
         $this->unsubdomains = $unsubdomains;
+
         return $this;
     }
 
@@ -438,6 +453,7 @@ class CreateReseller extends DirectAdminCommand
     public function setIps(string $ips): CreateReseller
     {
         $this->ips = $ips;
+
         return $this;
     }
 
@@ -449,6 +465,7 @@ class CreateReseller extends DirectAdminCommand
     public function setNemails(string $nemails): CreateReseller
     {
         $this->nemails = $nemails;
+
         return $this;
     }
 
@@ -460,6 +477,7 @@ class CreateReseller extends DirectAdminCommand
     public function setUnemails(string $unemails): CreateReseller
     {
         $this->unemails = $unemails;
+
         return $this;
     }
 
@@ -471,6 +489,7 @@ class CreateReseller extends DirectAdminCommand
     public function setNemailf(string $nemailf): CreateReseller
     {
         $this->nemailf = $nemailf;
+
         return $this;
     }
 
@@ -482,6 +501,7 @@ class CreateReseller extends DirectAdminCommand
     public function setUnemailf(string $unemailf): CreateReseller
     {
         $this->unemailf = $unemailf;
+
         return $this;
     }
 
@@ -493,6 +513,7 @@ class CreateReseller extends DirectAdminCommand
     public function setNemailml(string $nemailml): CreateReseller
     {
         $this->nemailml = $nemailml;
+
         return $this;
     }
 
@@ -504,6 +525,7 @@ class CreateReseller extends DirectAdminCommand
     public function setUnemailml(string $unemailml): CreateReseller
     {
         $this->unemailml = $unemailml;
+
         return $this;
     }
 
@@ -515,6 +537,7 @@ class CreateReseller extends DirectAdminCommand
     public function setNemailr(string $nemailr): CreateReseller
     {
         $this->nemailr = $nemailr;
+
         return $this;
     }
 
@@ -526,6 +549,7 @@ class CreateReseller extends DirectAdminCommand
     public function setUnemailr(string $unemailr): CreateReseller
     {
         $this->unemailr = $unemailr;
+
         return $this;
     }
 
@@ -537,6 +561,7 @@ class CreateReseller extends DirectAdminCommand
     public function setMysql(string $mysql): CreateReseller
     {
         $this->mysql = $mysql;
+
         return $this;
     }
 
@@ -548,6 +573,7 @@ class CreateReseller extends DirectAdminCommand
     public function setUmysql(string $umysql): CreateReseller
     {
         $this->umysql = $umysql;
+
         return $this;
     }
 
@@ -559,6 +585,7 @@ class CreateReseller extends DirectAdminCommand
     public function setDomainptr(string $domainptr): CreateReseller
     {
         $this->domainptr = $domainptr;
+
         return $this;
     }
 
@@ -570,6 +597,7 @@ class CreateReseller extends DirectAdminCommand
     public function setUdomainptr(string $udomainptr): CreateReseller
     {
         $this->udomainptr = $udomainptr;
+
         return $this;
     }
 
@@ -581,6 +609,7 @@ class CreateReseller extends DirectAdminCommand
     public function setFtp(string $ftp): CreateReseller
     {
         $this->ftp = $ftp;
+
         return $this;
     }
 
@@ -592,6 +621,7 @@ class CreateReseller extends DirectAdminCommand
     public function setUftp(string $uftp): CreateReseller
     {
         $this->uftp = $uftp;
+
         return $this;
     }
 
@@ -603,6 +633,7 @@ class CreateReseller extends DirectAdminCommand
     public function setAftp(string $aftp): CreateReseller
     {
         $this->aftp = $aftp;
+
         return $this;
     }
 
@@ -614,6 +645,7 @@ class CreateReseller extends DirectAdminCommand
     public function setPhp(string $php): CreateReseller
     {
         $this->php = $php;
+
         return $this;
     }
 
@@ -625,6 +657,7 @@ class CreateReseller extends DirectAdminCommand
     public function setCgi(string $cgi): CreateReseller
     {
         $this->cgi = $cgi;
+
         return $this;
     }
 
@@ -636,6 +669,7 @@ class CreateReseller extends DirectAdminCommand
     public function setSsl(string $ssl): CreateReseller
     {
         $this->ssl = $ssl;
+
         return $this;
     }
 
@@ -647,6 +681,7 @@ class CreateReseller extends DirectAdminCommand
     public function setSsh(string $ssh): CreateReseller
     {
         $this->ssh = $ssh;
+
         return $this;
     }
 
@@ -658,6 +693,7 @@ class CreateReseller extends DirectAdminCommand
     public function setUserssh(string $userssh): CreateReseller
     {
         $this->userssh = $userssh;
+
         return $this;
     }
 
@@ -669,6 +705,7 @@ class CreateReseller extends DirectAdminCommand
     public function setDnscontrol(string $dnscontrol): CreateReseller
     {
         $this->dnscontrol = $dnscontrol;
+
         return $this;
     }
 
@@ -686,6 +723,7 @@ class CreateReseller extends DirectAdminCommand
     public function setDns(string $dns): CreateReseller
     {
         $this->dns = $dns;
+
         return $this;
     }
 
@@ -701,12 +739,14 @@ class CreateReseller extends DirectAdminCommand
     public function setServerip(string $serverip): CreateReseller
     {
         $this->serverip = $serverip;
+
         return $this;
     }
 
     public function setNusers(string $nusers): CreateReseller
     {
         $this->nusers = $nusers;
+
         return $this;
     }
 

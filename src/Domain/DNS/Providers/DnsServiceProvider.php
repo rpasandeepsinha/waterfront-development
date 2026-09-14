@@ -43,20 +43,22 @@ class DnsServiceProvider extends BaseProvider implements DeferrableProvider
                     'external-hosting' => ExternalHostingDnsRecords::getRecords(),
                     'vps' => VpsDnsRecords::getRecords(),
                 ],
-                $this->resolve(DnsRecordHydrator::class)
-            )
+                $this->resolve(DnsRecordHydrator::class),
+            ),
         );
 
         $vanityNameserverGenerator = new VanityNameserverGenerator();
         $this->app->instance(VanityNameserverGenerator::class, $vanityNameserverGenerator);
 
-        $this->app->bind(DnsZoneFactoryInterface::class, fn (Container $container) => $configuration->getAsBoolean('powerdnsclient.connection.use_faker')
-            ? $container->get(DnsZoneFromArrayTemplateFactory::class)
-            : $container->get(DnsZoneFromDatabaseTemplateFactory::class));
+        $this->app->bind(DnsZoneFactoryInterface::class, fn (Container $container) => $configuration->getAsBoolean(
+            'powerdnsclient.connection.use_faker',
+        )
+                ? $container->get(DnsZoneFromArrayTemplateFactory::class)
+                : $container->get(DnsZoneFromDatabaseTemplateFactory::class));
 
         $this->app->singleton(
             DnsVanityNameserverConfigDto::class,
-            static fn () => DnsVanityNameserverConfigDto::fromConfiguration($configuration)
+            static fn () => DnsVanityNameserverConfigDto::fromConfiguration($configuration),
         );
 
         $this->app->bind(
@@ -66,7 +68,7 @@ class DnsServiceProvider extends BaseProvider implements DeferrableProvider
                 $container->get(DnsDeploymentRepository::class),
                 $container->get(LoggerInterface::class),
                 $container->make(DnsVanityNameserverConfigDto::class),
-            )
+            ),
         );
     }
 

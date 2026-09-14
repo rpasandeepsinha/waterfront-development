@@ -55,8 +55,14 @@ class NovaTranslationResource extends Resource
         return [
             Text::make(self::translate(self::getTranslationKey() . '.attributes.name'), 'display_name')->sortable(),
             Text::make(self::translate(self::getTranslationKey() . '.attributes.locale'), 'locale')->sortable(),
-            NovaBoolField::make(self::translate(self::getTranslationKey() . '.attributes.active'), 'active')->sortable(),
-            NovaBoolField::make(self::translate(self::getTranslationKey() . '.attributes.default'), 'default')->sortable(),
+            NovaBoolField::make(
+                self::translate(self::getTranslationKey() . '.attributes.active'),
+                'active',
+            )->sortable(),
+            NovaBoolField::make(
+                self::translate(self::getTranslationKey() . '.attributes.default'),
+                'default',
+            )->sortable(),
         ];
     }
 
@@ -65,6 +71,7 @@ class NovaTranslationResource extends Resource
     {
         /** @var NovaUpdateTranslationsToObjectStorageAction $novaUpdateTranslationsAction */
         $novaUpdateTranslationsAction = resolve(NovaUpdateTranslationsToObjectStorageAction::class);
+
         return [
             $novaUpdateTranslationsAction->standalone(),
         ];
@@ -78,7 +85,11 @@ class NovaTranslationResource extends Resource
         return [
             new HtmlCard()
                 ->width('full')
-                ->html('<p class="text-80 font-light mt-2">' . self::translate('language.nova_info.translation_overview') . '</p>'),
+                ->html(
+                    '<p class="text-80 font-light mt-2">'
+                    . self::translate('language.nova_info.translation_overview')
+                    . '</p>',
+                ),
         ];
     }
 }

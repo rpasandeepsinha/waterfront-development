@@ -37,45 +37,45 @@ class DomainMigrationPipeTest extends IntegrationTestCase
     {
         $rtrService = $this->createMock(RtrService::class);
 
-        $rtrService->expects(self::once())
+        $rtrService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(self::equalTo('not-in-rtr.nl'))
             ->willThrowException(new RealtimeRegisterClientException('Domain not found'));
 
-        $rtrService
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrService->method('setHandle')->willReturnSelf();
 
-        $rtrService
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrService->method('setClient')->willReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
 
         $expectedPayload = [
             MigrationValidationPipes::DOMAIN_MIGRATION->value => [
                 [
-                    'id'      => MigrationValidation::DOMAIN_MIGRATION_FETCH_NOT_FOUND->value,
+                    'id' => MigrationValidation::DOMAIN_MIGRATION_FETCH_NOT_FOUND->value,
                     'message' => 'Unable to fetch Domain [not-in-rtr.nl] from backend: [realtime_register], error message: Domain not found',
                 ],
                 [
-                    'id'      => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
+                    'id' => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
                     'message' => 'domain_migration reference: unique_reference_for_adf',
                 ],
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/domain_migration/incorrect_domain.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/domain_migration/incorrect_domain.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $domainMigrationPipe = self::resolve(DomainMigrationPipe::class);
-        $processedPayload = $domainMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $domainMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -85,45 +85,45 @@ class DomainMigrationPipeTest extends IntegrationTestCase
     {
         $rtrService = $this->createMock(RtrService::class);
 
-        $rtrService->expects(self::once())
+        $rtrService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(self::equalTo('not-in-rtr.nl'))
             ->willThrowException(new ForbiddenException('Forbidden'));
 
-        $rtrService
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrService->method('setHandle')->willReturnSelf();
 
-        $rtrService
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrService->method('setClient')->willReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
 
         $expectedPayload = [
             MigrationValidationPipes::DOMAIN_MIGRATION->value => [
                 [
-                    'id'      => MigrationValidation::DOMAIN_MIGRATION_FETCH_FORBIDDEN->value,
+                    'id' => MigrationValidation::DOMAIN_MIGRATION_FETCH_FORBIDDEN->value,
                     'message' => 'Unable to fetch Domain [not-in-rtr.nl] from backend: [realtime_register], error message: Forbidden',
                 ],
                 [
-                    'id'      => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
+                    'id' => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
                     'message' => 'domain_migration reference: unique_reference_for_adf',
                 ],
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/domain_migration/incorrect_domain.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/domain_migration/incorrect_domain.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $domainMigrationPipe = self::resolve(DomainMigrationPipe::class);
-        $processedPayload = $domainMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $domainMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -139,12 +139,14 @@ class DomainMigrationPipeTest extends IntegrationTestCase
         $rtrService = $this->createMock(RtrService::class);
         $rtrMigrationService = $this->createMock(DomainAndSslMigrationService::class);
 
-        $rtrService->expects(self::once())
+        $rtrService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(self::equalTo('phone-not-correct-in-rtr.nl'))
             ->willReturn($domainDetails);
 
-        $rtrService->expects(self::once())
+        $rtrService
+            ->expects(self::once())
             ->method('retrieveCustomerHandle')
             ->with(self::equalTo('testdummy'))
             ->willReturn($contactResponse);
@@ -154,18 +156,15 @@ class DomainMigrationPipeTest extends IntegrationTestCase
         $phoneAreaCode = $phone->getAreaCode();
         $phoneSubscriberNumber = $phone->getNumber();
 
-        $rtrMigrationService->expects(self::once())
+        $rtrMigrationService
+            ->expects(self::once())
             ->method('parseRemotePhone')
             ->with(self::equalTo($contactResponse))
             ->willReturn([$phoneCountryCode, $phoneAreaCode, $phoneSubscriberNumber]);
 
-        $rtrService
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrService->method('setHandle')->willReturnSelf();
 
-        $rtrService
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrService->method('setClient')->willReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
         $this->app->bind(DomainAndSslMigrationService::class, fn () => $rtrMigrationService);
@@ -177,23 +176,26 @@ class DomainMigrationPipeTest extends IntegrationTestCase
                     'message' => 'Domain [phone-not-correct-in-rtr.nl] from backend: [realtime_register], has the following status: PENDING_DELETE',
                 ],
                 [
-                    'id'      => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
+                    'id' => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
                     'message' => 'domain_migration reference: unique_reference_for_adf',
                 ],
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/domain_migration/incorrect_phone.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/domain_migration/incorrect_phone.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $domainMigrationPipe = Container::getInstance()->make(DomainMigrationPipe::class);
-        $processedPayload = $domainMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $domainMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -207,50 +209,51 @@ class DomainMigrationPipeTest extends IntegrationTestCase
 
         $rtrService = $this->createMock(RtrService::class);
 
-        $rtrService->expects(self::once())
+        $rtrService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(self::equalTo('handle-not-in-rtr.nl'))
             ->willReturn($domainDetails);
 
-        $rtrService->expects(self::once())
+        $rtrService
+            ->expects(self::once())
             ->method('retrieveCustomerHandle')
             ->with(self::equalTo('testdummy'))
             ->willThrowException(new RealtimeRegisterClientException('bla'));
 
-        $rtrService
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrService->method('setHandle')->willReturnSelf();
 
-        $rtrService
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrService->method('setClient')->willReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
 
         $expectedPayload = [
             MigrationValidationPipes::DOMAIN_MIGRATION->value => [
                 [
-                    'id'      => MigrationValidation::DOMAIN_MIGRATION_FETCH_HANDLE_FAILED->value,
+                    'id' => MigrationValidation::DOMAIN_MIGRATION_FETCH_HANDLE_FAILED->value,
                     'message' => 'Unable to fetch contact handle for Domain [handle-not-in-rtr.nl] from backend [realtime_register] message: bla',
                 ],
                 [
-                    'id'      => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
+                    'id' => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
                     'message' => 'domain_migration reference: unique_reference_for_adf',
                 ],
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/domain_migration/incorrect_handle_rtr.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/domain_migration/incorrect_handle_rtr.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $domainMigrationPipe = Container::getInstance()->make(DomainMigrationPipe::class);
-        $processedPayload = $domainMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $domainMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -263,35 +266,36 @@ class DomainMigrationPipeTest extends IntegrationTestCase
         $domainRetrieveResult->setStatus(DomainStatus::ACTIVE->value);
         $domainRetrieveResult->setHandles(new Handles('AB-1234'));
 
-        $mockOpenProvider->expects(self::once())->method('retrieveDomain')
-            ->willReturn($domainRetrieveResult);
+        $mockOpenProvider->expects(self::once())->method('retrieveDomain')->willReturn($domainRetrieveResult);
 
-        $mockOpenProvider->expects(self::once())->method('getCustomerHandle')
-            ->willThrowException(new Exception('bla'));
+        $mockOpenProvider->expects(self::once())->method('getCustomerHandle')->willThrowException(new Exception('bla'));
 
         $this->app->instance(OpenproviderClient::class, $mockOpenProvider);
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/domain_migration/incorrect_handle_op.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/domain_migration/incorrect_handle_op.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $domainMigrationPipe = Container::getInstance()->make(DomainMigrationPipe::class);
-        $processedPayload = $domainMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $domainMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame(
             [
                 MigrationValidationPipes::DOMAIN_MIGRATION->value => [
                     [
-                        'id'      => MigrationValidation::DOMAIN_MIGRATION_FETCH_HANDLE_FAILED->value,
+                        'id' => MigrationValidation::DOMAIN_MIGRATION_FETCH_HANDLE_FAILED->value,
                         'message' => 'Unable to fetch contact handle for Domain [handle-not-in-op.nl] from backend [openprovider] message: bla',
                     ],
                     [
-                        'id'      => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
+                        'id' => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
                         'message' => 'domain_migration reference: unique_reference_for_adf',
                     ],
                 ],
@@ -311,12 +315,14 @@ class DomainMigrationPipeTest extends IntegrationTestCase
         $rtrService = $this->createMock(RtrService::class);
         $rtrMigrationService = $this->createMock(DomainAndSslMigrationService::class);
 
-        $rtrService->expects(self::once())
+        $rtrService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(self::equalTo('phone-not-correct-in-rtr.nl'))
             ->willReturn($domainDetails);
 
-        $rtrService->expects(self::once())
+        $rtrService
+            ->expects(self::once())
             ->method('retrieveCustomerHandle')
             ->with(self::equalTo('testdummy'))
             ->willReturn($contactResponse);
@@ -326,18 +332,15 @@ class DomainMigrationPipeTest extends IntegrationTestCase
         $phoneAreaCode = $phone->getAreaCode();
         $phoneSubscriberNumber = $phone->getNumber();
 
-        $rtrMigrationService->expects(self::once())
+        $rtrMigrationService
+            ->expects(self::once())
             ->method('parseRemotePhone')
             ->with(self::equalTo($contactResponse))
             ->willReturn([$phoneCountryCode, $phoneAreaCode, $phoneSubscriberNumber]);
 
-        $rtrService
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrService->method('setHandle')->willReturnSelf();
 
-        $rtrService
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrService->method('setClient')->willReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
         $this->app->bind(DomainAndSslMigrationService::class, fn () => $rtrMigrationService);
@@ -345,23 +348,26 @@ class DomainMigrationPipeTest extends IntegrationTestCase
         $expectedPayload = [
             MigrationValidationPipes::DOMAIN_MIGRATION->value => [
                 [
-                    'id'      => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
+                    'id' => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
                     'message' => 'domain_migration reference: unique_reference_for_adf',
                 ],
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/domain_migration/incorrect_phone.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/domain_migration/incorrect_phone.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $domainMigrationPipe = Container::getInstance()->make(DomainMigrationPipe::class);
-        $processedPayload = $domainMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $domainMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -369,17 +375,20 @@ class DomainMigrationPipeTest extends IntegrationTestCase
     #[Test]
     public function validateFailedDomainDataNotArray(): void
     {
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/domain_migration/domain_data_not_array.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/domain_migration/domain_data_not_array.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $domainMigrationPipe = self::resolve(DomainMigrationPipe::class);
-        $processedPayload = $domainMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $domainMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame(
             [
@@ -401,24 +410,27 @@ class DomainMigrationPipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $processedPayload->validationResults
+            $processedPayload->validationResults,
         );
     }
 
     #[Test]
     public function validateFailedDnsTemplateNotInCustomer(): void
     {
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/domain_migration/dns_template_not_in_customer.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/domain_migration/dns_template_not_in_customer.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $domainMigrationPipe = Container::getInstance()->make(DomainMigrationPipe::class);
-        $processedPayload = $domainMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $domainMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame(
             [
@@ -437,7 +449,7 @@ class DomainMigrationPipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $processedPayload->validationResults
+            $processedPayload->validationResults,
         );
     }
 
@@ -447,7 +459,7 @@ class DomainMigrationPipeTest extends IntegrationTestCase
         $expectedPayload = [
             MigrationValidationPipes::DOMAIN_MIGRATION->value => [
                 [
-                    'id'      => MigrationValidation::DEFAULT_VALIDATION->value,
+                    'id' => MigrationValidation::DEFAULT_VALIDATION->value,
                     'message' => [
                         '0.reference_domain_provider_business_unit_slug' => [
                             'Het geselecteerde veld is ongeldig.',
@@ -455,23 +467,26 @@ class DomainMigrationPipeTest extends IntegrationTestCase
                     ],
                 ],
                 [
-                    'id'      => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
+                    'id' => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
                     'message' => 'domain_migration reference: unique_reference_for_adf',
                 ],
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/domain_migration/argeweb_bu_domain.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/domain_migration/argeweb_bu_domain.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $domainMigrationPipe = self::resolve(DomainMigrationPipe::class);
-        $processedPayload = $domainMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $domainMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -479,34 +494,35 @@ class DomainMigrationPipeTest extends IntegrationTestCase
     #[Test]
     public function validateFailedDomainBusinessUnitsDoesntHaveProviderCredentials(): void
     {
-        $businessUnit = DomainProviderBusinessUnitFactory::new()
-            ->argeweb()
-            ->createOne();
+        $businessUnit = DomainProviderBusinessUnitFactory::new()->argeweb()->createOne();
 
         $expectedPayload = [
             MigrationValidationPipes::DOMAIN_MIGRATION->value => [
                 [
-                    'id'      => MigrationValidation::DOMAIN_MIGRATION_DRIVER_CREDENTIALS_FAILED->value,
+                    'id' => MigrationValidation::DOMAIN_MIGRATION_DRIVER_CREDENTIALS_FAILED->value,
                     'message' => 'No credentials set for [realtime_register] with business unit [argeweb], exception: The given business unit slug [argeweb] does not have credentials for the given provider [realtime_register]. Please ensure that the business unit & credentials exists and is correctly configured.',
                 ],
                 [
-                    'id'      => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
+                    'id' => MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED->value,
                     'message' => 'domain_migration reference: unique_reference_for_adf',
                 ],
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/domain_migration/argeweb_bu_domain.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/domain_migration/argeweb_bu_domain.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $domainMigrationPipe = self::resolve(DomainMigrationPipe::class);
-        $processedPayload = $domainMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $domainMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }

@@ -57,7 +57,7 @@ class UnsuspendSubscriptionTest extends IntegrationTestCase
                 [
                     'administrative_status' => AdministrativeStatus::SUSPENDED->value,
                     'technical_status' => TechnicalStatus::SUSPENDED->value,
-                ]
+                ],
             );
     }
 
@@ -72,12 +72,14 @@ class UnsuspendSubscriptionTest extends IntegrationTestCase
                 'auditable_id' => $this->domainSubscription->id,
                 'old_values' => ['ns' => ['ns1.nl']],
                 'new_values' => null,
-            ]
+            ],
         );
 
-        new DomainDeploymentFactory()->withRtrProvider()->createOne([
-            'subscription_uuid' => $this->domainSubscription->uuid,
-        ]);
+        new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->createOne([
+                'subscription_uuid' => $this->domainSubscription->uuid,
+            ]);
 
         $this->unsuspendSubscriptionAction->handle(
             new ActionFields(new Collection(), new Collection()),
@@ -94,9 +96,11 @@ class UnsuspendSubscriptionTest extends IntegrationTestCase
     #[Test]
     public function unsuspendSubscriptionFailedNotImplementedByDomainProvider(): void
     {
-        new DomainDeploymentFactory()->withPlaceholderProvider()->createOne([
-            'subscription_uuid' => $this->domainSubscription->uuid,
-        ]);
+        new DomainDeploymentFactory()
+            ->withPlaceholderProvider()
+            ->createOne([
+                'subscription_uuid' => $this->domainSubscription->uuid,
+            ]);
 
         $this->unsuspendSubscriptionAction->handle(
             new ActionFields(new Collection(), new Collection()),
@@ -118,11 +122,11 @@ class UnsuspendSubscriptionTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                json_encode($this->getMockedResult(), JSON_THROW_ON_ERROR)
+                json_encode($this->getMockedResult(), JSON_THROW_ON_ERROR),
             ),
             new Response(
                 200,
-                []
+                [],
             ),
         ], static function (RequestInterface $request) use (&$rtrRequests): void {
             $rtrRequests[] = $request;

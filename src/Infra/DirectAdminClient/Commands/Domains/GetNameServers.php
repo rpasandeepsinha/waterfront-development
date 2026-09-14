@@ -20,6 +20,7 @@ class GetNameServers extends DirectAdminCommand
     {
         $NS = $this->getFormValues()['NS1'];
         assert(is_string($NS));
+
         return $NS;
     }
 
@@ -27,6 +28,7 @@ class GetNameServers extends DirectAdminCommand
     {
         $NS = $this->getFormValues()['NS2'];
         assert(is_string($NS));
+
         return $NS;
     }
 }

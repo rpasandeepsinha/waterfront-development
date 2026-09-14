@@ -14,8 +14,9 @@ use Waterfront\Domain\DNS\Interfaces\DnsRecordMutationInterface;
  */
 class AddedDnsRecord implements DnsRecordMutationInterface
 {
-    public function __construct(private readonly DnsRecordInterface $added)
-    {
+    public function __construct(
+        private readonly DnsRecordInterface $added,
+    ) {
     }
 
     public function getDnsRecord(): DnsRecordInterface

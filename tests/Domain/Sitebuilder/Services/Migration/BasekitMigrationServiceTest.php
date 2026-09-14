@@ -43,7 +43,7 @@ class BasekitMigrationServiceTest extends TestCase
             packageReference: 7,
             siteRef: 777,
             userRef: 888,
-            contractPeriod: 12
+            contractPeriod: 12,
         );
 
         /** @var BasekitMigrationService $service */
@@ -52,7 +52,11 @@ class BasekitMigrationServiceTest extends TestCase
         $service->migrate(self::SCRIPT_SLUG, $subscription->uuid);
 
         $sitebuilderDeployment = SitebuilderDeployment::query()->latest('id')->first();
-        self::assertInstanceOf(SitebuilderDeployment::class, $sitebuilderDeployment, 'SitebuilderDeployment should be created');
+        self::assertInstanceOf(
+            SitebuilderDeployment::class,
+            $sitebuilderDeployment,
+            'SitebuilderDeployment should be created',
+        );
 
         $originRequest = $sitebuilderDeployment->originRequest;
         self::assertNotNull($originRequest, 'SitebuilderDeployment must link to an origin ProvisioningRequest');
@@ -75,13 +79,14 @@ class BasekitMigrationServiceTest extends TestCase
             ->where('sitebuilder_deployment_id', $sitebuilderDeployment->id)
             ->first();
 
-        self::assertNotNull($basekitSitebuilderDeployment, 'BasekitSitebuilderDeployment must be created when site_ref present');
+        self::assertNotNull(
+            $basekitSitebuilderDeployment,
+            'BasekitSitebuilderDeployment must be created when site_ref present',
+        );
         self::assertSame(777, $basekitSitebuilderDeployment->site_ref);
 
         /** @var BasekitContext|null $context */
-        $context = BasekitContext::query()
-            ->where('context_uuid', $originRequest->context_uuid)
-            ->first();
+        $context = BasekitContext::query()->where('context_uuid', $originRequest->context_uuid)->first();
 
         self::assertNotNull($context, 'Basekit context must be created when user_ref present');
         self::assertSame(888, $context->user_ref);
@@ -94,7 +99,7 @@ class BasekitMigrationServiceTest extends TestCase
             domain: 'already.example',
             packageReference: 5,
             siteRef: 100,
-            userRef: 200
+            userRef: 200,
         );
 
         $provisioningRequest = ProvisioningRequestFactory::new()
@@ -102,16 +107,14 @@ class BasekitMigrationServiceTest extends TestCase
             ->state(['tag' => $subscription->uuid])
             ->createOne();
 
-        $existingSitebuilder = SitebuilderDeploymentFactory::new()
-            ->state(['origin_provisioning_request_id' => $provisioningRequest->id])
-            ->createOne();
+        $existingSitebuilder = SitebuilderDeploymentFactory::new()->state([
+            'origin_provisioning_request_id' => $provisioningRequest->id,
+        ])->createOne();
 
-        BasekitSitebuilderDeploymentFactory::new()
-            ->state([
-                'sitebuilder_deployment_id' => $existingSitebuilder->id,
-                'site_ref' => 100,
-            ])
-            ->createOne();
+        BasekitSitebuilderDeploymentFactory::new()->state([
+            'sitebuilder_deployment_id' => $existingSitebuilder->id,
+            'site_ref' => 100,
+        ])->createOne();
 
         /** @var BasekitMigrationService $basekitMigrationService */
         $basekitMigrationService = $this->app->make(BasekitMigrationService::class);
@@ -127,7 +130,7 @@ class BasekitMigrationServiceTest extends TestCase
             domain: 'nopkg.example',
             packageReference: null,
             siteRef: 1,
-            userRef: 2
+            userRef: 2,
         );
 
         /** @var BasekitMigrationService $basekitMigrationService */
@@ -146,7 +149,7 @@ class BasekitMigrationServiceTest extends TestCase
             domain: 'nosite.example',
             packageReference: 11,
             siteRef: null,
-            userRef: 999
+            userRef: 999,
         );
 
         /** @var BasekitMigrationService $basekitmigrationService */
@@ -165,7 +168,7 @@ class BasekitMigrationServiceTest extends TestCase
             domain: 'nouser.example',
             packageReference: 11,
             siteRef: 1234,
-            userRef: null
+            userRef: null,
         );
 
         /** @var BasekitMigrationService $basekitMigrationService */
@@ -184,7 +187,7 @@ class BasekitMigrationServiceTest extends TestCase
             domain: 'todelete.example',
             packageReference: 11,
             siteRef: 123,
-            userRef: 999
+            userRef: 999,
         );
 
         /** @var BasekitMigrationService $basekitmigrationService */
@@ -204,7 +207,7 @@ class BasekitMigrationServiceTest extends TestCase
         ?int $packageReference,
         ?int $siteRef,
         ?int $userRef,
-        int $contractPeriod = 12
+        int $contractPeriod = 12,
     ): Subscription {
         $hostingGroup = new ProductGroupFactory()->hosting()->createOne();
 
@@ -216,7 +219,7 @@ class BasekitMigrationServiceTest extends TestCase
                     'name' => ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value,
                     'value' => $packageReference,
                 ]),
-                'productSpecs'
+                'productSpecs',
             );
         }
 
@@ -228,28 +231,22 @@ class BasekitMigrationServiceTest extends TestCase
             'email' => 'testkees@example.com',
         ]);
 
-        $sitebuilderProvider = ProviderFactory::new()
-            ->siteBuilderBaseKit()
-            ->createOne();
+        $sitebuilderProvider = ProviderFactory::new()->siteBuilderBaseKit()->createOne();
 
         /** @var Subscription $subscription */
-        $subscription = SubscriptionFactory::new()
-            ->state(fn () => [
-                'customer_id' => $customer->id,
-                'product_uuid' => $product->uuid,
-                'domain' => $domain,
-                'contract_period' => $contractPeriod,
-            ])
-            ->createOne();
+        $subscription = SubscriptionFactory::new()->state(fn () => [
+            'customer_id' => $customer->id,
+            'product_uuid' => $product->uuid,
+            'domain' => $domain,
+            'contract_period' => $contractPeriod,
+        ])->createOne();
 
-        HostingDeploymentFactory::new()
-            ->state(fn () => [
-                'subscription_uuid' => $subscription->uuid,
-                'sitebuilder_provider_id' => $sitebuilderProvider->id,
-                'basekit_site_ref' => $siteRef,
-                'basekit_user_ref' => $userRef,
-            ])
-            ->createOne();
+        HostingDeploymentFactory::new()->state(fn () => [
+            'subscription_uuid' => $subscription->uuid,
+            'sitebuilder_provider_id' => $sitebuilderProvider->id,
+            'basekit_site_ref' => $siteRef,
+            'basekit_user_ref' => $userRef,
+        ])->createOne();
 
         self::assertSame(ProductGroupType::HOSTING, $product->productGroup->slug);
 

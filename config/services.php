@@ -7,7 +7,7 @@ use Illuminate\Support\Env;
 return [
     //3rd party software services
     'ses' => [
-        'key'    => Env::get('AWS_ACCESS_KEY_ID'),
+        'key' => Env::get('AWS_ACCESS_KEY_ID'),
         'secret' => Env::get('AWS_SECRET_ACCESS_KEY'),
         'region' => Env::get('AWS_DEFAULT_REGION', 'us-east-1'),
     ],

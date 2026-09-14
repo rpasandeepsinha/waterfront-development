@@ -70,28 +70,33 @@ class DomainContactLinkValidationRequiredTest extends IntegrationTestCase
         ]);
 
         $mockDomainService = self::createMock(DomainService::class);
-        $mockDomainService->expects(self::once())
+        $mockDomainService
+            ->expects(self::once())
             ->method('linkContactHandle')
             ->willThrowException(new ContactValidationRequiredException(
-                sprintf('Contact validation required before linking for [%s]', self::DOMAIN)
+                sprintf('Contact validation required before linking for [%s]', self::DOMAIN),
             ));
 
         $this->app->bind(DomainService::class, fn () => $mockDomainService);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-contact.contacts.link', [
-                'contact' => $contact->id,
-                'domains' => [
-                    [
-                        'domain' => self::DOMAIN,
-                        'type' => 'owner',
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-contact.contacts.link', [
+                    'contact' => $contact->id,
+                    'domains' => [
+                        [
+                            'domain' => self::DOMAIN,
+                            'type' => 'owner',
+                        ],
                     ],
-                ],
-            ])
-        )
+                ]),
+            )
             ->assertUnprocessable()
             ->assertJsonStructure(['message'])
-            ->assertJson(['message' => self::resolve(TranslatorInterface::class)->translate('domain-contact.domain-contacts-link-validation-required')]);
+            ->assertJson([
+                'message' => self::resolve(TranslatorInterface::class)
+                    ->translate('domain-contact.domain-contacts-link-validation-required'),
+            ]);
     }
 
     #[Test]
@@ -102,24 +107,29 @@ class DomainContactLinkValidationRequiredTest extends IntegrationTestCase
         ]);
 
         $mockDomainService = self::createMock(DomainService::class);
-        $mockDomainService->expects(self::once())
+        $mockDomainService
+            ->expects(self::once())
             ->method('linkContactHandle')
             ->willThrowException(new RuntimeException('Something went wrong'));
 
         $this->app->bind(DomainService::class, fn () => $mockDomainService);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-contact.contacts.link', [
-                'contact' => $contact->id,
-                'domains' => [
-                    [
-                        'domain' => self::DOMAIN,
-                        'type' => 'owner',
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-contact.contacts.link', [
+                    'contact' => $contact->id,
+                    'domains' => [
+                        [
+                            'domain' => self::DOMAIN,
+                            'type' => 'owner',
+                        ],
                     ],
-                ],
-            ])
-        )
+                ]),
+            )
             ->assertInternalServerError()
-            ->assertJson(['message' => self::resolve(TranslatorInterface::class)->translate('domain-contact.domain-contacts-link-failure')]);
+            ->assertJson([
+                'message' => self::resolve(TranslatorInterface::class)
+                    ->translate('domain-contact.domain-contacts-link-failure'),
+            ]);
     }
 }

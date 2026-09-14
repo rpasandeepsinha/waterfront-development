@@ -14,8 +14,8 @@ class InvoiceLineToHarborException extends Exception
         return new InvoiceLineToHarborException(
             sprintf(
                 'The Customer for Invoice with id %s was not found!',
-                $invoiceId
-            )
+                $invoiceId,
+            ),
         );
     }
 
@@ -25,8 +25,8 @@ class InvoiceLineToHarborException extends Exception
             sprintf(
                 'The Address for customer with name %s and id %s is not set!',
                 $name,
-                $customerId
-            )
+                $customerId,
+            ),
         );
     }
 
@@ -36,8 +36,8 @@ class InvoiceLineToHarborException extends Exception
             sprintf(
                 'Invoice for customer %d and subscription %s should be stored in the waterfront database first',
                 $customerId,
-                $subscriptionId ?? 'null'
-            )
+                $subscriptionId ?? 'null',
+            ),
         );
     }
 
@@ -46,8 +46,8 @@ class InvoiceLineToHarborException extends Exception
         return new InvoiceLineToHarborException(
             sprintf(
                 'Invoice with id %d was not coupled to a subscription!',
-                $invoiceId
-            )
+                $invoiceId,
+            ),
         );
     }
 
@@ -56,8 +56,8 @@ class InvoiceLineToHarborException extends Exception
         return new InvoiceLineToHarborException(
             sprintf(
                 'Invoice with id %d has exceeded the maximum amount of allowed tries to see if the underlying subscription was successfully deployed!',
-                $invoiceId
-            )
+                $invoiceId,
+            ),
         );
     }
 
@@ -66,7 +66,7 @@ class InvoiceLineToHarborException extends Exception
         Throwable $previous,
         bool $isChannelOpen,
         bool $isConnectionOpen,
-        bool $isConnectionBlocked
+        bool $isConnectionBlocked,
     ): self {
         return new InvoiceLineToHarborException(
             sprintf(
@@ -75,10 +75,10 @@ class InvoiceLineToHarborException extends Exception
                 $invoiceId,
                 $isChannelOpen,
                 $isConnectionOpen,
-                $isConnectionBlocked
+                $isConnectionBlocked,
             ),
             $previous->getCode(),
-            $previous
+            $previous,
         );
     }
 
@@ -92,8 +92,8 @@ class InvoiceLineToHarborException extends Exception
                 'OrderLineItem with ID: %d for domain %s had no subscription attached! This prevented invoice with id %d to be propagated to Harbor!',
                 $orderLineItemId,
                 $domain,
-                $invoiceId
-            )
+                $invoiceId,
+            ),
         );
     }
 }

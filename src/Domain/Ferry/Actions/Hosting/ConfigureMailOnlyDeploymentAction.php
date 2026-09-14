@@ -45,7 +45,7 @@ class ConfigureMailOnlyDeploymentAction
                     'hosting_details.username' => $hostingDetails->getUsername(),
                 ],
                 LoggingContextKeys::PROVISIONING_PROVIDER => $mailOnlyProvider->slug,
-            ]
+            ],
         );
 
         /**
@@ -70,17 +70,17 @@ class ConfigureMailOnlyDeploymentAction
         if ($hostingDetails instanceof PleskHostingDetails) {
             $shouldUseMailOnlyProvider = $isMailOnlyServer;
         } else {
-            $shouldUseMailOnlyProvider = $hostingDeployment->subscription->product->isSitebuilderProduct() || $isMailOnlyServer;
+            $shouldUseMailOnlyProvider = $hostingDeployment->subscription->product->isSitebuilderProduct()
+            || $isMailOnlyServer;
         }
 
-        $shouldUseMailOnlyProvider ?
-            $this->coupleMailOnlyProvider($hostingDeployment, $server, $mailOnlyProvider) :
-            $this->coupleNormalProvider($hostingDeployment, $server, $mailOnlyProvider);
+        $shouldUseMailOnlyProvider
+            ? $this->coupleMailOnlyProvider($hostingDeployment, $server, $mailOnlyProvider)
+            : $this->coupleNormalProvider($hostingDeployment, $server, $mailOnlyProvider);
 
         $hostingDeployment->save();
 
-        $cluster = $this->spamExpertsMigrationRepository
-            ->getSpamExpertsClusterByMigratedCustomerBuName($migratedCustomer->reference_name);
+        $cluster = $this->spamExpertsMigrationRepository->getSpamExpertsClusterByMigratedCustomerBuName($migratedCustomer->reference_name);
 
         if ($cluster !== null) {
             $hostingDeployment->spamExpertsCluster()->associate($cluster);
@@ -99,8 +99,11 @@ class ConfigureMailOnlyDeploymentAction
         }
     }
 
-    private function coupleNormalProvider(HostingDeployment $hostingDeployment, Server $server, Provider $provider): void
-    {
+    private function coupleNormalProvider(
+        HostingDeployment $hostingDeployment,
+        Server $server,
+        Provider $provider,
+    ): void {
         $hostingDeployment->server()->associate($server);
         $hostingDeployment->provider()->associate($provider);
 
@@ -108,8 +111,11 @@ class ConfigureMailOnlyDeploymentAction
         $hostingDeployment->mailProvider()->disassociate();
     }
 
-    private function coupleMailOnlyProvider(HostingDeployment $hostingDeployment, Server $server, Provider $provider): void
-    {
+    private function coupleMailOnlyProvider(
+        HostingDeployment $hostingDeployment,
+        Server $server,
+        Provider $provider,
+    ): void {
         $hostingDeployment->mailOnlyServer()->associate($server);
         $hostingDeployment->mailProvider()->associate($provider);
     }

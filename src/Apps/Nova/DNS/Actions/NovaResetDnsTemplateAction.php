@@ -45,9 +45,10 @@ class NovaResetDnsTemplateAction extends NovaSubscriptionAction
         private readonly PublicSuffixList $publicSuffixList,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool =>
+            fn (NovaRequest $request): bool => (
                 $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::DNS)
                 || $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::REDIRECT)
+            ),
         );
 
         $this->confirmText('');
@@ -71,7 +72,7 @@ class NovaResetDnsTemplateAction extends NovaSubscriptionAction
 
         if (! $fields->confirm_action) {
             return self::danger(
-                $this->translator->translate('nova-action.confirmation_checkbox_error')
+                $this->translator->translate('nova-action.confirmation_checkbox_error'),
             );
         }
 
@@ -86,7 +87,9 @@ class NovaResetDnsTemplateAction extends NovaSubscriptionAction
         return match ($productGroupType) {
             ProductGroupType::DNS => $this->handleHostingReset($subscription),
             ProductGroupType::REDIRECT => $this->handleRedirectReset($subscription),
-            default => self::danger($this->translator->translate('nova-action.reset-dns.error.unsupported-subscription-type')),
+            default => self::danger($this->translator->translate(
+                'nova-action.reset-dns.error.unsupported-subscription-type',
+            )),
         };
     }
 
@@ -99,9 +102,15 @@ class NovaResetDnsTemplateAction extends NovaSubscriptionAction
         $selectedResource = $request->selectedResources();
         $subscription = $selectedResource->firstOrFail();
 
-        $recordsCannotBeRetrieved = $this->translator->translate('nova-action.reset-dns-template.error.records-cannot-be-retrieved');
-        $recordsStillVisibleInLogs = $this->translator->translate('nova-action.reset-dns-template.info.deleted-records-visible');
-        $followingRecordsWillBeDeleted = $this->translator->translate('nova-action.reset-dns-template.info.following-records-deleted');
+        $recordsCannotBeRetrieved = $this->translator->translate(
+            'nova-action.reset-dns-template.error.records-cannot-be-retrieved',
+        );
+        $recordsStillVisibleInLogs = $this->translator->translate(
+            'nova-action.reset-dns-template.info.deleted-records-visible',
+        );
+        $followingRecordsWillBeDeleted = $this->translator->translate(
+            'nova-action.reset-dns-template.info.following-records-deleted',
+        );
 
         try {
             Assert::string($subscription->domain);
@@ -109,7 +118,9 @@ class NovaResetDnsTemplateAction extends NovaSubscriptionAction
         } catch (Exception) { // @phpstan-ignore-line
             return [
                 Heading::make('warning')
-                    ->withMeta(['value' => "<p>{$recordsCannotBeRetrieved}</p><p class='py-4'>{$recordsStillVisibleInLogs}</p>"])
+                    ->withMeta([
+                        'value' => "<p>{$recordsCannotBeRetrieved}</p><p class='py-4'>{$recordsStillVisibleInLogs}</p>",
+                    ])
                     ->asHtml(),
                 Hidden::make('warning')->default(true),
             ];
@@ -122,13 +133,12 @@ class NovaResetDnsTemplateAction extends NovaSubscriptionAction
         }
 
         $table .= "</table><p>{$recordsStillVisibleInLogs}</p>";
+
         return [
-            Heading::make('info')
-                ->withMeta(['value' => $table])
-                ->asHtml(),
+            Heading::make('info')->withMeta(['value' => $table])->asHtml(),
             NovaBoolField::make(
                 $this->translator->translate('confirm.title'),
-                'confirm_action'
+                'confirm_action',
             )->help($this->translator->translate('nova-action.subscription.resume.execute.confirmation_checkbox')),
         ];
     }
@@ -213,7 +223,11 @@ class NovaResetDnsTemplateAction extends NovaSubscriptionAction
                 continue;
             }
 
-            $this->redirectDnsService->provisionDnsRecords($baseDomain, $redirectSourceHost, DnsRedirectProvisionOption::OVERRIDE);
+            $this->redirectDnsService->provisionDnsRecords(
+                $baseDomain,
+                $redirectSourceHost,
+                DnsRedirectProvisionOption::OVERRIDE,
+            );
         }
 
         return Action::message($this->translator->translate('nova-action.success.reset_dns_template'));

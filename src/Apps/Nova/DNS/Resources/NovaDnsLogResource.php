@@ -63,12 +63,12 @@ class NovaDnsLogResource extends Resource
         return [
             ID::make(
                 self::translate('ID'),
-                'id'
+                'id',
             )->onlyOnDetail(),
             BelongsTo::make(
                 self::translate('subscription.domain-subscription.internal_subscription'),
                 'subscription',
-                NovaSubscriptionResource::class
+                NovaSubscriptionResource::class,
             )->sortable(),
             Text::make(
                 self::translate('dns-logs.record-type'),
@@ -113,16 +113,20 @@ class NovaDnsLogResource extends Resource
             Code::make(
                 self::translate('dns-logs.changed-by-metadata'),
                 'changed_by_metadata',
-            )->onlyOnDetail()->json()->height(85),
+            )
+                ->onlyOnDetail()
+                ->json()
+                ->height(85),
             Text::make(
                 self::translate('dns-logs.ip-address'),
                 'ip_address',
             )->sortable(),
             DateTime::make(
                 self::translate('nova-resource-labels.created-at'),
-                'created_at'
-            )->displayUsing(fn () => $this->resource->created_at?->format(DateTimeFormat::DUTCH))
-            ->sortable(),
+                'created_at',
+            )
+                ->displayUsing(fn () => $this->resource->created_at?->format(DateTimeFormat::DUTCH))
+                ->sortable(),
         ];
     }
 

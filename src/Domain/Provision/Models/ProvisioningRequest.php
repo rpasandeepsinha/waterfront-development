@@ -61,10 +61,10 @@ class ProvisioningRequest extends Model
         $type = $this->request_type;
 
         return match ($type) {
-            ProvisionType::REDIRECT =>  $this->hasOne(RedirectDeployment::class, 'origin_provisioning_request_id'),
-            ProvisionType::HOSTING =>  $this->hasOne(HostingDeployment::class, 'origin_provisioning_request_id'),
-            ProvisionType::SITEBUILDER =>  $this->hasOne(SitebuilderDeployment::class, 'origin_provisioning_request_id'),
-            ProvisionType::BACKUP =>  $this->hasOne(BackupDeployment::class, 'origin_provisioning_request_id'),
+            ProvisionType::REDIRECT => $this->hasOne(RedirectDeployment::class, 'origin_provisioning_request_id'),
+            ProvisionType::HOSTING => $this->hasOne(HostingDeployment::class, 'origin_provisioning_request_id'),
+            ProvisionType::SITEBUILDER => $this->hasOne(SitebuilderDeployment::class, 'origin_provisioning_request_id'),
+            ProvisionType::BACKUP => $this->hasOne(BackupDeployment::class, 'origin_provisioning_request_id'),
             default => null,
         };
     }

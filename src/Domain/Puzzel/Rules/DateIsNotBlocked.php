@@ -14,7 +14,7 @@ class DateIsNotBlocked implements ValidationRule
 {
     public function __construct(
         private readonly Translator $translator,
-        private readonly PuzzelBlockedDateRepository $blockedDateRepository
+        private readonly PuzzelBlockedDateRepository $blockedDateRepository,
     ) {
     }
 
@@ -22,6 +22,7 @@ class DateIsNotBlocked implements ValidationRule
     {
         if (! is_string($value)) {
             $fail('validation.date', $attribute);
+
             return;
         }
 
@@ -29,6 +30,7 @@ class DateIsNotBlocked implements ValidationRule
 
         if ($date === null) {
             $fail('validation.date', $attribute);
+
             return;
         }
 

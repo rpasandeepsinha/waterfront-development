@@ -37,8 +37,9 @@ class SpamExpertsClient
         private readonly LoggerInterface $logger,
         private readonly ConfigurationInterface $configuration,
     ) {
-        $this->defaultSpamExpertsClusterHostname = $this->configuration
-            ->getAsString('spamexpertsclient.connection.api_url');
+        $this->defaultSpamExpertsClusterHostname = $this->configuration->getAsString(
+            'spamexpertsclient.connection.api_url',
+        );
     }
 
     /**
@@ -50,9 +51,9 @@ class SpamExpertsClient
 
         $this->logger->info('add domain for spam filtering', [
             LoggingContextKeys::DOMAIN_NAME => $domain,
-            LoggingContextKeys::SERVER_HOSTNAME => $spamExpertsCluster !== null ?
-                $spamExpertsCluster->hostname :
-                $this->defaultSpamExpertsClusterHostname,
+            LoggingContextKeys::SERVER_HOSTNAME => $spamExpertsCluster !== null
+                ? $spamExpertsCluster->hostname
+                : $this->defaultSpamExpertsClusterHostname,
         ]);
 
         $request = new AddDomainRequest($client);
@@ -67,17 +68,17 @@ class SpamExpertsClient
         if ($response->getStatus() === AddDomainResponse::STATUS_OK) {
             $this->logger->info('domain added successfully', [
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-                LoggingContextKeys::SERVER_HOSTNAME => $spamExpertsCluster !== null ?
-                    $spamExpertsCluster->hostname :
-                    $this->defaultSpamExpertsClusterHostname,
+                LoggingContextKeys::SERVER_HOSTNAME => $spamExpertsCluster !== null
+                    ? $spamExpertsCluster->hostname
+                    : $this->defaultSpamExpertsClusterHostname,
             ]);
         } else {
             $this->logger->info('domain could not be added', [
                 LoggingContextKeys::RESPONSE_CODE => $response->getStatusCode(),
                 LoggingContextKeys::RESPONSE_DATA => $response->getContent(),
-                LoggingContextKeys::SERVER_HOSTNAME => $spamExpertsCluster !== null ?
-                    $spamExpertsCluster->hostname :
-                    $this->defaultSpamExpertsClusterHostname,
+                LoggingContextKeys::SERVER_HOSTNAME => $spamExpertsCluster !== null
+                    ? $spamExpertsCluster->hostname
+                    : $this->defaultSpamExpertsClusterHostname,
             ]);
         }
     }
@@ -88,13 +89,13 @@ class SpamExpertsClient
 
         $this->logger->info('generating SSO for SpamExperts for domain: ', [
             LoggingContextKeys::DOMAIN_NAME => $domain,
-            LoggingContextKeys::SERVER_HOSTNAME => $spamExpertsCluster !== null ?
-                $spamExpertsCluster->hostname :
-                $this->defaultSpamExpertsClusterHostname,
+            LoggingContextKeys::SERVER_HOSTNAME => $spamExpertsCluster !== null
+                ? $spamExpertsCluster->hostname
+                : $this->defaultSpamExpertsClusterHostname,
         ]);
 
         $request = new SsoRequest($client);
-        $result  = $request->send($domain);
+        $result = $request->send($domain);
 
         $response = new SsoResponse($result);
 
@@ -102,17 +103,18 @@ class SpamExpertsClient
             throw new SpamexpertsSsoException($response->getStatusMessage(), $response->getStatusCode());
         }
 
-        if ($response->getStatus() === SsoResponse::STATUS_OK &&
-            ! str_contains($response->getContent(), 'No valid user specified')
+        if (
+            $response->getStatus() === SsoResponse::STATUS_OK
+            && ! str_contains($response->getContent(), 'No valid user specified')
         ) {
             $this->logger->info('domain sso generated successfully');
         } else {
             $this->logger->info('domain could not generate sso token', [
                 LoggingContextKeys::RESPONSE_CODE => $response->getStatusCode(),
                 LoggingContextKeys::RESPONSE_DATA => $response->getContent(),
-                LoggingContextKeys::SERVER_HOSTNAME => $spamExpertsCluster !== null ?
-                    $spamExpertsCluster->hostname :
-                    $this->defaultSpamExpertsClusterHostname,
+                LoggingContextKeys::SERVER_HOSTNAME => $spamExpertsCluster !== null
+                    ? $spamExpertsCluster->hostname
+                    : $this->defaultSpamExpertsClusterHostname,
             ]);
 
             throw new SpamexpertsSsoException($response->getContent());
@@ -130,9 +132,9 @@ class SpamExpertsClient
 
         $this->logger->info('remove domain from spam filtering', [
             LoggingContextKeys::DOMAIN_NAME => $domain,
-            LoggingContextKeys::SERVER_HOSTNAME => $spamExpertsCluster !== null ?
-                $spamExpertsCluster->hostname :
-                $this->defaultSpamExpertsClusterHostname,
+            LoggingContextKeys::SERVER_HOSTNAME => $spamExpertsCluster !== null
+                ? $spamExpertsCluster->hostname
+                : $this->defaultSpamExpertsClusterHostname,
         ]);
 
         $request = new RemoveDomainRequest($client);
@@ -159,7 +161,7 @@ class SpamExpertsClient
         return $response;
     }
 
-    private function spamExpertsClient(SpamExpertsCluster|null $spamExpertsCluster): HttpClient
+    private function spamExpertsClient(?SpamExpertsCluster $spamExpertsCluster): HttpClient
     {
         if ($spamExpertsCluster === null) {
             return $this->httpClient;
@@ -168,7 +170,7 @@ class SpamExpertsClient
         $connection = new Connection(
             apiUrl: $spamExpertsCluster->hostname,
             username: $spamExpertsCluster->username,
-            password: $spamExpertsCluster->password
+            password: $spamExpertsCluster->password,
         );
 
         $this->logger->debug('SpamExpertsClient using custom cluster config', [
@@ -176,12 +178,12 @@ class SpamExpertsClient
         ]);
 
         return new HttpClient([
-            'base_uri'    => $connection->getApiUrl(),
-            'headers'     => [
+            'base_uri' => $connection->getApiUrl(),
+            'headers' => [
                 'Authorization' => 'Basic ' . $connection->getCredentials(),
             ],
             'http_errors' => false,
-            'verify'      => $spamExpertsCluster->ssl,
+            'verify' => $spamExpertsCluster->ssl,
         ]);
     }
 }

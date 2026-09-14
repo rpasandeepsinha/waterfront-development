@@ -27,21 +27,21 @@ class OneTimeServiceResource extends JsonResource
         $unannouncedInvoicesCount = $unannouncedInvoicesCountValue ?? 0;
 
         return [
-            'uuid'                => $this->resource->uuid->toString(),
-            'status'              => $this->resource->status->value,
-            'execution_date'      => $this->resource->execution_date->toIso8601String(),
-            'amount'              => $this->resource->amount,
-            'gross_price'         => $this->resource->gross_price,
+            'uuid' => $this->resource->uuid->toString(),
+            'status' => $this->resource->status->value,
+            'execution_date' => $this->resource->execution_date->toIso8601String(),
+            'amount' => $this->resource->amount,
+            'gross_price' => $this->resource->gross_price,
             'discount_percentage' => $this->resource->discount_percentage,
-            'invoiced'            => $invoicesCount > 0,
-            'paid'                => $invoicesCount > 0 && $unannouncedInvoicesCount === 0,
-            'customer'            => [
-                'uuid'            => (string) $this->resource->customer->uuid,
+            'invoiced' => $invoicesCount > 0,
+            'paid' => $invoicesCount > 0 && $unannouncedInvoicesCount === 0,
+            'customer' => [
+                'uuid' => (string) $this->resource->customer->uuid,
                 'customer_number' => $this->resource->customer->customer_number,
-                'name'            => $this->resource->customer->contact_name,
+                'name' => $this->resource->customer->contact_name,
             ],
             'subscription' => [
-                'uuid'   => $this->resource->subscription->uuid,
+                'uuid' => $this->resource->subscription->uuid,
                 'domain' => $this->resource->subscription->domain,
             ],
             'product' => [

@@ -11,7 +11,6 @@ class SpamExpertsMigrationRepository
     public function getSpamExpertsClusterByMigratedCustomerBuName(string $buName): ?SpamExpertsCluster
     {
         // case-insensitive!
-        return SpamExpertsCluster::where('business_unit', 'ilike', $buName)
-            ->first();
+        return SpamExpertsCluster::where('business_unit', 'ilike', $buName)->first();
     }
 }

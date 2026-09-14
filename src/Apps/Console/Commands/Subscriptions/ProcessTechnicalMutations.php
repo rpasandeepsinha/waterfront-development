@@ -16,7 +16,9 @@ use Waterfront\Domain\Subscriptions\Services\ReProvisionService;
 use Waterfront\Support\Exceptions\NotImplementedException;
 
 #[AsCommand(name: 'subscriptions:process-technical-mutations')]
-#[Description('Subscription mutations that require technical reprovisioning due to an upgrade downgrade or specs changes')]
+#[Description(
+    'Subscription mutations that require technical reprovisioning due to an upgrade downgrade or specs changes',
+)]
 class ProcessTechnicalMutations extends AbstractCommand
 {
     public function handle(SubscriptionMutationRepository $repository, ReProvisionService $reProvisionService): int

@@ -40,6 +40,7 @@ class CustomerSharedSslService
                 $result->setStatus(Result::STATUS_ERROR);
                 $result->setErrorCode(422);
                 $result->setErrorMessage('Failed validating csr for domain certificate');
+
                 return $result;
             }
         }
@@ -75,9 +76,7 @@ class CustomerSharedSslService
 
         $csrExistsAndCertificateActive = $this->checkCsrAndCertificate($sslDeployment, $domain);
 
-        if (
-            $csrExistsAndCertificateActive
-        ) {
+        if ($csrExistsAndCertificateActive) {
             $csr = $this->createCsr($sslDeployment, $domain);
             $result = $this->remoteSslServiceClient->reissue($sslDeployment, $csr);
 
@@ -93,10 +92,10 @@ class CustomerSharedSslService
 
             $sslDeployment->last_result_received = CarbonImmutable::now();
             $sslDeployment->last_result = json_encode([
-                'reissue_result_status'        => $result->getStatus(),
-                'reissue_result_error_code'    => $result->getErrorCode(),
+                'reissue_result_status' => $result->getStatus(),
+                'reissue_result_error_code' => $result->getErrorCode(),
                 'reissue_result_error_message' => $result->getErrorMessage(),
-                'reissue_result_reason'        => $result->getReason(),
+                'reissue_result_reason' => $result->getReason(),
             ], JSON_THROW_ON_ERROR);
             $sslDeployment->save();
 
@@ -120,7 +119,7 @@ class CustomerSharedSslService
 
         return $this->remoteSslServiceClient->create(
             $sslDeployment->subscription->contract_period,
-            $sslDeployment
+            $sslDeployment,
         );
     }
 
@@ -140,9 +139,7 @@ class CustomerSharedSslService
 
         $csrExistsAndCertificateActive = $this->checkCsrAndCertificate($sslDeployment, $domain);
 
-        if (
-            $csrExistsAndCertificateActive
-        ) {
+        if ($csrExistsAndCertificateActive) {
             return $this->remoteSslServiceClient->renew($sslDeployment);
         }
 
@@ -154,7 +151,7 @@ class CustomerSharedSslService
 
         return $this->remoteSslServiceClient->create(
             $sslDeployment->subscription->contract_period,
-            $sslDeployment
+            $sslDeployment,
         );
     }
 
@@ -199,7 +196,7 @@ class CustomerSharedSslService
                     LoggingContextKeys::META => [
                         'sslDeploymentId' => $sslDeployment->id,
                     ],
-                ]
+                ],
             );
         }
 
@@ -211,6 +208,7 @@ class CustomerSharedSslService
     private function createCsr(SslDeployment $sslDeployment, string $domain): string
     {
         $customerData = $sslDeployment->subscription->customer->load('address')->toArray();
+
         return $this->generateCsrStep->execute($customerData, $domain);
     }
 }

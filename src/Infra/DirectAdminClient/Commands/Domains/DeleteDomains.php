@@ -40,6 +40,7 @@ class DeleteDomains extends DirectAdminCommand
     public function setDomains(array $domains): DeleteDomains
     {
         $this->domains = $domains;
+
         return $this;
     }
 
@@ -49,6 +50,7 @@ class DeleteDomains extends DirectAdminCommand
     public function addDomain(string $domain): DeleteDomains
     {
         $this->domains[] = $domain;
+
         return $this;
     }
 
@@ -57,10 +59,7 @@ class DeleteDomains extends DirectAdminCommand
      */
     public function responseReceived(array $decodedContent): static
     {
-        if (
-            array_key_exists('success', $decodedContent) &&
-            $decodedContent['success'] === 'Domain Deletion Results'
-        ) {
+        if (array_key_exists('success', $decodedContent) && $decodedContent['success'] === 'Domain Deletion Results') {
             $this->setSucceeded(true);
         }
 

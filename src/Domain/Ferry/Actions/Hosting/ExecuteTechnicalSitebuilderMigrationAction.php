@@ -31,7 +31,7 @@ class ExecuteTechnicalSitebuilderMigrationAction
                         subscription: $subscription,
                         failedTechnicalStatus: TechnicalStatus::FAILED->value,
                         payload: $technicalPayload,
-                    )
+                    ),
                 );
             }
         }

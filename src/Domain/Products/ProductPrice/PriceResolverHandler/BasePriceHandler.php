@@ -52,11 +52,20 @@ class BasePriceHandler
         // A registration entry added by the fall-forward based on the prolongation price
         $prices
             ->filter(fn (Price $price) => $price->type === ProductPriceType::REGISTRATION)
-            ->filter(fn (Price $price) => array_find(
-                $price->possiblePriceComponents,
-                fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::REGISTRATION
-            ) === null)
-            ->each(fn (Price $price) => $price->possiblePriceComponents[] = new RegistrationPriceComponent($price->regularPrice));
+            ->filter(
+                fn (Price $price) => (
+                    array_find(
+                        $price->possiblePriceComponents,
+                        fn (PriceComponent $priceComponent): bool => (
+                            $priceComponent->type === PriceComponentType::REGISTRATION
+                        ),
+                    ) === null
+                ),
+            )
+            ->each(
+                fn (Price $price) => $price->possiblePriceComponents[] =
+                    new RegistrationPriceComponent($price->regularPrice),
+            );
 
         return $prices;
     }

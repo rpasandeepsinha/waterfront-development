@@ -104,7 +104,11 @@ class YourhostingHostingSeeder extends Seeder
 
         ProductSpec::insert([
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -220,7 +224,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_box', 'value' => 50, 'product_id' => $product->id],
             ['name' => 'hosting.limits.max_db', 'value' => 5, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -335,7 +343,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_box', 'value' => 50, 'product_id' => $product->id],
             ['name' => 'hosting.limits.max_db', 'value' => 5, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -451,7 +463,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_db', 'value' => 5, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -567,7 +583,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_db', 'value' => 5, 'product_id' => $product->id],
             ['name' => ProductSpecName::WAIT_FOR_WP_TOOLKIT->value, 'value' => true, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -655,7 +675,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.php-settings.memory_limit', 'value' => '128M', 'product_id' => $product->id],
             ['name' => 'services.technical_grace_period', 'value' => 30, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -773,7 +797,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.php-settings.memory_limit', 'value' => '128M', 'product_id' => $product->id],
             ['name' => 'services.technical_grace_period', 'value' => 30, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -890,7 +918,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.php-settings.memory_limit', 'value' => '256M', 'product_id' => $product->id],
             ['name' => 'services.technical_grace_period', 'value' => 30, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -977,7 +1009,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.permissions.manage_crontab', 'value' => true, 'product_id' => $product->id],
             ['name' => 'hosting.php-settings.memory_limit', 'value' => '512M', 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1094,7 +1130,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.permissions.manage_crontab', 'value' => true, 'product_id' => $product->id],
             ['name' => 'hosting.php-settings.memory_limit', 'value' => '512M', 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1204,7 +1244,11 @@ class YourhostingHostingSeeder extends Seeder
         ProductSpec::insert([
             ['name' => ProductSpecName::SHOP_IS_MAILHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1286,7 +1330,11 @@ class YourhostingHostingSeeder extends Seeder
         ProductSpec::insert([
             ['name' => ProductSpecName::SHOP_IS_MAILHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1397,7 +1445,11 @@ class YourhostingHostingSeeder extends Seeder
 
         ProductSpec::insert([
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1506,7 +1558,11 @@ class YourhostingHostingSeeder extends Seeder
 
         ProductSpec::insert([
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1617,7 +1673,11 @@ class YourhostingHostingSeeder extends Seeder
 
         ProductSpec::insert([
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1725,9 +1785,17 @@ class YourhostingHostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_START, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::PRODUCT_COMPARISON_BADGE, 'value' => 'pages.steps.cross-sell.hosting.most-popular', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::PRODUCT_COMPARISON_BADGE,
+                'value' => 'pages.steps.cross-sell.hosting.most-popular',
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1838,7 +1906,11 @@ class YourhostingHostingSeeder extends Seeder
 
         ProductSpec::insert([
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1947,7 +2019,11 @@ class YourhostingHostingSeeder extends Seeder
 
         ProductSpec::insert([
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -2058,7 +2134,11 @@ class YourhostingHostingSeeder extends Seeder
 
         ProductSpec::insert([
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -2173,7 +2253,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.permissions.manage_crontab', 'value' => true, 'product_id' => $product->id],
             ['name' => 'hosting.php-settings.memory_limit', 'value' => '512M', 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -2290,7 +2374,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.permissions.manage_crontab', 'value' => true, 'product_id' => $product->id],
             ['name' => 'hosting.php-settings.memory_limit', 'value' => '512M', 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -2405,7 +2493,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.permissions.manage_crontab', 'value' => true, 'product_id' => $product->id],
             ['name' => 'hosting.php-settings.memory_limit', 'value' => '512M', 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -2522,7 +2614,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.permissions.manage_crontab', 'value' => true, 'product_id' => $product->id],
             ['name' => 'hosting.php-settings.memory_limit', 'value' => '512M', 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -2637,7 +2733,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_db', 'value' => 15, 'product_id' => $product->id],
             ['name' => 'hosting.permissions.manage_crontab', 'value' => true, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -2733,7 +2833,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_db', 'value' => 20, 'product_id' => $product->id],
             ['name' => 'hosting.permissions.manage_crontab', 'value' => true, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -2815,7 +2919,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_db', 'value' => 66, 'product_id' => $product->id],
             ['name' => 'hosting.permissions.manage_crontab', 'value' => true, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -2973,35 +3081,95 @@ class YourhostingHostingSeeder extends Seeder
     private function compositeHosting(): void
     {
         $composition = new HostingProductComposition();
-        $composition->composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC, Product::class)->id;
-        $composition->wp_composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC_WP, Product::class)->id;
-        $composition->mail_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN, Product::class)->id;
-        $composition->web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_BASIC, Product::class)->id;
-        $composition->wp_web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_BASIC_WP, Product::class)->id;
+        $composition->composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_BASIC,
+            Product::class,
+        )->id;
+        $composition->wp_composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_BASIC_WP,
+            Product::class,
+        )->id;
+        $composition->mail_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN,
+            Product::class,
+        )->id;
+        $composition->web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_BASIC,
+            Product::class,
+        )->id;
+        $composition->wp_web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_BASIC_WP,
+            Product::class,
+        )->id;
         $composition->save();
 
         $composition = new HostingProductComposition();
-        $composition->composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_GROW, Product::class)->id;
-        $composition->wp_composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_GROW_WP, Product::class)->id;
-        $composition->mail_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_GROW_PLESK, Product::class)->id;
-        $composition->web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_GROW, Product::class)->id;
-        $composition->wp_web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_GROW_WP, Product::class)->id;
+        $composition->composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_GROW,
+            Product::class,
+        )->id;
+        $composition->wp_composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_GROW_WP,
+            Product::class,
+        )->id;
+        $composition->mail_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_GROW_PLESK,
+            Product::class,
+        )->id;
+        $composition->web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_GROW,
+            Product::class,
+        )->id;
+        $composition->wp_web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_GROW_WP,
+            Product::class,
+        )->id;
         $composition->save();
 
         $composition = new HostingProductComposition();
-        $composition->composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_START, Product::class)->id;
-        $composition->wp_composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_START_WP, Product::class)->id;
-        $composition->mail_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_START_PLESK, Product::class)->id;
-        $composition->web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_START, Product::class)->id;
-        $composition->wp_web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_START_WP, Product::class)->id;
+        $composition->composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_START,
+            Product::class,
+        )->id;
+        $composition->wp_composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_START_WP,
+            Product::class,
+        )->id;
+        $composition->mail_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_START_PLESK,
+            Product::class,
+        )->id;
+        $composition->web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_START,
+            Product::class,
+        )->id;
+        $composition->wp_web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_START_WP,
+            Product::class,
+        )->id;
         $composition->save();
 
         $composition = new HostingProductComposition();
-        $composition->composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_PLUS, Product::class)->id;
-        $composition->wp_composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_PLUS_WP, Product::class)->id;
-        $composition->mail_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_PLUS_PLESK, Product::class)->id;
-        $composition->web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_PLUS, Product::class)->id;
-        $composition->wp_web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_PLUS_WP, Product::class)->id;
+        $composition->composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_PLUS,
+            Product::class,
+        )->id;
+        $composition->wp_composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_PLUS_WP,
+            Product::class,
+        )->id;
+        $composition->mail_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_PLUS_PLESK,
+            Product::class,
+        )->id;
+        $composition->web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_PLUS,
+            Product::class,
+        )->id;
+        $composition->wp_web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_PLUS_WP,
+            Product::class,
+        )->id;
         $composition->save();
     }
 
@@ -3019,7 +3187,11 @@ class YourhostingHostingSeeder extends Seeder
 
         ProductSpec::insert([
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
             ['name' => 'hosting.limits.max_traffic', 'value' => 536870912000, 'product_id' => $product->id],
             ['name' => 'hosting.limits.disk_space', 'value' => 53687091200, 'product_id' => $product->id],
             ['name' => 'hosting.limits.max_box', 'value' => 100, 'product_id' => $product->id],
@@ -3103,7 +3275,11 @@ class YourhostingHostingSeeder extends Seeder
         ProductSpec::insert([
             ['name' => ProductSpecName::SHOP_IS_MAILHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
             ['name' => 'hosting.limits.max_db', 'value' => -1, 'product_id' => $product->id],
         ]);
 
@@ -3212,7 +3388,11 @@ class YourhostingHostingSeeder extends Seeder
         ProductSpec::insert([
             ['name' => ProductSpecName::SHOP_IS_MAILHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
             ['name' => 'hosting.limits.max_db', 'value' => -1, 'product_id' => $product->id],
         ]);
 
@@ -3322,7 +3502,11 @@ class YourhostingHostingSeeder extends Seeder
         ProductSpec::insert([
             ['name' => ProductSpecName::SHOP_IS_WEBHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
             ['name' => 'hosting.limits.max_box', 'value' => -1, 'product_id' => $product->id],
         ]);
 
@@ -3441,7 +3625,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'services.technical_grace_period', 'value' => 30, 'product_id' => $product->id],
             ['name' => ProductSpecName::SHOP_IS_WEBHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -3549,7 +3737,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'services.technical_grace_period', 'value' => 30, 'product_id' => $product->id],
             ['name' => ProductSpecName::SHOP_IS_WEBHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -3650,7 +3842,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => ProductSpecName::SHOP_IS_MAILHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::WAIT_FOR_WP_TOOLKIT, 'value' => 0, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -3768,7 +3964,11 @@ class YourhostingHostingSeeder extends Seeder
             ['name' => 'services.technical_grace_period', 'value' => 30, 'product_id' => $product->id],
             ['name' => ProductSpecName::SHOP_IS_MAILHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();

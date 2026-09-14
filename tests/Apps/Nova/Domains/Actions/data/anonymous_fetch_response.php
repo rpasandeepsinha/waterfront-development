@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-return  [
+return [
     'organization' => 'Sandwave',
     'first_name' => 'Test',
     'last_name' => 'Account 1',

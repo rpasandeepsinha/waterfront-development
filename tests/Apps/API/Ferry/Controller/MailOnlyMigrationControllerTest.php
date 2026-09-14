@@ -37,12 +37,12 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 class MailOnlyMigrationControllerTest extends IntegrationTestCase
 {
     private const string TEST_DOMAIN_MAIL_ONLY = 'test-domain.testing';
-    private const string TEST_DOMAIN_MAIL_ONLY_PLESK  = 'test-domain.plesk.testing';
+    private const string TEST_DOMAIN_MAIL_ONLY_PLESK = 'test-domain.plesk.testing';
     private const string TEST_DOMAIN_MAIL_ONLY_BAD = 'test-domain-bad.testing';
     private const string TEST_DOMAIN_HOSTING = 'hosting-test-domain.testing';
 
     private const string TEST_DIRECTADMIN_MAIL_SERVER = 'mail_server.directadmin.test';
-    private const string TEST_PLESK_HOSTING_SERVER    = 'normal_server.plesk.test';
+    private const string TEST_PLESK_HOSTING_SERVER = 'normal_server.plesk.test';
 
     private Customer $customer;
 
@@ -74,42 +74,32 @@ class MailOnlyMigrationControllerTest extends IntegrationTestCase
 
         $mailOnlyMaxProduct = ProductFactory::new()->emailMax()->for($hostingGroup)->createOne();
 
-        new ProductSpecFactory()
-            ->for($mailOnlyProduct)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
-                'value' => '1',
-            ]);
+        new ProductSpecFactory()->for($mailOnlyProduct)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '1',
+        ]);
 
-        new ProductSpecFactory()
-            ->for($mailOnlyMaxProduct)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
-                'value' => '0',
-            ]);
+        new ProductSpecFactory()->for($mailOnlyMaxProduct)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '0',
+        ]);
 
-        new ProductSpecFactory()
-            ->for($mailOnlyProduct)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_HAS_WEBSITE->value,
-                'value' => '0',
-            ]);
+        new ProductSpecFactory()->for($mailOnlyProduct)->createOne([
+            'name' => ProductSpecName::HOSTING_HAS_WEBSITE->value,
+            'value' => '0',
+        ]);
 
-        new ProductSpecFactory()
-            ->for($mailOnlyMaxProduct)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_HAS_WEBSITE->value,
-                'value' => '0',
-            ]);
+        new ProductSpecFactory()->for($mailOnlyMaxProduct)->createOne([
+            'name' => ProductSpecName::HOSTING_HAS_WEBSITE->value,
+            'value' => '0',
+        ]);
 
         $hostingProduct = ProductFactory::new()->hostingBrons()->for($hostingGroup)->createOne();
 
-        new ProductSpecFactory()
-            ->for($hostingProduct)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_HAS_WEBSITE->value,
-                'value' => '1',
-            ]);
+        new ProductSpecFactory()->for($hostingProduct)->createOne([
+            'name' => ProductSpecName::HOSTING_HAS_WEBSITE->value,
+            'value' => '1',
+        ]);
 
         // DirectAdmin
         $this->directadminSubscriptionWithMailOnlyServerSpec = SubscriptionFactory::new()
@@ -172,19 +162,37 @@ class MailOnlyMigrationControllerTest extends IntegrationTestCase
             'name' => self::TEST_PLESK_HOSTING_SERVER,
         ]);
 
-        $migratedSubscriptionDirectAdminWithMailOnlyServer = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1_directadmin_with_mail_only_server_spec']);
-        $this->directadminSubscriptionWithMailOnlyServerSpec->migratedSubscriptions()->attach($migratedSubscriptionDirectAdminWithMailOnlyServer);
+        $migratedSubscriptionDirectAdminWithMailOnlyServer = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1_directadmin_with_mail_only_server_spec',
+        ]);
+        $this->directadminSubscriptionWithMailOnlyServerSpec
+            ->migratedSubscriptions()
+            ->attach($migratedSubscriptionDirectAdminWithMailOnlyServer);
 
-        $migratedSubscriptionDirectAdminWithoutMailOnlyServer = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1_directadmin_without_mail_only_server_spec']);
-        $this->directadminSubscriptionWithoutMailOnlyServerSpec->migratedSubscriptions()->attach($migratedSubscriptionDirectAdminWithoutMailOnlyServer);
+        $migratedSubscriptionDirectAdminWithoutMailOnlyServer = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1_directadmin_without_mail_only_server_spec',
+        ]);
+        $this->directadminSubscriptionWithoutMailOnlyServerSpec
+            ->migratedSubscriptions()
+            ->attach($migratedSubscriptionDirectAdminWithoutMailOnlyServer);
 
-        $migratedSubscriptionPleskWithMailOnlyServer = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1_plesk_with_mail_only_server_spec']);
-        $this->pleskSubscriptionWithMailOnlyServerSpec->migratedSubscriptions()->attach($migratedSubscriptionPleskWithMailOnlyServer);
+        $migratedSubscriptionPleskWithMailOnlyServer = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1_plesk_with_mail_only_server_spec',
+        ]);
+        $this->pleskSubscriptionWithMailOnlyServerSpec
+            ->migratedSubscriptions()
+            ->attach($migratedSubscriptionPleskWithMailOnlyServer);
 
-        $migratedSubscriptionPleskWithoutMailOnlyServer = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1_plesk_without_mail_only_server_spec']);
-        $this->pleskSubscriptionWithoutMailOnlyServerSpec->migratedSubscriptions()->attach($migratedSubscriptionPleskWithoutMailOnlyServer);
+        $migratedSubscriptionPleskWithoutMailOnlyServer = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1_plesk_without_mail_only_server_spec',
+        ]);
+        $this->pleskSubscriptionWithoutMailOnlyServerSpec
+            ->migratedSubscriptions()
+            ->attach($migratedSubscriptionPleskWithoutMailOnlyServer);
 
-        $migratedSubscriptionBad = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_bad']);
+        $migratedSubscriptionBad = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_bad',
+        ]);
         $this->directadminMailOnlyBadSubscription->migratedSubscriptions()->attach($migratedSubscriptionBad);
 
         $migrationCustomer = MigratedCustomersFactory::new()->createOne();
@@ -200,62 +208,64 @@ class MailOnlyMigrationControllerTest extends IntegrationTestCase
         $this->pleskSubscriptionWithMailOnlyServerSpec->save();
         $this->pleskSubscriptionWithoutMailOnlyServerSpec->save();
 
-        HostingDeploymentFactory::new()
-            ->for($this->directadminSubscriptionWithMailOnlyServerSpec)
-            ->for($mailOnlyPlaceholderProvider, 'mailProvider')
-            ->createOne([
-                'server_id' => null,
-                'provider_id' => null,
-            ]);
+        HostingDeploymentFactory::new()->for($this->directadminSubscriptionWithMailOnlyServerSpec)->for(
+            $mailOnlyPlaceholderProvider,
+            'mailProvider',
+        )->createOne([
+            'server_id' => null,
+            'provider_id' => null,
+        ]);
 
-        HostingDeploymentFactory::new()
-            ->for($this->directadminSubscriptionWithoutMailOnlyServerSpec)
-            ->for($mailOnlyPlaceholderProvider, 'mailProvider')
-            ->createOne([
-                'server_id' => null,
-                'provider_id' => null,
-            ]);
+        HostingDeploymentFactory::new()->for($this->directadminSubscriptionWithoutMailOnlyServerSpec)->for(
+            $mailOnlyPlaceholderProvider,
+            'mailProvider',
+        )->createOne([
+            'server_id' => null,
+            'provider_id' => null,
+        ]);
 
-        HostingDeploymentFactory::new()
-            ->for($this->pleskSubscriptionWithMailOnlyServerSpec)
-            ->for($mailOnlyPlaceholderProvider, 'mailProvider')
-            ->createOne([
-                'server_id' => null,
-                'provider_id' => null,
-            ]);
+        HostingDeploymentFactory::new()->for($this->pleskSubscriptionWithMailOnlyServerSpec)->for(
+            $mailOnlyPlaceholderProvider,
+            'mailProvider',
+        )->createOne([
+            'server_id' => null,
+            'provider_id' => null,
+        ]);
 
-        HostingDeploymentFactory::new()
-            ->for($this->pleskSubscriptionWithoutMailOnlyServerSpec)
-            ->for($mailOnlyPlaceholderProvider, 'mailProvider')
-            ->createOne([
-                'server_id' => null,
-                'provider_id' => null,
-            ]);
+        HostingDeploymentFactory::new()->for($this->pleskSubscriptionWithoutMailOnlyServerSpec)->for(
+            $mailOnlyPlaceholderProvider,
+            'mailProvider',
+        )->createOne([
+            'server_id' => null,
+            'provider_id' => null,
+        ]);
 
-        HostingDeploymentFactory::new()
-            ->for($this->directadminMailOnlyBadSubscription)
-            ->for($mailOnlyPlaceholderProvider, 'mailProvider')
-            ->createOne([
-                'server_id' => null,
-                'provider_id' => null,
-            ]);
+        HostingDeploymentFactory::new()->for($this->directadminMailOnlyBadSubscription)->for(
+            $mailOnlyPlaceholderProvider,
+            'mailProvider',
+        )->createOne([
+            'server_id' => null,
+            'provider_id' => null,
+        ]);
 
-        $migratedSubscription2 = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'reference_subscription_but_is_normal_hosting']);
+        $migratedSubscription2 = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'reference_subscription_but_is_normal_hosting',
+        ]);
         $directadminHostingSubscription->migratedSubscriptions()->attach($migratedSubscription2);
         $directadminHostingSubscription->save();
         $migrationCustomer->migratedSubscriptions()->attach($migratedSubscription2);
 
-        HostingDeploymentFactory::new()
-            ->for($directadminHostingSubscription)
-            ->for($hostingPlaceholderProvider, 'provider')
-            ->createOne();
+        HostingDeploymentFactory::new()->for($directadminHostingSubscription)->for(
+            $hostingPlaceholderProvider,
+            'provider',
+        )->createOne();
 
         ProviderFactory::new()->hostingDirectAdmin()->createOne(['default' => true]);
         ProviderFactory::new()->pleskHosting()->createOne();
         ProviderFactory::new()->emailOnlyDirectAdmin()->createOne();
 
-        $pleskHostingService  = self::createStub(PleskHostingService::class);
-        $sessionTokenService  = self::createMock(SessionTokenInterface::class);
+        $pleskHostingService = self::createStub(PleskHostingService::class);
+        $sessionTokenService = self::createMock(SessionTokenInterface::class);
         $sessionTokenService->expects(self::exactly(2))->method('getSsoUrl')->willReturn('goodtoken');
 
         $this->app->instance(PleskHostingService::class, $pleskHostingService);
@@ -269,13 +279,16 @@ class MailOnlyMigrationControllerTest extends IntegrationTestCase
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_mail_only', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_mail_only', [
+                    'customer' => $this->customer->id,
+                ]),
                 $postData,
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            )->assertStatus(Response::HTTP_MULTI_STATUS)
+                ],
+            )
+            ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [
                     [
@@ -313,8 +326,14 @@ class MailOnlyMigrationControllerTest extends IntegrationTestCase
          * DIRECTADMIN.
          */
         // With mail only server spec
-        self::assertSame(AdministrativeStatus::ACTIVE->value, $this->directadminSubscriptionWithMailOnlyServerSpec->administrative_status);
-        self::assertSame(TechnicalStatus::OK->value, $this->directadminSubscriptionWithMailOnlyServerSpec->technical_status);
+        self::assertSame(
+            AdministrativeStatus::ACTIVE->value,
+            $this->directadminSubscriptionWithMailOnlyServerSpec->administrative_status,
+        );
+        self::assertSame(
+            TechnicalStatus::OK->value,
+            $this->directadminSubscriptionWithMailOnlyServerSpec->technical_status,
+        );
 
         $hostingDeployment = $this->directadminSubscriptionWithMailOnlyServerSpec->hostingDeployment;
         self::assertInstanceOf(HostingDeployment::class, $hostingDeployment);
@@ -336,8 +355,14 @@ class MailOnlyMigrationControllerTest extends IntegrationTestCase
         self::assertNull($hostingDeployment->basekitServer);
 
         // Without mail only server spec
-        self::assertSame(AdministrativeStatus::ACTIVE->value, $this->directadminSubscriptionWithoutMailOnlyServerSpec->administrative_status);
-        self::assertSame(TechnicalStatus::OK->value, $this->directadminSubscriptionWithoutMailOnlyServerSpec->technical_status);
+        self::assertSame(
+            AdministrativeStatus::ACTIVE->value,
+            $this->directadminSubscriptionWithoutMailOnlyServerSpec->administrative_status,
+        );
+        self::assertSame(
+            TechnicalStatus::OK->value,
+            $this->directadminSubscriptionWithoutMailOnlyServerSpec->technical_status,
+        );
 
         $hostingDeployment = $this->directadminSubscriptionWithoutMailOnlyServerSpec->hostingDeployment;
         self::assertInstanceOf(HostingDeployment::class, $hostingDeployment);
@@ -362,7 +387,10 @@ class MailOnlyMigrationControllerTest extends IntegrationTestCase
          * PLESK.
          */
         // With mail only server spec
-        self::assertSame(AdministrativeStatus::CANCELED->value, $this->pleskSubscriptionWithMailOnlyServerSpec->administrative_status);
+        self::assertSame(
+            AdministrativeStatus::CANCELED->value,
+            $this->pleskSubscriptionWithMailOnlyServerSpec->administrative_status,
+        );
         self::assertSame(TechnicalStatus::OK->value, $this->pleskSubscriptionWithMailOnlyServerSpec->technical_status);
 
         $hostingDeployment = $this->pleskSubscriptionWithMailOnlyServerSpec->hostingDeployment;
@@ -385,8 +413,14 @@ class MailOnlyMigrationControllerTest extends IntegrationTestCase
         self::assertNull($hostingDeployment->basekitServer);
 
         // Without mail only server spec
-        self::assertSame(AdministrativeStatus::ACTIVE->value, $this->pleskSubscriptionWithoutMailOnlyServerSpec->administrative_status);
-        self::assertSame(TechnicalStatus::OK->value, $this->pleskSubscriptionWithoutMailOnlyServerSpec->technical_status);
+        self::assertSame(
+            AdministrativeStatus::ACTIVE->value,
+            $this->pleskSubscriptionWithoutMailOnlyServerSpec->administrative_status,
+        );
+        self::assertSame(
+            TechnicalStatus::OK->value,
+            $this->pleskSubscriptionWithoutMailOnlyServerSpec->technical_status,
+        );
 
         $hostingDeployment = $this->pleskSubscriptionWithoutMailOnlyServerSpec->hostingDeployment;
         self::assertInstanceOf(HostingDeployment::class, $hostingDeployment);

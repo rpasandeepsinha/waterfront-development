@@ -34,14 +34,17 @@ class ResellerHostingMigrationController
 
     public function execute(ResellerHostingMigrationRequest $request, Customer $customer): JsonResponse
     {
-        $subscriptions = $this->migratableSubscriptionRepository->getSubscriptionsForResellerHostingMigration($customer)
+        $subscriptions = $this->migratableSubscriptionRepository
+            ->getSubscriptionsForResellerHostingMigration($customer)
             ->filter(function ($subscription) use ($customer) {
                 try {
                     $this->subscriptionMigrationValidator->validateEligibleForResellerHostingMigration($subscription);
                 } catch (NotEligibleForMigrationException $e) {
                     $this->responseDto->addFailure($this->makeFailureDto($e, $customer, $subscription));
+
                     return false;
                 }
+
                 return true;
             });
 
@@ -49,7 +52,10 @@ class ResellerHostingMigrationController
             return new JsonResponse($this->responseDto->toArray(), Response::HTTP_MULTI_STATUS);
         }
 
-        $resellerHostingMigrationPayloads = $this->getResellerHostingMigrationPayloads($subscriptions, $request->validated());
+        $resellerHostingMigrationPayloads = $this->getResellerHostingMigrationPayloads(
+            $subscriptions,
+            $request->validated(),
+        );
 
         $this->executeTechnicalResellerHostingMigrationAction->execute($resellerHostingMigrationPayloads);
 
@@ -58,8 +64,11 @@ class ResellerHostingMigrationController
         return new JsonResponse($this->responseDto->toArray(), Response::HTTP_MULTI_STATUS);
     }
 
-    private function makeFailureDto(NotEligibleForMigrationException $e, Customer $customer, Subscription $subscription): FailureDto
-    {
+    private function makeFailureDto(
+        NotEligibleForMigrationException $e,
+        Customer $customer,
+        Subscription $subscription,
+    ): FailureDto {
         return FailureDto::create(
             sprintf('Reseller Hosting migration step not allowed for subscription: %s', $e->getMessage()),
             [
@@ -78,7 +87,13 @@ class ResellerHostingMigrationController
             'Created jobs to migrate reseller hosting for every eligible subscription',
             [
                 Parameter::create('customerId', $customer->id),
-                Parameter::create('subscriptionIds', $subscriptions->map(fn (Subscription $subscription) => $subscription->id)->sort()->join(',')),
+                Parameter::create(
+                    'subscriptionIds',
+                    $subscriptions
+                        ->map(fn (Subscription $subscription) => $subscription->id)
+                        ->sort()
+                        ->join(','),
+                ),
             ],
         );
     }
@@ -95,8 +110,10 @@ class ResellerHostingMigrationController
 
         $hostingMigrationPayloads = [];
         foreach ($technicalPayloads as $mappablePayload) {
-            $hostingMigrationPayloads[] = $this->hostingMapper
-                ->mapSubscriptionsWithConnectionDetails($subscriptions, $mappablePayload);
+            $hostingMigrationPayloads[] = $this->hostingMapper->mapSubscriptionsWithConnectionDetails(
+                $subscriptions,
+                $mappablePayload,
+            );
         }
 
         return $hostingMigrationPayloads;

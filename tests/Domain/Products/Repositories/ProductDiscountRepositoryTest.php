@@ -23,14 +23,9 @@ class ProductDiscountRepositoryTest extends IntegrationTestCase
         $sut = new ProductDiscountRepository();
 
         $customer = new CustomerFactory()->createOne();
-        $productGroup = new ProductGroupFactory()
-            ->createOne(['slug' => ProductGroupType::VOLUME_DISCOUNT->value]);
-        $product = new ProductFactory()
-            ->for($productGroup)
-            ->createOne();
-        new ProductDiscountFactory()
-            ->for($product)
-            ->createOne();
+        $productGroup = new ProductGroupFactory()->createOne(['slug' => ProductGroupType::VOLUME_DISCOUNT->value]);
+        $product = new ProductFactory()->for($productGroup)->createOne();
+        new ProductDiscountFactory()->for($product)->createOne();
 
         $results = $sut->getAllUnassignedProductDiscountsWithVolumeDiscount($customer->id);
 

@@ -13,8 +13,8 @@ abstract class MollieApiException extends Exception
         public readonly int $status,
         public readonly string $title,
         public readonly string $detail,
-        public readonly string|null $field,
-        ?Throwable $previous = null
+        public readonly ?string $field,
+        ?Throwable $previous = null,
     ) {
         parent::__construct(
             sprintf(
@@ -22,10 +22,10 @@ abstract class MollieApiException extends Exception
                 $status,
                 $title,
                 $detail,
-                $field
+                $field,
             ),
             $this->status,
-            $previous
+            $previous,
         );
     }
 }

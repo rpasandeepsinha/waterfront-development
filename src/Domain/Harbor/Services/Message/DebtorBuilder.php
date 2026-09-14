@@ -22,25 +22,29 @@ class DebtorBuilder
             $customer->id,
         );
 
-        $customerContact =  $customer->financialContact()->first();
+        $customerContact = $customer->financialContact()->first();
 
         return new Debtor(
-            email:           $customerContact->email ?? $customer->email,
-            customerNumber:  $customer->customer_number,
-            firstName:       $customerContact->first_name ?? $customer->first_name,
-            lastName:        $customerContact->last_name ?? $customer->last_name,
-            organization:    $customer->organization !== '' ? $customer->organization : null,
-            department:      $customer->department,
-            street:          implode(' ', [$address->street_name, $address->street_number, $address->street_number_addition]),
-            postalCode:      $address->zip_code,
-            city:            $address->city,
-            country:         $address->country_code,
-            phoneNumber:     $customer->phone_number !== null && $customer->phone_number !== '' ? $this->formatPhoneNumber($customer) : null,
-            locale:          $customer->locale !== '' ? $this->formatLocale($customer->locale) : 'nl_NL',
+            email: $customerContact->email ?? $customer->email,
+            customerNumber: $customer->customer_number,
+            firstName: $customerContact->first_name ?? $customer->first_name,
+            lastName: $customerContact->last_name ?? $customer->last_name,
+            organization: $customer->organization !== '' ? $customer->organization : null,
+            department: $customer->department,
+            street: implode(' ', [$address->street_name, $address->street_number, $address->street_number_addition]),
+            postalCode: $address->zip_code,
+            city: $address->city,
+            country: $address->country_code,
+            phoneNumber: $customer->phone_number !== null && $customer->phone_number !== ''
+                ? $this->formatPhoneNumber($customer)
+                : null,
+            locale: $customer->locale !== '' ? $this->formatLocale($customer->locale) : 'nl_NL',
             paymentTermDays: $customer->terms_of_payment,
-            vatNumber:       $customer->vat_number !== null && strlen($customer->vat_number) > 0 ? $customer->vat_number : null,
-            cocNumber:       $customer->coc_number,
-            reference:       $customer->purchase_reference
+            vatNumber: $customer->vat_number !== null && strlen($customer->vat_number) > 0
+                ? $customer->vat_number
+                : null,
+            cocNumber: $customer->coc_number,
+            reference: $customer->purchase_reference,
         );
     }
 

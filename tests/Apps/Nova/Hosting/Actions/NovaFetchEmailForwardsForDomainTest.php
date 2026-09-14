@@ -26,7 +26,7 @@ class NovaFetchEmailForwardsForDomainTest extends IntegrationTestCase
     #[Test]
     public function action(): void
     {
-        $product      = new ProductFactory()->hostingBrons()->createOne();
+        $product = new ProductFactory()->hostingBrons()->createOne();
         $subscription = new SubscriptionFactory()
             ->withCustomer()
             ->administrativeStatusActive()
@@ -38,7 +38,12 @@ class NovaFetchEmailForwardsForDomainTest extends IntegrationTestCase
             ->directadmin()
             ->createOne(['hostname' => 'single-server.nl']);
 
-        $provider = ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        $provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $hostingDeployment = new HostingDeploymentFactory()
             ->for($subscription, 'subscription')
@@ -48,7 +53,7 @@ class NovaFetchEmailForwardsForDomainTest extends IntegrationTestCase
 
         $action = self::resolve(NovaFetchEmailForwardsForDomain::class);
 
-        $fields =  new ActionFields((new Collection()), (new Collection()));
+        $fields = new ActionFields(new Collection(), new Collection());
         $payload = new Collection([$hostingDeployment]);
 
         $result = $action->handle($fields, $payload);
@@ -58,7 +63,7 @@ class NovaFetchEmailForwardsForDomainTest extends IntegrationTestCase
 
         self::assertSame(
             'Fetched forward for domain {} for user {Omnis qui.} from server with hostname {single-server.nl} with response:',
-            $modal->payload['title']
+            $modal->payload['title'],
         );
     }
 }

@@ -42,7 +42,7 @@ class Mailer implements MailerInterface
     public function send(
         array $recipients,
         MailTemplateInterface $template,
-        array $cc = []
+        array $cc = [],
     ): void {
         if ($recipients === []) {
             throw new MailValidationException('No recipient(s) given.');
@@ -58,6 +58,7 @@ class Mailer implements MailerInterface
             $templateModel = $this->templateRepository->getBySlug($template::getTemplateSlug());
         } catch (ModelNotFoundException) {
             $this->logger->notice(sprintf('Template not found for slug: %s', $template::getTemplateSlug()));
+
             return;
         }
 
@@ -69,10 +70,12 @@ class Mailer implements MailerInterface
                 $this->getReceiverType($recipient),
                 $templateModel,
                 implode(', ', array_map(fn ($item) => $item->getEmail(), $cc)),
-                $this->payloadSerializer->serialize($template)
+                $this->payloadSerializer->serialize($template),
             );
 
-            $job = $templateModel->hubspot_template_id !== null ? new HubspotEmailJob($emailHistoryRecord->id) : new SendEmail($emailHistoryRecord->id);
+            $job = $templateModel->hubspot_template_id !== null
+                ? new HubspotEmailJob($emailHistoryRecord->id)
+                : new SendEmail($emailHistoryRecord->id);
             $job->afterCommit();
             $this->jobDispatcher->dispatch($job);
         }
@@ -89,7 +92,11 @@ class Mailer implements MailerInterface
         if ($emailHistory->receiver_type === ReceiverType::CUSTOMER) {
             $customer = $this->customerRepository->findByUuid(Uuid::fromString($emailHistory->receiver_uuid));
             Assert::isInstanceOf($customer, Customer::class);
-            $recipient = new Recipient($customer->getFirstName(), $emailHistory->receiver_email, Uuid::fromString($emailHistory->receiver_uuid));
+            $recipient = new Recipient(
+                $customer->getFirstName(),
+                $emailHistory->receiver_email,
+                Uuid::fromString($emailHistory->receiver_uuid),
+            );
         }
 
         $emailHistoryRecord = $this->emailHistoryRepository->createHistoryRecord(
@@ -97,10 +104,12 @@ class Mailer implements MailerInterface
             $emailHistory->receiver_type,
             $emailHistory->template,
             $emailHistory->cc_emails ?? '',
-            $emailHistory->payload
+            $emailHistory->payload,
         );
 
-        $job = $emailHistory->template->hubspot_template_id !== null ? new HubspotEmailJob($emailHistoryRecord->id) : new SendEmail($emailHistoryRecord->id);
+        $job = $emailHistory->template->hubspot_template_id !== null
+            ? new HubspotEmailJob($emailHistoryRecord->id)
+            : new SendEmail($emailHistoryRecord->id);
         $this->jobDispatcher->dispatch($job);
     }
 
@@ -126,14 +135,16 @@ class Mailer implements MailerInterface
     {
         $eligibleRecipients = [];
         foreach ($recipients as $recipient) {
-            $isEligible = $this->migratedCustomersRepository->isMigratedCustomerEligibleForMailing($recipient->getEmail());
+            $isEligible = $this->migratedCustomersRepository->isMigratedCustomerEligibleForMailing(
+                $recipient->getEmail(),
+            );
 
             if (! $isEligible) {
                 $this->logger->debug(
                     sprintf(
                         'Customer is not eligible for mailing yet. Email: %s',
-                        $recipient->getEmail()
-                    )
+                        $recipient->getEmail(),
+                    ),
                 );
 
                 continue;
@@ -141,6 +152,7 @@ class Mailer implements MailerInterface
 
             $eligibleRecipients[] = $recipient;
         }
+
         return $eligibleRecipients;
     }
 }

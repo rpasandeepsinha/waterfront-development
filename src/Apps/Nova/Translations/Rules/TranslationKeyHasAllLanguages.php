@@ -25,6 +25,7 @@ class TranslationKeyHasAllLanguages extends AbstractValidator implements DataAwa
     public function setData($data): static
     {
         $this->data = $data;
+
         return $this;
     }
 
@@ -34,12 +35,10 @@ class TranslationKeyHasAllLanguages extends AbstractValidator implements DataAwa
 
         Assert::string($value, 'Given value is not a string.');
 
-        $translationStrings = TranslationString::query()
-            ->whereHas(
-                'translationKey',
-                fn (Builder $builder) =>
-               $builder->where('key', $value)
-            )->get();
+        $translationStrings = TranslationString::query()->whereHas(
+            'translationKey',
+            fn (Builder $builder) => $builder->where('key', $value),
+        )->get();
 
         if ($translationStrings->count() < 1) {
             return false;
@@ -47,12 +46,15 @@ class TranslationKeyHasAllLanguages extends AbstractValidator implements DataAwa
 
         foreach ($languages as $language) {
             if (! $translationStrings->contains(
-                fn (TranslationString $string) =>
-                    $string->language_id === $language && $string->translated_string !== null
+                fn (TranslationString $string) => (
+                    $string->language_id === $language
+                    && $string->translated_string !== null
+                ),
             )) {
                 return false;
             }
         }
+
         return true;
     }
 

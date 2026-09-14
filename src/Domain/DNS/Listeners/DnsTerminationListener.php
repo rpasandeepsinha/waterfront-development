@@ -41,7 +41,7 @@ class DnsTerminationListener implements ShouldQueue
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $event->subscriptionUuid,
                     LoggingContextKeys::DOMAIN_NAME => $event->domain,
-            ]
+                ],
             );
 
             if (! $this->dnsService->isSlaveZone($event->domain)) {
@@ -59,16 +59,16 @@ class DnsTerminationListener implements ShouldQueue
                     [
                         LoggingContextKeys::DOMAIN_NAME => $event->domain,
                         LoggingContextKeys::SUBSCRIPTION_UUID => $event->subscriptionUuid,
-                ]
+                    ],
                 );
             }
         } catch (PdnsResponseException|GuzzleException|ModelNotFoundException $exception) {
             $this->logger->error(
                 'Throwable catch: {exception} for domain {domain.name}',
                 [
-                LoggingContextKeys::EXCEPTION => $exception,
-                LoggingContextKeys::DOMAIN_NAME => $event->domain,
-            ]
+                    LoggingContextKeys::EXCEPTION => $exception,
+                    LoggingContextKeys::DOMAIN_NAME => $event->domain,
+                ],
             );
 
             $this->fail($exception);

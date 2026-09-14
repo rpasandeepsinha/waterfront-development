@@ -70,25 +70,37 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
         $this->product = new ProductFactory()->for($productGroup)->createOne();
 
-        $this->prolongationPriceYearly = new ProductPriceComponentFactory()->for($this->product)->prolongation()->createOne([
-            'billing_period' => 12,
-            'price' => 100,
-        ]);
+        $this->prolongationPriceYearly = new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'price' => 100,
+            ]);
 
-        $this->registrationPriceYearly = new ProductPriceComponentFactory()->for($this->product)->registration()->createOne([
-            'billing_period' => 12,
-            'price' => 90,
-        ]);
+        $this->registrationPriceYearly = new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'price' => 90,
+            ]);
 
-        $this->prolongationPriceMonthly = new ProductPriceComponentFactory()->for($this->product)->prolongation()->createOne([
-            'billing_period' => 1,
-            'price' => 8,
-        ]);
+        $this->prolongationPriceMonthly = new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 1,
+                'price' => 8,
+            ]);
 
-        $this->registrationPriceMonthly = new ProductPriceComponentFactory()->for($this->product)->registration()->createOne([
-            'billing_period' => 1,
-            'price' => 7,
-        ]);
+        $this->registrationPriceMonthly = new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->registration()
+            ->createOne([
+                'billing_period' => 1,
+                'price' => 7,
+            ]);
 
         $this->bus = self::createMock(Dispatcher::class);
 
@@ -107,7 +119,7 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
             self::resolve(AdministrationFeesManager::class),
             self::resolve(MigrationCustomerRepository::class),
             $this->configuration,
-            self::resolve(ComesWithFreeProductInvoiceManager::class)
+            self::resolve(ComesWithFreeProductInvoiceManager::class),
         );
     }
 
@@ -126,36 +138,35 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
     #[Test]
     public function subscriptionForCustomerWithoutMandateWillResultInAdminFeesInvoice(): void
     {
-        $customer = CustomerFactory::new()
-            ->withAddress()
-            ->createOne([
-                'has_direct_debit' => false,
-            ]);
-        $product = ProductFactory::new()
-            ->administrationFees()
-            ->createOne();
-        ProductPriceComponentFactory::new()
-            ->administrationFee()
-            ->createOne([
-                'product_id' => $product->id,
-            ]);
+        $customer = CustomerFactory::new()->withAddress()->createOne([
+            'has_direct_debit' => false,
+        ]);
+        $product = ProductFactory::new()->administrationFees()->createOne();
+        ProductPriceComponentFactory::new()->administrationFee()->createOne([
+            'product_id' => $product->id,
+        ]);
 
         $this->customer = $customer;
 
         CarbonImmutable::setTestNow($now = CarbonImmutable::now());
         $today = $now::today();
         $billingPeriod = 12;
-        $subscription = new SubscriptionFactory()->administrativeStatusActive()->for($customer)->for($this->product)->createOne([
-            'end_date' => $today,
-            'next_billing_date' => $today,
-            'net_price' => 30,
-            'billing_period' => $billingPeriod,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->for($customer)
+            ->for($this->product)
+            ->createOne([
+                'end_date' => $today,
+                'next_billing_date' => $today,
+                'net_price' => 30,
+                'billing_period' => $billingPeriod,
+            ]);
 
         self::assertCount(0, Invoice::all());
         Event::fake([InvoiceCreatedEvent::class]);
         $billingDate = CarbonImmutable::today()->addDays($this->renewalDays);
-        $this->bus->expects(self::once())
+        $this->bus
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(DispatchConsolidatedInvoicesForCustomer::class));
 
@@ -181,8 +192,8 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
             'subscription_id' => null,
             'start_date' => $today,
             'end_date' => $today,
-            'product_id'         => $product->id,
-            'title'              => $product->name,
+            'product_id' => $product->id,
+            'title' => $product->name,
         ]);
     }
 
@@ -192,39 +203,50 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
         $productGroupAddon = new ProductGroupFactory()->addon()->createOne();
         $productServicePlus = new ProductFactory()->for($productGroupAddon)->createOne();
 
-        $prolongationPriceYearly = new ProductPriceComponentFactory()->for($productServicePlus)->prolongation()->createOne([
-            'billing_period' => 12,
-            'price' => 100,
-        ]);
+        $prolongationPriceYearly = new ProductPriceComponentFactory()
+            ->for($productServicePlus)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'price' => 100,
+            ]);
 
-        new ProductPriceComponentFactory()->for($productServicePlus)->registration()->createOne([
-            'billing_period' => 12,
-            'price' => 90,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($productServicePlus)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'price' => 90,
+            ]);
 
         $productSpecComesWithFreeProduct = ProductSpecFactory::new()->createOne(
             [
                 'name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG,
                 'value' => $productServicePlus->slug,
                 'product_id' => $this->product->id,
-            ]
+            ],
         );
 
         $this->product->productSpecs()->save($productSpecComesWithFreeProduct);
 
         $today = CarbonImmutable::today();
         $billingPeriod = 12;
-        $subscription = new SubscriptionFactory()->administrativeStatusActive()->for($this->customer)->for($this->product)->createOne([
-            'end_date' => $today,
-            'next_billing_date' => $today,
-            'net_price' => 0,
-            'billing_period' => $billingPeriod,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'end_date' => $today,
+                'next_billing_date' => $today,
+                'net_price' => 0,
+                'billing_period' => $billingPeriod,
+            ]);
 
         self::assertCount(0, Invoice::all());
         Event::fake([InvoiceCreatedEvent::class]);
         $billingDate = CarbonImmutable::today()->addDays($this->renewalDays);
-        $this->bus->expects(self::once())
+        $this->bus
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(DispatchConsolidatedInvoicesForCustomer::class));
 
@@ -268,17 +290,22 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
     {
         $today = CarbonImmutable::today();
         $billingPeriod = 12;
-        $subscription = new SubscriptionFactory()->administrativeStatusActive()->for($this->customer)->for($this->product)->createOne([
-            'end_date' => $today,
-            'next_billing_date' => $today,
-            'net_price' => 0,
-            'billing_period' => $billingPeriod,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'end_date' => $today,
+                'next_billing_date' => $today,
+                'net_price' => 0,
+                'billing_period' => $billingPeriod,
+            ]);
 
         self::assertCount(0, Invoice::all());
         Event::fake([InvoiceCreatedEvent::class]);
         $billingDate = CarbonImmutable::today()->addDays($this->renewalDays);
-        $this->bus->expects(self::once())
+        $this->bus
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(DispatchConsolidatedInvoicesForCustomer::class));
 
@@ -300,49 +327,54 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
         /**
          * Note: this works only because in `.env.testing` the `ADMINISTRATION_FEES_DAILY_BILLING_ENABLED` is set to `true`.
          */
-        $customer = CustomerFactory::new()
-            ->withAddress()
-            ->createOne([
-                'has_direct_debit' => false,
-            ]);
-        $productAdminFees = ProductFactory::new()
-            ->administrationFees()
-            ->createOne();
-        ProductPriceComponentFactory::new()
-            ->administrationFee()
-            ->createOne([
-                'product_id' => $productAdminFees->id,
-            ]);
+        $customer = CustomerFactory::new()->withAddress()->createOne([
+            'has_direct_debit' => false,
+        ]);
+        $productAdminFees = ProductFactory::new()->administrationFees()->createOne();
+        ProductPriceComponentFactory::new()->administrationFee()->createOne([
+            'product_id' => $productAdminFees->id,
+        ]);
 
         $productGroup = new ProductGroupFactory()->cloudstackVirtualMachine()->createOne();
         $freeProduct = new ProductFactory()->for($productGroup)->createOne();
 
-        new ProductPriceComponentFactory()->for($freeProduct)->prolongation()->createOne([
-            'billing_period' => 12,
-            'price' => 0,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($freeProduct)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'price' => 0,
+            ]);
 
-        new ProductPriceComponentFactory()->for($freeProduct)->registration()->createOne([
-            'billing_period' => 12,
-            'price' => 0,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($freeProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'price' => 0,
+            ]);
 
         $this->customer = $customer;
 
         CarbonImmutable::setTestNow($now = CarbonImmutable::now());
         $today = $now::today();
         $billingPeriod = 12;
-        $subscription = new SubscriptionFactory()->administrativeStatusActive()->for($customer)->for($freeProduct)->createOne([
-            'end_date' => $today,
-            'next_billing_date' => $today,
-            'net_price' => 0,
-            'billing_period' => $billingPeriod,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->for($customer)
+            ->for($freeProduct)
+            ->createOne([
+                'end_date' => $today,
+                'next_billing_date' => $today,
+                'net_price' => 0,
+                'billing_period' => $billingPeriod,
+            ]);
 
         self::assertCount(0, Invoice::all());
         Event::fake([InvoiceCreatedEvent::class]);
         $billingDate = CarbonImmutable::today()->addDays($this->renewalDays);
-        $this->bus->expects(self::once())
+        $this->bus
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(DispatchConsolidatedInvoicesForCustomer::class));
 
@@ -368,8 +400,8 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
             'subscription_id' => null,
             'start_date' => $today,
             'end_date' => $today,
-            'product_id'         => $productAdminFees->id,
-            'title'              => $productAdminFees->name,
+            'product_id' => $productAdminFees->id,
+            'title' => $productAdminFees->name,
         ]);
     }
 
@@ -377,18 +409,24 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
     public function suspendedSubscriptionWillBeInvoiced(): void
     {
         $today = CarbonImmutable::today();
-        $subscription = new SubscriptionFactory()->administrativeStatusSuspended()->withPrice()->for($this->customer)->for($this->product)->createOne([
-            'next_billing_date' => $today,
-            'end_date' => $today->addYear(),
-            'net_price' => 1,
-            'billing_period' => 12,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->administrativeStatusSuspended()
+            ->withPrice()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'next_billing_date' => $today,
+                'end_date' => $today->addYear(),
+                'net_price' => 1,
+                'billing_period' => 12,
+            ]);
 
         self::assertCount(0, Invoice::all());
 
         Event::fake([InvoiceCreatedEvent::class]);
         $billingDate = CarbonImmutable::today()->addDays($this->renewalDays);
-        $this->bus->expects(self::once())
+        $this->bus
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(DispatchConsolidatedInvoicesForCustomer::class));
         $this->getInvoiceCreator()->invoiceCustomer($this->customer, $billingDate);
@@ -404,18 +442,24 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
     public function cancelledSubscriptionWithEndDateNotSurpassedWillBeInvoiced(): void
     {
         $today = CarbonImmutable::today();
-        $subscription = new SubscriptionFactory()->administrativeStatusCancelled()->withPrice()->for($this->customer)->for($this->product)->createOne([
-            'next_billing_date' => $today,
-            'end_date' => $today->addYear(),
-            'net_price' => 1,
-            'billing_period' => 12,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->administrativeStatusCancelled()
+            ->withPrice()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'next_billing_date' => $today,
+                'end_date' => $today->addYear(),
+                'net_price' => 1,
+                'billing_period' => 12,
+            ]);
 
         self::assertCount(0, Invoice::all());
 
         Event::fake([InvoiceCreatedEvent::class]);
         $billingDate = CarbonImmutable::today()->addDays($this->renewalDays);
-        $this->bus->expects(self::once())
+        $this->bus
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(DispatchConsolidatedInvoicesForCustomer::class));
         $this->getInvoiceCreator()->invoiceCustomer($this->customer, $billingDate);
@@ -433,13 +477,18 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
         $today = CarbonImmutable::today();
 
         // Should be invoiced, next billing date in range for consolidating
-        $cancelledSubscription = new SubscriptionFactory()->administrativeStatusCancelled()->withPrice()->for($this->customer)->for($this->product)->createOne([
-            'next_billing_date' => $today->subMonth(),
-            'end_date' => $today,
-            'net_price' => 1,
-            'billing_period' => 1,
-            'contract_period' => 12,
-        ]);
+        $cancelledSubscription = new SubscriptionFactory()
+            ->administrativeStatusCancelled()
+            ->withPrice()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'next_billing_date' => $today->subMonth(),
+                'end_date' => $today,
+                'net_price' => 1,
+                'billing_period' => 1,
+                'contract_period' => 12,
+            ]);
 
         self::assertCount(0, Invoice::all());
 
@@ -461,13 +510,17 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
         $today = CarbonImmutable::today();
 
         // Should not be invoiced, although next billing date in range for consolidating
-        $cancelledSubscription = new SubscriptionFactory()->administrativeStatusCancelled()->for($this->customer)->for($this->product)->createOne([
-            'next_billing_date' => $today,
-            'end_date' => $today,
-            'net_price' => 1,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
+        $cancelledSubscription = new SubscriptionFactory()
+            ->administrativeStatusCancelled()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'next_billing_date' => $today,
+                'end_date' => $today,
+                'net_price' => 1,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
         self::assertCount(0, Invoice::all());
 
@@ -487,11 +540,15 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
     public function inactiveSubscriptionShouldNotBeInvoiced(): void
     {
         $today = CarbonImmutable::today();
-        $subscription = new SubscriptionFactory()->administrativeStatusInactive()->for($this->customer)->for($this->product)->createOne([
-            'next_billing_date' => $today,
-            'end_date' => $today,
-            'net_price' => 1,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->administrativeStatusInactive()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'next_billing_date' => $today,
+                'end_date' => $today,
+                'net_price' => 1,
+            ]);
 
         self::assertCount(0, Invoice::all());
         $this->bus->expects(self::never())->method('dispatch');
@@ -509,11 +566,15 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
     public function deletedSubscriptionShouldNotBeInvoiced(): void
     {
         $today = CarbonImmutable::today();
-        $subscription = new SubscriptionFactory()->administrativeStatusArchived()->for($this->customer)->for($this->product)->createOne([
-            'next_billing_date' => $today,
-            'end_date' => $today,
-            'net_price' => 1,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->administrativeStatusArchived()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'next_billing_date' => $today,
+                'end_date' => $today,
+                'net_price' => 1,
+            ]);
 
         self::assertCount(0, Invoice::all());
         $this->bus->expects(self::never())->method('dispatch');
@@ -531,29 +592,49 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
     public function subscriptionWithChildrenShouldOnlyInvoiceInvoicableChildsubscription(): void
     {
         $today = CarbonImmutable::today();
-        $parent = new SubscriptionFactory()->administrativeStatusActive()->withPrice()->for($this->customer)->for($this->product)->createOne([
-            'next_billing_date' => $today,
-            'end_date' => $today->addYear(),
-            'net_price' => 1,
-            'billing_period' => 12,
-        ]);
+        $parent = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->withPrice()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'next_billing_date' => $today,
+                'end_date' => $today->addYear(),
+                'net_price' => 1,
+                'billing_period' => 12,
+            ]);
 
-        $firstChild = new SubscriptionFactory()->administrativeStatusActive()->withPrice()->for($this->customer)->for($this->product)->createOne([
-            'next_billing_date' => $today,
-            'end_date' => $today->addYear(),
-            'net_price' => 1,
-        ]);
-        $secondChild = new SubscriptionFactory()->administrativeStatusSuspended()->withPrice()->for($this->customer)->for($this->product)->createOne([
-            'next_billing_date' => $today,
-            'end_date' => $today->addYear(),
-            'net_price' => 1,
-        ]);
+        $firstChild = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->withPrice()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'next_billing_date' => $today,
+                'end_date' => $today->addYear(),
+                'net_price' => 1,
+            ]);
+        $secondChild = new SubscriptionFactory()
+            ->administrativeStatusSuspended()
+            ->withPrice()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'next_billing_date' => $today,
+                'end_date' => $today->addYear(),
+                'net_price' => 1,
+            ]);
 
-        $cancelledChild = new SubscriptionFactory()->administrativeStatusCancelled()->withPrice()->for($this->customer)->for($this->product)->createOne([
-            'net_price' => 1,
-            'next_billing_date' => $today->addDays($this->renewalDays),
-            'end_date' => $today->addDays($this->renewalDays),
-        ]);
+        $cancelledChild = new SubscriptionFactory()
+            ->administrativeStatusCancelled()
+            ->withPrice()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'net_price' => 1,
+                'next_billing_date' => $today->addDays($this->renewalDays),
+                'end_date' => $today->addDays($this->renewalDays),
+            ]);
 
         $parent->children()->save($firstChild);
         $parent->children()->save($secondChild);
@@ -562,7 +643,8 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
         self::assertCount(0, Invoice::all());
 
         $billingDate = CarbonImmutable::today()->addDays($this->renewalDays);
-        $this->bus->expects(self::once())
+        $this->bus
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(DispatchConsolidatedInvoicesForCustomer::class));
         $this->getInvoiceCreator()->invoiceCustomer($this->customer, $billingDate);
@@ -585,39 +667,55 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
         $netPrice = 180;
         $billingPeriod = 12;
 
-        $renewedAndToBeInvoiced = new SubscriptionFactory()->administrativeStatusActive()->withPrice()->for($this->customer)->for($this->product)->createOne([
-            'contract_period' => 12,
-            'billing_period' => 12,
-            'start_date' => CarbonImmutable::today()->subYear(),
-            'next_billing_date' => CarbonImmutable::today(),
-            'end_date' => CarbonImmutable::today()->addYear(),
-            'net_price' => $netPrice,
-            'domain' => 'test.com',
-        ]);
-        $notRenewedButToBeInvoicedAlready = new SubscriptionFactory()->administrativeStatusActive()->withPrice()->for($this->customer)->for($this->product)->createOne([
-            'contract_period' => 12,
-            'billing_period' => $billingPeriod,
-            'start_date' => CarbonImmutable::today()->subYear()->addDays(12),
-            'next_billing_date' => CarbonImmutable::today()->addDays(12),
-            'end_date' => CarbonImmutable::today()->addDays(12),
-            'net_price' => $netPrice,
-            'domain' => 'test2.com',
-        ]);
-        $notRenewedButToBeInvoicedAlreadyActiveChild = new SubscriptionFactory()->administrativeStatusActive()->withPrice()->for($this->customer)->for($this->product)->createOne([
-            'contract_period' => 12,
-            'billing_period' => $billingPeriod,
-            'start_date' => CarbonImmutable::today()->subYear()->addDays(12),
-            'next_billing_date' => CarbonImmutable::today()->addDays(12),
-            'end_date' => CarbonImmutable::today()->addDays(12),
-            'net_price' => $netPrice,
-            'domain' => 'test2.com',
-            'parent_subscription_id' => $notRenewedButToBeInvoicedAlready->id,
-        ]);
+        $renewedAndToBeInvoiced = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->withPrice()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'start_date' => CarbonImmutable::today()->subYear(),
+                'next_billing_date' => CarbonImmutable::today(),
+                'end_date' => CarbonImmutable::today()->addYear(),
+                'net_price' => $netPrice,
+                'domain' => 'test.com',
+            ]);
+        $notRenewedButToBeInvoicedAlready = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->withPrice()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => $billingPeriod,
+                'start_date' => CarbonImmutable::today()->subYear()->addDays(12),
+                'next_billing_date' => CarbonImmutable::today()->addDays(12),
+                'end_date' => CarbonImmutable::today()->addDays(12),
+                'net_price' => $netPrice,
+                'domain' => 'test2.com',
+            ]);
+        $notRenewedButToBeInvoicedAlreadyActiveChild = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->withPrice()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => $billingPeriod,
+                'start_date' => CarbonImmutable::today()->subYear()->addDays(12),
+                'next_billing_date' => CarbonImmutable::today()->addDays(12),
+                'end_date' => CarbonImmutable::today()->addDays(12),
+                'net_price' => $netPrice,
+                'domain' => 'test2.com',
+                'parent_subscription_id' => $notRenewedButToBeInvoicedAlready->id,
+            ]);
 
         self::assertDatabaseCount('invoices', 0);
 
         $billingDate = CarbonImmutable::today()->addDays($this->renewalDays);
-        $this->bus->expects(self::once())
+        $this->bus
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(DispatchConsolidatedInvoicesForCustomer::class));
         $this->getInvoiceCreator()->invoiceCustomer($this->customer, $billingDate);
@@ -628,15 +726,15 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
 
         self::assertSame(
             CarbonImmutable::today()->addMonths(12)->timestamp,
-            $renewedAndToBeInvoiced->next_billing_date->timestamp
+            $renewedAndToBeInvoiced->next_billing_date->timestamp,
         );
         self::assertSame(
             CarbonImmutable::today()->addDays(12)->addMonths($billingPeriod)->timestamp,
-            $notRenewedButToBeInvoicedAlready->next_billing_date->timestamp
+            $notRenewedButToBeInvoicedAlready->next_billing_date->timestamp,
         );
         self::assertSame(
             CarbonImmutable::today()->addDays(12)->addMonths($billingPeriod)->timestamp,
-            $notRenewedButToBeInvoicedAlreadyActiveChild->next_billing_date->timestamp
+            $notRenewedButToBeInvoicedAlreadyActiveChild->next_billing_date->timestamp,
         );
 
         self::assertDatabaseCount('invoices', 3);
@@ -666,7 +764,7 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
                 'next_billing_date' => CarbonImmutable::today(),
                 'end_date' => CarbonImmutable::today()->addYear(),
                 'domain' => 'test.com',
-        ]);
+            ]);
         $notRenewedButToBeInvoicedAlready = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->withPrice()
@@ -681,12 +779,13 @@ class ConsolidatedInvoiceCreatorTest extends IntegrationTestCase
                 'next_billing_date' => CarbonImmutable::today()->addDays(12),
                 'end_date' => CarbonImmutable::today()->addDays(12),
                 'domain' => 'test2.com',
-        ]);
+            ]);
 
         self::assertDatabaseCount('invoices', 0);
 
         $billingDate = CarbonImmutable::today()->addDays($this->renewalDays);
-        $this->bus->expects(self::once())
+        $this->bus
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(DispatchConsolidatedInvoicesForCustomer::class));
         $this->getInvoiceCreator()->invoiceCustomer($this->customer, $billingDate);

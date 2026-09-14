@@ -39,7 +39,7 @@ class CreateCertificatePipeline
         string $sslDomain,
         array $customerData,
         string $subscriptionUuid,
-        ?string $csr = null
+        ?string $csr = null,
     ): Result {
         $customCsr = ! is_null($csr);
         $csrKey = $this->csrStep($customerData, $domain, $sslDomain, $csr);
@@ -96,18 +96,23 @@ class CreateCertificatePipeline
      *
      * @throws JsonException
      */
-    private function parameterStep(SslProduct $sslProduct, int $periodInMonths, string $sslDomain, array $customerData, string $csrKey): CreateParameters
-    {
+    private function parameterStep(
+        SslProduct $sslProduct,
+        int $periodInMonths,
+        string $sslDomain,
+        array $customerData,
+        string $csrKey,
+    ): CreateParameters {
         $periodInYears = (int) ceil($periodInMonths / 12);
 
         return CreateParameters::create(
             [
-                'domain'    => $sslDomain,
-                'customer'  => $customerData,
+                'domain' => $sslDomain,
+                'customer' => $customerData,
                 'productId' => $sslProduct->toNative(),
-                'period'    => $periodInYears,
-                'csr'       => $csrKey,
-            ]
+                'period' => $periodInYears,
+                'csr' => $csrKey,
+            ],
         );
     }
 }

@@ -33,16 +33,24 @@ class GetUserStatsTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
 
-        $subscription = new SubscriptionFactory()->for(
-            new ProductFactory()->for(
-                new ProductGroupFactory()->hosting()
-            )->createOne()
-        )->for($this->customer)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for(
+                new ProductFactory()->for(
+                    new ProductGroupFactory()->hosting(),
+                )->createOne(),
+            )
+            ->for($this->customer)
+            ->createOne();
 
         $this->hostingDeployment = new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
             'server_id' => new ServerFactory()->directadmin(),
-            'provider_id' => new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]),
+            'provider_id' => new ProviderFactory()->createOne([
+                'type' => ProviderType::HOSTING,
+                'slug' => ProviderSlug::DIRECTADMIN,
+                'enabled' => true,
+                'default' => true,
+            ]),
         ]);
     }
 
@@ -52,23 +60,27 @@ class GetUserStatsTest extends IntegrationTestCase
         $this->hostingDeployment->update(['provider_id' => null]);
         $this->hostingDeployment->refresh();
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute(
-                'partners.hosting.get_user_stats',
-                $this->hostingDeployment->subscription_uuid
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute(
+                    'partners.hosting.get_user_stats',
+                    $this->hostingDeployment->subscription_uuid,
+                ),
             )
-        )->assertServerError();
+            ->assertServerError();
     }
 
     #[Test]
     public function directAdminProviderDoesNotThrowException(): void
     {
-        $response = $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute(
-                'partners.hosting.get_user_stats',
-                $this->hostingDeployment->subscription_uuid
+        $response = $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute(
+                    'partners.hosting.get_user_stats',
+                    $this->hostingDeployment->subscription_uuid,
+                ),
             )
-        )->assertOk();
+            ->assertOk();
 
         $content = (array) json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
@@ -82,12 +94,14 @@ class GetUserStatsTest extends IntegrationTestCase
             'administrative_status' => AdministrativeStatus::ARCHIVED->value,
         ]);
 
-        $response = $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute(
-                'partners.hosting.get_user_stats',
-                $this->hostingDeployment->subscription_uuid
+        $response = $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute(
+                    'partners.hosting.get_user_stats',
+                    $this->hostingDeployment->subscription_uuid,
+                ),
             )
-        )->assertOk();
+            ->assertOk();
 
         $content = (array) json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
@@ -97,16 +111,23 @@ class GetUserStatsTest extends IntegrationTestCase
     #[Test]
     public function pleskThrowsNotImplementedException(): void
     {
-        $pleskProvider = ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
+        $pleskProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $this->hostingDeployment->update([
             'provider_id' => $pleskProvider->id,
         ]);
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute(
-                'partners.hosting.get_user_stats',
-                $this->hostingDeployment->subscription_uuid
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute(
+                    'partners.hosting.get_user_stats',
+                    $this->hostingDeployment->subscription_uuid,
+                ),
             )
-        )->assertServerError();
+            ->assertServerError();
     }
 }

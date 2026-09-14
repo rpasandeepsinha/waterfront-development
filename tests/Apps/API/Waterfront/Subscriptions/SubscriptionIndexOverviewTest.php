@@ -24,11 +24,15 @@ class SubscriptionIndexOverviewTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
 
         $product = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne();
-        new SubscriptionFactory()->for($customer)->for($product)->administrativeStatusActive()->createOne(['domain' => $domain, 'technical_status' => TechnicalStatus::OK->value]);
+        new SubscriptionFactory()
+            ->for($customer)
+            ->for($product)
+            ->administrativeStatusActive()
+            ->createOne(['domain' => $domain, 'technical_status' => TechnicalStatus::OK->value]);
 
         $this->actingAsCustomer($customer)
             ->getJson(
-                $this->generateRoute('partners.subscriptions.index.overview')
+                $this->generateRoute('partners.subscriptions.index.overview'),
             )
             ->assertOk()
             ->assertJsonFragment(['domain' => $domain, 'product_slug' => $product->slug]);

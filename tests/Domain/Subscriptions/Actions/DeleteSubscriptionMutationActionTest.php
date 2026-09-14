@@ -39,7 +39,7 @@ class DeleteSubscriptionMutationActionTest extends IntegrationTestCase
         $this->date = CarbonImmutable::now();
 
         $product = new ProductFactory()->for(
-            new ProductGroupFactory()->extension()
+            new ProductGroupFactory()->extension(),
         )->createOne();
 
         $this->subscription = new SubscriptionFactory()

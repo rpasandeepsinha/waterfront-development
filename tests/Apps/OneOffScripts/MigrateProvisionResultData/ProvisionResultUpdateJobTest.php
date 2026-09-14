@@ -22,10 +22,11 @@ class ProvisionResultUpdateJobTest extends IntegrationTestCase
         $request = ProvisioningRequestFactory::new()
             ->hosting()
             ->has(
-                ProvisioningResultFactory::new()
-                    ->success()
-                    ->state(['response' => json_encode(['validation_results' => null, 'status' => 'success'])]),
-                'result'
+                ProvisioningResultFactory::new()->success()->state(['response' => json_encode([
+                    'validation_results' => null,
+                    'status' => 'success',
+                ])]),
+                'result',
             )
             ->createOne();
 
@@ -67,10 +68,11 @@ class ProvisionResultUpdateJobTest extends IntegrationTestCase
         $request = ProvisioningRequestFactory::new()
             ->hosting()
             ->has(
-                ProvisioningResultFactory::new()
-                    ->success()
-                    ->state(['response' => json_encode(['validation_results' => null, 'status' => 'success'])]),
-                'result'
+                ProvisioningResultFactory::new()->success()->state(['response' => json_encode([
+                    'validation_results' => null,
+                    'status' => 'success',
+                ])]),
+                'result',
             )
             ->createOne();
 

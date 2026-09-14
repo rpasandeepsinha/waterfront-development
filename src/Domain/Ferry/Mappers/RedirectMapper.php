@@ -21,20 +21,21 @@ class RedirectMapper
      */
     public function mapSubscriptionsWithRedirects(
         Collection $subscriptions,
-        array $technicalPayloads
+        array $technicalPayloads,
     ): array {
         $mappedPayloads = [];
         $technicalRedirects = $this->mapTechnicalRedirects($technicalPayloads);
 
         foreach ($subscriptions as $subscription) {
             foreach ($technicalRedirects as $technicalRedirect) {
-                $sourceMatchesDomain = $technicalRedirect->source === $subscription->domain ||
-                    Str::contains($technicalRedirect->source, '.' . $subscription->domain);
+                $sourceMatchesDomain =
+                    $technicalRedirect->source === $subscription->domain
+                    || Str::contains($technicalRedirect->source, '.' . $subscription->domain);
 
                 if ($sourceMatchesDomain) {
                     $mappedPayloads[] = new RedirectMigrationPayload(
                         subscription: $subscription,
-                        redirectTechnicalPayload: $technicalRedirect
+                        redirectTechnicalPayload: $technicalRedirect,
                     );
                 }
             }
@@ -51,8 +52,10 @@ class RedirectMapper
     private function mapTechnicalRedirects(array $payloads): array
     {
         /** @var RedirectTechnicalPayload[] $payloads */
-        $payloads = FerrySerializerFactory::getSerializer()
-            ->denormalize($payloads, RedirectTechnicalPayload::class . '[]');
+        $payloads = FerrySerializerFactory::getSerializer()->denormalize(
+            $payloads,
+            RedirectTechnicalPayload::class . '[]',
+        );
 
         return $payloads;
     }

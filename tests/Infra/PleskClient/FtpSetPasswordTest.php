@@ -33,8 +33,16 @@ class FtpSetPasswordTest extends IntegrationTestCase
     {
         $mock = new MockHandler([
             function (RequestInterface $request) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_ftp_set_password_request.xml'), (string) $request->getBody());
-                return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_ftp_set_password_response.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_ftp_set_password_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    200,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_ftp_set_password_response.xml'),
+                );
             },
         ]);
 
@@ -48,15 +56,26 @@ class FtpSetPasswordTest extends IntegrationTestCase
     {
         $mock = new MockHandler([
             function (RequestInterface $request) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_ftp_set_password_request.xml'), (string) $request->getBody());
-                return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_ftp_set_password_fail_response.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_ftp_set_password_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    200,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_ftp_set_password_fail_response.xml'),
+                );
             },
         ]);
 
         $result = $this->setupMockClient($mock)->setFtpPassword(self::TEST_DOMAIN, self::USER, self::PASSWORD);
 
         self::assertSame(Result::STATUS_ERROR, $result->getStatus());
-        self::assertSame('The password should be between 5 to 255 characters in length, and it should not contain the username.', $result->getErrorMessage());
+        self::assertSame(
+            'The password should be between 5 to 255 characters in length, and it should not contain the username.',
+            $result->getErrorMessage(),
+        );
     }
 
     private function setupMockClient(MockHandler $mockHandler): HostingPackageClient
@@ -66,11 +85,12 @@ class FtpSetPasswordTest extends IntegrationTestCase
         $client = new Client(['handler' => $handlerStack]);
         $connection = new Connection();
         $connection->setApiUrl('https://test');
+
         return new HostingPackageClient(
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
     }
 }

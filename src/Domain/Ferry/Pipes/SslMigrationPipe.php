@@ -52,12 +52,12 @@ class SslMigrationPipe extends ValidationPipe
             [
                 LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
-            ]
+            ],
         );
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Start'
+            message: 'Start',
         );
 
         /** @var array<array<string, string|int>> $sslSubscriptions */
@@ -74,7 +74,7 @@ class SslMigrationPipe extends ValidationPipe
             $payload->addValidationTimeline(
                 pipeline: $this->getValidationIdentifier(),
                 message: 'looping',
-                id: $sslDomain
+                id: $sslDomain,
             );
 
             $baseDomain = $this->getBaseDomain($payload, $sslDomain);
@@ -101,7 +101,7 @@ class SslMigrationPipe extends ValidationPipe
             // Validate hosting so the creation of the hosting payload doesn't fail.
             $validator = $this->validatorFactory->make(
                 [$hostingSubscription],
-                MigrationValidationLibrary::getHostingBaseRules()
+                MigrationValidationLibrary::getHostingBaseRules(),
             );
 
             try {
@@ -113,19 +113,29 @@ class SslMigrationPipe extends ValidationPipe
 
             try {
                 /** @var ValidationHostingSubscriptionPayload $validationBasePayload */
-                $validationBasePayload =  $this->serializer->denormalize($hostingSubscription, ValidationHostingSubscriptionPayload::class);
-            } catch (MissingConstructorArgumentsException|NotNormalizableValueException|PartialDenormalizationException $exception) {
+                $validationBasePayload = $this->serializer->denormalize(
+                    $hostingSubscription,
+                    ValidationHostingSubscriptionPayload::class,
+                );
+            } catch (
+                MissingConstructorArgumentsException|NotNormalizableValueException|PartialDenormalizationException $exception
+            ) {
                 $this->addValidationResult(
                     validationPayload: $payload,
                     migrationValidationKey: MigrationValidation::HOSTING_MIGRATION_PAYLOAD_INVALID,
                     message: 'Unable to denormalize hosting migration validation payload for SSL migration',
                     data: [
-                        'payload'   => $hostingSubscription,
+                        'payload' => $hostingSubscription,
                         'exception' => $exception->getMessage(),
                     ],
                 );
 
-                return $this->finishPipe(MigrationValidation::HOSTING_MIGRATION_PIPE_PASSED, $payload, $this->logger, $next);
+                return $this->finishPipe(
+                    MigrationValidation::HOSTING_MIGRATION_PIPE_PASSED,
+                    $payload,
+                    $this->logger,
+                    $next,
+                );
             }
 
             $this->hasSslEnabled($payload, $this->getHostingPayload($validationBasePayload));
@@ -133,7 +143,7 @@ class SslMigrationPipe extends ValidationPipe
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Finish'
+            message: 'Finish',
         );
 
         return $this->finishPipe(MigrationValidation::SSL_PIPE_PASSED, $payload, $this->logger, $next);
@@ -144,7 +154,7 @@ class SslMigrationPipe extends ValidationPipe
         return MigrationValidationPipes::SSL_MIGRATION;
     }
 
-    private function getBaseDomain(ValidationPayload $payload, string $sslDomain): string|null
+    private function getBaseDomain(ValidationPayload $payload, string $sslDomain): ?string
     {
         $baseDomain = null;
 
@@ -158,7 +168,7 @@ class SslMigrationPipe extends ValidationPipe
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                     LoggingContextKeys::DOMAIN_NAME => $sslDomain,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
         }
 
@@ -169,7 +179,7 @@ class SslMigrationPipe extends ValidationPipe
             $this->addValidationResult(
                 $payload,
                 MigrationValidation::SSL_MIGRATION_UNABLE_TO_PARSE_BASE_DOMAIN,
-                $message
+                $message,
             );
 
             $this->logger->debug($message, [
@@ -192,13 +202,13 @@ class SslMigrationPipe extends ValidationPipe
 
         $message = sprintf(
             'SSL certificate already present at RTR domain: {%s}',
-            $domain
+            $domain,
         );
 
         $this->addValidationResult(
             $payload,
             MigrationValidation::SSL_MIGRATION_DOMAIN_ALREADY_PRESENT_AT_RTR,
-            $message
+            $message,
         );
 
         $this->logger->debug($message, [
@@ -212,8 +222,7 @@ class SslMigrationPipe extends ValidationPipe
     private function hasSslEnabled(ValidationPayload $payload, HostingMigrationPayload $hostingMigrationPayload): void
     {
         try {
-            $server = $this->serverRepository
-                ->findByHostname($hostingMigrationPayload->serverName);
+            $server = $this->serverRepository->findByHostname($hostingMigrationPayload->serverName);
         } catch (ModelNotFoundException) {
             $message = sprintf(
                 'Hosting server of type "%s" and hostname "%s" not found',
@@ -225,7 +234,7 @@ class SslMigrationPipe extends ValidationPipe
                 validationPayload: $payload,
                 migrationValidationKey: MigrationValidation::SSL_MIGRATION_HOSTING_SERVER_DOES_NOT_EXIST,
                 message: $message,
-                referenceSubscriptionId: $hostingMigrationPayload->referenceSubscriptionId
+                referenceSubscriptionId: $hostingMigrationPayload->referenceSubscriptionId,
             );
 
             $this->logger->debug($message, [
@@ -240,7 +249,7 @@ class SslMigrationPipe extends ValidationPipe
             $siteDto = $this->hostingService->getUserConfigAsDto(
                 $hostingMigrationPayload->driver,
                 $hostingMigrationPayload->hostingDetails->getUsername(),
-                $server
+                $server,
             );
 
             if (! $siteDto->hasSslEnabled()) {
@@ -254,7 +263,7 @@ class SslMigrationPipe extends ValidationPipe
                     validationPayload: $payload,
                     migrationValidationKey: MigrationValidation::SSL_MIGRATION_HOSTING_SITE_SSL_IS_DISABLED,
                     message: $message,
-                    referenceSubscriptionId: $hostingMigrationPayload->referenceSubscriptionId
+                    referenceSubscriptionId: $hostingMigrationPayload->referenceSubscriptionId,
                 );
 
                 $this->logger->debug($message, [
@@ -262,6 +271,7 @@ class SslMigrationPipe extends ValidationPipe
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                 ]);
             }
+
             // @phpstan-ignore-next-line
         } catch (Throwable $exception) {
             $message = sprintf(

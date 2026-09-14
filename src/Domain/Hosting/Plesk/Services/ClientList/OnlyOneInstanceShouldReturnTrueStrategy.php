@@ -27,9 +27,10 @@ class OnlyOneInstanceShouldReturnTrueStrategy implements ClientListStrategyInter
         foreach ($clients as $client) {
             if (! is_null($interfaceCheck) && ! is_a($client, $interfaceCheck, true)) {
                 throw new InvalidArgumentException(
-                    'Class ' . $client::class . ' should implement ' . $interfaceCheck
+                    'Class ' . $client::class . ' should implement ' . $interfaceCheck,
                 );
             }
+
             $this->clients[] = $client;
         }
     }
@@ -45,18 +46,20 @@ class OnlyOneInstanceShouldReturnTrueStrategy implements ClientListStrategyInter
                 $allowedClients[] = $client;
             }
         }
+
         switch (count($allowedClients)) {
             case 0:
                 throw new RuntimeException('I have no client for this server');
             case 1:
                 return $allowedClients[0];
         }
+
         $classList = array_map(
             fn (ClientInterface $client): string => $client::class,
-            $allowedClients
+            $allowedClients,
         );
         throw new RuntimeException(
-            'I have more than one client for this server: ' . implode(', ', $classList)
+            'I have more than one client for this server: ' . implode(', ', $classList),
         );
     }
 }

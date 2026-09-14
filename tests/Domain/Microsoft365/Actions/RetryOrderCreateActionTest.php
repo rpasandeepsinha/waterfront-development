@@ -59,7 +59,8 @@ class RetryOrderCreateActionTest extends IntegrationTestCase
         $deployment = $this->makeDeployment(activeChildCount: 1, customerInfoAttributes: ['tenant_order_id' => null]);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('synchronizeTenantOrderIdFromOrderSummary')
             ->willThrowException(new OrderSummaryException('Something went wrong while retrieving order summary.'));
         $microsoft365Service->expects(self::never())->method('createTenant');
@@ -75,12 +76,11 @@ class RetryOrderCreateActionTest extends IntegrationTestCase
         $deployment = $this->makeDeployment(activeChildCount: 1, customerInfoAttributes: ['tenant_order_id' => null]);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('synchronizeTenantOrderIdFromOrderSummary')
             ->willReturn(false);
-        $microsoft365Service->expects(self::once())
-            ->method('createTenant')
-            ->willReturn(true);
+        $microsoft365Service->expects(self::once())->method('createTenant')->willReturn(true);
         $microsoft365Service->expects(self::never())->method('createOrder');
 
         $result = $this->createAction($microsoft365Service)->execute($deployment);
@@ -94,7 +94,8 @@ class RetryOrderCreateActionTest extends IntegrationTestCase
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
         $microsoft365Service->method('synchronizeTenantOrderIdFromOrderSummary')->willReturn(false);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('createTenant')
             ->willThrowException(new Office365Exception('Tenant creation failed'));
         $microsoft365Service->expects(self::never())->method('createOrder');
@@ -150,7 +151,8 @@ class RetryOrderCreateActionTest extends IntegrationTestCase
         $deployment = $this->makeDeployment(activeChildCount: 2);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('createOrder')
             ->with($deployment, '120A00179B', 2)
             ->willReturn(true);
@@ -165,7 +167,8 @@ class RetryOrderCreateActionTest extends IntegrationTestCase
         $deployment = $this->makeDeployment(activeChildCount: 1);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('createOrder')
             ->willThrowException(new Office365Exception('Order creation failed'));
 
@@ -210,9 +213,12 @@ class RetryOrderCreateActionTest extends IntegrationTestCase
         array $customerInfoAttributes = [],
         array $deploymentAttributes = [],
     ): Microsoft365Deployment {
-        $parentSubscription = new SubscriptionFactory()->for($this->customer)->for($this->parentProduct)->createOne([
-            'contract_period' => 12,
-        ]);
+        $parentSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->parentProduct)
+            ->createOne([
+                'contract_period' => 12,
+            ]);
 
         for ($i = 0; $i < $activeChildCount; $i++) {
             new SubscriptionFactory()

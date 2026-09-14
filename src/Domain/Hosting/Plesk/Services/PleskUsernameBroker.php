@@ -15,8 +15,9 @@ class PleskUsernameBroker implements HostingUsernameInterface
         'Administrator',
     ];
 
-    public function __construct(private readonly ConfigurationInterface $configuration)
-    {
+    public function __construct(
+        private readonly ConfigurationInterface $configuration,
+    ) {
     }
 
     /**

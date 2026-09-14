@@ -28,7 +28,7 @@ class InvoiceCreatedListener implements ShouldQueueAfterCommit
 
     public function __construct(
         private readonly HarborPropagationArbiter $arbiter,
-        private readonly HarborPropagator $propagator
+        private readonly HarborPropagator $propagator,
     ) {
     }
 
@@ -47,7 +47,7 @@ class InvoiceCreatedListener implements ShouldQueueAfterCommit
 
         if (! $subscription instanceof Subscription) {
             throw InvoiceLineToHarborException::subscriptionNotFoundException(
-                $event->invoice->id
+                $event->invoice->id,
             );
         }
 
@@ -64,7 +64,7 @@ class InvoiceCreatedListener implements ShouldQueueAfterCommit
             $subscriptionId,
             $domain,
             $jobId,
-            $this->attempts()
+            $this->attempts(),
         ));
 
         if ($this->attempts() <= $this->tries) {
@@ -75,7 +75,7 @@ class InvoiceCreatedListener implements ShouldQueueAfterCommit
                 $event->invoice->id,
                 $subscriptionId,
                 $domain,
-                $jobId
+                $jobId,
             ));
 
             throw InvoiceLineToHarborException::subscriptionNotSuccessfullyDeployedException($event->invoice->id);

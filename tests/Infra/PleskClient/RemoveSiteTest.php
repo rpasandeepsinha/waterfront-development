@@ -41,8 +41,16 @@ class RemoveSiteTest extends IntegrationTestCase
     {
         $mock = new MockHandler([
             function (RequestInterface $request, $options) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_remove_site_request.xml'), (string) $request->getBody());
-                return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_remove_site_response.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_remove_site_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    200,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_remove_site_response.xml'),
+                );
             },
         ]);
         $handlerStack = HandlerStack::create($mock);
@@ -54,7 +62,7 @@ class RemoveSiteTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: $this->loggerMock,
-            connection: $connection
+            connection: $connection,
         );
 
         $result = $hostingPackageClient->removeSite('sandwave.io');

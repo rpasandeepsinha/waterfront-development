@@ -24,7 +24,7 @@ class Cancellation
         private readonly ?string $cancelReasonOther,
         private readonly SubscriptionCancelType $cancelType,
         ?CarbonImmutable $selectedCancelEndDate,
-        private readonly bool $creditRelatedInvoices
+        private readonly bool $creditRelatedInvoices,
     ) {
         // Lets interpreted types DIRECT and OTHER as the same -> cancel on specific given selected date
 
@@ -33,7 +33,7 @@ class Cancellation
         if ($this->cancelType !== SubscriptionCancelType::CANCEL_END_DATE) {
             Assert::notNull(
                 $selectedCancelEndDate,
-                'A selected end date must be given.'
+                'A selected end date must be given.',
             );
         }
 

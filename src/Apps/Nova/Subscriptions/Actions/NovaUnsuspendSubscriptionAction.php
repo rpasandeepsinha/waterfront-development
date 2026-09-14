@@ -37,6 +37,7 @@ class NovaUnsuspendSubscriptionAction extends NovaSubscriptionAction
                 // @ignoreException
             }
         }
+
         return self::message($this->translator->translate('nova-action.success.subscription_unsuspension_successful'));
     }
 }

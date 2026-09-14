@@ -49,25 +49,42 @@ class ConfigureDnsMigrationJob extends MigrationJob implements ShouldQueue
             $domain,
             sprintf(
                 'Domain for subscription with ID: {%d} was NULL. This is not allowed in DNS Configure Migrations',
-                $subscription->id
-            )
+                $subscription->id,
+            ),
         );
 
-        $zone = $this->dnsMigrationService->getDnsZone($subscription, $domain, $this->migratedCustomer->reference_customer_number);
+        $zone = $this->dnsMigrationService->getDnsZone(
+            $subscription,
+            $domain,
+            $this->migratedCustomer->reference_customer_number,
+        );
 
         if ($zone === null) {
-            $this->dnsMigrationService->createDnsZone($subscription, $domain, $this->migratedCustomer->reference_customer_number);
+            $this->dnsMigrationService->createDnsZone(
+                $subscription,
+                $domain,
+                $this->migratedCustomer->reference_customer_number,
+            );
+
             return;
         }
 
         $this->updateZoneToMasterAction->execute(
             $domain,
             $subscription->id,
-            $this->migratedCustomer->reference_customer_number
+            $this->migratedCustomer->reference_customer_number,
         );
 
-        if ($this->dnsMigrationService->zoneHasNoRecords($subscription, $zone, $this->migratedCustomer->reference_customer_number)) {
-            $this->dnsMigrationService->addDefaultRecords($subscription, $zone, $this->migratedCustomer->reference_customer_number);
+        if ($this->dnsMigrationService->zoneHasNoRecords(
+            $subscription,
+            $zone,
+            $this->migratedCustomer->reference_customer_number,
+        )) {
+            $this->dnsMigrationService->addDefaultRecords(
+                $subscription,
+                $zone,
+                $this->migratedCustomer->reference_customer_number,
+            );
         }
 
         $this->logger->debug(
@@ -77,7 +94,8 @@ class ConfigureDnsMigrationJob extends MigrationJob implements ShouldQueue
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
+                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                    $this->migratedCustomer->reference_customer_number,
             ],
         );
 
@@ -90,8 +108,8 @@ class ConfigureDnsMigrationJob extends MigrationJob implements ShouldQueue
             ProductGroupType::EXTENSION => DomainStatus::ACTIVE->value,
             ProductGroupType::DNS => TechnicalStatus::OK->value,
             default => throw new UnknownProductGroupException(
-                'Unknown product group type: ' . $this->subscription->product->productGroup->slug->value
-            )
+                'Unknown product group type: ' . $this->subscription->product->productGroup->slug->value,
+            ),
         };
     }
 

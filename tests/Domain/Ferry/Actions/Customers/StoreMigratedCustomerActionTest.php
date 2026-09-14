@@ -77,7 +77,7 @@ class StoreMigratedCustomerActionTest extends IntegrationTestCase
             lastName: 'Doe',
             company: null,
             email: 'finance@example.com',
-            type: CustomerContactType::FINANCIAL
+            type: CustomerContactType::FINANCIAL,
         );
 
         $extensionProductGroup = ProductGroupFactory::new()->extension()->createOne();
@@ -87,11 +87,14 @@ class StoreMigratedCustomerActionTest extends IntegrationTestCase
             'slug' => 'extension_nl',
         ]);
 
-        $this->nlProductProlongationPrice = new ProductPriceComponentFactory()->for($nlProduct)->prolongation()->createOne([
-            'price' => 200,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
+        $this->nlProductProlongationPrice = new ProductPriceComponentFactory()
+            ->for($nlProduct)
+            ->prolongation()
+            ->createOne([
+                'price' => 200,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
         $this->customer = new CustomerDTO(
             firstName: 'John',
@@ -142,7 +145,7 @@ class StoreMigratedCustomerActionTest extends IntegrationTestCase
                 'customerNumber' => $existingCustomer->customer_number + 1,
                 'referenceCustomerId' => 'bu-customer-number',
             ],
-            $customerInfo
+            $customerInfo,
         );
 
         self::assertDatabaseHas('customers', ['email' => $this->customerEmail]);
@@ -195,7 +198,10 @@ class StoreMigratedCustomerActionTest extends IntegrationTestCase
         self::assertDatabaseHas('customers', ['email' => $this->customerEmail]);
         self::assertDatabaseCount('product_price_components', 2);
         self::assertDatabaseCount('product_discounts', 1);
-        self::assertDatabaseHas('product_price_components', ['price' => 100, 'type' => PriceComponentType::PROLONGATION_STAFFEL->value]);
+        self::assertDatabaseHas('product_price_components', [
+            'price' => 100,
+            'type' => PriceComponentType::PROLONGATION_STAFFEL->value,
+        ]);
     }
 
     #[Test]
@@ -246,19 +252,17 @@ class StoreMigratedCustomerActionTest extends IntegrationTestCase
     #[Test]
     public function retryAbility(): void
     {
-        $customerModel = CustomerFactory::new()
-            ->createOne([
-                'email' => $this->customer->email,
-            ]);
+        $customerModel = CustomerFactory::new()->createOne([
+            'email' => $this->customer->email,
+        ]);
 
-        $migratedCustomer = MigratedCustomersFactory::new()
-            ->createOne([
-                'reference_customer_number' => $this->customer->buCustomerNumber,
-                'reference_name' => $this->customer->buName,
-                'group_type' => $this->customer->groupType,
-                'administrative_successful' => false,
-                'successful' => false,
-            ]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => $this->customer->buCustomerNumber,
+            'reference_name' => $this->customer->buName,
+            'group_type' => $this->customer->groupType,
+            'administrative_successful' => false,
+            'successful' => false,
+        ]);
 
         $customerModel->migratedCustomers()->attach($migratedCustomer);
 
@@ -307,8 +311,8 @@ class StoreMigratedCustomerActionTest extends IntegrationTestCase
                     consumerEmail: 'email@testing.test',
                     paypalBillingAgreementId: 'billingAgree1',
                     signatureDate: '2023-09-06',
-                    mandateReference: 'pp1'
-                )
+                    mandateReference: 'pp1',
+                ),
             ),
             dnsTemplates: [],
             labels: [],

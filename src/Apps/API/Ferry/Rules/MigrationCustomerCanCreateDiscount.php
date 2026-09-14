@@ -27,20 +27,21 @@ class MigrationCustomerCanCreateDiscount extends AbstractValidator
     public function __construct(
         private readonly PriceResolver $priceResolver,
         private readonly Translator $translator,
-        private readonly MigrationsPriceDiscounts $migrationsPriceDiscounts
+        private readonly MigrationsPriceDiscounts $migrationsPriceDiscounts,
     ) {
     }
 
     protected function passes(string $attribute, mixed $value): bool
     {
         if (
-            ! is_array($value) ||
-            ! array_key_exists('contract_period', $value) ||
-            ! array_key_exists('billing_period', $value) ||
-            ! array_key_exists('slug', $value) ||
-            ! array_key_exists('price', $value)
+            ! is_array($value)
+            || ! array_key_exists('contract_period', $value)
+            || ! array_key_exists('billing_period', $value)
+            || ! array_key_exists('slug', $value)
+            || ! array_key_exists('price', $value)
         ) {
             Log::warning('Product configuration is invalid.');
+
             return false;
         }
 
@@ -63,10 +64,11 @@ class MigrationCustomerCanCreateDiscount extends AbstractValidator
         try {
             // This needs to be resolvable in migrations to verify we can give a pricing to the given slug.
             $priceRequest = new PriceRequest([new ProlongationPriceRequest($product)], null);
-            $priceDTOResult = $this
-                ->priceResolver
-                ->getPriceList($priceRequest)
-                ->getProductPrice(productSlug: $slug, contractPeriod: $contractPeriod, billingPeriod: $billingPeriod);
+            $priceDTOResult = $this->priceResolver->getPriceList($priceRequest)->getProductPrice(
+                productSlug: $slug,
+                contractPeriod: $contractPeriod,
+                billingPeriod: $billingPeriod,
+            );
 
             return $this->isDiscount($price, $priceDTOResult);
         } catch (ItemNotFoundException $exception) {
@@ -79,6 +81,7 @@ class MigrationCustomerCanCreateDiscount extends AbstractValidator
                     'price_type' => ProductPriceType::PROLONGATION->value,
                 ],
             ]);
+
             return false;
         }
     }

@@ -15,9 +15,7 @@ class CustomerWalletRepository
      */
     public function findAll(): Collection
     {
-        return CustomerWallet::query()
-            ->with('customer')
-            ->get();
+        return CustomerWallet::query()->with('customer')->get();
     }
 
     /**

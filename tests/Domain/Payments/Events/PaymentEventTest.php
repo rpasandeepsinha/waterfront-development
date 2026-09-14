@@ -30,7 +30,7 @@ class PaymentEventTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne([
             'payment_type' => PaymentType::DIRECT,
         ]);
-        $payment  = new PaymentFactory()->createOne([
+        $payment = new PaymentFactory()->createOne([
             'customer_uuid' => $customer->uuid,
             'status' => PaymentStatus::PAID,
         ]);
@@ -38,9 +38,7 @@ class PaymentEventTest extends IntegrationTestCase
             'status' => Result::STATUS_OK,
             'paymentData' => [],
         ]);
-        $order = new OrderFactory()
-            ->for($customer)
-            ->createOne();
+        $order = new OrderFactory()->for($customer)->createOne();
 
         $payment->order()->associate($order);
         $payment->customer()->associate($customer);
@@ -49,7 +47,7 @@ class PaymentEventTest extends IntegrationTestCase
 
         self::assertInstanceOf(Payment::class, $payment);
 
-        $event   = new PaymentUpdatedEvent($payment, $fetchPaymentResult);
+        $event = new PaymentUpdatedEvent($payment, $fetchPaymentResult);
         $subsciptionService = self::createStub(SubscriptionService::class);
         $paymentService = self::createMock(PaymentService::class);
         $paymentService->expects(self::never())->method('createDirectDebitMandateFromPaymentResult');
@@ -72,11 +70,11 @@ class PaymentEventTest extends IntegrationTestCase
     public function handleNotVerified(): void
     {
         $customer = new CustomerFactory()->withAddress([
-            'country_code'  => 'XX',
+            'country_code' => 'XX',
         ])->createOne([
             'payment_type' => PaymentType::DIRECT,
         ]);
-        $payment  = new PaymentFactory()->createOne([
+        $payment = new PaymentFactory()->createOne([
             'customer_uuid' => $customer->uuid,
             'status' => PaymentStatus::PAID,
         ]);
@@ -84,9 +82,7 @@ class PaymentEventTest extends IntegrationTestCase
             'status' => Result::STATUS_OK,
             'paymentData' => [],
         ]);
-        $order = new OrderFactory()
-            ->for($customer)
-            ->createOne();
+        $order = new OrderFactory()->for($customer)->createOne();
 
         $payment->order()->associate($order);
         $payment->customer()->associate($customer);
@@ -95,7 +91,7 @@ class PaymentEventTest extends IntegrationTestCase
 
         self::assertInstanceOf(Payment::class, $payment);
 
-        $event   = new PaymentUpdatedEvent($payment, $fetchPaymentResult);
+        $event = new PaymentUpdatedEvent($payment, $fetchPaymentResult);
         $subscriptionService = self::createStub(SubscriptionService::class);
         $paymentService = self::createMock(PaymentService::class);
         $paymentService->expects(self::never())->method('createDirectDebitMandateFromPaymentResult');
@@ -118,11 +114,11 @@ class PaymentEventTest extends IntegrationTestCase
     public function handleCreateDirectDebitMandate(): void
     {
         $customer = new CustomerFactory()->withAddress([
-            'country_code'  => 'XX',
+            'country_code' => 'XX',
         ])->createOne([
             'payment_type' => PaymentType::DIRECT,
         ]);
-        $payment  = new PaymentFactory()->createOne([
+        $payment = new PaymentFactory()->createOne([
             'customer_uuid' => $customer->uuid,
             'status' => PaymentStatus::PAID,
             'create_direct_debit_mandate' => true,
@@ -131,9 +127,7 @@ class PaymentEventTest extends IntegrationTestCase
             'status' => Result::STATUS_OK,
             'paymentData' => [],
         ]);
-        $order = new OrderFactory()
-            ->for($customer)
-            ->createOne();
+        $order = new OrderFactory()->for($customer)->createOne();
 
         $payment->order()->associate($order);
         $payment->customer()->associate($customer);
@@ -142,11 +136,12 @@ class PaymentEventTest extends IntegrationTestCase
 
         self::assertInstanceOf(Payment::class, $payment);
 
-        $event   = new PaymentUpdatedEvent($payment, $fetchPaymentResult);
+        $event = new PaymentUpdatedEvent($payment, $fetchPaymentResult);
         $subscriptionService = self::createStub(SubscriptionService::class);
 
         $paymentService = self::createMock(PaymentService::class);
-        $paymentService->expects(self::once())
+        $paymentService
+            ->expects(self::once())
             ->method('createDirectDebitMandateFromPaymentResult')
             ->with($event->getPayment()->customer, $event->getPaymentResult());
 

@@ -56,7 +56,12 @@ class SubscriptionRenewalAndInvoicingTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->withAddress()->createOne();
         $this->customer->has_direct_debit = true;
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $productGroup = new ProductGroupFactory()->extension()->createOne();
         $this->domainProduct = new ProductFactory()->for($productGroup)->createOne([
             'slug' => 'extension_com',
@@ -70,8 +75,8 @@ class SubscriptionRenewalAndInvoicingTest extends IntegrationTestCase
 
         $this->dnsProduct = new ProductFactory()->createOne([
             'product_group_id' => $dnsGroup->id,
-            'name'  => ProductType::FREE_DNS->value,
-            'slug'  => ProductType::FREE_DNS->value,
+            'name' => ProductType::FREE_DNS->value,
+            'slug' => ProductType::FREE_DNS->value,
         ]);
     }
 
@@ -96,7 +101,7 @@ class SubscriptionRenewalAndInvoicingTest extends IntegrationTestCase
 
         $subscription = Subscription::whereHas(
             'product',
-            fn ($query) => $query->where('slug', 'extension_com')
+            fn ($query) => $query->where('slug', 'extension_com'),
         )->firstOrFail();
 
         $child = $subscription->children->firstOrFail();
@@ -126,19 +131,31 @@ class SubscriptionRenewalAndInvoicingTest extends IntegrationTestCase
             $child->refresh();
 
             self::assertSame($orderDate->toDateString(), $subscription->start_date->toDateString());
-            self::assertSame($orderDate->addMonths($contractPeriod)->toDateString(), $subscription->end_date->toDateString());
+            self::assertSame(
+                $orderDate->addMonths($contractPeriod)->toDateString(),
+                $subscription->end_date->toDateString(),
+            );
             self::assertSame($orderDate->toDateString(), $child->start_date->toDateString());
             self::assertSame($orderDate->addMonths($contractPeriod)->toDateString(), $child->end_date->toDateString());
 
-            if ($currentBillingCycle < $totalBillingCycles - 1) {
-                self::assertSame(CarbonImmutable::now()->addMonths($billingPeriod)->toDateString(), $subscription->next_billing_date->toDateString());
-                self::assertSame(CarbonImmutable::now()->addMonths($billingPeriod)->toDateString(), $child->next_billing_date->toDateString());
+            if ($currentBillingCycle < ($totalBillingCycles - 1)) {
+                self::assertSame(
+                    CarbonImmutable::now()->addMonths($billingPeriod)->toDateString(),
+                    $subscription->next_billing_date->toDateString(),
+                );
+                self::assertSame(
+                    CarbonImmutable::now()->addMonths($billingPeriod)->toDateString(),
+                    $child->next_billing_date->toDateString(),
+                );
             } else {
-                self::assertSame($subscription->end_date->toDateString(), $subscription->next_billing_date->toDateString());
+                self::assertSame(
+                    $subscription->end_date->toDateString(),
+                    $subscription->next_billing_date->toDateString(),
+                );
                 self::assertSame($child->end_date->toDateString(), $child->next_billing_date->toDateString());
             }
 
-            if ($subscription->invoices()->count() == $currentBillingCycle + 1) {
+            if ($subscription->invoices()->count() == ($currentBillingCycle + 1)) {
                 self::assertSame($subscription->invoices()->count(), $currentBillingCycle + 1);
                 self::assertSame($child->invoices()->count(), $currentBillingCycle + 1);
 
@@ -427,7 +444,10 @@ class SubscriptionRenewalAndInvoicingTest extends IntegrationTestCase
         $now = CarbonImmutable::now();
 
         self::assertSame($now->toDateString(), $subscription->start_date->toDateString());
-        self::assertSame($now->addMonths($billingPeriod)->toDateString(), $subscription->next_billing_date->toDateString());
+        self::assertSame(
+            $now->addMonths($billingPeriod)->toDateString(),
+            $subscription->next_billing_date->toDateString(),
+        );
         self::assertSame($now->addMonths($contractPeriod)->toDateString(), $subscription->end_date->toDateString());
 
         self::assertSame(0, Invoice::count());
@@ -435,35 +455,47 @@ class SubscriptionRenewalAndInvoicingTest extends IntegrationTestCase
 
     private function placeOrder(int $contractPeriod, int $billingPeriod): void
     {
-        new ProductPriceComponentFactory()->for($this->domainProduct)->registration()->createOne([
-            'price' => 96,
-            'billing_period' => $billingPeriod,
-            'contract_period' => $contractPeriod,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->domainProduct)
+            ->registration()
+            ->createOne([
+                'price' => 96,
+                'billing_period' => $billingPeriod,
+                'contract_period' => $contractPeriod,
+            ]);
 
-        new ProductPriceComponentFactory()->for($this->domainProduct)->prolongation()->createOne([
-            'price' => 96,
-            'billing_period' => $billingPeriod,
-            'contract_period' => $contractPeriod,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->domainProduct)
+            ->prolongation()
+            ->createOne([
+                'price' => 96,
+                'billing_period' => $billingPeriod,
+                'contract_period' => $contractPeriod,
+            ]);
 
-        new ProductPriceComponentFactory()->for($this->dnsProduct)->registration()->createOne([
-            'price' => 0,
-            'billing_period'    => $billingPeriod,
-            'contract_period'    => $contractPeriod,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->dnsProduct)
+            ->registration()
+            ->createOne([
+                'price' => 0,
+                'billing_period' => $billingPeriod,
+                'contract_period' => $contractPeriod,
+            ]);
 
-        new ProductPriceComponentFactory()->for($this->dnsProduct)->prolongation()->createOne([
-            'price' => 0,
-            'billing_period'    => $billingPeriod,
-            'contract_period'   => $contractPeriod,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->dnsProduct)
+            ->prolongation()
+            ->createOne([
+                'price' => 0,
+                'billing_period' => $billingPeriod,
+                'contract_period' => $contractPeriod,
+            ]);
 
         $this->applyPdnsMockForOrder('example.com');
 
         $this->actingAsCustomer($this->customer)->postJson(
             $this->generateRoute('partners.order.order'),
-            $this->createOrderPayload($contractPeriod, $billingPeriod)
+            $this->createOrderPayload($contractPeriod, $billingPeriod),
         );
     }
 
@@ -488,13 +520,13 @@ class SubscriptionRenewalAndInvoicingTest extends IntegrationTestCase
                             'dns' => [
                                 [
                                     'uuid' => '90b1c8f5-7e1b-4f5d-8118-6a83aa5083d9',
-                                    'status'          => 'registration',
-                                    'domain'          => 'example.com',
-                                    'billing_period'  => $billingPeriod,
+                                    'status' => 'registration',
+                                    'domain' => 'example.com',
+                                    'billing_period' => $billingPeriod,
                                     'contract_period' => $contractPeriod,
-                                    'price'           => 0,
-                                    'gross_price'     => 0,
-                                    'slug'            => 'free-dns',
+                                    'price' => 0,
+                                    'gross_price' => 0,
+                                    'slug' => 'free-dns',
                                 ],
                             ],
                         ],
@@ -511,11 +543,9 @@ class SubscriptionRenewalAndInvoicingTest extends IntegrationTestCase
 
         $mockDnsService = self::createStub(DnsService::class);
 
-        $mockDnsService->method('getDnsZone')
-            ->willReturn($domainZone);
+        $mockDnsService->method('getDnsZone')->willReturn($domainZone);
 
-        $mockDnsService->method('getDnsZoneKeys')
-            ->willReturn($keySet);
+        $mockDnsService->method('getDnsZoneKeys')->willReturn($keySet);
 
         $this->app->bind(DnsService::class, fn () => $mockDnsService);
     }
@@ -525,10 +555,11 @@ class SubscriptionRenewalAndInvoicingTest extends IntegrationTestCase
         $zoneConverter = self::resolve(PowerDnsZoneToDnsZoneConverter::class);
         /** @var array<string, mixed> $pdnsZone */
         $pdnsZone = json_decode($this->getMockedZoneResponseBody($domain), true, 512, JSON_THROW_ON_ERROR);
+
         return $zoneConverter->convertFromPowerDnsZone(
             PowerDnsZone::fromArray(
-                $pdnsZone
-            )
+                $pdnsZone,
+            ),
         );
     }
 
@@ -536,6 +567,7 @@ class SubscriptionRenewalAndInvoicingTest extends IntegrationTestCase
     {
         /** @var array<array<string,mixed>> $keys */
         $keys = json_decode($this->getMockedKeyResponseBody(), true, 512, JSON_THROW_ON_ERROR);
+
         return PowerDnsSecKeySet::fromArray($keys);
     }
 }

@@ -35,10 +35,9 @@ class CsrSubjectData implements Stringable
         ?string $department,
         string $city,
         ?string $province,
-        string $countryCode
+        string $countryCode,
     ) {
-        $this
-            ->setDomain($domain)
+        $this->setDomain($domain)
             ->setOrganization($organization)
             ->setDepartment((string) $department)
             ->setCity($city)
@@ -48,12 +47,18 @@ class CsrSubjectData implements Stringable
 
     public function __toString(): string
     {
-        return '/C=' . $this->getCountryCode()
-            . '/ST=' . $this->getProvince()
-            . '/L=' . $this->getCity()
-            . '/O=' . $this->getOrganization()
-            . '/OU=' . $this->getDepartment()
-            . '/CN=' . $this->getDomain();
+        return '/C='
+        . $this->getCountryCode()
+        . '/ST='
+        . $this->getProvince()
+        . '/L='
+        . $this->getCity()
+        . '/O='
+        . $this->getOrganization()
+        . '/OU='
+        . $this->getDepartment()
+        . '/CN='
+        . $this->getDomain();
     }
 
     /**
@@ -71,7 +76,7 @@ class CsrSubjectData implements Stringable
             throw new RuntimeException(
                 'A validation error occurred while creating CSR subject data: ' . $exception->getMessage(),
                 0,
-                $exception
+                $exception,
             );
         }
 
@@ -97,7 +102,7 @@ class CsrSubjectData implements Stringable
                 $department,
                 $city,
                 $province,
-                $countryCode
+                $countryCode,
             );
         }
 
@@ -165,12 +170,12 @@ class CsrSubjectData implements Stringable
     public function toArray(): array
     {
         return [
-            'countryName'            => $this->getCountryCode(),
-            'stateOrProvinceName'    => $this->getProvince(),
-            'localityName'           => $this->getCity(),
-            'organizationName'       => $this->getOrganization(),
+            'countryName' => $this->getCountryCode(),
+            'stateOrProvinceName' => $this->getProvince(),
+            'localityName' => $this->getCity(),
+            'organizationName' => $this->getOrganization(),
             'organizationalUnitName' => $this->getDepartment(),
-            'commonName'             => $this->getDomain(),
+            'commonName' => $this->getDomain(),
         ];
     }
 
@@ -226,8 +231,8 @@ class CsrSubjectData implements Stringable
     private static function validateRequiredFields(array $customerData): void
     {
         $rules = [
-            'name'                 => 'required', // -> organization
-            'address.city'         => 'required',
+            'name' => 'required', // -> organization
+            'address.city' => 'required',
             'address.country_code' => 'required',
         ];
 

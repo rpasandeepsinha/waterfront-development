@@ -42,7 +42,9 @@ class MissedRtrTransferAwayCancellationService
     ): int {
         $processed = 0;
 
-        foreach ($this->rtrResponseLogRepository->getTransferDomainNotificationLogsFrom(startDate: $startDate) as $rtrLog) {
+        foreach ($this->rtrResponseLogRepository->getTransferDomainNotificationLogsFrom(
+            startDate: $startDate,
+        ) as $rtrLog) {
             $notification = json_decode($rtrLog->response, true, 512, JSON_THROW_ON_ERROR);
             Assert::isMap($notification);
 
@@ -159,7 +161,7 @@ class MissedRtrTransferAwayCancellationService
 
             Assert::notNull(
                 $rtrLog->created_at,
-                'RTR response log must have a created_at timestamp.'
+                'RTR response log must have a created_at timestamp.',
             );
             $subscriptionEndDate = CarbonImmutable::instance($rtrLog->created_at);
 
@@ -172,7 +174,7 @@ class MissedRtrTransferAwayCancellationService
                         cancelType: SubscriptionCancelType::CANCEL_OTHER,
                         selectedCancelEndDate: $subscriptionEndDate,
                         creditRelatedInvoices: false,
-                    )
+                    ),
                 );
             } catch (CancelCreditSubscriptionsException $exception) {
                 $this->logger->error(
@@ -214,10 +216,11 @@ class MissedRtrTransferAwayCancellationService
      */
     private function getDomainName(array $notification): ?string
     {
-        $domainName = $notification['domainName']
-            ?? data_get($notification, 'payload.domainName')
-            ?? $notification['processIdentifier']
-            ?? null;
+        $domainName =
+            $notification['domainName'] ?? data_get(
+                $notification,
+                'payload.domainName',
+            ) ?? $notification['processIdentifier'] ?? null;
 
         return is_string($domainName) && $domainName !== '' ? $domainName : null;
     }
@@ -234,10 +237,16 @@ class MissedRtrTransferAwayCancellationService
 
     private function isCompletedOutgoingTransfer(DomainTransferStatus $transferStatus): bool
     {
-        return in_array($transferStatus->type, [
-            TransferTypeType::OUT->value,
-            TransferTypeType::OUT_INTERNAL->value,
-        ], true)
-            && $transferStatus->status === TransferStatus::COMPLETED->value;
+        return (
+            in_array(
+                $transferStatus->type,
+                [
+                    TransferTypeType::OUT->value,
+                    TransferTypeType::OUT_INTERNAL->value,
+                ],
+                true,
+            )
+            && $transferStatus->status === TransferStatus::COMPLETED->value
+        );
     }
 }

@@ -38,33 +38,38 @@ class HostingServiceProvider extends BaseProvider implements DeferrableProvider
         $this->app->bind(SelectInterface::class, ClientInterface::class);
         $this->app->bind(SessionTokenInterface::class, ClientInterface::class);
         $this->app->bind(CustomerInterface::class, ClientInterface::class);
-        $this->app->bind(ClientListStrategyFactory::class, fn (): ClientListStrategyFactory => new ClientListStrategyFactory($configuration->getAsBoolean('app.debug')));
+        $this->app->bind(
+            ClientListStrategyFactory::class,
+            fn (): ClientListStrategyFactory => new ClientListStrategyFactory($configuration->getAsBoolean(
+                'app.debug',
+            )),
+        );
         $this->app->singleton(function (): ClientInterface {
             /** @var ClientListStrategyFactory $factory */
             $factory = $this->app->get(ClientListStrategyFactory::class);
             $hostingClients = $factory->create(
                 $this->app->tagged(HostingPackageInterface::class),
-                HostingPackageInterface::class
+                HostingPackageInterface::class,
             );
             $installClients = $factory->create(
                 $this->app->tagged(InstallInterface::class),
-                InstallInterface::class
+                InstallInterface::class,
             );
             $secretKeyClients = $factory->create(
                 $this->app->tagged(SecretKeyInterface::class),
-                SecretKeyInterface::class
+                SecretKeyInterface::class,
             );
             $SelectInterfaceClients = $factory->create(
                 $this->app->tagged(SelectInterface::class),
-                SelectInterface::class
+                SelectInterface::class,
             );
             $sessionTokenClients = $factory->create(
                 $this->app->tagged(SessionTokenInterface::class),
-                SessionTokenInterface::class
+                SessionTokenInterface::class,
             );
             $customerClient = $factory->create(
                 $this->app->tagged(CustomerInterface::class),
-                CustomerInterface::class
+                CustomerInterface::class,
             );
 
             return new ChainableHostingPackageClient(
@@ -73,7 +78,7 @@ class HostingServiceProvider extends BaseProvider implements DeferrableProvider
                 $secretKeyClients,
                 $SelectInterfaceClients,
                 $sessionTokenClients,
-                $customerClient
+                $customerClient,
             );
         });
     }
@@ -103,7 +108,7 @@ class HostingServiceProvider extends BaseProvider implements DeferrableProvider
         ], 'config');
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/plesk.php',
-            'hostingservice'
+            'hostingservice',
         );
     }
 }

@@ -90,24 +90,30 @@ class CancellationFlowService
         return $cancellationFlow;
     }
 
-    public function processCancellationSteps(CancellationFlow $cancellationFlow, CancellationStepType $stepType, string $stepData, string $responseData, CancellationActionPerformedType $action): void
-    {
+    public function processCancellationSteps(
+        CancellationFlow $cancellationFlow,
+        CancellationStepType $stepType,
+        string $stepData,
+        string $responseData,
+        CancellationActionPerformedType $action,
+    ): void {
         $step = $this->storeCancellationStep($cancellationFlow->id, $stepType, $stepData, $responseData);
 
         if ($action === CancellationActionPerformedType::ABANDONED) {
             return;
         }
 
-        match($stepType) {
+        match ($stepType) {
             CancellationStepType::CONFIRM_CANCELLATION => $this->confirmCancellation($cancellationFlow),
             CancellationStepType::CONFIRM_MUTATION => $this->confirmMutation($step),
-            CancellationStepType::CONFIRM_PHONE =>  $this->confirmPhoneRequest($cancellationFlow),
+            CancellationStepType::CONFIRM_PHONE => $this->confirmPhoneRequest($cancellationFlow),
             CancellationStepType::START,
             CancellationStepType::REASONS,
             CancellationStepType::SUPPORT,
             CancellationStepType::MUTATION_SUGGESTION,
             CancellationStepType::VALUE_LOSS_PREVENTION,
-            CancellationStepType::FEEDBACK => null,
+            CancellationStepType::FEEDBACK,
+                => null,
         };
     }
 
@@ -131,28 +137,37 @@ class CancellationFlowService
      *
      * @return array<string, ResourceCollection>
      */
-    public function getSubscriptionPrices(Collection $subscriptions, array $contractPeriods, array $billingPeriods): array
-    {
+    public function getSubscriptionPrices(
+        Collection $subscriptions,
+        array $contractPeriods,
+        array $billingPeriods,
+    ): array {
         $products = $subscriptions->map(fn (Subscription $subscription) => $subscription->product)->unique();
         $productPriceRequests = array_map(fn ($product) => new RegistrationPriceRequest($product), $products->all());
-        $pricelist = $this->priceResolver->getPriceList(new PriceRequest($productPriceRequests, $subscriptions->firstOrFail()->customer));
+        $pricelist = $this->priceResolver->getPriceList(
+            new PriceRequest($productPriceRequests, $subscriptions->firstOrFail()->customer),
+        );
 
         $subscriptionsWithPrices = [];
         foreach ($subscriptions as $subscription) {
             /** @var SupportCollection<int,Price> $productPrices */
             $productPrices = $pricelist
                 ->filter(fn (Product $product) => $product->slug === $subscription->product->slug)
-                ->firstOrFail()
-                ->prices;
+                ->firstOrFail()->prices;
 
             /** @var Price[] $filteredPrices */
-            $filteredPrices = array_values($productPrices
-                ->filter(fn (Price $price) =>
-                    in_array($price->contractPeriod, $contractPeriods, true) &&
-                    in_array($price->billingPeriod, $billingPeriods, true))
-                ->filter(fn (Price $price) => $price->type === ProductPriceType::PROLONGATION)
-                ->filter(fn (Price $price) => $price->orderable)
-                ->toArray());
+            $filteredPrices = array_values(
+                $productPrices
+                    ->filter(
+                        fn (Price $price) => (
+                            in_array($price->contractPeriod, $contractPeriods, true)
+                            && in_array($price->billingPeriod, $billingPeriods, true)
+                        ),
+                    )
+                    ->filter(fn (Price $price) => $price->type === ProductPriceType::PROLONGATION)
+                    ->filter(fn (Price $price) => $price->orderable)
+                    ->toArray(),
+            );
 
             $priceResources = PriceResource::collection($filteredPrices);
             $subscriptionsWithPrices[$subscription->uuid] = $priceResources;
@@ -168,9 +183,9 @@ class CancellationFlowService
     {
         return [
             [
-              'type' => CancellationOfferType::PHONE->value,
-              'title' => $this->translator->translate('intelligent-cancellation.offers.phone.title'),
-              'phonenumber' => $this->configuration->getAsString('bu.phone_number'),
+                'type' => CancellationOfferType::PHONE->value,
+                'title' => $this->translator->translate('intelligent-cancellation.offers.phone.title'),
+                'phonenumber' => $this->configuration->getAsString('bu.phone_number'),
             ],
         ];
     }
@@ -188,11 +203,15 @@ class CancellationFlowService
     {
         /** @var ProlongationPriceRequest[] $allProducts */
         $allProducts = $subscriptions->map(fn (Subscription $subscription) => new ProlongationPriceRequest($subscription->product))->toArray();
-        $productPricelist = $this->priceResolver->getPriceList(new PriceRequest($allProducts, $subscriptions->firstOrFail()->customer));
+        $productPricelist = $this->priceResolver->getPriceList(
+            new PriceRequest($allProducts, $subscriptions->firstOrFail()->customer),
+        );
 
         $offer = [
             'type' => CancellationOfferType::PERCENTAGE_DISCOUNT->value,
-            'title' => $this->translator->translate('intelligent-cancellation.offer.percentage-off', ['percentage' => $percentage . '%']),
+            'title' => $this->translator->translate('intelligent-cancellation.offer.percentage-off', [
+                'percentage' => $percentage . '%',
+            ]),
             'recommended' => true,
             'contractPeriod' => 12,
             'percentageDiscount' => $percentage,
@@ -201,7 +220,9 @@ class CancellationFlowService
         ];
 
         foreach ($subscriptions as $subscription) {
-            $product = $productPricelist->where(fn (Product $product) => $product->slug === $subscription->product->slug)->firstOrFail();
+            $product = $productPricelist
+                ->where(fn (Product $product) => $product->slug === $subscription->product->slug)
+                ->firstOrFail();
             $productPrices = $product->prices;
 
             $yearlyProlongationPrice = $productPrices
@@ -213,11 +234,15 @@ class CancellationFlowService
                 continue;
             }
 
-            $offer['totalDiscountAmountNextInvoice'] += (int) round($yearlyProlongationPrice->calculatedPrice * ($percentage / 100));
+            $offer['totalDiscountAmountNextInvoice'] += (int) round(
+                $yearlyProlongationPrice->calculatedPrice * ($percentage / 100),
+            );
             $offer['subscriptions'][] = [
                 'subscriptionUuid' => $subscription->uuid,
                 'periodType' => 'all-at-once',
-                'description' => $subscription->product->productGroup->slug === ProductGroupType::EXTENSION ? $subscription->domain : $product->name,
+                'description' => $subscription->product->productGroup->slug === ProductGroupType::EXTENSION
+                    ? $subscription->domain
+                    : $product->name,
                 'renewalDate' => $subscription->end_date,
             ];
         }
@@ -243,14 +268,25 @@ class CancellationFlowService
                 ProductGroupType::EXTENSION => $this->getDomainStatistics($subscription),
                 ProductGroupType::HOSTING => $this->getHostingStatistics($subscription),
                 // For all other product groups we don't (yet) show statistics in the cancellation flow.
-                ProductGroupType::ADD_ON, ProductGroupType::CLOUDSTACK_MANAGER_DOMAIN,
-                ProductGroupType::CLOUDSTACK_OS, ProductGroupType::CLOUDSTACK_VIRTUAL_MACHINE,
-                ProductGroupType::CLOUDSTACK_VOLUME, ProductGroupType::DNS, ProductGroupType::DOMAIN_EXPANSION,
-                ProductGroupType::MANUAL_SUBSCRIPTION, ProductGroupType::MICROSOFT_365, ProductGroupType::ONE_TIME_SERVICE,
-                ProductGroupType::REDIRECT, ProductGroupType::RESELLER_DISCOUNT, ProductGroupType::RESELLER_HOSTING,
-                ProductGroupType::OTHER, ProductGroupType::SSL, ProductGroupType::VOLUME_DISCOUNT,
+                ProductGroupType::ADD_ON,
+                ProductGroupType::CLOUDSTACK_MANAGER_DOMAIN,
+                ProductGroupType::CLOUDSTACK_OS,
+                ProductGroupType::CLOUDSTACK_VIRTUAL_MACHINE,
+                ProductGroupType::CLOUDSTACK_VOLUME,
+                ProductGroupType::DNS,
+                ProductGroupType::DOMAIN_EXPANSION,
+                ProductGroupType::MANUAL_SUBSCRIPTION,
+                ProductGroupType::MICROSOFT_365,
+                ProductGroupType::ONE_TIME_SERVICE,
+                ProductGroupType::REDIRECT,
+                ProductGroupType::RESELLER_DISCOUNT,
+                ProductGroupType::RESELLER_HOSTING,
+                ProductGroupType::OTHER,
+                ProductGroupType::SSL,
+                ProductGroupType::VOLUME_DISCOUNT,
                 ProductGroupType::BACKUP,
-                ProductGroupType::VPS => null,
+                ProductGroupType::VPS,
+                    => null,
             };
         }
 
@@ -267,7 +303,10 @@ class CancellationFlowService
 
         $reasons = [];
         foreach ($reasonKeys as $reasonKey) {
-            $reasons[] = ['id' => $reasonKey, 'reason' => $this->translator->translate(sprintf('intelligent-cancellation.reason-%d', $reasonKey))];
+            $reasons[] = [
+                'id' => $reasonKey,
+                'reason' => $this->translator->translate(sprintf('intelligent-cancellation.reason-%d', $reasonKey)),
+            ];
         }
 
         // "Different reason" always at the bottom
@@ -278,7 +317,7 @@ class CancellationFlowService
 
     public function validateStepData(Request $request, CancellationStepType $stepType): void
     {
-        match($stepType) {
+        match ($stepType) {
             CancellationStepType::CONFIRM_CANCELLATION => $this->validateCancelConfirmationRequestStep($request),
             CancellationStepType::CONFIRM_MUTATION => $this->validateMutationConfirmationRequestStep($request),
             CancellationStepType::CONFIRM_PHONE,
@@ -287,7 +326,8 @@ class CancellationFlowService
             CancellationStepType::START,
             CancellationStepType::MUTATION_SUGGESTION,
             CancellationStepType::VALUE_LOSS_PREVENTION,
-            CancellationStepType::FEEDBACK => $this->validateGenericRequestStep($request),
+            CancellationStepType::FEEDBACK,
+                => $this->validateGenericRequestStep($request),
         };
     }
 
@@ -343,7 +383,10 @@ class CancellationFlowService
             'responseData' => ['nullable'],
         ]);
 
-        if ($request->input('responseData') !== null && ! json_validate(json_encode($request->input('responseData'), JSON_THROW_ON_ERROR))) {
+        if (
+            $request->input('responseData') !== null
+            && ! json_validate(json_encode($request->input('responseData'), JSON_THROW_ON_ERROR))
+        ) {
             throw ValidationException::withMessages(['responseData' => 'No valid json supplied']);
         }
     }
@@ -357,7 +400,12 @@ class CancellationFlowService
     {
         $subscriptions = $cancellationFlow->subscriptions()->get();
         foreach ($subscriptions as $subscription) {
-            $this->cancellationService->cancel($subscription, SubscriptionCancelType::CANCEL_END_DATE, SubscriptionCancelReason::REASON_CANCELLATION, false);
+            $this->cancellationService->cancel(
+                $subscription,
+                SubscriptionCancelType::CANCEL_END_DATE,
+                SubscriptionCancelReason::REASON_CANCELLATION,
+                false,
+            );
         }
 
         $this->finishCancellationFlow($cancellationFlow);
@@ -387,6 +435,7 @@ class CancellationFlowService
                 if ($offerSub->subscriptionUuid !== $subscription->uuid) {
                     continue;
                 }
+
                 Assert::propertyExists($offerSub, 'subscriptionUuid');
                 Assert::propertyExists($offerSub, 'periodType');
 
@@ -394,7 +443,10 @@ class CancellationFlowService
                     'month' => 1,
                     'year' => 12,
                     'all-at-once' => $contractPeriod,
-                    default => throw new InvalidArgumentException(sprintf('Provided period type is not a valid billing period: %s', $offerSub->periodType))
+                    default => throw new InvalidArgumentException(sprintf(
+                        'Provided period type is not a valid billing period: %s',
+                        $offerSub->periodType,
+                    )),
                 };
 
                 $price = $pricelist->getProductPrice($subscription->product->slug, $contractPeriod, $billingPeriod);
@@ -424,11 +476,17 @@ class CancellationFlowService
         $products = $subscriptions->pluck('product');
         $productPriceRequests = array_map(fn ($product) => new ProlongationPriceRequest($product), $products->all());
 
-        return $this->priceResolver->getPriceList(new PriceRequest($productPriceRequests, $subscriptions->firstOrFail()->customer));
+        return $this->priceResolver->getPriceList(
+            new PriceRequest($productPriceRequests, $subscriptions->firstOrFail()->customer),
+        );
     }
 
-    private function storeCancellationStep(int $flowId, CancellationStepType $stepType, string $stepData, string $responseData): CancellationFlowStep
-    {
+    private function storeCancellationStep(
+        int $flowId,
+        CancellationStepType $stepType,
+        string $stepData,
+        string $responseData,
+    ): CancellationFlowStep {
         $step = new CancellationFlowStep();
         $step->cancellation_flow_id = $flowId;
         $step->type = $stepType;
@@ -480,7 +538,7 @@ class CancellationFlowService
                     'headers' => ['Authorization' => "Bearer {$bearerToken}"],
                     'connect_timeout' => 5,
                     'timeout' => 5,
-                ]
+                ],
             );
             $response = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
             assert(is_array($response));
@@ -488,18 +546,19 @@ class CancellationFlowService
             return null;
         }
 
-        if (! array_key_exists('attributes', $response) ||
-            ! is_array($response['attributes']) ||
-            ! array_key_exists('value_rounded', $response['attributes']) ||
-            ! is_numeric($response['attributes']['value_rounded'])
+        if (
+            ! array_key_exists('attributes', $response)
+            || ! is_array($response['attributes'])
+            || ! array_key_exists('value_rounded', $response['attributes'])
+            || ! is_numeric($response['attributes']['value_rounded'])
         ) {
             return null;
         }
 
         return [
-           'subscriptionUuid' => $subscription->uuid,
-           'domain' => $subscription->domain,
-           'domainValue' => ((int) $response['attributes']['value_rounded']) * 100,
+            'subscriptionUuid' => $subscription->uuid,
+            'domain' => $subscription->domain,
+            'domainValue' => (int) $response['attributes']['value_rounded'] * 100,
         ];
     }
 
@@ -513,11 +572,15 @@ class CancellationFlowService
         }
 
         try {
-            $statistics = $this->hostingService->getUserStats($subscription, $subscription->hostingDeployment->provider->slug);
+            $statistics = $this->hostingService->getUserStats(
+                $subscription,
+                $subscription->hostingDeployment->provider->slug,
+            );
+
             // @phpstan-ignore thecodingmachine.exceptionMustBeRethrown
         } catch (Exception $e) {
             $this->logger->error($e->getMessage(), [
-                LoggingContextKeys::SUBSCRIPTION_UUID    => $subscription->uuid,
+                LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
             ]);
 
             // This shouldn't blow up for any reason. Showing brokeness to a customer wishing to cancel is bad.
@@ -529,11 +592,11 @@ class CancellationFlowService
         }
 
         return [
-           'hostingStatisticsUnavailable' => false,
-           'subscriptionUuid' => $subscription->uuid,
-           'usedStorage' => $statistics->diskSpaceInMb,
-           'usedEmailStorage' => $statistics->mailDiskSpaceInMb,
-           'domain' => $subscription->domain,
+            'hostingStatisticsUnavailable' => false,
+            'subscriptionUuid' => $subscription->uuid,
+            'usedStorage' => $statistics->diskSpaceInMb,
+            'usedEmailStorage' => $statistics->mailDiskSpaceInMb,
+            'domain' => $subscription->domain,
         ];
     }
 }

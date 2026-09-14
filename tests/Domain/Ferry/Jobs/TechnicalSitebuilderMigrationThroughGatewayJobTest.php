@@ -87,19 +87,15 @@ class TechnicalSitebuilderMigrationThroughGatewayJobTest extends IntegrationTest
                 'domain' => self::TEST_DOMAIN_SITEBUILDER,
             ]);
 
-        $this->baseKitServer = ServerFactory::new()
-            ->sitebuilder()
-            ->createOne([
-                'hostname' => self::TEST_BASEKIT_HOSTNAME,
-                'domain' => self::TEST_BASEKIT_HOSTNAME,
-            ]);
+        $this->baseKitServer = ServerFactory::new()->sitebuilder()->createOne([
+            'hostname' => self::TEST_BASEKIT_HOSTNAME,
+            'domain' => self::TEST_BASEKIT_HOSTNAME,
+        ]);
 
-        $this->mailOnlyServer = ServerFactory::new()
-            ->directadminMail()
-            ->createOne([
-                'hostname' => self::TEST_MAIL_HOSTNAME,
-                'domain' => self::TEST_MAIL_HOSTNAME,
-            ]);
+        $this->mailOnlyServer = ServerFactory::new()->directadminMail()->createOne([
+            'hostname' => self::TEST_MAIL_HOSTNAME,
+            'domain' => self::TEST_MAIL_HOSTNAME,
+        ]);
 
         $mailOnlyPlaceholderProvider = ProviderFactory::new()->emailOnlyPlaceholder()->createOne();
         $sitebuilderPlaceholderProvider = ProviderFactory::new()->sitebuilderPlaceholder()->createOne();
@@ -129,27 +125,32 @@ class TechnicalSitebuilderMigrationThroughGatewayJobTest extends IntegrationTest
             ]);
 
         $mockSitebuilderService = self::createStub(SitebuilderService::class);
-        $mockSitebuilderService->method('getSiteFromRef')
+        $mockSitebuilderService
+            ->method('getSiteFromRef')
             ->willReturn(new BaseKitSite(
                 id: self::TEST_BASEKIT_SITE_REF,
-                domain: self::TEST_DOMAIN_SITEBUILDER
+                domain: self::TEST_DOMAIN_SITEBUILDER,
             ));
 
-        $mockSitebuilderService->method('getUserFromRef')
+        $mockSitebuilderService
+            ->method('getUserFromRef')
             ->willReturn(new BaseKitUser(
                 id: self::TEST_BASEKIT_USER_REF,
-                email: self::TEST_CUSTOMER_EMAIL
+                email: self::TEST_CUSTOMER_EMAIL,
             ));
 
-        $mockSitebuilderService->method('hasSitebuilderThroughGateway')
-            ->willReturnCallback(fn (string $email): bool => str_contains($email, '@sandwave.io')
-                || str_contains($email, '@yourhosting.nl'));
+        $mockSitebuilderService
+            ->method('hasSitebuilderThroughGateway')
+            ->willReturnCallback(
+                fn (string $email): bool => (
+                    str_contains($email, '@sandwave.io') || str_contains($email, '@yourhosting.nl')
+                ),
+            );
 
         $this->app->bind(SitebuilderService::class, fn () => $mockSitebuilderService);
 
         $mockSsoAction = self::createStub(BaseKitGetSsoUrlAction::class);
-        $mockSsoAction->method('execute')
-            ->willReturn('https://basekit.gateway.test/sso-test');
+        $mockSsoAction->method('execute')->willReturn('https://basekit.gateway.test/sso-test');
 
         $this->app->bind(BaseKitGetSsoUrlAction::class, fn () => $mockSsoAction);
     }
@@ -163,10 +164,12 @@ class TechnicalSitebuilderMigrationThroughGatewayJobTest extends IntegrationTest
         );
 
         self::mock(ProvisionGateway::class, function ($mockGateway) use ($provisionResult) {
-            $mockGateway->shouldReceive('request')
+            $mockGateway
+                ->shouldReceive('request')
                 ->once()
                 ->withArgs(function ($getBasekitSiteByRefRequest) {
                     self::assertInstanceOf(GetBasekitSiteByRefRequest::class, $getBasekitSiteByRefRequest);
+
                     return true;
                 })
                 ->andReturnUsing(fn (GetBasekitSiteByRefRequest $getBasekitSiteByRefRequest) => new BasekitSiteResult(
@@ -177,24 +180,28 @@ class TechnicalSitebuilderMigrationThroughGatewayJobTest extends IntegrationTest
                 ))
                 ->ordered();
 
-            $mockGateway->shouldReceive('request')
+            $mockGateway
+                ->shouldReceive('request')
                 ->once()
                 ->withArgs(function ($getBasekitUserByRefRequest) {
                     self::assertInstanceOf(GetBasekitUserByRefRequest::class, $getBasekitUserByRefRequest);
+
                     return true;
                 })
                 ->andReturnUsing(fn (GetBasekitUserByRefRequest $getBasekitUserByRefRequest) => new BasekitUserResult(
                     provisionData: $getBasekitUserByRefRequest,
                     provisionStatus: ProvisionStatus::SUCCESS,
                     userId: self::TEST_BASEKIT_USER_REF,
-                    email: self::TEST_CUSTOMER_EMAIL
+                    email: self::TEST_CUSTOMER_EMAIL,
                 ))
                 ->ordered();
 
-            $mockGateway->shouldReceive('request')
+            $mockGateway
+                ->shouldReceive('request')
                 ->once()
                 ->withArgs(function ($getBasekitSiteByRefRequest) {
                     self::assertInstanceOf(GetBasekitSiteByRefRequest::class, $getBasekitSiteByRefRequest);
+
                     return true;
                 })
                 ->andReturnUsing(fn (GetBasekitSiteByRefRequest $getBasekitSiteByRefRequest) => new BasekitSiteResult(
@@ -205,14 +212,28 @@ class TechnicalSitebuilderMigrationThroughGatewayJobTest extends IntegrationTest
                 ))
                 ->ordered();
 
-            $mockGateway->shouldReceive('request')
+            $mockGateway
+                ->shouldReceive('request')
                 ->once()
                 ->withArgs(function ($createBasekitDeploymentsFromMigrationRequest) {
-                    self::assertInstanceOf(CreateBasekitDeploymentsFromMigrationRequest::class, $createBasekitDeploymentsFromMigrationRequest);
-                    self::assertSame(self::TEST_DOMAIN_SITEBUILDER, $createBasekitDeploymentsFromMigrationRequest->domain);
-                    self::assertSame(self::TEST_BASEKIT_USER_REF, $createBasekitDeploymentsFromMigrationRequest->userRef);
-                    self::assertSame(self::TEST_BASEKIT_SITE_REF, $createBasekitDeploymentsFromMigrationRequest->siteRef);
+                    self::assertInstanceOf(
+                        CreateBasekitDeploymentsFromMigrationRequest::class,
+                        $createBasekitDeploymentsFromMigrationRequest,
+                    );
+                    self::assertSame(
+                        self::TEST_DOMAIN_SITEBUILDER,
+                        $createBasekitDeploymentsFromMigrationRequest->domain,
+                    );
+                    self::assertSame(
+                        self::TEST_BASEKIT_USER_REF,
+                        $createBasekitDeploymentsFromMigrationRequest->userRef,
+                    );
+                    self::assertSame(
+                        self::TEST_BASEKIT_SITE_REF,
+                        $createBasekitDeploymentsFromMigrationRequest->siteRef,
+                    );
                     self::assertTrue(Uuid::isValid($createBasekitDeploymentsFromMigrationRequest->context->toString()));
+
                     return true;
                 })
                 ->andReturn($provisionResult)
@@ -277,15 +298,20 @@ class TechnicalSitebuilderMigrationThroughGatewayJobTest extends IntegrationTest
         $failedProvisionResult = new SitebuilderResult(
             provisionData: self::createStub(ProvisionRequestInterface::class),
             provisionStatus: ProvisionStatus::FAILED,
-            exception: new BasekitCreateSiteException(domain: self::TEST_DOMAIN_SITEBUILDER, userReference: self::TEST_BASEKIT_USER_REF),
+            exception: new BasekitCreateSiteException(
+                domain: self::TEST_DOMAIN_SITEBUILDER,
+                userReference: self::TEST_BASEKIT_USER_REF,
+            ),
         );
 
         $mockGateway = self::mock(ProvisionGateway::class);
 
-        $mockGateway->shouldReceive('request')
+        $mockGateway
+            ->shouldReceive('request')
             ->once()
             ->withArgs(function ($getBasekitSiteByRefRequest): bool {
                 self::assertInstanceOf(GetBasekitSiteByRefRequest::class, $getBasekitSiteByRefRequest);
+
                 return true;
             })
             ->andReturnUsing(fn (GetBasekitSiteByRefRequest $getBasekitSiteByRefRequest) => new BasekitSiteResult(
@@ -296,24 +322,28 @@ class TechnicalSitebuilderMigrationThroughGatewayJobTest extends IntegrationTest
             ))
             ->ordered();
 
-        $mockGateway->shouldReceive('request')
+        $mockGateway
+            ->shouldReceive('request')
             ->once()
             ->withArgs(function ($getBasekitUserByRefRequest) {
                 self::assertInstanceOf(GetBasekitUserByRefRequest::class, $getBasekitUserByRefRequest);
+
                 return true;
             })
             ->andReturnUsing(fn (GetBasekitUserByRefRequest $getBasekitUserByRefRequest) => new BasekitUserResult(
                 provisionData: $getBasekitUserByRefRequest,
                 provisionStatus: ProvisionStatus::SUCCESS,
                 userId: self::TEST_BASEKIT_USER_REF,
-                email: self::TEST_CUSTOMER_EMAIL
+                email: self::TEST_CUSTOMER_EMAIL,
             ))
             ->ordered();
 
-        $mockGateway->shouldReceive('request')
+        $mockGateway
+            ->shouldReceive('request')
             ->once()
             ->withArgs(function ($getBasekitSiteByRefRequest): bool {
                 self::assertInstanceOf(GetBasekitSiteByRefRequest::class, $getBasekitSiteByRefRequest);
+
                 return true;
             })
             ->andReturnUsing(fn (GetBasekitSiteByRefRequest $getBasekitSiteByRefRequest) => new BasekitSiteResult(
@@ -324,10 +354,15 @@ class TechnicalSitebuilderMigrationThroughGatewayJobTest extends IntegrationTest
             ))
             ->ordered();
 
-        $mockGateway->shouldReceive('request')
+        $mockGateway
+            ->shouldReceive('request')
             ->once()
             ->withArgs(function ($createBasekitDeploymentsFromMigrationRequest): bool {
-                self::assertInstanceOf(CreateBasekitDeploymentsFromMigrationRequest::class, $createBasekitDeploymentsFromMigrationRequest);
+                self::assertInstanceOf(
+                    CreateBasekitDeploymentsFromMigrationRequest::class,
+                    $createBasekitDeploymentsFromMigrationRequest,
+                );
+
                 return true;
             })
             ->andReturn($failedProvisionResult)

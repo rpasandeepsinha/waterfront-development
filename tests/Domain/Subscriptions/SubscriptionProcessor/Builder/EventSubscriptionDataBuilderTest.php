@@ -68,18 +68,20 @@ class EventSubscriptionDataBuilderTest extends IntegrationTestCase
             dnsProductSpecRepository: self::resolve(DnsProductSpecRepository::class),
             dnsDeploymentRepository: self::resolve(DnsDeploymentRepository::class),
             nameserverAssignerFactory: self::resolve(NameserverAssignerFactory::class),
-            domainContactService: self::resolve(DomainContactService::class)
+            domainContactService: self::resolve(DomainContactService::class),
         );
 
-        $mockDomainRepository->expects(self::once())
+        $mockDomainRepository
+            ->expects(self::once())
             ->method('getDnsChildSubscription')
             ->with($domainSubscription)
             ->willReturn(null);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('warning')
             ->with(
-                'Created a DomainDeployment({provisioning.id}) for subscription {subscription.id} where there is no DNS child subscription.'
+                'Created a DomainDeployment({provisioning.id}) for subscription {subscription.id} where there is no DNS child subscription.',
             );
 
         self::assertSame(0, DomainDeployment::query()->count());
@@ -124,16 +126,16 @@ class EventSubscriptionDataBuilderTest extends IntegrationTestCase
             dnsProductSpecRepository: self::resolve(DnsProductSpecRepository::class),
             dnsDeploymentRepository: self::resolve(DnsDeploymentRepository::class),
             nameserverAssignerFactory: self::resolve(NameserverAssignerFactory::class),
-            domainContactService: self::resolve(DomainContactService::class)
+            domainContactService: self::resolve(DomainContactService::class),
         );
 
-        $mockDomainRepository->expects(self::once())
+        $mockDomainRepository
+            ->expects(self::once())
             ->method('getDnsChildSubscription')
             ->with($domainSubscription)
             ->willReturn($dnsChildSubscription);
 
-        $mockLogger->expects(self::never())
-            ->method('warning');
+        $mockLogger->expects(self::never())->method('warning');
 
         self::assertSame(0, DomainDeployment::query()->count());
 
@@ -158,8 +160,7 @@ class EventSubscriptionDataBuilderTest extends IntegrationTestCase
         $domainSubscription = new SubscriptionFactory()
             ->withCustomer()
             ->for(
-                new ProductFactory()
-                    ->for(new ProductGroupFactory()->extension())
+                new ProductFactory()->for(new ProductGroupFactory()->extension()),
             )
             ->forDomain($domain)
             ->createOne();
@@ -190,19 +191,18 @@ class EventSubscriptionDataBuilderTest extends IntegrationTestCase
             dnsProductSpecRepository: self::resolve(DnsProductSpecRepository::class),
             dnsDeploymentRepository: self::resolve(DnsDeploymentRepository::class),
             nameserverAssignerFactory: self::resolve(NameserverAssignerFactory::class),
-            domainContactService: self::resolve(DomainContactService::class)
+            domainContactService: self::resolve(DomainContactService::class),
         );
 
-        $mockDomainRepository->expects(self::once())
+        $mockDomainRepository
+            ->expects(self::once())
             ->method('getDnsChildSubscription')
             ->with($domainSubscription)
             ->willReturn($dnsChildSubscription);
 
-        $mockLogger->expects(self::never())
-            ->method('warning');
+        $mockLogger->expects(self::never())->method('warning');
 
-        $mockNsAssigner->expects(self::never())
-            ->method('assign');
+        $mockNsAssigner->expects(self::never())->method('assign');
 
         self::assertSame(0, DomainDeployment::query()->count());
 
@@ -225,16 +225,13 @@ class EventSubscriptionDataBuilderTest extends IntegrationTestCase
             ->createOne();
 
         $mockDnsVanityNameserverAssigner = self::createMock(DnsVanityNameserverAssigner::class);
-        $mockDnsVanityNameserverAssigner->expects(self::never())
-            ->method('assign');
+        $mockDnsVanityNameserverAssigner->expects(self::never())->method('assign');
 
         $mockDnsExternalNameserverAssigner = self::createMock(DnsExternalNameserverAssigner::class);
-        $mockDnsExternalNameserverAssigner->expects(self::never())
-            ->method('assign');
+        $mockDnsExternalNameserverAssigner->expects(self::never())->method('assign');
 
         $mockDnsNameserverAssigner = self::createMock(DnsNameserverAssigner::class);
-        $mockDnsNameserverAssigner->expects(self::once())
-            ->method('assign');
+        $mockDnsNameserverAssigner->expects(self::once())->method('assign');
 
         $mockNameserverAssignerFactory = new NameserverAssignerFactory(
             dnsNameserverAssigner: $mockDnsNameserverAssigner,
@@ -251,11 +248,11 @@ class EventSubscriptionDataBuilderTest extends IntegrationTestCase
             dnsProductSpecRepository: self::resolve(DnsProductSpecRepository::class),
             dnsDeploymentRepository: self::resolve(DnsDeploymentRepository::class),
             nameserverAssignerFactory: $mockNameserverAssignerFactory,
-            domainContactService: self::resolve(DomainContactService::class)
+            domainContactService: self::resolve(DomainContactService::class),
         );
 
         $eventDataBuilder->buildDnsDeployment(
-            subscription: $dnsSubscription
+            subscription: $dnsSubscription,
         );
 
         $dnsDeployment = DnsDeployment::where('subscription_uuid', $dnsSubscription->uuid)->first();
@@ -280,21 +277,18 @@ class EventSubscriptionDataBuilderTest extends IntegrationTestCase
             ->createOne();
 
         $mockDnsVanityNameserverAssigner = self::createMock(DnsVanityNameserverAssigner::class);
-        $mockDnsVanityNameserverAssigner->expects(self::once())
-            ->method('assign');
+        $mockDnsVanityNameserverAssigner->expects(self::once())->method('assign');
 
         $mockDnsNameserverAssigner = self::createMock(DnsNameserverAssigner::class);
-        $mockDnsNameserverAssigner->expects(self::never())
-            ->method('assign');
+        $mockDnsNameserverAssigner->expects(self::never())->method('assign');
 
         $mockDnsExternalNameserverAssigner = self::createMock(DnsExternalNameserverAssigner::class);
-        $mockDnsExternalNameserverAssigner->expects(self::never())
-            ->method('assign');
+        $mockDnsExternalNameserverAssigner->expects(self::never())->method('assign');
 
         $mockNameserverAssignerFactory = new NameserverAssignerFactory(
             dnsNameserverAssigner: $mockDnsNameserverAssigner,
             dnsVanityNameserverAssigner: $mockDnsVanityNameserverAssigner,
-            dnsExternalNameserverAssigner: $mockDnsExternalNameserverAssigner
+            dnsExternalNameserverAssigner: $mockDnsExternalNameserverAssigner,
         );
 
         $eventDataBuilder = new EventSubscriptionDataBuilder(
@@ -306,11 +300,11 @@ class EventSubscriptionDataBuilderTest extends IntegrationTestCase
             dnsProductSpecRepository: self::resolve(DnsProductSpecRepository::class),
             dnsDeploymentRepository: self::resolve(DnsDeploymentRepository::class),
             nameserverAssignerFactory: $mockNameserverAssignerFactory,
-            domainContactService: self::resolve(DomainContactService::class)
+            domainContactService: self::resolve(DomainContactService::class),
         );
 
         $eventDataBuilder->buildDnsDeployment(
-            subscription: $dnsSubscription
+            subscription: $dnsSubscription,
         );
 
         $dnsDeployment = DnsDeployment::where('subscription_uuid', $dnsSubscription->uuid)->first();

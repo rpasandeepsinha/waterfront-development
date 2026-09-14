@@ -18,7 +18,7 @@ class RedeemSecurityBundleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'products'   => ['required', 'array', 'min:1'],
+            'products' => ['required', 'array', 'min:1'],
             'products.*' => ['required', 'string', 'distinct', Rule::in($this->getOfferedProductSlugs())],
         ];
     }
@@ -39,9 +39,7 @@ class RedeemSecurityBundleRequest extends FormRequest
      */
     private function getOfferedProductSlugs(): array
     {
-        $customer = $this->container->make(AuthenticationManager::class)
-            ->getAuthenticatedCustomer()
-            ->customer;
+        $customer = $this->container->make(AuthenticationManager::class)->getAuthenticatedCustomer()->customer;
 
         $offeringRepository = $this->container->make(ProductExperimentOfferingRepository::class);
         $offering = $offeringRepository->findOfferingForCustomer($customer);

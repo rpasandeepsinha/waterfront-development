@@ -24,7 +24,7 @@ use Webmozart\Assert\Assert;
 class NovaMicrosoft365CustomTenantAction extends Action
 {
     public function __construct(
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -42,11 +42,15 @@ class NovaMicrosoft365CustomTenantAction extends Action
         $microsoft365Service = Container::getInstance()->make(Microsoft365Service::class);
 
         if ($customers->count() !== 1) {
-            return self::danger($this->translator->translate('nova-action.failed.microsoft365-custom-tenant-no-multiple-customers'));
+            return self::danger($this->translator->translate(
+                'nova-action.failed.microsoft365-custom-tenant-no-multiple-customers',
+            ));
         }
 
         if (! str_contains($fields->tenant_name, '.onmicrosoft.com')) {
-            return self::danger($this->translator->translate('nova-action.failed.microsoft365-custom-tenant-no-onmicrosoft'));
+            return self::danger($this->translator->translate(
+                'nova-action.failed.microsoft365-custom-tenant-no-onmicrosoft',
+            ));
         }
 
         $customer = $customers[0];
@@ -77,6 +81,7 @@ class NovaMicrosoft365CustomTenantAction extends Action
 
         if (! $successful) {
             $microsoft365CustomerInfo->update(['technical_status' => Microsoft365ProcessStatus::FAILED]);
+
             return self::danger($this->translator->translate('nova-action.failed.microsoft365-customer-failed'));
         }
 

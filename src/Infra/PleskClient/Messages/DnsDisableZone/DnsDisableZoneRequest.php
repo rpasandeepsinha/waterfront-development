@@ -8,8 +8,9 @@ use Waterfront\Domain\Hosting\Interfaces\Hosting\RequestInterface;
 
 class DnsDisableZoneRequest implements RequestInterface
 {
-    public function __construct(private readonly int $siteId)
-    {
+    public function __construct(
+        private readonly int $siteId,
+    ) {
     }
 
     /**

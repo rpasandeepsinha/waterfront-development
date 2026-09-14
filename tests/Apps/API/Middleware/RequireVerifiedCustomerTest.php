@@ -72,9 +72,7 @@ class RequireVerifiedCustomerTest extends IntegrationTestCase
             true,
         );
 
-        $this->authenticationManager->expects(self::once())
-            ->method('getAuthenticatedCustomer')
-            ->willReturn($customer);
+        $this->authenticationManager->expects(self::once())->method('getAuthenticatedCustomer')->willReturn($customer);
 
         $this->middleware->handle(new Request(), fn () => new Response());
     }
@@ -105,9 +103,7 @@ class RequireVerifiedCustomerTest extends IntegrationTestCase
             false,
         );
 
-        $this->authenticationManager->expects(self::once())
-            ->method('getAuthenticatedCustomer')
-            ->willReturn($customer);
+        $this->authenticationManager->expects(self::once())->method('getAuthenticatedCustomer')->willReturn($customer);
 
         $this->middleware->handle(new Request(), fn () => new Response());
     }
@@ -117,7 +113,8 @@ class RequireVerifiedCustomerTest extends IntegrationTestCase
     {
         self::expectException(AuthenticationException::class);
 
-        $this->authenticationManager->expects(self::once())
+        $this->authenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedCustomer')
             ->willThrowException(new AuthenticationException());
 
@@ -151,13 +148,9 @@ class RequireVerifiedCustomerTest extends IntegrationTestCase
             true,
         );
 
-        $this->authenticationManager->expects(self::once())
-            ->method('getAuthenticatedCustomer')
-            ->willReturn($customer);
+        $this->authenticationManager->expects(self::once())->method('getAuthenticatedCustomer')->willReturn($customer);
 
-        $this->setCustomerVerifiedAction->expects(self::once())
-            ->method('execute')
-            ->with($customerModel);
+        $this->setCustomerVerifiedAction->expects(self::once())->method('execute')->with($customerModel);
 
         $this->middleware->handle(new Request(), fn () => new Response());
     }
@@ -189,13 +182,9 @@ class RequireVerifiedCustomerTest extends IntegrationTestCase
             true,
         );
 
-        $this->authenticationManager->expects(self::once())
-            ->method('getAuthenticatedCustomer')
-            ->willReturn($customer);
+        $this->authenticationManager->expects(self::once())->method('getAuthenticatedCustomer')->willReturn($customer);
 
-        $this->setCustomerVerifiedAction->expects(self::once())
-            ->method('execute')
-            ->with($customerModel);
+        $this->setCustomerVerifiedAction->expects(self::once())->method('execute')->with($customerModel);
 
         $this->middleware->handle(new Request(), fn () => new Response());
     }
@@ -228,9 +217,7 @@ class RequireVerifiedCustomerTest extends IntegrationTestCase
             true,
         );
 
-        $this->authenticationManager->expects(self::once())
-            ->method('getAuthenticatedCustomer')
-            ->willReturn($customer);
+        $this->authenticationManager->expects(self::once())->method('getAuthenticatedCustomer')->willReturn($customer);
 
         $this->middleware->handle(new Request(), fn () => new Response());
 

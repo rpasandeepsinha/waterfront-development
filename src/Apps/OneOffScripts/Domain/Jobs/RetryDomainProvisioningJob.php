@@ -48,7 +48,8 @@ class RetryDomainProvisioningJob extends RepairFailedDomainSubscriptionJob
 
             $logger->info(
                 'Created missing domain deployment before provisioning retry.',
-                $this->buildLogContext($domainDeployment) + [
+                $this->buildLogContext($domainDeployment)
+                + [
                     LoggingContextKeys::META => [
                         'dry_run' => $this->dryRun,
                         'reason' => 'missing_domain_deployment_recreated',

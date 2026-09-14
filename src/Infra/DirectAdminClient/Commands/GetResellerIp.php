@@ -27,6 +27,7 @@ class GetResellerIp extends DirectAdminCommand
     public function responseReceived(array $decodedContent): static
     {
         $this->ips = $decodedContent;
+
         return $this;
     }
 

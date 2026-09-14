@@ -6,8 +6,9 @@ namespace Waterfront\Domain\Domains\DTO;
 
 class DestroyContactResult
 {
-    public function __construct(private readonly bool $success)
-    {
+    public function __construct(
+        private readonly bool $success,
+    ) {
     }
 
     public function isSuccessful(): bool

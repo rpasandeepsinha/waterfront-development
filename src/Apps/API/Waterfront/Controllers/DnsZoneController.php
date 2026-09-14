@@ -61,9 +61,7 @@ class DnsZoneController
         }
 
         try {
-            $nameservers = $dnsDeployment !== null
-            ? $this->nameserverAssigner->assign($dnsDeployment)
-            : [];
+            $nameservers = $dnsDeployment !== null ? $this->nameserverAssigner->assign($dnsDeployment) : [];
 
             $dnsZone = $this->dnsService->createDnsZone(
                 $domain,
@@ -90,8 +88,8 @@ class DnsZoneController
         return new Collection(
             array_filter(
                 $dnsZone->getRecords(),
-                fn (DnsRecordInterface $dnsRecord): bool => in_array($dnsRecord->getType(), $modifiableTypes, true)
-            )
+                fn (DnsRecordInterface $dnsRecord): bool => in_array($dnsRecord->getType(), $modifiableTypes, true),
+            ),
         );
     }
 
@@ -102,9 +100,10 @@ class DnsZoneController
     {
         return DomainDeployment::whereHas(
             'subscription',
-            fn (Builder $query) => $query->where('domain', $domainName)
-                ->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())
-        )
-            ->first();
+            fn (Builder $query) => $query->where('domain', $domainName)->whereNotIn(
+                'administrative_status',
+                AdministrativeStatus::administrativelyEnded(),
+            ),
+        )->first();
     }
 }

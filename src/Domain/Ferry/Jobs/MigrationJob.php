@@ -44,7 +44,7 @@ abstract class MigrationJob extends AbstractQueueableJob implements ShouldBeUniq
 
     public function __construct(
         public Subscription $subscription,
-        protected string|null $failedTechnicalStatus,
+        protected ?string $failedTechnicalStatus,
         public MigrationSource $migrationSource = MigrationSource::AZURE_DATA_FACTORY,
     ) {
         parent::__construct();
@@ -60,7 +60,7 @@ abstract class MigrationJob extends AbstractQueueableJob implements ShouldBeUniq
         $this->logger = $logger;
         $this->registerServices();
 
-        $messageType      = AzureDataFactoryMessageType::MIGRATION_EXECUTED->value;
+        $messageType = AzureDataFactoryMessageType::MIGRATION_EXECUTED->value;
         $exceptionPayload = [];
 
         $migrationStep = $this->getMigrationStep();
@@ -69,7 +69,8 @@ abstract class MigrationJob extends AbstractQueueableJob implements ShouldBeUniq
             $this->logger->debug('Starting technical migration for:', [
                 LoggingContextKeys::QUEUE_JOB_ID => $this->getJobId(),
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
-                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
+                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                    $this->migratedCustomer->reference_customer_number,
                 LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                 LoggingContextKeys::DOMAIN_NAME => $this->subscription->domain,
                 LoggingContextKeys::MIGRATION_STEP => $migrationStep->value,
@@ -88,7 +89,8 @@ abstract class MigrationJob extends AbstractQueueableJob implements ShouldBeUniq
             $this->logger->debug('Finished technical migration for:', [
                 LoggingContextKeys::QUEUE_JOB_ID => $this->getJobId(),
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
-                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
+                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                    $this->migratedCustomer->reference_customer_number,
                 LoggingContextKeys::DOMAIN_NAME => $this->subscription->domain,
                 LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                 LoggingContextKeys::MIGRATION_STEP => $migrationStep->value,
@@ -108,7 +110,8 @@ abstract class MigrationJob extends AbstractQueueableJob implements ShouldBeUniq
             $this->logger->error('Encountered exception during technical migration for:', [
                 LoggingContextKeys::QUEUE_JOB_ID => $this->getJobId(),
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
-                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
+                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                    $this->migratedCustomer->reference_customer_number,
                 LoggingContextKeys::DOMAIN_NAME => $this->subscription->domain,
                 LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                 LoggingContextKeys::MIGRATION_STEP => $migrationStep->value,
@@ -132,7 +135,8 @@ abstract class MigrationJob extends AbstractQueueableJob implements ShouldBeUniq
                 $this->logger->debug('Calling ADF webhook:', [
                     LoggingContextKeys::QUEUE_JOB_ID => $this->getJobId(),
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
-                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
+                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                        $this->migratedCustomer->reference_customer_number,
                     LoggingContextKeys::DOMAIN_NAME => $this->subscription->domain,
                     LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                     LoggingContextKeys::MIGRATION_STEP => $this->getMigrationStep()->value,
@@ -150,13 +154,14 @@ abstract class MigrationJob extends AbstractQueueableJob implements ShouldBeUniq
                     migrationStep: $this->getMigrationStep(),
                     messageType: $messageType,
                     exceptionPayload: $exceptionPayload,
-                    reference: $this->migratedCustomer->reference_customer_number
+                    reference: $this->migratedCustomer->reference_customer_number,
                 );
 
                 $this->logger->debug('Finished ADF webhook:', [
                     LoggingContextKeys::QUEUE_JOB_ID => $this->getJobId(),
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
-                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
+                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                        $this->migratedCustomer->reference_customer_number,
                     LoggingContextKeys::DOMAIN_NAME => $this->subscription->domain,
                     LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                     LoggingContextKeys::MIGRATION_STEP => $this->getMigrationStep()->value,
@@ -192,12 +197,13 @@ abstract class MigrationJob extends AbstractQueueableJob implements ShouldBeUniq
                 [
                     LoggingContextKeys::QUEUE_JOB_ID => $this->getJobId(),
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
-                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
+                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                        $this->migratedCustomer->reference_customer_number,
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::META => [
                         'attempts' => $this->attempts(),
                     ],
-                ]
+                ],
             );
 
             return;
@@ -208,13 +214,14 @@ abstract class MigrationJob extends AbstractQueueableJob implements ShouldBeUniq
             [
                 LoggingContextKeys::QUEUE_JOB_ID => $this->getJobId(),
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
-                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
+                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                    $this->migratedCustomer->reference_customer_number,
                 LoggingContextKeys::MIGRATION_SOURCE => $this->migrationSource->value,
                 LoggingContextKeys::EXCEPTION => $exception,
                 LoggingContextKeys::META => [
                     'attempts' => $this->attempts(),
                 ],
-            ]
+            ],
         );
 
         if ($this->migrationSource === MigrationSource::AZURE_DATA_FACTORY) {
@@ -228,7 +235,7 @@ abstract class MigrationJob extends AbstractQueueableJob implements ShouldBeUniq
                 migrationStep: $this->getMigrationStep(),
                 messageType: $messageType,
                 exceptionPayload: $exceptionPayload,
-                reference: $this->migratedCustomer->reference_customer_number
+                reference: $this->migratedCustomer->reference_customer_number,
             );
         }
     }
@@ -299,7 +306,7 @@ abstract class MigrationJob extends AbstractQueueableJob implements ShouldBeUniq
         MigrationStep $migrationStep,
         string $messageType,
         array $exceptionPayload,
-        string $reference
+        string $reference,
     ): void {
         if ($this->adfWebhookHasBeenCalled || $this->migrationSource !== MigrationSource::AZURE_DATA_FACTORY) {
             return;
@@ -312,10 +319,10 @@ abstract class MigrationJob extends AbstractQueueableJob implements ShouldBeUniq
                     [
                         ...$adfPayloadService->fetchMigrationADFPayload($subscription, $migrationStep)->toArray(),
                         ...$exceptionPayload,
-                    ]
+                    ],
                 ),
-                reference: $reference
-            )
+                reference: $reference,
+            ),
         );
 
         $this->adfWebhookHasBeenCalled = true;
@@ -347,10 +354,6 @@ abstract class MigrationJob extends AbstractQueueableJob implements ShouldBeUniq
 
     private function getMigratedCustomer(Subscription $subscription): MigratedCustomer
     {
-        return $subscription
-            ->customer()
-            ->firstOrFail()
-            ->migratedCustomers()
-            ->firstOrFail();
+        return $subscription->customer()->firstOrFail()->migratedCustomers()->firstOrFail();
     }
 }

@@ -29,11 +29,11 @@ class CsrManagerTest extends IntegrationTestCase
      * @var mixed[]
      */
     private const array DEFAULT_CUSTOMER_DATA = [
-        'name'       => 'Versio',
+        'name' => 'Versio',
         'department' => 'Support',
-        'address'    => [
-            'city'         => 'Lelystad',
-            'province'     => 'Flevoland',
+        'address' => [
+            'city' => 'Lelystad',
+            'province' => 'Flevoland',
             'country_code' => 'NL',
         ],
     ];
@@ -57,8 +57,8 @@ class CsrManagerTest extends IntegrationTestCase
             self::resolve(OpenSslExtensionStrategy::class),
             new KeyCloud($cryptoKey, $this->sslDisk),
             new LocalDisk(
-                $this->app->storagePath('framework/testing/disks/' . $this->localTestDisk)
-            )
+                $this->app->storagePath('framework/testing/disks/' . $this->localTestDisk),
+            ),
         ));
 
         $this->csrManager = self::resolve(CsrManager::class);
@@ -70,14 +70,14 @@ class CsrManagerTest extends IntegrationTestCase
         $this->expectExceptionMessageIsOrContains('A validation error occurred while creating CSR subject data');
 
         $faultyCustomer = [
-            'name'       => 'Sandwave',
+            'name' => 'Sandwave',
             'department' => 'Team Mind',
         ];
 
         foreach ($this->getCsrManagers() as $csrManager) {
             $csrManager->create(
                 $faultyCustomer,
-                self::DOMAIN
+                self::DOMAIN,
             );
         }
     }
@@ -88,10 +88,10 @@ class CsrManagerTest extends IntegrationTestCase
         $this->expectExceptionMessageIsOrContains('A validation error occurred while creating CSR subject data');
 
         $faultyCustomer = [
-            'name'       => '',
+            'name' => '',
             'department' => 'Team Mind',
-            'address'    => [
-                'city'         => 'Utrecht',
+            'address' => [
+                'city' => 'Utrecht',
                 'country_code' => 'NL',
             ],
         ];
@@ -99,7 +99,7 @@ class CsrManagerTest extends IntegrationTestCase
         foreach ($this->getCsrManagers() as $csrManager) {
             $csrManager->create(
                 $faultyCustomer,
-                self::DOMAIN
+                self::DOMAIN,
             );
         }
     }
@@ -113,7 +113,7 @@ class CsrManagerTest extends IntegrationTestCase
     public function createCsr(
         array $customerData,
         ?int $encryptionStrength,
-        array $expectedResult
+        array $expectedResult,
     ): void {
         foreach ($this->getCsrManagers() as $csrManager) {
             $this->createCsrWithManager($csrManager, $customerData, $encryptionStrength, $expectedResult);
@@ -125,7 +125,7 @@ class CsrManagerTest extends IntegrationTestCase
     {
         $this->csrManager->create(
             self::DEFAULT_CUSTOMER_DATA,
-            self::DOMAIN
+            self::DOMAIN,
         );
 
         $privateKey = $this->csrManager->getPrivateKey(self::DOMAIN);
@@ -139,7 +139,7 @@ class CsrManagerTest extends IntegrationTestCase
     {
         $this->csrManager->create(
             self::DEFAULT_CUSTOMER_DATA,
-            self::DOMAIN
+            self::DOMAIN,
         );
 
         // the original private key file
@@ -167,7 +167,7 @@ class CsrManagerTest extends IntegrationTestCase
         $wildcardDomain = '*.sandwaveio.testing';
         $this->csrManager->create(
             self::DEFAULT_CUSTOMER_DATA,
-            $wildcardDomain
+            $wildcardDomain,
         );
 
         // make sure the CSR+key are created:
@@ -184,7 +184,7 @@ class CsrManagerTest extends IntegrationTestCase
     {
         $this->csrManager->create(
             self::DEFAULT_CUSTOMER_DATA,
-            self::DOMAIN
+            self::DOMAIN,
         );
 
         // make sure the CSR+key are created:
@@ -207,7 +207,7 @@ class CsrManagerTest extends IntegrationTestCase
 
         $this->csrManager->create(
             self::DEFAULT_CUSTOMER_DATA,
-            self::DOMAIN
+            self::DOMAIN,
         );
 
         self::assertTrue($this->csrManager->hasPrivateKey(self::DOMAIN));
@@ -221,7 +221,7 @@ class CsrManagerTest extends IntegrationTestCase
 
         $this->csrManager->create(
             self::DEFAULT_CUSTOMER_DATA,
-            self::DOMAIN
+            self::DOMAIN,
         );
 
         $updated = $this->csrManager->updatePrivateKey(self::DOMAIN, $pkeyUpdate);
@@ -241,77 +241,77 @@ class CsrManagerTest extends IntegrationTestCase
         return [
             // Normal data without specifying encryption strength
             [
-                'customerData'       => self::DEFAULT_CUSTOMER_DATA,
+                'customerData' => self::DEFAULT_CUSTOMER_DATA,
                 'encryptionStrength' => null,
-                'expectedResult'     => [
-                    'countryName'            => 'NL',
-                    'stateOrProvinceName'    => 'Flevoland',
-                    'localityName'           => 'Lelystad',
-                    'organizationName'       => 'Versio',
+                'expectedResult' => [
+                    'countryName' => 'NL',
+                    'stateOrProvinceName' => 'Flevoland',
+                    'localityName' => 'Lelystad',
+                    'organizationName' => 'Versio',
                     'organizationalUnitName' => 'Support',
-                    'commonName'             => self::DOMAIN,
-                    'publicKeyAlgorithm'     => 'rsaEncryption',
-                    'encryptionStrength'     => 2048,
+                    'commonName' => self::DOMAIN,
+                    'publicKeyAlgorithm' => 'rsaEncryption',
+                    'encryptionStrength' => 2048,
                 ],
             ],
             // Normal data plus encryption strength
             [
-                'customerData'       => self::DEFAULT_CUSTOMER_DATA,
+                'customerData' => self::DEFAULT_CUSTOMER_DATA,
                 'encryptionStrength' => 4096,
-                'expectedResult'     => [
-                    'countryName'            => 'NL',
-                    'stateOrProvinceName'    => 'Flevoland',
-                    'localityName'           => 'Lelystad',
-                    'organizationName'       => 'Versio',
+                'expectedResult' => [
+                    'countryName' => 'NL',
+                    'stateOrProvinceName' => 'Flevoland',
+                    'localityName' => 'Lelystad',
+                    'organizationName' => 'Versio',
                     'organizationalUnitName' => 'Support',
-                    'commonName'             => self::DOMAIN,
-                    'publicKeyAlgorithm'     => 'rsaEncryption',
-                    'encryptionStrength'     => 4096,
+                    'commonName' => self::DOMAIN,
+                    'publicKeyAlgorithm' => 'rsaEncryption',
+                    'encryptionStrength' => 4096,
                 ],
             ],
             // Malicious data for testing sanitization
             [
-                'customerData'       => [
-                    'name'       => 'Versio',
+                'customerData' => [
+                    'name' => 'Versio',
                     'department' => 'Support',
-                    'address'    => [
-                        'city'         => 'Lelystad',
-                        'province'     => 'Flevoland/CN=maliciousdomain.com',
+                    'address' => [
+                        'city' => 'Lelystad',
+                        'province' => 'Flevoland/CN=maliciousdomain.com',
                         'country_code' => 'NL',
                     ],
                 ],
                 'encryptionStrength' => null,
-                'expectedResult'     => [
-                    'countryName'            => 'NL',
-                    'stateOrProvinceName'    => 'Flevoland',
-                    'localityName'           => 'Lelystad',
-                    'organizationName'       => 'Versio',
+                'expectedResult' => [
+                    'countryName' => 'NL',
+                    'stateOrProvinceName' => 'Flevoland',
+                    'localityName' => 'Lelystad',
+                    'organizationName' => 'Versio',
                     'organizationalUnitName' => 'Support',
-                    'commonName'             => self::DOMAIN,
-                    'publicKeyAlgorithm'     => 'rsaEncryption',
-                    'encryptionStrength'     => 2048,
+                    'commonName' => self::DOMAIN,
+                    'publicKeyAlgorithm' => 'rsaEncryption',
+                    'encryptionStrength' => 2048,
                 ],
             ],
             // Missing department
             [
-                'customerData'       => [
-                    'name'    => 'Sandwave',
+                'customerData' => [
+                    'name' => 'Sandwave',
                     'address' => [
-                        'city'         => 'Lelystad',
-                        'province'     => 'Flevoland',
+                        'city' => 'Lelystad',
+                        'province' => 'Flevoland',
                         'country_code' => 'NL',
                     ],
                 ],
                 'encryptionStrength' => null,
-                'expectedResult'     => [
-                    'countryName'            => 'NL',
-                    'stateOrProvinceName'    => 'Flevoland',
-                    'localityName'           => 'Lelystad',
-                    'organizationName'       => 'Versio',
+                'expectedResult' => [
+                    'countryName' => 'NL',
+                    'stateOrProvinceName' => 'Flevoland',
+                    'localityName' => 'Lelystad',
+                    'organizationName' => 'Versio',
                     'organizationalUnitName' => 'Support',
-                    'commonName'             => self::DOMAIN,
-                    'publicKeyAlgorithm'     => 'rsaEncryption',
-                    'encryptionStrength'     => 2048,
+                    'commonName' => self::DOMAIN,
+                    'publicKeyAlgorithm' => 'rsaEncryption',
+                    'encryptionStrength' => 2048,
                 ],
             ],
         ];
@@ -338,18 +338,18 @@ class CsrManagerTest extends IntegrationTestCase
         CsrManager $csrManager,
         array $customerData,
         ?int $encryptionStrength,
-        array $expectedResult
+        array $expectedResult,
     ): void {
         if ($encryptionStrength !== null) {
             $csrManager->create(
                 $customerData,
                 self::DOMAIN,
-                $encryptionStrength
+                $encryptionStrength,
             );
         } else {
             $csrManager->create(
                 $customerData,
-                self::DOMAIN
+                self::DOMAIN,
             );
         }
 

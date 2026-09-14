@@ -53,12 +53,15 @@ class NovaProductDiscountResource extends Resource
      */
     public function fields(NovaRequest $request): array
     {
-        $productGroupFilter = fn (Builder $productGroupQuery): Builder => $productGroupQuery->where('slug', ProductGroupType::VOLUME_DISCOUNT);
-        $productFilter = fn (NovaRequest $request, Builder $query) =>
-            $query->select('products.*')
-                ->whereHas('productGroup', $productGroupFilter)
-                ->leftJoin('product_discounts', 'products.id', '=', 'product_discounts.product_id')
-                ->whereNull('product_discounts.id');
+        $productGroupFilter = fn (Builder $productGroupQuery): Builder => $productGroupQuery->where(
+            'slug',
+            ProductGroupType::VOLUME_DISCOUNT,
+        );
+        $productFilter = fn (NovaRequest $request, Builder $query) => $query
+            ->select('products.*')
+            ->whereHas('productGroup', $productGroupFilter)
+            ->leftJoin('product_discounts', 'products.id', '=', 'product_discounts.product_id')
+            ->whereNull('product_discounts.id');
 
         return [
             ID::make()->hideFromIndex(),
@@ -68,16 +71,18 @@ class NovaProductDiscountResource extends Resource
             BelongsTo::make(
                 self::translate('product-discount.relations.product'),
                 'product',
-                NovaProductResource::class
-            )->nullable()
+                NovaProductResource::class,
+            )
+                ->nullable()
                 ->help(self::translate('product-discount.help.product'))
                 ->sortable()
                 ->relatableQueryUsing($productFilter),
             BelongsToMany::make(
                 self::translate('product-discount.relations.customers'),
                 'customers',
-                NovaCustomerResource::class
-            )->searchable()
+                NovaCustomerResource::class,
+            )
+                ->searchable()
                 ->singularLabel(self::translate('customer.singular')),
         ];
     }

@@ -41,12 +41,13 @@ class FailedDeployments extends HtmlCard
             NovaSubscriptionResource::uriKey(),
             NovaSubscriptionResource::uriKey(),
             NovaSubscriptionResource::uriKey(),
-            $filters
+            $filters,
         );
+
         return <<<HTML
-<a class="no-underline dim text-primary font-bold" href="{$url}">{$failedSubscriptionAmount} Failed Subscriptions</a><br />
-<i>subscriptions with a deployment error</i>
-HTML;
+        <a class="no-underline dim text-primary font-bold" href="{$url}">{$failedSubscriptionAmount} Failed Subscriptions</a><br />
+        <i>subscriptions with a deployment error</i>
+        HTML;
     }
 
     private function countTechnicallyFailedSubscriptions(): int
@@ -60,13 +61,14 @@ HTML;
                 TechnicalStatus::DELETING_FAILED->value,
                 TechnicalStatus::SUSPENSION_FAILED->value,
                 TechnicalStatus::UNSUSPENSION_FAILED->value,
-            ])->whereNotIn(
+            ])
+            ->whereNotIn(
                 'administrative_status',
                 [
                     AdministrativeStatus::CANCELED->value,
                     AdministrativeStatus::ARCHIVING->value,
                     ...AdministrativeStatus::administrativelyEnded(),
-                ]
+                ],
             )
             ->count();
     }

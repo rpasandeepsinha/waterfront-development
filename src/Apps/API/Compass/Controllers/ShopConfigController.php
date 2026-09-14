@@ -34,8 +34,8 @@ class ShopConfigController
         if ($contents === null || $contents === '') {
             throw new Exception('Failed to read shop config');
         }
-        return new Response($contents)
-            ->header('Content-Type', 'application/json');
+
+        return new Response($contents)->header('Content-Type', 'application/json');
     }
 
     #[RequirePermission(Permissions::MANAGE_SHOP_CONFIG, SchemaId::EMPLOYEE)]
@@ -48,6 +48,7 @@ class ShopConfigController
         if (! $this->filesystem->put(self::FILE_NAME, $contents)) {
             throw new Exception('Failed to write shop config');
         }
+
         return new Response(status: Response::HTTP_NO_CONTENT);
     }
 }

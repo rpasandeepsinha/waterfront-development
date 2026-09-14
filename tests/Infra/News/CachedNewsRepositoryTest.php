@@ -24,8 +24,7 @@ class CachedNewsRepositoryTest extends IntegrationTestCase
         parent::setUp();
 
         $configuration = self::createStub(ConfigurationInterface::class);
-        $configuration->method('getAsString')
-            ->willReturn('versio');
+        $configuration->method('getAsString')->willReturn('versio');
 
         $this->configuration = $configuration;
     }
@@ -44,7 +43,7 @@ class CachedNewsRepositoryTest extends IntegrationTestCase
 
         $repository = new CachedNewsRepository(
             $this->configuration,
-            self::resolve(NewsConsumerFactory::class)
+            self::resolve(NewsConsumerFactory::class),
         );
         $repository->store([
             $news1,
@@ -70,7 +69,7 @@ class CachedNewsRepositoryTest extends IntegrationTestCase
 
         $repository = new CachedNewsRepository(
             $this->configuration,
-            self::resolve(NewsConsumerFactory::class)
+            self::resolve(NewsConsumerFactory::class),
         );
         Cache::put('NEWS.API.ITEMS.LOCK', []);
         Cache::put('NEWS.API.ITEMS', [

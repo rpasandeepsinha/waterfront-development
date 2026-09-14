@@ -45,13 +45,13 @@ class TerminateMailOnlyHostingTest extends IntegrationTestCase
         $createMailOnlyHosting = new CreateMailOnlyHosting(
             contactPersonName: $this->subscription->customer->name,
             contactEmail: $this->subscription->customer->email,
-            subscription: $this->subscription
+            subscription: $this->subscription,
         );
 
         $this->dispatcher = self::resolve(Dispatcher::class);
 
         $this->terminateMailOnlyHostingJob = new TerminateMailOnlyHosting(
-            $createMailOnlyHosting
+            $createMailOnlyHosting,
         );
     }
 
@@ -61,13 +61,9 @@ class TerminateMailOnlyHostingTest extends IntegrationTestCase
         $mockLogger = self::createMock(LoggerInterface::class);
         $mailOnlyService = self::createMock(MailManagementService::class);
 
-        $mockLogger->expects(self::once())
-            ->method('error')
-            ->with('Error while terminating the mailOnly subscription');
+        $mockLogger->expects(self::once())->method('error')->with('Error while terminating the mailOnly subscription');
 
-        $mailOnlyService->expects(self::once())
-            ->method('terminate')
-            ->willThrowException(new MailOnlyException());
+        $mailOnlyService->expects(self::once())->method('terminate')->willThrowException(new MailOnlyException());
 
         $this->terminateMailOnlyHostingJob->handle($mailOnlyService, $mockLogger);
     }

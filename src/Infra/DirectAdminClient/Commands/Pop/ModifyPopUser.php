@@ -93,12 +93,12 @@ class ModifyPopUser extends DirectAdminCommand
     private function getPostBody(): StreamInterface
     {
         $params = [
-            'action'	=> 'modify',
-            'domain'	=> $this->getDomain(),
-            'user'	    => $this->getUser(),
-            'passwd'	=> $this->getPassword(),
-            'passwd2'	=> $this->getPassword(),
-            'quota'	    => $this->getQuota(),
+            'action' => 'modify',
+            'domain' => $this->getDomain(),
+            'user' => $this->getUser(),
+            'passwd' => $this->getPassword(),
+            'passwd2' => $this->getPassword(),
+            'quota' => $this->getQuota(),
         ];
 
         return Utils::streamFor(http_build_query($params));

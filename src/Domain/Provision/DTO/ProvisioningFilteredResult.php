@@ -29,7 +29,7 @@ readonly class ProvisioningFilteredResult
         public ProvisionType $requestType,
         public ProvisionProvider $provider,
         public ?UuidInterface $retryOf = null,
-        public ?UuidInterface $retryRequester = null
+        public ?UuidInterface $retryRequester = null,
     ) {
     }
 }

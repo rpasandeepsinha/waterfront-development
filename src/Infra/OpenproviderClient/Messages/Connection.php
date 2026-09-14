@@ -57,6 +57,7 @@ class Connection implements OpenProviderConnectionInterface
         if ($apiUrl === '') {
             throw new RuntimeException('The open provider api url is missing.');
         }
+
         if (filter_var($apiUrl, FILTER_VALIDATE_URL) === false) {
             throw new RuntimeException('The open provider api url is invalid: ' . $apiUrl);
         }
@@ -72,6 +73,7 @@ class Connection implements OpenProviderConnectionInterface
         if ($username === '') {
             throw new RuntimeException('The username for open provider is missing.');
         }
+
         $this->username = $username;
     }
 
@@ -83,6 +85,7 @@ class Connection implements OpenProviderConnectionInterface
         if ($password === '') {
             throw new RuntimeException('The password for open provider is missing.');
         }
+
         $this->password = $password;
     }
 }

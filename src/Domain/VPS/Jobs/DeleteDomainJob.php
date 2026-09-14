@@ -49,7 +49,7 @@ class DeleteDomainJob extends AbstractQueueableJob
                 LoggingContextKeys::META => [
                     'managerDomainDeployment' => $this->managerDomainDeployment->id,
                 ],
-            ]
+            ],
         );
     }
 
@@ -58,13 +58,17 @@ class DeleteDomainJob extends AbstractQueueableJob
      * @throws JsonException
      * @throws ClientException
      */
-    public function handle(CloudstackService $cloudstackService, ClientFactoryInterface $clientFactory, LoggerInterface $logger): void
-    {
+    public function handle(
+        CloudstackService $cloudstackService,
+        ClientFactoryInterface $clientFactory,
+        LoggerInterface $logger,
+    ): void {
         $baseClient = $clientFactory->create($this->managerDomainDeployment)->getBaseClient();
         $jobResponse = $cloudstackService->retrieveJobStatus($this->cloudstackJob->job_id, $baseClient);
 
         if ($jobResponse->status === JobStatus::PENDING->value) {
             $this->release(static::RETRY_DELAY_SECONDS * $this->attempts());
+
             return;
         }
 
@@ -75,10 +79,11 @@ class DeleteDomainJob extends AbstractQueueableJob
                         'DeleteDomainJob with ID %d has failed to delete domain {%s}. Cloudstack Error: %s',
                         $jobResponse->jobId,
                         $this->managerDomainDeployment->domain_id,
-                        json_encode($jobResponse->result, JSON_THROW_ON_ERROR)
-                    )
-                )
+                        json_encode($jobResponse->result, JSON_THROW_ON_ERROR),
+                    ),
+                ),
             );
+
             return;
         }
 
@@ -92,9 +97,10 @@ class DeleteDomainJob extends AbstractQueueableJob
                     LoggingContextKeys::META => [
                         'managerDomainDeployment' => $this->managerDomainDeployment->id,
                     ],
-                ]
+                ],
             );
             $this->managerDomainDeployment->delete();
+
             return;
         }
 
@@ -105,8 +111,8 @@ class DeleteDomainJob extends AbstractQueueableJob
                     $jobResponse->jobId,
                     $this->managerDomainDeployment->domain_id,
                     $jobResponse->status,
-                )
-            )
+                ),
+            ),
         );
     }
 

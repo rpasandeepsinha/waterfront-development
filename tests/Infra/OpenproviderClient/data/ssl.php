@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 return [
-    'domain'    => 'example.org',
-    'customer'  => include(__DIR__ . '/customer.php'),
+    'domain' => 'example.org',
+    'customer' => include __DIR__ . '/customer.php',
     'productId' => 31,
-    'period'    => 2,
-    'csr'       => '-----BEGIN CERTIFICATE REQUEST-----
+    'period' => 2,
+    'csr' => '-----BEGIN CERTIFICATE REQUEST-----
 MIIBvzCCASgCAQAwfzELMAkGA1UEBhMCTkwxCzAJBgNVBAgTAlpIMQ0wCwYDVQQH
 EwRSZGFtMQ8wDQYDVQQKEwZSb29yZGExHDAaBgNVBAMTE8d3dy5zaWVtZW5yb29y
 ZGEubmwxJTAjBgkqhkiG9w0BCQEWFnNpZW1lbkBzbWVtZW5yb29yZGEubmwwgZ8w
@@ -19,14 +19,14 @@ JMWPrv0MDosDOIBZrCZoyF+VStANG8PoTg1VD7RgG+pZItCcp/X5MrHNsUUnySW5
 kUaUx8Z21OOaoYjlHZTUaGfX5VKjjKH3NZ373Xms6Y9PcbX2nhvfo8IFSgnWKXD8
 7Vyp67kPlzocoO3rcGd+PmU/aQ==
 -----END CERTIFICATE REQUEST-----',
-    'softwareId'              => 'linux',
-    'organizationHandle'      => 'BA904019-NL',
-    'technicalHandle'         => 'BA904019-NL',
-    'approverEmail'           => 'info@sandwave.io',
+    'softwareId' => 'linux',
+    'organizationHandle' => 'BA904019-NL',
+    'technicalHandle' => 'BA904019-NL',
+    'approverEmail' => 'info@sandwave.io',
     'domainValidationMethods' => [
         [
             'hostName' => 'example.org',
-            'method'   => 'dns',
+            'method' => 'dns',
         ],
     ],
 ];

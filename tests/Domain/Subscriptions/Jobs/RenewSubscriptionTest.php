@@ -57,7 +57,8 @@ class RenewSubscriptionTest extends IntegrationTestCase
             ]);
 
         $renewalInfoAction = self::createMock(GetRenewalInfoAction::class);
-        $renewalInfoAction->expects(self::once())
+        $renewalInfoAction
+            ->expects(self::once())
             ->method('execute')
             ->willReturn(
                 new RenewalInfoDTO(
@@ -67,8 +68,8 @@ class RenewSubscriptionTest extends IntegrationTestCase
                     500,
                     500,
                     CarbonImmutable::now(),
-                    CarbonImmutable::now()->addMonths(12)
-                )
+                    CarbonImmutable::now()->addMonths(12),
+                ),
             );
 
         $subscriptionRenewService = new SubscriptionRenewService(
@@ -81,17 +82,21 @@ class RenewSubscriptionTest extends IntegrationTestCase
         );
 
         $eventDispatcher = self::createMock(Dispatcher::class);
-        $eventDispatcher->expects(self::once())
-            ->method('dispatch')
-            ->with(new SubscriptionRenewedEvent($subscription));
+        $eventDispatcher->expects(self::once())->method('dispatch')->with(new SubscriptionRenewedEvent($subscription));
 
         new RenewSubscription($subscription)->handle($subscriptionRenewService, $eventDispatcher);
 
         self::assertSame($product->id, $subscription->product->id);
         self::assertSame($contractPeriod, $subscription->contract_period);
         self::assertSame($billingPeriod, $subscription->billing_period);
-        self::assertSame($now->addMonths($contractPeriod)->startOfDay()->getTimestamp(), $subscription->end_date->startOfDay()->getTimestamp());
-        self::assertSame($now->startOfDay()->getTimestamp(), $subscription->next_billing_date->startOfDay()->getTimestamp());
+        self::assertSame(
+            $now->addMonths($contractPeriod)->startOfDay()->getTimestamp(),
+            $subscription->end_date->startOfDay()->getTimestamp(),
+        );
+        self::assertSame(
+            $now->startOfDay()->getTimestamp(),
+            $subscription->next_billing_date->startOfDay()->getTimestamp(),
+        );
         self::assertSame(500, $subscription->gross_price);
         self::assertSame(500, $subscription->net_price);
     }
@@ -123,7 +128,8 @@ class RenewSubscriptionTest extends IntegrationTestCase
             ]);
 
         $renewalInfoAction = self::createMock(GetRenewalInfoAction::class);
-        $renewalInfoAction->expects(self::once())
+        $renewalInfoAction
+            ->expects(self::once())
             ->method('execute')
             ->willReturn(
                 new RenewalInfoDTO(
@@ -133,8 +139,8 @@ class RenewSubscriptionTest extends IntegrationTestCase
                     500,
                     500,
                     CarbonImmutable::now(),
-                    CarbonImmutable::now()->addMonths(12)
-                )
+                    CarbonImmutable::now()->addMonths(12),
+                ),
             );
 
         $subscriptionRenewService = new SubscriptionRenewService(
@@ -147,17 +153,21 @@ class RenewSubscriptionTest extends IntegrationTestCase
         );
 
         $eventDispatcher = self::createMock(Dispatcher::class);
-        $eventDispatcher->expects(self::once())
-            ->method('dispatch')
-            ->with(new SubscriptionRenewedEvent($subscription));
+        $eventDispatcher->expects(self::once())->method('dispatch')->with(new SubscriptionRenewedEvent($subscription));
 
         new RenewSubscription($subscription)->handle($subscriptionRenewService, $eventDispatcher);
 
         self::assertSame($product->id, $subscription->product->id);
         self::assertSame($contractPeriod, $subscription->contract_period);
         self::assertSame($billingPeriod, $subscription->billing_period);
-        self::assertSame($now->addMonths($contractPeriod)->startOfDay()->getTimestamp(), $subscription->end_date->startOfDay()->getTimestamp());
-        self::assertSame($now->startOfDay()->getTimestamp(), $subscription->next_billing_date->startOfDay()->getTimestamp());
+        self::assertSame(
+            $now->addMonths($contractPeriod)->startOfDay()->getTimestamp(),
+            $subscription->end_date->startOfDay()->getTimestamp(),
+        );
+        self::assertSame(
+            $now->startOfDay()->getTimestamp(),
+            $subscription->next_billing_date->startOfDay()->getTimestamp(),
+        );
         self::assertSame(500, $subscription->gross_price);
         self::assertSame(500, $subscription->net_price);
     }
@@ -173,7 +183,10 @@ class RenewSubscriptionTest extends IntegrationTestCase
 
         $product = new ProductFactory()->for(new ProductGroupFactory()->createOne())->createOne();
 
-        new ProductPriceComponentFactory()->for($product)->registration()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne();
 
         $subscription = new SubscriptionFactory()
             ->withCustomer()
@@ -187,17 +200,31 @@ class RenewSubscriptionTest extends IntegrationTestCase
                 'gross_price' => 100,
             ]);
 
-        $pricePersistService->persistCustomPrice($subscription, 123, false, CustomPriceReasonType::FIXED_MIGRATION_PRICE);
+        $pricePersistService->persistCustomPrice(
+            $subscription,
+            123,
+            false,
+            CustomPriceReasonType::FIXED_MIGRATION_PRICE,
+        );
 
         new RenewSubscription($subscription)->handle($subscriptionRenewService, self::resolve(Dispatcher::class));
 
-        self::assertSame($now->addMonths(12)->startOfDay()->getTimestamp(), $subscription->end_date->startOfDay()->getTimestamp());
-        self::assertSame($now->startOfDay()->getTimestamp(), $subscription->next_billing_date->startOfDay()->getTimestamp());
+        self::assertSame(
+            $now->addMonths(12)->startOfDay()->getTimestamp(),
+            $subscription->end_date->startOfDay()->getTimestamp(),
+        );
+        self::assertSame(
+            $now->startOfDay()->getTimestamp(),
+            $subscription->next_billing_date->startOfDay()->getTimestamp(),
+        );
         self::assertSame(100, $subscription->gross_price);
 
         // The price version hasn't been updated and the custom indefinite price component is still valid.
         self::assertSame(123, $subscription->net_price);
         self::assertCount(1, $subscription->prices);
-        self::assertSame(PriceComponentType::CUSTOM_INDEFINITE, $subscription->activePrice?->components->firstOrFail()->type);
+        self::assertSame(
+            PriceComponentType::CUSTOM_INDEFINITE,
+            $subscription->activePrice?->components->firstOrFail()->type,
+        );
     }
 }

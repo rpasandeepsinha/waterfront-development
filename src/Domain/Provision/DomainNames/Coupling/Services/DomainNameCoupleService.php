@@ -66,7 +66,7 @@ class DomainNameCoupleService extends AbstractProvisionService implements Provis
      */
     public function send(ProvisionRequestInterface $provisionData): ProvisionResultInterface
     {
-        return match($provisionData::class) {
+        return match ($provisionData::class) {
             DomainNameCoupleRequest::class => $this->coupleDomainName($provisionData),
             DomainNameDecoupleRequest::class => $this->decoupleDomainName($provisionData),
             default => throw new UnknownDomainNameCoupleRequestException($provisionData),
@@ -82,7 +82,7 @@ class DomainNameCoupleService extends AbstractProvisionService implements Provis
         $service = match ($provisionType) {
             ProvisionType::HOSTING => $this->hostingService,
             ProvisionType::REDIRECT => $this->hostingService, // TODO replace with RedirectProvisionService when implemented
-            default => throw new UnknownDomainNameCoupleProvisionTypeException($provisionType)
+            default => throw new UnknownDomainNameCoupleProvisionTypeException($provisionType),
         };
 
         if (! $service instanceof DomainNameCoupleInterface) {
@@ -106,7 +106,7 @@ class DomainNameCoupleService extends AbstractProvisionService implements Provis
 
         if ($deployment === null) {
             throw new DeploymentNotFoundException(
-                sprintf('No deployment found for the given request UUID [%s].', $provisionData->requestUuid)
+                sprintf('No deployment found for the given request UUID [%s].', $provisionData->requestUuid),
             );
         }
 
@@ -118,12 +118,13 @@ class DomainNameCoupleService extends AbstractProvisionService implements Provis
                 domain: $provisionData->domain,
                 coupleType: $coupleType,
                 deploymentUuid: $deployment->uuid,
-                requestId: $requestId
+                requestId: $requestId,
             );
         } catch (CreateDomainNameCoupleDeploymentException $exception) {
             $result = new DomainNameCoupleResult($provisionData, ProvisionStatus::FAILED);
             $result->domain = $provisionData->domain;
             $result->exception = $exception;
+
             return $result;
         }
 
@@ -131,6 +132,7 @@ class DomainNameCoupleService extends AbstractProvisionService implements Provis
 
         $couple = $domainNameCoupleService->coupleToDomainName($provisionData);
         $couple->domain = $provisionData->domain;
+
         return $couple;
     }
 
@@ -145,7 +147,7 @@ class DomainNameCoupleService extends AbstractProvisionService implements Provis
 
         if ($deployment === null) {
             throw new DeploymentNotFoundException(
-                sprintf('No deployment found for the given request UUID [%s].', $provisionData->requestUuid)
+                sprintf('No deployment found for the given request UUID [%s].', $provisionData->requestUuid),
             );
         }
 

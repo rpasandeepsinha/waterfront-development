@@ -27,13 +27,13 @@ class ProductPriceGenerator
                         continue;
                     }
 
-                    if ($contractPeriod % $billingPeriod !== 0) {
+                    if (($contractPeriod % $billingPeriod) !== 0) {
                         continue;
                     }
 
                     // Multi-year discount: for every year beyond the first that
                     // you sign up for, the monthly price decreases by 1 euro
-                    $regularMonthPrice = $discounts ? $monthPrice - (2 - $contractPeriodIndex) * 100 : $monthPrice;
+                    $regularMonthPrice = $discounts ? $monthPrice - ((2 - $contractPeriodIndex) * 100) : $monthPrice;
                     /** @var int<0, max> $regularPrice */
                     $regularPrice = $regularMonthPrice * $billingPeriod;
 
@@ -50,7 +50,7 @@ class ProductPriceGenerator
                     if ($type === PriceComponentType::REGISTRATION && $billingPeriod > 1 && $discounts) {
                         // Yearly prices: first 6 months for 99 cents (for testing purposes)
                         /** @var int<0, max> $promotionPrice */
-                        $promotionPrice = $regularMonthPrice * ($billingPeriod - 6) + 594;
+                        $promotionPrice = ($regularMonthPrice * ($billingPeriod - 6)) + 594;
 
                         $productPeriod = new ProductPeriod();
                         $productPeriod->product_id = $product->id;
@@ -75,6 +75,7 @@ class ProductPriceGenerator
                 }
             }
         }
+
         return $prices;
     }
 }

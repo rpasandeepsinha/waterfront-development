@@ -13,6 +13,6 @@ interface MailerInterface
     public function send(
         array $recipients,
         MailTemplateInterface $template,
-        array $cc = []
+        array $cc = [],
     ): void;
 }

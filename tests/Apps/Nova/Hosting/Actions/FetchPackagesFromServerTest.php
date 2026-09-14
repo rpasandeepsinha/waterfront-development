@@ -27,11 +27,16 @@ class FetchPackagesFromServerTest extends IntegrationTestCase
             ->directadmin()
             ->createOne(['hostname' => 'single-server.nl']);
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $action = self::resolve(NovaFetchPackagesFromServer::class);
 
-        $fields =  new ActionFields((new Collection()), (new Collection()));
+        $fields = new ActionFields(new Collection(), new Collection());
         $payload = new Collection([$server]);
 
         $result = $action->handle($fields, $payload);
@@ -41,7 +46,7 @@ class FetchPackagesFromServerTest extends IntegrationTestCase
 
         self::assertSame(
             'Fetched packages from server with hostname {single-server.nl} with response:',
-            $modal->payload['title']
+            $modal->payload['title'],
         );
     }
 }

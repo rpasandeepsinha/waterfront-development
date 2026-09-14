@@ -121,7 +121,7 @@ class CreateBasekitForMigrationIntegrationTest extends IntegrationTestCase
                 $domain,
                 $siteRef,
                 $userRef,
-            )
+            ),
         );
     }
 
@@ -175,7 +175,7 @@ class CreateBasekitForMigrationIntegrationTest extends IntegrationTestCase
                 $domain,
                 $siteRef,
                 $userRef,
-            )
+            ),
         );
     }
 

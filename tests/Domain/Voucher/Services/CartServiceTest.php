@@ -63,8 +63,16 @@ class CartServiceTest extends IntegrationTestCase
         $productGroup = new ProductGroupFactory()->extension()->createOne();
         $hostingGroup = new ProductGroupFactory()->hosting()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne(['slug' => 'extension_nl']);
-        $voucher = new VoucherFactory()->for($productGroup)->createOne(['code' => 'fiets', 'display_name' => 'voucher name', 'description' => 'descriptive description']);
-        new VoucherFactory()->for($hostingGroup)->createOne(['code' => 'asdfasdfsadf', 'display_name' => 'asdfasdfasdf', 'description' => 'descriptive description']);
+        $voucher = new VoucherFactory()->for($productGroup)->createOne([
+            'code' => 'fiets',
+            'display_name' => 'voucher name',
+            'description' => 'descriptive description',
+        ]);
+        new VoucherFactory()->for($hostingGroup)->createOne([
+            'code' => 'asdfasdfsadf',
+            'display_name' => 'asdfasdfasdf',
+            'description' => 'descriptive description',
+        ]);
 
         $uuid = Uuid::uuid4();
         $cartItemWithoutPrice = new CartItemWithoutPrice(
@@ -77,12 +85,25 @@ class CartServiceTest extends IntegrationTestCase
             contractPeriod: 12,
             priceType: ProductPriceType::REGISTRATION,
             quantity: 1,
-            metaData: null
+            metaData: null,
         );
-        $cartOrder = new Cart('credit', [$cartItemWithoutPrice], [$voucher->code, 'sadlfkjalsdjfsdlaf', 'asdfasdfsadf']);
+        $cartOrder = new Cart(
+            'credit',
+            [$cartItemWithoutPrice],
+            [$voucher->code, 'sadlfkjalsdjfsdlaf', 'asdfasdfsadf'],
+        );
 
         $usedProductCollection = new Collection();
-        $cartVoucher = new CartVoucher($voucher->id, $voucher->code, $voucher->display_name, $voucher->description ?? '', $voucher->amount, $voucher->amount_type, true, 200);
+        $cartVoucher = new CartVoucher(
+            $voucher->id,
+            $voucher->code,
+            $voucher->display_name,
+            $voucher->description ?? '',
+            $voucher->amount,
+            $voucher->amount_type,
+            true,
+            200,
+        );
         $usedProductAndPrice = new ProductWithCalculatedPrice(
             $uuid,
             null,
@@ -95,9 +116,15 @@ class CartServiceTest extends IntegrationTestCase
             new Price(ProductPriceType::REGISTRATION, 12, 1, 'uuid', 0, 12, true, true),
         );
         $usedProductCollection->add($usedProductAndPrice);
-        $CalculatedTotalOrderPrice = new TotalCollectionPrice($usedProductCollection, [$voucher->code => new VoucherInformation($voucher->code, 0, true, null, null, null)], 1, 1);
+        $CalculatedTotalOrderPrice = new TotalCollectionPrice(
+            $usedProductCollection,
+            [$voucher->code => new VoucherInformation($voucher->code, 0, true, null, null, null)],
+            1,
+            1,
+        );
         $calculatePriceServiceMock = self::createMock(CalculatePriceService::class);
-        $calculatePriceServiceMock->expects(self::once())
+        $calculatePriceServiceMock
+            ->expects(self::once())
             ->method('calculatePrices')
             ->willReturn($CalculatedTotalOrderPrice);
 
@@ -112,7 +139,10 @@ class CartServiceTest extends IntegrationTestCase
             self::resolve(PaymentService::class),
         );
 
-        $result = $voucherCartService->checkVouchersAndCalculateAppliedVoucherAppliedAmount($this->customer, $cartOrder);
+        $result = $voucherCartService->checkVouchersAndCalculateAppliedVoucherAppliedAmount(
+            $this->customer,
+            $cartOrder,
+        );
 
         Assert::assertSame($voucher->code, $result->vouchers[$voucher->code]->code);
         Assert::assertSame(200, $result->vouchers[$voucher->code]->claimedAmount);
@@ -138,7 +168,7 @@ class CartServiceTest extends IntegrationTestCase
             contractPeriod: 12,
             priceType: ProductPriceType::REGISTRATION,
             quantity: 1,
-            metaData: null
+            metaData: null,
         );
         $cartOrder = new Cart('credit', [$cartItemWithoutPrice], []);
 
@@ -157,7 +187,8 @@ class CartServiceTest extends IntegrationTestCase
         $usedProductCollection->add($usedProductAndPrice);
         $CalculatedTotalOrderPrice = new TotalCollectionPrice($usedProductCollection, [], 1, 1);
         $calculatePriceServiceMock = self::createMock(CalculatePriceService::class);
-        $calculatePriceServiceMock->expects(self::once())
+        $calculatePriceServiceMock
+            ->expects(self::once())
             ->method('calculatePrices')
             ->willReturn($CalculatedTotalOrderPrice);
 
@@ -172,8 +203,15 @@ class CartServiceTest extends IntegrationTestCase
             self::resolve(PaymentService::class),
         );
 
-        $result = $voucherCartService->checkVouchersAndCalculateAppliedVoucherAppliedAmount($this->customer, $cartOrder);
-        $result = $voucherCartService->convertTotalPriceCollectionToCartWithPricesStructure($result, $cartOrder, $this->customer);
+        $result = $voucherCartService->checkVouchersAndCalculateAppliedVoucherAppliedAmount(
+            $this->customer,
+            $cartOrder,
+        );
+        $result = $voucherCartService->convertTotalPriceCollectionToCartWithPricesStructure(
+            $result,
+            $cartOrder,
+            $this->customer,
+        );
 
         Assert::assertNotEmpty($result->cartItems);
         Assert::assertEmpty($result->vouchers);
@@ -199,8 +237,15 @@ class CartServiceTest extends IntegrationTestCase
             self::resolve(PaymentService::class),
         );
 
-        $result = $voucherCartService->checkVouchersAndCalculateAppliedVoucherAppliedAmount($this->customer, $cartOrder);
-        $result = $voucherCartService->convertTotalPriceCollectionToCartWithPricesStructure($result, $cartOrder, $this->customer);
+        $result = $voucherCartService->checkVouchersAndCalculateAppliedVoucherAppliedAmount(
+            $this->customer,
+            $cartOrder,
+        );
+        $result = $voucherCartService->convertTotalPriceCollectionToCartWithPricesStructure(
+            $result,
+            $cartOrder,
+            $this->customer,
+        );
 
         Assert::assertEmpty($result->cartItems);
         Assert::assertNotEmpty($result->vouchers);
@@ -276,7 +321,9 @@ class CartServiceTest extends IntegrationTestCase
     {
         $administrationFeesManager = self::createStub(AdministrationFeesManager::class);
         $administrationFeesManager->method('shouldBeChargedWithOrder')->willReturn(true);
-        $administrationFeesManager->method('getAdministrationFees')->willReturn(new AdministrationFees(111, 200, 'admin fees'));
+        $administrationFeesManager
+            ->method('getAdministrationFees')
+            ->willReturn(new AdministrationFees(111, 200, 'admin fees'));
 
         $voucherCartService = new CartService(
             self::resolve(CalculatePriceService::class),
@@ -298,7 +345,11 @@ class CartServiceTest extends IntegrationTestCase
 
         $cartOrder = new Cart('bancontact', [], []);
 
-        $cartWithPrice = $voucherCartService->convertTotalPriceCollectionToCartWithPricesStructure($totalPriceCollectin, $cartOrder, $this->customer);
+        $cartWithPrice = $voucherCartService->convertTotalPriceCollectionToCartWithPricesStructure(
+            $totalPriceCollectin,
+            $cartOrder,
+            $this->customer,
+        );
 
         self::assertSame(200, $cartWithPrice->administrationFee);
     }
@@ -308,7 +359,9 @@ class CartServiceTest extends IntegrationTestCase
     {
         $administrationFeesManager = self::createStub(AdministrationFeesManager::class);
         $administrationFeesManager->method('shouldBeChargedWithOrder')->willReturn(false);
-        $administrationFeesManager->method('getAdministrationFees')->willReturn(new AdministrationFees(111, 200, 'admin fees'));
+        $administrationFeesManager
+            ->method('getAdministrationFees')
+            ->willReturn(new AdministrationFees(111, 200, 'admin fees'));
 
         $voucherCartService = new CartService(
             self::resolve(CalculatePriceService::class),
@@ -330,7 +383,11 @@ class CartServiceTest extends IntegrationTestCase
 
         $cartOrder = new Cart('ideal', [], []);
 
-        $cartWithPrice = $voucherCartService->convertTotalPriceCollectionToCartWithPricesStructure($totalPriceCollectin, $cartOrder, $this->customer);
+        $cartWithPrice = $voucherCartService->convertTotalPriceCollectionToCartWithPricesStructure(
+            $totalPriceCollectin,
+            $cartOrder,
+            $this->customer,
+        );
 
         self::assertSame(0, $cartWithPrice->administrationFee);
     }
@@ -341,17 +398,46 @@ class CartServiceTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
         $productGroup = new ProductGroupFactory()->extension()->createOne();
         $hostingGroup = new ProductGroupFactory()->hosting()->createOne();
-        $normalVoucher = new VoucherFactory()->for($productGroup)->createOne(['code' => 'fiets', 'display_name' => 'voucher name', 'description' => 'descriptive description', 'max_claims' => 1]);
-        $expiredVoucher = new VoucherFactory()->for($hostingGroup)->createOne(['expiration_date' => CarbonImmutable::yesterday(), 'code' => 'expiredVoucher', 'display_name' => 'expiredVoucher', 'description' => 'descriptive description']);
-        $noClaimsLeftVoucher = new VoucherFactory()->for($hostingGroup)->createOne(['max_claims' => 0, 'code' => 'noClaimsVoucher', 'display_name' => 'noClaimsVoucher', 'description' => 'descriptive description']);
-        $alreadyClaimed = new VoucherFactory()->for($hostingGroup)->createOne(['allow_multiple_claims_same_customer' => false, 'code' => 'alreadyClaimed', 'display_name' => 'alreadyClaimed', 'description' => 'descriptive description']);
+        $normalVoucher = new VoucherFactory()->for($productGroup)->createOne([
+            'code' => 'fiets',
+            'display_name' => 'voucher name',
+            'description' => 'descriptive description',
+            'max_claims' => 1,
+        ]);
+        $expiredVoucher = new VoucherFactory()->for($hostingGroup)->createOne([
+            'expiration_date' => CarbonImmutable::yesterday(),
+            'code' => 'expiredVoucher',
+            'display_name' => 'expiredVoucher',
+            'description' => 'descriptive description',
+        ]);
+        $noClaimsLeftVoucher = new VoucherFactory()->for($hostingGroup)->createOne([
+            'max_claims' => 0,
+            'code' => 'noClaimsVoucher',
+            'display_name' => 'noClaimsVoucher',
+            'description' => 'descriptive description',
+        ]);
+        $alreadyClaimed = new VoucherFactory()->for($hostingGroup)->createOne([
+            'allow_multiple_claims_same_customer' => false,
+            'code' => 'alreadyClaimed',
+            'display_name' => 'alreadyClaimed',
+            'description' => 'descriptive description',
+        ]);
         $order = new OrderFactory()->for($customer)->createOne();
         $lineitem = new OrderLineItemFactory()->for($order)->createOne();
-        new VoucherClaimFactory()->for($lineitem)->for($alreadyClaimed)->createOne();
+        new VoucherClaimFactory()
+            ->for($lineitem)
+            ->for($alreadyClaimed)
+            ->createOne();
 
         $voucherCartService = self::resolve(CartService::class);
 
-        $voucherCodes = [$normalVoucher->code, 'notexistingkey', $expiredVoucher->code, $noClaimsLeftVoucher->code, $alreadyClaimed->code];
+        $voucherCodes = [
+            $normalVoucher->code,
+            'notexistingkey',
+            $expiredVoucher->code,
+            $noClaimsLeftVoucher->code,
+            $alreadyClaimed->code,
+        ];
 
         $response = $voucherCartService->getValidVoucherCodes($voucherCodes, $customer);
 

@@ -11,15 +11,18 @@ use Throwable;
 use Waterfront\Domain\AuditLogs\Actions\StoreAuditLogAction;
 use Waterfront\Domain\AuditLogs\Enums\AuditLogEvent;
 use Waterfront\Domain\Domains\Exceptions\DomainDoesNotExistException;
+use Waterfront\Domain\Domains\Exceptions\DomainForbiddenException;
 use Waterfront\Domain\Domains\Exceptions\DomainModificationFailedException;
 use Waterfront\Domain\Domains\Factories\DomainServiceFactory;
 use Waterfront\Domain\Domains\Models\DomainDeployment;
 use Waterfront\Domain\Email\Actions\SendSubscriptionSuspendedMailAction;
 use Waterfront\Domain\Notes\Actions\StoreNoteAction;
+use Waterfront\Domain\Provision\Enums\ProvisionType;
 use Waterfront\Domain\Subscriptions\Enums\SubscriptionCategory;
 use Waterfront\Domain\Subscriptions\Enums\TechnicalStatus;
 use Waterfront\Domain\Subscriptions\Models\Subscription;
 use Waterfront\Domain\Subscriptions\Services\SubscriptionMetadataService;
+use Waterfront\Support\Enums\LoggingContextKeys;
 use Waterfront\Support\Enums\QueueName;
 use Waterfront\Support\Exceptions\NotImplementedException;
 use Waterfront\Support\Jobs\AbstractQueueableJob;
@@ -52,7 +55,10 @@ class SuspendDomainJob extends AbstractQueueableJob
 
         $logger->info(sprintf('Suspending subscription with uuid: %s', $subscription->uuid));
         try {
-            $domainDriver = $domainServiceFactory->driver($this->domainDeployment->provider->slug, $this->domainDeployment->businessUnit);
+            $domainDriver = $domainServiceFactory->driver(
+                $this->domainDeployment->provider->slug,
+                $this->domainDeployment->businessUnit,
+            );
             $domain = $subscription->domain;
             Assert::notNull($domain, 'Provided subscription has no domain');
 
@@ -71,7 +77,7 @@ class SuspendDomainJob extends AbstractQueueableJob
                 $this->informCustomer(
                     $subscription,
                     $sendSubscriptionSuspendedMailAction,
-                    $logger
+                    $logger,
                 );
             }
         } catch (NotImplementedException $exception) {
@@ -86,6 +92,21 @@ class SuspendDomainJob extends AbstractQueueableJob
             }
         } catch (DomainDoesNotExistException $exception) {
             $storeNoteAction->execute($exception->getMessage(), $subscription);
+        } catch (DomainForbiddenException $exception) {
+            $logger->error(
+                'Failed suspend for {domain.name}, RTR access forbidden for business unit.',
+                [
+                    LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
+                    LoggingContextKeys::PROVISIONING_PROVIDER => $this->domainDeployment->provider->slug,
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
+                    LoggingContextKeys::EXCEPTION => $exception,
+                    LoggingContextKeys::META => [
+                        'business_unit_slug' => $this->domainDeployment->businessUnit?->slug,
+                    ],
+                ],
+            );
+
+            $this->fail($exception);
         }
     }
 
@@ -117,9 +138,12 @@ class SuspendDomainJob extends AbstractQueueableJob
     private function informCustomer(
         Subscription $subscription,
         SendSubscriptionSuspendedMailAction $sendSubscriptionSuspendedMailAction,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ): void {
-        $logger->info(sprintf('Suspension for subscription with uuid: %s successfully, informing the customer..', $subscription->uuid));
+        $logger->info(sprintf(
+            'Suspension for subscription with uuid: %s successfully, informing the customer..',
+            $subscription->uuid,
+        ));
         $sendSubscriptionSuspendedMailAction->execute($subscription);
     }
 }

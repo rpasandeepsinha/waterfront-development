@@ -75,7 +75,7 @@ class DomainTransferTest extends IntegrationTestCase
         $httpResponse = new Response(
             200,
             ['Content-Type' => 'text/xml'],
-            (string) file_get_contents(__DIR__ . '/data/openprovider_transfer_response.xml')
+            (string) file_get_contents(__DIR__ . '/data/openprovider_transfer_response.xml'),
         );
 
         $clientResponse = new DomainTransferResponse($httpResponse);
@@ -93,17 +93,17 @@ class DomainTransferTest extends IntegrationTestCase
      */
     private function getParameters(bool $withNameServers = true): TransferParameters
     {
-        $customer = include(__DIR__ . '/data/customer.php');
-        $dnssecKey = include(__DIR__ . '/data/dnsseckey.php');
+        $customer = include __DIR__ . '/data/customer.php';
+        $dnssecKey = include __DIR__ . '/data/dnsseckey.php';
 
         $data = [
-            'domain'          => 'example.org',
-            'customer'        => $customer,
-            'partner'         => $customer,
-            'period'          => 1,
+            'domain' => 'example.org',
+            'customer' => $customer,
+            'partner' => $customer,
+            'period' => 1,
             'nameServerGroup' => 'test_nameservergroup',
-            'transferSecret'  => 'asdf1234',
-            'dnssecKey'       => PowerDnsSecKey::fromArray($dnssecKey),
+            'transferSecret' => 'asdf1234',
+            'dnssecKey' => PowerDnsSecKey::fromArray($dnssecKey),
         ];
 
         if ($withNameServers) {

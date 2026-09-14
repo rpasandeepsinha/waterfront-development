@@ -52,18 +52,18 @@ class NovaGenerateSsoActionTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $hostingProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->hosting())
+        $hostingProduct = new ProductFactory()->for(new ProductGroupFactory()->hosting())->createOne();
+
+        $this->subscription = new SubscriptionFactory()
+            ->for(
+                $hostingProduct,
+            )
+            ->for(new CustomerFactory())
             ->createOne();
 
-        $this->subscription = new SubscriptionFactory()->for(
-            $hostingProduct
-        )->for(new CustomerFactory())->createOne();
-
-        $this->hostingDeployment = new HostingDeploymentFactory()
-            ->createOne([
-                'subscription_uuid' => $this->subscription->uuid,
-            ]);
+        $this->hostingDeployment = new HostingDeploymentFactory()->createOne([
+            'subscription_uuid' => $this->subscription->uuid,
+        ]);
 
         $this->hostingService = self::createMock(HostingService::class);
         $this->mailOnlyService = self::createMock(MailManagementService::class);
@@ -95,7 +95,8 @@ class NovaGenerateSsoActionTest extends IntegrationTestCase
         $this->hostingDeployment->provider()->associate($provider);
         $this->hostingDeployment->save();
 
-        $this->hostingService->expects(self::once())
+        $this->hostingService
+            ->expects(self::once())
             ->method('getSsoUrl')
             ->with($this->hostingDeployment, '127.0.0.1', false)
             ->willReturn('');
@@ -117,7 +118,8 @@ class NovaGenerateSsoActionTest extends IntegrationTestCase
         $this->hostingDeployment->server()->associate($server);
         $this->hostingDeployment->save();
 
-        $this->hostingService->expects(self::once())
+        $this->hostingService
+            ->expects(self::once())
             ->method('getSsoUrl')
             ->with($this->hostingDeployment, '127.0.0.1', false)
             ->willReturn(self::SSO_URL);
@@ -140,7 +142,8 @@ class NovaGenerateSsoActionTest extends IntegrationTestCase
         $this->hostingDeployment->mailOnlyServer()->associate($server);
         $this->hostingDeployment->save();
 
-        $this->mailOnlyService->expects(self::once())
+        $this->mailOnlyService
+            ->expects(self::once())
             ->method('spamExpertsSso')
             ->with($this->hostingDeployment->subscription)
             ->willReturn(self::SSO_URL);
@@ -159,13 +162,13 @@ class NovaGenerateSsoActionTest extends IntegrationTestCase
     {
         $provider = new ProviderFactory()->hostingDirectAdmin()->createOne();
 
-        $resellerDeployment = new ResellerHostingDeploymentFactory()
-            ->createOne([
-                'subscription_uuid' => $this->subscription->uuid,
-                'provider_id' => $provider->id,
-            ]);
+        $resellerDeployment = new ResellerHostingDeploymentFactory()->createOne([
+            'subscription_uuid' => $this->subscription->uuid,
+            'provider_id' => $provider->id,
+        ]);
 
-        $this->getSsoUrlAction->expects(self::once())
+        $this->getSsoUrlAction
+            ->expects(self::once())
             ->method('execute')
             ->with($resellerDeployment->server, $resellerDeployment->getRelevantUsernameAttribute(), '127.0.0.1')
             ->willReturn(self::SSO_URL);

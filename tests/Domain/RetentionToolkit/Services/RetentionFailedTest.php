@@ -55,9 +55,7 @@ class RetentionFailedTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
 
-        $domainProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
+        $domainProduct = new ProductFactory()->nlDomain()->createOne();
 
         $this->subscription = new SubscriptionFactory()
             ->administrativeStatusActive()
@@ -98,7 +96,7 @@ class RetentionFailedTest extends IntegrationTestCase
         $result = $results[0];
 
         $expectedCancellationDate = new CarbonImmutable(
-            self::CONSUMER_CANCELLATION_DATE
+            self::CONSUMER_CANCELLATION_DATE,
         );
 
         self::assertSame(

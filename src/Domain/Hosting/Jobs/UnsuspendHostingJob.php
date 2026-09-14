@@ -47,12 +47,14 @@ class UnsuspendHostingJob extends AbstractQueueableJob
             [
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-            ]
+            ],
         );
 
         try {
             $hostingDriver = $hostingServiceFactory->defaultDriver();
-            $this->hostingDeployment->subscription->update(['technical_status' => TechnicalStatus::UNSUSPENDING->value]);
+            $this->hostingDeployment->subscription->update([
+                'technical_status' => TechnicalStatus::UNSUSPENDING->value,
+            ]);
 
             $hostingDriver->unsuspend($this->hostingDeployment);
 
@@ -113,7 +115,7 @@ class UnsuspendHostingJob extends AbstractQueueableJob
             [
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-            ]
+            ],
         );
         $sendSubscriptionUnSuspendedMailAction->execute($subscription);
     }

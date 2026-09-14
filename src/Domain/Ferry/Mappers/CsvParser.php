@@ -25,13 +25,13 @@ class CsvParser
 
             // Convert empty strings to null
             $rowData = array_map(
-                fn ($value) => ($value === '') ? null : $value,
-                str_getcsv($line, escape: '\\')
+                fn ($value) => $value === '' ? null : $value,
+                str_getcsv($line, escape: '\\'),
             );
 
             $rows[] = array_combine(
                 $headers,
-                $rowData
+                $rowData,
             );
         }
 

@@ -17,8 +17,9 @@ use Waterfront\Infra\DirectAdminClient\Exceptions\DirectAdminFieldException;
 
 class User
 {
-    public function __construct(private readonly DirectAdminApiInterface $api)
-    {
+    public function __construct(
+        private readonly DirectAdminApiInterface $api,
+    ) {
     }
 
     /**

@@ -87,8 +87,7 @@ class ModifyResellerTest extends DirectAdminTestCase
 
         $this->api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->modifyReseller
-            ->setReseller('modifyreseller')->setPackage('groot');
+        $this->modifyReseller->setReseller('modifyreseller')->setPackage('groot');
 
         $modifyReseller = $this->api->call($this->modifyReseller);
 

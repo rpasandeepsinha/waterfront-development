@@ -21,12 +21,9 @@ class AvailableReinstallOptionsResource extends JsonResource
         $product = $this->resource;
 
         return [
-            'uuid'  => $product->uuid,
-            'name'  => $product->name,
-            'specs' => $product
-                ->productSpecs
-                ->pluck('value', 'name')
-                ->toArray(),
+            'uuid' => $product->uuid,
+            'name' => $product->name,
+            'specs' => $product->productSpecs->pluck('value', 'name')->toArray(),
         ];
     }
 }

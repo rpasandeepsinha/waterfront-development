@@ -22,7 +22,7 @@ class StoreProductsDiscountAction
             $discount->contractPeriod,
             $discount->billingPeriod,
             $discount->baseProductProlongationPrice,
-            $customer
+            $customer,
         );
     }
 }

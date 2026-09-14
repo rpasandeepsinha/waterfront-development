@@ -165,9 +165,11 @@ class HostingDeployment extends Model implements AuditableContract, HostingDeplo
 
         // auto-sets values on creation
         static::creating(function ($query): void {
-            $query->provider_id ??= Provider::query()->where('default', true)->where('type', ProviderType::HOSTING)
-                    ->first()
-                    ?->id;
+            $query->provider_id ??= Provider::query()
+                ->where('default', true)
+                ->where('type', ProviderType::HOSTING)
+                ->first()
+                ?->id;
         });
     }
 

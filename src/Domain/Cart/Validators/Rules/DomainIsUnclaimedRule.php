@@ -19,6 +19,7 @@ class DomainIsUnclaimedRule extends AbstractValidator
     protected function passes(string $attribute, mixed $value): bool
     {
         assert(is_string($value));
+
         return ! $this->subscriptionRepository->domainExistsInSubscription($value);
     }
 

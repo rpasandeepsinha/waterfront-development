@@ -38,7 +38,7 @@ class DomainContactController
         private readonly DomainContactPolicy $domainContactPolicy,
         private readonly CustomerPolicy $customerPolicy,
         private readonly AuthenticationManager $authenticationManager,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -53,9 +53,10 @@ class DomainContactController
         $this->customerPolicy->assertCanManageDomainContacts();
 
         return DomainContactResource::collection(
-            DomainContact::where('customer_id', $customer->id)
-                ->with(['contactOwnerDomainSubscriptions.subscription', 'contactOwnerDomainSubscriptions.contactOwner'])
-                ->get()
+            DomainContact::where('customer_id', $customer->id)->with([
+                'contactOwnerDomainSubscriptions.subscription',
+                'contactOwnerDomainSubscriptions.contactOwner',
+            ])->get(),
         );
     }
 
@@ -65,7 +66,7 @@ class DomainContactController
      */
     public function link(
         LinkRequest $request,
-        DomainContact $contact
+        DomainContact $contact,
     ): JsonResponse {
         $domains = $request->input('domains');
         $domains = is_array($domains) ? $domains : [];
@@ -90,7 +91,7 @@ class DomainContactController
 
             return new JsonResponse(
                 ['message' => $this->translator->translate('domain-contact.domain-contacts-link-validation-required')],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         } catch (Throwable $exception) {
             $this->logger->error('Failed to link domain contact handle', [
@@ -104,7 +105,7 @@ class DomainContactController
 
             return new JsonResponse(
                 ['message' => $this->translator->translate('domain-contact.domain-contacts-link-failure')],
-                Response::HTTP_INTERNAL_SERVER_ERROR
+                Response::HTTP_INTERNAL_SERVER_ERROR,
             );
         }
 
@@ -118,7 +119,7 @@ class DomainContactController
      * @throws AuthenticationException
      */
     public function setDefault(
-        DomainContact $contact
+        DomainContact $contact,
     ): JsonResponse {
         $this->domainContactPolicy->assertCanSetDefault($contact);
         $this->customerPolicy->assertCanManageDomainContacts();
@@ -133,7 +134,7 @@ class DomainContactController
         $contact->refresh();
         $contact->update(['default_owner' => 1]);
 
-        return new JsonResponse(['status' =>  $this->translator->translate('status.success')]);
+        return new JsonResponse(['status' => $this->translator->translate('status.success')]);
     }
 
     /**
@@ -141,7 +142,7 @@ class DomainContactController
      * @throws AuthorizationException
      */
     public function show(
-        DomainContact $contact
+        DomainContact $contact,
     ): DomainContactResource {
         $this->domainContactPolicy->assertCanShow($contact);
         $this->customerPolicy->assertCanManageDomainContacts();
@@ -172,6 +173,7 @@ class DomainContactController
                     'message' => $this->translator->translate('domain-contact.contact-destroy-success'),
                 ]);
             }
+
             $this->domainService->unlinkDomainSubscriptionsFromContactOwner($contact);
             if ($this->domainService->destroyContact($customer, $contact)) {
                 return new JsonResponse([
@@ -183,7 +185,7 @@ class DomainContactController
                 [
                     'message' => $this->translator->translate('domain-contact.contact-destroy-failure'),
                 ],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         } catch (DomainContactException $exception) {
             $this->logger->error('Failed to destroy domain contact', [
@@ -199,7 +201,7 @@ class DomainContactController
                 [
                     'message' => $this->translator->translate('domain-contact.contact-destroy-failure'),
                 ],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
     }
@@ -262,7 +264,7 @@ class DomainContactController
             [
                 'message' => $this->translator->translate('domain.contacts.store-fail'),
             ],
-            Response::HTTP_UNPROCESSABLE_ENTITY
+            Response::HTTP_UNPROCESSABLE_ENTITY,
         );
     }
 

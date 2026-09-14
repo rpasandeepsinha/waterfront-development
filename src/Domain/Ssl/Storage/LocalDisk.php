@@ -10,7 +10,7 @@ use UnexpectedValueException;
 class LocalDisk
 {
     public function __construct(
-        private readonly string $disk
+        private readonly string $disk,
     ) {
     }
 
@@ -59,7 +59,8 @@ class LocalDisk
 
     private function assertValidDomain(string $domain): void
     {
-        if (! str_contains($domain, '/')
+        if (
+            ! str_contains($domain, '/')
             && ! str_contains($domain, '\\')
             && ! (bool) preg_match('#\s#', $domain)
             && $domain !== '.'

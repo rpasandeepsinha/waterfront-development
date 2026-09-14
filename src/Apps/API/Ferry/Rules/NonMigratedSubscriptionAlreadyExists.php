@@ -35,6 +35,7 @@ class NonMigratedSubscriptionAlreadyExists implements DataAwareRule, ValidationR
         if ($subscriptionData === null) {
             // Shouldn't really happen though.
             $fail('Attribute :$attribute not found in subscription data');
+
             return;
         }
 
@@ -74,7 +75,7 @@ class NonMigratedSubscriptionAlreadyExists implements DataAwareRule, ValidationR
     /**
      * @return array<string, mixed>|null
      */
-    private function getSubscriptionData(string $attribute): array|null
+    private function getSubscriptionData(string $attribute): ?array
     {
         $attributeExploded = explode('.', $attribute);
         array_pop($attributeExploded);

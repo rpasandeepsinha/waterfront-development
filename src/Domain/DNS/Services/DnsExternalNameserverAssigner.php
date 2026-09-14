@@ -18,7 +18,7 @@ class DnsExternalNameserverAssigner implements NameserverAssignerInterface
 {
     public function __construct(
         private readonly DnsDeploymentRepository $dnsDeploymentRepository,
-        private readonly DomainServiceFactory $domainServiceFactory
+        private readonly DomainServiceFactory $domainServiceFactory,
     ) {
     }
 
@@ -70,7 +70,10 @@ class DnsExternalNameserverAssigner implements NameserverAssignerInterface
 
         Assert::notNull($domainDeployment);
 
-        $registry = $this->domainServiceFactory->driver($domainDeployment->provider->slug, $domainDeployment->businessUnit);
+        $registry = $this->domainServiceFactory->driver(
+            $domainDeployment->provider->slug,
+            $domainDeployment->businessUnit,
+        );
         $registryResult = $registry->nameservers($domainDeployment);
 
         /**
@@ -82,9 +85,9 @@ class DnsExternalNameserverAssigner implements NameserverAssignerInterface
             fn (array $nameserver): Nameserver => new Nameserver(
                 hostname: $nameserver['name'],
                 ipv4: $nameserver['ip'],
-                ipv6: $nameserver['ip6']
+                ipv6: $nameserver['ip6'],
             ),
-            $registryNameservers ?? []
+            $registryNameservers ?? [],
         );
 
         if ($nameservers === []) {

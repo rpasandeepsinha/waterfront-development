@@ -11,7 +11,7 @@ use Waterfront\Domain\Products\Repositories\ProductSpecRepository;
 class HostingProductSpecRepository
 {
     public function __construct(
-        private readonly ProductSpecRepository $productSpecRepository
+        private readonly ProductSpecRepository $productSpecRepository,
     ) {
     }
 
@@ -19,7 +19,7 @@ class HostingProductSpecRepository
     {
         return $this->productSpecRepository->booleanSpecificationIsTrue(
             $product,
-            ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT
+            ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT,
         );
     }
 }

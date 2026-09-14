@@ -17,13 +17,13 @@ class VerifyDomainResult extends Microsoft365Result
         public ProvisionStatus $provisionStatus,
         public ?Domain $domain = null,
         public ?Throwable $exception = null,
-        public ?ValidationResult $validationResult = null
+        public ?ValidationResult $validationResult = null,
     ) {
         parent::__construct(
             provisionData: $provisionData,
             provisionStatus: $provisionStatus,
             exception: $exception,
-            validationResult: $validationResult
+            validationResult: $validationResult,
         );
     }
 }

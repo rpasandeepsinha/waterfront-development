@@ -84,8 +84,16 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
-            ['name' => ProductSpecName::MICROSOFT365_ALLOW_COPILOT->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
+            [
+                'name' => ProductSpecName::MICROSOFT365_ALLOW_COPILOT->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -184,8 +192,16 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
-            ['name' => ProductSpecName::MICROSOFT365_ALLOW_COPILOT->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
+            [
+                'name' => ProductSpecName::MICROSOFT365_ALLOW_COPILOT->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -294,8 +310,16 @@ class Microsoft365Seeder extends Seeder
         $this->referenceRepo->set(ProductReference::MICROSOFT_APPS_FOR_BUSINESS_CHILD, $seatProduct);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
-            ['name' => ProductSpecName::MICROSOFT365_ALLOW_COPILOT->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
+            [
+                'name' => ProductSpecName::MICROSOFT365_ALLOW_COPILOT->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -308,7 +332,10 @@ class Microsoft365Seeder extends Seeder
         $price->starts_at = CarbonImmutable::now();
         $price->save();
 
-        $this->referenceRepo->set(ProductReference::MICROSOFT_APPS_FOR_BUSINESS_PARENT_REGISTRATION_PRICE_MONTH, $price);
+        $this->referenceRepo->set(
+            ProductReference::MICROSOFT_APPS_FOR_BUSINESS_PARENT_REGISTRATION_PRICE_MONTH,
+            $price,
+        );
 
         $kpnProduct = new Microsoft365KpnProduct();
         $kpnProduct->product_id = $product->id;
@@ -392,7 +419,11 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -471,7 +502,11 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -550,7 +585,11 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -629,7 +668,11 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -708,7 +751,11 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -787,7 +834,11 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -866,7 +917,11 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -945,7 +1000,11 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1024,7 +1083,11 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1103,7 +1166,11 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1182,7 +1249,11 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1261,8 +1332,16 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
-            ['name' => ProductSpecName::MICROSOFT365_ALLOW_COPILOT->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
+            [
+                'name' => ProductSpecName::MICROSOFT365_ALLOW_COPILOT->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1341,7 +1420,11 @@ class Microsoft365Seeder extends Seeder
         $seatProduct->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $seatProduct->id],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $seatProduct->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();

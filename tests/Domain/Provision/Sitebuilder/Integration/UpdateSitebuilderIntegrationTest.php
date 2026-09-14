@@ -98,26 +98,29 @@ class UpdateSitebuilderIntegrationTest extends IntegrationTestCase
 
         $basekitContext = $this->createBasekitDeploymentWithRequest($context, $tag);
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('listUserPackages')
             ->with($basekitContext->user_ref)
             ->willReturn(
                 [
                     $this->getAccountPackageWithPackageRef(1337),
                     $removeAccountPackage = $this->getAccountPackageWithPackageRef(7330),
-                ]
+                ],
             );
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('deleteUserPackage')
             ->with($basekitContext->user_ref, $removeAccountPackage->ref);
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('addUserPackage')
             ->with(
                 $basekitContext->user_ref,
                 $newPackageId,
-                $request->contractPeriod
+                $request->contractPeriod,
             );
 
         self::assertDatabaseCount(ProvisioningResult::class, 1);
@@ -145,7 +148,7 @@ class UpdateSitebuilderIntegrationTest extends IntegrationTestCase
                 '{"packages": [1337, 7331], "contractPeriod": %d}',
                 $request->contractPeriod,
             ),
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
     }
 
@@ -162,15 +165,14 @@ class UpdateSitebuilderIntegrationTest extends IntegrationTestCase
 
         $this->createBasekitDeploymentWithRequest($context, $tag);
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('listUserPackages')
             ->willThrowException(new UnexpectedValueException('User reference not found.'));
 
-        $this->packagesApi->expects(self::never())
-            ->method('deleteUserPackage');
+        $this->packagesApi->expects(self::never())->method('deleteUserPackage');
 
-        $this->packagesApi->expects(self::never())
-            ->method('addUserPackage');
+        $this->packagesApi->expects(self::never())->method('addUserPackage');
 
         self::assertDatabaseCount(ProvisioningResult::class, 1);
         self::assertDatabaseCount(ProvisioningRequest::class, 1);
@@ -202,22 +204,16 @@ class UpdateSitebuilderIntegrationTest extends IntegrationTestCase
             ])
             ->createOne();
 
-        $sitebuilderDeployment = SitebuilderDeploymentFactory::new()
-            ->for($provisioningRequest, 'request')
-            ->createOne();
+        $sitebuilderDeployment = SitebuilderDeploymentFactory::new()->for($provisioningRequest, 'request')->createOne();
 
-        BasekitSitebuilderDeploymentFactory::new()
-            ->for($sitebuilderDeployment)
-            ->createOne([
-                'site_ref' => self::SITE_REFERENCE,
-            ]);
+        BasekitSitebuilderDeploymentFactory::new()->for($sitebuilderDeployment)->createOne([
+            'site_ref' => self::SITE_REFERENCE,
+        ]);
 
-        ProvisioningResultFactory::new()
-            ->state([
-                'request_id' => $provisioningRequest->id,
-                'status' => ProvisionStatus::SUCCESS,
-            ])
-            ->createOne();
+        ProvisioningResultFactory::new()->state([
+            'request_id' => $provisioningRequest->id,
+            'status' => ProvisionStatus::SUCCESS,
+        ])->createOne();
 
         return $basekitContext;
     }

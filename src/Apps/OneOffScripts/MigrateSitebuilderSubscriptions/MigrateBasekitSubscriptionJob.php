@@ -12,7 +12,7 @@ class MigrateBasekitSubscriptionJob extends AbstractQueueableJob
 {
     public function __construct(
         public readonly string $scriptSlug,
-        public readonly string $subscriptionUuid
+        public readonly string $subscriptionUuid,
     ) {
         parent::__construct();
     }

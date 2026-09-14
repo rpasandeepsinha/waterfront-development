@@ -25,20 +25,20 @@ class ExecuteValidationAction
 {
     /** @var string[] */
     public const array PIPES = [
-         CustomerPipe::class,
-         SubscriptionPipe::class,
-         BackupPipe::class,
-         DomainMigrationPipe::class,
-         DnsConfigurationPipe::class,
-         NameserverMigrationPipe::class,
-         DnsSecEnablePipe::class,
-         HostingMigrationPipe::class,
-         MailOnlyMigrationPipe::class,
-         SslMigrationPipe::class,
-         RedirectMigrationPipe::class,
-         SitebuilderMigrationPipe::class,
-         ResellerHostingMigrationPipe::class,
-     ];
+        CustomerPipe::class,
+        SubscriptionPipe::class,
+        BackupPipe::class,
+        DomainMigrationPipe::class,
+        DnsConfigurationPipe::class,
+        NameserverMigrationPipe::class,
+        DnsSecEnablePipe::class,
+        HostingMigrationPipe::class,
+        MailOnlyMigrationPipe::class,
+        SslMigrationPipe::class,
+        RedirectMigrationPipe::class,
+        SitebuilderMigrationPipe::class,
+        ResellerHostingMigrationPipe::class,
+    ];
 
     public function __construct(
         private readonly Dispatcher $jobDispatcher,

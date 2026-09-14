@@ -19,10 +19,12 @@ class EnableInvoicingForCustomerAction
 
     public function execute(Customer $customer): void
     {
-        $customer->migratedCustomers()->update([
-            'enable_invoicing' => true,
-            'successful' => true,
-        ]);
+        $customer
+            ->migratedCustomers()
+            ->update([
+                'enable_invoicing' => true,
+                'successful' => true,
+            ]);
 
         $migratedCustomer = $customer->migratedCustomers->firstOrFail();
 
@@ -36,7 +38,7 @@ class EnableInvoicingForCustomerAction
                 LoggingContextKeys::META => [
                     'migrated_customer_id' => $migratedCustomer->id,
                 ],
-            ]
+            ],
         );
 
         $this->dispatchInvoicingForCustomerAction->execute($customer);

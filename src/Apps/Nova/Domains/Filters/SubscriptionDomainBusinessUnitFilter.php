@@ -24,7 +24,10 @@ class SubscriptionDomainBusinessUnitFilter extends Filter
 
     public function apply(NovaRequest $request, Builder $query, mixed $value): Builder
     {
-        return $query->whereHas('domainDeployment.businessUnit', fn (Builder $businessUnit) => $businessUnit->where('slug', $value));
+        return $query->whereHas('domainDeployment.businessUnit', fn (Builder $businessUnit) => $businessUnit->where(
+            'slug',
+            $value,
+        ));
     }
 
     /**

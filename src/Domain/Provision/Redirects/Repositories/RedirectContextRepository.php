@@ -12,9 +12,7 @@ class RedirectContextRepository
 {
     public function findByContext(UuidInterface $context): ?CaddyContext
     {
-        return CaddyContext::query()
-            ->where('context_uuid', $context)
-            ->first();
+        return CaddyContext::query()->where('context_uuid', $context)->first();
     }
 
     public function findOrCreate(UuidInterface $context, string $host): CaddyContext
@@ -30,9 +28,7 @@ class RedirectContextRepository
 
     public function createOrRestore(UuidInterface $context, string $host): CaddyContext
     {
-        $caddyContext = CaddyContext::withTrashed()
-            ->where('context_uuid', $context)
-            ->first();
+        $caddyContext = CaddyContext::withTrashed()->where('context_uuid', $context)->first();
 
         if ($caddyContext === null) {
             $caddyContext = new CaddyContext();
@@ -52,9 +48,7 @@ class RedirectContextRepository
              * can happen during the creation of the domain + subdomain redirect
              * our UNIQUE index on context_uuid guarantees only one row exists
              */
-            $caddyContext = CaddyContext::withTrashed()
-                ->where('context_uuid', $context)
-                ->firstOrFail();
+            $caddyContext = CaddyContext::withTrashed()->where('context_uuid', $context)->firstOrFail();
 
             if ($caddyContext->trashed()) {
                 $caddyContext->restore();
@@ -73,8 +67,6 @@ class RedirectContextRepository
 
     public function deleteByContext(UuidInterface $context): void
     {
-        CaddyContext::query()
-            ->where('context_uuid', $context)
-            ->delete();
+        CaddyContext::query()->where('context_uuid', $context)->delete();
     }
 }

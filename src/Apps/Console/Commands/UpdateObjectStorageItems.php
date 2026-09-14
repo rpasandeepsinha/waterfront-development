@@ -30,6 +30,7 @@ class UpdateObjectStorageItems extends Command
                 $this->error("$command failed with exit code: $exitCode");
             }
         }
+
         return self::SUCCESS;
     }
 }

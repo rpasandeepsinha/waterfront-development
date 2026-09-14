@@ -40,18 +40,21 @@ class DateIsNotBlockedTest extends TestCase
         $this->rule = new DateIsNotBlocked($this->translator, $this->repository);
         $fail = false;
 
-        $this->repository->expects(self::once())
-            ->method('dateIsBlocked')
-            ->willReturn(true);
+        $this->repository->expects(self::once())->method('dateIsBlocked')->willReturn(true);
 
-        $this->translator->expects(self::once())
+        $this->translator
+            ->expects(self::once())
             ->method('translate')
             ->with('validation.puzzel-date-blocked')
             ->willReturn('validation.puzzel-date-blocked');
 
-        $this->rule->validate('date', CarbonImmutable::now()->format('Y-m-d'), function (string $message, ?string $attribute = null) use (&$fail) {
+        $this->rule->validate('date', CarbonImmutable::now()->format('Y-m-d'), function (
+            string $message,
+            ?string $attribute = null,
+        ) use (&$fail) {
             self::assertSame('validation.puzzel-date-blocked', $message);
             $fail = true;
+
             return new PotentiallyTranslatedString('fail', $this->app->make(Translator::class));
         });
 
@@ -63,13 +66,12 @@ class DateIsNotBlockedTest extends TestCase
     {
         $fail = false;
 
-        $this->repository->expects(self::never())
-            ->method('dateIsBlocked')
-            ->willReturn(true);
+        $this->repository->expects(self::never())->method('dateIsBlocked')->willReturn(true);
 
         $this->rule->validate('date', 12, function (string $message, ?string $attribute = null) use (&$fail) {
             self::assertSame('validation.date', $message);
             $fail = true;
+
             return new PotentiallyTranslatedString('fail', $this->app->make(Translator::class));
         });
 

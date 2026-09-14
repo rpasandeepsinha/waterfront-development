@@ -45,7 +45,8 @@ class FailedDomainSubscriptionRepairService
         if ($domain === null) {
             $this->logger->warning(
                 'Skipping failed domain subscription because no domain name was found on the subscription.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::META => [
                         'reason' => 'missing_domain_name',
                     ],
@@ -61,7 +62,8 @@ class FailedDomainSubscriptionRepairService
         if (! $domainDeployment instanceof DomainDeployment) {
             $this->logger->warning(
                 'Skipping failed domain subscription because no domain deployment was found.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::META => [
                         'reason' => 'missing_domain_deployment',
                     ],
@@ -78,7 +80,8 @@ class FailedDomainSubscriptionRepairService
         if (! $dnsDeployment instanceof DnsDeployment) {
             $this->logger->info(
                 'Skipping failed domain subscription because no DNS deployment was found.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::META => [
                         'reason' => 'missing_dns_deployment',
                     ],
@@ -100,7 +103,8 @@ class FailedDomainSubscriptionRepairService
                 } catch (Throwable) { // @phpstan-ignore thecodingmachine.exceptionMustBeRethrown
                     $this->logger->warning(
                         'Skipping failed domain subscription because RTR domain lookup failed.',
-                        $logContext + [
+                        $logContext
+                        + [
                             LoggingContextKeys::EXCEPTION => $exception,
                             LoggingContextKeys::META => [
                                 'reason' => 'rtr_domain_lookup_failed',
@@ -132,7 +136,8 @@ class FailedDomainSubscriptionRepairService
 
             $this->logger->warning(
                 'Skipping failed domain subscription because RTR domain lookup failed.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::META => [
                         'reason' => 'rtr_domain_lookup_failed',
@@ -148,7 +153,8 @@ class FailedDomainSubscriptionRepairService
 
         $this->logger->info(
             'Fetched remote domain for failed subscription.',
-            $logContext + [
+            $logContext
+            + [
                 LoggingContextKeys::META => [
                     'remote_statuses' => $remoteDomain->status,
                     'remote_nameservers' => $remoteDomain->ns,
@@ -165,7 +171,8 @@ class FailedDomainSubscriptionRepairService
         } catch (Throwable $exception) { // @phpstan-ignore thecodingmachine.exceptionMustBeRethrown
             $this->logger->warning(
                 'Skipping failed domain subscription because RTR process lookup failed (domain is present).',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::META => [
                         'reason' => 'rtr_domain_lookup_failed',
@@ -197,7 +204,7 @@ class FailedDomainSubscriptionRepairService
         if (in_array(RtrDomainStatus::PENDING_VALIDATION->value, $remoteDomain->status, true)) {
             return new FailedDomainSubscriptionRepair(
                 path: FailedDomainSubscriptionRepairPath::SYNC_STATUS_ONLY,
-                reason: 'remote_status_pending'
+                reason: 'remote_status_pending',
             );
         }
 
@@ -233,7 +240,8 @@ class FailedDomainSubscriptionRepairService
         if (! $domainDeployment instanceof DomainDeployment) {
             $this->logger->warning(
                 'Skipping nameserver repair because no domain deployment was found.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::META => [
                         'reason' => 'missing_domain_deployment',
                     ],
@@ -247,7 +255,8 @@ class FailedDomainSubscriptionRepairService
         if (! $dnsDeployment instanceof DnsDeployment) {
             $this->logger->warning(
                 'Skipping nameserver repair because no DNS deployment was found.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::META => [
                         'reason' => 'missing_dns_deployment',
                     ],
@@ -261,7 +270,8 @@ class FailedDomainSubscriptionRepairService
         if ($domain === null) {
             $this->logger->warning(
                 'Skipping nameserver repair because no domain name was found on the subscription.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::META => [
                         'reason' => 'missing_domain_name',
                     ],
@@ -277,7 +287,8 @@ class FailedDomainSubscriptionRepairService
             if ($exception instanceof DomainDoesNotExistException || $exception->getMessage() === 'Not found.') {
                 $this->logger->warning(
                     'Skipping nameserver repair because the remote domain no longer exists at RTR.',
-                    $logContext + [
+                    $logContext
+                    + [
                         LoggingContextKeys::META => [
                             'reason' => 'remote_domain_missing',
                         ],
@@ -286,11 +297,13 @@ class FailedDomainSubscriptionRepairService
 
                 return;
             }
+
             $this->logger->warning(
                 'Skipping nameserver repair because RTR domain lookup failed.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::EXCEPTION => $exception,
-                    LoggingContextKeys::META      => [
+                    LoggingContextKeys::META => [
                         'reason' => 'rtr_domain_lookup_failed',
                     ],
                 ],
@@ -304,7 +317,8 @@ class FailedDomainSubscriptionRepairService
         if ($storedNameserverHostnames === []) {
             $this->logger->warning(
                 'Stored nameservers are missing while RTR has no nameservers, assigning nameservers first based of DNS.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::META => [
                         'nameserver_type' => $dnsDeployment->nameserver_type->value,
                         'reason' => 'restore_missing_nameservers_locally_before_remote_repair',
@@ -319,7 +333,8 @@ class FailedDomainSubscriptionRepairService
         if ($storedNameserverHostnames === []) {
             $this->logger->warning(
                 'Skipping nameserver repair because RTR has no nameservers and no stored nameservers could be assigned.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::META => [
                         'nameserver_type' => $dnsDeployment->nameserver_type->value,
                         'reason' => 'missing_stored_nameservers',
@@ -337,7 +352,8 @@ class FailedDomainSubscriptionRepairService
         } catch (Throwable $exception) { // @phpstan-ignore thecodingmachine.exceptionMustBeRethrown
             $this->logger->warning(
                 'Skipping nameserver repair follow-up because RTR nameserver update or refetch failed.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::META => [
                         'reason' => 'rtr_nameserver_update_or_refetch_failed',
@@ -350,7 +366,8 @@ class FailedDomainSubscriptionRepairService
 
         $this->logger->info(
             'Refetched remote domain after nameserver repair.',
-            $logContext + [
+            $logContext
+            + [
                 LoggingContextKeys::META => [
                     'remote_statuses' => $refetchedRemoteDomain->status,
                     'remote_nameservers' => $refetchedRemoteDomain->ns,
@@ -381,7 +398,8 @@ class FailedDomainSubscriptionRepairService
         if (! $domainDeployment instanceof DomainDeployment) {
             $this->logger->warning(
                 'Skipping pending-state restore because no domain deployment was found.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::META => [
                         'reason' => 'missing_domain_deployment',
                         'processes' => $processCollection->toArray(),
@@ -396,7 +414,8 @@ class FailedDomainSubscriptionRepairService
         if ($domain === null) {
             $this->logger->warning(
                 'Skipping pending-state restore because no domain name was found on the subscription.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::META => [
                         'reason' => 'missing_domain_name',
                         'processes' => $processCollection->toArray(),
@@ -414,7 +433,8 @@ class FailedDomainSubscriptionRepairService
         if (! $currentOpenProcess instanceof Process) {
             $this->logger->warning(
                 'Skipping pending-state restore because RTR no longer has an open prevalidation process.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::META => [
                         'processes' => $processCollection->toArray(),
                         'reason' => 'open_prevalidation_process_no_longer_present',
@@ -444,7 +464,8 @@ class FailedDomainSubscriptionRepairService
 
         $this->logger->info(
             'Restored failed subscription to pending because RTR still has an open prevalidation process.',
-            $logContext + [
+            $logContext
+            + [
                 LoggingContextKeys::META => [
                     'current_rtr_process_id' => $currentOpenProcess->id,
                     'current_rtr_process_status' => $currentOpenProcess->status,
@@ -465,7 +486,8 @@ class FailedDomainSubscriptionRepairService
         if (! $domainDeployment instanceof DomainDeployment) {
             $this->logger->warning(
                 'Skipping status sync because no domain deployment was found.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::META => [
                         'reason' => 'missing_domain_deployment',
                     ],
@@ -479,7 +501,8 @@ class FailedDomainSubscriptionRepairService
         if ($domain === null) {
             $this->logger->warning(
                 'Skipping status sync because no domain name was found on the subscription.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::META => [
                         'reason' => 'missing_domain_name',
                     ],
@@ -496,7 +519,8 @@ class FailedDomainSubscriptionRepairService
         } catch (DomainDoesNotExistException) {
             $this->logger->warning(
                 'Skipping status sync because the remote domain no longer exists at RTR.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::META => [
                         'reason' => 'remote_domain_missing',
                     ],
@@ -507,7 +531,8 @@ class FailedDomainSubscriptionRepairService
         } catch (Throwable $exception) { // @phpstan-ignore thecodingmachine.exceptionMustBeRethrown
             $this->logger->warning(
                 'Skipping status sync because RTR domain lookup failed.',
-                $logContext + [
+                $logContext
+                + [
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::META => [
                         'reason' => 'rtr_domain_lookup_failed',
@@ -520,7 +545,8 @@ class FailedDomainSubscriptionRepairService
 
         $this->logger->info(
             'Fetched remote domain before local status sync.',
-            $logContext + [
+            $logContext
+            + [
                 LoggingContextKeys::META => [
                     'remote_statuses' => $remoteDomain->status,
                     'remote_nameservers' => $remoteDomain->ns,
@@ -592,7 +618,8 @@ class FailedDomainSubscriptionRepairService
 
         $this->logger->info(
             'Synced status from RTR.',
-            $logContext + [
+            $logContext
+            + [
                 LoggingContextKeys::META => [
                     'synced_technical_status' => $technicalStatus,
                     'synced_domain_status' => $domainStatus?->value,
@@ -609,14 +636,18 @@ class FailedDomainSubscriptionRepairService
             return false;
         }
 
-        return in_array($process->status, [
-            ProcessStatusEnum::STATUS_NEW,
-            ProcessStatusEnum::STATUS_VALIDATED,
-            ProcessStatusEnum::STATUS_RUNNING,
-            ProcessStatusEnum::STATUS_IN_DOUBT,
-            ProcessStatusEnum::STATUS_SCHEDULED,
-            ProcessStatusEnum::STATUS_SUSPENDED,
-        ], true);
+        return in_array(
+            $process->status,
+            [
+                ProcessStatusEnum::STATUS_NEW,
+                ProcessStatusEnum::STATUS_VALIDATED,
+                ProcessStatusEnum::STATUS_RUNNING,
+                ProcessStatusEnum::STATUS_IN_DOUBT,
+                ProcessStatusEnum::STATUS_SCHEDULED,
+                ProcessStatusEnum::STATUS_SUSPENDED,
+            ],
+            true,
+        );
     }
 
     /**

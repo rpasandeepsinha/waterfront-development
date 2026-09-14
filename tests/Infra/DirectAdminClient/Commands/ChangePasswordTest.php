@@ -48,9 +48,7 @@ class ChangePasswordTest extends DirectAdminTestCase
 
         $api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->changePassword
-            ->setPasswd('test123')
-            ->setUsername('changedName');
+        $this->changePassword->setPasswd('test123')->setUsername('changedName');
 
         $modifyUser = $api->call($this->changePassword);
 

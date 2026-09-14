@@ -14,7 +14,7 @@ class Zone
         public string $allocationstate,
         public string $zonetoken,
         public string $dhcpprovider,
-        public bool $localstorageenabled
+        public bool $localstorageenabled,
     ) {
     }
 }

@@ -21,8 +21,14 @@ class InvoiceToCreditBatchTest extends IntegrationTestCase
     {
         $customer = CustomerFactory::new()->createOne();
         $product = new ProductFactory()->nlDomain()->createOne();
-        $invoiceWithoutNew = new InvoiceFactory()->for($customer)->for($product)->createOne();
-        $invoiceWithNew = new InvoiceFactory()->for($customer)->for($product)->createOne();
+        $invoiceWithoutNew = new InvoiceFactory()
+            ->for($customer)
+            ->for($product)
+            ->createOne();
+        $invoiceWithNew = new InvoiceFactory()
+            ->for($customer)
+            ->for($product)
+            ->createOne();
 
         $toTestBatch = new InvoiceToCreditBatch([
             new InvoiceToCredit($invoiceWithNew, shouldCreateNewInvoice: true),

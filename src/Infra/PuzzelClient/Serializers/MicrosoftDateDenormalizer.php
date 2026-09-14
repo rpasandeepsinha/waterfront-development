@@ -40,11 +40,13 @@ class MicrosoftDateDenormalizer implements DenormalizerInterface
         throw new InvalidArgumentException("Invalid Microsoft date format: $data");
     }
 
-    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
-    {
-        return $type === DateTime::class
-            && is_string($data)
-            && str_starts_with($data, '/Date(');
+    public function supportsDenormalization(
+        mixed $data,
+        string $type,
+        ?string $format = null,
+        array $context = [],
+    ): bool {
+        return $type === DateTime::class && is_string($data) && str_starts_with($data, '/Date(');
     }
 
     public function getSupportedTypes(?string $format): array

@@ -79,13 +79,13 @@ class DirectAdminApi implements DirectAdminApiInterface
 
         if ($command instanceof ShowResellers) {
             $command->setFormValues([
-                'list' => [ 'TestResellerUser' ],
+                'list' => ['TestResellerUser'],
             ]);
         }
 
         if ($command instanceof ShowResellerUsers) {
             $command->setFormValues([
-                 'list' => ['customer1', 'customer2'],
+                'list' => ['customer1', 'customer2'],
             ]);
         }
 
@@ -114,6 +114,7 @@ class DirectAdminApi implements DirectAdminApiInterface
     public function useServer(DirectAdminServer $server): DirectAdminApiInterface
     {
         $this->connection = new Connection($server);
+
         return $this;
     }
 
@@ -125,6 +126,7 @@ class DirectAdminApi implements DirectAdminApiInterface
     public function loginAs(string $username): DirectAdminApiInterface
     {
         $this->connection->asUser($username);
+
         return $this;
     }
 

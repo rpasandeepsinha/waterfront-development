@@ -18,7 +18,7 @@ class ProvisionResultUpdateJob extends AbstractQueueableJob
      */
     public function __construct(
         public object $row,
-        public bool $dryRun
+        public bool $dryRun,
     ) {
         parent::__construct();
     }
@@ -32,10 +32,11 @@ class ProvisionResultUpdateJob extends AbstractQueueableJob
                 sprintf(
                     '[%s] Provision result [%d] has no JSON result, skipping',
                     NovaMigrateProvisionResultDataAction::SLUG,
-                    $this->row->id
+                    $this->row->id,
                 ),
-                $this->getContext()
+                $this->getContext(),
             );
+
             return;
         }
 
@@ -44,10 +45,11 @@ class ProvisionResultUpdateJob extends AbstractQueueableJob
                 sprintf(
                     '[%s] Provision result [%d] has no valid JSON decoded, skipping',
                     NovaMigrateProvisionResultDataAction::SLUG,
-                    $this->row->id
+                    $this->row->id,
                 ),
-                $this->getContext(meta: ['response_data' => $responseData])
+                $this->getContext(meta: ['response_data' => $responseData]),
             );
+
             return;
         }
 
@@ -66,10 +68,13 @@ class ProvisionResultUpdateJob extends AbstractQueueableJob
                 sprintf(
                     '[%s] Failed to JSON encode updated response for provision result [%d]',
                     NovaMigrateProvisionResultDataAction::SLUG,
-                    $this->row->id
+                    $this->row->id,
                 ),
-                $this->getContext(keys: [LoggingContextKeys::EXCEPTION => $e], meta: ['response_data' => $responseData])
+                $this->getContext(keys: [LoggingContextKeys::EXCEPTION => $e], meta: [
+                    'response_data' => $responseData,
+                ]),
             );
+
             return;
         }
 
@@ -77,9 +82,7 @@ class ProvisionResultUpdateJob extends AbstractQueueableJob
             return;
         }
 
-        DB::table('provisioning_results')
-            ->where('id', $this->row->id)
-            ->update(['response' => $updatedResponse]);
+        DB::table('provisioning_results')->where('id', $this->row->id)->update(['response' => $updatedResponse]);
     }
 
     protected function getQueueName(): QueueName
@@ -97,9 +100,10 @@ class ProvisionResultUpdateJob extends AbstractQueueableJob
     {
         return [
             LoggingContextKeys::ONE_OFF_SCRIPT => NovaMigrateProvisionResultDataAction::SLUG,
-            LoggingContextKeys::META => [
-                'dry-run' => $this->dryRun,
-            ] + $meta,
+            LoggingContextKeys::META =>
+                [
+                    'dry-run' => $this->dryRun,
+                ] + $meta,
         ] + $keys;
     }
 }

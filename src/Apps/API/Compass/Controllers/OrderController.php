@@ -38,13 +38,17 @@ class OrderController
             'lineItems.subscription',
             'lineItems.voucherClaim.voucher',
         ]);
+
         return OrderResource::make($order)->toJson();
     }
 
     public function retryOrder(Order $order): Response
     {
         if ($order->status !== OrderStatus::ON_HOLD) {
-            return new Response(['message' => sprintf('Retry order is not supported for status "%s"', $order->status->value)], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return new Response(['message' => sprintf(
+                'Retry order is not supported for status "%s"',
+                $order->status->value,
+            )], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $order->status = OrderStatus::IN_PROGRESS;

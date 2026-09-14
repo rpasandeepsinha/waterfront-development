@@ -46,13 +46,19 @@ class CreateSiteTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $productHosting = new ProductFactory()->siteBuilder()->for(new ProductGroupFactory()->hosting())->createOne();
+        $productHosting = new ProductFactory()
+            ->siteBuilder()
+            ->for(new ProductGroupFactory()->hosting())
+            ->createOne();
 
-        $this->subscription = new SubscriptionFactory()->for($productHosting)->for($customer)->createOne();
+        $this->subscription = new SubscriptionFactory()
+            ->for($productHosting)
+            ->for($customer)
+            ->createOne();
 
         $this->server = new ServerFactory()->createOne([
-                'type' => ServerType::SITEBUILDER,
-            ]);
+            'type' => ServerType::SITEBUILDER,
+        ]);
 
         $this->mailOnlyServer = new ServerFactory()->createOne([
             'type' => ServerType::DIRECTADMIN_MAIL,
@@ -84,7 +90,10 @@ class CreateSiteTest extends IntegrationTestCase
         $basekit = new BaseKit('test', 'yeetus', 'example.com');
 
         $userApi = self::createMock(UserApiInterface::class);
-        $userApi->expects(self::once())->method('create')->willReturn(AccountHolder::fromArray([
+        $userApi
+            ->expects(self::once())
+            ->method('create')
+            ->willReturn(AccountHolder::fromArray([
                 'ref' => 123,
                 'brandRef' => 123,
                 'firstName' => 'alsdfjlasf',
@@ -125,13 +134,16 @@ class CreateSiteTest extends IntegrationTestCase
                 'storageBytesUsed' => 0,
                 'accountStatus' => 'free',
                 'company' => 'Test Company',
-        ]));
+            ]));
 
         $packageApi = self::createMock(PackagesApiInterface::class);
         $packageApi->expects(self::once())->method('addUserPackage');
 
         $sitesApi = self::createMock(SitesApiInterface::class);
-        $sitesApi->expects(self::once())->method('create')->willReturn(Site::fromArray([
+        $sitesApi
+            ->expects(self::once())
+            ->method('create')
+            ->willReturn(Site::fromArray([
                 'ref' => 1,
                 'brandRef' => 123,
                 'domains' => [
@@ -154,7 +166,7 @@ class CreateSiteTest extends IntegrationTestCase
                 'mobile' => false,
                 'profileRef' => null,
                 'company' => 'Test Company',
-        ]));
+            ]));
 
         $basekit->userApi = $userApi;
         $basekit->packageApi = $packageApi;

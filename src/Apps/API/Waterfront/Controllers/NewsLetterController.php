@@ -36,6 +36,7 @@ class NewsLetterController
     {
         $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
         $isSubscribed = $this->crm->hasEnabledMarketingEmails($customer);
+
         return new JsonResponse([
             'subscribed' => $isSubscribed,
         ]);
@@ -53,6 +54,7 @@ class NewsLetterController
     {
         $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
         $array = $this->crm->hasOptedInMarketingEmails($customer);
+
         return new JsonResponse($array);
     }
 

@@ -53,9 +53,7 @@ class UnsuspendHostingJobTest extends IntegrationTestCase
 
         $this->hostingService = $this->createMock(HostingServiceInterface::class);
         $this->hostingServiceFactory = $this->createMock(HostingServiceFactory::class);
-        $this->hostingServiceFactory->expects(self::once())
-            ->method('defaultDriver')
-            ->willReturn($this->hostingService);
+        $this->hostingServiceFactory->expects(self::once())->method('defaultDriver')->willReturn($this->hostingService);
         $this->unsuspendMailAction = $this->createMock(SendSubscriptionUnSuspendedMailAction::class);
         $this->storeNameserversAction = $this->createMock(StoreAuditLogAction::class);
 
@@ -69,20 +67,21 @@ class UnsuspendHostingJobTest extends IntegrationTestCase
                 'technical_status' => TechnicalStatus::UNSUSPENDING->value,
             ]);
 
-        $hostingProvider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
-        $this->hostingDeployment = new HostingDeploymentFactory()
-            ->for($this->subscription, 'subscription')
-            ->createOne([
-                'provider_id' => $hostingProvider->id,
-            ]);
+        $hostingProvider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        $this->hostingDeployment = new HostingDeploymentFactory()->for($this->subscription, 'subscription')->createOne([
+            'provider_id' => $hostingProvider->id,
+        ]);
     }
 
     #[Test]
     public function suspendHostingSuccessfully(): void
     {
-        $this->hostingService->expects(self::once())
-            ->method('unsuspend')
-            ->with($this->hostingDeployment);
+        $this->hostingService->expects(self::once())->method('unsuspend')->with($this->hostingDeployment);
 
         $this->storeNameserversAction
             ->expects(self::once())
@@ -115,9 +114,7 @@ class UnsuspendHostingJobTest extends IntegrationTestCase
     #[Test]
     public function suspendHostingAndMailNotSent(): void
     {
-        $this->hostingService->expects(self::once())
-            ->method('unsuspend')
-            ->with($this->hostingDeployment);
+        $this->hostingService->expects(self::once())->method('unsuspend')->with($this->hostingDeployment);
 
         $this->storeNameserversAction
             ->expects(self::once())
@@ -128,9 +125,7 @@ class UnsuspendHostingJobTest extends IntegrationTestCase
                 $this->hostingDeployment->id,
             );
 
-        $this->unsuspendMailAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->unsuspendMailAction->expects(self::never())->method('execute');
 
         $unsuspendJob = new UnsuspendHostingJob($this->hostingDeployment, sendEmailOnSuccess: false);
         $unsuspendJob->handle(
@@ -149,18 +144,15 @@ class UnsuspendHostingJobTest extends IntegrationTestCase
     #[Test]
     public function notImplementedException(): void
     {
-        $this->hostingService->expects(self::once())
+        $this->hostingService
+            ->expects(self::once())
             ->method('unsuspend')
             ->with($this->hostingDeployment)
             ->willThrowException(new NotImplementedException());
 
-        $this->storeNameserversAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->storeNameserversAction->expects(self::never())->method('execute');
 
-        $this->unsuspendMailAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->unsuspendMailAction->expects(self::never())->method('execute');
 
         $unsuspendJob = new UnsuspendHostingJob($this->hostingDeployment, sendEmailOnSuccess: true);
         $unsuspendJob->handle(
@@ -183,18 +175,15 @@ class UnsuspendHostingJobTest extends IntegrationTestCase
     #[Test]
     public function invalidArgumentException(): void
     {
-        $this->hostingService->expects(self::once())
+        $this->hostingService
+            ->expects(self::once())
             ->method('unsuspend')
             ->with($this->hostingDeployment)
             ->willThrowException(new InvalidArgumentException());
 
-        $this->storeNameserversAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->storeNameserversAction->expects(self::never())->method('execute');
 
-        $this->unsuspendMailAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->unsuspendMailAction->expects(self::never())->method('execute');
 
         $unsuspendJob = new UnsuspendHostingJob($this->hostingDeployment, sendEmailOnSuccess: true);
         $unsuspendJob->handle(
@@ -213,7 +202,12 @@ class UnsuspendHostingJobTest extends IntegrationTestCase
     #[Test]
     public function mailOnlySubscriptionUnsuspendSuccess(): void
     {
-        $mailProvider = ProviderFactory::new()->createOne(['type' => ProviderType::MAILONLY, 'slug' => ProviderSlug::DIRECTADMIN, 'default' => true, 'enabled' => true]);
+        $mailProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::MAILONLY,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'default' => true,
+            'enabled' => true,
+        ]);
 
         $this->hostingDeployment->update([
             'server_id' => null,
@@ -223,9 +217,7 @@ class UnsuspendHostingJobTest extends IntegrationTestCase
         ]);
         $this->hostingDeployment->refresh();
 
-        $this->hostingService->expects(self::once())
-            ->method('unsuspend')
-            ->with($this->hostingDeployment);
+        $this->hostingService->expects(self::once())->method('unsuspend')->with($this->hostingDeployment);
 
         $this->storeNameserversAction
             ->expects(self::once())
@@ -258,7 +250,12 @@ class UnsuspendHostingJobTest extends IntegrationTestCase
     #[Test]
     public function mailOnlyNoServerSuppliedInvalidArgumentExceptionThrown(): void
     {
-        $mailProvider = ProviderFactory::new()->createOne(['type' => ProviderType::MAILONLY, 'slug' => ProviderSlug::DIRECTADMIN, 'default' => true, 'enabled' => true]);
+        $mailProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::MAILONLY,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'default' => true,
+            'enabled' => true,
+        ]);
 
         $this->hostingDeployment->update([
             'server_id' => null,
@@ -268,18 +265,15 @@ class UnsuspendHostingJobTest extends IntegrationTestCase
         ]);
         $this->hostingDeployment->refresh();
 
-        $this->hostingService->expects(self::once())
+        $this->hostingService
+            ->expects(self::once())
             ->method('unsuspend')
             ->with($this->hostingDeployment)
             ->willThrowException(new InvalidArgumentException());
 
-        $this->storeNameserversAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->storeNameserversAction->expects(self::never())->method('execute');
 
-        $this->unsuspendMailAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->unsuspendMailAction->expects(self::never())->method('execute');
 
         $unsuspendJob = new UnsuspendHostingJob($this->hostingDeployment, sendEmailOnSuccess: true);
         $unsuspendJob->handle(

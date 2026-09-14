@@ -31,14 +31,17 @@ class DomainMigrationController
 
     public function execute(DomainMigrationRequest $request, Customer $customer): JsonResponse
     {
-        $subscriptions = $this->migratableSubscriptionRepository->getSubscriptionsForDomainContactMigration($customer)
+        $subscriptions = $this->migratableSubscriptionRepository
+            ->getSubscriptionsForDomainContactMigration($customer)
             ->filter(function ($subscription) use ($customer) {
                 try {
                     $this->subscriptionMigrationValidator->validateEligibleForDomainMigration($subscription);
                 } catch (NotEligibleForMigrationException $e) {
                     $this->responseDto->addFailure($this->makeFailureDto($e, $customer, $subscription));
+
                     return false;
                 }
+
                 return true;
             });
 
@@ -56,8 +59,11 @@ class DomainMigrationController
         return new JsonResponse($this->responseDto->toArray(), Response::HTTP_MULTI_STATUS);
     }
 
-    private function makeFailureDto(NotEligibleForMigrationException $e, Customer $customer, Subscription $subscription): FailureDto
-    {
+    private function makeFailureDto(
+        NotEligibleForMigrationException $e,
+        Customer $customer,
+        Subscription $subscription,
+    ): FailureDto {
         return FailureDto::create(
             sprintf('Domain migration step not allowed for subscription: %s', $e->getMessage()),
             [
@@ -76,7 +82,13 @@ class DomainMigrationController
             'Created jobs to migrate domain for every eligible subscription',
             [
                 Parameter::create('customerId', $customer->id),
-                Parameter::create('subscriptionIds', $subscriptions->map(fn ($s) => $s->id)->sort()->join(',')),
+                Parameter::create(
+                    'subscriptionIds',
+                    $subscriptions
+                        ->map(fn ($s) => $s->id)
+                        ->sort()
+                        ->join(','),
+                ),
             ],
         );
     }

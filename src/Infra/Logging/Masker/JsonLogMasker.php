@@ -10,8 +10,9 @@ use Waterfront\Infra\Logging\Masker\Interfaces\MaskKeysInterface;
 
 class JsonLogMasker implements MaskerInterface
 {
-    public function __construct(private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     public function mask(string $body, MaskKeysInterface $maskKeys): string
@@ -20,9 +21,10 @@ class JsonLogMasker implements MaskerInterface
             $this->logger->warning(
                 sprintf(
                     'Could not mask log items for %s, invalid JSON body. Not logging body as precaution.',
-                    $maskKeys::class
-                )
+                    $maskKeys::class,
+                ),
             );
+
             return '';
         }
 

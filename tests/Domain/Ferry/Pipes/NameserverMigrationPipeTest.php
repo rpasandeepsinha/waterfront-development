@@ -32,31 +32,29 @@ class NameserverMigrationPipeTest extends IntegrationTestCase
     #[Test]
     public function nameserverNoBusinessUnit(): void
     {
-        $customer      = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/subscriptions_correct_one_domain_argeweb_bu.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/subscriptions_correct_one_domain_argeweb_bu.php';
 
         $reference = 'unique_reference_for_adf';
 
         $rtrService = $this->createMock(RtrService::class);
-        $rtrService->expects(self::never())
-            ->method('fetchDomain');
+        $rtrService->expects(self::never())->method('fetchDomain');
 
-        $rtrService->expects(self::never())
-            ->method('setClient');
+        $rtrService->expects(self::never())->method('setClient');
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
 
         $validationPayload = new ValidationPayload(
             validationReference: $reference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $dnsNameserverMigrationPipe = self::resolve(NameserverMigrationPipe::class);
 
         $validationPayload = $dnsNameserverMigrationPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame($reference, $validationPayload->validationReference);
@@ -73,40 +71,38 @@ class NameserverMigrationPipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 
     #[Test]
     public function nameserverNoCredentialsBusinessUnit(): void
     {
-        $customer      = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/subscriptions_correct_one_domain_argeweb_bu.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/subscriptions_correct_one_domain_argeweb_bu.php';
 
         $reference = 'unique_reference_for_adf';
 
         DomainProviderBusinessUnitFactory::new()->argeweb()->createOne();
 
         $rtrService = $this->createMock(RtrService::class);
-        $rtrService->expects(self::never())
-            ->method('fetchDomain');
+        $rtrService->expects(self::never())->method('fetchDomain');
 
-        $rtrService->expects(self::never())
-            ->method('setClient');
+        $rtrService->expects(self::never())->method('setClient');
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
 
         $validationPayload = new ValidationPayload(
             validationReference: $reference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $dnsNameserverMigrationPipe = self::resolve(NameserverMigrationPipe::class);
 
         $validationPayload = $dnsNameserverMigrationPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame($reference, $validationPayload->validationReference);
@@ -123,15 +119,15 @@ class NameserverMigrationPipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 
     #[Test]
     public function nameserverNotMigratable(): void
     {
-        $customer      = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/subscriptions_correct.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/subscriptions_correct.php';
         $serializer = DomainSerializerFactory::getSerializer();
 
         $reference = 'unique_reference_for_adf';
@@ -178,23 +174,20 @@ class NameserverMigrationPipeTest extends IntegrationTestCase
         ], DomainDetailsDTO::class);
 
         $rtrService = $this->createMock(RtrService::class);
-        $rtrService->expects(self::exactly(2))
+        $rtrService
+            ->expects(self::exactly(2))
             ->method('fetchDomain')
             ->willReturnCallback(
                 fn (string $domain) => match ($domain) {
                     'test-dns-intern-10.nl' => $details1,
                     'test-dns-intern-11.nl' => $details2,
-                    default => throw new LogicException()
-                }
+                    default => throw new LogicException(),
+                },
             );
 
-        $rtrService
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrService->method('setHandle')->willReturnSelf();
 
-        $rtrService
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrService->method('setClient')->willReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
 
@@ -203,16 +196,18 @@ class NameserverMigrationPipeTest extends IntegrationTestCase
             [
                 'getNameserversViaReverseDNS',
                 'isMigratableNameserver',
-            ]
+            ],
         );
 
-        $dnsMigrationService->expects(self::exactly(3))
+        $dnsMigrationService
+            ->expects(self::exactly(3))
             ->method('getNameserversViaReverseDNS')
             ->willReturn([
                 'nameserver01.testing.test',
             ]);
 
-        $dnsMigrationService->expects(self::exactly(7))
+        $dnsMigrationService
+            ->expects(self::exactly(7))
             ->method('isMigratableNameserver')
             ->willReturn(
                 true, // test dns 10 n1
@@ -221,7 +216,7 @@ class NameserverMigrationPipeTest extends IntegrationTestCase
                 false, // test dns 11 n1
                 false, // test dns 11 n1-> not whitelabel
                 false, // test dns 11 n2
-                true // // test dns 11 n2 -> is whitelabel
+                true, // // test dns 11 n2 -> is whitelabel
             );
 
         $this->app->bind(DnsMigrationService::class, fn () => $dnsMigrationService);
@@ -229,14 +224,14 @@ class NameserverMigrationPipeTest extends IntegrationTestCase
         $validationPayload = new ValidationPayload(
             validationReference: $reference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $dnsNameserverMigrationPipe = self::resolve(NameserverMigrationPipe::class);
 
         $validationPayload = $dnsNameserverMigrationPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame($reference, $validationPayload->validationReference);
@@ -261,7 +256,7 @@ class NameserverMigrationPipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 
@@ -276,7 +271,8 @@ class NameserverMigrationPipeTest extends IntegrationTestCase
         $mockHandler = new MockHandler([
             new Response(
                 status: 200,
-                body: (string) file_get_contents(__DIR__ . '/data/nameserver_migration/openprovider_retrieve_nameserver_empty.xml')
+                body: (string) file_get_contents(__DIR__
+                . '/data/nameserver_migration/openprovider_retrieve_nameserver_empty.xml'),
             ),
         ]);
 
@@ -287,21 +283,21 @@ class NameserverMigrationPipeTest extends IntegrationTestCase
         );
         $this->app->bind(OpenproviderClient::class, fn () => $openproviderClient);
 
-        $customer      = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/subscriptions_correct_one_domain_openprovider.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/subscriptions_correct_one_domain_openprovider.php';
 
         $reference = 'unique_reference_for_adf';
 
         $validationPayload = new ValidationPayload(
             validationReference: $reference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $dnsNameserverMigrationPipe = self::resolve(NameserverMigrationPipe::class);
         $validationPayload = $dnsNameserverMigrationPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame($reference, $validationPayload->validationReference);
@@ -321,7 +317,7 @@ class NameserverMigrationPipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 }

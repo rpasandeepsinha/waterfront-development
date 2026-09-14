@@ -59,7 +59,7 @@ class NovaProductSpecResource extends Resource
             BelongsTo::make(
                 self::translate('product-spec.relations.product'),
                 'product',
-                NovaProductResource::class
+                NovaProductResource::class,
             ),
             Select::make(self::translate('product-spec.attributes.name'), 'name')
                 ->options(self::getSpecsAsSelect())
@@ -67,9 +67,7 @@ class NovaProductSpecResource extends Resource
                 ->displayUsingLabels()
                 ->rules(
                     'required',
-                    Rule::unique('product_specs')
-                        ->ignore($request->route('resourceId'))
-                        ->where('product_id', $product)
+                    Rule::unique('product_specs')->ignore($request->route('resourceId'))->where('product_id', $product),
                 ),
             Text::make(self::translate('product-spec.attributes.value'), 'value')
                 ->rules(['required', new ProductSpecValue($request)])
@@ -78,6 +76,7 @@ class NovaProductSpecResource extends Resource
                     if ($name === null) {
                         return;
                     }
+
                     assert(is_string($name));
                     $explanation = self::translate(sprintf('product-spec.%s.explanation', $name));
                     if (str_starts_with($explanation, 'product-spec.')) {
@@ -85,6 +84,7 @@ class NovaProductSpecResource extends Resource
                     } else {
                         $explanation = str_replace("\n", '<br />', $explanation);
                     }
+
                     $field->help($explanation);
                 }),
         ];
@@ -127,10 +127,16 @@ class NovaProductSpecResource extends Resource
             if ($compoundKey !== '') {
                 $compoundKey .= '.';
             }
+
             $compoundKey .= $key;
 
             if (is_array($value) && array_key_exists('type', $value)) {
-                if (! $onlyInForm || (array_key_exists('show-in-form', $value) && $value['show-in-form'] !== '' && $value['show-in-form'] !== null)) {
+                if (
+                    ! $onlyInForm
+                    || array_key_exists('show-in-form', $value)
+                    && $value['show-in-form'] !== ''
+                    && $value['show-in-form'] !== null
+                ) {
                     $list[] = $compoundKey;
                 }
             } else {

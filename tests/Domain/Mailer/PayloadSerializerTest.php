@@ -31,11 +31,11 @@ class PayloadSerializerTest extends TestCase
     #[Test]
     public function serializesPayloadCorrectly(): void
     {
-        $template = new readonly class ('value1', 'value2') implements MailTemplateInterface {
+        $template = new readonly class('value1', 'value2') implements MailTemplateInterface {
             public function __construct(
                 public string $key1,
                 #[SensitiveParameter]
-                public string $key2
+                public string $key2,
             ) {
             }
 
@@ -45,9 +45,7 @@ class PayloadSerializerTest extends TestCase
             }
         };
 
-        $this->encrypter
-            ->method('encrypt')
-            ->willReturn('encryptedValue2');
+        $this->encrypter->method('encrypt')->willReturn('encryptedValue2');
 
         $result = $this->serializer->serialize($template);
 
@@ -57,7 +55,7 @@ class PayloadSerializerTest extends TestCase
     #[Test]
     public function handlesEmptyTemplate(): void
     {
-        $template = new class () implements MailTemplateInterface {
+        $template = new class() implements MailTemplateInterface {
             public static function getTemplateSlug(): string
             {
                 return 'template';
@@ -72,10 +70,10 @@ class PayloadSerializerTest extends TestCase
     #[Test]
     public function handlesNonSensitiveValues(): void
     {
-        $template = new readonly class ('value1', 'value2') implements MailTemplateInterface {
+        $template = new readonly class('value1', 'value2') implements MailTemplateInterface {
             public function __construct(
                 public string $key1,
-                public string $key2
+                public string $key2,
             ) {
             }
 
@@ -93,12 +91,12 @@ class PayloadSerializerTest extends TestCase
     #[Test]
     public function handlesMultipleSensitiveValues(): void
     {
-        $template = new readonly class ('value1', 'value2') implements MailTemplateInterface {
+        $template = new readonly class('value1', 'value2') implements MailTemplateInterface {
             public function __construct(
                 #[SensitiveParameter]
                 public string $key1,
                 #[SensitiveParameter]
-                public string $key2
+                public string $key2,
             ) {
             }
 
@@ -108,10 +106,13 @@ class PayloadSerializerTest extends TestCase
             }
         };
 
-        $this->encrypter->expects($this->exactly(2))->method('encrypt')->willReturnMap([
-            ['value1', 'encryptedValue1'],
-            ['value2', 'encryptedValue2'],
-        ]);
+        $this->encrypter
+            ->expects($this->exactly(2))
+            ->method('encrypt')
+            ->willReturnMap([
+                ['value1', 'encryptedValue1'],
+                ['value2', 'encryptedValue2'],
+            ]);
 
         $result = $this->serializer->serialize($template);
 

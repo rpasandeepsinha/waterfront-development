@@ -106,10 +106,13 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
 
         self::assertFalse($this->repository->domainExistsInSubscription($domain));
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($product)->createOne([
-            'domain' => $domain,
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->createOne([
+                'domain' => $domain,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+            ]);
 
         self::assertTrue($this->repository->domainExistsInSubscription($domain));
 
@@ -124,26 +127,39 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for(new ProductGroupFactory()->microsoft365())->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($product)->createOne([
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+            ]);
 
-        $end = new DateTime()->modify('-1 days')->format(DateTimeFormat::DEFAULT);
+        $end = new DateTime()
+            ->modify('-1 days')
+            ->format(DateTimeFormat::DEFAULT);
 
-        new SubscriptionFactory()->count(2)->for($product)->for($this->customer)->createOne([
-            'parent_subscription_id' => $subscription->id,
-            'technical_status' => TechnicalStatus::OK->value,
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-            'end_date' => $end,
-        ]);
+        new SubscriptionFactory()
+            ->count(2)
+            ->for($product)
+            ->for($this->customer)
+            ->createOne([
+                'parent_subscription_id' => $subscription->id,
+                'technical_status' => TechnicalStatus::OK->value,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                'end_date' => $end,
+            ]);
 
-        new SubscriptionFactory()->count(3)->for($product)->for($this->customer)->createOne([
-            'parent_subscription_id' => $subscription->id,
-            'technical_status' => TechnicalStatus::OK->value,
-            'administrative_status' => AdministrativeStatus::EXPIRED->value,
-            'end_date' => $end,
-            'termination_date' => $end,
-        ]);
+        new SubscriptionFactory()
+            ->count(3)
+            ->for($product)
+            ->for($this->customer)
+            ->createOne([
+                'parent_subscription_id' => $subscription->id,
+                'technical_status' => TechnicalStatus::OK->value,
+                'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                'end_date' => $end,
+                'termination_date' => $end,
+            ]);
 
         $service = self::resolve(SubscriptionRepository::class);
         $items = $service->getAllDueForTermination();
@@ -157,15 +173,18 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
         $domain = 'example.com';
         $product = new ProductFactory()->for(new ProductGroupFactory()->dns())->createOne();
 
-        $expectedSubscription = new SubscriptionFactory()->for($product)->for($this->customer)->createOne([
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-            'domain' => $domain,
-        ]);
+        $expectedSubscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($this->customer)
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                'domain' => $domain,
+            ]);
 
         $subscription = $this->repository->getSubscriptionByCustomerDomainAndType(
             $this->customer,
             $domain,
-            ProductGroupType::DNS
+            ProductGroupType::DNS,
         );
 
         self::assertInstanceOf(Subscription::class, $subscription);
@@ -177,9 +196,16 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne())->createOne();
         // Cloud the DB a bit >:).
-        new SubscriptionFactory()->withCustomer()->for($product)->count(3)->createOne();
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->count(3)
+            ->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->createOne();
         $retrievedSubscription = $this->repository->getByUuid($subscription->uuid);
 
         self::assertInstanceOf(Subscription::class, $retrievedSubscription);
@@ -192,7 +218,9 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
         $productGroup = new ProductGroupFactory()->createOne([
             'slug' => ProductGroupType::HOSTING,
         ]);
-        $freeRedirectProduct = new ProductFactory()->for($productGroup)->createOne(['slug' => ProductType::FREE_REDIRECT]);
+        $freeRedirectProduct = new ProductFactory()->for($productGroup)->createOne([
+            'slug' => ProductType::FREE_REDIRECT,
+        ]);
         $freeDnsProduct = new ProductFactory()->for($productGroup)->createOne(['slug' => ProductType::FREE_DNS]);
         $redirectProduct = new ProductFactory()->for($productGroup)->createOne(['slug' => ProductType::REDIRECT]);
 
@@ -233,12 +261,8 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
     #[Test]
     public function getRecentDomainNamesReturnsOnlyRecentDomainRegistrations(): void
     {
-        $extensionProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne();
-        $hostingProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->hosting()->createOne())
-            ->createOne();
+        $extensionProduct = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne();
+        $hostingProduct = new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne())->createOne();
 
         $recentDomain = new SubscriptionFactory()
             ->for($this->customer)
@@ -267,9 +291,7 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
     #[Test]
     public function getRecentDomainNamesRespectsTheLimit(): void
     {
-        $extensionProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne();
+        $extensionProduct = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne();
 
         new SubscriptionFactory()
             ->for($this->customer)

@@ -33,9 +33,15 @@ class HostingDeploymentResource
     public function toArray(HostingDeployment $deployment): array
     {
         $baseDeploymentResource = $this->baseTechnicalDeploymentResource->toArray($deployment);
-        $availableActions = [...$baseDeploymentResource['available_actions'], ...$this->hostingDeploymentPolicy->getAvailableActions($deployment)];
+        $availableActions = [
+            ...$baseDeploymentResource['available_actions'],
+            ...$this->hostingDeploymentPolicy->getAvailableActions($deployment),
+        ];
 
-        $query = new ProvisioningResultQueryFilters(tag: Uuid::fromString($deployment->subscription->uuid), requestType: ProvisionType::SITEBUILDER);
+        $query = new ProvisioningResultQueryFilters(
+            tag: Uuid::fromString($deployment->subscription->uuid),
+            requestType: ProvisionType::SITEBUILDER,
+        );
         $provisioningResults = $this->provisionGateway->fetch($query, 1);
 
         $resourceArray = [
@@ -75,6 +81,6 @@ class HostingDeploymentResource
      */
     public function toJson(HostingDeployment $deployment): string
     {
-        return json_encode($this->toArray($deployment), flags:JSON_THROW_ON_ERROR);
+        return json_encode($this->toArray($deployment), flags: JSON_THROW_ON_ERROR);
     }
 }

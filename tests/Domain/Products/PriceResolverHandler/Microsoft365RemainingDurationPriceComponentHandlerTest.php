@@ -22,9 +22,7 @@ class Microsoft365RemainingDurationPriceComponentHandlerTest extends Integration
     public function handleWithNonM365ProductsShouldCallNextHandler(): void
     {
         $microsoft365Repository = self::createMock(Microsoft365Repository::class);
-        $microsoft365Repository
-            ->expects(self::never())
-            ->method('hasMicrosoft365Subscriptions');
+        $microsoft365Repository->expects(self::never())->method('hasMicrosoft365Subscriptions');
 
         $m365Handler = new Microsoft365RemainingDurationComponentPriceHandler($microsoft365Repository);
 
@@ -38,9 +36,7 @@ class Microsoft365RemainingDurationPriceComponentHandlerTest extends Integration
     public function handleWithM365ProductsShouldCheckIfCustomerHasM365(): void
     {
         $microsoft365Repository = self::createMock(Microsoft365Repository::class);
-        $microsoft365Repository
-            ->expects(self::once())
-            ->method('hasMicrosoft365Subscriptions');
+        $microsoft365Repository->expects(self::once())->method('hasMicrosoft365Subscriptions');
 
         $m365Handler = new Microsoft365RemainingDurationComponentPriceHandler($microsoft365Repository);
 

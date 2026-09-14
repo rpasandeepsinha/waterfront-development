@@ -35,10 +35,13 @@ class CustomerSharedSslServiceUnitTest extends IntegrationTestCase
         $product = new ProductFactory()->for($productGroup)->createOne();
 
         $sslProvider = ProviderFactory::new()->domainRtr()->createOne();
-        $subscription = new SubscriptionFactory()->for($product)->for((new CustomerFactory()->withAddress()))->createOne([
-            'domain' => 'testdomain.nl',
-            'contract_period' => 12,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for(new CustomerFactory()->withAddress())
+            ->createOne([
+                'domain' => 'testdomain.nl',
+                'contract_period' => 12,
+            ]);
 
         $this->sslDeployment = new SslDeploymentFactory()->createOne([
             'provider_id' => $sslProvider->id,
@@ -70,11 +73,14 @@ class CustomerSharedSslServiceUnitTest extends IntegrationTestCase
     {
         $remoteSslServiceClient = self::createMock(RemoteSslServiceClient::class);
         $remoteSslServiceClient->expects(self::once())->method('csrExistsForDomain')->willReturn(true);
-        $remoteSslServiceClient->expects(self::once())->method('retrieve')->willReturn(
-            Result::create([
-                'isCertificateActive' => true,
-            ])
-        );
+        $remoteSslServiceClient
+            ->expects(self::once())
+            ->method('retrieve')
+            ->willReturn(
+                Result::create([
+                    'isCertificateActive' => true,
+                ]),
+            );
         $remoteSslServiceClient->expects(self::once())->method('renew')->willReturn(new Result());
 
         $sslService = new CustomerSharedSslService(
@@ -91,29 +97,29 @@ class CustomerSharedSslServiceUnitTest extends IntegrationTestCase
     public function renewWithoutOriginalCertificateIdShouldOrderNewCertificate(): void
     {
         $remoteSslServiceClient = self::createMock(RemoteSslServiceClient::class);
-        $remoteSslServiceClient->expects(self::once())
-            ->method('csrExistsForDomain')
-            ->willReturn(true);
+        $remoteSslServiceClient->expects(self::once())->method('csrExistsForDomain')->willReturn(true);
 
-        $remoteSslServiceClient->expects(self::once())
+        $remoteSslServiceClient
+            ->expects(self::once())
             ->method('retrieve')
             ->willThrowException(
-                new LogicException('cannot retrieve certificate without id')
+                new LogicException('cannot retrieve certificate without id'),
             );
 
-        $remoteSslServiceClient->expects(self::never())
-            ->method('renew');
+        $remoteSslServiceClient->expects(self::never())->method('renew');
 
-        $remoteSslServiceClient->expects(self::once())
+        $remoteSslServiceClient
+            ->expects(self::once())
             ->method('create')
             ->with(
                 12,
                 self::callback(
-                    fn (SslDeployment $sslDeployment)
-                        => $sslDeployment->id === $this->sslDeployment->id
-                            && $sslDeployment->request_id === null
+                    fn (SslDeployment $sslDeployment) => (
+                        $sslDeployment->id === $this->sslDeployment->id
+                        && $sslDeployment->request_id === null
+                    ),
                 ),
-                null
+                null,
             );
 
         $sslService = new CustomerSharedSslService(
@@ -130,22 +136,16 @@ class CustomerSharedSslServiceUnitTest extends IntegrationTestCase
     public function reissueWithNewCsr(): void
     {
         $remoteSslServiceClient = self::createMock(RemoteSslServiceClient::class);
-        $remoteSslServiceClient
-            ->expects(self::once())
-            ->method('csrExistsForDomain')
-            ->willReturn(true);
+        $remoteSslServiceClient->expects(self::once())->method('csrExistsForDomain')->willReturn(true);
         $remoteSslServiceClient
             ->expects(self::once())
             ->method('retrieve')
             ->willReturn(
                 Result::create([
                     'isCertificateActive' => true,
-                ])
+                ]),
             );
-        $remoteSslServiceClient
-            ->expects(self::once())
-            ->method('reissue')
-            ->willReturn(new Result());
+        $remoteSslServiceClient->expects(self::once())->method('reissue')->willReturn(new Result());
 
         $domain = $this->sslDeployment->subscription->domain;
         $generateCsrStep = self::createMock(GenerateCsrStep::class);
@@ -163,10 +163,7 @@ MoreFakeBase64DataForTestingOnlyDoNotUseInProductionEnvironment1234567
 890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0987654321==
 -----END CERTIFICATE REQUEST-----');
 
-        $remoteSslServiceClient
-            ->expects(self::once())
-            ->method('reissue')
-            ->willReturn(new Result());
+        $remoteSslServiceClient->expects(self::once())->method('reissue')->willReturn(new Result());
 
         $sslService = new CustomerSharedSslService(
             $remoteSslServiceClient,
@@ -182,29 +179,29 @@ MoreFakeBase64DataForTestingOnlyDoNotUseInProductionEnvironment1234567
     public function reissueWithoutOriginalCertificateIdShouldOrderNewCertificate(): void
     {
         $remoteSslServiceClient = self::createMock(RemoteSslServiceClient::class);
-        $remoteSslServiceClient->expects(self::once())
-            ->method('csrExistsForDomain')
-            ->willReturn(true);
+        $remoteSslServiceClient->expects(self::once())->method('csrExistsForDomain')->willReturn(true);
 
-        $remoteSslServiceClient->expects(self::once())
+        $remoteSslServiceClient
+            ->expects(self::once())
             ->method('retrieve')
             ->willThrowException(
-                new LogicException('cannot retrieve certificate without id')
+                new LogicException('cannot retrieve certificate without id'),
             );
 
-        $remoteSslServiceClient->expects(self::never())
-            ->method('reissue');
+        $remoteSslServiceClient->expects(self::never())->method('reissue');
 
-        $remoteSslServiceClient->expects(self::once())
+        $remoteSslServiceClient
+            ->expects(self::once())
             ->method('create')
             ->with(
                 12,
                 self::callback(
-                    fn (SslDeployment $sslDeployment)
-                    => $sslDeployment->id === $this->sslDeployment->id
+                    fn (SslDeployment $sslDeployment) => (
+                        $sslDeployment->id === $this->sslDeployment->id
                         && $sslDeployment->request_id === null
+                    ),
                 ),
-                null
+                null,
             );
 
         $sslService = new CustomerSharedSslService(

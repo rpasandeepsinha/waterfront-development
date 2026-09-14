@@ -17,9 +17,9 @@ class CoupleDomainRequest extends FormRequest
         $domainNameRule = $this->container->make(DomainNameRule::class);
 
         return [
-            'uuid'                      => ['required', 'uuid', 'exists:subscriptions,uuid'],
-            'reseller_sub_username'     => ['required', 'string', 'max:20', 'alpha_num'],
-            'domain'                    => [
+            'uuid' => ['required', 'uuid', 'exists:subscriptions,uuid'],
+            'reseller_sub_username' => ['required', 'string', 'max:20', 'alpha_num'],
+            'domain' => [
                 'required',
                 'string',
                 'between:3,255',

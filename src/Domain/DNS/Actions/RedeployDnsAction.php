@@ -23,7 +23,8 @@ readonly class RedeployDnsAction
     public function execute(Subscription $subscription): void
     {
         if ($subscription->product->productGroup->slug !== ProductGroupType::DNS) {
-            throw new Exception('RedeployDnsAction called with subscription with incompatible product group ' . $subscription->product->productGroup->slug->value);
+            throw new Exception('RedeployDnsAction called with subscription with incompatible product group '
+            . $subscription->product->productGroup->slug->value);
         }
 
         $domain = $subscription->domain;
@@ -37,7 +38,7 @@ readonly class RedeployDnsAction
             new CreateDns(
                 $subscription->uuid,
                 $domain,
-            )
+            ),
         );
 
         $subscription->technical_status = TechnicalStatus::PENDING->value;

@@ -43,7 +43,12 @@ class ResellerHostingSubscriptionTerminateTest extends IntegrationTestCase
 
         $this->actingAsCustomer($this->customer);
 
-        $this->hostingProvider = ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        $this->hostingProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
     }
 
     #[Test]
@@ -75,7 +80,11 @@ class ResellerHostingSubscriptionTerminateTest extends IntegrationTestCase
             'provider_id' => $this->hostingProvider->id,
         ]);
 
-        $cancellationService->cancel($subscription, SubscriptionCancelType::CANCEL_END_DATE, SubscriptionCancelReason::REASON_CANCELLATION);
+        $cancellationService->cancel(
+            $subscription,
+            SubscriptionCancelType::CANCEL_END_DATE,
+            SubscriptionCancelReason::REASON_CANCELLATION,
+        );
 
         $subscription->refresh();
 
@@ -96,11 +105,13 @@ class ResellerHostingSubscriptionTerminateTest extends IntegrationTestCase
             'slug' => 'hosting_reseller_brons',
         ]);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain' => null,
-            'product_uuid'       => $resellerProduct->uuid,
-            'technical_status'   => TechnicalStatus::OK->value,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => null,
+                'product_uuid' => $resellerProduct->uuid,
+                'technical_status' => TechnicalStatus::OK->value,
+            ]);
 
         $resellerHostingDeployment = new ResellerHostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,

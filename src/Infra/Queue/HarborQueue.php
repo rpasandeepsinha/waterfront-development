@@ -51,7 +51,7 @@ class HarborQueue
             $this->getChannel()->basic_publish(
                 msg: new AMQPMessage(
                     body: $this->serializer->encode($message),
-                    properties: ['delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT]
+                    properties: ['delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT],
                 ),
                 exchange: 'messages',
             );
@@ -86,7 +86,7 @@ class HarborQueue
             $this->configuration->getAsInteger('harbor.port'),
             $this->configuration->getAsString('harbor.user'),
             $this->configuration->getAsString('harbor.password'),
-            $this->configuration->getAsString('harbor.vhost')
+            $this->configuration->getAsString('harbor.vhost'),
         );
     }
 

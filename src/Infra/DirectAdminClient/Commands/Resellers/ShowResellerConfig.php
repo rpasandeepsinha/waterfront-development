@@ -38,6 +38,7 @@ class ShowResellerConfig extends DirectAdminCommand
     public function setReseller(string $reseller): ShowResellerConfig
     {
         $this->reseller = $reseller;
+
         return $this;
     }
 
@@ -47,6 +48,7 @@ class ShowResellerConfig extends DirectAdminCommand
     public function responseReceived(array $decodedContent): static
     {
         $this->resellerConfig = $decodedContent;
+
         return parent::responseReceived($decodedContent);
     }
 
@@ -64,6 +66,7 @@ class ShowResellerConfig extends DirectAdminCommand
     public function setResellerConfig(array $resellerConfig): ShowResellerConfig
     {
         $this->resellerConfig = $resellerConfig;
+
         return $this;
     }
 }

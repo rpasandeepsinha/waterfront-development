@@ -32,7 +32,7 @@ abstract class BaseResponse
      */
     public function __construct(ResponseInterface $response)
     {
-        $this->httpResponse =  $response->getBody()->__toString();
+        $this->httpResponse = $response->getBody()->__toString();
         $this->statusCode = $response->getStatusCode();
         $this->statusMessage = $response->getReasonPhrase();
         $this->parseReply((string) $response->getBody());

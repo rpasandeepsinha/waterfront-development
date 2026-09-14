@@ -37,7 +37,7 @@ class SecurityBundleController
         try {
             $this->redeemSecurityBundleAction->execute(
                 $customer,
-                $request->getRequestedProductSlugs()
+                $request->getRequestedProductSlugs(),
             );
         } catch (ProductExperimentOfferingAlreadyRedeemedException) {
             throw ValidationException::withMessages([
@@ -46,12 +46,12 @@ class SecurityBundleController
         } catch (ProductExperimentOfferingNotClaimableException) {
             return new JsonResponse(
                 data: ['message' => $this->translator->translate('security-bundle.not-claimable')],
-                status: Response::HTTP_UNPROCESSABLE_ENTITY
+                status: Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
 
         return new JsonResponse(
-            status: Response::HTTP_NO_CONTENT
+            status: Response::HTTP_NO_CONTENT,
         );
     }
 }

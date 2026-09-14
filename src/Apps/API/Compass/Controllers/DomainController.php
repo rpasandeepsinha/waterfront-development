@@ -29,6 +29,7 @@ use Waterfront\Domain\Domains\Exceptions\DomainDoesNotExistException;
 use Waterfront\Domain\Domains\Factories\DomainServiceFactory;
 use Waterfront\Domain\Domains\Interfaces\RevisionInterface;
 use Waterfront\Domain\Domains\Models\DomainDeployment;
+use Waterfront\Domain\Domains\Services\DomainContactService;
 use Waterfront\Domain\Products\Enums\ProductGroupType;
 use Waterfront\Domain\Providers\Enums\ProviderSlug;
 use Waterfront\Domain\Subscriptions\Repositories\SubscriptionRepository;
@@ -48,6 +49,7 @@ class DomainController
         private readonly SubscriptionRepository $subscriptionRepository,
         private readonly RawPowerDnsRetriever $rawPowerDnsRetriever,
         private readonly DomainServiceFactory $domainServiceFactory,
+        private readonly DomainContactService $domainContactService,
         private readonly TranslatorInterface $translator,
         private readonly LoggerInterface $logger,
     ) {
@@ -82,7 +84,7 @@ class DomainController
 
         try {
             $result = $this->domainService->checkNameservers($domainDeployment);
-        } catch (RealtimeRegisterClientException | DomainDoesNotExistException) {
+        } catch (RealtimeRegisterClientException|DomainDoesNotExistException) {
             $result = [];
         }
 
@@ -93,13 +95,13 @@ class DomainController
     {
         try {
             $records = $this->dnsService->getDnsRecordsForDomain($domain);
-        } catch (DnsZoneNotFoundException | GuzzleException | JsonException) {
+        } catch (DnsZoneNotFoundException|GuzzleException|JsonException) {
             return new JsonResponse(
                 [
                     'message' => $this->translator->translate('dns.dns-zone-not-exists'),
                     'errors' => [],
                 ],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
 
@@ -110,6 +112,7 @@ class DomainController
     {
         $subscription = $this->subscriptionRepository->findByDomainAndType($domain, ProductGroupType::DNS);
         $redeployDnsAction->execute($subscription);
+
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
@@ -119,14 +122,21 @@ class DomainController
 
         $domainDeployment = $subscription->domainDeployment;
         if ($domainDeployment === null) {
-            return new JsonResponse(['message' => 'The deployment could not be found'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new JsonResponse([
+                'message' => 'The deployment could not be found',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         if ($domainDeployment->provider->slug !== ProviderSlug::REALTIME_REGISTER) {
-            return new JsonResponse(['message' => 'Domain processes are not supported for this provider'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return new JsonResponse([
+                'message' => 'Domain processes are not supported for this provider',
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $rtrService = $this->domainServiceFactory->driver($domainDeployment->provider->slug, $domainDeployment->businessUnit);
+        $rtrService = $this->domainServiceFactory->driver(
+            $domainDeployment->provider->slug,
+            $domainDeployment->businessUnit,
+        );
         Assert::isInstanceOf($rtrService, RtrService::class);
 
         try {
@@ -152,18 +162,27 @@ class DomainController
         try {
             $subscription = $this->subscriptionRepository->findByDomainAndType($domain, ProductGroupType::EXTENSION);
         } catch (ModelNotFoundException) {
-            return new JsonResponse(['message' => $this->translator->translate('domain-revisions.domain-not-found')], Response::HTTP_NOT_FOUND);
+            return new JsonResponse([
+                'message' => $this->translator->translate('domain-revisions.domain-not-found'),
+            ], Response::HTTP_NOT_FOUND);
         }
 
         $domainDeployment = $subscription->domainDeployment;
         if ($domainDeployment === null) {
-            return new JsonResponse(['message' => $this->translator->translate('domain-revisions.deployment-not-found')], Response::HTTP_NOT_FOUND);
+            return new JsonResponse([
+                'message' => $this->translator->translate('domain-revisions.deployment-not-found'),
+            ], Response::HTTP_NOT_FOUND);
         }
 
-        $domainService = $this->domainServiceFactory->driver($domainDeployment->provider->slug, $domainDeployment->businessUnit);
+        $domainService = $this->domainServiceFactory->driver(
+            $domainDeployment->provider->slug,
+            $domainDeployment->businessUnit,
+        );
 
         if (! $domainService instanceof RevisionInterface) {
-            return new JsonResponse(['message' => $this->translator->translate('domain-revisions.provider-not-supported')], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return new JsonResponse([
+                'message' => $this->translator->translate('domain-revisions.provider-not-supported'),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         try {
@@ -189,6 +208,56 @@ class DomainController
         $pageSize = is_numeric($request->input('pageSize')) ? (int) $request->input('pageSize') : 100;
         $auditLogPaginator = $this->fetchAuditLogsForDomainAction->execute($domain, $pageSize);
         $auditLogPaginator->appends('pageSize', (string) $pageSize);
+
         return AuditLogResource::collection($auditLogPaginator);
+    }
+
+    public function syncDomainContact(string $domain): JsonResponse
+    {
+        try {
+            $subscription = $this->subscriptionRepository->findByDomainAndType($domain, ProductGroupType::EXTENSION);
+        } catch (ModelNotFoundException) {
+            return new JsonResponse([
+                'message' => $this->translator->translate('domain-contact.domain-not-found'),
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $domainDeployment = $subscription->domainDeployment;
+        if ($domainDeployment === null) {
+            return new JsonResponse([
+                'message' => $this->translator->translate('domain-contact.deployment-not-found'),
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        try {
+            if ($domainDeployment->contactOwner === null) {
+                $domainDriver = $this->domainServiceFactory->driver(
+                    $domainDeployment->provider->slug,
+                    $domainDeployment->businessUnit,
+                );
+                $remoteDomain = $domainDriver->fetchDomain($domain);
+                $remoteCustomerContact = $domainDriver->retrieveCustomerHandle($remoteDomain->registrant);
+
+                $this->domainContactService->createContactOwnerFromRemoteCustomerContact(
+                    $domainDeployment,
+                    $remoteCustomerContact,
+                );
+            }
+        } catch (RtrApiException $exception) {
+            $this->logger->error('Unable to sync domain contact', [
+                LoggingContextKeys::DOMAIN_NAME => $domain,
+                LoggingContextKeys::PROVISIONING_ID => $domainDeployment->id,
+                LoggingContextKeys::PROVISIONING_PROVIDER => $domainDeployment->provider->slug,
+                LoggingContextKeys::EXCEPTION => $exception,
+            ]);
+
+            return new JsonResponse([
+                'message' => $this->translator->translate('domain-contact.failed-to-sync'),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return new JsonResponse([
+            'message' => $this->translator->translate('domain-contact.synced-successfully'),
+        ], Response::HTTP_OK);
     }
 }

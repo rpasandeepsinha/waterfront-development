@@ -47,7 +47,9 @@ class TechnicalSslMigrationJobTest extends IntegrationTestCase
             ->technicalStatusOk()
             ->createOne();
 
-        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1']);
+        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1',
+        ]);
         $this->sslSubscription->migratedSubscriptions()->attach($migratedSubscription);
 
         $migratedCustomer = MigratedCustomersFactory::new()->createOne();
@@ -58,10 +60,10 @@ class TechnicalSslMigrationJobTest extends IntegrationTestCase
 
         $sslPlaceholderProvider = ProviderFactory::new()->sslPlaceholder()->createOne();
 
-        SslDeploymentFactory::new()
-            ->for($this->sslSubscription, 'subscription')
-            ->for($sslPlaceholderProvider, 'provider')
-            ->createOne();
+        SslDeploymentFactory::new()->for($this->sslSubscription, 'subscription')->for(
+            $sslPlaceholderProvider,
+            'provider',
+        )->createOne();
     }
 
     #[Test]
@@ -69,7 +71,7 @@ class TechnicalSslMigrationJobTest extends IntegrationTestCase
     {
         $job = new TechnicalSslMigrationJob(
             subscription: $this->sslSubscription,
-            failedTechnicalStatus: TechnicalStatus::ERROR->value
+            failedTechnicalStatus: TechnicalStatus::ERROR->value,
         );
 
         $adfService = self::resolve(AdfPayloadService::class);
@@ -84,7 +86,7 @@ class TechnicalSslMigrationJobTest extends IntegrationTestCase
 
         self::assertSame(
             ProviderSlug::PLACEHOLDER,
-            $this->sslSubscription->sslDeployment?->provider->slug
+            $this->sslSubscription->sslDeployment?->provider->slug,
         );
         self::assertNull($this->sslSubscription->sslDeployment->expire_date);
     }

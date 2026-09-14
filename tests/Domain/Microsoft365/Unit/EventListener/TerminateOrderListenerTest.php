@@ -50,19 +50,30 @@ class TerminateOrderListenerTest extends IntegrationTestCase
             'slug' => 'microsoft-business-standard',
         ]);
 
-        $this->subscription = new SubscriptionFactory()->withCustomer()->for($parentProduct)->createOne([
-            'technical_status' => TechnicalStatus::OK->value,
-            'administrative_status' => AdministrativeStatus::ARCHIVING->value,
-        ]);
+        $this->subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($parentProduct)
+            ->createOne([
+                'technical_status' => TechnicalStatus::OK->value,
+                'administrative_status' => AdministrativeStatus::ARCHIVING->value,
+            ]);
 
-        new SubscriptionFactory()->withCustomer()->count(3)->for($childProduct)->parentSubscription($this->subscription)->createOne([
-            'technical_status' => TechnicalStatus::OK->value,
-            'administrative_status' => AdministrativeStatus::ARCHIVING->value,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->count(3)
+            ->for($childProduct)
+            ->parentSubscription($this->subscription)
+            ->createOne([
+                'technical_status' => TechnicalStatus::OK->value,
+                'administrative_status' => AdministrativeStatus::ARCHIVING->value,
+            ]);
 
         $customerInfo = new Microsoft365CustomerInfoFactory()->for($customer)->createOne();
 
-        $this->microsoft365Deployment = new Microsoft365DeploymentFactory()->for($customerInfo)->for($this->subscription)->createOne();
+        $this->microsoft365Deployment = new Microsoft365DeploymentFactory()
+            ->for($customerInfo)
+            ->for($this->subscription)
+            ->createOne();
     }
 
     #[Test]

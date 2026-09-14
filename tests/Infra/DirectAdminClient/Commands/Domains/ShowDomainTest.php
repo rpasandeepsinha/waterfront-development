@@ -99,8 +99,7 @@ class ShowDomainTest extends DirectAdminTestCase
 
         $this->api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->showDomain
-            ->setDomain($domain);
+        $this->showDomain->setDomain($domain);
 
         $this->api->loginAs($testUser)->call($this->showDomain);
 

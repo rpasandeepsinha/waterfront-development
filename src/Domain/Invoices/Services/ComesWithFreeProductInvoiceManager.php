@@ -36,6 +36,7 @@ readonly class ComesWithFreeProductInvoiceManager
     public function isSubscriptionWhichComesWithFreeProduct(Subscription $subscription): bool
     {
         $comesWithFreeProduct = $this->productRepository->comesWithFreeProduct($subscription->product);
+
         return $comesWithFreeProduct instanceof Product;
     }
 
@@ -44,7 +45,7 @@ readonly class ComesWithFreeProductInvoiceManager
         Invoice $paidInvoice,
         ?string $prepaidReference = null,
         bool $dispatchInvoiceCreated = true,
-        ProductPriceType $priceType = ProductPriceType::REGISTRATION
+        ProductPriceType $priceType = ProductPriceType::REGISTRATION,
     ): ?Invoice {
         $comesWithFreeProduct = $this->productRepository->comesWithFreeProduct($subscription->product);
 
@@ -56,8 +57,14 @@ readonly class ComesWithFreeProductInvoiceManager
             ProductPriceType::REGISTRATION => new RegistrationPriceRequest($comesWithFreeProduct),
             ProductPriceType::PROLONGATION => new ProlongationPriceRequest($comesWithFreeProduct),
         };
-        $priceList = $this->priceResolver->getPriceList(new PriceRequest([$productPriceRequest], $subscription->customer));
-        $price = $priceList->getProductPrice($comesWithFreeProduct->slug, $subscription->contract_period, $subscription->billing_period);
+        $priceList = $this->priceResolver->getPriceList(
+            new PriceRequest([$productPriceRequest], $subscription->customer),
+        );
+        $price = $priceList->getProductPrice(
+            $comesWithFreeProduct->slug,
+            $subscription->contract_period,
+            $subscription->billing_period,
+        );
 
         return $this->createInvoiceForCustomer(
             customer: $subscription->customer,
@@ -68,7 +75,7 @@ readonly class ComesWithFreeProductInvoiceManager
             netPrice: 0,
             prepaidReference: $prepaidReference,
             subscription: $subscription,
-            dispatchInvoiceCreated: $dispatchInvoiceCreated
+            dispatchInvoiceCreated: $dispatchInvoiceCreated,
         );
     }
 
@@ -92,7 +99,9 @@ readonly class ComesWithFreeProductInvoiceManager
 
         $description = '';
         if ($subscription !== null) {
-            $appendable = $subscription->domain !== null ? $this->translator->translate('invoice.description.for') . " {$subscription->domain}" : '';
+            $appendable = $subscription->domain !== null
+                ? $this->translator->translate('invoice.description.for') . " {$subscription->domain}"
+                : '';
             $description = sprintf(
                 '%s %s',
                 $product->name,
@@ -101,28 +110,29 @@ readonly class ComesWithFreeProductInvoiceManager
         }
 
         $invoice = new Invoice();
-        $invoice->subscription_id    = $subscription?->id;
-        $invoice->customer_id        = $customer->id;
-        $invoice->product_id         = $product->id;
-        $invoice->ledger_code        = $product->productGroup->ledger_code;
-        $invoice->vat_code           = $customerVatDTO->vatCode;
-        $invoice->vat_rate           = $customerVatDTO->vatRate;
-        $invoice->title              = $product->name;
-        $invoice->description        = $description;
-        $invoice->group_label        = $subscription?->domain;
-        $invoice->type               = InvoiceLine::TYPE_DEFAULT;
-        $invoice->paid               = $prepaidReference !== null;
-        $invoice->prepaid_reference  = $prepaidReference;
-        $invoice->start_date         = $startDate;
-        $invoice->end_date           = $endDate;
-        $invoice->period             = (int) $endDate->diffInMonths($startDate, true);
-        $invoice->gross_price        = $grossPrice;
-        $invoice->net_price          = $netPrice ?? $grossPrice;
+        $invoice->subscription_id = $subscription?->id;
+        $invoice->customer_id = $customer->id;
+        $invoice->product_id = $product->id;
+        $invoice->ledger_code = $product->productGroup->ledger_code;
+        $invoice->vat_code = $customerVatDTO->vatCode;
+        $invoice->vat_rate = $customerVatDTO->vatRate;
+        $invoice->title = $product->name;
+        $invoice->description = $description;
+        $invoice->group_label = $subscription?->domain;
+        $invoice->type = InvoiceLine::TYPE_DEFAULT;
+        $invoice->paid = $prepaidReference !== null;
+        $invoice->prepaid_reference = $prepaidReference;
+        $invoice->start_date = $startDate;
+        $invoice->end_date = $endDate;
+        $invoice->period = (int) $endDate->diffInMonths($startDate, true);
+        $invoice->gross_price = $grossPrice;
+        $invoice->net_price = $netPrice ?? $grossPrice;
         $invoice->save();
 
         if ($dispatchInvoiceCreated) {
             $this->eventDispatcher->dispatch(new InvoiceCreatedEvent($invoice, false));
         }
+
         return $invoice;
     }
 }

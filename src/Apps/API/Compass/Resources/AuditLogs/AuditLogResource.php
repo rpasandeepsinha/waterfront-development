@@ -38,11 +38,12 @@ class AuditLogResource extends JsonResource
                 $identityMetadata = json_decode(
                     $this->resource->identity_metadata ?? '',
                     false,
-                    flags: JSON_THROW_ON_ERROR
+                    flags: JSON_THROW_ON_ERROR,
                 );
             } catch (JsonException) {
                 $identityMetadata = null;
             }
+
             assert($identityMetadata instanceof stdClass);
 
             $identity = new AuditLoggableIdentity(

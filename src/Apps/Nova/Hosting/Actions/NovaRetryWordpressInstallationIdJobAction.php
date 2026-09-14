@@ -30,9 +30,9 @@ class NovaRetryWordpressInstallationIdJobAction extends NovaSubscriptionAction
         private readonly HostingDeploymentRepository $hostingDeploymentRepository,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool =>
-                $this->onlyForSingleSubscription($request)
-                && $this->hasWpToolkit($request)
+            fn (NovaRequest $request): bool => (
+                $this->onlyForSingleSubscription($request) && $this->hasWpToolkit($request)
+            ),
         );
 
         $this->sole();
@@ -59,8 +59,8 @@ class NovaRetryWordpressInstallationIdJobAction extends NovaSubscriptionAction
         $this->dispatcher->dispatch(
             new ReceiveWpInstallationIdJob(
                 $subscription->uuid,
-                $server
-            )
+                $server,
+            ),
         );
 
         $this->logger->debug(
@@ -68,10 +68,12 @@ class NovaRetryWordpressInstallationIdJobAction extends NovaSubscriptionAction
             [
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                 LoggingContextKeys::SERVER_ID => $server->id,
-            ]
+            ],
         );
 
-        return self::message($this->translator->translate('nova-action.retry-wordpress-installation-id-job-dispatched'));
+        return self::message($this->translator->translate(
+            'nova-action.retry-wordpress-installation-id-job-dispatched',
+        ));
     }
 
     private function hasWpToolkit(NovaRequest $request): bool
@@ -88,6 +90,9 @@ class NovaRetryWordpressInstallationIdJobAction extends NovaSubscriptionAction
 
         $subscription = $hostingDeployment->subscription;
 
-        return $this->productSpecRepository->booleanSpecificationIsTrue($subscription->product, ProductSpecName::WAIT_FOR_WP_TOOLKIT);
+        return $this->productSpecRepository->booleanSpecificationIsTrue(
+            $subscription->product,
+            ProductSpecName::WAIT_FOR_WP_TOOLKIT,
+        );
     }
 }

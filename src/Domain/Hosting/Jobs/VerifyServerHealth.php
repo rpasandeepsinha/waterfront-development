@@ -21,7 +21,7 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
 class VerifyServerHealth extends AbstractQueueableJob
 {
     public function __construct(
-        private readonly ServerType $serverType
+        private readonly ServerType $serverType,
     ) {
         parent::__construct();
     }
@@ -31,9 +31,7 @@ class VerifyServerHealth extends AbstractQueueableJob
         /**
          * @var Collection<int, Server> $servers
          */
-        $servers = Server::query()
-            ->where('type', $this->serverType)
-            ->get();
+        $servers = Server::query()->where('type', $this->serverType)->get();
 
         $states = [];
         $logger->debug("fetching healthcheck for {$servers->count()} servers...");
@@ -42,7 +40,9 @@ class VerifyServerHealth extends AbstractQueueableJob
             try {
                 $hostingService->getPackagesOnServer($server);
                 $states[$key . ' ' . $server->getDomain()] = 'healthy';
-            } catch (ServerNotFoundException|DriverNotDefinedException|DirectAdminException|GuzzleException|NotImplementedException $exception) {
+            } catch (
+                ServerNotFoundException|DriverNotDefinedException|DirectAdminException|GuzzleException|NotImplementedException $exception
+            ) {
                 $states[$key . ' ' . $server->getDomain()] = $exception::class . ': ' . $exception->getMessage();
             }
         }
@@ -54,7 +54,7 @@ class VerifyServerHealth extends AbstractQueueableJob
                 LoggingContextKeys::META => [
                     'hosting_server_state' => $states,
                 ],
-            ]
+            ],
         );
     }
 

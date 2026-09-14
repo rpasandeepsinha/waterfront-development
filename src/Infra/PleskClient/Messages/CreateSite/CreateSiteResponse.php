@@ -57,6 +57,7 @@ class CreateSiteResponse extends BaseResponse
             $this->status = self::STATUS_ERROR;
             $this->errorCode = $this->statusCode;
             $this->errorText = $this->statusMessage;
+
             return;
         }
 
@@ -67,6 +68,7 @@ class CreateSiteResponse extends BaseResponse
             $this->status = self::STATUS_ERROR;
             $this->errorCode = 0;
             $this->errorText = 'No result element found in response';
+
             return;
         }
 
@@ -74,6 +76,7 @@ class CreateSiteResponse extends BaseResponse
         if ($this->status !== self::STATUS_OK) {
             $this->errorCode = (int) $siteAdd['result']->errcode;
             $this->errorText = (string) $siteAdd['result']->errtext;
+
             return;
         }
 

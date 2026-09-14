@@ -39,8 +39,7 @@ abstract class TestCase extends BaseTestCase
     final protected function assertClosureIsCalled(bool $shouldBeCalled, mixed $with = null): Closure
     {
         $mock = $this->createMock(InvokableObject::class);
-        $invocation = $mock->expects($shouldBeCalled ? self::atLeastOnce() : self::never())
-            ->method('__invoke');
+        $invocation = $mock->expects($shouldBeCalled ? self::atLeastOnce() : self::never())->method('__invoke');
 
         if ($with !== null) {
             $invocation->with($with);
@@ -56,6 +55,7 @@ abstract class TestCase extends BaseTestCase
     {
         return self::callback(function (Model $actualModal) use ($expectedModel) {
             self::assertTrue($actualModal->is($expectedModel));
+
             return true;
         });
     }
@@ -68,25 +68,37 @@ abstract class TestCase extends BaseTestCase
      *
      * "Inspired" by: https://github.com/sebastianbergmann/phpunit/issues/4026#issuecomment-1418205424
      */
-    final protected static function withConsecutive(array $firstCallArguments, array ...$consecutiveCallsArguments): iterable
-    {
+    final protected static function withConsecutive(
+        array $firstCallArguments,
+        array ...$consecutiveCallsArguments,
+    ): iterable {
         foreach ($consecutiveCallsArguments as $consecutiveCallArguments) {
-            self::assertSameSize($firstCallArguments, $consecutiveCallArguments, 'Each expected arguments list need to have the same size.');
+            self::assertSameSize(
+                $firstCallArguments,
+                $consecutiveCallArguments,
+                'Each expected arguments list need to have the same size.',
+            );
         }
 
         $allConsecutiveCallsArguments = [$firstCallArguments, ...$consecutiveCallsArguments];
 
         $numberOfArguments = count($firstCallArguments);
-        $argumentList      = [];
+        $argumentList = [];
         for ($argumentPosition = 0; $argumentPosition < $numberOfArguments; $argumentPosition++) {
             $argumentList[$argumentPosition] = array_column($allConsecutiveCallsArguments, $argumentPosition);
         }
 
         $mockedMethodCall = 0;
-        $callbackCall     = 0;
+        $callbackCall = 0;
         foreach ($argumentList as $index => $argument) {
             yield self::callback(
-                static function (mixed $actualArgument) use ($argumentList, &$mockedMethodCall, &$callbackCall, $index, $numberOfArguments): bool {
+                static function (mixed $actualArgument) use (
+                    $argumentList,
+                    &$mockedMethodCall,
+                    &$callbackCall,
+                    $index,
+                    $numberOfArguments,
+                ): bool {
                     $expected = $argumentList[$index][$mockedMethodCall] ?? null;
 
                     $callbackCall++;

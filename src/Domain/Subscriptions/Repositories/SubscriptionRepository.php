@@ -59,18 +59,18 @@ class SubscriptionRepository
     public function subscriptionExistsForCustomerIdAndDomainForType(
         int $customerId,
         string $domain,
-        ProductGroupType $productGroupType
+        ProductGroupType $productGroupType,
     ): bool {
         return Subscription::query()
             ->where(
                 [
                     'customer_id' => $customerId,
                     'domain' => $domain,
-                ]
+                ],
             )
             ->whereNotIn(
                 'administrative_status',
-                AdministrativeStatus::administrativelyEnded()
+                AdministrativeStatus::administrativelyEnded(),
             )
             ->whereProductGroupType($productGroupType)
             ->exists();
@@ -87,10 +87,11 @@ class SubscriptionRepository
     public function productExists(
         ProductGroupType $productGroupSlug,
         string $domain,
-        ?int $customerId = null
+        ?int $customerId = null,
     ): bool {
         // Not checking for domains with status expired, as they should be in redemption period at the registry
-        $query = Subscription::query()->whereProductGroupType($productGroupSlug)
+        $query = Subscription::query()
+            ->whereProductGroupType($productGroupSlug)
             ->where('administrative_status', '<>', AdministrativeStatus::ARCHIVED->value)
             ->where('domain', $domain);
 
@@ -134,7 +135,10 @@ class SubscriptionRepository
         $product = Product::where('slug', $subscriptionDto->slug)->with('productGroup')->first();
         assert($product instanceof Product);
 
-        if ($product->productGroup->slug === ProductGroupType::VOLUME_DISCOUNT && $this->customerAlreadyHasVolumeDiscount($customer)) {
+        if (
+            $product->productGroup->slug === ProductGroupType::VOLUME_DISCOUNT
+            && $this->customerAlreadyHasVolumeDiscount($customer)
+        ) {
             throw new CustomerAlreadyHasVolumeDiscountException($customer, $product);
         }
 
@@ -146,15 +150,15 @@ class SubscriptionRepository
             billingPeriod: $subscriptionDto->billingPeriod,
         );
 
-        $administrativePlaceHolderDto = (new SubscriptionDTO(
+        $administrativePlaceHolderDto = new SubscriptionDTO(
             createSubscription: $subscriptionDto,
             product: $product,
-            productPrice: $prolongationPrice
-        ));
+            productPrice: $prolongationPrice,
+        );
 
         $subscription = new Subscription(Arr::only(
             $administrativePlaceHolderDto->toAdministrativeArray(),
-            new Subscription()->getFillable()
+            new Subscription()->getFillable(),
         ));
         $subscription->uuid = Subscription::generateSubscriptionUuid()->toString();
 
@@ -164,22 +168,30 @@ class SubscriptionRepository
         }
 
         if ($product->productGroup->slug !== ProductGroupType::VOLUME_DISCOUNT) {
-            $subscription->technical_status = $product->productGroup->slug === ProductGroupType::EXTENSION ? DomainStatus::ACTIVE->value : TechnicalStatus::OK->value;
+            $subscription->technical_status = $product->productGroup->slug === ProductGroupType::EXTENSION
+                ? DomainStatus::ACTIVE->value
+                : TechnicalStatus::OK->value;
         }
 
         /** @var Subscription $subscription */
         $subscription = $customer->subscriptions()->saveQuietly($subscription);
 
         if ($subscriptionDto->fixedPrice > 0) {
-            $this->pricePersistService->persistCustomPrice($subscription, $subscriptionDto->fixedPrice, $subscriptionDto->fixedPriceIsOneOff, CustomPriceReasonType::FIXED_MIGRATION_PRICE);
+            $this->pricePersistService->persistCustomPrice(
+                $subscription,
+                $subscriptionDto->fixedPrice,
+                $subscriptionDto->fixedPriceIsOneOff,
+                CustomPriceReasonType::FIXED_MIGRATION_PRICE,
+            );
         } else {
-            $this->pricePersistService->persistSubscriptionPrice($subscription, $prolongationPrice, CarbonImmutable::now());
+            $this->pricePersistService->persistSubscriptionPrice(
+                $subscription,
+                $prolongationPrice,
+                CarbonImmutable::now(),
+            );
         }
 
-        if (
-            $subscriptionDto->internalComment !== null
-            && $subscriptionDto->internalComment !== ''
-        ) {
+        if ($subscriptionDto->internalComment !== null && $subscriptionDto->internalComment !== '') {
             $this->storeNoteAction->execute($subscriptionDto->internalComment, $subscription);
         }
 
@@ -206,28 +218,30 @@ class SubscriptionRepository
         $data['technical_status'] = $data['status'];
 
         /* @var Subscription $subscription */
-        $subscription = $customer->subscriptions()->create(
-            Arr::only(
-                $data,
-                new Subscription()->getFillable()
-            )
-        );
+        $subscription = $customer
+            ->subscriptions()
+            ->create(
+                Arr::only(
+                    $data,
+                    new Subscription()->getFillable(),
+                ),
+            );
+
         return $subscription;
     }
 
     /** @return HasMany<Subscription, Customer> */
     public function getCancelledSubscriptionsForCustomer(Customer $customer): HasMany
     {
-        return $customer->hasMany(Subscription::class)
-            ->where('administrative_status', AdministrativeStatus::CANCELED->value);
+        return $customer->hasMany(Subscription::class)->where(
+            'administrative_status',
+            AdministrativeStatus::CANCELED->value,
+        );
     }
 
     public function getSubscriptionByDomainAndGroup(string $domain, ProductGroupType $productGroup): Subscription
     {
-        return Subscription::query()
-            ->whereProductGroupType($productGroup)
-            ->where('domain', $domain)
-            ->firstOrFail();
+        return Subscription::query()->whereProductGroupType($productGroup)->where('domain', $domain)->firstOrFail();
     }
 
     public function setTechnicalStatus(Subscription $subscription, string $status): bool
@@ -235,6 +249,7 @@ class SubscriptionRepository
         $technicalStatus = TechnicalStatus::from($status);
 
         $subscription->technical_status = $technicalStatus->value;
+
         return $subscription->save();
     }
 
@@ -253,8 +268,12 @@ class SubscriptionRepository
 
         $renewalDate = CarbonImmutable::today()->addDays($renewalDays);
 
-        return Subscription::query()->where('end_date', '<', $renewalDate)
-            ->whereIn('administrative_status', [AdministrativeStatus::ACTIVE->value, AdministrativeStatus::SUSPENDED->value])
+        return Subscription::query()
+            ->where('end_date', '<', $renewalDate)
+            ->whereIn('administrative_status', [
+                AdministrativeStatus::ACTIVE->value,
+                AdministrativeStatus::SUSPENDED->value,
+            ])
             ->whereNull('parent_subscription_id')
             ->get();
     }
@@ -269,7 +288,8 @@ class SubscriptionRepository
         return Customer::whereIn(
             'id',
             function ($query) use ($customerTableName, $billingDate) {
-                $query->select('customers.id')
+                $query
+                    ->select('customers.id')
                     ->from($customerTableName . ' AS customers')
                     ->join('subscriptions', 'customers.id', '=', 'subscriptions.customer_id')
                     ->where('subscriptions.next_billing_date', '<', $billingDate)
@@ -280,7 +300,7 @@ class SubscriptionRepository
                     ])
                     ->whereNull('subscriptions.parent_subscription_id')
                     ->groupBy(['customers.id']);
-            }
+            },
         )->get();
     }
 
@@ -292,7 +312,11 @@ class SubscriptionRepository
         return Subscription::where('next_billing_date', '<', $billingDate)
             ->whereIn(
                 'administrative_status',
-                [AdministrativeStatus::ACTIVE->value, AdministrativeStatus::CANCELED->value, AdministrativeStatus::SUSPENDED->value]
+                [
+                    AdministrativeStatus::ACTIVE->value,
+                    AdministrativeStatus::CANCELED->value,
+                    AdministrativeStatus::SUSPENDED->value,
+                ],
             )
             ->where('customer_id', $customer->id)
             ->whereNull('parent_subscription_id')
@@ -313,7 +337,11 @@ class SubscriptionRepository
         return Subscription::where('next_billing_date', '<', $billingDate)
             ->whereIn(
                 'administrative_status',
-                [AdministrativeStatus::ACTIVE->value, AdministrativeStatus::CANCELED->value, AdministrativeStatus::SUSPENDED->value]
+                [
+                    AdministrativeStatus::ACTIVE->value,
+                    AdministrativeStatus::CANCELED->value,
+                    AdministrativeStatus::SUSPENDED->value,
+                ],
             )
             ->count();
     }
@@ -332,15 +360,21 @@ class SubscriptionRepository
             ->whereNull('parent_subscription_id')
             ->whereHas('children', function (Builder $query) use ($today) {
                 // Future proofing for suspended child subscriptions
-                $query->where('termination_date', '<=', $today)
-                    ->where('administrative_status', AdministrativeStatus::EXPIRED->value);
+                $query->where('termination_date', '<=', $today)->where(
+                    'administrative_status',
+                    AdministrativeStatus::EXPIRED->value,
+                );
             })
             ->orWhere(function (Builder $query) use ($today) {
-                $query->where('termination_date', '<=', $today)->whereNull('parent_subscription_id')
+                $query
+                    ->where('termination_date', '<=', $today)
+                    ->whereNull('parent_subscription_id')
                     ->where(function (Builder $query) {
                         $query->where('administrative_status', AdministrativeStatus::EXPIRED->value);
                     });
-            })->with('children')->get();
+            })
+            ->with('children')
+            ->get();
     }
 
     /**
@@ -354,7 +388,7 @@ class SubscriptionRepository
             'product.productGroup',
             function (Builder $productGroupQuery): void {
                 $productGroupQuery->where('slug', ProductGroupType::EXTENSION);
-            }
+            },
         )
             ->where('end_date', '<=', CarbonImmutable::today()->addDays(3))
             ->where('administrative_status', AdministrativeStatus::CANCELED->value)
@@ -373,7 +407,7 @@ class SubscriptionRepository
             'product.productGroup',
             function (Builder $productGroupQuery): void {
                 $productGroupQuery->where('slug', ProductGroupType::EXTENSION);
-            }
+            },
         )
             ->whereNotNull('domain')
             ->where('created_at', '>=', $createdAfter)
@@ -391,7 +425,8 @@ class SubscriptionRepository
      */
     public function getNotTerminatedManualSubscriptions(): Collection
     {
-        return Subscription::query()->whereProductGroupType(ProductGroupType::MANUAL_SUBSCRIPTION)
+        return Subscription::query()
+            ->whereProductGroupType(ProductGroupType::MANUAL_SUBSCRIPTION)
             ->where('administrative_status', AdministrativeStatus::ARCHIVED->value)
             ->where('technical_status', DomainStatus::ACTIVE->value)
             ->get();
@@ -416,21 +451,19 @@ class SubscriptionRepository
             $this->getDependentSubscriptionByProductGroup(
                 $subscription,
                 ProductGroupType::HOSTING,
-                ProductType::getRedirectProductTypes()
-            )
+                ProductType::getRedirectProductTypes(),
+            ),
         );
 
         $dependentSubscriptions->add(
             $this->getDependentSubscriptionByProductGroup(
                 $subscription,
                 ProductGroupType::DNS,
-                ProductType::getDnsProductTypes()
-            )
+                ProductType::getDnsProductTypes(),
+            ),
         );
 
-        return $dependentSubscriptions
-            ->filter()
-            ->unique(fn (Subscription $subscription): int => $subscription->id);
+        return $dependentSubscriptions->filter()->unique(fn (Subscription $subscription): int => $subscription->id);
     }
 
     /**
@@ -438,8 +471,7 @@ class SubscriptionRepository
      */
     public function findHostingDeploymentBySubscription(Subscription $subscription): HostingDeployment
     {
-        return $subscription->hostingDeployment()
-            ->firstOrFail();
+        return $subscription->hostingDeployment()->firstOrFail();
     }
 
     public function getSubscriptionByHostingDeployment(HostingDeployment $hostingDeployment): Subscription
@@ -457,6 +489,7 @@ class SubscriptionRepository
                 AdministrativeStatus::SUSPENDED->value,
             ])
             ->firstOrFail();
+
         return $dnsSubscription;
     }
 
@@ -471,12 +504,15 @@ class SubscriptionRepository
             ->select('parent.id')
             ->from('subscriptions', 'parent')
             ->leftJoin('subscriptions as children', function (JoinClause $join) use ($endDate) {
-                $join->on('children.parent_subscription_id', '=', 'parent.id')
-                    ->where('children.administrative_status', '=', AdministrativeStatus::CANCELED->value)
-                    ->where('children.end_date', '<', $endDate->format(DateTimeFormat::DATE));
+                $join->on('children.parent_subscription_id', '=', 'parent.id')->where(
+                    'children.administrative_status',
+                    '=',
+                    AdministrativeStatus::CANCELED->value,
+                )->where('children.end_date', '<', $endDate->format(DateTimeFormat::DATE));
             })
             ->where(function (Builder $query) use ($endDate) {
-                $query->where('parent.administrative_status', '=', AdministrativeStatus::CANCELED->value)
+                $query
+                    ->where('parent.administrative_status', '=', AdministrativeStatus::CANCELED->value)
                     ->where('parent.end_date', '<', $endDate->format(DateTimeFormat::DATE))
                     ->whereNull('parent.parent_subscription_id');
             })
@@ -499,7 +535,7 @@ class SubscriptionRepository
         $subscription = Subscription::whereProductGroupType(ProductGroupType::DNS)
             ->whereNotIn(
                 'administrative_status',
-                AdministrativeStatus::administrativelyEnded()
+                AdministrativeStatus::administrativelyEnded(),
             )
             ->where('domain', $domain)
             ->firstOrFail();
@@ -516,7 +552,10 @@ class SubscriptionRepository
             ->where('customer_id', $customer->id)
             ->whereProductGroupType(ProductGroupType::DNS)
             ->whereNot('product_uuid', $product->uuid)
-            ->whereNotIn('administrative_status', [...AdministrativeStatus::administrativelyEnded(), AdministrativeStatus::SUSPENDED->value])
+            ->whereNotIn('administrative_status', [
+                ...AdministrativeStatus::administrativelyEnded(),
+                AdministrativeStatus::SUSPENDED->value,
+            ])
             ->with('product')
             ->get();
     }
@@ -553,7 +592,7 @@ class SubscriptionRepository
     public function getSubscriptionByCustomerDomainAndType(
         Customer $customer,
         string $domain,
-        ProductGroupType $productGroupType
+        ProductGroupType $productGroupType,
     ): ?Subscription {
         /** @var Subscription|null $subscription */
         $subscription = Subscription::query()
@@ -571,7 +610,7 @@ class SubscriptionRepository
      */
     public function findByDomainAndType(
         string $domain,
-        ProductGroupType $productGroupType
+        ProductGroupType $productGroupType,
     ): Subscription {
         return Subscription::query()
             ->where('domain', $domain)
@@ -585,10 +624,13 @@ class SubscriptionRepository
      */
     public function findByMigratedSubscriptionReference(string $reference): Collection
     {
-        return Subscription::query()->whereHas(
-            'migratedSubscriptions',
-            static fn (Builder $builder) => $builder->where('reference_subscription_id', 'ilike', "%$reference%")
-        )->with(['customer', 'migratedSubscriptions'])->get();
+        return Subscription::query()
+            ->whereHas(
+                'migratedSubscriptions',
+                static fn (Builder $builder) => $builder->where('reference_subscription_id', 'ilike', "%$reference%"),
+            )
+            ->with(['customer', 'migratedSubscriptions'])
+            ->get();
     }
 
     public function findByDomain(
@@ -602,11 +644,18 @@ class SubscriptionRepository
 
     public function isExpired(Subscription $subscription): bool
     {
-        if ($subscription->administrative_status === AdministrativeStatus::CANCELED->value && $subscription->end_date <= CarbonImmutable::now()) {
+        if (
+            $subscription->administrative_status === AdministrativeStatus::CANCELED->value
+            && $subscription->end_date <= CarbonImmutable::now()
+        ) {
             return true;
         }
 
-        return $subscription->administrative_status === AdministrativeStatus::EXPIRED->value && $subscription->end_date <= CarbonImmutable::now() && $subscription->termination_date < CarbonImmutable::now();
+        return (
+            $subscription->administrative_status === AdministrativeStatus::EXPIRED->value
+            && $subscription->end_date <= CarbonImmutable::now()
+            && $subscription->termination_date < CarbonImmutable::now()
+        );
     }
 
     /**
@@ -629,9 +678,7 @@ class SubscriptionRepository
             ->where(function (Builder $subscriptionQuery): void {
                 $subscriptionQuery
                     ->where(function (Builder $nullGroupQuery): void {
-                        $nullGroupQuery
-                            ->whereNotNull('domain')
-                            ->where('domain', '!=', '');
+                        $nullGroupQuery->whereNotNull('domain')->where('domain', '!=', '');
                     })
                     // see https://yh-jira.atlassian.net/browse/WATER-4321
                     ->orWhereHas('product.productGroup', function (Builder $productGroupQuery): void {
@@ -651,7 +698,10 @@ class SubscriptionRepository
     {
         return SubscriptionChange::query()
             ->where('subscription_uuid', $subscription->uuid)
-            ->whereIn('status', [SubscriptionChangeStatus::REQUESTED->value, SubscriptionChangeStatus::INPROGRESS->value])
+            ->whereIn('status', [
+                SubscriptionChangeStatus::REQUESTED->value,
+                SubscriptionChangeStatus::INPROGRESS->value,
+            ])
             ->where('type', ProductChangeType::DOWNGRADE)
             ->whereNull('completed_at')
             ->exists();
@@ -675,14 +725,17 @@ class SubscriptionRepository
     /**
      * @return Collection<int, Subscription>
      */
-    public function getAllSubscriptionsForCustomerBasedOnGroupFilter(Customer $customer, ?ProductGroupType $filter): Collection
-    {
+    public function getAllSubscriptionsForCustomerBasedOnGroupFilter(
+        Customer $customer,
+        ?ProductGroupType $filter,
+    ): Collection {
         return Subscription::query()
             ->where('customer_id', $customer->id)
             ->where(function (SubscriptionQueryBuilder $builder) use ($filter): void {
                 if ($filter === null) {
                     return;
                 }
+
                 match ($filter) {
                     ProductGroupType::OTHER => $builder->whereProductGroupTypes([
                         ProductGroupType::MANUAL_SUBSCRIPTION,
@@ -694,10 +747,11 @@ class SubscriptionRepository
                 };
             })
             ->where(function (Builder $builder) use ($filter): void {
-                if ($filter !== null && ! in_array($filter, [ProductGroupType::OTHER, ProductGroupType::BACKUP], true)) {
-                    $builder
-                        ->whereNotNull('domain')
-                        ->where('domain', '!=', '');
+                if (
+                    $filter !== null
+                    && ! in_array($filter, [ProductGroupType::OTHER, ProductGroupType::BACKUP], true)
+                ) {
+                    $builder->whereNotNull('domain')->where('domain', '!=', '');
                 }
             })
             ->whereHas('product', function (Builder $query) {
@@ -709,7 +763,8 @@ class SubscriptionRepository
                 'domainDeployment',
                 'parent',
                 'transfers',
-            ])->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())
+            ])
+            ->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())
             ->get();
     }
 
@@ -729,10 +784,12 @@ class SubscriptionRepository
 
     public function customerAlreadyHasVolumeDiscount(Customer $customer): bool
     {
-        $coupledToVolumeDiscount = $customer->subscriptions()
+        $coupledToVolumeDiscount = $customer
+            ->subscriptions()
             ->whereHas('product.productGroup', function ($q) {
                 $q->where('slug', ProductGroupType::VOLUME_DISCOUNT);
-            })->exists();
+            })
+            ->exists();
 
         $customerGenericDiscount = $customer->productDiscounts()->exists();
 
@@ -762,39 +819,35 @@ class SubscriptionRepository
             ->whereNull('parent_subscription_id')
             ->whereHas(
                 'product',
-                fn (Builder $productQuery) =>
-                $productQuery->whereHas(
-                    'productGroup',
-                    fn (Builder $groupQuery) =>
-                    $groupQuery->where('slug', ProductGroupType::HOSTING)
-                )
+                fn (Builder $productQuery) => $productQuery
+                    ->whereHas(
+                        'productGroup',
+                        fn (Builder $groupQuery) => $groupQuery->where('slug', ProductGroupType::HOSTING),
+                    )
                     ->where('orderable', true)
                     ->whereDoesntHave(
                         'productSpecs',
-                        fn (Builder $specQuery) =>
-                        $specQuery->where('name', ProductSpecName::HAS_SERVICE_PLUS->value)
-                            ->whereIn('value', [true, 'true', '1', 1, 'yes'])
-                    )
+                        fn (Builder $specQuery) => $specQuery->where(
+                            'name',
+                            ProductSpecName::HAS_SERVICE_PLUS->value,
+                        )->whereIn('value', [true, 'true', '1', 1, 'yes']),
+                    ),
             )
             ->whereDoesntHave(
                 'children',
-                fn (Builder $childQuery) =>
-                $childQuery->whereHas(
+                fn (Builder $childQuery) => $childQuery->whereHas(
                     'product',
-                    fn (Builder $productQuery) =>
-                    $productQuery->whereHas(
+                    fn (Builder $productQuery) => $productQuery->whereHas(
                         'productGroup',
-                        fn (Builder $groupQuery) =>
-                        $groupQuery->where('slug', ProductGroupType::ADD_ON)
-                    )
-                        ->whereHas(
-                            'productSpecs',
-                            fn (Builder $specQuery) => $specQuery
-                                ->where('name', ProductSpecName::HAS_SERVICE_PLUS->value)
-                                ->whereIn('value', [true, 'true', '1', 1, 'yes'])
-                        )
-                )
-                    ->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())
+                        fn (Builder $groupQuery) => $groupQuery->where('slug', ProductGroupType::ADD_ON),
+                    )->whereHas(
+                        'productSpecs',
+                        fn (Builder $specQuery) => $specQuery->where(
+                            'name',
+                            ProductSpecName::HAS_SERVICE_PLUS->value,
+                        )->whereIn('value', [true, 'true', '1', 1, 'yes']),
+                    ),
+                )->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded()),
             )
             ->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())
             ->get();
@@ -802,7 +855,7 @@ class SubscriptionRepository
 
     public function getSubscriptionsWhereProductSlugAndCustomerMatchCount(
         Customer $customer,
-        string $productSlug
+        string $productSlug,
     ): int {
         return Subscription::query()
             ->where('customer_id', $customer->id)
@@ -814,7 +867,7 @@ class SubscriptionRepository
 
     public function getSubscriptionsWhereProductSlugAndCustomerDoesNotMatchCount(
         Customer $customer,
-        string $productSlug
+        string $productSlug,
     ): int {
         return Subscription::query()
             ->where('customer_id', $customer->id)
@@ -846,7 +899,7 @@ class SubscriptionRepository
     private function getDependentSubscriptionByProductGroup(
         Subscription $subscription,
         ProductGroupType $productGroupType,
-        array $productTypes
+        array $productTypes,
     ): ?Subscription {
         if (! $subscription->product->isDomainProduct()) {
             return null;

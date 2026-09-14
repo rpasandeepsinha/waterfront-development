@@ -62,17 +62,15 @@ class NovaMollieCustomerResource extends Resource
             BelongsTo::make(
                 self::translate('customer.singular'),
                 'customer',
-                NovaCustomerResource::class
+                NovaCustomerResource::class,
             ),
             HasMany::make(
                 self::translate('mandate.singular'),
                 'mandates',
-                NovaMandateResource::class
+                NovaMandateResource::class,
             )->onlyOnDetail(),
-            DateTime::make(self::translate('nova-resource-labels.created-at'), 'created_at')
-                ->onlyOnDetail(),
-            DateTime::make(self::translate('nova-resource-labels.updated-at'), 'updated_at')
-                ->onlyOnDetail(),
+            DateTime::make(self::translate('nova-resource-labels.created-at'), 'created_at')->onlyOnDetail(),
+            DateTime::make(self::translate('nova-resource-labels.updated-at'), 'updated_at')->onlyOnDetail(),
         ];
     }
 
@@ -114,8 +112,7 @@ class NovaMollieCustomerResource extends Resource
         return [
             resolve(NovaFindMandateAction::class),
             resolve(NovaFetchMollieCustomerAction::class),
-            resolve(NovaUpdateMollieCustomerAction::class)
-                ->onlyOnDetail(),
+            resolve(NovaUpdateMollieCustomerAction::class)->onlyOnDetail(),
         ];
     }
 }

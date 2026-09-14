@@ -63,48 +63,51 @@ class OrderVirtualMachineTest extends IntegrationTestCase
         $this->customer = new CustomerFactory()->withAddress()->createOne();
 
         $vpsGroup = new ProductGroupFactory()->createOne([
-            'name'        => 'VPS',
-            'slug'        => ProductGroupType::VPS,
+            'name' => 'VPS',
+            'slug' => ProductGroupType::VPS,
             'ledger_code' => 1337,
         ]);
 
         $this->vps32 = new ProductFactory()->createOne([
             'product_group_id' => $vpsGroup->id,
-            'name'             => 'VPS 32 Redundant',
-            'slug'             => 'vps-32-red',
-            'description'      => 'VPS 32 reduntant omschrijving',
-            'orderable'        => true,
-            'weight'           => 1,
+            'name' => 'VPS 32 Redundant',
+            'slug' => 'vps-32-red',
+            'description' => 'VPS 32 reduntant omschrijving',
+            'orderable' => true,
+            'weight' => 1,
         ]);
 
-        new ProductPriceComponentFactory()->for($this->vps32)->registration()->createOne(['price'   => 96]);
-        new ProductPriceComponentFactory()->for($this->vps32)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($this->vps32)
+            ->registration()
+            ->createOne(['price' => 96]);
+        new ProductPriceComponentFactory()->for($this->vps32)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
 
-        $cloudstackOS = new ProductGroupFactory()
-            ->createOne([
-                'name'           => 'VPS OSs',
-                'slug'           => ProductGroupType::CLOUDSTACK_OS,
-                'ledger_code' => 1337,
-            ]);
+        $cloudstackOS = new ProductGroupFactory()->createOne([
+            'name' => 'VPS OSs',
+            'slug' => ProductGroupType::CLOUDSTACK_OS,
+            'ledger_code' => 1337,
+        ]);
 
-        $ubuntuLTS = new ProductFactory()
-            ->has(
-                ProductSpecFactory::new(
-                    [
-                        'name'  => ProductSpecName::VPS_CLOUDSTACK_TEMPLATE_SLUG->value,
-                        'value' => 'Ubuntu-20.04',
-                    ]
-                ),
-                'productSpecs'
-            )
-            ->createOne([
-                'product_group_id' => $cloudstackOS->id,
-                'name'             => 'Ubuntu LTS 20.04',
-                'slug'             => 'ubuntu-lts-20.04',
-                'description'      => 'Ubuntu LTS 20.04',
-                'orderable'        => true,
-                'weight'           => 1,
-            ]);
+        $ubuntuLTS = new ProductFactory()->has(
+            ProductSpecFactory::new(
+                [
+                    'name' => ProductSpecName::VPS_CLOUDSTACK_TEMPLATE_SLUG->value,
+                    'value' => 'Ubuntu-20.04',
+                ],
+            ),
+            'productSpecs',
+        )->createOne([
+            'product_group_id' => $cloudstackOS->id,
+            'name' => 'Ubuntu LTS 20.04',
+            'slug' => 'ubuntu-lts-20.04',
+            'description' => 'Ubuntu LTS 20.04',
+            'orderable' => true,
+            'weight' => 1,
+        ]);
 
         $ubuntuLTS->uuid = 'e0e82a4f-3028-41b3-8928-5d040ea182c2';
         $ubuntuLTS->save();
@@ -112,31 +115,35 @@ class OrderVirtualMachineTest extends IntegrationTestCase
         $this->ubuntuLTS = $ubuntuLTS;
 
         $environment = Environment::create([
-            'slug'                  => 'TEST01',
-            'name'                  => 'Test Environment',
-            'api_url'               => 'https://api',
-            'ui_url'                => 'https://ui',
-            'domain_id'             => Str::uuid()->toString(),
-            'domain_name'           => 'test/vps',
-            'preferred'             => true,
+            'slug' => 'TEST01',
+            'name' => 'Test Environment',
+            'api_url' => 'https://api',
+            'ui_url' => 'https://ui',
+            'domain_id' => Str::uuid()->toString(),
+            'domain_name' => 'test/vps',
+            'preferred' => true,
             'default_email_address' => 'support@example.com',
-            'default_role_id'       => Str::uuid()->toString(),
-            'api_key'               => 'api-test-key',
-            'secret_key'            => 'secret-test-key',
+            'default_role_id' => Str::uuid()->toString(),
+            'api_key' => 'api-test-key',
+            'secret_key' => 'secret-test-key',
         ]);
 
         new EnvironmentProduct([
             'product_identifier' => 'd8a23fc6-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
         ])
-            ->environment()->associate($environment)
-            ->product()->associate($this->vps32)
+            ->environment()
+            ->associate($environment)
+            ->product()
+            ->associate($this->vps32)
             ->save();
 
         new EnvironmentProduct([
             'product_identifier' => 'd8a23fc6-bbbb-bbbb-bbbb-bbbbbbbbbbbc',
         ])
-            ->environment()->associate($environment)
-            ->product()->associate($ubuntuLTS)
+            ->environment()
+            ->associate($environment)
+            ->product()
+            ->associate($ubuntuLTS)
             ->save();
 
         $cloudstackJobFinishedResponse = (string) file_get_contents(__DIR__ . '/data/finished_job.json');
@@ -151,11 +158,14 @@ class OrderVirtualMachineTest extends IntegrationTestCase
     #[Test]
     public function orderWithFreeOsChild(): void
     {
-        new ProductPriceComponentFactory()->for($this->ubuntuLTS)->registration()->createOne([
-            'billing_period'  => 1,
-            'contract_period' => 1,
-            'price'   => 0,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->ubuntuLTS)
+            ->registration()
+            ->createOne([
+                'billing_period' => 1,
+                'contract_period' => 1,
+                'price' => 0,
+            ]);
 
         /**
          * We validate that our job is dispatched by checking if the 'execute'
@@ -165,17 +175,12 @@ class OrderVirtualMachineTest extends IntegrationTestCase
         $baseClientMock = self::mock(CloudStackBaseClient::class);
         $cloudStackFinishedJob = $this->cloudStackFinishedJob;
 
-        $baseClientMock->shouldReceive('execute')
-            ->once()
-            ->with('listDomainChildren', self::anything())
-            ->andReturn([]);
+        $baseClientMock->shouldReceive('execute')->once()->with('listDomainChildren', self::anything())->andReturn([]);
 
-        $baseClientMock->shouldReceive('execute')
-            ->once()
-            ->with('listAccounts', self::anything())
-            ->andReturn([]);
+        $baseClientMock->shouldReceive('execute')->once()->with('listAccounts', self::anything())->andReturn([]);
 
-        $baseClientMock->shouldReceive('execute')
+        $baseClientMock
+            ->shouldReceive('execute')
             ->once()
             ->with('queryAsyncJobResult', ['jobid' => '83372e9a-1041-4842-a7a8-68ea8c4b78a4'])
             ->andReturn($cloudStackFinishedJob);
@@ -185,15 +190,19 @@ class OrderVirtualMachineTest extends IntegrationTestCase
         $clientMock = self::createMock(CloudStackClient::class);
 
         /** @var array{network: array<mixed>} $response */
-        $response = json_decode((string) file_get_contents(__DIR__ . '/data/list-networks.json'), true, 512, JSON_THROW_ON_ERROR);
+        $response = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/list-networks.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
         /** @var array<Network> $networks */
         $networks = CloudstackSerializerFactory::get()->denormalize($response['network'], Network::class . '[]');
-        $clientMock->expects(self::once())
-            ->method('listNetworks')
-            ->willReturn($networks);
+        $clientMock->expects(self::once())->method('listNetworks')->willReturn($networks);
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('listZones')
             ->willReturn(
                 new Zone(
@@ -205,21 +214,21 @@ class OrderVirtualMachineTest extends IntegrationTestCase
                     zonetoken: 'test',
                     dhcpprovider: 'DhcpProvider',
                     localstorageenabled: true,
-                )
+                ),
             );
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('createAccount')
             ->willReturn(new Account('1', 'test', 'test'));
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('createDomain')
             ->willReturn(new Domain('1', 'test', 'test'));
-        $clientMock->expects(self::once())
-            ->method('createSecurityGroup')
-            ->willReturn('1');
-        $clientMock->expects(self::once())
-            ->method('authorizeSecurityGroupIngress');
-        $clientMock->expects(self::exactly(2))
+        $clientMock->expects(self::once())->method('createSecurityGroup')->willReturn('1');
+        $clientMock->expects(self::once())->method('authorizeSecurityGroupIngress');
+        $clientMock
+            ->expects(self::exactly(2))
             ->method('listDomainChildren')
             ->willReturn(
                 new CloudStackPaginationIterator(
@@ -227,13 +236,14 @@ class OrderVirtualMachineTest extends IntegrationTestCase
                     'listDomainChildren',
                     [],
                     'domain',
-                    new DomainMapper()
-                )
+                    new DomainMapper(),
+                ),
             );
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('listAccounts')
             ->willReturn(
-                new CloudStackPaginationIterator($baseClientMock, 'listAccounts', [], 'account', new AccountMapper())
+                new CloudStackPaginationIterator($baseClientMock, 'listAccounts', [], 'account', new AccountMapper()),
             );
 
         $mockTemplate = self::createStub(Template::class);
@@ -241,10 +251,7 @@ class OrderVirtualMachineTest extends IntegrationTestCase
         $mockTemplate->passwordEnabled = true;
         $mockTemplate->id = 'fa685028-1f5f-4acd-82a3-1693b91e605a';
 
-        $clientMock->expects(self::once())
-            ->method('listTemplates')
-            ->with('Ubuntu-20.04')
-            ->willReturn([$mockTemplate]);
+        $clientMock->expects(self::once())->method('listTemplates')->with('Ubuntu-20.04')->willReturn([$mockTemplate]);
 
         $cloudstackJobResponse = (string) file_get_contents(__DIR__ . '/data/created_job.json');
 
@@ -252,30 +259,23 @@ class OrderVirtualMachineTest extends IntegrationTestCase
         $cloudStackCreatedJob = json_decode($cloudstackJobResponse, true, 512, JSON_THROW_ON_ERROR);
         $asyncJobResponse = $this->serializer->denormalize(
             $cloudStackCreatedJob,
-            AsynchronousCloudstackResponse::class
+            AsynchronousCloudstackResponse::class,
         );
 
-        $clientMock->expects(self::once())
-            ->method('deployVirtualMachine')
-            ->willReturn($asyncJobResponse);
+        $clientMock->expects(self::once())->method('deployVirtualMachine')->willReturn($asyncJobResponse);
 
-        $clientMock->expects(self::once())
-            ->method('getBaseClient')
-            ->willReturn($baseClientMock);
+        $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
 
         $clientFactoryMock = self::createStub(ClientFactoryInterface::class);
-        $clientFactoryMock->method('create')
-            ->willReturn($clientMock);
+        $clientFactoryMock->method('create')->willReturn($clientMock);
 
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
         $clientAdminFactoryMockInterface = self::createStub(AdminClientFactoryInterface::class);
-        $clientAdminFactoryMockInterface->method('create')
-            ->willReturn($clientMock);
+        $clientAdminFactoryMockInterface->method('create')->willReturn($clientMock);
 
         $clientAdminFactoryMock = self::createStub(AdminClientFactory::class);
-        $clientAdminFactoryMock->method('create')
-            ->willReturn($clientMock);
+        $clientAdminFactoryMock->method('create')->willReturn($clientMock);
 
         $this->app->bind(AdminClientFactoryInterface::class, fn () => $clientAdminFactoryMockInterface);
         $this->app->bind(AdminClientFactory::class, fn () => $clientAdminFactoryMock);
@@ -286,10 +286,12 @@ class OrderVirtualMachineTest extends IntegrationTestCase
 
         $payload = (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.order.order'),
-            $payload
-        )->assertOk();
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.order.order'),
+                $payload,
+            )
+            ->assertOk();
 
         $subscription = Subscription::where('product_uuid', $this->vps32->uuid)->firstOrFail();
         $subscriptionChild = $subscription->children->firstOrFail();
@@ -301,8 +303,8 @@ class OrderVirtualMachineTest extends IntegrationTestCase
         self::assertSame($this->ubuntuLTS->name, $childOrderLineItem->product_name);
         self::assertSame($subscriptionChild->uuid, $childOrderLineItem->subscription_uuid);
         self::assertDatabaseHas('subscriptions', [
-            'product_uuid'          => $this->vps32->uuid,
-            'customer_id'           => $this->customer->id,
+            'product_uuid' => $this->vps32->uuid,
+            'customer_id' => $this->customer->id,
             'administrative_status' => AdministrativeStatus::ACTIVE->value,
         ]);
     }
@@ -310,11 +312,14 @@ class OrderVirtualMachineTest extends IntegrationTestCase
     #[Test]
     public function orderWithOsChild(): void
     {
-        new ProductPriceComponentFactory()->for($this->ubuntuLTS)->registration()->createOne([
-            'billing_period'  => 1,
-            'contract_period' => 1,
-            'price'   => 10,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->ubuntuLTS)
+            ->registration()
+            ->createOne([
+                'billing_period' => 1,
+                'contract_period' => 1,
+                'price' => 10,
+            ]);
 
         /**
          * We validate that our job is dispatched by checking if the 'execute'
@@ -325,17 +330,12 @@ class OrderVirtualMachineTest extends IntegrationTestCase
         $baseClientMock = self::mock(CloudStackBaseClient::class);
         $cloudStackFinishedJob = $this->cloudStackFinishedJob;
 
-        $baseClientMock->shouldReceive('execute')
-            ->once()
-            ->with('listDomainChildren', self::anything())
-            ->andReturn([]);
+        $baseClientMock->shouldReceive('execute')->once()->with('listDomainChildren', self::anything())->andReturn([]);
 
-        $baseClientMock->shouldReceive('execute')
-            ->once()
-            ->with('listAccounts', self::anything())
-            ->andReturn([]);
+        $baseClientMock->shouldReceive('execute')->once()->with('listAccounts', self::anything())->andReturn([]);
 
-        $baseClientMock->shouldReceive('execute')
+        $baseClientMock
+            ->shouldReceive('execute')
             ->once()
             ->with('queryAsyncJobResult', ['jobid' => '83372e9a-1041-4842-a7a8-68ea8c4b78a4'])
             ->andReturn($cloudStackFinishedJob);
@@ -345,15 +345,19 @@ class OrderVirtualMachineTest extends IntegrationTestCase
         $clientMock = self::createMock(CloudStackClient::class);
 
         /** @var array{network: array<mixed>} $response */
-        $response = json_decode((string) file_get_contents(__DIR__ . '/data/list-networks.json'), true, 512, JSON_THROW_ON_ERROR);
+        $response = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/list-networks.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
         /** @var array<Network> $networks */
         $networks = CloudstackSerializerFactory::get()->denormalize($response['network'], Network::class . '[]');
-        $clientMock->expects(self::once())
-            ->method('listNetworks')
-            ->willReturn($networks);
+        $clientMock->expects(self::once())->method('listNetworks')->willReturn($networks);
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('listZones')
             ->willReturn(
                 new Zone(
@@ -365,21 +369,21 @@ class OrderVirtualMachineTest extends IntegrationTestCase
                     zonetoken: 'test',
                     dhcpprovider: 'DhcpProvider',
                     localstorageenabled: true,
-                )
+                ),
             );
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('createAccount')
             ->willReturn(new Account('1', 'test', 'test'));
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('createDomain')
             ->willReturn(new Domain('1', 'test', 'test'));
-        $clientMock->expects(self::once())
-            ->method('createSecurityGroup')
-            ->willReturn('1');
-        $clientMock->expects(self::once())
-            ->method('authorizeSecurityGroupIngress');
-        $clientMock->expects(self::exactly(2))
+        $clientMock->expects(self::once())->method('createSecurityGroup')->willReturn('1');
+        $clientMock->expects(self::once())->method('authorizeSecurityGroupIngress');
+        $clientMock
+            ->expects(self::exactly(2))
             ->method('listDomainChildren')
             ->willReturn(
                 new CloudStackPaginationIterator(
@@ -387,13 +391,14 @@ class OrderVirtualMachineTest extends IntegrationTestCase
                     'listDomainChildren',
                     [],
                     'domain',
-                    new DomainMapper()
-                )
+                    new DomainMapper(),
+                ),
             );
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('listAccounts')
             ->willReturn(
-                new CloudStackPaginationIterator($baseClientMock, 'listAccounts', [], 'account', new AccountMapper())
+                new CloudStackPaginationIterator($baseClientMock, 'listAccounts', [], 'account', new AccountMapper()),
             );
 
         $mockTemplate = self::createStub(Template::class);
@@ -401,10 +406,7 @@ class OrderVirtualMachineTest extends IntegrationTestCase
         $mockTemplate->passwordEnabled = true;
         $mockTemplate->id = 'fa685028-1f5f-4acd-82a3-1693b91e605a';
 
-        $clientMock->expects(self::once())
-            ->method('listTemplates')
-            ->with('Ubuntu-20.04')
-            ->willReturn([$mockTemplate]);
+        $clientMock->expects(self::once())->method('listTemplates')->with('Ubuntu-20.04')->willReturn([$mockTemplate]);
 
         $cloudstackJobResponse = (string) file_get_contents(__DIR__ . '/data/created_job.json');
 
@@ -412,30 +414,23 @@ class OrderVirtualMachineTest extends IntegrationTestCase
         $cloudStackCreatedJob = json_decode($cloudstackJobResponse, true, 512, JSON_THROW_ON_ERROR);
         $asyncJobResponse = $this->serializer->denormalize(
             $cloudStackCreatedJob,
-            AsynchronousCloudstackResponse::class
+            AsynchronousCloudstackResponse::class,
         );
 
-        $clientMock->expects(self::once())
-            ->method('deployVirtualMachine')
-            ->willReturn($asyncJobResponse);
+        $clientMock->expects(self::once())->method('deployVirtualMachine')->willReturn($asyncJobResponse);
 
-        $clientMock->expects(self::once())
-            ->method('getBaseClient')
-            ->willReturn($baseClientMock);
+        $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
 
         $clientFactoryMock = self::createStub(ClientFactoryInterface::class);
-        $clientFactoryMock->method('create')
-            ->willReturn($clientMock);
+        $clientFactoryMock->method('create')->willReturn($clientMock);
 
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
         $clientAdminFactoryMockInterface = self::createStub(AdminClientFactoryInterface::class);
-        $clientAdminFactoryMockInterface->method('create')
-            ->willReturn($clientMock);
+        $clientAdminFactoryMockInterface->method('create')->willReturn($clientMock);
 
         $clientAdminFactoryMock = self::createStub(AdminClientFactory::class);
-        $clientAdminFactoryMock->method('create')
-            ->willReturn($clientMock);
+        $clientAdminFactoryMock->method('create')->willReturn($clientMock);
 
         $this->app->bind(AdminClientFactoryInterface::class, fn () => $clientAdminFactoryMockInterface);
         $this->app->bind(AdminClientFactory::class, fn () => $clientAdminFactoryMock);
@@ -446,10 +441,12 @@ class OrderVirtualMachineTest extends IntegrationTestCase
 
         $payload = (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.order.order'),
-            $payload
-        )->assertOk();
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.order.order'),
+                $payload,
+            )
+            ->assertOk();
 
         $subscription = Subscription::where('product_uuid', $this->vps32->uuid)->firstOrFail();
         $subscriptionChild = $subscription->children->firstOrFail();
@@ -461,8 +458,8 @@ class OrderVirtualMachineTest extends IntegrationTestCase
         self::assertSame($this->ubuntuLTS->name, $childOrderLineItem->product_name);
         self::assertSame($subscriptionChild->uuid, $childOrderLineItem->subscription_uuid);
         self::assertDatabaseHas('subscriptions', [
-            'product_uuid'          => $this->vps32->uuid,
-            'customer_id'           => $this->customer->id,
+            'product_uuid' => $this->vps32->uuid,
+            'customer_id' => $this->customer->id,
             'administrative_status' => AdministrativeStatus::ACTIVE->value,
         ]);
     }

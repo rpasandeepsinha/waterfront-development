@@ -42,7 +42,10 @@ class ResellerHostingCancellationTest extends IntegrationTestCase
         ]);
 
         $product = new ProductFactory()->for(new ProductGroupFactory()->resellerHosting())->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($product)
+            ->createOne();
         $this->subscription = new SubscriptionFactory()
             ->for($product)
             ->for($this->customer)
@@ -50,7 +53,12 @@ class ResellerHostingCancellationTest extends IntegrationTestCase
 
         new ResellerHostingDeploymentFactory()
             ->for($this->subscription)
-            ->for(new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]), 'provider')
+            ->for(new ProviderFactory()->createOne([
+                'type' => ProviderType::HOSTING,
+                'slug' => ProviderSlug::DIRECTADMIN,
+                'enabled' => true,
+                'default' => true,
+            ]), 'provider')
             ->create();
     }
 
@@ -63,23 +71,22 @@ class ResellerHostingCancellationTest extends IntegrationTestCase
         $parameters = [
             'subscriptions' => [
                 [
-                    'uuid'        => $this->subscription->uuid,
-                    'cancel'      => true,
+                    'uuid' => $this->subscription->uuid,
+                    'cancel' => true,
                     'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
                     'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
                 ],
             ],
         ];
 
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.subscriptions.cancel'),
-                $parameters
+                $parameters,
             )
             ->assertOk()
             ->assertJsonFragment([
-                'uuid'                  => $this->subscription->uuid,
+                'uuid' => $this->subscription->uuid,
                 'administrative_status' => AdministrativeStatus::CANCELED->value,
             ]);
     }
@@ -90,26 +97,24 @@ class ResellerHostingCancellationTest extends IntegrationTestCase
         $parameters = [
             'subscriptions' => [
                 [
-                    'uuid'        => '1173c7a4-27f7-11ec-af8b-0242zc120007',
-                    'cancel'      => true,
+                    'uuid' => '1173c7a4-27f7-11ec-af8b-0242zc120007',
+                    'cancel' => true,
                     'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
                     'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
                 ],
             ],
         ];
 
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.subscriptions.cancel'),
-                $parameters
+                $parameters,
             )
             ->assertUnprocessable()
             ->assertJsonFragment([
-                'subscriptions.0.uuid' =>
-                    [
-                        'Het geselecteerde veld is ongeldig.',
-                    ],
+                'subscriptions.0.uuid' => [
+                    'Het geselecteerde veld is ongeldig.',
+                ],
             ]);
     }
 
@@ -125,21 +130,18 @@ class ResellerHostingCancellationTest extends IntegrationTestCase
             ],
         ];
 
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.subscriptions.cancel'),
-                $parameters
+                $parameters,
             )
             ->assertUnprocessable()
             ->assertJsonFragment([
-                'errors' =>
-                    [
-                        'subscriptions.0.cancel' =>
-                            [
-                                'Dit veld is verplicht.',
-                            ],
+                'errors' => [
+                    'subscriptions.0.cancel' => [
+                        'Dit veld is verplicht.',
                     ],
+                ],
             ]);
     }
 }

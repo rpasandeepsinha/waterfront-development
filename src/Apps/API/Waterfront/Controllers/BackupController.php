@@ -30,7 +30,7 @@ class BackupController
                 'Failed to generate sso url for backup',
                 [
                     LoggingContextKeys::EXCEPTION => $backupResult->exception,
-                ]
+                ],
             );
 
             return new JsonResponse([
@@ -54,8 +54,8 @@ class BackupController
         }
 
         return new JsonResponse([
-                'cloud_storage_gb_used' => $usage->cloudStorageGbUsed,
-                'cloud_storage_gb_total' => $usage->cloudStorageGbTotal,
+            'cloud_storage_gb_used' => $usage->cloudStorageGbUsed,
+            'cloud_storage_gb_total' => $usage->cloudStorageGbTotal,
         ]);
     }
 }

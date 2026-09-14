@@ -53,28 +53,28 @@ class NovaResellerHostingDeploymentResource extends Resource
             BelongsTo::make(
                 self::translate('subscription.reseller-hosting-subscription.internal-subscription'),
                 'subscription',
-                NovaSubscriptionResource::class
+                NovaSubscriptionResource::class,
             )
                 ->sortable()
                 ->exceptOnForms(),
 
             Text::make(
                 self::translate('subscription.reseller-hosting-subscription.directadmin-username'),
-                'directadmin_customer_username'
+                'directadmin_customer_username',
             )
                 ->nullable()
                 ->showOnDetail($this->resource->directadmin_customer_username !== null),
 
             Text::make(
                 self::translate('subscription.reseller-hosting-subscription.plesk-username'),
-                'plesk_customer_username'
+                'plesk_customer_username',
             )
                 ->nullable()
                 ->showOnDetail($this->resource->plesk_customer_username !== null),
 
             Number::make(
                 self::translate('subscription.reseller-hosting-subscription.customer-id'),
-                'plesk_customer_id'
+                'plesk_customer_id',
             )
                 ->hideFromIndex()
                 ->onlyOnForms()
@@ -83,16 +83,16 @@ class NovaResellerHostingDeploymentResource extends Resource
             BelongsTo::make(
                 self::translate('subscription.reseller-hosting-subscription.server'),
                 'server',
-                NovaServerResource::class
-            )
-                ->sortable(),
+                NovaServerResource::class,
+            )->sortable(),
 
             Select::make(
                 self::translate('subscription.reseller-hosting-subscription.provider'),
-                'provider_id'
+                'provider_id',
             )
                 ->options(function (): array {
                     $providers = Provider::where('type', ProviderType::HOSTING)->get(['id', 'slug']);
+
                     return array_column($providers->toArray(), 'slug', 'id');
                 })
                 ->displayUsingLabels()
@@ -100,14 +100,14 @@ class NovaResellerHostingDeploymentResource extends Resource
 
             Text::make(
                 self::translate('subscription.reseller-hosting-subscription.storage-type'),
-                'storage_type'
+                'storage_type',
             )
                 ->hideFromIndex()
                 ->onlyOnForms(),
 
             Number::make(
                 self::translate('subscription.reseller-hosting-subscription.disk-space'),
-                'disk_space'
+                'disk_space',
             )
                 ->nullable()
                 ->hideFromIndex()
@@ -115,7 +115,7 @@ class NovaResellerHostingDeploymentResource extends Resource
 
             Number::make(
                 self::translate('subscription.reseller-hosting-subscription.max-users'),
-                'max_users'
+                'max_users',
             )
                 ->nullable()
                 ->hideFromIndex()
@@ -123,7 +123,7 @@ class NovaResellerHostingDeploymentResource extends Resource
 
             Number::make(
                 self::translate('subscription.reseller-hosting-subscription.max-domains'),
-                'max_domains'
+                'max_domains',
             )
                 ->nullable()
                 ->hideFromIndex()
@@ -131,7 +131,7 @@ class NovaResellerHostingDeploymentResource extends Resource
 
             Number::make(
                 self::translate('subscription.reseller-hosting-subscription.max-email-addresses'),
-                'max_email_addresses'
+                'max_email_addresses',
             )
                 ->nullable()
                 ->hideFromIndex()
@@ -139,7 +139,7 @@ class NovaResellerHostingDeploymentResource extends Resource
 
             Number::make(
                 self::translate('subscription.reseller-hosting-subscription.max-traffic'),
-                'max_traffic'
+                'max_traffic',
             )
                 ->nullable()
                 ->hideFromIndex()
@@ -147,7 +147,7 @@ class NovaResellerHostingDeploymentResource extends Resource
 
             Number::make(
                 self::translate('subscription.reseller-hosting-subscription.max-databases'),
-                'max_databases'
+                'max_databases',
             )
                 ->nullable()
                 ->hideFromIndex()
@@ -155,21 +155,21 @@ class NovaResellerHostingDeploymentResource extends Resource
 
             Text::make(
                 self::translate('subscription.reseller-hosting-subscription.permissions'),
-                'permissions'
+                'permissions',
             )
                 ->nullable()
                 ->showOnDetail($this->resource->permissions !== null),
 
             Text::make(
                 self::translate('subscription.reseller-hosting-subscription.last-created-result'),
-                'last_created_result'
+                'last_created_result',
             )
                 ->nullable()
                 ->onlyOnDetail(),
 
             DateTime::make(
                 self::translate('subscription.reseller-hosting-subscription.last-created-result-received'),
-                'last_created_result_received'
+                'last_created_result_received',
             )
                 ->nullable()
                 ->onlyOnDetail(),

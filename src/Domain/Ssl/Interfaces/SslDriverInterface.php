@@ -19,14 +19,14 @@ interface SslDriverInterface
         int $period,
         array $customerData,
         SslDeployment $sslDeployment,
-        ?string $csr = null
+        ?string $csr = null,
     ): Result;
 
     /** @param array<string, mixed> $customerData */
     public function reissue(
         array $customerData,
         SslDeployment $sslDeployment,
-        string $csr
+        string $csr,
     ): Result;
 
     public function renew(SslDeployment $sslDeployment): Result;
@@ -49,7 +49,12 @@ interface SslDriverInterface
      *
      * @return array<mixed>
      */
-    public function prepareCertificateInstallParameters(int $certificateId, string $domain, array $certificates, bool $alreadySaved = false): array;
+    public function prepareCertificateInstallParameters(
+        int $certificateId,
+        string $domain,
+        array $certificates,
+        bool $alreadySaved = false,
+    ): array;
 
     public function csrExistsForDomain(string $domain): bool;
 

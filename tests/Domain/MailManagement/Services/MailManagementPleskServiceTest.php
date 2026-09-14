@@ -28,7 +28,7 @@ class MailManagementPleskServiceTest extends IntegrationTestCase
             mailboxEnabled: true,
             mailboxUsage: 10,
             forwarding: false,
-            forwardDestinationAddresses: null
+            forwardDestinationAddresses: null,
         );
 
         $forwardMail = new MailAccount(
@@ -36,14 +36,11 @@ class MailManagementPleskServiceTest extends IntegrationTestCase
             mailboxEnabled: false,
             mailboxUsage: 0,
             forwarding: true,
-            forwardDestinationAddresses: ['test@tester.nl']
+            forwardDestinationAddresses: ['test@tester.nl'],
         );
 
         $serverRepoMock = self::mock(ServerRepository::class);
-        $serverRepoMock
-            ->shouldReceive('findByHostname')
-            ->with($hostname)
-            ->andReturn($server);
+        $serverRepoMock->shouldReceive('findByHostname')->with($hostname)->andReturn($server);
 
         $hostingServiceMock = self::mock(PleskHostingService::class);
         $hostingServiceMock

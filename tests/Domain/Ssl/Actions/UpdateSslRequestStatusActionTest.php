@@ -59,21 +59,19 @@ class UpdateSslRequestStatusActionTest extends IntegrationTestCase
             'value' => 'ssl_sectigo',
         ]);
 
-        $this->subscription = SubscriptionFactory::new()
-            ->for($customer)
-            ->for($product)
-            ->createOne([
-                'domain' => self::DOMAIN,
-                'technical_status' => TechnicalStatus::OK->value,
-            ]);
+        $this->subscription = SubscriptionFactory::new()->for($customer)->for($product)->createOne([
+            'domain' => self::DOMAIN,
+            'technical_status' => TechnicalStatus::OK->value,
+        ]);
 
-        $this->sslDeployment = SslDeploymentFactory::new()
-            ->for(ProviderFactory::new()->sslRtr(), 'provider')
-            ->createOne([
-                'subscription_uuid' => $this->subscription->uuid,
-                'certificate_id' => null,
-                'request_id' => self::REQUEST_ID,
-            ]);
+        $this->sslDeployment = SslDeploymentFactory::new()->for(
+            ProviderFactory::new()->sslRtr(),
+            'provider',
+        )->createOne([
+            'subscription_uuid' => $this->subscription->uuid,
+            'certificate_id' => null,
+            'request_id' => self::REQUEST_ID,
+        ]);
 
         $this->csrManager = self::createStub(CsrManager::class);
     }
@@ -101,7 +99,10 @@ class UpdateSslRequestStatusActionTest extends IntegrationTestCase
         self::assertSame(self::CERTIFICATE_ID, $this->sslDeployment->certificate_id);
         self::assertSame(TechnicalStatus::OK->value, $this->subscription->technical_status);
         self::assertNotNull($this->sslDeployment->last_result_received);
-        self::assertStringContainsString('Certificate ready to be downloaded.', (string) $this->sslDeployment->last_result);
+        self::assertStringContainsString(
+            'Certificate ready to be downloaded.',
+            (string) $this->sslDeployment->last_result,
+        );
     }
 
     #[Test]

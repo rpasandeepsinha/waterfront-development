@@ -52,7 +52,12 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
 
         Model::preventLazyLoading(false);
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $this->customer = new CustomerFactory()->withAddress()->createOneQuietly();
 
@@ -67,21 +72,36 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
             'product_group_id' => $productGroup->id,
         ]);
 
-        new ProductPriceComponentFactory()->for($this->product)->registration()->createOne(['price' => 1000]);
-        new ProductPriceComponentFactory()->for($this->product)->introduction()->createOne(['price' => $this->introductionPrice]);
-        new ProductPriceComponentFactory()->for($this->product)->prolongation()->createOne(['price' => 1000]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->registration()
+            ->createOne(['price' => 1000]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->introduction()
+            ->createOne(['price' => $this->introductionPrice]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->prolongation()
+            ->createOne(['price' => 1000]);
 
         $dnsGroup = new ProductGroupFactory()->dns()->createOne(['name' => ProductGroupType::DNS]);
         $dnsProduct = new ProductFactory()->for($dnsGroup)->createOne([
             'name' => 'free-dns',
             'slug' => 'free-dns',
         ]);
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne(['price' => 0]);
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne([
-            'price' => 0,
-            'billing_period' => 24,
-            'contract_period' => 24,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne([
+                'price' => 0,
+                'billing_period' => 24,
+                'contract_period' => 24,
+            ]);
 
         $this->order = new OrderFactory()->createOne(['customer_id' => $this->customer->id]);
 
@@ -118,7 +138,7 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
         $response = $this->actingAsCustomer($this->customer)->json(
             'post',
             $this->generateRoute('partners.order.order'),
-            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR)
+            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR),
         );
 
         $response->assertOk();
@@ -140,12 +160,14 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
     #[Test]
     public function discountRuleOneLeft(): void
     {
-        new OrderLineItemFactory()->count(4)->createQuietly([
-            'subscription_uuid' => null,
-            'order_id' => $this->order->id,
-            'domain' => 'test-domein.nl',
-            'product_uuid' => $this->product->uuid,
-        ]);
+        new OrderLineItemFactory()
+            ->count(4)
+            ->createQuietly([
+                'subscription_uuid' => null,
+                'order_id' => $this->order->id,
+                'domain' => 'test-domein.nl',
+                'product_uuid' => $this->product->uuid,
+            ]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/order_payload_intro_discount_one.json');
         $this->app->bind(Dispatcher::class, fn () => self::createStub(Dispatcher::class));
@@ -153,7 +175,7 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
         $response = $this->actingAsCustomer($this->customer)->json(
             'post',
             $this->generateRoute('partners.order.order'),
-            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR)
+            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR),
         );
 
         $response->assertOk();
@@ -180,7 +202,7 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
         $response = $this->actingAsCustomer($this->customer)->json(
             'post',
             $this->generateRoute('partners.order.order'),
-            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR)
+            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR),
         );
 
         $response->assertOk();
@@ -196,8 +218,14 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
     #[Test]
     public function discountRuleTotalPriceInvalidPeriod(): void
     {
-        new ProductPriceComponentFactory()->for($this->product)->registration()->createOne(['price' => 1000, 'contract_period' => 24, 'billing_period' => 24]);
-        new ProductPriceComponentFactory()->for($this->product)->introduction()->createOne(['price' => $this->introductionPrice, 'contract_period' => 24, 'billing_period' => 24]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->registration()
+            ->createOne(['price' => 1000, 'contract_period' => 24, 'billing_period' => 24]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->introduction()
+            ->createOne(['price' => $this->introductionPrice, 'contract_period' => 24, 'billing_period' => 24]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/order_payload_intro_total_invalid_period.json');
         $this->app->bind(Dispatcher::class, fn () => self::createStub(Dispatcher::class));
@@ -205,7 +233,7 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
         $response = $this->actingAsCustomer($this->customer)->json(
             'post',
             $this->generateRoute('partners.order.order'),
-            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR)
+            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR),
         );
 
         $response->assertOk();
@@ -226,7 +254,7 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
         $response = $this->actingAsCustomer($this->customer)->json(
             'post',
             $this->generateRoute('partners.order.order'),
-            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR)
+            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR),
         );
 
         $response->assertUnprocessable();
@@ -259,7 +287,7 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
                 'billing_period' => 12,
                 'contract_period' => 12,
                 'next_billing_date' => $nextBillingDate->addYear()->format(DateTimeFormat::DEFAULT),
-            ]
+            ],
         );
 
         // start renewal process
@@ -272,12 +300,14 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
     #[Test]
     public function prolongationIntroductionDiscountPriceNoAvailability(): void
     {
-        new OrderLineItemFactory()->count(5)->createQuietly([
-            'subscription_uuid' => null,
-            'order_id' => $this->order->id,
-            'domain' => 'test-domein.nl',
-            'product_uuid' => $this->product->uuid,
-        ]);
+        new OrderLineItemFactory()
+            ->count(5)
+            ->createQuietly([
+                'subscription_uuid' => null,
+                'order_id' => $this->order->id,
+                'domain' => 'test-domein.nl',
+                'product_uuid' => $this->product->uuid,
+            ]);
 
         // create existing subscription with the introduction price
         $previousDate = new CarbonImmutable('1 year ago');
@@ -292,7 +322,7 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
                 'billing_period' => 12,
                 'contract_period' => 12,
                 'next_billing_date' => $nextBillingDate->addYear()->format(DateTimeFormat::DEFAULT),
-            ]
+            ],
         );
 
         // start renewal process
@@ -316,7 +346,7 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
         $response = $this->actingAsCustomer($this->customer)->json(
             'post',
             $this->generateRoute('partners.order.order'),
-            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR)
+            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR),
         );
 
         $response->assertOk();
@@ -334,10 +364,13 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
             ->where('type', PriceComponentType::INTRODUCTION)
             ->update(['expires_at' => CarbonImmutable::yesterday()]);
 
-        new ProductPriceComponentFactory()->for($this->product)->introduction()->createOne([
-            'price' => 777,
-            'starts_at' => CarbonImmutable::tomorrow(),
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->introduction()
+            ->createOne([
+                'price' => 777,
+                'starts_at' => CarbonImmutable::tomorrow(),
+            ]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/order_payload_intro_discount_all.json');
         $this->app->bind(Dispatcher::class, fn () => self::createStub(Dispatcher::class));
@@ -345,7 +378,7 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
         $response = $this->actingAsCustomer($this->customer)->json(
             'post',
             $this->generateRoute('partners.order.order'),
-            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR)
+            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR),
         );
 
         $response->assertOk();
@@ -358,10 +391,13 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
     #[Test]
     public function discountRuleMostRecentlyStartedIntroductionPriceComponentIsUsed(): void
     {
-        new ProductPriceComponentFactory()->for($this->product)->introduction()->createOne([
-            'price' => 9999,
-            'starts_at' => CarbonImmutable::now()->subDays(2),
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->introduction()
+            ->createOne([
+                'price' => 9999,
+                'starts_at' => CarbonImmutable::now()->subDays(2),
+            ]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/order_payload_intro_discount_all.json');
         $this->app->bind(Dispatcher::class, fn () => self::createStub(Dispatcher::class));
@@ -369,7 +405,7 @@ class IntroductionDiscountPriceTest extends IntegrationTestCase
         $response = $this->actingAsCustomer($this->customer)->json(
             'post',
             $this->generateRoute('partners.order.order'),
-            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR)
+            (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR),
         );
 
         $response->assertOk();

@@ -15,14 +15,14 @@ class ResolveAndLinkSshKeyAction
 {
     public function __construct(
         private readonly SshKeyRepository $sshKeyRepository,
-        private readonly CloudstackService $cloudstackService
+        private readonly CloudstackService $cloudstackService,
     ) {
     }
 
     public function execute(
         string $sshKeyUuid,
         int $vmDeploymentId,
-        ManagerDomainDeployment $managerDomainDeployment
+        ManagerDomainDeployment $managerDomainDeployment,
     ): string {
         $sshKey = $this->sshKeyRepository->findByUuid($sshKeyUuid);
 
@@ -36,13 +36,14 @@ class ResolveAndLinkSshKeyAction
             $this->cloudstackService->registerSshKeyPair(
                 managerDomainDeployment: $managerDomainDeployment,
                 name: $sshKey->cloudstack_ssh_name,
-                publicKey: $sshKey->public_key
+                publicKey: $sshKey->public_key,
             );
 
             $sshKey->managerDomains()->sync([$managerDomainDeployment->id]);
         }
 
         $sshKey->virtualMachineDeployments()->sync([$vmDeploymentId]);
+
         return $sshKey->cloudstack_ssh_name;
     }
 }

@@ -34,7 +34,7 @@ class RtrErrorParseService
 
         $this->logger->warning(sprintf(
             'Unable to parse (unknown) RTR error message [%s]. Returning default.',
-            $message
+            $message,
         ));
 
         return null;
@@ -49,12 +49,16 @@ class RtrErrorParseService
             RtrValidationError::AUTH_CODE_INVALID => $this->translator->translate('rtr-error.auth-code-invalid'),
             RtrValidationError::AUTH_CODE_REQUIRED => $this->translator->translate('rtr-error.auth-code-required'),
             RtrValidationError::CONTACT_INFO_MISSING => $this->translator->translate('rtr-error.contact-info-missing'),
-            RtrValidationError::PRIVACY_PROTECT_NOT_SUPPORTED => $this->translator->translate('rtr-error.privacy-protect-not-supported'),
+            RtrValidationError::PRIVACY_PROTECT_NOT_SUPPORTED => $this->translator->translate(
+                'rtr-error.privacy-protect-not-supported',
+            ),
             RtrValidationError::VAT_NUMBER_CONTACT_REQUIRED,
-            RtrValidationError::VAT_NUMBER_REQUIRED => $this->translator->translate('rtr-error.vat-number-required'),
-            RtrValidationError::OBJECT_STATUS,
-            RtrValidationError::TRANSFER_BLOCKED => $this->translator->translate('rtr-error.transfer-blocked'),
-            default => $this->translator->translate('rtr-error.general')
+            RtrValidationError::VAT_NUMBER_REQUIRED,
+                => $this->translator->translate('rtr-error.vat-number-required'),
+            RtrValidationError::OBJECT_STATUS, RtrValidationError::TRANSFER_BLOCKED => $this->translator->translate(
+                'rtr-error.transfer-blocked',
+            ),
+            default => $this->translator->translate('rtr-error.general'),
         };
     }
 
@@ -65,6 +69,7 @@ class RtrErrorParseService
         if ($matchFound === 1) {
             return $this->translator->translate('rtr-error.transfer-too-early-with-date', ['date' => $date[0]]);
         }
+
         return $this->translator->translate('rtr-error.transfer-too-early');
     }
 }

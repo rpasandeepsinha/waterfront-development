@@ -33,7 +33,7 @@ class UpdateDomainNameRegistrationJob extends AbstractQueueableJob
      */
     public function __construct(
         private readonly DomainDeployment $domainDeployment,
-        private readonly array $nameservers
+        private readonly array $nameservers,
     ) {
         $this->domainDeployment->loadMissing('subscription.product');
         $this->domainSubscription = $this->domainDeployment->subscription;
@@ -54,7 +54,7 @@ class UpdateDomainNameRegistrationJob extends AbstractQueueableJob
                 LoggingContextKeys::EXCEPTION => $throwable,
                 LoggingContextKeys::PROVISIONING_TYPE => 'domain',
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
-            ]
+            ],
         );
 
         $this->domainSubscription->update([
@@ -85,7 +85,10 @@ class UpdateDomainNameRegistrationJob extends AbstractQueueableJob
             LoggingContextKeys::PROVISIONING_TYPE => 'domain',
         ]);
 
-        $domainDriver = $domainServiceFactory->driver($this->domainDeployment->provider->slug, $this->domainDeployment->businessUnit);
+        $domainDriver = $domainServiceFactory->driver(
+            $this->domainDeployment->provider->slug,
+            $this->domainDeployment->businessUnit,
+        );
 
         $dnssecKeyData = $this->domainDeployment->dnssec_enabled
             ? $domainDriver->getDomainKeyDataCollection($domainName)
@@ -114,10 +117,7 @@ class UpdateDomainNameRegistrationJob extends AbstractQueueableJob
         $this->domainDeployment->refresh();
         $this->domainSubscription->refresh();
 
-        if (
-            $this->domainStatusAllowsActivation($domainDriver)
-            && $this->technicalStatusAllowsActivation()
-        ) {
+        if ($this->domainStatusAllowsActivation($domainDriver) && $this->technicalStatusAllowsActivation()) {
             $this->domainSubscription->technical_status = DomainStatus::ACTIVE->value;
             $this->domainSubscription->save();
         }
@@ -160,27 +160,41 @@ class UpdateDomainNameRegistrationJob extends AbstractQueueableJob
     private function domainStatusAllowsActivation(DomainDriverInterface $domainDriver): bool
     {
         if ($domainDriver instanceof RtrService) {
-            return in_array($this->domainDeployment->domain_status, [
-                RtrDomainStatus::OK,
-                RtrDomainStatus::INACTIVE,
-            ], true);
+            return in_array(
+                $this->domainDeployment->domain_status,
+                [
+                    RtrDomainStatus::OK,
+                    RtrDomainStatus::INACTIVE,
+                ],
+                true,
+            );
         }
 
-        return $this->domainDeployment->domain_status === null
-            || in_array($this->domainDeployment->domain_status, [
-                RtrDomainStatus::OK,
-                RtrDomainStatus::INACTIVE,
-                RtrDomainStatus::PENDING_VALIDATION,
-            ], true);
+        return (
+            $this->domainDeployment->domain_status === null
+            || in_array(
+                $this->domainDeployment->domain_status,
+                [
+                    RtrDomainStatus::OK,
+                    RtrDomainStatus::INACTIVE,
+                    RtrDomainStatus::PENDING_VALIDATION,
+                ],
+                true,
+            )
+        );
     }
 
     private function technicalStatusAllowsActivation(): bool
     {
-        return in_array($this->domainSubscription->technical_status, [
-            TechnicalStatus::PENDING->value,
-            TechnicalStatus::OK->value,
-            DomainStatus::PENDING->value,
-            DomainStatus::ACTIVE->value,
-        ], true);
+        return in_array(
+            $this->domainSubscription->technical_status,
+            [
+                TechnicalStatus::PENDING->value,
+                TechnicalStatus::OK->value,
+                DomainStatus::PENDING->value,
+                DomainStatus::ACTIVE->value,
+            ],
+            true,
+        );
     }
 }

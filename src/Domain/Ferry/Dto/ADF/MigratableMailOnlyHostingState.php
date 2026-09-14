@@ -11,11 +11,11 @@ readonly class MigratableMailOnlyHostingState implements MigrationTypeADFPayload
     public function __construct(
         public MigrationStep $migrationStep,
         public string $referenceName,
-        public string|null $domain,
+        public ?string $domain,
         public string $migrationSubscriptionReferenceId,
-        public string|null $hostname,
+        public ?string $hostname,
         public string $username,
-        public string $driver
+        public string $driver,
     ) {
     }
 

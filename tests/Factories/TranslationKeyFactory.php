@@ -27,7 +27,11 @@ class TranslationKeyFactory extends Factory
     public function withTranslatedString(TranslationLanguage $language, string $translatedString): self
     {
         return $this->afterCreating(function (TranslationKey $translationKey) use ($language, $translatedString): void {
-            $translationString = $translationKey->translationStrings()->with(['language', 'translationKey'])->where('language_id', $language->id)->firstOrFail();
+            $translationString = $translationKey
+                ->translationStrings()
+                ->with(['language', 'translationKey'])
+                ->where('language_id', $language->id)
+                ->firstOrFail();
             $translationString->translated_string = $translatedString;
             $translationString->save();
         });

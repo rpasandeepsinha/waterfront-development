@@ -68,7 +68,7 @@ class SitebuilderProxy
 
             $basekitSiteByRefRequest = new GetBasekitSiteByRefRequest(
                 context: $context,
-                siteRef: $baseKitDetails->basekitSiteRef
+                siteRef: $baseKitDetails->basekitSiteRef,
             );
 
             $basekitSiteByRefRequest->provider = ProvisionProvider::BASEKIT;
@@ -76,10 +76,7 @@ class SitebuilderProxy
 
             $basekitSiteByRefResult = $this->provisionGateway->request($basekitSiteByRefRequest);
 
-            if (
-                ! $basekitSiteByRefResult instanceof BasekitSiteResult
-                || $basekitSiteByRefResult->failed
-            ) {
+            if (! $basekitSiteByRefResult instanceof BasekitSiteResult || $basekitSiteByRefResult->failed) {
                 $this->logger->warning('Provisioning Basekit sitebuilder deployment from migration failed, could not fetch basekit domain', [
                     LoggingContextKeys::PROVISIONING_CONTEXT => $context,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
@@ -89,7 +86,7 @@ class SitebuilderProxy
 
                 throw new HostingDetailsNotSupportedException(
                     hostingDetails: $baseKitDetails,
-                    previous: $basekitSiteByRefResult->exception
+                    previous: $basekitSiteByRefResult->exception,
                 );
             }
 
@@ -98,7 +95,7 @@ class SitebuilderProxy
                 domain: $basekitSiteByRefResult->domain,
                 userRef: $baseKitDetails->basekitUserRef,
                 siteRef: $baseKitDetails->basekitSiteRef,
-                context: $context
+                context: $context,
             );
 
             $createBasekitDeploymentsRequest->provider = ProvisionProvider::BASEKIT;
@@ -109,7 +106,7 @@ class SitebuilderProxy
             if ($createBasekitDeploymentsResult->failed) {
                 throw new HostingDetailsNotSupportedException(
                     hostingDetails: $baseKitDetails,
-                    previous: $createBasekitDeploymentsResult->exception
+                    previous: $createBasekitDeploymentsResult->exception,
                 );
             }
 
@@ -128,12 +125,15 @@ class SitebuilderProxy
     /**
      * @throws HostingDetailsNotSupportedException
      */
-    public function rollbackSitebuilderDeployementFromMigration(Subscription $subscription, SitebuilderBaseKitDetails $sitebuilderBaseKitDetails, HostingDeployment $hostingDeployment): void
-    {
+    public function rollbackSitebuilderDeployementFromMigration(
+        Subscription $subscription,
+        SitebuilderBaseKitDetails $sitebuilderBaseKitDetails,
+        HostingDeployment $hostingDeployment,
+    ): void {
         $customer = $subscription->customer;
         if ($this->sitebuilderService->hasSitebuilderThroughGateway($customer->email)) {
             $deploymentsForTag = $this->sitebuilderDeploymentRepository->countCreateRequestsByTag(
-                Uuid::fromString($subscription->uuid)
+                Uuid::fromString($subscription->uuid),
             );
 
             if ($deploymentsForTag === 0) {
@@ -148,7 +148,7 @@ class SitebuilderProxy
 
             $rollbackBasekitDeploymentsRequest = new RollbackBasekitDeploymentsFromMigrationRequest(
                 context: Uuid::fromString($subscription->uuid),
-                tagUuid: Uuid::fromString($subscription->uuid)
+                tagUuid: Uuid::fromString($subscription->uuid),
             );
 
             $rollbackBasekitDeploymentsRequest->provider = ProvisionProvider::BASEKIT;
@@ -157,9 +157,10 @@ class SitebuilderProxy
             if ($rollbackBasekitDeploymentsResult->failed) {
                 throw new HostingDetailsNotSupportedException(
                     hostingDetails: $sitebuilderBaseKitDetails,
-                    previous: $rollbackBasekitDeploymentsResult->exception
+                    previous: $rollbackBasekitDeploymentsResult->exception,
                 );
             }
+
             return;
         }
 
@@ -168,7 +169,10 @@ class SitebuilderProxy
         $hostingDeployment->basekitServer()->disassociate();
 
         // Reset sitebuilder provider to Placeholder
-        $placeholderProvider = $this->providerRepository->getByType(ProviderType::SITEBUILDER, ProviderSlug::PLACEHOLDER);
+        $placeholderProvider = $this->providerRepository->getByType(
+            ProviderType::SITEBUILDER,
+            ProviderSlug::PLACEHOLDER,
+        );
         $hostingDeployment->sitebuilderProvider()->associate($placeholderProvider);
     }
 
@@ -193,15 +197,18 @@ class SitebuilderProxy
          */
         $result = $this->fetchBasekitSiteThroughGateway(Uuid::uuid4(), $siteRef);
 
-        return $result instanceof BasekitSiteResult
-            && $result->succeeded;
+        return $result instanceof BasekitSiteResult && $result->succeeded;
     }
 
     /**
      * @throws HostingInstanceNotFoundException
      */
-    public function fetchSitebuilderSite(int $siteRef, Subscription $subscription, HostingMigrationPayload $payload, Server $server): BasekitSiteResult|SitebuilderSiteInterface
-    {
+    public function fetchSitebuilderSite(
+        int $siteRef,
+        Subscription $subscription,
+        HostingMigrationPayload $payload,
+        Server $server,
+    ): BasekitSiteResult|SitebuilderSiteInterface {
         if ($this->sitebuilderService->hasSitebuilderThroughGateway($subscription->customer->email)) {
             $context = Uuid::fromString($subscription->uuid);
 
@@ -234,7 +241,7 @@ class SitebuilderProxy
         int $userRef,
         Subscription $subscription,
         HostingMigrationPayload $payload,
-        Server $server
+        Server $server,
     ): SitebuilderUserInterface {
         if ($this->sitebuilderService->hasSitebuilderThroughGateway($subscription->customer->email)) {
             $context = Uuid::fromString($subscription->uuid);
@@ -248,8 +255,16 @@ class SitebuilderProxy
 
             $basekitUserByRefResult = $this->provisionGateway->request($getBasekitUserByRefRequest);
 
-            if (! $basekitUserByRefResult instanceof BasekitUserResult || $basekitUserByRefResult->provisionStatus !== ProvisionStatus::SUCCESS) {
-                throw new HostingInstanceNotFoundException($payload, $server, $subscription, $basekitUserByRefResult->exception);
+            if (
+                ! $basekitUserByRefResult instanceof BasekitUserResult
+                || $basekitUserByRefResult->provisionStatus !== ProvisionStatus::SUCCESS
+            ) {
+                throw new HostingInstanceNotFoundException(
+                    $payload,
+                    $server,
+                    $subscription,
+                    $basekitUserByRefResult->exception,
+                );
             }
 
             Assert::notNull($basekitUserByRefResult->userId);
@@ -257,7 +272,7 @@ class SitebuilderProxy
 
             return new BaseKitUser(
                 id: $basekitUserByRefResult->userId,
-                email: $basekitUserByRefResult->email
+                email: $basekitUserByRefResult->email,
             );
         }
 

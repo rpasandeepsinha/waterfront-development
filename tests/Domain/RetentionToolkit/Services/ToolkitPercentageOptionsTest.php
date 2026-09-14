@@ -46,9 +46,7 @@ class ToolkitPercentageOptionsTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
 
-        $hostingProduct = new ProductFactory()
-            ->hostingGold()
-            ->createOne();
+        $hostingProduct = new ProductFactory()->hostingGold()->createOne();
 
         new ProductPriceComponentFactory()
             ->for($hostingProduct)

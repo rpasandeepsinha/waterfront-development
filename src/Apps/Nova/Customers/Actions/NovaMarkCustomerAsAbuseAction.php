@@ -35,7 +35,9 @@ class NovaMarkCustomerAsAbuseAction extends Action
     public function handle(ActionFields $fields, Collection $models): ActionResponse|static
     {
         if (! $fields->confirm_check) {
-            return self::danger($this->translator->translate('nova-action.mark_customer_as_abuse.error.did-not-confirm'));
+            return self::danger($this->translator->translate(
+                'nova-action.mark_customer_as_abuse.error.did-not-confirm',
+            ));
         }
 
         $customer = $models->first();
@@ -55,8 +57,9 @@ class NovaMarkCustomerAsAbuseAction extends Action
     public function fields(NovaRequest $request): array
     {
         return [
-            NovaBoolField::make('Confirm', 'confirm_check')
-                ->help($this->translator->translate('nova-action.mark_customer_as_abuse.confirmtext')),
+            NovaBoolField::make('Confirm', 'confirm_check')->help($this->translator->translate(
+                'nova-action.mark_customer_as_abuse.confirmtext',
+            )),
         ];
     }
 }

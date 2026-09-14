@@ -25,7 +25,7 @@ class HostingBulkMigrationRequest extends BaseRequest
         );
 
         foreach ($singleRules as $key => $singleRule) {
-            $bulkRules['*.subscriptions.' . $key] =  $singleRule;
+            $bulkRules['*.subscriptions.' . $key] = $singleRule;
         }
 
         return array_merge($bulkRules, [

@@ -37,34 +37,38 @@ class NovaFetchAnonymousDomainContactFromRtrTest extends IntegrationTestCase
         $sdk = MockedClientFactory::makeSdkWithMultipleReponses([
             new Response(
                 status: 200,
-                body: $contactResponse
+                body: $contactResponse,
             ),
         ]);
 
         $rtrService = self::resolve(RtrService::class);
         $rtrService = $rtrService->setClient($sdk);
 
-        $customer = new CustomerFactory()->withAddress()->createOne([
-            'phone_country_code' => '31',
-            'phone_area_code' => '6',
-            'phone_subscriber_number' => '12345678',
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne([
+                'phone_country_code' => '31',
+                'phone_area_code' => '6',
+                'phone_subscriber_number' => '12345678',
+            ]);
+        $domainProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
         ]);
-        $domainProvider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
 
         $anonymousHandle = '25B-BUNAME-anonymous';
 
-        $anonymousHandleModel = DomainContactAnonymousHandleFactory::new()
-            ->createOne(['handle' => $anonymousHandle]);
+        $anonymousHandleModel = DomainContactAnonymousHandleFactory::new()->createOne(['handle' => $anonymousHandle]);
 
-        $domainContact = DomainContactFactory::new()
-            ->for($customer)
-            ->createOne();
+        $domainContact = DomainContactFactory::new()->for($customer)->createOne();
 
         $domainContact->providers()->attach(
             $domainProvider,
             [
                 'external_contact' => $anonymousHandle,
-            ]
+            ],
         );
 
         $fields = new ActionFields(new Collection([]), new Collection([]));
@@ -72,7 +76,7 @@ class NovaFetchAnonymousDomainContactFromRtrTest extends IntegrationTestCase
 
         $novaFetchAnonymousContactFromRtr = new NovaFetchAnonymousDomainContactFromRtr(
             translator: self::resolve(TranslatorInterface::class),
-            rtrService: $rtrService
+            rtrService: $rtrService,
         );
 
         $result = $novaFetchAnonymousContactFromRtr->handle($fields, $models);
@@ -81,7 +85,13 @@ class NovaFetchAnonymousDomainContactFromRtrTest extends IntegrationTestCase
         $modal = $result['modal'];
         self::assertInstanceOf(Modal::class, $modal);
         self::assertIsString($modal->payload['code']);
-        self::assertSame('Fetched anonymous domain contact with handle {25B-BUNAME-anonymous} from Rtr with response:', $modal->payload['title']);
-        self::assertSame(include __DIR__ . '/data/anonymous_fetch_response.php', json_decode($modal->payload['code'], true));
+        self::assertSame(
+            'Fetched anonymous domain contact with handle {25B-BUNAME-anonymous} from Rtr with response:',
+            $modal->payload['title'],
+        );
+        self::assertSame(
+            include __DIR__ . '/data/anonymous_fetch_response.php',
+            json_decode($modal->payload['code'], true),
+        );
     }
 }

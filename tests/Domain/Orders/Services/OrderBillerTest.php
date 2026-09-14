@@ -35,7 +35,10 @@ class OrderBillerTest extends IntegrationTestCase
         self::expectException(OrderAlreadyInvoicedException::class);
         self::assertDatabaseEmpty(Invoice::class);
         $customer = new CustomerFactory()->withAddress()->createOne();
-        $order = new OrderFactory()->for($customer)->createOne(['status' => OrderStatus::PROCESSED, 'is_invoiced' => true]);
+        $order = new OrderFactory()->for($customer)->createOne([
+            'status' => OrderStatus::PROCESSED,
+            'is_invoiced' => true,
+        ]);
         new OrderLineItemFactory()->for($order)->createOne();
 
         $biller = self::resolve(OrderBiller::class);
@@ -50,7 +53,10 @@ class OrderBillerTest extends IntegrationTestCase
         self::expectException(OrderNotProcessedException::class);
         self::assertDatabaseEmpty(Invoice::class);
         $customer = new CustomerFactory()->withAddress()->createOne();
-        $order = new OrderFactory()->for($customer)->createOne(['status' => OrderStatus::IN_PROGRESS, 'is_invoiced' => false]);
+        $order = new OrderFactory()->for($customer)->createOne([
+            'status' => OrderStatus::IN_PROGRESS,
+            'is_invoiced' => false,
+        ]);
         new OrderLineItemFactory()->for($order)->createOne();
 
         $biller = self::resolve(OrderBiller::class);
@@ -65,10 +71,22 @@ class OrderBillerTest extends IntegrationTestCase
         self::assertDatabaseEmpty(Invoice::class);
 
         $customer = new CustomerFactory()->withAddress()->createOne();
-        $order = new OrderFactory()->for($customer)->createOne(['status' => OrderStatus::PROCESSED, 'is_invoiced' => false]);
-        $product = new ProductFactory()->for(new ProductGroupFactory()->createOne(['slug' => ProductGroupType::EXTENSION]))->createOne();
-        $subscription = new SubscriptionFactory()->for($product)->for($customer)->administrativeStatusActive()->createOne(['administrative_status' => AdministrativeStatus::INACTIVE->value]);
-        new OrderLineItemFactory()->for($order)->for($product)->createOne(['subscription_uuid' => $subscription->uuid, 'status' => 'registration']);
+        $order = new OrderFactory()->for($customer)->createOne([
+            'status' => OrderStatus::PROCESSED,
+            'is_invoiced' => false,
+        ]);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->createOne([
+            'slug' => ProductGroupType::EXTENSION,
+        ]))->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->administrativeStatusActive()
+            ->createOne(['administrative_status' => AdministrativeStatus::INACTIVE->value]);
+        new OrderLineItemFactory()
+            ->for($order)
+            ->for($product)
+            ->createOne(['subscription_uuid' => $subscription->uuid, 'status' => 'registration']);
 
         $biller = self::resolve(OrderBiller::class);
         $biller->bill($order);
@@ -82,9 +100,17 @@ class OrderBillerTest extends IntegrationTestCase
         self::expectException(IncompleteOrderLineException::class);
         self::assertDatabaseEmpty(Invoice::class);
         $customer = new CustomerFactory()->withAddress()->createOne();
-        $order = new OrderFactory()->for($customer)->createOne(['status' => OrderStatus::PROCESSED, 'is_invoiced' => false]);
-        $product = new ProductFactory()->for(new ProductGroupFactory()->createOne(['slug' => ProductGroupType::EXTENSION]))->createOne();
-        new OrderLineItemFactory()->for($order)->for($product)->createOne(['subscription_uuid' => null, 'status' => 'registration']);
+        $order = new OrderFactory()->for($customer)->createOne([
+            'status' => OrderStatus::PROCESSED,
+            'is_invoiced' => false,
+        ]);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->createOne([
+            'slug' => ProductGroupType::EXTENSION,
+        ]))->createOne();
+        new OrderLineItemFactory()
+            ->for($order)
+            ->for($product)
+            ->createOne(['subscription_uuid' => null, 'status' => 'registration']);
 
         $biller = self::resolve(OrderBiller::class);
         $biller->bill($order);
@@ -95,11 +121,24 @@ class OrderBillerTest extends IntegrationTestCase
     #[Test]
     public function orderWillResultInNewInvoices(): void
     {
-        $customer = new CustomerFactory()->withAddress()->createOne(['has_direct_debit' => true]);
-        $order = new OrderFactory()->for($customer)->createOne(['status' => OrderStatus::PROCESSED, 'is_invoiced' => false, 'administration_fees' => 0]);
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne(['has_direct_debit' => true]);
+        $order = new OrderFactory()->for($customer)->createOne([
+            'status' => OrderStatus::PROCESSED,
+            'is_invoiced' => false,
+            'administration_fees' => 0,
+        ]);
         $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne();
-        $subscription = new SubscriptionFactory()->for($product)->for($customer)->administrativeStatusActive()->createOne(['net_price' => 123]);
-        new OrderLineItemFactory()->for($order)->for($product)->createOne(['subscription_uuid' => $subscription->uuid, 'status' => 'registration']);
+        $subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->administrativeStatusActive()
+            ->createOne(['net_price' => 123]);
+        new OrderLineItemFactory()
+            ->for($order)
+            ->for($product)
+            ->createOne(['subscription_uuid' => $subscription->uuid, 'status' => 'registration']);
 
         $biller = self::resolve(OrderBiller::class);
         $biller->bill($order);
@@ -116,15 +155,32 @@ class OrderBillerTest extends IntegrationTestCase
     #[Test]
     public function orderWithOTSWillResultInNewInvoices(): void
     {
-        $customer = new CustomerFactory()->withAddress()->createOne(['has_direct_debit' => true]);
-        $order = new OrderFactory()->for($customer)->createOne(['status' => OrderStatus::PROCESSED, 'is_invoiced' => false, 'administration_fees' => 0]);
-        $product = new ProductFactory()->for(new ProductGroupFactory()->oneTimeService()->createOne())->createOne();
-        $subscription = new SubscriptionFactory()->for($product)->for($customer)->administrativeStatusActive()->createOne();
-        $ots = new OneTimeServiceFactory()->for($customer)->for($subscription)->for($product)->createOne();
-        new OrderLineItemFactory()->for($order)->for($product)->createOne([
-            'subscription_uuid' => null,
-            'one_time_service_id' => $ots->id,
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne(['has_direct_debit' => true]);
+        $order = new OrderFactory()->for($customer)->createOne([
+            'status' => OrderStatus::PROCESSED,
+            'is_invoiced' => false,
+            'administration_fees' => 0,
         ]);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->oneTimeService()->createOne())->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->administrativeStatusActive()
+            ->createOne();
+        $ots = new OneTimeServiceFactory()
+            ->for($customer)
+            ->for($subscription)
+            ->for($product)
+            ->createOne();
+        new OrderLineItemFactory()
+            ->for($order)
+            ->for($product)
+            ->createOne([
+                'subscription_uuid' => null,
+                'one_time_service_id' => $ots->id,
+            ]);
 
         $biller = self::resolve(OrderBiller::class);
         $biller->bill($order);
@@ -141,11 +197,26 @@ class OrderBillerTest extends IntegrationTestCase
     #[Test]
     public function orderWillResultInNewInvoicesIncludingAdminFees(): void
     {
-        $customer = new CustomerFactory()->withAddress()->createOne(['has_direct_debit' => false]);
-        $order = new OrderFactory()->for($customer)->createOne(['status' => OrderStatus::PROCESSED, 'is_invoiced' => false, 'administration_fees' => 200]);
-        $product = new ProductFactory()->for(new ProductGroupFactory()->createOne(['slug' => ProductGroupType::EXTENSION]))->createOne();
-        $subscription = new SubscriptionFactory()->for($product)->for($customer)->administrativeStatusActive()->createOne(['net_price' => 123]);
-        new OrderLineItemFactory()->for($order)->for($product)->createOne(['subscription_uuid' => $subscription->uuid, 'status' => 'registration']);
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne(['has_direct_debit' => false]);
+        $order = new OrderFactory()->for($customer)->createOne([
+            'status' => OrderStatus::PROCESSED,
+            'is_invoiced' => false,
+            'administration_fees' => 200,
+        ]);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->createOne([
+            'slug' => ProductGroupType::EXTENSION,
+        ]))->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->administrativeStatusActive()
+            ->createOne(['net_price' => 123]);
+        new OrderLineItemFactory()
+            ->for($order)
+            ->for($product)
+            ->createOne(['subscription_uuid' => $subscription->uuid, 'status' => 'registration']);
 
         $productAdminFees = ProductFactory::new()->administrationFees()->createOne();
         ProductPriceComponentFactory::new()->administrationFee()->createOne(['product_id' => $productAdminFees->id]);
@@ -166,31 +237,50 @@ class OrderBillerTest extends IntegrationTestCase
     #[Test]
     public function orderForComesWithFreeProductWillResultInNewInvoicesIncludingFreeProductInvoice(): void
     {
-        $customer = new CustomerFactory()->withAddress()->createOne(['has_direct_debit' => true]);
-        $order = new OrderFactory()->for($customer)->createOne(['status' => OrderStatus::PROCESSED, 'is_invoiced' => false, 'administration_fees' => 0]);
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne(['has_direct_debit' => true]);
+        $order = new OrderFactory()->for($customer)->createOne([
+            'status' => OrderStatus::PROCESSED,
+            'is_invoiced' => false,
+            'administration_fees' => 0,
+        ]);
         $product = new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne())->createOne();
-        $subscription = new SubscriptionFactory()->for($product)->for($customer)->administrativeStatusActive()->createOne(['net_price' => 123]);
-        new OrderLineItemFactory()->for($order)->for($product)->createOne(['subscription_uuid' => $subscription->uuid, 'status' => 'registration']);
+        $subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->administrativeStatusActive()
+            ->createOne(['net_price' => 123]);
+        new OrderLineItemFactory()
+            ->for($order)
+            ->for($product)
+            ->createOne(['subscription_uuid' => $subscription->uuid, 'status' => 'registration']);
 
         $productGroupAddon = new ProductGroupFactory()->addon()->createOne();
         $productServicePlus = new ProductFactory()->for($productGroupAddon)->createOne();
 
-        new ProductPriceComponentFactory()->for($productServicePlus)->prolongation()->createOne([
-            'billing_period' => 12,
-            'price' => 100,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($productServicePlus)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'price' => 100,
+            ]);
 
-        $registrationPriceYearly = new ProductPriceComponentFactory()->for($productServicePlus)->registration()->createOne([
-            'billing_period' => 12,
-            'price' => 90,
-        ]);
+        $registrationPriceYearly = new ProductPriceComponentFactory()
+            ->for($productServicePlus)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'price' => 90,
+            ]);
 
         $productSpecComesWithFreeProduct = ProductSpecFactory::new()->createOne(
             [
                 'name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG,
                 'value' => $productServicePlus->slug,
                 'product_id' => $product->id,
-            ]
+            ],
         );
 
         $product->productSpecs()->save($productSpecComesWithFreeProduct);
@@ -209,10 +299,19 @@ class OrderBillerTest extends IntegrationTestCase
     #[Test]
     public function orderWithNonInvoicableOrderLineDoesNotResultInInvoice(): void
     {
-        $customer = new CustomerFactory()->withAddress()->createOne(['has_direct_debit' => true]);
-        $order = new OrderFactory()->for($customer)->createOne(['status' => OrderStatus::PROCESSED, 'is_invoiced' => false, 'administration_fees' => 0]);
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne(['has_direct_debit' => true]);
+        $order = new OrderFactory()->for($customer)->createOne([
+            'status' => OrderStatus::PROCESSED,
+            'is_invoiced' => false,
+            'administration_fees' => 0,
+        ]);
         $product = new ProductFactory()->for(new ProductGroupFactory()->createOne())->createOne();
-        new OrderLineItemFactory()->for($order)->for($product)->createOne(['should_invoice' => false, 'status' => 'registration']);
+        new OrderLineItemFactory()
+            ->for($order)
+            ->for($product)
+            ->createOne(['should_invoice' => false, 'status' => 'registration']);
 
         $biller = self::resolve(OrderBiller::class);
         $biller->bill($order);

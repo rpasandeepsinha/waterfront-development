@@ -28,13 +28,11 @@ class InvoiceJobDispatcherTest extends TestCase
         ]);
 
         $repository = $this->createMock(SubscriptionRepository::class);
-        $repository
-            ->expects(self::once())
-            ->method('getAllCustomersEligibleForInvoicing')
-            ->willReturn($customers);
+        $repository->expects(self::once())->method('getAllCustomersEligibleForInvoicing')->willReturn($customers);
 
         $bus = $this->createMock(Dispatcher::class);
-        $bus->expects(self::once())
+        $bus
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(CreateSubscriptionInvoicesForCustomer::class));
 
@@ -54,13 +52,11 @@ class InvoiceJobDispatcherTest extends TestCase
         ]);
 
         $repository = $this->createMock(SubscriptionRepository::class);
-        $repository
-            ->expects(self::once())
-            ->method('getAllCustomersEligibleForInvoicing')
-            ->willReturn($customers);
+        $repository->expects(self::once())->method('getAllCustomersEligibleForInvoicing')->willReturn($customers);
 
         $bus = $this->createMock(Dispatcher::class);
-        $bus->expects(self::exactly(2))
+        $bus
+            ->expects(self::exactly(2))
             ->method('dispatch')
             ->with(
                 self::isInstanceOf(CreateSubscriptionInvoicesForCustomer::class),
@@ -90,9 +86,7 @@ class InvoiceJobDispatcherTest extends TestCase
         $bus = $this->createStub(Dispatcher::class);
 
         $configuration = $this->createMock(ConfigurationInterface::class);
-        $configuration->expects(self::once())
-            ->method('getAsInteger')
-            ->willReturn(14);
+        $configuration->expects(self::once())->method('getAsInteger')->willReturn(14);
 
         $logger = $this->createStub(LoggerInterface::class);
 
@@ -106,14 +100,10 @@ class InvoiceJobDispatcherTest extends TestCase
         $customers = new Collection([]);
 
         $repository = $this->createMock(SubscriptionRepository::class);
-        $repository
-            ->expects(self::once())
-            ->method('getAllCustomersEligibleForInvoicing')
-            ->willReturn($customers);
+        $repository->expects(self::once())->method('getAllCustomersEligibleForInvoicing')->willReturn($customers);
 
         $bus = $this->createMock(Dispatcher::class);
-        $bus->expects(self::never())
-            ->method('dispatch');
+        $bus->expects(self::never())->method('dispatch');
 
         $configuration = $this->createStub(ConfigurationInterface::class);
         $logger = $this->createStub(LoggerInterface::class);

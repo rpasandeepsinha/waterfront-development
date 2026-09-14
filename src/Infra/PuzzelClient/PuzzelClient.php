@@ -94,15 +94,15 @@ class PuzzelClient
             throw new PuzzelResponseMissingRedirectException($response, previous: $exception);
         }
 
-        $status = match($redirectHeaderUrl) {
+        $status = match ($redirectHeaderUrl) {
             CreateCallback::REDIRECT_OK => Result::SUCCESS,
-            default => Result::ERROR
+            default => Result::ERROR,
         };
 
-        $message = match($redirectHeaderUrl) {
+        $message = match ($redirectHeaderUrl) {
             CreateCallback::REDIRECT_OK => 'Callback created successfully',
             CreateCallback::REDIRECT_FULL => 'The queue for callbacks is full.',
-            default => $this->getErrorMessageFromRedirectUrl($redirectHeaderUrl)
+            default => $this->getErrorMessageFromRedirectUrl($redirectHeaderUrl),
         };
 
         return new ScheduledCallbackResponse(

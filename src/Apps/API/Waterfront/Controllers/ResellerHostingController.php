@@ -69,7 +69,7 @@ class ResellerHostingController
     {
         try {
             $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
-            $result   = $this->resellerHostingService->getCustomerPackages($customer);
+            $result = $this->resellerHostingService->getCustomerPackages($customer);
 
             return ResellerHostingResource::collection($result);
         } catch (AuthenticationException) {
@@ -85,13 +85,16 @@ class ResellerHostingController
      */
     public function show(
         ShowRequest $request,
-        ResellerHostingDeployment $resellerHostingDeployment
+        ResellerHostingDeployment $resellerHostingDeployment,
     ): ResellerHostingResource|JsonResponse {
         $this->subscriptionPolicy->assertCanManageResellerHosting($request->resellerHostingDeployment->subscription->uuid);
 
         try {
             $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
-            $result   = $this->resellerHostingService->getCustomerPackage($customer, $resellerHostingDeployment->subscription->uuid);
+            $result = $this->resellerHostingService->getCustomerPackage(
+                $customer,
+                $resellerHostingDeployment->subscription->uuid,
+            );
 
             return ResellerHostingResource::make($result);
         } catch (ResellerHostingException) {
@@ -120,12 +123,12 @@ class ResellerHostingController
             $url = $this->getSsoUrlAction->execute(
                 $resellerHostingDeployment->server,
                 $resellerHostingDeployment->getRelevantUsernameAttribute(),
-                $request->ip() ?? ''
+                $request->ip() ?? '',
             );
         } catch (SsoResolveException|ResellerHostingException|NotImplementedException $exception) {
             Log::error(sprintf(
                 "getSsoUrl(): Failed to generate Sso Url: '%s'",
-                $exception->getMessage()
+                $exception->getMessage(),
             ));
 
             return new JsonResponse([
@@ -155,9 +158,8 @@ class ResellerHostingController
             return new JsonResponse($result);
         } catch (ResellerHostingException $exception) {
             Log::error(
-                self::class . ':: resetPassword'
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString()
+                self::class . ':: resetPassword' . ', message: ' . $exception->getMessage() . ', trace: '
+                    . $exception->getTraceAsString(),
             );
 
             return new JsonResponse([
@@ -176,7 +178,7 @@ class ResellerHostingController
      */
     public function coupleExistingDomain(
         CoupleDomainRequest $request,
-        ResellerHostingDeployment $resellerHostingDeployment
+        ResellerHostingDeployment $resellerHostingDeployment,
     ): JsonResponse {
         $this->subscriptionPolicy->assertCanManageResellerHosting($resellerHostingDeployment->subscription->uuid);
 
@@ -185,7 +187,7 @@ class ResellerHostingController
         $dnsSubscription = $this->subscriptionRepository->getSubscriptionByCustomerDomainAndType(
             $resellerHostingDeployment->subscription->customer,
             $parameters->getDomain(),
-            ProductGroupType::DNS
+            ProductGroupType::DNS,
         );
 
         if ($dnsSubscription === null) {
@@ -198,7 +200,8 @@ class ResellerHostingController
 
         try {
             /** @var Subscription|null $domainSubscription */
-            $domainSubscription = Subscription::query()->whereProductGroupType(ProductGroupType::EXTENSION)
+            $domainSubscription = Subscription::query()
+                ->whereProductGroupType(ProductGroupType::EXTENSION)
                 ->where('domain', $parameters->getDomain())
                 ->first();
 
@@ -206,16 +209,19 @@ class ResellerHostingController
                 throw ResellerHostingException::noDomainSubscriptionFound($parameters->getDomain());
             }
 
-            $this->resellerHostingService->coupleExistingDomain($resellerHostingDeployment, $domainSubscription, $parameters);
+            $this->resellerHostingService->coupleExistingDomain(
+                $resellerHostingDeployment,
+                $domainSubscription,
+                $parameters,
+            );
 
             return new JsonResponse([
                 'message' => $this->translator->translate('resellerhosting.couple-domain-success'),
             ]);
         } catch (ResellerHostingSslCoupleException $exception) {
             Log::error(
-                self::class . ':: coupleExistingDomain'
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString()
+                self::class . ':: coupleExistingDomain' . ', message: ' . $exception->getMessage() . ', trace: '
+                    . $exception->getTraceAsString(),
             );
 
             return new JsonResponse([
@@ -223,9 +229,8 @@ class ResellerHostingController
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (ResellerHostingNameserverCoupleException $exception) {
             Log::error(
-                self::class . ':: coupleExistingDomain'
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString()
+                self::class . ':: coupleExistingDomain' . ', message: ' . $exception->getMessage() . ', trace: '
+                    . $exception->getTraceAsString(),
             );
 
             return new JsonResponse([
@@ -233,19 +238,19 @@ class ResellerHostingController
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (RuntimeException $exception) {
             Log::error(
-                self::class . ':: coupleExistingDomain'
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString()
+                self::class . ':: coupleExistingDomain' . ', message: ' . $exception->getMessage() . ', trace: '
+                    . $exception->getTraceAsString(),
             );
+
             return new JsonResponse([
                 'message' => $this->translator->translate('resellerhosting.couple-domain-binding'),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (ResellerHostingException $exception) {
             Log::error(
-                self::class . ':: coupleExistingDomain'
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString()
+                self::class . ':: coupleExistingDomain' . ', message: ' . $exception->getMessage() . ', trace: '
+                    . $exception->getTraceAsString(),
             );
+
             return new JsonResponse([
                 'message' => $this->translator->translate('resellerhosting.couple-domain-failed'),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -268,14 +273,15 @@ class ResellerHostingController
                     self::class,
                     $exception->getCode(),
                     $exception->getMessage(),
-                    $exception->getTraceAsString()
-                )
+                    $exception->getTraceAsString(),
+                ),
             );
 
             return new JsonResponse([
                 'message' => $this->translator->translate('resellerhosting.customers-error'),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
         return new JsonResponse([
             'customers' => $customers,
         ]);

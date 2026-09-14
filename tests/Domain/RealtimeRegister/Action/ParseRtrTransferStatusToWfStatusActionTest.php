@@ -30,7 +30,7 @@ class ParseRtrTransferStatusToWfStatusActionTest extends TestCase
     {
         self::assertSame(
             $expectedTechnicalStatus,
-            $this->parseRtrTransferStatusToWfStatusAction->execute($rtrStatus)
+            $this->parseRtrTransferStatusToWfStatusAction->execute($rtrStatus),
         );
     }
 

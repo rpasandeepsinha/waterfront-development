@@ -21,7 +21,7 @@ class InvalidValueForValueObjectException extends HttpException
         $name = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $refl->getShortName()));
         parent::__construct(
             422,
-            '"' . $value . '" is not a valid value for value object ' . $name
+            '"' . $value . '" is not a valid value for value object ' . $name,
         );
     }
 }

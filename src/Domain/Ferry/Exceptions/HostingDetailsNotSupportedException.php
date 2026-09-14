@@ -16,10 +16,10 @@ class HostingDetailsNotSupportedException extends Exception
             sprintf(
                 'Hosting details "%s" not supported: %s',
                 $hostingDetails::class,
-                json_encode($hostingDetails->toArray(), JSON_THROW_ON_ERROR)
+                json_encode($hostingDetails->toArray(), JSON_THROW_ON_ERROR),
             ),
             $code,
-            $previous
+            $previous,
         );
     }
 }

@@ -21,15 +21,18 @@ class TranslationsControllerTest extends IntegrationTestCase
     {
         TranslationKeyFactory::new()->createOne(['key' => 'test']);
 
-        $this->actingAsEmployee()->patchJson(
-            $this->generateRoute('admin.translations.update', ['source' => TranslationSource::COMPASS->value,
-                'key' => 'nonexistent',
-                'translations' => [
+        $this->actingAsEmployee()
+            ->patchJson(
+                $this->generateRoute('admin.translations.update', [
+                    'source' => TranslationSource::COMPASS->value,
+                    'key' => 'nonexistent',
+                    'translations' => [
                         'nl' => 'asdfasdfa',
-                    'en' => 'sdfasdfasfasdf',
-                  ],
-            ])
-        )->assertUnprocessable();
+                        'en' => 'sdfasdfasfasdf',
+                    ],
+                ]),
+            )
+            ->assertUnprocessable();
     }
 
     #[Test]
@@ -39,22 +42,31 @@ class TranslationsControllerTest extends IntegrationTestCase
 
         $english = new TranslationLanguageFactory()->createOne(['locale' => 'en']);
         $dutch = new TranslationLanguageFactory()->createOne(['locale' => 'nl']);
-        $duthcTranslation = new TranslationStringFactory()->for($key)->for($dutch, 'language')->createOne(
-            ['translated_string' => 'Test translation']
-        );
-        $englishTranslation = new TranslationStringFactory()->for($key)->for($english, 'language')->createOne(
-            ['translated_string' => 'Test translation']
-        );
+        $duthcTranslation = new TranslationStringFactory()
+            ->for($key)
+            ->for($dutch, 'language')
+            ->createOne(
+                ['translated_string' => 'Test translation'],
+            );
+        $englishTranslation = new TranslationStringFactory()
+            ->for($key)
+            ->for($english, 'language')
+            ->createOne(
+                ['translated_string' => 'Test translation'],
+            );
 
-        $this->actingAsEmployee()->patchJson(
-            $this->generateRoute('admin.translations.update', ['source' => TranslationSource::COMPASS->value,
-                'key' => 'test',
-                'translations' => [
+        $this->actingAsEmployee()
+            ->patchJson(
+                $this->generateRoute('admin.translations.update', [
+                    'source' => TranslationSource::COMPASS->value,
+                    'key' => 'test',
+                    'translations' => [
                         'nl' => 'asdfasdfa',
-                    'en' => 'sdfasdfasfasdf',
-                  ],
-            ])
-        )->assertNoContent();
+                        'en' => 'sdfasdfasfasdf',
+                    ],
+                ]),
+            )
+            ->assertNoContent();
 
         $englishTranslation->refresh();
         $duthcTranslation->refresh();

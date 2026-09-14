@@ -28,13 +28,20 @@ class DomainContactTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->customer = new CustomerFactory()->withAddress()->createOne([
-            'phone_country_code' => '31',
-            'phone_area_code' => '6',
-            'phone_subscriber_number' => '12345678',
-        ]);
+        $this->customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne([
+                'phone_country_code' => '31',
+                'phone_area_code' => '6',
+                'phone_subscriber_number' => '12345678',
+            ]);
 
-        $this->domainProvider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
+        $this->domainProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
+        ]);
     }
 
     #[Test]
@@ -42,27 +49,22 @@ class DomainContactTest extends IntegrationTestCase
     {
         $anonymousHandle = '25B-BUNAME-anonymous';
         $publicHandle = '25C-BUNAME-public';
-        DomainContactAnonymousHandleFactory::new()
-            ->create(['handle' => $anonymousHandle]);
+        DomainContactAnonymousHandleFactory::new()->create(['handle' => $anonymousHandle]);
 
-        $anonymizedContact = DomainContactFactory::new()
-            ->for($this->customer)
-            ->createOne();
+        $anonymizedContact = DomainContactFactory::new()->for($this->customer)->createOne();
         $anonymizedContact->providers()->attach(
             $this->domainProvider,
             [
                 'external_contact' => $anonymousHandle,
-            ]
+            ],
         );
 
-        $publicContact = DomainContactFactory::new()
-            ->for($this->customer)
-            ->createOne();
+        $publicContact = DomainContactFactory::new()->for($this->customer)->createOne();
         $publicContact->providers()->attach(
             $this->domainProvider,
             [
                 'external_contact' => $publicHandle,
-            ]
+            ],
         );
 
         self::assertTrue($anonymizedContact->has_anonymous_handle);

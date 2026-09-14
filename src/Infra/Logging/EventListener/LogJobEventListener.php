@@ -14,22 +14,28 @@ use Waterfront\Support\Enums\LoggingContextKeys;
 
 class LogJobEventListener
 {
-    public function __construct(private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     public function handle(JobFailed|JobProcessed|JobProcessing|JobTimedOut|JobExceptionOccurred $event): void
     {
         if ($event instanceof JobFailed) {
             $this->handleJobFailed($event);
+
             return;
         }
+
         if ($event instanceof JobTimedOut) {
             $this->handleJobTimedOut($event);
+
             return;
         }
+
         if ($event instanceof JobExceptionOccurred) {
             $this->handleJobExceptionOccurred($event);
+
             return;
         }
 
@@ -76,7 +82,11 @@ class LogJobEventListener
     {
         $jobClassName = $this->getJobClassName($event);
 
-        $message = sprintf('Exception occurred when processing job (%s): %s', $jobClassName, $event->exception->getMessage());
+        $message = sprintf(
+            'Exception occurred when processing job (%s): %s',
+            $jobClassName,
+            $event->exception->getMessage(),
+        );
         $this->logger->error($message, [
             LoggingContextKeys::EXCEPTION => $event->exception,
             LoggingContextKeys::QUEUE_NAME => $event->job->getQueue(),

@@ -36,7 +36,7 @@ class CertificateRequester
         array $customerData,
         string $product,
         int $period,
-        string $csr
+        string $csr,
     ): int {
         Assert::stringNotEmpty($product);
         $commonName = $this->getCommonNameFromCsr($csr);
@@ -77,6 +77,7 @@ class CertificateRequester
         );
 
         Assert::notNull($certificateInfo->processId, 'Realtime-Register did not return a processId)');
+
         return $certificateInfo->processId;
     }
 
@@ -101,6 +102,7 @@ class CertificateRequester
             $result->setErrorCode($exception->getCode());
             $result->setErrorMessage($exception->getMessage());
         }
+
         return $result;
     }
 
@@ -112,7 +114,7 @@ class CertificateRequester
     public function reissue(
         int $certificateId,
         array $customerData,
-        string $csr
+        string $csr,
     ): int {
         Assert::positiveInteger($certificateId);
         $commonName = $this->getCommonNameFromCsr($csr);
@@ -153,6 +155,7 @@ class CertificateRequester
         );
 
         Assert::notNull($certificateInfo->processId, 'Realtime-Register did not return a processId)');
+
         return $certificateInfo->processId;
     }
 
@@ -165,7 +168,7 @@ class CertificateRequester
         int $certificateId,
         array $customerData,
         int $period,
-        string $csr
+        string $csr,
     ): int {
         Assert::positiveInteger($certificateId);
         $commonName = $this->getCommonNameFromCsr($csr);
@@ -207,6 +210,7 @@ class CertificateRequester
         );
 
         Assert::notNull($certificateInfo->processId, 'Realtime-Register did not return a processId)');
+
         return $certificateInfo->processId;
     }
 
@@ -240,11 +244,13 @@ class CertificateRequester
                 $result->setErrorCode(Response::HTTP_UNPROCESSABLE_ENTITY);
                 $result->setErrorMessage('RTR returned a warning for DCV resend');
                 $result->setReason($dcvResponse['warning']);
+
                 return $result;
             }
 
             $result = new Result();
             $result->setStatus(Result::STATUS_OK);
+
             return $result;
         } catch (RealtimeRegisterClientException $exception) {
             $this->logger->error(self::class . '::resendDcv - client exception', [
@@ -265,6 +271,7 @@ class CertificateRequester
                 'processId' => $processId,
                 'dcv' => [['commonName' => $commonName, 'type' => 'DNS']],
             ]);
+
             return $result;
         }
     }
@@ -279,6 +286,7 @@ class CertificateRequester
 
         Assert::keyExists($csrData, 'commonName');
         Assert::stringNotEmpty($csrData['commonName']);
+
         return $csrData['commonName'];
     }
 

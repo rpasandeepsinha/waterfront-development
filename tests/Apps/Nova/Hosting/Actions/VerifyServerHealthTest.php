@@ -32,20 +32,23 @@ class VerifyServerHealthTest extends IntegrationTestCase
             ->plesk()
             ->createOne(['hostname' => 'big-server.nl']);
 
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $service = self::createMock(HostingService::class);
-        $service->expects(self::exactly(1))
-            ->method('getPackagesOnServer')
-            ->willReturn([]);
+        $service->expects(self::exactly(1))->method('getPackagesOnServer')->willReturn([]);
 
         $this->app->bind(HostingService::class, fn (): HostingService => $service);
 
         $action = self::resolve(NovaVerifyServerHealthAction::class);
 
-        $fields =  new ActionFields(
+        $fields = new ActionFields(
             new Collection(['server_type' => ServerType::DIRECTADMIN->value]),
-            new Collection()
+            new Collection(),
         );
         $payload = new Collection([]);
 
@@ -56,7 +59,7 @@ class VerifyServerHealthTest extends IntegrationTestCase
 
         self::assertSame(
             'Health checking all standard hosting servers with package fetching for Server Type: directadmin in a queued job. Check the log on debug level for the results',
-            $modal->payload['title']
+            $modal->payload['title'],
         );
     }
 }

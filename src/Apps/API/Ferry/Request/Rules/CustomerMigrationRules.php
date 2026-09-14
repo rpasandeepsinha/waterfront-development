@@ -39,7 +39,7 @@ class CustomerMigrationRules
             $this->logger,
             $this->cache,
             $this->vat,
-            $customerData
+            $customerData,
         );
     }
 }

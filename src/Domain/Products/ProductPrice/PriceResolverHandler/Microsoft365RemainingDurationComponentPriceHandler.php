@@ -38,7 +38,10 @@ readonly class Microsoft365RemainingDurationComponentPriceHandler
         }
 
         if ($this->repository->hasMicrosoft365Subscriptions($customer)) {
-            $activeSubscriptionsInfo = $this->repository->getActiveSubscriptionsInfo($customer, array_keys($productMap));
+            $activeSubscriptionsInfo = $this->repository->getActiveSubscriptionsInfo(
+                $customer,
+                array_keys($productMap),
+            );
 
             $prices = $prices->map(function (Price $price) use ($activeSubscriptionsInfo): Price {
                 /**
@@ -48,12 +51,17 @@ readonly class Microsoft365RemainingDurationComponentPriceHandler
                  */
                 if (
                     $price->type !== ProductPriceType::REGISTRATION
-                    || ($subscriptionInfo = $activeSubscriptionsInfo->get($price->productId . $price->contractPeriod . $price->billingPeriod)) === null
+                    || ($subscriptionInfo = $activeSubscriptionsInfo->get(
+                        $price->productId . $price->contractPeriod . $price->billingPeriod,
+                    )) === null
                 ) {
                     return $price;
                 }
 
-                $nextBillingDate = CarbonImmutable::createFromFormat(DateTimeFormat::DATE, $subscriptionInfo->next_billing_date);
+                $nextBillingDate = CarbonImmutable::createFromFormat(
+                    DateTimeFormat::DATE,
+                    $subscriptionInfo->next_billing_date,
+                );
                 assert($nextBillingDate instanceof CarbonImmutable);
 
                 $price->possiblePriceComponents[] = new ProRatePriceComponent($nextBillingDate);
@@ -70,6 +78,9 @@ readonly class Microsoft365RemainingDurationComponentPriceHandler
      */
     private function containsMicrosoft365Products(array $productMap): bool
     {
-        return array_any($productMap, fn ($productRequest) => $productRequest->product->productGroup->slug === ProductGroupType::MICROSOFT_365);
+        return array_any(
+            $productMap,
+            fn ($productRequest) => $productRequest->product->productGroup->slug === ProductGroupType::MICROSOFT_365,
+        );
     }
 }

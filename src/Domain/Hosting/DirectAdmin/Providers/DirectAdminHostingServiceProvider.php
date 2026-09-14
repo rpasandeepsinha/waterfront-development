@@ -19,7 +19,7 @@ class DirectAdminHostingServiceProvider extends ServiceProvider implements Defer
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/directadmin.php',
-            'hostingservice'
+            'hostingservice',
         );
     }
 

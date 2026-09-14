@@ -41,7 +41,12 @@ class DomainExtensionOrderValidationTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
         $this->actingAsCustomer($customer);
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => true, 'slug' => ProviderSlug::REALTIME_REGISTER]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'enabled' => true,
+            'default' => true,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+        ]);
         $this->domainContact = new DomainContactFactory()->for($customer)->createOne();
 
         $this->app->bind(RtrService::class, fn () => $rtrMock);
@@ -95,8 +100,8 @@ class DomainExtensionOrderValidationTest extends IntegrationTestCase
 
         new ProductFactory()->createOne([
             'product_group_id' => $productGroup->id,
-            'name'  => ProductType::FREE_DNS,
-            'slug'  => ProductType::FREE_DNS->value,
+            'name' => ProductType::FREE_DNS,
+            'slug' => ProductType::FREE_DNS->value,
         ]);
     }
 

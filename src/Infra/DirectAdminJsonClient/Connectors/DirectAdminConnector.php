@@ -30,15 +30,13 @@ class DirectAdminConnector extends AbstractConnector
         parent::__construct(
             logger: $logger,
             logMasker: $logMasker,
-            retryConfig: $this->directAdminConfig->retryConfig
+            retryConfig: $this->directAdminConfig->retryConfig,
         );
     }
 
     public function resolveBaseUrl(): string
     {
-        $protocol = $this->server->verifySsl
-            ? 'https://'
-            : 'http://';
+        $protocol = $this->server->verifySsl ? 'https://' : 'http://';
 
         return sprintf('%s%s:%d', $protocol, $this->server->baseUrl, $this->server->port);
     }
@@ -53,8 +51,12 @@ class DirectAdminConnector extends AbstractConnector
         ];
     }
 
-    public function sendWithServer(DirectAdminServer $server, Request $request, ?MockClient $mockClient = null, ?callable $handleRetry = null): Response
-    {
+    public function sendWithServer(
+        DirectAdminServer $server,
+        Request $request,
+        ?MockClient $mockClient = null,
+        ?callable $handleRetry = null,
+    ): Response {
         $this->server = $server;
 
         return parent::send($request, $mockClient, $handleRetry);
@@ -81,7 +83,7 @@ class DirectAdminConnector extends AbstractConnector
 
         return new BasicAuthenticator(
             username: $username,
-            password: $this->server->password
+            password: $this->server->password,
         );
     }
 }

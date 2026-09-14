@@ -30,14 +30,17 @@ class SslMigrationController
 
     public function execute(Customer $customer): JsonResponse
     {
-        $subscriptions = $this->migratableSubscriptionRepository->getSubscriptionsForSslMigration($customer)
+        $subscriptions = $this->migratableSubscriptionRepository
+            ->getSubscriptionsForSslMigration($customer)
             ->filter(function ($subscription) use ($customer) {
                 try {
                     $this->subscriptionMigrationValidator->validateEligibleForSslMigration($subscription);
                 } catch (NotEligibleForMigrationException $e) {
                     $this->responseDto->addFailure($this->makeFailureDto($e, $customer, $subscription));
+
                     return false;
                 }
+
                 return true;
             });
 
@@ -52,8 +55,11 @@ class SslMigrationController
         return new JsonResponse($this->responseDto->toArray(), Response::HTTP_MULTI_STATUS);
     }
 
-    private function makeFailureDto(NotEligibleForMigrationException $e, Customer $customer, Subscription $subscription): FailureDto
-    {
+    private function makeFailureDto(
+        NotEligibleForMigrationException $e,
+        Customer $customer,
+        Subscription $subscription,
+    ): FailureDto {
         return FailureDto::create(
             sprintf('Ssl migration step not allowed for subscription: %s', $e->getMessage()),
             [
@@ -72,7 +78,13 @@ class SslMigrationController
             'Created jobs to migrate ssl for every eligible subscription',
             [
                 Parameter::create('customerId', $customer->id),
-                Parameter::create('subscriptionIds', $subscriptions->map(fn (Subscription $subscription) => $subscription->id)->sort()->join(',')),
+                Parameter::create(
+                    'subscriptionIds',
+                    $subscriptions
+                        ->map(fn (Subscription $subscription) => $subscription->id)
+                        ->sort()
+                        ->join(','),
+                ),
             ],
         );
     }

@@ -14,8 +14,9 @@ use Waterfront\Domain\DNS\Interfaces\DnsRecordMutationInterface;
  */
 class RemovedDnsRecord implements DnsRecordMutationInterface
 {
-    public function __construct(private readonly DnsRecordInterface $removed)
-    {
+    public function __construct(
+        private readonly DnsRecordInterface $removed,
+    ) {
     }
 
     public function getDnsRecord(): DnsRecordInterface

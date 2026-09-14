@@ -26,14 +26,17 @@ class ServerSerializerFactory
 
         $classMetadataFactory = new ClassMetadataFactory(new AttributeLoader());
 
-        $metadataAwareNameConverter = new MetadataAwareNameConverter($classMetadataFactory, new CamelCaseToSnakeCaseNameConverter());
+        $metadataAwareNameConverter = new MetadataAwareNameConverter(
+            $classMetadataFactory,
+            new CamelCaseToSnakeCaseNameConverter(),
+        );
 
         $normalizers = [
             new BackedEnumNormalizer(),
             new ObjectNormalizer(
                 classMetadataFactory: $classMetadataFactory,
                 nameConverter: $metadataAwareNameConverter,
-                propertyTypeExtractor: $extractor
+                propertyTypeExtractor: $extractor,
             ),
         ];
 

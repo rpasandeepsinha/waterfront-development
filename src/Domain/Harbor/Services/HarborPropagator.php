@@ -15,8 +15,9 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class HarborPropagator
 {
-    public function __construct(private readonly CommunicatesWithHarbor $harbor)
-    {
+    public function __construct(
+        private readonly CommunicatesWithHarbor $harbor,
+    ) {
     }
 
     public function propagate(Invoice $invoice): void
@@ -25,6 +26,7 @@ class HarborPropagator
 
         if (! $subscription instanceof Subscription) {
             $this->harbor->propagateInvoice($invoice);
+
             return;
         }
 
@@ -33,6 +35,7 @@ class HarborPropagator
 
         if ($orderLineItem === null) {
             $this->harbor->propagateInvoice($invoice);
+
             return;
         }
 
@@ -42,7 +45,11 @@ class HarborPropagator
         $oneTimeServices = new Collection();
 
         try {
-            $order->lineItems->each(function (OrderLineItem $item) use ($subscriptions, $oneTimeServices, $invoice): void {
+            $order->lineItems->each(function (OrderLineItem $item) use (
+                $subscriptions,
+                $oneTimeServices,
+                $invoice,
+            ): void {
                 $subscription = $item->subscription;
                 $oneTimeService = $item->oneTimeService;
 
@@ -50,7 +57,7 @@ class HarborPropagator
                     throw InvoiceLineToHarborException::incompleteOrderException(
                         $item->id,
                         $item->domain ?? $item->product_name . ' ' . $item->order->customer_id,
-                        $invoice->id
+                        $invoice->id,
                     );
                 }
 

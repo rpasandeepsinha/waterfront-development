@@ -20,7 +20,7 @@ class DnsZoneFromArrayTemplateFactory implements DnsZoneFactoryInterface
      */
     public function __construct(
         private readonly array $templates,
-        private readonly DnsRecordHydrator $hydrator
+        private readonly DnsRecordHydrator $hydrator,
     ) {
     }
 
@@ -53,11 +53,11 @@ class DnsZoneFromArrayTemplateFactory implements DnsZoneFactoryInterface
             str_replace(
                 ['{domain}', '{ipv4}', '{ipv6}', '{ipv4Mail}', '{ipv6Mail}', '{ns1}', '{ns2}', '{ns3}'],
                 [$fqdn->toNative(), $ipv4, $ipv6, $ipv4Mail, $ipv6Mail, ...$nameserverHostnames],
-                json_encode($this->templates[$dnsTemplate], JSON_THROW_ON_ERROR)
+                json_encode($this->templates[$dnsTemplate], JSON_THROW_ON_ERROR),
             ),
             true,
             512,
-            JSON_THROW_ON_ERROR
+            JSON_THROW_ON_ERROR,
         );
         assert(is_array($records));
         foreach ($records as $dnsRecord) {

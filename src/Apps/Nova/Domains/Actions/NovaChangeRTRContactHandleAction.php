@@ -20,7 +20,7 @@ use Waterfront\Infra\Translation\TranslatorInterface;
 class NovaChangeRTRContactHandleAction extends Action
 {
     public function __construct(
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->sole();
     }
@@ -40,17 +40,20 @@ class NovaChangeRTRContactHandleAction extends Action
         assert($contact instanceof DomainContact, 'Only Contacts allowed');
 
         /** @var Provider $provider */
-        $provider = $contact->providers->where('slug', ProviderSlug::REALTIME_REGISTER)->where('type', ProviderType::DOMAIN)->first();
+        $provider = $contact
+            ->providers
+            ->where('slug', ProviderSlug::REALTIME_REGISTER)
+            ->where('type', ProviderType::DOMAIN)
+            ->first();
 
         /** @var string $handle */
         $handle = Arr::get($fields, 'handle');
 
-        $contact->providers()
-            ->updateExistingPivot(
-                $provider,
-                ['external_contact' => $handle],
-                false
-            );
+        $contact->providers()->updateExistingPivot(
+            $provider,
+            ['external_contact' => $handle],
+            false,
+        );
 
         return Action::message($this->translator->translate('nova-action.action_success'));
     }

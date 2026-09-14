@@ -75,7 +75,7 @@ class CertificateServiceTest extends IntegrationTestCase
             realtimeRegister: self::resolve(RealtimeRegister::class),
             certificateDownloader: $this->certificateDownloader = self::mock(Downloader::class),
             logger: $this->logger = self::createMock(LoggerInterface::class),
-            sslDeploymentRepository: self::createStub(DeploymentRepository::class)
+            sslDeploymentRepository: self::createStub(DeploymentRepository::class),
         );
     }
 
@@ -83,135 +83,129 @@ class CertificateServiceTest extends IntegrationTestCase
     public function updateSslExpireDateForRtrSslDeployment(): void
     {
         $expireDate = CarbonImmutable::createFromTimeString(self::EXPIRE_DATE_FROM_JSON);
-        $sslDeployment = SslDeploymentFactory::new()
-            ->for(
-                ProviderFactory::new()->sslRtr()->createOne()
-            )
-            ->createOne(
-                [
-                    'certificate_id' => 1337,
-                    'expire_date' => null,
-                ]
-            );
+        $sslDeployment = SslDeploymentFactory::new()->for(
+            ProviderFactory::new()->sslRtr()->createOne(),
+        )->createOne(
+            [
+                'certificate_id' => 1337,
+                'expire_date' => null,
+            ],
+        );
 
         $this->service->updateSslExpireDate($sslDeployment);
         $sslDeployment->refresh();
 
         self::assertNotNull($sslDeployment->expire_date);
-        self::assertSame($expireDate->format(DateTimeFormat::DATE), $sslDeployment->expire_date->format(DateTimeFormat::DATE));
+        self::assertSame(
+            $expireDate->format(DateTimeFormat::DATE),
+            $sslDeployment->expire_date->format(DateTimeFormat::DATE),
+        );
     }
 
     #[Test]
     public function updateSslExpireDateForRtrSslDeploymentWithoutCertificateId(): void
     {
         $expireDate = CarbonImmutable::createFromTimestampUTC(self::EXPIRE_DATE_TIMESTAMP);
-        $sslDeployment = SslDeploymentFactory::new()
-            ->for(
-                SubscriptionFactory::new()
-                    ->withCustomer()
-                    ->for(
-                        ProductFactory::new()
-                            ->sslSingleDomain()
-                            ->createOne()
-                    )
-                    ->createOne(['domain' => self::DOMAIN_NAME])
-            )
-            ->for(
-                ProviderFactory::new()->sslRtr()
-            )
-            ->createOne(
-                [
-                    'certificate_id' => null,
-                    'expire_date' => null,
-                    'request_id' => null,
-                ]
-            );
+        $sslDeployment = SslDeploymentFactory::new()->for(
+            SubscriptionFactory::new()
+                ->withCustomer()
+                ->for(
+                    ProductFactory::new()->sslSingleDomain()->createOne(),
+                )
+                ->createOne(['domain' => self::DOMAIN_NAME]),
+        )->for(
+            ProviderFactory::new()->sslRtr(),
+        )->createOne(
+            [
+                'certificate_id' => null,
+                'expire_date' => null,
+                'request_id' => null,
+            ],
+        );
 
-        $this->certificateDownloader->expects('downloadCertificateFromUrl')
+        $this->certificateDownloader
+            ->expects('downloadCertificateFromUrl')
             ->once()
             ->with(self::DOMAIN_NAME)
             ->andReturn(
                 new SslCertificate([
                     'validTo_time_t' => self::EXPIRE_DATE_TIMESTAMP,
-                ])
+                ]),
             );
 
         $this->service->updateSslExpireDate($sslDeployment);
         $sslDeployment->refresh();
 
         self::assertNotNull($sslDeployment->expire_date);
-        self::assertSame($expireDate->format(DateTimeFormat::DATE), $sslDeployment->expire_date->format(DateTimeFormat::DATE));
+        self::assertSame(
+            $expireDate->format(DateTimeFormat::DATE),
+            $sslDeployment->expire_date->format(DateTimeFormat::DATE),
+        );
     }
 
     #[Test]
     public function updateSslExpireDateForPlaceholderSslDeployment(): void
     {
         $expireDate = CarbonImmutable::createFromTimestampUTC(self::EXPIRE_DATE_TIMESTAMP);
-        $sslDeployment = SslDeploymentFactory::new()
-            ->for(
-                SubscriptionFactory::new()
-                    ->withCustomer()
-                    ->for(
-                        ProductFactory::new()
-                            ->sslSingleDomain()
-                            ->createOne()
-                    )
-                    ->createOne(['domain' => self::DOMAIN_NAME])
-            )
-            ->for(
-                ProviderFactory::new()->sslPlaceholder()
-            )
-            ->createOne(
-                [
-                    'certificate_id' => null,
-                    'expire_date' => null,
-                ]
-            );
+        $sslDeployment = SslDeploymentFactory::new()->for(
+            SubscriptionFactory::new()
+                ->withCustomer()
+                ->for(
+                    ProductFactory::new()->sslSingleDomain()->createOne(),
+                )
+                ->createOne(['domain' => self::DOMAIN_NAME]),
+        )->for(
+            ProviderFactory::new()->sslPlaceholder(),
+        )->createOne(
+            [
+                'certificate_id' => null,
+                'expire_date' => null,
+            ],
+        );
 
-        $this->certificateDownloader->expects('downloadCertificateFromUrl')
+        $this->certificateDownloader
+            ->expects('downloadCertificateFromUrl')
             ->once()
             ->with(self::DOMAIN_NAME)
             ->andReturn(
                 new SslCertificate([
                     'validTo_time_t' => self::EXPIRE_DATE_TIMESTAMP,
-                ])
+                ]),
             );
 
         $this->service->updateSslExpireDate($sslDeployment);
         $sslDeployment->refresh();
 
         self::assertNotNull($sslDeployment->expire_date);
-        self::assertSame($expireDate->format(DateTimeFormat::DATE), $sslDeployment->expire_date->format(DateTimeFormat::DATE));
+        self::assertSame(
+            $expireDate->format(DateTimeFormat::DATE),
+            $sslDeployment->expire_date->format(DateTimeFormat::DATE),
+        );
     }
 
     #[Test]
     public function updateSslExpireDateForPlaceholderSslDeploymentWithoutDomain(): void
     {
-        $sslDeployment = SslDeploymentFactory::new()
-            ->for(
-                SubscriptionFactory::new()
-                    ->withCustomer()
-                    ->for(
-                        ProductFactory::new()
-                            ->sslSingleDomain()
-                            ->createOne()
-                    )
-                    ->createOne(['domain' => null])
-            )
-            ->for(
-                ProviderFactory::new()->sslPlaceholder()
-            )
-            ->createOne(
-                [
-                    'certificate_id' => null,
-                    'expire_date' => null,
-                ]
-            );
+        $sslDeployment = SslDeploymentFactory::new()->for(
+            SubscriptionFactory::new()
+                ->withCustomer()
+                ->for(
+                    ProductFactory::new()->sslSingleDomain()->createOne(),
+                )
+                ->createOne(['domain' => null]),
+        )->for(
+            ProviderFactory::new()->sslPlaceholder(),
+        )->createOne(
+            [
+                'certificate_id' => null,
+                'expire_date' => null,
+            ],
+        );
 
-        $this->certificateDownloader->expects('downloadCertificateFromUrl')
-            ->never();
+        $this->certificateDownloader->expects('downloadCertificateFromUrl')->never();
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 'Failed to fetch ssl expire date because domain is null.',
@@ -219,7 +213,7 @@ class CertificateServiceTest extends IntegrationTestCase
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SSL,
                     LoggingContextKeys::PROVISIONING_PROVIDER => $sslDeployment->provider->slug,
                     LoggingContextKeys::PROVISIONING_ID => $sslDeployment->id,
-                ]
+                ],
             );
 
         self::expectException(RuntimeException::class);
@@ -241,7 +235,8 @@ class CertificateServiceTest extends IntegrationTestCase
         $this->app->bind(RealtimeRegister::class, static fn () => $rtrSdk);
 
         $deploymentRepository = self::createMock(DeploymentRepository::class);
-        $deploymentRepository->expects(self::once())
+        $deploymentRepository
+            ->expects(self::once())
             ->method('backfillCertificateId')
             ->with(
                 sslDeploymentId: self::isInt(),
@@ -260,19 +255,16 @@ class CertificateServiceTest extends IntegrationTestCase
 
         $expireDate = CarbonImmutable::createFromTimeString(self::RTR_LIST_CERT_EXPIRE_DATE);
 
-        $sslDeployment = SslDeploymentFactory::new()
-            ->for(
-                SubscriptionFactory::new()
-                    ->withCustomer()
-                    ->for(ProductFactory::new()->sslSingleDomain()->createOne())
-                    ->createOne(['domain' => self::RTR_LIST_CERT_DOMAIN])
-            )
-            ->for(ProviderFactory::new()->sslRtr())
-            ->createOne([
-                'certificate_id' => null,
-                'request_id' => self::RTR_PROCESS_ID,
-                'expire_date' => null,
-            ]);
+        $sslDeployment = SslDeploymentFactory::new()->for(
+            SubscriptionFactory::new()
+                ->withCustomer()
+                ->for(ProductFactory::new()->sslSingleDomain()->createOne())
+                ->createOne(['domain' => self::RTR_LIST_CERT_DOMAIN]),
+        )->for(ProviderFactory::new()->sslRtr())->createOne([
+            'certificate_id' => null,
+            'request_id' => self::RTR_PROCESS_ID,
+            'expire_date' => null,
+        ]);
 
         $this->certificateDownloader->expects('downloadCertificateFromUrl')->never();
 
@@ -298,11 +290,11 @@ class CertificateServiceTest extends IntegrationTestCase
         $this->app->bind(RealtimeRegister::class, static fn () => $rtrSdk);
 
         $deploymentRepository = self::createMock(DeploymentRepository::class);
-        $deploymentRepository->expects(self::never())
-            ->method('backfillCertificateId');
+        $deploymentRepository->expects(self::never())->method('backfillCertificateId');
 
         $this->logger = self::createMock(LoggerInterface::class);
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 self::equalTo('RTR certificate_id backfill: domain mismatch'),
@@ -323,7 +315,7 @@ class CertificateServiceTest extends IntegrationTestCase
                     self::assertSame(self::RTR_LIST_CERT_DOMAIN, $meta['rtr_domain']);
 
                     return true;
-                })
+                }),
             );
 
         $this->service = new CertificateService(
@@ -338,21 +330,19 @@ class CertificateServiceTest extends IntegrationTestCase
         $domain = 'mismatch.example';
         $expireDate = CarbonImmutable::createFromTimestampUTC(self::EXPIRE_DATE_TIMESTAMP);
 
-        $sslDeployment = SslDeploymentFactory::new()
-            ->for(
-                SubscriptionFactory::new()
-                    ->withCustomer()
-                    ->for(ProductFactory::new()->sslSingleDomain()->createOne())
-                    ->createOne(['domain' => $domain])
-            )
-            ->for(ProviderFactory::new()->sslRtr())
-            ->createOne([
-                'certificate_id' => null,
-                'request_id' => self::RTR_PROCESS_ID,
-                'expire_date' => null,
-            ]);
+        $sslDeployment = SslDeploymentFactory::new()->for(
+            SubscriptionFactory::new()
+                ->withCustomer()
+                ->for(ProductFactory::new()->sslSingleDomain()->createOne())
+                ->createOne(['domain' => $domain]),
+        )->for(ProviderFactory::new()->sslRtr())->createOne([
+            'certificate_id' => null,
+            'request_id' => self::RTR_PROCESS_ID,
+            'expire_date' => null,
+        ]);
 
-        $this->certificateDownloader->expects('downloadCertificateFromUrl')
+        $this->certificateDownloader
+            ->expects('downloadCertificateFromUrl')
             ->once()
             ->with($domain)
             ->andReturn(new SslCertificate([

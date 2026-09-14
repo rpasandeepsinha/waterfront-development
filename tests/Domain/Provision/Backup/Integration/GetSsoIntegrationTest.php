@@ -58,21 +58,18 @@ class GetSsoIntegrationTest extends IntegrationTestCase
         $tag = Uuid::uuid4();
         $responseOtt = '0123456789abcdef';
 
-        $acronisBackupDeployment = AcronisBackupDeploymentFactory::new()
-            ->for(
-                BackupDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->backup()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_BACKUP,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne();
+        $acronisBackupDeployment = AcronisBackupDeploymentFactory::new()->for(
+            BackupDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->backup()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_BACKUP,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne();
 
         $userClient = self::createMock(AcronisUserClient::class);
         $userClient
@@ -107,7 +104,10 @@ class GetSsoIntegrationTest extends IntegrationTestCase
         self::assertInstanceOf(BackupSsoResult::class, $result);
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
         self::assertNotNull($result->ssoUrl);
-        self::assertStringContainsString($this->expectedSsoUrl($responseOtt, $acronisBackupDeployment->acronisProvider->sso_target_url), $result->ssoUrl);
+        self::assertStringContainsString(
+            $this->expectedSsoUrl($responseOtt, $acronisBackupDeployment->acronisProvider->sso_target_url),
+            $result->ssoUrl,
+        );
         self::assertNull($result->exception);
 
         $savedRequest = $this->requestRepository->findById($request->requestId);
@@ -117,7 +117,7 @@ class GetSsoIntegrationTest extends IntegrationTestCase
         self::assertSame(ProvisionRequestName::GET_BACKUP_SSO_REQUEST, $savedRequest->request_name);
         self::assertSame(
             '[]',
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         $savedResult = $this->resultRepository
@@ -146,7 +146,10 @@ class GetSsoIntegrationTest extends IntegrationTestCase
 
         self::assertCount(1, $result->validationResult->messages);
         self::assertArrayHasKey('tag', $result->validationResult->messages);
-        self::assertSame(['No create request with this tag in the [backup] type.'], $result->validationResult->messages['tag']);
+        self::assertSame(
+            ['No create request with this tag in the [backup] type.'],
+            $result->validationResult->messages['tag'],
+        );
 
         self::assertDatabaseCount(ProvisioningResult::class, 1);
         self::assertDatabaseCount(ProvisioningRequest::class, 1);
@@ -158,7 +161,7 @@ class GetSsoIntegrationTest extends IntegrationTestCase
         self::assertSame(ProvisionRequestName::GET_BACKUP_SSO_REQUEST, $savedRequest->request_name);
         self::assertSame(
             '[]',
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         $savedResult = $this->resultRepository
@@ -174,21 +177,18 @@ class GetSsoIntegrationTest extends IntegrationTestCase
     {
         $tag = Uuid::uuid4();
 
-        $acronisBackupDeployment = AcronisBackupDeploymentFactory::new()
-            ->for(
-                BackupDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->backup()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_BACKUP,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne();
+        $acronisBackupDeployment = AcronisBackupDeploymentFactory::new()->for(
+            BackupDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->backup()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_BACKUP,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne();
 
         $expectedException = new SaloonException('Something went wrong');
 
@@ -233,7 +233,7 @@ class GetSsoIntegrationTest extends IntegrationTestCase
         self::assertSame(ProvisionRequestName::GET_BACKUP_SSO_REQUEST, $savedRequest->request_name);
         self::assertSame(
             '[]',
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         $savedResult = $this->resultRepository

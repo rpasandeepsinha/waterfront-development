@@ -29,7 +29,7 @@ class PriceResource extends JsonResource
 
         $introductionPriceComponent = array_find(
             $this->resource->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent
+            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent,
         );
 
         if ($introductionPriceComponent !== null) {
@@ -54,7 +54,7 @@ class PriceResource extends JsonResource
 
         $promotion = array_find(
             $this->resource->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PROMOTION
+            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PROMOTION,
         );
 
         if ($promotion instanceof PromotionPriceComponent) {

@@ -11,8 +11,9 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
 
 class TransferSubscriptions extends AbstractQueueableJob
 {
-    public function __construct(private readonly Transfer $transfer)
-    {
+    public function __construct(
+        private readonly Transfer $transfer,
+    ) {
         parent::__construct();
     }
 

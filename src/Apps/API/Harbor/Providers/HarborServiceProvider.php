@@ -12,7 +12,7 @@ class HarborServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/connection.php',
-            'harbor-api-client'
+            'harbor-api-client',
         );
 
         $this->loadRoutesFrom(__DIR__ . '/../Routes/invoice.php');

@@ -26,7 +26,6 @@ abstract class LineItem
         public readonly ?CartOrderSubscription $children,
         #[SerializedName('one_time_services')]
         public readonly ?array $oneTimeServices,
-        public readonly ?string $experimentSlug,
     ) {
     }
 }

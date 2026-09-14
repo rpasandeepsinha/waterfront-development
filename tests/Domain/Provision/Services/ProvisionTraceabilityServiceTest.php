@@ -58,13 +58,13 @@ class ProvisionTraceabilityServiceTest extends TestCase
         $request->provider = ProvisionProvider::MICROSOFT_ONLINE;
         $serializedRequest = sprintf(
             '{"tenantName": "%s"}',
-            $request->tenantName
+            $request->tenantName,
         );
 
         $resultId = $this->service->storeRequest($request, ProvisionProvider::MICROSOFT_ONLINE);
 
         self::assertDatabaseHas(ProvisioningRequest::class, [
-            'id'           => $resultId,
+            'id' => $resultId,
             'request_name' => $request->name,
             'request_data' => $serializedRequest,
             'context_uuid' => $this->context,
@@ -97,13 +97,13 @@ class ProvisionTraceabilityServiceTest extends TestCase
             '****',
             $request->username,
             0,
-            0.0
+            0.0,
         );
 
         $resultId = $this->service->storeRequest($request, ProvisionProvider::MICROSOFT_ONLINE);
 
         self::assertDatabaseHas(ProvisioningRequest::class, [
-            'id'           => $resultId,
+            'id' => $resultId,
             'request_name' => $request->name,
             'request_data' => $serializedRequest,
             'context_uuid' => $this->context,
@@ -123,7 +123,16 @@ class ProvisionTraceabilityServiceTest extends TestCase
         $retryOf = null;
         $retryRequester = null;
 
-        $request = new class ($context, $tag, $retryOf, $retryRequester, $provider, $type, $name, $requiresValidation) implements ProvisionRequestInterface, ProvisionContextRequestInterface {
+        $request = new class(
+            $context,
+            $tag,
+            $retryOf,
+            $retryRequester,
+            $provider,
+            $type,
+            $name,
+            $requiresValidation,
+        ) implements ProvisionRequestInterface, ProvisionContextRequestInterface {
             public int $requestId;
 
             public function __construct(
@@ -142,8 +151,7 @@ class ProvisionTraceabilityServiceTest extends TestCase
 
             public function isRetry(): bool
             {
-                return $this->retryOf instanceof UuidInterface
-                    && $this->retryRequester instanceof UuidInterface;
+                return $this->retryOf instanceof UuidInterface && $this->retryRequester instanceof UuidInterface;
             }
 
             public function defaultLogContext(): array
@@ -163,14 +171,18 @@ class ProvisionTraceabilityServiceTest extends TestCase
         /** @var string[] $databaseColumns */
         $databaseColumns = new ReflectionClassConstant(
             class: ProvisionTraceabilityService::class,
-            constant: 'DATABASE_COLUMNS'
+            constant: 'DATABASE_COLUMNS',
         )->getValue();
 
         foreach ($databaseColumns as $column) {
-            self::assertArrayNotHasKey($column, $requestData, sprintf(
-                'The key "%s" should not be present in the stored request data as it is a dedicated database column.',
+            self::assertArrayNotHasKey(
                 $column,
-            ));
+                $requestData,
+                sprintf(
+                    'The key "%s" should not be present in the stored request data as it is a dedicated database column.',
+                    $column,
+                ),
+            );
         }
 
         // Our request has specific request data, so the database should contain only this data in the request_data.
@@ -179,7 +191,7 @@ class ProvisionTraceabilityServiceTest extends TestCase
                 'moreData' => 'actual-provision-request-data',
                 'hostingData' => 'data',
             ],
-            json_decode($storedRequest->request_data, true)
+            json_decode($storedRequest->request_data, true),
         );
     }
 
@@ -204,14 +216,14 @@ class ProvisionTraceabilityServiceTest extends TestCase
             provisionData: $request,
             provisionStatus: $expectedStatus,
             exception: $expectedException,
-            validationResult: $validationResult
+            validationResult: $validationResult,
         );
 
         $this->service->storeResult($result, $requestModelId);
 
         self::assertDatabaseHas(ProvisioningResult::class, [
             'request_id' => $requestModelId,
-            'status'     => $expectedStatus,
+            'status' => $expectedStatus,
         ]);
 
         $storedResult = ProvisioningResult::query()->where('request_id', $requestModelId)->firstOrFail();
@@ -220,7 +232,10 @@ class ProvisionTraceabilityServiceTest extends TestCase
         self::assertIsArray($response);
         /** @var array{provisionStatus: string, validationResult: array<mixed>, exception: array<mixed>} $response */
         self::assertSame($expectedStatus->value, $response['provisionStatus']);
-        self::assertSame(['isValid' => false, 'messages' => $expectedValidationMessages], $response['validationResult']);
+        self::assertSame(
+            ['isValid' => false, 'messages' => $expectedValidationMessages],
+            $response['validationResult'],
+        );
 
         self::assertSame($expectedException->getCode(), $response['exception']['code']);
         self::assertSame($expectedException->getFile(), $response['exception']['file']);
@@ -250,10 +265,7 @@ class ProvisionTraceabilityServiceTest extends TestCase
 
         $exception = new NotNormalizableValueException();
 
-        $mockSerializeFactory
-            ->expects(self::once())
-            ->method('get')
-            ->willThrowException($exception);
+        $mockSerializeFactory->expects(self::once())->method('get')->willThrowException($exception);
 
         $request = new Microsoft365TenantIdRequest('bla.com', $this->context);
         $requestModelId = new ProvisioningRequestFactory()->m365()->createOne()->id;
@@ -261,7 +273,8 @@ class ProvisionTraceabilityServiceTest extends TestCase
 
         $result = new TenantIdResult($request, $expectedStatus);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Error occurred when normalizing provision result, unable to store request',
@@ -271,7 +284,7 @@ class ProvisionTraceabilityServiceTest extends TestCase
                     LoggingContextKeys::PROVISIONING_REQUEST_ID => 0,
                     LoggingContextKeys::PROVISIONING_CONTEXT => $this->context,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
         $provisionTracebilityService->storeResult($result, $requestModelId);

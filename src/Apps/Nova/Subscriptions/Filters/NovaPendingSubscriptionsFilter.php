@@ -26,13 +26,16 @@ class NovaPendingSubscriptionsFilter extends Filter
     public function apply(NovaRequest $request, Builder $query, mixed $value): Builder
     {
         assert(is_string($value));
-        return $query
-            ->whereHas('domainDeployment', function (Builder $q) use ($value) {
-                $q->whereHas('domainProviderStatus', function (Builder $q) use ($value) {
-                    $q->whereIn('status', LogStatus::getPendingStatuses())
-                        ->whereDate('created_at', '<=', CarbonImmutable::now()->subDays((int) $value)->toDateTime());
-                });
+
+        return $query->whereHas('domainDeployment', function (Builder $q) use ($value) {
+            $q->whereHas('domainProviderStatus', function (Builder $q) use ($value) {
+                $q->whereIn('status', LogStatus::getPendingStatuses())->whereDate(
+                    'created_at',
+                    '<=',
+                    CarbonImmutable::now()->subDays((int) $value)->toDateTime(),
+                );
             });
+        });
     }
 
     /**

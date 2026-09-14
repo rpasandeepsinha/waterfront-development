@@ -62,16 +62,12 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
     public function listDomain(string $hostname, string $domain, string $domainUser): array
     {
         $server = $this->serverService->findServerByDomain($domain);
-        $listCommand = new ListPopDomain()
-            ->setDomain($domain);
+        $listCommand = new ListPopDomain()->setDomain($domain);
 
         /**
          * @var ListPopDomain $result
          */
-        $result = $this->directAdmin
-            ->useServer($server)
-            ->loginAs($domainUser)
-            ->call($listCommand);
+        $result = $this->directAdmin->useServer($server)->loginAs($domainUser)->call($listCommand);
 
         return [
             'domain' => $domain,
@@ -88,16 +84,12 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
      */
     public function listDomainFromServer(Server $server, string $domain, string $domainUser): array
     {
-        $listCommand = new ListPopDomain()
-            ->setDomain($domain);
+        $listCommand = new ListPopDomain()->setDomain($domain);
 
         /**
          * @var ListPopDomain $result
          */
-        $result = $this->directAdmin
-            ->useServer($server)
-            ->loginAs($domainUser)
-            ->call($listCommand);
+        $result = $this->directAdmin->useServer($server)->loginAs($domainUser)->call($listCommand);
 
         return [
             'domain' => $domain,
@@ -129,9 +121,7 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
             ->setIp($ipAddress);
 
         try {
-            $response = $this->directAdmin
-                ->useServer($server)
-                ->call($command);
+            $response = $this->directAdmin->useServer($server)->call($command);
 
             Log::info('Response received', [
                 LoggingContextKeys::RESPONSE_DATA => $response->getResponseBody(),
@@ -143,7 +133,7 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
                 $domain,
                 $this->configuration->getAsString('mailonly.connection.hostname'),
                 $this->configuration->getAsString('mailonly.connection.fallback_hostname'),
-                $ipAddress
+                $ipAddress,
             ));
         } catch (DirectAdminException $exception) {
             throw MailOnlyException::fromDirectAdminResponseException($exception, $server, $domain);
@@ -168,7 +158,7 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
         string $mailUser,
         string $password,
         int $limit,
-        int $quota
+        int $quota,
     ): Result {
         $result = new Result();
 
@@ -181,10 +171,7 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
             ->setQuota($quota);
 
         try {
-            $this->directAdmin
-                ->useServer($server)
-                ->loginAs($domainUser)
-                ->call($command);
+            $this->directAdmin->useServer($server)->loginAs($domainUser)->call($command);
 
             $result->setStatus(Result::STATUS_OK);
         } catch (DirectAdminException $exception) {
@@ -204,7 +191,7 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
         string $domainUser,
         string $mailUser,
         string $password,
-        int $quota
+        int $quota,
     ): Result {
         $result = new Result();
         $server = $this->serverService->findServerByDomain($domain);
@@ -216,10 +203,7 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
             ->setQuota($quota);
 
         try {
-            $this->directAdmin
-                ->useServer($server)
-                ->loginAs($domainUser)
-                ->call($command);
+            $this->directAdmin->useServer($server)->loginAs($domainUser)->call($command);
 
             $result->setStatus(Result::STATUS_OK);
         } catch (DirectAdminException $exception) {
@@ -235,8 +219,7 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
     public function deleteDomain(string $hostname, string $domain, string $domainUser): Result
     {
         $server = $this->serverService->findServerByDomain($domain);
-        $command = new DeleteUsers()
-            ->addUser($domainUser);
+        $command = new DeleteUsers()->addUser($domainUser);
         $result = new Result();
 
         try {
@@ -270,10 +253,7 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
             ->setUser($mailUser);
 
         try {
-            $this->directAdmin
-                ->useServer($server)
-                ->loginAs($domainUser)
-                ->call($command);
+            $this->directAdmin->useServer($server)->loginAs($domainUser)->call($command);
 
             $result->setStatus(Result::STATUS_OK);
         } catch (DirectAdminException $exception) {
@@ -294,8 +274,8 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
             throw new MailOnlyException(
                 sprintf(
                     'Could not retrieve directadmin customer username from hostingSubscriptionUuid "%s"',
-                    $hostingDeployment->uuid
-                )
+                    $hostingDeployment->uuid,
+                ),
             );
         }
 
@@ -312,19 +292,14 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
         string $identifier,
         string $domain,
         string $sourceEmailAddressUsername,
-        array $destinationEmailAddresses
+        array $destinationEmailAddresses,
     ): bool {
         $command = new CreateEmailForward();
-        $command->setDomain($domain)
-            ->setUser($sourceEmailAddressUsername)
-            ->setEmail($destinationEmailAddresses);
+        $command->setDomain($domain)->setUser($sourceEmailAddressUsername)->setEmail($destinationEmailAddresses);
 
         try {
             /** @var DeleteEmailForward $executedCommand */
-            $executedCommand = $this->directAdmin
-                ->useServer($server)
-                ->loginAs($identifier)
-                ->call($command);
+            $executedCommand = $this->directAdmin->useServer($server)->loginAs($identifier)->call($command);
         } catch (DirectAdminCommandException $exception) {
             throw new EmailForwardException(
                 server: $server,
@@ -334,7 +309,7 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
                     'source' => $sourceEmailAddressUsername,
                     'destination' => $destinationEmailAddresses,
                 ],
-                previous: $exception
+                previous: $exception,
             );
         }
 
@@ -353,16 +328,13 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
 
         try {
             /** @var ShowEmailForwards $executedCommand */
-            $executedCommand = $this->directAdmin
-                ->useServer($server)
-                ->loginAs($identifier)
-                ->call($command);
+            $executedCommand = $this->directAdmin->useServer($server)->loginAs($identifier)->call($command);
         } catch (DirectAdminCommandException $exception) {
             throw new EmailForwardException(
                 server: $server,
                 domain: $domain,
                 identifier: $identifier,
-                previous: $exception
+                previous: $exception,
             );
         }
 
@@ -372,15 +344,11 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
     public function deleteEmailForward(Server $server, string $domain, string $identifier, string $source): bool
     {
         $command = new DeleteEmailForward();
-        $command->setDomain($domain)
-            ->setSelect0($source);
+        $command->setDomain($domain)->setSelect0($source);
 
         try {
             /** @var DeleteEmailForward $executedCommand */
-            $executedCommand = $this->directAdmin
-                ->useServer($server)
-                ->loginAs($identifier)
-                ->call($command);
+            $executedCommand = $this->directAdmin->useServer($server)->loginAs($identifier)->call($command);
         } catch (DirectAdminCommandException $exception) {
             throw new EmailForwardException(
                 server: $server,
@@ -389,7 +357,7 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
                 payload: [
                     'source' => $source,
                 ],
-                previous: $exception
+                previous: $exception,
             );
         }
 
@@ -401,7 +369,7 @@ class MailManagementDirectAdminService implements MailManagementDriverInterface
         $changes = $this->dnsZoneService->getHostingDnsRecords(
             $domain,
             $server->getIpv4(),
-            $server->getIpv6()
+            $server->getIpv6(),
         );
 
         $this->eventDispatcher->dispatch(new UpdateDns($domain, $changes));

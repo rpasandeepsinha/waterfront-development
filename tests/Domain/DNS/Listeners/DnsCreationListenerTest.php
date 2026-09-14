@@ -62,7 +62,7 @@ class DnsCreationListenerTest extends IntegrationTestCase
 
     private DomainDeployment $domainDeployment;
 
-    private DnsService &MockInterface $dnsService;
+    private DnsService&MockInterface $dnsService;
 
     private LoggerInterface&MockInterface $logger;
 
@@ -84,21 +84,25 @@ class DnsCreationListenerTest extends IntegrationTestCase
         $this->createMocks();
         Queue::fake();
 
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension())
-            ->nlDomain();
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension())->nlDomain();
         $this->domainSubscription = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->forDomain(self::DOMAIN)
-            ->for((new CustomerFactory()))
+            ->for(new CustomerFactory())
             ->for($product)
             ->createOne();
 
-        $this->domainDeployment = new DomainDeploymentFactory()->withRtrProvider()
+        $this->domainDeployment = new DomainDeploymentFactory()
+            ->withRtrProvider()
             ->for($this->domainSubscription, 'subscription')
             ->createOne();
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::PLACEHOLDER, 'enabled' => true, 'default' => false]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::PLACEHOLDER,
+            'enabled' => true,
+            'default' => false,
+        ]);
 
         $this->mockDnsProductSpecRepository = self::createMock(DnsProductSpecRepository::class);
 
@@ -120,19 +124,16 @@ class DnsCreationListenerTest extends IntegrationTestCase
             ->technicalStatus(TechnicalStatus::PENDING->value)
             ->forDomain(self::DOMAIN)
             ->for(
-                new ProductFactory()
-                    ->freeDns()
+                new ProductFactory()->freeDns(),
             )
-            ->has((new DnsDeploymentFactory()))
+            ->has(new DnsDeploymentFactory())
             ->for($this->domainSubscription, 'parent')
             ->createOne();
 
         $dnsDeployment = $dnsSubscription->dnsDeployment;
         self::assertNotNull($dnsDeployment);
 
-        $this->mockDnsProductSpecRepository->expects(self::once())
-            ->method('isPremiumDns')
-            ->willReturn(false);
+        $this->mockDnsProductSpecRepository->expects(self::once())->method('isPremiumDns')->willReturn(false);
 
         $this->logger
             ->shouldReceive('info')
@@ -145,24 +146,16 @@ class DnsCreationListenerTest extends IntegrationTestCase
                 ],
             ]);
 
-        $this->dnsService
-            ->shouldReceive('hasDnsZone')
-            ->once()
-            ->with(self::DOMAIN)
-            ->andReturnFalse();
+        $this->dnsService->shouldReceive('hasDnsZone')->once()->with(self::DOMAIN)->andReturnFalse();
 
         $dnsRegion = new DnsRegionFactory()->set('name', 'test_region')->createOne();
-        new DnsNameserverFactory()
-            ->for($dnsRegion)
-            ->createOne([
-                'nameserver' => self::NS1,
-            ]);
+        new DnsNameserverFactory()->for($dnsRegion)->createOne([
+            'nameserver' => self::NS1,
+        ]);
 
-        new DnsNameserverFactory()
-            ->for($dnsRegion)
-            ->createOne([
-                'nameserver' => self::NS2,
-            ]);
+        new DnsNameserverFactory()->for($dnsRegion)->createOne([
+            'nameserver' => self::NS2,
+        ]);
 
         $this->domainDeployment->refresh();
 
@@ -179,16 +172,17 @@ class DnsCreationListenerTest extends IntegrationTestCase
                 $nameserverHostnames,
             ])
             ->andReturn(
-                new DnsZone(new Fqdn(self::DOMAIN))
+                new DnsZone(new Fqdn(self::DOMAIN)),
             );
 
         $this->eventDispatcher
             ->shouldReceive('dispatch')
             ->once()
             ->withArgs(
-                fn (DnsProvisioned $event) =>
-            $dnsSubscription->dnsDeployment !== null &&
-            $dnsSubscription->dnsDeployment->id === $event->dnsDeployment->id
+                fn (DnsProvisioned $event) => (
+                    $dnsSubscription->dnsDeployment !== null
+                    && $dnsSubscription->dnsDeployment->id === $event->dnsDeployment->id
+                ),
             );
 
         $dnsListener = new DnsCreationListener(
@@ -233,25 +227,21 @@ class DnsCreationListenerTest extends IntegrationTestCase
             ->forDomain(self::DOMAIN)
             ->for($dnsPremiumProduct)
             ->has(
-                new DnsDeploymentFactory()
-                    ->has(
-                        new DnsVanityNameserverFactory()
-                            ->count(3)
-                            ->state(new Sequence(
-                                ['nameserver' => $expectedVanityArray[0]->hostname],
-                                ['nameserver' => $expectedVanityArray[1]->hostname],
-                                ['nameserver' => $expectedVanityArray[2]->hostname],
-                            )),
-                        'vanityNameservers'
-                    )
-                    ->premiumDns()
+                new DnsDeploymentFactory()->has(
+                    new DnsVanityNameserverFactory()
+                        ->count(3)
+                        ->state(new Sequence(
+                            ['nameserver' => $expectedVanityArray[0]->hostname],
+                            ['nameserver' => $expectedVanityArray[1]->hostname],
+                            ['nameserver' => $expectedVanityArray[2]->hostname],
+                        )),
+                    'vanityNameservers',
+                )->premiumDns(),
             )
             ->for($this->domainSubscription, 'parent')
             ->createOne();
 
-        $this->mockDnsProductSpecRepository->expects(self::once())
-            ->method('isPremiumDns')
-            ->willReturn(true);
+        $this->mockDnsProductSpecRepository->expects(self::once())->method('isPremiumDns')->willReturn(true);
 
         $this->logger
             ->shouldReceive('info')
@@ -263,10 +253,7 @@ class DnsCreationListenerTest extends IntegrationTestCase
                 ],
             ]);
 
-        $this->dnsService
-            ->shouldReceive('hasDnsZone')
-            ->with(self::DOMAIN)
-            ->andReturnFalse();
+        $this->dnsService->shouldReceive('hasDnsZone')->with(self::DOMAIN)->andReturnFalse();
 
         $this->dnsService
             ->shouldReceive('createDnsZone')
@@ -280,18 +267,15 @@ class DnsCreationListenerTest extends IntegrationTestCase
                 $expectedVanityArray,
             ])
             ->andReturn(
-                new DnsZone(new Fqdn(self::DOMAIN))
+                new DnsZone(new Fqdn(self::DOMAIN)),
             );
 
-        $this->dnsService->shouldReceive('enablePremiumDns')
-            ->once()
-            ->with(self::DOMAIN);
+        $this->dnsService->shouldReceive('enablePremiumDns')->once()->with(self::DOMAIN);
 
-        $this->eventDispatcher
-            ->shouldReceive('dispatch')
-            ->never();
+        $this->eventDispatcher->shouldReceive('dispatch')->never();
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getNameservers')
             ->willReturn([
                 $expectedVanityArray[0],
@@ -335,17 +319,16 @@ class DnsCreationListenerTest extends IntegrationTestCase
             ->forDomain(self::DOMAIN)
             ->for(new ProductFactory()->premiumDns()->createOne())
             ->has(
-                new DnsDeploymentFactory()
-                    ->has(
-                        new DnsVanityNameserverFactory()
-                            ->count(3)
-                            ->state(new Sequence(
-                                ['nameserver' => $expectedVanityArray[0]->hostname],
-                                ['nameserver' => $expectedVanityArray[1]->hostname],
-                                ['nameserver' => $expectedVanityArray[2]->hostname],
-                            )),
-                        'vanityNameservers'
-                    )->premiumDns()
+                new DnsDeploymentFactory()->has(
+                    new DnsVanityNameserverFactory()
+                        ->count(3)
+                        ->state(new Sequence(
+                            ['nameserver' => $expectedVanityArray[0]->hostname],
+                            ['nameserver' => $expectedVanityArray[1]->hostname],
+                            ['nameserver' => $expectedVanityArray[2]->hostname],
+                        )),
+                    'vanityNameservers',
+                )->premiumDns(),
             )
             ->for($this->domainSubscription, 'parent')
             ->createOne();
@@ -354,23 +337,17 @@ class DnsCreationListenerTest extends IntegrationTestCase
 
         $dnsRegion = new DnsRegionFactory()->set('name', 'test_region')->createOne();
 
-        $ns1 = new DnsNameserverFactory()
-            ->for($dnsRegion)
-            ->createOne([
-                'nameserver' => self::NS1,
-            ]);
+        $ns1 = new DnsNameserverFactory()->for($dnsRegion)->createOne([
+            'nameserver' => self::NS1,
+        ]);
 
-        $ns2 = new DnsNameserverFactory()
-            ->for($dnsRegion)
-            ->createOne([
-                'nameserver' => self::NS2,
-            ]);
+        $ns2 = new DnsNameserverFactory()->for($dnsRegion)->createOne([
+            'nameserver' => self::NS2,
+        ]);
 
         $dnsDeployment?->dnsNameservers()->saveMany([$ns1, $ns2]);
 
-        $this->mockDnsProductSpecRepository->expects(self::once())
-            ->method('isPremiumDns')
-            ->willReturn(true);
+        $this->mockDnsProductSpecRepository->expects(self::once())->method('isPremiumDns')->willReturn(true);
 
         $this->logger
             ->shouldReceive('info')
@@ -383,20 +360,11 @@ class DnsCreationListenerTest extends IntegrationTestCase
                 ],
             ]);
 
-        $this->dnsService
-            ->shouldNotReceive('createDnsZone');
+        $this->dnsService->shouldNotReceive('createDnsZone');
 
-        $this->dnsService
-            ->shouldReceive('hasDnsZone')
-            ->once()
-            ->with(self::DOMAIN)
-            ->andReturnTrue();
+        $this->dnsService->shouldReceive('hasDnsZone')->once()->with(self::DOMAIN)->andReturnTrue();
 
-        $this->dnsService
-            ->shouldReceive('isSlaveZone')
-            ->once()
-            ->with(self::DOMAIN)
-            ->andReturnTrue();
+        $this->dnsService->shouldReceive('isSlaveZone')->once()->with(self::DOMAIN)->andReturnTrue();
 
         $this->logger
             ->shouldReceive('info')
@@ -406,10 +374,7 @@ class DnsCreationListenerTest extends IntegrationTestCase
                 [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             ]);
 
-        $this->dnsService
-            ->shouldReceive('changeToMasterAndEmptyMasters')
-            ->once()
-            ->with(self::DOMAIN);
+        $this->dnsService->shouldReceive('changeToMasterAndEmptyMasters')->once()->with(self::DOMAIN);
 
         $this->logger
             ->shouldReceive('info')
@@ -419,10 +384,7 @@ class DnsCreationListenerTest extends IntegrationTestCase
                 [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             ]);
 
-        $this->disableZonePresigningAction
-            ->shouldReceive('disable')
-            ->once()
-            ->with(self::DOMAIN);
+        $this->disableZonePresigningAction->shouldReceive('disable')->once()->with(self::DOMAIN);
 
         $this->logger
             ->shouldReceive('info')
@@ -440,19 +402,14 @@ class DnsCreationListenerTest extends IntegrationTestCase
                 $expectedVanityArray,
             ]);
 
-        $this->dnsService
-            ->shouldReceive('createDnsZone')
-            ->never();
+        $this->dnsService->shouldReceive('createDnsZone')->never();
 
-        $this->dnsService
-            ->shouldReceive('enablePremiumDns')
-            ->with(self::DOMAIN);
+        $this->dnsService->shouldReceive('enablePremiumDns')->with(self::DOMAIN);
 
-        $this->eventDispatcher
-            ->shouldReceive('dispatch')
-            ->never();
+        $this->eventDispatcher->shouldReceive('dispatch')->never();
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getNameservers')
             ->willReturn([
                 $expectedVanityArray[0],
@@ -489,32 +446,28 @@ class DnsCreationListenerTest extends IntegrationTestCase
             ->technicalStatus(TechnicalStatus::PENDING->value)
             ->forDomain(self::DOMAIN)
             ->for(
-                new ProductFactory()
-                    ->freeDns()
+                new ProductFactory()->freeDns(),
             )
             ->for($this->domainSubscription, 'parent')
-            ->has((new DnsDeploymentFactory()))
+            ->has(new DnsDeploymentFactory())
             ->createOne();
 
         $dnsDeployment = $dnsSubscription->dnsDeployment;
 
         $dnsRegion = new DnsRegionFactory()->set('name', 'test_region')->createOne();
 
-        $ns1 = new DnsNameserverFactory()
-            ->for($dnsRegion)
-            ->createOne([
-                'nameserver' => self::NS1,
-            ]);
+        $ns1 = new DnsNameserverFactory()->for($dnsRegion)->createOne([
+            'nameserver' => self::NS1,
+        ]);
 
-        $ns2 = new DnsNameserverFactory()
-            ->for($dnsRegion)
-            ->createOne([
-                'nameserver' => self::NS2,
-            ]);
+        $ns2 = new DnsNameserverFactory()->for($dnsRegion)->createOne([
+            'nameserver' => self::NS2,
+        ]);
 
         $dnsDeployment?->dnsNameservers()->saveMany([$ns1, $ns2]);
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getNameservers')
             ->with($dnsSubscription->dnsDeployment)
             ->willReturn([
@@ -533,20 +486,11 @@ class DnsCreationListenerTest extends IntegrationTestCase
                 ],
             ]);
 
-        $this->dnsService
-            ->shouldNotReceive('createDnsZone');
+        $this->dnsService->shouldNotReceive('createDnsZone');
 
-        $this->dnsService
-            ->shouldReceive('hasDnsZone')
-            ->once()
-            ->with(self::DOMAIN)
-            ->andReturnTrue();
+        $this->dnsService->shouldReceive('hasDnsZone')->once()->with(self::DOMAIN)->andReturnTrue();
 
-        $this->dnsService
-            ->shouldReceive('isSlaveZone')
-            ->once()
-            ->with(self::DOMAIN)
-            ->andReturnTrue();
+        $this->dnsService->shouldReceive('isSlaveZone')->once()->with(self::DOMAIN)->andReturnTrue();
 
         $this->logger
             ->shouldReceive('info')
@@ -556,10 +500,7 @@ class DnsCreationListenerTest extends IntegrationTestCase
                 [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             ]);
 
-        $this->dnsService
-            ->shouldReceive('changeToMasterAndEmptyMasters')
-            ->once()
-            ->with(self::DOMAIN);
+        $this->dnsService->shouldReceive('changeToMasterAndEmptyMasters')->once()->with(self::DOMAIN);
 
         $this->logger
             ->shouldReceive('info')
@@ -569,10 +510,7 @@ class DnsCreationListenerTest extends IntegrationTestCase
                 [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             ]);
 
-        $this->disableZonePresigningAction
-            ->shouldReceive('disable')
-            ->once()
-            ->with(self::DOMAIN);
+        $this->disableZonePresigningAction->shouldReceive('disable')->once()->with(self::DOMAIN);
 
         $this->logger
             ->shouldReceive('info')
@@ -594,13 +532,15 @@ class DnsCreationListenerTest extends IntegrationTestCase
             ->shouldReceive('createDnsZone')
             ->never()
             ->andReturn(
-                new DnsZone(new Fqdn(self::DOMAIN))
+                new DnsZone(new Fqdn(self::DOMAIN)),
             );
 
         $this->eventDispatcher
             ->shouldReceive('dispatch')
             ->once()
-            ->withArgs(fn (DnsProvisioned $event) => $dnsSubscription->dnsDeployment?->id === $event->dnsDeployment->id);
+            ->withArgs(
+                fn (DnsProvisioned $event) => $dnsSubscription->dnsDeployment?->id === $event->dnsDeployment->id,
+            );
 
         $dnsListener = new DnsCreationListener(
             dnsService: $this->dnsService,

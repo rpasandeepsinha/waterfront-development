@@ -30,8 +30,14 @@ class CopilotAmountRules extends AbstractValidator
             return false;
         }
 
-        $microsoft365ProductCount = $this->subscriptionRepository->getSubscriptionsWhereProductSlugAndCustomerDoesNotMatchCount($this->customer, ProductSlug::MICROSOFT_COPILOT->value);
-        $copilotCount = $this->subscriptionRepository->getSubscriptionsWhereProductSlugAndCustomerMatchCount($this->customer, ProductSlug::MICROSOFT_COPILOT->value);
+        $microsoft365ProductCount = $this->subscriptionRepository->getSubscriptionsWhereProductSlugAndCustomerDoesNotMatchCount(
+            $this->customer,
+            ProductSlug::MICROSOFT_COPILOT->value,
+        );
+        $copilotCount = $this->subscriptionRepository->getSubscriptionsWhereProductSlugAndCustomerMatchCount(
+            $this->customer,
+            ProductSlug::MICROSOFT_COPILOT->value,
+        );
 
         /** @var array<string, mixed> $subscription */
         foreach ($value as $subscription) {
@@ -49,7 +55,10 @@ class CopilotAmountRules extends AbstractValidator
 
             $product = $this->productRepository->findProductBySlug($slug);
 
-            $productSpec = $this->productSpecRepository->booleanSpecificationIsTrue($product, ProductSpecName::MICROSOFT365_ALLOW_COPILOT);
+            $productSpec = $this->productSpecRepository->booleanSpecificationIsTrue(
+                $product,
+                ProductSpecName::MICROSOFT365_ALLOW_COPILOT,
+            );
 
             if (! $productSpec) {
                 continue;

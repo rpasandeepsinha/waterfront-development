@@ -163,16 +163,15 @@ class PreserveWithoutOfferTest extends IntegrationTestCase
         );
         $exception = new RuntimeException('Cancellation failed.');
 
-        $applyRetentionCancellationAction->expects(self::once())
-            ->method('execute')
-            ->willThrowException($exception);
+        $applyRetentionCancellationAction->expects(self::once())->method('execute')->willThrowException($exception);
 
         $createdByMetadata = new IdentityMetadataDTO(
             Uuid::uuid4(),
             'employee@yourhosting.nl',
         );
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('critical')
             ->with(
                 'Retention Toolkit application failed; transaction rolled back.',
@@ -196,10 +195,11 @@ class PreserveWithoutOfferTest extends IntegrationTestCase
         self::expectExceptionObject($exception);
 
         try {
-            self::resolve(RetentionToolkitService::class)->apply(
-                request: $request,
-                createdByMetadata: $createdByMetadata,
-            );
+            self::resolve(RetentionToolkitService::class)
+                ->apply(
+                    request: $request,
+                    createdByMetadata: $createdByMetadata,
+                );
         } finally {
             self::assertDatabaseEmpty(CustomerRetentionOffer::class);
         }

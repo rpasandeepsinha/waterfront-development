@@ -8,6 +8,7 @@ use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use Waterfront\Apps\API\Atlantis\Resources\Products\ProductListResourceFactory;
+use Waterfront\Domain\Pricing\Services\PriceExperimentService;
 use Waterfront\Domain\Products\ProductPrice\PriceResolver;
 use Waterfront\Domain\Products\Repositories\HostingProductCompositionRepository;
 use Waterfront\Domain\Products\Repositories\ProductPromotionsRepository;
@@ -29,8 +30,9 @@ class ProductListUpdaterProvider extends BaseProvider implements DeferrableProvi
                     self::resolve(ProductPromotionsRepository::class),
                     self::resolve(HostingProductCompositionRepository::class),
                     self::resolve(ProductRepository::class),
+                    self::resolve(PriceExperimentService::class),
                 );
-            }
+            },
         );
     }
 

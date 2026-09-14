@@ -15,6 +15,12 @@ class SeedCommand extends LaravelSeedCommand
     {
         parent::configure();
 
-        $this->addOption('scenario', null, InputOption::VALUE_OPTIONAL, 'The name of the scenario you want to load', 'default');
+        $this->addOption(
+            'scenario',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'The name of the scenario you want to load',
+            'default',
+        );
     }
 }

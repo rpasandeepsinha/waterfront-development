@@ -47,9 +47,11 @@ class TransferShowTest extends IntegrationTestCase
     public function show(): void
     {
         foreach ($this->prepareShowTransfers() as $transfer) {
-            $response = $this->actingAsCustomer($this->fromCustomer)->getJson(
-                $this->generateRoute('partners.transfers.show', ['transfer' => $transfer->uuid])
-            )->assertOk();
+            $response = $this->actingAsCustomer($this->fromCustomer)
+                ->getJson(
+                    $this->generateRoute('partners.transfers.show', ['transfer' => $transfer->uuid]),
+                )
+                ->assertOk();
 
             self::assertIsArray($response->json());
             Assert::assertArraySubset([
@@ -69,15 +71,33 @@ class TransferShowTest extends IntegrationTestCase
         $product2 = new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne())->createOne();
         $product3 = new ProductFactory()->for(new ProductGroupFactory()->ssl()->createOne())->createOne();
 
-        new ProductPriceComponentFactory()->for($product)->prolongation()->createOne(['billing_period' => 12, 'contract_period' => 12]);
-        new ProductPriceComponentFactory()->for($product2)->prolongation()->createOne(['billing_period' => 12, 'contract_period' => 12]);
-        new ProductPriceComponentFactory()->for($product3)->prolongation()->createOne(['billing_period' => 12, 'contract_period' => 12]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne(['billing_period' => 12, 'contract_period' => 12]);
+        new ProductPriceComponentFactory()
+            ->for($product2)
+            ->prolongation()
+            ->createOne(['billing_period' => 12, 'contract_period' => 12]);
+        new ProductPriceComponentFactory()
+            ->for($product3)
+            ->prolongation()
+            ->createOne(['billing_period' => 12, 'contract_period' => 12]);
 
-        $subscription = new SubscriptionFactory()->for($this->fromCustomer)->for($product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->fromCustomer)
+            ->for($product)
+            ->createOne();
 
-        $subscription2 = new SubscriptionFactory()->for($this->fromCustomer)->for($product2)->createOne();
+        $subscription2 = new SubscriptionFactory()
+            ->for($this->fromCustomer)
+            ->for($product2)
+            ->createOne();
 
-        $subscription3 = new SubscriptionFactory()->for($this->fromCustomer)->for($product3)->createOne();
+        $subscription3 = new SubscriptionFactory()
+            ->for($this->fromCustomer)
+            ->for($product3)
+            ->createOne();
 
         return new Collection([$subscription, $subscription2, $subscription3]);
     }
@@ -106,8 +126,8 @@ class TransferShowTest extends IntegrationTestCase
         $subscription = $this->subscriptions->firstOrFail();
 
         $transfer3->subscriptions()->save($subscription, [
-                'failed_at' => CarbonImmutable::now(),
-                'executed_at' => CarbonImmutable::now(),
+            'failed_at' => CarbonImmutable::now(),
+            'executed_at' => CarbonImmutable::now(),
         ]);
 
         return [$transfer1, $transfer2, $transfer3];

@@ -20,7 +20,7 @@ class PowerDnsZone
         public array $rawResponse,
         public bool $dnssec = false,
         public string $kind = 'Master',
-        private array $rrsets = []
+        private array $rrsets = [],
     ) {
     }
 
@@ -69,6 +69,7 @@ class PowerDnsZone
                 return $recordSet;
             }
         }
+
         $rrset = new ResourceRecordSet();
         $rrset->name = $name;
         $rrset->type = $type;
@@ -148,7 +149,8 @@ class PowerDnsZone
             'kind' => $this->getKind(),
             'rrsets' => $rrsets,
             'dnssec' => $this->dnssec,
-            'api_rectify' => true, /* See bottom paragraphs of https://doc.powerdns.com/authoritative/http-api/zone.html */
+            'api_rectify' => true,
+            /* See bottom paragraphs of https://doc.powerdns.com/authoritative/http-api/zone.html */
         ];
     }
 
@@ -182,8 +184,8 @@ class PowerDnsZone
                     Assert::keyExists($record, 'content');
                     Assert::keyExists($record, 'disabled');
 
-                    $recordEntity           = new PowerDnsRecord();
-                    $recordEntity->content  = $record['content'];
+                    $recordEntity = new PowerDnsRecord();
+                    $recordEntity->content = $record['content'];
                     $recordEntity->disabled = $record['disabled'];
 
                     $rrsetEntity->addRecord($recordEntity);
@@ -207,7 +209,7 @@ class PowerDnsZone
             rawResponse: $pdnsZone,
             dnssec: $dnssec,
             kind: $kind,
-            rrsets: $resourcedSets
+            rrsets: $resourcedSets,
         );
     }
 }

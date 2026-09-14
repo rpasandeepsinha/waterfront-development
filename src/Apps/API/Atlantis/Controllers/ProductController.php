@@ -10,7 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Waterfront\Apps\API\Atlantis\Resources\Products\ProductListResourceFactory;
 use Waterfront\Domain\Customers\Models\Customer;
-use Waterfront\Domain\Experiment\Models\Experiment;
+use Waterfront\Domain\Pricing\Services\PriceExperimentService;
 use Waterfront\Domain\Products\DTO\PriceRequest;
 use Waterfront\Domain\Products\DTO\RegistrationPriceRequest;
 use Waterfront\Domain\Products\Models\ProductGroup;
@@ -31,6 +31,7 @@ class ProductController
         private readonly ProductPromotionsRepository $productPromotionsRepository,
         private readonly HostingProductCompositionRepository $hostingProductCompositionsRepository,
         private readonly ProductRepository $productRepository,
+        private readonly PriceExperimentService $priceExperimentService,
     ) {
     }
 
@@ -45,14 +46,14 @@ class ProductController
          * Let's see if there is an order for the active customer within the timespan of the TTL from the cache.
          */
         $latestOrder = $customer->orders()->latest()->first();
-        if (CarbonImmutable::now()->diffInMinutes($latestOrder?->created_at, true) <= self::TTL / 60) {
+        if (CarbonImmutable::now()->diffInMinutes($latestOrder?->created_at, true) <= (self::TTL / 60)) {
             return $this->getResponse($customer);
         }
 
         return Cache::remember(
             'price_list_' . $customer->uuid,
             self::TTL,
-            fn (): JsonResponse => $this->getResponse($customer)
+            fn (): JsonResponse => $this->getResponse($customer),
         );
     }
 
@@ -70,14 +71,16 @@ class ProductController
 
         $hostingProductCompositions = $this->hostingProductCompositionsRepository->findAllHostingProductCompositions();
 
-        $experiments = Experiment::all();
+        $experiments = $this->priceExperimentService->getExperiments();
 
-        return $this->productListResourceFactory->makeResource(
-            $priceList,
-            $productGroups,
-            $productPromotions,
-            $hostingProductCompositions,
-            $experiments,
-        )->response();
+        return $this->productListResourceFactory
+            ->makeResource(
+                $priceList,
+                $productGroups,
+                $productPromotions,
+                $hostingProductCompositions,
+                $experiments,
+            )
+            ->response();
     }
 }

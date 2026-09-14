@@ -22,7 +22,7 @@ class RemoteSslServiceClient
 {
     public function __construct(
         private readonly SslServiceFactory $sslServiceFactory,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -31,13 +31,11 @@ class RemoteSslServiceClient
         $domain = $sslDeployment->subscription->domain;
         if ($domain === null) {
             throw new LogicException(
-                "SSL deployment with id {$sslDeployment->id} has no domain, so the SSL request cannot be retrieved."
+                "SSL deployment with id {$sslDeployment->id} has no domain, so the SSL request cannot be retrieved.",
             );
         }
 
-        return $this->sslServiceFactory
-            ->driver($sslDeployment->provider->slug)
-            ->hasSslRequest(domain: $domain);
+        return $this->sslServiceFactory->driver($sslDeployment->provider->slug)->hasSslRequest(domain: $domain);
     }
 
     /**
@@ -46,7 +44,7 @@ class RemoteSslServiceClient
     public function create(
         int $period,
         SslDeployment $sslDeployment,
-        ?string $csr = null
+        ?string $csr = null,
     ): Result {
         try {
             if ($sslDeployment->request_id !== null) {
@@ -54,13 +52,17 @@ class RemoteSslServiceClient
                     sprintf(
                         'Cannot create a new SSL request for subscription #%s because the ssl deployment already appears to have one requested #%s',
                         $sslDeployment->id,
-                        $sslDeployment->request_id
-                    )
+                        $sslDeployment->request_id,
+                    ),
                 );
             }
 
             /** @var ProductSpec $productSpec */
-            $productSpec = $sslDeployment->subscription->product->productSpecs()->where('name', 'ssl.product_id')
+            $productSpec = $sslDeployment
+                ->subscription
+                ->product
+                ->productSpecs()
+                ->where('name', 'ssl.product_id')
                 ->firstOrFail();
 
             $this->logger->info(
@@ -72,23 +74,25 @@ class RemoteSslServiceClient
                         'period' => $period,
                         'csr' => $csr,
                     ],
-                ]
+                ],
             );
 
-            return $this->sslServiceFactory
-                ->driver($sslDeployment->provider->slug)
-                ->create(
-                    productSpec: $productSpec,
-                    period: $period,
-                    customerData: $sslDeployment->subscription->customer->load('address')->toArray(),
-                    sslDeployment: $sslDeployment,
-                    csr: $csr,
-                );
+            return $this->sslServiceFactory->driver($sslDeployment->provider->slug)->create(
+                productSpec: $productSpec,
+                period: $period,
+                customerData: $sslDeployment->subscription->customer->load('address')->toArray(),
+                sslDeployment: $sslDeployment,
+                csr: $csr,
+            );
         } catch (Exception $exception) {
             $this->logger->error(
-                self::class . '::callCreationService - status code: ' . $exception->getCode()
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString()
+                self::class
+                    . '::callCreationService - status code: '
+                    . $exception->getCode()
+                    . ', message: '
+                    . $exception->getMessage()
+                    . ', trace: '
+                    . $exception->getTraceAsString(),
             );
 
             return Result::create(
@@ -96,16 +100,14 @@ class RemoteSslServiceClient
                     'status' => Result::STATUS_ERROR,
                     'errorCode' => $exception->getCode(),
                     'errorMessage' => $exception->getMessage(),
-                ]
+                ],
             );
         }
     }
 
     public function retrieve(SslDeployment $sslDeployment): Result
     {
-        return $this->sslServiceFactory
-            ->driver($sslDeployment->provider->slug)
-            ->retrieve($sslDeployment);
+        return $this->sslServiceFactory->driver($sslDeployment->provider->slug)->retrieve($sslDeployment);
     }
 
     /**
@@ -113,7 +115,7 @@ class RemoteSslServiceClient
      */
     public function reissue(
         SslDeployment $sslDeployment,
-        string $csr
+        string $csr,
     ): Result {
         $this->logger->info(
             'Reissue SSL certificate',
@@ -123,22 +125,24 @@ class RemoteSslServiceClient
                 LoggingContextKeys::META => [
                     'csr' => $csr,
                 ],
-            ]
+            ],
         );
 
         try {
-            return $this->sslServiceFactory
-                ->driver($sslDeployment->provider->slug)
-                ->reissue(
-                    customerData: $sslDeployment->subscription->customer->load('address')->toArray(),
-                    sslDeployment: $sslDeployment,
-                    csr: $csr
-                );
+            return $this->sslServiceFactory->driver($sslDeployment->provider->slug)->reissue(
+                customerData: $sslDeployment->subscription->customer->load('address')->toArray(),
+                sslDeployment: $sslDeployment,
+                csr: $csr,
+            );
         } catch (Exception $exception) {
             $this->logger->error(
-                self::class . '::reissue - status code: ' . $exception->getCode()
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString()
+                self::class
+                    . '::reissue - status code: '
+                    . $exception->getCode()
+                    . ', message: '
+                    . $exception->getMessage()
+                    . ', trace: '
+                    . $exception->getTraceAsString(),
             );
 
             return Result::create(
@@ -146,7 +150,7 @@ class RemoteSslServiceClient
                     'status' => Result::STATUS_ERROR,
                     'errorCode' => $exception->getCode(),
                     'errorMessage' => $exception->getMessage(),
-                ]
+                ],
             );
         }
     }
@@ -158,18 +162,20 @@ class RemoteSslServiceClient
             [
                 LoggingContextKeys::PROVISIONING_ID => $sslDeployment->id,
                 LoggingContextKeys::DOMAIN_NAME => $sslDeployment->subscription->domain,
-            ]
+            ],
         );
 
         try {
-            return $this->sslServiceFactory
-                ->driver($sslDeployment->provider->slug)
-                ->renew($sslDeployment);
+            return $this->sslServiceFactory->driver($sslDeployment->provider->slug)->renew($sslDeployment);
         } catch (Exception $exception) {
             $this->logger->error(
-                self::class . '::callRenewalService - status code: ' . $exception->getCode()
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString()
+                self::class
+                    . '::callRenewalService - status code: '
+                    . $exception->getCode()
+                    . ', message: '
+                    . $exception->getMessage()
+                    . ', trace: '
+                    . $exception->getTraceAsString(),
             );
 
             return Result::create(
@@ -177,7 +183,7 @@ class RemoteSslServiceClient
                     'status' => Result::STATUS_ERROR,
                     'errorCode' => $exception->getCode(),
                     'errorMessage' => $exception->getMessage(),
-                ]
+                ],
             );
         }
     }
@@ -187,9 +193,7 @@ class RemoteSslServiceClient
      */
     public function csrExistsForDomain(string $domain, ProviderSlug $driver): bool
     {
-        return $this->sslServiceFactory
-            ->driver($driver)
-            ->csrExistsForDomain($domain);
+        return $this->sslServiceFactory->driver($driver)->csrExistsForDomain($domain);
     }
 
     /**
@@ -200,9 +204,9 @@ class RemoteSslServiceClient
         $driver = $sslDeployment?->provider->slug;
 
         try {
-            $service = $driver !== null ?
-                $this->sslServiceFactory->driver($driver) :
-                $this->sslServiceFactory->defaultDriver();
+            $service = $driver !== null
+                ? $this->sslServiceFactory->driver($driver)
+                : $this->sslServiceFactory->defaultDriver();
 
             return $service->validate($csr, $domain, $sslDeployment);
         } catch (Exception $exception) {
@@ -212,7 +216,7 @@ class RemoteSslServiceClient
                     'errorCode' => $exception->getCode(),
                     'errorMessage' => $exception->getMessage(),
                     'csr' => $csr,
-                ]
+                ],
             );
         }
     }
@@ -228,9 +232,7 @@ class RemoteSslServiceClient
         ]);
 
         try {
-            return $this->sslServiceFactory
-                ->driver($sslDeployment->provider->slug)
-                ->resendDcv($sslDeployment);
+            return $this->sslServiceFactory->driver($sslDeployment->provider->slug)->resendDcv($sslDeployment);
         } catch (NotImplementedException) {
             $this->logger->warning(self::class . '::resendDcv - not supported by provider', [
                 LoggingContextKeys::PROVISIONING_ID => $sslDeployment->id,
@@ -248,13 +250,17 @@ class RemoteSslServiceClient
             ]);
         } catch (RealtimeRegisterClientException $exception) {
             $this->logger->error(
-                self::class . '::resendDcv - status code: ' . $exception->getCode()
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString(),
+                self::class
+                    . '::resendDcv - status code: '
+                    . $exception->getCode()
+                    . ', message: '
+                    . $exception->getMessage()
+                    . ', trace: '
+                    . $exception->getTraceAsString(),
                 [
                     LoggingContextKeys::PROVISIONING_ID => $sslDeployment->id,
                     LoggingContextKeys::DOMAIN_NAME => $sslDeployment->subscription->domain,
-                ]
+                ],
             );
 
             return Result::create([
@@ -268,9 +274,7 @@ class RemoteSslServiceClient
     public function getDcvDetails(SslDeployment $sslDeployment): ?DcvDetails
     {
         try {
-            return $this->sslServiceFactory
-                ->driver($sslDeployment->provider->slug)
-                ->getSslCnameRecord($sslDeployment);
+            return $this->sslServiceFactory->driver($sslDeployment->provider->slug)->getSslCnameRecord($sslDeployment);
         } catch (NotImplementedException) {
             return null;
         } catch (RealtimeRegisterClientException $exception) {
@@ -280,8 +284,9 @@ class RemoteSslServiceClient
                     LoggingContextKeys::SUBSCRIPTION_UUID => $sslDeployment->subscription_uuid,
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::RESPONSE_CODE => $exception->getCode(),
-                ]
+                ],
             );
+
             return null;
         }
     }

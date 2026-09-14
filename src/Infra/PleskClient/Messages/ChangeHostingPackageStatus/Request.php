@@ -9,8 +9,10 @@ use Waterfront\Infra\PleskClient\Enums\HostingPackageStatus;
 
 class Request implements RequestInterface
 {
-    public function __construct(private readonly string $domainName, private readonly HostingPackageStatus $status)
-    {
+    public function __construct(
+        private readonly string $domainName,
+        private readonly HostingPackageStatus $status,
+    ) {
     }
 
     public function getMessage(): array

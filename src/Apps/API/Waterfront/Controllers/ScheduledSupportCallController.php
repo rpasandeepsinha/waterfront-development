@@ -53,7 +53,7 @@ readonly class ScheduledSupportCallController
                 timeslotUuid: $timeslotUuid,
                 category: $category,
                 description: $description,
-                customer: $customer
+                customer: $customer,
             );
         } catch (PuzzelResponseMissingRedirectException $exception) {
             $this->logger->error(
@@ -65,7 +65,7 @@ readonly class ScheduledSupportCallController
                         'callback_description' => $description,
                         'callback_scheduledTime' => $date,
                     ],
-                ]
+                ],
             );
 
             return $this->failedCallbackCreatedResponse();
@@ -82,7 +82,7 @@ readonly class ScheduledSupportCallController
                         'status' => $result->status,
                         'message' => $result->message,
                     ],
-                ]
+                ],
             );
 
             return $this->failedCallbackCreatedResponse();
@@ -101,9 +101,7 @@ readonly class ScheduledSupportCallController
      */
     public function timeslots(): ScheduledSupportCallTimeSlotsResource
     {
-        $customer = $this->authenticationManager
-            ->getAuthenticatedCustomer()
-            ->customer;
+        $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
 
         return ScheduledSupportCallTimeSlotsResource::make(
             $this->scheduledSupportCallService->getScheduleForCustomer($customer),
@@ -114,7 +112,7 @@ readonly class ScheduledSupportCallController
     {
         return new JsonResponse([
             'data' => [
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => $this->translator->translate('puzzel.callback-not-created'),
             ],
         ], Response::HTTP_INTERNAL_SERVER_ERROR);

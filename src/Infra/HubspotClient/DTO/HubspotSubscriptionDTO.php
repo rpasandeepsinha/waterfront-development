@@ -70,7 +70,10 @@ class HubspotSubscriptionDTO
         #[Groups(['create', 'update'])]
         public readonly ?string $cancellationFlowReason,
         #[Groups(['create', 'update'])]
-        public null|string|bool $switchContact,
+        public string|bool|null $switchContact,
+        #[SerializedName('sw_experiment_slug')]
+        #[Groups(['create', 'update'])]
+        public readonly ?string $experimentSlug,
     ) {
     }
 }

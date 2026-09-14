@@ -14,7 +14,7 @@ use Waterfront\Infra\Translation\TranslatorInterface;
 class NovaProvisionRequestTypeFilter extends Filter
 {
     public function __construct(
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 

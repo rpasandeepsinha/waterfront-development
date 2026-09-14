@@ -54,16 +54,14 @@ class BasekitValidatorTest extends TestCase
         $this->app->bind(ProvisioningRequestRepository::class, fn () => $this->mockRequestRepository);
 
         $translator = self::createStub(Translator::class);
-        $translator
-            ->method('get')
-            ->willReturnCallback(fn (string $message): mixed => $message);
+        $translator->method('get')->willReturnCallback(fn (string $message): mixed => $message);
 
         $validatorFactory = new Factory($translator);
         $validatorFactory->setPresenceVerifier($databaseExistsMock);
 
         $this->validator = new BasekitValidator(
             validatorFactory: $validatorFactory,
-            domainNameRule: self::createStub(DomainNameRule::class)
+            domainNameRule: self::createStub(DomainNameRule::class),
         );
 
         $this->context = Uuid::uuid4();
@@ -169,7 +167,9 @@ class BasekitValidatorTest extends TestCase
 
         $createBasekitDeploymentsFromMigrationRequest->provider = ProvisionProvider::BASEKIT;
 
-        $validator = $this->validator->getCreateBasekitFromMigrationValidator($createBasekitDeploymentsFromMigrationRequest);
+        $validator = $this->validator->getCreateBasekitFromMigrationValidator(
+            $createBasekitDeploymentsFromMigrationRequest,
+        );
 
         self::assertTrue($validator->passes());
     }
@@ -186,7 +186,9 @@ class BasekitValidatorTest extends TestCase
 
         $createBasekitDeploymentsFromMigrationRequest->provider = ProvisionProvider::MICROSOFT_ONLINE;
 
-        $validator = $this->validator->getCreateBasekitFromMigrationValidator($createBasekitDeploymentsFromMigrationRequest);
+        $validator = $this->validator->getCreateBasekitFromMigrationValidator(
+            $createBasekitDeploymentsFromMigrationRequest,
+        );
 
         self::assertTrue($validator->fails());
         self::assertSame(['The selected provider is invalid.'], $validator->messages()->get('provider'));
@@ -226,10 +228,7 @@ class BasekitValidatorTest extends TestCase
     {
         $tagUuid = Uuid::uuid4();
 
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(0);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(0);
 
         $rollbackBasekitDeploymentsRequest = new RollbackBasekitDeploymentsFromMigrationRequest(
             context: Uuid::uuid4(),
@@ -246,7 +245,10 @@ class BasekitValidatorTest extends TestCase
 
         self::assertTrue($validator->fails());
         self::assertSame(['validation.exists'], $validator->messages()->get('context'));
-        self::assertSame(['No create request with this tag in the [sitebuilder] type.'], $validator->messages()->get('tag'));
+        self::assertSame(
+            ['No create request with this tag in the [sitebuilder] type.'],
+            $validator->messages()->get('tag'),
+        );
     }
 
     #[Test]
@@ -281,10 +283,7 @@ class BasekitValidatorTest extends TestCase
     {
         $tagUuid = Uuid::uuid4();
 
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(0);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(0);
 
         $getSsoRequest = new GetSitebuilderSsoRequest(
             context: Uuid::uuid4(),
@@ -301,7 +300,10 @@ class BasekitValidatorTest extends TestCase
 
         self::assertTrue($validator->fails());
         self::assertSame(['validation.exists'], $validator->messages()->get('context'));
-        self::assertSame(['No create request with this tag in the [sitebuilder] type.'], $validator->messages()->get('tag'));
+        self::assertSame(
+            ['No create request with this tag in the [sitebuilder] type.'],
+            $validator->messages()->get('tag'),
+        );
     }
 
     #[Test]
@@ -334,10 +336,7 @@ class BasekitValidatorTest extends TestCase
     #[Test]
     public function terminateRequestValidationFailsIfNotExists(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(0);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(0);
 
         $tagUuid = Uuid::uuid4();
 
@@ -356,7 +355,10 @@ class BasekitValidatorTest extends TestCase
 
         self::assertTrue($validator->fails());
         self::assertSame(['validation.exists'], $validator->messages()->get('context'));
-        self::assertSame(['No create request with this tag in the [sitebuilder] type.'], $validator->messages()->get('tag'));
+        self::assertSame(
+            ['No create request with this tag in the [sitebuilder] type.'],
+            $validator->messages()->get('tag'),
+        );
     }
 
     #[Test]
@@ -407,7 +409,7 @@ class BasekitValidatorTest extends TestCase
             tagUuid: $expectedTag,
             context: $this->context,
             privateKey: 'privateKey',
-            mainCertificate: 'mainCertificate'
+            mainCertificate: 'mainCertificate',
         );
 
         $validator = $this->validator->getAddSslSitebuilderValidator($addSslRequest);
@@ -418,10 +420,7 @@ class BasekitValidatorTest extends TestCase
     #[Test]
     public function terminateContextRequestValidationFailsIfNotExists(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(0);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(0);
 
         $terminateContextRequest = new TerminateSitebuilderContextRequest(
             context: Uuid::uuid4(),
@@ -436,10 +435,7 @@ class BasekitValidatorTest extends TestCase
     #[Test]
     public function terminateContextRequestValidation(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(1);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(1);
 
         $terminateContextRequest = new TerminateSitebuilderContextRequest(
             context: Uuid::uuid4(),
@@ -537,7 +533,10 @@ class BasekitValidatorTest extends TestCase
         $validator = $this->validator->getUpdateRequestValidator($request);
         self::assertTrue($validator->fails());
         self::assertSame(['validation.integer'], $validator->messages()->get('packages.0'));
-        self::assertSame(['The tag has multiple create requests linked for [sitebuilder] type.'], $validator->messages()->get('tag'));
+        self::assertSame(
+            ['The tag has multiple create requests linked for [sitebuilder] type.'],
+            $validator->messages()->get('tag'),
+        );
     }
 
     #[Test]

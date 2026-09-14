@@ -26,7 +26,7 @@ class AddM365TxtValidationAction
         private readonly Microsoft365Service $microsoft365Service,
         private readonly DnsDeploymentRepository $dnsDeploymentRepository,
         private readonly DnsService $dnsService,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -48,7 +48,7 @@ class AddM365TxtValidationAction
                     'm365_tenant' => $tenantName,
                     'm365_kpn_customer_id' => $kpnCustomerNumber,
                 ],
-            ]
+            ],
         );
 
         try {
@@ -65,7 +65,7 @@ class AddM365TxtValidationAction
                             'm365_tenant' => $tenantName,
                             'm365_kpn_customer_id' => $kpnCustomerNumber,
                         ],
-                    ]
+                    ],
                 );
 
                 return;
@@ -78,8 +78,9 @@ class AddM365TxtValidationAction
                     $this->getNameForDnsRecord($domain),
                     $kpnCustomerNumber,
                     3600,
-                )
+                ),
             );
+
             /** @phpstan-ignore-next-line */
         } catch (Throwable $exception) {
             $this->logger->error(
@@ -91,7 +92,7 @@ class AddM365TxtValidationAction
                         'm365_tenant' => $tenantName,
                         'm365_kpn_customer_id' => $kpnCustomerNumber,
                     ],
-                ]
+                ],
             );
         }
     }

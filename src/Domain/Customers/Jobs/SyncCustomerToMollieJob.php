@@ -17,7 +17,7 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
 class SyncCustomerToMollieJob extends AbstractQueueableJob
 {
     public function __construct(
-        private readonly MollieCustomer $mollieCustomer
+        private readonly MollieCustomer $mollieCustomer,
     ) {
         parent::__construct();
     }
@@ -31,20 +31,20 @@ class SyncCustomerToMollieJob extends AbstractQueueableJob
             email: $customer->email,
             locale: $customer->locale,
             metadata: new MollieCustomerMetadataDTO(
-                debtorId: $customer->customer_number
-            )
+                debtorId: $customer->customer_number,
+            ),
         );
 
         try {
             $mollieCustomerManager->updateCustomer(
                 mollieCustomer: $this->mollieCustomer,
-                mollieCustomerUpdateDTO: $mollieCustomerUpdateDTO
+                mollieCustomerUpdateDTO: $mollieCustomerUpdateDTO,
             );
         } catch (MollieCustomerApiException $exception) {
             $logger->error(sprintf(
                 'Unable to sync customer data for customer ID: {%d} to Mollie Customer with Remote ID: {%d}',
                 $this->mollieCustomer->customer->id,
-                $this->mollieCustomer->mollie_customer_reference_id
+                $this->mollieCustomer->mollie_customer_reference_id,
             ), [
                 LoggingContextKeys::EXCEPTION => $exception,
             ]);

@@ -29,30 +29,30 @@ class MigrationStateDetailResource extends JsonResource
         $subscription = $this->resource;
 
         return [
-            'id'                      => $subscription->id,
-            'uuid'                    => $subscription->uuid,
-            'domain'                  => $subscription->domain,
-            'technical_status'        => $subscription->technical_status,
-            'administrative_status'   => $subscription->administrative_status,
-            'product'                 => [
+            'id' => $subscription->id,
+            'uuid' => $subscription->uuid,
+            'domain' => $subscription->domain,
+            'technical_status' => $subscription->technical_status,
+            'administrative_status' => $subscription->administrative_status,
+            'product' => [
                 'uuid' => $subscription->product->uuid,
                 'slug' => $subscription->product->slug,
                 'name' => $subscription->product->name,
             ],
-            'product_group'           => $subscription->product->productGroup->slug,
-            'provider'                => MigrationStateResource::provider($subscription),
+            'product_group' => $subscription->product->productGroup->slug,
+            'provider' => MigrationStateResource::provider($subscription),
             'provider_is_placeholder' => $this->hasPlaceholderProvider($subscription),
-            'net_price'               => $subscription->net_price,
-            'gross_price'             => $subscription->gross_price,
-            'end_date'                => $subscription->end_date->toW3cString(),
-            'cancel_date'             => $subscription->cancel_date?->toW3cString(),
-            'next_billing_date'       => $subscription->next_billing_date->toW3cString(),
-            'updated_at'              => $subscription->updated_at?->toW3cString(),
-            'migration'               => $this->migration($subscription),
-            'customer'                => $this->customer($subscription),
-            'technical'               => [
-                'server_hostname'          => $this->serverHostname($subscription),
-                'external_contact_handle'  => $this->externalContactHandle($subscription),
+            'net_price' => $subscription->net_price,
+            'gross_price' => $subscription->gross_price,
+            'end_date' => $subscription->end_date->toW3cString(),
+            'cancel_date' => $subscription->cancel_date?->toW3cString(),
+            'next_billing_date' => $subscription->next_billing_date->toW3cString(),
+            'updated_at' => $subscription->updated_at?->toW3cString(),
+            'migration' => $this->migration($subscription),
+            'customer' => $this->customer($subscription),
+            'technical' => [
+                'server_hostname' => $this->serverHostname($subscription),
+                'external_contact_handle' => $this->externalContactHandle($subscription),
             ],
         ];
     }
@@ -67,15 +67,15 @@ class MigrationStateDetailResource extends JsonResource
         return [
             'reference_customer_number' => $migratedCustomer?->reference_customer_number,
             'reference_subscription_id' => $subscription->migratedSubscriptions->first()?->reference_subscription_id,
-            'business_unit'             => $migratedCustomer?->reference_name,
-            'batch_group'               => $migratedCustomer?->group_type,
+            'business_unit' => $migratedCustomer?->reference_name,
+            'batch_group' => $migratedCustomer?->group_type,
             'administrative_successful' => $migratedCustomer?->administrative_successful,
-            'technical_successful'      => $migratedCustomer?->technical_successful,
-            'billing_successful'        => $migratedCustomer?->billing_successful,
-            'dns_successful'            => $migratedCustomer?->dns_successful,
-            'enable_invoicing'          => $migratedCustomer?->enable_invoicing,
-            'successful'                => $migratedCustomer?->successful,
-            'migrated_at'               => $migratedCustomer?->migrated_at?->toW3cString(),
+            'technical_successful' => $migratedCustomer?->technical_successful,
+            'billing_successful' => $migratedCustomer?->billing_successful,
+            'dns_successful' => $migratedCustomer?->dns_successful,
+            'enable_invoicing' => $migratedCustomer?->enable_invoicing,
+            'successful' => $migratedCustomer?->successful,
+            'migrated_at' => $migratedCustomer?->migrated_at?->toW3cString(),
         ];
     }
 
@@ -88,11 +88,11 @@ class MigrationStateDetailResource extends JsonResource
         $customer = $subscription->customer;
 
         return [
-            'customer_number'              => $customer->customer_number,
-            'name'                         => $customer->name,
-            'organization'                 => $customer->organization,
-            'email'                        => $customer->email,
-            'wallet_refund_requested_at'   => $customer->wallet?->refund_requested_at?->toW3cString(),
+            'customer_number' => $customer->customer_number,
+            'name' => $customer->name,
+            'organization' => $customer->organization,
+            'email' => $customer->email,
+            'wallet_refund_requested_at' => $customer->wallet?->refund_requested_at?->toW3cString(),
         ];
     }
 
@@ -112,15 +112,14 @@ class MigrationStateDetailResource extends JsonResource
             return null;
         }
 
-        $provider = $hostingDeployment->provider
-            ?? $hostingDeployment->mailProvider
-            ?? $hostingDeployment->sitebuilderProvider;
+        $provider =
+            $hostingDeployment->provider ?? $hostingDeployment->mailProvider ?? $hostingDeployment->sitebuilderProvider;
 
         return match ($provider?->type) {
-            ProviderType::HOSTING     => $hostingDeployment->server?->hostname,
-            ProviderType::MAILONLY    => $hostingDeployment->mailOnlyServer?->hostname,
+            ProviderType::HOSTING => $hostingDeployment->server?->hostname,
+            ProviderType::MAILONLY => $hostingDeployment->mailOnlyServer?->hostname,
             ProviderType::SITEBUILDER => $hostingDeployment->basekitServer?->hostname,
-            default                   => null,
+            default => null,
         };
     }
 

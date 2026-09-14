@@ -86,23 +86,27 @@ class NovaOrderLineItemResource extends Resource
             BelongsTo::make(
                 self::translate('order_line_item.attributes.product'),
                 'product',
-                NovaProductResource::class
+                NovaProductResource::class,
             )->onlyOnDetail(),
             BelongsTo::make(
                 self::translate('order_line_item.attributes.subscription'),
                 'subscription',
-                NovaSubscriptionResource::class
+                NovaSubscriptionResource::class,
             )->onlyOnDetail(),
             BelongsTo::make(
                 self::translate('order-line-items.relations.parent'),
                 'parent',
-                self::class
-            )->onlyOnDetail()->canSee(fn (Request $request): bool => $this->resource->parent !== null),
+                self::class,
+            )
+                ->onlyOnDetail()
+                ->canSee(fn (Request $request): bool => $this->resource->parent !== null),
             HasMany::make(
                 self::translate('order-line-items.relations.child'),
                 'children',
-                self::class
-            )->onlyOnDetail()->canSee(fn (Request $request): bool => $this->resource->children->count() > 0),
+                self::class,
+            )
+                ->onlyOnDetail()
+                ->canSee(fn (Request $request): bool => $this->resource->children->count() > 0),
             HasOne::make(
                 self::translate('order-line-items.relations.voucher-claim'),
                 'voucherClaim',
@@ -110,8 +114,10 @@ class NovaOrderLineItemResource extends Resource
             )->onlyOnDetail(),
             Boolean::make(
                 self::translate('order_line_item.attributes.should_invoice'),
-                'should_invoice'
-            )->readonly()->onlyOnDetail(),
+                'should_invoice',
+            )
+                ->readonly()
+                ->onlyOnDetail(),
         ];
     }
 

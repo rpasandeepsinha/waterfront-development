@@ -9,7 +9,7 @@ class TerminateDnsZoneEvent
     public function __construct(
         public readonly string $subscriptionUuid,
         public readonly string $domain,
-        public readonly string $dnsProductUuid
+        public readonly string $dnsProductUuid,
     ) {
     }
 }

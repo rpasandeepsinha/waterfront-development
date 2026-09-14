@@ -184,9 +184,7 @@ class FailedDomainSubscriptionRepairJobFactoryTest extends IntegrationTestCase
         string $subscriptionUuid,
         string $domain,
     ): Subscription {
-        $product = ProductFactory::new()
-            ->nlDomain()
-            ->createOne();
+        $product = ProductFactory::new()->nlDomain()->createOne();
 
         $domainDeployment = DomainDeploymentFactory::new()
             ->withSubscription($product, [

@@ -12,8 +12,9 @@ use Waterfront\Infra\Translation\TranslatorInterface;
 
 class NovaTranslationLanguageFilter extends Filter
 {
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     public function name(): string

@@ -50,9 +50,10 @@ class NovaMicrosoft365BulkStatusUpdateAction extends NovaSubscriptionAction
         $toTechnicalStatus = $fields->get('to_technical_status');
         assert(is_string($toTechnicalStatus));
 
-        $childSubscriptions = $microsoft365Deployment->subscriptionChildren
-            ->where('technical_status', $fromTechnicalStatus)
-            ->where('administrative_status', $fromAdministrativeStatus);
+        $childSubscriptions = $microsoft365Deployment->subscriptionChildren->where(
+            'technical_status',
+            $fromTechnicalStatus,
+        )->where('administrative_status', $fromAdministrativeStatus);
 
         foreach ($childSubscriptions as $childSubscription) {
             $childSubscription->technical_status = $toTechnicalStatus;
@@ -60,7 +61,9 @@ class NovaMicrosoft365BulkStatusUpdateAction extends NovaSubscriptionAction
             $childSubscription->save();
         }
 
-        return Action::message($this->translator->translate('nova-action.microsoft365_bulk_status_update_action_completed'));
+        return Action::message($this->translator->translate(
+            'nova-action.microsoft365_bulk_status_update_action_completed',
+        ));
     }
 
     /**
@@ -69,15 +72,24 @@ class NovaMicrosoft365BulkStatusUpdateAction extends NovaSubscriptionAction
     public function fields(NovaRequest $request): array
     {
         return [
-            NovaSubscriptionAdministrativeStatusSelectField::makeForEditing('from_administrative_status', 'nova-action.from_administrative_status')
+            NovaSubscriptionAdministrativeStatusSelectField::makeForEditing(
+                'from_administrative_status',
+                'nova-action.from_administrative_status',
+            )
                 ->displayUsingLabels()
                 ->rules('required'),
 
-            NovaSubscriptionAdministrativeStatusSelectField::makeForEditing('to_administrative_status', 'nova-action.to_administrative_status')
+            NovaSubscriptionAdministrativeStatusSelectField::makeForEditing(
+                'to_administrative_status',
+                'nova-action.to_administrative_status',
+            )
                 ->displayUsingLabels()
                 ->rules('required'),
 
-            NovaSubscriptionTechnicalStatusSelectField::make('from_technical_status', 'nova-action.from_technical_status')
+            NovaSubscriptionTechnicalStatusSelectField::make(
+                'from_technical_status',
+                'nova-action.from_technical_status',
+            )
                 ->displayUsingLabels()
                 ->rules('required'),
 

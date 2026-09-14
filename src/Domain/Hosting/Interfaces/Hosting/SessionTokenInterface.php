@@ -9,7 +9,7 @@ interface SessionTokenInterface extends ClientInterface
     public function getSsoUrl(
         string $username,
         string $ipAddress,
-        bool $redirectToMail = false
+        bool $redirectToMail = false,
     ): string;
 
     public function getServerSsoUrl(): string;

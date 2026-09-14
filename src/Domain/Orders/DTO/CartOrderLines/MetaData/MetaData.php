@@ -18,7 +18,7 @@ use Waterfront\Domain\Products\Enums\ProductGroupType;
 abstract class MetaData
 {
     public function __construct(
-        public ProductGroupType $type
+        public ProductGroupType $type,
     ) {
     }
 }

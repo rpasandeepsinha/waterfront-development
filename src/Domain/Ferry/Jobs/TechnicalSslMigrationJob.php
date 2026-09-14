@@ -21,7 +21,7 @@ class TechnicalSslMigrationJob extends MigrationJob
 
     public function __construct(
         public Subscription $subscription,
-        protected string|null $failedTechnicalStatus,
+        protected ?string $failedTechnicalStatus,
     ) {
         parent::__construct($this->subscription, $this->failedTechnicalStatus);
     }

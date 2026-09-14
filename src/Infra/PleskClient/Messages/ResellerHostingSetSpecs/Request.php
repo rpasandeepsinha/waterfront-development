@@ -9,8 +9,9 @@ use Waterfront\Domain\ResellerHosting\Parameters\ResellerHostingParameters;
 
 class Request implements RequestInterface
 {
-    public function __construct(private readonly ResellerHostingParameters $parameters)
-    {
+    public function __construct(
+        private readonly ResellerHostingParameters $parameters,
+    ) {
     }
 
     /**
@@ -22,8 +23,8 @@ class Request implements RequestInterface
             'reseller' => [
                 'set' => [
                     'filter' => [
-                        'id'  => [$this->parameters->resellerHostingId],
-                ],
+                        'id' => [$this->parameters->resellerHostingId],
+                    ],
                     'values' => [
                         'limits' => [
                             'limit' => [

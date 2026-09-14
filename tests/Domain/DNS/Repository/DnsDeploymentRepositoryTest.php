@@ -42,28 +42,28 @@ class DnsDeploymentRepositoryTest extends IntegrationTestCase
         $this->dnsDeploymentRepository = new DnsDeploymentRepository();
 
         $dnsProductGroup = new ProductGroupFactory()->dns()->createOne();
-        $this->freeDnsProduct = new ProductFactory()->freeDns($dnsProductGroup)->createOne();
-        $premiumDnsProduct = new ProductFactory()->premiumDns($dnsProductGroup)->createOne();
+        $this->freeDnsProduct = new ProductFactory()
+            ->freeDns($dnsProductGroup)
+            ->createOne();
+        $premiumDnsProduct = new ProductFactory()
+            ->premiumDns($dnsProductGroup)
+            ->createOne();
 
-        $this->freeDnsDeployment = DnsDeploymentFactory::new()
-            ->for(
-                new SubscriptionFactory()
+        $this->freeDnsDeployment = DnsDeploymentFactory::new()->for(
+            new SubscriptionFactory()
                 ->withCustomer()
                 ->for(new ProductFactory()->freeDns())
                 ->forDomain(self::DOMAIN)
                 ->for($this->freeDnsProduct)
-                ->forDomain(self::DOMAIN)
-            )
-            ->createOne(['nameserver_type' => NameserverType::INTERNAL]);
+                ->forDomain(self::DOMAIN),
+        )->createOne(['nameserver_type' => NameserverType::INTERNAL]);
 
-        $this->premiumDnsDeployment = DnsDeploymentFactory::new()
-            ->for(
-                new SubscriptionFactory()
-                    ->withCustomer()
-                    ->forDomain(self::DOMAIN)
-                    ->for($premiumDnsProduct)
-            )
-            ->createOne(['nameserver_type' => NameserverType::VANITY]);
+        $this->premiumDnsDeployment = DnsDeploymentFactory::new()->for(
+            new SubscriptionFactory()
+                ->withCustomer()
+                ->forDomain(self::DOMAIN)
+                ->for($premiumDnsProduct),
+        )->createOne(['nameserver_type' => NameserverType::VANITY]);
     }
 
     #[Test]
@@ -145,12 +145,14 @@ class DnsDeploymentRepositoryTest extends IntegrationTestCase
         $regions = new DnsRegionFactory()->createMany(3);
 
         foreach ($regions as $key => $region) {
-            $this->freeDnsDeployment->dnsNameservers()->save(
-                new DnsNameserverFactory()->createOne([
-                    'dns_region_id' => $region->id,
-                    'nameserver' => $nameservers[$key],
-                ])
-            );
+            $this->freeDnsDeployment
+                ->dnsNameservers()
+                ->save(
+                    new DnsNameserverFactory()->createOne([
+                        'dns_region_id' => $region->id,
+                        'nameserver' => $nameservers[$key],
+                    ]),
+                );
         }
 
         self::assertTrue($this->dnsDeploymentRepository->isNameserversAlreadyAssigned($this->freeDnsDeployment));
@@ -164,12 +166,14 @@ class DnsDeploymentRepositoryTest extends IntegrationTestCase
         $regions = new DnsRegionFactory()->createMany(3);
 
         foreach ($regions as $key => $region) {
-            $this->freeDnsDeployment->dnsNameservers()->save(
-                new DnsNameserverFactory()->createOne([
-                'dns_region_id' => $region->id,
-                'nameserver' => $nameservers[$key],
-                ])
-            );
+            $this->freeDnsDeployment
+                ->dnsNameservers()
+                ->save(
+                    new DnsNameserverFactory()->createOne([
+                        'dns_region_id' => $region->id,
+                        'nameserver' => $nameservers[$key],
+                    ]),
+                );
         }
 
         $nameserversReceived = $this->dnsDeploymentRepository->getNameservers($this->freeDnsDeployment);
@@ -208,7 +212,7 @@ class DnsDeploymentRepositoryTest extends IntegrationTestCase
                     ->for(new ProductFactory()->nlDomain())
                     ->forDomain(self::DOMAIN)
                     ->for($nlDomainProduct)
-                    ->forDomain(self::DOMAIN)
+                    ->forDomain(self::DOMAIN),
             )
             ->withRtrProvider()
             ->createOne();
@@ -218,18 +222,21 @@ class DnsDeploymentRepositoryTest extends IntegrationTestCase
         $region = new DnsRegionFactory()->createOne();
 
         foreach ($expectedNameservers as $nameserver) {
-            $this->freeDnsDeployment->dnsNameservers()->save(
-                new DnsNameserverFactory()->createOne([
-                    'dns_region_id' => $region->id,
-                    'nameserver' => $nameserver,
-                ])
-            );
+            $this->freeDnsDeployment
+                ->dnsNameservers()
+                ->save(
+                    new DnsNameserverFactory()->createOne([
+                        'dns_region_id' => $region->id,
+                        'nameserver' => $nameserver,
+                    ]),
+                );
         }
 
         $domainDeployment->refresh();
         $this->freeDnsDeployment->refresh();
 
-        $nameserversReceived = $this->dnsDeploymentRepository->getNameserverHostnamesFromDomainDeployment($domainDeployment);
+        $nameserversReceived =
+            $this->dnsDeploymentRepository->getNameserverHostnamesFromDomainDeployment($domainDeployment);
         self::assertCount(count($expectedNameservers), $nameserversReceived);
 
         foreach ($nameserversReceived as $received) {
@@ -243,11 +250,13 @@ class DnsDeploymentRepositoryTest extends IntegrationTestCase
         $nameservers = ['ns1.testdomain.nl', 'ns2.testdomain.nl', 'ns3.testdomain.nl'];
 
         foreach ($nameservers as $nameserver) {
-            $this->premiumDnsDeployment->vanityNameservers()->save(
-                DnsVanityNameserver::firstOrCreate(
-                    ['nameserver' => $nameserver]
-                )
-            );
+            $this->premiumDnsDeployment
+                ->vanityNameservers()
+                ->save(
+                    DnsVanityNameserver::firstOrCreate(
+                        ['nameserver' => $nameserver],
+                    ),
+                );
         }
 
         $nameserversReceived = $this->dnsDeploymentRepository->getNameservers($this->premiumDnsDeployment);
@@ -278,20 +287,18 @@ class DnsDeploymentRepositoryTest extends IntegrationTestCase
                 new SubscriptionFactory()
                     ->withCustomer()
                     ->for($nlProduct)
-                    ->forDomain(self::DOMAIN)
+                    ->forDomain(self::DOMAIN),
             )
             ->for(new ProviderFactory()->domainOpenProvider()->createOne())
             ->createOne();
 
-        $dnsDeployment = new DnsDeploymentFactory()
-            ->for(
-                new SubscriptionFactory()
-                    ->withCustomer()
+        $dnsDeployment = new DnsDeploymentFactory()->for(
+            new SubscriptionFactory()
+                ->withCustomer()
                 ->for($this->freeDnsProduct)
                 ->forDomain(self::DOMAIN)
-                ->for($createdDomainDeployment->subscription, 'parent')
-            )
-            ->createOne();
+                ->for($createdDomainDeployment->subscription, 'parent'),
+        )->createOne();
 
         $fetchedDomainDeployment = $this->dnsDeploymentRepository->getDomainDeployment($dnsDeployment);
 
@@ -314,15 +321,13 @@ class DnsDeploymentRepositoryTest extends IntegrationTestCase
             ->forDomain(self::DOMAIN)
             ->createOne();
 
-        $dnsDeployment = new DnsDeploymentFactory()
-            ->for(
-                new SubscriptionFactory()
+        $dnsDeployment = new DnsDeploymentFactory()->for(
+            new SubscriptionFactory()
                 ->withCustomer()
                 ->for($this->freeDnsProduct)
                 ->forDomain(self::DOMAIN)
-                ->for($domainSubscription, 'parent')
-            )
-            ->createOne();
+                ->for($domainSubscription, 'parent'),
+        )->createOne();
 
         $domainDeployment = $this->dnsDeploymentRepository->getDomainDeployment($dnsDeployment);
 
@@ -340,15 +345,13 @@ class DnsDeploymentRepositoryTest extends IntegrationTestCase
             ->forDomain(self::DOMAIN)
             ->createOne();
 
-        $dnsDeployment = new DnsDeploymentFactory()
-            ->for(
-                new SubscriptionFactory()
-                    ->withCustomer()
-                    ->for($this->freeDnsProduct)
-                    ->forDomain(self::DOMAIN)
-                    ->for($domainSubscription, 'parent')
-            )
-            ->createOne();
+        $dnsDeployment = new DnsDeploymentFactory()->for(
+            new SubscriptionFactory()
+                ->withCustomer()
+                ->for($this->freeDnsProduct)
+                ->forDomain(self::DOMAIN)
+                ->for($domainSubscription, 'parent'),
+        )->createOne();
 
         $repository = new DnsDeploymentRepository();
         $retrievedDnsDeployment = $repository->getDnsDeploymentFromDomain(self::DOMAIN);
@@ -360,9 +363,7 @@ class DnsDeploymentRepositoryTest extends IntegrationTestCase
     #[Test]
     public function dnsDeploymentFromDomainReturnNullWithNonDomainParent(): void
     {
-        $extensionProduct = new ProductFactory()
-            ->hostingBrons()
-            ->createOne();
+        $extensionProduct = new ProductFactory()->hostingBrons()->createOne();
 
         $hostingSubscription = new SubscriptionFactory()
             ->withCustomer()
@@ -370,15 +371,13 @@ class DnsDeploymentRepositoryTest extends IntegrationTestCase
             ->forDomain(self::DOMAIN)
             ->createOne();
 
-        new DnsDeploymentFactory()
-            ->for(
-                new SubscriptionFactory()
-                    ->withCustomer()
-                    ->for($this->freeDnsProduct)
-                    ->forDomain(self::DOMAIN)
-                    ->for($hostingSubscription, 'parent')
-            )
-            ->createOne();
+        new DnsDeploymentFactory()->for(
+            new SubscriptionFactory()
+                ->withCustomer()
+                ->for($this->freeDnsProduct)
+                ->forDomain(self::DOMAIN)
+                ->for($hostingSubscription, 'parent'),
+        )->createOne();
 
         $repository = new DnsDeploymentRepository();
         $retrievedDnsDeployment = $repository->getDnsDeploymentFromDomain(self::DOMAIN);
@@ -389,14 +388,12 @@ class DnsDeploymentRepositoryTest extends IntegrationTestCase
     #[Test]
     public function dnsDeploymentFromDomainReturnNullWithoutParent(): void
     {
-        new DnsDeploymentFactory()
-            ->for(
-                new SubscriptionFactory()
-                    ->withCustomer()
-                    ->for($this->freeDnsProduct)
-                    ->forDomain(self::DOMAIN)
-            )
-            ->createOne();
+        new DnsDeploymentFactory()->for(
+            new SubscriptionFactory()
+                ->withCustomer()
+                ->for($this->freeDnsProduct)
+                ->forDomain(self::DOMAIN),
+        )->createOne();
 
         $repository = new DnsDeploymentRepository();
         $retrievedDnsDeployment = $repository->getDnsDeploymentFromDomain(self::DOMAIN);
@@ -412,12 +409,14 @@ class DnsDeploymentRepositoryTest extends IntegrationTestCase
         $region = new DnsRegionFactory()->createOne();
 
         foreach ($expectedNameservers as $nameserver) {
-            $this->freeDnsDeployment->dnsNameservers()->save(
-                new DnsNameserverFactory()->createOne([
-                    'dns_region_id' => $region->id,
-                    'nameserver' => $nameserver,
-                ])
-            );
+            $this->freeDnsDeployment
+                ->dnsNameservers()
+                ->save(
+                    new DnsNameserverFactory()->createOne([
+                        'dns_region_id' => $region->id,
+                        'nameserver' => $nameserver,
+                    ]),
+                );
         }
 
         $repository = new DnsDeploymentRepository();

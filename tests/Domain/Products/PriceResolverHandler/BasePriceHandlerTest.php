@@ -28,7 +28,7 @@ class BasePriceHandlerTest extends IntegrationTestCase
                 regularPrice: 1234,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
             new Price(
                 type: ProductPriceType::REGISTRATION,
@@ -38,7 +38,7 @@ class BasePriceHandlerTest extends IntegrationTestCase
                 regularPrice: 5678,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
         ]);
 
@@ -46,10 +46,7 @@ class BasePriceHandlerTest extends IntegrationTestCase
 
         self::assertCount(3, $prices);
 
-        $price = $prices
-            ->where('type', ProductPriceType::REGISTRATION)
-            ->where('productId', 1)
-            ->firstOrFail();
+        $price = $prices->where('type', ProductPriceType::REGISTRATION)->where('productId', 1)->firstOrFail();
 
         self::assertSame(12, $price->contractPeriod);
         self::assertSame(12, $price->billingPeriod);

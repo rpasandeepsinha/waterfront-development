@@ -31,7 +31,10 @@ class ProductSerializerFactory
 
         $classMetadataFactory = new ClassMetadataFactory(new AttributeLoader());
 
-        $metadataAwareNameConverter = new MetadataAwareNameConverter($classMetadataFactory, new CamelCaseToSnakeCaseNameConverter());
+        $metadataAwareNameConverter = new MetadataAwareNameConverter(
+            $classMetadataFactory,
+            new CamelCaseToSnakeCaseNameConverter(),
+        );
         $discriminator = new ClassDiscriminatorFromClassMetadata($classMetadataFactory);
 
         $normalizers = [
@@ -46,7 +49,7 @@ class ProductSerializerFactory
                 classMetadataFactory: $classMetadataFactory,
                 nameConverter: $metadataAwareNameConverter,
                 propertyTypeExtractor: $extractor,
-                classDiscriminatorResolver: $discriminator
+                classDiscriminatorResolver: $discriminator,
             ),
         ];
 

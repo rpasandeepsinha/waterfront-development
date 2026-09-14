@@ -23,14 +23,13 @@ class BasekitSubscriptionRepository
      */
     public function chunkBasekitSubscriptions(Closure $callback): void
     {
-        (clone $this->basekitSubscriptionQuery())
-            ->chunk(
-                200,
-                /**
-                 * @param Collection<int, Subscription> $subscriptions
-                 */
-                static fn (Collection $subscriptions): bool => $callback($subscriptions)
-            );
+        (clone $this->basekitSubscriptionQuery())->chunk(
+            200,
+            /**
+             * @param Collection<int, Subscription> $subscriptions
+             */
+            static fn (Collection $subscriptions): bool => $callback($subscriptions),
+        );
     }
 
     /**
@@ -48,8 +47,7 @@ class BasekitSubscriptionRepository
             ])
             ->whereHas('customer', function (Builder $query): void {
                 $query->where(function (Builder $q): void {
-                    $q->where('email', 'like', '%@yourhosting.nl')
-                        ->orWhere('email', 'like', '%@sandwave.io');
+                    $q->where('email', 'like', '%@yourhosting.nl')->orWhere('email', 'like', '%@sandwave.io');
                 });
             })
             ->whereHas('product.productGroup', function (Builder $query): void {

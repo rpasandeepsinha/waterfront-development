@@ -21,7 +21,7 @@ class SetBusinessUnitOnDomainDeploymentsJob extends AbstractQueueableJob
      */
     public function __construct(
         private readonly ?int $businessUnitId,
-        private readonly array $domainDeploymentIds
+        private readonly array $domainDeploymentIds,
     ) {
         parent::__construct();
     }
@@ -37,15 +37,17 @@ class SetBusinessUnitOnDomainDeploymentsJob extends AbstractQueueableJob
                     'domain_deployment_ids' => $this->domainDeploymentIds,
                     'business_unit_id' => $this->businessUnitId,
                 ],
-            ]
+            ],
         );
 
         $table = new DomainDeployment()->getTable();
 
-        DB::table($table)->whereIn('id', $this->domainDeploymentIds)->update([
-            'domain_business_unit_id' => $this->businessUnitId,
-            'updated_at' => CarbonImmutable::now(),
-        ]);
+        DB::table($table)
+            ->whereIn('id', $this->domainDeploymentIds)
+            ->update([
+                'domain_business_unit_id' => $this->businessUnitId,
+                'updated_at' => CarbonImmutable::now(),
+            ]);
     }
 
     protected function getQueueName(): QueueName

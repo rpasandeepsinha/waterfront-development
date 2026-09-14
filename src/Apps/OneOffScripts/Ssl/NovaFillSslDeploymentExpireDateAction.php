@@ -46,9 +46,7 @@ class NovaFillSslDeploymentExpireDateAction extends NovaOneOffScriptAbstractActi
 
             Number::make('Missing expire_date (estimate)')
                 ->default(
-                    fn () => $this->sslDeploymentRepository
-                        ->getExpireDateBackfillCandidates()
-                        ->count()
+                    fn () => $this->sslDeploymentRepository->getExpireDateBackfillCandidates()->count(),
                 )
                 ->readonly(),
         ];
@@ -67,7 +65,7 @@ class NovaFillSslDeploymentExpireDateAction extends NovaOneOffScriptAbstractActi
                     'debug' => $isDebug,
                     'limit' => $limit,
                 ],
-            ]
+            ],
         );
 
         $this->registerExecution();
@@ -133,7 +131,7 @@ class NovaFillSslDeploymentExpireDateAction extends NovaOneOffScriptAbstractActi
                     }
 
                     return true;
-                }
+                },
             );
 
         return $queued;

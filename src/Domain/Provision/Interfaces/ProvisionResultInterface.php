@@ -10,31 +10,15 @@ use Waterfront\Domain\Provision\Validation\ValidationResult;
 
 interface ProvisionResultInterface
 {
-    public ProvisionRequestInterface $provisionData {
-        get;
-        set;
-    }
+    public ProvisionRequestInterface $provisionData { get; set; }
 
-    public ProvisionStatus $provisionStatus {
-        get;
-        set;
-    }
+    public ProvisionStatus $provisionStatus { get; set; }
 
-    public ?Throwable $exception {
-        get;
-        set;
-    }
+    public ?Throwable $exception { get; set; }
 
-    public ?ValidationResult $validationResult {
-        get;
-        set;
-    }
+    public ?ValidationResult $validationResult { get; set; }
 
-    public bool $failed {
-        get;
-    }
+    public bool $failed { get; }
 
-    public bool $succeeded {
-        get;
-    }
+    public bool $succeeded { get; }
 }

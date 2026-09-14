@@ -68,9 +68,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             rtrService: $this->rtrService,
         );
 
-        $product = ProductFactory::new()
-            ->nlDomain()
-            ->createOne();
+        $product = ProductFactory::new()->nlDomain()->createOne();
 
         $this->domainDeployment = DomainDeploymentFactory::new()
             ->withSubscription($product)
@@ -90,17 +88,19 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with($this->domainDeployment)
             ->willReturn(null);
 
-        $this->rtrService
-            ->expects(self::never())
-            ->method('fetchDomain');
+        $this->rtrService->expects(self::never())->method('fetchDomain');
 
         $this->logger
             ->expects(self::once())
             ->method('info')
             ->with(
                 'Skipping failed domain subscription because no DNS deployment was found.',
-                self::callback(fn (array $context): bool => $this->assertBaseLogContext($context, $this->domainDeployment)
-                    && $context[LoggingContextKeys::META]['reason'] === 'missing_dns_deployment'),
+                self::callback(
+                    fn (array $context): bool => (
+                        $this->assertBaseLogContext($context, $this->domainDeployment)
+                        && $context[LoggingContextKeys::META]['reason'] === 'missing_dns_deployment'
+                    ),
+                ),
             );
 
         $repair = $this->failedDomainSubscriptionRepairService->determineRepair(
@@ -118,13 +118,9 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->rtrService
             ->expects(self::once())
@@ -147,13 +143,9 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->rtrService
             ->expects(self::once())
@@ -180,13 +172,9 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->dnsDeploymentRepository
             ->expects(self::once())
@@ -224,9 +212,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->withInternalNameserver()
             ->createOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $storedNameservers = $dnsDeployment->dnsNameservers->pluck('nameserver')->toArray();
 
@@ -264,9 +250,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->withInternalNameserver()
             ->createOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $nameservers = [
             'ns1.example.test',
@@ -303,13 +287,9 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->rtrService
             ->expects(self::once())
@@ -349,13 +329,9 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->dnsDeploymentRepository
             ->expects(self::once())
@@ -391,13 +367,9 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $openProcessCollection = $this->createProcessCollection([
             $this->createProcess(
@@ -441,13 +413,9 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->dnsDeploymentRepository
             ->expects(self::once())
@@ -484,17 +452,11 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
-        $this->dnsDeploymentRepository
-            ->method('getNameserverHostnames')
-            ->willReturn(['ns1.example.test']);
+        $this->dnsDeploymentRepository->method('getNameserverHostnames')->willReturn(['ns1.example.test']);
 
         $this->rtrService
             ->expects(self::once())
@@ -525,13 +487,9 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->dnsDeploymentRepository
             ->expects(self::once())
@@ -554,9 +512,13 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->method('info')
             ->with(
                 'Fetched remote domain for failed subscription.',
-                self::callback(fn (array $context): bool => $this->assertBaseLogContext($context, $this->domainDeployment)
-                    && $context[LoggingContextKeys::META]['remote_statuses'] === [RtrDomainStatus::INACTIVE->value]
-                    && $context[LoggingContextKeys::META]['remote_nameservers'] === ['ns1.remote.test']),
+                self::callback(
+                    fn (array $context): bool => (
+                        $this->assertBaseLogContext($context, $this->domainDeployment)
+                        && $context[LoggingContextKeys::META]['remote_statuses'] === [RtrDomainStatus::INACTIVE->value]
+                        && $context[LoggingContextKeys::META]['remote_nameservers'] === ['ns1.remote.test']
+                    ),
+                ),
             );
 
         $this->failedDomainSubscriptionRepairService->determineRepair(
@@ -574,25 +536,23 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with($this->domainDeployment)
             ->willReturn(null);
 
-        $this->nameserverAssignerFactory
-            ->expects(self::never())
-            ->method('createAssigner');
+        $this->nameserverAssignerFactory->expects(self::never())->method('createAssigner');
 
-        $this->rtrService
-            ->expects(self::never())
-            ->method('fetchDomain');
+        $this->rtrService->expects(self::never())->method('fetchDomain');
 
-        $this->rtrService
-            ->expects(self::never())
-            ->method('updateNameServers');
+        $this->rtrService->expects(self::never())->method('updateNameServers');
 
         $this->logger
             ->expects(self::once())
             ->method('warning')
             ->with(
                 'Skipping nameserver repair because no DNS deployment was found.',
-                self::callback(fn (array $context): bool => $this->assertBaseLogContext($context, $this->domainDeployment)
-                    && $context[LoggingContextKeys::META]['reason'] === 'missing_dns_deployment'),
+                self::callback(
+                    fn (array $context): bool => (
+                        $this->assertBaseLogContext($context, $this->domainDeployment)
+                        && $context[LoggingContextKeys::META]['reason'] === 'missing_dns_deployment'
+                    ),
+                ),
             );
 
         $originalTechnicalStatus = $this->domainDeployment->subscription->technical_status;
@@ -618,13 +578,9 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->rtrService
             ->expects(self::once())
@@ -632,21 +588,21 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with($domain)
             ->willThrowException(new DomainDoesNotExistException());
 
-        $this->nameserverAssignerFactory
-            ->expects(self::never())
-            ->method('createAssigner');
+        $this->nameserverAssignerFactory->expects(self::never())->method('createAssigner');
 
-        $this->rtrService
-            ->expects(self::never())
-            ->method('updateNameServers');
+        $this->rtrService->expects(self::never())->method('updateNameServers');
 
         $this->logger
             ->expects(self::once())
             ->method('warning')
             ->with(
                 'Skipping nameserver repair because the remote domain no longer exists at RTR.',
-                self::callback(fn (array $context): bool => $this->assertBaseLogContext($context, $this->domainDeployment)
-                    && $context[LoggingContextKeys::META]['reason'] === 'remote_domain_missing'),
+                self::callback(
+                    fn (array $context): bool => (
+                        $this->assertBaseLogContext($context, $this->domainDeployment)
+                        && $context[LoggingContextKeys::META]['reason'] === 'remote_domain_missing'
+                    ),
+                ),
             );
 
         $this->failedDomainSubscriptionRepairService->repairMissingRemoteNameservers(
@@ -661,9 +617,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
         $remoteDomain = $this->makeRemoteDomainDto(
             domainName: $domain,
@@ -674,9 +628,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
 
         $storedNameservers = [new Nameserver(hostname: 'ns1.remote.test')];
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->dnsDeploymentRepository
             ->expects(self::once())
@@ -690,16 +642,9 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with($dnsDeployment)
             ->willReturn($storedNameservers);
 
-        $this->rtrService
-            ->expects(self::exactly(2))
-            ->method('fetchDomain')
-            ->with($domain)
-            ->willReturn($remoteDomain);
+        $this->rtrService->expects(self::exactly(2))->method('fetchDomain')->with($domain)->willReturn($remoteDomain);
 
-        $this->rtrService
-            ->expects(self::once())
-            ->method('updateNameServers')
-            ->with($domain, $storedNameservers);
+        $this->rtrService->expects(self::once())->method('updateNameServers')->with($domain, $storedNameservers);
 
         $this->rtrService
             ->expects(self::once())
@@ -707,9 +652,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with([RtrDomainStatus::OK->value])
             ->willReturn(TechnicalStatus::OK->value);
 
-        $this->nameserverAssignerFactory
-            ->expects(self::never())
-            ->method('createAssigner');
+        $this->nameserverAssignerFactory->expects(self::never())->method('createAssigner');
 
         $this->failedDomainSubscriptionRepairService->repairMissingRemoteNameservers(
             subscription: $this->domainDeployment->subscription,
@@ -735,9 +678,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withInternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withInternalNameserver()->makeOne();
 
         $remoteBeforeRepair = $this->makeRemoteDomainDto(
             domainName: $domain,
@@ -752,13 +693,11 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         );
 
         $storedNameservers = [
-            new Nameserver(hostname:  'ns1.example.test'),
-            new Nameserver(hostname:  'ns2.example.test'),
+            new Nameserver(hostname: 'ns1.example.test'),
+            new Nameserver(hostname: 'ns2.example.test'),
         ];
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->rtrService
             ->expects(self::exactly(2))
@@ -773,10 +712,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->willReturn([]);
 
         $mockAssigner = self::createMock(NameserverAssignerInterface::class);
-        $mockAssigner->expects(self::once())
-            ->method('assign')
-            ->with($dnsDeployment)
-            ->willReturn($storedNameservers);
+        $mockAssigner->expects(self::once())->method('assign')->with($dnsDeployment)->willReturn($storedNameservers);
 
         $this->nameserverAssignerFactory
             ->expects(self::once())
@@ -790,10 +726,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with($dnsDeployment)
             ->willReturn($storedNameservers);
 
-        $this->rtrService
-            ->expects(self::once())
-            ->method('updateNameServers')
-            ->with($domain, $storedNameservers);
+        $this->rtrService->expects(self::once())->method('updateNameServers')->with($domain, $storedNameservers);
 
         $this->rtrService
             ->expects(self::once())
@@ -825,17 +758,13 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withInternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withInternalNameserver()->makeOne();
 
         $originalTechnicalStatus = $this->domainDeployment->subscription->technical_status;
         $originalLastResult = $this->domainDeployment->last_result;
         $originalLastResultReceived = $this->domainDeployment->last_result_received;
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->rtrService
             ->expects(self::once())
@@ -850,13 +779,11 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $this->dnsDeploymentRepository
             ->expects(self::once())
             ->method('getNameserverHostnames')
-            ->with($dnsDeployment)->willReturn([]);
-
-        $mockAssigner = self::createMock(NameserverAssignerInterface::class);
-        $mockAssigner->expects(self::once())
-            ->method('assign')
             ->with($dnsDeployment)
             ->willReturn([]);
+
+        $mockAssigner = self::createMock(NameserverAssignerInterface::class);
+        $mockAssigner->expects(self::once())->method('assign')->with($dnsDeployment)->willReturn([]);
 
         $this->nameserverAssignerFactory
             ->expects(self::once())
@@ -864,13 +791,9 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with(NameserverType::INTERNAL)
             ->willReturn($mockAssigner);
 
-        $this->rtrService
-            ->expects(self::never())
-            ->method('updateNameServers');
+        $this->rtrService->expects(self::never())->method('updateNameServers');
 
-        $this->logger
-            ->expects(self::exactly(2))
-            ->method('warning');
+        $this->logger->expects(self::exactly(2))->method('warning');
 
         $this->failedDomainSubscriptionRepairService->repairMissingRemoteNameservers(
             subscription: $this->domainDeployment->subscription,
@@ -891,13 +814,9 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->rtrService
             ->expects(self::once())
@@ -916,10 +835,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->willReturn([]);
 
         $mockAssigner = self::createMock(NameserverAssignerInterface::class);
-        $mockAssigner->expects(self::once())
-            ->method('assign')
-            ->with($dnsDeployment)
-            ->willReturn([]);
+        $mockAssigner->expects(self::once())->method('assign')->with($dnsDeployment)->willReturn([]);
 
         $this->nameserverAssignerFactory
             ->expects(self::once())
@@ -927,9 +843,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with($dnsDeployment->nameserver_type)
             ->willReturn($mockAssigner);
 
-        $this->rtrService
-            ->expects(self::never())
-            ->method('updateNameServers');
+        $this->rtrService->expects(self::never())->method('updateNameServers');
 
         $matcher = self::exactly(2);
         $this->logger
@@ -957,9 +871,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
         $remoteBeforeRepair = $this->makeRemoteDomainDto(
             domainName: $domain,
@@ -975,9 +887,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
 
         $storedNameservers = [['hostname' => 'ns1.example.test']];
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->rtrService
             ->expects(self::exactly(2))
@@ -997,10 +907,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with($dnsDeployment)
             ->willReturn($storedNameservers);
 
-        $this->rtrService
-            ->expects(self::once())
-            ->method('updateNameServers')
-            ->with($domain, $storedNameservers);
+        $this->rtrService->expects(self::once())->method('updateNameServers')->with($domain, $storedNameservers);
 
         $this->rtrService
             ->expects(self::once())
@@ -1032,9 +939,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
         $remoteBeforeRepair = $this->makeRemoteDomainDto(
             domainName: $domain,
@@ -1050,9 +955,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
 
         $storedNameservers = [['hostname' => 'ns1.example.test']];
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->rtrService
             ->expects(self::exactly(2))
@@ -1072,10 +975,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with($dnsDeployment)
             ->willReturn($storedNameservers);
 
-        $this->rtrService
-            ->expects(self::once())
-            ->method('updateNameServers')
-            ->with($domain, $storedNameservers);
+        $this->rtrService->expects(self::once())->method('updateNameServers')->with($domain, $storedNameservers);
 
         $this->rtrService
             ->expects(self::once())
@@ -1116,8 +1016,13 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->method('warning')
             ->with(
                 'Skipping pending-state restore because RTR no longer has an open prevalidation process.',
-                self::callback(fn (array $context): bool => $this->assertBaseLogContext($context, $this->domainDeployment)
-                    && $context[LoggingContextKeys::META]['reason'] === 'open_prevalidation_process_no_longer_present'),
+                self::callback(
+                    fn (array $context): bool => (
+                        $this->assertBaseLogContext($context, $this->domainDeployment)
+                        && $context[LoggingContextKeys::META]['reason']
+                        === 'open_prevalidation_process_no_longer_present'
+                    ),
+                ),
             );
 
         $processCollection = ProcessCollection::fromArray([[
@@ -1137,7 +1042,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $this->failedDomainSubscriptionRepairService->restoreFromProcesses(
             subscription: $this->domainDeployment->subscription,
             source: self::SOURCE,
-            processCollection: $processCollection
+            processCollection: $processCollection,
         );
 
         $this->domainDeployment->subscription->refresh();
@@ -1154,9 +1059,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $this->logger
-            ->expects(self::once())
-            ->method('info');
+        $this->logger->expects(self::once())->method('info');
 
         $process = $this->createProcess(
             processId: 1001,
@@ -1168,7 +1071,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $this->failedDomainSubscriptionRepairService->restoreFromProcesses(
             subscription: $this->domainDeployment->subscription,
             source: self::SOURCE,
-            processCollection: $this->createProcessCollection([$process])
+            processCollection: $this->createProcessCollection([$process]),
         );
 
         $this->domainDeployment->subscription->refresh();
@@ -1244,8 +1147,12 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->method('warning')
             ->with(
                 'Skipping status sync because the remote domain no longer exists at RTR.',
-                self::callback(fn (array $context): bool => $this->assertBaseLogContext($context, $this->domainDeployment)
-                    && $context[LoggingContextKeys::META]['reason'] === 'remote_domain_missing'),
+                self::callback(
+                    fn (array $context): bool => (
+                        $this->assertBaseLogContext($context, $this->domainDeployment)
+                        && $context[LoggingContextKeys::META]['reason'] === 'remote_domain_missing'
+                    ),
+                ),
             );
 
         $this->failedDomainSubscriptionRepairService->syncStatusFromRemote(
@@ -1274,11 +1181,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             expiryDate: new DateTime('2026-12-31 10:00:00'),
         );
 
-        $this->rtrService
-            ->expects(self::once())
-            ->method('fetchDomain')
-            ->with($domain)
-            ->willReturn($remoteDomain);
+        $this->rtrService->expects(self::once())->method('fetchDomain')->with($domain)->willReturn($remoteDomain);
 
         $this->rtrService
             ->expects(self::once())
@@ -1292,9 +1195,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with([RtrDomainStatus::OK->value])
             ->willReturn(RtrDomainStatus::OK);
 
-        $this->logger
-            ->expects(self::exactly(2))
-            ->method('info');
+        $this->logger->expects(self::exactly(2))->method('info');
 
         $this->failedDomainSubscriptionRepairService->syncStatusFromRemote(
             subscription: $this->domainDeployment->subscription,
@@ -1403,13 +1304,9 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->rtrService
             ->expects(self::once())
@@ -1417,17 +1314,19 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with($domain)
             ->willThrowException(new Exception('RTR is on fire'));
 
-        $this->rtrService
-            ->expects(self::never())
-            ->method('listProcessesForDomain');
+        $this->rtrService->expects(self::never())->method('listProcessesForDomain');
 
         $this->logger
             ->expects(self::once())
             ->method('warning')
             ->with(
                 'Skipping failed domain subscription because RTR domain lookup failed.',
-                self::callback(fn (array $context): bool => $this->assertBaseLogContext($context, $this->domainDeployment)
-                    && $context[LoggingContextKeys::META]['reason'] === 'rtr_domain_lookup_failed'),
+                self::callback(
+                    fn (array $context): bool => (
+                        $this->assertBaseLogContext($context, $this->domainDeployment)
+                        && $context[LoggingContextKeys::META]['reason'] === 'rtr_domain_lookup_failed'
+                    ),
+                ),
             );
 
         $repair = $this->failedDomainSubscriptionRepairService->determineRepair(
@@ -1445,13 +1344,9 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->rtrService
             ->expects(self::once())
@@ -1459,21 +1354,21 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with($domain)
             ->willThrowException(new Exception('RTR is on fire'));
 
-        $this->rtrService
-            ->expects(self::never())
-            ->method('updateNameServers');
+        $this->rtrService->expects(self::never())->method('updateNameServers');
 
-        $this->nameserverAssignerFactory
-            ->expects(self::never())
-            ->method('createAssigner');
+        $this->nameserverAssignerFactory->expects(self::never())->method('createAssigner');
 
         $this->logger
             ->expects(self::once())
             ->method('warning')
             ->with(
                 'Skipping nameserver repair because RTR domain lookup failed.',
-                self::callback(fn (array $context): bool => $this->assertBaseLogContext($context, $this->domainDeployment)
-                    && $context[LoggingContextKeys::META]['reason'] === 'rtr_domain_lookup_failed'),
+                self::callback(
+                    fn (array $context): bool => (
+                        $this->assertBaseLogContext($context, $this->domainDeployment)
+                        && $context[LoggingContextKeys::META]['reason'] === 'rtr_domain_lookup_failed'
+                    ),
+                ),
             );
 
         $this->failedDomainSubscriptionRepairService->repairMissingRemoteNameservers(
@@ -1488,9 +1383,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
         $domain = $this->domainDeployment->subscription->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withExternalNameserver()
-            ->makeOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withExternalNameserver()->makeOne();
 
         $remoteDomain = $this->makeRemoteDomainDto(
             domainName: $domain,
@@ -1500,9 +1393,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
 
         $storedNameservers = [new Nameserver(hostname: 'ns1.example.test')];
 
-        $this->dnsDeploymentRepository
-            ->method('getDnsDeploymentFromDomainDeployment')
-            ->willReturn($dnsDeployment);
+        $this->dnsDeploymentRepository->method('getDnsDeploymentFromDomainDeployment')->willReturn($dnsDeployment);
 
         $this->dnsDeploymentRepository
             ->expects(self::once())
@@ -1516,11 +1407,7 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with($dnsDeployment)
             ->willReturn($storedNameservers);
 
-        $this->rtrService
-            ->expects(self::once())
-            ->method('fetchDomain')
-            ->with($domain)
-            ->willReturn($remoteDomain);
+        $this->rtrService->expects(self::once())->method('fetchDomain')->with($domain)->willReturn($remoteDomain);
 
         $this->rtrService
             ->expects(self::once())
@@ -1528,17 +1415,19 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with($domain, $storedNameservers)
             ->willThrowException(new Exception('RTR refused the update'));
 
-        $this->rtrService
-            ->expects(self::never())
-            ->method('getTechnicalStatusFromDomainStatusList');
+        $this->rtrService->expects(self::never())->method('getTechnicalStatusFromDomainStatusList');
 
         $this->logger
             ->expects(self::once())
             ->method('warning')
             ->with(
                 'Skipping nameserver repair follow-up because RTR nameserver update or refetch failed.',
-                self::callback(fn (array $context): bool => $this->assertBaseLogContext($context, $this->domainDeployment)
-                    && $context[LoggingContextKeys::META]['reason'] === 'rtr_nameserver_update_or_refetch_failed'),
+                self::callback(
+                    fn (array $context): bool => (
+                        $this->assertBaseLogContext($context, $this->domainDeployment)
+                        && $context[LoggingContextKeys::META]['reason'] === 'rtr_nameserver_update_or_refetch_failed'
+                    ),
+                ),
             );
 
         $this->failedDomainSubscriptionRepairService->repairMissingRemoteNameservers(
@@ -1563,17 +1452,19 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
             ->with($domain)
             ->willThrowException(new Exception('RTR is on fire'));
 
-        $this->rtrService
-            ->expects(self::never())
-            ->method('getTechnicalStatusFromDomainStatusList');
+        $this->rtrService->expects(self::never())->method('getTechnicalStatusFromDomainStatusList');
 
         $this->logger
             ->expects(self::once())
             ->method('warning')
             ->with(
                 'Skipping status sync because RTR domain lookup failed.',
-                self::callback(fn (array $context): bool => $this->assertBaseLogContext($context, $this->domainDeployment)
-                    && $context[LoggingContextKeys::META]['reason'] === 'rtr_domain_lookup_failed'),
+                self::callback(
+                    fn (array $context): bool => (
+                        $this->assertBaseLogContext($context, $this->domainDeployment)
+                        && $context[LoggingContextKeys::META]['reason'] === 'rtr_domain_lookup_failed'
+                    ),
+                ),
             );
 
         $this->failedDomainSubscriptionRepairService->syncStatusFromRemote(
@@ -1670,9 +1561,11 @@ class FailedDomainSubscriptionRepairServiceTest extends IntegrationTestCase
      */
     private function assertBaseLogContext(array $context, DomainDeployment $domainDeployment): bool
     {
-        return ($context[LoggingContextKeys::ONE_OFF_SCRIPT] ?? null) === self::SOURCE
+        return (
+            ($context[LoggingContextKeys::ONE_OFF_SCRIPT] ?? null) === self::SOURCE
             && ($context[LoggingContextKeys::SUBSCRIPTION_UUID] ?? null) === $domainDeployment->subscription->uuid
             && ($context[LoggingContextKeys::DOMAIN_NAME] ?? null) === $domainDeployment->subscription->domain
-            && ($context[LoggingContextKeys::PROVISIONING_ID] ?? null) === $domainDeployment->id;
+            && ($context[LoggingContextKeys::PROVISIONING_ID] ?? null) === $domainDeployment->id
+        );
     }
 }

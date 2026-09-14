@@ -52,9 +52,7 @@ class RedirectMigrationControllerTest extends IntegrationTestCase
 
         $this->customer = CustomerFactory::new()->createOne();
 
-        $redirectProduct = ProductFactory::new()
-            ->freeRedirect()
-            ->createOne();
+        $redirectProduct = ProductFactory::new()->freeRedirect()->createOne();
 
         $this->redirectSubscription = SubscriptionFactory::new()
             ->for($this->customer)
@@ -93,7 +91,7 @@ class RedirectMigrationControllerTest extends IntegrationTestCase
                     redirectContentForARrset: '1.2.3.4',
                     redirectNameForAAAARrset: 'subdomain.' . self::TEST_DOMAIN,
                     redirectContentForAAAARrset: '::2',
-                )
+                ),
             ),
             // A record
             new Response(
@@ -101,18 +99,18 @@ class RedirectMigrationControllerTest extends IntegrationTestCase
                 [],
                 $this->getMockedZoneResponseBody(
                     domain: self::TEST_DOMAIN,
-                )
+                ),
             ),
             new Response(
                 200,
                 [],
                 $this->getMockedZoneResponseBody(
                     domain: self::TEST_DOMAIN,
-                )
+                ),
             ),
             new Response(
                 207,
-                []
+                [],
             ),
             // AAAA record
             new Response(
@@ -120,18 +118,18 @@ class RedirectMigrationControllerTest extends IntegrationTestCase
                 [],
                 $this->getMockedZoneResponseBody(
                     domain: self::TEST_DOMAIN,
-                )
+                ),
             ),
             new Response(
                 200,
                 [],
                 $this->getMockedZoneResponseBody(
                     domain: self::TEST_DOMAIN,
-                )
+                ),
             ),
             new Response(
                 207,
-                []
+                [],
             ),
         ]);
 
@@ -139,21 +137,21 @@ class RedirectMigrationControllerTest extends IntegrationTestCase
 
         $redirectsService = self::createStub(RedirectService::class);
         $redirectsService->method('listRedirects')->willReturn([]);
-        $redirectsService->method('createRedirect')->willReturn(
-            new RedirectResult(
-                provisionData: self::createStub(ProvisionRequestInterface::class),
-                provisionStatus: ProvisionStatus::FAILED,
-            )
-        );
+        $redirectsService
+            ->method('createRedirect')
+            ->willReturn(
+                new RedirectResult(
+                    provisionData: self::createStub(ProvisionRequestInterface::class),
+                    provisionStatus: ProvisionStatus::FAILED,
+                ),
+            );
 
         $this->app->bind(
             RedirectService::class,
-            fn (): RedirectService => $redirectsService
+            fn (): RedirectService => $redirectsService,
         );
 
-        $product = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->dns())
-            ->freeDns();
+        $product = ProductFactory::new()->for(ProductGroupFactory::new()->dns())->freeDns();
         SubscriptionFactory::new()
             ->administrativeStatusActive()
             ->forDomain(self::TEST_DOMAIN)
@@ -177,17 +175,21 @@ class RedirectMigrationControllerTest extends IntegrationTestCase
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_redirects', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_redirects', [
+                    'customer' => $this->customer->id,
+                ]),
                 $postData,
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
+                ],
             )
             ->assertStatus(SymfonyResponse::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [
                     [
-                        'message' => 'Redirect migration step not allowed for subscription: ' . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
+                        'message' =>
+                            'Redirect migration step not allowed for subscription: '
+                                . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
                         'parameters' => [
                             'customerId' => $this->customer->id,
                             'subscriptionId' => $invalidSubscription->id,
@@ -220,7 +222,9 @@ class RedirectMigrationControllerTest extends IntegrationTestCase
     {
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_redirects', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_redirects', [
+                    'customer' => $this->customer->id,
+                ]),
                 [
                     [
                         'source' => 'test123',
@@ -229,7 +233,7 @@ class RedirectMigrationControllerTest extends IntegrationTestCase
                 ],
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
+                ],
             )
             ->assertStatus(SymfonyResponse::HTTP_UNPROCESSABLE_ENTITY)
             ->assertExactJson([
@@ -248,7 +252,9 @@ class RedirectMigrationControllerTest extends IntegrationTestCase
     {
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_redirects', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_redirects', [
+                    'customer' => $this->customer->id,
+                ]),
                 [
                     [
                         'source' => 'mismatching-domain.nl',
@@ -258,7 +264,7 @@ class RedirectMigrationControllerTest extends IntegrationTestCase
                 ],
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
+                ],
             )
             ->assertStatus(SymfonyResponse::HTTP_UNPROCESSABLE_ENTITY)
             ->assertExactJson([
@@ -278,28 +284,31 @@ class RedirectMigrationControllerTest extends IntegrationTestCase
         // So in essence administrative only redirects won't block migrations
         Queue::fake();
 
-        $responseNoData = $this->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_redirects', ['customer' => $this->customer->id]),
-                [],
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
-            );
+        $responseNoData = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.migrate_redirects', [
+                'customer' => $this->customer->id,
+            ]),
+            [],
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+            ],
+        );
 
-        $responseNoData->assertStatus(SymfonyResponse::HTTP_MULTI_STATUS)->assertExactJson([
-             'failures' => [],
-             'success' => [
-                 [
-                     'message' => 'Created jobs to migrate redirects for every eligible subscription',
-                     'baseParameters' => [],
-                     'parameters' => [
-                         'customerId' => $this->customer->id,
-                         'subscriptionIds' => (string) $this->redirectSubscription->id,
-                     ],
-                 ],
-             ],
-         ]);
+        $responseNoData
+            ->assertStatus(SymfonyResponse::HTTP_MULTI_STATUS)
+            ->assertExactJson([
+                'failures' => [],
+                'success' => [
+                    [
+                        'message' => 'Created jobs to migrate redirects for every eligible subscription',
+                        'baseParameters' => [],
+                        'parameters' => [
+                            'customerId' => $this->customer->id,
+                            'subscriptionIds' => (string) $this->redirectSubscription->id,
+                        ],
+                    ],
+                ],
+            ]);
 
         Queue::assertNothingPushed();
     }
@@ -311,28 +320,31 @@ class RedirectMigrationControllerTest extends IntegrationTestCase
         // So in essence administrative only redirects won't block migrations
         Queue::fake();
 
-        $responseWithEmptyData = $this->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_redirects', ['customer' => $this->customer->id]),
-                [[]],
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
-            );
+        $responseWithEmptyData = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.migrate_redirects', [
+                'customer' => $this->customer->id,
+            ]),
+            [[]],
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+            ],
+        );
 
-        $responseWithEmptyData->assertStatus(SymfonyResponse::HTTP_MULTI_STATUS)->assertExactJson([
-            'failures' => [],
-            'success' => [
-                [
-                    'message' => 'Created jobs to migrate redirects for every eligible subscription',
-                    'baseParameters' => [],
-                    'parameters' => [
-                        'customerId' => $this->customer->id,
-                        'subscriptionIds' => (string) $this->redirectSubscription->id,
+        $responseWithEmptyData
+            ->assertStatus(SymfonyResponse::HTTP_MULTI_STATUS)
+            ->assertExactJson([
+                'failures' => [],
+                'success' => [
+                    [
+                        'message' => 'Created jobs to migrate redirects for every eligible subscription',
+                        'baseParameters' => [],
+                        'parameters' => [
+                            'customerId' => $this->customer->id,
+                            'subscriptionIds' => (string) $this->redirectSubscription->id,
+                        ],
                     ],
                 ],
-            ],
-        ]);
+            ]);
 
         Queue::assertNothingPushed();
     }

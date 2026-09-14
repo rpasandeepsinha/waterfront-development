@@ -42,8 +42,8 @@ class CaddyClient
     {
         $response = $this->connector->send(
             new GetRedirectRouteRequest(
-                routeId: $caddyId
-            )
+                routeId: $caddyId,
+            ),
         );
 
         try {
@@ -67,7 +67,7 @@ class CaddyClient
         string $toUrl,
         RedirectType $redirectType,
         ?array $paths = null,
-        ?array $query = null
+        ?array $query = null,
     ): string {
         $caddyId = $this->routeIdGenerator->generate(
             fromHost: $fromHost,
@@ -88,7 +88,7 @@ class CaddyClient
             new CreateRedirectRouteRequest(
                 payload: $payload,
                 redirectsScopeId: self::REDIRECTS_SCOPE_ID,
-            )
+            ),
         );
 
         return $caddyId;
@@ -122,7 +122,7 @@ class CaddyClient
             new UpdateRedirectRouteRequest(
                 routeId: $caddyId,
                 payload: $payload,
-            )
+            ),
         );
 
         return $caddyId;
@@ -137,7 +137,7 @@ class CaddyClient
         $this->connector->send(
             new DeleteRedirectRouteRequest(
                 routeId: $caddyId,
-            )
+            ),
         );
     }
 }

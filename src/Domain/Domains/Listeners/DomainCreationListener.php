@@ -60,7 +60,7 @@ class DomainCreationListener implements ShouldQueue
             [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $event->subscription->uuid,
                 LoggingContextKeys::DOMAIN_NAME => $event->domain,
-            ]
+            ],
         );
 
         $this->setSubscriptionTechnicalStateOnPending($event->subscription);
@@ -89,8 +89,9 @@ class DomainCreationListener implements ShouldQueue
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::PRODUCT_SLUG => $product->slug,
                     LoggingContextKeys::PROVISIONING_TYPE => $isTransfer ? 'domain.transfer' : 'domain.registration',
-                ]
+                ],
             );
+
             return;
         }
 
@@ -100,7 +101,7 @@ class DomainCreationListener implements ShouldQueue
             LoggingContextKeys::PROVISIONING_TYPE => $isTransfer ? 'domain.transfer' : 'domain.registration',
         ]);
 
-        if ($event->getTransferSecret() === 'deferred_transfer') {
+        if ($event->getTransferSecret() === DomainService::DEFERRED_TRANSFER) {
             $subscription = $event->subscription;
             $subscription->technical_status = TechnicalStatus::TRANSFER_FAILED->value;
             $subscription->save();
@@ -120,12 +121,16 @@ class DomainCreationListener implements ShouldQueue
             'last_result_received' => CarbonImmutable::now(),
         ]);
 
-        if (in_array($subscription->technical_status, [DomainStatus::FAILED->value, TechnicalStatus::FAILED->value], true)) {
+        if (in_array(
+            $subscription->technical_status,
+            [DomainStatus::FAILED->value, TechnicalStatus::FAILED->value],
+            true,
+        )) {
             $this->logger->warning(
                 sprintf(
                     'Domain registration status: %s. Reason: %s',
                     $subscription->technical_status,
-                    $result->getReason()
+                    $result->getReason(),
                 ),
                 [
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
@@ -133,7 +138,7 @@ class DomainCreationListener implements ShouldQueue
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
                     LoggingContextKeys::PROVISIONING_ID => $subscription->domainDeployment?->id,
-                ]
+                ],
             );
         }
     }
@@ -146,7 +151,11 @@ class DomainCreationListener implements ShouldQueue
 
     private function sendTransferFailedMail(Subscription $subscription): void
     {
-        if (in_array($subscription->technical_status, [DomainStatus::FAILED->value, TechnicalStatus::FAILED->value], true)) {
+        if (in_array(
+            $subscription->technical_status,
+            [DomainStatus::FAILED->value, TechnicalStatus::FAILED->value],
+            true,
+        )) {
             $reason = ! is_null($subscription->domainDeployment?->last_result)
                 ? $this->rtrErrorParseService->getTranslatedRtrError($subscription->domainDeployment->last_result)
                 : $this->translator->translate('domain-register-transfer-failed-unknown-reason');
@@ -155,8 +164,8 @@ class DomainCreationListener implements ShouldQueue
                 [$subscription->customer],
                 new MailDomainCreationFailed(
                     $subscription->domain ?? '-',
-                    $reason
-                )
+                    $reason,
+                ),
             );
         }
     }

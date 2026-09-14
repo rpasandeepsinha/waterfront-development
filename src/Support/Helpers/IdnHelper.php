@@ -11,7 +11,7 @@ class IdnHelper
         return self::convertLabels(
             $value,
             fn (string $label): bool => ! mb_check_encoding($label, 'ASCII'),
-            fn (string $label): string|false => idn_to_ascii($label, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46)
+            fn (string $label): string|false => idn_to_ascii($label, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46),
         );
     }
 

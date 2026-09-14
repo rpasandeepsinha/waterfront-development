@@ -25,11 +25,12 @@ class ExportController
         $mimeType = $this->getMimeTypeFromFilename($filename);
         $headers = $mimeType !== null ? ['Content-Type' => $mimeType] : [];
 
-        return $this->responseFactory->download(
-            $this->configuration->getAsString('filesystems.disks.private.exports') . '/' . $filename,
-            headers: $headers
-        )
-        ->deleteFileAfterSend();
+        return $this->responseFactory
+            ->download(
+                $this->configuration->getAsString('filesystems.disks.private.exports') . '/' . $filename,
+                headers: $headers,
+            )
+            ->deleteFileAfterSend();
     }
 
     private function getMimeTypeFromFilename(string $filename): ?string

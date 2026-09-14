@@ -57,10 +57,7 @@ class ChangeFtpPasswordTest extends DirectAdminTestCase
 
         $api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->changePassword
-            ->setPasswd('test123')
-            ->setUsername('test1')
-            ->setDomain('example.com');
+        $this->changePassword->setPasswd('test123')->setUsername('test1')->setDomain('example.com');
 
         $modifyUser = $api->call($this->changePassword);
 

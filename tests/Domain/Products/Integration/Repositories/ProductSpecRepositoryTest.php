@@ -63,7 +63,10 @@ class ProductSpecRepositoryTest extends IntegrationTestCase
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
 
-        self::assertNull($this->repository->getIntegerValueOfSpecification($product, ProductSpecName::DNS_VISIBLE_LOG_LINES));
+        self::assertNull($this->repository->getIntegerValueOfSpecification(
+            $product,
+            ProductSpecName::DNS_VISIBLE_LOG_LINES,
+        ));
     }
 
     #[DataProvider('providerIntegerSpecValues')]
@@ -78,7 +81,10 @@ class ProductSpecRepositoryTest extends IntegrationTestCase
             'value' => $input,
         ]);
 
-        self::assertSame($expected, $this->repository->getIntegerValueOfSpecification($product, ProductSpecName::DNS_VISIBLE_LOG_LINES));
+        self::assertSame($expected, $this->repository->getIntegerValueOfSpecification(
+            $product,
+            ProductSpecName::DNS_VISIBLE_LOG_LINES,
+        ));
     }
 
     public static function providerIntegerSpecValues(): Generator
@@ -96,7 +102,10 @@ class ProductSpecRepositoryTest extends IntegrationTestCase
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
 
-        self::assertNull($this->repository->getFloatValueOfSpecification($product, ProductSpecName::DNS_VISIBLE_LOG_LINES));
+        self::assertNull($this->repository->getFloatValueOfSpecification(
+            $product,
+            ProductSpecName::DNS_VISIBLE_LOG_LINES,
+        ));
     }
 
     #[DataProvider('providerFloatSpecValues')]
@@ -111,7 +120,10 @@ class ProductSpecRepositoryTest extends IntegrationTestCase
             'value' => $input,
         ]);
 
-        self::assertSame($expected, $this->repository->getFloatValueOfSpecification($product, ProductSpecName::DNS_VISIBLE_LOG_LINES));
+        self::assertSame($expected, $this->repository->getFloatValueOfSpecification(
+            $product,
+            ProductSpecName::DNS_VISIBLE_LOG_LINES,
+        ));
     }
 
     public static function providerFloatSpecValues(): Generator

@@ -25,7 +25,7 @@ class CreateInvoiceAndSetNextBillingDateForSubscriptionAction
         $invoice = $this->invoiceRepository->createNextSubscriptionInvoice(
             $subscription,
             $nextInvoicePrice,
-            $dispatchInvoiceCreated
+            $dispatchInvoiceCreated,
         );
 
         if ($nextInvoicePrice->nextPrice instanceof SubscriptionPrice) {

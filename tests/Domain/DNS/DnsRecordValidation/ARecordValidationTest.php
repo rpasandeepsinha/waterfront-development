@@ -22,43 +22,49 @@ class ARecordValidationTest extends IntegrationTestCase
     public function missingContent(): void
     {
         $data = [
-            'type'     => 'A',
-            'name'     => 'google.com',
-            'ttl'      => '600',
+            'type' => 'A',
+            'name' => 'google.com',
+            'ttl' => '600',
             'disabled' => true,
         ];
 
         $validator = $this->createDnsRecordValidator($data);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     #[Test]
     public function invalidContentType(): void
     {
         $data = [
-            'type'     => 'A',
-            'name'     => 'google.com',
-            'content'  => 1,
-            'ttl'      => '600',
+            'type' => 'A',
+            'name' => 'google.com',
+            'content' => 1,
+            'ttl' => '600',
             'disabled' => true,
         ];
 
         $validator = $this->createDnsRecordValidator($data);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['content' => [self::resolve(TranslatorInterface::class)->translate('validation.string')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['content' => [self::resolve(TranslatorInterface::class)->translate('validation.string')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     #[Test]
     public function invalidContentFormat(): void
     {
         $data = [
-            'type'     => 'A',
-            'name'     => 'google.com',
-            'content'  => '127.0.0',
-            'ttl'      => '600',
+            'type' => 'A',
+            'name' => 'google.com',
+            'content' => '127.0.0',
+            'ttl' => '600',
             'disabled' => true,
         ];
 
@@ -67,7 +73,7 @@ class ARecordValidationTest extends IntegrationTestCase
         self::assertTrue($validator->fails());
         self::assertSame(
             ['content' => [self::resolve(TranslatorInterface::class)->translate('validation.ipv4')]],
-            $validator->errors()->toArray()
+            $validator->errors()->toArray(),
         );
     }
 }

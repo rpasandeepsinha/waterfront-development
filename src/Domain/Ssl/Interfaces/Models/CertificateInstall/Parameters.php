@@ -42,7 +42,7 @@ class Parameters
 
     public static function create(array $data): Parameters
     {
-        $data = array_filter($data);
+        $data = array_filter($data, fn (mixed $value): bool => (bool) $value);
 
         self::validateRequiredFields($data);
 
@@ -124,6 +124,7 @@ class Parameters
 
         /** @var string[] $extracted */
         $extracted = $hydrator->extract($this);
+
         return $extracted;
     }
 

@@ -37,7 +37,7 @@ class DomainHandleTest extends TestCase
         $response = new Response(
             200,
             ['Content-Type' => 'text/xml'],
-            (string) file_get_contents(__DIR__ . '/data/openprovider_handle_response.xml')
+            (string) file_get_contents(__DIR__ . '/data/openprovider_handle_response.xml'),
         );
 
         $response = new DomainHandleResponse($response);
@@ -53,7 +53,7 @@ class DomainHandleTest extends TestCase
         $response = new Response(
             200,
             ['Content-Type' => 'text/xml'],
-            (string) file_get_contents(__DIR__ . '/data/openprovider_handle_failed_response.xml')
+            (string) file_get_contents(__DIR__ . '/data/openprovider_handle_failed_response.xml'),
         );
 
         $response = new DomainHandleResponse($response);

@@ -13,7 +13,7 @@ class MailSubscriptionCancelled implements MailTemplateInterface
         public readonly string $productName,
         public readonly string $domainName,
         public readonly string $subscriptionEndDate,
-        public readonly string $cancelOption
+        public readonly string $cancelOption,
     ) {
     }
 

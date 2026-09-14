@@ -43,8 +43,15 @@ readonly class SubscriptionAddonService
         $addonProducts = $this->productAddonCouplingRepository->getOrderableAddonProductsForParentProduct($subscription->product);
 
         $subscription->loadMissing('children');
-        $childSubscriptions = $subscription->children()->where('administrative_status', '!=', AdministrativeStatus::ARCHIVED->value)->get();
-        $filterChildSubscriptions = fn (ProductAddonCoupling $coupling) => ! in_array($coupling->addonProduct->uuid, $childSubscriptions->pluck('product_uuid')->toArray(), true);
+        $childSubscriptions = $subscription
+            ->children()
+            ->where('administrative_status', '!=', AdministrativeStatus::ARCHIVED->value)
+            ->get();
+        $filterChildSubscriptions = fn (ProductAddonCoupling $coupling) => ! in_array(
+            $coupling->addonProduct->uuid,
+            $childSubscriptions->pluck('product_uuid')->toArray(),
+            true,
+        );
         $availableAddons = $addonProducts->filter($filterChildSubscriptions);
 
         /** @var Collection<int, Product> $productCollection */
@@ -53,18 +60,32 @@ readonly class SubscriptionAddonService
             $productCollection->push($productAddonCoupling->addonProduct);
         });
 
-        $productPriceRequests = array_map(fn ($product) => new ProlongationPriceRequest($product), $productCollection->all());
-        $priceList = $this->priceResolver->getPriceList(new PriceRequest($productPriceRequests, $subscription->customer));
+        $productPriceRequests = array_map(
+            fn ($product) => new ProlongationPriceRequest($product),
+            $productCollection->all(),
+        );
+        $priceList = $this->priceResolver->getPriceList(
+            new PriceRequest($productPriceRequests, $subscription->customer),
+        );
 
         $calculatedAddons = new Collection();
 
         foreach ($productCollection as $addonProduct) {
-            $priceForAddonProduct = $priceList->getProductPrice($addonProduct->slug, $subscription->contract_period, $subscription->billing_period);
+            $priceForAddonProduct = $priceList->getProductPrice(
+                $addonProduct->slug,
+                $subscription->contract_period,
+                $subscription->billing_period,
+            );
 
             $calculatedAddons->push([
                 'product' => $addonProduct->toArray(),
                 'full_charge' => $priceForAddonProduct->regularPrice,
-                'charge' => $this->priceService->calculateProRate(0, $priceForAddonProduct->regularPrice, $subscription->next_billing_date, $subscription->billing_period),
+                'charge' => $this->priceService->calculateProRate(
+                    0,
+                    $priceForAddonProduct->regularPrice,
+                    $subscription->next_billing_date,
+                    $subscription->billing_period,
+                ),
             ]);
         }
 

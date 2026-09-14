@@ -17,7 +17,7 @@ class CleanupMailOnlyDns extends AbstractQueueableJob
     public function __construct(
         public string $domain,
         public string $primaryHost,
-        public string $fallbackHost
+        public string $fallbackHost,
     ) {
         parent::__construct();
     }

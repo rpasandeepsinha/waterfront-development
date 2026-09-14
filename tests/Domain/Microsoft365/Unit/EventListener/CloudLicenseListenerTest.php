@@ -56,14 +56,20 @@ class CloudLicenseListenerTest extends IntegrationTestCase
             'slug' => 'microsoft-business-standard-parent',
         ]);
 
-        $this->subscription = new SubscriptionFactory()->withCustomer()->for($parentProduct)->createOne();
+        $this->subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($parentProduct)
+            ->createOne();
 
         $this->microsoft365CustomerInfo = new Microsoft365CustomerInfoFactory()->for($customer)->createOne([
             'kpn_customer_id' => 'CID123',
             'tenant_id' => null,
         ]);
 
-        $this->microsoft365Deployment = new Microsoft365DeploymentFactory()->for($this->subscription)->for($this->microsoft365CustomerInfo)->createOne();
+        $this->microsoft365Deployment = new Microsoft365DeploymentFactory()
+            ->for($this->subscription)
+            ->for($this->microsoft365CustomerInfo)
+            ->createOne();
 
         $this->microsoft365Service = self::createMock(Microsoft365Service::class);
     }
@@ -75,8 +81,7 @@ class CloudLicenseListenerTest extends IntegrationTestCase
 
         $status = new Status(Microsoft365OrderStatus::ACCEPTED->value, []);
 
-        $this->microsoft365Service->expects(self::never())
-            ->method('retryPendingCopilotOrder');
+        $this->microsoft365Service->expects(self::never())->method('retryPendingCopilotOrder');
 
         new CloudLicenseListener($this->microsoft365Service)->execute($cloudLicense, $status);
         $this->microsoft365Deployment->refresh();
@@ -96,18 +101,26 @@ class CloudLicenseListenerTest extends IntegrationTestCase
             'slug' => 'microsoft-business-standard',
         ]);
 
-        new SubscriptionFactory()->withCustomer()->for($childProduct)->parentSubscription($this->subscription)->state([
-            'technical_status' => TechnicalStatus::REGISTRATION->value,
-        ])->createMany($quantity);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for($childProduct)
+            ->parentSubscription($this->subscription)
+            ->state([
+                'technical_status' => TechnicalStatus::REGISTRATION->value,
+            ])
+            ->createMany($quantity);
 
         self::assertNull($this->microsoft365Deployment->kpn_start_date);
 
         $status = new Status(Microsoft365OrderStatus::ACCEPTED->value, []);
 
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('retryPendingCopilotOrder')
             ->with(self::callback(
-                fn (Microsoft365CustomerInfo $microsoft365CustomerInfo): bool => $microsoft365CustomerInfo->id === $this->microsoft365CustomerInfo->id
+                fn (Microsoft365CustomerInfo $microsoft365CustomerInfo): bool => (
+                    $microsoft365CustomerInfo->id === $this->microsoft365CustomerInfo->id
+                ),
             ));
 
         $listener = new CloudLicenseListener($this->microsoft365Service);
@@ -142,12 +155,16 @@ class CloudLicenseListenerTest extends IntegrationTestCase
             'slug' => 'microsoft-business-standard',
         ]);
 
-        new SubscriptionFactory()->withCustomer()->for($childProduct)->parentSubscription($this->subscription)->state([
-            'technical_status' => TechnicalStatus::REGISTRATION->value,
-        ])->createMany(2);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for($childProduct)
+            ->parentSubscription($this->subscription)
+            ->state([
+                'technical_status' => TechnicalStatus::REGISTRATION->value,
+            ])
+            ->createMany(2);
 
-        $this->microsoft365Service->expects(self::never())
-            ->method('retryPendingCopilotOrder');
+        $this->microsoft365Service->expects(self::never())->method('retryPendingCopilotOrder');
 
         $listener = new CloudLicenseListener($this->microsoft365Service);
         $listener->execute($cloudLicense, new Status(Microsoft365OrderStatus::ACCEPTED->value, []));

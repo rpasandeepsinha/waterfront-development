@@ -41,7 +41,7 @@ class DnsCustomerTemplateRecordFactory extends Factory
             DnsRecordType::SRV => 'specific-service.test',
             DnsRecordType::TLSA => '3 1 1 randomhash',
             DnsRecordType::TXT => 'txt record',
-            default => 'Please add example content for: ' . $type->value
+            default => 'Please add example content for: ' . $type->value,
         };
 
         $priority = null;

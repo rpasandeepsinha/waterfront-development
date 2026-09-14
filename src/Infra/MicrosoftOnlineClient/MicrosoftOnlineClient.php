@@ -36,7 +36,11 @@ class MicrosoftOnlineClient
             $response = $this->connector->send($request);
         } catch (ClientException $exception) {
             /** @var MicrosoftErrorResponse $errorResponse */
-            $errorResponse = $this->microsoftOnlineSerializer->deserialize($exception->getResponse()->body(), MicrosoftErrorResponse::class, 'json');
+            $errorResponse = $this->microsoftOnlineSerializer->deserialize(
+                $exception->getResponse()->body(),
+                MicrosoftErrorResponse::class,
+                'json',
+            );
 
             if ($errorResponse->error === 'invalid_tenant') {
                 throw new TenantNotFoundException($tenantName, $exception);
@@ -46,7 +50,11 @@ class MicrosoftOnlineClient
         }
 
         /** @var OpenIdConfiguration $openIdConfiguration */
-        $openIdConfiguration = $this->microsoftOnlineSerializer->deserialize($response->body(), OpenIdConfiguration::class, 'json');
+        $openIdConfiguration = $this->microsoftOnlineSerializer->deserialize(
+            $response->body(),
+            OpenIdConfiguration::class,
+            'json',
+        );
 
         return $openIdConfiguration;
     }
@@ -60,7 +68,11 @@ class MicrosoftOnlineClient
     public function getTenantIdByTenantName(string $tenantName): ?string
     {
         $openIdConfiguration = $this->getOpenIdConfiguration($tenantName);
-        $matched = preg_match('#login.microsoftonline.com\/([^\/]+)\/#', $openIdConfiguration->authorizationEndpoint, $matches);
+        $matched = preg_match(
+            '#login.microsoftonline.com\/([^\/]+)\/#',
+            $openIdConfiguration->authorizationEndpoint,
+            $matches,
+        );
 
         if ($matched !== 1) {
             return null;

@@ -39,8 +39,15 @@ class SubscriptionRenewService
         $renewalPriceDTO = $this->getRenewalInfoAction->execute($subscription, null);
 
         //Handle mutations with different products and might require a technical change.
-        if ($renewalPriceDTO->appliedSubscriptionMutation instanceof SubscriptionMutation && $renewalPriceDTO->appliedSubscriptionMutation->product->id !== $subscription->product->id) {
-            $this->processProductChange($subscription, $renewalPriceDTO->product, $renewalPriceDTO->appliedSubscriptionMutation);
+        if (
+            $renewalPriceDTO->appliedSubscriptionMutation instanceof SubscriptionMutation
+            && $renewalPriceDTO->appliedSubscriptionMutation->product->id !== $subscription->product->id
+        ) {
+            $this->processProductChange(
+                $subscription,
+                $renewalPriceDTO->product,
+                $renewalPriceDTO->appliedSubscriptionMutation,
+            );
         }
 
         $subscription->product_uuid = $renewalPriceDTO->product->uuid;
@@ -49,7 +56,11 @@ class SubscriptionRenewService
         $subscription->end_date = $renewalPriceDTO->endDate;
 
         if ($renewalPriceDTO->price instanceof Price) {
-            $this->pricePersistService->persistSubscriptionPrice($subscription, $renewalPriceDTO->price, CarbonImmutable::now());
+            $this->pricePersistService->persistSubscriptionPrice(
+                $subscription,
+                $renewalPriceDTO->price,
+                CarbonImmutable::now(),
+            );
         } else {
             $subscription->gross_price = $renewalPriceDTO->grossPrice;
             $subscription->net_price = $renewalPriceDTO->netPrice;
@@ -76,7 +87,7 @@ class SubscriptionRenewService
             [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-            ]
+            ],
         );
 
         try {
@@ -94,7 +105,7 @@ class SubscriptionRenewService
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                     LoggingContextKeys::EXCEPTION => $throwable,
-                ]
+                ],
             );
             throw $throwable;
         }
@@ -102,18 +113,39 @@ class SubscriptionRenewService
         return $subscription;
     }
 
-    private function processProductChange(Subscription $subscription, Product $newProduct, SubscriptionMutation $mutation): void
-    {
+    private function processProductChange(
+        Subscription $subscription,
+        Product $newProduct,
+        SubscriptionMutation $mutation,
+    ): void {
         $newProduct->loadMissing('productGroup');
 
         if ($newProduct->productGroup->slug !== ProductGroupType::HOSTING) {
             return;
         }
 
-        if ($this->productAllowedChangeRepository->isProductChangeAllowed(ProductChangeType::UPGRADE, $subscription->product, $mutation->product)) {
-            $this->subscriptionChangeService->storeChangeRecord($subscription, $newProduct, ProductChangeType::UPGRADE, SubscriptionChangeStatus::REQUESTED);
-        } elseif ($this->productAllowedChangeRepository->isProductChangeAllowed(ProductChangeType::DOWNGRADE, $subscription->product, $mutation->product)) {
-            $this->subscriptionChangeService->storeChangeRecord($subscription, $newProduct, ProductChangeType::DOWNGRADE, SubscriptionChangeStatus::REQUESTED);
+        if ($this->productAllowedChangeRepository->isProductChangeAllowed(
+            ProductChangeType::UPGRADE,
+            $subscription->product,
+            $mutation->product,
+        )) {
+            $this->subscriptionChangeService->storeChangeRecord(
+                $subscription,
+                $newProduct,
+                ProductChangeType::UPGRADE,
+                SubscriptionChangeStatus::REQUESTED,
+            );
+        } elseif ($this->productAllowedChangeRepository->isProductChangeAllowed(
+            ProductChangeType::DOWNGRADE,
+            $subscription->product,
+            $mutation->product,
+        )) {
+            $this->subscriptionChangeService->storeChangeRecord(
+                $subscription,
+                $newProduct,
+                ProductChangeType::DOWNGRADE,
+                SubscriptionChangeStatus::REQUESTED,
+            );
         } else {
             return;
         }
@@ -126,10 +158,10 @@ class SubscriptionRenewService
         $this->logger->info(sprintf(
             'Applying technical processing date to mutation for subscription %s (%s)',
             $subscription->domain ?? '',
-            $subscription->uuid
+            $subscription->uuid,
         ), [
-                LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
+            LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
+            LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
         ]);
 
         $mutation->process_technical_at = $subscription->end_date;
@@ -142,9 +174,7 @@ class SubscriptionRenewService
     private function renewChildren(Subscription $parent): void
     {
         /** @var LazyCollection<int, Subscription> $children */
-        $children = Subscription::query()
-            ->where('parent_subscription_id', $parent->id)
-            ->cursor();
+        $children = Subscription::query()->where('parent_subscription_id', $parent->id)->cursor();
 
         foreach ($children as $child) {
             $this->logger->info(
@@ -156,7 +186,7 @@ class SubscriptionRenewService
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $child->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $child->domain,
-                ]
+                ],
             );
 
             if (! RenewalHelper::isChildRenewable($child)) {
@@ -181,7 +211,7 @@ class SubscriptionRenewService
             [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscriptionMutation->subscription->uuid,
                 LoggingContextKeys::DOMAIN_NAME => $subscriptionMutation->subscription->domain,
-            ]
+            ],
         );
 
         $subscriptionMutation->mutated_at = CarbonImmutable::now();

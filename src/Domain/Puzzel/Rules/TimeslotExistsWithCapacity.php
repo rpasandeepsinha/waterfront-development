@@ -15,7 +15,7 @@ class TimeslotExistsWithCapacity implements ValidationRule
 {
     public function __construct(
         private readonly Translator $translator,
-        private readonly PuzzelCallbackTimeslotRepository $timeslotRepository
+        private readonly PuzzelCallbackTimeslotRepository $timeslotRepository,
     ) {
     }
 
@@ -23,6 +23,7 @@ class TimeslotExistsWithCapacity implements ValidationRule
     {
         if (! is_string($value)) {
             $fail('validation.uuid', $attribute);
+
             return;
         }
 
@@ -30,6 +31,7 @@ class TimeslotExistsWithCapacity implements ValidationRule
             $uuid = Uuid::fromString($value);
         } catch (InvalidArgumentException) {
             $fail('validation.uuid', $attribute);
+
             return;
         }
 
@@ -37,6 +39,7 @@ class TimeslotExistsWithCapacity implements ValidationRule
 
         if ($timeslot === null) {
             $fail('validation.exists', $attribute);
+
             return;
         }
 

@@ -24,7 +24,7 @@ abstract class AbstractProvisionResult implements ProvisionResultInterface
         public ProvisionRequestInterface $provisionData,
         public ProvisionStatus $provisionStatus,
         public ?Throwable $exception = null,
-        public ?ValidationResult $validationResult = null
+        public ?ValidationResult $validationResult = null,
     ) {
     }
 }

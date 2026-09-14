@@ -52,7 +52,11 @@ class SummarizeAuditLogActionTest extends IntegrationTestCase
 
         $this->setUpTranslations();
 
-        $this->auditLoggableIdentity = new AuditLoggableIdentity(Uuid::uuid4(), 'test@test.nl', SchemaId::EMPLOYEE->value);
+        $this->auditLoggableIdentity = new AuditLoggableIdentity(
+            Uuid::uuid4(),
+            'test@test.nl',
+            SchemaId::EMPLOYEE->value,
+        );
     }
 
     #[Test]
@@ -64,9 +68,12 @@ class SummarizeAuditLogActionTest extends IntegrationTestCase
         ]);
         $product = new ProductFactory()->for($productGroup)->createOne();
 
-        $this->subscription = new SubscriptionFactory()->for($product)->for($this->customer)->createOne([
-            'domain' => 'really-long-useless-summary-audit-log-domain.extension',
-        ]);
+        $this->subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($this->customer)
+            ->createOne([
+                'domain' => 'really-long-useless-summary-audit-log-domain.extension',
+            ]);
 
         new AuditFactory()->createMany([
             [
@@ -97,7 +104,7 @@ class SummarizeAuditLogActionTest extends IntegrationTestCase
 
         self::assertSame(
             'Support bijgewerkt domein abonnement really-long-useless-summary-audit-log-domain.extension',
-            $summarizedLog
+            $summarizedLog,
         );
     }
 
@@ -114,15 +121,13 @@ class SummarizeAuditLogActionTest extends IntegrationTestCase
         ]);
         $summarizer = new SummarizeAuditLogAction(self::resolve(TranslatorInterface::class));
 
-        $lastAudit = Audit::where('auditable_type', Customer::class)
-            ->orderBy('id', 'desc')
-            ->firstOrFail();
+        $lastAudit = Audit::where('auditable_type', Customer::class)->orderBy('id', 'desc')->firstOrFail();
 
         $summarizedLog = $summarizer->execute($lastAudit, $this->auditLoggableIdentity);
 
         self::assertSame(
             'Support aangemaakt klant Henk-wil Veelbier',
-            $summarizedLog
+            $summarizedLog,
         );
     }
 
@@ -131,8 +136,8 @@ class SummarizeAuditLogActionTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
         $group = new ProductGroupFactory()->createOne([
-            'name'           => 'Microsoft 365',
-            'slug'           => ProductGroupType::MICROSOFT_365,
+            'name' => 'Microsoft 365',
+            'slug' => ProductGroupType::MICROSOFT_365,
         ]);
 
         $product = new ProductFactory()->for($group)->createOne([
@@ -171,7 +176,7 @@ class SummarizeAuditLogActionTest extends IntegrationTestCase
 
         self::assertSame(
             'Support bijgewerkt Microsoft365 abonnement 2.onmicrosoft.com',
-            $summarizedLog
+            $summarizedLog,
         );
     }
 
@@ -189,18 +194,15 @@ class SummarizeAuditLogActionTest extends IntegrationTestCase
             ->for($vpsProduct)
             ->createOne();
 
-        $cloudstackVpsDeployment = new CloudstackVirtualMachineDeploymentFactory()
-            ->for(
-                CloudstackManagerDomainDeploymentFactory::new()
-                    ->for(CloudstackEnvironmentFactory::new())
-                    ->for($customer)
-                    ->state(['domain_name' => 'cs84583951', 'account' => 'cs84583951', 'username' => 'cs84583951'])
-            )
-            ->createOne([
-                'subscription_uuid' => $vpsSubscription->uuid,
-                'cloudstack_id' => 'f9d34f14-e9ec-4760-9da3-742d54864af9',
-                'custom_name' => 'initial-name',
-            ]);
+        $cloudstackVpsDeployment = new CloudstackVirtualMachineDeploymentFactory()->for(
+            CloudstackManagerDomainDeploymentFactory::new()->for(CloudstackEnvironmentFactory::new())->for(
+                $customer,
+            )->state(['domain_name' => 'cs84583951', 'account' => 'cs84583951', 'username' => 'cs84583951']),
+        )->createOne([
+            'subscription_uuid' => $vpsSubscription->uuid,
+            'cloudstack_id' => 'f9d34f14-e9ec-4760-9da3-742d54864af9',
+            'custom_name' => 'initial-name',
+        ]);
 
         $audit = new AuditFactory()->createOne([
             'event' => 'updated',
@@ -217,7 +219,7 @@ class SummarizeAuditLogActionTest extends IntegrationTestCase
 
         self::assertSame(
             'Support bijgewerkt VPS abonnement cs84583951',
-            $summarizedLog
+            $summarizedLog,
         );
     }
 

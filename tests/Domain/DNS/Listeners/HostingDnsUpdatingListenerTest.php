@@ -37,7 +37,8 @@ class HostingDnsUpdatingListenerTest extends IntegrationTestCase
         $diff = new DnsZoneDiff([]);
         $event = new ReplaceParkingAndUpdateDns(self::DOMAIN, $diff);
 
-        $this->dnsService->expects(self::once())
+        $this->dnsService
+            ->expects(self::once())
             ->method('applyDiffReplacingParkingRecords')
             ->with(self::DOMAIN, $diff)
             ->willReturn(new DnsZone(new Fqdn(self::DOMAIN)));
@@ -53,7 +54,8 @@ class HostingDnsUpdatingListenerTest extends IntegrationTestCase
     {
         $event = new ReplaceParkingAndUpdateDns(self::DOMAIN, new DnsZoneDiff([]));
 
-        $this->dnsService->expects(self::once())
+        $this->dnsService
+            ->expects(self::once())
             ->method('applyDiffReplacingParkingRecords')
             ->willThrowException(new DnsZoneNotFoundException('zone not found'));
 

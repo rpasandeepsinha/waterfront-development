@@ -6,7 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
@@ -18,15 +18,13 @@ return new class () extends Migration {
             $table->bigInteger('origin_provisioning_request_id');
             $table->bigInteger('server_id');
 
-            $table->foreign('origin_provisioning_request_id')
+            $table
+                ->foreign('origin_provisioning_request_id')
                 ->references('id')
                 ->on('provisioning_requests')
                 ->nullOnDelete();
 
-            $table->foreign('server_id')
-                ->references('id')
-                ->on('hosting_servers')
-                ->nullOnDelete();
+            $table->foreign('server_id')->references('id')->on('hosting_servers')->nullOnDelete();
 
             $table->string('domain')->nullable();
             $table->timestamps();
@@ -39,7 +37,8 @@ return new class () extends Migration {
             $table->string('default_domain')->nullable();
             $table->bigInteger('hosting_deployment_id')->unique();
 
-            $table->foreign('hosting_deployment_id')
+            $table
+                ->foreign('hosting_deployment_id')
                 ->references('id')
                 ->on('provisioning_hosting_deployments')
                 ->cascadeOnDelete();
@@ -54,7 +53,8 @@ return new class () extends Migration {
             $table->string('subscription_domain');
             $table->bigInteger('hosting_deployment_id')->unique();
 
-            $table->foreign('hosting_deployment_id')
+            $table
+                ->foreign('hosting_deployment_id')
                 ->references('id')
                 ->on('provisioning_hosting_deployments')
                 ->cascadeOnDelete();

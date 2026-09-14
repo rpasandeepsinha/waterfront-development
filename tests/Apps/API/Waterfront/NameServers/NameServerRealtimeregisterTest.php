@@ -47,7 +47,10 @@ class NameServerRealtimeregisterTest extends IntegrationTestCase
         $groupExtension = new ProductGroupFactory()->extension()->createOne();
         $groupDns = new ProductGroupFactory()->dns()->createOne();
 
-        $productNl = new ProductFactory()->nlDomain()->for($groupExtension)->createOne();
+        $productNl = new ProductFactory()
+            ->nlDomain()
+            ->for($groupExtension)
+            ->createOne();
         $dnsProduct = ProductFactory::new()->for($groupDns)->createOne();
 
         $this->subscription = new SubscriptionFactory()
@@ -55,7 +58,10 @@ class NameServerRealtimeregisterTest extends IntegrationTestCase
             ->for($this->customer)
             ->createOne();
 
-        new DomainDeploymentFactory()->for($provider)->for($this->subscription)->createOne();
+        new DomainDeploymentFactory()
+            ->for($provider)
+            ->for($this->subscription)
+            ->createOne();
 
         $domain = $this->subscription->domain;
         assert(is_string($domain));
@@ -77,7 +83,7 @@ class NameServerRealtimeregisterTest extends IntegrationTestCase
     {
         $response = json_encode(
             include __DIR__ . '/../../../../Infra/RtrClient/data/domain_details_valid.php',
-            JSON_THROW_ON_ERROR
+            JSON_THROW_ON_ERROR,
         );
 
         $sdk = MockedClientFactory::makeSdkWithMultipleReponses([
@@ -86,105 +92,120 @@ class NameServerRealtimeregisterTest extends IntegrationTestCase
 
         $this->app->bind(RealtimeRegister::class, fn (): RealtimeRegister => $sdk);
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute('partners.nameservers.show', $this->subscription->uuid)
-        )->assertExactJson([
-            'data' => [
-                'isDefaultNameservers' => true,
-                'nameservers' => [
-                    [
-                        'ip' => null,
-                        'ip6' => null,
-                        'name' => 'ns1.sandwave-test.com',
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute('partners.nameservers.show', $this->subscription->uuid),
+            )
+            ->assertExactJson([
+                'data' => [
+                    'isDefaultNameservers' => true,
+                    'nameservers' => [
+                        [
+                            'ip' => null,
+                            'ip6' => null,
+                            'name' => 'ns1.sandwave-test.com',
+                        ],
+                        [
+                            'ip' => null,
+                            'ip6' => null,
+                            'name' => 'ns02.sandwave-test.com',
+                        ],
                     ],
-                    [
-                        'ip' => null,
-                        'ip6' => null,
-                        'name' => 'ns02.sandwave-test.com',
-                    ],
+                    'nameservergroup' => null,
                 ],
-                'nameservergroup' => null,
-            ],
-        ]);
+            ]);
     }
 
     #[Test]
     public function updateNameservers(): void
     {
-        $this->actingAsCustomer($this->customer)->putJson(
-            $this->generateRoute('partners.nameservers.update', $this->subscription->uuid),
-            [
-                'nameServers' => [
-                    ['name' => 'newnameserver1.nl'],
-                    ['name' => 'newnameserver2.nl'],
+        $this->actingAsCustomer($this->customer)
+            ->putJson(
+                $this->generateRoute('partners.nameservers.update', $this->subscription->uuid),
+                [
+                    'nameServers' => [
+                        ['name' => 'newnameserver1.nl'],
+                        ['name' => 'newnameserver2.nl'],
+                    ],
                 ],
-            ]
-        )->assertOk();
+            )
+            ->assertOk();
     }
 
     #[Test]
     public function updateNameserversWithNull(): void
     {
-        $this->actingAsCustomer($this->customer)->putJson(
-            $this->generateRoute('partners.nameservers.update', $this->subscription->uuid),
-            [
-                'nameServers' => [
-                    ['name' => 'newnameserver1.nl'],
-                    ['name' => 'newnameserver2.nl'],
-                    ['name' => 'newnameserver3.nl'],
-                    ['name' => 'newnameserver4.nl'],
-                    ['name' => null],
-                    ['name' => null],
-                    ['name' => null],
-                    ['name' => null],
+        $this->actingAsCustomer($this->customer)
+            ->putJson(
+                $this->generateRoute('partners.nameservers.update', $this->subscription->uuid),
+                [
+                    'nameServers' => [
+                        ['name' => 'newnameserver1.nl'],
+                        ['name' => 'newnameserver2.nl'],
+                        ['name' => 'newnameserver3.nl'],
+                        ['name' => 'newnameserver4.nl'],
+                        ['name' => null],
+                        ['name' => null],
+                        ['name' => null],
+                        ['name' => null],
+                    ],
                 ],
-            ]
-        )->assertOk();
+            )
+            ->assertOk();
     }
 
     #[Test]
     public function updateNameserversWithNullAndDuplicates(): void
     {
-        $this->actingAsCustomer($this->customer)->putJson(
-            $this->generateRoute('partners.nameservers.update', $this->subscription->uuid),
-            [
-                'nameServers' => [
-                    ['name' => 'newnameserver1.nl'],
-                    ['name' => 'newnameserver2.nl'],
-                    ['name' => 'newnameserver2.nl'],
-                    ['name' => null],
-                    ['name' => null],
-                    ['name' => null],
-                    ['name' => null],
-                    ['name' => null],
+        $this->actingAsCustomer($this->customer)
+            ->putJson(
+                $this->generateRoute('partners.nameservers.update', $this->subscription->uuid),
+                [
+                    'nameServers' => [
+                        ['name' => 'newnameserver1.nl'],
+                        ['name' => 'newnameserver2.nl'],
+                        ['name' => 'newnameserver2.nl'],
+                        ['name' => null],
+                        ['name' => null],
+                        ['name' => null],
+                        ['name' => null],
+                        ['name' => null],
+                    ],
                 ],
-            ]
-        )->assertUnprocessable()->assertJsonFragment(['message' => 'Dit veld heeft een dubbele waarde.']);
+            )
+            ->assertUnprocessable()
+            ->assertJsonFragment(['message' => 'Dit veld heeft een dubbele waarde.']);
     }
 
     #[Test]
     public function checkValidationOnUpdateNameservers(): void
     {
-        $this->actingAsCustomer($this->customer)->putJson(
-            $this->generateRoute('partners.nameservers.update', $this->subscription->uuid),
-            [
-                'nameServers' => [
-                    [
-                        'name' => null,
-                    ],
-                    [
-                        'name' => null,
-                    ],
-                    [
-                        'name' => 'optional.nameserver1.nl',
-                    ],
-                    [
-                        'name' => 'optional.nameserver2.nl',
+        $this->actingAsCustomer($this->customer)
+            ->putJson(
+                $this->generateRoute('partners.nameservers.update', $this->subscription->uuid),
+                [
+                    'nameServers' => [
+                        [
+                            'name' => null,
+                        ],
+                        [
+                            'name' => null,
+                        ],
+                        [
+                            'name' => 'optional.nameserver1.nl',
+                        ],
+                        [
+                            'name' => 'optional.nameserver2.nl',
+                        ],
                     ],
                 ],
-            ]
-        )
+            )
             ->assertUnprocessable()
-            ->assertJson(['errors' => ['nameServers.0.name' => ['Dit veld is verplicht.'], 'nameServers.1.name' => ['Dit veld is verplicht.']]]);
+            ->assertJson([
+                'errors' => [
+                    'nameServers.0.name' => ['Dit veld is verplicht.'],
+                    'nameServers.1.name' => ['Dit veld is verplicht.'],
+                ],
+            ]);
     }
 }

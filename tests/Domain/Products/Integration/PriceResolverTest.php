@@ -13,7 +13,11 @@ use Tests\Factories\CustomerProductDiscountFactory;
 use Tests\Factories\ProductDiscountFactory;
 use Tests\Factories\ProductFactory;
 use Tests\Factories\ProductGroupFactory;
+use Tests\Factories\ProductIntroductionDiscountsFactory;
+use Tests\Factories\ProductPeriodFactory;
 use Tests\Factories\ProductPriceComponentFactory;
+use Tests\Factories\TranslationKeyFactory;
+use Tests\Factories\TranslationLanguageFactory;
 use Tests\IntegrationTestCase;
 use Waterfront\Domain\Pricing\DTO\PriceComponents\IntroductionPriceComponent;
 use Waterfront\Domain\Pricing\DTO\PriceComponents\PriceComponent;
@@ -48,20 +52,45 @@ class PriceResolverTest extends IntegrationTestCase
     public function publicPrices(): void
     {
         $productGroup = new ProductGroupFactory()->createOne(['name' => 'Hosting Products', 'slug' => 'hosting']);
-        $product1 = new ProductFactory()->for($productGroup)->createOne(['name' => 'Test 1', 'slug' => 'test-1', 'weight' => 1]);
-        new ProductPriceComponentFactory()->for($product1)->registration()->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 10]);
-        new ProductPriceComponentFactory()->for($product1)->prolongation()->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 10]);
-        $product2 = new ProductFactory()->for($productGroup)->createOne(['name' => 'Test 2', 'slug' => 'test-2', 'weight' => 2]);
-        new ProductPriceComponentFactory()->for($product2)->registration()->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 12]);
-        new ProductPriceComponentFactory()->for($product2)->prolongation()->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 12]);
-        new ProductPriceComponentFactory()->for($product2)->createOne(['type' => PriceComponentType::PROMOTION, 'contract_period' => 12, 'billing_period' => 12, 'price' => 9]);
+        $product1 = new ProductFactory()->for($productGroup)->createOne([
+            'name' => 'Test 1',
+            'slug' => 'test-1',
+            'weight' => 1,
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($product1)
+            ->registration()
+            ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 10]);
+        new ProductPriceComponentFactory()
+            ->for($product1)
+            ->prolongation()
+            ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 10]);
+        $product2 = new ProductFactory()->for($productGroup)->createOne([
+            'name' => 'Test 2',
+            'slug' => 'test-2',
+            'weight' => 2,
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($product2)
+            ->registration()
+            ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 12]);
+        new ProductPriceComponentFactory()
+            ->for($product2)
+            ->prolongation()
+            ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 12]);
+        new ProductPriceComponentFactory()->for($product2)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'contract_period' => 12,
+            'billing_period' => 12,
+            'price' => 9,
+        ]);
 
         $priceRequest = new PriceRequest(
             [
                 new RegistrationPriceRequest($product1),
                 new RegistrationPriceRequest($product2),
             ],
-            null
+            null,
         );
         $priceList = $this->priceResolver->getPriceList($priceRequest);
 
@@ -84,13 +113,38 @@ class PriceResolverTest extends IntegrationTestCase
     public function groupDiscount(): void
     {
         $productGroup = new ProductGroupFactory()->createOne(['name' => 'Hosting Products', 'slug' => 'hosting']);
-        $product1 = new ProductFactory()->for($productGroup)->createOne(['name' => 'Test 1', 'slug' => 'test-1', 'weight' => 1]);
-        new ProductPriceComponentFactory()->for($product1)->registration()->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 100]);
-        new ProductPriceComponentFactory()->for($product1)->prolongation()->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 100]);
-        $product2 = new ProductFactory()->for($productGroup)->createOne(['name' => 'Test 2', 'slug' => 'test-2', 'weight' => 2]);
-        new ProductPriceComponentFactory()->for($product2)->registration()->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 100]);
-        new ProductPriceComponentFactory()->for($product2)->prolongation()->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 100]);
-        new ProductPriceComponentFactory()->for($product2)->createOne(['type' => PriceComponentType::PROMOTION, 'contract_period' => 12, 'billing_period' => 12, 'price' => 50]);
+        $product1 = new ProductFactory()->for($productGroup)->createOne([
+            'name' => 'Test 1',
+            'slug' => 'test-1',
+            'weight' => 1,
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($product1)
+            ->registration()
+            ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 100]);
+        new ProductPriceComponentFactory()
+            ->for($product1)
+            ->prolongation()
+            ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 100]);
+        $product2 = new ProductFactory()->for($productGroup)->createOne([
+            'name' => 'Test 2',
+            'slug' => 'test-2',
+            'weight' => 2,
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($product2)
+            ->registration()
+            ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 100]);
+        new ProductPriceComponentFactory()
+            ->for($product2)
+            ->prolongation()
+            ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 100]);
+        new ProductPriceComponentFactory()->for($product2)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'contract_period' => 12,
+            'billing_period' => 12,
+            'price' => 50,
+        ]);
 
         $customer = new CustomerFactory()->createOne();
         $customer->productGroups()->attach($productGroup->id, ['discount' => 20]);
@@ -100,7 +154,7 @@ class PriceResolverTest extends IntegrationTestCase
                 new RegistrationPriceRequest($product1),
                 new RegistrationPriceRequest($product2),
             ],
-            $customer
+            $customer,
         );
         $priceList = $this->priceResolver->getPriceList($priceRequest);
 
@@ -124,14 +178,16 @@ class PriceResolverTest extends IntegrationTestCase
         $beDomainProduct = new ProductFactory()->for($domainProductGroup)->createOne();
 
         $oneTimeServiceProductGroup = new ProductGroupFactory()->oneTimeService()->createOne();
-        $oneTimeServiceProduct = new ProductFactory()->for($oneTimeServiceProductGroup)
-            ->createOne();
+        $oneTimeServiceProduct = new ProductFactory()->for($oneTimeServiceProductGroup)->createOne();
 
-        $oneTimeServicePrice = new ProductPriceComponentFactory()->for($oneTimeServiceProduct)->registration()->createOne([
-            'billing_period' => 1,
-            'contract_period' => 1,
-            'price' => 500,
-        ]);
+        $oneTimeServicePrice = new ProductPriceComponentFactory()
+            ->for($oneTimeServiceProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 1,
+                'contract_period' => 1,
+                'price' => 500,
+            ]);
 
         $alternativePrice = new ProductPriceAlternative();
         $alternativePrice->product_id = $oneTimeServiceProduct->id;
@@ -155,7 +211,7 @@ class PriceResolverTest extends IntegrationTestCase
             $oneTimeServiceProduct->slug,
             1,
             1,
-            ProductPriceType::REGISTRATION
+            ProductPriceType::REGISTRATION,
         );
 
         self::assertSame(500, $price->regularPrice);
@@ -170,16 +226,30 @@ class PriceResolverTest extends IntegrationTestCase
         $productDiscountService = self::resolve(VolumeDiscountService::class);
         $customer = new CustomerFactory()->createOne();
         $productGroup = new ProductGroupFactory()->extension()->createOne();
-        $product = new ProductFactory()->nlDomain()->for($productGroup)->createOne();
-        new ProductPriceComponentFactory()->registration()->for($product)->createOne([
-            'billing_period' => 12,
+        $product = new ProductFactory()
+            ->nlDomain()
+            ->for($productGroup)
+            ->createOne();
+        new ProductPriceComponentFactory()
+            ->registration()
+            ->for($product)
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 150,
+                'orderable' => true,
+            ]);
+        new ProductPriceComponentFactory()->for($product)->createOne([
+            'type' => PriceComponentType::PROMOTION,
             'contract_period' => 12,
-            'price' => 150,
-            'orderable' => true,
+            'billing_period' => 12,
+            'price' => 100,
         ]);
-        new ProductPriceComponentFactory()->for($product)->createOne(['type' => PriceComponentType::PROMOTION, 'contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
         $staffel = new ProductDiscountFactory()->for($product)->createOne();
-        new CustomerProductDiscountFactory()->for($customer)->for($staffel)->createOne();
+        new CustomerProductDiscountFactory()
+            ->for($customer)
+            ->for($staffel)
+            ->createOne();
         $staffelPrice = new ProductPriceComponentFactory()->for($product)->createOne([
             'price' => 200,
             'type' => PriceComponentType::REGISTRATION_STAFFEL,
@@ -223,23 +293,26 @@ class PriceResolverTest extends IntegrationTestCase
         ]);
         self::resolve(VolumeDiscountService::class)->attachPrice($staffel, $registrationStaffelPrice);
 
-        new ProductPriceComponentFactory()->for($domainProduct1)->registration()->createMany([
-            ['contract_period' => 12, 'billing_period' => 12, 'price' => 100],
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($domainProduct1)
+            ->registration()
+            ->createMany([
+                ['contract_period' => 12, 'billing_period' => 12, 'price' => 100],
+            ]);
 
         $priceRequest = new PriceRequest(
             [
                 new RegistrationPriceRequest($hostingProduct1),
                 new RegistrationPriceRequest($domainProduct1),
             ],
-            $customer
+            $customer,
         );
         $priceList = $this->priceResolver->getPriceList($priceRequest);
 
         $domainPrice = $priceList->getPrice($domainProduct1->slug, 12, 12, ProductPriceType::REGISTRATION);
         $introductionPriceComponent = array_find(
             $domainPrice->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent
+            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent,
         );
         Assert::assertNull($introductionPriceComponent);
         Assert::assertSame(100, $domainPrice->regularPrice);
@@ -265,7 +338,10 @@ class PriceResolverTest extends IntegrationTestCase
         $otherProduct1 = new ProductFactory()->for($otherGroup)->createOne(['slug' => 'a-secret-addon']);
 
         $staffel = new ProductDiscountFactory()->for($hostingProduct2)->createOne();
-        new CustomerProductDiscountFactory()->for($customer)->for($staffel)->createOne();
+        new CustomerProductDiscountFactory()
+            ->for($customer)
+            ->for($staffel)
+            ->createOne();
         $staffelPrice = new ProductPriceComponentFactory()->for($hostingProduct1)->createOne([
             'price' => 200,
             'type' => PriceComponentType::REGISTRATION_STAFFEL,
@@ -275,15 +351,42 @@ class PriceResolverTest extends IntegrationTestCase
         $customer->productGroups()->attach($productGroupHosting->id, ['discount' => 20]);
         $customer->productGroups()->attach($otherGroup->id, ['discount' => 74.21]);
 
-        new ProductPriceComponentFactory()->for($hostingProduct1)->registration()->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
-        new ProductPriceComponentFactory()->for($hostingProduct1)->prolongation()->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 200]);
-        new ProductPriceComponentFactory()->for($hostingProduct2)->registration()->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
-        new ProductPriceComponentFactory()->for($hostingProduct2)->prolongation()->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 200]);
-        new ProductPriceComponentFactory()->for($hostingProduct3)->registration()->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
-        new ProductPriceComponentFactory()->for($hostingProduct3)->prolongation()->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 200]);
-        new ProductPriceComponentFactory()->for($domainProduct1)->registration()->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
-        new ProductPriceComponentFactory()->for($domainProduct1)->prolongation()->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 200]);
-        new ProductPriceComponentFactory()->for($otherProduct1)->prolongation()->createOne(['contract_period' => 1, 'billing_period' => 1, 'price' => 200000]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct1)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct1)
+            ->prolongation()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 200]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct2)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct2)
+            ->prolongation()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 200]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct3)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct3)
+            ->prolongation()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 200]);
+        new ProductPriceComponentFactory()
+            ->for($domainProduct1)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
+        new ProductPriceComponentFactory()
+            ->for($domainProduct1)
+            ->prolongation()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 200]);
+        new ProductPriceComponentFactory()
+            ->for($otherProduct1)
+            ->prolongation()
+            ->createOne(['contract_period' => 1, 'billing_period' => 1, 'price' => 200000]);
 
         $priceRequest = new PriceRequest(
             [
@@ -293,7 +396,7 @@ class PriceResolverTest extends IntegrationTestCase
                 new RegistrationPriceRequest($domainProduct1),
                 new RegistrationPriceRequest($otherProduct1),
             ],
-            $customer
+            $customer,
         );
         $priceList = $this->priceResolver->getPriceList($priceRequest);
 
@@ -309,7 +412,7 @@ class PriceResolverTest extends IntegrationTestCase
         Assert::assertSame(100, $hostingPrice2->regularPrice);
         $introductionPriceComponent = array_find(
             $hostingPrice2->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent
+            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent,
         );
         Assert::assertNull($introductionPriceComponent);
 
@@ -317,7 +420,7 @@ class PriceResolverTest extends IntegrationTestCase
         $domainPrice = $priceList->getPrice($domainProduct1->slug, 12, 12, ProductPriceType::REGISTRATION);
         $introductionPriceComponent = array_find(
             $domainPrice->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent
+            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent,
         );
         Assert::assertNull($introductionPriceComponent);
         Assert::assertSame(100, $domainPrice->regularPrice);
@@ -327,7 +430,7 @@ class PriceResolverTest extends IntegrationTestCase
         $otherPrice = $priceList->getPrice($otherProduct1->slug, 1, 1, ProductPriceType::PROLONGATION);
         $introductionPriceComponent = array_find(
             $otherPrice->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent
+            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent,
         );
         Assert::assertNull($introductionPriceComponent);
         Assert::assertSame(51580, $otherPrice->getNetPrice());
@@ -348,12 +451,30 @@ class PriceResolverTest extends IntegrationTestCase
         $domainProductCom = new ProductFactory()->for($productGroupDomain)->createOne(['slug' => 'extension_com']);
         $freeDnsProduct = new ProductFactory()->for($productGroupDns)->createOne(['slug' => 'free-dns']);
 
-        new ProductPriceComponentFactory()->for($domainProductNl)->registration()->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
-        new ProductPriceComponentFactory()->for($domainProductEu)->registration()->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
-        new ProductPriceComponentFactory()->for($domainProductCom)->registration()->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
-        new ProductPriceComponentFactory()->for($domainProductCom)->registration()->createOne(['contract_period' => 36, 'billing_period' => 36, 'price' => 100]);
-        new ProductPriceComponentFactory()->for($freeDnsProduct)->registration()->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
-        new ProductPriceComponentFactory()->for($freeDnsProduct)->registration()->createOne(['contract_period' => 36, 'billing_period' => 36, 'price' => 100]);
+        new ProductPriceComponentFactory()
+            ->for($domainProductNl)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
+        new ProductPriceComponentFactory()
+            ->for($domainProductEu)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
+        new ProductPriceComponentFactory()
+            ->for($domainProductCom)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
+        new ProductPriceComponentFactory()
+            ->for($domainProductCom)
+            ->registration()
+            ->createOne(['contract_period' => 36, 'billing_period' => 36, 'price' => 100]);
+        new ProductPriceComponentFactory()
+            ->for($freeDnsProduct)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
+        new ProductPriceComponentFactory()
+            ->for($freeDnsProduct)
+            ->registration()
+            ->createOne(['contract_period' => 36, 'billing_period' => 36, 'price' => 100]);
 
         $priceRequest = new PriceRequest(
             [
@@ -364,15 +485,17 @@ class PriceResolverTest extends IntegrationTestCase
                 new RegistrationPriceRequest($domainProductCom, 1, 36, 36),
                 new RegistrationPriceRequest($freeDnsProduct, 1, 36, 36),
             ],
-            $customer
+            $customer,
         );
         $priceList = $this->priceResolver->getPriceList($priceRequest);
         $prices = $priceList->getPrices();
 
-        $filter = (static fn (Price $price, int $productId, int $billingPeriod, int $contractPeriod) => $price->productId === $productId
-                && $price->billingPeriod === $billingPeriod
-                && $price->contractPeriod === $contractPeriod
-                && $price->type === ProductPriceType::REGISTRATION);
+        $filter = static fn (Price $price, int $productId, int $billingPeriod, int $contractPeriod) => (
+            $price->productId === $productId
+            && $price->billingPeriod === $billingPeriod
+            && $price->contractPeriod === $contractPeriod
+            && $price->type === ProductPriceType::REGISTRATION
+        );
 
         // The price list should contain:
         // 5x free-dns 12/12
@@ -385,8 +508,80 @@ class PriceResolverTest extends IntegrationTestCase
         self::assertCount(5, array_filter($prices, fn (Price $price) => $filter($price, $freeDnsProduct->id, 12, 12)));
         self::assertCount(1, array_filter($prices, fn (Price $price) => $filter($price, $freeDnsProduct->id, 36, 36)));
         self::assertCount(2, array_filter($prices, fn (Price $price) => $filter($price, $domainProductNl->id, 12, 12)));
-        self::assertCount(1, array_filter($prices, fn (Price $price) => $filter($price, $domainProductCom->id, 12, 12)));
-        self::assertCount(1, array_filter($prices, fn (Price $price) => $filter($price, $domainProductCom->id, 36, 36)));
+        self::assertCount(1, array_filter($prices, fn (Price $price) => $filter(
+            $price,
+            $domainProductCom->id,
+            12,
+            12,
+        )));
+        self::assertCount(1, array_filter($prices, fn (Price $price) => $filter(
+            $price,
+            $domainProductCom->id,
+            36,
+            36,
+        )));
         self::assertCount(2, array_filter($prices, fn (Price $price) => $filter($price, $domainProductEu->id, 12, 12)));
+    }
+
+    #[Test]
+    public function multipleRequestsWithQuantitiesForTheSameProductReturnTheRightPrices(): void
+    {
+        $customer = new CustomerFactory()->createOne();
+
+        $productGroupDomain = new ProductGroupFactory()->extension()->createOne();
+        $domainProductNl = new ProductFactory()->for($productGroupDomain)->createOne(['slug' => 'extension_nl']);
+
+        new ProductPriceComponentFactory()
+            ->for($domainProductNl)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 100]);
+        new ProductPriceComponentFactory()
+            ->for($domainProductNl)
+            ->introduction()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 50]);
+
+        new ProductIntroductionDiscountsFactory()->createOne([
+            'product_id' => $domainProductNl->id,
+            'max_uses_per_customer' => 100,
+            'contract_period' => 12,
+        ]);
+
+        $dutch = new TranslationLanguageFactory()->createOne(['locale' => 'nl']);
+        $priceExplanation = new TranslationKeyFactory()
+            ->withTranslatedString($dutch, 'test vertaling')
+            ->createOne(['key' => 'test.price.explanation']);
+
+        new ProductPeriodFactory()->for($domainProductNl)->createOne([
+            'contract_period' => 12,
+            'billing_period' => 12,
+            'translation_key_id' => $priceExplanation->id,
+        ]);
+
+        $priceRequest = new PriceRequest(
+            [new RegistrationPriceRequest($domainProductNl, 2, 12, 12)],
+            $customer,
+            requestingForOrder: true,
+        );
+        $priceList = $this->priceResolver->getPriceList($priceRequest);
+        $prices = $priceList->getPrices();
+
+        $registrationPrices = array_filter(
+            $prices,
+            fn (Price $price) => $price->type === ProductPriceType::REGISTRATION,
+        );
+        self::assertCount(2, $registrationPrices);
+        $firstPrice = array_shift($registrationPrices);
+        $secondPrice = array_shift($registrationPrices);
+
+        // Somehow PHPStan understands that $firstPrice is not null but not the second one
+        self::assertNotNull($secondPrice);
+
+        // Checking if the right values are copied on duplicating the price per quantity. We don't need to check all properties here.
+        self::assertSame($firstPrice->regularPrice, $secondPrice->regularPrice);
+        self::assertSame($firstPrice->actionPeriod, $secondPrice->actionPeriod);
+        self::assertSame($firstPrice->actionPeriodPrice, $secondPrice->actionPeriodPrice);
+        self::assertSame($firstPrice->calculatedPrice, $secondPrice->calculatedPrice);
+        self::assertSame($firstPrice->discountPrice, $secondPrice->discountPrice);
+        self::assertSame($firstPrice->priceExplanation?->id, $secondPrice->priceExplanation?->id);
     }
 }

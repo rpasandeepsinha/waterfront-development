@@ -13,13 +13,14 @@ trait HasPhoneNumber
 {
     public function getPhoneNumberAttribute(): string
     {
-        if ($this->phone_country_code !== ''
+        if (
+            $this->phone_country_code !== ''
             && $this->phone_area_code !== ''
             && $this->phone_subscriber_number !== ''
         ) {
-            return '(+' . $this->phone_country_code . ') '
-                . $this->phone_area_code . '-'
-                . $this->phone_subscriber_number;
+            return (
+                '(+' . $this->phone_country_code . ') ' . $this->phone_area_code . '-' . $this->phone_subscriber_number
+            );
         }
 
         return '';
@@ -42,7 +43,7 @@ trait HasPhoneNumber
             throw new NumberParseException(
                 NumberParseException::NOT_A_NUMBER,
                 $translator->translate('customer.phone-country-error'),
-                $exception
+                $exception,
             );
         }
     }

@@ -50,7 +50,7 @@ class NovaGenerateSsoAction extends Action
 
         if ($provider === null) {
             return self::danger(
-                $this->translator->translate('nova.general_actions_relevant_provider_hosting_not_found')
+                $this->translator->translate('nova.general_actions_relevant_provider_hosting_not_found'),
             );
         }
 
@@ -78,10 +78,11 @@ class NovaGenerateSsoAction extends Action
         if ($hostingDeployment instanceof ResellerHostingDeployment) {
             $server = $hostingDeployment->server;
             Assert::notNull($server);
+
             return $this->getSsoUrlAction->execute(
                 $server,
                 $hostingDeployment->getRelevantUsernameAttribute(),
-                $request->ip() ?? ''
+                $request->ip() ?? '',
             );
         }
 

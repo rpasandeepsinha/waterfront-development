@@ -85,7 +85,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
             $providerId,
             $tenantUuid,
             $userUuid,
-            $subscriptionUuid
+            $subscriptionUuid,
         );
 
         $createDeploymentRequest->requestId = $mockRequestId;
@@ -102,7 +102,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
                         'userUuid' => $createDeploymentRequest->userUuid,
                         'providerId' => $createDeploymentRequest->acronisProviderId,
                     ])
-                    ->build()
+                    ->build(),
             );
 
         $mockBackupDeployment = new BackupDeployment();
@@ -113,21 +113,19 @@ class CreateAcronisProvisionServiceTest extends TestCase
             ->with($subscriptionUuid, $mockRequestId)
             ->andReturn($mockBackupDeployment);
 
-        $this->mockAcronisRepository
-            ->expects('findOrCreate')
-            ->with(
-                $mockBackupDeployment->id,
-                $providerId,
-                $tenantUuid,
-                $userUuid,
-            );
+        $this->mockAcronisRepository->expects('findOrCreate')->with(
+            $mockBackupDeployment->id,
+            $providerId,
+            $tenantUuid,
+            $userUuid,
+        );
 
         $createService = new CreateAcronisProvisionService(
             acronisClientFactory: self::createStub(AcronisClientFactory::class),
             logger: $this->mockLogger,
             backupRepository: $this->mockBackupRepository,
             acronisRepository: $this->mockAcronisRepository,
-            acronisProviderRepository: self::createStub(AcronisProviderRepository::class)
+            acronisProviderRepository: self::createStub(AcronisProviderRepository::class),
         );
 
         $result = $createService->createDeployment($createDeploymentRequest);
@@ -153,7 +151,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
             firstname: $expectedFirstname,
             lastname: $expectedLastname,
             email: $expectedEmail,
-            language: $expectedLanguage
+            language: $expectedLanguage,
         );
 
         $this->mockFactory
@@ -171,17 +169,18 @@ class CreateAcronisProvisionServiceTest extends TestCase
             ->expects('create')
             ->once()
             ->withArgs(
-                fn (Tenant $tenant) =>
-                $tenant->name === $expectedTenantName
-                && $tenant->parentId === $expectedClientTenantId->toString()
-                && $tenant->kind === TenantType::CUSTOMER
-                && $tenant->language === $expectedLanguage->value
-                && $tenant->contact?->email === $expectedEmail
-                && $tenant->contact->firstname === $expectedFirstname
-                && $tenant->contact->lastname === $expectedLastname
-                && $tenant->contact->language === $expectedLanguage->value
-                && $tenant->internalTag === $expectedTag->toString()
-                && $tenant->customerId === $expectedEmail
+                fn (Tenant $tenant) => (
+                    $tenant->name === $expectedTenantName
+                    && $tenant->parentId === $expectedClientTenantId->toString()
+                    && $tenant->kind === TenantType::CUSTOMER
+                    && $tenant->language === $expectedLanguage->value
+                    && $tenant->contact?->email === $expectedEmail
+                    && $tenant->contact->firstname === $expectedFirstname
+                    && $tenant->contact->lastname === $expectedLastname
+                    && $tenant->contact->language === $expectedLanguage->value
+                    && $tenant->internalTag === $expectedTag->toString()
+                    && $tenant->customerId === $expectedEmail
+                ),
             )
             ->andReturn($expectedTenant);
 
@@ -197,7 +196,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
                     LoggingContextKeys::META => [
                         'client_tenant_id' => $expectedClientTenantId,
                     ],
-                ]
+                ],
             );
 
         $createService = new CreateAcronisProvisionService(
@@ -205,7 +204,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
             logger: $this->mockLogger,
             backupRepository: self::createStub(BackupDeploymentRepository::class),
             acronisRepository: self::createStub(AcronisBackupDeploymentRepository::class),
-            acronisProviderRepository: self::createStub(AcronisProviderRepository::class)
+            acronisProviderRepository: self::createStub(AcronisProviderRepository::class),
         );
 
         $tenant = $createService->createTenant($request);
@@ -230,7 +229,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
             tag: $expectedTag,
             firstname: $expectedFirstname,
             lastname: $expectedLastname,
-            email: $expectedEmail
+            email: $expectedEmail,
         );
 
         $this->mockFactory
@@ -250,9 +249,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
             ->once()
             ->andReturn(new TenantUsers([$expectedUser1, $expectedUser2]));
 
-        $this->mockUserClient
-            ->expects('create')
-            ->never();
+        $this->mockUserClient->expects('create')->never();
 
         $this->mockLogger
             ->expects('info')
@@ -266,22 +263,20 @@ class CreateAcronisProvisionServiceTest extends TestCase
                         'tenant_id' => $expectedTenantId,
                         'users' => [$expectedUser1, $expectedUser2],
                     ],
-                ]
+                ],
             )
             ->once();
 
-        $this->mockLogger
-            ->expects('info')
-            ->with('Fetching existing Acronis user for tenant.', [
-                LoggingContextKeys::PROVISIONING_REQUEST_ID => $expectedTag,
-                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
-                LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
-                LoggingContextKeys::META => [
-                    'tenant_id' => $expectedTenantId,
-                    'user_id' => $expectedUser1,
-                    'client_tenant_id' => $expectedClientTenantId,
-                ],
-            ]);
+        $this->mockLogger->expects('info')->with('Fetching existing Acronis user for tenant.', [
+            LoggingContextKeys::PROVISIONING_REQUEST_ID => $expectedTag,
+            LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
+            LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
+            LoggingContextKeys::META => [
+                'tenant_id' => $expectedTenantId,
+                'user_id' => $expectedUser1,
+                'client_tenant_id' => $expectedClientTenantId,
+            ],
+        ]);
 
         $this->mockUserClient
             ->expects('get')
@@ -294,7 +289,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
             logger: $this->mockLogger,
             backupRepository: self::createStub(BackupDeploymentRepository::class),
             acronisRepository: self::createStub(AcronisBackupDeploymentRepository::class),
-            acronisProviderRepository: self::createStub(AcronisProviderRepository::class)
+            acronisProviderRepository: self::createStub(AcronisProviderRepository::class),
         );
 
         $user = $createService->findOrCreateUser($expectedTenantId, $request);
@@ -319,7 +314,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
             firstname: $expectedFirstname,
             lastname: $expectedLastname,
             email: $expectedEmail,
-            language: $expectedLanguage
+            language: $expectedLanguage,
         );
 
         $this->mockFactory
@@ -333,43 +328,36 @@ class CreateAcronisProvisionServiceTest extends TestCase
                 genericClient: self::createStub(AcronisGenericClient::class),
             ));
 
-        $this->mockUserClient
-            ->expects('list')
-            ->with($expectedTenantId)
-            ->once()
-            ->andReturn(new TenantUsers([]));
+        $this->mockUserClient->expects('list')->with($expectedTenantId)->once()->andReturn(new TenantUsers([]));
 
-        $this->mockUserClient
-            ->expects('create')
-            ->never();
+        $this->mockUserClient->expects('create')->never();
 
-        $this->mockLogger
-            ->expects('info')
-            ->with(
-                'Creating Acronis user for tenant.',
-                [
-                    LoggingContextKeys::PROVISIONING_REQUEST_ID => $expectedTag,
-                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
-                    LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
-                    LoggingContextKeys::META => [
-                        'tenant_id' => $expectedTenantId,
-                        'client_tenant_id' => $expectedClientTenantId,
-                    ],
-                ]
-            );
+        $this->mockLogger->expects('info')->with(
+            'Creating Acronis user for tenant.',
+            [
+                LoggingContextKeys::PROVISIONING_REQUEST_ID => $expectedTag,
+                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
+                LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
+                LoggingContextKeys::META => [
+                    'tenant_id' => $expectedTenantId,
+                    'client_tenant_id' => $expectedClientTenantId,
+                ],
+            ],
+        );
 
         $this->mockUserClient
             ->expects('create')
             ->withArgs(
-                fn (UserCreate $userCreate) =>
-                $userCreate->tenantId === $expectedTenantId
-                && strlen($userCreate->login) === 8
-                && $userCreate->enabled
-                && $userCreate->contact->firstname === $expectedFirstname
-                && $userCreate->contact->lastname === $expectedLastname
-                && $userCreate->language === $expectedLanguage->value
-                && $userCreate->contact->email === $expectedEmail
-                && $userCreate->contact->emailConfirmed === true
+                fn (UserCreate $userCreate) => (
+                    $userCreate->tenantId === $expectedTenantId
+                    && strlen($userCreate->login) === 8
+                    && $userCreate->enabled
+                    && $userCreate->contact->firstname === $expectedFirstname
+                    && $userCreate->contact->lastname === $expectedLastname
+                    && $userCreate->language === $expectedLanguage->value
+                    && $userCreate->contact->email === $expectedEmail
+                    && $userCreate->contact->emailConfirmed === true
+                ),
             )
             ->once()
             ->andReturn($expectedUser);
@@ -379,7 +367,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
             logger: $this->mockLogger,
             backupRepository: self::createStub(BackupDeploymentRepository::class),
             acronisRepository: self::createStub(AcronisBackupDeploymentRepository::class),
-            acronisProviderRepository: self::createStub(AcronisProviderRepository::class)
+            acronisProviderRepository: self::createStub(AcronisProviderRepository::class),
         );
 
         $user = $createService->findOrCreateUser($expectedTenantId, $request);
@@ -405,17 +393,14 @@ class CreateAcronisProvisionServiceTest extends TestCase
                 genericClient: self::createStub(AcronisGenericClient::class),
             ));
 
-        $this->mockUserClient
-            ->expects('updatePassword')
-            ->with($expectedUserId, $expectedPassword)
-            ->once();
+        $this->mockUserClient->expects('updatePassword')->with($expectedUserId, $expectedPassword)->once();
 
         $createService = new CreateAcronisProvisionService(
             acronisClientFactory: $this->mockFactory,
             logger: $this->mockLogger,
             backupRepository: self::createStub(BackupDeploymentRepository::class),
             acronisRepository: self::createStub(AcronisBackupDeploymentRepository::class),
-            acronisProviderRepository: self::createStub(AcronisProviderRepository::class)
+            acronisProviderRepository: self::createStub(AcronisProviderRepository::class),
         );
 
         $password = $createService->setPassword($expectedUserId, $expectedPassword);
@@ -450,7 +435,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
             logger: $this->mockLogger,
             backupRepository: self::createStub(BackupDeploymentRepository::class),
             acronisRepository: self::createStub(AcronisBackupDeploymentRepository::class),
-            acronisProviderRepository: self::createStub(AcronisProviderRepository::class)
+            acronisProviderRepository: self::createStub(AcronisProviderRepository::class),
         );
 
         $password = $createService->setPassword($expectedUserId, null);
@@ -466,9 +451,10 @@ class CreateAcronisProvisionServiceTest extends TestCase
         $expectedTag = Uuid::uuid4();
         $expectedClientTenantId = Uuid::uuid4();
 
-        $request = $this->mockRequest(
-            tag: $expectedTag
-        );
+        $request =
+            $this->mockRequest(
+                tag: $expectedTag,
+            );
 
         $expectedTimestamp = date('c');
         $returnedPolicies = new UserAccessPolicies(
@@ -504,7 +490,10 @@ class CreateAcronisProvisionServiceTest extends TestCase
 
         $this->mockUserClient
             ->expects('updateUserAccessPolicies')
-            ->withArgs(function (string $userId, UserAccessPolicies $policies) use ($expectedUserId, $expectedTenantId) {
+            ->withArgs(function (string $userId, UserAccessPolicies $policies) use (
+                $expectedUserId,
+                $expectedTenantId,
+            ) {
                 self::assertSame($expectedUserId, $userId);
                 self::assertCount(2, $policies->items);
 
@@ -534,7 +523,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
                         'tenant_id' => $expectedTenantId,
                         'client_tenant_id' => $expectedClientTenantId,
                     ],
-                ]
+                ],
             )
             ->once();
 
@@ -543,7 +532,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
             logger: $this->mockLogger,
             backupRepository: self::createStub(BackupDeploymentRepository::class),
             acronisRepository: self::createStub(AcronisBackupDeploymentRepository::class),
-            acronisProviderRepository: self::createStub(AcronisProviderRepository::class)
+            acronisProviderRepository: self::createStub(AcronisProviderRepository::class),
         );
 
         $result = $createService->updateAccessPolicies($expectedUserId, $expectedTenantId, $request);
@@ -576,16 +565,16 @@ class CreateAcronisProvisionServiceTest extends TestCase
         $this->mockTenantClient
             ->expects('getPricingSettings')
             ->withArgs(
-                fn (string $tenantId) =>
-                    $tenantId === $expectedTenantId
+                fn (string $tenantId) => $tenantId === $expectedTenantId,
             );
 
         $this->mockTenantClient
             ->expects('updatePricingSettings')
             ->withArgs(
-                fn (string $tenantId, TenantPricingSettings $payload) =>
+                fn (string $tenantId, TenantPricingSettings $payload) => (
                     $tenantId === $expectedTenantId
                     && $payload->mode === PricingMode::PRODUCTION
+                ),
             );
 
         $this->mockLogger
@@ -599,7 +588,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
                         'tenant_id' => $expectedTenantId,
                         'client_tenant_id' => $expectedClientTenantId,
                     ],
-                ]
+                ],
             )
             ->once();
 
@@ -608,7 +597,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
             logger: $this->mockLogger,
             backupRepository: self::createStub(BackupDeploymentRepository::class),
             acronisRepository: self::createStub(AcronisBackupDeploymentRepository::class),
-            acronisProviderRepository: self::createStub(AcronisProviderRepository::class)
+            acronisProviderRepository: self::createStub(AcronisProviderRepository::class),
         );
 
         $createService->updatePricingToProduction($expectedTenantId);
@@ -630,7 +619,7 @@ class CreateAcronisProvisionServiceTest extends TestCase
             lastname: $lastname,
             cloudStorageInGb: $storageInGb,
             localStorageInGb: $localStorageInGb,
-            language: $language
+            language: $language,
         );
         $request->provider = ProvisionProvider::ACRONIS;
 

@@ -48,9 +48,7 @@ class HostingDeploymentRepositoryTest extends IntegrationTestCase
                 'administrative_status' => AdministrativeStatus::ACTIVE->value,
             ]);
 
-        new HostingDeploymentFactory()
-            ->for($subscription, 'subscription')
-            ->createOne();
+        new HostingDeploymentFactory()->for($subscription, 'subscription')->createOne();
 
         self::assertCount(1, $this->subscriptionRepository->getActiveSharedByCustomer($this->customer));
     }
@@ -69,11 +67,9 @@ class HostingDeploymentRepositoryTest extends IntegrationTestCase
                 'administrative_status' => AdministrativeStatus::ACTIVE->value,
             ]);
 
-        new HostingDeploymentFactory()
-            ->for($subscription, 'subscription')
-            ->createOne([
-                'server_id' => null,
-            ]);
+        new HostingDeploymentFactory()->for($subscription, 'subscription')->createOne([
+            'server_id' => null,
+        ]);
 
         self::assertCount(0, $this->subscriptionRepository->getActiveSharedByCustomer($this->customer));
     }
@@ -92,12 +88,10 @@ class HostingDeploymentRepositoryTest extends IntegrationTestCase
                 'administrative_status' => AdministrativeStatus::ACTIVE->value,
             ]);
 
-        new HostingDeploymentFactory()
-            ->for($subscription, 'subscription')
-            ->createOne([
-                'directadmin_customer_username' => null,
-                'plesk_customer_username' => null,
-            ]);
+        new HostingDeploymentFactory()->for($subscription, 'subscription')->createOne([
+            'directadmin_customer_username' => null,
+            'plesk_customer_username' => null,
+        ]);
 
         self::assertCount(0, $this->subscriptionRepository->getActiveSharedByCustomer($this->customer));
     }

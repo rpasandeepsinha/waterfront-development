@@ -36,14 +36,22 @@ class ManualMigrationServiceTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
         $nlProduct = new ProductFactory()->nlDomain()->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($nlProduct)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($nlProduct)
+            ->createOne();
         new ProviderFactory()->domainPlaceholder()->createOne();
 
-        $dnsProduct = new ProductFactory()->freeDns()->createOne([
-            'name' => 'free-dns',
-            'slug' => 'free-dns',
-        ]);
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne(['price' => 0]);
+        $dnsProduct = new ProductFactory()
+            ->freeDns()
+            ->createOne([
+                'name' => 'free-dns',
+                'slug' => 'free-dns',
+            ]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
 
         $httpRequest = ManualMigrationMigrateRequest::create('', parameters: [
             'billing_period' => 12,
@@ -88,7 +96,10 @@ class ManualMigrationServiceTest extends IntegrationTestCase
         self::assertTrue($migratedCustomer->enable_invoicing);
         self::assertSame('manual_migration', $migratedCustomer->group_type);
 
-        self::assertGreaterThan(0, MigratedSubscriptionSteps::where('subscription_id', $domainSubscription->id)->count());
+        self::assertGreaterThan(
+            0,
+            MigratedSubscriptionSteps::where('subscription_id', $domainSubscription->id)->count(),
+        );
     }
 
     #[Test]
@@ -96,15 +107,23 @@ class ManualMigrationServiceTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
         $hostingBrons = new ProductFactory()->hostingBrons()->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($hostingBrons)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($hostingBrons)
+            ->createOne();
         new ProviderFactory()->hostingPlaceholder()->createOne();
         new ProviderFactory()->hostingDirectAdmin()->createOne();
 
-        $dnsProduct = new ProductFactory()->freeDns()->createOne([
-            'name' => 'free-dns',
-            'slug' => 'free-dns',
-        ]);
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne(['price' => 0]);
+        $dnsProduct = new ProductFactory()
+            ->freeDns()
+            ->createOne([
+                'name' => 'free-dns',
+                'slug' => 'free-dns',
+            ]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
 
         $httpRequest = ManualMigrationMigrateRequest::create('', parameters: [
             'billing_period' => 12,
@@ -130,6 +149,7 @@ class ManualMigrationServiceTest extends IntegrationTestCase
                 self::assertIsArray($data[0]);
                 self::assertArrayHasKey('driver', $data[0]);
                 self::assertSame(ProviderSlug::DIRECTADMIN->value, $data[0]['driver']);
+
                 return true;
             }));
 
@@ -155,10 +175,20 @@ class ManualMigrationServiceTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
         $product = new ProductFactory()->nlDomain()->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($product)
+            ->createOne();
 
         $subscriptionService = self::createStub(SubscriptionService::class);
-        $subscriptionService->method('storeSubscription')->willReturn(new SubscriptionFactory()->for($customer)->for($product)->createOne());
+        $subscriptionService
+            ->method('storeSubscription')
+            ->willReturn(
+                new SubscriptionFactory()
+                    ->for($customer)
+                    ->for($product)
+                    ->createOne(),
+            );
 
         $domainService = self::createStub(RtrService::class);
         $domainService->method('fetchDomain')->willReturn(self::createStub(DomainDetailsDTO::class));
@@ -170,7 +200,7 @@ class ManualMigrationServiceTest extends IntegrationTestCase
             self::createStub(StoreNoteAction::class),
             self::resolve(TechnicalSteps::class),
             self::createStub(ManualTechnicalMigrationsService::class),
-            $domainService
+            $domainService,
         );
         $httpRequest = ManualMigrationMigrateRequest::create('', parameters: [
             'domain_name' => 'bla.nl',
@@ -194,7 +224,10 @@ class ManualMigrationServiceTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
         $product = new ProductFactory()->nlDomain()->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($product)
+            ->createOne();
         $httpRequest = ManualMigrationMigrateRequest::create('', parameters: [
             'domain_name' => 'bla.nl',
             'product_uuid' => $product->uuid,
@@ -205,7 +238,14 @@ class ManualMigrationServiceTest extends IntegrationTestCase
         ]);
 
         $subscriptionService = self::createStub(SubscriptionService::class);
-        $subscriptionService->method('storeSubscription')->willReturn(new SubscriptionFactory()->for($customer)->for($product)->createOne());
+        $subscriptionService
+            ->method('storeSubscription')
+            ->willReturn(
+                new SubscriptionFactory()
+                    ->for($customer)
+                    ->for($product)
+                    ->createOne(),
+            );
 
         $domainService = self::createStub(RtrService::class);
         $domainService->method('fetchDomain')->willReturn(self::createStub(DomainDetailsDTO::class));
@@ -217,7 +257,7 @@ class ManualMigrationServiceTest extends IntegrationTestCase
             self::resolve(StoreNoteAction::class),
             self::resolve(TechnicalSteps::class),
             self::createStub(ManualTechnicalMigrationsService::class),
-            $domainService
+            $domainService,
         );
 
         $service->migrate($httpRequest, $customer, []);

@@ -50,13 +50,26 @@ class NovaMicrosoft365KpnProductsResource extends Resource
      */
     public function fields(NovaRequest $request): array
     {
-        $productGroupFilter = fn (Builder $productGroupQuery): Builder => $productGroupQuery->whereIn('slug', [ProductGroupType::MICROSOFT_365]);
-        $productPriceFilter = fn (NovaRequest $request, Builder $query) => $query->whereHas('productGroup', $productGroupFilter);
+        $productGroupFilter = fn (Builder $productGroupQuery): Builder => $productGroupQuery->whereIn('slug', [
+            ProductGroupType::MICROSOFT_365,
+        ]);
+        $productPriceFilter = fn (NovaRequest $request, Builder $query) => $query->whereHas(
+            'productGroup',
+            $productGroupFilter,
+        );
 
         return [
-            Text::make(self::translate('microsoft365-kpn-products.kpn-product-code'), 'kpn_product_code')->required()->sortable(),
-            BelongsTo::make(self::translate('product.singular'), 'product', NovaProductResource::class)->relatableQueryUsing($productPriceFilter),
-            Select::make(self::translate('subscription.attributes.contract_period'), 'contract_period')->required()->options(['1' => '1', '12' => '12']),
+            Text::make(self::translate('microsoft365-kpn-products.kpn-product-code'), 'kpn_product_code')
+                ->required()
+                ->sortable(),
+            BelongsTo::make(
+                self::translate('product.singular'),
+                'product',
+                NovaProductResource::class,
+            )->relatableQueryUsing($productPriceFilter),
+            Select::make(self::translate('subscription.attributes.contract_period'), 'contract_period')
+                ->required()
+                ->options(['1' => '1', '12' => '12']),
         ];
     }
 }

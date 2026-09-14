@@ -24,8 +24,8 @@ class TechnicalRedirectMigrationJob extends MigrationJob implements ShouldQueue
 
     public function __construct(
         public Subscription $subscription,
-        protected string|null $failedTechnicalStatus,
-        protected RedirectTechnicalPayload $redirectTechnicalPayload
+        protected ?string $failedTechnicalStatus,
+        protected RedirectTechnicalPayload $redirectTechnicalPayload,
     ) {
         parent::__construct($this->subscription, $this->failedTechnicalStatus);
     }
@@ -50,7 +50,10 @@ class TechnicalRedirectMigrationJob extends MigrationJob implements ShouldQueue
     {
         $domain = $this->subscription->domain;
 
-        Assert::string($domain, 'There always needs to be a domain present on the subscription with redirect migrations');
+        Assert::string(
+            $domain,
+            'There always needs to be a domain present on the subscription with redirect migrations',
+        );
 
         $this->redirectMigrationService->migrateRedirecting(
             zone: $this->fetchDnsZone($domain), // if the zone does not exist only the redirecting database will be provisioned
@@ -72,7 +75,7 @@ class TechnicalRedirectMigrationJob extends MigrationJob implements ShouldQueue
          */
     }
 
-    private function fetchDnsZone(string $domain): DnsZone|null
+    private function fetchDnsZone(string $domain): ?DnsZone
     {
         try {
             $zone = $this->dnsService->getDnsZone($domain);

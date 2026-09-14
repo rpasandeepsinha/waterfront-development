@@ -39,7 +39,7 @@ interface MailManagementDriverInterface
         string $mailUser,
         string $password,
         int $limit,
-        int $quota
+        int $quota,
     ): Result;
 
     public function resetPassword(
@@ -48,7 +48,7 @@ interface MailManagementDriverInterface
         string $domainUser,
         string $mailUser,
         string $password,
-        int $quota
+        int $quota,
     ): Result;
 
     public function deleteDomain(string $hostname, string $domain, string $domainUser): Result;

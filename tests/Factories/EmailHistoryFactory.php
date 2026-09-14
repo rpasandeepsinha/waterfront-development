@@ -44,6 +44,7 @@ class EmailHistoryFactory extends Factory
     public function withTemplate(array $data = []): EmailHistoryFactory
     {
         $template = new TemplateFactory()->createOne($data);
+
         return $this->state(fn (): array => [
             'template_id' => $template->id,
         ]);

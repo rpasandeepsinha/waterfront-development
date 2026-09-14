@@ -28,7 +28,11 @@ class EnableTest extends IntegrationTestCase
     {
         $mock = new MockHandler([
             function (RequestInterface $request, $options) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_enable_request.xml'), (string) $request->getBody());
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_enable_request.xml'),
+                    (string) $request->getBody(),
+                );
+
                 return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_enable_response.xml'));
             },
         ]);
@@ -41,7 +45,7 @@ class EnableTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $data = require __DIR__ . '/data/pleskChangeHostingPackageStatusData.php';

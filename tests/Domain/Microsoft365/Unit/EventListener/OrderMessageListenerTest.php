@@ -63,10 +63,13 @@ class OrderMessageListenerTest extends IntegrationTestCase
             productId: Microsoft365Service::MICROSOFT_TENANT_PRODUCT_CODE,
         );
 
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('prepareOrders')
             ->with(self::callback(
-                fn (Microsoft365CustomerInfo $customerInfo): bool => $customerInfo->id === $this->microsoft365CustomerInfo->id
+                fn (Microsoft365CustomerInfo $customerInfo): bool => (
+                    $customerInfo->id === $this->microsoft365CustomerInfo->id
+                ),
             ));
 
         $this->listener->execute($orderMessage, null);
@@ -81,8 +84,7 @@ class OrderMessageListenerTest extends IntegrationTestCase
             productId: Microsoft365Service::MICROSOFT_TENANT_PRODUCT_CODE,
         );
 
-        $this->microsoft365Service->expects(self::never())
-            ->method('prepareOrders');
+        $this->microsoft365Service->expects(self::never())->method('prepareOrders');
 
         $this->listener->execute($orderMessage, null);
     }
@@ -96,8 +98,7 @@ class OrderMessageListenerTest extends IntegrationTestCase
             productId: Microsoft365Service::MICROSOFT_TENANT_PRODUCT_CODE,
         );
 
-        $this->microsoft365Service->expects(self::never())
-            ->method('prepareOrders');
+        $this->microsoft365Service->expects(self::never())->method('prepareOrders');
 
         $this->listener->execute($orderMessage, null);
     }
@@ -111,14 +112,13 @@ class OrderMessageListenerTest extends IntegrationTestCase
             productId: Microsoft365Service::MICROSOFT_TENANT_PRODUCT_CODE,
         );
 
-        $this->microsoft365Service->expects(self::never())
-            ->method('prepareOrders');
+        $this->microsoft365Service->expects(self::never())->method('prepareOrders');
 
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::atLeastOnce())
-            ->method('info');
+        $logger->expects(self::atLeastOnce())->method('info');
 
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(self::stringContains('Could not find KPN customer info for order_id: 99999999'));
 
@@ -140,8 +140,7 @@ class OrderMessageListenerTest extends IntegrationTestCase
             productId: 'SOME_OTHER_PRODUCT_CODE',
         );
 
-        $this->microsoft365Service->expects(self::never())
-            ->method('prepareOrders');
+        $this->microsoft365Service->expects(self::never())->method('prepareOrders');
 
         $this->listener->execute($orderMessage, null);
     }

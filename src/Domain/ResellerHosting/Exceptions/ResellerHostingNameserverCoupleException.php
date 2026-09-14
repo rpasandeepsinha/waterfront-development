@@ -8,15 +8,18 @@ use Exception;
 
 class ResellerHostingNameserverCoupleException extends Exception
 {
-    public function __construct(private readonly string $domain, int $code = 0, ?Exception $exception = null)
-    {
+    public function __construct(
+        private readonly string $domain,
+        int $code = 0,
+        ?Exception $exception = null,
+    ) {
         parent::__construct(
             sprintf(
                 'There was an error setting the nameserver for domain %s',
-                $domain
+                $domain,
             ),
             $code,
-            $exception
+            $exception,
         );
     }
 

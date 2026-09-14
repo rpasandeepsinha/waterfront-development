@@ -29,9 +29,18 @@ class InvoiceModifierTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->nlDomain()->createOne();
         $invoices = [
-            new InvoiceFactory()->withCustomer()->for($product)->createOne(),
-            new InvoiceFactory()->withCustomer()->for($product)->createOne(),
-            new InvoiceFactory()->withCustomer()->for($product)->createOne(),
+            new InvoiceFactory()
+                ->withCustomer()
+                ->for($product)
+                ->createOne(),
+            new InvoiceFactory()
+                ->withCustomer()
+                ->for($product)
+                ->createOne(),
+            new InvoiceFactory()
+                ->withCustomer()
+                ->for($product)
+                ->createOne(),
         ];
 
         $sentToHarborAt = CarbonImmutable::now();

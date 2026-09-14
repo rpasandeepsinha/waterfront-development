@@ -35,10 +35,7 @@ class DcvCnameValidatorServiceTest extends IntegrationTestCase
             $this->makeRecord(DnsRecordType::A, 'unrelated.example.test.', '1.2.3.4'),
         ]);
 
-        $dnsService->expects(self::once())
-            ->method('getDnsZone')
-            ->with('example.test')
-            ->willReturn($dnsZone);
+        $dnsService->expects(self::once())->method('getDnsZone')->with('example.test')->willReturn($dnsZone);
 
         $dnsHelper = self::createMock(DnsHelper::class);
         $dnsHelper->expects(self::never())->method('dnsGetRecord');
@@ -50,7 +47,7 @@ class DcvCnameValidatorServiceTest extends IntegrationTestCase
             caaRecordStatus: 'ok',
             dnsRecord: $expectedName,
             dnsType: DnsRecordType::CNAME->value,
-            dnsContent: strtoupper("{$expectedValue}.")
+            dnsContent: strtoupper("{$expectedValue}."),
         );
 
         self::assertFalse($service->isCnameMissingOrIncorrect($dcvDetails));
@@ -70,10 +67,7 @@ class DcvCnameValidatorServiceTest extends IntegrationTestCase
             $this->makeRecord(DnsRecordType::CNAME, "{$expectedName}.", 'different.target.test.'),
         ]);
 
-        $dnsService->expects(self::once())
-            ->method('getDnsZone')
-            ->with('example.test')
-            ->willReturn($dnsZone);
+        $dnsService->expects(self::once())->method('getDnsZone')->with('example.test')->willReturn($dnsZone);
 
         $dnsHelper = self::createMock(DnsHelper::class);
         $dnsHelper->expects(self::never())->method('dnsGetRecord');
@@ -85,7 +79,7 @@ class DcvCnameValidatorServiceTest extends IntegrationTestCase
             caaRecordStatus: 'ok',
             dnsRecord: $expectedName,
             dnsType: DnsRecordType::CNAME->value,
-            dnsContent: "{$expectedValue}."
+            dnsContent: "{$expectedValue}.",
         );
 
         self::assertTrue($service->isCnameMissingOrIncorrect($dcvDetails));
@@ -105,10 +99,7 @@ class DcvCnameValidatorServiceTest extends IntegrationTestCase
             $this->makeRecord(DnsRecordType::TXT, "{$expectedName}.", 'txt=foo'),
         ]);
 
-        $dnsService->expects(self::once())
-            ->method('getDnsZone')
-            ->with('example.test')
-            ->willReturn($dnsZone);
+        $dnsService->expects(self::once())->method('getDnsZone')->with('example.test')->willReturn($dnsZone);
 
         $dnsHelper = self::createMock(DnsHelper::class);
         $dnsHelper->expects(self::never())->method('dnsGetRecord');
@@ -120,7 +111,7 @@ class DcvCnameValidatorServiceTest extends IntegrationTestCase
             caaRecordStatus: 'ok',
             dnsRecord: "{$expectedName}.",
             dnsType: DnsRecordType::CNAME->value,
-            dnsContent: $expectedValue
+            dnsContent: $expectedValue,
         );
 
         self::assertTrue($service->isCnameMissingOrIncorrect($dcvDetails));
@@ -135,16 +126,14 @@ class DcvCnameValidatorServiceTest extends IntegrationTestCase
         $expectedName = '_unlikely-nonexistent-sub.example.test';
         $expectedValue = 'target.example.test';
 
-        $dnsService->expects(self::once())
+        $dnsService
+            ->expects(self::once())
             ->method('getDnsZone')
             ->with('example.test')
             ->willThrowException(new DnsZoneNotFoundException('no zone'));
 
         $dnsHelper = self::createMock(DnsHelper::class);
-        $dnsHelper->expects(self::once())
-            ->method('dnsGetRecord')
-            ->with($expectedName, DNS_CNAME)
-            ->willReturn([]);
+        $dnsHelper->expects(self::once())->method('dnsGetRecord')->with($expectedName, DNS_CNAME)->willReturn([]);
 
         $service = new DcvCnameValidatorService($dnsService, $publicSuffixList, $dnsHelper);
 
@@ -153,7 +142,7 @@ class DcvCnameValidatorServiceTest extends IntegrationTestCase
             caaRecordStatus: 'ok',
             dnsRecord: $expectedName,
             dnsType: DnsRecordType::CNAME->value,
-            dnsContent: $expectedValue
+            dnsContent: $expectedValue,
         );
 
         self::assertTrue($service->isCnameMissingOrIncorrect($dcvDetails));
@@ -168,13 +157,15 @@ class DcvCnameValidatorServiceTest extends IntegrationTestCase
         $expectedName = '_abc.example.test';
         $expectedValue = 'aaaa.bbbb.sectigo.test';
 
-        $dnsService->expects(self::once())
+        $dnsService
+            ->expects(self::once())
             ->method('getDnsZone')
             ->with('example.test')
             ->willThrowException(new DnsZoneNotFoundException('no zone'));
 
         $dnsHelper = self::createMock(DnsHelper::class);
-        $dnsHelper->expects(self::once())
+        $dnsHelper
+            ->expects(self::once())
             ->method('dnsGetRecord')
             ->with($expectedName, DNS_CNAME)
             ->willReturn([
@@ -188,7 +179,7 @@ class DcvCnameValidatorServiceTest extends IntegrationTestCase
             caaRecordStatus: 'ok',
             dnsRecord: $expectedName,
             dnsType: DnsRecordType::CNAME->value,
-            dnsContent: strtoupper($expectedValue) . '.'
+            dnsContent: strtoupper($expectedValue) . '.',
         );
 
         self::assertFalse($service->isCnameMissingOrIncorrect($dcvDetails));
@@ -197,8 +188,9 @@ class DcvCnameValidatorServiceTest extends IntegrationTestCase
     private function makeRealRules(): Rules
     {
         $publicSuffixData = <<<PSL
-test
-PSL;
+        test
+        PSL;
+
         return Rules::fromString($publicSuffixData);
     }
 
@@ -206,6 +198,7 @@ PSL;
     {
         $publicSuffixList = self::createStub(PublicSuffixList::class);
         $publicSuffixList->method('getRules')->willReturn($this->makeRealRules());
+
         return $publicSuffixList;
     }
 
@@ -216,6 +209,7 @@ PSL;
     {
         $dnsZone = self::createStub(DnsZone::class);
         $dnsZone->method('getRecords')->willReturn($records);
+
         return $dnsZone;
     }
 
@@ -225,6 +219,7 @@ PSL;
         $record->method('getType')->willReturn($type->value);
         $record->method('getName')->willReturn($name);
         $record->method('getContent')->willReturn($content);
+
         return $record;
     }
 }

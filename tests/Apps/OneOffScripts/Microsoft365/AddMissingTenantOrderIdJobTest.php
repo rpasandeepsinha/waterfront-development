@@ -41,13 +41,11 @@ class AddMissingTenantOrderIdJobTest extends IntegrationTestCase
         $this->microsoft365Service = self::createMock(Microsoft365Service::class);
 
         $customer = new CustomerFactory()->createOne();
-        $this->customerInfo = new Microsoft365CustomerInfoFactory()
-            ->for($customer)
-            ->createOne([
-                'technical_status' => Microsoft365ProcessStatus::ACTIVE,
-                'tenant_order_id' => null,
-                'kpn_customer_id' => 'CID123456',
-            ]);
+        $this->customerInfo = new Microsoft365CustomerInfoFactory()->for($customer)->createOne([
+            'technical_status' => Microsoft365ProcessStatus::ACTIVE,
+            'tenant_order_id' => null,
+            'kpn_customer_id' => 'CID123456',
+        ]);
     }
 
     #[Test]
@@ -55,9 +53,10 @@ class AddMissingTenantOrderIdJobTest extends IntegrationTestCase
     {
         Queue::fake();
 
-        self::resolve(Dispatcher::class)->dispatch(new AddMissingTenantOrderIdJob(
-            microsoft365CustomerInfo: $this->customerInfo,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new AddMissingTenantOrderIdJob(
+                microsoft365CustomerInfo: $this->customerInfo,
+            ));
 
         Queue::assertPushedOn(QueueName::ONE_TIME_SCRIPTS->value, AddMissingTenantOrderIdJob::class);
     }
@@ -67,9 +66,10 @@ class AddMissingTenantOrderIdJobTest extends IntegrationTestCase
     {
         Bus::fake();
 
-        self::resolve(Dispatcher::class)->dispatch(new AddMissingTenantOrderIdJob(
-            microsoft365CustomerInfo: $this->customerInfo,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new AddMissingTenantOrderIdJob(
+                microsoft365CustomerInfo: $this->customerInfo,
+            ));
 
         Bus::assertNotDispatchedSync(AddMissingTenantOrderIdJob::class);
     }
@@ -111,11 +111,7 @@ class AddMissingTenantOrderIdJobTest extends IntegrationTestCase
     #[Test]
     public function handleLogsInfoWhenNoTenantOrderFound(): void
     {
-        $this->microsoft365Service
-            ->expects(self::once())
-            ->method('getTenantOrderId')
-            ->with(123456)
-            ->willReturn(null);
+        $this->microsoft365Service->expects(self::once())->method('getTenantOrderId')->with(123456)->willReturn(null);
 
         $this->logger
             ->expects(self::once())
@@ -144,11 +140,7 @@ class AddMissingTenantOrderIdJobTest extends IntegrationTestCase
     #[Test]
     public function handleLogsInfoWhenNoOrdersReturned(): void
     {
-        $this->microsoft365Service
-            ->expects(self::once())
-            ->method('getTenantOrderId')
-            ->with(123456)
-            ->willReturn(null);
+        $this->microsoft365Service->expects(self::once())->method('getTenantOrderId')->with(123456)->willReturn(null);
 
         $this->logger
             ->expects(self::once())

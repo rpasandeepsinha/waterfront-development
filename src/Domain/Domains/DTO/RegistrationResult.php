@@ -27,8 +27,9 @@ class RegistrationResult
     /** @var string */
     private $authCode;
 
-    public function __construct(private readonly DomainStatus $status)
-    {
+    public function __construct(
+        private readonly DomainStatus $status,
+    ) {
     }
 
     public function getStatus(): DomainStatus
@@ -111,6 +112,7 @@ class RegistrationResult
     public function setExceptionMessage(string $exceptionMessage): RegistrationResult
     {
         $this->exceptionMessage = $exceptionMessage;
+
         return $this;
     }
 }

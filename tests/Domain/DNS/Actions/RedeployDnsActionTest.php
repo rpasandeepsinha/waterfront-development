@@ -26,7 +26,12 @@ class RedeployDnsActionTest extends IntegrationTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => false, 'slug' => ProviderSlug::PLACEHOLDER]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'enabled' => true,
+            'default' => false,
+            'slug' => ProviderSlug::PLACEHOLDER,
+        ]);
         $this->retryDnsAction = self::resolve(RedeployDnsAction::class);
     }
 
@@ -42,7 +47,8 @@ class RedeployDnsActionTest extends IntegrationTestCase
 
         $dnsListenerMock = self::mock(DnsCreationListener::class);
         $dnsListenerMock->shouldReceive('setJob')->once();
-        $dnsListenerMock->shouldReceive('handle')
+        $dnsListenerMock
+            ->shouldReceive('handle')
             ->once()
             ->withArgs(fn (CreateDns $event) => $event->subscriptionUuid === $dnsSubscription->uuid);
 

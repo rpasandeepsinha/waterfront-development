@@ -40,7 +40,12 @@ abstract class NovaOneOffScriptSpecsAbstractAction extends NovaOneOffScriptAbstr
         foreach ($specs as $spec) {
             foreach ($spec->environments as $environment) {
                 if ($environment->value !== $currentEnvironment) {
-                    $modalMessage .= $this->addResultRow($spec, $environment, '-', sprintf('Environment %s does not match %s', $currentEnvironment, $environment->value));
+                    $modalMessage .= $this->addResultRow(
+                        $spec,
+                        $environment,
+                        '-',
+                        sprintf('Environment %s does not match %s', $currentEnvironment, $environment->value),
+                    );
                     continue;
                 }
 
@@ -48,14 +53,24 @@ abstract class NovaOneOffScriptSpecsAbstractAction extends NovaOneOffScriptAbstr
                     $product = Product::where('slug', $productSlug)->first();
 
                     if (! $product instanceof Product) {
-                        $modalMessage .= $this->addResultRow($spec, $environment, $productSlug, 'Product does not exist');
+                        $modalMessage .= $this->addResultRow(
+                            $spec,
+                            $environment,
+                            $productSlug,
+                            'Product does not exist',
+                        );
                         continue;
                     }
 
                     $productSpec = $this->productSpecRepository->findBySpecification($product, $spec->specName);
 
                     if ($productSpec instanceof ProductSpec && $spec->action === SpecActions::CREATE) {
-                        $modalMessage .= $this->addResultRow($spec, $environment, $productSlug, 'Spec already exists on the product');
+                        $modalMessage .= $this->addResultRow(
+                            $spec,
+                            $environment,
+                            $productSlug,
+                            'Spec already exists on the product',
+                        );
                         continue;
                     }
 
@@ -73,12 +88,14 @@ abstract class NovaOneOffScriptSpecsAbstractAction extends NovaOneOffScriptAbstr
                                 $productSpec->value = $spec->specValue;
                                 $productSpec->save();
                             }
+
                             $modalMessage .= $this->addResultRow($spec, $environment, $productSlug, 'Created');
                             break;
                         case SpecActions::DELETE:
                             if (! $dryRun) {
                                 $productSpec->delete();
                             }
+
                             $modalMessage .= $this->addResultRow($spec, $environment, $productSlug, 'Deleted');
                             break;
                         default:
@@ -87,6 +104,7 @@ abstract class NovaOneOffScriptSpecsAbstractAction extends NovaOneOffScriptAbstr
                 }
             }
         }
+
         return $modalMessage . '</table>';
     }
 
@@ -103,11 +121,11 @@ abstract class NovaOneOffScriptSpecsAbstractAction extends NovaOneOffScriptAbstr
             sprintf(
                 'Executing one-time script %s in %s mode',
                 $this->getOneOffScriptSlug(),
-                $mode
+                $mode,
             ),
             [
                 LoggingContextKeys::ONE_OFF_SCRIPT => $this->getOneOffScriptSlug(),
-            ]
+            ],
         );
 
         $specs = $this->getSpecs();
@@ -135,8 +153,7 @@ abstract class NovaOneOffScriptSpecsAbstractAction extends NovaOneOffScriptAbstr
     {
         return [
             ...$this->getOneOffScriptInfoFields(),
-            Boolean::make('Dry run', 'dry-run')
-                ->withMeta(['value' => true]),
+            Boolean::make('Dry run', 'dry-run')->withMeta(['value' => true]),
         ];
     }
 
@@ -150,8 +167,12 @@ abstract class NovaOneOffScriptSpecsAbstractAction extends NovaOneOffScriptAbstr
      */
     abstract protected function getSpecs(): array;
 
-    private function addResultRow(OneTimeActionSpecs $oneTimeActionSpec, Environments $environment, ?string $productSlug, string $message): string
-    {
+    private function addResultRow(
+        OneTimeActionSpecs $oneTimeActionSpec,
+        Environments $environment,
+        ?string $productSlug,
+        string $message,
+    ): string {
         return sprintf(
             '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
             $environment->value,
@@ -159,7 +180,7 @@ abstract class NovaOneOffScriptSpecsAbstractAction extends NovaOneOffScriptAbstr
             $oneTimeActionSpec->specValue,
             $oneTimeActionSpec->action->value,
             $productSlug,
-            $message
+            $message,
         );
     }
 }

@@ -57,7 +57,7 @@ class ProvisionTraceabilityService
             context: [
                 // We ignore the requestId as it is not part of the request data and available on this object itself.
                 AbstractNormalizer::IGNORED_ATTRIBUTES => self::DATABASE_COLUMNS,
-            ]
+            ],
         );
 
         $request = new ProvisioningRequest();
@@ -94,10 +94,9 @@ class ProvisionTraceabilityService
         } catch (NotNormalizableValueException $exception) {
             $this->logger->error(
                 'Error occurred when normalizing provision result, unable to store request',
-                LogContextBuilder::for($data->provisionData)
-                    ->withException($exception)
-                    ->build()
+                LogContextBuilder::for($data->provisionData)->withException($exception)->build(),
             );
+
             return;
         }
 

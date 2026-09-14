@@ -39,7 +39,7 @@ class PuzzelSerializerFactory
             new ObjectNormalizer(
                 classMetadataFactory: $classMetadataFactory,
                 nameConverter: $metadataAwareNameConverter,
-                propertyTypeExtractor: $extractor
+                propertyTypeExtractor: $extractor,
             ),
         ];
 

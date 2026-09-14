@@ -29,10 +29,12 @@ class RetryHostingDowngradeAction
 
         Assert::notNull(
             $subscription->hostingDeployment,
-            'Subscription has no hosting deployment.'
+            'Subscription has no hosting deployment.',
         );
 
-        $subscriptionChange = $this->subscriptionChangeRepository->getOpenSubscriptionChangeRequest($subscription)->firstOrFail();
+        $subscriptionChange = $this->subscriptionChangeRepository
+            ->getOpenSubscriptionChangeRequest($subscription)
+            ->firstOrFail();
 
         Assert::stringNotEmpty($subscriptionChange->toProduct->slug, 'Mutation product slug is empty.');
 
@@ -43,7 +45,11 @@ class RetryHostingDowngradeAction
             $servicePlan,
         );
         if (! $downgradeCheckResult->isSuccessful) {
-            throw new RuntimeException(sprintf('Unable to downgrade to service plan (%s): %s', $servicePlan, $downgradeCheckResult->message));
+            throw new RuntimeException(sprintf(
+                'Unable to downgrade to service plan (%s): %s',
+                $servicePlan,
+                $downgradeCheckResult->message,
+            ));
         }
 
         $this->logger->info('Retrying hosting downgrade', [

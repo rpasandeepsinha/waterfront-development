@@ -24,6 +24,7 @@ readonly class HarborPropagationArbiter
                 $invoice->id,
             );
             $this->logger->warning($message);
+
             return new ArbiterResult(false, $message);
         }
 
@@ -31,9 +32,10 @@ readonly class HarborPropagationArbiter
             $message = sprintf(
                 'Tried to propagate an invoice for an anonymized customer: %s , invoice ID: %s ',
                 $invoice->customer->customer_number,
-                $invoice->id
+                $invoice->id,
             );
             $this->logger->emergency($message);
+
             return new ArbiterResult(false, $message);
         }
 
@@ -46,9 +48,10 @@ readonly class HarborPropagationArbiter
             $message = sprintf(
                 'Invoicing is disabled for customer: %s, invoice ID: %s',
                 $invoice->customer->id,
-                $invoice->id
+                $invoice->id,
             );
             $this->logger->debug($message);
+
             return new ArbiterResult(false, $message);
         }
 

@@ -26,7 +26,9 @@ class OAuthMockClient extends MockClient
     {
         $oAuthBody ??= ['access_token' => '123', 'expires_in' => 300];
 
-        $oAuthMock = [GetClientCredentialsTokenRequest::class => MockResponse::make(body: $oAuthBody, status: $oAuthStatus)];
+        $oAuthMock = [
+            GetClientCredentialsTokenRequest::class => MockResponse::make(body: $oAuthBody, status: $oAuthStatus),
+        ];
 
         parent::__construct($oAuthMock + $mockData);
     }

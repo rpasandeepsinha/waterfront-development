@@ -89,8 +89,6 @@ class LabelRepository
 
     private function getLabel(string $label, Customer $customer): ?Label
     {
-        return Label::where('value', $label)
-            ->where('customer_id', $customer->id)
-            ->first();
+        return Label::where('value', $label)->where('customer_id', $customer->id)->first();
     }
 }

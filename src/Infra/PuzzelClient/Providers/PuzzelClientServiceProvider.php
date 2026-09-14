@@ -27,7 +27,7 @@ class PuzzelClientServiceProvider extends BaseProvider implements DeferrableProv
 
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/config.php',
-            'puzzelclient'
+            'puzzelclient',
         );
     }
 

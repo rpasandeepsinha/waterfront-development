@@ -15,8 +15,9 @@ class DnsCustomerRecord extends AbstractValidator
      */
     private array $errors = [];
 
-    public function __construct(private readonly DnsRecordsValidationService $dnsRecordsValidationService)
-    {
+    public function __construct(
+        private readonly DnsRecordsValidationService $dnsRecordsValidationService,
+    ) {
     }
 
     protected function passes(string $attribute, mixed $value): bool
@@ -37,7 +38,7 @@ class DnsCustomerRecord extends AbstractValidator
         $errors = array_map(
             fn (array $error, string $attribute) => sprintf('%s: %s', strtoupper($attribute), implode(' ', $error)),
             $this->errors,
-            array_keys($this->errors)
+            array_keys($this->errors),
         );
 
         return implode(' ', $errors);

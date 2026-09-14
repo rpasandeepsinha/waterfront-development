@@ -46,6 +46,7 @@ class WaitForVirtualMachineDestroyedThenRedeployJob extends CloudstackAsyncJob
         if ($virtualMachineService->findByDeployment($this->deployment) !== null) {
             $this->handlePending();
             $this->release(static::RETRY_DELAY_SECONDS * $this->attempts());
+
             return;
         }
 

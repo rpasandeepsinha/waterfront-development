@@ -31,6 +31,7 @@ class ModifyDomain extends DirectAdminCommand
     public function setDomain(string $domain): ModifyDomain
     {
         $this->domainData['domain'] = $domain;
+
         return $this;
     }
 
@@ -52,6 +53,7 @@ class ModifyDomain extends DirectAdminCommand
     public function setAction(string $action): ModifyDomain
     {
         $this->domainData['action'] = $action;
+
         return $this;
     }
 
@@ -61,6 +63,7 @@ class ModifyDomain extends DirectAdminCommand
     public function setBandwidth(string $bandwidth): ModifyDomain
     {
         $this->domainData['bandwidth'] = $bandwidth;
+
         return $this;
     }
 
@@ -70,6 +73,7 @@ class ModifyDomain extends DirectAdminCommand
     public function setUbandwidth(string $ubandwidth): ModifyDomain
     {
         $this->domainData['ubandwidth'] = $ubandwidth;
+
         return $this;
     }
 
@@ -79,6 +83,7 @@ class ModifyDomain extends DirectAdminCommand
     public function setQuota(string $quota): ModifyDomain
     {
         $this->domainData['quota'] = $quota;
+
         return $this;
     }
 
@@ -88,6 +93,7 @@ class ModifyDomain extends DirectAdminCommand
     public function setUquota(string $uquota): ModifyDomain
     {
         $this->domainData['uquota'] = $uquota;
+
         return $this;
     }
 
@@ -97,6 +103,7 @@ class ModifyDomain extends DirectAdminCommand
     public function setSsl(string $ssl): ModifyDomain
     {
         $this->domainData['ssl'] = $ssl;
+
         return $this;
     }
 
@@ -106,6 +113,7 @@ class ModifyDomain extends DirectAdminCommand
     public function setCgi(string $cgi): ModifyDomain
     {
         $this->domainData['cgi'] = $cgi;
+
         return $this;
     }
 
@@ -115,6 +123,7 @@ class ModifyDomain extends DirectAdminCommand
     public function setPhp(string $php): ModifyDomain
     {
         $this->domainData['php'] = $php;
+
         return $this;
     }
 

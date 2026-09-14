@@ -12,8 +12,9 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class ExecuteEnableDnsSecAction
 {
-    public function __construct(private readonly Dispatcher $jobDispatcher)
-    {
+    public function __construct(
+        private readonly Dispatcher $jobDispatcher,
+    ) {
     }
 
     /**
@@ -27,7 +28,7 @@ class ExecuteEnableDnsSecAction
 
             $this->jobDispatcher->dispatch(new EnableDnsSecMigrationJob(
                 subscription: $subscription,
-                failedTechnicalStatus: DomainStatus::FAILED->value
+                failedTechnicalStatus: DomainStatus::FAILED->value,
             ));
         }
     }

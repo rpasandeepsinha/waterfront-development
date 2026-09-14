@@ -40,17 +40,24 @@ class DeleteSshKeyAction
                 ],
             ]);
 
-            throw new SshKeyNotDeletableException('The SSH key cannot be removed because it is still linked to a virtual machine.');
+            throw new SshKeyNotDeletableException(
+                'The SSH key cannot be removed because it is still linked to a virtual machine.',
+            );
         }
 
         $withErrors = false;
-        $sshKey->managerDomains->each(function (ManagerDomainDeployment $managerDomainDeployment) use ($sshKey, $customer, &$withErrors): void {
+        $sshKey->managerDomains->each(function (ManagerDomainDeployment $managerDomainDeployment) use (
+            $sshKey,
+            $customer,
+            &$withErrors,
+        ): void {
             if ($this->deleteSshKeyFromManagerDomain(
                 sshKey: $sshKey,
                 managerDomainDeployment: $managerDomainDeployment,
-                customerId: $customer->id
+                customerId: $customer->id,
             )) {
                 $managerDomainDeployment->sshKeys()->detach($sshKey->id);
+
                 return;
             }
 
@@ -60,14 +67,17 @@ class DeleteSshKeyAction
         return ! $withErrors && $this->sshKeyRepository->deleteSshKey($sshKey);
     }
 
-    private function deleteSshKeyFromManagerDomain(SshKey $sshKey, ManagerDomainDeployment $managerDomainDeployment, int $customerId): bool
-    {
+    private function deleteSshKeyFromManagerDomain(
+        SshKey $sshKey,
+        ManagerDomainDeployment $managerDomainDeployment,
+        int $customerId,
+    ): bool {
         Assert::string($sshKey->cloudstack_ssh_name);
 
         try {
             $cloudstackResponse = $this->cloudstackService->deleteSshKeyPair(
                 $managerDomainDeployment,
-                $sshKey->cloudstack_ssh_name
+                $sshKey->cloudstack_ssh_name,
             );
 
             if ($cloudstackResponse->success) {

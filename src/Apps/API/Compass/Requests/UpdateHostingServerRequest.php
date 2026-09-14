@@ -27,9 +27,7 @@ class UpdateHostingServerRequest extends AbstractHostingServerRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('hosting_servers', 'hostname')
-                    ->ignore($this->routeServer()->id)
-                    ->whereNull('deleted_at'),
+                Rule::unique('hosting_servers', 'hostname')->ignore($this->routeServer()->id)->whereNull('deleted_at'),
             ],
         ]);
     }

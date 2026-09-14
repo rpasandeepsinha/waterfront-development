@@ -52,6 +52,7 @@ class CustomerEmailAllowedInMigration extends AbstractValidator implements DataA
 
         if ($this->referenceName === null || $this->referenceCustomerId === null) {
             $this->message = 'referenceName and referenceCustomerId is required and needs to be a string';
+
             return false;
         }
 

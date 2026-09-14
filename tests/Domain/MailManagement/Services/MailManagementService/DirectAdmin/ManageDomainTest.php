@@ -48,11 +48,9 @@ class ManageDomainTest extends IntegrationTestCase
             ->forDomain(self::TEST_DOMAIN)
             ->createOne();
 
-        $this->deployment = HostingDeploymentFactory::new()
-            ->withMailOnlyProvider()
-            ->createOne([
-                'subscription_uuid' => $sub->uuid,
-            ]);
+        $this->deployment = HostingDeploymentFactory::new()->withMailOnlyProvider()->createOne([
+            'subscription_uuid' => $sub->uuid,
+        ]);
 
         self::assertNotNull($this->deployment->mailOnlyServer);
         $this->server = $this->deployment->mailOnlyServer;
@@ -63,13 +61,13 @@ class ManageDomainTest extends IntegrationTestCase
     #[Test]
     public function listDomain(): void
     {
-        $hostname   = 'mytestserverhostname.com';
-        $domain     = self::TEST_DOMAIN;
+        $hostname = 'mytestserverhostname.com';
+        $domain = self::TEST_DOMAIN;
         $domainUser = 'testowner';
 
         new ServerFactory()->createOne([
             'hostname' => $hostname,
-            'type'     => ServerType::DIRECTADMIN_MAIL,
+            'type' => ServerType::DIRECTADMIN_MAIL,
         ]);
 
         $result = $this->mailOnlyService->listDomain($hostname, $domain, $domainUser);
@@ -77,26 +75,26 @@ class ManageDomainTest extends IntegrationTestCase
         self::assertSame(
             'mytestuser1',
             Arr::get($result, 'users.0'),
-            "Unable to find the provided user 'mytestuser1' in the listDomain response"
+            "Unable to find the provided user 'mytestuser1' in the listDomain response",
         );
 
         self::assertSame(
             'mytestuser2',
             Arr::get($result, 'users.1'),
-            "Unable to find the provided user 'mytestuser2' in the listDomain response"
+            "Unable to find the provided user 'mytestuser2' in the listDomain response",
         );
     }
 
     #[Test]
     public function createDomain(): void
     {
-        $hostname   = 'mytestserverhostname.com';
-        $email      = 'mark@sandwave.io';
-        $domain     = self::TEST_DOMAIN;
+        $hostname = 'mytestserverhostname.com';
+        $email = 'mark@sandwave.io';
+        $domain = self::TEST_DOMAIN;
 
         new ServerFactory()->createOne([
             'hostname' => $hostname,
-            'type'     => ServerType::DIRECTADMIN_MAIL,
+            'type' => ServerType::DIRECTADMIN_MAIL,
         ]);
 
         $this->mailOnlyService = self::resolve(MailManagementDirectAdminService::class);
@@ -111,20 +109,24 @@ class ManageDomainTest extends IntegrationTestCase
     #[Test]
     public function createDomainThrowsException(): void
     {
-        $hostname   = 'mytestserverhostname.com';
-        $email      = 'mark@sandwave.io';
-        $domain     = self::TEST_DOMAIN;
+        $hostname = 'mytestserverhostname.com';
+        $email = 'mark@sandwave.io';
+        $domain = self::TEST_DOMAIN;
 
         new ServerFactory()->createOne([
             'hostname' => $hostname,
-            'type'     => ServerType::DIRECTADMIN_MAIL,
+            'type' => ServerType::DIRECTADMIN_MAIL,
         ]);
 
         $this->app->extend(BehavesAsDirectAdmin::class, function () {
             $daMock = self::createMock(DirectAdmin::class);
             $daApiMock = self::createMock(DirectAdminApi::class);
             $daMock->expects(self::once())->method('useServer')->willReturn($daApiMock);
-            $daApiMock->expects(self::once())->method('call')->willThrowException(new DirectAdminResponseException('Error'));
+            $daApiMock
+                ->expects(self::once())
+                ->method('call')
+                ->willThrowException(new DirectAdminResponseException('Error'));
+
             return $daMock;
         });
 
@@ -136,8 +138,8 @@ class ManageDomainTest extends IntegrationTestCase
     #[Test]
     public function createDomainThrowsExceptionUnsetIpOnServer(): void
     {
-        $email      = 'mark@sandwave.io';
-        $domain     = self::TEST_DOMAIN;
+        $email = 'mark@sandwave.io';
+        $domain = self::TEST_DOMAIN;
 
         $this->server->ipv4 = null;
         $this->server->save();
@@ -149,13 +151,13 @@ class ManageDomainTest extends IntegrationTestCase
     #[Test]
     public function deleteDomain(): void
     {
-        $hostname   = 'mytestserverhostname.com';
+        $hostname = 'mytestserverhostname.com';
         $domainUser = 'testowner';
-        $domain     = self::TEST_DOMAIN;
+        $domain = self::TEST_DOMAIN;
 
         new ServerFactory()->createOne([
             'hostname' => $hostname,
-            'type'     => ServerType::DIRECTADMIN_MAIL,
+            'type' => ServerType::DIRECTADMIN_MAIL,
         ]);
 
         $this->mailOnlyService = self::resolve(MailManagementDirectAdminService::class);
@@ -169,20 +171,24 @@ class ManageDomainTest extends IntegrationTestCase
     #[Test]
     public function deleteDomainThrowsException(): void
     {
-        $hostname   = 'mytestserverhostname.com';
+        $hostname = 'mytestserverhostname.com';
         $domainUser = 'testowner';
-        $domain     = self::TEST_DOMAIN;
+        $domain = self::TEST_DOMAIN;
 
         new ServerFactory()->createOne([
             'hostname' => $hostname,
-            'type'     => ServerType::DIRECTADMIN_MAIL,
+            'type' => ServerType::DIRECTADMIN_MAIL,
         ]);
 
         $this->app->extend(BehavesAsDirectAdmin::class, function () {
             $daMock = self::createMock(DirectAdmin::class);
             $daApiMock = self::createMock(DirectAdminApi::class);
             $daMock->expects(self::once())->method('useServer')->willReturn($daApiMock);
-            $daApiMock->expects(self::once())->method('call')->willThrowException(new DirectAdminResponseException('Error'));
+            $daApiMock
+                ->expects(self::once())
+                ->method('call')
+                ->willThrowException(new DirectAdminResponseException('Error'));
+
             return $daMock;
         });
 
@@ -194,8 +200,8 @@ class ManageDomainTest extends IntegrationTestCase
     #[Test]
     public function unconfiguredServer(): void
     {
-        $email      = 'mark@sandwave.io';
-        $domain     = self::TEST_DOMAIN;
+        $email = 'mark@sandwave.io';
+        $domain = self::TEST_DOMAIN;
 
         $this->deployment->subscription->forceDelete();
         $this->deployment->forceDelete();

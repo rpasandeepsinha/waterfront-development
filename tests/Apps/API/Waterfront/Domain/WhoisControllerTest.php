@@ -47,16 +47,11 @@ class WhoisControllerTest extends IntegrationTestCase
             ->for($this->customer)
             ->createOne();
 
-        $ownerContact = DomainContactfactory::new()
-            ->for($this->customer)
-            ->createOne();
+        $ownerContact = DomainContactfactory::new()->for($this->customer)->createOne();
 
-        $provider = ProviderFactory::new()
-            ->domainOpenProvider()
-            ->createOne();
+        $provider = ProviderFactory::new()->domainOpenProvider()->createOne();
 
-        $ownerContact->providers()
-            ->attach($provider, ['external_contact' => 'owner-handle-test']);
+        $ownerContact->providers()->attach($provider, ['external_contact' => 'owner-handle-test']);
 
         new DomainDeploymentFactory()
             ->for($provider)
@@ -95,51 +90,43 @@ class WhoisControllerTest extends IntegrationTestCase
             ->withArgs(fn (DomainDeployment $domainDeployment) => $domainDeployment->is($this->subscription->domainDeployment))
             ->andReturn($nameserverResultMock);
 
-        $nameserverResultMock
-            ->shouldReceive('getHandles')
-            ->andReturn($handleMock);
+        $nameserverResultMock->shouldReceive('getHandles')->andReturn($handleMock);
 
-        $handleMock
-            ->shouldReceive('getOwnerHandle')
-            ->andReturn($ownerHandle);
+        $handleMock->shouldReceive('getOwnerHandle')->andReturn($ownerHandle);
 
         $domainServiceMock
             ->shouldReceive('retrieveContactHandle')
             ->withArgs(
-                fn (string $handle, ProviderSlug $provider, DomainProviderBusinessUnit $bu) =>
-                $handle === $ownerHandle
-                && $provider === $domainDeployment->provider->slug
-                && $bu->is($businessUnit)
+                fn (string $handle, ProviderSlug $provider, DomainProviderBusinessUnit $bu) => (
+                    $handle === $ownerHandle
+                    && $provider === $domainDeployment->provider->slug
+                    && $bu->is($businessUnit)
+                ),
             )
             ->andReturn($mockCustomerResponse);
 
-        $mockCustomerResponse
-            ->shouldReceive('toArray')
-            ->andReturn([]);
+        $mockCustomerResponse->shouldReceive('toArray')->andReturn([]);
 
         $domainServiceMock
             ->shouldReceive('retrieveContactHandle')
             ->withArgs(
-                fn (string $handle, ProviderSlug $provider, DomainProviderBusinessUnit $bu) =>
-                $handle === $adminHandle
-                && $provider === $domainDeployment->provider->slug
-                && $bu->is($businessUnit)
+                fn (string $handle, ProviderSlug $provider, DomainProviderBusinessUnit $bu) => (
+                    $handle === $adminHandle
+                    && $provider === $domainDeployment->provider->slug
+                    && $bu->is($businessUnit)
+                ),
             )
             ->andReturn($mockCustomerResponse);
 
-        $handleMock
-            ->shouldReceive('getAdminHandle')
-            ->andReturn($adminHandle);
+        $handleMock->shouldReceive('getAdminHandle')->andReturn($adminHandle);
 
-        $nameserverResultMock
-            ->shouldReceive('getIsPrivateWhoisEnabled')
-            ->andReturnFalse();
+        $nameserverResultMock->shouldReceive('getIsPrivateWhoisEnabled')->andReturnFalse();
 
         $controller = new WhoisController(
             self::resolve(ProductPolicy::class),
             $policyMock,
             self::resolve(TranslatorInterface::class),
-            $domainServiceMock
+            $domainServiceMock,
         );
 
         self::assertNotNull($this->subscription->domain);
@@ -149,18 +136,17 @@ class WhoisControllerTest extends IntegrationTestCase
     #[Test]
     public function index(): void
     {
-        $response = $this
-            ->actingAsCustomer($this->customer)
-            ->getJson(
-                $this->generateRoute(
-                    'partners.whois.index',
-                    [
-                        'domain' => $this->subscription->domain,
-                    ]
-                )
-            );
+        $response = $this->actingAsCustomer($this->customer)->getJson(
+            $this->generateRoute(
+                'partners.whois.index',
+                [
+                    'domain' => $this->subscription->domain,
+                ],
+            ),
+        );
 
-        $response->assertOk()
+        $response
+            ->assertOk()
             ->assertExactJson([
                 'data' => [
                     'admin' => [

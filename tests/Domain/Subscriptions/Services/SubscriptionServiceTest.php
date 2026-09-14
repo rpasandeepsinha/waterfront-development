@@ -12,6 +12,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\DataProvider\DomainSubscriptionDataProvider;
 use Tests\Factories\CustomerFactory;
+use Tests\Factories\ExperimentFactory;
 use Tests\Factories\OrderFactory;
 use Tests\Factories\OrderLineItemFactory;
 use Tests\Factories\ProductFactory;
@@ -55,14 +56,26 @@ class SubscriptionServiceTest extends IntegrationTestCase
     #[Test]
     public function createSubscriptionsFromOrderWillCreateSubscription(): void
     {
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
         new ServerFactory()->createOne();
         $order = new OrderFactory()->for(new CustomerFactory()->createOne())->createOne();
         $product = new ProductFactory()->for(new ProductGroupFactory()->hosting())->createOne();
 
-        new ProductPriceComponentFactory()->for($product)->registration()->createOne(['price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne(['price' => 96]);
 
-        new OrderLineItemFactory()->withPrice()->for($order)->for($product)->createOne(['subscription_uuid' => null, 'status' => 'registration']);
+        new OrderLineItemFactory()
+            ->withPrice()
+            ->for($order)
+            ->for($product)
+            ->createOne(['subscription_uuid' => null, 'status' => 'registration']);
         $this->subscriptionService->createSubscriptionsFromOrder($order);
 
         $order->refresh();
@@ -76,7 +89,10 @@ class SubscriptionServiceTest extends IntegrationTestCase
     public function updateSubscription(): void
     {
         $product = new ProductFactory()->for(new ProductGroupFactory()->hosting())->createOne();
-        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->for($product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for(new CustomerFactory()->createOne())
+            ->for($product)
+            ->createOne();
 
         $changeDTO = new SubscriptionUpdateRequestDTO(
             $product,
@@ -84,7 +100,7 @@ class SubscriptionServiceTest extends IntegrationTestCase
             AdministrativeStatus::CANCELED,
             TechnicalStatus::SUSPENDED,
             420,
-            420
+            420,
         );
 
         $this->subscriptionService->updateSubscription($subscription, $changeDTO);
@@ -101,15 +117,27 @@ class SubscriptionServiceTest extends IntegrationTestCase
     #[Test]
     public function createSubscriptionsFromOrderWillCreateSubscriptionForMissingSubscription(): void
     {
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
         new ServerFactory()->createOne();
         $order = new OrderFactory()->for(new CustomerFactory()->createOne())->createOne();
         $product = new ProductFactory()->for(new ProductGroupFactory()->hosting())->createOne();
 
-        new ProductPriceComponentFactory()->for($product)->registration()->createOne(['price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne(['price' => 96]);
 
         $domain = 'anyfreakydomain.nl';
-        new OrderLineItemFactory()->withPrice()->for($order)->for($product)->createOne(['subscription_uuid' => 'invalid-uuid', 'status' => 'registration', 'domain' => $domain]);
+        new OrderLineItemFactory()
+            ->withPrice()
+            ->for($order)
+            ->for($product)
+            ->createOne(['subscription_uuid' => 'invalid-uuid', 'status' => 'registration', 'domain' => $domain]);
         $this->subscriptionService->createSubscriptionsFromOrder($order);
 
         $order->refresh();
@@ -125,9 +153,16 @@ class SubscriptionServiceTest extends IntegrationTestCase
     {
         $order = new OrderFactory()->for(new CustomerFactory())->createOne();
         $product = new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne())->createOne();
-        $subscription = new SubscriptionFactory()->for($product)->for((new CustomerFactory()))->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for(new CustomerFactory())
+            ->createOne();
 
-        $orderLineItem = new OrderLineItemFactory()->for($order)->for($product)->for($subscription)->createOne();
+        $orderLineItem = new OrderLineItemFactory()
+            ->for($order)
+            ->for($product)
+            ->for($subscription)
+            ->createOne();
         $this->subscriptionService->createSubscriptionsFromOrder($order);
 
         $order->refresh();
@@ -143,9 +178,16 @@ class SubscriptionServiceTest extends IntegrationTestCase
         CarbonImmutable::setTestNow(CarbonImmutable::now());
         $order = new OrderFactory()->for(new CustomerFactory())->createOne();
         $product = new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne())->createOne();
-        new ProductPriceComponentFactory()->for($product)->registration()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne();
 
-        new OrderLineItemFactory()->withPrice()->for($order)->for($product)->createOne();
+        new OrderLineItemFactory()
+            ->withPrice()
+            ->for($order)
+            ->for($product)
+            ->createOne();
         $this->subscriptionService->createSubscriptionsFromOrder($order);
         $order->refresh();
 
@@ -157,14 +199,27 @@ class SubscriptionServiceTest extends IntegrationTestCase
     #[Test]
     public function createSubscriptionsFromOrderExcludedGroup(): void
     {
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
         new ServerFactory()->createOne();
         $order = new OrderFactory()->for(new CustomerFactory()->createOne())->createOne();
-        $product = new ProductFactory()->for(new ProductGroupFactory()->createOne(['slug' => ProductGroupType::ONE_TIME_SERVICE]))->createOne();
+        $product = new ProductFactory()->for(new ProductGroupFactory()->createOne([
+            'slug' => ProductGroupType::ONE_TIME_SERVICE,
+        ]))->createOne();
 
-        new ProductPriceComponentFactory()->for($product)->registration()->createOne(['price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne(['price' => 96]);
 
-        new OrderLineItemFactory()->for($order)->for($product)->createOne(['subscription_uuid' => null, 'status' => 'registration']);
+        new OrderLineItemFactory()
+            ->for($order)
+            ->for($product)
+            ->createOne(['subscription_uuid' => null, 'status' => 'registration']);
         $this->subscriptionService->createSubscriptionsFromOrder($order);
 
         $lineItem = $order->lineItems->firstOrFail();
@@ -179,14 +234,31 @@ class SubscriptionServiceTest extends IntegrationTestCase
         $order = new OrderFactory()->for(new CustomerFactory()->createOne())->createOne();
         $productParent = new ProductFactory()->for(new ProductGroupFactory()->cloudstackVirtualMachine())->createOne();
 
-        new ProductPriceComponentFactory()->for($productParent)->registration()->createOne(['price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($productParent)
+            ->registration()
+            ->createOne(['price' => 96]);
 
-        $orderLineItemParent = new OrderLineItemFactory()->withPrice()->for($order)->for($productParent)->createOne(['subscription_uuid' => null, 'status' => 'registration']);
-        $productChild = new ProductFactory()->for(new ProductGroupFactory()->createOne(['slug' => ProductGroupType::CLOUDSTACK_OS]))->createOne();
+        $orderLineItemParent = new OrderLineItemFactory()
+            ->withPrice()
+            ->for($order)
+            ->for($productParent)
+            ->createOne(['subscription_uuid' => null, 'status' => 'registration']);
+        $productChild = new ProductFactory()->for(new ProductGroupFactory()->createOne([
+            'slug' => ProductGroupType::CLOUDSTACK_OS,
+        ]))->createOne();
 
-        new ProductPriceComponentFactory()->for($productChild)->registration()->createOne(['price' => 10]);
+        new ProductPriceComponentFactory()
+            ->for($productChild)
+            ->registration()
+            ->createOne(['price' => 10]);
 
-        new OrderLineItemFactory()->withPrice()->for($order)->for($productChild)->parentOrderLineItem($orderLineItemParent)->createOne(['subscription_uuid' => null, 'status' => 'registration']);
+        new OrderLineItemFactory()
+            ->withPrice()
+            ->for($order)
+            ->for($productChild)
+            ->parentOrderLineItem($orderLineItemParent)
+            ->createOne(['subscription_uuid' => null, 'status' => 'registration']);
 
         $this->subscriptionService->createSubscriptionsFromOrder($order);
 
@@ -209,10 +281,21 @@ class SubscriptionServiceTest extends IntegrationTestCase
         $order = new OrderFactory()->for(new CustomerFactory()->withAddress()->createOne())->createOne();
 
         // ssl
-        ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $sslProduct = new ProductFactory()->for(new ProductGroupFactory()->ssl())->createOne();
-        new ProductPriceComponentFactory()->for($sslProduct)->registration()->createOne();
-        new OrderLineItemFactory()->withPrice()->for($order)->for($sslProduct)
+        new ProductPriceComponentFactory()
+            ->for($sslProduct)
+            ->registration()
+            ->createOne();
+        new OrderLineItemFactory()
+            ->withPrice()
+            ->for($order)
+            ->for($sslProduct)
             ->createOne([
                 'subscription_uuid' => null,
                 'status' => 'registration',
@@ -221,18 +304,35 @@ class SubscriptionServiceTest extends IntegrationTestCase
         // hosting basic
         $hostingProductGroup = new ProductGroupFactory()->hosting()->createOne();
         $hostingProduct = new ProductFactory()->for($hostingProductGroup)->createOne();
-        new ProductPriceComponentFactory()->for($hostingProduct)->registration()->createOne();
-        new OrderLineItemFactory()->withPrice()->for($order)->for($hostingProduct)
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->registration()
+            ->createOne();
+        new OrderLineItemFactory()
+            ->withPrice()
+            ->for($order)
+            ->for($hostingProduct)
             ->createOne([
                 'subscription_uuid' => null,
                 'status' => 'registration',
                 'domain' => 'hosting',
             ]);
         // domain nl
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $domainProduct = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne();
-        new ProductPriceComponentFactory()->for($domainProduct)->registration()->createOne();
-        $domainOrderLine = new OrderLineItemFactory()->withPrice()->for($order)->for($domainProduct)
+        new ProductPriceComponentFactory()
+            ->for($domainProduct)
+            ->registration()
+            ->createOne();
+        $domainOrderLine = new OrderLineItemFactory()
+            ->withPrice()
+            ->for($order)
+            ->for($domainProduct)
             ->createOne([
                 'subscription_uuid' => null,
                 'status' => 'registration',
@@ -241,9 +341,15 @@ class SubscriptionServiceTest extends IntegrationTestCase
         // free dns (child)
         $freeDnsProduct = new ProductFactory()->for($hostingProductGroup)->createOne();
 
-        new ProductPriceComponentFactory()->for($freeDnsProduct)->registration()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($freeDnsProduct)
+            ->registration()
+            ->createOne();
 
-        new OrderLineItemFactory()->withPrice()->for($order)->for($freeDnsProduct)
+        new OrderLineItemFactory()
+            ->withPrice()
+            ->for($order)
+            ->for($freeDnsProduct)
             ->parentOrderLineItem($domainOrderLine)
             ->createOne([
                 'subscription_uuid' => null,
@@ -253,8 +359,14 @@ class SubscriptionServiceTest extends IntegrationTestCase
 
         // m365
         $m365Product = new ProductFactory()->for(new ProductGroupFactory()->microsoft365())->createOne();
-        new ProductPriceComponentFactory()->for($m365Product)->registration()->createOne();
-        new OrderLineItemFactory()->withPrice()->for($order)->for($m365Product)
+        new ProductPriceComponentFactory()
+            ->for($m365Product)
+            ->registration()
+            ->createOne();
+        new OrderLineItemFactory()
+            ->withPrice()
+            ->for($order)
+            ->for($m365Product)
             ->createOne([
                 'subscription_uuid' => null,
                 'status' => 'registration',
@@ -273,10 +385,14 @@ class SubscriptionServiceTest extends IntegrationTestCase
     public function createChildSubscription(): void
     {
         $domainSubscription = DomainSubscriptionDataProvider::subscription();
-        $childProduct = ProductFactory::new()
-            ->for($domainSubscription->product->productGroup)
-            ->createOne(['slug' => 'child-product', 'name' => 'Child Product']);
-        new ProductPriceComponentFactory()->for($childProduct)->registration()->createOne();
+        $childProduct = ProductFactory::new()->for($domainSubscription->product->productGroup)->createOne([
+            'slug' => 'child-product',
+            'name' => 'Child Product',
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($childProduct)
+            ->registration()
+            ->createOne();
 
         $childSubscription = $this->subscriptionService->createChildSubscription($domainSubscription, $childProduct);
 
@@ -291,26 +407,47 @@ class SubscriptionServiceTest extends IntegrationTestCase
         $parentProduct = new ProductFactory()->for($productGroup)->createOne(['slug' => 'parent-product']);
         $childProduct = new ProductFactory()->for($productGroup)->createOne(['slug' => 'child-product']);
 
-        $childSubscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->for($childProduct)->createOne();
+        $childSubscription = new SubscriptionFactory()
+            ->for(new CustomerFactory()->createOne())
+            ->for($childProduct)
+            ->createOne();
 
-        $parentSubscription = $this->subscriptionService->createFreeParentSubscription($childSubscription, $parentProduct);
+        $parentSubscription = $this->subscriptionService->createFreeParentSubscription(
+            $childSubscription,
+            $parentProduct,
+        );
 
         Assert::assertSame($parentProduct->id, $parentSubscription->product->id);
         Assert::assertNotNull($parentSubscription->activePrice);
         Assert::assertSame(1, $parentSubscription->activePrice->components()->count());
-        Assert::assertSame(PriceComponentType::REGISTRATION, $parentSubscription->activePrice->components()->firstOrFail()->type);
+        Assert::assertSame(
+            PriceComponentType::REGISTRATION,
+            $parentSubscription->activePrice->components()->firstOrFail()->type,
+        );
         Assert::assertSame(0, $parentSubscription->activePrice->components()->firstOrFail()->new_price);
     }
 
     #[Test]
     public function copyOrderLineItemPricesToSubscriptionUponCreation(): void
     {
-        new ProviderFactory()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $order = new OrderFactory()->for(new CustomerFactory()->withAddress())->createOne();
         $product = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne();
-        $price1 = new ProductPriceComponentFactory()->for($product)->createOne(['type' => PriceComponentType::REGISTRATION]);
-        $price2 = new ProductPriceComponentFactory()->for($product)->createOne(['type' => PriceComponentType::PRODUCT_GROUP]);
-        $orderLine = new OrderLineItemFactory()->for($order)->for($product)->createOne();
+        $price1 = new ProductPriceComponentFactory()->for($product)->createOne([
+            'type' => PriceComponentType::REGISTRATION,
+        ]);
+        $price2 = new ProductPriceComponentFactory()->for($product)->createOne([
+            'type' => PriceComponentType::PRODUCT_GROUP,
+        ]);
+        $orderLine = new OrderLineItemFactory()
+            ->for($order)
+            ->for($product)
+            ->createOne();
 
         $orderLinePrice = new OrderLinePrice();
         $orderLinePrice->order_line_item_id = $orderLine->id;
@@ -345,5 +482,46 @@ class SubscriptionServiceTest extends IntegrationTestCase
         self::assertSame($price1->price, $component1->fixed_price);
         self::assertSame($price2->type, $component2->type);
         self::assertSame($price2->price, $component2->fixed_price);
+    }
+
+    #[Test]
+    public function creatingSubscriptionFromOrderWithExperimentLinksSubscriptionToExperiment(): void
+    {
+        $experiment = new ExperimentFactory()->createOne();
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        new ServerFactory()->createOne();
+        $order = new OrderFactory()->for(new CustomerFactory()->createOne())->createOne();
+        $product = new ProductFactory()->for(new ProductGroupFactory()->hosting())->createOne();
+
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne(['price' => 96]);
+
+        new OrderLineItemFactory()
+            ->withPrice()
+            ->for($order)
+            ->for($product)
+            ->createOne([
+                'subscription_uuid' => null,
+                'status' => 'registration',
+                'experiment_slug' => $experiment->slug,
+            ]);
+        $this->subscriptionService->createSubscriptionsFromOrder($order);
+        $order->refresh();
+        $experiment->refresh();
+        $subscriptions = $experiment->subscriptions;
+        self::assertCount(1, $subscriptions);
+        $subscription = $subscriptions->sole();
+
+        $lineItem = $order->lineItems->firstOrFail();
+        self::assertInstanceOf(Subscription::class, $lineItem->subscription);
+        self::assertSame($lineItem->subscription->id, $subscription->id);
+        self::assertTrue($lineItem->subscription->experiments->contains($experiment));
     }
 }

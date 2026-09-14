@@ -22,17 +22,16 @@ class NovaMigratedCustomerEnableInvoicingTest extends IntegrationTestCase
     public function action(): void
     {
         $customer = CustomerFactory::new()->createOne();
-        $migratedCustomer = MigratedCustomersFactory::new()
-            ->createOne([
-                'administrative_successful' => false,
-                'enable_invoicing' => false,
-                'successful' => false,
-            ]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'administrative_successful' => false,
+            'enable_invoicing' => false,
+            'successful' => false,
+        ]);
         $migratedCustomer->customers()->attach($customer->id);
 
         Event::fake();
 
-        $fields = new ActionFields((new Collection()), (new Collection()));
+        $fields = new ActionFields(new Collection(), new Collection());
         $payload = new Collection([$migratedCustomer]);
 
         $action = self::resolve(NovaMigratedCustomerEnableInvoicingAction::class);

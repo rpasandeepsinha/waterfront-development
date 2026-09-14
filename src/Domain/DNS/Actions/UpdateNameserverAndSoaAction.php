@@ -85,7 +85,7 @@ class UpdateNameserverAndSoaAction
         $defaultZone = $this->dnsZoneFactory->create(
             domain: $zone->getFqdn()->withoutTrailingDot(),
             dnsTemplate: 'default',
-            nameservers: $nameservers
+            nameservers: $nameservers,
         );
 
         // Clone the zone so we can diff later
@@ -95,6 +95,7 @@ class UpdateNameserverAndSoaAction
         foreach ($updatedZone->getRecordsOfType('SOA') as $record) {
             $updatedZone->removeRecord($record);
         }
+
         foreach ($updatedZone->getRecordsOfType('NS') as $record) {
             $updatedZone->removeRecord($record);
         }
@@ -103,6 +104,7 @@ class UpdateNameserverAndSoaAction
         foreach ($defaultZone->getRecordsOfType('SOA') as $record) {
             $updatedZone->addRecord($record);
         }
+
         foreach ($defaultZone->getRecordsOfType('NS') as $record) {
             $updatedZone->addRecord($record);
         }

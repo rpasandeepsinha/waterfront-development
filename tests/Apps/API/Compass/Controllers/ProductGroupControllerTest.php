@@ -22,11 +22,13 @@ class ProductGroupControllerTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->hostingGroup = new ProductGroupFactory()->hosting()->createOne([
-            'name' => 'Hosting',
-            'ledger_code' => 8010,
-            'default_rate' => 0.2,
-        ]);
+        $this->hostingGroup = new ProductGroupFactory()
+            ->hosting()
+            ->createOne([
+                'name' => 'Hosting',
+                'ledger_code' => 8010,
+                'default_rate' => 0.2,
+            ]);
     }
 
     #[Test]
@@ -68,7 +70,9 @@ class ProductGroupControllerTest extends IntegrationTestCase
         $customer->productGroups()->attach($this->hostingGroup, ['discount' => 10]);
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.product-config.product-group.show', ['productGroup' => $this->hostingGroup->uuid]))
+            ->getJson($this->generateRoute('admin.product-config.product-group.show', [
+                'productGroup' => $this->hostingGroup->uuid,
+            ]))
             ->assertOk()
             ->assertJsonPath('uuid', $this->hostingGroup->uuid)
             ->assertJsonPath('default_rate', 20)
@@ -80,7 +84,9 @@ class ProductGroupControllerTest extends IntegrationTestCase
     public function showReturnsNoCustomersWhenNoneAreLinkedToTheProductGroup(): void
     {
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.product-config.product-group.show', ['productGroup' => $this->hostingGroup->uuid]))
+            ->getJson($this->generateRoute('admin.product-config.product-group.show', [
+                'productGroup' => $this->hostingGroup->uuid,
+            ]))
             ->assertOk()
             ->assertJsonPath('customers', []);
     }

@@ -22,8 +22,10 @@ class NovaSubscriptionAdministrativeStatusSelectField
         AdministrativeStatus::ARCHIVING->value => 'subscription.administrative_statuses.archiving',
     ];
 
-    public static function makeForEditing(string $name = 'administrative_status', string $translation_string = 'subscription.attributes.administrative_status'): Select
-    {
+    public static function makeForEditing(
+        string $name = 'administrative_status',
+        string $translation_string = 'subscription.attributes.administrative_status',
+    ): Select {
         $translator = resolve(TranslatorInterface::class);
 
         return Select::make($translator->translate($translation_string), $name)
@@ -35,19 +37,25 @@ class NovaSubscriptionAdministrativeStatusSelectField
     {
         $translator = resolve(TranslatorInterface::class);
 
-        return Text::make($translator->translate('subscription.attributes.administrative_status'), 'administrative_status', function ($value) use ($translator, $termitionDate) {
-            $label = key_exists($value, self::OPTIONS) ? $translator->translate(self::OPTIONS[$value]) : $value;
+        return Text::make(
+            $translator->translate('subscription.attributes.administrative_status'),
+            'administrative_status',
+            function ($value) use ($translator, $termitionDate) {
+                $label = key_exists($value, self::OPTIONS) ? $translator->translate(self::OPTIONS[$value]) : $value;
 
-            if ($value === AdministrativeStatus::SUSPENDED->value) {
-                return "<span style=\"color: red\">$label</span>";
-            }
-            if ($value === AdministrativeStatus::EXPIRED->value) {
-                $formatDate = ! is_null($termitionDate) ? "($termitionDate)" : '';
-                return "<span style=\"color: red\">$label $formatDate</span>";
-            }
+                if ($value === AdministrativeStatus::SUSPENDED->value) {
+                    return "<span style=\"color: red\">$label</span>";
+                }
 
-            return $label;
-        })
+                if ($value === AdministrativeStatus::EXPIRED->value) {
+                    $formatDate = ! is_null($termitionDate) ? "($termitionDate)" : '';
+
+                    return "<span style=\"color: red\">$label $formatDate</span>";
+                }
+
+                return $label;
+            },
+        )
             ->asHtml()
             ->hideWhenCreating()
             ->hideWhenUpdating();

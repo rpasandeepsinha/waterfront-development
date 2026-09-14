@@ -34,6 +34,7 @@ class UuidCast implements CastsAttributes
         if ($value instanceof UuidInterface) {
             return $value->toString();
         }
+
         return $value;
     }
 }

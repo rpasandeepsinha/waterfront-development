@@ -38,7 +38,10 @@ class TransferRejectTest extends IntegrationTestCase
         $this->fromCustomer = new CustomerFactory()->createOne();
 
         $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne();
-        $subscription = new SubscriptionFactory()->for($this->fromCustomer)->for($product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->fromCustomer)
+            ->for($product)
+            ->createOne();
 
         $this->transfer = new TransferFactory()->createOne([
             'from_customer_id' => $this->fromCustomer->id,
@@ -55,9 +58,11 @@ class TransferRejectTest extends IntegrationTestCase
             MailTransferRejectedReceiver::class,
         ]);
 
-        $this->actingAsCustomer($this->fromCustomer)->postJson(
-            $this->generateRoute('partners.transfers.reject', ['transfer' => $this->transfer->uuid])
-        )->assertOk();
+        $this->actingAsCustomer($this->fromCustomer)
+            ->postJson(
+                $this->generateRoute('partners.transfers.reject', ['transfer' => $this->transfer->uuid]),
+            )
+            ->assertOk();
 
         $transfer = $this->transfer->refresh();
 
@@ -75,9 +80,11 @@ class TransferRejectTest extends IntegrationTestCase
 
         $this->transfer->accept();
 
-        $this->actingAsCustomer($this->fromCustomer)->postJson(
-            $this->generateRoute('partners.transfers.reject', ['transfer' => $this->transfer->uuid])
-        )->assertUnprocessable();
+        $this->actingAsCustomer($this->fromCustomer)
+            ->postJson(
+                $this->generateRoute('partners.transfers.reject', ['transfer' => $this->transfer->uuid]),
+            )
+            ->assertUnprocessable();
 
         $transfer = $this->transfer->refresh();
 

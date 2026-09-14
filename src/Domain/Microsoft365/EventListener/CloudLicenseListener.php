@@ -31,7 +31,11 @@ class CloudLicenseListener implements CloudLicenseObserverInterface
         $orderId = $customer->getOrderId();
 
         if ($orderId === null) {
-            Log::error(sprintf("%s::execute => KPN didn't provide an orderId. This is undocumented behaviour and shouldn't happen.", self::class));
+            Log::error(sprintf(
+                "%s::execute => KPN didn't provide an orderId. This is undocumented behaviour and shouldn't happen.",
+                self::class,
+            ));
+
             return;
         }
 
@@ -50,7 +54,11 @@ class CloudLicenseListener implements CloudLicenseObserverInterface
                     quantity: $customer->getQuantity(),
                     dateCreated: $customer->getPartnerReferenceHeader()?->getDateCreated(),
                 ),
-                default => Log::error(sprintf("%s::execute => KPN provided an undocumented order status code of '%s'.", self::class, $orderStatus)),
+                default => Log::error(sprintf(
+                    "%s::execute => KPN provided an undocumented order status code of '%s'.",
+                    self::class,
+                    $orderStatus,
+                )),
             };
         }
     }
@@ -64,13 +72,21 @@ class CloudLicenseListener implements CloudLicenseObserverInterface
 
     private function orderModified(CloudLicense $cloudLicense): void
     {
-        $microsoft365Deployment = Microsoft365Deployment::where('kpn_order_id', $cloudLicense->getOrderId())->firstOrFail();
+        $microsoft365Deployment = Microsoft365Deployment::where(
+            'kpn_order_id',
+            $cloudLicense->getOrderId(),
+        )->firstOrFail();
 
         if ($microsoft365Deployment->kpn_status === Microsoft365OrderStatus::MODIFIED) {
             $newSeatCount = $cloudLicense->getQuantity();
-            $oldInUseSeatCount = $microsoft365Deployment->subscription->children
+            $oldInUseSeatCount = $microsoft365Deployment
+                ->subscription
+                ->children
                 ->where('technical_status', TechnicalStatus::OK->value)
-            ->whereNotIn('administrative_status', [...AdministrativeStatus::administrativelyEnded(), AdministrativeStatus::ARCHIVING->value])
+                ->whereNotIn('administrative_status', [
+                    ...AdministrativeStatus::administrativelyEnded(),
+                    AdministrativeStatus::ARCHIVING->value,
+                ])
                 ->count();
 
             if ($newSeatCount > $oldInUseSeatCount) {
@@ -81,10 +97,12 @@ class CloudLicenseListener implements CloudLicenseObserverInterface
                         "%s::orderModified => KPN modify order that resulted in the KPN order with id '%d' has the same amount of seats that are already active (no change).",
                         self::class,
                         $cloudLicense->getOrderId(),
-                    )
+                    ),
                 );
+
                 return;
             }
+
             /**
              * When there is a negative delta for the amount of seats we don't need to do anything.
              * The subscriptions for those seats already have a canceled administrative status and will be removed with
@@ -96,7 +114,7 @@ class CloudLicenseListener implements CloudLicenseObserverInterface
     }
 
     /** KPN accepted the order. They are now creating the order with Microsoft. The order is not yet active. */
-    private function orderAccepted(int $orderId, string | null $partnerReference): void
+    private function orderAccepted(int $orderId, ?string $partnerReference): void
     {
         if ($partnerReference === null || $partnerReference === '') {
             Log::error(
@@ -104,8 +122,9 @@ class CloudLicenseListener implements CloudLicenseObserverInterface
                     "%s::orderAccepted => KPN didn't return the partner reference for order with ID %d. Unable to match with Microsoft365 subscription. This is undocumented behaviour and shouldn't happen.",
                     self::class,
                     $orderId,
-                )
+                ),
             );
+
             return;
         }
 
@@ -117,8 +136,9 @@ class CloudLicenseListener implements CloudLicenseObserverInterface
                     self::class,
                     $orderId,
                     $partnerReference,
-                )
+                ),
             );
+
             return;
         }
 
@@ -126,7 +146,13 @@ class CloudLicenseListener implements CloudLicenseObserverInterface
         $microsoft365Deployment = Microsoft365Deployment::where('id', $microsoft365DeploymentId)->first();
 
         if (! $microsoft365Deployment instanceof Microsoft365Deployment) {
-            Log::error(sprintf('%s::orderAccepted => Unable to find %s with ID %s.', self::class, Microsoft365Deployment::class, $partnerReference));
+            Log::error(sprintf(
+                '%s::orderAccepted => Unable to find %s with ID %s.',
+                self::class,
+                Microsoft365Deployment::class,
+                $partnerReference,
+            ));
+
             return;
         }
 
@@ -141,7 +167,13 @@ class CloudLicenseListener implements CloudLicenseObserverInterface
         $microsoft365Deployment = Microsoft365Deployment::where('kpn_order_id', $orderId)->first();
 
         if (! $microsoft365Deployment instanceof Microsoft365Deployment) {
-            Log::error(sprintf('%s::orderActive => Unable to find %s with ID %s.', self::class, Microsoft365Deployment::class, $orderId));
+            Log::error(sprintf(
+                '%s::orderActive => Unable to find %s with ID %s.',
+                self::class,
+                Microsoft365Deployment::class,
+                $orderId,
+            ));
+
             return;
         }
 
@@ -153,7 +185,8 @@ class CloudLicenseListener implements CloudLicenseObserverInterface
         $microsoft365Deployment->save();
 
         $parentSubscription = $microsoft365Deployment->subscription;
-        $seatSubscriptions = $parentSubscription->children
+        $seatSubscriptions = $parentSubscription
+            ->children
             ->where('technical_status', TechnicalStatus::REGISTRATION->value)
             ->where('administrative_status', AdministrativeStatus::ACTIVE->value)
             ->take($quantity);
@@ -168,9 +201,10 @@ class CloudLicenseListener implements CloudLicenseObserverInterface
                     self::class,
                     $quantity,
                     $seatSubscriptions->count(),
-                    $parentSubscription->id
-                )
+                    $parentSubscription->id,
+                ),
             );
+
             return;
         }
 
@@ -181,7 +215,7 @@ class CloudLicenseListener implements CloudLicenseObserverInterface
             function (Subscription $seatSubscription): void {
                 $seatSubscription->technical_status = TechnicalStatus::OK->value;
                 $seatSubscription->save();
-            }
+            },
         );
 
         // The order process has succeeded at least once. This means that for this customer everything is set up correctly.
@@ -198,13 +232,18 @@ class CloudLicenseListener implements CloudLicenseObserverInterface
             ->subscription
             ->children
             ->where('technical_status', TechnicalStatus::REGISTRATION->value)
-            ->whereNotIn('administrative_status', [...AdministrativeStatus::administrativelyEnded(), AdministrativeStatus::ARCHIVING->value]);
+            ->whereNotIn('administrative_status', [
+                ...AdministrativeStatus::administrativelyEnded(),
+                AdministrativeStatus::ARCHIVING->value,
+            ]);
 
-        $children->take($extraSeats)->each(
-            function (Subscription $seatSubscription): void {
-                $seatSubscription->technical_status = TechnicalStatus::OK->value;
-                $seatSubscription->save();
-            }
-        );
+        $children
+            ->take($extraSeats)
+            ->each(
+                function (Subscription $seatSubscription): void {
+                    $seatSubscription->technical_status = TechnicalStatus::OK->value;
+                    $seatSubscription->save();
+                },
+            );
     }
 }

@@ -55,7 +55,9 @@ class Microsoft365Deployment extends Model
 
     public function setKpnStatusAttribute(Microsoft365OrderStatus|string $status): void
     {
-        $this->attributes['kpn_status'] = $status instanceof Microsoft365OrderStatus ? $status : Microsoft365OrderStatus::from($status);
+        $this->attributes['kpn_status'] = $status instanceof Microsoft365OrderStatus
+            ? $status
+            : Microsoft365OrderStatus::from($status);
     }
 
     /**
@@ -93,7 +95,7 @@ class Microsoft365Deployment extends Model
             'customer_id',
             'id',
             'microsoft365_customer_info_id',
-            'id'
+            'id',
         );
     }
 

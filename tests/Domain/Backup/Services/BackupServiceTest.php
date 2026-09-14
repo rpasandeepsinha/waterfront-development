@@ -61,7 +61,7 @@ class BackupServiceTest extends IntegrationTestCase
         $this->backupService = new BackupService(
             provisionGateway: $this->mockProvisionGateway,
             logger: $this->mockLogger,
-            acronisClientFactory: $acronisFactory
+            acronisClientFactory: $acronisFactory,
         );
     }
 
@@ -99,39 +99,39 @@ class BackupServiceTest extends IntegrationTestCase
         $this->mockProvisionGateway
             ->expects('request')
             ->withArgs(
-                fn (CreateBackupRequest $request) =>
-                $request->cloudStorageInGb === $cloudStorage
-                && $request->localStorageInGb === $localStorage
-                && $request->mobileDevices === $mobile
-                && $request->workStations === $workstation
-                && $request->vms === $vms
-                && $request->servers === $servers
-                && $request->email === $subscription->customer->email
-                && $request->firstname === $subscription->customer->first_name
-                && $request->lastname === $subscription->customer->last_name
-                && $request->tag->toString() === $subscription->uuid
+                fn (CreateBackupRequest $request) => (
+                    $request->cloudStorageInGb === $cloudStorage
+                    && $request->localStorageInGb === $localStorage
+                    && $request->mobileDevices === $mobile
+                    && $request->workStations === $workstation
+                    && $request->vms === $vms
+                    && $request->servers === $servers
+                    && $request->email === $subscription->customer->email
+                    && $request->firstname === $subscription->customer->first_name
+                    && $request->lastname === $subscription->customer->last_name
+                    && $request->tag->toString() === $subscription->uuid
+                ),
             )
             ->andReturnUsing(function (CreateBackupRequest $request) use ($mockSuccessResult, $requestId) {
                 $request->requestId = $requestId;
                 $mockSuccessResult->provisionData = $request;
+
                 return $mockSuccessResult;
             });
 
-        $this->mockLogger
-            ->expects('debug')
-            ->with(
-                'Backup provision succeeded',
-                [
-                    LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
-                    LoggingContextKeys::META => [
-                        'provision_result' => ProvisionStatus::SUCCESS->value,
-                        'provision_exception' => null,
-                        'provision_request_id' => $requestId,
-                        'provision_validation' => null,
-                    ],
-                ]
-            );
+        $this->mockLogger->expects('debug')->with(
+            'Backup provision succeeded',
+            [
+                LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
+                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
+                LoggingContextKeys::META => [
+                    'provision_result' => ProvisionStatus::SUCCESS->value,
+                    'provision_exception' => null,
+                    'provision_request_id' => $requestId,
+                    'provision_validation' => null,
+                ],
+            ],
+        );
 
         $this->backupService->create($subscription, $createRequest);
 
@@ -169,17 +169,18 @@ class BackupServiceTest extends IntegrationTestCase
         $this->mockProvisionGateway
             ->expects('request')
             ->withArgs(
-                fn (CreateBackupRequest $request) =>
-                $request->cloudStorageInGb === $cloudStorage
-                && $request->localStorageInGb === $localStorage
-                && $request->mobileDevices === $mobile
-                && $request->workStations === $workstation
-                && $request->vms === $vms
-                && $request->servers === $servers
-                && $request->email === $subscription->customer->email
-                && $request->firstname === $subscription->customer->first_name
-                && $request->lastname === $subscription->customer->last_name
-                && $request->tag->toString() === $subscription->uuid
+                fn (CreateBackupRequest $request) => (
+                    $request->cloudStorageInGb === $cloudStorage
+                    && $request->localStorageInGb === $localStorage
+                    && $request->mobileDevices === $mobile
+                    && $request->workStations === $workstation
+                    && $request->vms === $vms
+                    && $request->servers === $servers
+                    && $request->email === $subscription->customer->email
+                    && $request->firstname === $subscription->customer->first_name
+                    && $request->lastname === $subscription->customer->last_name
+                    && $request->tag->toString() === $subscription->uuid
+                ),
             )
             ->andReturnUsing(function (CreateBackupRequest $request) use ($exception, $requestId) {
                 $request->requestId = $requestId;
@@ -191,22 +192,20 @@ class BackupServiceTest extends IntegrationTestCase
                 );
             });
 
-        $this->mockLogger
-            ->expects('info')
-            ->with(
-                sprintf('Backup provision failed for subscription uuid %s', $subscription->uuid),
-                [
-                    LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
-                    LoggingContextKeys::EXCEPTION => $exception,
-                    LoggingContextKeys::META => [
-                        'provision_result' => ProvisionStatus::FAILED->value,
-                        'provision_exception' => $exception->getMessage(),
-                        'provision_request_id' => $requestId,
-                        'provision_validation' => null,
-                    ],
-                ]
-            );
+        $this->mockLogger->expects('info')->with(
+            sprintf('Backup provision failed for subscription uuid %s', $subscription->uuid),
+            [
+                LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
+                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
+                LoggingContextKeys::EXCEPTION => $exception,
+                LoggingContextKeys::META => [
+                    'provision_result' => ProvisionStatus::FAILED->value,
+                    'provision_exception' => $exception->getMessage(),
+                    'provision_request_id' => $requestId,
+                    'provision_validation' => null,
+                ],
+            ],
+        );
 
         self::expectException(Exception::class);
         self::expectExceptionMessageIs('Backup provision failed');
@@ -222,33 +221,33 @@ class BackupServiceTest extends IntegrationTestCase
         $subscription = $this->createBackupSubscription(technicalStatus: TechnicalStatus::OK);
         $requestId = 7331;
 
-        $this->mockProvisionGateway->expects('request')
+        $this->mockProvisionGateway
+            ->expects('request')
             ->withArgs(fn (TerminateBackupRequest $request) => $request->tagUuid->toString() === $subscription->uuid)
             ->andReturnUsing(
                 function (TerminateBackupRequest $request) use ($requestId) {
                     $request->requestId = $requestId;
+
                     return new BackupResult(
                         provisionData: $request,
                         provisionStatus: ProvisionStatus::SUCCESS,
                     );
-                }
+                },
             );
 
-        $this->mockLogger
-            ->expects('debug')
-            ->with(
-                'Backup provision succeeded',
-                [
-                    LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
-                    LoggingContextKeys::META => [
-                        'provision_result' => ProvisionStatus::SUCCESS->value,
-                        'provision_exception' => null,
-                        'provision_request_id' => $requestId,
-                        'provision_validation' => null,
-                    ],
-                ]
-            );
+        $this->mockLogger->expects('debug')->with(
+            'Backup provision succeeded',
+            [
+                LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
+                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
+                LoggingContextKeys::META => [
+                    'provision_result' => ProvisionStatus::SUCCESS->value,
+                    'provision_exception' => null,
+                    'provision_request_id' => $requestId,
+                    'provision_validation' => null,
+                ],
+            ],
+        );
 
         $this->backupService->terminate($subscription);
         $subscription->refresh();
@@ -263,35 +262,35 @@ class BackupServiceTest extends IntegrationTestCase
         $requestId = 7331;
         $exception = new Exception('Deletion failed at provision provider');
 
-        $this->mockProvisionGateway->expects('request')
+        $this->mockProvisionGateway
+            ->expects('request')
             ->withArgs(fn (TerminateBackupRequest $request) => $request->tagUuid->toString() === $subscription->uuid)
             ->andReturnUsing(
                 function (TerminateBackupRequest $request) use ($requestId, $exception) {
                     $request->requestId = $requestId;
+
                     return new BackupResult(
                         provisionData: $request,
                         provisionStatus: ProvisionStatus::DELETION_FAILED,
                         exception: $exception,
                     );
-                }
+                },
             );
 
-        $this->mockLogger
-            ->expects('info')
-            ->with(
-                sprintf('Backup termination failed for subscription uuid %s', $subscription->uuid),
-                [
-                    LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                    LoggingContextKeys::EXCEPTION => $exception,
-                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
-                    LoggingContextKeys::META => [
-                        'provision_result' => ProvisionStatus::DELETION_FAILED->value,
-                        'provision_exception' => $exception->getMessage(),
-                        'provision_request_id' => $requestId,
-                        'provision_validation' => null,
-                    ],
-                ]
-            );
+        $this->mockLogger->expects('info')->with(
+            sprintf('Backup termination failed for subscription uuid %s', $subscription->uuid),
+            [
+                LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
+                LoggingContextKeys::EXCEPTION => $exception,
+                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
+                LoggingContextKeys::META => [
+                    'provision_result' => ProvisionStatus::DELETION_FAILED->value,
+                    'provision_exception' => $exception->getMessage(),
+                    'provision_request_id' => $requestId,
+                    'provision_validation' => null,
+                ],
+            ],
+        );
 
         self::expectException(Exception::class);
         self::expectExceptionMessageIs('Backup termination failed');
@@ -321,6 +320,7 @@ class BackupServiceTest extends IntegrationTestCase
             ->withArgs(fn (CreateBackupRequest $request) => $request->tag->toString() === $subscription->uuid)
             ->andReturnUsing(function (CreateBackupRequest $request) use ($requestId, $exception) {
                 $request->requestId = $requestId;
+
                 return new BackupResult(
                     provisionData: $request,
                     provisionStatus: ProvisionStatus::FAILED,
@@ -348,6 +348,7 @@ class BackupServiceTest extends IntegrationTestCase
             ->withArgs(fn (TerminateBackupRequest $request) => $request->tagUuid->toString() === $subscription->uuid)
             ->andReturnUsing(function (TerminateBackupRequest $request) use ($requestId, $exception) {
                 $request->requestId = $requestId;
+
                 return new BackupCreateResult(
                     provisionData: $request,
                     provisionStatus: ProvisionStatus::FAILED,
@@ -375,6 +376,7 @@ class BackupServiceTest extends IntegrationTestCase
             ->withArgs(fn (GetBackupSsoRequest $request) => $request->tagUuid->toString() === $subscription->uuid)
             ->andReturnUsing(function (GetBackupSsoRequest $request) use ($requestId, $exception) {
                 $request->requestId = $requestId;
+
                 return new BackupResult(
                     provisionData: $request,
                     provisionStatus: ProvisionStatus::FAILED,
@@ -415,7 +417,7 @@ class BackupServiceTest extends IntegrationTestCase
                     quota: new Quota(
                         value: 50 * $gigabyteInBytes,
                         overage: 0,
-                        version: 1
+                        version: 1,
                     ),
                 ),
             ),
@@ -436,7 +438,7 @@ class BackupServiceTest extends IntegrationTestCase
                     quota: new Quota(
                         value: 10 * $gigabyteInBytes,
                         overage: 0,
-                        version: 1
+                        version: 1,
                     ),
                 ),
             ),
@@ -460,6 +462,7 @@ class BackupServiceTest extends IntegrationTestCase
             ->withArgs(fn (GetBackupUsageRequest $request) => $request->tagUuid->toString() === $subscription->uuid)
             ->andReturnUsing(function (GetBackupUsageRequest $request) use ($requestId, $tenantUsages) {
                 $request->requestId = $requestId;
+
                 return new BackupUsagesResult(
                     provisionData: $request,
                     provisionStatus: ProvisionStatus::SUCCESS,
@@ -502,6 +505,7 @@ class BackupServiceTest extends IntegrationTestCase
             ->withArgs(fn (GetBackupUsageRequest $request) => $request->tagUuid->toString() === $subscription->uuid)
             ->andReturnUsing(function (GetBackupUsageRequest $request) use ($requestId) {
                 $request->requestId = $requestId;
+
                 return new BackupUsagesResult(
                     provisionData: $request,
                     provisionStatus: ProvisionStatus::FAILED,
@@ -523,6 +527,7 @@ class BackupServiceTest extends IntegrationTestCase
             ->withArgs(fn (GetBackupUsageRequest $request) => $request->tagUuid->toString() === $subscription->uuid)
             ->andReturnUsing(function (GetBackupUsageRequest $request) use ($requestId) {
                 $request->requestId = $requestId;
+
                 return new BackupUsagesResult(
                     provisionData: $request,
                     provisionStatus: ProvisionStatus::SUCCESS,
@@ -557,7 +562,7 @@ class BackupServiceTest extends IntegrationTestCase
                     quota: new Quota(
                         value: null,
                         overage: null,
-                        version: 1
+                        version: 1,
                     ),
                 ),
             ),
@@ -577,7 +582,7 @@ class BackupServiceTest extends IntegrationTestCase
                     quota: new Quota(
                         value: 10 * $gigabyteInBytes,
                         overage: 0,
-                        version: 1
+                        version: 1,
                     ),
                 ),
             ),
@@ -588,6 +593,7 @@ class BackupServiceTest extends IntegrationTestCase
             ->withArgs(fn (GetBackupUsageRequest $request) => $request->tagUuid->toString() === $subscription->uuid)
             ->andReturnUsing(function (GetBackupUsageRequest $request) use ($requestId, $tenantUsages) {
                 $request->requestId = $requestId;
+
                 return new BackupUsagesResult(
                     provisionData: $request,
                     provisionStatus: ProvisionStatus::SUCCESS,
@@ -608,7 +614,7 @@ class BackupServiceTest extends IntegrationTestCase
         return SubscriptionFactory::new()
             ->withCustomer()
             ->for(
-                ProductFactory::new()->backupAcronis()
+                ProductFactory::new()->backupAcronis(),
             )
             ->technicalStatus($technicalStatus->value)
             ->createOne();

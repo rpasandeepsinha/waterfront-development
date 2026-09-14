@@ -38,7 +38,7 @@ class InsightsFormatterTest extends TestCase
             extra: [
                 'file' => '/dir/test.php',
                 'line' => 42,
-            ]
+            ],
         );
         $formatted = $formatter->format($record);
 

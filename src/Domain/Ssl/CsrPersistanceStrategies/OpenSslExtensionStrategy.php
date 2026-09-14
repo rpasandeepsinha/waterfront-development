@@ -15,7 +15,7 @@ class OpenSslExtensionStrategy
         CsrSubjectData $subjectData,
         int $encryptionStrength,
         string $privateKeyPath,
-        string $csrPath
+        string $csrPath,
     ): void {
         $privateKeyResource = $this->createPrivateKey($encryptionStrength, $privateKeyPath);
         $this->createCsr($subjectData->toArray(), $privateKeyResource, $csrPath);
@@ -35,7 +35,7 @@ class OpenSslExtensionStrategy
             $subjectDataArray['OU'],
             $subjectDataArray['L'],
             $subjectDataArray['ST'],
-            $subjectDataArray['C']
+            $subjectDataArray['C'],
         );
 
         $publicKey = openssl_csr_get_public_key($csrPath);

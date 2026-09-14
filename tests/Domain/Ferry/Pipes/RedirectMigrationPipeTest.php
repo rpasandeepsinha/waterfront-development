@@ -43,17 +43,18 @@ class RedirectMigrationPipeTest extends IntegrationTestCase
         bool $redirectExistsInDatabase,
         bool $noRedirectServerConfiguredInDatabase,
         bool $hasNoData,
-        array $expectedValidationResults
+        array $expectedValidationResults,
     ): void {
         LegacyRedirectingServerFactory::new()->createOne([
             'original_business_unit' => 'testmigration',
         ]);
 
-        $customer      = include(__DIR__ . '/data/customer_correct.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
         if ($noRedirectServerConfiguredInDatabase) {
             $customer['referenceName'] = 'unconfigured_bu';
         }
-        $subscriptions = include(__DIR__ . '/data/subscriptions_correct.php');
+
+        $subscriptions = include __DIR__ . '/data/subscriptions_correct.php';
 
         if ($sourceValidationMismatch) {
             $subscriptions['redirects'][0]['domain'] = 'domain_different_from_source.com';
@@ -72,7 +73,7 @@ class RedirectMigrationPipeTest extends IntegrationTestCase
             $responses[] = new Response(
                 500,
                 [],
-                'random PowerDNS error'
+                'random PowerDNS error',
             );
         } else {
             $responses[] = new Response(
@@ -81,8 +82,8 @@ class RedirectMigrationPipeTest extends IntegrationTestCase
                 $this->getMockedZoneResponseBody(
                     'zone.nl',
                     [],
-                    PowerDnsZoneKind::MASTER->value
-                )
+                    PowerDnsZoneKind::MASTER->value,
+                ),
             );
         }
 
@@ -93,30 +94,35 @@ class RedirectMigrationPipeTest extends IntegrationTestCase
         if ($redirectExistsInDatabase) {
             $fakeRedirect = new RedirectDatabaseRepository();
 
-            $redirectRepositoryMock->method('findBySourceForMigrations')
+            $redirectRepositoryMock
+                ->method('findBySourceForMigrations')
                 ->willReturnCallback(
-                    fn (string $value): ?RedirectDatabaseRepository => $value === 'test-dns-intern-10.nl' ? $fakeRedirect : null
+                    fn (string $value): ?RedirectDatabaseRepository => $value === 'test-dns-intern-10.nl'
+                        ? $fakeRedirect
+                        : null,
                 );
         } else {
-            $redirectRepositoryMock->method('findBySourceForMigrations')
-                ->willReturn(null);
+            $redirectRepositoryMock->method('findBySourceForMigrations')->willReturn(null);
         }
 
-        $this->app->bind(RedirectsRepositoryInterface::class, fn (): RedirectsRepositoryInterface => $redirectRepositoryMock);
+        $this->app->bind(
+            RedirectsRepositoryInterface::class,
+            fn (): RedirectsRepositoryInterface => $redirectRepositoryMock,
+        );
 
         $reference = 'unique_reference_for_adf';
 
         $validationPayload = new ValidationPayload(
             validationReference: $reference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $sslMigrationPipe = self::resolve(RedirectMigrationPipe::class);
 
         $validationPayload = $sslMigrationPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame($reference, $validationPayload->validationReference);

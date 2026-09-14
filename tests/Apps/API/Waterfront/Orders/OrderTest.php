@@ -55,6 +55,7 @@ use Waterfront\Infra\PowerDnsClient\Entities\PowerDnsZone;
 use Waterfront\Infra\PowerDnsClient\PowerDnsClient;
 use Waterfront\Infra\PowerDnsClient\Services\PowerDnsZoneToDnsZoneConverter;
 use Waterfront\Infra\RtrClient\Services\RtrService;
+use Waterfront\Infra\Translation\TranslatorInterface;
 
 #[CoversNothing]
 #[AllowMockObjectsWithoutExpectations]
@@ -77,29 +78,40 @@ class OrderTest extends IntegrationTestCase
         new ServerFactory()->createOne();
         $domainProvider = ProviderFactory::new()->createOne(
             [
-                'type'    => ProviderType::DOMAIN,
-                'slug'    => ProviderSlug::OPEN_PROVIDER,
+                'type' => ProviderType::DOMAIN,
+                'slug' => ProviderSlug::OPEN_PROVIDER,
                 'enabled' => true,
                 'default' => true,
-            ]
+            ],
         );
-        ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
         ProviderFactory::new()->createOne(
             [
-                'type'    => ProviderType::SSL,
-                'slug'    => ProviderSlug::OPEN_PROVIDER,
+                'type' => ProviderType::SSL,
+                'slug' => ProviderSlug::OPEN_PROVIDER,
                 'enabled' => true,
                 'default' => true,
-            ]
+            ],
         );
 
         $dnsGroup = new ProductGroupFactory()->dns();
-        $dnsProduct = new ProductFactory()->for($dnsGroup)->freeDns()->createOne();
+        $dnsProduct = new ProductFactory()
+            ->for($dnsGroup)
+            ->freeDns()
+            ->createOne();
         ProductSpecFactory::new()
             ->enable(ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)
             ->for($dnsProduct)
             ->create();
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne(['price'   => 0]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
 
         $extensionGroup = new ProductGroupFactory()->extension()->createOne();
         $hostingGroup = new ProductGroupFactory()->hosting()->createOne();
@@ -111,13 +123,19 @@ class OrderTest extends IntegrationTestCase
         ]);
         new ProductSpecFactory()->for($sslProduct)->createOne(
             [
-                'name'  => 'ssl.product_id',
+                'name' => 'ssl.product_id',
                 'value' => $sslProduct->id,
-            ]
+            ],
         );
 
-        new ProductPriceComponentFactory()->for($sslProduct)->registration()->createOne(['price'   => 120]);
-        new ProductPriceComponentFactory()->for($sslProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($sslProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($sslProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
 
         $this->comProduct = new ProductFactory()->for($extensionGroup)->createOne([
             'name' => '.com',
@@ -126,21 +144,33 @@ class OrderTest extends IntegrationTestCase
 
         new ProductSpecFactory()->for($this->comProduct)->createOne(
             [
-                'name'  => 'domain.provider_id',
+                'name' => 'domain.provider_id',
                 'value' => $domainProvider->id,
-            ]
+            ],
         );
 
-        new ProductPriceComponentFactory()->for($this->comProduct)->registration()->createOne(['price' => 120]);
-        new ProductPriceComponentFactory()->for($this->comProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($this->comProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($this->comProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
 
         $hostingProduct = new ProductFactory()->for($hostingGroup)->createOne([
             'name' => 'premium',
             'slug' => 'hosting_premium',
         ]);
 
-        new ProductPriceComponentFactory()->for($hostingProduct)->registration()->createOne(['price'   => 120]);
-        new ProductPriceComponentFactory()->for($hostingProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($hostingProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
 
         $otherGroup = new ProductGroupFactory()->other()->createOne();
 
@@ -149,11 +179,14 @@ class OrderTest extends IntegrationTestCase
             'slug' => 'other_product_slug',
         ]);
 
-        new ProductPriceComponentFactory()->for($otherProduct)->registration()->createOne([
-            'price'   => 100,
-            'billing_period'  => 1,
-            'contract_period' => 1,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($otherProduct)
+            ->registration()
+            ->createOne([
+                'price' => 100,
+                'billing_period' => 1,
+                'contract_period' => 1,
+            ]);
 
         new TemplateFactory()->createMany([
             [
@@ -170,14 +203,17 @@ class OrderTest extends IntegrationTestCase
         $this->app->bind(function () use ($mockRtr): RealtimeRegister {
             $externalRtr = new RealtimeRegister('api-key');
             $externalRtr->setClient($mockRtr);
+
             return $externalRtr;
         });
 
-        $this->app->when(RtrService::class)
+        $this->app
+            ->when(RtrService::class)
             ->needs(RealtimeRegister::class)
             ->give(function () use ($mockRtr) {
                 $externalRtr = new RealtimeRegister('api-key');
                 $externalRtr->setClient($mockRtr);
+
                 return $externalRtr;
             });
 
@@ -198,7 +234,8 @@ class OrderTest extends IntegrationTestCase
                     self::resolve(DnsService::class),
                     self::resolve(DomainDeploymentRepository::class),
                     self::resolve(DomainProviderBusinessUnitRepository::class),
-                ]
+                    self::resolve(TranslatorInterface::class),
+                ],
             )
             ->onlyMethods(['fetchDomain'])
             ->getMock();
@@ -208,7 +245,7 @@ class OrderTest extends IntegrationTestCase
 
     #[DataProvider('customerProvider')]
     #[Test]
-    public function orderCapitalizedDomain(string|null $organization): void
+    public function orderCapitalizedDomain(?string $organization): void
     {
         $domain = 'CAPITALIZEDDOMAIN.com';
         $expectedDomain = strtolower($domain);
@@ -227,17 +264,11 @@ class OrderTest extends IntegrationTestCase
 
         $pdnsMock = self::mock(PowerDnsClient::class);
 
-        $pdnsMock->shouldReceive('getZone')
-            ->with($expectedDomain)
-            ->andReturn($domainZone);
+        $pdnsMock->shouldReceive('getZone')->with($expectedDomain)->andReturn($domainZone);
 
-        $pdnsMock->shouldReceive('changeZone')
-            ->with($domainZone)
-            ->andReturn($domainZone);
+        $pdnsMock->shouldReceive('changeZone')->with($domainZone)->andReturn($domainZone);
 
-        $pdnsMock->shouldReceive('getKeys')
-            ->with($expectedDomain)
-            ->andReturn($keySet);
+        $pdnsMock->shouldReceive('getKeys')->with($expectedDomain)->andReturn($keySet);
 
         $this->app->bind(PowerDnsClient::class, fn () => $pdnsMock);
 
@@ -250,30 +281,37 @@ class OrderTest extends IntegrationTestCase
         /** @var array<int, array<string>> $orderPayload */
         $orderPayload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        $this->actingAsCustomer($customer)->postJson(
-            $this->generateRoute('partners.order.order'),
-            $orderPayload
-        )->assertOk();
+        $this->actingAsCustomer($customer)
+            ->postJson(
+                $this->generateRoute('partners.order.order'),
+                $orderPayload,
+            )
+            ->assertOk();
 
-        $domainSubscription = Subscription::where('domain', 'capitalizeddomain.com')->where(
-            'product_uuid',
-            $this->comProduct->uuid
-        )->firstOrFail();
+        $domainSubscription = Subscription::where('domain', 'capitalizeddomain.com')
+            ->where(
+                'product_uuid',
+                $this->comProduct->uuid,
+            )
+            ->firstOrFail();
         self::assertSame(DomainStatus::ACTIVE->value, $domainSubscription->technical_status);
         self::assertSame('capitalizeddomain.com', $domainSubscription->domain);
         self::assertNull(Subscription::where('domain', 'CAPITALIZEDDOMAIN.com')->first());
 
-        $dnsSubscription = Subscription::query()->whereProductGroupType(ProductGroupType::DNS)->where(
-            'domain',
-            $domainSubscription->domain
-        )->firstOrFail();
+        $dnsSubscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::DNS)
+            ->where(
+                'domain',
+                $domainSubscription->domain,
+            )
+            ->firstOrFail();
 
         self::assertSame(AdministrativeStatus::ACTIVE->value, $dnsSubscription->administrative_status);
     }
 
     #[DataProvider('customerProvider')]
     #[Test]
-    public function order(string|null $organization): void
+    public function order(?string $organization): void
     {
         $this->applyPdnsMockForOrder('test.com');
         self::assertRtrTldInfoCalled();
@@ -284,18 +322,23 @@ class OrderTest extends IntegrationTestCase
 
         /** @var array<int, array<string>> $orderPayload */
         $orderPayload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        $response = $this->actingAsCustomer($customer)->postJson(
-            $this->generateRoute('partners.order.order'),
-            $orderPayload
-        )->assertOk();
+        $response = $this->actingAsCustomer($customer)
+            ->postJson(
+                $this->generateRoute('partners.order.order'),
+                $orderPayload,
+            )
+            ->assertOk();
 
         $domainSubscription = Subscription::whereProductName('.com')->firstOrFail();
         self::assertSame(DomainStatus::ACTIVE->value, $domainSubscription->technical_status);
 
-        $dnsSubscription = Subscription::query()->whereProductGroupType(ProductGroupType::DNS)->where(
-            'domain',
-            $domainSubscription->domain
-        )->firstOrFail();
+        $dnsSubscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::DNS)
+            ->where(
+                'domain',
+                $domainSubscription->domain,
+            )
+            ->firstOrFail();
 
         self::assertSame(AdministrativeStatus::ACTIVE->value, $dnsSubscription->administrative_status);
 
@@ -303,7 +346,8 @@ class OrderTest extends IntegrationTestCase
         self::assertSame(TechnicalStatus::OK->value, $hostingDeployment->technical_status);
         self::assertTrue(Subscription::whereProductName('Single Domain')->exists());
 
-        $baseSubscription = Subscription::query()->whereProductGroupType(ProductGroupType::SSL)
+        $baseSubscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::SSL)
             ->where('domain', 'test.com')
             ->firstOrFail();
 
@@ -316,7 +360,7 @@ class OrderTest extends IntegrationTestCase
 
     #[DataProvider('customerProvider')]
     #[Test]
-    public function orderWithDifferentDriverTld(string|null $organization): void
+    public function orderWithDifferentDriverTld(?string $organization): void
     {
         $domain = 'test.com';
 
@@ -325,17 +369,11 @@ class OrderTest extends IntegrationTestCase
 
         $pdnsMock = self::mock(PowerDnsClient::class);
 
-        $pdnsMock->shouldReceive('getZone')
-            ->with($domain)
-            ->andReturn($domainZone);
+        $pdnsMock->shouldReceive('getZone')->with($domain)->andReturn($domainZone);
 
-        $pdnsMock->shouldReceive('changeZone')
-            ->with($domainZone)
-            ->andReturn($domainZone);
+        $pdnsMock->shouldReceive('changeZone')->with($domainZone)->andReturn($domainZone);
 
-        $pdnsMock->shouldReceive('getKeys')
-            ->with($domain)
-            ->andReturn($keySet);
+        $pdnsMock->shouldReceive('getKeys')->with($domain)->andReturn($keySet);
 
         $this->app->bind(PowerDnsClient::class, fn () => $pdnsMock);
         self::assertRtrTldInfoCalled();
@@ -346,25 +384,31 @@ class OrderTest extends IntegrationTestCase
 
         /** @var array<int, array<string>> $orderPayload */
         $orderPayload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        $response = $this->actingAsCustomer($customer)->postJson(
-            $this->generateRoute('partners.order.order'),
-            $orderPayload
-        )->assertOk();
+        $response = $this->actingAsCustomer($customer)
+            ->postJson(
+                $this->generateRoute('partners.order.order'),
+                $orderPayload,
+            )
+            ->assertOk();
 
         $domainSubscription = Subscription::whereProductName('.com')->firstOrFail();
         self::assertSame(DomainStatus::ACTIVE->value, $domainSubscription->technical_status);
 
-        $dnsSubscription = Subscription::query()->whereProductGroupType(ProductGroupType::DNS)->where(
-            'domain',
-            $domainSubscription->domain
-        )->firstOrFail();
+        $dnsSubscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::DNS)
+            ->where(
+                'domain',
+                $domainSubscription->domain,
+            )
+            ->firstOrFail();
         self::assertSame(AdministrativeStatus::ACTIVE->value, $dnsSubscription->administrative_status);
 
         $hostingDeployment = Subscription::whereProductName('premium')->firstOrFail();
         self::assertSame(TechnicalStatus::OK->value, $hostingDeployment->technical_status);
         self::assertTrue(Subscription::whereProductName('Single Domain')->exists());
 
-        $baseSubscription = Subscription::query()->whereProductGroupType(ProductGroupType::SSL)
+        $baseSubscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::SSL)
             ->where('domain', 'test.com')
             ->firstOrFail();
 
@@ -374,7 +418,7 @@ class OrderTest extends IntegrationTestCase
 
         $response->assertJson([
             'transactionId' => $order->uuid,
-            'status'        => 'ok',
+            'status' => 'ok',
         ]);
     }
 
@@ -389,9 +433,11 @@ class OrderTest extends IntegrationTestCase
         ];
     }
 
-    private function createCustomer(string|null $organization): Customer
+    private function createCustomer(?string $organization): Customer
     {
-        return new CustomerFactory()->withAddress()->createOne(['organization' => $organization]);
+        return new CustomerFactory()
+            ->withAddress()
+            ->createOne(['organization' => $organization]);
     }
 
     private function applyPdnsMockForOrder(string $domain): void
@@ -401,17 +447,11 @@ class OrderTest extends IntegrationTestCase
 
         $pdnsMock = self::mock(PowerDnsClient::class);
 
-        $pdnsMock->shouldReceive('getZone')
-            ->with($domain)
-            ->andReturn($domainZone);
+        $pdnsMock->shouldReceive('getZone')->with($domain)->andReturn($domainZone);
 
-        $pdnsMock->shouldReceive('changeZone')
-            ->with($domainZone)
-            ->andReturn($domainZone);
+        $pdnsMock->shouldReceive('changeZone')->with($domainZone)->andReturn($domainZone);
 
-        $pdnsMock->shouldReceive('getKeys')
-            ->with($domain)
-            ->andReturn($keySet);
+        $pdnsMock->shouldReceive('getKeys')->with($domain)->andReturn($keySet);
 
         $this->app->bind(PowerDnsClient::class, fn () => $pdnsMock);
     }
@@ -421,10 +461,11 @@ class OrderTest extends IntegrationTestCase
         $zoneConverter = self::resolve(PowerDnsZoneToDnsZoneConverter::class);
         /** @var array<string, mixed> $pdnsZone */
         $pdnsZone = json_decode($this->getMockedZoneResponseBody($domain), true, 512, JSON_THROW_ON_ERROR);
+
         return $zoneConverter->convertFromPowerDnsZone(
             PowerDnsZone::fromArray(
-                $pdnsZone
-            )
+                $pdnsZone,
+            ),
         );
     }
 
@@ -432,6 +473,7 @@ class OrderTest extends IntegrationTestCase
     {
         /** @var array<array<string,mixed>> $keys */
         $keys = json_decode($this->getMockedKeyResponseBody(), true, 512, JSON_THROW_ON_ERROR);
+
         return PowerDnsSecKeySet::fromArray($keys);
     }
 

@@ -35,7 +35,7 @@ class CloudStackPaginationIterator implements Iterator, Countable
         private readonly array $parameters,
         private readonly string $type,
         private readonly Mapper $mapper,
-        private readonly int $pageSize = self::DEFAULT_PAGE_SIZE
+        private readonly int $pageSize = self::DEFAULT_PAGE_SIZE,
     ) {
     }
 
@@ -47,6 +47,7 @@ class CloudStackPaginationIterator implements Iterator, Countable
         if (! $this->valid()) {
             return null;
         }
+
         return $this->pages[(int) ($this->position / $this->pageSize)][$this->position % $this->pageSize];
     }
 
@@ -66,6 +67,7 @@ class CloudStackPaginationIterator implements Iterator, Countable
     public function valid(): bool
     {
         $this->fetchPage((int) ($this->position / $this->pageSize));
+
         return $this->position < $this->count;
     }
 
@@ -80,6 +82,7 @@ class CloudStackPaginationIterator implements Iterator, Countable
     public function count(): int
     {
         $this->fetchPage(0);
+
         return (int) $this->count;
     }
 
@@ -88,7 +91,7 @@ class CloudStackPaginationIterator implements Iterator, Countable
      */
     private function fetchPage(int $pageNumber): void
     {
-        if ($this->count !== null && $pageNumber * $this->pageSize >= $this->count) {
+        if ($this->count !== null && ($pageNumber * $this->pageSize) >= $this->count) {
             return;
         }
 
@@ -102,6 +105,7 @@ class CloudStackPaginationIterator implements Iterator, Countable
             // Empty response
             if (! array_key_exists('count', $response)) {
                 $this->count = 0;
+
                 return;
             }
 

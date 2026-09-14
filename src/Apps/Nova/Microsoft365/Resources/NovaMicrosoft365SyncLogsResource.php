@@ -53,30 +53,31 @@ class NovaMicrosoft365SyncLogsResource extends Resource
         return [
             Text::make(
                 self::translate('microsoft365-logs.log'),
-                'log'
+                'log',
             )->displayUsing(function ($log) use ($request) {
                 assert(is_string($log));
                 if ($this->isResourceIndexRequest($request)) {
                     return Str::limit($log, 150);
                 }
+
                 return $log;
             }),
             BelongsTo::make(
                 self::translate('customer.singular'),
                 'microsoft365CustomerInfo',
-                NovaMicrosoft365CustomerResource::class
+                NovaMicrosoft365CustomerResource::class,
             ),
             BelongsTo::make(
                 self::translate('microsoft365-logs.subscription'),
                 'microsoft365Deployment',
-                NovaMicrosoft365DeploymentResource::class
+                NovaMicrosoft365DeploymentResource::class,
             ),
             DateTime::make(
                 self::translate('microsoft365-logs.time'),
-                'created_at'
+                'created_at',
             )
-            ->displayUsing(fn () => $this->resource->created_at?->format(DateTimeFormat::DUTCH))
-            ->sortable(),
+                ->displayUsing(fn () => $this->resource->created_at?->format(DateTimeFormat::DUTCH))
+                ->sortable(),
         ];
     }
 

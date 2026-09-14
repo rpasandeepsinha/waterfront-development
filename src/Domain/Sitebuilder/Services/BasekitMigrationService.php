@@ -16,7 +16,6 @@ use Waterfront\Domain\Provision\Sitebuilder\Repositories\BasekitContextRepositor
 use Waterfront\Domain\Provision\Sitebuilder\Repositories\BasekitSitebuilderDeploymentRepository;
 use Waterfront\Domain\Provision\Sitebuilder\Repositories\SitebuilderDeploymentRepository;
 use Waterfront\Domain\Provision\Sitebuilder\Requests\CreateSitebuilderRequest;
-use Waterfront\Domain\Sitebuilder\Enums\BasekitDeletionOutcome;
 use Waterfront\Domain\Sitebuilder\Enums\BasekitMigrationEligibility;
 use Waterfront\Domain\Subscriptions\Models\Subscription;
 use Waterfront\Domain\Subscriptions\Repositories\SubscriptionRepository;
@@ -47,7 +46,10 @@ class BasekitMigrationService
             return BasekitMigrationEligibility::ALREADY_MIGRATED;
         }
 
-        $packageReference = $this->productSpecRepository->getStringValueOfSpecification($subscription->product, ProductSpecName::BASEKIT_PACKAGE_REFERENCE);
+        $packageReference = $this->productSpecRepository->getStringValueOfSpecification(
+            $subscription->product,
+            ProductSpecName::BASEKIT_PACKAGE_REFERENCE,
+        );
         if ($packageReference === null) {
             return BasekitMigrationEligibility::NO_PACKAGE_REFERENCE;
         }
@@ -65,21 +67,6 @@ class BasekitMigrationService
         return BasekitMigrationEligibility::ELIGIBLE;
     }
 
-    public function assessDeletion(Subscription $subscription): BasekitDeletionOutcome
-    {
-        $deployment = $subscription->hostingDeployment;
-
-        if ($deployment === null) {
-            return BasekitDeletionOutcome::SKIPPED_NO_DEPLOYMENT;
-        }
-
-        if ($deployment->deleted_at !== null) {
-            return BasekitDeletionOutcome::SKIPPED_ALREADY_DELETED;
-        }
-
-        return BasekitDeletionOutcome::TO_DELETE;
-    }
-
     public function migrate(string $scriptSlug, string $subscriptionUuid): void
     {
         $subscription = $this->subscriptionRepository->getByUuid($subscriptionUuid);
@@ -88,6 +75,7 @@ class BasekitMigrationService
                 LoggingContextKeys::ONE_OFF_SCRIPT => $scriptSlug,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscriptionUuid,
             ]);
+
             return;
         }
 
@@ -97,16 +85,21 @@ class BasekitMigrationService
                 LoggingContextKeys::ONE_OFF_SCRIPT => $scriptSlug,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscriptionUuid,
             ]);
+
             return;
         }
 
-        $packageReference = $this->productSpecRepository->getStringValueOfSpecification($subscription->product, ProductSpecName::BASEKIT_PACKAGE_REFERENCE);
+        $packageReference = $this->productSpecRepository->getStringValueOfSpecification(
+            $subscription->product,
+            ProductSpecName::BASEKIT_PACKAGE_REFERENCE,
+        );
 
         if ($packageReference === null) {
             $this->logger->warning('No BASEKIT_PACKAGE_REFERENCE; skipping', [
                 LoggingContextKeys::ONE_OFF_SCRIPT => $scriptSlug,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscriptionUuid,
             ]);
+
             return;
         }
 
@@ -127,15 +120,23 @@ class BasekitMigrationService
                     'lastname' => $lastName,
                 ],
             ]);
+
             return;
         }
 
         $hostingDeployment = $subscription->hostingDeployment;
         if ($hostingDeployment === null) {
-            $this->logger->error(sprintf('Basekit migration aborted: HostingDeployment could not be found for subscription: %s', $subscriptionUuid), [
-                LoggingContextKeys::ONE_OFF_SCRIPT => $scriptSlug,
-                LoggingContextKeys::SUBSCRIPTION_UUID => $subscriptionUuid,
-            ]);
+            $this->logger->error(
+                sprintf(
+                    'Basekit migration aborted: HostingDeployment could not be found for subscription: %s',
+                    $subscriptionUuid,
+                ),
+                [
+                    LoggingContextKeys::ONE_OFF_SCRIPT => $scriptSlug,
+                    LoggingContextKeys::SUBSCRIPTION_UUID => $subscriptionUuid,
+                ],
+            );
+
             return;
         }
 
@@ -153,6 +154,7 @@ class BasekitMigrationService
                     'domain' => $domain,
                 ],
             ]);
+
             return;
         }
 
@@ -174,7 +176,7 @@ class BasekitMigrationService
 
             $sitebuilderDeployment = $this->sitebuilderDeploymentRepository->create(
                 requestId: $requestId,
-                domain: $request->domain
+                domain: $request->domain,
             );
             $this->basekitDeploymentRepository->create($sitebuilderDeployment, $siteReference);
 
@@ -199,6 +201,7 @@ class BasekitMigrationService
                 LoggingContextKeys::ONE_OFF_SCRIPT => $scriptSlug,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscriptionUuid,
             ]);
+
             return;
         }
 
@@ -207,6 +210,7 @@ class BasekitMigrationService
                 LoggingContextKeys::ONE_OFF_SCRIPT => $scriptSlug,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscriptionUuid,
             ]);
+
             return;
         }
 

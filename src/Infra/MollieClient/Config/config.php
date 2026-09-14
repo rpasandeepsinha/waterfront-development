@@ -7,6 +7,6 @@ use Illuminate\Support\Env;
 return [
     'credentials' => [
         'api_url' => Env::get('MOLLIE_API_URL'),
-        'api_key'  => Env::get('MOLLIE_API_KEY'),
+        'api_key' => Env::get('MOLLIE_API_KEY'),
     ],
 ];

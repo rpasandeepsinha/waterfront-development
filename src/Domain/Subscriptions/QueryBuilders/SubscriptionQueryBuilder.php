@@ -23,7 +23,7 @@ class SubscriptionQueryBuilder extends Builder
 
     public function whereAdministrativeStatusActive(): self
     {
-        return  $this->where('administrative_status', AdministrativeStatus::ACTIVE->value);
+        return $this->where('administrative_status', AdministrativeStatus::ACTIVE->value);
     }
 
     /**
@@ -44,7 +44,7 @@ class SubscriptionQueryBuilder extends Builder
     {
         return $this->whereHas(
             'product.productGroup',
-            fn (Builder $productGroupQuery): Builder => $productGroupQuery->where('slug', $productGroupTypeSlug)
+            fn (Builder $productGroupQuery): Builder => $productGroupQuery->where('slug', $productGroupTypeSlug),
         );
     }
 
@@ -52,7 +52,10 @@ class SubscriptionQueryBuilder extends Builder
     {
         return $this->whereHas(
             'product.productSpecs',
-            fn (Builder $productSpecQuery): Builder => $productSpecQuery->where('name', $productSpecName)->whereIn('value', ['1', 'yes', true, 1])
+            fn (Builder $productSpecQuery): Builder => $productSpecQuery->where(
+                'name',
+                $productSpecName,
+            )->whereIn('value', ['1', 'yes', true, 1]),
         );
     }
 
@@ -63,7 +66,10 @@ class SubscriptionQueryBuilder extends Builder
     {
         return $this->whereHas(
             'product.productSpecs',
-            fn (Builder $productSpecQuery): Builder => $productSpecQuery->whereIn('name', $productSpecNames)->whereIn('value', ['1', 'yes', true, 1])
+            fn (Builder $productSpecQuery): Builder => $productSpecQuery->whereIn(
+                'name',
+                $productSpecNames,
+            )->whereIn('value', ['1', 'yes', true, 1]),
         );
     }
 
@@ -74,38 +80,44 @@ class SubscriptionQueryBuilder extends Builder
     {
         return $this->whereHas(
             'product.productGroup',
-            fn (Builder $productGroupQuery): Builder => $productGroupQuery->whereIn('slug', $productGroups)
+            fn (Builder $productGroupQuery): Builder => $productGroupQuery->whereIn('slug', $productGroups),
         );
     }
 
     public function whereProductName(string $name): self
     {
-        return $this->select('subscriptions.*')->join(
-            'products',
-            'subscriptions.product_uuid',
-            '=',
-            'products.uuid'
-        )->where('products.name', $name);
+        return $this->select('subscriptions.*')
+            ->join(
+                'products',
+                'subscriptions.product_uuid',
+                '=',
+                'products.uuid',
+            )
+            ->where('products.name', $name);
     }
 
     public function whereProductSlug(string $slug): self
     {
-        return $this->select('subscriptions.*')->join(
-            'products',
-            'subscriptions.product_uuid',
-            '=',
-            'products.uuid'
-        )->where('products.slug', $slug);
+        return $this->select('subscriptions.*')
+            ->join(
+                'products',
+                'subscriptions.product_uuid',
+                '=',
+                'products.uuid',
+            )
+            ->where('products.slug', $slug);
     }
 
     public function whereProductSlugIsNot(string $slug): self
     {
-        return $this->select('subscriptions.*')->join(
-            'products',
-            'subscriptions.product_uuid',
-            '!=',
-            'products.uuid'
-        )->where('products.slug', $slug);
+        return $this->select('subscriptions.*')
+            ->join(
+                'products',
+                'subscriptions.product_uuid',
+                '!=',
+                'products.uuid',
+            )
+            ->where('products.slug', $slug);
     }
 
     /**
@@ -113,12 +125,14 @@ class SubscriptionQueryBuilder extends Builder
      */
     public function whereProductSlugs(array $slugs): self
     {
-        return $this->select('subscriptions.*')->join(
-            'products',
-            'subscriptions.product_uuid',
-            '=',
-            'products.uuid'
-        )->whereIn('products.slug', $slugs);
+        return $this->select('subscriptions.*')
+            ->join(
+                'products',
+                'subscriptions.product_uuid',
+                '=',
+                'products.uuid',
+            )
+            ->whereIn('products.slug', $slugs);
     }
 
     /**
@@ -126,12 +140,14 @@ class SubscriptionQueryBuilder extends Builder
      */
     public function whereProductNames(array $names): self
     {
-        return $this->select('subscriptions.*')->join(
-            'products',
-            'subscriptions.product_uuid',
-            '=',
-            'products.uuid'
-        )->whereIn('products.name', $names);
+        return $this->select('subscriptions.*')
+            ->join(
+                'products',
+                'subscriptions.product_uuid',
+                '=',
+                'products.uuid',
+            )
+            ->whereIn('products.name', $names);
     }
 
     public function whereProductUuid(string $productUuid): self

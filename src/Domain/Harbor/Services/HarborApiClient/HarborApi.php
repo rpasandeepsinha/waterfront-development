@@ -38,10 +38,15 @@ class HarborApi
      */
     public function sendCredit(DebtorInvoiceLines $creditInvoiceLinesMessage): void
     {
-        $response = $this->client->post('invoice-line/credit', $this->getDefaultHeaders() + [RequestOptions::JSON => [
-                'creditInvoiceLinesMessage' => $creditInvoiceLinesMessage->toArray(),
+        $response = $this->client->post(
+            'invoice-line/credit',
+            $this->getDefaultHeaders()
+            + [
+                RequestOptions::JSON => [
+                    'creditInvoiceLinesMessage' => $creditInvoiceLinesMessage->toArray(),
+                ],
             ],
-        ]);
+        );
 
         $this->validateResponse($response);
     }
@@ -51,14 +56,22 @@ class HarborApi
      * @throws HarborApiResponseException
      * @throws JsonException
      */
-    public function sendDowngrade(int $originalInvoiceId, DebtorInvoiceLines $creditInvoiceLineMessage, DebtorInvoiceLines $newInvoiceLineMessage): void
-    {
-        $response = $this->client->post('invoice-line/downgrade', $this->getDefaultHeaders() + [RequestOptions::JSON => [
-                'originalInvoiceLineMessageId' => $originalInvoiceId,
-                'creditInvoiceLinesMessage' => $creditInvoiceLineMessage->toArray(),
-                'newInvoiceLinesMessage' => $newInvoiceLineMessage->toArray(),
+    public function sendDowngrade(
+        int $originalInvoiceId,
+        DebtorInvoiceLines $creditInvoiceLineMessage,
+        DebtorInvoiceLines $newInvoiceLineMessage,
+    ): void {
+        $response = $this->client->post(
+            'invoice-line/downgrade',
+            $this->getDefaultHeaders()
+            + [
+                RequestOptions::JSON => [
+                    'originalInvoiceLineMessageId' => $originalInvoiceId,
+                    'creditInvoiceLinesMessage' => $creditInvoiceLineMessage->toArray(),
+                    'newInvoiceLinesMessage' => $newInvoiceLineMessage->toArray(),
+                ],
             ],
-        ]);
+        );
 
         $this->validateResponse($response);
     }
@@ -111,9 +124,16 @@ class HarborApi
     private function getDefaultHeaders(): array
     {
         return [
-            'base_uri' => $this->config->getAsString('harbor-api-client.connection.api_url') .
-                $this->config->getAsString('harbor-api-client.connection.api_endpoint_prefix'),
-            'headers' => ['Authorization' => 'Basic ' . base64_encode($this->config->getAsString('harbor-api-client.connection.api_authorization_header'))],
+            'base_uri' =>
+                $this->config->getAsString('harbor-api-client.connection.api_url')
+                    . $this->config->getAsString('harbor-api-client.connection.api_endpoint_prefix'),
+            'headers' => [
+                'Authorization' =>
+                    'Basic '
+                        . base64_encode($this->config->getAsString(
+                            'harbor-api-client.connection.api_authorization_header',
+                        )),
+            ],
             'verify' => $this->config->getAsBoolean('harbor-api-client.connection.verify_ssl'),
             'http_errors' => false,
             'debug' => $this->config->getAsBoolean('harbor-api-client.connection.debug_mode'),

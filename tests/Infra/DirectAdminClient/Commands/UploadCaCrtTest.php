@@ -54,14 +54,12 @@ class UploadCaCrtTest extends DirectAdminTestCase
 
         $this->api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->uploadCaCrt
-            ->setDomain($domain)
-            ->setCaCert($this->getCertificateData());
+        $this->uploadCaCrt->setDomain($domain)->setCaCert($this->getCertificateData());
         $response = $this->api->loginAs($user)->call($this->uploadCaCrt);
 
         Assert::assertStringContainsString(
             'CA Certificate is ok. Your site should be secure within a few minutes.',
-            $response->getResult()
+            $response->getResult(),
         );
     }
 
@@ -83,9 +81,7 @@ class UploadCaCrtTest extends DirectAdminTestCase
 
         $this->expectException(DirectAdminCommandException::class);
 
-        $this->uploadCaCrt
-            ->setDomain($domain)
-            ->setCaCert('Invalid Certficate string');
+        $this->uploadCaCrt->setDomain($domain)->setCaCert('Invalid Certficate string');
         $this->api->loginAs($user)->call($this->uploadCaCrt);
     }
 
@@ -107,9 +103,7 @@ class UploadCaCrtTest extends DirectAdminTestCase
 
         $this->expectException(DirectAdminCommandException::class);
 
-        $this->uploadCaCrt
-            ->setDomain($domain)
-            ->setCaCert($this->getCertificateData());
+        $this->uploadCaCrt->setDomain($domain)->setCaCert($this->getCertificateData());
         $this->api->loginAs($user)->call($this->uploadCaCrt);
     }
 

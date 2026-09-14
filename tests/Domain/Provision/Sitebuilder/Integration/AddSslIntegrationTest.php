@@ -69,7 +69,7 @@ class AddSslIntegrationTest extends IntegrationTestCase
             ssoUrl: $ssoUrl,
             username: 'user',
             password: 'pass',
-            brandReference: 1337
+            brandReference: 1337,
         ));
 
         $mockSslApi = self::mock(SslApiInterface::class);
@@ -84,6 +84,7 @@ class AddSslIntegrationTest extends IntegrationTestCase
             );
 
             $basekit->sslApi = $mockSslApi;
+
             return $basekit;
         });
 
@@ -105,23 +106,19 @@ class AddSslIntegrationTest extends IntegrationTestCase
             'user_ref' => $userRef,
         ]);
 
-        BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->state(['domain' => self::TEST_DOMAIN])
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                        ->sitebuilder()
-                        ->state([
-                            'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-                            'context_uuid' => $contextUuid,
-                            'tag' => $tag,
-                        ])
-                        ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne(['site_ref' => $siteRef]);
+        BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->state(['domain' => self::TEST_DOMAIN])->for(
+                ProvisioningRequestFactory::new()
+                    ->sitebuilder()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+                        'context_uuid' => $contextUuid,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne(['site_ref' => $siteRef]);
 
         $this->mockSslApi
             ->expects('addSsl')
@@ -129,7 +126,7 @@ class AddSslIntegrationTest extends IntegrationTestCase
             ->with(
                 self::TEST_DOMAIN,
                 $this->privateKey,
-                $this->mainCertificate
+                $this->mainCertificate,
             );
 
         $request = new AddSslSitebuilderRequest(
@@ -159,12 +156,14 @@ class AddSslIntegrationTest extends IntegrationTestCase
             sprintf(
                 '{"privateKey": "%s", "mainCertificate": "%s"}',
                 '****', // Private key should be masked in storage
-                str_replace("\n", '\n', $this->mainCertificate)
+                str_replace("\n", '\n', $this->mainCertificate),
             ),
             $savedRequest->request_data,
         );
 
-        $savedResult = $this->resultRepository->fetchProvisioningResults(new ProvisioningResultQueryFilters(requestUuid: $savedRequest->uuid), 1)->first();
+        $savedResult = $this->resultRepository
+            ->fetchProvisioningResults(new ProvisioningResultQueryFilters(requestUuid: $savedRequest->uuid), 1)
+            ->first();
         self::assertNotNull($savedResult);
         self::assertSame(ProvisionStatus::SUCCESS, $savedResult->status);
     }

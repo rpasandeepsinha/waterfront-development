@@ -17,7 +17,7 @@ class BasekitUserResult extends SitebuilderResult
         public ?int $userId = null,
         public ?string $email = null,
         ?Throwable $exception = null,
-        ?ValidationResult $validationResult = null
+        ?ValidationResult $validationResult = null,
     ) {
         parent::__construct($provisionData, $provisionStatus, $exception, $validationResult);
     }

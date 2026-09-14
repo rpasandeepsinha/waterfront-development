@@ -14,7 +14,7 @@ class ProductPolicy
 {
     public function __construct(
         private readonly PublicSuffixList $pdp,
-        private readonly HostingProductSpecRepository $hostingProductSpecRepository
+        private readonly HostingProductSpecRepository $hostingProductSpecRepository,
     ) {
     }
 
@@ -32,12 +32,15 @@ class ProductPolicy
             throw new AuthorizationException();
         }
 
-        $allowWhois = $product->productSpecs()->where(
-            [
-                ['name', 'domain.allow_whois'],
-                ['value', '1'],
-            ]
-        )->exists();
+        $allowWhois = $product
+            ->productSpecs()
+            ->where(
+                [
+                    ['name',  'domain.allow_whois'],
+                    ['value', '1'],
+                ],
+            )
+            ->exists();
 
         if (! $allowWhois) {
             throw new AuthorizationException();

@@ -44,7 +44,7 @@ class UpgradeBackupJob extends AbstractQueueableJob
                     'subscription_change_id' => $this->subscriptionChange->id,
                     'subscription_mutation_id' => $this->subscriptionMutation->id,
                 ],
-            ]
+            ],
         );
 
         $this->subscriptionChange->status = SubscriptionChangeStatus::INPROGRESS;
@@ -65,7 +65,7 @@ class UpgradeBackupJob extends AbstractQueueableJob
                 sprintf(
                     'Upgrade Backup failed with status %s',
                     $result->status,
-                )
+                ),
             );
         }
 

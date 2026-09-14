@@ -38,6 +38,7 @@ class UpdateTranslationsS3 extends Command
                 $loader->clearCache($language, $translationSource);
             }
         }
+
         return self::SUCCESS;
     }
 }

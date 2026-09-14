@@ -24,7 +24,7 @@ class OrderLineMetaDataSerializerFactory
             new BackedEnumNormalizer(),
             new ObjectNormalizer(
                 classMetadataFactory: $classMetadataFactory,
-                classDiscriminatorResolver: $discriminator
+                classDiscriminatorResolver: $discriminator,
             ),
         ];
         $encoders = ['json' => new JsonEncoder()];

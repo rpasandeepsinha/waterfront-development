@@ -80,33 +80,42 @@ class DomainNameCoupleActionTest extends IntegrationTestCase
             requestUuid: $provisioningResult->provisioningRequest->uuid,
             requestName: ProvisionRequestName::CREATE_HOSTING,
             requestType: ProvisionType::HOSTING,
-            provider: ProvisionProvider::DIRECTADMIN
+            provider: ProvisionProvider::DIRECTADMIN,
         );
 
         $expectedDeploymentUuid = Uuid::uuid4();
 
-        DomainNameCoupleDeploymentFactory::new()
-            ->hostingCoupling()
-            ->createOne([
-                'domain' => $domain,
-                'origin_provisioning_request_id' => $provisioningResult->request_id,
-                'deployment_uuid' => $expectedDeploymentUuid,
-            ]);
+        DomainNameCoupleDeploymentFactory::new()->hostingCoupling()->createOne([
+            'domain' => $domain,
+            'origin_provisioning_request_id' => $provisioningResult->request_id,
+            'deployment_uuid' => $expectedDeploymentUuid,
+        ]);
 
         $result = new DomainNameCoupleResult(
             provisionData: self::createStub(ProvisionRequestInterface::class),
             provisionStatus: ProvisionStatus::SUCCESS,
         );
 
-        $this->mockGateway->shouldReceive('fetch')
+        $this->mockGateway
+            ->shouldReceive('fetch')
             ->once()
-            ->withArgs(fn (ProvisioningResultQueryFilters $filters, int $limit) => $filters->tag?->toString() === $subscription->uuid && $limit === 1)
+            ->withArgs(
+                fn (ProvisioningResultQueryFilters $filters, int $limit) => (
+                    $filters->tag?->toString() === $subscription->uuid
+                    && $limit === 1
+                ),
+            )
             ->andReturn(new Collection([$provisioningFilteredResult]));
 
         $this->mockGateway
             ->shouldReceive('request')
             ->once()
-            ->withArgs(fn (DomainNameCoupleRequest $request) => $request->domain === $domain && $request->requestUuid->equals($provisioningFilteredResult->requestUuid))
+            ->withArgs(
+                fn (DomainNameCoupleRequest $request) => (
+                    $request->domain === $domain
+                    && $request->requestUuid->equals($provisioningFilteredResult->requestUuid)
+                ),
+            )
             ->andReturn($result);
 
         $this->mockLogger->shouldNotReceive('warning');
@@ -144,18 +153,16 @@ class DomainNameCoupleActionTest extends IntegrationTestCase
             requestUuid: $provisioningResult->provisioningRequest->uuid,
             requestName: ProvisionRequestName::CREATE_HOSTING,
             requestType: ProvisionType::HOSTING,
-            provider: ProvisionProvider::DIRECTADMIN
+            provider: ProvisionProvider::DIRECTADMIN,
         );
 
         $expectedDeploymentUuid = Uuid::uuid4();
 
-        $domainNameCoupleDeployment = DomainNameCoupleDeploymentFactory::new()
-            ->hostingCoupling()
-            ->createOne([
-                'domain' => $domain,
-                'origin_provisioning_request_id' => $provisioningResult->request_id,
-                'deployment_uuid' => $expectedDeploymentUuid,
-            ]);
+        $domainNameCoupleDeployment = DomainNameCoupleDeploymentFactory::new()->hostingCoupling()->createOne([
+            'domain' => $domain,
+            'origin_provisioning_request_id' => $provisioningResult->request_id,
+            'deployment_uuid' => $expectedDeploymentUuid,
+        ]);
 
         $result = new DomainNameCoupleResult(
             provisionData: self::createStub(ProvisionRequestInterface::class),
@@ -163,15 +170,26 @@ class DomainNameCoupleActionTest extends IntegrationTestCase
             exception: $exception,
         );
 
-        $this->mockGateway->shouldReceive('fetch')
+        $this->mockGateway
+            ->shouldReceive('fetch')
             ->once()
-            ->withArgs(fn (ProvisioningResultQueryFilters $filters, int $limit) => $filters->tag?->toString() === $subscription->uuid && $limit === 1)
+            ->withArgs(
+                fn (ProvisioningResultQueryFilters $filters, int $limit) => (
+                    $filters->tag?->toString() === $subscription->uuid
+                    && $limit === 1
+                ),
+            )
             ->andReturn(new Collection([$provisioningFilteredResult]));
 
         $this->mockGateway
             ->shouldReceive('request')
             ->once()
-            ->withArgs(fn (DomainNameCoupleRequest $request) => $request->domain === $domain && $request->requestUuid->equals($provisioningFilteredResult->requestUuid))
+            ->withArgs(
+                fn (DomainNameCoupleRequest $request) => (
+                    $request->domain === $domain
+                    && $request->requestUuid->equals($provisioningFilteredResult->requestUuid)
+                ),
+            )
             ->andReturn($result);
 
         $this->mockLogger
@@ -188,7 +206,7 @@ class DomainNameCoupleActionTest extends IntegrationTestCase
                         'couple_request_uuid' => $domainNameCoupleDeployment->request->uuid->toString(),
                     ],
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
         $this->expectException(DomainNameCoupleActionException::class);
@@ -207,7 +225,12 @@ class DomainNameCoupleActionTest extends IntegrationTestCase
         $this->mockGateway
             ->shouldReceive('fetch')
             ->once()
-            ->withArgs(fn (ProvisioningResultQueryFilters $filters, int $limit) => $filters->tag?->toString() === $subscription->uuid && $limit === 1)
+            ->withArgs(
+                fn (ProvisioningResultQueryFilters $filters, int $limit) => (
+                    $filters->tag?->toString() === $subscription->uuid
+                    && $limit === 1
+                ),
+            )
             ->andReturn(new Collection());
 
         $this->mockLogger
@@ -221,7 +244,7 @@ class DomainNameCoupleActionTest extends IntegrationTestCase
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                ]
+                ],
             );
 
         $this->expectException(DomainNameCoupleActionException::class);

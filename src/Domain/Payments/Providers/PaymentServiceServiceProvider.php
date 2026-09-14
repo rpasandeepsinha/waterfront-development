@@ -17,7 +17,7 @@ class PaymentServiceServiceProvider extends ServiceProvider
 
         Event::listen(
             PaymentUpdatedEvent::class,
-            [PaymentUpdatedListener::class, 'handle']
+            [PaymentUpdatedListener::class, 'handle'],
         );
     }
 }

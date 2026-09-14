@@ -10,7 +10,8 @@ use Waterfront\Domain\Provision\Enums\ProvisionRequestName;
 use Waterfront\Domain\Provision\Hosting\Requests\HostingProvisionRequest;
 use Waterfront\Domain\Provision\Interfaces\ProvisionContextRequestInterface;
 
-class ProvisionRequestWithMaskedPropsProvision extends HostingProvisionRequest implements ProvisionContextRequestInterface
+class ProvisionRequestWithMaskedPropsProvision extends HostingProvisionRequest implements
+    ProvisionContextRequestInterface
 {
     public ProvisionRequestName $name = ProvisionRequestName::GET_HOSTING_SSO;
 
@@ -27,7 +28,7 @@ class ProvisionRequestWithMaskedPropsProvision extends HostingProvisionRequest i
         public readonly float $secretFloat,
         #[SensitiveParameter]
         public readonly array $secretArray,
-        public protected(set) UuidInterface $context
+        public protected(set) UuidInterface $context,
     ) {
     }
 }

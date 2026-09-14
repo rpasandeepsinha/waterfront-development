@@ -15,7 +15,7 @@ class ServiceNotInstanceOfDomainNameCoupleInterfaceException extends ProvisionEx
         parent::__construct(sprintf(
             "The service [%s] can't couple domain names, it should implement the [%s]",
             $service::class,
-            DomainNameCoupleInterface::class
+            DomainNameCoupleInterface::class,
         ));
     }
 }

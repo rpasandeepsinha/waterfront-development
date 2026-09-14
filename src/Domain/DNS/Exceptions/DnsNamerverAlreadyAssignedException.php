@@ -14,8 +14,8 @@ class DnsNamerverAlreadyAssignedException extends Exception
             sprintf(
                 'Name servers have already been assigned for DNS deployment id :%d with domain %s',
                 $dnsDeploymentId,
-                $domain
-            )
+                $domain,
+            ),
         );
     }
 }

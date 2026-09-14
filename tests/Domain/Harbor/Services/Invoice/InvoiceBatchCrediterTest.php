@@ -41,10 +41,12 @@ class InvoiceBatchCrediterTest extends IntegrationTestCase
             'product_group_id' => $productGroup->id,
             'name' => $productGroup->slug,
         ]);
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'customer_id' => $customer->id,
-            'product_uuid' => $product->uuid,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'customer_id' => $customer->id,
+                'product_uuid' => $product->uuid,
+            ]);
         $invoicesToCredit = [];
 
         // Create the invoices.
@@ -101,8 +103,8 @@ class InvoiceBatchCrediterTest extends IntegrationTestCase
             sprintf(
                 '%d Invoices were marked as requiring a new Invoice, but batch credit result only shows %d.',
                 $expectedNewInvoiceCount,
-                count($batchInvoiceCreditResult->getNewInvoices())
-            )
+                count($batchInvoiceCreditResult->getNewInvoices()),
+            ),
         );
 
         /**
@@ -117,9 +119,7 @@ class InvoiceBatchCrediterTest extends IntegrationTestCase
             $shouldCreateNewInvoice = $invoiceToCreditData['shouldCreateNewInvoice'];
 
             // No way of retrieving the new Invoice at the moment, so we only support testing one. See the ticket above.
-            $newInvoice = $shouldCreateNewInvoice
-                ? $batchInvoiceCreditResult->getNewInvoices()[0] ?? null
-                : null;
+            $newInvoice = $shouldCreateNewInvoice ? $batchInvoiceCreditResult->getNewInvoices()[0] ?? null : null;
 
             // Partial credit -> new invoices are not supported.
             if ($amountToCredit !== $originalInvoicePrice) {

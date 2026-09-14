@@ -24,11 +24,14 @@ class DomainSubscriptionDataProvider
 {
     public static function subscription(
         ?string $domain = null,
-        ?Customer $customer = null
+        ?Customer $customer = null,
     ): Subscription {
         $filledProductGroup = new ProductGroupFactory()->extension()->createOne();
         $filledProduct = new ProductFactory()->for($filledProductGroup)->createOne();
-        new ProductPriceComponentFactory()->for($filledProduct)->registration()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($filledProduct)
+            ->registration()
+            ->createOne();
         $filledCustomer = $customer ?? new CustomerFactory()->createOne();
         $filledDomain = $domain ?? Faker::create()->domainName();
 
@@ -41,17 +44,21 @@ class DomainSubscriptionDataProvider
 
     public static function deployment(
         ?Subscription $subscription = null,
-        ?Provider $domainProvider = null
+        ?Provider $domainProvider = null,
     ): DomainDeployment {
         $filledSubscription = $subscription ?? self::subscription();
-        $filledDomainProvider = $domainProvider ?? ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        $filledDomainProvider = $domainProvider ?? ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $filledDomainContact = new DomainContactFactory()->for($filledSubscription->customer)->createOne();
 
-        return new DomainDeploymentFactory()
-            ->createOne([
-                'subscription_uuid' => $filledSubscription->uuid,
-                'provider_id' => $filledDomainProvider->id,
-                'contact_owner_id' => $filledDomainContact->id,
-            ]);
+        return new DomainDeploymentFactory()->createOne([
+            'subscription_uuid' => $filledSubscription->uuid,
+            'provider_id' => $filledDomainProvider->id,
+            'contact_owner_id' => $filledDomainContact->id,
+        ]);
     }
 }

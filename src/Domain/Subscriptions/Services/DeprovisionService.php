@@ -45,7 +45,7 @@ readonly class DeprovisionService
             [
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain ?? '',
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-            ]
+            ],
         );
 
         if ($subscription->technical_status === TechnicalStatus::DELETED->value) {
@@ -54,8 +54,9 @@ readonly class DeprovisionService
                     'Deprovisioning subscription skipped for subscription %s (%s) because it is already deleted',
                     $subscription->domain ?? '',
                     $subscription->uuid,
-                )
+                ),
             );
+
             return;
         }
 
@@ -66,11 +67,13 @@ readonly class DeprovisionService
             ProductGroupType::DNS => $this->deprovisionDns($subscription),
             ProductGroupType::SSL => $this->deprovisionSsl($subscription),
             ProductGroupType::RESELLER_HOSTING => $this->deprovisionResellerHosting($subscription),
-            ProductGroupType::CLOUDSTACK_VIRTUAL_MACHINE,
-            ProductGroupType::VPS => $this->deprovisionVps($subscription),
+            ProductGroupType::CLOUDSTACK_VIRTUAL_MACHINE, ProductGroupType::VPS => $this->deprovisionVps($subscription),
             ProductGroupType::CLOUDSTACK_VOLUME => $this->deprovisionCloudStackVolume($subscription),
             ProductGroupType::MANUAL_SUBSCRIPTION => new DispatchTerminateManualProvisioning($subscription),
-            ProductGroupType::VOLUME_DISCOUNT => new DetachVolumeDiscount($subscription->customer, $subscription->product),
+            ProductGroupType::VOLUME_DISCOUNT => new DetachVolumeDiscount(
+                $subscription->customer,
+                $subscription->product,
+            ),
             ProductGroupType::MICROSOFT_365 => new TerminateMicrosoft365($subscription),
             ProductGroupType::BACKUP => $this->deprovisionBackup($subscription),
             ProductGroupType::OTHER,
@@ -79,7 +82,8 @@ readonly class DeprovisionService
             ProductGroupType::CLOUDSTACK_OS,
             ProductGroupType::ONE_TIME_SERVICE,
             ProductGroupType::RESELLER_DISCOUNT,
-            ProductGroupType::ADD_ON => null,
+            ProductGroupType::ADD_ON,
+                => null,
         };
 
         if ($dispatchable === null) {
@@ -88,6 +92,7 @@ readonly class DeprovisionService
 
         if ($dispatchable instanceof AbstractQueueableJob) {
             $this->jobDispatcher->dispatch($dispatchable);
+
             return;
         }
 
@@ -101,7 +106,7 @@ readonly class DeprovisionService
         return new TerminateDnsZoneEvent(
             $subscription->uuid,
             $subscription->domain,
-            $subscription->product->uuid
+            $subscription->product->uuid,
         );
     }
 
@@ -123,7 +128,10 @@ readonly class DeprovisionService
 
     private function deprovisionExtension(Subscription $subscription): DomainTerminated|AbstractQueueableJob
     {
-        if ($subscription->domainDeployment !== null && $subscription->technical_status !== TechnicalStatus::DELETED->value) {
+        if (
+            $subscription->domainDeployment !== null
+            && $subscription->technical_status !== TechnicalStatus::DELETED->value
+        ) {
             return new DisableDomainAutoRenewalJob($subscription->domainDeployment);
         }
 
@@ -158,12 +166,12 @@ readonly class DeprovisionService
                 sprintf(
                     'Missing technical hosting deployment for %s (%d)',
                     $subscription->domain ?? '',
-                    $subscription->id
+                    $subscription->id,
                 ),
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-                ]
+                ],
             );
         }
 
@@ -175,23 +183,20 @@ readonly class DeprovisionService
         }
 
         return match (true) {
-            $subscription->product->isSitebuilderProduct() =>
-            new TerminateSitebuilderHosting(
+            $subscription->product->isSitebuilderProduct() => new TerminateSitebuilderHosting(
                 $subscription->customer->email,
                 $subscription->customer->name,
-                $subscription
+                $subscription,
             ),
-            $subscription->product->isMailOnlyServer() =>
-            new TerminateMailOnlyHosting(
+            $subscription->product->isMailOnlyServer() => new TerminateMailOnlyHosting(
                 $subscription->customer->email,
                 $subscription->customer->name,
-                $subscription
+                $subscription,
             ),
-            default =>
-            new TerminateHosting(
+            default => new TerminateHosting(
                 $subscription->hostingDeployment,
-                $subscription->technical_status
-            )
+                $subscription->technical_status,
+            ),
         };
     }
 
@@ -201,7 +206,7 @@ readonly class DeprovisionService
         $subscription->save();
 
         return new TerminateRedirectsJob(
-            $subscription
+            $subscription,
         );
     }
 
@@ -212,12 +217,12 @@ readonly class DeprovisionService
                 sprintf(
                     'Missing reseller hosting deployment for %s (%d)',
                     $subscription->uuid,
-                    $subscription->id
+                    $subscription->id,
                 ),
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-                ]
+                ],
             );
 
             return null;

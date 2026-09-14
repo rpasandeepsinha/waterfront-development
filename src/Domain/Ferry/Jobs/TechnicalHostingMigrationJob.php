@@ -54,11 +54,11 @@ class TechnicalHostingMigrationJob extends MigrationJob implements ShouldQueue
 
     private SiteConfigInterface $siteDto;
 
-    private readonly string|null $originalSubscriptionDomain;
+    private readonly ?string $originalSubscriptionDomain;
 
     public function __construct(
         public Subscription $subscription,
-        protected string|null $failedTechnicalStatus,
+        protected ?string $failedTechnicalStatus,
         protected HostingMigrationPayload $payload,
         public MigrationSource $migrationSource = MigrationSource::AZURE_DATA_FACTORY,
     ) {
@@ -80,12 +80,13 @@ class TechnicalHostingMigrationJob extends MigrationJob implements ShouldQueue
         $subscription = $this->subscription;
         $migratedCustomer = $this->migratedCustomer;
 
-        $server = $this->serverRepository
-            ->findByHostname($payload->serverName);
+        $server = $this->serverRepository->findByHostname($payload->serverName);
 
-        $hostingProvider = Provider::query()->where('slug', $payload->driver)->where('type', ProviderType::HOSTING)->firstOrFail();
-        $hostingDeployment = $this->subscriptionRepository
-            ->findHostingDeploymentBySubscription($this->subscription);
+        $hostingProvider = Provider::query()
+            ->where('slug', $payload->driver)
+            ->where('type', ProviderType::HOSTING)
+            ->firstOrFail();
+        $hostingDeployment = $this->subscriptionRepository->findHostingDeploymentBySubscription($this->subscription);
 
         // Start fetching and verifying procedures for the remote backend
         //
@@ -97,7 +98,7 @@ class TechnicalHostingMigrationJob extends MigrationJob implements ShouldQueue
             subscription: $subscription,
             migratedCustomer: $migratedCustomer,
             payload: $payload,
-            server: $server
+            server: $server,
         );
 
         // All checks done, now commit the needed changes to the entities locally and remote.
@@ -124,21 +125,20 @@ class TechnicalHostingMigrationJob extends MigrationJob implements ShouldQueue
 
     protected function registerServices(): void
     {
-        $this->hostingInstanceFetchAction                = self::resolve(HostingInstanceFetchAction::class);
-        $this->hostingCanGenerateSSOAction               = self::resolve(HostingCanGenerateSSOAction::class);
-        $this->configureHostingSubscriptionAction        = self::resolve(ConfigureHostingDeploymentAction::class);
-        $this->hostingDeploymentSetDefaultDomainAction   = self::resolve(HostingDeploymentSetDefaultDomainAction::class);
-        $this->hostingInstanceIsResellerAction           = self::resolve(HostingInstanceIsResellerAction::class);
-        $this->modifyHostingDnsSettingsAction            = self::resolve(ModifyHostingDnsSettingsAction::class);
-        $this->serverRepository                          = self::resolve(ServerRepository::class);
-        $this->subscriptionRepository                    = self::resolve(SubscriptionRepository::class);
-        $this->changeHostingAction                       = self::resolve(ChangeHostingAction::class);
+        $this->hostingInstanceFetchAction = self::resolve(HostingInstanceFetchAction::class);
+        $this->hostingCanGenerateSSOAction = self::resolve(HostingCanGenerateSSOAction::class);
+        $this->configureHostingSubscriptionAction = self::resolve(ConfigureHostingDeploymentAction::class);
+        $this->hostingDeploymentSetDefaultDomainAction = self::resolve(HostingDeploymentSetDefaultDomainAction::class);
+        $this->hostingInstanceIsResellerAction = self::resolve(HostingInstanceIsResellerAction::class);
+        $this->modifyHostingDnsSettingsAction = self::resolve(ModifyHostingDnsSettingsAction::class);
+        $this->serverRepository = self::resolve(ServerRepository::class);
+        $this->subscriptionRepository = self::resolve(SubscriptionRepository::class);
+        $this->changeHostingAction = self::resolve(ChangeHostingAction::class);
     }
 
     protected function rollback(Throwable $throwable): void
     {
-        $hostingDeployment = $this->subscriptionRepository
-            ->findHostingDeploymentBySubscription($this->subscription);
+        $hostingDeployment = $this->subscriptionRepository->findHostingDeploymentBySubscription($this->subscription);
 
         // Clear technical details based on the driver provided
         $hostingDetails = $this->payload->hostingDetails;
@@ -161,7 +161,10 @@ class TechnicalHostingMigrationJob extends MigrationJob implements ShouldQueue
         $hostingDeployment->server()->disassociate();
 
         // set provider to Placeholder
-        $placeholderProvider = Provider::query()->where('slug', ProviderSlug::PLACEHOLDER->value)->where('type', ProviderType::HOSTING)->firstOrFail();
+        $placeholderProvider = Provider::query()
+            ->where('slug', ProviderSlug::PLACEHOLDER->value)
+            ->where('type', ProviderType::HOSTING)
+            ->firstOrFail();
         $hostingDeployment->provider()->associate($placeholderProvider);
 
         $hostingDeployment->save();
@@ -174,14 +177,14 @@ class TechnicalHostingMigrationJob extends MigrationJob implements ShouldQueue
         Subscription $subscription,
         MigratedCustomer $migratedCustomer,
         HostingMigrationPayload $payload,
-        Server $server
+        Server $server,
     ): void {
         $this->siteDto = $this->hostingInstanceFetchAction->execute(
             subscription: $subscription,
             migratedCustomer: $migratedCustomer,
             payload: $payload,
             server: $server,
-            jobUuid: $this->getJobId()
+            jobUuid: $this->getJobId(),
         );
 
         $this->hostingInstanceIsResellerAction->execute(
@@ -189,7 +192,7 @@ class TechnicalHostingMigrationJob extends MigrationJob implements ShouldQueue
             migratedCustomer: $migratedCustomer,
             server: $server,
             siteConfig: $this->siteDto,
-            jobUuid: $this->getJobId()
+            jobUuid: $this->getJobId(),
         );
 
         if ($this->siteDto->hasSsoEnabled()) {
@@ -198,7 +201,7 @@ class TechnicalHostingMigrationJob extends MigrationJob implements ShouldQueue
                 migratedCustomer: $migratedCustomer,
                 payload: $payload,
                 server: $server,
-                jobUuid: $this->getJobId()
+                jobUuid: $this->getJobId(),
             );
         }
     }
@@ -222,7 +225,7 @@ class TechnicalHostingMigrationJob extends MigrationJob implements ShouldQueue
             server: $server,
             hostingProvider: $hostingProvider,
             hostingDetails: $hostingDetails,
-            payload: $payload
+            payload: $payload,
         );
 
         $subscription->refresh();
@@ -237,7 +240,7 @@ class TechnicalHostingMigrationJob extends MigrationJob implements ShouldQueue
             server: $server,
             payload: $payload,
             siteDto: $this->siteDto,
-            jobId: $this->getJobId()
+            jobId: $this->getJobId(),
         );
 
         // Sync the administratively configured product to the remote package using the service plan that is coupled to the
@@ -262,7 +265,7 @@ class TechnicalHostingMigrationJob extends MigrationJob implements ShouldQueue
             server: $server,
             hostingProvider: $hostingProvider,
             hostingDetails: $hostingDetails,
-            jobUuid: $this->getJobId()
+            jobUuid: $this->getJobId(),
         );
 
         if ($hostingDeployment->subscription->domain === null) {
@@ -272,7 +275,7 @@ class TechnicalHostingMigrationJob extends MigrationJob implements ShouldQueue
                 migratedCustomer: $migratedCustomer,
                 payload: $payload,
                 server: $server,
-                jobUuid: $this->getJobId()
+                jobUuid: $this->getJobId(),
             );
         }
     }

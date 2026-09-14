@@ -103,10 +103,23 @@ class SitebuilderListenerPleskTest extends IntegrationTestCase
             'enabled' => true,
             'default' => true,
         ]);
-        ProviderSettingsFactory::new()->createOne(['provider_id' => $sitebuilderProvider->id, 'key' => ProviderSettingKey::DEFAULTSERVERID, 'value' => $this->siteBuilderServer->id]);
+        ProviderSettingsFactory::new()->createOne([
+            'provider_id' => $sitebuilderProvider->id,
+            'key' => ProviderSettingKey::DEFAULTSERVERID,
+            'value' => $this->siteBuilderServer->id,
+        ]);
 
-        $this->mailOnlyProvider = ProviderFactory::new()->createOne(['type' => ProviderType::MAILONLY, 'slug' => ProviderSlug::PLESK, 'default' => true, 'enabled' => true]);
-        ProviderSettingsFactory::new()->createOne(['provider_id' => $this->mailOnlyProvider->id, 'key' => ProviderSettingKey::DEFAULTSERVERID, 'value' => $this->mailServer->id]);
+        $this->mailOnlyProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::MAILONLY,
+            'slug' => ProviderSlug::PLESK,
+            'default' => true,
+            'enabled' => true,
+        ]);
+        ProviderSettingsFactory::new()->createOne([
+            'provider_id' => $this->mailOnlyProvider->id,
+            'key' => ProviderSettingKey::DEFAULTSERVERID,
+            'value' => $this->mailServer->id,
+        ]);
 
         new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $this->subscription->uuid,
@@ -134,10 +147,10 @@ class SitebuilderListenerPleskTest extends IntegrationTestCase
         $event = new CreateSitebuilder(
             $this->customer->first_name,
             $this->customer->email,
-            $this->subscription
+            $this->subscription,
         );
         $mailListener = new HostingMailOnlyCreationListener(
-            self::resolve(MailManagementService::class)
+            self::resolve(MailManagementService::class),
         );
         $mailListener->handle($event);
         $listener = new SitebuilderCreationListener(
@@ -173,7 +186,7 @@ class SitebuilderListenerPleskTest extends IntegrationTestCase
         $siteBuilderEvent = new TerminateSitebuilderHosting(
             $this->customer->first_name,
             $this->customer->email,
-            $this->subscription
+            $this->subscription,
         );
 
         $listener = new SitebuilderTerminationListener(self::resolve(Dispatcher::class));
@@ -189,42 +202,42 @@ class SitebuilderListenerPleskTest extends IntegrationTestCase
             new Response(
                 201,
                 [],
-                $this->getMockedZoneResponseBody('domain.com')
+                $this->getMockedZoneResponseBody('domain.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('domain.com')
+                $this->getMockedZoneResponseBody('domain.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('domain.com')
+                $this->getMockedZoneResponseBody('domain.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('domain.com')
+                $this->getMockedZoneResponseBody('domain.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('domain.com')
+                $this->getMockedZoneResponseBody('domain.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('domain.com')
+                $this->getMockedZoneResponseBody('domain.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('domain.com')
+                $this->getMockedZoneResponseBody('domain.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('domain.com')
+                $this->getMockedZoneResponseBody('domain.com'),
             ),
         ]);
 

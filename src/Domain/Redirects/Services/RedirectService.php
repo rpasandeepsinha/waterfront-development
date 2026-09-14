@@ -36,7 +36,7 @@ class RedirectService implements RedirectServiceInterface
         private readonly ProvisionGateway $provisionGateway,
         private readonly LoggerInterface $logger,
         private readonly RedirectDnsServiceInterface $redirectDnsService,
-        private readonly PublicSuffixList $publicSuffixList
+        private readonly PublicSuffixList $publicSuffixList,
     ) {
     }
 
@@ -56,11 +56,12 @@ class RedirectService implements RedirectServiceInterface
                 'type' => $type->value,
             ],
         ]);
+
         return $this->redirects->createRedirect(
             $customerId,
             $source,
             $target,
-            $type->value
+            $type->value,
         );
     }
 
@@ -85,11 +86,12 @@ class RedirectService implements RedirectServiceInterface
                 'type' => $type->value,
             ],
         ]);
+
         return $this->redirects->updateRedirect(
             $customerId,
             $source,
             $target,
-            $type->value
+            $type->value,
         );
     }
 
@@ -111,13 +113,13 @@ class RedirectService implements RedirectServiceInterface
                 message: sprintf(
                     'Can only list redirects from redirect subscription, received %s from subscription [%s].',
                     $subscription->product->slug,
-                    $subscription->uuid
-                )
+                    $subscription->uuid,
+                ),
             );
         }
 
         $listRedirectsRequest = new ListRedirectsRequest(
-            context: Uuid::fromString($subscription->uuid)
+            context: Uuid::fromString($subscription->uuid),
         );
 
         $listRedirectResult = $this->provisionGateway->request($listRedirectsRequest);
@@ -125,10 +127,13 @@ class RedirectService implements RedirectServiceInterface
         if (! $listRedirectResult instanceof ListRedirectResult || $listRedirectResult->failed) {
             $this->logger->warning(
                 sprintf('Redirect get list failed for subscription uuid %s', $subscription->uuid),
-                $this->getContextFromSubscriptionAndResult($subscription, $listRedirectResult)
+                $this->getContextFromSubscriptionAndResult($subscription, $listRedirectResult),
             );
 
-            throw new ListRedirectsException(Uuid::fromString($subscription->uuid), previous: $listRedirectResult->exception);
+            throw new ListRedirectsException(
+                Uuid::fromString($subscription->uuid),
+                previous: $listRedirectResult->exception,
+            );
         }
 
         $result = [];
@@ -153,13 +158,17 @@ class RedirectService implements RedirectServiceInterface
         return $result;
     }
 
-    public function createRedirect(Subscription $subscription, string $domain, string $destination, RedirectType $redirectType): RedirectResult
-    {
+    public function createRedirect(
+        Subscription $subscription,
+        string $domain,
+        string $destination,
+        RedirectType $redirectType,
+    ): RedirectResult {
         $createRedirectRequest = new CreateRedirectRequest(
             domain: $domain,
             destinationUrl: $destination,
             redirectType: $redirectType,
-            context: Uuid::fromString($subscription->uuid)
+            context: Uuid::fromString($subscription->uuid),
         );
 
         $redirectCreateResult = $this->provisionGateway->request($createRedirectRequest);
@@ -167,24 +176,28 @@ class RedirectService implements RedirectServiceInterface
         if (! $redirectCreateResult instanceof RedirectResult || $redirectCreateResult->failed) {
             $this->logger->warning(
                 sprintf('Redirect create failed for subscription uuid %s', $subscription->uuid),
-                $this->getContextFromSubscriptionAndResult($subscription, $redirectCreateResult)
+                $this->getContextFromSubscriptionAndResult($subscription, $redirectCreateResult),
             );
 
             return new RedirectResult(
                 provisionData: $redirectCreateResult->provisionData,
                 provisionStatus: $redirectCreateResult->provisionStatus,
                 exception: $redirectCreateResult->exception,
-                validationResult: $redirectCreateResult->validationResult
+                validationResult: $redirectCreateResult->validationResult,
             );
         }
 
         $this->logger->debug(
             sprintf('Redirect create succeeded for subscription uuid %s', $subscription->uuid),
-            $this->getContextFromSubscriptionAndResult($subscription, $redirectCreateResult)
+            $this->getContextFromSubscriptionAndResult($subscription, $redirectCreateResult),
         );
 
         $sourceHost = $this->getRedirectSourceHost($domain);
-        $this->redirectDnsService->provisionDnsRecords($this->getBaseDomainFromHost($sourceHost), $sourceHost, DnsRedirectProvisionOption::OVERRIDE);
+        $this->redirectDnsService->provisionDnsRecords(
+            $this->getBaseDomainFromHost($sourceHost),
+            $sourceHost,
+            DnsRedirectProvisionOption::OVERRIDE,
+        );
 
         $subscription->technical_status = TechnicalStatus::OK->value;
         $subscription->save();
@@ -192,10 +205,16 @@ class RedirectService implements RedirectServiceInterface
         return $redirectCreateResult;
     }
 
-    public function updateRedirect(Subscription $subscription, string $oldSource, string $newSource, string $destination, RedirectType $redirectType): RedirectResult
-    {
+    public function updateRedirect(
+        Subscription $subscription,
+        string $oldSource,
+        string $newSource,
+        string $destination,
+        RedirectType $redirectType,
+    ): RedirectResult {
         if ($oldSource !== $newSource) {
             $this->deleteRedirect($subscription, $oldSource);
+
             return $this->createRedirect($subscription, $oldSource, $newSource, $redirectType);
         }
 
@@ -204,7 +223,7 @@ class RedirectService implements RedirectServiceInterface
             newSource: $newSource,
             destinationUrl: $destination,
             redirectType: $redirectType,
-            context: Uuid::fromString($subscription->uuid)
+            context: Uuid::fromString($subscription->uuid),
         );
 
         $redirectUpdateResult = $this->provisionGateway->request($updateRedirectRequest);
@@ -212,20 +231,20 @@ class RedirectService implements RedirectServiceInterface
         if (! $redirectUpdateResult instanceof RedirectResult || $redirectUpdateResult->failed) {
             $this->logger->warning(
                 sprintf('Redirect update failed for subscription uuid %s', $subscription->uuid),
-                $this->getContextFromSubscriptionAndResult($subscription, $redirectUpdateResult)
+                $this->getContextFromSubscriptionAndResult($subscription, $redirectUpdateResult),
             );
 
             return new RedirectResult(
                 provisionData: $redirectUpdateResult->provisionData,
                 provisionStatus: $redirectUpdateResult->provisionStatus,
                 exception: $redirectUpdateResult->exception,
-                validationResult: $redirectUpdateResult->validationResult
+                validationResult: $redirectUpdateResult->validationResult,
             );
         }
 
         $this->logger->debug(
             sprintf('Redirect update succeeded for subscription uuid %s', $subscription->uuid),
-            $this->getContextFromSubscriptionAndResult($subscription, $redirectUpdateResult)
+            $this->getContextFromSubscriptionAndResult($subscription, $redirectUpdateResult),
         );
 
         $subscription->technical_status = TechnicalStatus::OK->value;
@@ -238,7 +257,7 @@ class RedirectService implements RedirectServiceInterface
     {
         $deleteRedirectRequest = new DeleteRedirectRequest(
             domainName: $domain,
-            context: Uuid::fromString($subscription->uuid)
+            context: Uuid::fromString($subscription->uuid),
         );
 
         $redirectDeleteResult = $this->provisionGateway->request($deleteRedirectRequest);
@@ -246,20 +265,20 @@ class RedirectService implements RedirectServiceInterface
         if (! $redirectDeleteResult instanceof RedirectResult || $redirectDeleteResult->failed) {
             $this->logger->warning(
                 sprintf('Redirect delete failed for subscription uuid %s', $subscription->uuid),
-                $this->getContextFromSubscriptionAndResult($subscription, $redirectDeleteResult)
+                $this->getContextFromSubscriptionAndResult($subscription, $redirectDeleteResult),
             );
 
             return new RedirectResult(
                 provisionData: $redirectDeleteResult->provisionData,
                 provisionStatus: $redirectDeleteResult->provisionStatus,
                 exception: $redirectDeleteResult->exception,
-                validationResult: $redirectDeleteResult->validationResult
+                validationResult: $redirectDeleteResult->validationResult,
             );
         }
 
         $this->logger->debug(
             sprintf('Redirect delete succeeded for subscription uuid %s', $subscription->uuid),
-            $this->getContextFromSubscriptionAndResult($subscription, $redirectDeleteResult)
+            $this->getContextFromSubscriptionAndResult($subscription, $redirectDeleteResult),
         );
 
         $sourceHost = $this->getRedirectSourceHost($domain);
@@ -279,7 +298,7 @@ class RedirectService implements RedirectServiceInterface
         }
 
         $terminateRedirectRequest = new TerminateRedirectsRequest(
-            context: Uuid::fromString($subscription->uuid)
+            context: Uuid::fromString($subscription->uuid),
         );
 
         $terminateDeleteResult = $this->provisionGateway->request($terminateRedirectRequest);
@@ -287,7 +306,7 @@ class RedirectService implements RedirectServiceInterface
         if (! $terminateDeleteResult instanceof RedirectResult || $terminateDeleteResult->failed) {
             $this->logger->warning(
                 sprintf('Redirect terminate failed for subscription uuid %s', $subscription->uuid),
-                $this->getContextFromSubscriptionAndResult($subscription, $terminateDeleteResult)
+                $this->getContextFromSubscriptionAndResult($subscription, $terminateDeleteResult),
             );
 
             $subscription->technical_status = TechnicalStatus::FAILED->value;
@@ -297,13 +316,13 @@ class RedirectService implements RedirectServiceInterface
                 provisionData: $terminateDeleteResult->provisionData,
                 provisionStatus: $terminateDeleteResult->provisionStatus,
                 exception: $terminateDeleteResult->exception,
-                validationResult: $terminateDeleteResult->validationResult
+                validationResult: $terminateDeleteResult->validationResult,
             );
         }
 
         $this->logger->debug(
             sprintf('Redirect terminate succeeded for subscription uuid %s', $subscription->uuid),
-            $this->getContextFromSubscriptionAndResult($subscription, $terminateDeleteResult)
+            $this->getContextFromSubscriptionAndResult($subscription, $terminateDeleteResult),
         );
 
         $subscription->technical_status = TechnicalStatus::DELETED->value;
@@ -315,8 +334,10 @@ class RedirectService implements RedirectServiceInterface
     /**
      * @return array<LoggingContextKeys, mixed>
      */
-    private function getContextFromSubscriptionAndResult(Subscription $subscription, ProvisionResultInterface $result): array
-    {
+    private function getContextFromSubscriptionAndResult(
+        Subscription $subscription,
+        ProvisionResultInterface $result,
+    ): array {
         $exception = $result->exception;
 
         $context = [
@@ -340,13 +361,19 @@ class RedirectService implements RedirectServiceInterface
 
     private function getBaseDomainFromHost(string $sourceHost): string
     {
-        return $this->publicSuffixList->getRegistrableDomain($sourceHost)
-            ?? throw new UnexpectedValueException("Cannot parse domain of redirect source host: $sourceHost");
+        return (
+            $this->publicSuffixList->getRegistrableDomain($sourceHost) ?? throw new UnexpectedValueException(
+                "Cannot parse domain of redirect source host: $sourceHost",
+            )
+        );
     }
 
     private function getRedirectSourceHost(string $source): string
     {
-        return $this->publicSuffixList->getHostFromUrlOrDomain($source)
-            ?? throw new UnexpectedValueException("Cannot parse host of redirect source: $source");
+        return (
+            $this->publicSuffixList->getHostFromUrlOrDomain($source) ?? throw new UnexpectedValueException(
+                "Cannot parse host of redirect source: $source",
+            )
+        );
     }
 }

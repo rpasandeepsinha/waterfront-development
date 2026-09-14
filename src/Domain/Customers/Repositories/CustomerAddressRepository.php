@@ -15,7 +15,7 @@ class CustomerAddressRepository
         string $zipCode,
         string $streetName,
         string $streetNumber,
-        string|null $streetNumberAddition,
+        ?string $streetNumberAddition,
     ): ?CustomerAddress {
         return CustomerAddress::query()
             ->where(
@@ -26,7 +26,8 @@ class CustomerAddressRepository
                     'street_name' => $streetName,
                     'street_number' => $streetNumber,
                     'street_number_addition' => $streetNumberAddition,
-                ]
-            )->first();
+                ],
+            )
+            ->first();
     }
 }

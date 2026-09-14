@@ -20,7 +20,9 @@ class TranslationLoaderTest extends IntegrationTestCase
     public function trans(): void
     {
         $language = new TranslationLanguageFactory()->createOne();
-        $key =  new TranslationKeyFactory()->withTranslatedString($language, 'sometranslation')->createOne();
+        $key = new TranslationKeyFactory()
+            ->withTranslatedString($language, 'sometranslation')
+            ->createOne();
 
         $string = $key->translationStrings->firstOrFail();
         $key = $string->translationKey->key;
@@ -36,19 +38,24 @@ class TranslationLoaderTest extends IntegrationTestCase
         $nonExistingKey = 'NOT.EXISTING.KEY';
 
         $language = new TranslationLanguageFactory()->createOne();
-        $key = new TranslationKeyFactory()->withTranslatedString($language, 'sometranslation')->createOne();
+        $key = new TranslationKeyFactory()
+            ->withTranslatedString($language, 'sometranslation')
+            ->createOne();
 
         $string = $key->translationStrings->firstOrFail();
         $rawLocale = $string->language->locale;
 
-        self::assertSame($nonExistingKey, self::resolve(TranslatorInterface::class)->translate($nonExistingKey, [], $rawLocale));
+        self::assertSame($nonExistingKey, self::resolve(TranslatorInterface::class)
+            ->translate($nonExistingKey, [], $rawLocale));
     }
 
     #[Test]
     public function loadLocale(): void
     {
         $language = new TranslationLanguageFactory()->createOne();
-        $key = new TranslationKeyFactory()->withTranslatedString($language, 'sometranslation')->createOne();
+        $key = new TranslationKeyFactory()
+            ->withTranslatedString($language, 'sometranslation')
+            ->createOne();
 
         $string = $key->translationStrings->firstOrFail();
 
@@ -64,7 +71,9 @@ class TranslationLoaderTest extends IntegrationTestCase
     public function loadGroup(): void
     {
         $language = new TranslationLanguageFactory()->createOne();
-        $key = new TranslationKeyFactory()->withTranslatedString($language, 'sometranslation')->createOne();
+        $key = new TranslationKeyFactory()
+            ->withTranslatedString($language, 'sometranslation')
+            ->createOne();
         $string = $key->translationStrings->firstOrFail();
 
         $source = $string->translationKey->source;

@@ -26,8 +26,7 @@ class DirectAdminValidatorTest extends TestCase
         parent::setUp();
         $this->context = Str::uuid();
         $translator = $this->createStub(Translator::class);
-        $translator->method('get')
-            ->willReturnCallback(fn (string $message): mixed => $message);
+        $translator->method('get')->willReturnCallback(fn (string $message): mixed => $message);
         $this->directAdminValidator = new DirectAdminValidator(new Factory($translator));
     }
 

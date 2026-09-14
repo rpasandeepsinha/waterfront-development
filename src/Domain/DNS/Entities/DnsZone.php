@@ -40,9 +40,6 @@ class DnsZone
         return $this->dnsSec;
     }
 
-    /**
-     * Apply a DNS record change.
-     */
     public function applyChange(ChangedDnsRecord $change): self
     {
         $old = $change->getOldRecord();
@@ -56,7 +53,6 @@ class DnsZone
             }
         }
 
-        // TODO: throw exception?
         return $this;
     }
 
@@ -68,6 +64,7 @@ class DnsZone
         if ($other->fqdn->toNative() !== $this->fqdn->toNative()) {
             throw new RuntimeException('A diff between two DNS zones can only be between the same fqdn!');
         }
+
         $changes = [];
         $unprocessedRecords = $this->records;
         foreach ($other->records as $record) {
@@ -76,21 +73,24 @@ class DnsZone
             // find if there is an existing DNS record with the same type and name.
             $otherRecord = Arr::first(
                 $unprocessedRecords,
-                fn (DnsRecordInterface $contract): bool => strcasecmp($contract->getType(), $type) === 0
+                fn (DnsRecordInterface $contract): bool => (
+                    strcasecmp($contract->getType(), $type) === 0
                     && strcasecmp($contract->getName(), $name) === 0
+                ),
             );
             if (is_null($otherRecord)) {
                 $changes[] = new AddedDnsRecord($record);
             } else {
                 $unprocessedRecords = array_filter(
                     $unprocessedRecords,
-                    fn (DnsRecordInterface $contract): bool => $contract !== $otherRecord
+                    fn (DnsRecordInterface $contract): bool => $contract !== $otherRecord,
                 );
                 if (! DnsCompare::equals($record, $otherRecord)) {
                     $changes[] = new ChangedDnsRecord($otherRecord, $record);
                 }
             }
         }
+
         foreach ($unprocessedRecords as $record) {
             $changes[] = new RemovedDnsRecord($record);
         }
@@ -111,17 +111,14 @@ class DnsZone
         return $this;
     }
 
-    /**
-     * Adds a DNS record.
-     */
     public function addRecord(DnsRecordInterface $recordToAdd): self
     {
-        // TODO Check FQDN match?
         foreach ($this->records as $record) {
             if (DnsCompare::equals($record, $recordToAdd)) {
                 return $this;
             }
         }
+
         $this->records[] = $recordToAdd;
 
         return $this;
@@ -185,8 +182,8 @@ class DnsZone
         $this->records = array_values(
             array_filter(
                 $this->records,
-                fn (DnsRecordInterface $recordToCompare): bool => ! DnsCompare::equals($record, $recordToCompare)
-            )
+                fn (DnsRecordInterface $recordToCompare): bool => ! DnsCompare::equals($record, $recordToCompare),
+            ),
         );
 
         return $this;
@@ -201,11 +198,11 @@ class DnsZone
         }
 
         $newSoaRecord = new DefaultRecord(
-            type:'SOA',
+            type: 'SOA',
             name: $oldSoaRecord->getName(),
             content: PowerDnsSoaSerialUpdater::increaseSoaSerial($oldSoaRecord->getContent()),
             ttl: $oldSoaRecord->getTtl() ?? 3600,
-            disabled: false
+            disabled: false,
         );
 
         $changedSoa = new ChangedDnsRecord($oldSoaRecord, $newSoaRecord);

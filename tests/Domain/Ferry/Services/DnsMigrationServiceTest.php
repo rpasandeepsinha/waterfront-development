@@ -78,7 +78,7 @@ class DnsMigrationServiceTest extends IntegrationTestCase
         array $resolvedNameservers,
         bool $expectInternal,
         bool $expectWhitelabel,
-        bool $emptyNameservers
+        bool $emptyNameservers,
     ): void {
         $domainDetailsResponse = include __DIR__ . '/data/domain_details_valid.php';
         $domainDetailsResponse['domain'] = self::TEST_DOMAIN;
@@ -104,10 +104,14 @@ class DnsMigrationServiceTest extends IntegrationTestCase
 
         $nameserverResolver
             ->method('getNameserverIPs')
-            ->willReturn($expectWhitelabel ? [
-                '1.2.3.4',
-                '5.6.7.8',
-            ] : false);
+            ->willReturn(
+                $expectWhitelabel
+                    ? [
+                        '1.2.3.4',
+                        '5.6.7.8',
+                    ]
+                    : false,
+            );
 
         $nameserverResolver
             ->method('getNameserverHostname')
@@ -117,14 +121,14 @@ class DnsMigrationServiceTest extends IntegrationTestCase
             subscriptionId: $this->domainDeployment->subscription->id,
             domain: self::TEST_DOMAIN,
             referenceCustomerNumber: self::TEST_REFERENCE_NUMBER,
-            driver: $this->domainDeployment->provider->slug
+            driver: $this->domainDeployment->provider->slug,
         );
 
         $isWhitelabel = $dnsMigrationService->hasLegacyWhitelabelNameservers(
             subscriptionId: $this->domainDeployment->subscription->id,
             domain: self::TEST_DOMAIN,
             referenceCustomerNumber: self::TEST_REFERENCE_NUMBER,
-            driver: $this->domainDeployment->provider->slug
+            driver: $this->domainDeployment->provider->slug,
         );
 
         self::assertSame($expectInternal, $isInternal);
@@ -138,91 +142,84 @@ class DnsMigrationServiceTest extends IntegrationTestCase
      */
     public static function nameserverProvider(): iterable
     {
-        yield 'every nameserver is internal' =>
-            [
-                'nameservers' => [
-                    'ns1.testing.test',
-                    'nameserver1337.testing.test',
-                ],
-                'resolvedNameservers' => [],
-                'expectInternal' => true,
-                'expectWhitelabel' => false,
-                'emptyNameservers' => false,
-            ];
+        yield 'every nameserver is internal' => [
+            'nameservers' => [
+                'ns1.testing.test',
+                'nameserver1337.testing.test',
+            ],
+            'resolvedNameservers' => [],
+            'expectInternal' => true,
+            'expectWhitelabel' => false,
+            'emptyNameservers' => false,
+        ];
 
-        yield 'one internal and one external nameserver' =>
-            [
-                'nameservers' => [
-                    'ns2.testing.test',
-                    'some-external-nameserver.test',
-                ],
-                'resolvedNameservers' => [],
-                'expectInternal' => false,
-                'expectWhitelabel' => false,
-                'emptyNameservers' => false,
-            ];
+        yield 'one internal and one external nameserver' => [
+            'nameservers' => [
+                'ns2.testing.test',
+                'some-external-nameserver.test',
+            ],
+            'resolvedNameservers' => [],
+            'expectInternal' => false,
+            'expectWhitelabel' => false,
+            'emptyNameservers' => false,
+        ];
 
-        yield 'one nameserver is external and one uses regex check' =>
-            [
-                'nameservers' => [
-                    'nameserver1337.testing.test',
-                    'some-external-nameserver.test',
-                ],
-                'resolvedNameservers' => [],
-                'expectInternal' => false,
-                'expectWhitelabel' => false,
-                'emptyNameservers' => false,
-            ];
+        yield 'one nameserver is external and one uses regex check' => [
+            'nameservers' => [
+                'nameserver1337.testing.test',
+                'some-external-nameserver.test',
+            ],
+            'resolvedNameservers' => [],
+            'expectInternal' => false,
+            'expectWhitelabel' => false,
+            'emptyNameservers' => false,
+        ];
 
-        yield 'every server is a whitelabel server' =>
-            [
-                'nameservers' => [
-                    'ns1.whitelabel-server.test',
-                    'ns2.whitelabel-server.test',
-                ],
-                'resolvedNameservers' => [
-                    'ns1.testing.test',
-                    'ns2.testing.test',
-                ],
-                'expectInternal' => false,
-                'expectWhitelabel' => true,
-                'emptyNameservers' => false,
-            ];
+        yield 'every server is a whitelabel server' => [
+            'nameservers' => [
+                'ns1.whitelabel-server.test',
+                'ns2.whitelabel-server.test',
+            ],
+            'resolvedNameservers' => [
+                'ns1.testing.test',
+                'ns2.testing.test',
+            ],
+            'expectInternal' => false,
+            'expectWhitelabel' => true,
+            'emptyNameservers' => false,
+        ];
 
-        yield 'one legacy and one whitelabel' =>
-            [
-                'nameservers' => [
-                    'ns1.some-random-server.test',
-                    'ns2.some-random-server.test',
-                ],
-                'resolvedNameservers' => [
-                    'ns1.testing.test',
-                    'ns2.whitelabel-server.test',
-                ],
-                'expectInternal' => false,
-                'expectWhitelabel' => false,
-                'emptyNameservers' => false,
-            ];
+        yield 'one legacy and one whitelabel' => [
+            'nameservers' => [
+                'ns1.some-random-server.test',
+                'ns2.some-random-server.test',
+            ],
+            'resolvedNameservers' => [
+                'ns1.testing.test',
+                'ns2.whitelabel-server.test',
+            ],
+            'expectInternal' => false,
+            'expectWhitelabel' => false,
+            'emptyNameservers' => false,
+        ];
 
-        yield 'has no nameservers configured at all!' =>
-            [
-                'nameservers' => [], // empty array for hasLegacy
-                'resolvedNameservers' => [], // empty array for whitelabel
-                'expectInternal' => false, // internal check
-                'expectWhitelabel' => false, // whitelabel check
-                'emptyNameservers' => true, // should use empty array in rtr mock
-            ];
+        yield 'has no nameservers configured at all!' => [
+            'nameservers' => [], // empty array for hasLegacy
+            'resolvedNameservers' => [], // empty array for whitelabel
+            'expectInternal' => false, // internal check
+            'expectWhitelabel' => false, // whitelabel check
+            'emptyNameservers' => true, // should use empty array in rtr mock
+        ];
 
-        yield 'Nameservers with uppercase are internal' =>
-            [
-                'nameservers' => [
-                    'NS1.TESTING.TEST',
-                    'NAMESERVER1337.TESTING.TEST',
-                ],
-                'resolvedNameservers' => [],
-                'expectInternal' => true,
-                'expectWhitelabel' => false,
-                'emptyNameservers' => false,
-            ];
+        yield 'Nameservers with uppercase are internal' => [
+            'nameservers' => [
+                'NS1.TESTING.TEST',
+                'NAMESERVER1337.TESTING.TEST',
+            ],
+            'resolvedNameservers' => [],
+            'expectInternal' => true,
+            'expectWhitelabel' => false,
+            'emptyNameservers' => false,
+        ];
     }
 }

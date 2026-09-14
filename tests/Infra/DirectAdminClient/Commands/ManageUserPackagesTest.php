@@ -60,10 +60,7 @@ class ManageUserPackagesTest extends DirectAdminTestCase
 
         $api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->manageUserPackages
-            ->setPackagename('test-package')
-            ->setBandwidth('12345')
-            ->setDnscontrol('OFF');
+        $this->manageUserPackages->setPackagename('test-package')->setBandwidth('12345')->setDnscontrol('OFF');
 
         $createUserPackage = $api->call($this->manageUserPackages);
         self::assertArrayHasKey('success', $createUserPackage->getFormValues());

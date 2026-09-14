@@ -50,17 +50,17 @@ class DomainTransferRequest extends BaseRequest
 
         // Name, handles etc.
         $message[$this->endpoint] = [
-            'ownerHandle'   => $this->handles->getOwnerHandle(),
-            'adminHandle'   => $this->handles->getAdminHandle(),
-            'techHandle'    => $this->handles->getTechHandle(),
+            'ownerHandle' => $this->handles->getOwnerHandle(),
+            'adminHandle' => $this->handles->getAdminHandle(),
+            'techHandle' => $this->handles->getTechHandle(),
             'billingHandle' => $this->handles->getBillingHandle(),
-            'domain'        => [
-                'name'      => $this->domain->getName(),
+            'domain' => [
+                'name' => $this->domain->getName(),
                 'extension' => $this->domain->getExtension(),
             ],
-            'period'        => $this->parameters->getPeriod(),
-            'authCode'      => $this->parameters->getTransferSecret(),
-            'autorenew'     => 'on',
+            'period' => $this->parameters->getPeriod(),
+            'authCode' => $this->parameters->getTransferSecret(),
+            'autorenew' => 'on',
         ];
 
         // Nameservers
@@ -71,6 +71,7 @@ class DomainTransferRequest extends BaseRequest
         }
 
         $message = $this->setPrivateWhois($message);
+
         return $this->setDnssec($message);
     }
 
@@ -110,10 +111,10 @@ class DomainTransferRequest extends BaseRequest
                 $message[$this->endpoint]['dnssecKeys'] = [
                     'array' => [
                         'item' => [
-                            'flags'     => $dnssec[0]->getFlags(),
-                            'alg'       => $dnssec[0]->getAlgorithm(),
-                            'protocol'  => $dnssec[0]->getProtocol(),
-                            'pubKey'    => $dnssec[0]->getPubKey(),
+                            'flags' => $dnssec[0]->getFlags(),
+                            'alg' => $dnssec[0]->getAlgorithm(),
+                            'protocol' => $dnssec[0]->getProtocol(),
+                            'pubKey' => $dnssec[0]->getPubKey(),
                         ],
                     ],
                 ];

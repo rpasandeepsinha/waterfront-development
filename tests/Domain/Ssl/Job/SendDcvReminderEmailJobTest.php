@@ -38,9 +38,7 @@ class SendDcvReminderEmailJobTest extends TestCase
 
         $seed = SslDeploymentFactory::new()->makeOne();
 
-        $sslDeployment = self::getMockBuilder(SslDeployment::class)
-            ->onlyMethods(['update'])
-            ->getMock();
+        $sslDeployment = self::getMockBuilder(SslDeployment::class)->onlyMethods(['update'])->getMock();
         $sslDeployment->subscription_uuid = $seed->subscription_uuid;
 
         $subscription = new Subscription();
@@ -50,7 +48,8 @@ class SendDcvReminderEmailJobTest extends TestCase
         $sslDeployment->setRelation('subscription', $subscription);
 
         $sslDeploymentRepository = self::createMock(DeploymentRepository::class);
-        $sslDeploymentRepository->expects(self::once())
+        $sslDeploymentRepository
+            ->expects(self::once())
             ->method('findForReminderById')
             ->with(777)
             ->willReturn($sslDeployment);
@@ -58,19 +57,22 @@ class SendDcvReminderEmailJobTest extends TestCase
         $dcv = new DcvDetails('suspended', 'ok', '_abc.example.com', 'CNAME', 'aaaa.bbbb.sectigo.com.');
 
         $customerSharedSslService = self::createMock(CustomerSharedSslService::class);
-        $customerSharedSslService->expects(self::once())
+        $customerSharedSslService
+            ->expects(self::once())
             ->method('getDcvDetails')
             ->with($sslDeployment)
             ->willReturn($dcv);
 
         $dcvCnameValidatorService = self::createMock(DcvCnameValidatorService::class);
-        $dcvCnameValidatorService->expects(self::once())
+        $dcvCnameValidatorService
+            ->expects(self::once())
             ->method('isCnameMissingOrIncorrect')
             ->with($dcv)
             ->willReturn(true);
 
         $mailer = self::createMock(MailerInterface::class);
-        $mailer->expects(self::once())
+        $mailer
+            ->expects(self::once())
             ->method('send')
             ->with(
                 self::callback(static fn ($recipients) => is_array($recipients)),
@@ -80,8 +82,9 @@ class SendDcvReminderEmailJobTest extends TestCase
                     self::assertSame('example.com', $mailable->domain);
                     self::assertSame('_abc.example.com', $mailable->cnameName);
                     self::assertStringEndsWith('.sectigo.com.', $mailable->cnameValue);
+
                     return true;
-                })
+                }),
             );
 
         $sslDeployment->expects(self::never())->method('update');
@@ -89,7 +92,13 @@ class SendDcvReminderEmailJobTest extends TestCase
         $logger = self::createStub(LoggerInterface::class);
 
         $sendDcvReminderEmail = new SendDcvReminderEmail(777);
-        $sendDcvReminderEmail->handle($sslDeploymentRepository, $customerSharedSslService, $dcvCnameValidatorService, $mailer, $logger);
+        $sendDcvReminderEmail->handle(
+            $sslDeploymentRepository,
+            $customerSharedSslService,
+            $dcvCnameValidatorService,
+            $mailer,
+            $logger,
+        );
     }
 
     #[Test]
@@ -107,7 +116,8 @@ class SendDcvReminderEmailJobTest extends TestCase
         $sslDeployment->setRelation('subscription', $subscription);
 
         $sslDeploymentRepository = self::createMock(DeploymentRepository::class);
-        $sslDeploymentRepository->expects(self::once())
+        $sslDeploymentRepository
+            ->expects(self::once())
             ->method('findForReminderById')
             ->with(42)
             ->willReturn($sslDeployment);
@@ -115,13 +125,15 @@ class SendDcvReminderEmailJobTest extends TestCase
         $dcv = new DcvDetails('active', 'ok', '_dcv.ok.example', 'CNAME', 'valid.target.example.');
 
         $customerSharedSslService = self::createMock(CustomerSharedSslService::class);
-        $customerSharedSslService->expects(self::once())
+        $customerSharedSslService
+            ->expects(self::once())
             ->method('getDcvDetails')
             ->with($sslDeployment)
             ->willReturn($dcv);
 
         $dcvCnameValidatorService = self::createMock(DcvCnameValidatorService::class);
-        $dcvCnameValidatorService->expects(self::once())
+        $dcvCnameValidatorService
+            ->expects(self::once())
             ->method('isCnameMissingOrIncorrect')
             ->with($dcv)
             ->willReturn(false);
@@ -132,7 +144,13 @@ class SendDcvReminderEmailJobTest extends TestCase
         $logger = self::createStub(LoggerInterface::class);
 
         $sendDcvReminderEmail = new SendDcvReminderEmail(42);
-        $sendDcvReminderEmail->handle($sslDeploymentRepository, $customerSharedSslService, $dcvCnameValidatorService, $mailer, $logger);
+        $sendDcvReminderEmail->handle(
+            $sslDeploymentRepository,
+            $customerSharedSslService,
+            $dcvCnameValidatorService,
+            $mailer,
+            $logger,
+        );
     }
 
     #[Test]
@@ -150,13 +168,15 @@ class SendDcvReminderEmailJobTest extends TestCase
         $sslDeployment->setRelation('subscription', $subscription);
 
         $sslDeploymentRepository = self::createMock(DeploymentRepository::class);
-        $sslDeploymentRepository->expects(self::once())
+        $sslDeploymentRepository
+            ->expects(self::once())
             ->method('findForReminderById')
             ->with(9)
             ->willReturn($sslDeployment);
 
         $customerSharedSslService = self::createMock(CustomerSharedSslService::class);
-        $customerSharedSslService->expects(self::once())
+        $customerSharedSslService
+            ->expects(self::once())
             ->method('getDcvDetails')
             ->with($sslDeployment)
             ->willReturn(null);
@@ -169,6 +189,12 @@ class SendDcvReminderEmailJobTest extends TestCase
         $logger = self::createStub(LoggerInterface::class);
 
         $sendDcvReminderEmail = new SendDcvReminderEmail(9);
-        $sendDcvReminderEmail->handle($sslDeploymentRepository, $customerSharedSslService, $dcvCnameValidatorService, $mailer, $logger);
+        $sendDcvReminderEmail->handle(
+            $sslDeploymentRepository,
+            $customerSharedSslService,
+            $dcvCnameValidatorService,
+            $mailer,
+            $logger,
+        );
     }
 }

@@ -26,9 +26,10 @@ class NovaSubscriptionTechnicalStatusFilter extends Filter
 
     public function apply(NovaRequest $request, Builder $query, mixed $value): Builder
     {
-        return $query
-            ->where('technical_status', $value)
-            ->whereNot('administrative_status', AdministrativeStatus::ARCHIVED->value);
+        return $query->where('technical_status', $value)->whereNot(
+            'administrative_status',
+            AdministrativeStatus::ARCHIVED->value,
+        );
     }
 
     /** @return array<string, string> */
@@ -36,19 +37,28 @@ class NovaSubscriptionTechnicalStatusFilter extends Filter
     {
         return [
             $this->translator->translate('subscription.technical_statuses.ok') => TechnicalStatus::OK->value,
-            $this->translator->translate('subscription.technical_statuses.extension_active') => DomainStatus::ACTIVE->value,
+            $this->translator->translate('subscription.technical_statuses.extension_active') =>
+                DomainStatus::ACTIVE->value,
             $this->translator->translate('subscription.technical_statuses.error') => TechnicalStatus::ERROR->value,
             $this->translator->translate('subscription.technical_statuses.failed') => TechnicalStatus::FAILED->value,
-            $this->translator->translate('subscription.technical_statuses.registration') => TechnicalStatus::REGISTRATION->value,
+            $this->translator->translate('subscription.technical_statuses.registration') =>
+                TechnicalStatus::REGISTRATION->value,
             $this->translator->translate('subscription.technical_statuses.deleted') => TechnicalStatus::DELETED->value,
-            $this->translator->translate('subscription.technical_statuses.deleting') => TechnicalStatus::DELETING->value,
-            $this->translator->translate('subscription.technical_statuses.deleting_failed') => TechnicalStatus::DELETING_FAILED->value,
+            $this->translator->translate('subscription.technical_statuses.deleting') =>
+                TechnicalStatus::DELETING->value,
+            $this->translator->translate('subscription.technical_statuses.deleting_failed') =>
+                TechnicalStatus::DELETING_FAILED->value,
             $this->translator->translate('subscription.technical_statuses.pending') => TechnicalStatus::PENDING->value,
-            $this->translator->translate('subscription.technical_statuses.suspended') => TechnicalStatus::SUSPENDED->value,
-            $this->translator->translate('subscription.technical_statuses.failed_suspension') => TechnicalStatus::SUSPENSION_FAILED->value,
-            $this->translator->translate('subscription.technical_statuses.failed_unsuspension') => TechnicalStatus::UNSUSPENSION_FAILED->value,
-            $this->translator->translate('subscription.technical_statuses.suspending') => TechnicalStatus::SUSPENDING->value,
-            $this->translator->translate('subscription.technical_statuses.unsuspending') => TechnicalStatus::UNSUSPENDING->value,
+            $this->translator->translate('subscription.technical_statuses.suspended') =>
+                TechnicalStatus::SUSPENDED->value,
+            $this->translator->translate('subscription.technical_statuses.failed_suspension') =>
+                TechnicalStatus::SUSPENSION_FAILED->value,
+            $this->translator->translate('subscription.technical_statuses.failed_unsuspension') =>
+                TechnicalStatus::UNSUSPENSION_FAILED->value,
+            $this->translator->translate('subscription.technical_statuses.suspending') =>
+                TechnicalStatus::SUSPENDING->value,
+            $this->translator->translate('subscription.technical_statuses.unsuspending') =>
+                TechnicalStatus::UNSUSPENDING->value,
         ];
     }
 }

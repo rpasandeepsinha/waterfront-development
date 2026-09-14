@@ -71,10 +71,13 @@ class PayloadDeserializerTest extends TestCase
     public function handlesMultipleEncryptedValues(): void
     {
         $payload = '{"key1":"encrypted:encryptedValue1","key2":"encrypted:encryptedValue2"}';
-        $this->encrypter->expects($this->exactly(2))->method('decrypt')->willReturnMap([
-            ['encryptedValue1', 'decryptedValue1'],
-            ['encryptedValue2', 'decryptedValue2'],
-        ]);
+        $this->encrypter
+            ->expects($this->exactly(2))
+            ->method('decrypt')
+            ->willReturnMap([
+                ['encryptedValue1', 'decryptedValue1'],
+                ['encryptedValue2', 'decryptedValue2'],
+            ]);
 
         $result = $this->deserializer->deserialize($payload);
 

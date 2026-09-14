@@ -67,7 +67,9 @@ class HostingBulkMigrationControllerTest extends IntegrationTestCase
             ->technicalStatusOk()
             ->createOne();
 
-        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_redirect_1337_1']);
+        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_redirect_1337_1',
+        ]);
         $redirectSubscription->migratedSubscriptions()->attach($migratedSubscription);
 
         $placeholderProvider = new ProviderFactory()->hostingPlaceholder()->createOne();
@@ -92,10 +94,14 @@ class HostingBulkMigrationControllerTest extends IntegrationTestCase
             'subscription_uuid' => $redirectSubscription->uuid,
         ]);
 
-        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1']);
+        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1',
+        ]);
         $directadminSubscription->migratedSubscriptions()->attach($migratedSubscription);
 
-        $migratedSubscription2 = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_redirect_1337']);
+        $migratedSubscription2 = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_redirect_1337',
+        ]);
         $directadminSubscription->migratedSubscriptions()->attach($migratedSubscription2);
 
         $migrationCustomer = MigratedCustomersFactory::new()->createOne();
@@ -127,7 +133,9 @@ class HostingBulkMigrationControllerTest extends IntegrationTestCase
             'subscription_uuid' => $pleskSubscription->uuid,
         ]);
 
-        $migratedSubscription2 = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_2']);
+        $migratedSubscription2 = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_2',
+        ]);
         $pleskSubscription->migratedSubscriptions()->attach($migratedSubscription2);
 
         $migrationCustomer2 = MigratedCustomersFactory::new()->createOne();
@@ -159,8 +167,9 @@ class HostingBulkMigrationControllerTest extends IntegrationTestCase
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            )->assertStatus(Response::HTTP_MULTI_STATUS);
+                ],
+            )
+            ->assertStatus(Response::HTTP_MULTI_STATUS);
     }
 
     #[Test]
@@ -169,11 +178,11 @@ class HostingBulkMigrationControllerTest extends IntegrationTestCase
         $this->actingAsSystem()
             ->postJson(
                 $this->generateRoute('ferry.customers.subscriptions.migrate_hosting.bulk'),
-                [[ 'waterfront_customer_id' => 'not_a_customer_id' ]],
+                [['waterfront_customer_id' => 'not_a_customer_id']],
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
+                ],
             )
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertExactJson([

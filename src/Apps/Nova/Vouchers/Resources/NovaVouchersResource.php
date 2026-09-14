@@ -93,8 +93,9 @@ class NovaVouchersResource extends Resource
                 ->displayUsing(fn () => $this->resource->max_claims ?? self::translate('voucher.status.infinite')),
             Number::make(
                 self::translate('voucher.attributes.amount_of_claims'),
-                'claims'
-            )->displayUsing(fn (): int => $this->resource->claims()->count())
+                'claims',
+            )
+                ->displayUsing(fn (): int => $this->resource->claims()->count())
                 ->hideWhenCreating()
                 ->hideWhenUpdating(),
             Text::make(self::translate('voucher.attributes.amount_left'), 'amount_left')
@@ -118,7 +119,11 @@ class NovaVouchersResource extends Resource
                 ->hideFromIndex()
                 ->hideWhenUpdating()
                 ->nullable(),
-            BelongsTo::make(self::translate('voucher.relations.product_group'), 'productGroup', NovaProductGroupResource::class)
+            BelongsTo::make(
+                self::translate('voucher.relations.product_group'),
+                'productGroup',
+                NovaProductGroupResource::class,
+            )
                 ->hideFromIndex()
                 ->hideWhenUpdating(),
             DateTime::make(self::translate('voucher.attributes.expiration_date'), 'expiration_date')
@@ -128,16 +133,19 @@ class NovaVouchersResource extends Resource
                 ->hideFromIndex()
                 ->hideWhenUpdating()
                 ->help(self::translate('voucher.attributes.apply_with_discount_help')),
-            NovaBoolField::make(self::translate('voucher.attributes.allow_multiple_claims_same_customer'), 'allow_multiple_claims_same_customer')
+            NovaBoolField::make(
+                self::translate('voucher.attributes.allow_multiple_claims_same_customer'),
+                'allow_multiple_claims_same_customer',
+            )
                 ->hideFromIndex()
                 ->hideWhenUpdating()
                 ->help(
-                    self::translate('voucher.attributes.allow_multiple_claims_same_customer_help')
+                    self::translate('voucher.attributes.allow_multiple_claims_same_customer_help'),
                 ),
             HasMany::make(
                 self::translate('voucher.relations.claims'),
                 'claims',
-                NovaVoucherClaimsResource::class
+                NovaVoucherClaimsResource::class,
             ),
         ];
     }

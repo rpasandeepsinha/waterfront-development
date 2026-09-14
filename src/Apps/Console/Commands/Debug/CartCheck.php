@@ -39,7 +39,7 @@ class CartCheck extends Command
         /** @var string $payload */
         $payload = $this->argument('payload');
 
-        $authenticationManagerFaker = new class () extends AuthenticationManager {
+        $authenticationManagerFaker = new class() extends AuthenticationManager {
             public function __construct()
             {
             }
@@ -67,13 +67,18 @@ class CartCheck extends Command
                 null,
                 null,
             ),
-            true
+            true,
         ));
 
         $application->bind(AuthenticationManager::class, fn () => $authenticationManager);
         $cartController = $application->make(CartController::class);
 
-        $httpRequest = CartCheckRequest::create('/', 'POST', server: ['CONTENT_TYPE' => 'application/json'], content: $payload);
+        $httpRequest = CartCheckRequest::create(
+            '/',
+            'POST',
+            server: ['CONTENT_TYPE' => 'application/json'],
+            content: $payload,
+        );
         $responseContent = (string) $cartController->calculateCart($httpRequest)->getContent();
         $response = json_decode($responseContent, false, 512, JSON_THROW_ON_ERROR);
         assert($response instanceof stdClass);

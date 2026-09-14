@@ -13,10 +13,10 @@ class DomainBusinessUnitNotFoundException extends Exception
         parent::__construct(
             sprintf(
                 'The given business unit slug [%s] could not be found. Please ensure that the business unit exists and is correctly configured.',
-                $businessUnitSlug
+                $businessUnitSlug,
             ),
             $code,
-            $previous
+            $previous,
         );
     }
 }

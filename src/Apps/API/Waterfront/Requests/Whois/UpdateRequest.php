@@ -19,15 +19,15 @@ class UpdateRequest extends FormRequest
         $countries = Countries::getList('nl', 'php');
 
         return [
-            'organization'    => ['nullable', 'max:255'],
-            'email'           => ['required', 'email'],
-            'first_name'      => ['required', 'max:255'],
-            'last_name'       => ['required', 'max:255'],
-            'phone'           => ['required', (new Phone())],
-            'address.street'  => ['required', 'max:255'],
-            'address.number'  => ['required', 'max:255'],
+            'organization' => ['nullable', 'max:255'],
+            'email' => ['required', 'email'],
+            'first_name' => ['required', 'max:255'],
+            'last_name' => ['required', 'max:255'],
+            'phone' => ['required', new Phone()],
+            'address.street' => ['required', 'max:255'],
+            'address.number' => ['required', 'max:255'],
             'address.zipcode' => ['required', 'max:255'],
-            'address.city'    => ['required', 'max:255'],
+            'address.city' => ['required', 'max:255'],
             'address.country' => ['required', Rule::in(array_keys($countries))],
         ];
     }

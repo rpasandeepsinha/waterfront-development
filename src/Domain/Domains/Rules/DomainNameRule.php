@@ -14,7 +14,7 @@ class DomainNameRule extends AbstractValidator
 {
     public function __construct(
         private readonly PublicSuffixList $rules,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -22,7 +22,7 @@ class DomainNameRule extends AbstractValidator
     {
         assert(is_string($value) || is_null($value));
 
-        if (! ((bool) filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
+        if (! (bool) filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
             return false;
         }
 

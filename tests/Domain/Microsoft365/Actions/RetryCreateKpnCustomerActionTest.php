@@ -35,7 +35,8 @@ class RetryCreateKpnCustomerActionTest extends IntegrationTestCase
         ]);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('createKpnCustomer')
             ->with(
                 self::callback(fn (Customer $customer): bool => $customer->id === $this->customer->id),
@@ -60,9 +61,7 @@ class RetryCreateKpnCustomerActionTest extends IntegrationTestCase
         ]);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
-            ->method('createKpnCustomer')
-            ->willReturn(false);
+        $microsoft365Service->expects(self::once())->method('createKpnCustomer')->willReturn(false);
 
         $successful = new RetryCreateKpnCustomerAction($microsoft365Service)->execute($customerInfo);
 
@@ -80,8 +79,7 @@ class RetryCreateKpnCustomerActionTest extends IntegrationTestCase
         ]);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::never())
-            ->method('createKpnCustomer');
+        $microsoft365Service->expects(self::never())->method('createKpnCustomer');
 
         $successful = new RetryCreateKpnCustomerAction($microsoft365Service)->execute($customerInfo);
 
@@ -95,7 +93,8 @@ class RetryCreateKpnCustomerActionTest extends IntegrationTestCase
         ]);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('createKpnCustomer')
             ->willThrowException(new Office365Exception('KPN customer creation failed'));
 

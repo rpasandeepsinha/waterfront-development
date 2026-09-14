@@ -3,6 +3,6 @@
 declare(strict_types=1);
 
 return [
-    'domain'    => 'example.org',
+    'domain' => 'example.org',
     'productId' => 31,
 ];

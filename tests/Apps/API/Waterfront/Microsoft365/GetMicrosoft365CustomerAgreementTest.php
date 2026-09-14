@@ -50,15 +50,15 @@ class GetMicrosoft365CustomerAgreementTest extends IntegrationTestCase
             attestationStatus: 'unverified',
         );
 
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('getMicrosoftCustomerAgreementUrl')
             ->with($this->customer)
             ->willReturn($customerAgreementAttestationResponse);
 
-        $response = $this->actingAsCustomer($this->customer)
-            ->getJson(
-                $this->generateRoute('partners.microsoft365.microsoft-customer-agreement')
-            );
+        $response = $this->actingAsCustomer($this->customer)->getJson(
+            $this->generateRoute('partners.microsoft365.microsoft-customer-agreement'),
+        );
         $response->assertOk();
 
         /** @var object{mcaUrl: string} $data */
@@ -69,15 +69,17 @@ class GetMicrosoft365CustomerAgreementTest extends IntegrationTestCase
     #[Test]
     public function getMicrosoft365CustomerAgreementReturnsServiceUnavailableOnException(): void
     {
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('getMicrosoftCustomerAgreementUrl')
             ->with($this->customer)
-            ->willThrowException(new MicrosoftCustomerAgreementException('Could not retrieve microsoft customer agreement url'));
-
-        $response = $this->actingAsCustomer($this->customer)
-            ->getJson(
-                $this->generateRoute('partners.microsoft365.microsoft-customer-agreement')
+            ->willThrowException(
+                new MicrosoftCustomerAgreementException('Could not retrieve microsoft customer agreement url'),
             );
+
+        $response = $this->actingAsCustomer($this->customer)->getJson(
+            $this->generateRoute('partners.microsoft365.microsoft-customer-agreement'),
+        );
 
         $response->assertStatus(Response::HTTP_SERVICE_UNAVAILABLE);
         $response->assertJsonStructure(['message', 'errors']);
@@ -86,15 +88,15 @@ class GetMicrosoft365CustomerAgreementTest extends IntegrationTestCase
     #[Test]
     public function getMicrosoft365CustomerAgreementReturnsServiceUnavailableWhenCustomerIsNotReady(): void
     {
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('getMicrosoftCustomerAgreementUrl')
             ->with($this->customer)
             ->willThrowException(new MicrosoftCustomerNotFoundException('Microsoft Customer has not yet been created'));
 
-        $response = $this->actingAsCustomer($this->customer)
-            ->getJson(
-                $this->generateRoute('partners.microsoft365.microsoft-customer-agreement')
-            );
+        $response = $this->actingAsCustomer($this->customer)->getJson(
+            $this->generateRoute('partners.microsoft365.microsoft-customer-agreement'),
+        );
 
         $response->assertStatus(Response::HTTP_SERVICE_UNAVAILABLE);
         $response->assertExactJson([

@@ -12,7 +12,7 @@ use Waterfront\Support\Helpers\Money;
 class CustomerWalletMailerService
 {
     public function __construct(
-        private readonly MailerInterface $mailer
+        private readonly MailerInterface $mailer,
     ) {
     }
 
@@ -24,7 +24,7 @@ class CustomerWalletMailerService
                 Money::format($wallet->amount),
                 $name,
                 substr($number, -4),
-            )
+            ),
         );
     }
 }

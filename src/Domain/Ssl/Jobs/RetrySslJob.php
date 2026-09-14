@@ -55,7 +55,7 @@ class RetrySslJob extends AbstractQueueableJob
                     LoggingContextKeys::META => [
                         'certificate_id' => $existingCertificate->id,
                     ],
-                ]
+                ],
             );
 
             return;
@@ -67,7 +67,7 @@ class RetrySslJob extends AbstractQueueableJob
                 $subscription->contract_period,
                 $this->sslDeployment,
                 $this->csr,
-            )
+            ),
         );
     }
 
@@ -91,14 +91,14 @@ class RetrySslJob extends AbstractQueueableJob
                     'domainName' => $domain,
                 ],
             );
-        } catch (RealtimeRegisterClientException | GuzzleException $exception) {
+        } catch (RealtimeRegisterClientException|GuzzleException $exception) {
             $logger->warning(
                 'Retry SSL: unable to query RTR for existing certificate',
                 [
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SSL,
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return null;
@@ -120,7 +120,7 @@ class RetrySslJob extends AbstractQueueableJob
                         'certificate_id' => $certificate->id,
                         'rtr_domain' => $certificate->domainName,
                     ],
-                ]
+                ],
             );
 
             return null;

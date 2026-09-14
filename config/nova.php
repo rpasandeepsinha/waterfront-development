@@ -17,7 +17,6 @@ use Waterfront\Apps\Nova\ActionEvents\IdentityAwareActionResource;
 use Waterfront\Apps\Nova\Middleware\StartSession;
 
 return [
-
     'name' => Env::get('NOVA_APP_NAME', Env::get('APP_NAME')),
     'domain' => Env::get('NOVA_DOMAIN', 'https://admin.sandwaveio.dev'),
     'url' => Env::get('APP_URL', '/'),

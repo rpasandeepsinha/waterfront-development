@@ -40,8 +40,16 @@ class HostingCreateTest extends IntegrationTestCase
     {
         $mock = new MockHandler([
             function (RequestInterface $request) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_hosting_create_request.xml'), (string) $request->getBody());
-                return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_hosting_create_response.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_hosting_create_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    200,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_hosting_create_response.xml'),
+                );
             },
         ]);
         $handlerStack = HandlerStack::create($mock);
@@ -53,7 +61,7 @@ class HostingCreateTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: $this->loggerMock,
-            connection: $connection
+            connection: $connection,
         );
 
         $data = require __DIR__ . '/data/pleskCreateData.php';
@@ -76,16 +84,17 @@ class HostingCreateTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: $this->loggerMock,
-            connection: $connection
+            connection: $connection,
         );
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('debug')
             ->with(
                 sprintf(
                     'Sending Plesk request: %s',
-                    file_get_contents(__DIR__ . '/data/plesk_hosting_create_request_log.xml')
-                )
+                    file_get_contents(__DIR__ . '/data/plesk_hosting_create_request_log.xml'),
+                ),
             );
 
         $data = require __DIR__ . '/data/pleskCreateData.php';
@@ -99,8 +108,16 @@ class HostingCreateTest extends IntegrationTestCase
     {
         $mock = new MockHandler([
             function (RequestInterface $request) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_mailonly_hosting_create_request.xml'), (string) $request->getBody());
-                return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_hosting_create_response.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_mailonly_hosting_create_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    200,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_hosting_create_response.xml'),
+                );
             },
         ]);
         $handlerStack = HandlerStack::create($mock);
@@ -112,7 +129,7 @@ class HostingCreateTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $data = require __DIR__ . '/data/pleskCreateData.php';
@@ -135,17 +152,18 @@ class HostingCreateTest extends IntegrationTestCase
         $customerClient = new HostingPackageClient(
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
-            logger:$this->loggerMock,
-            connection: $connection
+            logger: $this->loggerMock,
+            connection: $connection,
         );
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('debug')
             ->with(
                 sprintf(
                     'Sending Plesk request: %s',
-                    file_get_contents(__DIR__ . '/data/plesk_mailonly_hosting_create_request_log.xml')
-                )
+                    file_get_contents(__DIR__ . '/data/plesk_mailonly_hosting_create_request_log.xml'),
+                ),
             );
 
         $data = require __DIR__ . '/data/pleskCreateData.php';

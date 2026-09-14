@@ -50,8 +50,7 @@ class ListMandateActionTest extends IntegrationTestCase
         $this->app->bind(function (): MollieMandateManager {
             $mock = self::createStub(MollieMandateManager::class);
 
-            $mock->method('listMandates')
-                ->willReturn([$this->getMollieMandateResponseDTO()]);
+            $mock->method('listMandates')->willReturn([$this->getMollieMandateResponseDTO()]);
 
             return $mock;
         });
@@ -59,14 +58,13 @@ class ListMandateActionTest extends IntegrationTestCase
         $this->app->bind(function (): PaytMandateClient {
             $mock = self::createStub(PaytMandateClient::class);
 
-            $mock->method('getPspMandatesByDebtorNumber')
-                ->willReturn([$this->getPaytMandateResponseDTO()]);
+            $mock->method('getPspMandatesByDebtorNumber')->willReturn([$this->getPaytMandateResponseDTO()]);
 
             return $mock;
         });
 
-        $action   = self::resolve(NovaListMandateAction::class);
-        $fields   = $this->getActionFields();
+        $action = self::resolve(NovaListMandateAction::class);
+        $fields = $this->getActionFields();
         $response = $action->handle($fields, $this->mollieCustomers);
 
         self::assertInstanceOf(ActionResponse::class, $response);
@@ -84,7 +82,7 @@ class ListMandateActionTest extends IntegrationTestCase
     {
         return new ActionFields(
             new Collection([]),
-            new Collection([])
+            new Collection([]),
         );
     }
 
@@ -99,11 +97,11 @@ class ListMandateActionTest extends IntegrationTestCase
             details: new MollieMandateDetailsDTO(
                 consumerName: 'name',
                 consumerAccount: 'account',
-                consumerBic: 'bic'
+                consumerBic: 'bic',
             ),
             mandateReference: 'mdt_test_1',
             signatureDate: $this->baseTime->toDateString(),
-            createdAt: $this->baseTime
+            createdAt: $this->baseTime,
         );
     }
 

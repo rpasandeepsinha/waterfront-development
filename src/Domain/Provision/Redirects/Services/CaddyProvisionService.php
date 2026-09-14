@@ -48,8 +48,13 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
         $logContext = LogContextBuilder::for($provisionData)->build();
 
         $this->logger->info(
-            sprintf('Create %s redirect from %s to %s', $provisionData->redirectType->value, $provisionData->domain, $provisionData->destinationUrl),
-            $logContext
+            sprintf(
+                'Create %s redirect from %s to %s',
+                $provisionData->redirectType->value,
+                $provisionData->domain,
+                $provisionData->destinationUrl,
+            ),
+            $logContext,
         );
         $host = $provisionData->domain;
         if (! str_contains($host, 'https://') && ! str_contains($host, 'http://')) {
@@ -62,7 +67,7 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
 
         $redirectContext = $this->redirectContextRepository->findOrCreate(
             context: $provisionData->context,
-            host: $host
+            host: $host,
         );
 
         $caddyRedirectType = $this->caddyProvisionClientMapper->getCaddyRedirectType($provisionData->redirectType);
@@ -79,7 +84,12 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
             );
         } catch (SaloonException $exception) {
             $this->logger->warning(
-                sprintf('Could not create %s redirect from %s to %s', $provisionData->redirectType->value, $provisionData->domain, $provisionData->destinationUrl),
+                sprintf(
+                    'Could not create %s redirect from %s to %s',
+                    $provisionData->redirectType->value,
+                    $provisionData->domain,
+                    $provisionData->destinationUrl,
+                ),
                 LogContextBuilder::for($provisionData)->withException($exception)->build(),
             );
 
@@ -95,7 +105,7 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
             source: $provisionData->domain,
             destination: $provisionData->destinationUrl,
             type: $provisionData->redirectType,
-            context: $redirectContext->context_uuid
+            context: $redirectContext->context_uuid,
         );
 
         $this->caddyRedirectDeploymentRepository->create($redirectDeployment, $caddy_id);
@@ -108,11 +118,10 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
 
     public function getRedirect(GetRedirectRequest $provisionData): GetRedirectResult
     {
-        $deployment = $this->redirectDeploymentRepository
-            ->findBySourceAndContext(
-                source: $provisionData->domainName,
-                contextUuid: $provisionData->context
-            );
+        $deployment = $this->redirectDeploymentRepository->findBySourceAndContext(
+            source: $provisionData->domainName,
+            contextUuid: $provisionData->context,
+        );
 
         if ($deployment === null) {
             return new GetRedirectResult(
@@ -130,7 +139,11 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
             );
         }
 
-        return $this->getRedirectResult($deployment->caddyRedirectDeployment->caddy_id, $provisionData);
+        return $this->getRedirectResult(
+            $deployment->caddyRedirectDeployment->caddy_id,
+            $deployment->source,
+            $provisionData,
+        );
     }
 
     public function listRedirects(ListRedirectsRequest $provisionData): ListRedirectResult
@@ -156,7 +169,11 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
                 continue;
             }
 
-            $redirectsResults[] = $this->getRedirectResult($deployment->caddyRedirectDeployment->caddy_id, $provisionData);
+            $redirectsResults[] = $this->getRedirectResult(
+                $deployment->caddyRedirectDeployment->caddy_id,
+                $deployment->source,
+                $provisionData,
+            );
         }
 
         return new ListRedirectResult(
@@ -181,9 +198,9 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
                     sprintf(
                         'No redirect deployment found for the given domain [%s] and context [%s]',
                         $provisionData->oldSource,
-                        $provisionData->context
-                    )
-                )
+                        $provisionData->context,
+                    ),
+                ),
             );
         }
 
@@ -193,7 +210,7 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
             return new RedirectResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: new CaddyIdNotFoundException($redirectDeployment->uuid)
+                exception: new CaddyIdNotFoundException($redirectDeployment->uuid),
             );
         }
 
@@ -207,19 +224,17 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
                 $oldType->value,
                 $oldDestination,
                 $provisionData->redirectType->value,
-                $provisionData->destinationUrl
+                $provisionData->destinationUrl,
             ),
-            LogContextBuilder::for($provisionData)
-                ->withMeta([
-                    'old_source' => $provisionData->oldSource,
-                    'new_source' => $provisionData->newSource,
-                    'caddy_id' => $caddyId,
-                    'old_type' => $oldType->value,
-                    'old_destination' => $oldDestination,
-                    'type' => $provisionData->redirectType->value,
-                    'destination' => $provisionData->destinationUrl,
-                ])
-                ->build()
+            LogContextBuilder::for($provisionData)->withMeta([
+                'old_source' => $provisionData->oldSource,
+                'new_source' => $provisionData->newSource,
+                'caddy_id' => $caddyId,
+                'old_type' => $oldType->value,
+                'old_destination' => $oldDestination,
+                'type' => $provisionData->redirectType->value,
+                'destination' => $provisionData->destinationUrl,
+            ])->build(),
         );
 
         $caddyRedirectType = $this->caddyProvisionClientMapper->getCaddyRedirectType($provisionData->redirectType);
@@ -232,7 +247,7 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
                 toUrl: $provisionData->destinationUrl,
                 redirectType: $caddyRedirectType,
                 paths: $matchers->paths,
-                query: $matchers->query
+                query: $matchers->query,
             );
         } catch (SaloonException $exception) {
             $this->logger->warning(
@@ -242,12 +257,12 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
                     $oldType->value,
                     $oldDestination,
                     $provisionData->redirectType->value,
-                    $provisionData->destinationUrl
+                    $provisionData->destinationUrl,
                 ),
                 LogContextBuilder::for($provisionData)
                     ->withException($exception)
                     ->withMeta(['caddy_id' => $caddyId])
-                    ->build()
+                    ->build(),
             );
 
             return new RedirectResult(
@@ -273,22 +288,19 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
 
     public function deleteRedirect(DeleteRedirectRequest $provisionData): RedirectResult
     {
-        $deployment = $this->redirectDeploymentRepository
-            ->findBySourceAndContext(
-                source: $provisionData->domainName,
-                contextUuid: $provisionData->context
-            );
+        $deployment = $this->redirectDeploymentRepository->findBySourceAndContext(
+            source: $provisionData->domainName,
+            contextUuid: $provisionData->context,
+        );
 
         if ($deployment === null) {
             $this->logger->info(
                 'Redirect has not been deleted because no deployment was found for the given domain name and context.',
-                LogContextBuilder::for($provisionData)
-                    ->withMeta([
-                        'redirect' => [
-                            'source' => $provisionData->domainName,
-                        ],
-                    ])
-                    ->build()
+                LogContextBuilder::for($provisionData)->withMeta([
+                    'redirect' => [
+                        'source' => $provisionData->domainName,
+                    ],
+                ])->build(),
             );
 
             return new RedirectResult(
@@ -302,7 +314,10 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
             return new RedirectResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: new DeploymentNotFoundException(sprintf('No caddy deployment found for the deployment: %s', $deployment->uuid)),
+                exception: new DeploymentNotFoundException(sprintf(
+                    'No caddy deployment found for the deployment: %s',
+                    $deployment->uuid,
+                )),
             );
         }
 
@@ -314,19 +329,19 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::SUCCESS,
             );
-        } catch (FatalRequestException | SaloonException $exception) {
+        } catch (FatalRequestException|SaloonException $exception) {
             $this->logger->error(
                 sprintf('Could not retrieve redirects by key: [%s]', $deployment->caddyRedirectDeployment->caddy_id),
                 LogContextBuilder::for($provisionData)
                     ->withException($exception)
                     ->withMeta(['caddy_id' => $deployment->caddyRedirectDeployment->caddy_id])
-                    ->build()
+                    ->build(),
             );
 
             return new RedirectResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
     }
@@ -346,14 +361,12 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
                 $this->logger->warning(
                     sprintf(
                         'No active caddy deployment found for redirect deployment [%s] during termination, deleting parent deployment only.',
-                        $deployment->uuid
+                        $deployment->uuid,
                     ),
-                    LogContextBuilder::for($provisionData)
-                        ->withMeta([
-                            'redirect_deployment_id' => $deployment->id,
-                            'source' => $deployment->source,
-                        ])
-                        ->build()
+                    LogContextBuilder::for($provisionData)->withMeta([
+                        'redirect_deployment_id' => $deployment->id,
+                        'source' => $deployment->source,
+                    ])->build(),
                 );
 
                 $deployment->delete();
@@ -365,24 +378,30 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
                 $this->caddyRedirectDeploymentRepository->deleteDeploymentWithParent($deployment->caddyRedirectDeployment);
 
                 $this->logger->info(
-                    sprintf('Redirect with caddy id "%s" has been deleted.', $deployment->caddyRedirectDeployment->caddy_id),
-                    LogContextBuilder::for($provisionData)
-                        ->withMeta(['caddy_id' => $deployment->caddyRedirectDeployment->caddy_id])
-                        ->build()
+                    sprintf(
+                        'Redirect with caddy id "%s" has been deleted.',
+                        $deployment->caddyRedirectDeployment->caddy_id,
+                    ),
+                    LogContextBuilder::for($provisionData)->withMeta([
+                        'caddy_id' => $deployment->caddyRedirectDeployment->caddy_id,
+                    ])->build(),
                 );
-            } catch (FatalRequestException | SaloonException $exception) {
+            } catch (FatalRequestException|SaloonException $exception) {
                 $this->logger->error(
-                    sprintf('Could not retrieve redirects by key: [%s]', $deployment->caddyRedirectDeployment->caddy_id),
+                    sprintf(
+                        'Could not retrieve redirects by key: [%s]',
+                        $deployment->caddyRedirectDeployment->caddy_id,
+                    ),
                     LogContextBuilder::for($provisionData)
                         ->withException($exception)
                         ->withMeta(['caddy_id' => $deployment->caddyRedirectDeployment->caddy_id])
-                        ->build()
+                        ->build(),
                 );
 
                 return new RedirectResult(
                     provisionData: $provisionData,
                     provisionStatus: ProvisionStatus::FAILED,
-                    exception: $exception
+                    exception: $exception,
                 );
             }
         }
@@ -402,7 +421,7 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
         if ($deployments->isEmpty()) {
             $this->logger->info(
                 'No redirect deployments found for redirect suspension.',
-                LogContextBuilder::for($provisionData)->build()
+                LogContextBuilder::for($provisionData)->build(),
             );
 
             return new RedirectResult(
@@ -416,8 +435,11 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
 
             if ($caddyDeployment === null) {
                 $this->logger->warning(
-                    sprintf('No caddy deployment found for redirect deployment [%s] during suspension, skipping.', $deployment->uuid),
-                    LogContextBuilder::for($provisionData)->build()
+                    sprintf(
+                        'No caddy deployment found for redirect deployment [%s] during suspension, skipping.',
+                        $deployment->uuid,
+                    ),
+                    LogContextBuilder::for($provisionData)->build(),
                 );
 
                 continue;
@@ -426,7 +448,7 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
             try {
                 $this->caddyClient->deleteRedirect($caddyDeployment->caddy_id);
                 $this->caddyRedirectDeploymentRepository->forceDelete($caddyDeployment);
-            } catch (FatalRequestException | SaloonException $exception) {
+            } catch (FatalRequestException|SaloonException $exception) {
                 $this->logger->error(
                     sprintf('Could not suspend redirect with caddy id [%s].', $caddyDeployment->caddy_id),
                     LogContextBuilder::for($provisionData)
@@ -436,7 +458,7 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
                             'source' => $deployment->source,
                             'caddy_id' => $caddyDeployment->caddy_id,
                         ])
-                        ->build()
+                        ->build(),
                 );
 
                 return new RedirectResult(
@@ -460,7 +482,7 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
         if ($deployments->isEmpty()) {
             $this->logger->info(
                 'No redirect deployments found for redirect unsuspension.',
-                LogContextBuilder::for($provisionData)->build()
+                LogContextBuilder::for($provisionData)->build(),
             );
 
             return new RedirectResult(
@@ -483,23 +505,26 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
                     toUrl: $deployment->destination,
                     redirectType: $caddyRedirectType,
                     paths: $matchers->paths,
-                    query: $matchers->query
+                    query: $matchers->query,
                 );
 
                 $this->caddyRedirectDeploymentRepository->create($deployment, $caddyId);
 
                 $this->logger->info(
-                    sprintf('Redirect [%s => %s] has been unsuspended with caddy id [%s].', $deployment->source, $deployment->destination, $caddyId),
-                    LogContextBuilder::for($provisionData)
-                        ->withMeta([
-                            'redirect_deployment_id' => $deployment->id,
-                            'source' => $deployment->source,
-                            'destination' => $deployment->destination,
-                            'caddy_id' => $caddyId,
-                        ])
-                        ->build()
+                    sprintf(
+                        'Redirect [%s => %s] has been unsuspended with caddy id [%s].',
+                        $deployment->source,
+                        $deployment->destination,
+                        $caddyId,
+                    ),
+                    LogContextBuilder::for($provisionData)->withMeta([
+                        'redirect_deployment_id' => $deployment->id,
+                        'source' => $deployment->source,
+                        'destination' => $deployment->destination,
+                        'caddy_id' => $caddyId,
+                    ])->build(),
                 );
-            } catch (RequestException | FatalRequestException $exception) {
+            } catch (RequestException|FatalRequestException $exception) {
                 $this->logger->error(
                     sprintf('Could not unsuspend redirect [%s => %s].', $deployment->source, $deployment->destination),
                     LogContextBuilder::for($provisionData)
@@ -509,7 +534,7 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
                             'source' => $deployment->source,
                             'destination' => $deployment->destination,
                         ])
-                        ->build()
+                        ->build(),
                 );
 
                 return new RedirectResult(
@@ -528,29 +553,33 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
 
     private function getRedirectResult(
         string $caddyId,
-        GetRedirectRequest|ListRedirectsRequest $provisionData
+        string $source,
+        GetRedirectRequest|ListRedirectsRequest $provisionData,
     ): GetRedirectResult {
         try {
-            $redirect = $this->caddyProvisionClientMapper->getRedirectDtoFromCaddyDto($this->caddyClient->getRedirect($caddyId));
+            $redirect = $this->caddyProvisionClientMapper->getRedirectDtoFromCaddyDto($this->caddyClient->getRedirect(
+                $caddyId,
+            ));
+            $redirect->source = $source;
 
             return new GetRedirectResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::SUCCESS,
                 redirect: $redirect,
             );
-        } catch (ExceptionInterface | SaloonException $exception) {
+        } catch (ExceptionInterface|SaloonException $exception) {
             $this->logger->error(
                 sprintf('Could not retrieve redirects by key: [%s]', $caddyId),
                 LogContextBuilder::for($provisionData)
                     ->withException($exception)
                     ->withMeta(['caddy_id' => $caddyId])
-                    ->build()
+                    ->build(),
             );
 
             return new GetRedirectResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         } catch (CaddyMapperException $exception) {
             $this->logger->error(
@@ -558,13 +587,13 @@ class CaddyProvisionService implements RedirectProvisionServiceInterface
                 LogContextBuilder::for($provisionData)
                     ->withException($exception)
                     ->withMeta(['caddy_id' => $caddyId])
-                    ->build()
+                    ->build(),
             );
 
             return new GetRedirectResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
     }

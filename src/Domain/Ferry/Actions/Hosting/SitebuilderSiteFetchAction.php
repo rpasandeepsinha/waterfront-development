@@ -45,14 +45,14 @@ class SitebuilderSiteFetchAction
                     'payload.site_id' => $siteId,
                     'payload.driver' => $payload->driver,
                 ],
-            ]
+            ],
         );
 
         return $this->sitebuilderProxy->fetchSitebuilderSite(
             siteRef: $siteId,
             subscription: $subscription,
             payload: $payload,
-            server: $server
+            server: $server,
         );
     }
 

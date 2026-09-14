@@ -32,8 +32,11 @@ class StoreRequest extends FormRequest
         $customer = $authManager->getAuthenticatedCustomer()->customer;
 
         return [
-            'subscriptions'            => ['required', 'array'],
-            'subscriptions.*.uuid'     => ['required_with:subscriptions', new TransferSubscription($transferService, $translator, $customer)],
+            'subscriptions' => ['required', 'array'],
+            'subscriptions.*.uuid' => [
+                'required_with:subscriptions',
+                new TransferSubscription($transferService, $translator, $customer),
+            ],
             'receiver.customer_number' => [
                 'required',
                 'integer',
@@ -42,10 +45,10 @@ class StoreRequest extends FormRequest
                     'customer_number',
                 )->where(
                     'email',
-                    $receiverEmail
+                    $receiverEmail,
                 ),
             ],
-            'receiver.email'           => ['required', 'email'],
+            'receiver.email' => ['required', 'email'],
         ];
     }
 }

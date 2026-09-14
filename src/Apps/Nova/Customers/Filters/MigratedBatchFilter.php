@@ -24,10 +24,7 @@ class MigratedBatchFilter extends Filter
      */
     public function options(NovaRequest $request): array
     {
-        $options = MigratedCustomer::query()
-            ->groupBy(self::FIELD_GROUP_TYPE)
-            ->pluck(self::FIELD_GROUP_TYPE)
-            ->toArray();
+        $options = MigratedCustomer::query()->groupBy(self::FIELD_GROUP_TYPE)->pluck(self::FIELD_GROUP_TYPE)->toArray();
         Assert::allString($options);
 
         natcasesort($options);

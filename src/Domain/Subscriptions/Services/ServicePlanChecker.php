@@ -34,6 +34,7 @@ readonly class ServicePlanChecker
             if (in_array($subscription->administrative_status, AdministrativeStatus::administrativelyEnded(), true)) {
                 continue;
             }
+
             $uniqueProducts[$child->product->id] = $child->product;
         }
 
@@ -64,9 +65,11 @@ readonly class ServicePlanChecker
             ->join('products as p', 's.product_uuid', '=', 'p.uuid')
             ->join('product_groups as pg', 'p.product_group_id', '=', 'pg.id')
             ->leftJoin('product_specs as ps', function ($join) {
-                $join->on('p.id', '=', 'ps.product_id')
-                    ->where('ps.name', '=', ProductSpecName::HAS_SERVICE_PLUS->value)
-                    ->whereIn('value', [true, 'true', '1', 1, 'yes']);
+                $join->on('p.id', '=', 'ps.product_id')->where(
+                    'ps.name',
+                    '=',
+                    ProductSpecName::HAS_SERVICE_PLUS->value,
+                )->whereIn('value', [true, 'true', '1', 1, 'yes']);
             })
             ->where('pg.slug', ProductGroupType::HOSTING->value)
             ->whereNull('ps.id')

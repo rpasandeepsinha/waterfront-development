@@ -71,17 +71,17 @@ class UpgradesPotentialListingTest extends IntegrationTestCase
 
         ProductAllowedChangeFactory::new()->upgradeChange()->create([
             'from_product_id' => $product_brons->id,
-            'to_product_id' =>  $product_zilver->id,
+            'to_product_id' => $product_zilver->id,
         ]);
 
         ProductAllowedChangeFactory::new()->upgradeChange()->create([
             'from_product_id' => $product_brons->id,
-            'to_product_id' =>  $product_groot->id,
+            'to_product_id' => $product_groot->id,
         ]);
 
         ProductAllowedChangeFactory::new()->upgradeChange()->create([
             'from_product_id' => $product_zilver->id,
-            'to_product_id' =>  $product_groot->id,
+            'to_product_id' => $product_groot->id,
         ]);
 
         foreach (self::PERIODS as $period) {
@@ -96,9 +96,13 @@ class UpgradesPotentialListingTest extends IntegrationTestCase
 
         $this->upgradeService = self::resolve(SubscriptionChangeService::class);
 
-        $this->allowedToUpgrade = $subscriptions->filter(fn ($subscription): bool => $subscription->product->slug !== 'hosting_groot');
+        $this->allowedToUpgrade = $subscriptions->filter(
+            fn ($subscription): bool => $subscription->product->slug !== 'hosting_groot',
+        );
 
-        $this->notAllowedToUpgrade = $subscriptions->filter(fn ($subscription): bool => $subscription->product->slug === 'hosting_groot');
+        $this->notAllowedToUpgrade = $subscriptions->filter(
+            fn ($subscription): bool => $subscription->product->slug === 'hosting_groot',
+        );
 
         $customer->credit_limit = 999999;
         $customer->save();
@@ -110,7 +114,10 @@ class UpgradesPotentialListingTest extends IntegrationTestCase
     {
         $this->allowedToUpgrade->each(function ($sub): void {
             $potentials = $this->upgradeService->getPotentialChanges(ProductChangeType::UPGRADE, $sub);
-            self::assertNotEmpty($potentials->toArray(), "subscription for prod: {$sub->product->name} did not return potential upgrades.");
+            self::assertNotEmpty(
+                $potentials->toArray(),
+                "subscription for prod: {$sub->product->name} did not return potential upgrades.",
+            );
         });
     }
 
@@ -119,26 +126,38 @@ class UpgradesPotentialListingTest extends IntegrationTestCase
     {
         $this->notAllowedToUpgrade->each(function ($sub): void {
             $potentials = $this->upgradeService->getPotentialChanges(ProductChangeType::UPGRADE, $sub);
-            self::assertEmpty($potentials->toArray(), "subscription for prod: {$sub->product->name} did return potential upgrades while it should have been empty!.");
+            self::assertEmpty(
+                $potentials->toArray(),
+                "subscription for prod: {$sub->product->name} did return potential upgrades while it should have been empty!.",
+            );
         });
     }
 
     private function createPeriodSubscription(Product $product, Customer $customer, int $period): Subscription
     {
-        $product_price = new ProductPriceComponentFactory()->for($product)->registration()->createOne([
-            'contract_period' => $period,
-            'billing_period' => $period,
-        ]);
+        $product_price = new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne([
+                'contract_period' => $period,
+                'billing_period' => $period,
+            ]);
 
-        new ProductPriceComponentFactory()->for($product)->prolongation()->createOne([
-            'contract_period' => $period,
-            'billing_period' => $period,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne([
+                'contract_period' => $period,
+                'billing_period' => $period,
+            ]);
 
-        return new SubscriptionFactory()->for($product)->for($customer)->createOne([
-            'contract_period' => $period,
-            'net_price' => $product_price->price,
-            'billing_period' => $period,
-        ]);
+        return new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->createOne([
+                'contract_period' => $period,
+                'net_price' => $product_price->price,
+                'billing_period' => $period,
+            ]);
     }
 }

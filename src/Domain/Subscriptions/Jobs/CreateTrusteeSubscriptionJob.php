@@ -13,8 +13,10 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
 
 class CreateTrusteeSubscriptionJob extends AbstractQueueableJob
 {
-    public function __construct(private readonly Subscription $subscription, private readonly Product $product)
-    {
+    public function __construct(
+        private readonly Subscription $subscription,
+        private readonly Product $product,
+    ) {
         parent::__construct();
     }
 

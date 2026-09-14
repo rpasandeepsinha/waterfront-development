@@ -34,7 +34,7 @@ readonly class InvoiceToHarborDispatcher
          */
         /** @var Collection<string,Collection<int, Invoice>> $invoicesPerCustomerAndPrepaidReference */
         $invoicesPerCustomerAndPrepaidReference = $models->groupBy(
-            fn (Invoice $invoice) => $invoice->customer_id . '-' . ($invoice->prepaid_reference ?? '')
+            fn (Invoice $invoice) => $invoice->customer_id . '-' . ($invoice->prepaid_reference ?? ''),
         );
 
         foreach ($invoicesPerCustomerAndPrepaidReference as $customerInvoices) {
@@ -44,7 +44,7 @@ readonly class InvoiceToHarborDispatcher
             if ($customer->anonymized_at !== null) {
                 $this->logger->info(
                     sprintf('Dispatch invoices is skipped for an anonymized customer: %s', $customer->customer_number),
-                    [LoggingContextKeys::CUSTOMER_NUMBER => $customer->customer_number]
+                    [LoggingContextKeys::CUSTOMER_NUMBER => $customer->customer_number],
                 );
                 continue;
             }
@@ -53,15 +53,15 @@ readonly class InvoiceToHarborDispatcher
                 $this->logger->info(
                     sprintf(
                         'Dispatch invoices is skipped, customer is in migration and invoice is disabled: %s',
-                        $customer->customer_number
+                        $customer->customer_number,
                     ),
-                    [LoggingContextKeys::CUSTOMER_NUMBER => $customer->customer_number]
+                    [LoggingContextKeys::CUSTOMER_NUMBER => $customer->customer_number],
                 );
                 continue;
             }
 
             $notSentInvoices = $customerInvoices->filter(
-                fn (Invoice $invoice) => $invoice->sent_to_harbor_at === null
+                fn (Invoice $invoice) => $invoice->sent_to_harbor_at === null,
             );
 
             if ($notSentInvoices->isNotEmpty()) {
@@ -77,7 +77,7 @@ readonly class InvoiceToHarborDispatcher
                         customer: $customer,
                         invoices: $notSentInvoices->all(),
                         createInvoiceInstantly: $createInvoiceInstantly,
-                    )
+                    ),
                 );
             }
         }

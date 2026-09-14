@@ -35,26 +35,37 @@ class ProductPriceComponentFactory extends Factory
 
     public function registration(): self
     {
-        return $this
-            ->state(fn (): array => [
-                'type' => PriceComponentType::REGISTRATION,
-            ]);
+        return $this->state(fn (): array => [
+            'type' => PriceComponentType::REGISTRATION,
+        ]);
     }
 
     public function prolongation(): self
     {
-        return $this
-            ->state(fn (): array => [
-                'type' => PriceComponentType::PROLONGATION,
-            ]);
+        return $this->state(fn (): array => [
+            'type' => PriceComponentType::PROLONGATION,
+        ]);
     }
 
     public function introduction(): self
     {
-        return $this
-            ->state(fn (): array => [
-                'type' => PriceComponentType::INTRODUCTION,
-            ]);
+        return $this->state(fn (): array => [
+            'type' => PriceComponentType::INTRODUCTION,
+        ]);
+    }
+
+    public function registrationStaffel(): self
+    {
+        return $this->state(fn (): array => [
+            'type' => PriceComponentType::REGISTRATION_STAFFEL,
+        ]);
+    }
+
+    public function prolongationStaffel(): self
+    {
+        return $this->state(fn (): array => [
+            'type' => PriceComponentType::PROLONGATION_STAFFEL,
+        ]);
     }
 
     public function administrationFee(): self
@@ -74,6 +85,13 @@ class ProductPriceComponentFactory extends Factory
             'contract_period' => 1,
             'price' => 2500,
             'orderable' => false,
+        ]);
+    }
+
+    public function priceLadder(): self
+    {
+        return $this->state(fn (): array => [
+            'type' => PriceComponentType::EXPERIMENT_PRICE_LADDER,
         ]);
     }
 }

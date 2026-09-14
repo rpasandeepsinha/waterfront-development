@@ -41,11 +41,8 @@ class HubspotSynchronizerTest extends IntegrationTestCase
         $hubspotDto = $this->buildHubspotSubscriptionDto($subscription);
 
         $subscriptionClientMock = $this->createMock(SubscriptionClient::class);
-        $subscriptionClientMock->expects($this->once())
-            ->method('createBatch')
-            ->willReturn([$hubspotDto]);
-        $subscriptionClientMock->expects($this->never())
-            ->method('updateBatch');
+        $subscriptionClientMock->expects($this->once())->method('createBatch')->willReturn([$hubspotDto]);
+        $subscriptionClientMock->expects($this->never())->method('updateBatch');
 
         $synchronizer = new HubspotSynchronizer(
             self::resolve(HubspotRepository::class),
@@ -60,7 +57,10 @@ class HubspotSynchronizerTest extends IntegrationTestCase
 
         $synchronizer->runSync();
 
-        $this->assertDatabaseHas('hubspot_object_sync', ['sandwave_object_id' => $subscription->uuid, 'hubspot_object_id' => $hubspotDto->hubspotId]);
+        $this->assertDatabaseHas('hubspot_object_sync', [
+            'sandwave_object_id' => $subscription->uuid,
+            'hubspot_object_id' => $hubspotDto->hubspotId,
+        ]);
     }
 
     #[Test]
@@ -78,16 +78,17 @@ class HubspotSynchronizerTest extends IntegrationTestCase
         $object->save();
 
         $subscriptionClientMock = $this->createMock(SubscriptionClient::class);
-        $subscriptionClientMock->expects($this->never())
-            ->method('createBatch');
-        $subscriptionClientMock->expects($this->once())
-            ->method('updateBatch')->with(
+        $subscriptionClientMock->expects($this->never())->method('createBatch');
+        $subscriptionClientMock
+            ->expects($this->once())
+            ->method('updateBatch')
+            ->with(
                 self::callback(function (array $data) {
                     self::assertContainsOnlyInstancesOf(HubspotSubscriptionDTO::class, $data);
                     self::assertCount(1, $data);
 
                     return true;
-                })
+                }),
             );
 
         $synchronizer = new HubspotSynchronizer(
@@ -103,7 +104,11 @@ class HubspotSynchronizerTest extends IntegrationTestCase
 
         $synchronizer->runSync();
 
-        $this->assertDatabaseHas('hubspot_object_sync', ['sandwave_object_id' => $subscription->uuid, 'hubspot_object_id' => 'hubspot-id', 'synced_at' => CarbonImmutable::now()]);
+        $this->assertDatabaseHas('hubspot_object_sync', [
+            'sandwave_object_id' => $subscription->uuid,
+            'hubspot_object_id' => 'hubspot-id',
+            'synced_at' => CarbonImmutable::now(),
+        ]);
     }
 
     #[Test]
@@ -131,17 +136,18 @@ class HubspotSynchronizerTest extends IntegrationTestCase
         $object->save();
 
         $subscriptionClientMock = $this->createMock(SubscriptionClient::class);
-        $subscriptionClientMock->expects($this->never())
-            ->method('createBatch');
-        $subscriptionClientMock->expects($this->once())
-            ->method('updateBatch')->with(
+        $subscriptionClientMock->expects($this->never())->method('createBatch');
+        $subscriptionClientMock
+            ->expects($this->once())
+            ->method('updateBatch')
+            ->with(
                 self::callback(function (array $data) {
                     self::assertTrue($data[0]->switchContact);
                     self::assertContainsOnlyInstancesOf(HubspotSubscriptionDTO::class, $data);
                     self::assertCount(1, $data);
 
                     return true;
-                })
+                }),
             );
 
         $synchronizer = new HubspotSynchronizer(
@@ -157,7 +163,11 @@ class HubspotSynchronizerTest extends IntegrationTestCase
 
         $synchronizer->runSync();
 
-        $this->assertDatabaseHas('hubspot_object_sync', ['sandwave_object_id' => $subscription->uuid, 'hubspot_object_id' => 'hubspot-id', 'synced_at' => CarbonImmutable::now()]);
+        $this->assertDatabaseHas('hubspot_object_sync', [
+            'sandwave_object_id' => $subscription->uuid,
+            'hubspot_object_id' => 'hubspot-id',
+            'synced_at' => CarbonImmutable::now(),
+        ]);
     }
 
     #[Test]
@@ -183,10 +193,8 @@ class HubspotSynchronizerTest extends IntegrationTestCase
         $object->save();
 
         $subscriptionClientMock = $this->createMock(SubscriptionClient::class);
-        $subscriptionClientMock->expects($this->never())
-            ->method('createBatch');
-        $subscriptionClientMock->expects($this->never())
-            ->method('updateBatch');
+        $subscriptionClientMock->expects($this->never())->method('createBatch');
+        $subscriptionClientMock->expects($this->never())->method('updateBatch');
 
         $synchronizer = new HubspotSynchronizer(
             self::resolve(HubspotRepository::class),
@@ -201,7 +209,11 @@ class HubspotSynchronizerTest extends IntegrationTestCase
 
         $synchronizer->runSync();
 
-        $this->assertDatabaseHas('hubspot_object_sync', ['sandwave_object_id' => $subscription->uuid, 'hubspot_object_id' => 'hubspot-id', 'synced_at' => CarbonImmutable::now()]);
+        $this->assertDatabaseHas('hubspot_object_sync', [
+            'sandwave_object_id' => $subscription->uuid,
+            'hubspot_object_id' => 'hubspot-id',
+            'synced_at' => CarbonImmutable::now(),
+        ]);
     }
 
     #[Test]
@@ -218,17 +230,18 @@ class HubspotSynchronizerTest extends IntegrationTestCase
         $object->save();
 
         $subscriptionClientMock = $this->createMock(SubscriptionClient::class);
-        $subscriptionClientMock->expects($this->never())
-            ->method('createBatch');
-        $subscriptionClientMock->expects($this->once())
-            ->method('updateBatch')->with(
+        $subscriptionClientMock->expects($this->never())->method('createBatch');
+        $subscriptionClientMock
+            ->expects($this->once())
+            ->method('updateBatch')
+            ->with(
                 self::callback(function (array $data) {
                     self::assertTrue($data[0]->switchContact);
                     self::assertContainsOnlyInstancesOf(HubspotSubscriptionDTO::class, $data);
                     self::assertCount(1, $data);
 
                     return true;
-                })
+                }),
             );
 
         $synchronizer = new HubspotSynchronizer(
@@ -244,7 +257,11 @@ class HubspotSynchronizerTest extends IntegrationTestCase
 
         $synchronizer->runSync();
 
-        $this->assertDatabaseHas('hubspot_object_sync', ['sandwave_object_id' => $subscription->uuid, 'hubspot_object_id' => 'hubspot-id', 'synced_at' => CarbonImmutable::now()]);
+        $this->assertDatabaseHas('hubspot_object_sync', [
+            'sandwave_object_id' => $subscription->uuid,
+            'hubspot_object_id' => 'hubspot-id',
+            'synced_at' => CarbonImmutable::now(),
+        ]);
     }
 
     #[Test]
@@ -254,11 +271,11 @@ class HubspotSynchronizerTest extends IntegrationTestCase
         $subscription = DomainSubscriptionDataProvider::subscription(customer: $customer);
 
         $subscriptionClientMock = $this->createMock(SubscriptionClient::class);
-        $subscriptionClientMock->expects($this->once())
+        $subscriptionClientMock
+            ->expects($this->once())
             ->method('createBatch')
             ->willThrowException(new HubspotConflictException());
-        $subscriptionClientMock->expects($this->never())
-            ->method('updateBatch');
+        $subscriptionClientMock->expects($this->never())->method('updateBatch');
 
         $synchronizer = new HubspotSynchronizer(
             self::resolve(HubspotRepository::class),
@@ -273,7 +290,10 @@ class HubspotSynchronizerTest extends IntegrationTestCase
 
         $synchronizer->runSync();
 
-        $this->assertDatabaseMissing('hubspot_object_sync', ['sandwave_object_id' => $subscription->uuid, 'hubspot_object_id' => 'hubspot-id']);
+        $this->assertDatabaseMissing('hubspot_object_sync', [
+            'sandwave_object_id' => $subscription->uuid,
+            'hubspot_object_id' => 'hubspot-id',
+        ]);
     }
 
     #[Test]
@@ -293,10 +313,11 @@ class HubspotSynchronizerTest extends IntegrationTestCase
         $object->save();
 
         $subscriptionClientMock = $this->createMock(SubscriptionClient::class);
-        $subscriptionClientMock->expects($this->never())
-            ->method('createBatch');
-        $subscriptionClientMock->expects($this->once())
-            ->method('updateBatch')->willThrowException(new HubspotConflictException());
+        $subscriptionClientMock->expects($this->never())->method('createBatch');
+        $subscriptionClientMock
+            ->expects($this->once())
+            ->method('updateBatch')
+            ->willThrowException(new HubspotConflictException());
 
         $synchronizer = new HubspotSynchronizer(
             self::resolve(HubspotRepository::class),
@@ -311,7 +332,11 @@ class HubspotSynchronizerTest extends IntegrationTestCase
         CarbonImmutable::setTestNow($oldTime);
         $synchronizer->runSync();
 
-        $this->assertDatabaseHas('hubspot_object_sync', ['sandwave_object_id' => $subscription->uuid, 'hubspot_object_id' => 'hubspot-id', 'synced_at' => $lastWeek->format('Y-m-d H:i:s')]);
+        $this->assertDatabaseHas('hubspot_object_sync', [
+            'sandwave_object_id' => $subscription->uuid,
+            'hubspot_object_id' => 'hubspot-id',
+            'synced_at' => $lastWeek->format('Y-m-d H:i:s'),
+        ]);
     }
 
     #[Test]
@@ -320,7 +345,10 @@ class HubspotSynchronizerTest extends IntegrationTestCase
         CarbonImmutable::setTestNow(CarbonImmutable::now());
         $customer = new CustomerFactory()->createOne();
         $subscription = DomainSubscriptionDataProvider::subscription(customer: $customer);
-        $subscriptions = new SubscriptionFactory()->for($customer)->for($subscription->product)->createMany(2);
+        $subscriptions = new SubscriptionFactory()
+            ->for($customer)
+            ->for($subscription->product)
+            ->createMany(2);
         $subscriptions->add($subscription);
 
         $hubspotObjects = [];
@@ -330,21 +358,23 @@ class HubspotSynchronizerTest extends IntegrationTestCase
         }
 
         $subscriptionClientMock = $this->createMock(SubscriptionClient::class);
-        $subscriptionClientMock->expects($this->exactly(3))
-            ->method('createBatch')->with(
+        $subscriptionClientMock
+            ->expects($this->exactly(3))
+            ->method('createBatch')
+            ->with(
                 self::callback(function (array $data) {
                     self::assertContainsOnlyInstancesOf(HubspotSubscriptionDTO::class, $data);
                     self::assertCount(1, $data);
 
                     return true;
-                })
-            )->willReturnOnConsecutiveCalls(
+                }),
+            )
+            ->willReturnOnConsecutiveCalls(
                 [$hubspotObjects[0]],
                 [$hubspotObjects[1]],
                 [$hubspotObjects[2]],
             );
-        $subscriptionClientMock->expects($this->never())
-            ->method('updateBatch');
+        $subscriptionClientMock->expects($this->never())->method('updateBatch');
 
         $config = new HubspotConfigDTO(
             '',
@@ -355,7 +385,7 @@ class HubspotSynchronizerTest extends IntegrationTestCase
             '',
             '',
             1,
-            1
+            1,
         );
 
         $synchronizer = new HubspotSynchronizer(
@@ -373,7 +403,11 @@ class HubspotSynchronizerTest extends IntegrationTestCase
 
         foreach ($subscriptions as $item) {
             $hubspotId = $item->uuid . 'hubspot-id';
-            $this->assertDatabaseHas('hubspot_object_sync', ['sandwave_object_id' => $item->uuid, 'hubspot_object_id' => $hubspotId, 'synced_at' => CarbonImmutable::now()]);
+            $this->assertDatabaseHas('hubspot_object_sync', [
+                'sandwave_object_id' => $item->uuid,
+                'hubspot_object_id' => $hubspotId,
+                'synced_at' => CarbonImmutable::now(),
+            ]);
         }
     }
 
@@ -383,7 +417,10 @@ class HubspotSynchronizerTest extends IntegrationTestCase
         CarbonImmutable::setTestNow(CarbonImmutable::now());
         $customer = new CustomerFactory()->createOne();
         $subscription = DomainSubscriptionDataProvider::subscription(customer: $customer);
-        $subscriptions = new SubscriptionFactory()->for($customer)->for($subscription->product)->createMany(2);
+        $subscriptions = new SubscriptionFactory()
+            ->for($customer)
+            ->for($subscription->product)
+            ->createMany(2);
         $subscriptions->add($subscription);
 
         foreach ($subscriptions as $item) {
@@ -396,16 +433,17 @@ class HubspotSynchronizerTest extends IntegrationTestCase
         }
 
         $subscriptionClientMock = $this->createMock(SubscriptionClient::class);
-        $subscriptionClientMock->expects($this->never())
-            ->method('createBatch');
-        $subscriptionClientMock->expects($this->exactly(3))
-            ->method('updateBatch')->with(
+        $subscriptionClientMock->expects($this->never())->method('createBatch');
+        $subscriptionClientMock
+            ->expects($this->exactly(3))
+            ->method('updateBatch')
+            ->with(
                 self::callback(function (array $data) {
                     self::assertContainsOnlyInstancesOf(HubspotSubscriptionDTO::class, $data);
                     self::assertCount(1, $data);
 
                     return true;
-                })
+                }),
             );
 
         $config = new HubspotConfigDTO(
@@ -417,7 +455,7 @@ class HubspotSynchronizerTest extends IntegrationTestCase
             '',
             '',
             1,
-            1
+            1,
         );
 
         $synchronizer = new HubspotSynchronizer(
@@ -435,7 +473,11 @@ class HubspotSynchronizerTest extends IntegrationTestCase
 
         foreach ($subscriptions as $item) {
             $hubspotId = $item->uuid . 'hubspot-id';
-            $this->assertDatabaseHas('hubspot_object_sync', ['sandwave_object_id' => $item->uuid, 'hubspot_object_id' => $hubspotId, 'synced_at' => CarbonImmutable::now()]);
+            $this->assertDatabaseHas('hubspot_object_sync', [
+                'sandwave_object_id' => $item->uuid,
+                'hubspot_object_id' => $hubspotId,
+                'synced_at' => CarbonImmutable::now(),
+            ]);
         }
     }
 
@@ -470,6 +512,7 @@ class HubspotSynchronizerTest extends IntegrationTestCase
             otsStatus: null,
             cancellationFlowReason: null,
             switchContact: false,
+            experimentSlug: null,
         );
     }
 }

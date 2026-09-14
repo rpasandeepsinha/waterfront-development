@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     'domain' => 'test-domain.com',
-    'csr'    => '-----BEGIN CERTIFICATE REQUEST-----
+    'csr' => '-----BEGIN CERTIFICATE REQUEST-----
 MIICwTCCAakCAQAwfDELMAkGA1UEBhMCVVMxEDAOBgNVBAgTB2dlb3JnaWExEDAOZZbX2Vbskz0WJ1IcxsfWDJ/HFdho7GrrD/wujNpwkTPc3xe2AHcfQX8c/92xyra/kdzxsDdFD7IwA5bBWGm8QwlL9yWuDPiZ8vSGw96D/Qije9UVkA==
 -----END CERTIFICATE REQUEST-----',
     'pvt' => '-----BEGIN RSA PRIVATE KEY-----

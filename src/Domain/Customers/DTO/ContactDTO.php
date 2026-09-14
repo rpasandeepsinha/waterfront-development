@@ -11,9 +11,9 @@ readonly class ContactDTO
     public function __construct(
         public string $firstName,
         public string $lastName,
-        public string|null $company,
+        public ?string $company,
         public string $email,
-        public CustomerContactType $type
+        public CustomerContactType $type,
     ) {
     }
 
@@ -27,7 +27,7 @@ readonly class ContactDTO
             lastName: $contact['lastName'],
             company: array_key_exists('company', $contact) ? $contact['company'] : null,
             email: $contact['email'],
-            type: CustomerContactType::from($contact['type'])
+            type: CustomerContactType::from($contact['type']),
         );
     }
 }

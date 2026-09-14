@@ -22,7 +22,7 @@ class HostingSsoRequest extends HostingProvisionRequest
         public readonly string $username,
         public protected(set) UuidInterface $context,
         public readonly ?string $ipAddress = null,
-        public readonly bool $redirectToMail = false
+        public readonly bool $redirectToMail = false,
     ) {
         $this->tag = $this->context;
     }

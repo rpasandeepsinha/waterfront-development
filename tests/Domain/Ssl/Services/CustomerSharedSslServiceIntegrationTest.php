@@ -69,7 +69,12 @@ class CustomerSharedSslServiceIntegrationTest extends IntegrationTestCase
             'value' => 'ssl_sectigo',
         ]);
 
-        $this->sslProvider = ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
+        $this->sslProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $this->csrManager = self::resolve(CsrManager::class);
     }
@@ -82,37 +87,43 @@ class CustomerSharedSslServiceIntegrationTest extends IntegrationTestCase
             'domain' => 'domain.com',
         ]);
 
-        $subscription->sslDeployment()->create([
-            'certificate_id' => 123,
-            'provider_id' => $this->sslProvider->id,
-        ]);
+        $subscription
+            ->sslDeployment()
+            ->create([
+                'certificate_id' => 123,
+                'provider_id' => $this->sslProvider->id,
+            ]);
 
         $rtrSdk = MockedClientFactory::makeSdkWithMultipleReponses(
             [
-                new Response(201, [], (string) json_encode([
-                    'id' => 12,
-                    'process' => 1,
-                    'status' => StatusEnum::STATUS_ACTIVE,
-                    'certificateType' => 'SINGLE_DOMAIN',
-                    'publicKeyAlgorithm' => 'RSA',
-                    'organization' => 'Sandwave',
-                    'department' => 'Sandwave department',
-                    'address' => 'Street 1',
-                    'domain' => 'test',
-                    'product' => 'test',
-                    'domainName' => 'test',
-                    'validationType' => 'DOMAIN_VALIDATION',
-                    'startDate' => 'now',
-                    'expiryDate' => 'tomorrow',
-                    'approver' => 'admin@local.testing',
-                    'postalCode' => '1234XD',
-                    'city' => 'Vlissingen',
-                    'coc' => '1234567890',
-                    'firstName' => 'Eerste',
-                    'lastName' => 'Laatste',
-                    'voice' => '+31.401234567',
-                    'csr' => '',
-                ])),
+                new Response(
+                    201,
+                    [],
+                    (string) json_encode([
+                        'id' => 12,
+                        'process' => 1,
+                        'status' => StatusEnum::STATUS_ACTIVE,
+                        'certificateType' => 'SINGLE_DOMAIN',
+                        'publicKeyAlgorithm' => 'RSA',
+                        'organization' => 'Sandwave',
+                        'department' => 'Sandwave department',
+                        'address' => 'Street 1',
+                        'domain' => 'test',
+                        'product' => 'test',
+                        'domainName' => 'test',
+                        'validationType' => 'DOMAIN_VALIDATION',
+                        'startDate' => 'now',
+                        'expiryDate' => 'tomorrow',
+                        'approver' => 'admin@local.testing',
+                        'postalCode' => '1234XD',
+                        'city' => 'Vlissingen',
+                        'coc' => '1234567890',
+                        'firstName' => 'Eerste',
+                        'lastName' => 'Laatste',
+                        'voice' => '+31.401234567',
+                        'csr' => '',
+                    ]),
+                ),
             ],
         );
 
@@ -135,9 +146,12 @@ class CustomerSharedSslServiceIntegrationTest extends IntegrationTestCase
     {
         $certificateId = 1337;
         $dispatcherMock = self::createMock(Dispatcher::class);
-        $dispatcherMock->expects(self::once())
+        $dispatcherMock
+            ->expects(self::once())
             ->method('dispatch')
-            ->with(self::callback(fn (UpdateSslExpireDate $event) => $event->sslDeployment->certificate_id === $certificateId));
+            ->with(self::callback(
+                fn (UpdateSslExpireDate $event) => $event->sslDeployment->certificate_id === $certificateId,
+            ));
         $this->app->bind(Dispatcher::class, fn (): Dispatcher => $dispatcherMock);
 
         $this->app->bind(DnsService::class, fn (): DnsService => self::createStub(DnsService::class));
@@ -147,9 +161,11 @@ class CustomerSharedSslServiceIntegrationTest extends IntegrationTestCase
             'domain' => 'domain.com',
         ]);
 
-        $subscription->sslDeployment()->create([
-            'provider_id' => $this->sslProvider->id,
-        ]);
+        $subscription
+            ->sslDeployment()
+            ->create([
+                'provider_id' => $this->sslProvider->id,
+            ]);
 
         $domain = $subscription->domain;
 
@@ -160,9 +176,7 @@ class CustomerSharedSslServiceIntegrationTest extends IntegrationTestCase
         $result->setIsCertificateActive(false);
 
         $certificateRequester = self::createMock(CertificateRequester::class);
-        $certificateRequester->expects(self::once())
-            ->method('retrieve')
-            ->willReturn($result);
+        $certificateRequester->expects(self::once())->method('retrieve')->willReturn($result);
         $this->app->bind(CertificateRequester::class, fn () => $certificateRequester);
 
         $service = self::resolve(CustomerSharedSslService::class);

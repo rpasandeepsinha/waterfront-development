@@ -17,15 +17,12 @@ class DomainProviderBusinessUnitRepository
      */
     public function getAll(): Collection
     {
-        return DomainProviderBusinessUnit::query()
-            ->orderBy('name')
-            ->get();
+        return DomainProviderBusinessUnit::query()->orderBy('name')->get();
     }
 
     public function findById(int $id): ?DomainProviderBusinessUnit
     {
-        return DomainProviderBusinessUnit::query()
-            ->find($id);
+        return DomainProviderBusinessUnit::query()->find($id);
     }
 
     /**
@@ -33,22 +30,16 @@ class DomainProviderBusinessUnitRepository
      */
     public function findBySlug(string $slug): DomainProviderBusinessUnit
     {
-        return DomainProviderBusinessUnit::query()
-            ->where('slug', $slug)
-            ->firstOrFail();
+        return DomainProviderBusinessUnit::query()->where('slug', $slug)->firstOrFail();
     }
 
     public function hasOpenProviderCredentials(int $businessUnitId): bool
     {
-        return OpenproviderProviderCredentials::query()
-            ->where('domain_business_unit_id', $businessUnitId)
-            ->exists();
+        return OpenproviderProviderCredentials::query()->where('domain_business_unit_id', $businessUnitId)->exists();
     }
 
     public function hasRealtimeRegisterCredentials(int $businessUnitId): bool
     {
-        return RtrProviderCredentials::query()
-            ->where('domain_business_unit_id', $businessUnitId)
-            ->exists();
+        return RtrProviderCredentials::query()->where('domain_business_unit_id', $businessUnitId)->exists();
     }
 }

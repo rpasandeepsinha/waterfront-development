@@ -70,9 +70,7 @@ class ValidationResultTest extends TestCase
         $messageBag = new MessageBag($validationErrors);
 
         $mockValidator = self::createMock(Validator::class);
-        $mockValidator->expects(self::once())
-            ->method('errors')
-            ->willReturn($messageBag);
+        $mockValidator->expects(self::once())->method('errors')->willReturn($messageBag);
 
         $result = ValidationResult::fromValidator($mockValidator);
 
@@ -86,9 +84,7 @@ class ValidationResultTest extends TestCase
         $messageBag = new MessageBag();
 
         $mockValidator = self::createMock(Validator::class);
-        $mockValidator->expects(self::once())
-            ->method('errors')
-            ->willReturn($messageBag);
+        $mockValidator->expects(self::once())->method('errors')->willReturn($messageBag);
 
         $result = ValidationResult::fromValidator($mockValidator);
 

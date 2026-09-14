@@ -45,7 +45,9 @@ class PaymentController
      */
     public function redirect(Order $order): RedirectResponse
     {
-        $redirectUrl = $order->isPaid() ? $this->paymentService->getConfirmationUrl() : $this->paymentService->getRedirectUrl();
+        $redirectUrl = $order->isPaid()
+            ? $this->paymentService->getConfirmationUrl()
+            : $this->paymentService->getRedirectUrl();
 
         // Safely add the 'order' query parameter to the URL.
         $redirectUrl = Request::create($redirectUrl)->fullUrlWithQuery(['order' => $order->id]);

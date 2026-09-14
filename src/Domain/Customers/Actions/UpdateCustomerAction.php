@@ -17,12 +17,12 @@ class UpdateCustomerAction
         $customer->email = $updateDTO->email;
         $customer->gender = $updateDTO->gender->value;
         $customer->payment_type = $updateDTO->paymentType;
-        $customer->organization =  $updateDTO->organization;
-        $customer->department =  $updateDTO->department;
-        $customer->coc_number =  $updateDTO->cocNumber;
-        $customer->vat_number =  $updateDTO->vatNumber;
-        $customer->terms_of_payment =  $updateDTO->paymentTerm;
-        $customer->credit_limit =  $updateDTO->creditLimit;
+        $customer->organization = $updateDTO->organization;
+        $customer->department = $updateDTO->department;
+        $customer->coc_number = $updateDTO->cocNumber;
+        $customer->vat_number = $updateDTO->vatNumber;
+        $customer->terms_of_payment = $updateDTO->paymentTerm;
+        $customer->credit_limit = $updateDTO->creditLimit;
 
         $customer->save();
 

@@ -22,8 +22,8 @@ class TranslationServiceProvider extends BaseProvider implements DeferrableProvi
                 TranslationUpdater::class,
                 fn () => new TranslationUpdater(
                     self::resolve(Loader::class),
-                    $storage
-                )
+                    $storage,
+                ),
             );
         }
     }

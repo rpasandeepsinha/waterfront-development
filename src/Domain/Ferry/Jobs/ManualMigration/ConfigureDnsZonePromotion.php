@@ -16,8 +16,11 @@ use Waterfront\Domain\Ferry\Services\DnsMigrationService;
  */
 class ConfigureDnsZonePromotion extends ManualMigrationJob
 {
-    public function handle(DnsMigrationService $dnsMigrationService, DisableZonePresigningAction $disableZonePresigningAction, LoggerInterface $logger): void
-    {
+    public function handle(
+        DnsMigrationService $dnsMigrationService,
+        DisableZonePresigningAction $disableZonePresigningAction,
+        LoggerInterface $logger,
+    ): void {
         $domain = $this->subscription->domain;
         assert(is_string($domain));
 

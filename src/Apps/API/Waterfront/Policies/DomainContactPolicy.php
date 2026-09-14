@@ -36,9 +36,11 @@ class DomainContactPolicy
         if ($domainContact->has_anonymous_handle) {
             throw new AuthorizationException();
         }
+
         if (! $this->multipleDomainDeploymentsBelongToCustomerForLink($subject, $domains)) {
             throw new AuthorizationException();
         }
+
         if (! $this->domainContactBelongsToCustomer($subject, $domainContact)) {
             throw new AuthorizationException();
         }
@@ -55,6 +57,7 @@ class DomainContactPolicy
         if ($domainContact->has_anonymous_handle) {
             throw new AuthorizationException();
         }
+
         if (! $this->domainContactBelongsToCustomer($subject, $domainContact)) {
             throw new AuthorizationException();
         }
@@ -95,9 +98,12 @@ class DomainContactPolicy
     /**
      * @param array<string, string> $domains
      */
-    private function multipleDomainDeploymentsBelongToCustomerForLink(AuthenticatedCustomer $subject, array $domains): bool
-    {
-        $subscriptions = Subscription::query()->whereProductGroupType(ProductGroupType::EXTENSION)
+    private function multipleDomainDeploymentsBelongToCustomerForLink(
+        AuthenticatedCustomer $subject,
+        array $domains,
+    ): bool {
+        $subscriptions = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::EXTENSION)
             ->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())
             ->where('customer_id', $subject->customer->id)
             ->whereIn('domain', Arr::pluck($domains, 'domain'))

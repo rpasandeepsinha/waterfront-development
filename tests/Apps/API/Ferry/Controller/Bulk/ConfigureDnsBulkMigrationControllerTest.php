@@ -39,7 +39,7 @@ class ConfigureDnsBulkMigrationControllerTest extends IntegrationTestCase
         $this->app->instance(ExecuteConfigureDnsAction::class, $mock);
 
         $placeholder = ProviderFactory::new()->domainPlaceholder()->createOne();
-        $product  = ProductFactory::new()->nlDomain()->createOne();
+        $product = ProductFactory::new()->nlDomain()->createOne();
 
         $customerA = CustomerFactory::new()->createOne();
         $migratedCustomerA = MigratedCustomersFactory::new()->createOne();
@@ -52,8 +52,16 @@ class ConfigureDnsBulkMigrationControllerTest extends IntegrationTestCase
             'reference_subscription_id' => 'my_subscription_id_another_one',
         ]);
 
-        $subscriptionOne = SubscriptionFactory::new()->for($product)->for($customerA)->technicalStatusDomainActive()->createOne();
-        $subscriptionTwo = SubscriptionFactory::new()->for($product)->for($customerA)->technicalStatus(TechnicalStatus::FAILED->value)->createOne();
+        $subscriptionOne = SubscriptionFactory::new()
+            ->for($product)
+            ->for($customerA)
+            ->technicalStatusDomainActive()
+            ->createOne();
+        $subscriptionTwo = SubscriptionFactory::new()
+            ->for($product)
+            ->for($customerA)
+            ->technicalStatus(TechnicalStatus::FAILED->value)
+            ->createOne();
 
         DomainDeploymentFactory::new()->for($subscriptionOne)->for($placeholder)->createOne();
         DomainDeploymentFactory::new()->for($subscriptionTwo)->for($placeholder)->createOne();
@@ -70,7 +78,11 @@ class ConfigureDnsBulkMigrationControllerTest extends IntegrationTestCase
         $migratedSubscriptionTree = MigratedSubscriptionsFactory::new()->createOne([
             'reference_subscription_id' => 'my_subscription_id_second',
         ]);
-        $subscriptionTree = SubscriptionFactory::new()->for($product)->for($customerB)->technicalStatusDomainActive()->createOne();
+        $subscriptionTree = SubscriptionFactory::new()
+            ->for($product)
+            ->for($customerB)
+            ->technicalStatusDomainActive()
+            ->createOne();
 
         DomainDeploymentFactory::new()->for($subscriptionTree)->for($placeholder)->createOne();
         $migratedSubscriptionTree->subscriptions()->attach($subscriptionTree);
@@ -93,7 +105,7 @@ class ConfigureDnsBulkMigrationControllerTest extends IntegrationTestCase
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
+                ],
             )
             ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertContent('Successfully created bulk dns configure migration jobs');
@@ -105,11 +117,11 @@ class ConfigureDnsBulkMigrationControllerTest extends IntegrationTestCase
         $this->actingAsSystem()
             ->postJson(
                 $this->generateRoute('ferry.customers.subscriptions.configure_dns.bulk'),
-                [[ 'waterfront_customer_id' => 'not_a_customer_id' ]],
+                [['waterfront_customer_id' => 'not_a_customer_id']],
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
+                ],
             )
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertExactJson([

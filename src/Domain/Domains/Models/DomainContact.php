@@ -81,11 +81,11 @@ class DomainContact extends Model implements AuditableContract
     public function getAddressAttribute(): CustomerAddress
     {
         return new CustomerAddress([
-            'street_name'   => $this->street_name,
+            'street_name' => $this->street_name,
             'street_number' => $this->street_number,
-            'zip_code'      => $this->zip_code,
-            'city'          => $this->city,
-            'country_code'  => $this->country_code,
+            'zip_code' => $this->zip_code,
+            'city' => $this->city,
+            'country_code' => $this->country_code,
         ]);
     }
 
@@ -95,7 +95,7 @@ class DomainContact extends Model implements AuditableContract
             ->whereNot('slug', ProviderSlug::PLACEHOLDER)
             ->wherePivotIn(
                 'external_contact',
-                DomainContactAnonymousHandle::pluck('handle')
+                DomainContactAnonymousHandle::pluck('handle'),
             )
             ->exists();
     }
@@ -156,7 +156,9 @@ class DomainContact extends Model implements AuditableContract
         static::creating(function (DomainContact $contact): void {
             $contact->default_owner = static::where('customer_id', $contact->customer_id)
                 ->where('default_owner', true)
-                ->exists() ? false : true;
+                ->exists()
+                ? false
+                : true;
 
             $contact->uuid = (string) Uuid::uuid4();
         });
@@ -166,7 +168,7 @@ class DomainContact extends Model implements AuditableContract
     {
         return [
             'default_owner' => 'boolean',
-            'customer_id'   => 'int',
+            'customer_id' => 'int',
         ];
     }
 }

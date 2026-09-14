@@ -64,12 +64,15 @@ class TenantCreateListenerTest extends IntegrationTestCase
             orderId: self::TENANT_ORDER_ID,
         );
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('info')
-            ->with(self::stringContains(sprintf('Tenant "test.onmicrosoft.com" created for KPN customer id: [%d]', self::KPN_CUSTOMER_ID)));
+            ->with(self::stringContains(sprintf(
+                'Tenant "test.onmicrosoft.com" created for KPN customer id: [%d]',
+                self::KPN_CUSTOMER_ID,
+            )));
 
-        $this->microsoft365Service->expects(self::never())
-            ->method('prepareOrders');
+        $this->microsoft365Service->expects(self::never())->method('prepareOrders');
 
         $this->listener->execute($tenantOrder, null);
 
@@ -83,12 +86,12 @@ class TenantCreateListenerTest extends IntegrationTestCase
     {
         $tenantOrder = $this->createTenantOrder(customerId: null, orderId: self::TENANT_ORDER_ID);
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('error')
             ->with('Tenant order received without customer id', self::isArray());
 
-        $this->microsoft365Service->expects(self::never())
-            ->method('prepareOrders');
+        $this->microsoft365Service->expects(self::never())->method('prepareOrders');
 
         $this->listener->execute($tenantOrder, null);
 
@@ -102,12 +105,12 @@ class TenantCreateListenerTest extends IntegrationTestCase
     {
         $tenantOrder = $this->createTenantOrder(customerId: 999999, orderId: self::TENANT_ORDER_ID);
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('error')
             ->with(self::stringContains('No customer info found for KPN customer id: [999999]'));
 
-        $this->microsoft365Service->expects(self::never())
-            ->method('prepareOrders');
+        $this->microsoft365Service->expects(self::never())->method('prepareOrders');
 
         $this->listener->execute($tenantOrder, null);
 
@@ -126,14 +129,16 @@ class TenantCreateListenerTest extends IntegrationTestCase
 
         $status = new Status('Active', []);
 
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('prepareOrders')
             ->with(self::callback(
-                fn (Microsoft365CustomerInfo $customerInfo): bool => $customerInfo->id === $this->microsoft365CustomerInfo->id
+                fn (Microsoft365CustomerInfo $customerInfo): bool => (
+                    $customerInfo->id === $this->microsoft365CustomerInfo->id
+                ),
             ));
 
-        $this->logger->expects(self::exactly(2))
-            ->method('info');
+        $this->logger->expects(self::exactly(2))->method('info');
 
         $this->listener->execute($tenantOrder, $status);
 
@@ -152,11 +157,9 @@ class TenantCreateListenerTest extends IntegrationTestCase
 
         $status = new Status('Accepted', []);
 
-        $this->microsoft365Service->expects(self::never())
-            ->method('prepareOrders');
+        $this->microsoft365Service->expects(self::never())->method('prepareOrders');
 
-        $this->logger->expects(self::once())
-            ->method('info');
+        $this->logger->expects(self::once())->method('info');
 
         $this->listener->execute($tenantOrder, $status);
 
@@ -173,11 +176,9 @@ class TenantCreateListenerTest extends IntegrationTestCase
             orderId: self::TENANT_ORDER_ID,
         );
 
-        $this->microsoft365Service->expects(self::never())
-            ->method('prepareOrders');
+        $this->microsoft365Service->expects(self::never())->method('prepareOrders');
 
-        $this->logger->expects(self::once())
-            ->method('info');
+        $this->logger->expects(self::once())->method('info');
 
         $this->listener->execute($tenantOrder, null);
 

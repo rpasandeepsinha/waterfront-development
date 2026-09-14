@@ -201,6 +201,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setCron(string $cron): ManageResellerPackages
     {
         $this->cron = $cron;
+
         return $this;
     }
 
@@ -212,6 +213,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setSysinfo(string $sysinfo): ManageResellerPackages
     {
         $this->sysinfo = $sysinfo;
+
         return $this;
     }
 
@@ -264,6 +266,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setAftp(string $aftp): ManageResellerPackages
     {
         $this->aftp = $aftp;
+
         return $this;
     }
 
@@ -275,6 +278,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setCgi(string $cgi): ManageResellerPackages
     {
         $this->cgi = $cgi;
+
         return $this;
     }
 
@@ -286,6 +290,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setDnscontrol(string $dnscontrol): ManageResellerPackages
     {
         $this->dnscontrol = $dnscontrol;
+
         return $this;
     }
 
@@ -297,6 +302,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setBandwidth(string $bandwidth): ManageResellerPackages
     {
         $this->bandwidth = $bandwidth;
+
         return $this;
     }
 
@@ -308,6 +314,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setDomainptr(string $domainptr): ManageResellerPackages
     {
         $this->domainptr = $domainptr;
+
         return $this;
     }
 
@@ -319,6 +326,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setFtp(string $ftp): ManageResellerPackages
     {
         $this->ftp = $ftp;
+
         return $this;
     }
 
@@ -330,6 +338,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setIps(string $ips): ManageResellerPackages
     {
         $this->ips = $ips;
+
         return $this;
     }
 
@@ -341,6 +350,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setMysql(string $mysql): ManageResellerPackages
     {
         $this->mysql = $mysql;
+
         return $this;
     }
 
@@ -352,6 +362,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setNemailf(string $nemailf): ManageResellerPackages
     {
         $this->nemailf = $nemailf;
+
         return $this;
     }
 
@@ -363,6 +374,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setNemailml(string $nemailml): ManageResellerPackages
     {
         $this->nemailml = $nemailml;
+
         return $this;
     }
 
@@ -374,6 +386,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setNemailr(string $nemailr): ManageResellerPackages
     {
         $this->nemailr = $nemailr;
+
         return $this;
     }
 
@@ -385,6 +398,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setNemails(string $nemails): ManageResellerPackages
     {
         $this->nemails = $nemails;
+
         return $this;
     }
 
@@ -396,6 +410,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setNsubdomains(string $nsubdomains): ManageResellerPackages
     {
         $this->nsubdomains = $nsubdomains;
+
         return $this;
     }
 
@@ -407,6 +422,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setQuota(string $quota): ManageResellerPackages
     {
         $this->quota = $quota;
+
         return $this;
     }
 
@@ -418,6 +434,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setServerip(string $serverip): ManageResellerPackages
     {
         $this->serverip = $serverip;
+
         return $this;
     }
 
@@ -429,6 +446,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setSsh(string $ssh): ManageResellerPackages
     {
         $this->ssh = $ssh;
+
         return $this;
     }
 
@@ -440,6 +458,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setUserssh(string $userssh): ManageResellerPackages
     {
         $this->userssh = $userssh;
+
         return $this;
     }
 
@@ -451,6 +470,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setSsl(string $ssl): ManageResellerPackages
     {
         $this->ssl = $ssl;
+
         return $this;
     }
 
@@ -462,6 +482,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setVdomains(string $vdomains): ManageResellerPackages
     {
         $this->vdomains = $vdomains;
+
         return $this;
     }
 
@@ -473,6 +494,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setPackagename(string $packagename): ManageResellerPackages
     {
         $this->packagename = $packagename;
+
         return $this;
     }
 
@@ -484,6 +506,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setPhp(string $php): ManageResellerPackages
     {
         $this->php = $php;
+
         return $this;
     }
 
@@ -495,6 +518,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setSpam(string $spam): ManageResellerPackages
     {
         $this->spam = $spam;
+
         return $this;
     }
 
@@ -506,6 +530,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setCatchall(string $catchall): ManageResellerPackages
     {
         $this->catchall = $catchall;
+
         return $this;
     }
 
@@ -517,6 +542,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setInode(string $inode): ManageResellerPackages
     {
         $this->inode = $inode;
+
         return $this;
     }
 
@@ -528,6 +554,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setUinode(string $uinode): ManageResellerPackages
     {
         $this->uinode = $uinode;
+
         return $this;
     }
 
@@ -539,6 +566,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setDns(string $dns): ManageResellerPackages
     {
         $this->dns = $dns;
+
         return $this;
     }
 
@@ -550,6 +578,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setNusers(string $nusers): ManageResellerPackages
     {
         $this->nusers = $nusers;
+
         return $this;
     }
 
@@ -561,6 +590,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setOldPackagename(string $old_packagename): ManageResellerPackages
     {
         $this->old_packagename = $old_packagename;
+
         return $this;
     }
 
@@ -572,6 +602,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setOversell(string $oversell): ManageResellerPackages
     {
         $this->oversell = $oversell;
+
         return $this;
     }
 
@@ -583,6 +614,7 @@ class ManageResellerPackages extends DirectAdminCommand
     public function setLoginKeys(string $login_keys): ManageResellerPackages
     {
         $this->login_keys = $login_keys;
+
         return $this;
     }
 

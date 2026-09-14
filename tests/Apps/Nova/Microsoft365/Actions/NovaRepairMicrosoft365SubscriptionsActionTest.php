@@ -46,24 +46,41 @@ class NovaRepairMicrosoft365SubscriptionsActionTest extends IntegrationTestCase
 
         $microsoft365ProductGroup = new ProductGroupFactory()->microsoft365()->createOne();
 
-        $parentProductOne = new ProductFactory()->for($microsoft365ProductGroup)->createOne(['slug' => 'microsoft-business-standard-parent']);
-        $childProductOne = new ProductFactory()->for($microsoft365ProductGroup)->createOne(['slug' => 'microsoft-business-standard']);
-
-        $this->parentSubscription = new SubscriptionFactory()->withCustomer()->technicalStatusOk()->createOne([
-            'product_uuid' => $parentProductOne->uuid,
+        $parentProductOne = new ProductFactory()->for($microsoft365ProductGroup)->createOne([
+            'slug' => 'microsoft-business-standard-parent',
+        ]);
+        $childProductOne = new ProductFactory()->for($microsoft365ProductGroup)->createOne([
+            'slug' => 'microsoft-business-standard',
         ]);
 
-        new SubscriptionFactory()->withCustomer()->count(5)->parentSubscription($this->parentSubscription)->technicalStatusOk()->create([
-            'product_uuid' => $childProductOne->uuid,
-        ]);
+        $this->parentSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->technicalStatusOk()
+            ->createOne([
+                'product_uuid' => $parentProductOne->uuid,
+            ]);
 
-        $this->microsoft365CustomerInfo = new Microsoft365CustomerInfoFactory()->for(new CustomerFactory()->createOne())->createOne();
-        $microsoft365Deployment = new Microsoft365DeploymentFactory()->for($this->parentSubscription)->for($this->microsoft365CustomerInfo)->createOne();
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->count(5)
+            ->parentSubscription($this->parentSubscription)
+            ->technicalStatusOk()
+            ->create([
+                'product_uuid' => $childProductOne->uuid,
+            ]);
+
+        $this->microsoft365CustomerInfo = new Microsoft365CustomerInfoFactory()->for(
+            new CustomerFactory()->createOne(),
+        )->createOne();
+        $microsoft365Deployment = new Microsoft365DeploymentFactory()
+            ->for($this->parentSubscription)
+            ->for($this->microsoft365CustomerInfo)
+            ->createOne();
 
         $this->actionCollection = new Collection([$microsoft365Deployment]);
 
         $this->action = new NovaMicrosoft365BulkStatusUpdateAction(
-            self::resolve(TranslatorInterface::class)
+            self::resolve(TranslatorInterface::class),
         );
     }
 
@@ -81,10 +98,22 @@ class NovaRepairMicrosoft365SubscriptionsActionTest extends IntegrationTestCase
         self::assertInstanceOf(ActionResponse::class, $actionResponse);
 
         $this->parentSubscription->refresh();
-        self::assertCount(0, $this->parentSubscription->children->where('administrative_status', AdministrativeStatus::ACTIVE->value));
-        self::assertCount(5, $this->parentSubscription->children->where('administrative_status', AdministrativeStatus::ARCHIVED->value));
-        self::assertCount(0, $this->parentSubscription->children->where('technical_status', TechnicalStatus::OK->value));
-        self::assertCount(5, $this->parentSubscription->children->where('technical_status', TechnicalStatus::DELETED->value));
+        self::assertCount(0, $this->parentSubscription->children->where(
+            'administrative_status',
+            AdministrativeStatus::ACTIVE->value,
+        ));
+        self::assertCount(5, $this->parentSubscription->children->where(
+            'administrative_status',
+            AdministrativeStatus::ARCHIVED->value,
+        ));
+        self::assertCount(0, $this->parentSubscription->children->where(
+            'technical_status',
+            TechnicalStatus::OK->value,
+        ));
+        self::assertCount(5, $this->parentSubscription->children->where(
+            'technical_status',
+            TechnicalStatus::DELETED->value,
+        ));
     }
 
     #[Test]
@@ -105,11 +134,26 @@ class NovaRepairMicrosoft365SubscriptionsActionTest extends IntegrationTestCase
         self::assertInstanceOf(ActionResponse::class, $actionResponse);
 
         $this->parentSubscription->refresh();
-        self::assertCount(0, $this->parentSubscription->children->where('administrative_status', AdministrativeStatus::ACTIVE->value));
-        self::assertCount(1, $this->parentSubscription->children->where('administrative_status', AdministrativeStatus::CANCELED->value));
-        self::assertCount(4, $this->parentSubscription->children->where('administrative_status', AdministrativeStatus::ARCHIVED->value));
-        self::assertCount(1, $this->parentSubscription->children->where('technical_status', TechnicalStatus::OK->value));
-        self::assertCount(4, $this->parentSubscription->children->where('technical_status', TechnicalStatus::DELETED->value));
+        self::assertCount(0, $this->parentSubscription->children->where(
+            'administrative_status',
+            AdministrativeStatus::ACTIVE->value,
+        ));
+        self::assertCount(1, $this->parentSubscription->children->where(
+            'administrative_status',
+            AdministrativeStatus::CANCELED->value,
+        ));
+        self::assertCount(4, $this->parentSubscription->children->where(
+            'administrative_status',
+            AdministrativeStatus::ARCHIVED->value,
+        ));
+        self::assertCount(1, $this->parentSubscription->children->where(
+            'technical_status',
+            TechnicalStatus::OK->value,
+        ));
+        self::assertCount(4, $this->parentSubscription->children->where(
+            'technical_status',
+            TechnicalStatus::DELETED->value,
+        ));
     }
 
     #[Test]

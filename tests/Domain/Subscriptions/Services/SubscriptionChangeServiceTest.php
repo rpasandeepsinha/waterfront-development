@@ -122,41 +122,50 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
         $this->hostingProductGroup = new ProductGroupFactory()->hosting()->createOne();
 
         // "Basic" hosting product.
-        $this->basicHostingProduct = new ProductFactory()
-            ->for($this->hostingProductGroup)
+        $this->basicHostingProduct = new ProductFactory()->for($this->hostingProductGroup)->createOne([
+            'name' => 'basic',
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->basicHostingProduct)
+            ->prolongation()
             ->createOne([
-                'name' => 'basic',
+                'price' => 100,
+                'billing_period' => 12,
+                'contract_period' => 12,
             ]);
-        new ProductPriceComponentFactory()->for($this->basicHostingProduct)->prolongation()->createOne([
-            'price' => 100,
-            'billing_period' => 12,
-            'contract_period' => 12,
+        new ProductPriceComponentFactory()
+            ->for($this->basicHostingProduct)
+            ->registration()
+            ->createOne([
+                'price' => 100,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
+        new ProductPriceComponentFactory()->for($this->basicHostingProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 0,
         ]);
-        new ProductPriceComponentFactory()->for($this->basicHostingProduct)->registration()->createOne([
-            'price' => 100,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
-        new ProductPriceComponentFactory()->for($this->basicHostingProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 0]);
 
         // "Premium" hosting product.
         $this->premiumHostingProduct = new ProductFactory()
             ->for($this->hostingProductGroup)
             ->has(
-                new ProductSpecFactory()
-                    ->state([
-                        'name' => ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED,
-                        'value' => 'product-slug',
-                    ])
+                new ProductSpecFactory()->state([
+                    'name' => ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED,
+                    'value' => 'product-slug',
+                ]),
             )
             ->createOne([
                 'name' => 'premium',
             ]);
-        new ProductPriceComponentFactory()->for($this->premiumHostingProduct)->prolongation()->createOne([
-            'price' => 105,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->premiumHostingProduct)
+            ->prolongation()
+            ->createOne([
+                'price' => 105,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
         $currentProductPrice = new ProductPriceComponentFactory()
             ->for($this->premiumHostingProduct)
@@ -166,36 +175,49 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
                 'billing_period' => 12,
                 'contract_period' => 12,
             ]);
-        new ProductPriceComponentFactory()->for($this->premiumHostingProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 0]);
+        new ProductPriceComponentFactory()->for($this->premiumHostingProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 0,
+        ]);
 
         // "Super" hosting product.
-        $this->superHostingProduct = new ProductFactory()
-            ->for($this->hostingProductGroup)
+        $this->superHostingProduct = new ProductFactory()->for($this->hostingProductGroup)->createOne([
+            'name' => 'super',
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->superHostingProduct)
+            ->prolongation()
             ->createOne([
-                'name' => 'super',
+                'price' => 110,
+                'billing_period' => 12,
+                'contract_period' => 12,
             ]);
-        new ProductPriceComponentFactory()->for($this->superHostingProduct)->prolongation()->createOne([
-            'price' => 110,
-            'billing_period' => 12,
-            'contract_period' => 12,
+        new ProductPriceComponentFactory()
+            ->for($this->superHostingProduct)
+            ->registration()
+            ->createOne([
+                'price' => 110,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
+        new ProductPriceComponentFactory()->for($this->superHostingProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 0,
         ]);
-        new ProductPriceComponentFactory()->for($this->superHostingProduct)->registration()->createOne([
-            'price' => 110,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
-        new ProductPriceComponentFactory()->for($this->superHostingProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 0]);
 
-        $provider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
+        $provider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         // Initial subscription with the "Premium" hosting product.
         $this->subscription = new SubscriptionFactory()
             ->for($this->customer)
             ->for($this->premiumHostingProduct)
             ->has(
-                new HostingDeploymentFactory()
-                    ->for($provider, 'provider')
-                    ->for(new ServerFactory())
+                new HostingDeploymentFactory()->for($provider, 'provider')->for(new ServerFactory()),
             )
             ->administrativeStatusActive()
             ->createOne([
@@ -228,13 +250,12 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
         $withParentWithSpecWithExpiredParentSubscription = new SubscriptionFactory()
             ->withCustomer()
             ->for(
-                new ProductFactory()->for($this->hostingProductGroup)
-                    ->has(
-                        new ProductSpecFactory()->state([
-                            'name' => ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED->value,
-                            'value' => 'product-slug',
-                        ])
-                    )
+                new ProductFactory()->for($this->hostingProductGroup)->has(
+                    new ProductSpecFactory()->state([
+                        'name' => ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED->value,
+                        'value' => 'product-slug',
+                    ]),
+                ),
             )
             ->for(
                 new SubscriptionFactory()
@@ -244,28 +265,33 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
                         'end_date' => CarbonImmutable::now()->subDay(),
                         'administrative_status' => AdministrativeStatus::EXPIRED->value,
                     ]),
-                'parent'
+                'parent',
             )
             ->createOne();
 
         $withParentWithSpecWithoutExpiredParentSubscription = new SubscriptionFactory()
             ->withCustomer()
             ->for(
-                new ProductFactory()->for($this->hostingProductGroup)
-                    ->has(
-                        new ProductSpecFactory()->state([
-                            'name' => ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED->value,
-                            'value' => true,
-                        ])
-                    )
+                new ProductFactory()->for($this->hostingProductGroup)->has(
+                    new ProductSpecFactory()->state([
+                        'name' => ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED->value,
+                        'value' => true,
+                    ]),
+                ),
             )
             ->for($parentSubscription, 'parent')
             ->createOne();
 
         self::assertFalse($this->subscriptionChangeService->shouldDowngradeSubscriptionWithParent($parentSubscription));
-        self::assertFalse($this->subscriptionChangeService->shouldDowngradeSubscriptionWithParent($withParentNoSpecSubscription));
-        self::assertFalse($this->subscriptionChangeService->shouldDowngradeSubscriptionWithParent($withParentWithSpecWithExpiredParentSubscription));
-        self::assertTrue($this->subscriptionChangeService->shouldDowngradeSubscriptionWithParent($withParentWithSpecWithoutExpiredParentSubscription));
+        self::assertFalse($this->subscriptionChangeService->shouldDowngradeSubscriptionWithParent(
+            $withParentNoSpecSubscription,
+        ));
+        self::assertFalse($this->subscriptionChangeService->shouldDowngradeSubscriptionWithParent(
+            $withParentWithSpecWithExpiredParentSubscription,
+        ));
+        self::assertTrue($this->subscriptionChangeService->shouldDowngradeSubscriptionWithParent(
+            $withParentWithSpecWithoutExpiredParentSubscription,
+        ));
     }
 
     #[Test]
@@ -288,18 +314,18 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
             self::resolve(PricePersistService::class),
         );
 
-        $productAllowedChangeRepository->expects(self::once())
+        $productAllowedChangeRepository
+            ->expects(self::once())
             ->method('getPotentialDowngrades')
             ->willReturn(new Collection([$this->basicHostingProduct]));
 
-        $mailer->expects(self::never())
-            ->method('send');
+        $mailer->expects(self::never())->method('send');
 
         $subscriptionChangeService->change(
             changeType: ProductChangeType::DOWNGRADE,
             subscription: $this->subscription,
             newProduct: $this->basicHostingProduct,
-            sendMail: false
+            sendMail: false,
         );
 
         self::assertSame($this->subscription->product->uuid, $this->basicHostingProduct->uuid);
@@ -325,18 +351,18 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
             self::resolve(PricePersistService::class),
         );
 
-        $productAllowedChangeRepository->expects(self::once())
+        $productAllowedChangeRepository
+            ->expects(self::once())
             ->method('getPotentialDowngrades')
             ->willReturn(new Collection([$this->basicHostingProduct]));
 
-        $eventDispatcher->expects(self::never())
-            ->method('dispatch');
+        $eventDispatcher->expects(self::never())->method('dispatch');
 
         $subscriptionChangeService->change(
             changeType: ProductChangeType::DOWNGRADE,
             subscription: $this->subscription,
             newProduct: $this->basicHostingProduct,
-            invoiceTheChange: false
+            invoiceTheChange: false,
         );
 
         self::assertSame($this->subscription->product->uuid, $this->basicHostingProduct->uuid);
@@ -349,15 +375,15 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
         $this->expectExceptionMessageIs(
             SubscriptionChangeException::noPotentialProducts(
                 subscriptionUuid: $this->subscription->uuid,
-                productName: $this->premiumHostingProduct->name
-            )->getMessage()
+                productName: $this->premiumHostingProduct->name,
+            )->getMessage(),
         );
 
         // This will fail because the current subscription already has the "Premium" hosting product.
         $this->subscriptionChangeService->change(
             changeType: ProductChangeType::DOWNGRADE,
             subscription: $this->subscription,
-            newProduct: $this->premiumHostingProduct
+            newProduct: $this->premiumHostingProduct,
         );
 
         self::assertDatabaseMissing('subscription_changes', [
@@ -375,19 +401,19 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
     {
         ProductAllowedChangeFactory::new()->downgradeChange()->create([
             'from_product_id' => $this->subscription->product->id,
-            'to_product_id' =>   $this->basicHostingProduct->id,
+            'to_product_id' => $this->basicHostingProduct->id,
         ]);
 
         $newProductPrice = $this->subscriptionChangeService->getNewProductPrice(
-            changeType:ProductChangeType::DOWNGRADE,
-            subscription:  $this->subscription,
-            newProduct: $this->basicHostingProduct
+            changeType: ProductChangeType::DOWNGRADE,
+            subscription: $this->subscription,
+            newProduct: $this->basicHostingProduct,
         );
 
         $result = $this->subscriptionChangeService->charge(
             changeType: ProductChangeType::DOWNGRADE,
             subscriptions: [$this->subscription],
-            newProductPrice: $newProductPrice
+            newProductPrice: $newProductPrice,
         );
 
         self::assertSame(0, $result);
@@ -400,7 +426,7 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
         int $contractPeriod,
         CarbonImmutable $startDate,
         int $daysElapsed,
-        int $expectedChargePrice
+        int $expectedChargePrice,
     ): void {
         $oldPrice = 100;
         $newPrice = 1000;
@@ -410,13 +436,9 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $product1 = new ProductFactory()
-            ->for($this->hostingProductGroup)
-            ->createOne();
+        $product1 = new ProductFactory()->for($this->hostingProductGroup)->createOne();
 
-        $product2 = new ProductFactory()
-            ->for($this->hostingProductGroup)
-            ->createOne();
+        $product2 = new ProductFactory()->for($this->hostingProductGroup)->createOne();
 
         new ProductPriceComponentFactory()
             ->for($product2)
@@ -429,7 +451,7 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
 
         ProductAllowedChangeFactory::new()->upgradeChange()->create([
             'from_product_id' => $product1->id,
-            'to_product_id' =>   $product2->id,
+            'to_product_id' => $product2->id,
         ]);
 
         $subscription = new SubscriptionFactory()
@@ -464,7 +486,7 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
         $this->subscriptionChangeService->change(
             changeType: ProductChangeType::UPGRADE,
             subscription: $subscription,
-            newProduct: $product2
+            newProduct: $product2,
         );
 
         self::assertSame($newPrice, $subscription->net_price);
@@ -560,10 +582,11 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
     {
         ProductAllowedChangeFactory::new()->downgradeChange()->create([
             'from_product_id' => $this->subscription->product->id,
-            'to_product_id' =>  $this->superHostingProduct->id,
+            'to_product_id' => $this->superHostingProduct->id,
         ]);
 
-        $this->allowedChangeRepositoryMock->expects(self::once())
+        $this->allowedChangeRepositoryMock
+            ->expects(self::once())
             ->method('getPotentialUpgrades')
             ->willReturn(new Collection([
                 $this->superHostingProduct,
@@ -573,7 +596,7 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
         $newPrice = $this->subscriptionChangeServiceWithMocks->getNewProductPrice(
             changeType: ProductChangeType::UPGRADE,
             subscription: $this->subscription,
-            newProduct: $this->superHostingProduct
+            newProduct: $this->superHostingProduct,
         );
 
         self::assertSame(110, $newPrice->calculatedPrice);
@@ -584,7 +607,8 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
     {
         $newProduct = new ProductFactory()->for($this->hostingProductGroup)->createOne();
 
-        $this->allowedChangeRepositoryMock->expects(self::once())
+        $this->allowedChangeRepositoryMock
+            ->expects(self::once())
             ->method('getPotentialUpgrades')
             ->willReturn(new Collection([]));
 
@@ -594,26 +618,28 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
                 'Unable to change subscription with UUID "%s" to product "%s". No potential up- or downgrades found.',
                 $this->subscription->uuid,
                 $newProduct->name,
-            )
+            ),
         );
 
         $this->subscriptionChangeServiceWithMocks->getNewProductPrice(
             changeType: ProductChangeType::UPGRADE,
             subscription: $this->subscription,
-            newProduct: $newProduct
+            newProduct: $newProduct,
         );
     }
 
     #[Test]
     public function getPotentialChanges(): void
     {
-        $this->allowedChangeRepositoryMock->expects(self::once())
+        $this->allowedChangeRepositoryMock
+            ->expects(self::once())
             ->method('getPotentialUpgradesForCustomer')
             ->willReturn(new Collection([
                 $this->basicHostingProduct,
                 $this->superHostingProduct,
             ]));
-        $this->allowedChangeRepositoryMock->expects(self::exactly(2))
+        $this->allowedChangeRepositoryMock
+            ->expects(self::exactly(2))
             ->method('getPotentialUpgrades')
             ->willReturn(new Collection([
                 $this->basicHostingProduct,
@@ -628,8 +654,7 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
             ->where('type', PriceComponentType::PROLONGATION)
             ->first();
 
-        $this->loggerMock->expects(self::never())
-            ->method('info');
+        $this->loggerMock->expects(self::never())->method('info');
 
         $potentialChanges = $this->subscriptionChangeServiceWithMocks->getPotentialChanges(
             changeType: ProductChangeType::UPGRADE,
@@ -657,18 +682,18 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
             'value' => $testProduct->slug,
         ]);
 
-        $this->productSpecRepositoryMock->expects(self::once())
+        $this->productSpecRepositoryMock
+            ->expects(self::once())
             ->method('findBySpecification')
             ->willReturn($productSpecMock);
 
-        $this->productRepositoryMock->expects(self::once())
+        $this->productRepositoryMock
+            ->expects(self::once())
             ->method('findProductBySlug')
             ->with($testProduct->slug)
             ->willReturn($testProduct);
 
-        $this->allowedChangeRepositoryMock->expects(self::once())
-            ->method('isProductChangeAllowed')
-            ->willReturn(true);
+        $this->allowedChangeRepositoryMock->expects(self::once())->method('isProductChangeAllowed')->willReturn(true);
 
         $productResult = $this->subscriptionChangeServiceWithMocks->getAvailableDowngradeWhenCanceled($this->subscription);
         self::assertSame($testProduct, $productResult);
@@ -677,9 +702,7 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
     #[Test]
     public function getAvailableDowngradeWhenCanceledFailedMissingSpec(): void
     {
-        $this->productSpecRepositoryMock->expects(self::once())
-            ->method('findBySpecification')
-            ->willReturn(null);
+        $this->productSpecRepositoryMock->expects(self::once())->method('findBySpecification')->willReturn(null);
 
         $this->expectException(DowngradeCancelException::class);
         $this->expectExceptionMessageIs(
@@ -687,8 +710,8 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
                 'Downgrade not possible for product "%s" with %d due to the absence of the correct product spec %s',
                 $this->subscription->product->slug,
                 $this->subscription->product->id,
-                ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED->value
-            )
+                ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED->value,
+            ),
         );
         $this->subscriptionChangeServiceWithMocks->getAvailableDowngradeWhenCanceled($this->subscription);
     }
@@ -720,26 +743,26 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
             'value' => $testProduct->slug,
         ]);
 
-        $this->productSpecRepositoryMock->expects(self::once())
+        $this->productSpecRepositoryMock
+            ->expects(self::once())
             ->method('findBySpecification')
             ->willReturn($productSpecMock);
 
-        $this->productRepositoryMock->expects(self::once())
+        $this->productRepositoryMock
+            ->expects(self::once())
             ->method('findProductBySlug')
             ->with($testProduct->slug)
             ->willReturn($testProduct);
 
-        $this->allowedChangeRepositoryMock->expects(self::once())
-            ->method('isProductChangeAllowed')
-            ->willReturn(false);
+        $this->allowedChangeRepositoryMock->expects(self::once())->method('isProductChangeAllowed')->willReturn(false);
 
         $this->expectException(DowngradeCancelException::class);
         $this->expectExceptionMessageIs(
             sprintf(
                 'Downgrade not possible for product "%s": target product "%s" is not a downgrade possibility',
                 $this->subscription->product->slug,
-                $testProduct->slug
-            )
+                $testProduct->slug,
+            ),
         );
 
         $this->subscriptionChangeServiceWithMocks->getAvailableDowngradeWhenCanceled($this->subscription);
@@ -753,13 +776,15 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
     public function changeSubscriptionFiresEvent(): void
     {
         $eventDispatcher = self::createMock(Dispatcher::class);
-        $eventDispatcher->expects(self::once())
+        $eventDispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(SubscriptionChangedEvent::class));
 
-        $this->allowedChangeRepositoryMock->expects((self::once()))
-        ->method('getPotentialUpgrades')
-        ->willReturn(new Collection([$this->superHostingProduct]));
+        $this->allowedChangeRepositoryMock
+            ->expects(self::once())
+            ->method('getPotentialUpgrades')
+            ->willReturn(new Collection([$this->superHostingProduct]));
 
         $service = new SubscriptionChangeService(
             $eventDispatcher,
@@ -781,7 +806,7 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
         $service->change(
             changeType: ProductChangeType::UPGRADE,
             subscription: $this->subscription,
-            newProduct: $this->superHostingProduct
+            newProduct: $this->superHostingProduct,
         );
     }
 
@@ -792,21 +817,30 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
 
         $servicePlusProduct = new ProductFactory()->for($this->hostingProductGroup)->createOne();
         $premiumHostingProduct = new ProductFactory()->for($this->hostingProductGroup)->createOne();
-        $premiumPrice = new ProductPriceComponentFactory()->prolongation()->for($premiumHostingProduct)->createOne(['price' => 40000]);
+        $premiumPrice = new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($premiumHostingProduct)
+            ->createOne(['price' => 40000]);
         new ProductSpecFactory()->for($premiumHostingProduct)->create([
             'name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG,
             'value' => $servicePlusProduct->slug,
         ]);
-        $hostingSubscription = new SubscriptionFactory()->for($this->customer)->for($this->basicHostingProduct)->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'net_price' => 18000,
-        ]);
-        $serviceSubscription = new SubscriptionFactory()->for($this->customer)->for($servicePlusProduct)->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'net_price' => 11988,
-        ]);
+        $hostingSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->basicHostingProduct)
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'net_price' => 18000,
+            ]);
+        $serviceSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($servicePlusProduct)
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'net_price' => 11988,
+            ]);
         $hostingSubscription->children()->save($serviceSubscription);
         new ProductAllowedChangeFactory()->createOne([
             'change_type' => ProductChangeType::UPGRADE,
@@ -820,14 +854,18 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
         $mailer->expects(self::once())->method('send');
 
         $eventDispatcher = self::createMock(Dispatcher::class);
-        $eventDispatcher->expects(self::once())->method('dispatch')->with(
-            self::callback(
-                fn (SubscriptionChangedEvent $event) =>
-                $event->subscription->id === $hostingSubscription->id &&
-                $event->charge === 33570 &&
-                $event->changeType === ProductChangeType::UPGRADE
-            ),
-        );
+        $eventDispatcher
+            ->expects(self::once())
+            ->method('dispatch')
+            ->with(
+                self::callback(
+                    fn (SubscriptionChangedEvent $event) => (
+                        $event->subscription->id === $hostingSubscription->id
+                        && $event->charge === 33570
+                        && $event->changeType === ProductChangeType::UPGRADE
+                    ),
+                ),
+            );
 
         $subscriptionChangeService = new SubscriptionChangeService(
             $eventDispatcher,
@@ -874,9 +912,20 @@ class SubscriptionChangeServiceTest extends IntegrationTestCase
                 'parent_subscription_id' => $subscription->id,
                 'end_date' => new CarbonImmutable('yesterday'),
             ]);
-        new ProductSpecFactory()->createOne(['name' => ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED, 'value' => $freeDnsProduct->slug, 'product_id' => $childSubscription->product->id]);
-        new ProductAllowedChangeFactory()->createOne(['change_type' => ProductChangeType::DOWNGRADE, 'from_product_id' => $childSubscription->product->id, 'to_product_id' => $freeDnsProduct->id]);
-        new ProductPriceComponentFactory()->prolongation()->for($freeDnsProduct)->createOne();
+        new ProductSpecFactory()->createOne([
+            'name' => ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED,
+            'value' => $freeDnsProduct->slug,
+            'product_id' => $childSubscription->product->id,
+        ]);
+        new ProductAllowedChangeFactory()->createOne([
+            'change_type' => ProductChangeType::DOWNGRADE,
+            'from_product_id' => $childSubscription->product->id,
+            'to_product_id' => $freeDnsProduct->id,
+        ]);
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($freeDnsProduct)
+            ->createOne();
 
         $dnsAction = self::createMock(ChangeDnsAction::class);
         $dnsAction->expects(self::once())->method('execute');

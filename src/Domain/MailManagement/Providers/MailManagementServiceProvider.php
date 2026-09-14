@@ -12,12 +12,12 @@ class MailManagementServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/connection.php',
-            'mailonly.connection'
+            'mailonly.connection',
         );
 
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/ConnectionDetails/connection-details.php',
-            'mailonly.connection_details'
+            'mailonly.connection_details',
         );
     }
 
@@ -25,8 +25,9 @@ class MailManagementServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../Config/connection.php' => $this->app->configPath('mailonly/connection.php'),
-            __DIR__ . '/../Config/ConnectionDetails/connection-details.php'
-            => $this->app->configPath('mailonly/connection-details.php'),
+            __DIR__ . '/../Config/ConnectionDetails/connection-details.php' => $this->app->configPath(
+                'mailonly/connection-details.php',
+            ),
         ], 'mailonly-config');
     }
 }

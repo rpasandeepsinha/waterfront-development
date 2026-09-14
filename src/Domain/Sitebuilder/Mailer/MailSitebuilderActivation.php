@@ -8,8 +8,9 @@ use Waterfront\Domain\Mailer\MailTemplateInterface;
 
 class MailSitebuilderActivation implements MailTemplateInterface
 {
-    public function __construct(public readonly string $domainName)
-    {
+    public function __construct(
+        public readonly string $domainName,
+    ) {
     }
 
     public static function getTemplateSlug(): string

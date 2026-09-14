@@ -44,9 +44,7 @@ class RetryRequestValidatorTest extends TestCase
     {
         $request = new GetBackupUsageRequest(tagUuid: Uuid::uuid4());
 
-        $this->requestRepository
-            ->expects(self::never())
-            ->method('findByUuid');
+        $this->requestRepository->expects(self::never())->method('findByUuid');
 
         self::assertNull($this->retryRequestValidator->validate($request));
     }
@@ -68,7 +66,7 @@ class RetryRequestValidatorTest extends TestCase
         self::assertNotNull($result->validationResult);
         self::assertSame(
             [ProvisionErrorMessage::RETRY_ORIGIN_NOT_FOUND->value],
-            $result->validationResult->messages['retryOf']
+            $result->validationResult->messages['retryOf'],
         );
     }
 
@@ -95,7 +93,7 @@ class RetryRequestValidatorTest extends TestCase
         self::assertNotNull($result->validationResult);
         self::assertSame(
             [ProvisionErrorMessage::RETRY_ORIGIN_TYPE_MISMATCH->value],
-            $result->validationResult->messages['retryOf']
+            $result->validationResult->messages['retryOf'],
         );
     }
 
@@ -110,10 +108,7 @@ class RetryRequestValidatorTest extends TestCase
             retryOfRequestId: null,
         );
 
-        $this->requestRepository
-            ->expects(self::once())
-            ->method('findByUuid')
-            ->willReturn($originRequest);
+        $this->requestRepository->expects(self::once())->method('findByUuid')->willReturn($originRequest);
 
         $result = $this->retryRequestValidator->validate($request);
 
@@ -121,7 +116,7 @@ class RetryRequestValidatorTest extends TestCase
         self::assertNotNull($result->validationResult);
         self::assertSame(
             [ProvisionErrorMessage::RETRY_ORIGIN_NAME_MISMATCH->value],
-            $result->validationResult->messages['retryOf']
+            $result->validationResult->messages['retryOf'],
         );
     }
 
@@ -136,10 +131,7 @@ class RetryRequestValidatorTest extends TestCase
             retryOfRequestId: 42,
         );
 
-        $this->requestRepository
-            ->expects(self::once())
-            ->method('findByUuid')
-            ->willReturn($originRequest);
+        $this->requestRepository->expects(self::once())->method('findByUuid')->willReturn($originRequest);
 
         $result = $this->retryRequestValidator->validate($request);
 
@@ -147,7 +139,7 @@ class RetryRequestValidatorTest extends TestCase
         self::assertNotNull($result->validationResult);
         self::assertSame(
             [ProvisionErrorMessage::RETRY_ORIGIN_IS_RETRY->value],
-            $result->validationResult->messages['retryOf']
+            $result->validationResult->messages['retryOf'],
         );
     }
 
@@ -163,10 +155,7 @@ class RetryRequestValidatorTest extends TestCase
             status: ProvisionStatus::SUCCESS,
         );
 
-        $this->requestRepository
-            ->expects(self::once())
-            ->method('findByUuid')
-            ->willReturn($originRequest);
+        $this->requestRepository->expects(self::once())->method('findByUuid')->willReturn($originRequest);
 
         $result = $this->retryRequestValidator->validate($request);
 
@@ -179,7 +168,7 @@ class RetryRequestValidatorTest extends TestCase
                 ProvisionErrorMessage::RETRY_ORIGIN_IS_RETRY->value,
                 ProvisionErrorMessage::RETRY_ORIGIN_NOT_FAILED->value,
             ],
-            $result->validationResult->messages['retryOf']
+            $result->validationResult->messages['retryOf'],
         );
     }
 
@@ -196,10 +185,7 @@ class RetryRequestValidatorTest extends TestCase
             status: $status,
         );
 
-        $this->requestRepository
-            ->expects(self::once())
-            ->method('findByUuid')
-            ->willReturn($originRequest);
+        $this->requestRepository->expects(self::once())->method('findByUuid')->willReturn($originRequest);
 
         self::assertNull($this->retryRequestValidator->validate($request));
     }
@@ -215,10 +201,7 @@ class RetryRequestValidatorTest extends TestCase
             status: ProvisionStatus::SUCCESS,
         );
 
-        $this->requestRepository
-            ->expects(self::once())
-            ->method('findByUuid')
-            ->willReturn($originRequest);
+        $this->requestRepository->expects(self::once())->method('findByUuid')->willReturn($originRequest);
 
         $result = $this->retryRequestValidator->validate($request);
 
@@ -241,10 +224,7 @@ class RetryRequestValidatorTest extends TestCase
         );
         $originRequest->setRelation('result', null);
 
-        $this->requestRepository
-            ->expects(self::once())
-            ->method('findByUuid')
-            ->willReturn($originRequest);
+        $this->requestRepository->expects(self::once())->method('findByUuid')->willReturn($originRequest);
 
         $result = $this->retryRequestValidator->validate($request);
 

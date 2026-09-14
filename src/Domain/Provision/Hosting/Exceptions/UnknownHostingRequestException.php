@@ -13,7 +13,7 @@ class UnknownHostingRequestException extends ProvisionException
     {
         $message = sprintf('No implementation found in hosting service for request [%s]', $request::class);
         parent::__construct(
-            $message
+            $message,
         );
     }
 }

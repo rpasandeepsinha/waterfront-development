@@ -13,13 +13,13 @@ use Waterfront\Domain\Ssl\Services\CsrValidationValueGenerator;
 class CsrValidationValueGeneratorTest extends TestCase
 {
     private const string TEST_CSR = <<<CSR
------BEGIN CERTIFICATE REQUEST-----
-FOOBAR
------END CERTIFICATE REQUEST-----
------BEGIN NEW CERTIFICATE REQUEST-----
-BARFOO
------END NEW CERTIFICATE REQUEST-----
-CSR;
+    -----BEGIN CERTIFICATE REQUEST-----
+    FOOBAR
+    -----END CERTIFICATE REQUEST-----
+    -----BEGIN NEW CERTIFICATE REQUEST-----
+    BARFOO
+    -----END NEW CERTIFICATE REQUEST-----
+    CSR;
 
     #[Test]
     public function cnameValidationHost(): void
@@ -32,20 +32,29 @@ CSR;
     public function cnameValidationValue(): void
     {
         $valueGenerator = new CsrValidationValueGenerator();
-        self::assertSame('62dd49780cbd7394665707e4803b393d.559c46f98fa266374f4ebd9b26510876.sectigo.com.', $valueGenerator->getCnameValidationValue(self::TEST_CSR));
+        self::assertSame(
+            '62dd49780cbd7394665707e4803b393d.559c46f98fa266374f4ebd9b26510876.sectigo.com.',
+            $valueGenerator->getCnameValidationValue(self::TEST_CSR),
+        );
     }
 
     #[Test]
     public function fileValidationFileName(): void
     {
         $valueGenerator = new CsrValidationValueGenerator();
-        self::assertSame('047E00667D90240DEB9761316EA0C3BA.txt', $valueGenerator->getFileValidationFileName(self::TEST_CSR));
+        self::assertSame(
+            '047E00667D90240DEB9761316EA0C3BA.txt',
+            $valueGenerator->getFileValidationFileName(self::TEST_CSR),
+        );
     }
 
     #[Test]
     public function fileValidationValue(): void
     {
         $valueGenerator = new CsrValidationValueGenerator();
-        self::assertSame('62dd49780cbd7394665707e4803b393d559c46f98fa266374f4ebd9b26510876 sectigo.com', $valueGenerator->getFileValidationValue(self::TEST_CSR));
+        self::assertSame(
+            '62dd49780cbd7394665707e4803b393d559c46f98fa266374f4ebd9b26510876 sectigo.com',
+            $valueGenerator->getFileValidationValue(self::TEST_CSR),
+        );
     }
 }

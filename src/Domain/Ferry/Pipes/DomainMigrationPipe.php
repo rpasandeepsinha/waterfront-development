@@ -41,12 +41,12 @@ class DomainMigrationPipe extends ValidationPipe
             [
                 LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
-            ]
+            ],
         );
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Start'
+            message: 'Start',
         );
 
         /** @var array<array<string, string|int>> $extensions */
@@ -54,7 +54,7 @@ class DomainMigrationPipe extends ValidationPipe
 
         $validator = $this->validatorFactory->make(
             $extensions,
-            MigrationValidationLibrary::getDomainBaseRules()
+            MigrationValidationLibrary::getDomainBaseRules(),
         );
 
         try {
@@ -73,7 +73,7 @@ class DomainMigrationPipe extends ValidationPipe
                 if (! in_array($referenceDnsTemplateId, $customerDnsTemplateReferenceIds, true)) {
                     $validator->errors()->add(
                         "$index.dns_template_reference_id",
-                        "The provided reference DNS template id: $referenceDnsTemplateId cannot be found in the customer payload."
+                        "The provided reference DNS template id: $referenceDnsTemplateId cannot be found in the customer payload.",
                     );
 
                     throw new ValidationException($validator);
@@ -90,7 +90,7 @@ class DomainMigrationPipe extends ValidationPipe
 
             $payload->addValidationTimeline(
                 pipeline: $this->getValidationIdentifier(),
-                message: 'Validation'
+                message: 'Validation',
             );
 
             return $this->finishPipe(MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED, $payload, $this->logger, $next);
@@ -107,14 +107,14 @@ class DomainMigrationPipe extends ValidationPipe
             $payload->addValidationTimeline(
                 pipeline: $this->getValidationIdentifier(),
                 message: 'looping',
-                id: $domain
+                id: $domain,
             );
 
             /** @var string $stringedDriver */
-            $stringedDriver =  Arr::get(
+            $stringedDriver = Arr::get(
                 $extension,
                 'driver',
-                ProviderSlug::REALTIME_REGISTER->value
+                ProviderSlug::REALTIME_REGISTER->value,
             );
 
             $driver = ProviderSlug::from($stringedDriver);
@@ -144,7 +144,7 @@ class DomainMigrationPipe extends ValidationPipe
                     $this->addValidationResult(
                         $payload,
                         MigrationValidation::DOMAIN_MIGRATION_ABNORMAL_STATUS,
-                        $message
+                        $message,
                     );
 
                     $this->logger->debug($message, [
@@ -159,15 +159,15 @@ class DomainMigrationPipe extends ValidationPipe
                     'Unable to fetch Domain [%s] from backend: [%s], error message: %s',
                     $domain,
                     $driver->value,
-                    $exception->getMessage()
+                    $exception->getMessage(),
                 );
 
                 $this->addValidationResult(
                     $payload,
-                    $exception instanceof ForbiddenException ?
-                        MigrationValidation::DOMAIN_MIGRATION_FETCH_FORBIDDEN :
-                        MigrationValidation::DOMAIN_MIGRATION_FETCH_NOT_FOUND,
-                    $message
+                    $exception instanceof ForbiddenException
+                        ? MigrationValidation::DOMAIN_MIGRATION_FETCH_FORBIDDEN
+                        : MigrationValidation::DOMAIN_MIGRATION_FETCH_NOT_FOUND,
+                    $message,
                 );
 
                 $payload->addValidationTimeline(
@@ -188,19 +188,23 @@ class DomainMigrationPipe extends ValidationPipe
             }
 
             try {
-                $customerHandle = $this->domainService->retrieveContactHandle($remoteResult->registrant, $driver, $businessUnit);
+                $customerHandle = $this->domainService->retrieveContactHandle(
+                    $remoteResult->registrant,
+                    $driver,
+                    $businessUnit,
+                );
             } catch (Throwable $exception) { // @phpstan-ignore-line
                 $message = sprintf(
                     'Unable to fetch contact handle for Domain [%s] from backend [%s] message: %s',
                     $domain,
                     $driver->value,
-                    $exception->getMessage()
+                    $exception->getMessage(),
                 );
 
                 $this->addValidationResult(
                     $payload,
                     MigrationValidation::DOMAIN_MIGRATION_FETCH_HANDLE_FAILED,
-                    $message
+                    $message,
                 );
 
                 $payload->addValidationTimeline(
@@ -233,8 +237,8 @@ class DomainMigrationPipe extends ValidationPipe
                         'Unable to parse phone number for Domain [%s] from backend [%s] handle with message: %s',
                         $domain,
                         $driver->value,
-                        $exception->getMessage()
-                    )
+                        $exception->getMessage(),
+                    ),
                 );
 
                 $payload->addValidationTimeline(
@@ -249,7 +253,7 @@ class DomainMigrationPipe extends ValidationPipe
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Finish'
+            message: 'Finish',
         );
 
         return $this->finishPipe(MigrationValidation::DOMAIN_MIGRATION_PIPE_PASSED, $payload, $this->logger, $next);

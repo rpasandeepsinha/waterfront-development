@@ -33,7 +33,7 @@ class ValidServerRuleTest extends TestCase
         $this->mockDriver = $this->createMock(HostingServiceInterface::class);
 
         $this->validServerRule = new ValidServerRule(
-            hostingServiceFactory: $this->mockHostingServiceFactory
+            hostingServiceFactory: $this->mockHostingServiceFactory,
         );
     }
 
@@ -43,17 +43,20 @@ class ValidServerRuleTest extends TestCase
         $driver = ProviderSlug::DIRECTADMIN;
         $expectedServer = new ServerFactory()->directadmin()->makeOne();
 
-        $this->mockHostingServiceFactory->expects(self::once())
+        $this->mockHostingServiceFactory
+            ->expects(self::once())
             ->method('getDriverFromServer')
             ->with(self::assertCallbackIsModel($expectedServer))
             ->willReturn($driver);
 
-        $this->mockHostingServiceFactory->expects(self::once())
+        $this->mockHostingServiceFactory
+            ->expects(self::once())
             ->method('driver')
             ->with($driver)
             ->willReturn($this->mockDriver);
 
-        $this->mockDriver->expects(self::once())
+        $this->mockDriver
+            ->expects(self::once())
             ->method('serverIsValid')
             ->with(self::assertCallbackIsModel($expectedServer))
             ->willReturn(true);
@@ -66,7 +69,8 @@ class ValidServerRuleTest extends TestCase
     {
         $expectedServer = new ServerFactory()->directadmin()->makeOne();
 
-        $this->mockHostingServiceFactory->expects(self::once())
+        $this->mockHostingServiceFactory
+            ->expects(self::once())
             ->method('getDriverFromServer')
             ->with(self::assertCallbackIsModel($expectedServer))
             ->willThrowException(new DriverNotDefinedException());
@@ -77,7 +81,7 @@ class ValidServerRuleTest extends TestCase
             self::assertClosureIsCalled(
                 true,
                 'validation.server.driver',
-            )
+            ),
         );
     }
 
@@ -87,17 +91,20 @@ class ValidServerRuleTest extends TestCase
         $driver = ProviderSlug::DIRECTADMIN;
         $expectedServer = new ServerFactory()->directadmin()->makeOne();
 
-        $this->mockHostingServiceFactory->expects(self::once())
+        $this->mockHostingServiceFactory
+            ->expects(self::once())
             ->method('getDriverFromServer')
             ->with(self::assertCallbackIsModel($expectedServer))
             ->willReturn($driver);
 
-        $this->mockHostingServiceFactory->expects(self::once())
+        $this->mockHostingServiceFactory
+            ->expects(self::once())
             ->method('driver')
             ->with($driver)
             ->willReturn($this->mockDriver);
 
-        $this->mockDriver->expects(self::once())
+        $this->mockDriver
+            ->expects(self::once())
             ->method('serverIsValid')
             ->with(self::assertCallbackIsModel($expectedServer))
             ->willReturn(false);
@@ -108,7 +115,7 @@ class ValidServerRuleTest extends TestCase
             self::assertClosureIsCalled(
                 true,
                 'validation.server.could-not-connect',
-            )
+            ),
         );
     }
 }

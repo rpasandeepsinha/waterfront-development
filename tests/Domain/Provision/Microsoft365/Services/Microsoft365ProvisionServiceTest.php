@@ -45,7 +45,8 @@ class Microsoft365ProvisionServiceTest extends TestCase
             $this->createStub(MicrosoftGraphService::class),
         );
 
-        $mockTenantService->expects($this->once())
+        $mockTenantService
+            ->expects($this->once())
             ->method('getTenantId')
             ->with($this->tenantIdRequest)
             ->willReturn($mockResult);
@@ -71,7 +72,10 @@ class Microsoft365ProvisionServiceTest extends TestCase
     public function invalidRequest(): void
     {
         $invalidRequest = self::createStub(HostingProvisionRequest::class);
-        $expectedExceptionMessage = sprintf('No implementation found in Microsoft365 service for request [%s]', $invalidRequest::class);
+        $expectedExceptionMessage = sprintf(
+            'No implementation found in Microsoft365 service for request [%s]',
+            $invalidRequest::class,
+        );
 
         $provisionService = new Microsoft365ProvisionService(
             $this->createStub(Microsoft365ServiceFactory::class),
@@ -94,15 +98,12 @@ class Microsoft365ProvisionServiceTest extends TestCase
         $validationErrors = ['field' => ['an-error', 'another-error']];
         $messageBag = new MessageBag($validationErrors);
 
-        $mockValidator->expects($this->once())
-            ->method('fails')
-            ->willReturn(true);
+        $mockValidator->expects($this->once())->method('fails')->willReturn(true);
 
-        $mockValidator->expects(self::once())
-            ->method('errors')
-            ->willReturn($messageBag);
+        $mockValidator->expects(self::once())->method('errors')->willReturn($messageBag);
 
-        $mockServiceFactory->expects($this->once())
+        $mockServiceFactory
+            ->expects($this->once())
             ->method('getValidator')
             ->with(ProvisionProvider::MICROSOFT_ONLINE, $this->tenantIdRequest)
             ->willReturn($mockValidator);

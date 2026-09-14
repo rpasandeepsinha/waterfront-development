@@ -17,9 +17,8 @@ class EmailPasswordResetRequest implements RequestInterface
         public private(set) string $emailAccount {
             set => Str::of($value)->before('@')->toString();
         },
-        private readonly string $password
-    )
-    {
+        private readonly string $password,
+    ) {
     }
 
     public function getMessage(): array

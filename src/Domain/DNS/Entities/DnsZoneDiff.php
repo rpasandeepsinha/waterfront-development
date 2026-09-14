@@ -16,8 +16,9 @@ class DnsZoneDiff
     /**
      * @param DnsRecordMutationInterface[] $changes
      */
-    public function __construct(private readonly array $changes)
-    {
+    public function __construct(
+        private readonly array $changes,
+    ) {
     }
 
     /**
@@ -35,7 +36,7 @@ class DnsZoneDiff
     {
         return array_filter(
             $this->changes,
-            fn (DnsRecordMutationInterface $diff): bool => $diff instanceof AddedDnsRecord
+            fn (DnsRecordMutationInterface $diff): bool => $diff instanceof AddedDnsRecord,
         );
     }
 
@@ -46,7 +47,7 @@ class DnsZoneDiff
     {
         return array_filter(
             $this->changes,
-            fn (DnsRecordMutationInterface $diff): bool => $diff instanceof RemovedDnsRecord
+            fn (DnsRecordMutationInterface $diff): bool => $diff instanceof RemovedDnsRecord,
         );
     }
 
@@ -57,7 +58,7 @@ class DnsZoneDiff
     {
         return array_filter(
             $this->changes,
-            fn (DnsRecordMutationInterface $diff): bool => $diff instanceof ChangedDnsRecord
+            fn (DnsRecordMutationInterface $diff): bool => $diff instanceof ChangedDnsRecord,
         );
     }
 }

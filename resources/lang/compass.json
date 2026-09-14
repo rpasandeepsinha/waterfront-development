@@ -29,6 +29,26 @@
             }
         }
     },
+    "general.per-month.short": {
+        "locales": {
+            "nl": {
+                "translated_string": "p/m"
+            },
+            "en": {
+                "translated_string": "p/m"
+            }
+        }
+    },
+    "general.price-unknown": {
+        "locales": {
+            "nl": {
+                "translated_string": "prijs onbekend"
+            },
+            "en": {
+                "translated_string": "price unknown"
+            }
+        }
+    },
     "sidebar.entity-title.customer": {
         "locales": {
             "nl": {
@@ -2189,6 +2209,16 @@
             }
         }
     },
+    "retention-toolkit.fetch.failed": {
+        "locales": {
+            "nl": {
+                "translated_string": "Er ging iets mis bij het ophalen van gegevens: inspecteer de netwerk requests en rapporteer de fout aan development."
+            },
+            "en": {
+                "translated_string": "Something went wrong while fetching data: inspect the network requests and report the error to development."
+            }
+        }
+    },
     "retention-toolkit.puzzel-ticket": {
         "locales": {
             "nl": {
@@ -2269,6 +2299,16 @@
             }
         }
     },
+    "retention-toolkit.downgrade-target.not-found": {
+        "locales": {
+            "nl": {
+                "translated_string": "Geen producten beschikbaar om naar te downgraden"
+            },
+            "en": {
+                "translated_string": "No products available to downgrade to"
+            }
+        }
+    },
     "retention-toolkit.cancel-reason": {
         "locales": {
             "nl": {
@@ -2276,6 +2316,16 @@
             },
             "en": {
                 "translated_string": "Cancellation reason"
+            }
+        }
+    },
+    "retention-toolkit.cancel-reason.other-field": {
+        "locales": {
+            "nl": {
+                "translated_string": "Andere reden"
+            },
+            "en": {
+                "translated_string": "Other reason"
             }
         }
     },
@@ -2339,13 +2389,33 @@
             }
         }
     },
-    "retention-toolkit.offer-contract-length": {
+    "retention-toolkit.offer-contract-period": {
         "locales": {
             "nl": {
                 "translated_string": "Contractduur"
             },
             "en": {
                 "translated_string": "Contract length"
+            }
+        }
+    },
+    "retention-toolkit.offer-contract-period.none-available-error": {
+        "locales": {
+            "nl": {
+                "translated_string": "Geen meerjarig contract beschikbaar voor dit product"
+            },
+            "en": {
+                "translated_string": "No multi-year contract available for this product"
+            }
+        }
+    },
+    "retention-toolkit.offer-billing-period": {
+        "locales": {
+            "nl": {
+                "translated_string": "Factuurperiode"
+            },
+            "en": {
+                "translated_string": "Billing period"
             }
         }
     },
@@ -2656,6 +2726,46 @@
             },
             "en": {
                 "translated_string": "Domain contact"
+            }
+        }
+    },
+    "domain-contact.domain-not-found": {
+        "locales": {
+            "nl": {
+                "translated_string": "Domein niet gevonden"
+            },
+            "en": {
+                "translated_string": "Domain not found"
+            }
+        }
+    },
+    "domain-contact.deployment-not-found": {
+        "locales": {
+            "nl": {
+                "translated_string": "Deployment voor dit domein niet gevonden"
+            },
+            "en": {
+                "translated_string": "Deployment for this domain was not found"
+            }
+        }
+    },
+    "domain-contact.failed-to-sync": {
+        "locales": {
+            "nl": {
+                "translated_string": "Kon domeincontact niet synchroniseren"
+            },
+            "en": {
+                "translated_string": "Failed to sync the domain contact"
+            }
+        }
+    },
+    "domain-contact.synced-successfully": {
+        "locales": {
+            "nl": {
+                "translated_string": "Domeincontact succesvol gesynchroniseerd"
+            },
+            "en": {
+                "translated_string": "Domain contact synced successfully"
             }
         }
     },
@@ -3589,7 +3699,7 @@
             }
         }
     },
-    "entity.customer-type.private": {
+    "entity.customer-type.consumer": {
         "locales": {
             "nl": {
                 "translated_string": "Particulier"
@@ -4516,6 +4626,16 @@
             },
             "en": {
                 "translated_string": "Email is required"
+            }
+        }
+    },
+    "general.validation.name.required": {
+        "locales": {
+            "nl": {
+                "translated_string": "Naam is verplicht"
+            },
+            "en": {
+                "translated_string": "Name is required"
             }
         }
     },
@@ -12550,6 +12670,16 @@
             }
         }
     },
+    "general.api-success": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je wijzigingen zijn opgeslagen."
+            },
+            "en": {
+                "translated_string": "Your changes have been saved."
+            }
+        }
+    },
     "general.api-success-async": {
         "locales": {
             "nl": {
@@ -12997,6 +13127,86 @@
             },
             "en": {
                 "translated_string": "Other"
+            }
+        }
+    },
+    "subscription.category.assign.title": {
+        "locales": {
+            "nl": {
+                "translated_string": "Categorie toewijzen"
+            },
+            "en": {
+                "translated_string": "Assign category"
+            }
+        }
+    },
+    "subscription.category.assign.no-category": {
+        "locales": {
+            "nl": {
+                "translated_string": "Selecteer een categorie."
+            },
+            "en": {
+                "translated_string": "Select a category."
+            }
+        }
+    },
+    "subscription.assign.no-assignee": {
+        "locales": {
+            "nl": {
+                "translated_string": "Selecteer een medewerker om toe te wijzen."
+            },
+            "en": {
+                "translated_string": "Select an employee to assign to."
+            }
+        }
+    },
+    "subscription.assign.title": {
+        "locales": {
+            "nl": {
+                "translated_string": "Abonnementen toewijzen"
+            },
+            "en": {
+                "translated_string": "Assign subscriptions"
+            }
+        }
+    },
+    "subscription.assign.count": {
+        "locales": {
+            "nl": {
+                "translated_string": "{count} abonnementen geselecteerd"
+            },
+            "en": {
+                "translated_string": "{count} subscriptions selected"
+            }
+        }
+    },
+    "subscription.assign.no-selection": {
+        "locales": {
+            "nl": {
+                "translated_string": "Selecteer minimaal één abonnement om toe te wijzen."
+            },
+            "en": {
+                "translated_string": "Select at least one subscription to assign."
+            }
+        }
+    },
+    "subscription.assign.success": {
+        "locales": {
+            "nl": {
+                "translated_string": "{count} abonnementen toegewezen."
+            },
+            "en": {
+                "translated_string": "{count} subscriptions assigned."
+            }
+        }
+    },
+    "subscription.assign.partial-failure": {
+        "locales": {
+            "nl": {
+                "translated_string": "{count} van {total} abonnementen konden niet worden toegewezen."
+            },
+            "en": {
+                "translated_string": "{count} of {total} subscriptions could not be assigned."
             }
         }
     },
@@ -13544,6 +13754,56 @@
             },
             "en": {
                 "translated_string": "The one-time service was created, but invoicing failed. Please invoice it manually."
+            }
+        }
+    },
+    "sidebar.invoice-one-time-service": {
+        "locales": {
+            "nl": {
+                "translated_string": "Factureer eenmalige dienst"
+            },
+            "en": {
+                "translated_string": "Invoice one-time service"
+            }
+        }
+    },
+    "one-time-service.invoice.title": {
+        "locales": {
+            "nl": {
+                "translated_string": "Eenmalige dienst factureren"
+            },
+            "en": {
+                "translated_string": "Invoice one-time service"
+            }
+        }
+    },
+    "one-time-service.invoice.confirmation": {
+        "locales": {
+            "nl": {
+                "translated_string": "Hiermee worden de factuurregels aangemaakt en direct naar Harbor verstuurd. De klant wordt hiervoor gefactureerd."
+            },
+            "en": {
+                "translated_string": "This creates the invoice lines and sends them to Harbor immediately. The customer will be billed for this."
+            }
+        }
+    },
+    "one-time-service.invoice.success": {
+        "locales": {
+            "nl": {
+                "translated_string": "De eenmalige dienst is gefactureerd"
+            },
+            "en": {
+                "translated_string": "The one-time service has been invoiced"
+            }
+        }
+    },
+    "one-time-service.invoice.error.failed": {
+        "locales": {
+            "nl": {
+                "translated_string": "Factureren van de eenmalige dienst mislukt"
+            },
+            "en": {
+                "translated_string": "Invoicing the one-time service failed"
             }
         }
     },
@@ -14937,7 +15197,7 @@
             }
         }
     },
-    "customer.label.pricing-ladder": {
+    "experiment.label.pricing-ladder": {
         "locales": {
             "nl": {
                 "translated_string": "Experiment: prijsladder"
@@ -15104,6 +15364,156 @@
             },
             "en": {
                 "translated_string": "Administrative status"
+            }
+        }
+    },
+    "keyboard-shortcuts.title": {
+        "locales": {
+            "nl": {
+                "translated_string": "Help"
+            },
+            "en": {
+                "translated_string": "Help"
+            }
+        }
+    },
+    "pages.product-discount.action.edit-prices": {
+        "locales": {
+            "nl": {
+                "translated_string": "Prijzen bewerken"
+            },
+            "en": {
+                "translated_string": "Edit prices"
+            }
+        }
+    },
+    "pages.product-discount.create.title": {
+        "locales": {
+            "nl": {
+                "translated_string": "Productkorting aanmaken"
+            },
+            "en": {
+                "translated_string": "Create product discount"
+            }
+        }
+    },
+    "pages.product-discount.prices.edit.title": {
+        "locales": {
+            "nl": {
+                "translated_string": "Kortingsprijzen bewerken"
+            },
+            "en": {
+                "translated_string": "Edit discount prices"
+            }
+        }
+    },
+    "pages.product-discount.prices.registration-staffel": {
+        "locales": {
+            "nl": {
+                "translated_string": "Staffelprijs registratie"
+            },
+            "en": {
+                "translated_string": "Registration staffel price"
+            }
+        }
+    },
+    "pages.product-discount.prices.prolongation-staffel": {
+        "locales": {
+            "nl": {
+                "translated_string": "Staffelprijs verlenging"
+            },
+            "en": {
+                "translated_string": "Prolongation staffel price"
+            }
+        }
+    },
+    "pages.product-discount.prices.empty": {
+        "locales": {
+            "nl": {
+                "translated_string": "Nog geen kortingsprijzen ingesteld."
+            },
+            "en": {
+                "translated_string": "No discount prices configured yet."
+            }
+        }
+    },
+    "pages.product-discount.prices.back-to-details": {
+        "locales": {
+            "nl": {
+                "translated_string": "Terug naar productkorting"
+            },
+            "en": {
+                "translated_string": "Back to product discount"
+            }
+        }
+    },
+    "sidebar.entity-title.product-discount": {
+        "locales": {
+            "nl": {
+                "translated_string": "Productkorting"
+            },
+            "en": {
+                "translated_string": "Product discount"
+            }
+        }
+    },
+    "navigation.sections.developer": {
+        "locales": {
+            "nl": {
+                "translated_string": "Developer"
+            },
+            "en": {
+                "translated_string": "Developer"
+            }
+        }
+    },
+    "pages.developer-subscriptions.title": {
+        "locales": {
+            "nl": {
+                "translated_string": "Abonnementen"
+            },
+            "en": {
+                "translated_string": "Subscriptions"
+            }
+        }
+    },
+    "pages.developer-subscriptions.description": {
+        "locales": {
+            "nl": {
+                "translated_string": "Alle abonnementen in één overzicht, doorzoekbaar en te filteren op status en productgroep."
+            },
+            "en": {
+                "translated_string": "Every subscription in one overview, searchable and filterable by status and product group."
+            }
+        }
+    },
+    "entities.subscription.id": {
+        "locales": {
+            "nl": {
+                "translated_string": "Abonnement ID"
+            },
+            "en": {
+                "translated_string": "Subscription ID"
+            }
+        }
+    },
+    "entities.customer.customer_number": {
+        "locales": {
+            "nl": {
+                "translated_string": "Klantnummer"
+            },
+            "en": {
+                "translated_string": "Customer number"
+            }
+        }
+    },
+    "entities.subscription.provider": {
+        "locales": {
+            "nl": {
+                "translated_string": "Provider"
+            },
+            "en": {
+                "translated_string": "Provider"
             }
         }
     }

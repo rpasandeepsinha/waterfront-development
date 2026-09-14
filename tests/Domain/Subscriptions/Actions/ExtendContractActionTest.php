@@ -36,21 +36,30 @@ class ExtendContractActionTest extends IntegrationTestCase
         Queue::fake();
 
         $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne();
-        $this->productPrice = new ProductPriceComponentFactory()->for($product)->prolongation()->createOne([
-            'contract_period' => 1,
-            'billing_period' => 1,
-            'price' => 1000,
-        ]);
-        new ProductPriceComponentFactory()->for($product)->prolongation()->createOne([
-            'contract_period' => 12,
-            'billing_period' => 12,
-            'price' => 1000,
-        ]);
+        $this->productPrice = new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne([
+                'contract_period' => 1,
+                'billing_period' => 1,
+                'price' => 1000,
+            ]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 1000,
+            ]);
 
-        $this->subscription = new SubscriptionFactory()->withCustomer()->for($product)->createOne([
-            'contract_period' => 12,
-            'billing_period' => 12,
-        ]);
+        $this->subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => 12,
+            ]);
 
         new TemplateFactory()->createOne([
             'slug' => SubscriptionContractUpdated::getTemplateSlug(),
@@ -73,17 +82,20 @@ class ExtendContractActionTest extends IntegrationTestCase
             1,
             1,
             null,
-            null
+            null,
         );
 
-        self::assertDatabaseHas(new SubscriptionMutation()->getTable(), [
-            'subscription_id' => $this->subscription->id,
-            'product_id' => $this->subscription->product->id,
-            'billing_period' => 1,
-            'contract_period' => 1,
-            'mutated_at' => null,
-            'net_price' => $this->productPrice->price,
-        ]);
+        self::assertDatabaseHas(
+            new SubscriptionMutation()->getTable(),
+            [
+                'subscription_id' => $this->subscription->id,
+                'product_id' => $this->subscription->product->id,
+                'billing_period' => 1,
+                'contract_period' => 1,
+                'mutated_at' => null,
+                'net_price' => $this->productPrice->price,
+            ],
+        );
     }
 
     #[Test]
@@ -98,24 +110,30 @@ class ExtendContractActionTest extends IntegrationTestCase
         );
 
         $newProduct = new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne())->createOne();
-        $productPrice = new ProductPriceComponentFactory()->for($newProduct)->prolongation()->createOne(['billing_period' => 1, 'contract_period' => 1]);
+        $productPrice = new ProductPriceComponentFactory()
+            ->for($newProduct)
+            ->prolongation()
+            ->createOne(['billing_period' => 1, 'contract_period' => 1]);
 
         $extendContractAction->execute(
             $this->subscription,
             1,
             1,
             null,
-            $newProduct
+            $newProduct,
         );
 
-        self::assertDatabaseHas(new SubscriptionMutation()->getTable(), [
-            'subscription_id' => $this->subscription->id,
-            'product_id' => $newProduct->id,
-            'billing_period' => 1,
-            'contract_period' => 1,
-            'mutated_at' => null,
-            'net_price' => $productPrice->price,
-        ]);
+        self::assertDatabaseHas(
+            new SubscriptionMutation()->getTable(),
+            [
+                'subscription_id' => $this->subscription->id,
+                'product_id' => $newProduct->id,
+                'billing_period' => 1,
+                'contract_period' => 1,
+                'mutated_at' => null,
+                'net_price' => $productPrice->price,
+            ],
+        );
     }
 
     #[Test]
@@ -132,17 +150,20 @@ class ExtendContractActionTest extends IntegrationTestCase
             1,
             1,
             12345,
-            null
+            null,
         );
 
-        self::assertDatabaseHas(new SubscriptionMutation()->getTable(), [
-            'subscription_id' => $this->subscription->id,
-            'product_id' => $this->subscription->product->id,
-            'billing_period' => 1,
-            'contract_period' => 1,
-            'mutated_at' => null,
-            'net_price' => 12345,
-        ]);
+        self::assertDatabaseHas(
+            new SubscriptionMutation()->getTable(),
+            [
+                'subscription_id' => $this->subscription->id,
+                'product_id' => $this->subscription->product->id,
+                'billing_period' => 1,
+                'contract_period' => 1,
+                'mutated_at' => null,
+                'net_price' => 12345,
+            ],
+        );
     }
 
     #[Test]
@@ -159,7 +180,7 @@ class ExtendContractActionTest extends IntegrationTestCase
             1,
             1,
             null,
-            null
+            null,
         );
     }
 
@@ -175,7 +196,7 @@ class ExtendContractActionTest extends IntegrationTestCase
             12,
             12,
             null,
-            null
+            null,
         );
     }
 
@@ -189,16 +210,19 @@ class ExtendContractActionTest extends IntegrationTestCase
             1,
             1,
             500,
-            null
+            null,
         );
 
-        self::assertDatabaseHas(new SubscriptionMutation()->getTable(), [
-            'subscription_id' => $this->subscription->id,
-            'product_id' => $this->subscription->product->id,
-            'billing_period' => 1,
-            'contract_period' => 1,
-            'mutated_at' => null,
-            'net_price' => 500,
-        ]);
+        self::assertDatabaseHas(
+            new SubscriptionMutation()->getTable(),
+            [
+                'subscription_id' => $this->subscription->id,
+                'product_id' => $this->subscription->product->id,
+                'billing_period' => 1,
+                'contract_period' => 1,
+                'mutated_at' => null,
+                'net_price' => 500,
+            ],
+        );
     }
 }

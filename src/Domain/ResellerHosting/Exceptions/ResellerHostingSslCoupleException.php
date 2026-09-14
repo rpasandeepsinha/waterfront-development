@@ -13,10 +13,10 @@ class ResellerHostingSslCoupleException extends Exception
         return new self(
             sprintf(
                 'There was an error coupling the certificate for domain %s',
-                $domain
+                $domain,
             ),
             $code,
-            $previous
+            $previous,
         );
     }
 }

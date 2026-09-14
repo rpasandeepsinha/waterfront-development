@@ -20,7 +20,7 @@ class BasekitClientServiceProvider extends BaseProvider
         ], 'config');
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/config.php',
-            'basekit'
+            'basekit',
         );
     }
 

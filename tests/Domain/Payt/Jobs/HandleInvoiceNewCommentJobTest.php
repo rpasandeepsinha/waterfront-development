@@ -33,7 +33,7 @@ class HandleInvoiceNewCommentJobTest extends IntegrationTestCase
     {
         $paytDebtor = $this->createPaytDebtorWebhookDTO(
             id: 2002,
-            debtorCode: '3001244'
+            debtorCode: '3001244',
         );
         $paytInvoice = $this->createPaytInvoiceWebhookDTO(
             resourceType: 'invoice',
@@ -44,7 +44,7 @@ class HandleInvoiceNewCommentJobTest extends IntegrationTestCase
 
         $job = new HandleInvoiceNewCommentJob(
             $paytInvoice,
-            PaytSupportedBusinessUnit::VERSIO2
+            PaytSupportedBusinessUnit::VERSIO2,
         );
 
         $lastPaytMessageDto = $this->createPaytMessageApiDTO(
@@ -63,10 +63,7 @@ class HandleInvoiceNewCommentJobTest extends IntegrationTestCase
         );
 
         $paytClientMock = $this->createMock(PaytClient::class);
-        $paytClientMock
-            ->expects(self::atLeastOnce())
-            ->method('getDebtorByDebtorNumber')
-            ->willReturn([$paytDebtorDto]);
+        $paytClientMock->expects(self::atLeastOnce())->method('getDebtorByDebtorNumber')->willReturn([$paytDebtorDto]);
         $paytClientMock
             ->expects(self::atLeastOnce())
             ->method('getLastMessageByInvoiceId')
@@ -95,7 +92,7 @@ class HandleInvoiceNewCommentJobTest extends IntegrationTestCase
     {
         $paytDebtor = $this->createPaytDebtorWebhookDTO(
             id: 2002,
-            debtorCode: '3001244'
+            debtorCode: '3001244',
         );
         $paytInvoice = $this->createPaytInvoiceWebhookDTO(
             resourceType: 'invoice',
@@ -106,7 +103,7 @@ class HandleInvoiceNewCommentJobTest extends IntegrationTestCase
 
         $job = new HandleInvoiceNewCommentJob(
             $paytInvoice,
-            PaytSupportedBusinessUnit::VERSIO2
+            PaytSupportedBusinessUnit::VERSIO2,
         );
 
         $lastPaytMessageDto = $this->createPaytMessageApiDTO(
@@ -125,10 +122,7 @@ class HandleInvoiceNewCommentJobTest extends IntegrationTestCase
         );
 
         $paytClientMock = $this->createMock(PaytClient::class);
-        $paytClientMock
-            ->expects(self::atLeastOnce())
-            ->method('getDebtorByDebtorNumber')
-            ->willReturn([$paytDebtorDto]);
+        $paytClientMock->expects(self::atLeastOnce())->method('getDebtorByDebtorNumber')->willReturn([$paytDebtorDto]);
         $paytClientMock
             ->expects(self::atLeastOnce())
             ->method('getLastMessageByInvoiceId')
@@ -142,14 +136,15 @@ class HandleInvoiceNewCommentJobTest extends IntegrationTestCase
             ->willReturn($paytClientMock);
 
         $puzzelPublicClient = self::createMock(PuzzelPublicClient::class);
-        $puzzelPublicClient->expects(self::once())
+        $puzzelPublicClient
+            ->expects(self::once())
             ->method('createTicket')
             ->with(self::equalTo(
                 new PuzzelCreateTicketRequest(
                     subject: 'Reactie op factuur 10012356',
-                    body: 'content bla' .
-                    '<br>The following email addresses are known in Payt to related debtor:<br>' .
-                    'Primary email address: first@email.com<br>',
+                    body: 'content bla'
+                    . '<br>The following email addresses are known in Payt to related debtor:<br>'
+                    . 'Primary email address: first@email.com<br>',
                     customer: new PuzzelTicketCustomer(
                         email: $paytDebtorDto->primaryEmailAddress ?? '',
                         firstName: $paytDebtorDto->name,
@@ -160,7 +155,7 @@ class HandleInvoiceNewCommentJobTest extends IntegrationTestCase
                         ['name' => 'Brand', 'value' => 'Versio 2.0'],
                         ['name' => 'Customer ID', 'value' => $paytDebtorDto->debtorNumber],
                     ],
-                )
+                ),
             ));
         $convertor = new PaytToPuzzelConvertor(
             $puzzelPublicClient,
@@ -175,14 +170,14 @@ class HandleInvoiceNewCommentJobTest extends IntegrationTestCase
         string $id,
         string $debtorNumber,
         string $name,
-        string|null $callPhoneNumber = null,
-        string|null $smsPhoneNumber = null,
-        string|null $primaryEmailAddress = null,
-        string|null $invoiceEmailAddress = null,
-        string|null $debtorIdentifier = null,
-        string|null $languageCode = null,
-        PaytDebtorPostalAddressDTO|null $postalAddress = null,
-        string|null $administrationId = null,
+        ?string $callPhoneNumber = null,
+        ?string $smsPhoneNumber = null,
+        ?string $primaryEmailAddress = null,
+        ?string $invoiceEmailAddress = null,
+        ?string $debtorIdentifier = null,
+        ?string $languageCode = null,
+        ?PaytDebtorPostalAddressDTO $postalAddress = null,
+        ?string $administrationId = null,
     ): PaytDebtorApiDTO {
         return new PaytDebtorApiDTO(
             id: $id,
@@ -195,7 +190,7 @@ class HandleInvoiceNewCommentJobTest extends IntegrationTestCase
             debtorIdentifier: $debtorIdentifier,
             languageCode: $languageCode,
             postalAddress: $postalAddress,
-            administrationId: $administrationId
+            administrationId: $administrationId,
         );
     }
 
@@ -203,10 +198,10 @@ class HandleInvoiceNewCommentJobTest extends IntegrationTestCase
         string $id,
         string $senderType,
         string $content,
-        string|null $sentAt = null,
-        string|null $receivedAt = null,
-        string|null $subject = null,
-        string|null $creditCaseId = null,
+        ?string $sentAt = null,
+        ?string $receivedAt = null,
+        ?string $subject = null,
+        ?string $creditCaseId = null,
     ): PaytMessageApiDTO {
         return new PaytMessageApiDTO(
             id: $id,
@@ -215,17 +210,17 @@ class HandleInvoiceNewCommentJobTest extends IntegrationTestCase
             sentAt: $sentAt,
             receivedAt: $receivedAt,
             subject: $subject,
-            creditCaseId: $creditCaseId
+            creditCaseId: $creditCaseId,
         );
     }
 
     private function createPaytDebtorWebhookDTO(
         int $id,
-        string|null $resourceType = null,
-        string|null $companyName = null,
-        string|null $name = null,
-        string|null $debtorCode = null,
-        PaytAdministrationWebhookDTO|null $administration = null,
+        ?string $resourceType = null,
+        ?string $companyName = null,
+        ?string $name = null,
+        ?string $debtorCode = null,
+        ?PaytAdministrationWebhookDTO $administration = null,
     ): PaytDebtorWebhookDTO {
         return new PaytDebtorWebhookDTO(
             resourceType: $resourceType,
@@ -238,17 +233,17 @@ class HandleInvoiceNewCommentJobTest extends IntegrationTestCase
     }
 
     private function createPaytInvoiceWebhookDTO(
-        string|null $resourceType,
+        ?string $resourceType,
         int $id,
-        string|null $invoiceNumber = null,
-        string|null $invoiceDate = null,
-        string|null $dueDate = null,
-        string|null $amountTotal = null,
-        string|null $amountOpen = null,
-        string|null $currencyCode = null,
-        string|null $orderNumber = null,
-        PaytDebtorWebhookDTO|null $debtor = null,
-        PaytAdministrationWebhookDTO|null $administration = null,
+        ?string $invoiceNumber = null,
+        ?string $invoiceDate = null,
+        ?string $dueDate = null,
+        ?string $amountTotal = null,
+        ?string $amountOpen = null,
+        ?string $currencyCode = null,
+        ?string $orderNumber = null,
+        ?PaytDebtorWebhookDTO $debtor = null,
+        ?PaytAdministrationWebhookDTO $administration = null,
     ): PaytInvoiceWebhookDTO {
         return new PaytInvoiceWebhookDTO(
             resourceType: $resourceType,
@@ -261,7 +256,7 @@ class HandleInvoiceNewCommentJobTest extends IntegrationTestCase
             currencyCode: $currencyCode,
             orderNumber: $orderNumber,
             debtor: $debtor,
-            administration: $administration
+            administration: $administration,
         );
     }
 }

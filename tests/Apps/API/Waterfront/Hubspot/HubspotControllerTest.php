@@ -29,7 +29,9 @@ class HubspotControllerTest extends IntegrationTestCase
     public function getCustomerDataReturns404(): void
     {
         $this->actingAsSystem()
-            ->getJson($this->generateRoute('webhooks.hubspot.get-customer-data', ['sw_uuid' => Uuid::uuid4()->toString()]))
+            ->getJson($this->generateRoute('webhooks.hubspot.get-customer-data', [
+                'sw_uuid' => Uuid::uuid4()->toString(),
+            ]))
             ->assertNotFound();
     }
 }

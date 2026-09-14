@@ -35,7 +35,7 @@ class HostingPlaceholderService extends PlaceHolderService implements HostingSer
 {
     public function coupleDomainToExistingHosting(
         DomainDeployment $domainDeployment,
-        HostingDeployment $hostingDeployment
+        HostingDeployment $hostingDeployment,
     ): bool {
         throw new NotImplementedException();
     }
@@ -93,9 +93,11 @@ class HostingPlaceholderService extends PlaceHolderService implements HostingSer
         array $specs,
         ?Server $server = null,
         ?string $forwardingUrl = null,
-        ?string $domain = null
+        ?string $domain = null,
     ): array {
-        $provider = Provider::where('slug', ProviderSlug::PLACEHOLDER)->where('type', ProviderType::HOSTING)->firstOrFail();
+        $provider = Provider::where('slug', ProviderSlug::PLACEHOLDER)
+            ->where('type', ProviderType::HOSTING)
+            ->firstOrFail();
 
         $hostingDeployment = HostingDeployment::updateOrCreate(
             ['subscription_uuid' => $subscriptionUuid],
@@ -120,7 +122,7 @@ class HostingPlaceholderService extends PlaceHolderService implements HostingSer
         string $username,
         Server $server,
         string $ipAddress,
-        bool $redirectToMail = false
+        bool $redirectToMail = false,
     ): never {
         throw new NotImplementedException();
     }
@@ -196,8 +198,12 @@ class HostingPlaceholderService extends PlaceHolderService implements HostingSer
         throw new NotImplementedException();
     }
 
-    public function createEmailForward(Server $server, string $domain, string $sourceEmailAddressUsername, string $destinationEmailAddresses): string
-    {
+    public function createEmailForward(
+        Server $server,
+        string $domain,
+        string $sourceEmailAddressUsername,
+        string $destinationEmailAddresses,
+    ): string {
         throw new NotImplementedException();
     }
 
@@ -251,13 +257,16 @@ class HostingPlaceholderService extends PlaceHolderService implements HostingSer
         throw new NotImplementedException();
     }
 
-    public function getDefaultDomain(string $username, Server $server): string|null
+    public function getDefaultDomain(string $username, Server $server): ?string
     {
         throw new NotImplementedException();
     }
 
-    public function isUsingHostingServerAsNameserver(string|null $ipv4HostingServer, string|null $ipv6HostingServer, SiteConfigInterface $userConfig): bool
-    {
+    public function isUsingHostingServerAsNameserver(
+        ?string $ipv4HostingServer,
+        ?string $ipv6HostingServer,
+        SiteConfigInterface $userConfig,
+    ): bool {
         // throw new NotImplementedException here as we are not implementing hosting migration support for placholder subscriptions
         // but if the code ever gets here it will error out cause of the true since Nameservers
         // have to be different from the hosting server to continue migrating

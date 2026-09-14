@@ -55,14 +55,14 @@ class DirectAdminResellerHostingServiceTest extends IntegrationTestCase
         parent::setUp();
 
         new ServerFactory()->createOne([
-            'type'               => ServerType::DIRECTADMIN,
-            'name'               => 'Test DirectAdmin Server',
-            'hostname'           => 'testserver.testdomain.nl',
-            'ipv4'               => '127.0.0.1',
-            'ipv6'               => '2001:1460:2:0:1c21:1fff:fe00:1aa',
-            'owner'              => 'Realhosting',
+            'type' => ServerType::DIRECTADMIN,
+            'name' => 'Test DirectAdmin Server',
+            'hostname' => 'testserver.testdomain.nl',
+            'ipv4' => '127.0.0.1',
+            'ipv6' => '2001:1460:2:0:1c21:1fff:fe00:1aa',
+            'owner' => 'Realhosting',
             'allow_new_websites' => true,
-            'secret_key'         => '',
+            'secret_key' => '',
         ]);
 
         // Create the reseller hosting product group
@@ -74,25 +74,32 @@ class DirectAdminResellerHostingServiceTest extends IntegrationTestCase
         // Create a reseller Product with a registration price
         $this->resellerProduct = new ProductFactory()->createOne([
             'product_group_id' => $resellerProductGroup->id,
-            'name'             => 'Reseller Brons',
-            'slug'             => 'hosting_reseller_brons',
-            'description'      => 'Reseller hosting start',
-            'orderable'        => 1,
-            'weight'           => 1,
+            'name' => 'Reseller Brons',
+            'slug' => 'hosting_reseller_brons',
+            'description' => 'Reseller hosting start',
+            'orderable' => 1,
+            'weight' => 1,
         ]);
 
         $this->customer = new CustomerFactory()->createOne();
-        $this->hostingProvider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        $this->hostingProvider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $this->daServer = new ServerFactory()->directadmin()->createOne();
 
-        $this->subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain'             => 'testdomain.nl',
-            'product_uuid'       => $this->resellerProduct->uuid,
-            'customer_id'        => $this->customer->getKey(),
-            'gross_price'        => 1120,
-            'net_price'          => 1120,
-            'contract_period'    => 12,
-        ]);
+        $this->subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => 'testdomain.nl',
+                'product_uuid' => $this->resellerProduct->uuid,
+                'customer_id' => $this->customer->getKey(),
+                'gross_price' => 1120,
+                'net_price' => 1120,
+                'contract_period' => 12,
+            ]);
 
         new ResellerHostingDeploymentFactory()->createOne([
             'subscription_uuid' => $this->subscription->uuid,
@@ -109,18 +116,21 @@ class DirectAdminResellerHostingServiceTest extends IntegrationTestCase
 
         //Create a domein Product
         $domainProduct = new ProductFactory()->createOne([
-            'product_group_id'  => $domainProductGroup->id,
-            'name'              => '.nl',
-            'slug'              => 'extension_nl',
-            'description'       => '.nl Domein',
-            'orderable'         => 1,
-            'weight'            => 1,
+            'product_group_id' => $domainProductGroup->id,
+            'name' => '.nl',
+            'slug' => 'extension_nl',
+            'description' => '.nl Domein',
+            'orderable' => 1,
+            'weight' => 1,
         ]);
 
-        $productPriceDomain = new ProductPriceComponentFactory()->for($domainProduct)->registration()->createOne(['price' => 600]);
+        $productPriceDomain = new ProductPriceComponentFactory()
+            ->for($domainProduct)
+            ->registration()
+            ->createOne(['price' => 600]);
 
         $this->domainSubscription = new SubscriptionFactory()->for($this->customer)->createOne([
-            'domain'        => 'testdomain.nl',
+            'domain' => 'testdomain.nl',
             'product_uuid' => $domainProduct->uuid,
             'gross_price' => $productPriceDomain->price,
             'net_price' => $productPriceDomain->price,
@@ -150,7 +160,7 @@ class DirectAdminResellerHostingServiceTest extends IntegrationTestCase
                 ['product_id' => $this->resellerProduct->id],
             ],
             providerId: 1,
-            server: $this->daServer
+            server: $this->daServer,
         );
 
         self::assertSame(TechnicalStatus::OK->value, $result);
@@ -190,10 +200,10 @@ class DirectAdminResellerHostingServiceTest extends IntegrationTestCase
             'last_result' => json_encode([]),
             'last_result_received' => CarbonImmutable::now(),
             'provider_id' => ProviderFactory::new()->createOne([
-                'slug'      => ProviderSlug::OPEN_PROVIDER,
-                'enabled'   => true,
-                'default'   => true,
-                'type'      => ProviderType::DOMAIN,
+                'slug' => ProviderSlug::OPEN_PROVIDER,
+                'enabled' => true,
+                'default' => true,
+                'type' => ProviderType::DOMAIN,
             ])->id,
         ]);
 
@@ -245,14 +255,16 @@ class DirectAdminResellerHostingServiceTest extends IntegrationTestCase
     {
         $server = new ServerFactory()->createOne();
 
-        $missingServerSubscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain'                => 'testdomain.nl',
-            'product_uuid'          => $this->resellerProduct->uuid,
-            'customer_id'           => $this->customer->id,
-            'gross_price'           => 1120,
-            'net_price'             => 1120,
-            'contract_period'       => 12,
-        ]);
+        $missingServerSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => 'testdomain.nl',
+                'product_uuid' => $this->resellerProduct->uuid,
+                'customer_id' => $this->customer->id,
+                'gross_price' => 1120,
+                'net_price' => 1120,
+                'contract_period' => 12,
+            ]);
 
         $invalidUsername = 'DaResellerInvalid';
 
@@ -266,7 +278,9 @@ class DirectAdminResellerHostingServiceTest extends IntegrationTestCase
         $parameters = $this->generateResellerParameters($invalidUsername);
 
         $this->expectException(ResellerHostingException::class);
-        $this->expectExceptionMessageIs('No compatible server was found to deploy reseller hosting packages in directadmin!');
+        $this->expectExceptionMessageIs(
+            'No compatible server was found to deploy reseller hosting packages in directadmin!',
+        );
 
         $this->resellerHostingService->resetPassword($parameters, $this->customer->uuid);
     }
@@ -285,8 +299,8 @@ class DirectAdminResellerHostingServiceTest extends IntegrationTestCase
     {
         return new ResellerHostingParameters(
             contactPerson: $this->customer->getContactNameAttribute(),
-            username: $username ?? $this->subscription
-                ->resellerHostingDeployment->directadmin_customer_username ?? 'test',
+            username: $username ?? $this->subscription->resellerHostingDeployment->directadmin_customer_username
+                ?? 'test',
             password: 'supersecret',
             email: $this->customer->email,
             domain: $this->subscription->domain,
@@ -294,7 +308,7 @@ class DirectAdminResellerHostingServiceTest extends IntegrationTestCase
             ipv6Address: null,
             packageName: 'Mini',
             resellerHostingId: null,
-            providerId: 1
+            providerId: 1,
         );
     }
 }

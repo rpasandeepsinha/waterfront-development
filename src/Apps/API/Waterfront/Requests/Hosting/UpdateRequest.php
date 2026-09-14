@@ -19,9 +19,9 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'enableDns'     => ['boolean'],
-            'enableSsh'     => ['boolean'],
-            'enableSsl'     => ['boolean'],
+            'enableDns' => ['boolean'],
+            'enableSsh' => ['boolean'],
+            'enableSsl' => ['boolean'],
         ];
     }
 }

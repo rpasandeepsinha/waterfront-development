@@ -26,11 +26,11 @@ class MicrosoftOnlineClientTest extends TestCase
         $successRecordResponse = file_get_contents(__DIR__ . '/data/valid_tenant.json');
 
         $mockResponse = self::mock(Response::class);
-        $mockResponse->shouldReceive('body')
-            ->andReturn($successRecordResponse);
+        $mockResponse->shouldReceive('body')->andReturn($successRecordResponse);
 
         $mockConnector = self::mock(MicrosoftOnlineConnector::class);
-        $mockConnector->shouldReceive('send')
+        $mockConnector
+            ->shouldReceive('send')
             ->once()
             ->with(GetOpenIdConfigurationRequest::class)
             ->andReturn($mockResponse);
@@ -38,7 +38,10 @@ class MicrosoftOnlineClientTest extends TestCase
         $microsoftOnlineClient = new MicrosoftOnlineClient($mockConnector, new MicrosoftOnlineSerializer());
 
         $openConfigurationId = $microsoftOnlineClient->getOpenIdConfiguration($testTenant);
-        self::assertSame('https://login.microsoftonline.com/11741a99-4335-4d73-ab02-dedc34a64dbf/oauth2/authorize', $openConfigurationId->authorizationEndpoint);
+        self::assertSame(
+            'https://login.microsoftonline.com/11741a99-4335-4d73-ab02-dedc34a64dbf/oauth2/authorize',
+            $openConfigurationId->authorizationEndpoint,
+        );
     }
 
     #[Test]
@@ -49,11 +52,11 @@ class MicrosoftOnlineClientTest extends TestCase
         $successRecordResponse = file_get_contents(__DIR__ . '/data/valid_tenant.json');
 
         $mockResponse = self::mock(Response::class);
-        $mockResponse->shouldReceive('body')
-            ->andReturn($successRecordResponse);
+        $mockResponse->shouldReceive('body')->andReturn($successRecordResponse);
 
         $mockConnector = self::mock(MicrosoftOnlineConnector::class);
-        $mockConnector->shouldReceive('send')
+        $mockConnector
+            ->shouldReceive('send')
             ->once()
             ->with(GetOpenIdConfigurationRequest::class)
             ->andReturn($mockResponse);
@@ -72,15 +75,14 @@ class MicrosoftOnlineClientTest extends TestCase
         $errorResponse = file_get_contents(__DIR__ . '/data/invalid_tenant.json');
 
         $mockResponse = self::mock(Response::class);
-        $mockResponse->shouldReceive('body')
-            ->andReturn($errorResponse);
+        $mockResponse->shouldReceive('body')->andReturn($errorResponse);
 
         $mockException = self::mock(ClientException::class);
-        $mockException->shouldReceive('getResponse')
-            ->andReturn($mockResponse);
+        $mockException->shouldReceive('getResponse')->andReturn($mockResponse);
 
         $mockConnector = self::mock(MicrosoftOnlineConnector::class);
-        $mockConnector->shouldReceive('send')
+        $mockConnector
+            ->shouldReceive('send')
             ->once()
             ->with(GetOpenIdConfigurationRequest::class)
             ->andThrow($mockException);

@@ -39,7 +39,12 @@ class PotentialUpgradesTest extends IntegrationTestCase
             'credit_limit' => 1,
         ]);
 
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
         new ServerFactory()->createOne();
         $hostingProductGroup = new ProductGroupFactory()->createOne([
             'name' => ProductGroupType::HOSTING,
@@ -56,12 +61,14 @@ class PotentialUpgradesTest extends IntegrationTestCase
             'name' => 'super',
         ]);
 
-        new ProductPriceComponentFactory()->prolongation()->createOne([
-            'product_id' => $superHostingProduct->id,
-            'price' => 110,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->createOne([
+                'product_id' => $superHostingProduct->id,
+                'price' => 110,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
         $this->subscription = new SubscriptionFactory()->for($this->customer)->createOne([
             'technical_status' => TechnicalStatus::OK->value,
@@ -74,7 +81,7 @@ class PotentialUpgradesTest extends IntegrationTestCase
 
         ProductAllowedChangeFactory::new()->upgradeChange()->create([
             'from_product_id' => $basicHostingProduct->id,
-            'to_product_id' =>  $superHostingProduct->id,
+            'to_product_id' => $superHostingProduct->id,
         ]);
     }
 
@@ -95,12 +102,14 @@ class PotentialUpgradesTest extends IntegrationTestCase
         $upgrades = Arr::get($json, 'upgrades');
         assert(is_array($upgrades));
 
-        $entry = new Collection($upgrades)->filter(fn ($upgrade): bool => Arr::get($upgrade, 'product.name') === $upgradeName)->first();
+        $entry = new Collection($upgrades)
+            ->filter(fn ($upgrade): bool => Arr::get($upgrade, 'product.name') === $upgradeName)
+            ->first();
 
         self::assertSame(
             $upgradeName,
             Arr::get($entry, 'product.name'),
-            'potential upgrades heeft geen product genaamd super'
+            'potential upgrades heeft geen product genaamd super',
         );
     }
 }

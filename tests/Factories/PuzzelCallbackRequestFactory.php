@@ -24,12 +24,11 @@ class PuzzelCallbackRequestFactory extends Factory
         $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne();
 
         $slotTime = $timeslot->start_timeslot;
-        $desiredTime = CarbonImmutable::today()
-            ->setTime(
-                hour: $slotTime->hour,
-                minute: $slotTime->minute,
-                second: $slotTime->second
-            );
+        $desiredTime = CarbonImmutable::today()->setTime(
+            hour: $slotTime->hour,
+            minute: $slotTime->minute,
+            second: $slotTime->second,
+        );
 
         return [
             'uuid' => Uuid::uuid4(),

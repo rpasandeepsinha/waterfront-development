@@ -77,11 +77,9 @@ class GetAuditableNameActionTest extends IntegrationTestCase
             'new_values' => ['domain_name' => 'naaaame'],
         ]);
 
-        $audit->auditable?->with('subscription.product.productGroup', 'managerDomainDeployment')
-            ->get()
-            ->toArray();
+        $audit->auditable?->with('subscription.product.productGroup', 'managerDomainDeployment')->get()->toArray();
 
-        $getAuditableNameAction =  new GetAuditableNameAction();
+        $getAuditableNameAction = new GetAuditableNameAction();
 
         $result = $getAuditableNameAction->execute($audit);
 
@@ -105,7 +103,7 @@ class GetAuditableNameActionTest extends IntegrationTestCase
             'new_values' => ['domain_name' => 'naaaame'],
         ]);
 
-        $getAuditableNameAction =  new GetAuditableNameAction();
+        $getAuditableNameAction = new GetAuditableNameAction();
 
         $result = $getAuditableNameAction->execute($audit);
 
@@ -117,8 +115,8 @@ class GetAuditableNameActionTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
         $group = new ProductGroupFactory()->createOne([
-            'name'           => 'Microsoft 365',
-            'slug'           => ProductGroupType::MICROSOFT_365,
+            'name' => 'Microsoft 365',
+            'slug' => ProductGroupType::MICROSOFT_365,
         ]);
 
         $product = new ProductFactory()->for($group)->createOne([
@@ -150,7 +148,7 @@ class GetAuditableNameActionTest extends IntegrationTestCase
             'new_values' => ['technical_status' => TechnicalStatus::OK->value],
         ]);
 
-        $getAuditableNameAction =  new GetAuditableNameAction();
+        $getAuditableNameAction = new GetAuditableNameAction();
 
         $result = $getAuditableNameAction->execute($audit);
 
@@ -182,20 +180,37 @@ class GetAuditableNameActionTest extends IntegrationTestCase
         $virtualMachineProduct = new ProductFactory()->for($virtualMachineProductGroup)->createOne();
         $volumeProduct = new ProductFactory()->for($volumeProductGroup)->createOne();
 
-        new CloudstackEnvironmentProductFactory()->for($virtualMachineProduct)->for($environment)->create();
-        new CloudstackEnvironmentProductFactory()->for($volumeProduct)->for($environment)->create();
+        new CloudstackEnvironmentProductFactory()
+            ->for($virtualMachineProduct)
+            ->for($environment)
+            ->create();
+        new CloudstackEnvironmentProductFactory()
+            ->for($volumeProduct)
+            ->for($environment)
+            ->create();
 
-        $virtualMachineSubscription = new SubscriptionFactory()->for($virtualMachineProduct)->for($customer)->createOne();
-        $volumeSubscription = new SubscriptionFactory()->for($volumeProduct)->for($customer)->parentSubscription($virtualMachineSubscription)->createOne([
-            'uuid' => '45ff89c4-eeee-eeee-eeee-eeeeeeeeeeee',
-        ]);
-        $volumeSubscriptionCanceled = new SubscriptionFactory()->for($volumeProduct)->for($customer)->parentSubscription($virtualMachineSubscription)->createOne([
-            'domain' => 'Volume 9',
-            'start_date' => new CarbonImmutable()->subWeek(),
-            'end_date' => new CarbonImmutable()->addMonth()->subWeek(),
-            'cancel_date' => new CarbonImmutable()->subDay(),
-            'administrative_status' => AdministrativeStatus::CANCELED->value,
-        ]);
+        $virtualMachineSubscription = new SubscriptionFactory()
+            ->for($virtualMachineProduct)
+            ->for($customer)
+            ->createOne();
+        $volumeSubscription = new SubscriptionFactory()
+            ->for($volumeProduct)
+            ->for($customer)
+            ->parentSubscription($virtualMachineSubscription)
+            ->createOne([
+                'uuid' => '45ff89c4-eeee-eeee-eeee-eeeeeeeeeeee',
+            ]);
+        $volumeSubscriptionCanceled = new SubscriptionFactory()
+            ->for($volumeProduct)
+            ->for($customer)
+            ->parentSubscription($virtualMachineSubscription)
+            ->createOne([
+                'domain' => 'Volume 9',
+                'start_date' => new CarbonImmutable()->subWeek(),
+                'end_date' => new CarbonImmutable()->addMonth()->subWeek(),
+                'cancel_date' => new CarbonImmutable()->subDay(),
+                'administrative_status' => AdministrativeStatus::CANCELED->value,
+            ]);
 
         new CloudstackVirtualMachineDeploymentFactory()->for($managerDomainDeployment)->create([
             'subscription_uuid' => $virtualMachineSubscription->uuid,

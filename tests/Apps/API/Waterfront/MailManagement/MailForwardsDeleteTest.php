@@ -45,21 +45,16 @@ class MailForwardsDeleteTest extends IntegrationTestCase
         $this->domain = 'example.com';
         $this->customer = CustomerFactory::new()->createOne();
 
-        $this->server = ServerFactory::new()
-            ->createOne([
-                'type' => ServerType::DIRECTADMIN_MAIL,
-            ]);
+        $this->server = ServerFactory::new()->createOne([
+            'type' => ServerType::DIRECTADMIN_MAIL,
+        ]);
 
-        $product = ProductFactory::new()
-            ->emailStart()
-            ->createOne();
+        $product = ProductFactory::new()->emailStart()->createOne();
 
-        new ProductSpecFactory()
-            ->for($product)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
-                'value' => '1',
-            ]);
+        new ProductSpecFactory()->for($product)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '1',
+        ]);
 
         $subscription = SubscriptionFactory::new()
             ->for($product)
@@ -67,11 +62,10 @@ class MailForwardsDeleteTest extends IntegrationTestCase
             ->forDomain($this->domain)
             ->createOne();
 
-        $mailProvider = ProviderFactory::new()
-            ->createOne([
-                'type' => ProviderType::MAILONLY,
-                'slug' => ProviderSlug::DIRECTADMIN,
-            ]);
+        $mailProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::MAILONLY,
+            'slug' => ProviderSlug::DIRECTADMIN,
+        ]);
 
         /** @var HostingDeployment $hostingDeploymentForMail */
         $hostingDeploymentForMail = HostingDeploymentFactory::new()
@@ -80,7 +74,8 @@ class MailForwardsDeleteTest extends IntegrationTestCase
                 'mail_only_server_id' => $this->server->id,
                 'mail_only_provider_id' => $mailProvider->id,
                 'directadmin_customer_username' => 'good-test',
-            ])->fresh([
+            ])
+            ->fresh([
                 'subscription.product.productGroup',
                 'subscription.product.productSpecs',
                 'subscription.customer',
@@ -98,7 +93,8 @@ class MailForwardsDeleteTest extends IntegrationTestCase
     {
         $source = 'example_source';
 
-        $this->mailOnlyService->expects(self::once())
+        $this->mailOnlyService
+            ->expects(self::once())
             ->method('deleteEmailForward')
             ->with($this->hostingDeploymentForMail, $source)
             ->willReturn(true);
@@ -109,7 +105,8 @@ class MailForwardsDeleteTest extends IntegrationTestCase
                     'hostingDeployment' => $this->hostingDeploymentForMail->subscription_uuid,
                     'source' => $source,
                 ]),
-            )->assertNoContent();
+            )
+            ->assertNoContent();
     }
 
     #[Test]
@@ -117,7 +114,8 @@ class MailForwardsDeleteTest extends IntegrationTestCase
     {
         $source = 'another_source';
 
-        $this->mailOnlyService->expects(self::once())
+        $this->mailOnlyService
+            ->expects(self::once())
             ->method('deleteEmailForward')
             ->willThrowException(
                 new EmailForwardException(
@@ -126,8 +124,8 @@ class MailForwardsDeleteTest extends IntegrationTestCase
                     'good-test',
                     [
                         'source' => $source,
-                    ]
-                )
+                    ],
+                ),
             );
 
         $this->actingAsCustomer($this->customer)

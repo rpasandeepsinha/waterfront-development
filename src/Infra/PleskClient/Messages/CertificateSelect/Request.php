@@ -8,8 +8,10 @@ use Waterfront\Domain\Hosting\Interfaces\Hosting\RequestInterface;
 
 class Request implements RequestInterface
 {
-    public function __construct(private readonly string $domain, private readonly string $certificateName)
-    {
+    public function __construct(
+        private readonly string $domain,
+        private readonly string $certificateName,
+    ) {
     }
 
     /**
@@ -27,7 +29,7 @@ class Request implements RequestInterface
                         'hosting' => [
                             'vrt_hst' => [
                                 'property' => [
-                                    'name'  => 'certificate_name',
+                                    'name' => 'certificate_name',
                                     'value' => $this->certificateName,
                                 ],
                             ],

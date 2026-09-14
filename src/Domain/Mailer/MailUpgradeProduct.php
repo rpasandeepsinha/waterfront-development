@@ -10,7 +10,7 @@ class MailUpgradeProduct implements MailTemplateInterface
         public readonly string $productName,
         public readonly string $domainName,
         public readonly int $contractPeriod,
-        public readonly int $grossPrice
+        public readonly int $grossPrice,
     ) {
     }
 

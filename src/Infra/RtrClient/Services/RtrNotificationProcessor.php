@@ -50,7 +50,7 @@ class RtrNotificationProcessor
 
         try {
             $this->eventDispatcher->dispatch(
-                new NewNotificationReceived($notification, $rtrResponseLog)
+                new NewNotificationReceived($notification, $rtrResponseLog),
             );
 
             $rtrResponseLog->processed_at = CarbonImmutable::now();

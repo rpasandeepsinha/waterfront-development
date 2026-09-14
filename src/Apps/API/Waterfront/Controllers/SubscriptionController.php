@@ -77,7 +77,14 @@ class SubscriptionController
     {
         $this->subscriptionPolicy->assertCanAccess($subscription);
 
-        $subscription->loadMissing(['children', 'children.product', 'product', 'product.productGroup', 'labels', 'mutations']);
+        $subscription->loadMissing([
+            'children',
+            'children.product',
+            'product',
+            'product.productGroup',
+            'labels',
+            'mutations',
+        ]);
 
         return new JsonResponse(['data' => $this->subscriptionPresenter->toArray($subscription)]);
     }
@@ -96,8 +103,10 @@ class SubscriptionController
 
         $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
 
-        $subscriptions = $this->subscriptionRepository
-            ->getAllSubscriptionsForCustomerBasedOnGroupFilter($customer, $filter);
+        $subscriptions = $this->subscriptionRepository->getAllSubscriptionsForCustomerBasedOnGroupFilter(
+            $customer,
+            $filter,
+        );
 
         return new JsonResponse(['data' => SubscriptionOverviewResource::collection($subscriptions)]);
     }
@@ -111,7 +120,7 @@ class SubscriptionController
         $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
         $subscriptions = $this->subscriptionRepository->getActiveSubscriptionOverview($customer);
 
-        return new JsonResponse([ 'data' => $this->subscriptionToResourceConverter->toArray($subscriptions)]);
+        return new JsonResponse(['data' => $this->subscriptionToResourceConverter->toArray($subscriptions)]);
     }
 
     /**
@@ -121,7 +130,8 @@ class SubscriptionController
     public function cancel(CancelRequest $request): AnonymousResourceCollection
     {
         $subscriptionsRequest = $request->subscriptions;
-        $subscriptions = $this->subscriptionService->getSubscriptionsQuery()
+        $subscriptions = $this->subscriptionService
+            ->getSubscriptionsQuery()
             ->whereIn('uuid', Arr::pluck($subscriptionsRequest, 'uuid'))
             ->get();
 
@@ -150,10 +160,11 @@ class SubscriptionController
                     'Tried to cancel subscription with non existing uuid: {subscription.uuid}',
                     [
                         LoggingContextKeys::SUBSCRIPTION_UUID => $cancellation->uuid,
-                    ]
+                    ],
                 );
                 continue;
             }
+
             $this->subscriptionPolicy->assertCanCancel($subscription);
 
             if ($cancellation->cancelType === SubscriptionCancelType::CANCEL_DOWNGRADE) {
@@ -185,15 +196,18 @@ class SubscriptionController
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::CUSTOMER_ID => $subscription->customer->id,
                     LoggingContextKeys::EXCEPTION => $cancelNotRevertedException,
-                ]
+                ],
             );
+
             return new JsonResponse(
                 ['message' => $this->translator->translate('services.revert-cancel-subscription.failed')],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
 
-        return new JsonResponse(['message' => $this->translator->translate('services.revert-cancel-subscription.successful')]);
+        return new JsonResponse([
+            'message' => $this->translator->translate('services.revert-cancel-subscription.successful'),
+        ]);
     }
 
     public function cancelChildSubscription(
@@ -202,7 +216,7 @@ class SubscriptionController
         try {
             $this->cancellationService->cancelChildSubscriptions(
                 $request->parent,
-                $request->amount
+                $request->amount,
             );
         } catch (AmountException $amountException) {
             $this->logger->warning(
@@ -213,35 +227,34 @@ class SubscriptionController
                     LoggingContextKeys::META => [
                         'amount_requested' => $request->amount,
                     ],
-                ]
+                ],
             );
+
             return new JsonResponse([
                 'message' => $amountException->getMessage(),
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        return new JsonResponse(['message' => $this->translator->translate('services.cancel-child-subscription.successful')]);
+        return new JsonResponse([
+            'message' => $this->translator->translate('services.cancel-child-subscription.successful'),
+        ]);
     }
 
     public function getPotentialUpgrades(
         Subscription $subscription,
-        SubscriptionChangeService $subscriptionChangeService
+        SubscriptionChangeService $subscriptionChangeService,
     ): JsonResponse {
         try {
-            $addons = $this->subscriptionAddonAdditionService
-                ->getPotentialAddons($subscription)
-                ->values()
-                ->toArray();
+            $addons = $this->subscriptionAddonAdditionService->getPotentialAddons($subscription)->values()->toArray();
         } catch (InvalidArgumentException) {
             $addons = [];
         }
 
         return new JsonResponse([
-            'upgrades' =>
-                $subscriptionChangeService
-                    ->getPotentialChanges(ProductChangeType::UPGRADE, $subscription)
-                    ->values()
-                    ->toArray(),
+            'upgrades' => $subscriptionChangeService
+                ->getPotentialChanges(ProductChangeType::UPGRADE, $subscription)
+                ->values()
+                ->toArray(),
             'addons' => $addons,
         ]);
     }
@@ -257,11 +270,15 @@ class SubscriptionController
             ->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())
             ->get();
 
-        return new JsonResponse(['data' => $this->domainAndCustomerRelationSubscriptionResource->toArray($subscriptions)]);
+        return new JsonResponse([
+            'data' => $this->domainAndCustomerRelationSubscriptionResource->toArray($subscriptions),
+        ]);
     }
 
-    public function getPotentialDowngrades(Subscription $subscription, SubscriptionChangeService $subscriptionChangeService): JsonResponse
-    {
+    public function getPotentialDowngrades(
+        Subscription $subscription,
+        SubscriptionChangeService $subscriptionChangeService,
+    ): JsonResponse {
         return new JsonResponse([
             'downgrades' => $subscriptionChangeService
                 ->getPotentialChanges(ProductChangeType::DOWNGRADE, $subscription)

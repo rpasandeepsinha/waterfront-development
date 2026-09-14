@@ -44,8 +44,7 @@ class ValidDnsPresentForNewCoupledHostingRule extends AbstractValidator
 
         /** @var array<array<string, string|mixed[]>> $domainOrderItems */
         $domainOrderItems = Arr::get($this->input, 'subscriptions.extension');
-        $domainOrderItem = new Collection($domainOrderItems)
-            ->first(fn ($item) => $item['domain'] === $domain);
+        $domainOrderItem = new Collection($domainOrderItems)->first(fn ($item) => $item['domain'] === $domain);
 
         $dnsProduct = null;
         if ($domainOrderItem === null) {
@@ -65,8 +64,17 @@ class ValidDnsPresentForNewCoupledHostingRule extends AbstractValidator
             }
         }
 
-        if ($dnsProduct === null || ! $this->productSpecRepository->booleanSpecificationIsTrue($dnsProduct, ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)) {
-            $this->message = $this->translator->translate('validation.hosting.dns-does-not-allow-hosting', ['domain' => $domain]);
+        if (
+            $dnsProduct === null
+            || ! $this->productSpecRepository->booleanSpecificationIsTrue(
+                $dnsProduct,
+                ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT,
+            )
+        ) {
+            $this->message = $this->translator->translate('validation.hosting.dns-does-not-allow-hosting', [
+                'domain' => $domain,
+            ]);
+
             return false;
         }
 

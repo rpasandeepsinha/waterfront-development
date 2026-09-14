@@ -35,10 +35,10 @@ class UpdateMxRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'MX',
-                'name'     => 'google.com',
+                'type' => 'MX',
+                'name' => 'google.com',
                 'priority' => '10',
-                'ttl'      => '600',
+                'ttl' => '600',
                 'disabled' => true,
             ],
         ];
@@ -46,7 +46,10 @@ class UpdateMxRecordValidationTest extends IntegrationTestCase
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     /**
@@ -57,11 +60,11 @@ class UpdateMxRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'MX',
-                'name'     => 'google.com',
-                'content'  => 1,
+                'type' => 'MX',
+                'name' => 'google.com',
+                'content' => 1,
                 'priority' => '10',
-                'ttl'      => '600',
+                'ttl' => '600',
                 'disabled' => true,
             ],
         ];
@@ -69,7 +72,10 @@ class UpdateMxRecordValidationTest extends IntegrationTestCase
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.string')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.string')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     /**
@@ -80,10 +86,10 @@ class UpdateMxRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'MX',
-                'name'     => 'google.com',
-                'content'  => 'mx.spamservice.nl',
-                'ttl'      => '600',
+                'type' => 'MX',
+                'name' => 'google.com',
+                'content' => 'mx.spamservice.nl',
+                'ttl' => '600',
                 'disabled' => true,
             ],
         ];
@@ -91,7 +97,10 @@ class UpdateMxRecordValidationTest extends IntegrationTestCase
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.priority' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.priority' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     /**
@@ -102,11 +111,11 @@ class UpdateMxRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'MX',
-                'name'     => 'google.com',
-                'content'  => 'mx.spamservice.nl',
+                'type' => 'MX',
+                'name' => 'google.com',
+                'content' => 'mx.spamservice.nl',
                 'priority' => 'text',
-                'ttl'      => '600',
+                'ttl' => '600',
                 'disabled' => true,
             ],
         ];
@@ -114,7 +123,10 @@ class UpdateMxRecordValidationTest extends IntegrationTestCase
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.priority' => [self::resolve(TranslatorInterface::class)->translate('validation.integer')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.priority' => [self::resolve(TranslatorInterface::class)->translate('validation.integer')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     /**
@@ -125,11 +137,11 @@ class UpdateMxRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'MX',
-                'name'     => 'google.com',
-                'content'  => 'mx.spamservice.nl',
+                'type' => 'MX',
+                'name' => 'google.com',
+                'content' => 'mx.spamservice.nl',
                 'priority' => '65536',
-                'ttl'      => '600',
+                'ttl' => '600',
                 'disabled' => true,
             ],
         ];
@@ -138,8 +150,9 @@ class UpdateMxRecordValidationTest extends IntegrationTestCase
 
         self::assertTrue($validator->fails());
         self::assertSame(
-            ['new.priority' => [self::resolve(TranslatorInterface::class)->translate('validation.between.numeric', ['min' => 0, 'max' => 65535])]],
-            $validator->errors()->toArray()
+            ['new.priority' => [self::resolve(TranslatorInterface::class)
+                ->translate('validation.between.numeric', ['min' => 0, 'max' => 65535])]],
+            $validator->errors()->toArray(),
         );
     }
 }

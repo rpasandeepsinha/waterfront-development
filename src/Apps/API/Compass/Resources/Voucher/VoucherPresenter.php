@@ -9,8 +9,9 @@ use Waterfront\Domain\Voucher\Models\Voucher;
 
 class VoucherPresenter
 {
-    public function __construct(private readonly ProductPresenter $productPresenter)
-    {
+    public function __construct(
+        private readonly ProductPresenter $productPresenter,
+    ) {
     }
 
     /** @return array<mixed> */

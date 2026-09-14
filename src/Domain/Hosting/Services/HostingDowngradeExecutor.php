@@ -29,8 +29,10 @@ class HostingDowngradeExecutor
         Product $newProduct,
     ): SubscriptionChangeResult {
         try {
-            $downgradeCheckResult = $this->downgradePossibilityChecker
-                ->canDowngradeToServicePlan($hostingDeployment, $newProduct->slug);
+            $downgradeCheckResult = $this->downgradePossibilityChecker->canDowngradeToServicePlan(
+                $hostingDeployment,
+                $newProduct->slug,
+            );
 
             if (! $downgradeCheckResult->isSuccessful) {
                 return new SubscriptionChangeResult(
@@ -55,7 +57,7 @@ class HostingDowngradeExecutor
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::PRODUCT_ID => $newProduct->id,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return new SubscriptionChangeResult(

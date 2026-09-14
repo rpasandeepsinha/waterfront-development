@@ -21,7 +21,7 @@ class MigratedCustomersFactory extends Factory
     {
         return [
             'reference_customer_number' => $this->faker->creditCardNumber(),
-            'reference_name'   => $this->faker->company(),
+            'reference_name' => $this->faker->company(),
             'group_type' => $this->faker->randomAscii(),
             'successful' => false,
         ];

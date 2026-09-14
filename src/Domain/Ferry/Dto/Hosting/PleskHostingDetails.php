@@ -11,7 +11,7 @@ readonly class PleskHostingDetails implements HostingDetailsInterface
 {
     public function __construct(
         public string $pleskCustomerUsername,
-        public int|null $pleskCustomerId = null,
+        public ?int $pleskCustomerId = null,
     ) {
     }
 
@@ -20,8 +20,10 @@ readonly class PleskHostingDetails implements HostingDetailsInterface
         return $this->pleskCustomerUsername;
     }
 
-    #[Deprecated(message: 'In the case of plesk we should always use usernames since ID can be the same over multiple servers')]
-    public function getId(): int|null
+    #[Deprecated(
+        message: 'In the case of plesk we should always use usernames since ID can be the same over multiple servers',
+    )]
+    public function getId(): ?int
     {
         return $this->pleskCustomerId;
     }

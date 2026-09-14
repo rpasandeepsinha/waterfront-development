@@ -48,8 +48,8 @@ class TransferServiceTest extends IntegrationTestCase
         Model::preventLazyLoading(false);
 
         $this->transfers = self::resolve(TransferService::class);
-        $this->receiver  = new CustomerFactory()->createOne();
-        $this->from      = new CustomerFactory()->createOne();
+        $this->receiver = new CustomerFactory()->createOne();
+        $this->from = new CustomerFactory()->createOne();
         $this->subscriptions = $this->getTestingSubscriptions();
     }
 
@@ -63,15 +63,15 @@ class TransferServiceTest extends IntegrationTestCase
         $transferService = self::resolve(TransferService::class);
 
         $collection = $this->subscriptions;
-        $transfer   = $transferService->createTransfer($collection, $this->from, $this->receiver);
+        $transfer = $transferService->createTransfer($collection, $this->from, $this->receiver);
 
         self::assertSame(Transfer::class, $transfer::class);
         self::assertDatabaseHas(
             'transfers',
             [
                 'from_customer_id' => $this->from->id,
-                'to_customer_id'   => $this->receiver->id,
-            ]
+                'to_customer_id' => $this->receiver->id,
+            ],
         );
 
         $firstSubscription = $collection->first();
@@ -81,8 +81,8 @@ class TransferServiceTest extends IntegrationTestCase
             'subscription_transfer',
             [
                 'subscription_id' => $firstSubscription->id,
-                'transfer_id'     => $transfer->id,
-            ]
+                'transfer_id' => $transfer->id,
+            ],
         );
 
         self::assertSame(TransferStatus::REQUESTED, $transfer->getStatus());
@@ -98,14 +98,14 @@ class TransferServiceTest extends IntegrationTestCase
         $transferService = self::resolve(TransferService::class);
 
         $collection = $this->subscriptions;
-        $transfer   = $transferService->createTransfer($collection, $this->from, $this->receiver);
+        $transfer = $transferService->createTransfer($collection, $this->from, $this->receiver);
 
         self::assertDatabaseHas(
             'transfers',
             [
                 'from_customer_id' => $this->from->id,
-                'to_customer_id'   => $this->receiver->id,
-            ]
+                'to_customer_id' => $this->receiver->id,
+            ],
         );
 
         self::assertSame(TransferStatus::REQUESTED, $transfer->getStatus());
@@ -113,6 +113,7 @@ class TransferServiceTest extends IntegrationTestCase
         $collection = $collection->map(function (Subscription $subscription): Subscription {
             $subscription = $subscription->fresh();
             self::assertInstanceOf(Subscription::class, $subscription);
+
             return $subscription;
         });
         try {
@@ -127,11 +128,11 @@ class TransferServiceTest extends IntegrationTestCase
     public function validateSubscriptionsSuccessWithUnrelatedSubscriptions(): void
     {
         $collection = $this->subscriptions;
-        $validated  = $this->transfers->validateSubscriptions($collection, $this->from);
+        $validated = $this->transfers->validateSubscriptions($collection, $this->from);
 
         self::assertTrue(
             $validated,
-            'validation for TransferService validateSubscriptions failed with valid payload.'
+            'validation for TransferService validateSubscriptions failed with valid payload.',
         );
     }
 
@@ -148,11 +149,11 @@ class TransferServiceTest extends IntegrationTestCase
 
         $subscription->transfers()->save($transfer);
 
-        $validated  = $this->transfers->validateSubscriptions($collection, $this->from);
+        $validated = $this->transfers->validateSubscriptions($collection, $this->from);
 
         self::assertFalse(
             $validated,
-            'validation for TransferService validateSubscriptions failed with invalid payload. It still returned true. (Subscription check)'
+            'validation for TransferService validateSubscriptions failed with invalid payload. It still returned true. (Subscription check)',
         );
     }
 
@@ -167,18 +168,21 @@ class TransferServiceTest extends IntegrationTestCase
         $subscription->customer_id = $differentCustomer->id;
         $subscription->save();
 
-        $validated  = $this->transfers->validateSubscriptions($collection, $this->from);
+        $validated = $this->transfers->validateSubscriptions($collection, $this->from);
 
         self::assertFalse(
             $validated,
-            'validation for TransferService validateSubscriptions failed with invalid payload.It still returned true. (Customer check)'
+            'validation for TransferService validateSubscriptions failed with invalid payload.It still returned true. (Customer check)',
         );
     }
 
     #[Test]
     public function transferMicrosoft365Subscription(): void
     {
-        $group  = new ProductGroupFactory()->createOne(['slug' => ProductGroupType::MICROSOFT_365, 'name' => 'Microsoft 365']);
+        $group = new ProductGroupFactory()->createOne([
+            'slug' => ProductGroupType::MICROSOFT_365,
+            'name' => 'Microsoft 365',
+        ]);
 
         $product = new ProductFactory()->createOne([
             'product_group_id' => $group->id,
@@ -186,10 +190,12 @@ class TransferServiceTest extends IntegrationTestCase
             'slug' => 'microsoft-business-basic',
         ]);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product->uuid,
-            'customer_id' => $this->from->id,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product->uuid,
+                'customer_id' => $this->from->id,
+            ]);
 
         $collection = new Collection([$subscription]);
 
@@ -202,7 +208,7 @@ class TransferServiceTest extends IntegrationTestCase
      */
     private function getTestingSubscriptions(): Collection
     {
-        $group  = new ProductGroupFactory()->createOne(['slug' => 'extension', 'name' => 'Extension']);
+        $group = new ProductGroupFactory()->createOne(['slug' => 'extension', 'name' => 'Extension']);
         $group2 = new ProductGroupFactory()->createOne(['slug' => 'hosting', 'name' => 'Hosting']);
 
         $product = new ProductFactory()->createOne([
@@ -216,15 +222,19 @@ class TransferServiceTest extends IntegrationTestCase
             'slug' => 'hosting_zilver',
         ]);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product->uuid,
-            'customer_id' => $this->from->id,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product->uuid,
+                'customer_id' => $this->from->id,
+            ]);
 
-        $subscription2 = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product2->uuid,
-            'customer_id' => $this->from->id,
-        ]);
+        $subscription2 = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product2->uuid,
+                'customer_id' => $this->from->id,
+            ]);
 
         return new Collection([$subscription, $subscription2]);
     }

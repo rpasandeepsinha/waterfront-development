@@ -23,12 +23,18 @@ class DomainRules
     public function getDomainRules(): array
     {
         return [
-            'subscriptions.extension.*'                     => $this->domainExtensionRule,
-            'subscriptions.extension.*.transfer_secret'     => 'required_if:extension.*.status,transfer',
-            'subscriptions.extension.*.domain'              => ['required_unless:subscriptions.extension.*.status,prolongation', $this->domainIsUnclaimedRule],
-            'subscriptions.extension.*.contact_id'          => new NotAnonymousDomainContactRule($this->translator),
+            'subscriptions.extension.*' => $this->domainExtensionRule,
+            'subscriptions.extension.*.transfer_secret' => 'required_if:extension.*.status,transfer',
+            'subscriptions.extension.*.domain' => [
+                'required_unless:subscriptions.extension.*.status,prolongation',
+                $this->domainIsUnclaimedRule,
+            ],
+            'subscriptions.extension.*.contact_id' => new NotAnonymousDomainContactRule($this->translator),
 
-            'subscriptions.extension.*.children'            => ['required_unless:subscriptions.extension.*.status,prolongation', 'array:dns'],
+            'subscriptions.extension.*.children' => [
+                'required_unless:subscriptions.extension.*.status,prolongation',
+                'array:dns',
+            ],
             'subscriptions.extension.*.children.*' =>
                 // Only DNS children are allowed
                 function (string $attribute, mixed $value, Closure $fail) {

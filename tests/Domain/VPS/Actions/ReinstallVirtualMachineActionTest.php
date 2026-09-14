@@ -57,10 +57,10 @@ class ReinstallVirtualMachineActionTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->changeService     = self::createMock(SubscriptionChangeService::class);
-        $this->vmService         = self::createMock(VirtualMachineServiceInterface::class);
+        $this->changeService = self::createMock(SubscriptionChangeService::class);
+        $this->vmService = self::createMock(VirtualMachineServiceInterface::class);
         $this->productRepository = self::createMock(ProductRepository::class);
-        $this->logger            = self::createMock(LoggerInterface::class);
+        $this->logger = self::createMock(LoggerInterface::class);
 
         $this->action = new ReinstallVirtualMachineAction(
             changeService: $this->changeService,
@@ -69,7 +69,7 @@ class ReinstallVirtualMachineActionTest extends IntegrationTestCase
             logger: $this->logger,
         );
 
-        $vpsProduct     = new ProductFactory()->vps()->createOne();
+        $vpsProduct = new ProductFactory()->vps()->createOne();
         $this->subscription = new SubscriptionFactory()
             ->withCustomer()
             ->for($vpsProduct, 'product')
@@ -88,7 +88,7 @@ class ReinstallVirtualMachineActionTest extends IntegrationTestCase
             ->createOne();
 
         $this->newProduct = new ProductFactory()->ubuntu()->createOne();
-        $this->newOsUuid  = $this->newProduct->uuid;
+        $this->newOsUuid = $this->newProduct->uuid;
     }
 
     #[Test]
@@ -110,7 +110,7 @@ class ReinstallVirtualMachineActionTest extends IntegrationTestCase
                 self::equalTo($this->subscription),
                 self::equalTo($this->newProduct),
                 false,
-                false
+                false,
             );
 
         $this->vmService
@@ -123,7 +123,7 @@ class ReinstallVirtualMachineActionTest extends IntegrationTestCase
             $this->subscription,
             $this->deployment,
             $this->newOsUuid,
-            $sshKey
+            $sshKey,
         );
 
         self::assertTrue($result);
@@ -134,13 +134,9 @@ class ReinstallVirtualMachineActionTest extends IntegrationTestCase
     {
         $sshKey = 'some-ssh-key-uuid';
 
-        $this->productRepository
-            ->method('findProductByUuid')
-            ->willReturn($this->newProduct);
+        $this->productRepository->method('findProductByUuid')->willReturn($this->newProduct);
 
-        $this->changeService
-            ->expects(self::once())
-            ->method('change');
+        $this->changeService->expects(self::once())->method('change');
 
         $this->vmService
             ->expects(self::once())
@@ -153,17 +149,15 @@ class ReinstallVirtualMachineActionTest extends IntegrationTestCase
                 $this->subscription,
                 $this->deployment,
                 $this->newOsUuid,
-                $sshKey
-            )
+                $sshKey,
+            ),
         );
     }
 
     #[Test]
     public function logsAndThrowsWhenSubscriptionChangeFails(): void
     {
-        $this->productRepository
-            ->method('findProductByUuid')
-            ->willReturn($this->newProduct);
+        $this->productRepository->method('findProductByUuid')->willReturn($this->newProduct);
 
         $this->changeService
             ->expects(self::once())
@@ -176,13 +170,14 @@ class ReinstallVirtualMachineActionTest extends IntegrationTestCase
             ->with(
                 self::stringContains('Failed to change product for subscription'),
                 self::callback(
-                    fn (array $ctx) =>
-                    $ctx[LoggingContextKeys::PROVISIONING_ID] === $this->deployment->id
+                    fn (array $ctx) => (
+                        $ctx[LoggingContextKeys::PROVISIONING_ID] === $this->deployment->id
                         && $ctx[LoggingContextKeys::PROVISIONING_TYPE] === ProvisionType::VPS
                         && $ctx[LoggingContextKeys::PROVISIONING_PROVIDER] === ProvisionProvider::CLOUDSTACK
                         && $ctx[LoggingContextKeys::SUBSCRIPTION_UUID] === $this->subscription->uuid
                         && $ctx[LoggingContextKeys::PRODUCT_UUID] === $this->newOsUuid
-                )
+                    ),
+                ),
             );
 
         $this->expectException(InvalidArgumentException::class);
@@ -191,7 +186,7 @@ class ReinstallVirtualMachineActionTest extends IntegrationTestCase
         $this->action->execute(
             $this->subscription,
             $this->deployment,
-            $this->newOsUuid
+            $this->newOsUuid,
         );
     }
 
@@ -208,20 +203,16 @@ class ReinstallVirtualMachineActionTest extends IntegrationTestCase
         $this->action->execute(
             $this->subscription,
             $this->deployment,
-            $this->newOsUuid
+            $this->newOsUuid,
         );
     }
 
     #[Test]
     public function bubblesClientExceptionFromVmService(): void
     {
-        $this->productRepository
-            ->method('findProductByUuid')
-            ->willReturn($this->newProduct);
+        $this->productRepository->method('findProductByUuid')->willReturn($this->newProduct);
 
-        $this->changeService
-            ->expects(self::once())
-            ->method('change');
+        $this->changeService->expects(self::once())->method('change');
 
         $this->vmService
             ->expects(self::once())
@@ -234,7 +225,7 @@ class ReinstallVirtualMachineActionTest extends IntegrationTestCase
         $this->action->execute(
             $this->subscription,
             $this->deployment,
-            $this->newOsUuid
+            $this->newOsUuid,
         );
     }
 
@@ -255,13 +246,13 @@ class ReinstallVirtualMachineActionTest extends IntegrationTestCase
                 $this->subscription,
                 $this->newProduct,
                 false,
-                false
+                false,
             )
             ->willThrowException(
                 SubscriptionChangeException::noPotentialProducts(
                     subscriptionUuid: $this->subscription->uuid,
-                    productName: $this->newProduct->name
-                )
+                    productName: $this->newProduct->name,
+                ),
             );
 
         $this->expectException(InvalidArgumentException::class);
@@ -270,7 +261,7 @@ class ReinstallVirtualMachineActionTest extends IntegrationTestCase
         $this->action->execute(
             $this->subscription,
             $this->deployment,
-            $this->newOsUuid
+            $this->newOsUuid,
         );
     }
 }

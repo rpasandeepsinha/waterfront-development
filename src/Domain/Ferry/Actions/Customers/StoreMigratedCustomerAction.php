@@ -88,7 +88,7 @@ class StoreMigratedCustomerAction
 
         $this->labelService->createLabels(
             values: $customer->labels,
-            customer: $customerModel
+            customer: $customerModel,
         );
 
         foreach ($customer->discounts as $discount) {
@@ -135,8 +135,11 @@ class StoreMigratedCustomerAction
         $existingCustomerBasedOnMigration = CustomerModel::query()
             ->where('email', 'ilike', $customer->email)
             ->whereHas('migratedCustomers', function (Builder $query) use ($customer) {
-                $query->where('reference_customer_number', $customer->buCustomerNumber)
-                    ->where('reference_name', 'ilike', $customer->buName);
+                $query->where('reference_customer_number', $customer->buCustomerNumber)->where(
+                    'reference_name',
+                    'ilike',
+                    $customer->buName,
+                );
             })
             ->first();
 
@@ -166,19 +169,25 @@ class StoreMigratedCustomerAction
         );
     }
 
-    private function findOrCreateMigratedCustomerRecord(CustomerModel $customerModel, CustomerDTO $customer): MigratedCustomer
-    {
+    private function findOrCreateMigratedCustomerRecord(
+        CustomerModel $customerModel,
+        CustomerDTO $customer,
+    ): MigratedCustomer {
         if ($customerModel->id === null) {
-            throw new StoreMigratedCustomerNoExistingCustomerException($customerModel->name, $customer->buCustomerNumber);
+            throw new StoreMigratedCustomerNoExistingCustomerException(
+                $customerModel->name,
+                $customer->buCustomerNumber,
+            );
         }
 
         $existingMigratedCustomer = $this->migrationCustomerRepository->findMigratedCustomerByCustomerNumberAndBU(
             customerNumber: $customer->buCustomerNumber,
-            buName: $customer->buName
+            buName: $customer->buName,
         );
 
         if ($existingMigratedCustomer instanceof MigratedCustomer) {
             $existingMigratedCustomer->customers()->syncWithoutDetaching($customerModel);
+
             return $existingMigratedCustomer;
         }
 

@@ -43,9 +43,11 @@ class ProductControllerTest extends IntegrationTestCase
             discount: $givenDiscountPercentage,
         );
 
-        $response = $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute('storefront.product.index')
-        )->assertOk();
+        $response = $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute('storefront.product.index'),
+            )
+            ->assertOk();
 
         $response->assertOk();
         $products = $response->json('products');
@@ -53,24 +55,42 @@ class ProductControllerTest extends IntegrationTestCase
 
         $productCollection = new Collection($products);
 
-        $givenExtensionDiscountValue = Arr::get($productCollection->where('type', 'extension')->first(), 'prices.0.discount_price', 0);
+        $givenExtensionDiscountValue = Arr::get(
+            $productCollection->where('type', 'extension')->first(),
+            'prices.0.discount_price',
+            0,
+        );
         self::assertSame(10, $givenExtensionDiscountValue);
 
-        $givenHostingDiscountValue =  Arr::get($productCollection->where('type', 'hosting')->first(), 'prices.0.discount_price', 0);
+        $givenHostingDiscountValue = Arr::get(
+            $productCollection->where('type', 'hosting')->first(),
+            'prices.0.discount_price',
+            0,
+        );
         self::assertSame(0, $givenHostingDiscountValue);
     }
 
     private function generateProductData(int $regular, ?int $promotion, ?int $discount, bool $createAddon = false): void
     {
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => true, 'slug' => ProviderSlug::OPEN_PROVIDER]);
-        ProviderFactory::new()->create(['slug' => ProviderSlug::PLESK, 'type' => ProviderType::HOSTING, 'default' => true, 'enabled' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'enabled' => true,
+            'default' => true,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+        ]);
+        ProviderFactory::new()->create([
+            'slug' => ProviderSlug::PLESK,
+            'type' => ProviderType::HOSTING,
+            'default' => true,
+            'enabled' => true,
+        ]);
 
         $extensionGroup = new ProductGroupFactory()->extension()->createOne();
 
         $extensionProduct = new ProductFactory()->createOne([
             'product_group_id' => $extensionGroup->id,
-            'name'             => '.com',
-            'slug'             => 'extension_nl',
+            'name' => '.com',
+            'slug' => 'extension_nl',
         ]);
 
         $hostingProduct = new ProductFactory()->for(new ProductGroupFactory()->hosting())->createOne([
@@ -78,12 +98,24 @@ class ProductControllerTest extends IntegrationTestCase
             'slug' => 'hosting_standard+',
         ]);
 
-        new ProductPriceComponentFactory()->for($extensionProduct)->registration()->createOne(['price' => $regular]);
-        new ProductPriceComponentFactory()->for($hostingProduct)->registration()->createOne(['price' => $regular + 200]);
+        new ProductPriceComponentFactory()
+            ->for($extensionProduct)
+            ->registration()
+            ->createOne(['price' => $regular]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->registration()
+            ->createOne(['price' => $regular + 200]);
 
         if ($promotion !== null) {
-            new ProductPriceComponentFactory()->for($extensionProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => $promotion]);
-            new ProductPriceComponentFactory()->for($hostingProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => $promotion + 200]);
+            new ProductPriceComponentFactory()->for($extensionProduct)->createOne([
+                'type' => PriceComponentType::PROMOTION,
+                'price' => $promotion,
+            ]);
+            new ProductPriceComponentFactory()->for($hostingProduct)->createOne([
+                'type' => PriceComponentType::PROMOTION,
+                'price' => $promotion + 200,
+            ]);
         }
 
         if ($createAddon) {
@@ -92,14 +124,20 @@ class ProductControllerTest extends IntegrationTestCase
                 'slug' => 'ip-4',
             ]);
 
-            new ProductPriceComponentFactory()->for($addonProduct)->registration()->createOne([
-                'price' => $regular,
-                'billing_period' => 12,
-                'contract_period' => 12,
-            ]);
+            new ProductPriceComponentFactory()
+                ->for($addonProduct)
+                ->registration()
+                ->createOne([
+                    'price' => $regular,
+                    'billing_period' => 12,
+                    'contract_period' => 12,
+                ]);
 
             if ($promotion !== null) {
-                new ProductPriceComponentFactory()->for($addonProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => $promotion]);
+                new ProductPriceComponentFactory()->for($addonProduct)->createOne([
+                    'type' => PriceComponentType::PROMOTION,
+                    'price' => $promotion,
+                ]);
             }
         }
 

@@ -14,7 +14,11 @@ interface RedirectDnsServiceInterface
      * @param string $domain Base domain for DNS zone.
      * @param string $host   Host (optionally) including subdomain that needs to point to the redirect server.
      */
-    public function provisionDnsRecords(string $domain, string $host, DnsRedirectProvisionOption $dnsProvisionOption): void;
+    public function provisionDnsRecords(
+        string $domain,
+        string $host,
+        DnsRedirectProvisionOption $dnsProvisionOption,
+    ): void;
 
     /**
      * Clean up records of the redirect service on the DNS zone.

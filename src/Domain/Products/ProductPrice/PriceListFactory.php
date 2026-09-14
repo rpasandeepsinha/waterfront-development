@@ -43,9 +43,12 @@ class PriceListFactory
     private function getSpecificationMap(ProductModel $product): SpecificationMap
     {
         /** @var array<string, string> $specifications */
-        $specifications = $product->productSpecs->mapWithKeys(fn (ProductSpec $specification, int $key) => [
-            $specification->name => $specification->value,
-        ])->toArray();
+        $specifications = $product
+            ->productSpecs
+            ->mapWithKeys(fn (ProductSpec $specification, int $key) => [
+                $specification->name => $specification->value,
+            ])
+            ->toArray();
 
         return new SpecificationMap($specifications);
     }
@@ -77,7 +80,7 @@ class PriceListFactory
     /**
      * @param Collection<int, Price> $prices
      */
-    private function getDefaultPriceForProduct(Collection $prices): Price|null
+    private function getDefaultPriceForProduct(Collection $prices): ?Price
     {
         return $prices->where('type', ProductPriceType::REGISTRATION)->first(fn (Price $price) => $price->is_default);
     }

@@ -49,6 +49,7 @@ class Connection
         if ($apiUrl === '') {
             throw new RuntimeException('The api url is missing.');
         }
+
         if (filter_var($apiUrl, FILTER_VALIDATE_URL) === false) {
             throw new RuntimeException('The api url is invalid: ' . $apiUrl);
         }
@@ -61,6 +62,7 @@ class Connection
         if ($username === '') {
             throw new RuntimeException('The username is missing.');
         }
+
         $this->username = $username;
     }
 
@@ -69,6 +71,7 @@ class Connection
         if ($password === '') {
             throw new RuntimeException('The password is missing.');
         }
+
         $this->password = $password;
     }
 }

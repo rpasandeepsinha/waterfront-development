@@ -63,15 +63,9 @@ class MicrosoftGraphIntegrationTest extends IntegrationTestCase
         $graphClient = self::mock(GraphServiceClient::class);
 
         $mockGraphFactory = self::createStub(GraphServiceClientFactory::class);
-        $mockGraphFactory
+        $mockGraphFactory->method('createForAdmin')->willReturn($graphClient);
 
-            ->method('createForAdmin')
-            ->willReturn($graphClient);
-
-        $mockGraphFactory
-
-            ->method('createForCustomer')
-            ->willReturn($graphClient);
+        $mockGraphFactory->method('createForCustomer')->willReturn($graphClient);
 
         $this->app->bind(GraphServiceClientFactory::class, fn () => $mockGraphFactory);
 
@@ -87,10 +81,7 @@ class MicrosoftGraphIntegrationTest extends IntegrationTestCase
         $m365ApiResponse->setIsVerified(true);
         $m365ApiResponse->setIsDefault(false);
 
-        $this->graphClient
-            ->shouldReceive('domains->byDomainId->get->wait')
-            ->once()
-            ->andReturn($m365ApiResponse);
+        $this->graphClient->shouldReceive('domains->byDomainId->get->wait')->once()->andReturn($m365ApiResponse);
 
         $request = new Microsoft365GetDomainRequest(self::DOMAIN, Uuid::fromString(self::TENANT_ID), $this->tagUuid);
         $result = $this->gateway->request($request);
@@ -104,10 +95,7 @@ class MicrosoftGraphIntegrationTest extends IntegrationTestCase
         self::assertDatabaseCount(ProvisioningRequest::class, 1);
 
         $exception = new DomainNotFoundException(self::DOMAIN);
-        $this->graphClient
-            ->shouldReceive('domains->byDomainId->get->wait')
-            ->once()
-            ->andThrow($exception);
+        $this->graphClient->shouldReceive('domains->byDomainId->get->wait')->once()->andThrow($exception);
 
         $request = new Microsoft365GetDomainRequest(self::DOMAIN, Uuid::fromString(self::TENANT_ID), $this->tagUuid);
         $result = $this->gateway->request($request);
@@ -129,10 +117,7 @@ class MicrosoftGraphIntegrationTest extends IntegrationTestCase
         $m365ApiResponse->setIsVerified(true);
         $m365ApiResponse->setIsDefault(true);
 
-        $this->graphClient
-            ->shouldReceive('domains->post->wait')
-            ->once()
-            ->andReturn($m365ApiResponse);
+        $this->graphClient->shouldReceive('domains->post->wait')->once()->andReturn($m365ApiResponse);
 
         $request = new Microsoft365CreateDomainRequest(self::DOMAIN, Uuid::fromString(self::TENANT_ID), $this->tagUuid);
         $result = $this->gateway->request($request);
@@ -147,10 +132,7 @@ class MicrosoftGraphIntegrationTest extends IntegrationTestCase
 
         $exception = new DomainNotCreatedException(self::DOMAIN);
 
-        $this->graphClient
-            ->shouldReceive('domains->post->wait')
-            ->once()
-            ->andThrow($exception);
+        $this->graphClient->shouldReceive('domains->post->wait')->once()->andThrow($exception);
 
         $request = new Microsoft365CreateDomainRequest(self::DOMAIN, Uuid::fromString(self::TENANT_ID), $this->tagUuid);
         $result = $this->gateway->request($request);
@@ -226,7 +208,11 @@ class MicrosoftGraphIntegrationTest extends IntegrationTestCase
             ->once()
             ->andReturn($m365ApiResponse);
 
-        $request = new Microsoft365GetServiceDnsRecordsRequest(self::DOMAIN, Uuid::fromString(self::TENANT_ID), $this->tagUuid);
+        $request = new Microsoft365GetServiceDnsRecordsRequest(
+            self::DOMAIN,
+            Uuid::fromString(self::TENANT_ID),
+            $this->tagUuid,
+        );
         $result = $this->gateway->request($request);
 
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
@@ -244,7 +230,11 @@ class MicrosoftGraphIntegrationTest extends IntegrationTestCase
             ->once()
             ->andReturn($m365ApiResponse);
 
-        $request = new Microsoft365GetServiceDnsRecordsRequest(self::DOMAIN, Uuid::fromString(self::TENANT_ID), $this->tagUuid);
+        $request = new Microsoft365GetServiceDnsRecordsRequest(
+            self::DOMAIN,
+            Uuid::fromString(self::TENANT_ID),
+            $this->tagUuid,
+        );
         $result = $this->gateway->request($request);
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);

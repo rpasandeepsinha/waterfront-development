@@ -28,15 +28,16 @@ class AnonymizeContactInHubspotJob extends AbstractQueueableJob
      */
     public int $backoff = 3;
 
-    public function __construct(private readonly Customer $customer)
-    {
+    public function __construct(
+        private readonly Customer $customer,
+    ) {
         parent::__construct();
     }
 
     public function handle(
         ContactsClient $hubspotContactsClient,
         HubspotEventRepository $hubspotEventRepository,
-        HubspotContactFactory $contactFactory
+        HubspotContactFactory $contactFactory,
     ): void {
         $event = $hubspotEventRepository->createPendingEvent($this->customer->id, 'Anonymizing customer in Hubspot');
 
@@ -45,6 +46,7 @@ class AnonymizeContactInHubspotJob extends AbstractQueueableJob
 
             if ($contactDTO === null) {
                 $hubspotEventRepository->markEventAsSuccessful($event, 'Contact not in hubspot. Nothing to anonymize');
+
                 return;
             }
 
@@ -67,7 +69,10 @@ class AnonymizeContactInHubspotJob extends AbstractQueueableJob
 
             $this->release(self::RATE_LIMIT_DELAY);
         } catch (HubspotClientException $exception) {
-            $hubspotEventRepository->markEventAsFailed($event, sprintf('Communication with hubspot failed: %s', $exception->getMessage()));
+            $hubspotEventRepository->markEventAsFailed($event, sprintf(
+                'Communication with hubspot failed: %s',
+                $exception->getMessage(),
+            ));
         } catch (Exception $exception) {
             $hubspotEventRepository->markEventAsFailed($event, sprintf('Unknown error: %s', $exception->getMessage()));
             throw $exception;

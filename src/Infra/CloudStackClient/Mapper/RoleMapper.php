@@ -19,10 +19,10 @@ class RoleMapper implements Mapper
         assert(is_string($data['type']));
 
         return new Role(
-            id:          $data['id'],
-            name:        $data['name'],
+            id: $data['id'],
+            name: $data['name'],
             description: $data['description'],
-            type:        $data['type'],
+            type: $data['type'],
         );
     }
 }

@@ -43,9 +43,7 @@ class ProductsControllerTest extends IntegrationTestCase
         new ProductFactory()->for($this->extensionGroup)->createOne();
         new ProductFactory()->for($hostingProductGroup)->createOne();
 
-        $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.products.list'))
-            ->assertOk();
+        $this->actingAsEmployee()->getJson($this->generateRoute('admin.products.list'))->assertOk();
     }
 
     #[Test]
@@ -188,10 +186,10 @@ class ProductsControllerTest extends IntegrationTestCase
 
         new ProductPromotionFactory()->for($product)->createOne([
             'call_to_action' => [
-                'title'             => 'pages.promotions.title',
-                'button_text'       => 'pages.promotions.button_text',
-                'description'       => 'pages.promotions.description',
-                'destination_url'   => 'https://example.com',
+                'title' => 'pages.promotions.title',
+                'button_text' => 'pages.promotions.button_text',
+                'description' => 'pages.promotions.description',
+                'destination_url' => 'https://example.com',
                 'price_description' => 'pages.promotions.price_description',
             ],
         ]);
@@ -215,10 +213,10 @@ class ProductsControllerTest extends IntegrationTestCase
         DB::table('product_promotions')
             ->where('product_id', $product->id)
             ->update(['call_to_action' => json_encode([
-                'title'            => 'pages.promotions.title',
-                'buttonText'       => 'pages.promotions.button_text',
-                'description'      => 'pages.promotions.description',
-                'destinationUrl'   => 'https://example.com',
+                'title' => 'pages.promotions.title',
+                'buttonText' => 'pages.promotions.button_text',
+                'description' => 'pages.promotions.description',
+                'destinationUrl' => 'https://example.com',
                 'priceDescription' => 'pages.promotions.price_description',
             ])]);
 
@@ -236,7 +234,10 @@ class ProductsControllerTest extends IntegrationTestCase
     #[Test]
     public function updateSuccess(): void
     {
-        $product = new ProductFactory()->for($this->extensionGroup)->createOne(['slug' => 'original-slug', 'name' => 'Original Name']);
+        $product = new ProductFactory()->for($this->extensionGroup)->createOne([
+            'slug' => 'original-slug',
+            'name' => 'Original Name',
+        ]);
 
         $this->actingAsEmployee()
             ->putJson($this->generateRoute('admin.products.show.update', ['product' => $product->uuid]), [
@@ -273,7 +274,10 @@ class ProductsControllerTest extends IntegrationTestCase
     #[Test]
     public function updateAllowsKeepingTheSameSlug(): void
     {
-        $product = new ProductFactory()->for($this->extensionGroup)->createOne(['slug' => 'my-slug', 'name' => 'Old Name']);
+        $product = new ProductFactory()->for($this->extensionGroup)->createOne([
+            'slug' => 'my-slug',
+            'name' => 'Old Name',
+        ]);
 
         $this->actingAsEmployee()
             ->putJson($this->generateRoute('admin.products.show.update', ['product' => $product->uuid]), [
@@ -315,11 +319,11 @@ class ProductsControllerTest extends IntegrationTestCase
         $product = Product::where('slug', 'intro-discount-product')->firstOrFail();
 
         self::assertDatabaseHas('product_introduction_discounts', [
-            'product_id'                   => $product->id,
-            'contract_period'              => 12,
-            'max_uses_per_customer'        => 5,
+            'product_id' => $product->id,
+            'contract_period' => 12,
+            'max_uses_per_customer' => 5,
             'first_months_discount_period' => 3,
-            'deleted_at'                   => null,
+            'deleted_at' => null,
         ]);
     }
 
@@ -341,11 +345,11 @@ class ProductsControllerTest extends IntegrationTestCase
             ->assertOk();
 
         self::assertDatabaseHas('product_introduction_discounts', [
-            'product_id'                   => $product->id,
-            'contract_period'              => 24,
-            'max_uses_per_customer'        => 1,
+            'product_id' => $product->id,
+            'contract_period' => 24,
+            'max_uses_per_customer' => 1,
             'first_months_discount_period' => null,
-            'deleted_at'                   => null,
+            'deleted_at' => null,
         ]);
     }
 
@@ -354,7 +358,7 @@ class ProductsControllerTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->extensionGroup)->createOne(['slug' => 'my-slug']);
         new ProductIntroductionDiscountsFactory()->for($product)->createOne([
-            'contract_period'       => 12,
+            'contract_period' => 12,
             'max_uses_per_customer' => 5,
         ]);
 
@@ -368,10 +372,10 @@ class ProductsControllerTest extends IntegrationTestCase
             ->assertOk();
 
         self::assertDatabaseHas('product_introduction_discounts', [
-            'product_id'            => $product->id,
-            'contract_period'       => 12,
+            'product_id' => $product->id,
+            'contract_period' => 12,
             'max_uses_per_customer' => 5,
-            'deleted_at'            => null,
+            'deleted_at' => null,
         ]);
     }
 
@@ -380,7 +384,7 @@ class ProductsControllerTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->extensionGroup)->createOne(['slug' => 'my-slug']);
         new ProductIntroductionDiscountsFactory()->for($product)->createOne([
-            'contract_period'       => 12,
+            'contract_period' => 12,
             'max_uses_per_customer' => 5,
         ]);
 
@@ -395,10 +399,10 @@ class ProductsControllerTest extends IntegrationTestCase
             ->assertOk();
 
         self::assertDatabaseHas('product_introduction_discounts', [
-            'product_id'            => $product->id,
-            'contract_period'       => 12,
+            'product_id' => $product->id,
+            'contract_period' => 12,
             'max_uses_per_customer' => 5,
-            'deleted_at'            => CarbonImmutable::now(),
+            'deleted_at' => CarbonImmutable::now(),
         ]);
     }
 
@@ -480,8 +484,8 @@ class ProductsControllerTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->extensionGroup)->createOne();
         new ProductIntroductionDiscountsFactory()->for($product)->createOne([
-            'contract_period'              => 12,
-            'max_uses_per_customer'        => 5,
+            'contract_period' => 12,
+            'max_uses_per_customer' => 5,
             'first_months_discount_period' => 3,
         ]);
 
@@ -498,7 +502,7 @@ class ProductsControllerTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->extensionGroup)->createOne();
         new ProductIntroductionDiscountsFactory()->for($product)->createOne([
-            'contract_period'       => 24,
+            'contract_period' => 24,
             'max_uses_per_customer' => 2,
         ]);
 

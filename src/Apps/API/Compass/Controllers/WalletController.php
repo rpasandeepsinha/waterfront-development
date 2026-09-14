@@ -26,8 +26,7 @@ class WalletController
     public function listWallets(Request $request): ResourceCollection
     {
         $pageSize = is_numeric($request->input('pageSize')) ? (int) $request->input('pageSize') : 100;
-        $wallets = CustomerWallet::query()
-            ->paginate($pageSize);
+        $wallets = CustomerWallet::query()->paginate($pageSize);
         $wallets->appends('pageSize', (string) $pageSize);
 
         return WalletResource::collection($wallets)->additional([
@@ -49,7 +48,11 @@ class WalletController
 
         $csv = $this->customerWalletService->createRefundCsv($collection);
 
-        $csvFileName = sprintf('customer-wallet-refunds-%s.csv', CarbonImmutable::now()->format(DateTimeFormat::FILENAME));
+        $csvFileName = sprintf(
+            'customer-wallet-refunds-%s.csv',
+            CarbonImmutable::now()->format(DateTimeFormat::FILENAME),
+        );
+
         return new Response($csv, Response::HTTP_OK, [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => sprintf('attachment; filename="%s"', $csvFileName),

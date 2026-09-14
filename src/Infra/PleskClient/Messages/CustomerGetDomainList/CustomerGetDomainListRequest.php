@@ -8,8 +8,9 @@ use Waterfront\Domain\Hosting\Interfaces\Hosting\RequestInterface;
 
 class CustomerGetDomainListRequest implements RequestInterface
 {
-    public function __construct(private readonly string $customerLogin)
-    {
+    public function __construct(
+        private readonly string $customerLogin,
+    ) {
     }
 
     /**

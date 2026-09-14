@@ -48,7 +48,7 @@ class SitebuilderDeployment extends ProvisionDeployment
             firstKey: 'id',
             secondKey: 'context_uuid',
             localKey: 'origin_provisioning_request_id',
-            secondLocalKey: 'context_uuid'
+            secondLocalKey: 'context_uuid',
         );
     }
 }

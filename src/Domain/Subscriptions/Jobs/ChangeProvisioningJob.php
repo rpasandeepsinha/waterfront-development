@@ -11,8 +11,9 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
 
 class ChangeProvisioningJob extends AbstractQueueableJob
 {
-    public function __construct(private readonly SubscriptionChange $subscriptionChange)
-    {
+    public function __construct(
+        private readonly SubscriptionChange $subscriptionChange,
+    ) {
         parent::__construct();
     }
 

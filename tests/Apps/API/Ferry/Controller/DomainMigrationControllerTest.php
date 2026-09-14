@@ -58,10 +58,11 @@ class DomainMigrationControllerTest extends IntegrationTestCase
         $this->faker = Factory::create('en-US');
 
         $openproviderClientFactory = self::createStub(OpenproviderClientFactory::class);
-        $openproviderClientFactory
-            ->method('create')
-            ->willReturn(self::resolve(OpenproviderClientFaker::class));
-        $this->app->bind(OpenproviderClientFactory::class, fn (): OpenproviderClientFactory => $openproviderClientFactory);
+        $openproviderClientFactory->method('create')->willReturn(self::resolve(OpenproviderClientFaker::class));
+        $this->app->bind(
+            OpenproviderClientFactory::class,
+            fn (): OpenproviderClientFactory => $openproviderClientFactory,
+        );
     }
 
     #[Test]
@@ -69,7 +70,10 @@ class DomainMigrationControllerTest extends IntegrationTestCase
     {
         Http::fake();
 
-        $incomingOutgoingResponse = json_encode(include __DIR__ . '/data/domain_details_valid.php', JSON_THROW_ON_ERROR);
+        $incomingOutgoingResponse = json_encode(
+            include __DIR__ . '/data/domain_details_valid.php',
+            JSON_THROW_ON_ERROR,
+        );
         $registrantResponse = json_encode(include __DIR__ . '/data/contact_valid_registrant.php', JSON_THROW_ON_ERROR);
         $contactResponse = json_encode(include __DIR__ . '/data/contact_valid.php', JSON_THROW_ON_ERROR);
         $financialResponse = json_encode(include __DIR__ . '/data/contact_valid_financial.php', JSON_THROW_ON_ERROR);
@@ -78,53 +82,53 @@ class DomainMigrationControllerTest extends IntegrationTestCase
             // Subscription 1
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $registrantResponse
+                body: $registrantResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $contactResponse
+                body: $contactResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $financialResponse
+                body: $financialResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
 
             // Subscription 2
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $registrantResponse
+                body: $registrantResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $contactResponse
+                body: $contactResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $financialResponse
+                body: $financialResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
         ]);
 
@@ -138,7 +142,9 @@ class DomainMigrationControllerTest extends IntegrationTestCase
         $productGroupExtension = ProductGroupFactory::new()->extension()->createOne();
         $productExtension = ProductFactory::new()->for($productGroupExtension)->createOne(['slug' => 'extension_nl']);
 
-        $productPrivacy = ProductFactory::new()->for($productGroupExtension)->createOne(['name' => 'Privacy bescherming']);
+        $productPrivacy = ProductFactory::new()->for($productGroupExtension)->createOne([
+            'name' => 'Privacy bescherming',
+        ]);
         ProductPriceComponentFactory::new()->for($productPrivacy)->registration()->createOne();
         ProductPriceComponentFactory::new()->for($productPrivacy)->prolongation()->createOne();
 
@@ -147,10 +153,28 @@ class DomainMigrationControllerTest extends IntegrationTestCase
 
         $domain = 'example-active.test';
         $domain2 = 'example-ok.test';
-        $validSubscription = SubscriptionFactory::new()->for($productExtension)->for($customer)->forDomain($domain)->administrativeStatusActive()->technicalStatusDomainActive()->createOne();
-        $validSubscription2 = SubscriptionFactory::new()->for($productExtension)->for($customer)->forDomain($domain2)->administrativeStatusCancelled()->technicalStatusOk()->createOne();
-        DomainDeploymentFactory::new()->createOne(['subscription_uuid' => $validSubscription->uuid, 'provider_id' => $domainProvider->id]);
-        DomainDeploymentFactory::new()->createOne(['subscription_uuid' => $validSubscription2->uuid, 'provider_id' => $domainProvider->id]);
+        $validSubscription = SubscriptionFactory::new()
+            ->for($productExtension)
+            ->for($customer)
+            ->forDomain($domain)
+            ->administrativeStatusActive()
+            ->technicalStatusDomainActive()
+            ->createOne();
+        $validSubscription2 = SubscriptionFactory::new()
+            ->for($productExtension)
+            ->for($customer)
+            ->forDomain($domain2)
+            ->administrativeStatusCancelled()
+            ->technicalStatusOk()
+            ->createOne();
+        DomainDeploymentFactory::new()->createOne([
+            'subscription_uuid' => $validSubscription->uuid,
+            'provider_id' => $domainProvider->id,
+        ]);
+        DomainDeploymentFactory::new()->createOne([
+            'subscription_uuid' => $validSubscription2->uuid,
+            'provider_id' => $domainProvider->id,
+        ]);
 
         $referenceSubscriptionId1 = 'reference_subscription_id_1';
         $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
@@ -179,8 +203,17 @@ class DomainMigrationControllerTest extends IntegrationTestCase
         $validSubscription2->save();
 
         $domainWithInvalidSubscription = 'invalid-example.nl';
-        $invalidSubscription = SubscriptionFactory::new()->for($productExtension)->for($customer)->forDomain($domainWithInvalidSubscription)->administrativeStatusInactive()->technicalStatusDomainActive()->createOne();
-        DomainDeploymentFactory::new()->createOne(['subscription_uuid' => $invalidSubscription->uuid, 'provider_id' => $domainProvider->id]);
+        $invalidSubscription = SubscriptionFactory::new()
+            ->for($productExtension)
+            ->for($customer)
+            ->forDomain($domainWithInvalidSubscription)
+            ->administrativeStatusInactive()
+            ->technicalStatusDomainActive()
+            ->createOne();
+        DomainDeploymentFactory::new()->createOne([
+            'subscription_uuid' => $invalidSubscription->uuid,
+            'provider_id' => $domainProvider->id,
+        ]);
 
         $migratedSubscription3 = MigratedSubscriptionsFactory::new()->createOne();
         $invalidSubscription->migratedSubscriptions()->attach($migratedSubscription3);
@@ -195,7 +228,8 @@ class DomainMigrationControllerTest extends IntegrationTestCase
             ],
         ];
 
-        $subscriptions = self::resolve(MigratableSubscriptionRepository::class)->getSubscriptionsForDomainContactMigration($customer);
+        $subscriptions = self::resolve(MigratableSubscriptionRepository::class)
+            ->getSubscriptionsForDomainContactMigration($customer);
 
         foreach ($subscriptions as $item) {
             self::assertSame(ProviderSlug::PLACEHOLDER, $item->domainDeployment?->provider->slug);
@@ -210,13 +244,15 @@ class DomainMigrationControllerTest extends IntegrationTestCase
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
+                ],
             )
             ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [
                     [
-                        'message' => 'Domain migration step not allowed for subscription: ' . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
+                        'message' =>
+                            'Domain migration step not allowed for subscription: '
+                                . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
                         'parameters' => [
                             'customerId' => $customer->id,
                             'subscriptionId' => $invalidSubscription->id,
@@ -261,10 +297,25 @@ class DomainMigrationControllerTest extends IntegrationTestCase
             self::assertSame(ProviderSlug::REALTIME_REGISTER, $provider->slug);
             self::assertSame('johndoe_registrant', $provider->pivot->external_contact);
 
-            self::assertSame(1, DB::table('domain_contact_provider')->count(), 'Only registrant contacts need to be migrated');
-            self::assertSame(1, DB::table('domain_contact_provider')->where('external_contact', 'johndoe_registrant')->count());
-            self::assertSame(0, DB::table('domain_contact_provider')->where('external_contact', 'johndoe')->count(), 'Only registrant contacts need to be migrated');
-            self::assertSame(0, DB::table('domain_contact_provider')->where('external_contact', 'johnydoe')->count(), 'Only registrant contacts need to be migrated');
+            self::assertSame(
+                1,
+                DB::table('domain_contact_provider')->count(),
+                'Only registrant contacts need to be migrated',
+            );
+            self::assertSame(
+                1,
+                DB::table('domain_contact_provider')->where('external_contact', 'johndoe_registrant')->count(),
+            );
+            self::assertSame(
+                0,
+                DB::table('domain_contact_provider')->where('external_contact', 'johndoe')->count(),
+                'Only registrant contacts need to be migrated',
+            );
+            self::assertSame(
+                0,
+                DB::table('domain_contact_provider')->where('external_contact', 'johnydoe')->count(),
+                'Only registrant contacts need to be migrated',
+            );
 
             $item->refresh();
 
@@ -294,21 +345,24 @@ class DomainMigrationControllerTest extends IntegrationTestCase
     #[Test]
     public function migrateDomainWithoutValidSubscriptions(): void
     {
-        $incomingOutgoingResponse = json_encode(include __DIR__ . '/data/domain_details_valid.php', JSON_THROW_ON_ERROR);
+        $incomingOutgoingResponse = json_encode(
+            include __DIR__ . '/data/domain_details_valid.php',
+            JSON_THROW_ON_ERROR,
+        );
         $contactResponse = json_encode(include __DIR__ . '/data/contact_valid.php', JSON_THROW_ON_ERROR);
 
         $sdk = MockedClientFactory::makeSdkWithMultipleReponses([
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $contactResponse
+                body: $contactResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 404,
-                body: '{}'
+                body: '{}',
             ),
         ]);
 
@@ -318,17 +372,17 @@ class DomainMigrationControllerTest extends IntegrationTestCase
 
         $domain = 'example.nl';
         $customer = CustomerFactory::new()->createOne([
-            'customer_number'         => 1,
-            'organization'            => $this->faker->text(),
-            'department'              => $this->faker->text(),
-            'first_name'              => $this->faker->firstName(),
-            'last_name'               => $this->faker->lastName(),
-            'gender'                  => Gender::MALE->value,
-            'phone_country_code'      => $this->faker->countryCode(),
-            'phone_area_code'         => '61',
+            'customer_number' => 1,
+            'organization' => $this->faker->text(),
+            'department' => $this->faker->text(),
+            'first_name' => $this->faker->firstName(),
+            'last_name' => $this->faker->lastName(),
+            'gender' => Gender::MALE->value,
+            'phone_country_code' => $this->faker->countryCode(),
+            'phone_area_code' => '61',
             'phone_subscriber_number' => $this->faker->e164PhoneNumber(),
-            'email'                   => 'test.kees@sandwave.io',
-            'locale'                  => 'nl-NL',
+            'email' => 'test.kees@sandwave.io',
+            'locale' => 'nl-NL',
         ]);
         $productGroupExtension = ProductGroupFactory::new()->extension()->createOne();
         $domainProvider = ProviderFactory::new()->domainPlaceholder()->createOne();
@@ -358,13 +412,15 @@ class DomainMigrationControllerTest extends IntegrationTestCase
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
+                ],
             )
             ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [
                     [
-                        'message' => 'Domain migration step not allowed for subscription: ' . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
+                        'message' =>
+                            'Domain migration step not allowed for subscription: '
+                                . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
                         'parameters' => [
                             'customerId' => $customer->id,
                             'subscriptionId' => $subscription->id,
@@ -381,62 +437,68 @@ class DomainMigrationControllerTest extends IntegrationTestCase
     {
         Http::fake();
 
-        $incomingOutgoingResponse = json_encode(include __DIR__ . '/data/domain_details_valid.php', JSON_THROW_ON_ERROR);
+        $incomingOutgoingResponse = json_encode(
+            include __DIR__ . '/data/domain_details_valid.php',
+            JSON_THROW_ON_ERROR,
+        );
         $registrantResponse = json_encode(include __DIR__ . '/data/contact_valid_registrant.php', JSON_THROW_ON_ERROR);
         $contactResponse = json_encode(include __DIR__ . '/data/contact_valid_bad_phone.php', JSON_THROW_ON_ERROR);
-        $financialResponse = json_encode(include __DIR__ . '/data/contact_valid_financial_bad_phone.php', JSON_THROW_ON_ERROR);
+        $financialResponse = json_encode(
+            include __DIR__ . '/data/contact_valid_financial_bad_phone.php',
+            JSON_THROW_ON_ERROR,
+        );
 
         $sdk = MockedClientFactory::makeSdkWithMultipleReponses([
             // Subscription 1
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $registrantResponse
+                body: $registrantResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $contactResponse
+                body: $contactResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $financialResponse
+                body: $financialResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
 
             // Subscription 2
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $registrantResponse
+                body: $registrantResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $contactResponse
+                body: $contactResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $financialResponse
+                body: $financialResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
             new \GuzzleHttp\Psr7\Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
         ]);
 
@@ -450,17 +512,37 @@ class DomainMigrationControllerTest extends IntegrationTestCase
         $productGroupExtension = ProductGroupFactory::new()->extension()->createOne();
         $productExtension = ProductFactory::new()->for($productGroupExtension)->createOne(['slug' => 'extension_nl']);
 
-        $productPrivacy = ProductFactory::new()->for($productGroupExtension)->createOne(['name' => 'Privacy bescherming']);
+        $productPrivacy = ProductFactory::new()->for($productGroupExtension)->createOne([
+            'name' => 'Privacy bescherming',
+        ]);
         ProductPriceComponentFactory::new()->for($productPrivacy)->registration()->createOne();
         ProductPriceComponentFactory::new()->for($productPrivacy)->prolongation()->createOne();
         $domainProvider = ProviderFactory::new()->domainPlaceholder()->createOne();
         ProviderFactory::new()->domainRtr()->createOne();
 
         $domain = 'example.nl';
-        $validSubscription = SubscriptionFactory::new()->for($productExtension)->for($customer)->forDomain($domain)->administrativeStatusActive()->technicalStatusDomainActive()->createOne();
-        $validSubscription2 = SubscriptionFactory::new()->for($productExtension)->for($customer)->forDomain($domain)->administrativeStatusActive()->technicalStatusDomainActive()->createOne();
-        DomainDeploymentFactory::new()->createOne(['subscription_uuid' => $validSubscription->uuid, 'provider_id' => $domainProvider->id]);
-        DomainDeploymentFactory::new()->createOne(['subscription_uuid' => $validSubscription2->uuid, 'provider_id' => $domainProvider->id]);
+        $validSubscription = SubscriptionFactory::new()
+            ->for($productExtension)
+            ->for($customer)
+            ->forDomain($domain)
+            ->administrativeStatusActive()
+            ->technicalStatusDomainActive()
+            ->createOne();
+        $validSubscription2 = SubscriptionFactory::new()
+            ->for($productExtension)
+            ->for($customer)
+            ->forDomain($domain)
+            ->administrativeStatusActive()
+            ->technicalStatusDomainActive()
+            ->createOne();
+        DomainDeploymentFactory::new()->createOne([
+            'subscription_uuid' => $validSubscription->uuid,
+            'provider_id' => $domainProvider->id,
+        ]);
+        DomainDeploymentFactory::new()->createOne([
+            'subscription_uuid' => $validSubscription2->uuid,
+            'provider_id' => $domainProvider->id,
+        ]);
 
         $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne();
         $migratedSubscription2 = MigratedSubscriptionsFactory::new()->createOne();
@@ -480,8 +562,17 @@ class DomainMigrationControllerTest extends IntegrationTestCase
         $validSubscription2->save();
 
         $domainWithInvalidSubscription = 'invalid-example.nl';
-        $invalidSubscription = SubscriptionFactory::new()->for($productExtension)->for($customer)->forDomain($domainWithInvalidSubscription)->administrativeStatusInactive()->technicalStatusDomainActive()->createOne();
-        DomainDeploymentFactory::new()->createOne(['subscription_uuid' => $invalidSubscription->uuid, 'provider_id' => $domainProvider->id]);
+        $invalidSubscription = SubscriptionFactory::new()
+            ->for($productExtension)
+            ->for($customer)
+            ->forDomain($domainWithInvalidSubscription)
+            ->administrativeStatusInactive()
+            ->technicalStatusDomainActive()
+            ->createOne();
+        DomainDeploymentFactory::new()->createOne([
+            'subscription_uuid' => $invalidSubscription->uuid,
+            'provider_id' => $domainProvider->id,
+        ]);
 
         $migratedSubscription3 = MigratedSubscriptionsFactory::new()->createOne();
         $invalidSubscription->migratedSubscriptions()->attach($migratedSubscription3);
@@ -489,7 +580,8 @@ class DomainMigrationControllerTest extends IntegrationTestCase
 
         $postData = [];
 
-        $subscriptions = self::resolve(MigratableSubscriptionRepository::class)->getSubscriptionsForDomainContactMigration($customer);
+        $subscriptions = self::resolve(MigratableSubscriptionRepository::class)
+            ->getSubscriptionsForDomainContactMigration($customer);
 
         foreach ($subscriptions as $item) {
             self::assertSame(ProviderSlug::PLACEHOLDER, $item->domainDeployment?->provider->slug);
@@ -504,13 +596,15 @@ class DomainMigrationControllerTest extends IntegrationTestCase
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
+                ],
             )
             ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [
                     [
-                        'message' => 'Domain migration step not allowed for subscription: ' . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
+                        'message' =>
+                            'Domain migration step not allowed for subscription: '
+                                . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
                         'parameters' => [
                             'customerId' => $customer->id,
                             'subscriptionId' => $invalidSubscription->id,
@@ -555,10 +649,25 @@ class DomainMigrationControllerTest extends IntegrationTestCase
             self::assertSame(ProviderType::DOMAIN, $domainDeployment->provider->type);
             self::assertSame('johndoe_registrant', $provider->pivot->external_contact);
 
-            self::assertSame(1, DB::table('domain_contact_provider')->count(), 'Only registrant contacts need to be migrated');
-            self::assertSame(1, DB::table('domain_contact_provider')->where('external_contact', 'johndoe_registrant')->count());
-            self::assertSame(0, DB::table('domain_contact_provider')->where('external_contact', 'johndoe')->count(), 'Only registrant contacts need to be migrated');
-            self::assertSame(0, DB::table('domain_contact_provider')->where('external_contact', 'johnydoe')->count(), 'Only registrant contacts need to be migrated');
+            self::assertSame(
+                1,
+                DB::table('domain_contact_provider')->count(),
+                'Only registrant contacts need to be migrated',
+            );
+            self::assertSame(
+                1,
+                DB::table('domain_contact_provider')->where('external_contact', 'johndoe_registrant')->count(),
+            );
+            self::assertSame(
+                0,
+                DB::table('domain_contact_provider')->where('external_contact', 'johndoe')->count(),
+                'Only registrant contacts need to be migrated',
+            );
+            self::assertSame(
+                0,
+                DB::table('domain_contact_provider')->where('external_contact', 'johnydoe')->count(),
+                'Only registrant contacts need to be migrated',
+            );
 
             $item->refresh();
 
@@ -575,7 +684,9 @@ class DomainMigrationControllerTest extends IntegrationTestCase
         $productGroupExtension = ProductGroupFactory::new()->extension()->createOne();
         $productExtension = ProductFactory::new()->for($productGroupExtension)->createOne(['slug' => 'extension_nl']);
 
-        $productPrivacy = ProductFactory::new()->for($productGroupExtension)->createOne(['name' => 'Privacy bescherming']);
+        $productPrivacy = ProductFactory::new()->for($productGroupExtension)->createOne([
+            'name' => 'Privacy bescherming',
+        ]);
         ProductPriceComponentFactory::new()->for($productPrivacy)->registration()->createOne();
         ProductPriceComponentFactory::new()->for($productPrivacy)->prolongation()->createOne();
 
@@ -593,16 +704,12 @@ class DomainMigrationControllerTest extends IntegrationTestCase
             ->technicalStatusDomainActive()
             ->createOne();
 
-        DomainDeploymentFactory::new()
-            ->for($subscription)
-            ->for($domainProvider)
-            ->createOne();
+        DomainDeploymentFactory::new()->for($subscription)->for($domainProvider)->createOne();
 
         $referenceSubscriptionId = 'reference_subscription_id_1';
-        $migratedSubscription = MigratedSubscriptionsFactory::new()
-            ->createOne([
-                'reference_subscription_id' => $referenceSubscriptionId,
-            ]);
+        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => $referenceSubscriptionId,
+        ]);
         $subscription->migratedSubscriptions()->attach($migratedSubscription);
 
         $migrationCustomer = MigratedCustomersFactory::new()->createOne();
@@ -621,7 +728,7 @@ class DomainMigrationControllerTest extends IntegrationTestCase
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
+                ],
             )
             ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertExactJson([
@@ -657,7 +764,11 @@ class DomainMigrationControllerTest extends IntegrationTestCase
         self::assertSame('FL969344-NL', $provider->pivot->external_contact);
         self::assertNull($provider->pivot->domain_business_unit_id);
 
-        self::assertSame(1, DB::table('domain_contact_provider')->count(), 'Only registrant contacts need to be migrated');
+        self::assertSame(
+            1,
+            DB::table('domain_contact_provider')->count(),
+            'Only registrant contacts need to be migrated',
+        );
         self::assertSame(1, DB::table('domain_contact_provider')->where('external_contact', 'FL969344-NL')->count());
         self::assertSame(1, DB::table('domain_contact_provider')->whereNull('domain_business_unit_id')->count());
 
@@ -675,7 +786,9 @@ class DomainMigrationControllerTest extends IntegrationTestCase
         $productGroupExtension = ProductGroupFactory::new()->extension()->createOne();
         $productExtension = ProductFactory::new()->for($productGroupExtension)->createOne(['slug' => 'extension_nl']);
 
-        $productPrivacy = ProductFactory::new()->for($productGroupExtension)->createOne(['name' => 'Privacy bescherming']);
+        $productPrivacy = ProductFactory::new()->for($productGroupExtension)->createOne([
+            'name' => 'Privacy bescherming',
+        ]);
         ProductPriceComponentFactory::new()->for($productPrivacy)->registration()->createOne();
         ProductPriceComponentFactory::new()->for($productPrivacy)->prolongation()->createOne();
 
@@ -685,9 +798,7 @@ class DomainMigrationControllerTest extends IntegrationTestCase
             'slug' => $migratedBusinessUnit,
             'name' => 'Argeweb',
         ])->createOne();
-        OpenproviderProviderCredentialsFactory::new()
-            ->for($businessUnit)
-            ->createOne();
+        OpenproviderProviderCredentialsFactory::new()->for($businessUnit)->createOne();
 
         $domainProvider = ProviderFactory::new()->domainPlaceholder()->createOne();
         ProviderFactory::new()->domainRtr()->createOne();
@@ -701,16 +812,12 @@ class DomainMigrationControllerTest extends IntegrationTestCase
             ->technicalStatusDomainActive()
             ->createOne();
 
-        DomainDeploymentFactory::new()
-            ->for($subscription)
-            ->for($domainProvider)
-            ->createOne();
+        DomainDeploymentFactory::new()->for($subscription)->for($domainProvider)->createOne();
 
         $referenceSubscriptionId = 'reference_subscription_id_1';
-        $migratedSubscription = MigratedSubscriptionsFactory::new()
-            ->createOne([
-                'reference_subscription_id' => $referenceSubscriptionId,
-            ]);
+        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => $referenceSubscriptionId,
+        ]);
         $subscription->migratedSubscriptions()->attach($migratedSubscription);
 
         $migrationCustomer = MigratedCustomersFactory::new()->createOne();
@@ -730,7 +837,7 @@ class DomainMigrationControllerTest extends IntegrationTestCase
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
+                ],
             )
             ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertExactJson([
@@ -769,9 +876,16 @@ class DomainMigrationControllerTest extends IntegrationTestCase
         self::assertSame('FL969344-NL', $provider->pivot->external_contact);
         self::assertSame($businessUnit->id, $provider->pivot->domain_business_unit_id);
 
-        self::assertSame(1, DB::table('domain_contact_provider')->count(), 'Only registrant contacts need to be migrated');
+        self::assertSame(
+            1,
+            DB::table('domain_contact_provider')->count(),
+            'Only registrant contacts need to be migrated',
+        );
         self::assertSame(1, DB::table('domain_contact_provider')->where('external_contact', 'FL969344-NL')->count());
-        self::assertSame(1, DB::table('domain_contact_provider')->where('domain_business_unit_id', $businessUnit->id)->count());
+        self::assertSame(
+            1,
+            DB::table('domain_contact_provider')->where('domain_business_unit_id', $businessUnit->id)->count(),
+        );
 
         $subscription->refresh();
 
@@ -787,7 +901,9 @@ class DomainMigrationControllerTest extends IntegrationTestCase
         $productGroupExtension = ProductGroupFactory::new()->extension()->createOne();
         $productExtension = ProductFactory::new()->for($productGroupExtension)->createOne(['slug' => 'extension_nl']);
 
-        $productPrivacy = ProductFactory::new()->for($productGroupExtension)->createOne(['name' => 'Privacy bescherming']);
+        $productPrivacy = ProductFactory::new()->for($productGroupExtension)->createOne([
+            'name' => 'Privacy bescherming',
+        ]);
         ProductPriceComponentFactory::new()->for($productPrivacy)->registration()->createOne();
         ProductPriceComponentFactory::new()->for($productPrivacy)->prolongation()->createOne();
 
@@ -805,16 +921,12 @@ class DomainMigrationControllerTest extends IntegrationTestCase
             ->technicalStatusDomainActive()
             ->createOne();
 
-        DomainDeploymentFactory::new()
-            ->for($subscription)
-            ->for($domainProvider)
-            ->createOne();
+        DomainDeploymentFactory::new()->for($subscription)->for($domainProvider)->createOne();
 
         $referenceSubscriptionId = 'reference_subscription_id_1';
-        $migratedSubscription = MigratedSubscriptionsFactory::new()
-            ->createOne([
-                'reference_subscription_id' => $referenceSubscriptionId,
-            ]);
+        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => $referenceSubscriptionId,
+        ]);
         $subscription->migratedSubscriptions()->attach($migratedSubscription);
 
         $migrationCustomer = MigratedCustomersFactory::new()->createOne();
@@ -834,7 +946,7 @@ class DomainMigrationControllerTest extends IntegrationTestCase
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
+                ],
             )
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertExactJson([

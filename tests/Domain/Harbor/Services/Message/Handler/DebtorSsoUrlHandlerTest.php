@@ -26,11 +26,7 @@ class DebtorSsoUrlHandlerTest extends IntegrationTestCase
         );
 
         $customerRepository = self::createMock(CustomerRepository::class);
-        $customerRepository
-            ->expects(self::once())
-            ->method('findByCustomerNumber')
-            ->with(123)
-            ->willReturn(null);
+        $customerRepository->expects(self::once())->method('findByCustomerNumber')->with(123)->willReturn(null);
 
         $handler = new DebtorSsoUrlHandler(
             $customerRepository,
@@ -49,14 +45,10 @@ class DebtorSsoUrlHandlerTest extends IntegrationTestCase
             'https://example.com/admin/123',
         );
 
-        $customer = new CustomerFactory()->createOne([ 'invoice_history_url' => '', 'admin_url' => null ]);
+        $customer = new CustomerFactory()->createOne(['invoice_history_url' => '', 'admin_url' => null]);
 
         $customerRepository = self::createMock(CustomerRepository::class);
-        $customerRepository
-            ->expects(self::once())
-            ->method('findByCustomerNumber')
-            ->with(123)
-            ->willReturn($customer);
+        $customerRepository->expects(self::once())->method('findByCustomerNumber')->with(123)->willReturn($customer);
 
         $handler = new DebtorSsoUrlHandler(
             $customerRepository,

@@ -25,19 +25,19 @@ class StoreVoucherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'displayName'                    => ['required', 'string', 'max:255'],
-            'internalName'                   => ['required', 'string', 'max:255'],
-            'description'                    => ['sometimes', 'nullable', 'string'],
-            'code'                           => ['required', 'string', 'max:255', 'unique:vouchers,code'],
-            'amount'                         => ['required', 'numeric', 'min:0'],
-            'amountType'                     => ['sometimes', 'nullable', Rule::enum(VoucherAmountType::class)],
-            'maxClaims'                      => ['sometimes', 'nullable', 'integer', 'min:1'],
-            'billingPeriod'                  => ['sometimes', 'nullable', 'integer', 'min:1'],
-            'contractPeriod'                 => ['sometimes', 'nullable', 'integer', 'min:1'],
-            'expirationDate'                 => ['sometimes', 'nullable', 'date', 'after:today'],
-            'applyWithDiscount'              => ['required', 'boolean'],
+            'displayName' => ['required', 'string', 'max:255'],
+            'internalName' => ['required', 'string', 'max:255'],
+            'description' => ['sometimes', 'nullable', 'string'],
+            'code' => ['required', 'string', 'max:255', 'unique:vouchers,code'],
+            'amount' => ['required', 'numeric', 'min:0'],
+            'amountType' => ['sometimes', 'nullable', Rule::enum(VoucherAmountType::class)],
+            'maxClaims' => ['sometimes', 'nullable', 'integer', 'min:1'],
+            'billingPeriod' => ['sometimes', 'nullable', 'integer', 'min:1'],
+            'contractPeriod' => ['sometimes', 'nullable', 'integer', 'min:1'],
+            'expirationDate' => ['sometimes', 'nullable', 'date', 'after:today'],
+            'applyWithDiscount' => ['required', 'boolean'],
             'allowMultipleClaimsSameCustomer' => ['required', 'boolean'],
-            'productSlug'                    => [
+            'productSlug' => [
                 'sometimes',
                 'nullable',
                 'string',
@@ -56,7 +56,7 @@ class StoreVoucherRequest extends FormRequest
                     }
                 },
             ],
-            'productGroupSlug'               => ['sometimes', 'nullable', 'string', Rule::enum(ProductGroupType::class)],
+            'productGroupSlug' => ['sometimes', 'nullable', 'string', Rule::enum(ProductGroupType::class)],
         ];
     }
 }

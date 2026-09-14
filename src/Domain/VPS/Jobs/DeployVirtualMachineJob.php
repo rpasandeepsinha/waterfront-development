@@ -43,8 +43,11 @@ class DeployVirtualMachineJob extends CloudstackAsyncJob
         $this->deployment->subscription->technical_status = $technicalStatus;
         $this->deployment->subscription->save();
 
-        $this->deployment->subscription->children()->update([
-            'technical_status' => $technicalStatus,
-        ]);
+        $this->deployment
+            ->subscription
+            ->children()
+            ->update([
+                'technical_status' => $technicalStatus,
+            ]);
     }
 }

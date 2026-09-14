@@ -22,15 +22,15 @@ class OpenproviderClientProvider extends BaseProvider implements DeferrableProvi
             [
                 __DIR__ . '/../Config/config.php' => $this->app->configPath('openproviderclient.php'),
             ],
-            'config'
+            'config',
         );
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/connection.php',
-            'openproviderclient'
+            'openproviderclient',
         );
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/handles.php',
-            'openproviderclient'
+            'openproviderclient',
         );
     }
 
@@ -63,7 +63,7 @@ class OpenproviderClientProvider extends BaseProvider implements DeferrableProvi
                     $configuration->getAsString('openproviderclient.connection.username'),
                     $configuration->getAsString('openproviderclient.connection.password'),
                 );
-            }
+            },
         );
     }
 
@@ -71,11 +71,11 @@ class OpenproviderClientProvider extends BaseProvider implements DeferrableProvi
     {
         $this->app->bind(
             OpenProviderConnectionInterface::class,
-            ConnectionFaker::class
+            ConnectionFaker::class,
         );
         $this->app->bind(
             OpenproviderClient::class,
-            OpenproviderClientFaker::class
+            OpenproviderClientFaker::class,
         );
     }
 }

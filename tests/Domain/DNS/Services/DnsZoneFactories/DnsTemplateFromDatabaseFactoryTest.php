@@ -30,17 +30,21 @@ class DnsTemplateFromDatabaseFactoryTest extends IntegrationTestCase
             'slug' => 'default',
         ]);
 
-        $recordSet = $dnsTemplate->recordSets()->create([
-            'name' => '{domain}',
-            'type' => 'NS',
-            'ttl' => 3600,
-        ]);
+        $recordSet = $dnsTemplate
+            ->recordSets()
+            ->create([
+                'name' => '{domain}',
+                'type' => 'NS',
+                'ttl' => 3600,
+            ]);
 
-        $recordSet->rows()->createMany([
-            ['content' => '{ns1}.'],
-            ['content' => '{ns2}.'],
-            ['content' => '{ns3}.'],
-        ]);
+        $recordSet
+            ->rows()
+            ->createMany([
+                ['content' => '{ns1}.'],
+                ['content' => '{ns2}.'],
+                ['content' => '{ns3}.'],
+            ]);
 
         $dnsZone = $this->factory->create(
             domain: 'sandwave.io',
@@ -66,17 +70,21 @@ class DnsTemplateFromDatabaseFactoryTest extends IntegrationTestCase
             'slug' => 'default',
         ]);
 
-        $recordSet = $dnsTemplate->recordSets()->create([
-            'name' => '{domain}',
-            'type' => 'NS',
-            'ttl' => 3600,
-        ]);
+        $recordSet = $dnsTemplate
+            ->recordSets()
+            ->create([
+                'name' => '{domain}',
+                'type' => 'NS',
+                'ttl' => 3600,
+            ]);
 
-        $recordSet->rows()->createMany([
-            ['content' => '{ns1}.'],
-            ['content' => '{ns2}.'],
-            ['content' => '{ns3}.'],
-        ]);
+        $recordSet
+            ->rows()
+            ->createMany([
+                ['content' => '{ns1}.'],
+                ['content' => '{ns2}.'],
+                ['content' => '{ns3}.'],
+            ]);
 
         $dnsZone = $this->factory->create(
             domain: 'sandwave.io',

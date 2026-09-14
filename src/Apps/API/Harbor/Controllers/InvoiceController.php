@@ -121,23 +121,28 @@ class InvoiceController
      */
     private function createInvoiceToCreditBatch(array $invoicesToCreditData): InvoiceToCreditBatch
     {
-        return new InvoiceToCreditBatch(array_map(function (array $invoiceToCreditData): InvoiceToCredit {
-            /** @var Invoice $invoice */
-            $invoice = Invoice::query()->where('id', '=', $invoiceToCreditData['waterfrontInvoiceId'])->firstOrFail();
-            /** @var int $amountToCredit */
-            $amountToCredit = $invoiceToCreditData['amountToCredit'];
-            /** @var bool $shouldCreateNewInvoice */
-            $shouldCreateNewInvoice = $invoiceToCreditData['shouldCreateNewInvoice'];
-            /** @var ?string $creditReason */
-            $creditReason = $invoiceToCreditData['creditReason'] ?? null;
+        return new InvoiceToCreditBatch(array_map(
+            function (array $invoiceToCreditData): InvoiceToCredit {
+                /** @var Invoice $invoice */
+                $invoice = Invoice::query()
+                    ->where('id', '=', $invoiceToCreditData['waterfrontInvoiceId'])
+                    ->firstOrFail();
+                /** @var int $amountToCredit */
+                $amountToCredit = $invoiceToCreditData['amountToCredit'];
+                /** @var bool $shouldCreateNewInvoice */
+                $shouldCreateNewInvoice = $invoiceToCreditData['shouldCreateNewInvoice'];
+                /** @var ?string $creditReason */
+                $creditReason = $invoiceToCreditData['creditReason'] ?? null;
 
-            return new InvoiceToCredit(
-                $invoice,
-                $amountToCredit,
-                $shouldCreateNewInvoice,
-                creditReason: $creditReason !== null ? InvoiceLineCreditReason::from($creditReason) : null,
-            );
-        }, $invoicesToCreditData));
+                return new InvoiceToCredit(
+                    $invoice,
+                    $amountToCredit,
+                    $shouldCreateNewInvoice,
+                    creditReason: $creditReason !== null ? InvoiceLineCreditReason::from($creditReason) : null,
+                );
+            },
+            $invoicesToCreditData,
+        ));
     }
 
     /**
@@ -155,12 +160,12 @@ class InvoiceController
             $customer,
             $creditInvoices,
             array_map(function (Invoice $invoice): InvoiceLineMessageConfig {
-                $subscriptionId     = $invoice->subscription_id;
-                $subscription       = $subscriptionId !== null
+                $subscriptionId = $invoice->subscription_id;
+                $subscription = $subscriptionId !== null
                     ? $this->subscriptionRepository->findById($subscriptionId)
                     : null;
-                $product            = $invoice->product;
-                $creditedInvoice    = $invoice->parentInvoice;
+                $product = $invoice->product;
+                $creditedInvoice = $invoice->parentInvoice;
 
                 Assert::notNull($creditedInvoice, sprintf(
                     'Failed to retrieve the original invoice from the credit invoice. Credit invoice ID: %d',
@@ -173,7 +178,7 @@ class InvoiceController
                     subscription: $subscription,
                     creditedInvoiceId: $creditedInvoice->id,
                 );
-            }, $creditInvoices)
+            }, $creditInvoices),
         );
     }
 
@@ -190,7 +195,7 @@ class InvoiceController
 
         return $this->messageBuilder->build(
             $customer,
-            $newInvoices
+            $newInvoices,
         );
     }
 }

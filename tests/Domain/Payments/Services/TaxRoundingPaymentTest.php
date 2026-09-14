@@ -49,10 +49,12 @@ class TaxRoundingPaymentTest extends IntegrationTestCase
             'slug' => 'hosting_zilver',
         ]);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product->uuid,
-            'customer_id' => $customer->id,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product->uuid,
+                'customer_id' => $customer->id,
+            ]);
 
         $orderLineItem1 = new OrderLineItemFactory()->makeOne([
             'subscription_uuid' => $subscription->uuid,
@@ -62,7 +64,7 @@ class TaxRoundingPaymentTest extends IntegrationTestCase
 
         $order->lineItems()->save($orderLineItem1);
 
-        $vatRate = (1 + ((int) $customer->vat_rate / 100));
+        $vatRate = 1 + ((int) $customer->vat_rate / 100);
         $totalPrice = $order->lineItems()->sum('gross_price') * $vatRate;
 
         $result = $this->paymentService->correctPrice($totalPrice);
@@ -77,10 +79,10 @@ class TaxRoundingPaymentTest extends IntegrationTestCase
     public static function getPricesDataProvider(): array
     {
         return [
-            [99, 119.78999999999999, '1.20'], // Round up the price
+            [99, 119.78999999999999,  '1.20'], // Round up the price
             [22, 26.6199999999999979, '0.27'], // Round up the price
-            [97, 117.36999999999999, '1.17'], // Round down the price
-            [20, 24.2, '0.24'], // Round down the price
+            [97, 117.36999999999999,  '1.17'], // Round down the price
+            [20, 24.2,                '0.24'], // Round down the price
         ];
     }
 }

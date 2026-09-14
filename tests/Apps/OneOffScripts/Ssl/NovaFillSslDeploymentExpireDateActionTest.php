@@ -53,7 +53,7 @@ class NovaFillSslDeploymentExpireDateActionTest extends IntegrationTestCase
 
         $actionFields = new ActionFields(
             new Collection(['debug' => true, 'limit' => 10]),
-            new Collection()
+            new Collection(),
         );
 
         $actionResponse = $novaFillSslDeploymentExpireDateAction->handle($actionFields);
@@ -72,16 +72,19 @@ class NovaFillSslDeploymentExpireDateActionTest extends IntegrationTestCase
             (function (): SslDeployment {
                 $sslDeployment = new SslDeployment();
                 $sslDeployment->id = 10;
+
                 return $sslDeployment;
             })(),
             (function (): SslDeployment {
                 $sslDeployment = new SslDeployment();
                 $sslDeployment->id = 11;
+
                 return $sslDeployment;
             })(),
             (function (): SslDeployment {
                 $sslDeployment = new SslDeployment();
                 $sslDeployment->id = 12;
+
                 return $sslDeployment;
             })(),
         ]);
@@ -90,10 +93,11 @@ class NovaFillSslDeploymentExpireDateActionTest extends IntegrationTestCase
 
         $builder->shouldReceive('orderBy')->with('id')->andReturnSelf();
 
-        $builder->shouldReceive('chunkById')
+        $builder
+            ->shouldReceive('chunkById')
             ->with(
                 500,
-                self::isCallable()
+                self::isCallable(),
             )
             ->andReturnUsing(static function (int $chunkSize, callable $callback) use ($sslDeployments): void {
                 $callback($sslDeployments);
@@ -115,7 +119,7 @@ class NovaFillSslDeploymentExpireDateActionTest extends IntegrationTestCase
 
         $actionFields = new ActionFields(
             new Collection(['debug' => false, 'limit' => 2]),
-            new Collection()
+            new Collection(),
         );
 
         $actionResponse = $novaFillSslDeploymentExpireDateAction->handle($actionFields);

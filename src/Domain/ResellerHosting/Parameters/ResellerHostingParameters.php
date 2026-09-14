@@ -18,7 +18,7 @@ readonly class ResellerHostingParameters
         public ?string $ipv6Address,
         public ?string $packageName,
         public ?int $resellerHostingId,
-        public int $providerId
+        public int $providerId,
     ) {
         Assert::stringNotEmpty($username);
         Assert::stringNotEmpty($password);

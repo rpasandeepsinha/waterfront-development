@@ -26,6 +26,7 @@ class SyncSubscriptionResponse extends BaseResponse
             $result->setErrorCode($this->errorCode);
             $result->setErrorMessage($this->errorText);
         }
+
         return $result;
     }
 
@@ -39,6 +40,7 @@ class SyncSubscriptionResponse extends BaseResponse
             $this->status = self::STATUS_ERROR;
             $this->errorCode = $this->statusCode;
             $this->errorText = $this->statusMessage;
+
             return;
         }
 

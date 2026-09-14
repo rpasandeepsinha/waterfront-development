@@ -89,7 +89,7 @@ class CustomerVatServiceTest extends IntegrationTestCase
     {
         $customer = $this->getBusinessCustomer(
             ['vat_number' => self::VAT_NUMBER_VALID],
-            self::COUNTRY_CODE_BELGIUM
+            self::COUNTRY_CODE_BELGIUM,
         );
 
         $customerVatDTO = $this->vatService->getCustomerVatData($customer);
@@ -126,15 +126,9 @@ class CustomerVatServiceTest extends IntegrationTestCase
         $expectedVatRate = 21.0;
         $customer = $this->getPrivateCustomer();
 
-        Cache::shouldReceive('has')
-            ->once()
-            ->with('vat.rate.NL')
-            ->andReturnTrue();
+        Cache::shouldReceive('has')->once()->with('vat.rate.NL')->andReturnTrue();
 
-        Cache::shouldReceive('get')
-            ->once()
-            ->with('vat.rate.NL')
-            ->andReturn($expectedVatRate);
+        Cache::shouldReceive('get')->once()->with('vat.rate.NL')->andReturn($expectedVatRate);
 
         $customerVatDTO = $this->vatService->getCustomerVatData($customer);
 
@@ -150,9 +144,12 @@ class CustomerVatServiceTest extends IntegrationTestCase
         Cache::forget('vat.number.validation.' . strtoupper(self::VAT_NUMBER_INVALID));
 
         $vatNumbers = self::createMock(ValidatesVatNumbers::class);
-        $vatNumbers->expects(self::once())->method('verifyVatNumber')->willThrowException(
-            (new VatNumberValidateFailedException('test', [], 500))
-        );
+        $vatNumbers
+            ->expects(self::once())
+            ->method('verifyVatNumber')
+            ->willThrowException(
+                new VatNumberValidateFailedException('test', [], 500),
+            );
 
         $vatRates = self::createMock(ResolvesVatRates::class);
         $vatRates->expects(self::never())->method('getDefaultVatRateForCountry');
@@ -178,18 +175,16 @@ class CustomerVatServiceTest extends IntegrationTestCase
      */
     private function getCustomer(
         array $customerData = [],
-        string $countryCode = self::COUNTRY_CODE_NETHERLANDS
+        string $countryCode = self::COUNTRY_CODE_NETHERLANDS,
     ): Customer {
-        return new CustomerFactory()
-            ->withAddress([
-                'country_code' => $countryCode,
-            ])
-            ->createOne([
-                ...[
-                    'vat_rate' => null,
-                ],
-                ...$customerData,
-            ]);
+        return new CustomerFactory()->withAddress([
+            'country_code' => $countryCode,
+        ])->createOne([
+            ...[
+                'vat_rate' => null,
+            ],
+            ...$customerData,
+        ]);
     }
 
     /**
@@ -197,7 +192,7 @@ class CustomerVatServiceTest extends IntegrationTestCase
      */
     private function getPrivateCustomer(
         array $customerData = [],
-        string $countryCode = self::COUNTRY_CODE_NETHERLANDS
+        string $countryCode = self::COUNTRY_CODE_NETHERLANDS,
     ): Customer {
         return $this->getCustomer(
             ['organization' => null, 'department' => null, ...$customerData],

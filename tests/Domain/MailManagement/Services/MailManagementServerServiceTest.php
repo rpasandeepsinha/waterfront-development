@@ -25,11 +25,9 @@ class MailManagementServerServiceTest extends IntegrationTestCase
             ->forDomain('mailonly.nl')
             ->createOne();
 
-        $deployment = HostingDeploymentFactory::new()
-            ->withMailOnlyProvider()
-            ->createOne([
-                'subscription_uuid' => $sub->uuid,
-            ]);
+        $deployment = HostingDeploymentFactory::new()->withMailOnlyProvider()->createOne([
+            'subscription_uuid' => $sub->uuid,
+        ]);
 
         $normalServer = ServerFactory::new()->directadmin()->createOne();
         $mailOnlyServer = $deployment->mailOnlyServer;
@@ -50,11 +48,9 @@ class MailManagementServerServiceTest extends IntegrationTestCase
             ->forDomain('mailonly.nl')
             ->createOne();
 
-        $deployment = HostingDeploymentFactory::new()
-            ->withDirectAdminProvider()
-            ->createOne([
-                'subscription_uuid' => $sub->uuid,
-            ]);
+        $deployment = HostingDeploymentFactory::new()->withDirectAdminProvider()->createOne([
+            'subscription_uuid' => $sub->uuid,
+        ]);
 
         $mailOnlyServer = ServerFactory::new()->directadminMail()->createOne();
         $normalServer = $deployment->server;
@@ -81,11 +77,9 @@ class MailManagementServerServiceTest extends IntegrationTestCase
          * Create a deployment linked to normal provider and server, while product on subscription
          * has HOSTING_USES_MAIL_ONLY_SERVER spec set to true.
          */
-        $deployment = HostingDeploymentFactory::new()
-            ->withDirectAdminProvider()
-            ->createOne([
-                'subscription_uuid' => $sub->uuid,
-            ]);
+        $deployment = HostingDeploymentFactory::new()->withDirectAdminProvider()->createOne([
+            'subscription_uuid' => $sub->uuid,
+        ]);
 
         $normalServer = $deployment->server;
         $mailOnlyServer = ServerFactory::new()->directadminMail()->createOne();
@@ -112,11 +106,9 @@ class MailManagementServerServiceTest extends IntegrationTestCase
          * Create a deployment linked to mail only provider and server, while product on subscription
          * has HOSTING_USES_MAIL_ONLY_SERVER spec set to false.
          */
-        $deployment = HostingDeploymentFactory::new()
-            ->withMailOnlyProvider()
-            ->createOne([
-                'subscription_uuid' => $sub->uuid,
-            ]);
+        $deployment = HostingDeploymentFactory::new()->withMailOnlyProvider()->createOne([
+            'subscription_uuid' => $sub->uuid,
+        ]);
 
         $normalServer = ServerFactory::new()->directadmin()->createOne();
         $mailOnlyServer = $deployment->mailOnlyServer;

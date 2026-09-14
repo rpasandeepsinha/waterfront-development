@@ -24,10 +24,12 @@ class InvoiceLineMessageConfigTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product->uuid,
-            'customer_id' => $customer->id,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product->uuid,
+                'customer_id' => $customer->id,
+            ]);
 
         $invoice = new InvoiceFactory()
             ->for($customer)

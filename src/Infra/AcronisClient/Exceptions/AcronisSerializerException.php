@@ -15,7 +15,7 @@ class AcronisSerializerException extends AcronisException
     {
         parent::__construct(
             message: sprintf('Failed to deserialize Acronis response to class "%s", data: "%s"', $class, $data),
-            previous: $previous
+            previous: $previous,
         );
     }
 }

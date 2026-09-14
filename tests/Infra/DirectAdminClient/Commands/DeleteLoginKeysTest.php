@@ -53,10 +53,7 @@ class DeleteLoginKeysTest extends DirectAdminTestCase
 
         $this->api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->deleteLoginKeys
-            ->addKey('deleteme')
-            ->addKey('deletemeaswell')
-            ->addKey('dontkeepme');
+        $this->deleteLoginKeys->addKey('deleteme')->addKey('deletemeaswell')->addKey('dontkeepme');
 
         $responseCalled = $this->api->call($this->deleteLoginKeys);
 
@@ -80,12 +77,11 @@ class DeleteLoginKeysTest extends DirectAdminTestCase
 
         $this->api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->deleteLoginKeys
-            ->setKeys([
-                'deleteone',
-                'deletetwo',
-                'deletethree',
-            ]);
+        $this->deleteLoginKeys->setKeys([
+            'deleteone',
+            'deletetwo',
+            'deletethree',
+        ]);
 
         $responseCalled = $this->api->call($this->deleteLoginKeys);
 

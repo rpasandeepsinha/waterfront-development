@@ -25,8 +25,9 @@ class CancellationPreviewResource extends JsonResource
             'credit_invoice_lines' => CreditInvoiceLineResource::collection($this->resource->creditInvoiceLines),
             'credit_total' => array_reduce(
                 $this->resource->creditInvoiceLines,
-                fn (int $total, InvoiceToCredit $invoiceToCredit): int => $total - $invoiceToCredit->getAmountToCredit(),
-                0
+                fn (int $total, InvoiceToCredit $invoiceToCredit): int => $total
+                - $invoiceToCredit->getAmountToCredit(),
+                0,
             ),
         ];
     }

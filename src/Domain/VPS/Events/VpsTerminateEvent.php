@@ -11,7 +11,8 @@ class VpsTerminateEvent
 {
     use SerializesModels;
 
-    public function __construct(public readonly VirtualMachineDeployment $vmDeployment)
-    {
+    public function __construct(
+        public readonly VirtualMachineDeployment $vmDeployment,
+    ) {
     }
 }

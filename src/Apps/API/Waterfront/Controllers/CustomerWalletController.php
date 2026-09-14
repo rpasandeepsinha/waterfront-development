@@ -53,8 +53,9 @@ class CustomerWalletController
                 [
                     LoggingContextKeys::CUSTOMER_ID => $customer->id,
                     LoggingContextKeys::REQUEST_DATA => (string) json_encode($refundRequest->toArray()),
-                ]
+                ],
             );
+
             return $this->responseFactory->json(['message' => 'no wallet found'], Response::HTTP_CONFLICT);
         }
 
@@ -64,8 +65,9 @@ class CustomerWalletController
                 [
                     LoggingContextKeys::CUSTOMER_ID => $customer->id,
                     LoggingContextKeys::REQUEST_DATA => (string) json_encode($refundRequest->toArray()),
-                ]
+                ],
             );
+
             return $this->responseFactory->json(['message' => 'already requested'], Response::HTTP_CONFLICT);
         }
 
@@ -74,6 +76,7 @@ class CustomerWalletController
             (string) $refundRequest->string('bank_account_name'),
             (string) $refundRequest->string('bank_account_number'),
         );
+
         return $this->responseFactory->json([], Response::HTTP_NO_CONTENT);
     }
 }

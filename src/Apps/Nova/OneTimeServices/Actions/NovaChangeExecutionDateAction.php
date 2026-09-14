@@ -36,14 +36,25 @@ class NovaChangeExecutionDateAction extends Action
     public function handle(ActionFields $fields, Collection $models): ActionResponse|static
     {
         $executionDateString = $fields->get('execution_date');
-        Assert::stringNotEmpty($executionDateString, $this->translator->translate('nova-action.one-time-service.change-execution-date.error.empty'));
+        Assert::stringNotEmpty(
+            $executionDateString,
+            $this->translator->translate('nova-action.one-time-service.change-execution-date.error.empty'),
+        );
         $executionDate = CarbonImmutable::createFromFormat(DateTimeFormat::DUTCH, $executionDateString);
-        Assert::isInstanceOf($executionDate, CarbonImmutable::class, 'Couldn\'t load the execution date from the input form.');
+        Assert::isInstanceOf(
+            $executionDate,
+            CarbonImmutable::class,
+            'Couldn\'t load the execution date from the input form.',
+        );
 
-        $oneTimeServices = OneTimeService::query()
-            ->whereIn('id', array_map(fn (OneTimeService $service): int => $service->id, $models->all()));
+        $oneTimeServices = OneTimeService::query()->whereIn('id', array_map(
+            fn (OneTimeService $service): int => $service->id,
+            $models->all(),
+        ));
 
-        $oneTimeServices->each(fn (OneTimeService $service) => $this->oneTimeServiceUpdater->changeExecutionDate($service, $executionDate));
+        $oneTimeServices->each(
+            fn (OneTimeService $service) => $this->oneTimeServiceUpdater->changeExecutionDate($service, $executionDate),
+        );
 
         return self::message(
             $this->translator->translate('nova-action.one-time-service.change-execution-date.success'),

@@ -93,10 +93,14 @@ class HostingMigrationControllerTest extends IntegrationTestCase
             'plesk_customer_id' => null,
         ]);
 
-        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1']);
+        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1',
+        ]);
         $this->directadminSubscription->migratedSubscriptions()->attach($migratedSubscription);
 
-        $migratedSubscription2 = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_redirect_1337']);
+        $migratedSubscription2 = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_redirect_1337',
+        ]);
         $this->directadminSubscription->migratedSubscriptions()->attach($migratedSubscription2);
 
         $migrationCustomer = MigratedCustomersFactory::new()->createOne();
@@ -129,7 +133,9 @@ class HostingMigrationControllerTest extends IntegrationTestCase
             'plesk_customer_id' => null,
         ]);
 
-        $migratedSubscription2 = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_2']);
+        $migratedSubscription2 = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_2',
+        ]);
         $this->pleskSubscription->migratedSubscriptions()->attach($migratedSubscription2);
 
         $migrationCustomer2 = MigratedCustomersFactory::new()->createOne();
@@ -141,16 +147,12 @@ class HostingMigrationControllerTest extends IntegrationTestCase
         $this->directadminProvider = ProviderFactory::new()->hostingDirectAdmin()->createOne(['default' => true]);
 
         $mockHostingService = self::createStub(PleskHostingService::class);
-        $mockHostingService
-            ->method('isUsingHostingServerAsNameserver')
-            ->willReturn(true);
-        $this->app->bind(PleskHostingService::class, fn () =>  $mockHostingService);
+        $mockHostingService->method('isUsingHostingServerAsNameserver')->willReturn(true);
+        $this->app->bind(PleskHostingService::class, fn () => $mockHostingService);
 
         $mockHostingService = self::createStub(DirectAdminHostingService::class);
-        $mockHostingService
-            ->method('isUsingHostingServerAsNameserver')
-            ->willReturn(true);
-        $this->app->bind(DirectAdminHostingService::class, fn () =>  $mockHostingService);
+        $mockHostingService->method('isUsingHostingServerAsNameserver')->willReturn(true);
+        $this->app->bind(DirectAdminHostingService::class, fn () => $mockHostingService);
     }
 
     #[Test]
@@ -160,13 +162,16 @@ class HostingMigrationControllerTest extends IntegrationTestCase
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_hosting', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_hosting', [
+                    'customer' => $this->customer->id,
+                ]),
                 $postData,
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            )->assertStatus(Response::HTTP_MULTI_STATUS)
+                ],
+            )
+            ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [],
                 'success' => [
@@ -242,13 +247,16 @@ class HostingMigrationControllerTest extends IntegrationTestCase
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_hosting', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_hosting', [
+                    'customer' => $this->customer->id,
+                ]),
                 $postData,
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+                ],
+            )
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertExactJson([
                 'message' => 'Het geselecteerde veld is ongeldig. (and 2 more errors)',
                 'errors' => [
@@ -272,13 +280,16 @@ class HostingMigrationControllerTest extends IntegrationTestCase
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_hosting', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_hosting', [
+                    'customer' => $this->customer->id,
+                ]),
                 $postData,
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+                ],
+            )
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertExactJson([
                 'message' => 'Het geselecteerde veld is ongeldig. (and 1 more error)',
                 'errors' => [
@@ -305,13 +316,16 @@ class HostingMigrationControllerTest extends IntegrationTestCase
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_hosting', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_hosting', [
+                    'customer' => $this->customer->id,
+                ]),
                 $postData,
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            )->assertStatus(Response::HTTP_MULTI_STATUS)
+                ],
+            )
+            ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [
                     [

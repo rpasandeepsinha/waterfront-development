@@ -31,7 +31,7 @@ class DomainCheckRequest extends BaseRequest
         $message[$this->endpoint] = [
             'domains' => [
                 'item' => [
-                    'name'      => $this->domain->getName(),
+                    'name' => $this->domain->getName(),
                     'extension' => $this->domain->getExtension(),
                 ],
             ],

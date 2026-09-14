@@ -35,7 +35,19 @@ class ShowUserStats extends DirectAdminCommand
     /**
      * @var array|string[]
      */
-    private array $keysUnlimited = ['bandwidth', 'quota', 'vdomains', 'nsubdomains', 'nemails', 'nemailf', 'nemailml', 'nemailr', 'mysql', 'domainptr', 'ftp'];
+    private array $keysUnlimited = [
+        'bandwidth',
+        'quota',
+        'vdomains',
+        'nsubdomains',
+        'nemails',
+        'nemailf',
+        'nemailml',
+        'nemailr',
+        'mysql',
+        'domainptr',
+        'ftp',
+    ];
 
     /**
      * @var array|string[]
@@ -57,63 +69,73 @@ class ShowUserStats extends DirectAdminCommand
         return array_key_exists($name, $this->autoFormValues);
     }
 
-    public function __set(string $name, string | int $value): void
+    public function __set(string $name, string|int $value): void
     {
-        if ((array_key_exists($name, $this->keysOnOff) && ($value === 'ON' || $value === 'OFF'))) {
+        if (array_key_exists($name, $this->keysOnOff) && ($value === 'ON' || $value === 'OFF')) {
             $this->autoFormValues[$name] = $value;
         }
-        if (array_key_exists($name, $this->keysUnlimited) && (is_int($value) || ($value === 'ON' || $value === 'OFF'))) {
+
+        if (
+            array_key_exists($name, $this->keysUnlimited)
+            && (is_int($value) || ($value === 'ON' || $value === 'OFF'))
+        ) {
             $this->autoFormValues[$name] = $value;
         }
     }
 
-    public function __get(string $name): string | int | null
+    public function __get(string $name): string|int|null
     {
         if (array_key_exists('u' . $name, $this->autoFormValues)) {
             return $this->autoFormValues['u' . $name];
         }
+
         if (array_key_exists($name, $this->autoFormValues)) {
             return $this->autoFormValues[$name];
         }
+
         return null;
     }
 
-    public function getBandwidth(): string | int
+    public function getBandwidth(): string|int
     {
         return $this->bandwidth;
     }
 
-    public function getQuota(): string | int
+    public function getQuota(): string|int
     {
         return $this->quota;
     }
 
-    public function getDomainPtr(): string | int
+    public function getDomainPtr(): string|int
     {
         return $this->domainptr;
     }
 
-    public function setBandwidth(string | int $bandwidth): ShowUserStats
+    public function setBandwidth(string|int $bandwidth): ShowUserStats
     {
         $this->bandwidth = $bandwidth;
+
         return $this;
     }
 
-    public function setQuota(string | int $quota): ShowUserStats
+    public function setQuota(string|int $quota): ShowUserStats
     {
         $this->quota = $quota;
+
         return $this;
     }
 
-    public function setDomainPtr(string | int $domainptr): ShowUserStats
+    public function setDomainPtr(string|int $domainptr): ShowUserStats
     {
         $this->domainptr = $domainptr;
+
         return $this;
     }
 
     public function setUser(string $user): ShowUserStats
     {
         $this->user = $user;
+
         return $this;
     }
 
@@ -127,7 +149,7 @@ class ShowUserStats extends DirectAdminCommand
         if (! array_key_exists('stats', $decodedContent)) {
             throw new DirectAdminCommandException(sprintf(
                 "Unexpected response received from Directadmin in command %s. Missing 'stats' value",
-                self::class
+                self::class,
             ));
         }
 
@@ -138,9 +160,10 @@ class ShowUserStats extends DirectAdminCommand
         if (! array_key_exists('domains', $decodedContent)) {
             throw new DirectAdminCommandException(sprintf(
                 "Unexpected response received from Directadmin in command %s. Missing 'domains' value",
-                self::class
+                self::class,
             ));
         }
+
         $domains = $decodedContent['domains'];
         assert(is_array($domains));
         $this->configureDomains($domains);
@@ -197,14 +220,17 @@ class ShowUserStats extends DirectAdminCommand
                 if (array_key_exists('usage', $statSettings)) {
                     $this->stats[$statSettings['setting']] = $statSettings['usage'];
                 }
+
                 if (in_array($statSettings['setting'], $this->keysUnlimited, true)) {
                     if ($statSettings['max_usage'] === 'unlimited') {
                         $this->autoFormValues['u' . $statSettings['setting']] = 'ON';
                         continue;
                     }
+
                     $this->autoFormValues[$statSettings['setting']] = $statSettings['max_usage'];
                     continue;
                 }
+
                 if (in_array($statSettings['setting'], $this->keysOnOff, true)) {
                     $this->autoFormValues[$statSettings['setting']] = $statSettings['usage'];
                 }
@@ -229,6 +255,7 @@ class ShowUserStats extends DirectAdminCommand
                 } else {
                     $this->autoDomainFormValues[$domain['domain']]['bandwidth'] = $domain['bandwidth']['limit'];
                 }
+
                 if ($domain['quota']['limit'] === 'shared') {
                     $this->autoDomainFormValues[$domain['domain']]['uquota'] = 'ON';
                 } else {

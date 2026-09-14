@@ -33,49 +33,62 @@ class VpsProvider extends BaseProvider
         $this->app->bind(VirtualMachineServiceInterface::class, VirtualMachineService::class);
         $this->app->bind(VirtualMachineDeploymentRepositoryInterface::class, VirtualMachineDeploymentRepository::class);
 
-        $this->app->when(ClientFactory::class)->needs(ClientInterface::class)->give(fn (): Client => new Client());
-        $this->app->when(AdminClientFactory::class)->needs(ClientInterface::class)->give(fn (): Client => new Client());
+        $this->app
+            ->when(ClientFactory::class)
+            ->needs(ClientInterface::class)
+            ->give(fn (): Client => new Client());
+        $this->app
+            ->when(AdminClientFactory::class)
+            ->needs(ClientInterface::class)
+            ->give(fn (): Client => new Client());
 
-        $this->app->when(ReinstallVirtualMachineJob::class)
+        $this->app
+            ->when(ReinstallVirtualMachineJob::class)
             ->needs(Serializer::class)
             ->give(
-                fn () => CloudstackSerializerFactory::get()
+                fn () => CloudstackSerializerFactory::get(),
             );
 
-        $this->app->when(CloudStackClient::class)
+        $this->app
+            ->when(CloudStackClient::class)
             ->needs(Serializer::class)
             ->give(
-                fn () => CloudstackSerializerFactory::get()
+                fn () => CloudstackSerializerFactory::get(),
             );
 
-        $this->app->when(CloudstackService::class)
+        $this->app
+            ->when(CloudstackService::class)
             ->needs(Serializer::class)
             ->give(
-                fn () => CloudstackSerializerFactory::get()
+                fn () => CloudstackSerializerFactory::get(),
             );
 
-        $this->app->when(VpsService::class)
+        $this->app
+            ->when(VpsService::class)
             ->needs(Serializer::class)
             ->give(
-                fn () => CloudstackSerializerFactory::getCamelCaseSerializer()
+                fn () => CloudstackSerializerFactory::getCamelCaseSerializer(),
             );
 
-        $this->app->when(CloudstackAsyncJob::class)
+        $this->app
+            ->when(CloudstackAsyncJob::class)
             ->needs(Serializer::class)
             ->give(
-                fn () => CloudstackSerializerFactory::getCamelCaseSerializer()
+                fn () => CloudstackSerializerFactory::getCamelCaseSerializer(),
             );
 
-        $this->app->when(VirtualMachineService::class)
+        $this->app
+            ->when(VirtualMachineService::class)
             ->needs(Serializer::class)
             ->give(
-                fn () => CloudstackSerializerFactory::getCamelCaseSerializer()
+                fn () => CloudstackSerializerFactory::getCamelCaseSerializer(),
             );
 
-        $this->app->when(ManagerDomainService::class)
+        $this->app
+            ->when(ManagerDomainService::class)
             ->needs(Serializer::class)
             ->give(
-                fn () => CloudstackSerializerFactory::getCamelCaseSerializer()
+                fn () => CloudstackSerializerFactory::getCamelCaseSerializer(),
             );
     }
 }

@@ -42,7 +42,7 @@ class CancellationFlow extends Model implements AuditableContract
             Subscription::class,
             'cancellation_flows_subscriptions',
             'cancellation_flows_id',
-            'subscription_id'
+            'subscription_id',
         );
     }
 

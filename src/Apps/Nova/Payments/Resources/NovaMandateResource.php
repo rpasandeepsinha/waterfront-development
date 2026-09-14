@@ -60,7 +60,7 @@ class NovaMandateResource extends Resource
             BelongsTo::make(
                 'Mollie customer',
                 'mollieCustomer',
-                NovaMollieCustomerResource::class
+                NovaMollieCustomerResource::class,
             ),
 
             Text::make('Mollie mandate reference ID', 'mollie_mandate_reference_id'),
@@ -68,10 +68,8 @@ class NovaMandateResource extends Resource
             Text::make('method'),
 
             Date::make(self::translate('nova-resource-labels.signature-date'), 'signature_date'),
-            DateTime::make(self::translate('nova-resource-labels.created-at'), 'created_at')
-                ->onlyOnDetail(),
-            DateTime::make(self::translate('nova-resource-labels.updated-at'), 'updated_at')
-                ->onlyOnDetail(),
+            DateTime::make(self::translate('nova-resource-labels.created-at'), 'created_at')->onlyOnDetail(),
+            DateTime::make(self::translate('nova-resource-labels.updated-at'), 'updated_at')->onlyOnDetail(),
         ];
     }
 
@@ -112,8 +110,7 @@ class NovaMandateResource extends Resource
     {
         return [
             resolve(NovaFetchMandateAction::class),
-            resolve(NovaRevokeMandateAction::class)
-                ->onlyOnDetail(),
+            resolve(NovaRevokeMandateAction::class)->onlyOnDetail(),
         ];
     }
 }

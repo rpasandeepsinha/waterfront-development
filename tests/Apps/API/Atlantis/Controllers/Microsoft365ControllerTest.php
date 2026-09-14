@@ -43,34 +43,35 @@ class Microsoft365ControllerTest extends IntegrationTestCase
     #[Test]
     public function tenantCheckForNonExistingTenant(): void
     {
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('getTenantIdByName')
             ->with(self::TENANT)
             ->willReturn(null);
 
-        $this->actingAsCustomer($this->customer)
-            ->post($this->generateRoute('storefront.m365.tenant-check'), ['tenantName' => self::TENANT])
-            ->assertNotFound()
-            ->assertExactJson(['message' => 'microsoft365.validation.tenant-not-found', 'errors' => []]);
+        $this->actingAsCustomer($this->customer)->post($this->generateRoute('storefront.m365.tenant-check'), [
+            'tenantName' => self::TENANT,
+        ])->assertNotFound()->assertExactJson(['message' => 'microsoft365.validation.tenant-not-found', 'errors' => []]);
     }
 
     #[Test]
     public function tenantCheckForNotAuthorizedTenant(): void
     {
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('getTenantIdByName')
             ->with(self::TENANT)
             ->willReturn(self::TENANT_ID);
 
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('hasDomainOwnership')
             ->with(self::TENANT_ID)
             ->willReturn(false);
 
-        $this->actingAsCustomer($this->customer)
-            ->post($this->generateRoute('storefront.m365.tenant-check'), ['tenantName' => self::TENANT])
-            ->assertUnprocessable()
-            ->assertExactJson(['message' => 'microsoft365.validation.tenant-not-authorized', 'errors' => []]);
+        $this->actingAsCustomer($this->customer)->post($this->generateRoute('storefront.m365.tenant-check'), [
+            'tenantName' => self::TENANT,
+        ])->assertUnprocessable()->assertExactJson(['message' => 'microsoft365.validation.tenant-not-authorized', 'errors' => []]);
     }
 
     #[Test]
@@ -102,32 +103,30 @@ class Microsoft365ControllerTest extends IntegrationTestCase
             ->parentSubscription($domainSubscription)
             ->createOne();
 
-        new DnsDeploymentFactory()
-            ->for($dnsSubscription)
-            ->createOne();
+        new DnsDeploymentFactory()->for($dnsSubscription)->createOne();
 
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('getTenantIdByName')
             ->with(self::TENANT)
             ->willReturn(self::TENANT_ID);
 
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('hasDomainOwnership')
             ->with(self::TENANT_ID)
             ->willReturn(true);
 
-        $this->actingAsCustomer($this->customer)
-            ->post($this->generateRoute('storefront.m365.tenant-check'), ['tenantName' => self::TENANT])
-            ->assertOk()
-            ->assertExactJson(['tenantId' => self::TENANT_ID]);
+        $this->actingAsCustomer($this->customer)->post($this->generateRoute('storefront.m365.tenant-check'), [
+            'tenantName' => self::TENANT,
+        ])->assertOk()->assertExactJson(['tenantId' => self::TENANT_ID]);
     }
 
     #[Test]
     public function tenantCheckForInvalidTenantNames(): void
     {
-        $this->actingAsCustomer($this->customer)
-            ->post($this->generateRoute('storefront.m365.tenant-check'), ['tenantName' => 'invalid-tenant-name'])
-            ->assertUnprocessable()
-            ->assertJsonFragment(['message' => 'Dit veld mag alleen letters en nummers bevatten.']);
+        $this->actingAsCustomer($this->customer)->post($this->generateRoute('storefront.m365.tenant-check'), [
+            'tenantName' => 'invalid-tenant-name',
+        ])->assertUnprocessable()->assertJsonFragment(['message' => 'Dit veld mag alleen letters en nummers bevatten.']);
     }
 }

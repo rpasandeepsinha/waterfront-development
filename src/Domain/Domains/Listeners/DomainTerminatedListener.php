@@ -33,7 +33,10 @@ class DomainTerminatedListener implements ShouldQueue
 
     private function decoupleDomainFromM365(Subscription $subscription): void
     {
-        $customerInfo = $this->customerInfoRepository->findByCustomerAndDomain($subscription->customer, $subscription->domain);
+        $customerInfo = $this->customerInfoRepository->findByCustomerAndDomain(
+            $subscription->customer,
+            $subscription->domain,
+        );
         if ($customerInfo instanceof Microsoft365CustomerInfo) {
             $this->eventDispatcher->dispatch(new DecouplePrimaryDomainJob($customerInfo));
         }

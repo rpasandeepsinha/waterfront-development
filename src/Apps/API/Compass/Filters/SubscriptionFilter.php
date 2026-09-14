@@ -8,14 +8,16 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Waterfront\Apps\API\Compass\Resources\Subscription\SubscriptionResource;
 use Waterfront\Apps\API\Compass\Support\FieldSelectionProxy;
+use Waterfront\Domain\Customers\Models\Customer;
 use Waterfront\Domain\Products\Enums\ProductGroupType;
 use Waterfront\Domain\Products\Models\Product;
 use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class SubscriptionFilter
 {
-    public function __construct(private readonly Sorting $sorting)
-    {
+    public function __construct(
+        private readonly Sorting $sorting,
+    ) {
     }
 
     /**
@@ -30,7 +32,13 @@ class SubscriptionFilter
         $hasProductSort = (bool) array_filter($orderBy, fn (string $o) => str_starts_with($o, 'product.'));
         $hasCategorySort = (bool) array_filter($orderBy, fn (string $o) => str_starts_with($o, 'category.'));
 
-        [$needsProductJoin, $needsCategoryJoin] = $this->applyJoins($query, $request, $search, $hasProductSort, $hasCategorySort);
+        [$needsProductJoin, $needsCategoryJoin] = $this->applyJoins(
+            $query,
+            $request,
+            $search,
+            $hasProductSort,
+            $hasCategorySort,
+        );
 
         $this->applySearch($query, $request, $needsProductJoin, $needsCategoryJoin);
         $this->applyTechnicalStatusFilter($query, $request);
@@ -42,6 +50,7 @@ class SubscriptionFilter
 
         $orderBy = $this->applyProductSort($query, $orderBy, $needsProductJoin);
         $orderBy = $this->applyCategoryNameSorting($query, $orderBy, $needsCategoryJoin);
+        $orderBy = $this->applyCustomerNumberSort($query, $orderBy);
         $this->sorting->apply($query, $orderBy);
 
         // Apply field selection last so it overrides the wildcard select added by the product join
@@ -56,20 +65,29 @@ class SubscriptionFilter
      *
      * @return array{bool, bool} [$needsProductJoin, $needsCategoryJoin]
      */
-    private function applyJoins(Builder $query, Request $request, string $search, bool $hasProductSort, bool $hasCategorySort): array
-    {
+    private function applyJoins(
+        Builder $query,
+        Request $request,
+        string $search,
+        bool $hasProductSort,
+        bool $hasCategorySort,
+    ): array {
         $hasSearch = $search !== '' && strlen($search) <= 50;
 
         $needsProductJoin = $hasSearch || $request->has('product_group') || $hasProductSort;
         $needsCategoryJoin = $hasSearch || $request->has('category_asignee_metadata_email') || $hasCategorySort;
 
         if ($needsProductJoin) {
-            $query->leftJoin('products', 'products.uuid', '=', 'subscriptions.product_uuid')
-                ->select('subscriptions.*');
+            $query->leftJoin('products', 'products.uuid', '=', 'subscriptions.product_uuid')->select('subscriptions.*');
         }
 
         if ($needsCategoryJoin) {
-            $query->leftJoin('subscription_categories', 'subscription_categories.subscription_id', '=', 'subscriptions.id');
+            $query->leftJoin(
+                'subscription_categories',
+                'subscription_categories.subscription_id',
+                '=',
+                'subscriptions.id',
+            );
 
             if (! $needsProductJoin) {
                 $query->select('subscriptions.*');
@@ -100,7 +118,7 @@ class SubscriptionFilter
             } else {
                 $query->orderBy(
                     Product::select($column)->whereColumn('uuid', 'subscriptions.product_uuid'),
-                    $direction
+                    $direction,
                 );
             }
 
@@ -127,9 +145,31 @@ class SubscriptionFilter
                 $query->orderByRaw("subscription_categories.name {$direction} NULLS LAST");
             } else {
                 $query->orderByRaw(
-                    "(SELECT name FROM subscription_categories WHERE subscription_id = subscriptions.id LIMIT 1) {$direction} NULLS LAST"
+                    "(SELECT name FROM subscription_categories WHERE subscription_id = subscriptions.id LIMIT 1) {$direction} NULLS LAST",
                 );
             }
+
+            return false;
+        });
+    }
+
+    /**
+     * @param Builder<Subscription> $query
+     * @param string[]              $orderBy
+     *
+     * @return string[]
+     */
+    private function applyCustomerNumberSort(Builder $query, array $orderBy): array
+    {
+        return array_filter($orderBy, function (string $order) use ($query): bool {
+            if (! in_array($order, ['customer_number_asc', 'customer_number_desc'], true)) {
+                return true;
+            }
+
+            $query->orderBy(
+                Customer::select('customer_number')->whereColumn('id', 'subscriptions.customer_id'),
+                str_ends_with($order, '_desc') ? 'desc' : 'asc',
+            );
 
             return false;
         });
@@ -148,8 +188,7 @@ class SubscriptionFilter
             $q->where('subscriptions.domain', 'ilike', "%{$search}%");
 
             if ($joinedProducts) {
-                $q->orWhere('products.name', 'ilike', "%{$search}%")
-                    ->orWhere('products.slug', 'ilike', "%{$search}%");
+                $q->orWhere('products.name', 'ilike', "%{$search}%")->orWhere('products.slug', 'ilike', "%{$search}%");
             }
 
             if ($joinedCategories) {
@@ -195,11 +234,15 @@ class SubscriptionFilter
         }
 
         if ($joinedProducts) {
-            $query->whereIn('products.product_group_id', function (\Illuminate\Database\Query\Builder $sub) use ($productGroupType): void {
+            $query->whereIn('products.product_group_id', function (\Illuminate\Database\Query\Builder $sub) use (
+                $productGroupType,
+            ): void {
                 $sub->select('id')->from('product_groups')->where('slug', $productGroupType);
             });
         } else {
-            $query->whereHas('product.productGroup', function (Builder $productGroupQuery) use ($productGroupType): void {
+            $query->whereHas('product.productGroup', function (Builder $productGroupQuery) use (
+                $productGroupType,
+            ): void {
                 $productGroupQuery->where('slug', $productGroupType);
             });
         }
@@ -223,8 +266,7 @@ class SubscriptionFilter
             }
 
             if ($includeNull) {
-                $q->orWhereDoesntHave('category')
-                    ->orWhereHas('category', fn (Builder $cat) => $cat->whereNull('name'));
+                $q->orWhereDoesntHave('category')->orWhereHas('category', fn (Builder $cat) => $cat->whereNull('name'));
             }
         });
     }

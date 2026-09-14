@@ -48,9 +48,7 @@ class DowngradeSubscriptionOnCancelActionTest extends IntegrationTestCase
 
         $this->productGroup = new ProductGroupFactory()->hosting()->createOne();
 
-        $cancelProduct = new ProductFactory()
-            ->for($this->productGroup)
-            ->createOne();
+        $cancelProduct = new ProductFactory()->for($this->productGroup)->createOne();
 
         $this->subscription = new SubscriptionFactory()
             ->withCustomer()
@@ -64,36 +62,38 @@ class DowngradeSubscriptionOnCancelActionTest extends IntegrationTestCase
         $this->action = new DowngradeSubscriptionOnCancelAction(
             subscriptionChangeService: $this->subscriptionChangeServiceMock,
             changeDnsAction: $this->changeDnsActionMock,
-            logger:$this->loggerMock
+            logger: $this->loggerMock,
         );
     }
 
     #[Test]
     public function execute(): void
     {
-        $this->loggerMock->expects(self::never())
-            ->method('error');
+        $this->loggerMock->expects(self::never())->method('error');
 
         $downGradeTargetProduct = ProductFactory::new()->for($this->productGroup)->create();
 
-        $this->subscriptionChangeServiceMock->expects(self::once())
+        $this->subscriptionChangeServiceMock
+            ->expects(self::once())
             ->method('getAvailableDowngradeWhenCanceled')
             ->with($this->subscription)
             ->willReturn($downGradeTargetProduct);
 
-        $this->changeDnsActionMock->expects(self::once())
+        $this->changeDnsActionMock
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 $this->subscription,
-                ProductChangeType::DOWNGRADE
+                ProductChangeType::DOWNGRADE,
             );
 
-        $this->subscriptionChangeServiceMock->expects(self::once())
+        $this->subscriptionChangeServiceMock
+            ->expects(self::once())
             ->method('change')
             ->with(
                 ProductChangeType::DOWNGRADE,
                 $this->subscription,
-                $downGradeTargetProduct
+                $downGradeTargetProduct,
             );
 
         $this->action->execute($this->subscription);
@@ -103,18 +103,18 @@ class DowngradeSubscriptionOnCancelActionTest extends IntegrationTestCase
     public function executeFailedReceivingProduct(): void
     {
         $exception = new DowngradeCancelException();
-        $this->subscriptionChangeServiceMock->expects(self::once())
+        $this->subscriptionChangeServiceMock
+            ->expects(self::once())
             ->method('getAvailableDowngradeWhenCanceled')
             ->with($this->subscription)
             ->willThrowException($exception);
 
-        $this->changeDnsActionMock->expects(self::never())
-            ->method('execute');
+        $this->changeDnsActionMock->expects(self::never())->method('execute');
 
-        $this->subscriptionChangeServiceMock->expects(self::never())
-            ->method('change');
+        $this->subscriptionChangeServiceMock->expects(self::never())->method('change');
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Tried to downgrade subscription with uuid: {subscription.uuid} while canceled',
@@ -122,7 +122,7 @@ class DowngradeSubscriptionOnCancelActionTest extends IntegrationTestCase
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $this->subscription->domain,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
         $this->action->execute($this->subscription);
@@ -133,21 +133,24 @@ class DowngradeSubscriptionOnCancelActionTest extends IntegrationTestCase
     {
         $downGradeTargetProduct = ProductFactory::new()->for($this->productGroup)->create();
 
-        $this->subscriptionChangeServiceMock->expects(self::once())
+        $this->subscriptionChangeServiceMock
+            ->expects(self::once())
             ->method('getAvailableDowngradeWhenCanceled')
             ->with($this->subscription)
             ->willReturn($downGradeTargetProduct);
 
         $exception = new DnsChangeException();
-        $this->changeDnsActionMock->expects(self::once())
+        $this->changeDnsActionMock
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 $this->subscription,
-                ProductChangeType::DOWNGRADE
+                ProductChangeType::DOWNGRADE,
             )
-        ->willThrowException($exception);
+            ->willThrowException($exception);
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Tried to downgrade subscription with uuid: {subscription.uuid} while canceled',
@@ -155,11 +158,10 @@ class DowngradeSubscriptionOnCancelActionTest extends IntegrationTestCase
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $this->subscription->domain,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
-        $this->subscriptionChangeServiceMock->expects(self::never())
-            ->method('change');
+        $this->subscriptionChangeServiceMock->expects(self::never())->method('change');
 
         $this->action->execute($this->subscription);
     }
@@ -169,25 +171,25 @@ class DowngradeSubscriptionOnCancelActionTest extends IntegrationTestCase
     {
         $downGradeTargetProduct = ProductFactory::new()->for($this->productGroup)->create();
 
-        $this->subscriptionChangeServiceMock->expects(self::once())
+        $this->subscriptionChangeServiceMock
+            ->expects(self::once())
             ->method('getAvailableDowngradeWhenCanceled')
             ->with($this->subscription)
             ->willReturn($downGradeTargetProduct);
 
         $exception = new Exception();
-        $this->changeDnsActionMock->expects(self::once())
+        $this->changeDnsActionMock
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 $this->subscription,
-                ProductChangeType::DOWNGRADE
+                ProductChangeType::DOWNGRADE,
             )
             ->willThrowException($exception);
 
-        $this->loggerMock->expects(self::never())
-            ->method('error');
+        $this->loggerMock->expects(self::never())->method('error');
 
-        $this->subscriptionChangeServiceMock->expects(self::never())
-            ->method('change');
+        $this->subscriptionChangeServiceMock->expects(self::never())->method('change');
 
         $this->expectException(Exception::class);
 
@@ -199,28 +201,33 @@ class DowngradeSubscriptionOnCancelActionTest extends IntegrationTestCase
     {
         $downGradeTargetProduct = ProductFactory::new()->for($this->productGroup)->create();
 
-        $this->subscriptionChangeServiceMock->expects(self::once())
+        $this->subscriptionChangeServiceMock
+            ->expects(self::once())
             ->method('getAvailableDowngradeWhenCanceled')
             ->with($this->subscription)
             ->willReturn($downGradeTargetProduct);
 
-        $this->changeDnsActionMock->expects(self::once())
+        $this->changeDnsActionMock
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 $this->subscription,
-                ProductChangeType::DOWNGRADE
+                ProductChangeType::DOWNGRADE,
             );
 
         $exception = new SubscriptionChangeException();
-        $this->subscriptionChangeServiceMock->expects(self::once())
+        $this->subscriptionChangeServiceMock
+            ->expects(self::once())
             ->method('change')
             ->with(
                 ProductChangeType::DOWNGRADE,
                 $this->subscription,
-                $downGradeTargetProduct
-            )->willThrowException($exception);
+                $downGradeTargetProduct,
+            )
+            ->willThrowException($exception);
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Tried to downgrade subscription with uuid: {subscription.uuid} while canceled',
@@ -228,7 +235,7 @@ class DowngradeSubscriptionOnCancelActionTest extends IntegrationTestCase
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $this->subscription->domain,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
         $this->action->execute($this->subscription);

@@ -22,12 +22,12 @@ class Connection
     public function setApiUrl(string $apiUrl): void
     {
         if ($apiUrl === '') {
-            throw  PleskClientException::missingApiUrl();
+            throw PleskClientException::missingApiUrl();
         }
 
         $apiUrlValidated = filter_var($apiUrl, FILTER_VALIDATE_URL);
         if ($apiUrlValidated === false) {
-            throw  PleskClientException::invalidApiUrl($apiUrl);
+            throw PleskClientException::invalidApiUrl($apiUrl);
         }
 
         $this->apiUrl = $apiUrl;
@@ -39,8 +39,9 @@ class Connection
     public function setUsername(string $username): void
     {
         if ($username === '') {
-            throw  PleskClientException::InvalidArgumentException('The username is empty.');
+            throw PleskClientException::InvalidArgumentException('The username is empty.');
         }
+
         $this->username = $username;
     }
 
@@ -50,8 +51,9 @@ class Connection
     public function setPassword(string $password): void
     {
         if ($password === '') {
-            throw  PleskClientException::InvalidArgumentException('The password is empty.');
+            throw PleskClientException::InvalidArgumentException('The password is empty.');
         }
+
         $this->password = $password;
     }
 

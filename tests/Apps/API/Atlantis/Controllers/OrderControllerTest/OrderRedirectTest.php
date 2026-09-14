@@ -22,11 +22,12 @@ class OrderRedirectTest extends IntegrationTestCase
     {
         $testDomain = 'test-redirect-domain.com'; // Matches json
 
-        $redirectProduct = ProductFactory::new()
-            ->redirect()
-            ->createOne();
+        $redirectProduct = ProductFactory::new()->redirect()->createOne();
 
-        new ProductPriceComponentFactory()->registration()->for($redirectProduct)->createOne();
+        new ProductPriceComponentFactory()
+            ->registration()
+            ->for($redirectProduct)
+            ->createOne();
 
         $customer = CustomerFactory::new()->withAddress()->createOne();
 
@@ -39,18 +40,20 @@ class OrderRedirectTest extends IntegrationTestCase
         /** @var array<mixed, mixed> $orderData */
         $orderData = json_decode($jsonData, associative: true);
 
-        $response = $this
-            ->actingAsCustomer($customer)
-            ->json('post', $this->generateRoute('partners.order.order'), $orderData);
+        $response = $this->actingAsCustomer($customer)->json(
+            'post',
+            $this->generateRoute('partners.order.order'),
+            $orderData,
+        );
 
         $response->assertOk();
         $response->assertJsonFragment([
-            'status'           => 'ok',
+            'status' => 'ok',
         ]);
 
         self::assertDatabaseHas(Subscription::class, [
             'customer_id' => $customer->id,
-            'product_uuid'  => $redirectProduct->uuid,
+            'product_uuid' => $redirectProduct->uuid,
             'domain' => $testDomain,
             'administrative_status' => AdministrativeStatus::ACTIVE->value,
         ]);

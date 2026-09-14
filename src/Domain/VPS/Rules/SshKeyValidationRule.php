@@ -35,10 +35,14 @@ class SshKeyValidationRule extends AbstractValidator
 
         $productSlug = $value['slug'];
         $product = $this->productRepository->findProductBySlug($productSlug);
-        $sshKeyIsRequired = $this->productSpecRepository->booleanSpecificationIsTrue($product, ProductSpecName::SSH_KEY_REQUIRED);
+        $sshKeyIsRequired = $this->productSpecRepository->booleanSpecificationIsTrue(
+            $product,
+            ProductSpecName::SSH_KEY_REQUIRED,
+        );
 
         if (array_key_exists('ssh_key_uuid', $value) && $sshKeyIsRequired === false) {
             $this->message = 'validation.vps.ssh-key-not-required';
+
             return false;
         }
 
@@ -48,14 +52,17 @@ class SshKeyValidationRule extends AbstractValidator
 
         if (! array_key_exists('ssh_key_uuid', $value)) {
             $this->message = 'validation.vps.ssh-key-required';
+
             return false;
         }
 
         try {
             $this->sshKeyRepository->findByCustomerAndUuid($this->customer, $value['ssh_key_uuid']);
+
             return true;
         } catch (ModelNotFoundException) {
             $this->message = 'validation.vps.ssh-key-not-found';
+
             return false;
         }
     }

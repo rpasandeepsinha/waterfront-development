@@ -8,8 +8,8 @@ class PaytAdministration
 {
     public function __construct(
         public int $id,
-        public string|null $name,
-        public string|null $originId,
+        public ?string $name,
+        public ?string $originId,
     ) {
     }
 }

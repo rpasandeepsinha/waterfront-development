@@ -11,8 +11,9 @@ use Waterfront\Domain\Customers\Models\CustomerContact;
 
 class CustomerContactObserver
 {
-    public function __construct(private readonly Dispatcher $eventDispatcher)
-    {
+    public function __construct(
+        private readonly Dispatcher $eventDispatcher,
+    ) {
     }
 
     public function created(CustomerContact $customerContact): void

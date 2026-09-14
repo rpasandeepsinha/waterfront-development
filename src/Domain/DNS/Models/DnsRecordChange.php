@@ -70,10 +70,10 @@ class DnsRecordChange extends Model
     protected function casts(): array
     {
         return [
-            'record_type'         => DnsRecordType::class,
-            'change_type'         => DnsChangeType::class,
-            'agent_type'          => DnsAgentType::class,
-            'changed_by_uuid'     => UuidCast::class,
+            'record_type' => DnsRecordType::class,
+            'change_type' => DnsChangeType::class,
+            'agent_type' => DnsAgentType::class,
+            'changed_by_uuid' => UuidCast::class,
         ];
     }
 }

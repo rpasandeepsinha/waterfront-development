@@ -24,7 +24,7 @@ class VanityNameserverGenerator
         if ($vanityTldCount !== self::VANITY_TLD_COUNT) {
             throw new DnsVanityTldCountMismatchException(
                 tldsGiven: $vanityTldCount,
-                tldsRequired: self::VANITY_TLD_COUNT
+                tldsRequired: self::VANITY_TLD_COUNT,
             );
         }
 
@@ -38,7 +38,7 @@ class VanityNameserverGenerator
             $vanityNames[] = sprintf(
                 'ns%d.%s',
                 $nsNumber,
-                $vanityTlds[$i]
+                $vanityTlds[$i],
             );
         }
 

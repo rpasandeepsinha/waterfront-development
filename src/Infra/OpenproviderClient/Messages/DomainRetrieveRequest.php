@@ -34,7 +34,7 @@ class DomainRetrieveRequest extends BaseRequest
 
         $message[$this->endpoint] = [
             'domain' => [
-                'name'      => $this->domain->getName(),
+                'name' => $this->domain->getName(),
                 'extension' => $this->domain->getExtension(),
             ],
         ];

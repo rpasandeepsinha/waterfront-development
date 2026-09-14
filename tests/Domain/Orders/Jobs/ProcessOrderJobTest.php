@@ -29,24 +29,16 @@ class ProcessOrderJobTest extends IntegrationTestCase
         $processOrderJob = new ProcessOrderJob($order);
 
         $subscriptionService = self::createMock(SubscriptionService::class);
-        $subscriptionService->expects(self::once())
-            ->method('createSubscriptionsFromOrder')
-            ->with($order);
+        $subscriptionService->expects(self::once())->method('createSubscriptionsFromOrder')->with($order);
 
         $orderService = self::createMock(OrderService::class);
-        $orderService->expects(self::once())
-            ->method('processMutations')
-            ->with($order);
+        $orderService->expects(self::once())->method('processMutations')->with($order);
 
         $oneTimeServiceCreator = self::createMock(OneTimeServiceCreator::class);
-        $oneTimeServiceCreator->expects(self::once())
-            ->method('createFromOrder')
-            ->with($order);
+        $oneTimeServiceCreator->expects(self::once())->method('createFromOrder')->with($order);
         $logger = self::resolve(LoggerInterface::class);
         $dispatcher = self::createMock(Dispatcher::class);
-        $dispatcher->expects(self::once())
-            ->method('dispatch')
-            ->with(new BillOrderJob($order));
+        $dispatcher->expects(self::once())->method('dispatch')->with(new BillOrderJob($order));
 
         $processOrderJob->handle(
             $subscriptionService,
@@ -83,7 +75,7 @@ class ProcessOrderJobTest extends IntegrationTestCase
             $oneTimeServiceCreator,
             self::resolve(LoggerInterface::class),
             $dispatcher,
-            $orderService
+            $orderService,
         );
 
         self::assertSame($status, $order->status);

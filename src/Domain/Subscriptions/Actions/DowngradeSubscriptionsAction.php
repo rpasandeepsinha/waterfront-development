@@ -34,7 +34,7 @@ class DowngradeSubscriptionsAction
 
     public function execute(
         Subscription $subscription,
-        Product $newProduct
+        Product $newProduct,
     ): SubscriptionChangeResult {
         $subscription->refresh();
 
@@ -48,8 +48,8 @@ class DowngradeSubscriptionsAction
                     sprintf(
                         'Trying to downgrade subscription "%s" for product group "%s" which doesn\'t support downgrades.',
                         $subscription->uuid,
-                        $subscription->product->productGroup->slug->value
-                    )
+                        $subscription->product->productGroup->slug->value,
+                    ),
                 );
         }
     }
@@ -69,7 +69,7 @@ class DowngradeSubscriptionsAction
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return new SubscriptionChangeResult(
@@ -87,9 +87,13 @@ class DowngradeSubscriptionsAction
         $hostingDeployment = $subscription->hostingDeployment;
         Assert::isInstanceOf($hostingDeployment, HostingDeployment::class);
 
-        $newProductIsMailProduct = $this->productSpecRepository->booleanSpecificationIsTrue($newProduct, ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER);
+        $newProductIsMailProduct = $this->productSpecRepository->booleanSpecificationIsTrue(
+            $newProduct,
+            ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER,
+        );
 
-        if ($newProductIsMailProduct
+        if (
+            $newProductIsMailProduct
             && $hostingDeployment->mail_only_provider_id === null
             && $hostingDeployment->mail_only_server_id === null
         ) {
@@ -129,7 +133,7 @@ class DowngradeSubscriptionsAction
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return new SubscriptionChangeResult(
@@ -143,7 +147,7 @@ class DowngradeSubscriptionsAction
     private function changeHostingServicePlan(
         Subscription $subscription,
         HostingDeployment $hostingDeployment,
-        Product $newProduct
+        Product $newProduct,
     ): SubscriptionChangeResult {
         return $this->hostingDowngradeExecutor->execute(
             subscription: $subscription,

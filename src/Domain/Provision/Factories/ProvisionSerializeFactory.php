@@ -52,7 +52,7 @@ class ProvisionSerializeFactory
             normalizers: $normalizers,
             encoders: [
                 new JsonEncoder(),
-            ]
+            ],
         );
 
         /**

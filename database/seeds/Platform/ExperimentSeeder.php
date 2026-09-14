@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Database\Seeders\Platform;
 
+use Database\Seeders\Products\ProductReference;
 use Database\Seeders\Support\ReferenceRepository;
 use Illuminate\Database\Seeder;
 use Waterfront\Domain\Experiment\Enums\ExperimentType;
 use Waterfront\Domain\Experiment\Models\Experiment;
+use Waterfront\Domain\Products\Models\Product;
 
 class ExperimentSeeder extends Seeder
 {
     public function __construct(
-        private readonly ReferenceRepository $referenceRepo
+        private readonly ReferenceRepository $referenceRepo,
     ) {
     }
 
@@ -28,5 +30,8 @@ class ExperimentSeeder extends Seeder
         $experiment->save();
 
         $this->referenceRepo->set(PlatformReference::EXPERIMENT_PRICE_LADDER, $experiment);
+
+        $product = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
+        $experiment->products()->attach($product->id);
     }
 }

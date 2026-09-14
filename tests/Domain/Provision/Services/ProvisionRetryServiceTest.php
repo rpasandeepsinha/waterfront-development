@@ -75,18 +75,22 @@ class ProvisionRetryServiceTest extends TestCase
         $provisionRequest->tag = Uuid::uuid4();
         $provisionResult = new ProvisionResult($provisionRequest, ProvisionStatus::SUCCESS);
 
-        $this->provisionGatewayMock->expects(self::once())
+        $this->provisionGatewayMock
+            ->expects(self::once())
             ->method('fetch')
             ->with(
                 self::callback(
-                    static fn (ProvisioningResultQueryFilters $filters): bool => $filters->requestUuid?->equals($retryOf) ?? false
+                    static fn (ProvisioningResultQueryFilters $filters): bool => (
+                        $filters->requestUuid?->equals($retryOf) ?? false
+                    ),
                 ),
                 1,
             )
             ->willReturn(new Collection([$originResult]));
 
         $serializerMock = self::createMock(Serializer::class);
-        $serializerMock->expects(self::once())
+        $serializerMock
+            ->expects(self::once())
             ->method('denormalize')
             ->with([
                 'email' => 'retry@example.test',
@@ -96,11 +100,10 @@ class ProvisionRetryServiceTest extends TestCase
                 'tag' => $retryData['tag'],
             ], ProvisionRequestInterface::class)
             ->willReturn($provisionRequest);
-        $this->serializerFactoryMock->expects(self::once())
-            ->method('get')
-            ->willReturn($serializerMock);
+        $this->serializerFactoryMock->expects(self::once())->method('get')->willReturn($serializerMock);
 
-        $this->provisionGatewayMock->expects(self::once())
+        $this->provisionGatewayMock
+            ->expects(self::once())
             ->method('request')
             ->with(self::callback(
                 static function (ProvisionRequestInterface $request) use (
@@ -117,7 +120,7 @@ class ProvisionRetryServiceTest extends TestCase
                     self::assertTrue($request->isRetry());
 
                     return true;
-                }
+                },
             ))
             ->willReturn($provisionResult);
 
@@ -131,9 +134,7 @@ class ProvisionRetryServiceTest extends TestCase
     {
         $retryOf = Uuid::uuid4();
 
-        $this->provisionGatewayMock->expects(self::once())
-            ->method('fetch')
-            ->willReturn(new Collection());
+        $this->provisionGatewayMock->expects(self::once())->method('fetch')->willReturn(new Collection());
         $this->provisionGatewayMock->expects(self::never())->method('request');
         $this->serializerFactoryMock->expects(self::never())->method('get');
 
@@ -154,7 +155,8 @@ class ProvisionRetryServiceTest extends TestCase
     {
         $retryOf = Uuid::uuid4();
 
-        $this->provisionGatewayMock->expects(self::once())
+        $this->provisionGatewayMock
+            ->expects(self::once())
             ->method('fetch')
             ->willReturn(new Collection([
                 $this->createOriginResult($retryOf, Uuid::uuid4(), Uuid::uuid4()),
@@ -162,12 +164,11 @@ class ProvisionRetryServiceTest extends TestCase
         $this->provisionGatewayMock->expects(self::never())->method('request');
 
         $serializerMock = self::createMock(Serializer::class);
-        $serializerMock->expects(self::once())
+        $serializerMock
+            ->expects(self::once())
             ->method('denormalize')
             ->willThrowException(new NotNormalizableValueException('Invalid retry data'));
-        $this->serializerFactoryMock->expects(self::once())
-            ->method('get')
-            ->willReturn($serializerMock);
+        $this->serializerFactoryMock->expects(self::once())->method('get')->willReturn($serializerMock);
 
         self::expectException(NotNormalizableValueException::class);
 

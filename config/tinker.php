@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'commands' => [
-    ],
+    'commands' => [],
     'dont_alias' => [
         'App\Nova',
     ],

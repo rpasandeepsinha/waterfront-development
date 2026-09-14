@@ -19,7 +19,7 @@ trait HydrateableTrait
         // Only filter out null values
         $data = array_filter(
             $data,
-            fn ($property): bool => ! is_null($property)
+            fn ($property): bool => ! is_null($property),
         );
 
         self::validateRequiredFields($data);
@@ -47,8 +47,11 @@ trait HydrateableTrait
         foreach (self::getRequiredFields() as $fieldName) {
             if (! array_key_exists($fieldName, $data)) {
                 throw new HydratorValidationException(
-                    self::class . '::validateRequiredFields - '
-                    . 'Required field ' . $fieldName . ' is missing from the data.'
+                    self::class
+                    . '::validateRequiredFields - '
+                    . 'Required field '
+                    . $fieldName
+                    . ' is missing from the data.',
                 );
             }
         }

@@ -50,13 +50,19 @@ class OpenproviderClientFaker extends OpenproviderClient
         if (! (bool) $desiredResponseCode) {
             $desiredResponseCode = 200;
         }
-        fopen(__DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_retrieve_handle_response.xml', 'r');
+
+        fopen(
+            __DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_retrieve_handle_response.xml',
+            'r',
+        );
+
         return RetrieveCustomerResponse::fromXMLResponse(
             new HttpResponse(
                 $desiredResponseCode,
                 [],
-                (string) file_get_contents(__DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_retrieve_handle_response.xml')
-            )
+                (string) file_get_contents(__DIR__
+                . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_retrieve_handle_response.xml'),
+            ),
         );
     }
 
@@ -86,22 +92,28 @@ class OpenproviderClientFaker extends OpenproviderClient
     {
         $extension = $request->getExtension();
 
-        $location = __DIR__ . "/../../../../tests/Infra/OpenproviderClient/data/openprovider_retrieve_extension_response_$extension.xml";
+        $location =
+            __DIR__
+            . "/../../../../tests/Infra/OpenproviderClient/data/openprovider_retrieve_extension_response_$extension.xml";
 
         if (! file_exists($location)) {
             if ($extension === 'eennietbestaandetld') {
                 // specifically for the unit test
-                $location = __DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_retrieve_extension_invalid.xml';
+                $location =
+                    __DIR__
+                    . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_retrieve_extension_invalid.xml';
             } else {
                 // this is to not show errors during development
-                $location = __DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_retrieve_extension_response_nl.xml';
+                $location =
+                    __DIR__
+                    . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_retrieve_extension_response_nl.xml';
             }
         }
 
         return new HttpResponse(
             200,
             ['Content-Type' => 'text/xml'],
-            (string) file_get_contents($location)
+            (string) file_get_contents($location),
         );
     }
 
@@ -140,7 +152,7 @@ class OpenproviderClientFaker extends OpenproviderClient
         $httpResponse = new HttpResponse(
             $desiredResponseCode,
             [],
-            $xmlResponse
+            $xmlResponse,
         );
 
         return new DomainCheckResponse($httpResponse, (string) $request->getDomain());
@@ -156,11 +168,12 @@ class OpenproviderClientFaker extends OpenproviderClient
             $desiredResponseCode = 200;
         }
 
-        $xmlResponse = (string) file_get_contents(__DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_deleted_domains_response.xml');
+        $xmlResponse = (string) file_get_contents(__DIR__
+        . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_deleted_domains_response.xml');
         $httpResponse = new HttpResponse(
             $desiredResponseCode,
             [],
-            $xmlResponse
+            $xmlResponse,
         );
 
         return new SearchDomainResponse($httpResponse);
@@ -179,7 +192,8 @@ class OpenproviderClientFaker extends OpenproviderClient
         $httpResponse = new HttpResponse(
             $desiredResponseCode,
             [],
-            (string) file_get_contents(__DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_register_response.xml')
+            (string) file_get_contents(__DIR__
+            . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_register_response.xml'),
         );
 
         return new DomainRegistrationResponse($httpResponse);
@@ -198,7 +212,8 @@ class OpenproviderClientFaker extends OpenproviderClient
         $httpResponse = new HttpResponse(
             $desiredResponseCode,
             [],
-            (string) file_get_contents(__DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_transfer_response.xml')
+            (string) file_get_contents(__DIR__
+            . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_transfer_response.xml'),
         );
 
         return new DomainTransferResponse($httpResponse);
@@ -214,7 +229,8 @@ class OpenproviderClientFaker extends OpenproviderClient
         return new HttpResponse(
             $desiredResponseCode,
             [],
-            (string) file_get_contents(__DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_retrieve_response_dnssec_external.xml')
+            (string) file_get_contents(__DIR__
+            . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_retrieve_response_dnssec_external.xml'),
         );
     }
 
@@ -228,7 +244,8 @@ class OpenproviderClientFaker extends OpenproviderClient
         return new HttpResponse(
             $desiredResponseCode,
             [],
-            (string) file_get_contents(__DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_modify_response.xml')
+            (string) file_get_contents(__DIR__
+            . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_modify_response.xml'),
         );
     }
 
@@ -245,7 +262,8 @@ class OpenproviderClientFaker extends OpenproviderClient
         $httpResponse = new HttpResponse(
             $desiredResponseCode,
             [],
-            (string) file_get_contents(__DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_ssl_approver_response.xml')
+            (string) file_get_contents(__DIR__
+            . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_ssl_approver_response.xml'),
         );
 
         return new SslApproverResponse($httpResponse);
@@ -264,7 +282,8 @@ class OpenproviderClientFaker extends OpenproviderClient
         $httpResponse = new HttpResponse(
             $desiredResponseCode,
             [],
-            (string) file_get_contents(__DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_ssl_create_response.xml')
+            (string) file_get_contents(__DIR__
+            . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_ssl_create_response.xml'),
         );
 
         return new SslCreateResponse($httpResponse);
@@ -283,7 +302,8 @@ class OpenproviderClientFaker extends OpenproviderClient
         $httpResponse = new HttpResponse(
             $desiredResponseCode,
             [],
-            (string) file_get_contents(__DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_ssl_reissue_response.xml')
+            (string) file_get_contents(__DIR__
+            . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_ssl_reissue_response.xml'),
         );
 
         return new SslReissueResponse($httpResponse);
@@ -302,7 +322,8 @@ class OpenproviderClientFaker extends OpenproviderClient
         $httpResponse = new HttpResponse(
             $desiredResponseCode,
             [],
-            (string) file_get_contents(__DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_ssl_renew_response.xml')
+            (string) file_get_contents(__DIR__
+            . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_ssl_renew_response.xml'),
         );
 
         return new SslRenewResponse($httpResponse);
@@ -321,7 +342,8 @@ class OpenproviderClientFaker extends OpenproviderClient
         $httpResponse = new HttpResponse(
             $desiredResponseCode,
             [],
-            (string) file_get_contents(__DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_ssl_retrieve_response.xml')
+            (string) file_get_contents(__DIR__
+            . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_ssl_retrieve_response.xml'),
         );
 
         return new SslRetrieveResponse($httpResponse);
@@ -340,7 +362,8 @@ class OpenproviderClientFaker extends OpenproviderClient
         $httpResponse = new HttpResponse(
             $desiredResponseCode,
             [],
-            (string) file_get_contents(__DIR__ . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_retrieve_response.xml')
+            (string) file_get_contents(__DIR__
+            . '/../../../../tests/Infra/OpenproviderClient/data/openprovider_retrieve_response.xml'),
         );
 
         return new DomainRetrieveResponse($httpResponse);

@@ -30,16 +30,52 @@ class FetchAuditLogsForCustomerAction
      * In the audit log refactor we will start to support this so this can be less complex. (Ticket: WATER-4467)
      */
     public const array LOCATION_CUSTOMER = [Customer::class, 'App\Models\Customer', 'Modules\Customer\Models\Customer'];
-    public const array LOCATION_CUSTOMER_ADDRESS = [CustomerAddress::class, 'App\Models\CustomerAddress', 'Modules\Customer\Models\CustomerAddress'];
-    public const array LOCATION_CUSTOMER_CONTACT = [CustomerContact::class, 'App\Models\CustomerContact', 'Modules\Customer\Models\CustomerContact'];
-    public const array LOCATION_DEPLOYMENT_DOMAIN = [DomainDeployment::class, 'Modules\DomainService\Models\Subscription', 'Waterfront\Domain\Domains\Models\DomainSubscription'];
-    public const array LOCATION_DEPLOYMENT_HOSTING = [HostingDeployment::class, 'Modules\HostingService\Models\Subscription', 'Waterfront\Domain\Hosting\Models\HostingSubscription'];
-    public const array LOCATION_DEPLOYMENT_SSL = [SslDeployment::class, 'Modules\SslService\Models\Subscription', 'Waterfront\Domain\Ssl\Models\SslSubscription'];
-    public const array LOCATION_DEPLOYMENT_RESELLERHOSTING = [ResellerHostingDeployment::class, 'App\Models\ResellerHostingSubscription', 'Waterfront\Domain\ResellerHosting\Models\ResellerHostingSubscription'];
-    public const array LOCATION_DEPLOYMENT_M365 = [Microsoft365Deployment::class, 'Waterfront\Domain\Microsoft365\Models\Microsoft365Subscription'];
-    public const array LOCATION_DEPLOYMENT_VOLUME = [VolumeDeployment::class, 'Waterfront\Domain\VPS\Models\VolumeSubscription'];
-    public const array LOCATION_DEPLOYMENT_MANAGERDOMAIN = [ManagerDomainDeployment::class, 'Waterfront\Domain\VPS\Models\ManagerDomainSubscription'];
-    public const array LOCATION_DEPLOYMENT_VIRTUALMACHINE = [VirtualMachineDeployment::class, 'Waterfront\Domain\VPS\Models\ManagerMachineSubscription'];
+    public const array LOCATION_CUSTOMER_ADDRESS = [
+        CustomerAddress::class,
+        'App\Models\CustomerAddress',
+        'Modules\Customer\Models\CustomerAddress',
+    ];
+    public const array LOCATION_CUSTOMER_CONTACT = [
+        CustomerContact::class,
+        'App\Models\CustomerContact',
+        'Modules\Customer\Models\CustomerContact',
+    ];
+    public const array LOCATION_DEPLOYMENT_DOMAIN = [
+        DomainDeployment::class,
+        'Modules\DomainService\Models\Subscription',
+        'Waterfront\Domain\Domains\Models\DomainSubscription',
+    ];
+    public const array LOCATION_DEPLOYMENT_HOSTING = [
+        HostingDeployment::class,
+        'Modules\HostingService\Models\Subscription',
+        'Waterfront\Domain\Hosting\Models\HostingSubscription',
+    ];
+    public const array LOCATION_DEPLOYMENT_SSL = [
+        SslDeployment::class,
+        'Modules\SslService\Models\Subscription',
+        'Waterfront\Domain\Ssl\Models\SslSubscription',
+    ];
+    public const array LOCATION_DEPLOYMENT_RESELLERHOSTING = [
+        ResellerHostingDeployment::class,
+        'App\Models\ResellerHostingSubscription',
+        'Waterfront\Domain\ResellerHosting\Models\ResellerHostingSubscription',
+    ];
+    public const array LOCATION_DEPLOYMENT_M365 = [
+        Microsoft365Deployment::class,
+        'Waterfront\Domain\Microsoft365\Models\Microsoft365Subscription',
+    ];
+    public const array LOCATION_DEPLOYMENT_VOLUME = [
+        VolumeDeployment::class,
+        'Waterfront\Domain\VPS\Models\VolumeSubscription',
+    ];
+    public const array LOCATION_DEPLOYMENT_MANAGERDOMAIN = [
+        ManagerDomainDeployment::class,
+        'Waterfront\Domain\VPS\Models\ManagerDomainSubscription',
+    ];
+    public const array LOCATION_DEPLOYMENT_VIRTUALMACHINE = [
+        VirtualMachineDeployment::class,
+        'Waterfront\Domain\VPS\Models\ManagerMachineSubscription',
+    ];
 
     /**
      * @return LengthAwarePaginator<int, Audit>
@@ -112,35 +148,81 @@ class FetchAuditLogsForCustomerAction
                         ...VolumeDeployment::namespaceWith(),
                         ...ResellerHostingDeployment::namespacesWith(),
                         ...SubscriptionMutation::namespaceWith(),
-                    ]
+                    ],
                 );
             }])
-            ->where(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_CUSTOMER)
-                ->where('auditable_id', $customer->id))
-            ->orWhere(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_CUSTOMER_ADDRESS)
-                ->where('auditable_id', $customer->address?->id))
-            ->orWhere(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_CUSTOMER_CONTACT)
-                ->whereIn('auditable_id', $customerContactIds))
-            ->orWhere(fn (Builder $builder) => $builder->where('auditable_type', Subscription::class)
-                ->whereIn('auditable_id', $subscriptCollectionByKeyId->keys()))
-            ->orWhere(fn (Builder $builder) => $builder->where('auditable_type', Invoice::class)
-                ->whereIn('auditable_id', $invoiceCollectionIds))
-            ->orWhere(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_DOMAIN)
-                ->whereIn('auditable_id', $domainSubscriptionIds))
-            ->orWhere(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_HOSTING)
-                ->whereIn('auditable_id', $hostingSubscriptionIds))
-            ->orWhere(fn (Builder $builder) => $builder->where('auditable_type', self::LOCATION_DEPLOYMENT_RESELLERHOSTING)
-                ->whereIn('auditable_id', $resellerHostingDeploymentIds))
-            ->orWhere(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_SSL)
-                ->whereIn('auditable_id', $sslDeploymentIds))
-            ->orWhere(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_M365)
-                ->whereIn('auditable_id', $microsoft365SubscriptionIds))
-            ->orWhere(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_VIRTUALMACHINE)
-                ->whereIn('auditable_id', $csVirtualMachineSubscriptionIds))
-            ->orWhere(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_VOLUME)
-                ->whereIn('auditable_id', $csVolumeSubscriptionIds))
-            ->orWhere(fn (Builder $builder) => $builder->where('auditable_type', SubscriptionMutation::class)
-                ->whereIn('auditable_id', $mutations))
+            ->where(fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_CUSTOMER)->where(
+                'auditable_id',
+                $customer->id,
+            ))
+            ->orWhere(fn (Builder $builder) => $builder->whereIn(
+                'auditable_type',
+                self::LOCATION_CUSTOMER_ADDRESS,
+            )->where('auditable_id', $customer->address?->id))
+            ->orWhere(
+                fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_CUSTOMER_CONTACT)->whereIn(
+                    'auditable_id',
+                    $customerContactIds,
+                ),
+            )
+            ->orWhere(fn (Builder $builder) => $builder->where('auditable_type', Subscription::class)->whereIn(
+                'auditable_id',
+                $subscriptCollectionByKeyId->keys(),
+            ))
+            ->orWhere(
+                fn (Builder $builder) => $builder->where('auditable_type', Invoice::class)->whereIn(
+                    'auditable_id',
+                    $invoiceCollectionIds,
+                ),
+            )
+            ->orWhere(
+                fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_DOMAIN)->whereIn(
+                    'auditable_id',
+                    $domainSubscriptionIds,
+                ),
+            )
+            ->orWhere(
+                fn (Builder $builder) => $builder->whereIn(
+                    'auditable_type',
+                    self::LOCATION_DEPLOYMENT_HOSTING,
+                )->whereIn('auditable_id', $hostingSubscriptionIds),
+            )
+            ->orWhere(
+                fn (Builder $builder) => $builder->where(
+                    'auditable_type',
+                    self::LOCATION_DEPLOYMENT_RESELLERHOSTING,
+                )->whereIn('auditable_id', $resellerHostingDeploymentIds),
+            )
+            ->orWhere(
+                fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_SSL)->whereIn(
+                    'auditable_id',
+                    $sslDeploymentIds,
+                ),
+            )
+            ->orWhere(
+                fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_M365)->whereIn(
+                    'auditable_id',
+                    $microsoft365SubscriptionIds,
+                ),
+            )
+            ->orWhere(
+                fn (Builder $builder) => $builder->whereIn(
+                    'auditable_type',
+                    self::LOCATION_DEPLOYMENT_VIRTUALMACHINE,
+                )->whereIn('auditable_id', $csVirtualMachineSubscriptionIds),
+            )
+            ->orWhere(
+                fn (Builder $builder) => $builder->whereIn('auditable_type', self::LOCATION_DEPLOYMENT_VOLUME)->whereIn(
+                    'auditable_id',
+                    $csVolumeSubscriptionIds,
+                ),
+            )
+            ->orWhere(
+                fn (Builder $builder) => $builder->where('auditable_type', SubscriptionMutation::class)->whereIn(
+                    'auditable_id',
+                    $mutations,
+                ),
+            )
             ->orderBy('id', 'desc')
             ->paginate($pageSize);
     }

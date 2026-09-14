@@ -13,7 +13,7 @@ use Waterfront\Domain\Products\Repositories\ProductSpecRepository;
 class DnsProductSpecRepository
 {
     public function __construct(
-        private readonly ProductSpecRepository $productSpecRepository
+        private readonly ProductSpecRepository $productSpecRepository,
     ) {
     }
 
@@ -23,7 +23,7 @@ class DnsProductSpecRepository
 
         return $this->productSpecRepository->booleanSpecificationIsTrue(
             $product,
-            ProductSpecName::DNS_IS_PREMIUM
+            ProductSpecName::DNS_IS_PREMIUM,
         );
     }
 
@@ -33,7 +33,7 @@ class DnsProductSpecRepository
 
         return $this->productSpecRepository->booleanSpecificationIsTrue(
             $product,
-            ProductSpecName::DNS_CAN_EDIT_RECORDS
+            ProductSpecName::DNS_CAN_EDIT_RECORDS,
         );
     }
 

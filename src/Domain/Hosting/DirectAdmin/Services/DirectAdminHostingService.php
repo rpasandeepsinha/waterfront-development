@@ -100,7 +100,7 @@ class DirectAdminHostingService implements HostingServiceInterface
         private readonly DirectAdminUnsuspendHostingAction $directAdminUnsuspendHostingAction,
         private readonly DirectAdminPassword $passwordGenerator,
         private readonly DnsHelper $dnsHelper,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -129,7 +129,7 @@ class DirectAdminHostingService implements HostingServiceInterface
     {
         throw new RuntimeException(
             'Packages are already predefined on the directadmin servers (brons, zilver, groot)!
-            Custom Packages not supported at this time!'
+            Custom Packages not supported at this time!',
         );
     }
 
@@ -153,21 +153,21 @@ class DirectAdminHostingService implements HostingServiceInterface
         array $specs,
         ?Server $server = null,
         ?string $forwardingUrl = null,
-        ?string $domain = null
+        ?string $domain = null,
     ): array {
         $result = TechnicalStatus::ERROR->value;
         $return = [];
 
         $username = $this->generateUsername();
-        $hasToGenerateDomain  = is_null($domain);
+        $hasToGenerateDomain = is_null($domain);
 
         if (! $hasToGenerateDomain) {
             if (! $this->isValidDomain($domain)) {
                 throw new InvalidArgumentException(
                     sprintf(
                         'Invalid domain: %s',
-                        $domain
-                    )
+                        $domain,
+                    ),
                 );
             }
         }
@@ -196,7 +196,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                     'contact_email' => $contactEmail,
                     'customer_email' => $customerEmail,
                 ],
-            ]
+            ],
         );
 
         // Setup data to use to create customer and package
@@ -219,7 +219,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                 'enableSsl' => 'ON',
                 'notify' => 'yes',
                 'package' => 'standard',
-            ]
+            ],
         );
 
         // Create the customer, update parameters with user id, then create the package
@@ -237,12 +237,10 @@ class DirectAdminHostingService implements HostingServiceInterface
                 $parameters->getIpv4Address(),
                 $server->use_ssl,
                 $server->port,
-            )
+            ),
         );
 
-        $hostingDeployment = HostingDeployment::query()
-            ->where('subscription_uuid', $subscriptionUuid)
-            ->first();
+        $hostingDeployment = HostingDeployment::query()->where('subscription_uuid', $subscriptionUuid)->first();
 
         // Create the subscription for hosting if it does not already exists.
         if ($hostingDeployment === null) {
@@ -251,11 +249,13 @@ class DirectAdminHostingService implements HostingServiceInterface
                     'directadmin_customer_username' => $parameters->getUsername(),
                 ],
                 $subscriptionUuid,
-                $server
+                $server,
             );
 
-            $hostingDeployment->last_created_result = $createCustomerResult->getResponseBody()
-                ?? json_encode($parameters->toArray(), JSON_THROW_ON_ERROR);
+            $hostingDeployment->last_created_result = $createCustomerResult->getResponseBody() ?? json_encode(
+                $parameters->toArray(),
+                JSON_THROW_ON_ERROR,
+            );
 
             $hostingDeployment->last_created_result_received = CarbonImmutable::now();
         }
@@ -300,8 +300,8 @@ class DirectAdminHostingService implements HostingServiceInterface
                     'Could not find any coupled hosting for %s in Domain deployment %d with Subscription %s',
                     $domain,
                     $domainDeployment->id,
-                    $domainDeployment->subscription->uuid
-                )
+                    $domainDeployment->subscription->uuid,
+                ),
             );
         }
 
@@ -323,8 +323,8 @@ class DirectAdminHostingService implements HostingServiceInterface
                     $domainDeployment->id,
                     $domain,
                     $hostingDeployment->id,
-                    $directAdminData->getResponseBody()
-                )
+                    $directAdminData->getResponseBody(),
+                ),
             );
         }
     }
@@ -373,8 +373,8 @@ class DirectAdminHostingService implements HostingServiceInterface
             throw new ServerNotFoundException(
                 sprintf(
                     'Server not found with id: %s',
-                    $serverId
-                )
+                    $serverId,
+                ),
             );
         }
 
@@ -402,7 +402,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                 sprintf(
                     'Server not found on hostingsubscription with id: %s',
                     $hostingDeployment->id,
-                )
+                ),
             );
         }
 
@@ -413,8 +413,9 @@ class DirectAdminHostingService implements HostingServiceInterface
                 self::class . '::getUserStats - Cant retrieve the user usage statistics.',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
+
             return null;
         }
 
@@ -424,7 +425,7 @@ class DirectAdminHostingService implements HostingServiceInterface
 
         $userStats = $cmd->getStats();
 
-        $intOrNull = function (string $key) use ($userStats): int|null {
+        $intOrNull = function (string $key) use ($userStats): ?int {
             if (! array_key_exists($key, $userStats)) {
                 return null;
             }
@@ -446,7 +447,7 @@ class DirectAdminHostingService implements HostingServiceInterface
             mailAutoResponders: $intOrNull('nemailr'),
             redirects: null,
             databases: $intOrNull('mysql'),
-            traffic: $intOrNull('bandwidth') ?? 0
+            traffic: $intOrNull('bandwidth') ?? 0,
         );
 
         try {
@@ -456,8 +457,9 @@ class DirectAdminHostingService implements HostingServiceInterface
                 self::class . '::getUserStats - Cant retrieve the user email usage statistics.',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
+
             return $stats;
         }
 
@@ -514,7 +516,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                     LoggingContextKeys::META => [
                         'succeeded' => $responseEnableSslForUser->hasSucceeded(),
                     ],
-                ]
+                ],
             );
 
             $certificateDomain = $data['domain'];
@@ -530,7 +532,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                             'domain_settings' => $domainSettings,
                             'directadmin_username' => $daUsername,
                         ],
-                    ]
+                    ],
                 );
 
                 return 'error';
@@ -540,7 +542,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                 $certificateDomain,
                 $server,
                 $daUsername,
-                $domainSettings
+                $domainSettings,
             );
 
             $this->logger->info(
@@ -550,7 +552,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                     LoggingContextKeys::META => [
                         'succeeded' => $responseEnableSslForDomain->hasSucceeded(),
                     ],
-                ]
+                ],
             );
 
             $disableLetsEncryptAutoRenewCommand = new DisableLetsEncryptAutoRenew();
@@ -558,7 +560,7 @@ class DirectAdminHostingService implements HostingServiceInterface
             $responseDisableLetsEncryptAutoRenew = $this->directAdmin->sslCerificate(
                 $disableLetsEncryptAutoRenewCommand,
                 $daUsername,
-                $server
+                $server,
             );
 
             $this->logger->info(
@@ -568,7 +570,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                     LoggingContextKeys::META => [
                         'succeeded' => $responseDisableLetsEncryptAutoRenew->hasSucceeded(),
                     ],
-                ]
+                ],
             );
 
             $sslCommand = new UploadSsl()
@@ -590,7 +592,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                     LoggingContextKeys::META => [
                         'succeeded' => $responseUploadSsl->hasSucceeded(),
                     ],
-                ]
+                ],
             );
 
             $uploadCaCommand = new UploadCaCrt()
@@ -611,10 +613,11 @@ class DirectAdminHostingService implements HostingServiceInterface
                     LoggingContextKeys::META => [
                         'succeeded' => $responseUploadCa->hasSucceeded(),
                     ],
-                ]
+                ],
             );
 
-            $status = $responseDisableLetsEncryptAutoRenew->hasSucceeded()
+            $status =
+                $responseDisableLetsEncryptAutoRenew->hasSucceeded()
                 && $responseUploadSsl->hasSucceeded()
                 && $responseUploadCa->hasSucceeded();
         } catch (Exception $exception) {
@@ -622,7 +625,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                 self::class . '::installCertificate',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return 'error';
@@ -644,7 +647,7 @@ class DirectAdminHostingService implements HostingServiceInterface
         ]);
 
         $parameters->setPackage(
-            $this->resolvePackage($parameters->getSpecs())
+            $this->resolvePackage($parameters->getSpecs()),
         );
 
         $specs = $parameters->toDirectAdminUserSpecs();
@@ -665,7 +668,7 @@ class DirectAdminHostingService implements HostingServiceInterface
             [
                 'ipv4' => $parameters->getIpv4Address(),
                 'type' => ServerType::DIRECTADMIN,
-            ]
+            ],
         )->first();
 
         $this->logger->info(
@@ -716,18 +719,18 @@ class DirectAdminHostingService implements HostingServiceInterface
 
     public function getCustomerConfig(Parameters $parameters): array
     {
-        $hostingDeployment = HostingDeployment::where('directadmin_customer_username', $parameters->getUsername())
-            ->firstOrFail();
+        $hostingDeployment = HostingDeployment::where(
+            'directadmin_customer_username',
+            $parameters->getUsername(),
+        )->firstOrFail();
         $server = $this->subscriptionRepo->getServer($hostingDeployment);
 
-        return $this->directAdmin->user($server)
-            ->showUserConfig($parameters->getUsername());
+        return $this->directAdmin->user($server)->showUserConfig($parameters->getUsername());
     }
 
     public function getUserConfig(string $identifier, Server $server): array
     {
-        return $this->directAdmin->user($server)
-            ->showUserConfig($identifier);
+        return $this->directAdmin->user($server)->showUserConfig($identifier);
     }
 
     /**
@@ -737,8 +740,7 @@ class DirectAdminHostingService implements HostingServiceInterface
      */
     public function getUserConfigAsAdmin(string $identifier, Server $server): array
     {
-        return $this->directAdmin->user($server)
-            ->showUserConfigAsAdmin($identifier);
+        return $this->directAdmin->user($server)->showUserConfigAsAdmin($identifier);
     }
 
     /**
@@ -749,7 +751,9 @@ class DirectAdminHostingService implements HostingServiceInterface
         $result = $this->getUserConfigAsAdmin($identifier, $server);
 
         if ($result === []) {
-            throw new HostingException("Directadmin User $identifier could not be found on server with hostname: {$server->hostname}");
+            throw new HostingException(
+                "Directadmin User $identifier could not be found on server with hostname: {$server->hostname}",
+            );
         }
 
         $serializer = DirectAdminSerializerFactory::getSerializer();
@@ -762,8 +766,10 @@ class DirectAdminHostingService implements HostingServiceInterface
      */
     public function modifyCustomer(Parameters $parameters): bool
     {
-        $hostingDeployment = HostingDeployment::where('directadmin_customer_username', $parameters->getUsername())
-            ->firstOrFail();
+        $hostingDeployment = HostingDeployment::where(
+            'directadmin_customer_username',
+            $parameters->getUsername(),
+        )->firstOrFail();
         $server = $this->subscriptionRepo->getServer($hostingDeployment);
         $specs = [];
         $enableDns = $parameters->getEnableDns();
@@ -774,12 +780,15 @@ class DirectAdminHostingService implements HostingServiceInterface
         if ($enableDns !== null && $enableDns !== '') {
             $specs['dnscontrol'] = $enableDns;
         }
+
         if ($enableSsl !== null && $enableSsl !== '') {
             $specs['ssl'] = $enableSsl;
         }
+
         if ($enableSsh !== null && $enableSsh !== '') {
             $specs['ssh'] = $enableSsh;
         }
+
         if ($enableLoginKeys !== null && $enableLoginKeys !== '') {
             $specs['login_keys'] = $enableLoginKeys;
         }
@@ -802,8 +811,8 @@ class DirectAdminHostingService implements HostingServiceInterface
             $parameters->getUsername(),
             array_merge(
                 $baseConfig,
-                $specs
-            )
+                $specs,
+            ),
         );
 
         return $response->hasSucceeded();
@@ -821,8 +830,10 @@ class DirectAdminHostingService implements HostingServiceInterface
      */
     public function resetPassword(Parameters $parameters, UuidInterface $customerUuid): array
     {
-        $hostingDeployment = HostingDeployment::where('directadmin_customer_username', $parameters->getUsername())
-            ->firstOrFail();
+        $hostingDeployment = HostingDeployment::where(
+            'directadmin_customer_username',
+            $parameters->getUsername(),
+        )->firstOrFail();
         $server = $this->subscriptionRepo->getServer($hostingDeployment);
 
         if (is_null($server)) {
@@ -830,7 +841,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                 sprintf(
                     'Server not found on hostingsubscription with id: %s',
                     $hostingDeployment->id,
-                )
+                ),
             );
         }
 
@@ -850,8 +861,9 @@ class DirectAdminHostingService implements HostingServiceInterface
                 self::class . '::reset password - The password could not be reset.',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
+
             return ['result' => 'Reset password - The password could not be reset.'];
         }
 
@@ -862,8 +874,9 @@ class DirectAdminHostingService implements HostingServiceInterface
                 self::class . '::reset password - The FTP password could not be reset.',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
+
             return ['result' => 'Reset password - The FTP password could not be reset.'];
         }
 
@@ -886,7 +899,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                 $parameters->getIpv4Address(),
                 $server->use_ssl,
                 $server->port,
-            )
+            ),
         );
 
         return Arr::only($parameters->toArray(false), ['username', 'password', 'domain']);
@@ -915,8 +928,8 @@ class DirectAdminHostingService implements HostingServiceInterface
                 sprintf(
                     'Server not found on hostingsubscription with id: %s and base subscription UUID: %s',
                     $hostingDeployment->id,
-                    $subscriptionUuid
-                )
+                    $subscriptionUuid,
+                ),
             );
         }
 
@@ -936,8 +949,9 @@ class DirectAdminHostingService implements HostingServiceInterface
                     LoggingContextKeys::META => [
                         'user' => $user,
                     ],
-                ]
+                ],
             );
+
             return false;
         }
 
@@ -967,8 +981,11 @@ class DirectAdminHostingService implements HostingServiceInterface
         return $username;
     }
 
-    public function isUsingHostingServerAsNameserver(string|null $ipv4HostingServer, string|null $ipv6HostingServer, SiteConfigInterface $userConfig): bool
-    {
+    public function isUsingHostingServerAsNameserver(
+        ?string $ipv4HostingServer,
+        ?string $ipv6HostingServer,
+        SiteConfigInterface $userConfig,
+    ): bool {
         $domain = $userConfig->getDomain();
 
         if ($domain === null) {
@@ -983,13 +1000,12 @@ class DirectAdminHostingService implements HostingServiceInterface
 
         $nsIPAddresses = array_map(
             fn (array $record): string => $this->dnsHelper->getHostByName($record['target']),
-            $nsRecords
+            $nsRecords,
         );
 
-        return new Collection($nsIPAddresses)
-            ->contains(
-                fn ($nsIPAddress): bool => $nsIPAddress === $ipv4HostingServer || $nsIPAddress === $ipv6HostingServer
-            );
+        return new Collection($nsIPAddresses)->contains(
+            fn ($nsIPAddress): bool => $nsIPAddress === $ipv4HostingServer || $nsIPAddress === $ipv6HostingServer,
+        );
     }
 
     /**
@@ -1015,7 +1031,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                     'hosting_deployment_id' => $deployment->id,
                     'directadmin_customer_username' => $deployment->directadmin_customer_username,
                 ],
-            ]
+            ],
         );
 
         $result = new Result();
@@ -1031,12 +1047,15 @@ class DirectAdminHostingService implements HostingServiceInterface
                 [
                     LoggingContextKeys::RESPONSE_CODE => 422,
                     LoggingContextKeys::RESPONSE_DATA => $result->getErrorMessage(),
-                ]
+                ],
             );
+
             return $result;
         }
 
-        $command = new ModifyUser()->setUser($user)->setPackage($newProduct->slug);
+        $command = new ModifyUser()
+            ->setUser($user)
+            ->setPackage($newProduct->slug);
 
         try {
             $command = $this->directAdmin->useServer($server)->call($command);
@@ -1046,7 +1065,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                 'The upgrade or downgrade can\'t be performed.',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
             $result->setErrorMessage($exception->__toString());
             $result->setStatus('error');
@@ -1089,7 +1108,7 @@ class DirectAdminHostingService implements HostingServiceInterface
             throw new HostingException(sprintf(
                 'Directadmin Package %s could not be found on server with hostname: %s',
                 $packageName,
-                $server->hostname
+                $server->hostname,
             ));
         }
 
@@ -1111,7 +1130,7 @@ class DirectAdminHostingService implements HostingServiceInterface
         Server $server,
         string $domain,
         string $sourceEmailAddressUsername,
-        string $destinationEmailAddresses
+        string $destinationEmailAddresses,
     ): string {
         throw new NotImplementedException();
     }
@@ -1119,7 +1138,7 @@ class DirectAdminHostingService implements HostingServiceInterface
     public function setEmailCatchAll(
         Server $server,
         string $domain,
-        string $destinationEmailAddresses
+        string $destinationEmailAddresses,
     ): string {
         throw new NotImplementedException();
     }
@@ -1131,14 +1150,18 @@ class DirectAdminHostingService implements HostingServiceInterface
      */
     public function coupleDomainToExistingHosting(
         DomainDeployment $domainDeployment,
-        HostingDeployment $hostingDeployment
+        HostingDeployment $hostingDeployment,
     ): bool {
         $domainSubscription = $domainDeployment->subscription;
         $domain = $domainSubscription->domain;
         Assert::notNull($domain, 'Provided subscription has no domain');
 
         $this->logger->debug(
-            sprintf('Coupling domain [%s] to existing Directadmin hosting [%s]', $domain, $hostingDeployment->directadmin_customer_username),
+            sprintf(
+                'Coupling domain [%s] to existing Directadmin hosting [%s]',
+                $domain,
+                $hostingDeployment->directadmin_customer_username,
+            ),
             [
                 LoggingContextKeys::DOMAIN_NAME => $domain,
                 LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::DIRECTADMIN,
@@ -1149,7 +1172,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                     'server' => $hostingDeployment->server?->hostname,
                     'server_id' => $hostingDeployment->server?->id,
                 ],
-            ]
+            ],
         );
 
         $server = $this->subscriptionRepo->getServer($hostingDeployment);
@@ -1161,10 +1184,7 @@ class DirectAdminHostingService implements HostingServiceInterface
             ->setAction('create')
             ->setDomain($domain);
 
-        $resultDomain = $this->directAdmin
-            ->useServer($server)
-            ->loginAs($user)
-            ->call($directAdminCommand);
+        $resultDomain = $this->directAdmin->useServer($server)->loginAs($user)->call($directAdminCommand);
 
         $this->setDnsForHosting($server, $domain);
         $this->jobDispatcher->dispatch(new AddDomainToSpamFilter($domain, null));
@@ -1177,7 +1197,7 @@ class DirectAdminHostingService implements HostingServiceInterface
         $changes = $this->dnsZoneService->getHostingDnsRecords(
             $domain,
             $server->getIpv4(),
-            $server->getIpv6()
+            $server->getIpv6(),
         );
 
         $this->eventDispatcher->dispatch(new ReplaceParkingAndUpdateDns($domain, $changes));
@@ -1191,7 +1211,13 @@ class DirectAdminHostingService implements HostingServiceInterface
         $ipv4HostMail = $mailOnlyServer->getIpv4();
         $ipv6HostMail = $mailOnlyServer->getIpv6();
 
-        $changes = $this->dnsZoneService->getExternalHostingDnsRecords($domain, $ipv4Host, $ipv6Host, $ipv4HostMail, $ipv6HostMail);
+        $changes = $this->dnsZoneService->getExternalHostingDnsRecords(
+            $domain,
+            $ipv4Host,
+            $ipv6Host,
+            $ipv4HostMail,
+            $ipv6HostMail,
+        );
 
         $this->eventDispatcher->dispatch(new ReplaceParkingAndUpdateDns($domain, $changes));
     }
@@ -1200,11 +1226,11 @@ class DirectAdminHostingService implements HostingServiceInterface
         string $username,
         Server $server,
         string $ipAddress,
-        bool $redirectToMail = false
+        bool $redirectToMail = false,
     ): string {
         return $this->directAdminGetSsoUrlAction->execute(
             $server,
-            $username
+            $username,
         );
     }
 
@@ -1219,8 +1245,8 @@ class DirectAdminHostingService implements HostingServiceInterface
             throw new InvalidArgumentException(
                 sprintf(
                     'Server is not set for subscription uuid: %s',
-                    $hostingDeployment->subscription->uuid
-                )
+                    $hostingDeployment->subscription->uuid,
+                ),
             );
         }
 
@@ -1238,18 +1264,17 @@ class DirectAdminHostingService implements HostingServiceInterface
             throw new InvalidArgumentException(
                 sprintf(
                     'Server is not set for subscription uuid: %s',
-                    $hostingDeployment->subscription->uuid
-                )
+                    $hostingDeployment->subscription->uuid,
+                ),
             );
         }
 
         $this->directAdminUnsuspendHostingAction->execute($server, $hostingDeployment);
     }
 
-    public function getDefaultDomain(string $username, Server $server): string|null
+    public function getDefaultDomain(string $username, Server $server): ?string
     {
-        return $this->getUserConfigAsDto($username, $server)
-            ->getDomain();
+        return $this->getUserConfigAsDto($username, $server)->getDomain();
     }
 
     public function serverIsValid(Server $server): bool
@@ -1267,7 +1292,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                     LoggingContextKeys::META => [
                         'server.connection' => (string) $api->getConnection(),
                     ],
-                ]
+                ],
             );
 
             return false;
@@ -1325,9 +1350,7 @@ class DirectAdminHostingService implements HostingServiceInterface
         $serverData = $this->getServerData($hostingDeployment);
 
         $getDkimRecord = new FetchDkimRecord($domain, $this->logger);
-        $this->directAdmin
-            ->useServer($serverData['server'])
-            ->call($getDkimRecord);
+        $this->directAdmin->useServer($serverData['server'])->call($getDkimRecord);
 
         $dkimRecord = $getDkimRecord->getDkimRecord();
         if ($dkimRecord === null) {
@@ -1367,12 +1390,13 @@ class DirectAdminHostingService implements HostingServiceInterface
         if (array_key_exists('vdomains', $userSettings)) {
             Assert::true(is_string($userSettings['vdomains']) || is_int($userSettings['vdomains']));
             $maxDomains = intval($userSettings['vdomains']);
+
             return new DomainOccupation(
                 hostingSubscription: $hostingDeployment,
                 domains: $domainsFromServer,
                 domainsInUse: $domainsInUse,
                 domainsAvailable: $maxDomains - $domainsInUse,
-                maxDomains: $maxDomains
+                maxDomains: $maxDomains,
             );
         }
 
@@ -1382,7 +1406,7 @@ class DirectAdminHostingService implements HostingServiceInterface
                 domains: $domainsFromServer,
                 domainsInUse: $domainsInUse,
                 domainsAvailable: self::UNLIMITED_DOMAIN_REPRESENTATION,
-                maxDomains: self::UNLIMITED_DOMAIN_REPRESENTATION
+                maxDomains: self::UNLIMITED_DOMAIN_REPRESENTATION,
             );
         }
 
@@ -1390,13 +1414,14 @@ class DirectAdminHostingService implements HostingServiceInterface
             'Could not retrieve available domains from DirectAdmin(Server: %d, Username: %s) for HostingDeployment %d',
             $server->id,
             $hostingDeployment->directadmin_customer_username,
-            $hostingDeployment->id
+            $hostingDeployment->id,
         )));
     }
 
     private function isValidDomain(string $domain): bool
     {
         $validator = Validator::make(['domain' => $domain], ['domain' => [$this->domainNameRule]]);
+
         return $validator->passes();
     }
 
@@ -1418,11 +1443,12 @@ class DirectAdminHostingService implements HostingServiceInterface
         if ($productId !== null) {
             $product = Product::findOrFail($productId);
             assert($product instanceof Product);
+
             return $product->slug;
         }
 
         throw new RuntimeException(
-            'Unable to fetch product_id from provided array in Directadmin service resolvePackage!'
+            'Unable to fetch product_id from provided array in Directadmin service resolvePackage!',
         );
     }
 
@@ -1445,7 +1471,7 @@ class DirectAdminHostingService implements HostingServiceInterface
      */
     private function enableSslForUser(string $user, DirectAdminServer $server, array $userData): DirectAdminCommand
     {
-        $command = (new ModifyUser());
+        $command = new ModifyUser();
         $command->setUserData($userData);
         $command->setUser($user);
         $command->setSsl('ON');
@@ -1464,17 +1490,14 @@ class DirectAdminHostingService implements HostingServiceInterface
         string $domain,
         DirectAdminServer $server,
         string $userName,
-        array $domainData
+        array $domainData,
     ): DirectAdminCommand {
-        $command = (new ModifyDomain());
+        $command = new ModifyDomain();
         $command->setDomainData($domainData[$domain]);
         $command->setDomain($domain)->setAction('modify');
         $command->setSsl('ON');
 
-        return $this->directAdmin
-            ->useServer($server)
-            ->loginAs($userName)
-            ->call($command);
+        return $this->directAdmin->useServer($server)->loginAs($userName)->call($command);
     }
 
     /**

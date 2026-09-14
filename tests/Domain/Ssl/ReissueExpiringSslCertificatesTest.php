@@ -51,25 +51,13 @@ class ReissueExpiringSslCertificatesTest extends IntegrationTestCase
     #[Test]
     public function multipleExpiringSslSubscriptions(): void
     {
-        $sslSubscriptionOne = SubscriptionFactory::new()
-            ->for($this->customer)
-            ->for($this->sslProduct)
-            ->createOne();
+        $sslSubscriptionOne = SubscriptionFactory::new()->for($this->customer)->for($this->sslProduct)->createOne();
 
-        $sslSubscriptionTwo = SubscriptionFactory::new()
-            ->for($this->customer)
-            ->for($this->sslProduct)
-            ->createOne();
+        $sslSubscriptionTwo = SubscriptionFactory::new()->for($this->customer)->for($this->sslProduct)->createOne();
 
-        $sslSubscriptionThree = SubscriptionFactory::new()
-            ->for($this->customer)
-            ->for($this->sslProduct)
-            ->createOne();
+        $sslSubscriptionThree = SubscriptionFactory::new()->for($this->customer)->for($this->sslProduct)->createOne();
 
-        $sslSubscriptionFour = SubscriptionFactory::new()
-            ->for($this->customer)
-            ->for($this->sslProduct)
-            ->createOne();
+        $sslSubscriptionFour = SubscriptionFactory::new()->for($this->customer)->for($this->sslProduct)->createOne();
 
         SslDeploymentFactory::new()->createOne([
             'provider_id' => $this->rtrProvider->id,
@@ -95,8 +83,7 @@ class ReissueExpiringSslCertificatesTest extends IntegrationTestCase
             'expire_date' => CarbonImmutable::now()->addDays(2)->endOfDay(),
         ]);
 
-        $this->dispatcher->expects(self::exactly(2))
-            ->method('dispatch');
+        $this->dispatcher->expects(self::exactly(2))->method('dispatch');
 
         $this->artisan(ReissueExpiringSslCertificates::class)
             ->expectsOutput('2 SSL certificates will expire in 7 days or less')
@@ -107,15 +94,9 @@ class ReissueExpiringSslCertificatesTest extends IntegrationTestCase
     #[Test]
     public function onlyPlaceholderProvider(): void
     {
-        $sslSubscriptionOne = SubscriptionFactory::new()
-            ->for($this->customer)
-            ->for($this->sslProduct)
-            ->createOne();
+        $sslSubscriptionOne = SubscriptionFactory::new()->for($this->customer)->for($this->sslProduct)->createOne();
 
-        $sslSubscriptionTwo = SubscriptionFactory::new()
-            ->for($this->customer)
-            ->for($this->sslProduct)
-            ->createOne();
+        $sslSubscriptionTwo = SubscriptionFactory::new()->for($this->customer)->for($this->sslProduct)->createOne();
 
         SslDeploymentFactory::new()->createOne([
             'provider_id' => $this->placeholderProvider->id,
@@ -129,8 +110,7 @@ class ReissueExpiringSslCertificatesTest extends IntegrationTestCase
             'expire_date' => CarbonImmutable::now()->addDays(5)->endOfDay(),
         ]);
 
-        $this->dispatcher->expects(self::never())
-            ->method('dispatch');
+        $this->dispatcher->expects(self::never())->method('dispatch');
 
         $this->artisan(ReissueExpiringSslCertificates::class)
             ->expectsOutput('0 SSL certificates will expire in 7 days or less')
@@ -141,15 +121,9 @@ class ReissueExpiringSslCertificatesTest extends IntegrationTestCase
     #[Test]
     public function noExpiringSslSubscriptions(): void
     {
-        $sslSubscriptionOne = SubscriptionFactory::new()
-            ->for($this->customer)
-            ->for($this->sslProduct)
-            ->createOne();
+        $sslSubscriptionOne = SubscriptionFactory::new()->for($this->customer)->for($this->sslProduct)->createOne();
 
-        $sslSubscriptionTwo = SubscriptionFactory::new()
-            ->for($this->customer)
-            ->for($this->sslProduct)
-            ->createOne();
+        $sslSubscriptionTwo = SubscriptionFactory::new()->for($this->customer)->for($this->sslProduct)->createOne();
 
         SslDeploymentFactory::new()->createOne([
             'provider_id' => $this->rtrProvider->id,
@@ -163,8 +137,7 @@ class ReissueExpiringSslCertificatesTest extends IntegrationTestCase
             'expire_date' => CarbonImmutable::now()->addDays(55)->endOfDay(),
         ]);
 
-        $this->dispatcher->expects(self::never())
-            ->method('dispatch');
+        $this->dispatcher->expects(self::never())->method('dispatch');
 
         $this->artisan(ReissueExpiringSslCertificates::class)
             ->expectsOutput('0 SSL certificates will expire in 7 days or less')
@@ -175,10 +148,7 @@ class ReissueExpiringSslCertificatesTest extends IntegrationTestCase
     #[Test]
     public function activeAndCanceledSubscriptions(): void
     {
-        $sslSubscriptionOne = SubscriptionFactory::new()
-            ->for($this->customer)
-            ->for($this->sslProduct)
-            ->createOne();
+        $sslSubscriptionOne = SubscriptionFactory::new()->for($this->customer)->for($this->sslProduct)->createOne();
 
         $sslSubscriptionTwo = SubscriptionFactory::new()
             ->for($this->customer)
@@ -214,8 +184,7 @@ class ReissueExpiringSslCertificatesTest extends IntegrationTestCase
             'expire_date' => CarbonImmutable::now()->addDays(5)->endOfDay(),
         ]);
 
-        $this->dispatcher->expects(self::exactly(2))
-            ->method('dispatch');
+        $this->dispatcher->expects(self::exactly(2))->method('dispatch');
 
         $this->artisan(ReissueExpiringSslCertificates::class)
             ->expectsOutput('2 SSL certificates will expire in 7 days or less')

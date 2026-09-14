@@ -53,8 +53,8 @@ class UpdateNameserversTest extends IntegrationTestCase
             ->dispatch(
                 new UpdateNameservers(
                     self::DOMAIN,
-                    true
-                )
+                    true,
+                ),
             );
 
         Queue::assertPushedOn(QueueName::DNS->value, UpdateNameservers::class);
@@ -69,8 +69,8 @@ class UpdateNameserversTest extends IntegrationTestCase
             ->dispatch(
                 new UpdateNameservers(
                     self::DOMAIN,
-                    true
-                )
+                    true,
+                ),
             );
 
         Bus::assertNotDispatchedSync(UpdateNameservers::class);
@@ -84,10 +84,11 @@ class UpdateNameserversTest extends IntegrationTestCase
         $subscriptionRepo = self::createMock(SubscriptionRepository::class);
         $this->app->bind(SubscriptionRepository::class, fn () => $subscriptionRepo);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('error')
             ->with(
-                'Error UpdateNameServers for domain {domain.name} job definitely failed after {job.attempt} attempts'
+                'Error UpdateNameServers for domain {domain.name} job definitely failed after {job.attempt} attempts',
             );
 
         $customExceptionMessage = '404 not found';
@@ -100,7 +101,8 @@ class UpdateNameserversTest extends IntegrationTestCase
             ->technicalStatus(TechnicalStatus::PENDING->value)
             ->createOne();
 
-        $subscriptionRepo->expects(self::once())
+        $subscriptionRepo
+            ->expects(self::once())
             ->method('getNotAdministrativelyEndedOrSuspendedDnsSubscription')
             ->willReturn($dnsSubscription);
 
@@ -154,9 +156,7 @@ class UpdateNameserversTest extends IntegrationTestCase
             ->technicalStatus(TechnicalStatus::PENDING->value)
             ->forDomain($testDomain)
             ->for(
-                new ProductFactory()
-                    ->for(new ProductGroupFactory()->extension())
-                    ->nlDomain()
+                new ProductFactory()->for(new ProductGroupFactory()->extension())->nlDomain(),
             )
             ->createOne();
 
@@ -165,19 +165,18 @@ class UpdateNameserversTest extends IntegrationTestCase
             ->forDomain(self::DOMAIN)
             ->for(new ProductFactory()->premiumDns())
             ->has(
-                new DnsDeploymentFactory()
-                    ->has(
-                        new DnsVanityNameserverFactory()
-                            ->count(3)
-                            ->state(
-                                new Sequence(
-                                    ['nameserver' => $expectedVanityHostnames[0]],
-                                    ['nameserver' => $expectedVanityHostnames[1]],
-                                    ['nameserver' => $expectedVanityHostnames[2]],
-                                )
+                new DnsDeploymentFactory()->has(
+                    new DnsVanityNameserverFactory()
+                        ->count(3)
+                        ->state(
+                            new Sequence(
+                                ['nameserver' => $expectedVanityHostnames[0]],
+                                ['nameserver' => $expectedVanityHostnames[1]],
+                                ['nameserver' => $expectedVanityHostnames[2]],
                             ),
-                        'vanityNameservers'
-                    )
+                        ),
+                    'vanityNameservers',
+                ),
             )
             ->administrativeStatusActive()
             ->technicalStatus(TechnicalStatus::PENDING->value)
@@ -185,7 +184,8 @@ class UpdateNameserversTest extends IntegrationTestCase
 
         $dnsSubscription->save();
 
-        $domainDeployment = new DomainDeploymentFactory()->withRtrProvider()
+        $domainDeployment = new DomainDeploymentFactory()
+            ->withRtrProvider()
             ->for($subscription, 'subscription')
             ->createOne();
 
@@ -195,7 +195,8 @@ class UpdateNameserversTest extends IntegrationTestCase
             ->with($testDomain)
             ->willReturn($domainDeployment);
 
-        $mockGandiClient->expects(self::once())
+        $mockGandiClient
+            ->expects(self::once())
             ->method('getDnsRecords')
             ->with($testDomain)
             ->willReturn($gandiFakeResponse);
@@ -211,7 +212,8 @@ class UpdateNameserversTest extends IntegrationTestCase
             ->with($dnsSubscription->dnsDeployment)
             ->willReturn($expectedVanityArray);
 
-        $mockLogger->shouldReceive('debug')
+        $mockLogger
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 'Starting UpdateNameServers Job for domain [{domain.name}]. attempt {job.attempt}/{job.max_attempts}',
@@ -221,10 +223,11 @@ class UpdateNameserversTest extends IntegrationTestCase
                     LoggingContextKeys::META => [
                         'useVanityNs' => 'true',
                     ],
-                ]
+                ],
             );
 
-        $mockLogger->shouldReceive('debug')
+        $mockLogger
+            ->shouldReceive('debug')
             ->once()
             ->withArgs(function (string $message, array $context) use ($testDomain, $expectedVanityHostnames) {
                 self::assertSame('Successful deployment for [{domain.name}] at Gandi', $message);
@@ -245,26 +248,27 @@ class UpdateNameserversTest extends IntegrationTestCase
                 return true;
             });
 
-        $mockDnsService->expects(self::once())
-            ->method('sendNotify')
-            ->with($testDomain);
+        $mockDnsService->expects(self::once())->method('sendNotify')->with($testDomain);
 
-        $subscriptionRepo->expects(self::once())
+        $subscriptionRepo
+            ->expects(self::once())
             ->method('getNotAdministrativelyEndedOrSuspendedDnsSubscription')
             ->willReturn($dnsSubscription);
 
-        $updateNsActionMock->expects(self::once())
+        $updateNsActionMock
+            ->expects(self::once())
             ->method('updateRecords')
             ->with($testDomain, $expectedVanityArray, $expectForceAdjustment);
 
-        $mockEventDispatcher->expects(self::once())
+        $mockEventDispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(
                 self::callback(
                     fn (
-                        DnsProvisioned $dnsProvisioned
-                    ) => $dnsProvisioned->dnsDeployment->id === $dnsSubscription->dnsDeployment?->id
-                )
+                        DnsProvisioned $dnsProvisioned,
+                    ) => $dnsProvisioned->dnsDeployment->id === $dnsSubscription->dnsDeployment?->id,
+                ),
             );
 
         $updateNsJob = new UpdateNameservers($testDomain, true);
@@ -306,7 +310,7 @@ class UpdateNameserversTest extends IntegrationTestCase
         ];
         $gandiFakeResponse = json_encode([
             'message' => 'Zone not found',
-            'status'  => 404,
+            'status' => 404,
         ]);
 
         $subscription = new SubscriptionFactory()
@@ -315,9 +319,7 @@ class UpdateNameserversTest extends IntegrationTestCase
             ->technicalStatus(TechnicalStatus::PENDING->value)
             ->forDomain($testDomain)
             ->for(
-                new ProductFactory()
-                    ->for(new ProductGroupFactory()->extension())
-                    ->nlDomain()
+                new ProductFactory()->for(new ProductGroupFactory()->extension())->nlDomain(),
             )
             ->createOne();
 
@@ -326,25 +328,25 @@ class UpdateNameserversTest extends IntegrationTestCase
             ->forDomain(self::DOMAIN)
             ->for(new ProductFactory()->premiumDns())
             ->has(
-                new DnsDeploymentFactory()
-                    ->has(
-                        new DnsVanityNameserverFactory()
-                            ->count(3)
-                            ->state(
-                                new Sequence(
-                                    ['nameserver' => $expectedVanityArray[0]],
-                                    ['nameserver' => $expectedVanityArray[1]],
-                                    ['nameserver' => $expectedVanityArray[2]],
-                                )
+                new DnsDeploymentFactory()->has(
+                    new DnsVanityNameserverFactory()
+                        ->count(3)
+                        ->state(
+                            new Sequence(
+                                ['nameserver' => $expectedVanityArray[0]],
+                                ['nameserver' => $expectedVanityArray[1]],
+                                ['nameserver' => $expectedVanityArray[2]],
                             ),
-                        'vanityNameservers'
-                    )
+                        ),
+                    'vanityNameservers',
+                ),
             )
             ->administrativeStatusActive()
             ->technicalStatus(TechnicalStatus::PENDING->value)
             ->createOne();
 
-        $domainDeployment = new DomainDeploymentFactory()->withRtrProvider()
+        $domainDeployment = new DomainDeploymentFactory()
+            ->withRtrProvider()
             ->for($subscription, 'subscription')
             ->createOne();
 
@@ -354,15 +356,12 @@ class UpdateNameserversTest extends IntegrationTestCase
             ->with($testDomain)
             ->willReturn($domainDeployment);
 
-        $mockSaloonResponse->expects(self::once())
-            ->method('body')
-            ->willReturn($gandiFakeResponse);
+        $mockSaloonResponse->expects(self::once())->method('body')->willReturn($gandiFakeResponse);
 
-        $mockGandiException->expects(self::once())
-            ->method('getResponse')
-            ->willReturn($mockSaloonResponse);
+        $mockGandiException->expects(self::once())->method('getResponse')->willReturn($mockSaloonResponse);
 
-        $mockGandiClient->expects(self::once())
+        $mockGandiClient
+            ->expects(self::once())
             ->method('getDnsRecords')
             ->with($testDomain)
             ->willThrowException($mockGandiException);
@@ -372,18 +371,21 @@ class UpdateNameserversTest extends IntegrationTestCase
             ->method('saveLastPremiumProviderResponse')
             ->with($dnsSubscription->dnsDeployment, $gandiFakeResponse);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('debug')
-            ->with('Starting UpdateNameServers Job for domain [{domain.name}]. attempt {job.attempt}/{job.max_attempts}');
+            ->with(
+                'Starting UpdateNameServers Job for domain [{domain.name}]. attempt {job.attempt}/{job.max_attempts}',
+            );
 
         self::expectException($mockGandiException::class);
 
-        $subscriptionRepo->expects(self::once())
+        $subscriptionRepo
+            ->expects(self::once())
             ->method('getNotAdministrativelyEndedOrSuspendedDnsSubscription')
             ->willReturn($dnsSubscription);
 
-        $mockEventDispatcher->expects(self::never())
-            ->method('dispatch');
+        $mockEventDispatcher->expects(self::never())->method('dispatch');
 
         $updateNsJob = new UpdateNameservers($testDomain, true);
         $updateNsJob->handle(
@@ -423,7 +425,7 @@ class UpdateNameserversTest extends IntegrationTestCase
         ];
         json_encode([
             'message' => 'Zone not found',
-            'status'  => 404,
+            'status' => 404,
         ]);
 
         $subscription = new SubscriptionFactory()
@@ -432,9 +434,7 @@ class UpdateNameserversTest extends IntegrationTestCase
             ->technicalStatus(TechnicalStatus::PENDING->value)
             ->forDomain($testDomain)
             ->for(
-                new ProductFactory()
-                    ->for(new ProductGroupFactory()->extension())
-                    ->nlDomain()
+                new ProductFactory()->for(new ProductGroupFactory()->extension())->nlDomain(),
             )
             ->createOne();
 
@@ -443,25 +443,25 @@ class UpdateNameserversTest extends IntegrationTestCase
             ->forDomain(self::DOMAIN)
             ->for(new ProductFactory()->premiumDns())
             ->has(
-                new DnsDeploymentFactory()
-                    ->has(
-                        new DnsVanityNameserverFactory()
-                            ->count(3)
-                            ->state(
-                                new Sequence(
-                                    ['nameserver' => $expectedVanityArray[0]],
-                                    ['nameserver' => $expectedVanityArray[1]],
-                                    ['nameserver' => $expectedVanityArray[2]],
-                                )
+                new DnsDeploymentFactory()->has(
+                    new DnsVanityNameserverFactory()
+                        ->count(3)
+                        ->state(
+                            new Sequence(
+                                ['nameserver' => $expectedVanityArray[0]],
+                                ['nameserver' => $expectedVanityArray[1]],
+                                ['nameserver' => $expectedVanityArray[2]],
                             ),
-                        'vanityNameservers'
-                    )
+                        ),
+                    'vanityNameservers',
+                ),
             )
             ->administrativeStatusActive()
             ->technicalStatus(TechnicalStatus::PENDING->value)
             ->createOne();
 
-        $domainDeployment = new DomainDeploymentFactory()->withRtrProvider()
+        $domainDeployment = new DomainDeploymentFactory()
+            ->withRtrProvider()
             ->for($subscription, 'subscription')
             ->createOne();
 
@@ -471,28 +471,29 @@ class UpdateNameserversTest extends IntegrationTestCase
             ->with($testDomain)
             ->willReturn($domainDeployment);
 
-        $mockGandiException->expects(self::never())
-            ->method('getResponse');
+        $mockGandiException->expects(self::never())->method('getResponse');
 
-        $mockGandiClient->expects(self::once())
+        $mockGandiClient
+            ->expects(self::once())
             ->method('getDnsRecords')
             ->with($testDomain)
             ->willThrowException($mockGandiException);
 
-        $mockDnsDeploymentRepository
-            ->expects(self::never())
-            ->method('saveLastPremiumProviderResponse');
+        $mockDnsDeploymentRepository->expects(self::never())->method('saveLastPremiumProviderResponse');
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('debug')
-            ->with('Starting UpdateNameServers Job for domain [{domain.name}]. attempt {job.attempt}/{job.max_attempts}');
+            ->with(
+                'Starting UpdateNameServers Job for domain [{domain.name}]. attempt {job.attempt}/{job.max_attempts}',
+            );
 
-        $subscriptionRepo->expects(self::once())
+        $subscriptionRepo
+            ->expects(self::once())
             ->method('getNotAdministrativelyEndedOrSuspendedDnsSubscription')
             ->willReturn($dnsSubscription);
 
-        $mockEventDispatcher->expects(self::never())
-            ->method('dispatch');
+        $mockEventDispatcher->expects(self::never())->method('dispatch');
 
         $updateNsJob = new UpdateNameservers($testDomain, true);
         $updateNsJob->handle(

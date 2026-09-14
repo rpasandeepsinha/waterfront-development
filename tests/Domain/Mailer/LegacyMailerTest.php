@@ -39,7 +39,8 @@ class LegacyMailerTest extends IntegrationTestCase
         $template = new TemplateFactory()->createOne(['slug' => 'templateslug']);
 
         $mailerMock = self::createMock(Mailer::class);
-        $mailerMock->expects(self::once())
+        $mailerMock
+            ->expects(self::once())
             ->method('send')
             ->with(
                 self::anything(),
@@ -49,14 +50,15 @@ class LegacyMailerTest extends IntegrationTestCase
                     $closure($message);
                     self::assertContainsEquals(
                         new MetadataHeader('template', $template->slug),
-                        $message->getHeaders()->all()
+                        $message->getHeaders()->all(),
                     );
                     self::assertContainsEquals(
                         new MetadataHeader('customer-id', (string) $customer->id),
-                        $message->getHeaders()->all()
+                        $message->getHeaders()->all(),
                     );
+
                     return true;
-                })
+                }),
             );
 
         $emailHistory = new EmailHistory();

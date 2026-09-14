@@ -31,7 +31,11 @@ class CustomerDeleteTest extends IntegrationTestCase
         ]);
         $handlerStack = HandlerStack::create($mock);
         $handlerStack->push(fn (callable $handler) => function (RequestInterface $request, $options) use ($handler) {
-            self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_customer_delete_request.xml'), (string) $request->getBody());
+            self::assertSame(
+                (string) file_get_contents(__DIR__ . '/data/plesk_customer_delete_request.xml'),
+                (string) $request->getBody(),
+            );
+
             return $handler($request, $options);
         });
 
@@ -42,7 +46,7 @@ class CustomerDeleteTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $data = require __DIR__ . '/data/pleskDeleteCustomerData.php';

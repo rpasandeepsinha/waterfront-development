@@ -28,7 +28,9 @@ class CreateOneTimeServiceAction
 
         DB::transaction(function () use ($contexts, $otsCollection) {
             $contexts->each(
-                fn (OneTimeServiceContext $context) => $otsCollection->add($this->oneTimeServiceCreator->createFromContextWithNote($context))
+                fn (OneTimeServiceContext $context) => $otsCollection->add($this->oneTimeServiceCreator->createFromContextWithNote(
+                    $context,
+                )),
             );
         });
 

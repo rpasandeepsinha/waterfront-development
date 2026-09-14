@@ -8,13 +8,16 @@ use InvalidArgumentException;
 use RuntimeException;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\CustomerInterface;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\HostingPackageInterface;
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\ChangeHostingPackageStatus\Parameters as ChangeHostingPackageStatusParameters;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\ChangeHostingPackageStatus\Parameters as ChangeHostingPackageStatusParameters
+;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\CreateCustomer\Result as CustomerCreateResult;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\DeleteCustomer\Parameters as CustomerDeleteParameters;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\DeleteCustomer\Result as CustomerDeleteResult;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\DeleteWebsite\Parameters as WebsiteDeleteParameters;
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailForwardingCreate\Parameters as EmailForwardingCreateParameters;
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailGetAccountSettings\Parameters as EmailGetAccountSettingsParameters;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailForwardingCreate\Parameters as EmailForwardingCreateParameters
+;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailGetAccountSettings\Parameters as EmailGetAccountSettingsParameters
+;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailSetCatchAll\Parameters as EmailSetCatchAllParameters;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Parameters;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Parameters as HostingParameters;
@@ -61,7 +64,7 @@ class ChainableHostingPackageClient implements
         private readonly ClientListStrategyInterface $secretKeyClients,
         private readonly ClientListStrategyInterface $selectClients,
         private readonly ClientListStrategyInterface $sessionTokenClients,
-        private readonly ClientListStrategyInterface $customerClients
+        private readonly ClientListStrategyInterface $customerClients,
     ) {
     }
 
@@ -92,8 +95,11 @@ class ChainableHostingPackageClient implements
         return $hostingClient->createHosting($parameters);
     }
 
-    public function resetEmailPassword(string $domain, string $emailAccount, string $password): EmailPasswordResetResponse
-    {
+    public function resetEmailPassword(
+        string $domain,
+        string $emailAccount,
+        string $password,
+    ): EmailPasswordResetResponse {
         if ($this->selectedServer === null) {
             throw new RuntimeException('I have no selected server instance.');
         }
@@ -106,8 +112,11 @@ class ChainableHostingPackageClient implements
         return $hostingClient->resetEmailPassword($domain, $emailAccount, $password);
     }
 
-    public function createEmailAccount(string $domain, string $emailAccount, string $password): EmailAccountCreateResponse
-    {
+    public function createEmailAccount(
+        string $domain,
+        string $emailAccount,
+        string $password,
+    ): EmailAccountCreateResponse {
         if ($this->selectedServer === null) {
             throw new RuntimeException('I have no selected server instance.');
         }
@@ -210,14 +219,16 @@ class ChainableHostingPackageClient implements
     public function getSsoUrl(
         string $username,
         string $ipAddress,
-        bool $redirectToMail = false
+        bool $redirectToMail = false,
     ): string {
         if ($this->selectedServer === null) {
             throw new RuntimeException('I have no selected server instance.');
         }
 
-        $sessionTokenClient = $this->sessionTokenClients
-            ->selectClient($this->selectedServer, $this->selectedCredentials);
+        $sessionTokenClient = $this->sessionTokenClients->selectClient(
+            $this->selectedServer,
+            $this->selectedCredentials,
+        );
         if (! $sessionTokenClient instanceof SessionTokenInterface) {
             throw new RuntimeException('Session token client should be an instance of SessionTokenInterface.');
         }
@@ -231,8 +242,10 @@ class ChainableHostingPackageClient implements
             throw new RuntimeException('I have no selected server instance.');
         }
 
-        $sessionTokenClient = $this->sessionTokenClients
-            ->selectClient($this->selectedServer, $this->selectedCredentials);
+        $sessionTokenClient = $this->sessionTokenClients->selectClient(
+            $this->selectedServer,
+            $this->selectedCredentials,
+        );
         if (! $sessionTokenClient instanceof SessionTokenInterface) {
             throw new RuntimeException('Session token client should be an instance of SessionTokenInterface.');
         }
@@ -484,8 +497,11 @@ class ChainableHostingPackageClient implements
         return $hostingClient->disableDnsZone($domain);
     }
 
-    public function changeServicePlanSwitchBetweenHostingType(HostingParameters $hostingParameters, string $domain, string $servicePlanGuid): Result
-    {
+    public function changeServicePlanSwitchBetweenHostingType(
+        HostingParameters $hostingParameters,
+        string $domain,
+        string $servicePlanGuid,
+    ): Result {
         if ($this->selectedServer === null) {
             throw new RuntimeException('I have no selected server instance.');
         }
@@ -584,10 +600,12 @@ class ChainableHostingPackageClient implements
         if ($this->selectedServer === null) {
             throw new InvalidArgumentException('I have no selected server instance.');
         }
+
         $hostingClient = $this->hostingClients->selectClient($this->selectedServer, $this->selectedCredentials);
         if (! $hostingClient instanceof HostingPackageInterface) {
             throw new RuntimeException('Hosting client should be an instance of HostingPackageInterface.');
         }
+
         return $hostingClient->getSiteIdByDomain($domain);
     }
 

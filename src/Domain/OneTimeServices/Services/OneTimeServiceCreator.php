@@ -35,7 +35,7 @@ class OneTimeServiceCreator
             'Creating one time services from order {order.id}',
             [
                 LoggingContextKeys::ORDER_ID => $order->id,
-            ]
+            ],
         );
 
         foreach ($order->lineItems->sortBy('parent_id') as $orderLineItem) {
@@ -50,7 +50,7 @@ class OneTimeServiceCreator
             'product.productGroup',
             'parentSubscription',
             'product.productSpecs',
-            'parent'
+            'parent',
         );
         $order = $orderLineItem->order;
         if ($orderLineItem->one_time_service_id !== null) {
@@ -63,15 +63,15 @@ class OneTimeServiceCreator
                 [
                     LoggingContextKeys::ORDER_ID => $order->id,
                     LoggingContextKeys::ORDER_LINE_ID => $orderLineItem->id,
-                ]
+                ],
             );
 
             throw new RuntimeException(
                 sprintf(
                     'Product is required to create a one time service for order line #%s for order #%s.',
                     $orderLineItem->id,
-                    $order->id
-                )
+                    $order->id,
+                ),
             );
         }
 
@@ -87,15 +87,15 @@ class OneTimeServiceCreator
                     LoggingContextKeys::ORDER_LINE_ID => $orderLineItem->id,
                     LoggingContextKeys::PRODUCT_ID => $orderLineItem->product->id,
                     LoggingContextKeys::PRODUCT_SLUG => $orderLineItem->product->slug,
-                ]
+                ],
             );
 
             throw new RuntimeException(
                 sprintf(
                     'Parent subscription missing for one time service for order line #%s for order #%s.',
                     $orderLineItem->id,
-                    $order->id
-                )
+                    $order->id,
+                ),
             );
         }
 
@@ -108,15 +108,15 @@ class OneTimeServiceCreator
                     LoggingContextKeys::ORDER_LINE_ID => $orderLineItem->id,
                     LoggingContextKeys::PRODUCT_ID => $orderLineItem->product->id,
                     LoggingContextKeys::PRODUCT_SLUG => $orderLineItem->product->slug,
-                ]
+                ],
             );
 
             throw new RuntimeException(
                 sprintf(
                     'Could not create one time service for order line #%s for order #%s because of missing subscription. Subscription should be created first.',
                     $orderLineItem->id,
-                    $order->id
-                )
+                    $order->id,
+                ),
             );
         }
 
@@ -139,7 +139,10 @@ class OneTimeServiceCreator
 
     public function createFromContextWithNote(OneTimeServiceContext $context): OneTimeService
     {
-        $grossPrice = $context->grossPrice ?? $this->grossPriceResolver->getGrossPrice($context->product, $context->subscription->product->id);
+        $grossPrice = $context->grossPrice ?? $this->grossPriceResolver->getGrossPrice(
+            $context->product,
+            $context->subscription->product->id,
+        );
         $ots = $this->oneTimeServiceRepository->create($context, $grossPrice);
 
         $noteMessage = sprintf(
@@ -157,7 +160,7 @@ class OneTimeServiceCreator
             [
                 LoggingContextKeys::SUBSCRIPTION_ID => $context->subscription->id,
                 LoggingContextKeys::PRODUCT_SLUG => $context->product->slug,
-            ]
+            ],
         );
 
         return $ots;
@@ -168,6 +171,7 @@ class OneTimeServiceCreator
         if ($grossPrice === 0) {
             return 0;
         }
+
         return (int) round((($grossPrice - $netPrice) / $grossPrice) * 100);
     }
 }

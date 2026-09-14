@@ -61,11 +61,12 @@ class DomainModifyRequest extends BaseRequest
         if ($this->handles !== null) {
             $handles = array_filter(
                 [
-                    'ownerHandle'   => $this->handles->getOwnerHandle(),
-                    'adminHandle'   => $this->handles->getAdminHandle(),
-                    'techHandle'    => $this->handles->getTechHandle(),
+                    'ownerHandle' => $this->handles->getOwnerHandle(),
+                    'adminHandle' => $this->handles->getAdminHandle(),
+                    'techHandle' => $this->handles->getTechHandle(),
                     'billingHandle' => $this->handles->getBillingHandle(),
-                ]
+                ],
+                fn (mixed $value): bool => (bool) $value,
             );
         }
 
@@ -93,20 +94,21 @@ class DomainModifyRequest extends BaseRequest
             $handles,
             array_filter(
                 [
-                    'domain'      => [
-                        'name'      => $this->domain->getName(),
+                    'domain' => [
+                        'name' => $this->domain->getName(),
                         'extension' => $this->domain->getExtension(),
                     ],
-                    'nsGroup'     => $this->parameters->getNameServerGroup(),
+                    'nsGroup' => $this->parameters->getNameServerGroup(),
                     'nameServers' => $nameServers,
-                    'isLocked'    => $isLocked,
-                    'autorenew'   => $this->parameters->getAutoRenewAsString(),
+                    'isLocked' => $isLocked,
+                    'autorenew' => $this->parameters->getAutoRenewAsString(),
                 ],
-                fn ($value): bool => ! is_null($value)
-            )
+                fn ($value): bool => ! is_null($value),
+            ),
         );
 
         $message = $this->setPrivateWhois($message);
+
         return $this->setDnssec($message);
     }
 
@@ -146,10 +148,10 @@ class DomainModifyRequest extends BaseRequest
                 $message[$this->endpoint]['dnssecKeys'] = [
                     'array' => [
                         'item' => [
-                            'flags'     => $dnssec[0]->getFlags(),
-                            'alg'       => $dnssec[0]->getAlgorithm(),
-                            'protocol'  => $dnssec[0]->getProtocol(),
-                            'pubKey'    => $dnssec[0]->getPubKey(),
+                            'flags' => $dnssec[0]->getFlags(),
+                            'alg' => $dnssec[0]->getAlgorithm(),
+                            'protocol' => $dnssec[0]->getProtocol(),
+                            'pubKey' => $dnssec[0]->getPubKey(),
                         ],
                     ],
                 ];

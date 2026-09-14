@@ -55,7 +55,7 @@ class DnsMigrationService
         $this->domainService->enableDnssec($domain, $providerSlug);
     }
 
-    public function getDnsZone(Subscription $subscription, string $domain, string $referenceCustomerNumber): DnsZone|null
+    public function getDnsZone(Subscription $subscription, string $domain, string $referenceCustomerNumber): ?DnsZone
     {
         try {
             return $this->dnsService->getDnsZone($domain);
@@ -115,8 +115,11 @@ class DnsMigrationService
         return $hasNoRecords;
     }
 
-    public function addDefaultRecords(Subscription $subscription, DnsZone $zone, string $referenceCustomerNumber): DnsZone
-    {
+    public function addDefaultRecords(
+        Subscription $subscription,
+        DnsZone $zone,
+        string $referenceCustomerNumber,
+    ): DnsZone {
         $zoneDiff = $this->getDefaultRecordZoneDiff($zone);
 
         $this->logger->debug(
@@ -128,7 +131,7 @@ class DnsMigrationService
                 LoggingContextKeys::META => [
                     'changes' => $zoneDiff->getChanges(),
                 ],
-            ]
+            ],
         );
 
         return $this->dnsService->applyDiffToZone($zone, $zoneDiff);
@@ -138,7 +141,7 @@ class DnsMigrationService
         int $subscriptionId,
         string $domain,
         string $referenceCustomerNumber,
-        ProviderSlug $driver
+        ProviderSlug $driver,
     ): bool {
         $this->logger->debug(
             'Checking if migration domain has modern internal nameservers',
@@ -146,7 +149,7 @@ class DnsMigrationService
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscriptionId,
                 LoggingContextKeys::DOMAIN_NAME => $domain,
                 LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $referenceCustomerNumber,
-            ]
+            ],
         );
 
         $nameservers = $this->getRegistryNameservers($domain, $driver);
@@ -165,7 +168,7 @@ class DnsMigrationService
         int $subscriptionId,
         string $domain,
         string $referenceCustomerNumber,
-        ProviderSlug $driver
+        ProviderSlug $driver,
     ): bool {
         $this->logger->debug(
             'Checking if migration zone has legacy internal nameservers',
@@ -173,7 +176,7 @@ class DnsMigrationService
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscriptionId,
                 LoggingContextKeys::DOMAIN_NAME => $domain,
                 LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $referenceCustomerNumber,
-            ]
+            ],
         );
 
         $nameservers = $this->getRegistryNameservers($domain, $driver);
@@ -190,7 +193,7 @@ class DnsMigrationService
         int $subscriptionId,
         string $domain,
         string $referenceCustomerNumber,
-        ProviderSlug $driver
+        ProviderSlug $driver,
     ): bool {
         $this->logger->debug(
             'Checking if migration zone has legacy whitelabel nameservers',
@@ -198,7 +201,7 @@ class DnsMigrationService
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscriptionId,
                 LoggingContextKeys::DOMAIN_NAME => $domain,
                 LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $referenceCustomerNumber,
-            ]
+            ],
         );
 
         $nameservers = $this->getRegistryNameservers($domain, $driver);
@@ -216,7 +219,10 @@ class DnsMigrationService
                 // Couldn't resolve hostname
                 return false;
             }
-            return array_any($reverseDNSNameservers, fn ($nameserverRDNSHostname) => $this->isMigratableNameserver($nameserverRDNSHostname));
+
+            return array_any($reverseDNSNameservers, fn ($nameserverRDNSHostname) => $this->isMigratableNameserver(
+                $nameserverRDNSHostname,
+            ));
         });
     }
 
@@ -236,9 +242,11 @@ class DnsMigrationService
         /* @see https://yh-jira.atlassian.net/browse/SWD-9894 */
         $hostname = strtolower($hostname);
 
-        return in_array($hostname, $migratableNameservers, true)
+        return (
+            in_array($hostname, $migratableNameservers, true)
             || preg_match($migratableNameserversRegex, $hostname) > 0
-            || $this->internalNamserverRepository->isInternalNamserver($hostname);
+            || $this->internalNamserverRepository->isInternalNamserver($hostname)
+        );
     }
 
     /**
@@ -253,7 +261,7 @@ class DnsMigrationService
                 $exception->getMessage(),
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
             $nameserverIPs = false;
         }
@@ -263,8 +271,9 @@ class DnsMigrationService
                 "Couldn't get IP address(es) for nameserver in DNS migration service",
                 [
                     LoggingContextKeys::SERVER_HOSTNAME => $hostname,
-                ]
+                ],
             );
+
             return false;
         }
 
@@ -286,8 +295,9 @@ class DnsMigrationService
                         LoggingContextKeys::META => [
                             'nameserver_ip' => $nameserverIP,
                         ],
-                    ]
+                    ],
                 );
+
                 return false;
             }
 
@@ -302,9 +312,7 @@ class DnsMigrationService
         $collection = $this->dnsNameserverRetriever->retrieve(2);
 
         /** @var Nameserver[] $nameservers */
-        $nameservers = $collection
-            ->map(fn (DnsNameserver $dnsNameserver) => new Nameserver($dnsNameserver->nameserver))
-            ->toArray();
+        $nameservers = $collection->map(fn (DnsNameserver $dnsNameserver) => new Nameserver($dnsNameserver->nameserver))->toArray();
 
         $this->logger->debug(
             'Unable to find dns while migrating. Creating empty zone',
@@ -312,7 +320,7 @@ class DnsMigrationService
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                 LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $referenceCustomerNumber,
-            ]
+            ],
         );
 
         $this->dnsService->createDnsZone(
@@ -321,7 +329,7 @@ class DnsMigrationService
             null,
             null,
             false,
-            $nameservers
+            $nameservers,
         );
     }
 
@@ -333,8 +341,11 @@ class DnsMigrationService
      * @throws JsonException
      * @throws PdnsResponseException
      */
-    public function changeToMasterAndEmptyMasters(string $domain, int $subscriptionId, string $migratedCustomerReference): void
-    {
+    public function changeToMasterAndEmptyMasters(
+        string $domain,
+        int $subscriptionId,
+        string $migratedCustomerReference,
+    ): void {
         $this->logger->debug(
             'Changing zone to kind: MASTER and empty masters reference on zone',
             [
@@ -360,10 +371,7 @@ class DnsMigrationService
     private function getDefaultRecordZoneDiff(DnsZone $zone): DnsZoneDiff
     {
         /** @var array<int, string> $nameservers */
-        $nameservers = $this->dnsNameserverRetriever
-            ->retrieve(2)
-            ->pluck('nameserver')
-            ->toArray();
+        $nameservers = $this->dnsNameserverRetriever->retrieve(2)->pluck('nameserver')->toArray();
 
         $primaryNameserver = $nameservers[0];
         $fallbackNameserver = $nameservers[1];
@@ -377,17 +385,17 @@ class DnsMigrationService
         $ns1TemplateRecord = $this->findDnsTemplateRecord(
             dnsTemplate: $defaultTemplate,
             templateRecordType: 'NS',
-            whereContent: '{ns1}.'
+            whereContent: '{ns1}.',
         );
         $ns2TemplateRecord = $this->findDnsTemplateRecord(
             dnsTemplate: $defaultTemplate,
             templateRecordType: 'NS',
-            whereContent: '{ns2}.'
+            whereContent: '{ns2}.',
         );
         $soaTemplateRecord = $this->findDnsTemplateRecord(
             dnsTemplate: $defaultTemplate,
             templateRecordType: 'SOA',
-            whereContent: '{ns1}.'
+            whereContent: '{ns1}.',
         );
 
         return new DnsZoneDiff([
@@ -396,24 +404,24 @@ class DnsMigrationService
                     templateRow: $ns1TemplateRecord,
                     zone: $zone,
                     find: '{ns1}',
-                    replace: $primaryNameserver
-                )
+                    replace: $primaryNameserver,
+                ),
             ),
             new AddedDnsRecord(
                 $this->makeDefaultRecordFromTemplateRecord(
                     templateRow: $ns2TemplateRecord,
                     zone: $zone,
                     find: '{ns2}',
-                    replace: $fallbackNameserver
-                )
+                    replace: $fallbackNameserver,
+                ),
             ),
             new AddedDnsRecord(
                 $this->makeDefaultRecordFromTemplateRecord(
                     templateRow: $soaTemplateRecord,
                     zone: $zone,
                     find: '{ns1}',
-                    replace: $primaryNameserver
-                )
+                    replace: $primaryNameserver,
+                ),
             ),
         ]);
     }
@@ -421,11 +429,9 @@ class DnsMigrationService
     private function findDnsTemplateRecord(
         DnsTemplate $dnsTemplate,
         string $templateRecordType,
-        string $whereContent
+        string $whereContent,
     ): DnsTemplateRecordSetRow {
-        $recordSet = $dnsTemplate->recordSets
-            ->where('type', $templateRecordType)
-            ->first();
+        $recordSet = $dnsTemplate->recordSets->where('type', $templateRecordType)->first();
 
         if ($recordSet === null) {
             throw new RuntimeException(sprintf(
@@ -436,7 +442,7 @@ class DnsMigrationService
         }
 
         $recordSetRow = $recordSet->rows->first(
-            fn (DnsTemplateRecordSetRow $recordSetRow) => str_contains($recordSetRow->content, $whereContent)
+            fn (DnsTemplateRecordSetRow $recordSetRow) => str_contains($recordSetRow->content, $whereContent),
         );
 
         if ($recordSetRow === null) {
@@ -455,13 +461,13 @@ class DnsMigrationService
         DnsTemplateRecordSetRow $templateRow,
         DnsZone $zone,
         string $find,
-        string $replace
+        string $replace,
     ): DefaultRecord {
         return new DefaultRecord(
             type: $templateRow->dnsTemplateRecordSet->type,
             name: $zone->getFqdn()->toNative(),
             content: str_replace($find, $replace, $templateRow->content),
-            ttl: $templateRow->dnsTemplateRecordSet->ttl
+            ttl: $templateRow->dnsTemplateRecordSet->ttl,
         );
     }
 }

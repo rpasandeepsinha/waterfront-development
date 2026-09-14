@@ -27,7 +27,7 @@ class ResumeSubscriptionInGracePeriodAction
 
         $this->saveSubscriptionAdministrativeStatusAction->execute(
             $subscription,
-            AdministrativeStatus::ACTIVE
+            AdministrativeStatus::ACTIVE,
         );
 
         $subscription->termination_date = null;

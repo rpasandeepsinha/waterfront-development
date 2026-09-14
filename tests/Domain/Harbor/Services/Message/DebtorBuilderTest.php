@@ -124,10 +124,10 @@ class DebtorBuilderTest extends IntegrationTestCase
             'country_code' => 'NL',
         ])->withFinancialContact(
             [
-            'first_name' => $first_name,
-            'last_name' => $last_name,
-            'email' => $email,
-        ]
+                'first_name' => $first_name,
+                'last_name' => $last_name,
+                'email' => $email,
+            ],
         )->createOne([
             'locale' => 'nl-NL',
             'phone_number' => '+31 113643281',

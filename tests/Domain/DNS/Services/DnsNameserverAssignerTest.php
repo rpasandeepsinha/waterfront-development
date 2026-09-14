@@ -50,7 +50,7 @@ class DnsNameserverAssignerTest extends IntegrationTestCase
         $this->mockDnsNameserverRetriever = self::createMock(DnsNameserverRetriever::class);
         $this->nameserverAssigner = new DnsNameserverAssigner(
             retriever: $this->mockDnsNameserverRetriever,
-            dnsDeploymentRepository: $this->mockDnsDeploymentRepository
+            dnsDeploymentRepository: $this->mockDnsDeploymentRepository,
         );
 
         $regions = new DnsRegionFactory()->createMany(3);
@@ -81,11 +81,13 @@ class DnsNameserverAssignerTest extends IntegrationTestCase
             'product_group_id' => $groupExtension->id,
         ]);
 
-        $domainSubscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain' => $domain,
-            'customer_id' => $customer->id,
-            'product_uuid' => $productNl->uuid,
-        ]);
+        $domainSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => $domain,
+                'customer_id' => $customer->id,
+                'product_uuid' => $productNl->uuid,
+            ]);
 
         $dnsSubscription = new SubscriptionFactory()
             ->withCustomer()
@@ -94,9 +96,7 @@ class DnsNameserverAssignerTest extends IntegrationTestCase
             ->parentSubscription($domainSubscription)
             ->createOne();
 
-        $this->dnsDeployment = DnsDeploymentFactory::new()
-            ->for($dnsSubscription)
-            ->createOne();
+        $this->dnsDeployment = DnsDeploymentFactory::new()->for($dnsSubscription)->createOne();
     }
 
     #[Test]
@@ -109,12 +109,14 @@ class DnsNameserverAssignerTest extends IntegrationTestCase
         /** @var array<int, string> $expectedNameserversArray */
         $expectedNameserversArray = $expectedNameservers->pluck('nameserver')->toArray();
 
-        $this->mockDnsNameserverRetriever->expects(self::once())
+        $this->mockDnsNameserverRetriever
+            ->expects(self::once())
             ->method('retrieve')
             ->with(3)
             ->willReturn($expectedNameservers);
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getNameservers')
             ->with($this->dnsDeployment)
             ->willReturn([
@@ -145,12 +147,14 @@ class DnsNameserverAssignerTest extends IntegrationTestCase
         /** @var array<int, string> $expectedNameserversArray */
         $expectedNameserversArray = $expectedNameservers->pluck('nameserver')->toArray();
 
-        $this->mockDnsNameserverRetriever->expects(self::once())
+        $this->mockDnsNameserverRetriever
+            ->expects(self::once())
             ->method('retrieve')
             ->with(3)
             ->willReturn($expectedNameservers);
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getNameservers')
             ->with($this->dnsDeployment)
             ->willReturn([
@@ -164,7 +168,7 @@ class DnsNameserverAssignerTest extends IntegrationTestCase
         $exceptionMessage = sprintf(
             'Name servers have already been assigned for DNS deployment id :%d with domain %s',
             $this->dnsDeployment->id,
-            $this->dnsDeployment->subscription->domain
+            $this->dnsDeployment->subscription->domain,
         );
 
         $this->expectException(DnsNamerverAlreadyAssignedException::class);
@@ -180,12 +184,14 @@ class DnsNameserverAssignerTest extends IntegrationTestCase
         /** @var array<int, string> $expectedNameserversArray */
         $expectedNameserversArray = $expectedNameservers->pluck('nameserver')->toArray();
 
-        $this->mockDnsNameserverRetriever->expects(self::once())
+        $this->mockDnsNameserverRetriever
+            ->expects(self::once())
             ->method('retrieve')
             ->with(3)
             ->willReturn($expectedNameservers);
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getNameservers')
             ->with($this->dnsDeployment)
             ->willReturn([

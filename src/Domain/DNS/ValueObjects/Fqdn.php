@@ -21,6 +21,7 @@ class Fqdn
         if (! $this->validValue($value)) {
             throw new InvalidValueForValueObjectException($value, self::class);
         }
+
         $this->value = $this->sanitizeValue($value);
     }
 
@@ -32,6 +33,7 @@ class Fqdn
     public static function fromNative(mixed $value): self
     {
         assert(is_string($value) || is_int($value) || is_float($value) || is_bool($value));
+
         return new self(strval($value));
     }
 

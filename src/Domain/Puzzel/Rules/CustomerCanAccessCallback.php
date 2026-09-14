@@ -16,7 +16,7 @@ class CustomerCanAccessCallback implements ValidationRule
     public function __construct(
         private readonly Translator $translator,
         private readonly AuthenticationManager $authManager,
-        private readonly ServicePlanChecker $servicePlanChecker
+        private readonly ServicePlanChecker $servicePlanChecker,
     ) {
     }
 

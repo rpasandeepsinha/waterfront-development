@@ -117,15 +117,20 @@ class NameserverMigrationControllerTest extends IntegrationTestCase
         $dnsRegion3 = DnsRegionFactory::new()->createOne();
         $dnsRegion4 = DnsRegionFactory::new()->createOne();
 
-        $this->ns1 = DnsNameserverFactory::new()->for($dnsRegion1)->createOne(['nameserver' => 'test-ns1.sandwave.testing']);
-        $this->ns2 = DnsNameserverFactory::new()->for($dnsRegion2)->createOne(['nameserver' => 'test-ns2.sandwave.testing']);
-        $this->ns3 = DnsNameserverFactory::new()->for($dnsRegion3)->createOne(['nameserver' => 'test-ns3.sandwave.testing']);
-        $this->ns4 = DnsNameserverFactory::new()->for($dnsRegion4)->createOne(['nameserver' => 'test-ns4.sandwave.testing']);
+        $this->ns1 = DnsNameserverFactory::new()->for($dnsRegion1)->createOne([
+            'nameserver' => 'test-ns1.sandwave.testing',
+        ]);
+        $this->ns2 = DnsNameserverFactory::new()->for($dnsRegion2)->createOne([
+            'nameserver' => 'test-ns2.sandwave.testing',
+        ]);
+        $this->ns3 = DnsNameserverFactory::new()->for($dnsRegion3)->createOne([
+            'nameserver' => 'test-ns3.sandwave.testing',
+        ]);
+        $this->ns4 = DnsNameserverFactory::new()->for($dnsRegion4)->createOne([
+            'nameserver' => 'test-ns4.sandwave.testing',
+        ]);
 
-        $this->freeDnsProduct = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->dns())
-            ->freeDns()
-            ->createOne();
+        $this->freeDnsProduct = ProductFactory::new()->for(ProductGroupFactory::new()->dns())->freeDns()->createOne();
 
         $dnsSubscription = SubscriptionFactory::new()
             ->administrativeStatusActive()
@@ -194,43 +199,50 @@ class NameserverMigrationControllerTest extends IntegrationTestCase
 
         $rtrRequests = [];
 
-        $rtrSdk = MockedClientFactory::makeSdkWithMultipleReponses([
-            new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasModernInternalNameservers
-            new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasLegacyInternalNameservers
-            new Response(200, []),
-        ], static function (RequestInterface $request) use (&$rtrRequests): void {
-            $rtrRequests[] = $request;
-        });
+        $rtrSdk = MockedClientFactory::makeSdkWithMultipleReponses(
+            [
+                new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasModernInternalNameservers
+                new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasLegacyInternalNameservers
+                new Response(200, []),
+            ],
+            static function (RequestInterface $request) use (&$rtrRequests): void {
+                $rtrRequests[] = $request;
+            },
+        );
 
         $this->app->instance(RealtimeRegister::class, $rtrSdk);
 
         $pdnsRequests = [];
 
-        $pdnsMock = $this->makePdnsWithMultipleResponses([
-            // get DNS zone
-            new Response(
-                200,
-                [],
-                $this->getMockedZoneResponseBodyWithNsRecords(self::TEST_DOMAIN)
-            ),
-            // get DNS zone again, see PowerDnsClient::changeZone
-            new Response(
-                200,
-                [],
-                $this->getMockedZoneResponseBodyWithNsRecords(self::TEST_DOMAIN)
-            ),
-            // patch DNS zone
-            new Response(204),
-        ], static function (RequestInterface $request) use (&$pdnsRequests): void {
-            $pdnsRequests[] = $request;
-        });
+        $pdnsMock = $this->makePdnsWithMultipleResponses(
+            [
+                // get DNS zone
+                new Response(
+                    200,
+                    [],
+                    $this->getMockedZoneResponseBodyWithNsRecords(self::TEST_DOMAIN),
+                ),
+                // get DNS zone again, see PowerDnsClient::changeZone
+                new Response(
+                    200,
+                    [],
+                    $this->getMockedZoneResponseBodyWithNsRecords(self::TEST_DOMAIN),
+                ),
+                // patch DNS zone
+                new Response(204),
+            ],
+            static function (RequestInterface $request) use (&$pdnsRequests): void {
+                $pdnsRequests[] = $request;
+            },
+        );
 
         $this->pdns($pdnsMock);
 
         $this->app->forgetInstance('domain-service-realtime_register');
 
         $dnsNameserverRetrieverMock = self::createMock(DnsNameserverRetriever::class);
-        $dnsNameserverRetrieverMock->expects(self::once())
+        $dnsNameserverRetrieverMock
+            ->expects(self::once())
             ->method('retrieve')
             ->willReturn(new Collection([
                 $this->ns1,
@@ -243,17 +255,21 @@ class NameserverMigrationControllerTest extends IntegrationTestCase
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_nameservers', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_nameservers', [
+                    'customer' => $this->customer->id,
+                ]),
                 [],
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
+                ],
             )
             ->assertStatus(SymfonyResponse::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [
                     [
-                        'message' => 'Nameserver migration step not allowed for subscription: ' . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
+                        'message' =>
+                            'Nameserver migration step not allowed for subscription: '
+                                . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
                         'parameters' => [
                             'customerId' => $this->customer->id,
                             'subscriptionId' => $invalidSubscription->id,
@@ -267,7 +283,10 @@ class NameserverMigrationControllerTest extends IntegrationTestCase
                         'message' => 'Created jobs to configure nameservers for every eligible subscription',
                         'parameters' => [
                             'customerId' => $this->customer->id,
-                            'subscriptionIds' => implode(',', [$this->extensionSubscription->id, $extensionSubscriptionOp->id]),
+                            'subscriptionIds' => implode(',', [
+                                $this->extensionSubscription->id,
+                                $extensionSubscriptionOp->id,
+                            ]),
                         ],
                     ],
                 ],
@@ -278,7 +297,12 @@ class NameserverMigrationControllerTest extends IntegrationTestCase
 
         $pdnsPatchRequest = $pdnsRequests[1];
         /** @var array<mixed> $pdnsPatchRequestBody */
-        $pdnsPatchRequestBody = json_decode($pdnsPatchRequest->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
+        $pdnsPatchRequestBody = json_decode(
+            $pdnsPatchRequest->getBody()->getContents(),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
         self::assertSame('PATCH', $pdnsPatchRequest->getMethod());
         self::assertSame('api/v1/servers/localhost/zones/' . self::TEST_DOMAIN, $pdnsPatchRequest->getUri()->getPath());
@@ -357,71 +381,81 @@ class NameserverMigrationControllerTest extends IntegrationTestCase
 
         $rtrRequests = [];
 
-        $rtrSdk = MockedClientFactory::makeSdkWithMultipleReponses([
-            new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasModernInternalNameservers
-            new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasLegacyInternalNameservers
-            new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // whitelabel nameserver fetch
-            new Response(200, []), // modify domain nameservers
-        ], static function (RequestInterface $request) use (&$rtrRequests): void {
-            $rtrRequests[] = $request;
-        });
+        $rtrSdk = MockedClientFactory::makeSdkWithMultipleReponses(
+            [
+                new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasModernInternalNameservers
+                new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasLegacyInternalNameservers
+                new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // whitelabel nameserver fetch
+                new Response(200, []), // modify domain nameservers
+            ],
+            static function (RequestInterface $request) use (&$rtrRequests): void {
+                $rtrRequests[] = $request;
+            },
+        );
 
         $this->app->instance(RealtimeRegister::class, $rtrSdk);
 
         $nameserverResolver = self::createMock(NameserverResolver::class);
 
-        $nameserverResolver->expects(self::exactly(2))
+        $nameserverResolver
+            ->expects(self::exactly(2))
             ->method('getNameserverIPs')
             ->willReturnCallback(
                 fn (string $hostname): array => match ($hostname) {
                     'ns1.whitelabel.test' => ['1.2.3.4'],
                     'nameserver1337.whitelabel.test' => ['5.6.7.8'],
-                    default => throw new UnexpectedValueException()
-                }
+                    default => throw new UnexpectedValueException(),
+                },
             );
 
-        $nameserverResolver->expects(self::exactly(2))
+        $nameserverResolver
+            ->expects(self::exactly(2))
             ->method('getNameserverHostname')
             ->willReturnCallback(
                 fn (string $ip): string => match ($ip) {
                     '1.2.3.4' => 'ns1.testing.test',
                     '5.6.7.8' => 'nameserver1337.testing.test',
-                    default => throw new UnexpectedValueException()
-                }
+                    default => throw new UnexpectedValueException(),
+                },
             );
 
         $this->app->bind(NameserverResolver::class, fn () => $nameserverResolver);
 
         $pdnsRequests = [];
 
-        $pdnsMock = $this->makePdnsWithMultipleResponses([
-            // get DNS zone
-            new Response(
-                200,
-                [],
-                $this->getMockedZoneResponseBodyWithNsRecords(self::TEST_DOMAIN)
-            ),
-            // get DNS zone again, see PowerDnsClient::changeZone
-            new Response(
-                200,
-                [],
-                $this->getMockedZoneResponseBodyWithNsRecords(self::TEST_DOMAIN)
-            ),
-            // patch DNS zone
-            new Response(204),
-        ], static function (RequestInterface $request) use (&$pdnsRequests): void {
-            $pdnsRequests[] = $request;
-        });
+        $pdnsMock = $this->makePdnsWithMultipleResponses(
+            [
+                // get DNS zone
+                new Response(
+                    200,
+                    [],
+                    $this->getMockedZoneResponseBodyWithNsRecords(self::TEST_DOMAIN),
+                ),
+                // get DNS zone again, see PowerDnsClient::changeZone
+                new Response(
+                    200,
+                    [],
+                    $this->getMockedZoneResponseBodyWithNsRecords(self::TEST_DOMAIN),
+                ),
+                // patch DNS zone
+                new Response(204),
+            ],
+            static function (RequestInterface $request) use (&$pdnsRequests): void {
+                $pdnsRequests[] = $request;
+            },
+        );
 
         $this->pdns($pdnsMock);
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_nameservers', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_nameservers', [
+                    'customer' => $this->customer->id,
+                ]),
                 [],
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
+                ],
             )
             ->assertStatus(SymfonyResponse::HTTP_MULTI_STATUS)
             ->assertExactJson([
@@ -506,17 +540,21 @@ class NameserverMigrationControllerTest extends IntegrationTestCase
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_nameservers', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_nameservers', [
+                    'customer' => $this->customer->id,
+                ]),
                 [],
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
+                ],
             )
             ->assertStatus(SymfonyResponse::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [
                     [
-                        'message' => 'Nameserver migration step not allowed for subscription: ' . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
+                        'message' =>
+                            'Nameserver migration step not allowed for subscription: '
+                                . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
                         'parameters' => [
                             'customerId' => $this->customer->id,
                             'subscriptionId' => $this->extensionSubscription->id,

@@ -48,9 +48,7 @@ class SetNameserversForDomainJobTest extends IntegrationTestCase
 
         $this->mockDnsDeploymentRepository = self::mock(DnsDeploymentRepository::class);
 
-        $extensionProduct = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->extension())
-            ->createOne();
+        $extensionProduct = ProductFactory::new()->for(ProductGroupFactory::new()->extension())->createOne();
 
         $this->extensionSubscription = SubscriptionFactory::new()
             ->withCustomer()
@@ -60,9 +58,7 @@ class SetNameserversForDomainJobTest extends IntegrationTestCase
             ->technicalStatusOk()
             ->createOne();
 
-        $dnsProduct = ProductFactory::new()
-            ->freeDns()
-            ->createOne();
+        $dnsProduct = ProductFactory::new()->freeDns()->createOne();
 
         $dnsSubscription = SubscriptionFactory::new()
             ->for($this->extensionSubscription->customer)
@@ -77,11 +73,9 @@ class SetNameserversForDomainJobTest extends IntegrationTestCase
             ->for($dnsSubscription)
             ->createOne();
 
-        $this->domainDeployment = DomainDeploymentFactory::new()
-            ->withRtrProvider()
-            ->createOne([
-                'subscription_uuid' => $this->extensionSubscription->uuid,
-            ]);
+        $this->domainDeployment = DomainDeploymentFactory::new()->withRtrProvider()->createOne([
+            'subscription_uuid' => $this->extensionSubscription->uuid,
+        ]);
     }
 
     #[Test]
@@ -156,7 +150,10 @@ class SetNameserversForDomainJobTest extends IntegrationTestCase
             ->andReturnNull();
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageIs(sprintf('Expected to have DomainDeployment with DNS for domain %s', self::DOMAIN));
+        $this->expectExceptionMessageIs(sprintf(
+            'Expected to have DomainDeployment with DNS for domain %s',
+            self::DOMAIN,
+        ));
 
         $job = new SetNameserversForDomainJob(self::DOMAIN);
         $job->handle(
@@ -232,7 +229,7 @@ class SetNameserversForDomainJobTest extends IntegrationTestCase
                 [
                     LoggingContextKeys::DOMAIN_NAME => 'nonexistent-domain.nl',
                     LoggingContextKeys::EXCEPTION => $testException,
-                ]
+                ],
             );
 
         $job = new SetNameserversForDomainJob('nonexistent-domain.nl');

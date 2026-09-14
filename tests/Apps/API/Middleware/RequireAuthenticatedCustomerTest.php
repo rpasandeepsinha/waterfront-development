@@ -58,9 +58,7 @@ class RequireAuthenticatedCustomerTest extends IntegrationTestCase
             true,
         );
 
-        $this->authenticationManager->expects(self::once())
-            ->method('getAuthenticatedCustomer')
-            ->willReturn($customer);
+        $this->authenticationManager->expects(self::once())->method('getAuthenticatedCustomer')->willReturn($customer);
 
         $this->middleware->handle(new Request(), fn () => new Response());
     }
@@ -70,7 +68,8 @@ class RequireAuthenticatedCustomerTest extends IntegrationTestCase
     {
         self::expectException(AuthenticationException::class);
 
-        $this->authenticationManager->expects(self::once())
+        $this->authenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedCustomer')
             ->willThrowException(new AuthenticationException());
 

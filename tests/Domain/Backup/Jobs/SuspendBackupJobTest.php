@@ -37,7 +37,7 @@ class SuspendBackupJobTest extends IntegrationTestCase
                 [
                     'technical_status' => TechnicalStatus::OK->value,
                     'suspended_at' => null,
-                ]
+                ],
             );
     }
 
@@ -48,18 +48,17 @@ class SuspendBackupJobTest extends IntegrationTestCase
         $sendSubscriptionSuspendedMailAction = self::createMock(SendSubscriptionSuspendedMailAction::class);
         $provisionGateway = self::createMock(ProvisionGateway::class);
 
-        $provisionGateway->expects(self::once())
+        $provisionGateway
+            ->expects(self::once())
             ->method('request')
             ->willReturn(
                 new BackupResult(
                     provisionData: self::createStub(ProvisionRequestInterface::class),
                     provisionStatus: ProvisionStatus::SUCCESS,
-                )
+                ),
             );
 
-        $sendSubscriptionSuspendedMailAction->expects(self::once())
-            ->method('execute')
-            ->with($this->backupSubscription);
+        $sendSubscriptionSuspendedMailAction->expects(self::once())->method('execute')->with($this->backupSubscription);
 
         $suspendBackupJob = new SuspendBackupJob($this->backupSubscription);
         $suspendBackupJob->handle(
@@ -81,17 +80,17 @@ class SuspendBackupJobTest extends IntegrationTestCase
         $sendSubscriptionSuspendedMailAction = self::createMock(SendSubscriptionSuspendedMailAction::class);
         $provisionGateway = self::createMock(ProvisionGateway::class);
 
-        $provisionGateway->expects(self::once())
+        $provisionGateway
+            ->expects(self::once())
             ->method('request')
             ->willReturn(
                 new BackupResult(
                     provisionData: self::createStub(ProvisionRequestInterface::class),
                     provisionStatus: ProvisionStatus::FAILED,
-                )
+                ),
             );
 
-        $sendSubscriptionSuspendedMailAction->expects(self::never())
-            ->method('execute');
+        $sendSubscriptionSuspendedMailAction->expects(self::never())->method('execute');
 
         $suspendBackupJob = new SuspendBackupJob($this->backupSubscription);
         $suspendBackupJob->handle(

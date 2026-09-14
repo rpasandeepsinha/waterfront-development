@@ -69,11 +69,11 @@ class ResumeSubscriptionJobTest extends IntegrationTestCase
         $date = CarbonImmutable::now();
 
         $product = new ProductFactory()->for(
-            new ProductGroupFactory()->extension()
+            new ProductGroupFactory()->extension(),
         )->createOne();
 
         $this->quarantaineProduct = new ProductFactory()->for(
-            new ProductGroupFactory()->oneTimeService()
+            new ProductGroupFactory()->oneTimeService(),
         )->createOne([
             'slug' => 'quarantainekosten',
         ]);
@@ -97,13 +97,24 @@ class ResumeSubscriptionJobTest extends IntegrationTestCase
     #[Test]
     public function subscriptionWithDomainDeploymentIsSuccessfullyResumed(): void
     {
-        new DomainDeploymentFactory()->for($this->subscription)->for(
-            ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]),
-            'provider'
-        )->createOne();
+        new DomainDeploymentFactory()
+            ->for($this->subscription)
+            ->for(
+                ProviderFactory::new()->createOne([
+                    'type' => ProviderType::DOMAIN,
+                    'slug' => ProviderSlug::OPEN_PROVIDER,
+                    'enabled' => true,
+                    'default' => true,
+                ]),
+                'provider',
+            )
+            ->createOne();
 
         $this->resumeSubscriptionInGracePeriodAction->expects(self::once())->method('execute');
-        $this->productRepository->expects(self::once())->method('getQuarantaineProduct')->willReturn($this->quarantaineProduct);
+        $this->productRepository
+            ->expects(self::once())
+            ->method('getQuarantaineProduct')
+            ->willReturn($this->quarantaineProduct);
 
         $context = new OneTimeServiceContext(
             $this->subscription,
@@ -113,15 +124,16 @@ class ResumeSubscriptionJobTest extends IntegrationTestCase
             OneTimeServiceStatus::DONE,
             CarbonImmutable::now(),
             'Resuming expired subscription, removing domain from quarantaine.',
-            null
+            null,
         );
 
-        $oneTimeService = new OneTimeServiceFactory()->for($this->subscription->customer)
+        $oneTimeService = new OneTimeServiceFactory()
+            ->for($this->subscription->customer)
             ->for($this->quarantaineProduct)
             ->createOne(
                 [
                     'subscription_id' => $context->subscription->id,
-                ]
+                ],
             );
 
         $this->oneTimeServiceCreator
@@ -155,21 +167,25 @@ class ResumeSubscriptionJobTest extends IntegrationTestCase
         $productGroup->slug = ProductGroupType::HOSTING;
         $productGroup->save();
 
-        new HostingDeploymentFactory()->for($this->subscription)->for(
-            new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLACEHOLDER, 'enabled' => true, 'default' => false]),
-            'provider'
-        )->createOne();
+        new HostingDeploymentFactory()
+            ->for($this->subscription)
+            ->for(
+                new ProviderFactory()->createOne([
+                    'type' => ProviderType::HOSTING,
+                    'slug' => ProviderSlug::PLACEHOLDER,
+                    'enabled' => true,
+                    'default' => false,
+                ]),
+                'provider',
+            )
+            ->createOne();
 
         $this->resumeSubscriptionInGracePeriodAction->expects(self::once())->method('execute');
         $this->productRepository->expects(self::never())->method('getQuarantaineProduct');
 
-        $this->oneTimeServiceCreator
-            ->expects(self::never())
-            ->method('createFromContextWithNote');
+        $this->oneTimeServiceCreator->expects(self::never())->method('createFromContextWithNote');
 
-        $this->oneTimeServiceInvoiceService
-            ->expects(self::never())
-            ->method('createFromCollection');
+        $this->oneTimeServiceInvoiceService->expects(self::never())->method('createFromCollection');
 
         $resumeSubscriptionJob = new ResumeSubscriptionJob($this->subscription, true);
         $resumeSubscriptionJob->handle(
@@ -187,25 +203,24 @@ class ResumeSubscriptionJobTest extends IntegrationTestCase
     #[Test]
     public function subscriptionWithDomainDeploymentCantFindQuarantaineProductWillStillRestoreDomain(): void
     {
-        new DomainDeploymentFactory()->for($this->subscription)->for(
-            ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::PLACEHOLDER, 'enabled' => true, 'default' => true]),
-            'provider'
-        )->createOne();
+        new DomainDeploymentFactory()
+            ->for($this->subscription)
+            ->for(
+                ProviderFactory::new()->createOne([
+                    'type' => ProviderType::DOMAIN,
+                    'slug' => ProviderSlug::PLACEHOLDER,
+                    'enabled' => true,
+                    'default' => true,
+                ]),
+                'provider',
+            )
+            ->createOne();
 
-        $this->resumeSubscriptionInGracePeriodAction
-            ->expects(self::once())
-            ->method('execute');
-        $this->productRepository
-            ->expects(self::once())
-            ->method('getQuarantaineProduct')
-            ->willReturn(null);
+        $this->resumeSubscriptionInGracePeriodAction->expects(self::once())->method('execute');
+        $this->productRepository->expects(self::once())->method('getQuarantaineProduct')->willReturn(null);
 
-        $this->oneTimeServiceCreator
-            ->expects(self::never())
-            ->method('createFromContextWithNote');
-        $this->oneTimeServiceInvoiceService
-            ->expects(self::never())
-            ->method('createFromCollection');
+        $this->oneTimeServiceCreator->expects(self::never())->method('createFromContextWithNote');
+        $this->oneTimeServiceInvoiceService->expects(self::never())->method('createFromCollection');
 
         $resumeSubscriptionJob = new ResumeSubscriptionJob($this->subscription, true);
         $resumeSubscriptionJob->handle(
@@ -231,12 +246,8 @@ class ResumeSubscriptionJobTest extends IntegrationTestCase
             ->method('execute')
             ->willThrowException(new UnexpectedValueException());
 
-        $this->oneTimeServiceCreator
-            ->expects(self::never())
-            ->method('createFromContextWithNote');
-        $this->oneTimeServiceInvoiceService
-            ->expects(self::never())
-            ->method('createFromCollection');
+        $this->oneTimeServiceCreator->expects(self::never())->method('createFromContextWithNote');
+        $this->oneTimeServiceInvoiceService->expects(self::never())->method('createFromCollection');
 
         $resumeSubscriptionJob = new ResumeSubscriptionJob($this->subscription, true);
         $resumeSubscriptionJob->handle(
@@ -263,12 +274,8 @@ class ResumeSubscriptionJobTest extends IntegrationTestCase
             ->method('execute')
             ->willThrowException(new Exception());
 
-        $this->oneTimeServiceCreator
-            ->expects(self::never())
-            ->method('createFromContextWithNote');
-        $this->oneTimeServiceInvoiceService
-            ->expects(self::never())
-            ->method('createFromCollection');
+        $this->oneTimeServiceCreator->expects(self::never())->method('createFromContextWithNote');
+        $this->oneTimeServiceInvoiceService->expects(self::never())->method('createFromCollection');
 
         $this->expectException(Exception::class);
         $resumeSubscriptionJob = new ResumeSubscriptionJob($this->subscription, true);

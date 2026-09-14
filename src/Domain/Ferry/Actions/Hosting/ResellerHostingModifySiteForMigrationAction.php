@@ -45,7 +45,7 @@ class ResellerHostingModifySiteForMigrationAction
                         'isUsingLocalDomain' => $isUsingLocalDomain,
                         'referenceSubscriptionId' => $referenceSubscriptionId,
                     ],
-                ]
+                ],
             );
         } else {
             // rollback
@@ -58,14 +58,14 @@ class ResellerHostingModifySiteForMigrationAction
                     LoggingContextKeys::META => [
                         'referenceSubscriptionId' => $referenceSubscriptionId,
                     ],
-                ]
+                ],
             );
         }
 
         try {
             $this->resellerHostingService->modifyCustomerForResellerMigrations(
                 ProviderSlug::from($hostingMigrationPayload->driver),
-                $hostingMigrationPayload->hostingDetails->getUsername()
+                $hostingMigrationPayload->hostingDetails->getUsername(),
             );
         } catch (DirectAdminException|ServerNotFoundException|GuzzleException $exception) {
             throw new ResellerHostingUnableToModifySettingsException($subscription, $exception);

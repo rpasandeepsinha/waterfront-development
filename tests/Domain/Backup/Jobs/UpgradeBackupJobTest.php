@@ -55,30 +55,28 @@ class UpgradeBackupJobTest extends IntegrationTestCase
             'slug' => 'backup-100',
         ]);
 
-        new ProductSpecFactory()
-            ->for($newProduct)
-            ->createMany([
-                [
-                    'name'  => ProductSpecName::ACRONIS_CLOUD_STORAGE_GB->value,
-                    'value' => '100',
-                ],
-                [
-                    'name'  => ProductSpecName::ACRONIS_LOCAL_STORAGE_GB->value,
-                    'value' => '100',
-                ],
-                [
-                    'name'  => ProductSpecName::ACRONIS_MOBILE_DEVICES->value,
-                    'value' => '15',
-                ],
-                [
-                    'name'  => ProductSpecName::ACRONIS_WORKSTATIONS->value,
-                    'value' => '10',
-                ],
-                [
-                    'name'  => ProductSpecName::ACRONIS_VMS->value,
-                    'value' => '20',
-                ],
-            ]);
+        new ProductSpecFactory()->for($newProduct)->createMany([
+            [
+                'name' => ProductSpecName::ACRONIS_CLOUD_STORAGE_GB->value,
+                'value' => '100',
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_LOCAL_STORAGE_GB->value,
+                'value' => '100',
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_MOBILE_DEVICES->value,
+                'value' => '15',
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_WORKSTATIONS->value,
+                'value' => '10',
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_VMS->value,
+                'value' => '20',
+            ],
+        ]);
 
         $this->subscription = new SubscriptionFactory()
             ->for(new CustomerFactory())
@@ -86,7 +84,10 @@ class UpgradeBackupJobTest extends IntegrationTestCase
             ->technicalStatusOk()
             ->createOne();
 
-        $this->mutation = new SubscriptionMutationFactory()->for($this->subscription)->for($this->subscription->product)->createOne();
+        $this->mutation = new SubscriptionMutationFactory()
+            ->for($this->subscription)
+            ->for($this->subscription->product)
+            ->createOne();
         $this->subscriptionChange = new SubscriptionChangeFactory()->for($this->subscription)->createOne([
             'subscription_uuid' => $this->subscription->uuid,
             'from_product_uuid' => $this->subscription->product->uuid,
@@ -104,7 +105,8 @@ class UpgradeBackupJobTest extends IntegrationTestCase
     #[Test]
     public function upgradeSuccessful(): void
     {
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Start upgrading backup with subscription: {subscription.uuid}',
@@ -114,10 +116,11 @@ class UpgradeBackupJobTest extends IntegrationTestCase
                         'subscription_change_id' => $this->subscriptionChange->id,
                         'subscription_mutation_id' => $this->mutation->id,
                     ],
-                ]
+                ],
             );
 
-        $this->changeBackupAction->expects(self::once())
+        $this->changeBackupAction
+            ->expects(self::once())
             ->method('execute')
             ->with($this->subscription, $this->subscriptionChange)
             ->willReturn(new SubscriptionChangeResult(SubscriptionChangeResult::STATUS_OK));
@@ -140,7 +143,8 @@ class UpgradeBackupJobTest extends IntegrationTestCase
     #[Test]
     public function upgradeFailed(): void
     {
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Start upgrading backup with subscription: {subscription.uuid}',
@@ -150,10 +154,11 @@ class UpgradeBackupJobTest extends IntegrationTestCase
                         'subscription_change_id' => $this->subscriptionChange->id,
                         'subscription_mutation_id' => $this->mutation->id,
                     ],
-                ]
+                ],
             );
 
-        $this->changeBackupAction->expects(self::once())
+        $this->changeBackupAction
+            ->expects(self::once())
             ->method('execute')
             ->with($this->subscription, $this->subscriptionChange)
             ->willReturn(new SubscriptionChangeResult(SubscriptionChangeResult::STATUS_ERROR));
@@ -180,7 +185,8 @@ class UpgradeBackupJobTest extends IntegrationTestCase
     {
         $this->logger->expects(self::once())->method('info');
 
-        $this->changeBackupAction->expects(self::once())
+        $this->changeBackupAction
+            ->expects(self::once())
             ->method('execute')
             ->with($this->subscription, $this->subscriptionChange)
             ->willReturn(new SubscriptionChangeResult(

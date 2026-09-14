@@ -68,14 +68,14 @@ class CreateAcronisProvisionService
                     'userUuid' => $provisionData->userUuid,
                     'providerId' => $provisionData->acronisProviderId,
                 ])
-                ->build()
+                ->build(),
         );
 
         $requestId = $provisionData->requestId;
 
         $acronisDeployment = $this->backupRepository->findOrCreate(
             tag: $provisionData->tag,
-            requestId: $requestId
+            requestId: $requestId,
         );
 
         $this->acronisRepository->findOrCreate(
@@ -122,7 +122,7 @@ class CreateAcronisProvisionService
             LogContextBuilder::for($createData)
                 ->with(LoggingContextKeys::PROVISIONING_REQUEST_ID, $createData->tagUuid)
                 ->withMeta(['client_tenant_id' => $this->getDefaultClient()->tenantId->toString()])
-                ->build()
+                ->build(),
         );
 
         return $this->getDefaultClient()->tenantClient->create($tenant);
@@ -153,7 +153,7 @@ class CreateAcronisProvisionService
                         'tenant_id' => $tenantId,
                         'users' => $users->items,
                     ])
-                    ->build()
+                    ->build(),
             );
         }
 
@@ -168,7 +168,7 @@ class CreateAcronisProvisionService
                     'user_id' => $userId,
                     'client_tenant_id' => $this->getDefaultClient()->tenantId->toString(),
                 ])
-                ->build()
+                ->build(),
         );
 
         return $this->getDefaultClient()->userClient->get($userId);
@@ -185,18 +185,21 @@ class CreateAcronisProvisionService
 
         try {
             $this->getDefaultClient()->userClient->updatePassword($userId, $password);
-        } catch (SaloonException | AcronisClientFactoryException $exception) {
+        } catch (SaloonException|AcronisClientFactoryException $exception) {
             throw new AcronisSetPasswordException(
                 message: sprintf('Error during password set of user %s', $userId),
-                previous: $exception
+                previous: $exception,
             );
         }
 
         return $password;
     }
 
-    public function updateAccessPolicies(string $userId, string $tenantId, CreateBackupRequest $createData): ?UserAccessPolicies
-    {
+    public function updateAccessPolicies(
+        string $userId,
+        string $tenantId,
+        CreateBackupRequest $createData,
+    ): ?UserAccessPolicies {
         $this->logger->info(
             sprintf('Updating access policies for user [%s] in tenant [%s].', $userId, $tenantId),
             LogContextBuilder::for($createData)
@@ -206,7 +209,7 @@ class CreateAcronisProvisionService
                     'tenant_id' => $tenantId,
                     'client_tenant_id' => $this->getDefaultClient()->tenantId->toString(),
                 ])
-                ->build()
+                ->build(),
         );
 
         $userPoliciesResponse = null;
@@ -236,9 +239,9 @@ class CreateAcronisProvisionService
 
             $userPoliciesResponse = $this->getDefaultClient()->userClient->updateUserAccessPolicies(
                 $userId,
-                $accessPolicies
+                $accessPolicies,
             );
-        } catch (SaloonException | ExceptionInterface | AcronisClientFactoryException $exception) {
+        } catch (SaloonException|ExceptionInterface|AcronisClientFactoryException $exception) {
             $this->logger->warning(
                 sprintf('Error during Acronis updateAccessPolicies for tenant [%s] user [%s]', $tenantId, $userId),
                 LogContextBuilder::for($createData)
@@ -248,7 +251,7 @@ class CreateAcronisProvisionService
                         'tenant_id' => $tenantId,
                         'user_id' => $userId,
                     ])
-                    ->build()
+                    ->build(),
             );
         }
 
@@ -266,7 +269,7 @@ class CreateAcronisProvisionService
                     'tenant_id' => $tenantId,
                     'client_tenant_id' => $this->getDefaultClient()->tenantId->toString(),
                 ],
-            ]
+            ],
         );
 
         $tenantPricingSetting = null;
@@ -278,9 +281,9 @@ class CreateAcronisProvisionService
 
             $this->getDefaultClient()->tenantClient->updatePricingSettings(
                 tenantId: $tenantId,
-                payload: $retrievedPricingSettings
+                payload: $retrievedPricingSettings,
             );
-        } catch (SaloonException | ExceptionInterface | AcronisClientFactoryException $exception) {
+        } catch (SaloonException|ExceptionInterface|AcronisClientFactoryException $exception) {
             $this->logger->warning(
                 sprintf('Error during Acronis updatePricingToProduction for tenant [%s]', $tenantId),
                 [
@@ -290,7 +293,7 @@ class CreateAcronisProvisionService
                     LoggingContextKeys::META => [
                         'tenant_id' => $tenantId,
                     ],
-                ]
+                ],
             );
         }
 
@@ -303,18 +306,20 @@ class CreateAcronisProvisionService
     public function storeDeployments(
         int $requestId,
         UuidInterface $tenant,
-        UuidInterface $user
+        UuidInterface $user,
     ): void {
         $defaultProvider = $this->acronisProviderRepository->getDefault();
         if ($defaultProvider === null) {
-            throw new AcronisCreateException('Could not retrieve default Acronis provider, unable to store deployments.');
+            throw new AcronisCreateException(
+                'Could not retrieve default Acronis provider, unable to store deployments.',
+            );
         }
 
         $this->acronisRepository->create(
             acronisDeployment: $this->backupRepository->create($requestId),
             acronisProviderId: $defaultProvider->id,
             tenant: $tenant,
-            user: $user
+            user: $user,
         );
     }
 
@@ -335,7 +340,7 @@ class CreateAcronisProvisionService
                     'tenant_id' => $tenantId,
                     'client_tenant_id' => $this->getDefaultClient()->tenantId->toString(),
                 ])
-                ->build()
+                ->build(),
         );
 
         $userContact = new UserContact(

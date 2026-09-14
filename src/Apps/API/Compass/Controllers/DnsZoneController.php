@@ -42,7 +42,7 @@ readonly class DnsZoneController
      * @throws AuthenticationException
      * @throws DnsZoneNotFoundException
      */
-    public function store(string $domain): JsonResponse | AnonymousResourceCollection
+    public function store(string $domain): JsonResponse|AnonymousResourceCollection
     {
         $domainDeployment = $this->getDomainDeployment($domain);
         $dnsSubscription = $this->subscriptionRepository->getActiveDnsSubscription($domain);
@@ -58,9 +58,7 @@ readonly class DnsZoneController
         }
 
         try {
-            $nameservers = $dnsDeployment !== null
-                ? $this->nameserverAssigner->assign($dnsDeployment)
-                : [];
+            $nameservers = $dnsDeployment !== null ? $this->nameserverAssigner->assign($dnsDeployment) : [];
 
             $dnsZone = $this->dnsService->createDnsZone(
                 $domain,
@@ -91,10 +89,11 @@ readonly class DnsZoneController
     {
         return DomainDeployment::whereHas(
             'subscription',
-            fn (Builder $query) => $query->where('domain', $domainName)
-                ->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())
-        )
-            ->first();
+            fn (Builder $query) => $query->where('domain', $domainName)->whereNotIn(
+                'administrative_status',
+                AdministrativeStatus::administrativelyEnded(),
+            ),
+        )->first();
     }
 
     /**
@@ -107,8 +106,8 @@ readonly class DnsZoneController
         return new Collection(
             array_filter(
                 $dnsZone->getRecords(),
-                fn (DnsRecordInterface $dnsRecord): bool => in_array($dnsRecord->getType(), $modifiableTypes, true)
-            )
+                fn (DnsRecordInterface $dnsRecord): bool => in_array($dnsRecord->getType(), $modifiableTypes, true),
+            ),
         );
     }
 }

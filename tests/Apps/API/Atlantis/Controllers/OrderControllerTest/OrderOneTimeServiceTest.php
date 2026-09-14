@@ -52,24 +52,45 @@ class OrderOneTimeServiceTest extends IntegrationTestCase
             'name' => 'free-dns',
             'slug' => 'free-dns',
         ]);
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne(['price' => 0]);
-        new ProductPriceComponentFactory()->for($dnsProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 0]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
+        new ProductPriceComponentFactory()->for($dnsProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 0,
+        ]);
 
-        $extensionGroup = new ProductGroupFactory()->extension()->createOne(['name' => 'extension']);
+        $extensionGroup = new ProductGroupFactory()
+            ->extension()
+            ->createOne(['name' => 'extension']);
         $extensionProduct = new ProductFactory()->for($extensionGroup)->createOne([
             'slug' => 'extension_com',
             'name' => '.com',
         ]);
-        new ProductPriceComponentFactory()->for($extensionProduct)->registration()->createOne(['price' => 120]);
-        new ProductPriceComponentFactory()->for($extensionProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($extensionProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($extensionProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
 
-        $otsGroup = new ProductGroupFactory()->oneTimeService()->createOne(['name' => ProductGroupType::ONE_TIME_SERVICE]);
+        $otsGroup = new ProductGroupFactory()
+            ->oneTimeService()
+            ->createOne(['name' => ProductGroupType::ONE_TIME_SERVICE]);
         $this->otsProduct = new ProductFactory()->for($otsGroup)->createOne([
             'name' => 'Domain reactivation',
             'slug' => 'domain-reactivation',
         ]);
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $this->customer = new CustomerFactory()->withAddress()->createOne();
     }
@@ -77,7 +98,11 @@ class OrderOneTimeServiceTest extends IntegrationTestCase
     #[Test]
     public function successfulOrderWithOts(): void
     {
-        new ProductPriceComponentFactory()->for($this->otsProduct)->oneTimeService()->registration()->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()
+            ->for($this->otsProduct)
+            ->oneTimeService()
+            ->registration()
+            ->createOne(['price' => 120]);
 
         $this->mockDns();
 
@@ -128,32 +153,30 @@ class OrderOneTimeServiceTest extends IntegrationTestCase
         $dnsZone = new DnsZone(new Fqdn('test.com'));
         $dnsZone->kind = PowerDnsZoneKind::MASTER->value;
         $this->app->bind(DnsService::class, fn (): DnsService => $mockDnsService);
-        $mockDnsService->method('hasDnsZone')
-            ->willReturn(true);
+        $mockDnsService->method('hasDnsZone')->willReturn(true);
 
-        $mockDnsService->method('getDnsZone')
-            ->willReturn($dnsZone);
+        $mockDnsService->method('getDnsZone')->willReturn($dnsZone);
 
-        $mockDnsService->method('applyDiffToZone')
-            ->willReturn($dnsZone);
+        $mockDnsService->method('applyDiffToZone')->willReturn($dnsZone);
 
         $mockDnsMigrationService = self::mock(DnsMigrationService::class);
         $this->app->bind(DnsMigrationService::class, fn (): DnsMigrationService => $mockDnsMigrationService);
-        $mockDnsMigrationService->shouldReceive('changeToMasterAndEmptyMasters')
-            ->andReturn();
+        $mockDnsMigrationService->shouldReceive('changeToMasterAndEmptyMasters')->andReturn();
 
         $mockDisablePresignedAction = self::mock(DisableZonePresigningAction::class);
-        $this->app->bind(DisableZonePresigningAction::class, fn (): DisableZonePresigningAction => $mockDisablePresignedAction);
-        $mockDisablePresignedAction->shouldReceive('disable')
-            ->andReturn();
+        $this->app->bind(
+            DisableZonePresigningAction::class,
+            fn (): DisableZonePresigningAction => $mockDisablePresignedAction,
+        );
+        $mockDisablePresignedAction->shouldReceive('disable')->andReturn();
 
         $mockDomainService = self::mock(DomainService::class);
         $this->app->bind(DomainService::class, fn (): DomainService => $mockDomainService);
 
-        $mockDomainService->shouldReceive('minimalRegister')
-            ->andReturn(new RegistrationResult(DomainStatus::ACTIVE));
+        $mockDomainService->shouldReceive('minimalRegister')->andReturn(new RegistrationResult(DomainStatus::ACTIVE));
 
-        $mockDomainService->shouldReceive('registrationRequiresDnsBeforeSubmission')
+        $mockDomainService
+            ->shouldReceive('registrationRequiresDnsBeforeSubmission')
             ->with('test.com')
             ->andReturnFalse();
     }

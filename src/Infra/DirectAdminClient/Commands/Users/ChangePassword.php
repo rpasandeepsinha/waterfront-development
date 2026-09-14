@@ -39,6 +39,7 @@ class ChangePassword extends DirectAdminCommand
     public function setPasswd(string $passwd): ChangePassword
     {
         $this->passwd = $passwd;
+
         return $this;
     }
 
@@ -56,6 +57,7 @@ class ChangePassword extends DirectAdminCommand
     public function setUsername(string $username): ChangePassword
     {
         $this->username = $username;
+
         return $this;
     }
 

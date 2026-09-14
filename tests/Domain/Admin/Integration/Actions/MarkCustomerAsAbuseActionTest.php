@@ -29,7 +29,9 @@ class MarkCustomerAsAbuseActionTest extends IntegrationTestCase
     #[Test]
     public function anonymizeIdentitiesCustomerMarkedForAbuse(): void
     {
-        $customer = new CustomerFactory()->withAddress()->createOne(['is_abuse' => false]);
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne(['is_abuse' => false]);
         $anonymizeIdentitiesForCustomerAction = self::createMock(AnonymizeIdentitiesForCustomerAction::class);
         $orderService = self::createMock(OrderService::class);
 
@@ -38,21 +40,20 @@ class MarkCustomerAsAbuseActionTest extends IntegrationTestCase
             ->method('execute')
             ->with($customer->customer_number);
 
-        $orderService
-            ->expects(self::once())
-            ->method('markNonProcessedAsAbuseForCustomer')
-            ->with($customer);
+        $orderService->expects(self::once())->method('markNonProcessedAsAbuseForCustomer')->with($customer);
 
         $harborQueue = self::createMock(HarborQueue::class);
-        $harborQueue->expects(self::once())
+        $harborQueue
+            ->expects(self::once())
             ->method('publish')
             ->with(
                 self::callback(
                     static function (MarkDebtorAsAbuse $message) use ($customer) {
                         self::assertSame($customer->customer_number, $message->getCustomerNumber());
+
                         return true;
-                    }
-                )
+                    },
+                ),
             );
 
         $markCustomerAsAbuseAction = new MarkCustomerAsAbuseAction(
@@ -82,9 +83,7 @@ class MarkCustomerAsAbuseActionTest extends IntegrationTestCase
             self::resolve(StoreNoteAction::class),
         );
         $customer = CustomerFactory::new()->createOne();
-        $product = ProductFactory::new()
-            ->nlDomain()
-            ->createOne();
+        $product = ProductFactory::new()->nlDomain()->createOne();
 
         $subscriptionsToCancel = [
             $parentSubscription = SubscriptionFactory::new()

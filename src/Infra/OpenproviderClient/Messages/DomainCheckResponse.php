@@ -23,8 +23,10 @@ class DomainCheckResponse
     /**
      * @throws Exception
      */
-    public function __construct(ResponseInterface $response, private string $domain)
-    {
+    public function __construct(
+        ResponseInterface $response,
+        private string $domain,
+    ) {
         $this->statusCode = $response->getStatusCode();
         $this->statusMessage = $response->getReasonPhrase();
         $this->parseReply((string) $response->getBody());

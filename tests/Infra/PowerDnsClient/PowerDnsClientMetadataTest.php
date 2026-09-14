@@ -33,18 +33,20 @@ class PowerDnsClientMetadataTest extends TestCase
         $mockLog = self::mock(LoggerInterface::class);
         $expectedRequest = '{"soa_edit":"INCEPTION-INCREMENT"}';
 
-        $mockLog->shouldReceive('info')
+        $mockLog
+            ->shouldReceive('info')
             ->once()
             ->with(
                 'Set metadata SOA-EDIT for domain: {domain.name}',
                 [
-                    LoggingContextKeys::DOMAIN_NAME  => self::DOMAIN,
+                    LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
                     LoggingContextKeys::REQUEST_DATA => $expectedRequest,
-                ]
+                ],
             );
 
         $clientMock = self::createMock(ClientInterface::class);
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('send')
             ->with(self::callback(function (RequestInterface $request) use ($expectedRequest): bool {
                 self::assertSame('PUT', $request->getMethod());
@@ -55,8 +57,11 @@ class PowerDnsClientMetadataTest extends TestCase
             }))
             ->willReturn(new GuzzleResponse(Response::HTTP_NO_CONTENT, [], ''));
 
-        $this->makeClient($clientMock, $mockLog)
-            ->createMetadata(self::DOMAIN, PowerDnsMetadataType::SOA_EDIT, ['INCEPTION-INCREMENT']);
+        $this->makeClient($clientMock, $mockLog)->createMetadata(
+            self::DOMAIN,
+            PowerDnsMetadataType::SOA_EDIT,
+            ['INCEPTION-INCREMENT'],
+        );
     }
 
     #[Test]
@@ -64,18 +69,20 @@ class PowerDnsClientMetadataTest extends TestCase
     {
         $mockLog = self::mock(LoggerInterface::class);
         $expectedRequest = '{"soa_edit":""}';
-        $mockLog->shouldReceive('info')
+        $mockLog
+            ->shouldReceive('info')
             ->once()
             ->with(
                 'Clear metadata SOA-EDIT for domain: {domain.name}',
                 [
-                    LoggingContextKeys::DOMAIN_NAME  => self::DOMAIN,
+                    LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
                     LoggingContextKeys::REQUEST_DATA => $expectedRequest,
-                ]
+                ],
             );
 
         $clientMock = self::createMock(ClientInterface::class);
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('send')
             ->with(self::callback(function (RequestInterface $request) use ($expectedRequest): bool {
                 self::assertSame('PUT', $request->getMethod());
@@ -86,8 +93,7 @@ class PowerDnsClientMetadataTest extends TestCase
             }))
             ->willReturn(new GuzzleResponse(Response::HTTP_NO_CONTENT, [], ''));
 
-        $this->makeClient($clientMock, $mockLog)
-            ->deleteMetadata(self::DOMAIN, PowerDnsMetadataType::SOA_EDIT);
+        $this->makeClient($clientMock, $mockLog)->deleteMetadata(self::DOMAIN, PowerDnsMetadataType::SOA_EDIT);
     }
 
     #[Test]
@@ -97,22 +103,26 @@ class PowerDnsClientMetadataTest extends TestCase
         $mockLog->shouldReceive('info')->once();
 
         $clientMock = self::createMock(ClientInterface::class);
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('send')
             ->with(self::callback(function (RequestInterface $request): bool {
                 self::assertSame('POST', $request->getMethod());
                 self::assertSame(self::ZONE_PATH . '/metadata', $request->getUri()->getPath());
                 self::assertSame(
                     '{"kind":"ALLOW-AXFR-FROM","metadata":["127.0.0.1"]}',
-                    (string) $request->getBody()
+                    (string) $request->getBody(),
                 );
 
                 return true;
             }))
             ->willReturn(new GuzzleResponse(Response::HTTP_CREATED, [], ''));
 
-        $this->makeClient($clientMock, $mockLog)
-            ->createMetadata(self::DOMAIN, PowerDnsMetadataType::ALLOW_AXFR_FROM, ['127.0.0.1']);
+        $this->makeClient($clientMock, $mockLog)->createMetadata(
+            self::DOMAIN,
+            PowerDnsMetadataType::ALLOW_AXFR_FROM,
+            ['127.0.0.1'],
+        );
     }
 
     #[Test]
@@ -122,21 +132,21 @@ class PowerDnsClientMetadataTest extends TestCase
         $mockLog->shouldReceive('info')->once();
 
         $clientMock = self::createMock(ClientInterface::class);
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('send')
             ->with(self::callback(function (RequestInterface $request): bool {
                 self::assertSame('DELETE', $request->getMethod());
                 self::assertSame(
                     self::ZONE_PATH . '/metadata/ALSO-NOTIFY',
-                    $request->getUri()->getPath()
+                    $request->getUri()->getPath(),
                 );
 
                 return true;
             }))
             ->willReturn(new GuzzleResponse(Response::HTTP_NO_CONTENT, [], ''));
 
-        $this->makeClient($clientMock, $mockLog)
-            ->deleteMetadata(self::DOMAIN, PowerDnsMetadataType::ALSO_NOTIFY);
+        $this->makeClient($clientMock, $mockLog)->deleteMetadata(self::DOMAIN, PowerDnsMetadataType::ALSO_NOTIFY);
     }
 
     #[Test]
@@ -154,7 +164,7 @@ class PowerDnsClientMetadataTest extends TestCase
         $this->makeClient($clientMock, $mockLog)->createMetadata(
             self::DOMAIN,
             PowerDnsMetadataType::SOA_EDIT,
-            ['INCEPTION-INCREMENT', 'EPOCH']
+            ['INCEPTION-INCREMENT', 'EPOCH'],
         );
     }
 
@@ -170,8 +180,7 @@ class PowerDnsClientMetadataTest extends TestCase
         $this->expectException(PdnsValidationException::class);
         $this->expectExceptionMessageIs('Metadata SOA-EDIT takes exactly one value, 0 given');
 
-        $this->makeClient($clientMock, $mockLog)
-            ->createMetadata(self::DOMAIN, PowerDnsMetadataType::SOA_EDIT, []);
+        $this->makeClient($clientMock, $mockLog)->createMetadata(self::DOMAIN, PowerDnsMetadataType::SOA_EDIT, []);
     }
 
     #[Test]
@@ -181,7 +190,8 @@ class PowerDnsClientMetadataTest extends TestCase
         $mockLog->shouldReceive('info')->once();
 
         $clientMock = self::createMock(ClientInterface::class);
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('send')
             ->willReturn(new GuzzleResponse(Response::HTTP_NOT_FOUND, [], '{"error": "test"}'));
 
@@ -189,12 +199,15 @@ class PowerDnsClientMetadataTest extends TestCase
         $this->expectExceptionMessageIs(
             sprintf(
                 'Error create metadata SOA-EDIT for domain %s status code: 404 error message from PDNS: {"error": "test"}',
-                self::DOMAIN
-            )
+                self::DOMAIN,
+            ),
         );
 
-        $this->makeClient($clientMock, $mockLog)
-            ->createMetadata(self::DOMAIN, PowerDnsMetadataType::SOA_EDIT, ['INCEPTION-INCREMENT']);
+        $this->makeClient($clientMock, $mockLog)->createMetadata(
+            self::DOMAIN,
+            PowerDnsMetadataType::SOA_EDIT,
+            ['INCEPTION-INCREMENT'],
+        );
     }
 
     #[Test]
@@ -204,7 +217,8 @@ class PowerDnsClientMetadataTest extends TestCase
         $mockLog->shouldReceive('info')->once();
 
         $clientMock = self::createMock(ClientInterface::class);
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('send')
             ->willReturn(new GuzzleResponse(Response::HTTP_NOT_FOUND, [], '{"error": "test"}'));
 
@@ -212,12 +226,11 @@ class PowerDnsClientMetadataTest extends TestCase
         $this->expectExceptionMessageIs(
             sprintf(
                 'Error delete metadata SOA-EDIT for domain %s status code: 404 error message from PDNS: {"error": "test"}',
-                self::DOMAIN
-            )
+                self::DOMAIN,
+            ),
         );
 
-        $this->makeClient($clientMock, $mockLog)
-            ->deleteMetadata(self::DOMAIN, PowerDnsMetadataType::SOA_EDIT);
+        $this->makeClient($clientMock, $mockLog)->deleteMetadata(self::DOMAIN, PowerDnsMetadataType::SOA_EDIT);
     }
 
     private function makeClient(ClientInterface $client, LoggerInterface $logger): PowerDnsClient

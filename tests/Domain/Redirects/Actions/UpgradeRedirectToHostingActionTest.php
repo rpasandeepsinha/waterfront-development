@@ -51,19 +51,17 @@ class UpgradeRedirectToHostingActionTest extends IntegrationTestCase
         $this->redirectProductGroup = new ProductGroupFactory()->redirect()->createOne();
         $hostingProductGroup = new ProductGroupFactory()->hosting()->createOne();
 
-        $this->hostingProduct = new ProductFactory()
-            ->for($hostingProductGroup)
-            ->createOne([
-                'name' => 'super',
-            ]);
+        $this->hostingProduct = new ProductFactory()->for($hostingProductGroup)->createOne([
+            'name' => 'super',
+        ]);
     }
 
     #[Test]
     public function upgradeRedirectHosting(): void
     {
-        $redirectProduct = new ProductFactory()
-            ->for($this->redirectProductGroup)
-            ->createOne(['slug' => ProductType::FREE_REDIRECT]);
+        $redirectProduct = new ProductFactory()->for($this->redirectProductGroup)->createOne([
+            'slug' => ProductType::FREE_REDIRECT,
+        ]);
 
         $subscription = new SubscriptionFactory()
             ->for($this->customer)
@@ -82,18 +80,26 @@ class UpgradeRedirectToHostingActionTest extends IntegrationTestCase
         );
 
         $mockGateway = self::createMock(ProvisionGateway::class);
-        $mockGateway->expects(self::once())
+        $mockGateway
+            ->expects(self::once())
             ->method('request')
-            ->with(self::callback(fn (TerminateRedirectsRequest $request) => $request->context->toString() === $subscription->uuid))
+            ->with(self::callback(
+                fn (TerminateRedirectsRequest $request) => $request->context->toString() === $subscription->uuid,
+            ))
             ->willReturn(new RedirectResult(provisionData: $mockRequest, provisionStatus: ProvisionStatus::SUCCESS));
 
         $eventDispatcher = self::createMock(Dispatcher::class);
-        $eventDispatcher->expects(self::once())
+        $eventDispatcher
+            ->expects(self::once())
             ->method('dispatch')
-            ->with(self::callback(fn (CreateHosting $event) => $event->subscriptionUuid === $subscription->uuid &&
-            $event->technicalStatus === TechnicalStatus::REGISTRATION->value &&
-            $event->contactEmail === $subscription->customer->email &&
-            $event->product->slug === $subscription->product->slug));
+            ->with(self::callback(
+                fn (CreateHosting $event) => (
+                    $event->subscriptionUuid === $subscription->uuid
+                    && $event->technicalStatus === TechnicalStatus::REGISTRATION->value
+                    && $event->contactEmail === $subscription->customer->email
+                    && $event->product->slug === $subscription->product->slug
+                ),
+            ));
 
         $changeHostingAction = new UpgradeRedirectToHostingAction(
             eventDispatcher: $eventDispatcher,
@@ -107,9 +113,9 @@ class UpgradeRedirectToHostingActionTest extends IntegrationTestCase
     #[Test]
     public function upgradeRedirectHostingUnableToDeleteRedirects(): void
     {
-        $redirectProduct = new ProductFactory()
-            ->for($this->redirectProductGroup)
-            ->createOne(['slug' => ProductType::FREE_REDIRECT]);
+        $redirectProduct = new ProductFactory()->for($this->redirectProductGroup)->createOne([
+            'slug' => ProductType::FREE_REDIRECT,
+        ]);
 
         $subscription = new SubscriptionFactory()
             ->for($this->customer)
@@ -130,18 +136,30 @@ class UpgradeRedirectToHostingActionTest extends IntegrationTestCase
         );
 
         $mockGateway = self::createMock(ProvisionGateway::class);
-        $mockGateway->expects(self::once())
+        $mockGateway
+            ->expects(self::once())
             ->method('request')
-            ->with(self::callback(fn (TerminateRedirectsRequest $request) => $request->context->toString() === $subscription->uuid))
-            ->willReturn(new RedirectResult(provisionData: $mockRequest, provisionStatus: ProvisionStatus::FAILED, exception: $expectedException));
+            ->with(self::callback(
+                fn (TerminateRedirectsRequest $request) => $request->context->toString() === $subscription->uuid,
+            ))
+            ->willReturn(new RedirectResult(
+                provisionData: $mockRequest,
+                provisionStatus: ProvisionStatus::FAILED,
+                exception: $expectedException,
+            ));
 
         $eventDispatcher = self::createMock(Dispatcher::class);
-        $eventDispatcher->expects(self::never())
+        $eventDispatcher
+            ->expects(self::never())
             ->method('dispatch')
-            ->with(self::callback(fn (CreateHosting $event) => $event->subscriptionUuid === $subscription->uuid &&
-                $event->technicalStatus === TechnicalStatus::REGISTRATION->value &&
-                $event->contactEmail === $subscription->customer->email &&
-                $event->product->slug === $subscription->product->slug));
+            ->with(self::callback(
+                fn (CreateHosting $event) => (
+                    $event->subscriptionUuid === $subscription->uuid
+                    && $event->technicalStatus === TechnicalStatus::REGISTRATION->value
+                    && $event->contactEmail === $subscription->customer->email
+                    && $event->product->slug === $subscription->product->slug
+                ),
+            ));
 
         $changeHostingAction = new UpgradeRedirectToHostingAction(
             eventDispatcher: $eventDispatcher,

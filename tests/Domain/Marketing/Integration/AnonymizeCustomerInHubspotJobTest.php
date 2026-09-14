@@ -42,7 +42,9 @@ class AnonymizeCustomerInHubspotJobTest extends IntegrationTestCase
         ]);
 
         $crmClient = $this->createMock(HubspotCrmHttpClient::class);
-        $crmClient->expects(self::once())->method('post')
+        $crmClient
+            ->expects(self::once())
+            ->method('post')
             ->with('objects/contacts/search', Assert::anything())
             ->willReturn(
                 [
@@ -59,7 +61,7 @@ class AnonymizeCustomerInHubspotJobTest extends IntegrationTestCase
                                 'phone' => '(877) 929-0687',
                                 'website' => 'biglytics.net',
                                 'sw_uuid' => 'xxx-yyy-zzz',
-                                'sw_customer_number'    => '123456789',
+                                'sw_customer_number' => '123456789',
                                 'marketing_opt_in' => 'false',
                                 'anonymized_by_customer' => 'false',
                                 'anonymized_by_hubspot' => 'false',
@@ -77,30 +79,35 @@ class AnonymizeCustomerInHubspotJobTest extends IntegrationTestCase
                     ],
                 ],
             );
-        $crmClient->expects(self::once())->method('patch')
+        $crmClient
+            ->expects(self::once())
+            ->method('patch')
             ->with('objects/contacts/123', self::callback(function ($body) use ($customer) {
-                self::assertEqualsCanonicalizing([
-                    'properties' => [
-                        'email'     => $customer->email,
-                        'firstname' => $customer->first_name,
-                        'lastname'  => $customer->last_name,
-                        'company'   => $customer->organization,
-                        'phone'     => $customer->phone_number,
-                        'marketing_opt_in' => 'false',
-                        'anonymized_by_customer' => 'true',
-                        'sw_create_date' => $customer->customer_since->toDateString(),
-                        'sw_street_name' => $customer->address?->street_name,
-                        'sw_street_number' => $customer->address?->street_number,
-                        'sw_street_number_addition' => $customer->address?->street_number_addition,
-                        'zip' => $customer->address?->zip_code,
-                        'city' => $customer->address?->city,
-                        'sw_country_code' => $customer->address?->country_code,
-                        'sw_has_direct_debit' => 'false',
-                        'sw_uuid' => $customer->uuid->toString(),
-                        'sw_customer_number' => (string) $customer->customer_number,
-                        'is_migrated' => 'false',
+                self::assertEqualsCanonicalizing(
+                    [
+                        'properties' => [
+                            'email' => $customer->email,
+                            'firstname' => $customer->first_name,
+                            'lastname' => $customer->last_name,
+                            'company' => $customer->organization,
+                            'phone' => $customer->phone_number,
+                            'marketing_opt_in' => 'false',
+                            'anonymized_by_customer' => 'true',
+                            'sw_create_date' => $customer->customer_since->toDateString(),
+                            'sw_street_name' => $customer->address?->street_name,
+                            'sw_street_number' => $customer->address?->street_number,
+                            'sw_street_number_addition' => $customer->address?->street_number_addition,
+                            'zip' => $customer->address?->zip_code,
+                            'city' => $customer->address?->city,
+                            'sw_country_code' => $customer->address?->country_code,
+                            'sw_has_direct_debit' => 'false',
+                            'sw_uuid' => $customer->uuid->toString(),
+                            'sw_customer_number' => (string) $customer->customer_number,
+                            'is_migrated' => 'false',
+                        ],
                     ],
-                ], $body);
+                    $body,
+                );
 
                 return true;
             }));
@@ -124,7 +131,7 @@ class AnonymizeCustomerInHubspotJobTest extends IntegrationTestCase
         $job->handle(
             new ContactsClient($crmClient, HubspotSerializerFactory::get(), $config),
             $eventRepository,
-            new HubspotContactFactory()
+            new HubspotContactFactory(),
         );
     }
 }

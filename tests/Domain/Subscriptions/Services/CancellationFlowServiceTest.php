@@ -55,9 +55,7 @@ class CancellationFlowServiceTest extends IntegrationTestCase
     #[Test]
     public function flowCreation(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension())
-            ->createOne();
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne();
         $domainSubscription = new SubscriptionFactory()
             ->for($product)
             ->for(new CustomerFactory())
@@ -66,7 +64,10 @@ class CancellationFlowServiceTest extends IntegrationTestCase
         $flow = $this->cancellationFlowService->start(new Collection([$domainSubscription]), '127.0.0.1');
 
         self::assertDatabaseHas(CancellationFlow::class, ['id' => $flow->id]);
-        self::assertDatabaseHas(CancellationFlowSubscriptions::class, ['cancellation_flows_id' => $flow->id, 'subscription_id' => $domainSubscription->id]);
+        self::assertDatabaseHas(CancellationFlowSubscriptions::class, [
+            'cancellation_flows_id' => $flow->id,
+            'subscription_id' => $domainSubscription->id,
+        ]);
     }
 
     #[Test]
@@ -74,14 +75,24 @@ class CancellationFlowServiceTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
         $domainProduct = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne();
-        $domainSubscription = new SubscriptionFactory()->for($domainProduct)->for($customer)->createOne(['domain' => 'example.org']);
+        $domainSubscription = new SubscriptionFactory()
+            ->for($domainProduct)
+            ->for($customer)
+            ->createOne(['domain' => 'example.org']);
 
         $hostingProduct = new ProductFactory()->for(new ProductGroupFactory()->hosting())->createOne();
         $hostingProvider = new ProviderFactory()->hostingDirectAdmin()->createOne();
         $hostingDeployment = new HostingDeploymentFactory()->for($hostingProvider)->for(new ServerFactory());
-        $hostingSubscription = new SubscriptionFactory()->for($hostingProduct)->has($hostingDeployment)->for($customer)->createOne(['domain' => 'example.org']);
+        $hostingSubscription = new SubscriptionFactory()
+            ->for($hostingProduct)
+            ->has($hostingDeployment)
+            ->for($customer)
+            ->createOne(['domain' => 'example.org']);
 
-        $stats = $this->cancellationFlowService->getStatistics(new Collection([$hostingSubscription, $domainSubscription]));
+        $stats = $this->cancellationFlowService->getStatistics(new Collection([
+            $hostingSubscription,
+            $domainSubscription,
+        ]));
 
         self::assertContains(
             [
@@ -89,7 +100,7 @@ class CancellationFlowServiceTest extends IntegrationTestCase
                 'domain' => $domainSubscription->domain,
                 'domainValue' => 50000,
             ],
-            $stats
+            $stats,
         );
 
         self::assertContains(
@@ -100,7 +111,7 @@ class CancellationFlowServiceTest extends IntegrationTestCase
                 'usedEmailStorage' => 0,
                 'domain' => 'example.org',
             ],
-            $stats
+            $stats,
         );
     }
 
@@ -135,6 +146,7 @@ class CancellationFlowServiceTest extends IntegrationTestCase
             self::assertContains($reason['id'], $validIds);
             self::assertSame($expectedReasons[$reason['id']], $reason['reason']);
         }
+
         self::assertNotContains(7, $firstFiveIds);
     }
 
@@ -169,15 +181,18 @@ class CancellationFlowServiceTest extends IntegrationTestCase
             ->forDomain($domain)
             ->createOne();
 
-        new ProductPriceComponentFactory()->for($subscription->product)->prolongation()->createOne([
-            'contract_period' => 12,
-            'billing_period'  => 12,
-            'price'   => 100_00,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($subscription->product)
+            ->prolongation()
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 100_00,
+            ]);
 
         $offers = $this->cancellationFlowService->getPercentageDiscountOffers(
             new Collection([$subscription]),
-            50
+            50,
         );
 
         self::assertCount(1, $offers);
@@ -211,14 +226,17 @@ class CancellationFlowServiceTest extends IntegrationTestCase
             ->forDomain($domain)
             ->createOne();
 
-        new ProductPriceComponentFactory()->for($subscription->product)->prolongation()->createOne([
-            'contract_period' => 1,
-            'billing_period'  => 1,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($subscription->product)
+            ->prolongation()
+            ->createOne([
+                'contract_period' => 1,
+                'billing_period' => 1,
+            ]);
 
         $offers = $this->cancellationFlowService->getPercentageDiscountOffers(
             new Collection([$subscription]),
-            50
+            50,
         );
 
         self::assertCount(0, $offers);
@@ -236,11 +254,14 @@ class CancellationFlowServiceTest extends IntegrationTestCase
             ->forDomain('subscription-a.nl')
             ->createOne();
 
-        new ProductPriceComponentFactory()->for($subscriptionA->product)->prolongation()->createOne([
-            'contract_period' => 12,
-            'billing_period'  => 12,
-            'price'   => 100_00,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($subscriptionA->product)
+            ->prolongation()
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 100_00,
+            ]);
 
         $subscriptionB = new SubscriptionFactory()
             ->for($customer)
@@ -248,11 +269,14 @@ class CancellationFlowServiceTest extends IntegrationTestCase
             ->forDomain('subscription-b.nl')
             ->createOne();
 
-        new ProductPriceComponentFactory()->for($subscriptionB->product)->prolongation()->createOne([
-            'contract_period' => 12,
-            'billing_period'  => 12,
-            'price'   => 200_00,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($subscriptionB->product)
+            ->prolongation()
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 200_00,
+            ]);
 
         $subscriptionWithoutYearlyPrice = new SubscriptionFactory()
             ->for($customer)
@@ -260,15 +284,18 @@ class CancellationFlowServiceTest extends IntegrationTestCase
             ->forDomain('subscription-without-yearly-price.nl')
             ->createOne();
 
-        new ProductPriceComponentFactory()->for($subscriptionWithoutYearlyPrice->product)->prolongation()->createOne([
-            'contract_period' => 1,
-            'billing_period'  => 1,
-            'price' => 100_00,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($subscriptionWithoutYearlyPrice->product)
+            ->prolongation()
+            ->createOne([
+                'contract_period' => 1,
+                'billing_period' => 1,
+                'price' => 100_00,
+            ]);
 
         $offers = $this->cancellationFlowService->getPercentageDiscountOffers(
             new Collection([$subscriptionA, $subscriptionB, $subscriptionWithoutYearlyPrice]),
-            50
+            50,
         );
 
         self::assertCount(1, $offers);
@@ -291,21 +318,28 @@ class CancellationFlowServiceTest extends IntegrationTestCase
 
         $cancellationFLow = $this->createCancellationFlow($sub);
 
-        self::resolve(CancellationFlowService::class)->processCancellationSteps(
-            $cancellationFLow,
-            CancellationStepType::CONFIRM_CANCELLATION,
-            '{}',
-            '{}',
-            CancellationActionPerformedType::CONTINUE
-        );
-        self::assertDatabaseHas(CancellationFlow::class, ['id' => $cancellationFLow->id, 'completed_at' => CarbonImmutable::now()]);
+        self::resolve(CancellationFlowService::class)
+            ->processCancellationSteps(
+                $cancellationFLow,
+                CancellationStepType::CONFIRM_CANCELLATION,
+                '{}',
+                '{}',
+                CancellationActionPerformedType::CONTINUE,
+            );
+        self::assertDatabaseHas(CancellationFlow::class, [
+            'id' => $cancellationFLow->id,
+            'completed_at' => CarbonImmutable::now(),
+        ]);
     }
 
     #[test]
     public function confirmMutationDoNotCreateExtraMutation(): void
     {
         $subscription = DomainSubscriptionDataProvider::subscription();
-        new ProductPriceComponentFactory()->for($subscription->product)->prolongation()->createOne(['billing_period' => 1, 'contract_period' => 36]);
+        new ProductPriceComponentFactory()
+            ->for($subscription->product)
+            ->prolongation()
+            ->createOne(['billing_period' => 1, 'contract_period' => 36]);
         new SubscriptionMutationFactory()->for($subscription)->createOne(['product_id' => $subscription->product->id]);
 
         $mutationActionMock = self::createMock(ExtendContractAction::class);
@@ -329,21 +363,28 @@ class CancellationFlowServiceTest extends IntegrationTestCase
         $cancellationFLow = $this->createCancellationFlow($subscription);
 
         $jsonData = json_encode($responseData, JSON_THROW_ON_ERROR);
-        self::resolve(CancellationFlowService::class)->processCancellationSteps(
-            $cancellationFLow,
-            CancellationStepType::CONFIRM_MUTATION,
-            '{}',
-            $jsonData,
-            CancellationActionPerformedType::CONTINUE
-        );
-        self::assertDatabaseHas(CancellationFlow::class, ['id' => $cancellationFLow->id, 'completed_at' => CarbonImmutable::now()]);
+        self::resolve(CancellationFlowService::class)
+            ->processCancellationSteps(
+                $cancellationFLow,
+                CancellationStepType::CONFIRM_MUTATION,
+                '{}',
+                $jsonData,
+                CancellationActionPerformedType::CONTINUE,
+            );
+        self::assertDatabaseHas(CancellationFlow::class, [
+            'id' => $cancellationFLow->id,
+            'completed_at' => CarbonImmutable::now(),
+        ]);
     }
 
     #[test]
     public function confirmMutation(): void
     {
         $subscription = DomainSubscriptionDataProvider::subscription();
-        new ProductPriceComponentFactory()->for($subscription->product)->prolongation()->createOne(['billing_period' => 1, 'contract_period' => 36]);
+        new ProductPriceComponentFactory()
+            ->for($subscription->product)
+            ->prolongation()
+            ->createOne(['billing_period' => 1, 'contract_period' => 36]);
 
         $mutationActionMock = self::createMock(ExtendContractAction::class);
         $mutationActionMock->expects(self::once())->method('execute');
@@ -366,14 +407,18 @@ class CancellationFlowServiceTest extends IntegrationTestCase
         $cancellationFLow = $this->createCancellationFlow($subscription);
 
         $jsonData = json_encode($responseData, JSON_THROW_ON_ERROR);
-        self::resolve(CancellationFlowService::class)->processCancellationSteps(
-            $cancellationFLow,
-            CancellationStepType::CONFIRM_MUTATION,
-            '{}',
-            $jsonData,
-            CancellationActionPerformedType::CONTINUE
-        );
-        self::assertDatabaseHas(CancellationFlow::class, ['id' => $cancellationFLow->id, 'completed_at' => CarbonImmutable::now()]);
+        self::resolve(CancellationFlowService::class)
+            ->processCancellationSteps(
+                $cancellationFLow,
+                CancellationStepType::CONFIRM_MUTATION,
+                '{}',
+                $jsonData,
+                CancellationActionPerformedType::CONTINUE,
+            );
+        self::assertDatabaseHas(CancellationFlow::class, [
+            'id' => $cancellationFLow->id,
+            'completed_at' => CarbonImmutable::now(),
+        ]);
     }
 
     #[test]
@@ -383,14 +428,18 @@ class CancellationFlowServiceTest extends IntegrationTestCase
 
         $cancellationFLow = $this->createCancellationFlow($sub);
 
-        self::resolve(CancellationFlowService::class)->processCancellationSteps(
-            $cancellationFLow,
-            CancellationStepType::REASONS,
-            '{}',
-            '{}',
-            CancellationActionPerformedType::CONTINUE
-        );
-        self::assertDatabaseHas(CancellationFlowStep::class, ['cancellation_flow_id' => $cancellationFLow->id, 'type' => CancellationStepType::REASONS]);
+        self::resolve(CancellationFlowService::class)
+            ->processCancellationSteps(
+                $cancellationFLow,
+                CancellationStepType::REASONS,
+                '{}',
+                '{}',
+                CancellationActionPerformedType::CONTINUE,
+            );
+        self::assertDatabaseHas(CancellationFlowStep::class, [
+            'cancellation_flow_id' => $cancellationFLow->id,
+            'type' => CancellationStepType::REASONS,
+        ]);
     }
 
     #[Test]
@@ -418,9 +467,7 @@ class CancellationFlowServiceTest extends IntegrationTestCase
         self::assertNotFalse($reasonJSON);
         $step->response_data = $reasonJSON;
 
-        $repository
-            ->method('findCancellationFlowStepBySubscriptionId')
-            ->willReturn($step);
+        $repository->method('findCancellationFlowStepBySubscriptionId')->willReturn($step);
 
         $result = $cancellationFlowService->getCancellationFlowReason($sub);
 
@@ -432,15 +479,34 @@ class CancellationFlowServiceTest extends IntegrationTestCase
     {
         $subscription = DomainSubscriptionDataProvider::subscription();
 
-        new ProductPriceComponentFactory()->for($subscription->product)->prolongation()->createOne(['contract_period' => 36, 'billing_period' => 12]);
-        new ProductPriceComponentFactory()->for($subscription->product)->prolongation()->createOne(['contract_period' => 36, 'billing_period' => 1]);
-        new ProductPriceComponentFactory()->for($subscription->product)->prolongation()->createOne(['contract_period' => 24, 'billing_period' => 12]);
-        new ProductPriceComponentFactory()->for($subscription->product)->prolongation()->createOne(['contract_period' => 24, 'billing_period' => 1]);
-        new ProductPriceComponentFactory()->for($subscription->product)->prolongation()->createOne(['contract_period' => 1, 'billing_period' => 1, 'orderable' => false]);
+        new ProductPriceComponentFactory()
+            ->for($subscription->product)
+            ->prolongation()
+            ->createOne(['contract_period' => 36, 'billing_period' => 12]);
+        new ProductPriceComponentFactory()
+            ->for($subscription->product)
+            ->prolongation()
+            ->createOne(['contract_period' => 36, 'billing_period' => 1]);
+        new ProductPriceComponentFactory()
+            ->for($subscription->product)
+            ->prolongation()
+            ->createOne(['contract_period' => 24, 'billing_period' => 12]);
+        new ProductPriceComponentFactory()
+            ->for($subscription->product)
+            ->prolongation()
+            ->createOne(['contract_period' => 24, 'billing_period' => 1]);
+        new ProductPriceComponentFactory()
+            ->for($subscription->product)
+            ->prolongation()
+            ->createOne(['contract_period' => 1, 'billing_period' => 1, 'orderable' => false]);
 
-        new ProductPriceComponentFactory()->for($subscription->product)->registration()->createOne(['contract_period' => 12, 'billing_period' => 1]);
+        new ProductPriceComponentFactory()
+            ->for($subscription->product)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 1]);
 
-        $subscriptionPrices = self::resolve(CancellationFlowService::class)->getSubscriptionPrices(Subscription::all(), [36, 24], [12, 1]);
+        $subscriptionPrices = self::resolve(CancellationFlowService::class)
+            ->getSubscriptionPrices(Subscription::all(), [36, 24], [12, 1]);
 
         self::assertCount(1, $subscriptionPrices);
         self::assertArrayHasKey($subscription->uuid, $subscriptionPrices);

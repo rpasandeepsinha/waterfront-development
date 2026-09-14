@@ -52,9 +52,9 @@ class ReceiveWpInstallationIdJob extends AbstractQueueableJob
             'Error ReceiveWpInstallationIdJob while request the WpToolkitInstallationId job definitely failed after {queue.attempt} attempts',
             [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscriptionUuid,
-                LoggingContextKeys::QUEUE_ATTEMPT     => $this->attempts(),
-                LoggingContextKeys::EXCEPTION         => $throwable,
-            ]
+                LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
+                LoggingContextKeys::EXCEPTION => $throwable,
+            ],
         );
 
         /** @var SubscriptionRepository $subscriptionRepository */
@@ -69,7 +69,7 @@ class ReceiveWpInstallationIdJob extends AbstractQueueableJob
         SubscriptionRepository $subscriptionRepository,
         HostingDeploymentRepository $deploymentRepository,
         WpToolkitService $wpToolkitService,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ): void {
         $subscription = $subscriptionRepository->getByUuid($this->subscriptionUuid);
 
@@ -79,12 +79,12 @@ class ReceiveWpInstallationIdJob extends AbstractQueueableJob
         $logger->debug(
             sprintf(
                 'Starting ReceiveWpInstallationId Job for domain [{domain.name}]. attempt {queue.attempt}/{%d}',
-                $this->tries
+                $this->tries,
             ),
             [
-                LoggingContextKeys::DOMAIN_NAME   => $subscription->domain,
+                LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
-            ]
+            ],
         );
 
         $installationId = $wpToolkitService
@@ -95,21 +95,22 @@ class ReceiveWpInstallationIdJob extends AbstractQueueableJob
             $logger->debug(
                 sprintf(
                     'No WpToolkitInstallationId found(yet) for domain [{domain.name}]. attempt {queue.attempt}/%d',
-                    $this->tries
+                    $this->tries,
                 ),
                 [
-                    LoggingContextKeys::DOMAIN_NAME   => $subscription->domain,
+                    LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
-                ]
+                ],
             );
 
             $this->release($this->getBackoffDelay());
+
             return;
         }
 
         $logger->debug('WpToolkitInstallationId found for domain [{domain.name}]', [
             LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-            LoggingContextKeys::META        => [
+            LoggingContextKeys::META => [
                 'WpToolkitInstallationId' => $installationId,
             ],
         ]);
@@ -119,7 +120,7 @@ class ReceiveWpInstallationIdJob extends AbstractQueueableJob
 
         $deploymentRepository->storeWpToolkitInstallationId(
             deployment: $deployment,
-            wpToolkitInstallationId: $installationId
+            wpToolkitInstallationId: $installationId,
         );
 
         $subscriptionRepository->setTechnicalStatus($subscription, TechnicalStatus::OK->value);
@@ -128,10 +129,10 @@ class ReceiveWpInstallationIdJob extends AbstractQueueableJob
             'The received installationId for domain [{domain.name}]. Is stored',
             [
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-                LoggingContextKeys::META        => [
+                LoggingContextKeys::META => [
                     'WpToolkitInstallationId' => $installationId,
                 ],
-            ]
+            ],
         );
     }
 

@@ -23,19 +23,19 @@ abstract class AbstractHostingServerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type'               => ['required', Rule::in(array_column(ServerType::cases(), 'value'))],
-            'port'               => ['required', 'integer', 'max:65535'],
-            'use_ssl'            => ['required', 'boolean'],
+            'type' => ['required', Rule::in(array_column(ServerType::cases(), 'value'))],
+            'port' => ['required', 'integer', 'max:65535'],
+            'use_ssl' => ['required', 'boolean'],
             'allow_new_websites' => ['required', 'boolean'],
-            'name'               => ['sometimes', 'nullable', 'string', 'max:255'],
-            'owner'              => ['sometimes', 'nullable', 'string', 'max:255'],
-            'ipv4'               => ['sometimes', 'nullable', 'ipv4'],
-            'ipv6'               => ['sometimes', 'nullable', 'ipv6'],
-            'username'           => ['sometimes', 'nullable', 'string', 'max:255'],
-            'maximum_websites'   => ['sometimes', 'nullable', 'integer', 'min:0'],
-            'password'           => ['sometimes', 'nullable', 'string'],
-            'loginkey'           => ['sometimes', 'nullable', 'string'],
-            'secret_key'         => ['sometimes', 'nullable', 'string'],
+            'name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'owner' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'ipv4' => ['sometimes', 'nullable', 'ipv4'],
+            'ipv6' => ['sometimes', 'nullable', 'ipv6'],
+            'username' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'maximum_websites' => ['sometimes', 'nullable', 'integer', 'min:0'],
+            'password' => ['sometimes', 'nullable', 'string'],
+            'loginkey' => ['sometimes', 'nullable', 'string'],
+            'secret_key' => ['sometimes', 'nullable', 'string'],
         ];
     }
 
@@ -85,7 +85,10 @@ abstract class AbstractHostingServerRequest extends FormRequest
 
             $validator->errors()->add('type', $translatedMessage);
 
-            return new PotentiallyTranslatedString($translatedMessage, $this->container->make(LaravelTranslator::class));
+            return new PotentiallyTranslatedString(
+                $translatedMessage,
+                $this->container->make(LaravelTranslator::class),
+            );
         };
     }
 }

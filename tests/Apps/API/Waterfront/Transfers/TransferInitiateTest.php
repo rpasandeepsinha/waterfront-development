@@ -48,20 +48,27 @@ class TransferInitiateTest extends IntegrationTestCase
         $this->populateTestingSubscriptions($this->customer);
 
         /** @var array<array<string>> $transferPayload */
-        $transferPayload = json_decode((string) file_get_contents(__DIR__ . '/data/transfer.json'), true, 512, JSON_THROW_ON_ERROR);
+        $transferPayload = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/transfer.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
         $randomCustomer = new CustomerFactory()->createOne();
 
         $transferPayload['receiver']['email'] = $randomCustomer->email;
         $transferPayload['receiver']['customer_number'] = $randomCustomer->customer_number;
 
-        $response = $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.transfers.initiate'),
-            $transferPayload
-        )->assertCreated();
+        $response = $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.transfers.initiate'),
+                $transferPayload,
+            )
+            ->assertCreated();
 
         self::assertDatabaseHas('transfers', [
-            'uuid'             => $response->json('id'),
+            'uuid' => $response->json('id'),
             'from_customer_id' => $this->customer->id,
         ]);
     }
@@ -76,7 +83,7 @@ class TransferInitiateTest extends IntegrationTestCase
         ]);
         new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne())->createOne([
             'subscription_uuid' => $subscriptions->firstOrFail()->uuid,
-            'template_id'       => $template->id,
+            'template_id' => $template->id,
         ]);
 
         $subscriptions = $subscriptions->fresh();
@@ -88,13 +95,15 @@ class TransferInitiateTest extends IntegrationTestCase
         $transferPayload['receiver']['customer_number'] = $randomCustomer->customer_number;
         $transferPayload['subscriptions'] = [['uuid' => $subscriptions->firstOrFail()->uuid]];
 
-        $response = $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.transfers.initiate'),
-            $transferPayload
-        )->assertUnprocessable();
+        $response = $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.transfers.initiate'),
+                $transferPayload,
+            )
+            ->assertUnprocessable();
 
         self::assertDatabaseMissing('transfers', [
-            'uuid'             => $response->json('id'),
+            'uuid' => $response->json('id'),
             'from_customer_id' => $this->customer->id,
         ]);
     }
@@ -105,15 +114,22 @@ class TransferInitiateTest extends IntegrationTestCase
         $this->populateTestingSubscriptions($this->customer);
 
         /** @var array<array<string>> $transferPayload */
-        $transferPayload = json_decode((string) file_get_contents(__DIR__ . '/data/transfer.json'), true, 512, JSON_THROW_ON_ERROR);
+        $transferPayload = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/transfer.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
         $transferPayload['receiver']['email'] = $this->customer->email;
         $transferPayload['receiver']['customer_number'] = $this->customer->customer_number;
         unset($transferPayload['subscriptions']);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.transfers.initiate'),
-            $transferPayload
-        )->assertUnprocessable();
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.transfers.initiate'),
+                $transferPayload,
+            )
+            ->assertUnprocessable();
     }
 
     #[Test]
@@ -122,20 +138,32 @@ class TransferInitiateTest extends IntegrationTestCase
         $this->populateTestingSubscriptions($this->customer);
 
         /** @var array<array<string>> $transferPayload */
-        $transferPayload = json_decode((string) file_get_contents(__DIR__ . '/data/transfer.json'), true, 512, JSON_THROW_ON_ERROR);
+        $transferPayload = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/transfer.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
         unset($transferPayload['receiver']);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.transfers.initiate'),
-            $transferPayload
-        )->assertUnprocessable();
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.transfers.initiate'),
+                $transferPayload,
+            )
+            ->assertUnprocessable();
     }
 
     #[Test]
     public function storeValidationFailedInvalidSubscriptionsDifferentCustomer(): void
     {
         /** @var array<array<string>> $transferPayload */
-        $transferPayload = json_decode((string) file_get_contents(__DIR__ . '/data/transfer.json'), true, 512, JSON_THROW_ON_ERROR);
+        $transferPayload = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/transfer.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
         $randomCustomer = new CustomerFactory()->createOne();
         $subscriptions = $this->populateTestingSubscriptions($this->customer);
 
@@ -143,10 +171,12 @@ class TransferInitiateTest extends IntegrationTestCase
         $subscription->customer_id = $randomCustomer->id;
         $subscription->save();
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.transfers.initiate'),
-            $transferPayload
-        )->assertUnprocessable();
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.transfers.initiate'),
+                $transferPayload,
+            )
+            ->assertUnprocessable();
 
         self::assertFalse(Transfer::exists());
     }
@@ -157,16 +187,23 @@ class TransferInitiateTest extends IntegrationTestCase
         $customerReceiver = new CustomerFactory()->createOne();
 
         /** @var array<array<string>> $transferPayload */
-        $transferPayload = json_decode((string) file_get_contents(__DIR__ . '/data/transfer.json'), true, 512, JSON_THROW_ON_ERROR);
+        $transferPayload = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/transfer.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
         $transferPayload['receiver']['email'] = $this->customer->email;
         $transferPayload['receiver']['customer_number'] = $this->customer->customer_number;
 
         $this->populateCoupledTransfer($this->customer, $customerReceiver);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.transfers.initiate'),
-            $transferPayload
-        )->assertUnprocessable();
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.transfers.initiate'),
+                $transferPayload,
+            )
+            ->assertUnprocessable();
 
         self::assertDatabaseMissing('transfers', ['to_customer_id' => $this->customer->customer_number]);
     }
@@ -177,14 +214,21 @@ class TransferInitiateTest extends IntegrationTestCase
         $this->populateTestingSubscriptions($this->customer);
 
         /** @var array<array<string>> $transferPayload */
-        $transferPayload = json_decode((string) file_get_contents(__DIR__ . '/data/transfer.json'), true, 512, JSON_THROW_ON_ERROR);
+        $transferPayload = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/transfer.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
         $transferPayload['receiver']['email'] = 'myfakeemail@sandwave.io';
         $transferPayload['receiver']['customer_number'] = 676676;
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.transfers.initiate'),
-            $transferPayload
-        )->assertUnprocessable();
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.transfers.initiate'),
+                $transferPayload,
+            )
+            ->assertUnprocessable();
 
         self::assertDatabaseMissing('transfers', ['to_customer_id' => 676676]);
     }
@@ -197,16 +241,22 @@ class TransferInitiateTest extends IntegrationTestCase
         $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne();
         $product2 = new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne())->createOne();
 
-        $subscription = new SubscriptionFactory()->for($customer)->for($product)->createOne(['uuid' => 'my-uuid-good-1']);
+        $subscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($product)
+            ->createOne(['uuid' => 'my-uuid-good-1']);
 
-        $subscription2 = new SubscriptionFactory()->for($customer)->for($product2)->createOne(['uuid' => 'my-uuid-good-2']);
+        $subscription2 = new SubscriptionFactory()
+            ->for($customer)
+            ->for($product2)
+            ->createOne(['uuid' => 'my-uuid-good-2']);
 
         return new Collection([$subscription, $subscription2]);
     }
 
     private function populateCoupledTransfer(
         Customer $from,
-        Customer $receiver
+        Customer $receiver,
     ): void {
         /** @var Subscription $subscription */
         $subscription = $this->populateTestingSubscriptions($from)->first();

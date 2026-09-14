@@ -67,17 +67,34 @@ class PleskTest extends IntegrationTestCase
 
         $this->mailOnlyPleskService = self::resolve(MailManagementPleskService::class);
 
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $this->hostingProductGroup = new ProductGroupFactory()->hosting()->createOne();
 
-        $this->mailProduct = new ProductFactory()->emailStart()->for($this->hostingProductGroup)->createOne();
+        $this->mailProduct = new ProductFactory()
+            ->emailStart()
+            ->for($this->hostingProductGroup)
+            ->createOne();
 
-        new ProductSpecFactory()->for($this->mailProduct)->createOne(['name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value, 'value' => '1']);
+        new ProductSpecFactory()->for($this->mailProduct)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '1',
+        ]);
 
-        $this->sitebuilderProduct = new ProductFactory()->siteBuilder()->for($this->hostingProductGroup)->createOne();
+        $this->sitebuilderProduct = new ProductFactory()
+            ->siteBuilder()
+            ->for($this->hostingProductGroup)
+            ->createOne();
 
-        $this->hostingBronsProduct = new ProductFactory()->hostingBrons()->for($this->hostingProductGroup)->createOne();
+        $this->hostingBronsProduct = new ProductFactory()
+            ->hostingBrons()
+            ->for($this->hostingProductGroup)
+            ->createOne();
 
         $this->customer = new CustomerFactory()->createOne();
     }
@@ -218,7 +235,7 @@ class PleskTest extends IntegrationTestCase
         $this->expectException(MailOnlyException::class);
         $this->expectExceptionMessageIs(sprintf(
             'Server %s does not have an IPv4 or IPv6 address.',
-            $server->id
+            $server->id,
         ));
 
         $this->mailOnlyPleskService->createDomain($this->domain, $this->email);
@@ -252,8 +269,8 @@ class PleskTest extends IntegrationTestCase
         $this->expectExceptionMessageIs(
             sprintf(
                 'Server %s does not have an IPv4 or IPv6 address.',
-                $server->id
-            )
+                $server->id,
+            ),
         );
 
         $this->mailOnlyPleskService->createDomain($this->domain, $this->email);
@@ -268,7 +285,8 @@ class PleskTest extends IntegrationTestCase
     {
         new SubscriptionFactory()
             ->for($this->mailProduct)
-            ->for($this->customer)->createOne([
+            ->for($this->customer)
+            ->createOne([
                 'domain' => 'i-dont-exists.nl',
             ]);
 
@@ -284,9 +302,7 @@ class PleskTest extends IntegrationTestCase
     #[Test]
     public function expectsNotImplementedException(): void
     {
-        $product = new ProductFactory()
-            ->for($this->hostingProductGroup)
-            ->createOne();
+        $product = new ProductFactory()->for($this->hostingProductGroup)->createOne();
 
         $subscription = new SubscriptionFactory()
             ->for($this->customer)
@@ -303,8 +319,8 @@ class PleskTest extends IntegrationTestCase
         $this->expectExceptionMessageIs(
             sprintf(
                 'Plesk mail-only does only support sitebuilder, subscription %s is not a sitebuilder subscription.',
-                $subscription->uuid
-            )
+                $subscription->uuid,
+            ),
         );
 
         $this->expectException(NotImplementedException::class);
@@ -323,9 +339,7 @@ class PleskTest extends IntegrationTestCase
     {
         $this->app->bind(DnsService::class, fn (): DnsService => self::createStub(DnsService::class));
 
-        $product = new ProductFactory()
-            ->for($this->hostingProductGroup)
-            ->createOne();
+        $product = new ProductFactory()->for($this->hostingProductGroup)->createOne();
 
         // Customer has a hosting package but canceled it (start/brons)
         new SubscriptionFactory()
@@ -349,17 +363,20 @@ class PleskTest extends IntegrationTestCase
 
         $subscription2->refresh();
 
-        new HostingDeploymentFactory()
-            ->createOne([
-                'subscription_uuid' => $subscription2->uuid,
-            ]);
+        new HostingDeploymentFactory()->createOne([
+            'subscription_uuid' => $subscription2->uuid,
+        ]);
 
-        $server = new ServerFactory()
-            ->createOne([
-                'type' => ServerType::PLESK,
-            ]);
+        $server = new ServerFactory()->createOne([
+            'type' => ServerType::PLESK,
+        ]);
 
-        ProviderFactory::new()->create(['type' => ProviderType::MAILONLY, 'slug' => ProviderSlug::PLESK, 'default' => true, 'enabled' => true]);
+        ProviderFactory::new()->create([
+            'type' => ProviderType::MAILONLY,
+            'slug' => ProviderSlug::PLESK,
+            'default' => true,
+            'enabled' => true,
+        ]);
 
         $result = $this->mailOnlyPleskService->createDomain($this->domain, $this->customer->email);
 
@@ -413,9 +430,7 @@ class PleskTest extends IntegrationTestCase
     #[Test]
     public function expectsNotImplementedExceptionDeleteDomain(): void
     {
-        $product = new ProductFactory()
-            ->for($this->hostingProductGroup)
-            ->createOne();
+        $product = new ProductFactory()->for($this->hostingProductGroup)->createOne();
 
         $subscription = new SubscriptionFactory()
             ->for($this->customer)
@@ -425,16 +440,15 @@ class PleskTest extends IntegrationTestCase
                 'domain' => $this->domain,
             ]);
 
-        new HostingDeploymentFactory()
-            ->createOne([
-                'subscription_uuid' => $subscription->uuid,
-            ]);
+        new HostingDeploymentFactory()->createOne([
+            'subscription_uuid' => $subscription->uuid,
+        ]);
 
         $this->expectExceptionMessageIs(
             sprintf(
                 'Plesk mail-only does only support sitebuilder, subscription %s is not a sitebuilder subscription.',
-                $subscription->uuid
-            )
+                $subscription->uuid,
+            ),
         );
 
         $this->expectException(NotImplementedException::class);
@@ -447,16 +461,16 @@ class PleskTest extends IntegrationTestCase
     {
         $subscription = new SubscriptionFactory()
             ->for($this->customer)
-            ->for($this->mailProduct)->createOne([
+            ->for($this->mailProduct)
+            ->createOne([
                 'domain' => $this->domain,
             ]);
 
-        $hostingDeployment = new HostingDeploymentFactory()
-            ->createOne([
-                'subscription_uuid' => $subscription->uuid,
-                'plesk_customer_username' => 'my-plesk-username',
-                'directadmin_customer_username' => null,
-            ]);
+        $hostingDeployment = new HostingDeploymentFactory()->createOne([
+            'subscription_uuid' => $subscription->uuid,
+            'plesk_customer_username' => 'my-plesk-username',
+            'directadmin_customer_username' => null,
+        ]);
 
         $username = $this->mailOnlyPleskService->getUsername($hostingDeployment);
 

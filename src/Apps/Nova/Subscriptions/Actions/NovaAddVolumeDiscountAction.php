@@ -41,8 +41,7 @@ class NovaAddVolumeDiscountAction extends Action
         $options = [];
         if ($request->resourceId !== null) {
             assert(is_string($request->resourceId));
-            $productsWithVolumeDiscount = $this->productDiscountRepository
-                ->getAllUnassignedProductDiscountsWithVolumeDiscount((int) $request->resourceId);
+            $productsWithVolumeDiscount = $this->productDiscountRepository->getAllUnassignedProductDiscountsWithVolumeDiscount((int) $request->resourceId);
 
             foreach ($productsWithVolumeDiscount as $product) {
                 $options[$product->id] = $product->name;
@@ -50,12 +49,17 @@ class NovaAddVolumeDiscountAction extends Action
         }
 
         return [
-            Select::make($this->translator->translate('nova-action.volume_discount.discount_field'), 'product_discount_id')
+            Select::make(
+                $this->translator->translate('nova-action.volume_discount.discount_field'),
+                'product_discount_id',
+            )
                 ->options($options)
-                ->required()->rules('required'),
+                ->required()
+                ->rules('required'),
             Number::make($this->translator->translate('subscription.attributes.period'), 'period')
                 ->help($this->translator->translate('nova-action.volume_discount.period_help'))
-                ->required()->rules('required'),
+                ->required()
+                ->rules('required'),
         ];
     }
 
@@ -106,7 +110,7 @@ class NovaAddVolumeDiscountAction extends Action
             $customer,
             $productDiscount,
             $productDiscount->product,
-            (int) $fields->get('period')
+            (int) $fields->get('period'),
         );
 
         return self::message($this->translator->translate('nova-action.success.volume_discount_linked'));

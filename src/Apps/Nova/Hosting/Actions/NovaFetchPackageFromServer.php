@@ -22,7 +22,7 @@ class NovaFetchPackageFromServer extends Action
 {
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private readonly HostingService $hostingService
+        private readonly HostingService $hostingService,
     ) {
         $this->sole();
     }
@@ -45,29 +45,29 @@ class NovaFetchPackageFromServer extends Action
         $server = $models->firstOrFail();
 
         $fetchedPackage = [];
-        $message        = null;
-        $trace          = null;
-        $code           = null;
+        $message = null;
+        $trace = null;
+        $code = null;
 
         try {
             $fetchedPackage = $this->hostingService->getPackageOnServer($server, $package);
         } catch (ServerNotFoundException|GuzzleException|NotImplementedException $exception) {
             $message = $exception->getMessage();
-            $trace   = $exception->getTraceAsString();
-            $code    = $exception->getCode();
+            $trace = $exception->getTraceAsString();
+            $code = $exception->getCode();
         }
 
         $data = [
-            'package'  => $fetchedPackage,
+            'package' => $fetchedPackage,
             'exception' => $message,
-            'code'      => $code,
-            'trace'     => $trace,
+            'code' => $code,
+            'trace' => $trace,
         ];
 
         $title = sprintf(
             'Fetched package {%s} from server with hostname {%s} with response:',
             $package,
-            $server->hostname
+            $server->hostname,
         );
 
         return self::modal('modal-response', [
@@ -82,8 +82,7 @@ class NovaFetchPackageFromServer extends Action
     public function fields(NovaRequest $request): array
     {
         return [
-            Text::make('package', 'package')
-                ->required(),
+            Text::make('package', 'package')->required(),
         ];
     }
 }

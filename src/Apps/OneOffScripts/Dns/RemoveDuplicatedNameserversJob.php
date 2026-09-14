@@ -40,9 +40,10 @@ class RemoveDuplicatedNameserversJob extends AbstractQueueableJob
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS->value,
                     LoggingContextKeys::PROVISIONING_ID => $this->dnsDeploymentId,
                     LoggingContextKeys::ONE_OFF_SCRIPT => NovaRemoveDuplicatedNamserversAction::SLUG,
-                ]
+                ],
             );
             $this->delete();
+
             return;
         }
 
@@ -54,7 +55,7 @@ class RemoveDuplicatedNameserversJob extends AbstractQueueableJob
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS->value,
                 LoggingContextKeys::PROVISIONING_ID => $dnsDeployment->id,
                 LoggingContextKeys::ONE_OFF_SCRIPT => NovaRemoveDuplicatedNamserversAction::SLUG,
-            ]
+            ],
         );
 
         $this->deleteDuplicatedNameserversByDeploymentId($this->dnsDeploymentId);
@@ -63,6 +64,7 @@ class RemoveDuplicatedNameserversJob extends AbstractQueueableJob
             try {
                 $nameserverAssigner = $nameserverAssignerFactory->createAssigner($dnsDeployment->nameserver_type);
                 $nameserverAssigner->assign($dnsDeployment);
+
                 // @phpstan-ignore thecodingmachine.emptyCatch
             } catch (DnsNamerverAlreadyAssignedException|FailedToFetchNameserversException) {
             }
@@ -77,15 +79,15 @@ class RemoveDuplicatedNameserversJob extends AbstractQueueableJob
     private function deleteDuplicatedNameserversByDeploymentId(int $deploymentId): void
     {
         $query = <<<SQL
-DELETE FROM dns_deployment_dns_nameserver
-WHERE dns_deployment_id = :deployment_id
-    AND id IN (
-	SELECT MAX(id)
-	FROM dns_deployment_dns_nameserver
-	GROUP BY dns_nameserver_id, dns_deployment_id
-	HAVING COUNT(1) > 1
-);
-SQL;
+        DELETE FROM dns_deployment_dns_nameserver
+        WHERE dns_deployment_id = :deployment_id
+            AND id IN (
+        	SELECT MAX(id)
+        	FROM dns_deployment_dns_nameserver
+        	GROUP BY dns_nameserver_id, dns_deployment_id
+        	HAVING COUNT(1) > 1
+        );
+        SQL;
 
         DB::statement($query, ['deployment_id' => $deploymentId]);
     }

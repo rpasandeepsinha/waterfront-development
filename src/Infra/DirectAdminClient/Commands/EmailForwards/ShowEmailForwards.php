@@ -40,6 +40,7 @@ class ShowEmailForwards extends DirectAdminCommand
     public function setDomain(string $domain): self
     {
         $this->domain = $domain;
+
         return $this;
     }
 
@@ -60,6 +61,7 @@ class ShowEmailForwards extends DirectAdminCommand
                 destinations: $destinations,
             );
         }
+
         $this->forwards = $forwards;
 
         $this->succeeded = true;

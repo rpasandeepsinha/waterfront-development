@@ -85,18 +85,16 @@ class TerminateBackupIntegrationTest extends IntegrationTestCase
             ->has(ProvisioningResultFactory::new()->success(), 'result')
             ->createOne();
 
-        $backupDeployment = BackupDeploymentFactory::new()
-            ->createOne([
-                'origin_provisioning_request_id' => $originRequest->id,
-            ]);
+        $backupDeployment = BackupDeploymentFactory::new()->createOne([
+            'origin_provisioning_request_id' => $originRequest->id,
+        ]);
 
-        $acronisDeployment = AcronisBackupDeploymentFactory::new()
-            ->createOne([
-                'backup_deployment_id' => $backupDeployment->id,
-                'acronis_provider_id' => $acronisProvider->id,
-                'tenant_uuid' => $tenantUuid,
-                'user_uuid' => $userUuid,
-            ]);
+        $acronisDeployment = AcronisBackupDeploymentFactory::new()->createOne([
+            'backup_deployment_id' => $backupDeployment->id,
+            'acronis_provider_id' => $acronisProvider->id,
+            'tenant_uuid' => $tenantUuid,
+            'user_uuid' => $userUuid,
+        ]);
 
         $tenantVersion = 1559561146223;
 
@@ -106,27 +104,21 @@ class TerminateBackupIntegrationTest extends IntegrationTestCase
         );
 
         $tenantClient = self::mock(AcronisTenantClient::class);
-        $tenantClient
-            ->expects('get')
-            ->twice()
-            ->with($tenantUuid->toString())
-            ->andReturn($tenant);
+        $tenantClient->expects('get')->twice()->with($tenantUuid->toString())->andReturn($tenant);
 
         $tenantClient
             ->expects('update')
             ->once()
             ->withArgs(
-                fn (string $receivedTenantUuid, Tenant $tenant) =>
+                fn (string $receivedTenantUuid, Tenant $tenant) => (
                     $receivedTenantUuid === $tenantUuid->toString()
                     && $tenant->enabled === false
                     && $tenant->version === $tenantVersion
+                ),
             )
             ->andReturn($tenant);
 
-        $tenantClient
-            ->expects('delete')
-            ->once()
-            ->with($tenantUuid->toString(), $tenantVersion);
+        $tenantClient->expects('delete')->once()->with($tenantUuid->toString(), $tenantVersion);
 
         $acronisClientFactory = self::createMock(AcronisClientFactory::class);
         $acronisClientFactory
@@ -184,7 +176,7 @@ class TerminateBackupIntegrationTest extends IntegrationTestCase
         $tag = Uuid::uuid4();
 
         $request = new TerminateBackupRequest(
-            tagUuid: $tag
+            tagUuid: $tag,
         );
 
         $result = $this->gateway->request($request);
@@ -196,7 +188,10 @@ class TerminateBackupIntegrationTest extends IntegrationTestCase
 
         self::assertCount(1, $result->validationResult->messages);
         self::assertArrayHasKey('tag', $result->validationResult->messages);
-        self::assertSame(['No create request with this tag in the [backup] type.'], $result->validationResult->messages['tag']);
+        self::assertSame(
+            ['No create request with this tag in the [backup] type.'],
+            $result->validationResult->messages['tag'],
+        );
 
         self::assertDatabaseCount(ProvisioningResult::class, 1);
         self::assertDatabaseCount(ProvisioningRequest::class, 1);
@@ -256,11 +251,7 @@ class TerminateBackupIntegrationTest extends IntegrationTestCase
 
         $tenantClient = self::createMock(AcronisTenantClient::class);
 
-        $tenantClient
-            ->expects(self::once())
-            ->method('get')
-            ->with($tenantUuid->toString())
-            ->willReturn($tenant);
+        $tenantClient->expects(self::once())->method('get')->with($tenantUuid->toString())->willReturn($tenant);
 
         $tenantClient
             ->expects(self::once())
@@ -273,13 +264,11 @@ class TerminateBackupIntegrationTest extends IntegrationTestCase
                     self::assertSame($tenantVersion, $payload->version);
 
                     return true;
-                })
+                }),
             )
             ->willThrowException($expectedException);
 
-        $tenantClient
-            ->expects(self::never())
-            ->method('delete');
+        $tenantClient->expects(self::never())->method('delete');
 
         $acronisClientFactory = self::createMock(AcronisClientFactory::class);
         $acronisClientFactory
@@ -366,20 +355,17 @@ class TerminateBackupIntegrationTest extends IntegrationTestCase
         $expectedException = new SaloonException('Something went wrong');
 
         $tenantClient = self::mock(AcronisTenantClient::class);
-        $tenantClient
-            ->expects('get')
-            ->twice()
-            ->with($tenantUuid->toString())
-            ->andReturn($tenant);
+        $tenantClient->expects('get')->twice()->with($tenantUuid->toString())->andReturn($tenant);
 
         $tenantClient
             ->expects('update')
             ->once()
             ->withArgs(
-                fn (string $receivedTenantUuid, Tenant $tenant) =>
-                $receivedTenantUuid === $tenantUuid->toString()
-                && $tenant->enabled === false
-                && $tenant->version === $tenantVersion
+                fn (string $receivedTenantUuid, Tenant $tenant) => (
+                    $receivedTenantUuid === $tenantUuid->toString()
+                    && $tenant->enabled === false
+                    && $tenant->version === $tenantVersion
+                ),
             )
             ->andReturn($tenant);
 
@@ -435,9 +421,10 @@ class TerminateBackupIntegrationTest extends IntegrationTestCase
 
     private function makeTenantDto(string $tenantId, int $version): Tenant
     {
-        $contact = $this->makeContactDto(
-            $tenantId,
-        );
+        $contact =
+            $this->makeContactDto(
+                $tenantId,
+            );
 
         $tenant = new Tenant(
             name: 'Test Tenant',

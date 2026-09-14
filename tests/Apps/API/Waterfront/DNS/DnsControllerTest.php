@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Factories\CustomerFactory;
+use Tests\Factories\LegacyRedirectingServerFactory;
 use Tests\Factories\ProductFactory;
 use Tests\Factories\ProductGroupFactory;
 use Tests\Factories\ProductSpecFactory;
@@ -43,6 +44,12 @@ use Waterfront\Infra\Translation\TranslatorInterface;
 #[AllowMockObjectsWithoutExpectations]
 class DnsControllerTest extends IntegrationTestCase
 {
+    private const string REDIRECT_DNS = 'sandwaveio.dev';
+
+    private const string REDIRECT_IPV4 = '127.0.0.1';
+
+    private const string REDIRECT_IPV6 = '::1';
+
     private string $testDomain = 'test-domain.nl';
 
     private Customer $customer;
@@ -64,9 +71,7 @@ class DnsControllerTest extends IntegrationTestCase
         $this->customer = new CustomerFactory()->createOne();
         $this->actingAsCustomer($this->customer);
 
-        $domainProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
+        $domainProduct = new ProductFactory()->nlDomain()->createOne();
 
         $domainSubscription = new SubscriptionFactory()
             ->for($this->customer)
@@ -82,7 +87,7 @@ class DnsControllerTest extends IntegrationTestCase
                 new ProductSpecFactory()->state([
                     'name' => ProductSpecName::DNS_CAN_EDIT_RECORDS->value,
                     'value' => true,
-                ])
+                ]),
             )
             ->createOne();
 
@@ -189,15 +194,12 @@ class DnsControllerTest extends IntegrationTestCase
 
         $this->app->bind(DnsService::class, fn () => $this->dnsServiceMock);
 
-        $this->dnsServiceMock
-            ->expects(self::once())
-            ->method('addRecordFromArray')
-            ->with($this->testDomain);
+        $this->dnsServiceMock->expects(self::once())->method('addRecordFromArray')->with($this->testDomain);
 
         $this->actingAsCustomer($this->customer)
             ->post(
                 $this->generateRoute('partners.dns.store', ['domain' => $this->testDomain]),
-                $postData
+                $postData,
             )
             ->assertOk()
             ->assertExactJson([
@@ -220,8 +222,9 @@ class DnsControllerTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->post(
                 $this->generateRoute('partners.dns.store', ['domain' => $this->testDomain]),
-                $postData
-            )->assertUnprocessable()
+                $postData,
+            )
+            ->assertUnprocessable()
             ->assertJsonFragment([
                 'name' => ['validation.ns'],
             ]);
@@ -269,7 +272,7 @@ class DnsControllerTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->patch(
                 $this->generateRoute('partners.dns.update', ['domain' => $this->testDomain, 'dns' => 1]),
-                $postData
+                $postData,
             )
             ->assertOk()
             ->assertExactJson([
@@ -301,8 +304,9 @@ class DnsControllerTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->patch(
                 $this->generateRoute('partners.dns.update', ['domain' => $this->testDomain, 'dns' => 1]),
-                $postData
-            )->assertUnprocessable()
+                $postData,
+            )
+            ->assertUnprocessable()
             ->assertJsonFragment([
                 'new.name' => ['validation.ns'],
             ]);
@@ -332,7 +336,7 @@ class DnsControllerTest extends IntegrationTestCase
 
         $this->actingAsCustomer($this->customer)
             ->get(
-                $this->generateRoute('partners.dns.index', ['domain' => $this->testDomain])
+                $this->generateRoute('partners.dns.index', ['domain' => $this->testDomain]),
             )
             ->assertOk()
             ->assertJsonCount(2, 'data')
@@ -346,5 +350,79 @@ class DnsControllerTest extends IntegrationTestCase
                 'name' => 'mail.' . $this->testDomain,
                 'type' => 'A',
             ]);
+    }
+
+    #[Test]
+    public function indexDoesNotLabelAddressRecordsPointingAtTheRedirectServiceAsRedirect(): void
+    {
+        new SubscriptionFactory()
+            ->for($this->customer)
+            ->for(new ProductFactory()->redirect())
+            ->forDomain($this->testDomain)
+            ->createOne();
+
+        $aRecord = new DefaultRecord('A', $this->testDomain, self::REDIRECT_IPV4, 1200);
+        $aaaaRecord = new DefaultRecord('AAAA', $this->testDomain, self::REDIRECT_IPV6, 1200);
+
+        $this->dnsServiceMock
+            ->expects(self::once())
+            ->method('getDnsRecordsForDomain')
+            ->with($this->testDomain)
+            ->willReturn(new Collection([$aRecord, $aaaaRecord]));
+
+        $this->app->bind(DnsController::class, fn () => $this->dnsController);
+
+        $this->actingAsCustomer($this->customer)
+            ->get(
+                $this->generateRoute('partners.dns.index', ['domain' => $this->testDomain]),
+            )
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonFragment([
+                'redirect_uuid' => null,
+                'name' => $this->testDomain,
+                'type' => 'A',
+            ])
+            ->assertJsonFragment([
+                'redirect_uuid' => null,
+                'name' => $this->testDomain,
+                'type' => 'AAAA',
+            ]);
+    }
+
+    #[Test]
+    public function indexDoesNotLabelAddressRecordsPointingAtALegacyRedirectingServerAsRedirect(): void
+    {
+        $legacyServer = LegacyRedirectingServerFactory::new()->createOne();
+        self::assertNotNull($legacyServer->ipv6);
+
+        new SubscriptionFactory()
+            ->for($this->customer)
+            ->for(new ProductFactory()->redirect())
+            ->forDomain($this->testDomain)
+            ->createOne();
+
+        $aRecord = new DefaultRecord('A', $this->testDomain, $legacyServer->ipv4, 1200);
+        $aaaaRecord = new DefaultRecord('AAAA', $this->testDomain, $legacyServer->ipv6, 1200);
+        $aliasRecord = new DefaultRecord('ALIAS', $this->testDomain, self::REDIRECT_DNS, 1200);
+
+        $this->dnsServiceMock
+            ->expects(self::once())
+            ->method('getDnsRecordsForDomain')
+            ->with($this->testDomain)
+            ->willReturn(new Collection([$aRecord, $aaaaRecord, $aliasRecord]));
+
+        $this->app->bind(DnsController::class, fn () => $this->dnsController);
+
+        $response = $this->actingAsCustomer($this->customer)
+            ->get(
+                $this->generateRoute('partners.dns.index', ['domain' => $this->testDomain]),
+            )
+            ->assertOk()
+            ->assertJsonCount(3, 'data');
+
+        self::assertNull($response->json('data.0.redirect_uuid'));
+        self::assertNull($response->json('data.1.redirect_uuid'));
+        self::assertNotNull($response->json('data.2.redirect_uuid'));
     }
 }

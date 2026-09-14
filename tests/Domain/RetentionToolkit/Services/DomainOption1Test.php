@@ -46,9 +46,7 @@ class DomainOption1Test extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
 
-        $this->domainProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
+        $this->domainProduct = new ProductFactory()->nlDomain()->createOne();
 
         new ProductPriceComponentFactory()
             ->for($this->domainProduct)

@@ -10,7 +10,7 @@ readonly class SslRenewalSucces implements MailTemplateInterface
 {
     public function __construct(
         public string $domain,
-        public string $expirydate
+        public string $expirydate,
     ) {
     }
 

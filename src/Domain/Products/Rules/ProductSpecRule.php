@@ -28,11 +28,11 @@ class ProductSpecRule extends AbstractValidator
 
     protected function passes(string $attribute, mixed $value): bool
     {
-        return (bool) Subscription::query()->whereProductGroupType($this->productGroup)
+        return (bool) Subscription::query()
+            ->whereProductGroupType($this->productGroup)
             ->where('domain', $value)
             ->whereHas('product.productSpecs', function (Builder $query): void {
-                $query->where('name', $this->productSpecName)
-                    ->whereIn('value', $this->values);
+                $query->where('name', $this->productSpecName)->whereIn('value', $this->values);
             })
             ->count();
     }

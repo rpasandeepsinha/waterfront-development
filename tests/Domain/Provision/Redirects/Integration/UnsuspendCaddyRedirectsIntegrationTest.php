@@ -55,24 +55,20 @@ class UnsuspendCaddyRedirectsIntegrationTest extends IntegrationTestCase
         $context = Uuid::uuid4();
         $restoredCaddyId = 'restored-caddy-id';
 
-        $caddyContext = new CaddyContextFactory()
-            ->createOne([
-                'context_uuid' => $context->toString(),
-                'host' => $domain,
-            ]);
+        $caddyContext = new CaddyContextFactory()->createOne([
+            'context_uuid' => $context->toString(),
+            'host' => $domain,
+        ]);
 
-        $redirectDeployment = new RedirectDeploymentFactory()
-            ->createOne([
-                'source' => $domain,
-                'destination' => $destination,
-                'context_uuid' => $context->toString(),
-            ]);
+        $redirectDeployment = new RedirectDeploymentFactory()->createOne([
+            'source' => $domain,
+            'destination' => $destination,
+            'context_uuid' => $context->toString(),
+        ]);
 
-        $caddyRedirectDeployment = new CaddyRedirectDeploymentFactory()
-            ->for($redirectDeployment)
-            ->createOne([
-                'caddy_id' => 'old-caddy-id',
-            ]);
+        $caddyRedirectDeployment = new CaddyRedirectDeploymentFactory()->for($redirectDeployment)->createOne([
+            'caddy_id' => 'old-caddy-id',
+        ]);
 
         $caddyRedirectDeployment->forceDelete();
 
@@ -142,24 +138,20 @@ class UnsuspendCaddyRedirectsIntegrationTest extends IntegrationTestCase
         $destination = 'https://versio.nl';
         $context = Uuid::uuid4();
 
-        $caddyContext = new CaddyContextFactory()
-            ->createOne([
-                'context_uuid' => $context->toString(),
-                'host' => $domain,
-            ]);
+        $caddyContext = new CaddyContextFactory()->createOne([
+            'context_uuid' => $context->toString(),
+            'host' => $domain,
+        ]);
 
-        $redirectDeployment = new RedirectDeploymentFactory()
-            ->createOne([
-                'source' => $domain,
-                'destination' => $destination,
-                'context_uuid' => $context->toString(),
-            ]);
+        $redirectDeployment = new RedirectDeploymentFactory()->createOne([
+            'source' => $domain,
+            'destination' => $destination,
+            'context_uuid' => $context->toString(),
+        ]);
 
-        $caddyRedirectDeployment = new CaddyRedirectDeploymentFactory()
-            ->for($redirectDeployment)
-            ->createOne([
-                'caddy_id' => 'old-caddy-id',
-            ]);
+        $caddyRedirectDeployment = new CaddyRedirectDeploymentFactory()->for($redirectDeployment)->createOne([
+            'caddy_id' => 'old-caddy-id',
+        ]);
 
         $caddyRedirectDeployment->delete();
 

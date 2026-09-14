@@ -13,7 +13,7 @@ class CreatePaymentException extends PaymentException
         parent::__construct(
             "Error while creating payment: $resultErrorMessage",
             $resultErrorCode,
-            $previous
+            $previous,
         );
     }
 }

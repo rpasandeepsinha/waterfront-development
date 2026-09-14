@@ -40,16 +40,26 @@ class DnsPolicyTest extends integrationTestCase
         $this->domain = 'test.nl';
 
         $dnsProduct = new ProductFactory()->for(
-            new ProductGroupFactory()->dns()
+            new ProductGroupFactory()->dns(),
         )->createOne([
             'slug' => ProductGroupType::DNS->value,
         ]);
 
         $extensionProduct = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne();
 
-        new SubscriptionFactory()->for($this->customer)->forDomain($this->domain)->for($dnsProduct)->administrativeStatusActive()->createOne();
+        new SubscriptionFactory()
+            ->for($this->customer)
+            ->forDomain($this->domain)
+            ->for($dnsProduct)
+            ->administrativeStatusActive()
+            ->createOne();
 
-        new SubscriptionFactory()->withCustomer()->for($extensionProduct)->forDomain($this->domain)->administrativeStatusActive()->createOne();
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for($extensionProduct)
+            ->forDomain($this->domain)
+            ->administrativeStatusActive()
+            ->createOne();
 
         Http::fake();
 
@@ -65,8 +75,12 @@ class DnsPolicyTest extends integrationTestCase
     {
         $this->actingAsCustomer($this->customer)
             ->getJson(
-                $this->generateRoute('partners.dns.index', ['domain' => $this->domain, 'ServiceDns' => $this->dnsClass])
-            )->assertOk();
+                $this->generateRoute('partners.dns.index', [
+                    'domain' => $this->domain,
+                    'ServiceDns' => $this->dnsClass,
+                ]),
+            )
+            ->assertOk();
     }
 
     #[Test]
@@ -76,16 +90,21 @@ class DnsPolicyTest extends integrationTestCase
 
         $this->actingAsCustomer($randomCustomer)
             ->getJson(
-                $this->generateRoute('partners.dns.index', ['domain' => $this->domain, 'ServiceDns' => $this->dnsClass])
-            )->assertForbidden();
+                $this->generateRoute('partners.dns.index', [
+                    'domain' => $this->domain,
+                    'ServiceDns' => $this->dnsClass,
+                ]),
+            )
+            ->assertForbidden();
     }
 
     #[Test]
     public function dnsControllerPolicyOnIndexFailsNoDnsSubscriptionAvailable(): void
     {
         $this->actingAsCustomer($this->customer)
-        ->getJson(
-            $this->generateRoute('partners.dns.index', ['domain' => 'random.nl', 'ServiceDns' => $this->dnsClass]),
-        )->assertForbidden();
+            ->getJson(
+                $this->generateRoute('partners.dns.index', ['domain' => 'random.nl', 'ServiceDns' => $this->dnsClass]),
+            )
+            ->assertForbidden();
     }
 }

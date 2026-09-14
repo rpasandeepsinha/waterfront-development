@@ -80,7 +80,10 @@ class CustomersControllerTest extends IntegrationTestCase
                 'old_values' => '[]',
                 'new_values' => ['technical_status' => TechnicalStatus::PENDING->value],
                 'identity_uuid' => $this->normalCustomer->uuid,
-                'identity_metadata' => json_encode(['email' => $this->normalCustomer->email, 'schemaId' => SchemaId::CUSTOMER->value], JSON_THROW_ON_ERROR),
+                'identity_metadata' => json_encode([
+                    'email' => $this->normalCustomer->email,
+                    'schemaId' => SchemaId::CUSTOMER->value,
+                ], JSON_THROW_ON_ERROR),
             ],
             [
                 'event' => 'updated',
@@ -89,7 +92,10 @@ class CustomersControllerTest extends IntegrationTestCase
                 'old_values' => ['technical_status' => TechnicalStatus::PENDING->value],
                 'new_values' => ['technical_status' => TechnicalStatus::OK->value],
                 'identity_uuid' => $this->normalCustomer->uuid,
-                'identity_metadata' => json_encode(['email' => $this->normalCustomer->email, 'schemaId' => SchemaId::CUSTOMER->value], JSON_THROW_ON_ERROR),
+                'identity_metadata' => json_encode([
+                    'email' => $this->normalCustomer->email,
+                    'schemaId' => SchemaId::CUSTOMER->value,
+                ], JSON_THROW_ON_ERROR),
             ],
         ]);
     }
@@ -109,8 +115,9 @@ class CustomersControllerTest extends IntegrationTestCase
 
         $this->normalCustomer->migratedCustomers()->attach($migratedCustomer);
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.show', ['customer' => $this->normalCustomer->customer_number]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.show', [
+            'customer' => $this->normalCustomer->customer_number,
+        ]));
 
         $response->assertOk();
         Assert::isInstanceOf($this->normalCustomer->address, CustomerAddress::class);
@@ -147,7 +154,8 @@ class CustomersControllerTest extends IntegrationTestCase
                 'id' => $this->normalCustomer->address->id,
             ],
             'gender' => $this->normalCustomer->gender,
-            'migrated_customers' => $this->normalCustomer->migratedCustomers
+            'migrated_customers' => $this->normalCustomer
+                ->migratedCustomers
                 ->map(static fn (MigratedCustomer $migratedCustomer): array => [
                     'id' => $migratedCustomer->id,
                     'reference_customer_number' => $migratedCustomer->reference_customer_number,
@@ -177,9 +185,7 @@ class CustomersControllerTest extends IntegrationTestCase
     public function testListCustomers(): void
     {
         new CustomerFactory()->createOne();
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.list'))
-            ->assertOk();
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.list'))->assertOk();
 
         /** @var array<array<string>> $responseArray */
         $responseArray = $response->json();
@@ -193,8 +199,9 @@ class CustomersControllerTest extends IntegrationTestCase
     {
         $invalidCustomerId = '696969';
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.show', ['customer' => $invalidCustomerId ]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.show', [
+            'customer' => $invalidCustomerId,
+        ]));
 
         $response->assertNotFound();
     }
@@ -208,8 +215,11 @@ class CustomersControllerTest extends IntegrationTestCase
     {
         $response = $this->actingAsEmployee(Uuid::uuid4())
             ->getJson(
-                $this->generateRoute('admin.customers.audit-logs', ['customer' => $this->normalCustomer->customer_number])
-            )->assertOk();
+                $this->generateRoute('admin.customers.audit-logs', [
+                    'customer' => $this->normalCustomer->customer_number,
+                ]),
+            )
+            ->assertOk();
 
         /** @var array<array<array<array<string|int>>|int>> $responseArray */
         $responseArray = $response->json();
@@ -249,8 +259,9 @@ class CustomersControllerTest extends IntegrationTestCase
                 $this->generateRoute('admin.customers.index.audit-logs', [
                     'customer' => $this->normalCustomer->customer_number,
                     'pageSize' => 5,
-                ])
-            )->assertOk();
+                ]),
+            )
+            ->assertOk();
 
         /** @var array<array<array<array<string|int>>|int>> $responseArray */
         $responseArray = $response->json();
@@ -269,12 +280,14 @@ class CustomersControllerTest extends IntegrationTestCase
         $email = 'notify@sandwave.io';
 
         $lighthouseApiServiceMock = self::createMock(LighthouseApiService::class);
-        $lighthouseApiServiceMock->expects(self::once())
+        $lighthouseApiServiceMock
+            ->expects(self::once())
             ->method('getKratosIdentityByIdentifier')
             ->with($email)
             ->willThrowException(new ResourceNotFoundException());
 
-        $lighthouseApiServiceMock->expects(self::once())
+        $lighthouseApiServiceMock
+            ->expects(self::once())
             ->method('createKratosIdentity')
             ->with($email, self::anything());
         $this->app->bind(LighthouseApiService::class, fn () => $lighthouseApiServiceMock);
@@ -294,8 +307,7 @@ class CustomersControllerTest extends IntegrationTestCase
             'terms' => 'true',
         ];
 
-        $response = $this->actingAsEmployee()
-            ->post($this->generateRoute('admin.customers.store', $payload));
+        $response = $this->actingAsEmployee()->post($this->generateRoute('admin.customers.store', $payload));
 
         $response->assertSuccessful();
     }
@@ -303,8 +315,10 @@ class CustomersControllerTest extends IntegrationTestCase
     #[Test]
     public function anonymizeCustomer(): void
     {
-        $response = $this->actingAsEmployee()
-            ->post($this->generateRoute('admin.customers.anonymize', $this->normalCustomer->customer_number));
+        $response = $this->actingAsEmployee()->post($this->generateRoute(
+            'admin.customers.anonymize',
+            $this->normalCustomer->customer_number,
+        ));
         Queue::assertPushed(AnonymizeCustomerJob::class);
 
         $response->assertSuccessful();
@@ -318,16 +332,18 @@ class CustomersControllerTest extends IntegrationTestCase
         $migratedCustomer->customers()->save($customer);
 
         $guzzleMock = self::createMock(Client::class);
-        $guzzleMock->expects(self::never())
-            ->method('post');
+        $guzzleMock->expects(self::never())->method('post');
 
         $this->app->bind(Client::class, fn () => $guzzleMock);
 
-        $response =  $this->actingAsEmployee()->post($this->generateRoute('admin.customers.requestBuInvoices', $customer->customer_number), [
-            'referenceCustomerNumber' => $migratedCustomer->reference_customer_number,
-            'fromDate' => CarbonImmutable::now()->subWeek()->format('Y-m-d'),
-            'toDate' => CarbonImmutable::now()->format('Y-m-d'),
-        ]);
+        $response = $this->actingAsEmployee()->post(
+            $this->generateRoute('admin.customers.requestBuInvoices', $customer->customer_number),
+            [
+                'referenceCustomerNumber' => $migratedCustomer->reference_customer_number,
+                'fromDate' => CarbonImmutable::now()->subWeek()->format('Y-m-d'),
+                'toDate' => CarbonImmutable::now()->format('Y-m-d'),
+            ],
+        );
 
         self::assertStringContainsString('bad value received: QDC', (string) $response->getContent());
     }
@@ -344,7 +360,9 @@ class CustomersControllerTest extends IntegrationTestCase
         $migratedCustomer->customers()->attach($customer->id);
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.customers.enable.invoicing', ['customer' => $customer->customer_number]))
+            ->postJson($this->generateRoute('admin.customers.enable.invoicing', [
+                'customer' => $customer->customer_number,
+            ]))
             ->assertOk()
             ->assertJsonPath('message', 'sidebar.action.enable-invoicing.success');
 
@@ -363,7 +381,9 @@ class CustomersControllerTest extends IntegrationTestCase
         $migratedCustomer->customers()->attach($customer->id);
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.customers.enable.invoicing', ['customer' => $customer->customer_number]))
+            ->postJson($this->generateRoute('admin.customers.enable.invoicing', [
+                'customer' => $customer->customer_number,
+            ]))
             ->assertOk()
             ->assertJsonPath('message', 'sidebar.action.enable-invoicing.already-enabled');
     }
@@ -374,7 +394,9 @@ class CustomersControllerTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.customers.enable.invoicing', ['customer' => $customer->customer_number]))
+            ->postJson($this->generateRoute('admin.customers.enable.invoicing', [
+                'customer' => $customer->customer_number,
+            ]))
             ->assertUnprocessable()
             ->assertJsonPath('message', 'sidebar.action.enable-invoicing.not-migrated');
     }
@@ -384,9 +406,11 @@ class CustomersControllerTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne(['email' => 'migrationCustomer@sandwave.io']);
 
-        $this->actingAsEmployee()->post($this->generateRoute('admin.customers.mark.as.abuse', $customer->customer_number), [
-            'confirmation' => false,
-        ])->assertUnprocessable();
+        $this->actingAsEmployee()
+            ->post($this->generateRoute('admin.customers.mark.as.abuse', $customer->customer_number), [
+                'confirmation' => false,
+            ])
+            ->assertUnprocessable();
     }
 
     #[Test]
@@ -395,8 +419,9 @@ class CustomersControllerTest extends IntegrationTestCase
         new OrderFactory()->for($this->normalCustomer)->createOne(['status' => OrderStatus::IN_PROGRESS]);
         new OrderFactory()->for($this->normalCustomer)->createOne(['status' => OrderStatus::PROCESSED]);
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.orders.list', ['customer' => $this->normalCustomer->customer_number]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.orders.list', [
+            'customer' => $this->normalCustomer->customer_number,
+        ]));
 
         $response->assertOk();
         $response->assertJsonCount(2, 'data');
@@ -405,12 +430,23 @@ class CustomersControllerTest extends IntegrationTestCase
     #[Test]
     public function listUnprocessedInvoiceLinesReturnsOnlyLinesNotSentToHarbor(): void
     {
-        new InvoiceFactory()->for($this->normalCustomer)->for($this->product)->createOne(['sent_to_harbor_at' => null]);
-        new InvoiceFactory()->for($this->normalCustomer)->for($this->product)->createOne(['sent_to_harbor_at' => null]);
-        $sentLine = new InvoiceFactory()->for($this->normalCustomer)->for($this->product)->sentToHarbor()->createOne();
+        new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
+            ->createOne(['sent_to_harbor_at' => null]);
+        new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
+            ->createOne(['sent_to_harbor_at' => null]);
+        $sentLine = new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
+            ->sentToHarbor()
+            ->createOne();
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.invoice-lines.unprocessed', ['customer' => $this->normalCustomer->customer_number]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.invoice-lines.unprocessed', [
+            'customer' => $this->normalCustomer->customer_number,
+        ]));
 
         $response->assertOk();
         $response->assertJsonCount(2, 'data');
@@ -421,10 +457,14 @@ class CustomersControllerTest extends IntegrationTestCase
     public function listUnprocessedInvoiceLinesOnlyReturnsLinesForTheGivenCustomer(): void
     {
         $otherCustomer = new CustomerFactory()->createOne();
-        new InvoiceFactory()->for($otherCustomer)->for($this->product)->createOne(['sent_to_harbor_at' => null]);
+        new InvoiceFactory()
+            ->for($otherCustomer)
+            ->for($this->product)
+            ->createOne(['sent_to_harbor_at' => null]);
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.invoice-lines.unprocessed', ['customer' => $this->normalCustomer->customer_number]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.invoice-lines.unprocessed', [
+            'customer' => $this->normalCustomer->customer_number,
+        ]));
 
         $response->assertOk();
         $response->assertJsonCount(0, 'data');
@@ -433,8 +473,9 @@ class CustomersControllerTest extends IntegrationTestCase
     #[Test]
     public function listUnprocessedInvoiceLinesFailsForUnknownCustomer(): void
     {
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.invoice-lines.unprocessed', ['customer' => '696969']));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.invoice-lines.unprocessed', [
+            'customer' => '696969',
+        ]));
 
         $response->assertNotFound();
     }
@@ -442,9 +483,15 @@ class CustomersControllerTest extends IntegrationTestCase
     #[Test]
     public function listUnprocessedInvoiceLinesPaginatesUsingTheGivenPageSize(): void
     {
-        new InvoiceFactory()->for($this->normalCustomer)->for($this->product)->count(3)->create(['sent_to_harbor_at' => null]);
+        new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
+            ->count(3)
+            ->create(['sent_to_harbor_at' => null]);
 
-        $route = $this->generateRoute('admin.customers.invoice-lines.unprocessed', ['customer' => $this->normalCustomer->customer_number]);
+        $route = $this->generateRoute('admin.customers.invoice-lines.unprocessed', [
+            'customer' => $this->normalCustomer->customer_number,
+        ]);
 
         $response = $this->actingAsEmployee()->getJson($route . '?pageSize=2');
 
@@ -464,10 +511,14 @@ class CustomersControllerTest extends IntegrationTestCase
     #[Test]
     public function listUnprocessedInvoiceLinesDefaultsToOneHundredPerPage(): void
     {
-        new InvoiceFactory()->for($this->normalCustomer)->for($this->product)->createOne(['sent_to_harbor_at' => null]);
+        new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
+            ->createOne(['sent_to_harbor_at' => null]);
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.invoice-lines.unprocessed', ['customer' => $this->normalCustomer->customer_number]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.invoice-lines.unprocessed', [
+            'customer' => $this->normalCustomer->customer_number,
+        ]));
 
         $response->assertOk();
         $response->assertJsonPath('meta.per_page', 100);
@@ -476,14 +527,20 @@ class CustomersControllerTest extends IntegrationTestCase
     #[Test]
     public function listUnprocessedInvoiceLinesSearchesTitleCaseInsensitively(): void
     {
-        $matching = new InvoiceFactory()->for($this->normalCustomer)->for($this->product)
+        $matching = new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
             ->createOne(['sent_to_harbor_at' => null, 'title' => 'Webhosting Large', 'description' => 'Verlenging']);
-        new InvoiceFactory()->for($this->normalCustomer)->for($this->product)
+        new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
             ->createOne(['sent_to_harbor_at' => null, 'title' => 'Domeinnaam', 'description' => 'Registratie']);
 
         $response = $this->actingAsEmployee()->getJson(
-            $this->generateRoute('admin.customers.invoice-lines.unprocessed', ['customer' => $this->normalCustomer->customer_number])
-            . '?search=webHOSTING'
+            $this->generateRoute('admin.customers.invoice-lines.unprocessed', [
+                'customer' => $this->normalCustomer->customer_number,
+            ])
+                . '?search=webHOSTING',
         );
 
         $response->assertOk();
@@ -495,14 +552,20 @@ class CustomersControllerTest extends IntegrationTestCase
     #[Test]
     public function listUnprocessedInvoiceLinesSearchesDescription(): void
     {
-        $matching = new InvoiceFactory()->for($this->normalCustomer)->for($this->product)
+        $matching = new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
             ->createOne(['sent_to_harbor_at' => null, 'title' => 'Domeinnaam', 'description' => 'Verlenging 2027']);
-        new InvoiceFactory()->for($this->normalCustomer)->for($this->product)
+        new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
             ->createOne(['sent_to_harbor_at' => null, 'title' => 'Webhosting', 'description' => 'Registratie']);
 
         $response = $this->actingAsEmployee()->getJson(
-            $this->generateRoute('admin.customers.invoice-lines.unprocessed', ['customer' => $this->normalCustomer->customer_number])
-            . '?search=verlenging'
+            $this->generateRoute('admin.customers.invoice-lines.unprocessed', [
+                'customer' => $this->normalCustomer->customer_number,
+            ])
+                . '?search=verlenging',
         );
 
         $response->assertOk();
@@ -514,14 +577,20 @@ class CustomersControllerTest extends IntegrationTestCase
     public function listUnprocessedInvoiceLinesSearchNeverLeaksAnotherCustomersLines(): void
     {
         $otherCustomer = new CustomerFactory()->createOne();
-        new InvoiceFactory()->for($otherCustomer)->for($this->product)
+        new InvoiceFactory()
+            ->for($otherCustomer)
+            ->for($this->product)
             ->createOne(['sent_to_harbor_at' => null, 'title' => 'Webhosting Large']);
-        new InvoiceFactory()->for($this->normalCustomer)->for($this->product)
+        new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
             ->createOne(['sent_to_harbor_at' => null, 'title' => 'Domeinnaam']);
 
         $response = $this->actingAsEmployee()->getJson(
-            $this->generateRoute('admin.customers.invoice-lines.unprocessed', ['customer' => $this->normalCustomer->customer_number])
-            . '?search=webhosting'
+            $this->generateRoute('admin.customers.invoice-lines.unprocessed', [
+                'customer' => $this->normalCustomer->customer_number,
+            ])
+                . '?search=webhosting',
         );
 
         $response->assertOk();
@@ -531,12 +600,17 @@ class CustomersControllerTest extends IntegrationTestCase
     #[Test]
     public function listUnprocessedInvoiceLinesSearchNeverLeaksLinesAlreadySentToHarbor(): void
     {
-        new InvoiceFactory()->for($this->normalCustomer)->for($this->product)->sentToHarbor()
+        new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
+            ->sentToHarbor()
             ->createOne(['title' => 'Webhosting Large']);
 
         $response = $this->actingAsEmployee()->getJson(
-            $this->generateRoute('admin.customers.invoice-lines.unprocessed', ['customer' => $this->normalCustomer->customer_number])
-            . '?search=webhosting'
+            $this->generateRoute('admin.customers.invoice-lines.unprocessed', [
+                'customer' => $this->normalCustomer->customer_number,
+            ])
+                . '?search=webhosting',
         );
 
         $response->assertOk();
@@ -546,37 +620,60 @@ class CustomersControllerTest extends IntegrationTestCase
     #[Test]
     public function listUnprocessedInvoiceLinesIgnoresBlankAndOverlongSearchTerms(): void
     {
-        new InvoiceFactory()->for($this->normalCustomer)->for($this->product)->count(2)->create(['sent_to_harbor_at' => null]);
+        new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
+            ->count(2)
+            ->create(['sent_to_harbor_at' => null]);
 
-        $route = $this->generateRoute('admin.customers.invoice-lines.unprocessed', ['customer' => $this->normalCustomer->customer_number]);
+        $route = $this->generateRoute('admin.customers.invoice-lines.unprocessed', [
+            'customer' => $this->normalCustomer->customer_number,
+        ]);
 
-        $this->actingAsEmployee()->getJson($route . '?search=')->assertOk()->assertJsonCount(2, 'data');
-        $this->actingAsEmployee()->getJson($route . '?search=%20%20')->assertOk()->assertJsonCount(2, 'data');
-        $this->actingAsEmployee()->getJson($route . '?search=' . str_repeat('a', 51))->assertOk()->assertJsonCount(2, 'data');
+        $this->actingAsEmployee()
+            ->getJson($route . '?search=')
+            ->assertOk()
+            ->assertJsonCount(2, 'data');
+        $this->actingAsEmployee()
+            ->getJson($route . '?search=%20%20')
+            ->assertOk()
+            ->assertJsonCount(2, 'data');
+        $this->actingAsEmployee()
+            ->getJson($route . '?search=' . str_repeat('a', 51))
+            ->assertOk()
+            ->assertJsonCount(2, 'data');
     }
 
     #[Test]
     public function propagateInvoiceLinesToHarborDispatchesJobForTheSelectedLines(): void
     {
         $customer = new CustomerFactory()->createOne();
-        $firstLine = new InvoiceFactory()->for($customer)->for($this->product)->createOne(['sent_to_harbor_at' => null]);
-        $secondLine = new InvoiceFactory()->for($customer)->for($this->product)->createOne(['sent_to_harbor_at' => null]);
+        $firstLine = new InvoiceFactory()
+            ->for($customer)
+            ->for($this->product)
+            ->createOne(['sent_to_harbor_at' => null]);
+        $secondLine = new InvoiceFactory()
+            ->for($customer)
+            ->for($this->product)
+            ->createOne(['sent_to_harbor_at' => null]);
 
-        $response = $this->actingAsEmployee()
-            ->postJson(
-                $this->generateRoute('admin.customers.invoice-lines.propagate', ['customer' => $customer->customer_number]),
-                ['invoiceLineIds' => [$firstLine->id, $secondLine->id]],
-            );
+        $response = $this->actingAsEmployee()->postJson(
+            $this->generateRoute('admin.customers.invoice-lines.propagate', ['customer' => $customer->customer_number]),
+            ['invoiceLineIds' => [$firstLine->id, $secondLine->id]],
+        );
 
         $response->assertOk();
         $response->assertJsonPath(
             'message',
-            self::resolve(TranslatorInterface::class)->translate('sidebar.action.send-invoice-lines-to-harbor.propagated-successfully'),
+            self::resolve(TranslatorInterface::class)
+                ->translate('sidebar.action.send-invoice-lines-to-harbor.propagated-successfully'),
         );
 
         Queue::assertPushed(
             DispatchConsolidatedInvoicesForCustomer::class,
-            fn (DispatchConsolidatedInvoicesForCustomer $job): bool => self::getInvoiceIdsFromJob($job) === [$firstLine->id, $secondLine->id]
+            fn (DispatchConsolidatedInvoicesForCustomer $job): bool => (
+                self::getInvoiceIdsFromJob($job) === [$firstLine->id, $secondLine->id]
+            ),
         );
     }
 
@@ -584,18 +681,25 @@ class CustomersControllerTest extends IntegrationTestCase
     public function propagateInvoiceLinesToHarborDefaultsCreateInvoiceInstantlyToFalse(): void
     {
         $customer = new CustomerFactory()->createOne();
-        $invoiceLine = new InvoiceFactory()->for($customer)->for($this->product)->createOne(['sent_to_harbor_at' => null]);
+        $invoiceLine = new InvoiceFactory()
+            ->for($customer)
+            ->for($this->product)
+            ->createOne(['sent_to_harbor_at' => null]);
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.customers.invoice-lines.propagate', ['customer' => $customer->customer_number]),
+                $this->generateRoute('admin.customers.invoice-lines.propagate', [
+                    'customer' => $customer->customer_number,
+                ]),
                 ['invoiceLineIds' => [$invoiceLine->id]],
             )
             ->assertOk();
 
         Queue::assertPushed(
             DispatchConsolidatedInvoicesForCustomer::class,
-            fn (DispatchConsolidatedInvoicesForCustomer $job): bool => self::getCreateInvoiceInstantlyFromJob($job) === false
+            fn (DispatchConsolidatedInvoicesForCustomer $job): bool => (
+                self::getCreateInvoiceInstantlyFromJob($job) === false
+            ),
         );
     }
 
@@ -603,18 +707,23 @@ class CustomersControllerTest extends IntegrationTestCase
     public function propagateInvoiceLinesToHarborPassesCreateInvoiceInstantlyWhenRequested(): void
     {
         $customer = new CustomerFactory()->createOne();
-        $invoiceLine = new InvoiceFactory()->for($customer)->for($this->product)->createOne(['sent_to_harbor_at' => null]);
+        $invoiceLine = new InvoiceFactory()
+            ->for($customer)
+            ->for($this->product)
+            ->createOne(['sent_to_harbor_at' => null]);
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.customers.invoice-lines.propagate', ['customer' => $customer->customer_number]),
+                $this->generateRoute('admin.customers.invoice-lines.propagate', [
+                    'customer' => $customer->customer_number,
+                ]),
                 ['invoiceLineIds' => [$invoiceLine->id], 'createInvoiceInstantly' => true],
             )
             ->assertOk();
 
         Queue::assertPushed(
             DispatchConsolidatedInvoicesForCustomer::class,
-            fn (DispatchConsolidatedInvoicesForCustomer $job): bool => self::getCreateInvoiceInstantlyFromJob($job)
+            fn (DispatchConsolidatedInvoicesForCustomer $job): bool => self::getCreateInvoiceInstantlyFromJob($job),
         );
     }
 
@@ -629,24 +738,32 @@ class CustomersControllerTest extends IntegrationTestCase
         ]);
         $customer->migratedCustomers()->attach($migratedCustomer);
 
-        $firstLine = new InvoiceFactory()->for($customer)->for($this->product)->createOne(['sent_to_harbor_at' => null]);
-        $secondLine = new InvoiceFactory()->for($customer)->for($this->product)->createOne(['sent_to_harbor_at' => null]);
+        $firstLine = new InvoiceFactory()
+            ->for($customer)
+            ->for($this->product)
+            ->createOne(['sent_to_harbor_at' => null]);
+        $secondLine = new InvoiceFactory()
+            ->for($customer)
+            ->for($this->product)
+            ->createOne(['sent_to_harbor_at' => null]);
 
-        $response = $this->actingAsEmployee()
-            ->postJson(
-                $this->generateRoute('admin.customers.invoice-lines.propagate', ['customer' => $customer->customer_number]),
-                ['invoiceLineIds' => [$firstLine->id, $secondLine->id]],
-            );
+        $response = $this->actingAsEmployee()->postJson(
+            $this->generateRoute('admin.customers.invoice-lines.propagate', ['customer' => $customer->customer_number]),
+            ['invoiceLineIds' => [$firstLine->id, $secondLine->id]],
+        );
 
         $response->assertOk();
         $response->assertJsonPath(
             'message',
-            self::resolve(TranslatorInterface::class)->translate('sidebar.action.send-invoice-lines-to-harbor.propagated-successfully'),
+            self::resolve(TranslatorInterface::class)
+                ->translate('sidebar.action.send-invoice-lines-to-harbor.propagated-successfully'),
         );
 
         Queue::assertPushed(
             DispatchConsolidatedInvoicesForCustomer::class,
-            fn (DispatchConsolidatedInvoicesForCustomer $job): bool => self::getInvoiceIdsFromJob($job) === [$firstLine->id, $secondLine->id]
+            fn (DispatchConsolidatedInvoicesForCustomer $job): bool => (
+                self::getInvoiceIdsFromJob($job) === [$firstLine->id, $secondLine->id]
+            ),
         );
     }
 
@@ -666,11 +783,16 @@ class CustomersControllerTest extends IntegrationTestCase
 
         $this->normalCustomer->migratedCustomers()->attach($migratedCustomer);
 
-        $invoiceLine = new InvoiceFactory()->for($this->normalCustomer)->for($this->product)->createOne(['sent_to_harbor_at' => null]);
+        $invoiceLine = new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
+            ->createOne(['sent_to_harbor_at' => null]);
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.customers.invoice-lines.propagate', ['customer' => $this->normalCustomer->customer_number]),
+                $this->generateRoute('admin.customers.invoice-lines.propagate', [
+                    'customer' => $this->normalCustomer->customer_number,
+                ]),
                 ['invoiceLineIds' => [$invoiceLine->id]],
             )
             ->assertOk();
@@ -681,19 +803,28 @@ class CustomersControllerTest extends IntegrationTestCase
     #[Test]
     public function propagateInvoiceLinesToHarborRejectsTheWholeSelectionWhenALineWasAlreadySent(): void
     {
-        $unprocessedLine = new InvoiceFactory()->for($this->normalCustomer)->for($this->product)->createOne(['sent_to_harbor_at' => null]);
-        $alreadySentLine = new InvoiceFactory()->for($this->normalCustomer)->for($this->product)->sentToHarbor()->createOne();
+        $unprocessedLine = new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
+            ->createOne(['sent_to_harbor_at' => null]);
+        $alreadySentLine = new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
+            ->sentToHarbor()
+            ->createOne();
 
-        $response = $this->actingAsEmployee()
-            ->postJson(
-                $this->generateRoute('admin.customers.invoice-lines.propagate', ['customer' => $this->normalCustomer->customer_number]),
-                ['invoiceLineIds' => [$unprocessedLine->id, $alreadySentLine->id]],
-            );
+        $response = $this->actingAsEmployee()->postJson(
+            $this->generateRoute('admin.customers.invoice-lines.propagate', [
+                'customer' => $this->normalCustomer->customer_number,
+            ]),
+            ['invoiceLineIds' => [$unprocessedLine->id, $alreadySentLine->id]],
+        );
 
         $response->assertUnprocessable();
         $response->assertJsonPath(
             'message',
-            self::resolve(TranslatorInterface::class)->translate('sidebar.action.send-invoice-lines-to-harbor.invoice-lines-already-sent'),
+            self::resolve(TranslatorInterface::class)
+                ->translate('sidebar.action.send-invoice-lines-to-harbor.invoice-lines-already-sent'),
         );
 
         Queue::assertNotPushed(DispatchConsolidatedInvoicesForCustomer::class);
@@ -702,20 +833,28 @@ class CustomersControllerTest extends IntegrationTestCase
     #[Test]
     public function propagateInvoiceLinesToHarborRejectsInvoiceLineOfAnotherCustomer(): void
     {
-        $ownLine = new InvoiceFactory()->for($this->normalCustomer)->for($this->product)->createOne(['sent_to_harbor_at' => null]);
+        $ownLine = new InvoiceFactory()
+            ->for($this->normalCustomer)
+            ->for($this->product)
+            ->createOne(['sent_to_harbor_at' => null]);
         $otherCustomer = new CustomerFactory()->createOne();
-        $otherCustomersLine = new InvoiceFactory()->for($otherCustomer)->for($this->product)->createOne(['sent_to_harbor_at' => null]);
+        $otherCustomersLine = new InvoiceFactory()
+            ->for($otherCustomer)
+            ->for($this->product)
+            ->createOne(['sent_to_harbor_at' => null]);
 
-        $response = $this->actingAsEmployee()
-            ->postJson(
-                $this->generateRoute('admin.customers.invoice-lines.propagate', ['customer' => $this->normalCustomer->customer_number]),
-                ['invoiceLineIds' => [$ownLine->id, $otherCustomersLine->id]],
-            );
+        $response = $this->actingAsEmployee()->postJson(
+            $this->generateRoute('admin.customers.invoice-lines.propagate', [
+                'customer' => $this->normalCustomer->customer_number,
+            ]),
+            ['invoiceLineIds' => [$ownLine->id, $otherCustomersLine->id]],
+        );
 
         $response->assertUnprocessable();
         $response->assertJsonPath(
             'message',
-            self::resolve(TranslatorInterface::class)->translate('sidebar.action.send-invoice-lines-to-harbor.invoice-lines-not-for-customer'),
+            self::resolve(TranslatorInterface::class)
+                ->translate('sidebar.action.send-invoice-lines-to-harbor.invoice-lines-not-for-customer'),
         );
 
         Queue::assertNotPushed(DispatchConsolidatedInvoicesForCustomer::class);
@@ -724,16 +863,18 @@ class CustomersControllerTest extends IntegrationTestCase
     #[Test]
     public function propagateInvoiceLinesToHarborRejectsUnknownInvoiceLineId(): void
     {
-        $response = $this->actingAsEmployee()
-            ->postJson(
-                $this->generateRoute('admin.customers.invoice-lines.propagate', ['customer' => $this->normalCustomer->customer_number]),
-                ['invoiceLineIds' => [696969]],
-            );
+        $response = $this->actingAsEmployee()->postJson(
+            $this->generateRoute('admin.customers.invoice-lines.propagate', [
+                'customer' => $this->normalCustomer->customer_number,
+            ]),
+            ['invoiceLineIds' => [696969]],
+        );
 
         $response->assertUnprocessable();
         $response->assertJsonPath(
             'message',
-            self::resolve(TranslatorInterface::class)->translate('sidebar.action.send-invoice-lines-to-harbor.invoice-lines-not-for-customer'),
+            self::resolve(TranslatorInterface::class)
+                ->translate('sidebar.action.send-invoice-lines-to-harbor.invoice-lines-not-for-customer'),
         );
 
         Queue::assertNotPushed(DispatchConsolidatedInvoicesForCustomer::class);
@@ -742,11 +883,12 @@ class CustomersControllerTest extends IntegrationTestCase
     #[Test]
     public function propagateInvoiceLinesToHarborRequiresAtLeastOneInvoiceLineId(): void
     {
-        $response = $this->actingAsEmployee()
-            ->postJson(
-                $this->generateRoute('admin.customers.invoice-lines.propagate', ['customer' => $this->normalCustomer->customer_number]),
-                ['invoiceLineIds' => []],
-            );
+        $response = $this->actingAsEmployee()->postJson(
+            $this->generateRoute('admin.customers.invoice-lines.propagate', [
+                'customer' => $this->normalCustomer->customer_number,
+            ]),
+            ['invoiceLineIds' => []],
+        );
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors('invoiceLineIds');
@@ -757,11 +899,10 @@ class CustomersControllerTest extends IntegrationTestCase
     #[Test]
     public function propagateInvoiceLinesToHarborFailsForUnknownCustomer(): void
     {
-        $response = $this->actingAsEmployee()
-            ->postJson(
-                $this->generateRoute('admin.customers.invoice-lines.propagate', ['customer' => '696969']),
-                ['invoiceLineIds' => [1]],
-            );
+        $response = $this->actingAsEmployee()->postJson(
+            $this->generateRoute('admin.customers.invoice-lines.propagate', ['customer' => '696969']),
+            ['invoiceLineIds' => [1]],
+        );
 
         $response->assertNotFound();
     }
@@ -772,8 +913,11 @@ class CustomersControllerTest extends IntegrationTestCase
         new OrderFactory()->for($this->normalCustomer)->createOne(['status' => OrderStatus::IN_PROGRESS]);
         new OrderFactory()->for($this->normalCustomer)->createOne(['status' => OrderStatus::PROCESSED]);
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.orders.list', ['customer' => $this->normalCustomer->customer_number]) . '?status[]=' . OrderStatus::PROCESSED->value);
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.orders.list', [
+            'customer' => $this->normalCustomer->customer_number,
+        ])
+        . '?status[]='
+        . OrderStatus::PROCESSED->value);
 
         $response->assertOk();
         $response->assertJsonCount(1, 'data');
@@ -785,8 +929,10 @@ class CustomersControllerTest extends IntegrationTestCase
     {
         new OrderFactory()->for($this->normalCustomer)->createOne(['status' => OrderStatus::IN_PROGRESS]);
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.orders.list', ['customer' => $this->normalCustomer->customer_number]) . '?status[]=not_a_real_status');
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.orders.list', [
+            'customer' => $this->normalCustomer->customer_number,
+        ])
+            . '?status[]=not_a_real_status');
 
         $response->assertOk();
         $response->assertJsonCount(0, 'data');
@@ -796,14 +942,19 @@ class CustomersControllerTest extends IntegrationTestCase
     public function listOrdersFiltersOnOrderedByEmployee(): void
     {
         new OrderFactory()->for($this->normalCustomer)->createOne([
-            'ordered_by_metadata' => json_encode(['schemaId' => 'employee', 'email' => 'agent@yourhosting.nl'], JSON_THROW_ON_ERROR),
+            'ordered_by_metadata' => json_encode([
+                'schemaId' => 'employee',
+                'email' => 'agent@yourhosting.nl',
+            ], JSON_THROW_ON_ERROR),
         ]);
         new OrderFactory()->for($this->normalCustomer)->createOne([
             'ordered_by_metadata' => json_encode(['schemaId' => 'customer'], JSON_THROW_ON_ERROR),
         ]);
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.orders.list', ['customer' => $this->normalCustomer->customer_number]) . '?ordered_by=employee');
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.orders.list', [
+            'customer' => $this->normalCustomer->customer_number,
+        ])
+            . '?ordered_by=employee');
 
         $response->assertOk();
         $response->assertJsonCount(1, 'data');
@@ -813,14 +964,19 @@ class CustomersControllerTest extends IntegrationTestCase
     public function listOrdersFiltersOnOrderedByCustomer(): void
     {
         new OrderFactory()->for($this->normalCustomer)->createOne([
-            'ordered_by_metadata' => json_encode(['schemaId' => 'employee', 'email' => 'agent@yourhosting.nl'], JSON_THROW_ON_ERROR),
+            'ordered_by_metadata' => json_encode([
+                'schemaId' => 'employee',
+                'email' => 'agent@yourhosting.nl',
+            ], JSON_THROW_ON_ERROR),
         ]);
         new OrderFactory()->for($this->normalCustomer)->createOne([
             'ordered_by_metadata' => json_encode(['schemaId' => 'customer'], JSON_THROW_ON_ERROR),
         ]);
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.orders.list', ['customer' => $this->normalCustomer->customer_number]) . '?ordered_by=customer');
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.orders.list', [
+            'customer' => $this->normalCustomer->customer_number,
+        ])
+            . '?ordered_by=customer');
 
         $response->assertOk();
         $response->assertJsonCount(1, 'data');
@@ -830,11 +986,16 @@ class CustomersControllerTest extends IntegrationTestCase
     public function listOrdersIgnoresInvalidOrderedByValue(): void
     {
         new OrderFactory()->for($this->normalCustomer)->createOne([
-            'ordered_by_metadata' => json_encode(['schemaId' => 'employee', 'email' => 'agent@yourhosting.nl'], JSON_THROW_ON_ERROR),
+            'ordered_by_metadata' => json_encode([
+                'schemaId' => 'employee',
+                'email' => 'agent@yourhosting.nl',
+            ], JSON_THROW_ON_ERROR),
         ]);
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.orders.list', ['customer' => $this->normalCustomer->customer_number]) . '?ordered_by=system');
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.orders.list', [
+            'customer' => $this->normalCustomer->customer_number,
+        ])
+            . '?ordered_by=system');
 
         $response->assertOk();
         $response->assertJsonCount(1, 'data');
@@ -844,14 +1005,22 @@ class CustomersControllerTest extends IntegrationTestCase
     public function listOrdersSearchesByEmployeeEmail(): void
     {
         new OrderFactory()->for($this->normalCustomer)->createOne([
-            'ordered_by_metadata' => json_encode(['schemaId' => 'employee', 'email' => 'agent@yourhosting.nl'], JSON_THROW_ON_ERROR),
+            'ordered_by_metadata' => json_encode([
+                'schemaId' => 'employee',
+                'email' => 'agent@yourhosting.nl',
+            ], JSON_THROW_ON_ERROR),
         ]);
         new OrderFactory()->for($this->normalCustomer)->createOne([
-            'ordered_by_metadata' => json_encode(['schemaId' => 'employee', 'email' => 'other@yourhosting.nl'], JSON_THROW_ON_ERROR),
+            'ordered_by_metadata' => json_encode([
+                'schemaId' => 'employee',
+                'email' => 'other@yourhosting.nl',
+            ], JSON_THROW_ON_ERROR),
         ]);
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.orders.list', ['customer' => $this->normalCustomer->customer_number]) . '?search=agent%40yourhosting.nl');
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.orders.list', [
+            'customer' => $this->normalCustomer->customer_number,
+        ])
+            . '?search=agent%40yourhosting.nl');
 
         $response->assertOk();
         $response->assertJsonCount(1, 'data');
@@ -861,11 +1030,16 @@ class CustomersControllerTest extends IntegrationTestCase
     public function listOrdersEmailSearchDoesNotAllowSqlInjection(): void
     {
         new OrderFactory()->for($this->normalCustomer)->createOne([
-            'ordered_by_metadata' => json_encode(['schemaId' => 'employee', 'email' => 'agent@yourhosting.nl'], JSON_THROW_ON_ERROR),
+            'ordered_by_metadata' => json_encode([
+                'schemaId' => 'employee',
+                'email' => 'agent@yourhosting.nl',
+            ], JSON_THROW_ON_ERROR),
         ]);
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.orders.list', ['customer' => $this->normalCustomer->customer_number]) . "?search=' OR '1'='1");
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.orders.list', [
+            'customer' => $this->normalCustomer->customer_number,
+        ])
+            . "?search=' OR '1'='1");
 
         $response->assertOk();
         $response->assertJsonCount(0, 'data');
@@ -879,16 +1053,17 @@ class CustomersControllerTest extends IntegrationTestCase
         $migratedCustomer->customers()->save($customer);
 
         $guzzleMock = self::createMock(Client::class);
-        $guzzleMock->expects(self::once())
-            ->method('post');
+        $guzzleMock->expects(self::once())->method('post');
 
         $this->app->bind(Client::class, fn () => $guzzleMock);
 
-        $this->actingAsEmployee()->post($this->generateRoute('admin.customers.requestBuInvoices', $customer->customer_number), [
-            'referenceCustomerNumber' => $migratedCustomer->reference_customer_number,
-            'fromDate' => CarbonImmutable::now()->subWeek()->format('Y-m-d'),
-            'toDate' => CarbonImmutable::now()->format('Y-m-d'),
-        ])->assertOk();
+        $this->actingAsEmployee()
+            ->post($this->generateRoute('admin.customers.requestBuInvoices', $customer->customer_number), [
+                'referenceCustomerNumber' => $migratedCustomer->reference_customer_number,
+                'fromDate' => CarbonImmutable::now()->subWeek()->format('Y-m-d'),
+                'toDate' => CarbonImmutable::now()->format('Y-m-d'),
+            ])
+            ->assertOk();
     }
 
     #[Test]
@@ -899,15 +1074,18 @@ class CustomersControllerTest extends IntegrationTestCase
         ]);
 
         $this->actingAsEmployee()
-            ->putJson($this->generateRoute('admin.customers.contacts.update', [
-                'customer'        => $this->normalCustomer->customer_number,
-                'customerContact' => $contact->uuid,
-            ]), [
-                'first_name' => 'Jane',
-                'last_name'  => 'Doe',
-                'email'      => 'jane.doe@sandwave.io',
-                'type'       => CustomerContactType::FINANCIAL->value,
-            ])
+            ->putJson(
+                $this->generateRoute('admin.customers.contacts.update', [
+                    'customer' => $this->normalCustomer->customer_number,
+                    'customerContact' => $contact->uuid,
+                ]),
+                [
+                    'first_name' => 'Jane',
+                    'last_name' => 'Doe',
+                    'email' => 'jane.doe@sandwave.io',
+                    'type' => CustomerContactType::FINANCIAL->value,
+                ],
+            )
             ->assertNoContent();
 
         $contact->refresh();
@@ -925,15 +1103,18 @@ class CustomersControllerTest extends IntegrationTestCase
         ]);
 
         $this->actingAsEmployee()
-            ->putJson($this->generateRoute('admin.customers.contacts.update', [
-                'customer'        => $this->normalCustomer->customer_number,
-                'customerContact' => $contact->uuid,
-            ]), [
-                'first_name' => 'Jane',
-                'last_name'  => 'Doe',
-                'email'      => 'not-an-email',
-                'type'       => 'invalid-type',
-            ])
+            ->putJson(
+                $this->generateRoute('admin.customers.contacts.update', [
+                    'customer' => $this->normalCustomer->customer_number,
+                    'customerContact' => $contact->uuid,
+                ]),
+                [
+                    'first_name' => 'Jane',
+                    'last_name' => 'Doe',
+                    'email' => 'not-an-email',
+                    'type' => 'invalid-type',
+                ],
+            )
             ->assertUnprocessable();
     }
 
@@ -941,16 +1122,20 @@ class CustomersControllerTest extends IntegrationTestCase
     public function listAvailableVolumeDiscountsReturnsOnlyUnassignedVolumeDiscounts(): void
     {
         $productGroup = new ProductGroupFactory()->volumeDiscount()->createOne();
-        $available = new ProductDiscountFactory()
-            ->for(new ProductFactory()->for($productGroup)->createOne())
+        $available = new ProductDiscountFactory()->for(
+            new ProductFactory()->for($productGroup)->createOne(),
+        )->createOne();
+        $assigned = new ProductDiscountFactory()->for(
+            new ProductFactory()->for($productGroup)->createOne(),
+        )->createOne();
+        new CustomerProductDiscountFactory()
+            ->for($this->normalCustomer)
+            ->for($assigned)
             ->createOne();
-        $assigned = new ProductDiscountFactory()
-            ->for(new ProductFactory()->for($productGroup)->createOne())
-            ->createOne();
-        new CustomerProductDiscountFactory()->for($this->normalCustomer)->for($assigned)->createOne();
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.customers.volume-discounts.available', ['customer' => $this->normalCustomer->customer_number]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.customers.volume-discounts.available', [
+            'customer' => $this->normalCustomer->customer_number,
+        ]));
 
         $response->assertOk();
         $response->assertJsonCount(1, 'data');
@@ -963,11 +1148,16 @@ class CustomersControllerTest extends IntegrationTestCase
     {
         $productGroup = new ProductGroupFactory()->volumeDiscount()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
-        new ProductPriceComponentFactory()->for($product)->registration()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne();
         $volumeDiscount = new ProductDiscountFactory()->for($product)->createOne();
 
         $response = $this->actingAsEmployee()->postJson(
-            $this->generateRoute('admin.customers.add.volume.discount', ['customer' => $this->normalCustomer->customer_number]),
+            $this->generateRoute('admin.customers.add.volume.discount', [
+                'customer' => $this->normalCustomer->customer_number,
+            ]),
             ['product_discount_id' => $volumeDiscount->id, 'period' => 12],
         );
 
@@ -977,30 +1167,38 @@ class CustomersControllerTest extends IntegrationTestCase
             self::resolve(TranslatorInterface::class)->translate('action.add-volume-discount.linked-successfully'),
         );
         self::assertCount(1, $volumeDiscount->customers);
-        self::assertTrue($this->normalCustomer->subscriptions()->where('product_uuid', $volumeDiscount->product->uuid)->exists());
+        self::assertTrue(
+            $this->normalCustomer->subscriptions()->where('product_uuid', $volumeDiscount->product->uuid)->exists(),
+        );
     }
 
     #[Test]
     public function addVolumeDiscountFailsWhenTheCustomerAlreadyHasAProductDiscount(): void
     {
         $productGroup = new ProductGroupFactory()->volumeDiscount()->createOne();
-        $existingDiscount = new ProductDiscountFactory()
-            ->for(new ProductFactory()->for($productGroup)->createOne())
+        $existingDiscount = new ProductDiscountFactory()->for(
+            new ProductFactory()->for($productGroup)->createOne(),
+        )->createOne();
+        new CustomerProductDiscountFactory()
+            ->for($this->normalCustomer)
+            ->for($existingDiscount)
             ->createOne();
-        new CustomerProductDiscountFactory()->for($this->normalCustomer)->for($existingDiscount)->createOne();
-        $volumeDiscount = new ProductDiscountFactory()
-            ->for(new ProductFactory()->for($productGroup)->createOne())
-            ->createOne();
+        $volumeDiscount = new ProductDiscountFactory()->for(
+            new ProductFactory()->for($productGroup)->createOne(),
+        )->createOne();
 
         $response = $this->actingAsEmployee()->postJson(
-            $this->generateRoute('admin.customers.add.volume.discount', ['customer' => $this->normalCustomer->customer_number]),
+            $this->generateRoute('admin.customers.add.volume.discount', [
+                'customer' => $this->normalCustomer->customer_number,
+            ]),
             ['product_discount_id' => $volumeDiscount->id, 'period' => 12],
         );
 
         $response->assertUnprocessable();
         $response->assertJsonPath(
             'message',
-            self::resolve(TranslatorInterface::class)->translate('action.add-volume-discount.customer-has-volume-discount'),
+            self::resolve(TranslatorInterface::class)
+                ->translate('action.add-volume-discount.customer-has-volume-discount'),
         );
         self::assertCount(0, $volumeDiscount->customers);
     }
@@ -1011,14 +1209,17 @@ class CustomersControllerTest extends IntegrationTestCase
         $volumeDiscount = new ProductDiscountFactory()->createOne();
 
         $response = $this->actingAsEmployee()->postJson(
-            $this->generateRoute('admin.customers.add.volume.discount', ['customer' => $this->normalCustomer->customer_number]),
+            $this->generateRoute('admin.customers.add.volume.discount', [
+                'customer' => $this->normalCustomer->customer_number,
+            ]),
             ['product_discount_id' => $volumeDiscount->id, 'period' => 12],
         );
 
         $response->assertUnprocessable();
         $response->assertJsonPath(
             'message',
-            self::resolve(TranslatorInterface::class)->translate('action.add-volume-discount.discount-has-no-product-linked'),
+            self::resolve(TranslatorInterface::class)
+                ->translate('action.add-volume-discount.discount-has-no-product-linked'),
         );
         self::assertCount(0, $volumeDiscount->customers);
     }
@@ -1027,7 +1228,9 @@ class CustomersControllerTest extends IntegrationTestCase
     public function addVolumeDiscountRequiresAnExistingProductDiscountAndAPeriod(): void
     {
         $response = $this->actingAsEmployee()->postJson(
-            $this->generateRoute('admin.customers.add.volume.discount', ['customer' => $this->normalCustomer->customer_number]),
+            $this->generateRoute('admin.customers.add.volume.discount', [
+                'customer' => $this->normalCustomer->customer_number,
+            ]),
             ['product_discount_id' => 0],
         );
 

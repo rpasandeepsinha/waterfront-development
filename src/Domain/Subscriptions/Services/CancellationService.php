@@ -56,7 +56,7 @@ class CancellationService
             'Cancelling subscription %s (%s): %s',
             $subscription->domain ?? '',
             $subscription->uuid,
-            $cancelType->value
+            $cancelType->value,
         ), [
             LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
             LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
@@ -74,7 +74,7 @@ class CancellationService
             $noteMessage = sprintf(
                 'Subscription cancelled. %s, generated end date: %s',
                 $cancelNote,
-                $generatedEndDate->format(DateTimeFormat::DATE)
+                $generatedEndDate->format(DateTimeFormat::DATE),
             );
 
             $this->storeNoteAction->execute($noteMessage, $subscription);
@@ -87,7 +87,7 @@ class CancellationService
                     AdministrativeStatus::ARCHIVING->value,
                     ...AdministrativeStatus::administrativelyEnded(),
                 ],
-                true
+                true,
             )) {
                 continue;
             }
@@ -127,7 +127,10 @@ class CancellationService
     {
         $revertedSubscriptions = new Collection([$subscription]);
 
-        if ($subscription->administrative_status !== AdministrativeStatus::CANCELED->value || $subscription->cancel_date === null) {
+        if (
+            $subscription->administrative_status !== AdministrativeStatus::CANCELED->value
+            || $subscription->cancel_date === null
+        ) {
             throw CancelNotRevertedException::subscriptionNotCancelled($subscription->id, $subscription->uuid);
         }
 
@@ -157,9 +160,10 @@ class CancellationService
     {
         /** @var Subscription $parentSubscription */
         $parentSubscription = Subscription::where('uuid', $parentUuid)->first();
-        $childSubscriptions = Subscription::where('parent_subscription_id', $parentSubscription->id)
-            ->where('administrative_status', AdministrativeStatus::ACTIVE->value)
-            ->get();
+        $childSubscriptions = Subscription::where('parent_subscription_id', $parentSubscription->id)->where(
+            'administrative_status',
+            AdministrativeStatus::ACTIVE->value,
+        )->get();
 
         if ($childSubscriptions->count() < $amount) {
             throw new AmountException($this->translator->translate('service.cancel.child-subscriptions.fail'));
@@ -194,12 +198,12 @@ class CancellationService
                 'productName' => $subscription->product->name,
                 'subscriptionEndDate' => $subscription->end_date->format('d M Y'),
                 'contractPeriod' => $subscription->contract_period,
-            ]
+            ],
         )->toArray();
 
         $this->mailer->send(
             [$subscription->customer],
-            new MailSubscriptionCancelReverted($formattedSubscriptions)
+            new MailSubscriptionCancelReverted($formattedSubscriptions),
         );
     }
 
@@ -217,7 +221,8 @@ class CancellationService
             return null;
         }
 
-        $dnsSubscription = Subscription::query()->whereProductGroupType(ProductGroupType::DNS)
+        $dnsSubscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::DNS)
             ->where('domain', $subscription->domain)
             ->where('customer_id', $subscription->customer_id)
             ->where('administrative_status', AdministrativeStatus::CANCELED->value)
@@ -225,6 +230,7 @@ class CancellationService
 
         if ($dnsSubscription instanceof Subscription) {
             $this->revertSubscriptionCancel($dnsSubscription);
+
             return $dnsSubscription;
         }
 
@@ -237,7 +243,8 @@ class CancellationService
             return null;
         }
 
-        $freeRedirectSubscription = Subscription::query()->whereProductGroupType(ProductGroupType::HOSTING)
+        $freeRedirectSubscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::HOSTING)
             ->whereHas('product', function (Builder $query): void {
                 $query->where('slug', ProductType::FREE_REDIRECT);
             })
@@ -248,6 +255,7 @@ class CancellationService
 
         if ($freeRedirectSubscription instanceof Subscription) {
             $this->revertSubscriptionCancel($freeRedirectSubscription);
+
             return $freeRedirectSubscription;
         }
 
@@ -280,8 +288,11 @@ class CancellationService
         }
     }
 
-    private function generateEndDateForCancellation(Subscription $subscription, SubscriptionCancelType $cancelType, ?CarbonImmutable $endDate): CarbonImmutable
-    {
+    private function generateEndDateForCancellation(
+        Subscription $subscription,
+        SubscriptionCancelType $cancelType,
+        ?CarbonImmutable $endDate,
+    ): CarbonImmutable {
         if ($cancelType !== SubscriptionCancelType::CANCEL_OTHER) {
             return $subscription->end_date;
         }
@@ -294,7 +305,7 @@ class CancellationService
     private function cancelWithEndDate(
         Subscription $subscription,
         SubscriptionCancelType $cancelType,
-        ?CarbonImmutable $endDate
+        ?CarbonImmutable $endDate,
     ): void {
         if ($cancelType !== SubscriptionCancelType::CANCEL_OTHER) {
             return;
@@ -303,7 +314,7 @@ class CancellationService
         $generatedEndDate = $this->generateEndDateForCancellation(
             $subscription,
             $cancelType,
-            $endDate
+            $endDate,
         );
 
         $subscription->end_date = $generatedEndDate;
@@ -316,7 +327,7 @@ class CancellationService
                     AdministrativeStatus::ARCHIVING->value,
                     ...AdministrativeStatus::administrativelyEnded(),
                 ],
-                true
+                true,
             )) {
                 continue;
             }
@@ -326,8 +337,10 @@ class CancellationService
         }
     }
 
-    private function sendConfirmationMailToCustomer(Subscription $subscription, SubscriptionCancelType $cancelType): void
-    {
+    private function sendConfirmationMailToCustomer(
+        Subscription $subscription,
+        SubscriptionCancelType $cancelType,
+    ): void {
         $this->mailer->send(
             [$subscription->customer],
             new MailSubscriptionCancelled(
@@ -335,8 +348,8 @@ class CancellationService
                 $subscription->product->name,
                 $subscription->domain ?? '',
                 $subscription->end_date->format('d M Y'),
-                $cancelType->value
-            )
+                $cancelType->value,
+            ),
         );
     }
 }

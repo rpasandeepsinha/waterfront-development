@@ -32,17 +32,20 @@ class UpdateTlsaRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'TLSA',
-                'name'     => 'google.com',
+                'type' => 'TLSA',
+                'name' => 'google.com',
                 'disabled' => true,
-                'ttl'      => '600',
+                'ttl' => '600',
             ],
         ];
 
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     #[Test]
@@ -50,11 +53,11 @@ class UpdateTlsaRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'TLSA',
-                'name'     => 'google.com',
-                'content'  => '0 1 5 aapnootmies',
+                'type' => 'TLSA',
+                'name' => 'google.com',
+                'content' => '0 1 5 aapnootmies',
                 'disabled' => true,
-                'ttl'      => '600',
+                'ttl' => '600',
             ],
         ];
 
@@ -63,7 +66,7 @@ class UpdateTlsaRecordValidationTest extends IntegrationTestCase
         self::assertTrue($validator->fails());
         self::assertSame(
             ['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.tlsa_content')]],
-            $validator->errors()->toArray()
+            $validator->errors()->toArray(),
         );
     }
 
@@ -72,11 +75,11 @@ class UpdateTlsaRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'TLSA',
-                'name'     => 'google.com',
-                'content'  => '0 0 1 943f910c1ae7f084bc38a28b4d343bd07c2116ae9cbaf8394208f9b98eb8a7ba',
+                'type' => 'TLSA',
+                'name' => 'google.com',
+                'content' => '0 0 1 943f910c1ae7f084bc38a28b4d343bd07c2116ae9cbaf8394208f9b98eb8a7ba',
                 'disabled' => true,
-                'ttl'      => '600',
+                'ttl' => '600',
             ],
         ];
 

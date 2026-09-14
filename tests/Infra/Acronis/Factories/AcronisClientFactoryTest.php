@@ -52,8 +52,9 @@ class AcronisClientFactoryTest extends IntegrationTestCase
             'client_secret' => self::CLIENT_SECRET,
         ]);
 
-        $acronisBackupDeployment = AcronisBackupDeploymentFactory::new()
-            ->createOne(['acronis_provider_id' => $provider->id]);
+        $acronisBackupDeployment = AcronisBackupDeploymentFactory::new()->createOne([
+            'acronis_provider_id' => $provider->id,
+        ]);
 
         $acronisClient = $this->acronisClientFactory->createFromDeployment($acronisBackupDeployment);
 
@@ -83,8 +84,9 @@ class AcronisClientFactoryTest extends IntegrationTestCase
             'client_secret' => self::CLIENT_SECRET,
         ]);
 
-        $acronisBackupDeployment = AcronisBackupDeploymentFactory::new()
-            ->createOne(['acronis_provider_id' => $provider->id]);
+        $acronisBackupDeployment = AcronisBackupDeploymentFactory::new()->createOne([
+            'acronis_provider_id' => $provider->id,
+        ]);
 
         $acronisClient = $this->acronisClientFactory->createFromDeployment($acronisBackupDeployment);
 
@@ -113,13 +115,11 @@ class AcronisClientFactoryTest extends IntegrationTestCase
             'client_secret' => self::CLIENT_SECRET,
         ]);
 
-        $defaultProvider = AcronisProviderFactory::new()
-            ->default()
-            ->createOne([
-                'endpoint' => $expectedEndpoint,
-                'client_id' => Uuid::fromString(self::CLIENT_ID),
-                'client_secret' => self::CLIENT_SECRET,
-            ]);
+        $defaultProvider = AcronisProviderFactory::new()->default()->createOne([
+            'endpoint' => $expectedEndpoint,
+            'client_id' => Uuid::fromString(self::CLIENT_ID),
+            'client_secret' => self::CLIENT_SECRET,
+        ]);
 
         $clientFactory = $this->app->make(AcronisClientFactory::class);
 
@@ -158,7 +158,7 @@ class AcronisClientFactoryTest extends IntegrationTestCase
         return (function () use ($property, $targetClass) {
             IntegrationTestCase::assertTrue(
                 property_exists($this, $property),
-                sprintf('Property "%s" not found on %s.', $property, $targetClass)
+                sprintf('Property "%s" not found on %s.', $property, $targetClass),
             );
 
             return $this->{$property}; // @phpstan-ignore property.dynamicName

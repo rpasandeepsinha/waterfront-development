@@ -12,8 +12,9 @@ use Waterfront\Infra\Translation\TranslatorInterface;
 
 class NovaCustomerTypeFilter extends BooleanFilter
 {
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     public function name(): string
@@ -28,6 +29,7 @@ class NovaCustomerTypeFilter extends BooleanFilter
             if (Arr::get($value, 'migration') === true) {
                 $builder->whereHas('migratedCustomers');
             }
+
             if (Arr::get($value, 'non-migration') === true) {
                 $builder->whereDoesntHave('migratedCustomers');
             }

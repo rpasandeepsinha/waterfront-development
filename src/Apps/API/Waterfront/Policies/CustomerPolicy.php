@@ -46,9 +46,8 @@ class CustomerPolicy
         if ($subject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::MANAGE_DOMAIN_CONTACTS)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::MANAGE_DOMAIN_CONTACTS)) {
             throw new AuthorizationException();
         }
     }
@@ -63,9 +62,8 @@ class CustomerPolicy
         if ($subject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::MANAGE_LABELS)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::MANAGE_LABELS)) {
             throw new AuthorizationException();
         }
     }
@@ -81,9 +79,7 @@ class CustomerPolicy
             throw new AuthorizationException();
         }
 
-        if (
-            ! $this->authorizationChecker->can(Permissions::VIEW_PROFILE_CUSTOMER_DETAILS)
-        ) {
+        if (! $this->authorizationChecker->can(Permissions::VIEW_PROFILE_CUSTOMER_DETAILS)) {
             throw new AuthorizationException();
         }
     }
@@ -98,9 +94,8 @@ class CustomerPolicy
         if ($subject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::MANAGE_M365)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::MANAGE_M365)) {
             throw new AuthorizationException();
         }
     }
@@ -115,9 +110,8 @@ class CustomerPolicy
         if ($subject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::MANAGE_VPS)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::MANAGE_VPS)) {
             throw new AuthorizationException();
         }
     }
@@ -143,9 +137,8 @@ class CustomerPolicy
         if ($subject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::MANAGE_DNS_TEMPLATES)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::MANAGE_DNS_TEMPLATES)) {
             throw new AuthorizationException();
         }
     }
@@ -160,9 +153,8 @@ class CustomerPolicy
         if ($subject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::APPLY_TECHNICAL_CONFIGURATION_TO_SUBSCRIPTIONS)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::APPLY_TECHNICAL_CONFIGURATION_TO_SUBSCRIPTIONS)) {
             throw new AuthorizationException();
         }
     }
@@ -177,9 +169,8 @@ class CustomerPolicy
         if ($subject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::MANAGE_SUBSCRIPTION)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::MANAGE_SUBSCRIPTION)) {
             throw new AuthorizationException();
         }
     }
@@ -194,9 +185,8 @@ class CustomerPolicy
         if ($subject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::MANAGE_DEPLOYMENT)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::MANAGE_DEPLOYMENT)) {
             throw new AuthorizationException();
         }
     }
@@ -359,9 +349,7 @@ class CustomerPolicy
             return;
         }
 
-        if (
-            ! $this->authorizationChecker->can(Permissions::VIEW_PROFILE_CUSTOMER_PAYMENT)
-        ) {
+        if (! $this->authorizationChecker->can(Permissions::VIEW_PROFILE_CUSTOMER_PAYMENT)) {
             throw new AuthorizationException();
         }
     }
@@ -376,9 +364,8 @@ class CustomerPolicy
         if ($subject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::VIEW_SUBSCRIPTION_DETAILS)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::VIEW_SUBSCRIPTION_DETAILS)) {
             throw new AuthorizationException();
         }
     }
@@ -394,9 +381,7 @@ class CustomerPolicy
             return;
         }
 
-        if (
-            ! $this->authorizationChecker->can(Permissions::VIEW_PROFILE_CUSTOMER_DETAILS)
-        ) {
+        if (! $this->authorizationChecker->can(Permissions::VIEW_PROFILE_CUSTOMER_DETAILS)) {
             throw new AuthorizationException();
         }
     }
@@ -412,9 +397,7 @@ class CustomerPolicy
             return;
         }
 
-        if (
-            ! $this->authorizationChecker->can(Permissions::VIEW_PROFILE_CUSTOMER_DOMAIN)
-        ) {
+        if (! $this->authorizationChecker->can(Permissions::VIEW_PROFILE_CUSTOMER_DOMAIN)) {
             throw new AuthorizationException();
         }
     }
@@ -433,9 +416,8 @@ class CustomerPolicy
         if ($authSubject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::VIEW_ORDERS)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::VIEW_ORDERS)) {
             throw new AuthorizationException();
         }
     }
@@ -446,9 +428,8 @@ class CustomerPolicy
         if ($authSubject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::VIEW_PROFILE)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::VIEW_PROFILE)) {
             throw new AuthorizationException();
         }
     }
@@ -459,9 +440,8 @@ class CustomerPolicy
         if ($authSubject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::MANAGE_IDENTITIES)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::MANAGE_IDENTITIES)) {
             throw new AuthorizationException();
         }
     }
@@ -472,9 +452,8 @@ class CustomerPolicy
         if ($authSubject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::VIEW_CONTACT)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::VIEW_CONTACT)) {
             throw new AuthorizationException();
         }
     }
@@ -485,9 +464,8 @@ class CustomerPolicy
         if ($authSubject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::VIEW_CONFIGURATION)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::VIEW_CONFIGURATION)) {
             throw new AuthorizationException();
         }
     }
@@ -498,9 +476,8 @@ class CustomerPolicy
         if ($authSubject->identitySchema->schemaId === SchemaId::EMPLOYEE) {
             return;
         }
-        if (
-            ! $this->authorizationChecker->can(Permissions::VIEW_INVOICES)
-        ) {
+
+        if (! $this->authorizationChecker->can(Permissions::VIEW_INVOICES)) {
             throw new AuthorizationException();
         }
     }

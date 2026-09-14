@@ -43,7 +43,7 @@ class VoucherServiceTest extends IntegrationTestCase
             [
                 'findByCode' => $voucher,
                 'hasCustomerClaimedVoucher' => $alreadyClaimed,
-            ]
+            ],
         );
 
         $voucherService = new VoucherService($repoStub);
@@ -66,7 +66,7 @@ class VoucherServiceTest extends IntegrationTestCase
             [
                 'findByCode' => $voucher,
                 'hasCustomerClaimedVoucher' => false,
-            ]
+            ],
         );
 
         $voucherService = new VoucherService($repoStub);
@@ -78,8 +78,8 @@ class VoucherServiceTest extends IntegrationTestCase
     public function updateVoucherPersistsAllowedFields(): void
     {
         $voucher = new VoucherFactory()->createOne([
-            'description'     => 'old description',
-            'max_claims'      => 5,
+            'description' => 'old description',
+            'max_claims' => 5,
             'expiration_date' => CarbonImmutable::tomorrow(),
         ]);
 
@@ -115,8 +115,8 @@ class VoucherServiceTest extends IntegrationTestCase
     public function updateVoucherAllowsNullableFields(): void
     {
         $voucher = new VoucherFactory()->createOne([
-            'description'     => 'old description',
-            'max_claims'      => 5,
+            'description' => 'old description',
+            'max_claims' => 5,
             'expiration_date' => CarbonImmutable::tomorrow(),
         ]);
 

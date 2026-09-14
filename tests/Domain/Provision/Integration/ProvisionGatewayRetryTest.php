@@ -58,7 +58,7 @@ class ProvisionGatewayRetryTest extends TestCase
             lastname: 'kees',
             email: $brokenEmail,
             contractPeriod: 12,
-            context: Uuid::uuid4()
+            context: Uuid::uuid4(),
         );
 
         $gateway = new ProvisionGateway(
@@ -69,7 +69,11 @@ class ProvisionGatewayRetryTest extends TestCase
             retryRequestValidator: $this->app->make(RetryRequestValidator::class),
         );
 
-        $mockedResult = new ProvisionResult($request, ProvisionStatus::VALIDATION_ERROR, validationResult: new ValidationResult(false, ['general' => ['error']]));
+        $mockedResult = new ProvisionResult(
+            $request,
+            ProvisionStatus::VALIDATION_ERROR,
+            validationResult: new ValidationResult(false, ['general' => ['error']]),
+        );
         $mockService->expects('send')->once()->with($request)->andReturn($mockedResult);
 
         $failedValidationResult = $gateway->request($request);

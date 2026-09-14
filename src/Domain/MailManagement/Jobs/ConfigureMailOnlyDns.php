@@ -18,7 +18,7 @@ class ConfigureMailOnlyDns extends AbstractQueueableJob
         public string $domain,
         public string $primaryHost,
         public string $fallbackHost,
-        public string $mailRecordIp
+        public string $mailRecordIp,
     ) {
         parent::__construct();
     }

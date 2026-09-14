@@ -15,8 +15,9 @@ use Psr\Log\LoggerInterface;
 
 class ResetLoggerJobEventListener
 {
-    public function __construct(private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     public function handle(JobFailed|JobProcessed|JobExceptionOccurred|JobReleasedAfterException $event): void

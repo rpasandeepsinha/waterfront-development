@@ -65,27 +65,30 @@ class RtrPollNotificationsTest extends IntegrationTestCase
         ]);
 
         $notificationsService = self::createMock(RtrNotificationsService::class);
-        $notificationsService->expects(self::once())
+        $notificationsService
+            ->expects(self::once())
             ->method('pollForNextNotifications')
             ->with(10)
             ->willReturn([$sslNotification, $transferNotification]);
-        $notificationsService->expects(self::exactly(2))
+        $notificationsService
+            ->expects(self::exactly(2))
             ->method('acknowledgeNotification')
             ->with(
                 ...self::withConsecutive(
                     [1],
                     [2],
-                )
+                ),
             );
 
         $notificationProcessor = self::createMock(RtrNotificationProcessor::class);
-        $notificationProcessor->expects(self::exactly(2))
+        $notificationProcessor
+            ->expects(self::exactly(2))
             ->method('process')
             ->with(
                 ...self::withConsecutive(
                     [$sslNotification],
                     [$transferNotification],
-                )
+                ),
             );
 
         $this->instance(RtrNotificationsService::class, $notificationsService);
@@ -98,16 +101,11 @@ class RtrPollNotificationsTest extends IntegrationTestCase
     public function pollNoNotifications(): void
     {
         $notificationsService = self::createMock(RtrNotificationsService::class);
-        $notificationsService->expects(self::once())
-            ->method('pollForNextNotifications')
-            ->with(10)
-            ->willReturn([]);
-        $notificationsService->expects(self::never())
-            ->method('acknowledgeNotification');
+        $notificationsService->expects(self::once())->method('pollForNextNotifications')->with(10)->willReturn([]);
+        $notificationsService->expects(self::never())->method('acknowledgeNotification');
 
         $notificationProcessor = self::createMock(RtrNotificationProcessor::class);
-        $notificationProcessor->expects(self::never())
-            ->method('process');
+        $notificationProcessor->expects(self::never())->method('process');
 
         $this->instance(RtrNotificationsService::class, $notificationsService);
         $this->instance(RtrNotificationProcessor::class, $notificationProcessor);
@@ -155,17 +153,19 @@ class RtrPollNotificationsTest extends IntegrationTestCase
         ]);
 
         $notificationsService = self::createMock(RtrNotificationsService::class);
-        $notificationsService->expects(self::once())
+        $notificationsService
+            ->expects(self::once())
             ->method('pollForNextNotifications')
             ->with(10)
             ->willReturn([$transferNotification, $sslNotification]);
-        $notificationsService->expects(self::exactly(2))
+        $notificationsService
+            ->expects(self::exactly(2))
             ->method('acknowledgeNotification')
             ->with(
                 ...self::withConsecutive(
                     [2],
                     [3],
-                )
+                ),
             );
 
         $exception = new RuntimeException('Processing failed');
@@ -177,20 +177,22 @@ class RtrPollNotificationsTest extends IntegrationTestCase
             'process_identifier' => $transferNotification->processIdentifier,
         ];
         $notificationProcessor = self::createMock(RtrNotificationProcessor::class);
-        $notificationProcessor->expects(self::exactly(2))
+        $notificationProcessor
+            ->expects(self::exactly(2))
             ->method('process')
             ->with(
                 ...self::withConsecutive(
                     [$transferNotification],
                     [$sslNotification],
-                )
+                ),
             )
             ->willReturnOnConsecutiveCalls(
                 self::throwException($exception),
                 null,
             );
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'RTR notification processing failed',
@@ -199,7 +201,7 @@ class RtrPollNotificationsTest extends IntegrationTestCase
                     self::assertSame($expectedLogMeta, $context[LoggingContextKeys::META]);
 
                     return true;
-                })
+                }),
             );
 
         $this->instance(RtrNotificationsService::class, $notificationsService);

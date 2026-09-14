@@ -7,29 +7,29 @@ use Waterfront\Domain\Customers\Models\Customer;
 
 return [
     'defaults' => [
-        'guard'     => 'api',
+        'guard' => 'api',
         'passwords' => 'customers',
     ],
 
     'guards' => [
         'api' => [
-            'driver'   => 'session',
+            'driver' => 'session',
             'provider' => 'customers',
-            'hash'     => false,
+            'hash' => false,
         ],
     ],
 
     'providers' => [
         'customers' => [
             'driver' => 'eloquent',
-            'model'  => Customer::class,
+            'model' => Customer::class,
         ],
     ],
     // Name of the cookie that is used for authenticating from the SPA
     'token_cookie' => 'authToken',
 
     // Token that will be used for the Kayako chat.
-    'token_chat'   => Env::get('TOKEN_CHAT'),
+    'token_chat' => Env::get('TOKEN_CHAT'),
 
     // The url where our JWKS can be retrieved from in order to decode the bearer token.
     'oathkeeper_jwks_url' => Env::get('OATHKEEPER_JWKS_ENDPOINT'),

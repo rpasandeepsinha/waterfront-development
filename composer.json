@@ -7,7 +7,7 @@
     "scripts": {
         "lint": [
             "vendor/bin/rector process",
-            "vendor/bin/php-cs-fixer fix",
+            "composer style:fix",
             "vendor/bin/phpstan --memory-limit=2G"
         ],
         "post-autoload-dump": [
@@ -31,10 +31,10 @@
             "vendor/bin/phpstan --memory-limit=2G --debug"
         ],
         "style": [
-            "vendor/bin/php-cs-fixer fix --dry-run --diff --show-progress=none"
+            "vendor/bin/mago format --check"
         ],
         "style:fix": [
-            "vendor/bin/php-cs-fixer fix"
+            "vendor/bin/mago format"
         ],
         "test": [
             "@php artisan test -p --no-coverage"

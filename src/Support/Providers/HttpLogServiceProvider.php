@@ -18,6 +18,7 @@ class HttpLogServiceProvider extends ServiceProvider
     {
         $this->app->singleton(function (Container $app): MaskerInterface {
             $logger = $app->make(LoggerInterface::class);
+
             return new JsonLogMasker($logger);
         });
 

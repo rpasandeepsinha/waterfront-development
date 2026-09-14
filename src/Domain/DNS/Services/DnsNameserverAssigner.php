@@ -19,7 +19,7 @@ class DnsNameserverAssigner implements NameserverAssignerInterface
 
     public function __construct(
         private readonly DnsNameserverRetriever $retriever,
-        private readonly DnsDeploymentRepository $dnsDeploymentRepository
+        private readonly DnsDeploymentRepository $dnsDeploymentRepository,
     ) {
     }
 
@@ -39,7 +39,7 @@ class DnsNameserverAssigner implements NameserverAssignerInterface
         $nameservers = $this->retriever->retrieve(self::DEFAULT_NAMESERVER_COUNT);
 
         $ids = $nameservers->map(
-            static fn (DnsNameserver $nameserver) => $nameserver->id
+            static fn (DnsNameserver $nameserver) => $nameserver->id,
         );
 
         $dnsDeployment->dnsNameservers()->sync($ids);

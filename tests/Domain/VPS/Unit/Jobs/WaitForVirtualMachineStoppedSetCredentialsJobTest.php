@@ -38,7 +38,7 @@ class WaitForVirtualMachineStoppedSetCredentialsJobTest extends TestCase
         $this->deployment->subscription_uuid = 'sub-xyz';
 
         $this->cloudstackJob = new CloudstackJob(['job_id' => 'job-123']);
-        $this->jobResponse  = $this->createMock(AsynchronousCloudstackResponse::class);
+        $this->jobResponse = $this->createMock(AsynchronousCloudstackResponse::class);
     }
 
     #[Test]
@@ -47,12 +47,12 @@ class WaitForVirtualMachineStoppedSetCredentialsJobTest extends TestCase
         $job = new WaitForVirtualMachineStoppedSetCredentialsJob(
             $this->deployment,
             $this->cloudstackJob,
-            $this->jobResponse
+            $this->jobResponse,
         );
 
         self::assertSame(
             [10, 20, 30, 60, 360],
-            $job->backoff()
+            $job->backoff(),
         );
     }
 
@@ -69,9 +69,9 @@ class WaitForVirtualMachineStoppedSetCredentialsJobTest extends TestCase
             ->onlyMethods(['release'])
             ->getMock();
 
-        $vmService  = $this->createMock(VirtualMachineService::class);
+        $vmService = $this->createMock(VirtualMachineService::class);
         $vpsService = $this->createMock(VpsService::class);
-        $logger     = $this->createMock(LoggerInterface::class);
+        $logger = $this->createMock(LoggerInterface::class);
 
         $vmService
             ->expects(self::once())
@@ -85,7 +85,7 @@ class WaitForVirtualMachineStoppedSetCredentialsJobTest extends TestCase
                 username: 'u',
                 nic: [],
                 state: CloudstackMachineState::RUNNING,
-                serviceOfferingId: 'so'
+                serviceOfferingId: 'so',
             ));
 
         $logger
@@ -93,10 +93,7 @@ class WaitForVirtualMachineStoppedSetCredentialsJobTest extends TestCase
             ->method('info')
             ->with(self::stringContains('Waiting for VM to stop, current state: Running'));
 
-        $job
-            ->expects(self::once())
-            ->method('release')
-            ->with(self::isInt());
+        $job->expects(self::once())->method('release')->with(self::isInt());
 
         $vpsService->expects(self::never())->method('mailCustomerVmDetails');
         $vmService->expects(self::never())->method('postReinstall');
@@ -107,14 +104,14 @@ class WaitForVirtualMachineStoppedSetCredentialsJobTest extends TestCase
     #[Test]
     public function handleWhenVmStoppedMailsAndCallsPostReinstall(): void
     {
-        $vmService  = $this->createMock(VirtualMachineService::class);
+        $vmService = $this->createMock(VirtualMachineService::class);
         $vpsService = $this->createMock(VpsService::class);
-        $logger     = $this->createMock(LoggerInterface::class);
+        $logger = $this->createMock(LoggerInterface::class);
 
         $job = new WaitForVirtualMachineStoppedSetCredentialsJob(
             $this->deployment,
             $this->cloudstackJob,
-            $this->jobResponse
+            $this->jobResponse,
         );
 
         $vmService
@@ -129,40 +126,32 @@ class WaitForVirtualMachineStoppedSetCredentialsJobTest extends TestCase
                 username: 'u',
                 nic: [],
                 state: CloudstackMachineState::STOPPED,
-                serviceOfferingId: 'so'
+                serviceOfferingId: 'so',
             ));
 
-        $logger->expects(self::never())
-               ->method('info')
-               ->with(self::stringContains('Waiting for VM to stop'));
+        $logger->expects(self::never())->method('info')->with(self::stringContains('Waiting for VM to stop'));
 
         $fakeData = [
-            'id'                => 'vm1',
-            'name'              => 'n',
-            'domainid'          => 'd',
-            'account'           => 'a',
-            'username'          => 'u',
-            'nic'               => [],
-            'state'             => CloudstackMachineState::STOPPED->value,
+            'id' => 'vm1',
+            'name' => 'n',
+            'domainid' => 'd',
+            'account' => 'a',
+            'username' => 'u',
+            'nic' => [],
+            'state' => CloudstackMachineState::STOPPED->value,
             'serviceofferingid' => 'so',
         ];
-        $this->jobResponse
-            ->expects(self::once())
-            ->method('retrieveReinstallData')
-            ->willReturn($fakeData);
+        $this->jobResponse->expects(self::once())->method('retrieveReinstallData')->willReturn($fakeData);
 
         $vpsService
             ->expects(self::once())
             ->method('mailCustomerVmDetails')
             ->with(
                 $this->deployment,
-                self::callback(fn ($vm) => $vm instanceof VirtualMachine && $vm->id === 'vm1')
+                self::callback(fn ($vm) => $vm instanceof VirtualMachine && $vm->id === 'vm1'),
             );
 
-        $vmService
-            ->expects(self::once())
-            ->method('postReinstall')
-            ->with($this->deployment, $this->cloudstackJob);
+        $vmService->expects(self::once())->method('postReinstall')->with($this->deployment, $this->cloudstackJob);
 
         $job->handle($vmService, $vpsService, $logger);
     }

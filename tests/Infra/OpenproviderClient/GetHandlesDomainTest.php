@@ -25,14 +25,14 @@ class GetHandlesDomainTest extends TestCase
         $response = new HttpResponse(
             200,
             [],
-            (string) file_get_contents(__DIR__ . '/data/openprovider_retrieve_handle_response.xml')
+            (string) file_get_contents(__DIR__ . '/data/openprovider_retrieve_handle_response.xml'),
         );
 
         $handlerStack = HandlerStack::create(new MockHandler([
             new HttpResponse(
                 200,
                 [],
-                (string) file_get_contents(__DIR__ . '/data/openprovider_retrieve_handle_response.xml')
+                (string) file_get_contents(__DIR__ . '/data/openprovider_retrieve_handle_response.xml'),
             ),
         ]));
         $guzzleClient = new Client(['handler' => $handlerStack]);

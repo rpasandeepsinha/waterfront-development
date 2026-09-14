@@ -34,7 +34,9 @@ class LineItemResource extends JsonResource
             'voucher_amount_claimed' => $this->resource->voucherClaim?->amount_claimed,
             'voucher_amount_type' => $this->resource->voucherClaim?->voucher->amount_type,
             'processed_at' => $this->resource->processed_at,
-            'product_group' => $this->resource->product === null ? null : ProductGroupResource::make($this->resource->product->productGroup),
+            'product_group' => $this->resource->product === null
+                ? null
+                : ProductGroupResource::make($this->resource->product->productGroup),
             'available_actions' => $orderPolicy->getAvailableCompassActionsForLineItem($this->resource),
         ];
     }

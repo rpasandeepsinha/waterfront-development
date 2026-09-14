@@ -14,7 +14,12 @@ class RetrySslDeploymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'csr' => ['sometimes', 'nullable', 'string', 'regex:/^-----BEGIN CERTIFICATE REQUEST-----(.|\s)+-----END CERTIFICATE REQUEST-----$/'],
+            'csr' => [
+                'sometimes',
+                'nullable',
+                'string',
+                'regex:/^-----BEGIN CERTIFICATE REQUEST-----(.|\s)+-----END CERTIFICATE REQUEST-----$/',
+            ],
         ];
     }
 }

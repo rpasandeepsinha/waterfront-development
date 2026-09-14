@@ -19,7 +19,7 @@ use Waterfront\Infra\Microsoft\Graph\Config\ConnectorConfig;
 readonly class GraphServiceClientFactory
 {
     public function __construct(
-        private ConnectorConfig $config
+        private ConnectorConfig $config,
     ) {
     }
 
@@ -44,9 +44,9 @@ readonly class GraphServiceClientFactory
 
         $defaultRequestAdapter = new GuzzleRequestAdapter(
             authenticationProvider: GraphPhpLeagueAuthenticationProvider::createWithAccessTokenProvider(
-                new GraphPhpLeagueAccessTokenProvider($tokenRequestContext, $scopes, NationalCloud::GLOBAL)
+                new GraphPhpLeagueAccessTokenProvider($tokenRequestContext, $scopes, NationalCloud::GLOBAL),
             ),
-            guzzleClient: $this->getClient()
+            guzzleClient: $this->getClient(),
         );
         $defaultRequestAdapter->setBaseUrl(NationalCloud::GLOBAL . '/v1.0');
 

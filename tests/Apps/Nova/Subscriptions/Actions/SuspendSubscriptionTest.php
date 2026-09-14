@@ -54,7 +54,7 @@ class SuspendSubscriptionTest extends IntegrationTestCase
                 [
                     'administrative_status' => AdministrativeStatus::ACTIVE->value,
                     'technical_status' => TechnicalStatus::OK->value,
-                ]
+                ],
             );
     }
 
@@ -63,9 +63,11 @@ class SuspendSubscriptionTest extends IntegrationTestCase
     {
         $this->mockRtrClient();
 
-        new DomainDeploymentFactory()->withRtrProvider()->createOne([
-            'subscription_uuid' => $this->domainSubscription->uuid,
-        ]);
+        new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->createOne([
+                'subscription_uuid' => $this->domainSubscription->uuid,
+            ]);
 
         $this->suspendSubscriptionAction->handle(
             new ActionFields(new Collection(), new Collection()),
@@ -82,9 +84,11 @@ class SuspendSubscriptionTest extends IntegrationTestCase
     #[Test]
     public function suspendSubscriptionFailedNotImplementedByDomainProvider(): void
     {
-        new DomainDeploymentFactory()->withPlaceholderProvider()->createOne([
-            'subscription_uuid' => $this->domainSubscription->uuid,
-        ]);
+        new DomainDeploymentFactory()
+            ->withPlaceholderProvider()
+            ->createOne([
+                'subscription_uuid' => $this->domainSubscription->uuid,
+            ]);
 
         $this->suspendSubscriptionAction->handle(
             new ActionFields(new Collection(), new Collection()),
@@ -106,11 +110,11 @@ class SuspendSubscriptionTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                json_encode($this->getMockedResult(), JSON_THROW_ON_ERROR)
+                json_encode($this->getMockedResult(), JSON_THROW_ON_ERROR),
             ),
             new Response(
                 200,
-                []
+                [],
             ),
         ], static function (RequestInterface $request) use (&$rtrRequests): void {
             $rtrRequests[] = $request;

@@ -43,13 +43,15 @@ class NovaBackupDeploymentResource extends Resource
         return [
             ID::make()->onlyOnDetail(),
 
-            HasOne::make(self::translate('provisioning-request.singular'), 'request', NovaProvisionRequestResource::class)
-                ->onlyOnDetail(),
+            HasOne::make(
+                self::translate('provisioning-request.singular'),
+                'request',
+                NovaProvisionRequestResource::class,
+            )->onlyOnDetail(),
 
             Text::make(
                 self::translate('acronis-backup-deployment.tenant_uuid'),
-                fn (): ?string =>
-                $this->resource->acronisBackupDeployment?->tenant_uuid?->toString()
+                fn (): ?string => $this->resource->acronisBackupDeployment?->tenant_uuid?->toString(),
             )
                 ->onlyOnDetail()
                 ->copyable()
@@ -57,8 +59,7 @@ class NovaBackupDeploymentResource extends Resource
 
             Text::make(
                 self::translate('acronis-backup-deployment.user_uuid'),
-                fn (): ?string =>
-                $this->resource->acronisBackupDeployment?->user_uuid?->toString()
+                fn (): ?string => $this->resource->acronisBackupDeployment?->user_uuid?->toString(),
             )
                 ->onlyOnDetail()
                 ->copyable()

@@ -21,8 +21,7 @@ class ConfigurationTest extends TestCase
     public function getAsStringShouldReturnString(): void
     {
         $laravelConfig = $this->createStub(Repository::class);
-        $laravelConfig->method('get')
-            ->willReturn('testValue');
+        $laravelConfig->method('get')->willReturn('testValue');
 
         $configuration = new Configuration($laravelConfig);
         $value = $configuration->getAsString('testKey');
@@ -36,8 +35,7 @@ class ConfigurationTest extends TestCase
         $this->expectException(ConfigurationException::class);
 
         $laravelConfig = $this->createStub(Repository::class);
-        $laravelConfig->method('get')
-            ->willReturn(null);
+        $laravelConfig->method('get')->willReturn(null);
 
         $configuration = new Configuration($laravelConfig);
         $configuration->getAsString('testKey');
@@ -50,8 +48,7 @@ class ConfigurationTest extends TestCase
         $this->expectException(ConfigurationException::class);
 
         $laravelConfig = $this->createStub(Repository::class);
-        $laravelConfig->method('get')
-            ->willReturn($value);
+        $laravelConfig->method('get')->willReturn($value);
 
         $configuration = new Configuration($laravelConfig);
         $configuration->getAsString('testKey');
@@ -69,8 +66,7 @@ class ConfigurationTest extends TestCase
     public function getAsBooleanShouldReturnBoolean(mixed $input, bool $expected): void
     {
         $laravelConfig = $this->createStub(Repository::class);
-        $laravelConfig->method('get')
-            ->willReturn($input);
+        $laravelConfig->method('get')->willReturn($input);
 
         $configuration = new Configuration($laravelConfig);
         $value = $configuration->getAsBoolean('testKey');
@@ -98,8 +94,7 @@ class ConfigurationTest extends TestCase
         $this->expectException(ConfigurationException::class);
 
         $laravelConfig = $this->createStub(Repository::class);
-        $laravelConfig->method('get')
-            ->willReturn(null);
+        $laravelConfig->method('get')->willReturn(null);
 
         $configuration = new Configuration($laravelConfig);
         $configuration->getAsBoolean('testKey');
@@ -112,8 +107,7 @@ class ConfigurationTest extends TestCase
         $this->expectException(ConfigurationException::class);
 
         $laravelConfig = $this->createStub(Repository::class);
-        $laravelConfig->method('get')
-            ->willReturn($value);
+        $laravelConfig->method('get')->willReturn($value);
 
         $configuration = new Configuration($laravelConfig);
         $configuration->getAsBoolean('testKey');
@@ -131,8 +125,7 @@ class ConfigurationTest extends TestCase
     public function getAsIntegerShouldReturnInteger(mixed $input, int $expected): void
     {
         $laravelConfig = $this->createStub(Repository::class);
-        $laravelConfig->method('get')
-            ->willReturn($input);
+        $laravelConfig->method('get')->willReturn($input);
 
         $configuration = new Configuration($laravelConfig);
         $value = $configuration->getAsInteger('testKey');
@@ -156,8 +149,7 @@ class ConfigurationTest extends TestCase
         $this->expectException(ConfigurationException::class);
 
         $laravelConfig = $this->createStub(Repository::class);
-        $laravelConfig->method('get')
-            ->willReturn(null);
+        $laravelConfig->method('get')->willReturn(null);
 
         $configuration = new Configuration($laravelConfig);
         $configuration->getAsInteger('testKey');
@@ -170,8 +162,7 @@ class ConfigurationTest extends TestCase
         $this->expectException(ConfigurationException::class);
 
         $laravelConfig = $this->createStub(Repository::class);
-        $laravelConfig->method('get')
-            ->willReturn($value);
+        $laravelConfig->method('get')->willReturn($value);
 
         $configuration = new Configuration($laravelConfig);
         $configuration->getAsInteger('testKey');
@@ -189,8 +180,7 @@ class ConfigurationTest extends TestCase
     public function getAsFloatShouldReturnFloat(mixed $input, float $expected): void
     {
         $laravelConfig = $this->createStub(Repository::class);
-        $laravelConfig->method('get')
-            ->willReturn($input);
+        $laravelConfig->method('get')->willReturn($input);
 
         $configuration = new Configuration($laravelConfig);
         $value = $configuration->getAsFloat('testKey');
@@ -216,8 +206,7 @@ class ConfigurationTest extends TestCase
         $this->expectException(ConfigurationException::class);
 
         $laravelConfig = $this->createStub(Repository::class);
-        $laravelConfig->method('get')
-            ->willReturn(null);
+        $laravelConfig->method('get')->willReturn(null);
 
         $configuration = new Configuration($laravelConfig);
         $configuration->getAsFloat('testKey');
@@ -230,8 +219,7 @@ class ConfigurationTest extends TestCase
         $this->expectException(ConfigurationException::class);
 
         $laravelConfig = $this->createStub(Repository::class);
-        $laravelConfig->method('get')
-            ->willReturn($value);
+        $laravelConfig->method('get')->willReturn($value);
 
         $configuration = new Configuration($laravelConfig);
         $configuration->getAsFloat('testKey');

@@ -7,9 +7,9 @@ namespace Waterfront\Infra\MollieClient\DTO\Mandates;
 readonly class MollieMandateDetailsDTO
 {
     public function __construct(
-        public string|null $consumerName,
-        public string|null $consumerAccount,
-        public string|null $consumerBic,
+        public ?string $consumerName,
+        public ?string $consumerAccount,
+        public ?string $consumerBic,
     ) {
     }
 }

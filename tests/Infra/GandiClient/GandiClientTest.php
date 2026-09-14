@@ -26,14 +26,10 @@ class GandiClientTest extends TestCase
         $successRecordResponse = file_get_contents(__DIR__ . '/data/success_get_records.json');
 
         $mockResponse = self::mock(Response::class);
-        $mockResponse->shouldReceive('body')
-            ->andReturn($successRecordResponse);
+        $mockResponse->shouldReceive('body')->andReturn($successRecordResponse);
 
         $mockConnector = self::mock(GandiConnector::class);
-        $mockConnector->shouldReceive('send')
-            ->once()
-            ->with(GetDomainRecordsRequest::class)
-            ->andReturn($mockResponse);
+        $mockConnector->shouldReceive('send')->once()->with(GetDomainRecordsRequest::class)->andReturn($mockResponse);
 
         $gandi = new GandiClient($mockConnector, new GandiSerializer());
 
@@ -67,11 +63,11 @@ class GandiClientTest extends TestCase
 
         $mockResponse = self::mock(Response::class);
 
-        $mockResponse->shouldReceive('body')
-            ->andReturn(''); // 204 No Content
+        $mockResponse->shouldReceive('body')->andReturn(''); // 204 No Content
 
         $mockConnector = self::mock(GandiConnector::class);
-        $mockConnector->shouldReceive('send')
+        $mockConnector
+            ->shouldReceive('send')
             ->once()
             ->with(DeleteDomainRecordsRequest::class)
             ->andReturn($mockResponse);

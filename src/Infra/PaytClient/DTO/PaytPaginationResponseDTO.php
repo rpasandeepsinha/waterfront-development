@@ -7,7 +7,7 @@ namespace Waterfront\Infra\PaytClient\DTO;
 readonly class PaytPaginationResponseDTO
 {
     public function __construct(
-        public ?string $cursor = null
+        public ?string $cursor = null,
     ) {
     }
 }

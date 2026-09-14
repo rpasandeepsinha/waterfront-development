@@ -44,27 +44,27 @@ class NovaSshKeyResource extends Resource
             BelongsTo::make(
                 self::translate('customer.singular'),
                 'customer',
-                NovaCustomerResource::class
+                NovaCustomerResource::class,
             ),
             Text::make(
                 self::translate('ssh_key.attributes.uuid'),
-                'uuid'
+                'uuid',
             )->onlyOnDetail(),
             Text::make(
                 self::translate('ssh_key.attributes.key_name'),
-                'key_name'
+                'key_name',
             ),
             Text::make(
                 self::translate('ssh_key.attributes.public_key'),
-                'public_key'
+                'public_key',
             )->onlyOnDetail(),
             Text::make(
                 self::translate('ssh_key.attributes.fingerprint'),
-                'fingerprint'
+                'fingerprint',
             ),
             Text::make(
                 self::translate('ssh_key.attributes.cloudstack_ssh_name'),
-                'cloudstack_ssh_name'
+                'cloudstack_ssh_name',
             )->onlyOnDetail(),
         ];
     }

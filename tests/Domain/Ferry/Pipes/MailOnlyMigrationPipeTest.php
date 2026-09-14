@@ -64,17 +64,20 @@ class MailOnlyMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/mail_only_migration/mail_only_bad_payload_missing_fields.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/mail_only_migration/mail_only_bad_payload_missing_fields.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(MailOnlyMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -94,12 +97,17 @@ class MailOnlyMigrationPipeTest extends IntegrationTestCase
         $serverDirectAdmin = $serverDirectAdmin->fresh();
 
         $mock = self::createStub(HostingService::class);
-        $mock->method('getUserConfigAsDto')
+        $mock
+            ->method('getUserConfigAsDto')
             ->willReturnCallback(
-                fn (string $driver, string $userName, Server $server): SiteConfigInterface => match ([$driver, $userName, $server]) {
+                fn (string $driver, string $userName, Server $server): SiteConfigInterface => match ([
+                    $driver,
+                    $userName,
+                    $server,
+                ]) {
                     [ProviderSlug::DIRECTADMIN->value, $username, $serverDirectAdmin] => [],
                     default => throw new UnexpectedValueException(),
-                }
+                },
             )
             ->willThrowException(new TransferException('unable to connect to server'));
 
@@ -119,17 +127,20 @@ class MailOnlyMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/mail_only_migration/mail_only_bad_payload_user.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/mail_only_migration/mail_only_bad_payload_user.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(MailOnlyMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -147,7 +158,8 @@ class MailOnlyMigrationPipeTest extends IntegrationTestCase
         $serverDirectAdmin = $serverDirectAdmin->fresh();
 
         $mockHostingService = self::createStub(HostingService::class);
-        $mockHostingService->method('getUserConfigAsDto')
+        $mockHostingService
+            ->method('getUserConfigAsDto')
             ->willReturn(new UserConfig(
                 dnscontrol: 'ON',
                 ssl: 'ON',
@@ -166,8 +178,7 @@ class MailOnlyMigrationPipeTest extends IntegrationTestCase
 
         $mockAction = self::createStub(GetSsoUrlAction::class);
 
-        $mockAction->method('execute')
-            ->willThrowException(new SsoResolveException('unable to connect to server'));
+        $mockAction->method('execute')->willThrowException(new SsoResolveException('unable to connect to server'));
 
         $this->app->bind(GetSsoUrlAction::class, fn () => $mockAction);
 
@@ -185,17 +196,20 @@ class MailOnlyMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/mail_only_migration/mail_only_bad_payload_user.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/mail_only_migration/mail_only_bad_payload_user.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(MailOnlyMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -245,17 +259,21 @@ class MailOnlyMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/mail_only_migration/mail_only_bad_payload_user_denormalize_exception.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include
+            __DIR__ . '/data/mail_only_migration/mail_only_bad_payload_user_denormalize_exception.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(MailOnlyMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -275,12 +293,17 @@ class MailOnlyMigrationPipeTest extends IntegrationTestCase
         $serverDirectAdmin = $serverDirectAdmin->fresh();
 
         $mock = self::createStub(HostingService::class);
-        $mock->method('getUserConfigAsDto')
+        $mock
+            ->method('getUserConfigAsDto')
             ->willReturnCallback(
-                fn (string $driver, string $userName, Server $server): SiteConfigInterface => match ([$driver, $userName, $server]) {
+                fn (string $driver, string $userName, Server $server): SiteConfigInterface => match ([
+                    $driver,
+                    $userName,
+                    $server,
+                ]) {
                     [ProviderSlug::DIRECTADMIN->value, $username, $serverDirectAdmin] => [],
                     default => throw new UnexpectedValueException(),
-                }
+                },
             )
             ->willReturn(new UserConfig(
                 dnscontrol: 'ON',
@@ -312,17 +335,21 @@ class MailOnlyMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/mail_only_migration/mail_only_bad_payload_matched_nameservers_external_domain.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include
+            __DIR__ . '/data/mail_only_migration/mail_only_bad_payload_matched_nameservers_external_domain.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(MailOnlyMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -343,7 +370,7 @@ class MailOnlyMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
@@ -354,7 +381,10 @@ class MailOnlyMigrationPipeTest extends IntegrationTestCase
         );
 
         $hostingMigrationPipe = self::resolve(MailOnlyMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }

@@ -24,8 +24,9 @@ class TerminateMailOnlyHosting extends AbstractQueueableJob
     /** @var array<int> */
     public array $backoff = [60, 2 * 60, 10 * 60, 30 * 60, 60 * 60];
 
-    public function __construct(private readonly MailableEventInterface $event)
-    {
+    public function __construct(
+        private readonly MailableEventInterface $event,
+    ) {
         parent::__construct();
     }
 
@@ -39,7 +40,7 @@ class TerminateMailOnlyHosting extends AbstractQueueableJob
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->event->getSubscription()->uuid,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
         }
     }

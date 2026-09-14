@@ -31,7 +31,7 @@ class MollieMandateManager
      */
     public function findOrCreateMandate(
         MollieCustomer $mollieCustomer,
-        MollieMandateCreateInterface $mollieMandateCreateDTO
+        MollieMandateCreateInterface $mollieMandateCreateDTO,
     ): MollieMandateResponseDTO {
         $existingValidMandate = $this->findAndSyncValidMandate(
             $mollieCustomer,
@@ -66,7 +66,7 @@ class MollieMandateManager
             // Create new mandate externally
             $externalMollieMandate = $this->mollieMandateClient->createMandate(
                 $mollieCustomer->mollie_customer_reference_id,
-                $mollieMandateCreateDTO
+                $mollieMandateCreateDTO,
             );
         } catch (MollieMandateApiException $exception) {
             $mandate->forceDelete();
@@ -91,7 +91,7 @@ class MollieMandateManager
 
         return $this->mollieMandateClient->getMandate(
             $mollieCustomer->mollie_customer_reference_id,
-            $mandate->mollie_mandate_reference_id
+            $mandate->mollie_mandate_reference_id,
         );
     }
 
@@ -110,14 +110,18 @@ class MollieMandateManager
      *
      * @throws MollieMandateApiException
      */
-    private function findAndSyncValidMandate(MollieCustomer $mollieCustomer, MollieMandateMethod $method, string $identifiableValue): MollieMandateResponseDTO|null
-    {
+    private function findAndSyncValidMandate(
+        MollieCustomer $mollieCustomer,
+        MollieMandateMethod $method,
+        string $identifiableValue,
+    ): ?MollieMandateResponseDTO {
         $mandates = $this->mollieMandateClient->listMandates($mollieCustomer->mollie_customer_reference_id);
 
         $existingValidMandate = $this->filterValidMandate($mandates, $method, $identifiableValue);
 
         if ($existingValidMandate instanceof MollieMandateResponseDTO) {
-            $dbEntryExists = $mollieCustomer->mandates()
+            $dbEntryExists = $mollieCustomer
+                ->mandates()
                 ->where('mollie_mandate_reference_id', $existingValidMandate->id)
                 ->exists();
 
@@ -144,19 +148,24 @@ class MollieMandateManager
     /**
      * @param array<int, MollieMandateResponseDTO> $mandates
      */
-    private function filterValidMandate(array $mandates, MollieMandateMethod $method, string $identifiableValue): MollieMandateResponseDTO|null
-    {
-        return new Collection($mandates)
-            ->first(function (MollieMandateResponseDTO $mandate) use ($method, $identifiableValue) {
-                if (
-                    $mandate->status === MollieMandateStatus::VALID &&
-                    $mandate->method === $method &&
-                    $mandate->details->consumerAccount === $identifiableValue
-                ) {
-                    return $mandate;
-                }
+    private function filterValidMandate(
+        array $mandates,
+        MollieMandateMethod $method,
+        string $identifiableValue,
+    ): ?MollieMandateResponseDTO {
+        return new Collection($mandates)->first(function (MollieMandateResponseDTO $mandate) use (
+            $method,
+            $identifiableValue,
+        ) {
+            if (
+                $mandate->status === MollieMandateStatus::VALID
+                && $mandate->method === $method
+                && $mandate->details->consumerAccount === $identifiableValue
+            ) {
+                return $mandate;
+            }
 
-                return null;
-            });
+            return null;
+        });
     }
 }

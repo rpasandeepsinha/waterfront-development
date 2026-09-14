@@ -16,7 +16,7 @@ class DomainOccupation
         public array $domains,
         public int $domainsInUse,
         public int $domainsAvailable,
-        public int $maxDomains
+        public int $maxDomains,
     ) {
     }
 }

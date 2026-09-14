@@ -16,8 +16,11 @@ class TechnicalSteps
      *
      * @return array<MigrationStep>
      */
-    public function getSteps(ProductGroupType $productGroup, ?array $options, ?bool $domainInSupportedRegistry = null): array
-    {
+    public function getSteps(
+        ProductGroupType $productGroup,
+        ?array $options,
+        ?bool $domainInSupportedRegistry = null,
+    ): array {
         switch ($productGroup) {
             case ProductGroupType::EXTENSION:
                 assert($options !== null);

@@ -183,7 +183,7 @@ class PowerDnsRecordContentSerializerTest extends TestCase
         $serializer = new PowerDnsRecordContentSerializer();
 
         $data = $serializer->unserialize('MX', '10 mx.google.com');
-        self::assertSame([ 'priority' => '10', 'content' => 'mx.google.com'], $data);
+        self::assertSame(['priority' => '10', 'content' => 'mx.google.com'], $data);
     }
 
     #[Test]
@@ -204,11 +204,11 @@ class PowerDnsRecordContentSerializerTest extends TestCase
 
         $data = $serializer->unserialize(
             'SRV',
-            '10 5 5060 sipserver.testing.test.'
+            '10 5 5060 sipserver.testing.test.',
         );
         self::assertSame(
             ['priority' => '10', 'weight' => '5', 'port' => '5060', 'content' => 'sipserver.testing.test.'],
-            $data
+            $data,
         );
     }
 
@@ -219,20 +219,20 @@ class PowerDnsRecordContentSerializerTest extends TestCase
 
         $data = $serializer->unserialize(
             'TXT',
-            '"test"'
+            '"test"',
         );
         self::assertSame(
             ['content' => 'test'],
-            $data
+            $data,
         );
 
         $data = $serializer->unserialize(
             'TXT',
-            'test'
+            'test',
         );
         self::assertSame(
             ['content' => 'test'],
-            $data
+            $data,
         );
     }
 
@@ -243,20 +243,20 @@ class PowerDnsRecordContentSerializerTest extends TestCase
 
         $data = $serializer->unserialize(
             'SPF',
-            '"test"'
+            '"test"',
         );
         self::assertSame(
             ['content' => 'test'],
-            $data
+            $data,
         );
 
         $data = $serializer->unserialize(
             'SPF',
-            'test'
+            'test',
         );
         self::assertSame(
             ['content' => 'test'],
-            $data
+            $data,
         );
     }
 }

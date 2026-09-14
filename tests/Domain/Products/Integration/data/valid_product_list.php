@@ -460,9 +460,39 @@ return [
     ],
     'experiments' => [
         [
-            'id' => 1234,
             'slug' => ExperimentType::PRICING_LADDER->value,
-            'products' => ['0f88f915-cd1b-40c1-8c3d-0cddfd98dada', 'b766958f-537b-4ce7-aaa1-2dabfdc204f8'],
+            'prices' => [
+                '0f88f915-cd1b-40c1-8c3d-0cddfd98dada' => [
+                    [
+                        'type' => 'registration',
+                        'period' => 12,
+                        'contract_period_in_months' => 12,
+                        'orderable' => true,
+                        'net_price' => 50,
+                        'gross_price' => 50,
+                        'regular_price' => 50,
+                        'price_explanation' => null,
+                        'introduction_price' => 8,
+                        'introduction_price_remaining_uses' => 5,
+                        'action_period' => 3,
+                        'action_period_price' => 8,
+                    ],
+                    [
+                        'type' => 'prolongation',
+                        'period' => 12,
+                        'contract_period_in_months' => 12,
+                        'orderable' => true,
+                        'net_price' => 50,
+                        'gross_price' => 50,
+                        'regular_price' => 50,
+                        'price_explanation' => null,
+                        'introduction_price' => null,
+                        'introduction_price_remaining_uses' => 0,
+                        'action_period' => null,
+                        'action_period_price' => null,
+                    ],
+                ],
+            ],
         ],
     ],
 ];

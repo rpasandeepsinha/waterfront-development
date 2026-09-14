@@ -42,19 +42,13 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
         $testBuSlug = 'flexwebhosting';
         $driver = ProviderSlug::REALTIME_REGISTER;
 
-        $businessUnit = DomainProviderBusinessUnitFactory::new()
-            ->state(['slug' => $testBuSlug])
-            ->createOne();
+        $businessUnit = DomainProviderBusinessUnitFactory::new()->state(['slug' => $testBuSlug])->createOne();
 
-        RtrProviderCredentialsFactory::new()
-            ->for($businessUnit)
-            ->createOne();
+        RtrProviderCredentialsFactory::new()->for($businessUnit)->createOne();
 
         $domainDeployment = DomainDeploymentFactory::new()
             ->for(
-                SubscriptionFactory::new()
-                    ->withCustomer()
-                    ->for(ProductFactory::new()->nlDomain())
+                SubscriptionFactory::new()->withCustomer()->for(ProductFactory::new()->nlDomain()),
             )
             ->withPlaceholderProvider()
             ->createOne();
@@ -78,19 +72,13 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
     {
         $testBuSlug = 'flexwebhosting';
 
-        $businessUnit = DomainProviderBusinessUnitFactory::new()
-            ->state(['slug' => $testBuSlug])
-            ->createOne();
+        $businessUnit = DomainProviderBusinessUnitFactory::new()->state(['slug' => $testBuSlug])->createOne();
 
-        RtrProviderCredentialsFactory::new()
-            ->for($businessUnit)
-            ->createOne();
+        RtrProviderCredentialsFactory::new()->for($businessUnit)->createOne();
 
         $domainDeployment = DomainDeploymentFactory::new()
             ->for(
-                SubscriptionFactory::new()
-                    ->withCustomer()
-                    ->for(ProductFactory::new()->nlDomain())
+                SubscriptionFactory::new()->withCustomer()->for(ProductFactory::new()->nlDomain()),
             )
             ->withRtrProvider()
             ->createOne();
@@ -112,15 +100,11 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
     public function attachBusinessUnitToDomainDeploymentWithoutCredentials(): void
     {
         $testBuSlug = 'flexwebhosting';
-        $businessUnit = DomainProviderBusinessUnitFactory::new()
-            ->state(['slug' => $testBuSlug])
-            ->createOne();
+        $businessUnit = DomainProviderBusinessUnitFactory::new()->state(['slug' => $testBuSlug])->createOne();
 
         $domainDeployment = DomainDeploymentFactory::new()
             ->for(
-                SubscriptionFactory::new()
-                    ->withCustomer()
-                    ->for(ProductFactory::new()->nlDomain())
+                SubscriptionFactory::new()->withCustomer()->for(ProductFactory::new()->nlDomain()),
             )
             ->withRtrProvider()
             ->createOne();
@@ -131,7 +115,7 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
                 'The given business unit slug [%s] does not have credentials for the given provider [%s]. Please ensure that the business unit & credentials exists and is correctly configured.',
                 $testBuSlug,
                 $domainDeployment->provider->slug->value,
-            )
+            ),
         );
 
         $saved = $this->service->attachBusinessUnitToDomainDeployment(
@@ -153,9 +137,7 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
         $testBuSlug = 'flexwebhosting';
         $domainDeployment = DomainDeploymentFactory::new()
             ->for(
-                SubscriptionFactory::new()
-                    ->withCustomer()
-                    ->for(ProductFactory::new()->nlDomain())
+                SubscriptionFactory::new()->withCustomer()->for(ProductFactory::new()->nlDomain()),
             )
             ->withRtrProvider()
             ->createOne();
@@ -164,7 +146,7 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
         self::expectExceptionMessageIs(
             sprintf(
                 'The given business unit slug [%s] could not be found. Please ensure that the business unit exists and is correctly configured.',
-                $testBuSlug
+                $testBuSlug,
             ),
         );
 
@@ -179,13 +161,9 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
         $serializer = DomainSerializerFactory::getSerializer();
         $domainDetails = $serializer->denormalize($domainDetails, DomainDetailsDTO::class);
 
-        $businessUnit = DomainProviderBusinessUnitFactory::new()
-            ->state(['slug' => $testBuSlug])
-            ->createOne();
+        $businessUnit = DomainProviderBusinessUnitFactory::new()->state(['slug' => $testBuSlug])->createOne();
 
-        RtrProviderCredentialsFactory::new()
-            ->for($businessUnit)
-            ->createOne();
+        RtrProviderCredentialsFactory::new()->for($businessUnit)->createOne();
 
         $migratedCustomer = MigratedCustomersFactory::new()->createOne();
 
@@ -194,9 +172,7 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
 
         $domainDeployment = DomainDeploymentFactory::new()
             ->for(
-                SubscriptionFactory::new()
-                    ->withCustomer()
-                    ->for(ProductFactory::new()->nlDomain())
+                SubscriptionFactory::new()->withCustomer()->for(ProductFactory::new()->nlDomain()),
             )
             ->withRtrProvider()
             ->for($businessUnit, 'businessUnit')
@@ -216,7 +192,7 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
             ->with(
                 $technicalMigrationDomain->domainDetails->registrant,
                 ProviderSlug::REALTIME_REGISTER,
-                self::assertCallbackIsModel($businessUnit)
+                self::assertCallbackIsModel($businessUnit),
             )
             ->andReturn($contactResponse);
 
@@ -247,10 +223,11 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
         self::assertSame('John', $domainContact->first_name);
         self::assertSame('Doe', $domainContact->last_name);
         self::assertTrue(
-            $domainContact->providers()
-            ->where('provider_id', $domainDeployment->provider_id)
-            ->wherePivot('domain_business_unit_id', $businessUnit->id)
-            ->exists()
+            $domainContact
+                ->providers()
+                ->where('provider_id', $domainDeployment->provider_id)
+                ->wherePivot('domain_business_unit_id', $businessUnit->id)
+                ->exists(),
         );
     }
 
@@ -283,7 +260,7 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
                 '',
                 '',
                 '',
-                ''
+                '',
             );
 
             $result = $service->parseRemotePhone($response);
@@ -291,11 +268,11 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
             // Should all be configured to the default BU phone number
             self::assertSame(
                 [
-                0 => '31',
-                1 => '123',
-                2 => '4567',
-            ],
-                $result
+                    0 => '31',
+                    1 => '123',
+                    2 => '4567',
+                ],
+                $result,
             );
         }
 
@@ -317,7 +294,7 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
             '',
             '',
             '',
-            ''
+            '',
         );
 
         $result = $service->parseRemotePhone($response);
@@ -329,7 +306,7 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
                 1 => '6',
                 2 => '51116700',
             ],
-            $result
+            $result,
         );
     }
 
@@ -356,7 +333,7 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
             '',
             '',
             '',
-            ''
+            '',
         );
 
         $result = $service->parseRemotePhone($response);
@@ -367,7 +344,7 @@ class DomainAndSslMigrationServiceTest extends IntegrationTestCase
                 1 => '6',
                 2 => '51116700',
             ],
-            $result
+            $result,
         );
     }
 }

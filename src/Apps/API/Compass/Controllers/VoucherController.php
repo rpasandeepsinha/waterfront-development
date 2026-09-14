@@ -21,7 +21,7 @@ class VoucherController
 {
     public function __construct(
         private readonly VoucherService $voucherService,
-        private readonly VoucherPresenter $voucherPresenter
+        private readonly VoucherPresenter $voucherPresenter,
     ) {
     }
 
@@ -37,7 +37,9 @@ class VoucherController
             maxClaims: $request->has('maxClaims') ? $request->integer('maxClaims') : null,
             billingPeriod: $request->has('billingPeriod') ? $request->integer('billingPeriod') : null,
             contractPeriod: $request->has('contractPeriod') ? $request->integer('contractPeriod') : null,
-            expirationDate: $request->has('expirationDate') ? CarbonImmutable::parse($request->string('expirationDate')->toString()) : null,
+            expirationDate: $request->has('expirationDate')
+                ? CarbonImmutable::parse($request->string('expirationDate')->toString())
+                : null,
             applyWithDiscount: (bool) $request->input('applyWithDiscount'),
             allowMultipleClaimsSameCustomer: (bool) $request->input('allowMultipleClaimsSameCustomer'),
             productSlug: $request->has('productSlug') ? $request->string('productSlug')->toString() : null,
@@ -52,9 +54,7 @@ class VoucherController
     public function listVouchers(Request $request): JsonResponse
     {
         $pageSize = is_numeric($request->input('pageSize')) ? (int) $request->input('pageSize') : 100;
-        $vouchers = Voucher::query()
-            ->withCount('claims')
-            ->paginate($pageSize);
+        $vouchers = Voucher::query()->withCount('claims')->paginate($pageSize);
         $vouchers->appends('pageSize', (string) $pageSize);
 
         $data = array_map(fn (Voucher $voucher) => $this->voucherPresenter->toArray($voucher), $vouchers->all());
@@ -77,6 +77,7 @@ class VoucherController
     public function showVoucher(Voucher $voucher): JsonResponse
     {
         $voucher->load(['product', 'productGroup'])->loadCount('claims');
+
         return new JsonResponse($this->voucherPresenter->toArray($voucher));
     }
 

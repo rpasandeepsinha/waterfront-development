@@ -29,9 +29,7 @@ class ProvisionRetryResponseMapper
             $translatedValidationMessages = [];
 
             foreach ($result->validationResult->messages ?? [] as $field => $messages) {
-                $responseField = $field === 'retryOf'
-                    ? $field
-                    : 'retryData.' . $field;
+                $responseField = $field === 'retryOf' ? $field : 'retryData.' . $field;
 
                 $translatedValidationMessages[$responseField] = array_map(function (string $message): string {
                     $provisionError = ProvisionErrorMessage::tryFrom($message);
@@ -75,7 +73,7 @@ class ProvisionRetryResponseMapper
                 'errors' => [
                     'retryOf' => [
                         $this->translator->translate(
-                            'provision.errors.' . ProvisionErrorMessage::RETRY_ORIGIN_NOT_FOUND->value
+                            'provision.errors.' . ProvisionErrorMessage::RETRY_ORIGIN_NOT_FOUND->value,
                         ),
                     ],
                 ],

@@ -29,6 +29,7 @@ class DnssecKeyRule implements ValidationRule, DataAwareRule
     {
         /** @var array<string, mixed> $data */
         $this->data = $data;
+
         return $this;
     }
 
@@ -42,36 +43,41 @@ class DnssecKeyRule implements ValidationRule, DataAwareRule
             return;
         }
 
-        $isFlagsNumeric = is_int($flagsValue) || (is_string($flagsValue) && ctype_digit($flagsValue));
-        $isAlgorithmNumeric = is_int($algorithmValue) || (is_string($algorithmValue) && ctype_digit($algorithmValue));
+        $isFlagsNumeric = is_int($flagsValue) || is_string($flagsValue) && ctype_digit($flagsValue);
+        $isAlgorithmNumeric = is_int($algorithmValue) || is_string($algorithmValue) && ctype_digit($algorithmValue);
 
         $flagsInt = $isFlagsNumeric ? (int) $flagsValue : 0;
         $algorithmInt = $isAlgorithmNumeric ? (int) $algorithmValue : 0;
 
         if (! in_array($flagsInt, [256, 257], true)) {
             $fail('dns.validation.dnssec.flags_invalid');
+
             return;
         }
 
         if ($algorithmInt !== self::REQUIRED_ALGORITHM) {
             $fail('dns.validation.dnssec.algorithm_invalid');
+
             return;
         }
 
         if (! is_string($publicKeyValue)) {
             $fail('dns.validation.dnssec.public_key_string');
+
             return;
         }
 
         $normalizedPublicKey = preg_replace('/\s+/', '', $publicKeyValue);
         if ($normalizedPublicKey === null || $normalizedPublicKey === '') {
             $fail('dns.validation.dnssec.public_key_base64');
+
             return;
         }
 
         $decodedPublicKey = base64_decode($normalizedPublicKey, true);
         if ($decodedPublicKey === false || base64_encode($decodedPublicKey) !== $normalizedPublicKey) {
             $fail('dns.validation.dnssec.public_key_base64');
+
             return;
         }
     }
@@ -88,10 +94,10 @@ class DnssecKeyRule implements ValidationRule, DataAwareRule
                     new self(
                         flagsFieldName: 'flags',
                         algorithmFieldName: 'alg',
-                        publicKeyFieldName: 'pubKey'
+                        publicKeyFieldName: 'pubKey',
                     ),
                 ],
-            ]
+            ],
         )->stopOnFirstFailure();
 
         if ($validator->fails()) {

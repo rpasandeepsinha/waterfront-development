@@ -26,7 +26,10 @@ class AuditLogSubscriptionMutationParameters implements AuditLogTranslationParam
 
         $event = $translator->translate('audit-log-summary.subscription-mutation.default');
 
-        if ($mutation->billing_period !== $subscription->billing_period && $mutation->contract_period !== $subscription->contract_period) {
+        if (
+            $mutation->billing_period !== $subscription->billing_period
+            && $mutation->contract_period !== $subscription->contract_period
+        ) {
             $event = $translator->translate('audit-log-summary.subscription-mutation.contract-extension');
         }
 

@@ -26,6 +26,7 @@ class ShowResellers extends DirectAdminCommand
 
         /** @var string[] $list */
         $list = $this->getFormValues()['list'];
+
         return $list;
     }
 }

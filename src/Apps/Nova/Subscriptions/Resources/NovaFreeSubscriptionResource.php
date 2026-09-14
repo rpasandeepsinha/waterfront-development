@@ -31,7 +31,10 @@ class NovaFreeSubscriptionResource extends NovaSubscriptionResource
             ->where('gross_price', 0)
             ->whereHas(
                 'product.productGroup',
-                fn (Builder $productGroupQuery): Builder => $productGroupQuery->whereNot('slug', ProductGroupType::EXTENSION)
+                fn (Builder $productGroupQuery): Builder => $productGroupQuery->whereNot(
+                    'slug',
+                    ProductGroupType::EXTENSION,
+                ),
             );
     }
 }

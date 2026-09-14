@@ -13,8 +13,9 @@ use Waterfront\Support\Helpers\IdnHelper;
  */
 class DnsTemplateFqdn extends AbstractValidator
 {
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     protected function passes(string $attribute, mixed $value): bool
@@ -40,7 +41,10 @@ class DnsTemplateFqdn extends AbstractValidator
             return (bool) preg_match('/(?=^.{4,253}$)(^((?!-)[a-z0-9-_]{0,63}\.?)+([a-z]{1,63}\.?)?[^0-9]$)/i', $value);
         }
 
-        return (bool) preg_match('/(?=^.[^ ]{4,253}$)(^((?!-)[a-z0-9-_]{0,62}[a-z0-9_*]\.)+[a-z]{1,63}\.?$)?/i', $value);
+        return (bool) preg_match(
+            '/(?=^.[^ ]{4,253}$)(^((?!-)[a-z0-9-_]{0,62}[a-z0-9_*]\.)+[a-z]{1,63}\.?$)?/i',
+            $value,
+        );
     }
 
     protected function message(): string

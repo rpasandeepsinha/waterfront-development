@@ -36,7 +36,7 @@ class ChangeHostingAction
         HostingDeployment $hostingDeployment,
         Product $oldProduct,
         Product $newProduct,
-        string|null $originalServicePlan = null,
+        ?string $originalServicePlan = null,
     ): SubscriptionChangeResult {
         // Check if there is a server. If not and the current subscription is a mail only, try to resolve a new one.
         $this->resolveMailServerForMailUpgrades($hostingDeployment, $subscription, $oldProduct);
@@ -45,8 +45,8 @@ class ChangeHostingAction
             throw new HostingProviderNotFoundException(
                 sprintf(
                     'No hosting provider found for subscription with UUID "%s".',
-                    $subscription->uuid
-                )
+                    $subscription->uuid,
+                ),
             );
         }
 
@@ -56,20 +56,23 @@ class ChangeHostingAction
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                 LoggingContextKeys::PRODUCT_ID => $newProduct->id,
-                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $subscription->customer->migratedCustomers->first()?->reference_customer_number,
+                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                    $subscription->customer->migratedCustomers->first()?->reference_customer_number,
                 LoggingContextKeys::META => [
                     'from_product_slug' => $oldProduct->slug,
                     'from_remote_service_plan' => $originalServicePlan,
                     'to_product_slug' => $newProduct->slug,
                 ],
-            ]
+            ],
         );
 
         try {
             // Perform the technical up- or downgrade.
-            $provisioningResult = $this->hostingServiceFactory
-                ->driver($hostingDeployment->provider->slug)
-                ->changeServicePlan($hostingDeployment, $oldProduct, $newProduct);
+            $provisioningResult = $this->hostingServiceFactory->driver($hostingDeployment->provider->slug)->changeServicePlan(
+                $hostingDeployment,
+                $oldProduct,
+                $newProduct,
+            );
 
             $result = new SubscriptionChangeResult(
                 status: (string) $provisioningResult->getStatus(),
@@ -85,14 +88,15 @@ class ChangeHostingAction
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::PRODUCT_ID => $newProduct->id,
-                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $subscription->customer->migratedCustomers->first()?->reference_customer_number,
+                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                        $subscription->customer->migratedCustomers->first()?->reference_customer_number,
                     LoggingContextKeys::META => [
                         'from_product_slug' => $oldProduct->slug,
                         'from_remote_service_plan' => $originalServicePlan,
                         'to_product_slug' => $newProduct->slug,
                     ],
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             $result = new SubscriptionChangeResult(
@@ -113,10 +117,7 @@ class ChangeHostingAction
         Subscription $subscription,
         Product $oldProduct,
     ): void {
-        if (
-            $hostingDeployment->mailOnlyServer !== null &&
-            $oldProduct->isMailOnlyServer()
-        ) {
+        if ($hostingDeployment->mailOnlyServer !== null && $oldProduct->isMailOnlyServer()) {
             $mailOnlyServer = $hostingDeployment->mailOnlyServer;
 
             $providerSlug = $mailOnlyServer->type === ServerType::PLESK
@@ -130,8 +131,8 @@ class ChangeHostingAction
                     sprintf(
                         'No convertible hosting provider found with the slug "%s" for subscription with UUID "%s".',
                         $providerSlug,
-                        $subscription->uuid
-                    )
+                        $subscription->uuid,
+                    ),
                 );
             }
 

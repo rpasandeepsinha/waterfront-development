@@ -18,9 +18,7 @@ class Microsoft365DeploymentResource
     {
         $children = $microsoft365Deployment->subscription->children;
 
-        $subscription = $children->isEmpty()
-            ? $microsoft365Deployment->subscription
-            : $children->firstOrFail();
+        $subscription = $children->isEmpty() ? $microsoft365Deployment->subscription : $children->firstOrFail();
 
         $seatCountsByStatus = $children->countBy('administrative_status');
 
@@ -55,7 +53,9 @@ class Microsoft365DeploymentResource
         return [
             ...$this->toArray($microsoft365Deployment),
             'subscription' => $this->subscriptionSummary($microsoft365Deployment->subscription),
-            'children' => $microsoft365Deployment->subscription->children
+            'children' => $microsoft365Deployment
+                ->subscription
+                ->children
                 ->map(fn (Subscription $child) => $this->subscriptionSummary($child))
                 ->values()
                 ->all(),

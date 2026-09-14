@@ -63,14 +63,14 @@ class VpsOrderValidationTest extends IntegrationTestCase
 
         new ProductFactory()->createOne([
             'product_group_id' => $productGroupVps->id,
-            'name'  => 'Cloud I',
-            'slug'  => 'cloud-i',
+            'name' => 'Cloud I',
+            'slug' => 'cloud-i',
         ]);
 
         new ProductFactory()->createOne([
             'product_group_id' => $productGroupVpsOs->id,
-            'name'  => 'Ubuntu 22.04',
-            'slug'  => 'ubuntu-2204',
+            'name' => 'Ubuntu 22.04',
+            'slug' => 'ubuntu-2204',
         ]);
     }
 }

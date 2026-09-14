@@ -14,8 +14,9 @@ use Waterfront\Domain\Products\Models\ProductExperimentOfferings;
 
 class ProductExperimentOfferingSeeder extends Seeder
 {
-    public function __construct(private readonly ReferenceRepository $referenceRepo)
-    {
+    public function __construct(
+        private readonly ReferenceRepository $referenceRepo,
+    ) {
     }
 
     public function run(): void
@@ -34,9 +35,11 @@ class ProductExperimentOfferingSeeder extends Seeder
         $offering->product_2_free = true;
         $offering->save();
 
-        $offering->customers()->attach(
-            $this->referenceRepo->get(ScenarioReference::TEST_KEES, Customer::class)->id
-        );
+        $offering
+            ->customers()
+            ->attach(
+                $this->referenceRepo->get(ScenarioReference::TEST_KEES, Customer::class)->id,
+            );
 
         $this->referenceRepo->set(PlatformReference::PRODUCT_EXPERIMENT_OFFERING_SECURITY_BUNDLE_ALL_FREE, $offering);
     }
@@ -51,10 +54,15 @@ class ProductExperimentOfferingSeeder extends Seeder
         $offering->product_2_free = false;
         $offering->save();
 
-        $offering->customers()->attach(
-            $this->referenceRepo->get(ScenarioReference::DISCOUNT_KEES, Customer::class)->id
-        );
+        $offering
+            ->customers()
+            ->attach(
+                $this->referenceRepo->get(ScenarioReference::DISCOUNT_KEES, Customer::class)->id,
+            );
 
-        $this->referenceRepo->set(PlatformReference::PRODUCT_EXPERIMENT_OFFERING_SECURITY_BUNDLE_ACRONIS_PAID, $offering);
+        $this->referenceRepo->set(
+            PlatformReference::PRODUCT_EXPERIMENT_OFFERING_SECURITY_BUNDLE_ACRONIS_PAID,
+            $offering,
+        );
     }
 }

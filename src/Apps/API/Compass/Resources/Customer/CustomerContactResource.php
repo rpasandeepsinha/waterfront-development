@@ -15,12 +15,12 @@ class CustomerContactResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'uuid'       => $this->resource->uuid,
+            'uuid' => $this->resource->uuid,
             'first_name' => $this->resource->first_name,
-            'last_name'  => $this->resource->last_name,
-            'company'    => $this->resource->company,
-            'email'      => $this->resource->email,
-            'type'       => CustomerContactType::from($this->resource->type),
+            'last_name' => $this->resource->last_name,
+            'company' => $this->resource->company,
+            'email' => $this->resource->email,
+            'type' => CustomerContactType::from($this->resource->type),
             'created_at' => $this->resource->created_at,
             'updated_at' => $this->resource->updated_at,
         ];

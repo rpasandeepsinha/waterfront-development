@@ -9,8 +9,10 @@ use Waterfront\Domain\Hosting\Interfaces\Hosting\RequestInterface;
 
 class Request implements RequestInterface
 {
-    public function __construct(private readonly Parameters $parameters, public bool $maskSecrets = false)
-    {
+    public function __construct(
+        private readonly Parameters $parameters,
+        public bool $maskSecrets = false,
+    ) {
     }
 
     /**
@@ -18,31 +20,34 @@ class Request implements RequestInterface
      */
     public function getMessage(): array
     {
-        $ipAddresses = array_filter([
-            $this->parameters->getIpv4Address(),
-            $this->parameters->getIpv6Address(),
-        ]);
+        $ipAddresses = array_filter(
+            [
+                $this->parameters->getIpv4Address(),
+                $this->parameters->getIpv6Address(),
+            ],
+            fn (mixed $value): bool => (bool) $value,
+        );
 
         $message = [
             'gen_setup' => [
-                'name'       => $this->parameters->getDomain(),
-                'owner-id'   => $this->parameters->getCustomerId(),
-                'htype'      => 'vrt_hst',
+                'name' => $this->parameters->getDomain(),
+                'owner-id' => $this->parameters->getCustomerId(),
+                'htype' => 'vrt_hst',
                 'ip_address' => $ipAddresses,
             ],
             'hosting' => [
                 'vrt_hst' => [
-                    'property'  => [
+                    'property' => [
                         [
-                            'name'  => 'ssl',
+                            'name' => 'ssl',
                             'value' => true,
                         ],
                         [
-                            'name'  => 'ftp_login',
+                            'name' => 'ftp_login',
                             'value' => $this->parameters->getUsername(),
                         ],
                         [
-                            'name'  => 'ftp_password',
+                            'name' => 'ftp_password',
                             'value' => ! $this->maskSecrets ? $this->parameters->getPassword() : '********',
                         ],
                     ],

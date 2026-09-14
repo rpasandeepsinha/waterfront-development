@@ -13,8 +13,9 @@ use Throwable;
 
 class ProvisionThrowableNormalizer implements NormalizerInterface, DenormalizerInterface
 {
-    public function __construct(public int $depth = 2)
-    {
+    public function __construct(
+        public int $depth = 2,
+    ) {
     }
 
     /**
@@ -64,8 +65,12 @@ class ProvisionThrowableNormalizer implements NormalizerInterface, DenormalizerI
     /**
      * @param array<mixed> $context
      */
-    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
-    {
+    public function supportsDenormalization(
+        mixed $data,
+        string $type,
+        ?string $format = null,
+        array $context = [],
+    ): bool {
         return is_a($type, Throwable::class, true);
     }
 
@@ -81,7 +86,7 @@ class ProvisionThrowableNormalizer implements NormalizerInterface, DenormalizerI
      */
     private function normalizeThrowable(
         Throwable $throwable,
-        int $currentDepth = 0
+        int $currentDepth = 0,
     ): array {
         $normalizedThrowable = [
             'message' => $throwable->getMessage(),
@@ -126,17 +131,11 @@ class ProvisionThrowableNormalizer implements NormalizerInterface, DenormalizerI
             ? $data['message']
             : 'Unknown exception';
 
-        $code = array_key_exists('code', $data) && is_int($data['code'])
-            ? $data['code']
-            : 0;
+        $code = array_key_exists('code', $data) && is_int($data['code']) ? $data['code'] : 0;
 
-        $originFile = array_key_exists('file', $data) && is_string($data['file'])
-            ? $data['file']
-            : 'unknown';
+        $originFile = array_key_exists('file', $data) && is_string($data['file']) ? $data['file'] : 'unknown';
 
-        $originLine = array_key_exists('line', $data) && is_int($data['line'])
-            ? $data['line']
-            : 0;
+        $originLine = array_key_exists('line', $data) && is_int($data['line']) ? $data['line'] : 0;
 
         $messageWithOrigin = sprintf('%s [origin %s:%d]', $message, $originFile, $originLine);
 

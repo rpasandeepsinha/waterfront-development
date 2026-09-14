@@ -91,11 +91,8 @@ class NovaServerResource extends Resource
                 ->displayUsingLabels()
                 ->rules(['required', Rule::in(array_keys($serverTypes))])
                 ->sortable(),
-            Text::make(self::translate('server.attributes.owner'), 'owner')
-                ->nullable()
-                ->sortable(),
-            Text::make(self::translate('server.attributes.name'), 'name')
-                ->sortable(),
+            Text::make(self::translate('server.attributes.owner'), 'owner')->nullable()->sortable(),
+            Text::make(self::translate('server.attributes.name'), 'name')->sortable(),
             Text::make(self::translate('server.attributes.hostname'), 'hostname')
                 ->rules('required')
                 ->creationRules('unique:hosting_servers,hostname,NULL,id,deleted_at,NULL')
@@ -104,14 +101,9 @@ class NovaServerResource extends Resource
             Number::make(self::translate('server.attributes.port'), 'port')
                 ->rules('required', 'integer', 'numeric', 'max:65535')
                 ->sortable(),
-            NovaBoolField::make(self::translate('server.attributes.use_ssl'), 'use_ssl')
-                ->hideFromIndex(),
-            Text::make(self::translate('server.attributes.ipv4'), 'ipv4')
-                ->rules('nullable', 'ipv4')
-                ->sortable(),
-            Text::make(self::translate('server.attributes.ipv6'), 'ipv6')
-                ->rules('nullable', 'ipv6')
-                ->sortable(),
+            NovaBoolField::make(self::translate('server.attributes.use_ssl'), 'use_ssl')->hideFromIndex(),
+            Text::make(self::translate('server.attributes.ipv4'), 'ipv4')->rules('nullable', 'ipv4')->sortable(),
+            Text::make(self::translate('server.attributes.ipv6'), 'ipv6')->rules('nullable', 'ipv6')->sortable(),
             Text::make(self::translate('server.attributes.username'), 'username')
                 ->rules('nullable', 'string')
                 ->sortable(),
@@ -127,19 +119,24 @@ class NovaServerResource extends Resource
                 ->onlyOnForms()
                 ->creationRules('sometimes')
                 ->updateRules('sometimes'),
-            NovaBoolField::make(self::translate('server.attributes.allow_new_websites'), 'allow_new_websites')
-                ->sortable(),
+            NovaBoolField::make(
+                self::translate('server.attributes.allow_new_websites'),
+                'allow_new_websites',
+            )->sortable(),
             Number::make(self::translate('server.attributes.maximum_websites'), 'maximum_websites')
                 ->sortable()
                 ->nullable(),
             BelongsTo::make(
                 self::translate('server.relations.customer'),
                 'customer',
-                NovaCustomerResource::class
-            )->nullable()->searchable()->sortable(),
+                NovaCustomerResource::class,
+            )
+                ->nullable()
+                ->searchable()
+                ->sortable(),
             NovaBoolField::make(
                 self::translate('server.attributes.customer_login_as_admin'),
-                'customer_login_as_admin'
+                'customer_login_as_admin',
             )->hideFromIndex(),
         ];
     }
@@ -195,8 +192,9 @@ class NovaServerResource extends Resource
             function (string $message) use ($validator) {
                 $message = self::translate($message);
                 $validator->errors()->add('type', $message);
+
                 return $message;
-            }
+            },
         );
     }
 

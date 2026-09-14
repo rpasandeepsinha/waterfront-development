@@ -32,13 +32,44 @@ class FetchDKIMRecordTest extends DirectAdminTestCase
     #[Test]
     public function fetchDkimRecord(): void
     {
-        $response = ['records' => [
-            ['type' => 'A', 'name' => 'stmp', 'value' => '92.63.169.145', 'combined' => 'name=smtp&value=92.63.169.145', 'ttl' => '3600'],
-            ['type' => 'NS', 'name' => 'default.nl', 'value' => 'ns1.axc.nl.', 'combined' => 'name=default.nl.&value=ns1.axc.nl.'],
-            ['type' => 'TXT', 'name' => 'default.nl.', 'value' => '"v=spf1 a mx ip4:92.63.169.145 ~all"', 'combined' => 'name=default.nl.&value="v=spf1 a mx ip4:92.63.169.145 ~all"', 'ttl' => '3600'],
-            ['type' => 'TXT', 'name' => 'x._domainkey', 'value' => '"v=DKIM1; fakedkim"', 'combined' => '"name=x._domainkey&value="fakedkim"', 'ttl' => '3600'],
-            ['type' => 'AAAA', 'name' => 'default.nl.', 'value' => '2a05:1500:600:8:1c00:b2ff:fe00:1432', 'combined' => 'name=default.nl.&value=2a05:1500:600:8:1c00:b2ff:fe00:1432', 'ttl' => '3600'],
-        ]];
+        $response = [
+            'records' => [
+                [
+                    'type' => 'A',
+                    'name' => 'stmp',
+                    'value' => '92.63.169.145',
+                    'combined' => 'name=smtp&value=92.63.169.145',
+                    'ttl' => '3600',
+                ],
+                [
+                    'type' => 'NS',
+                    'name' => 'default.nl',
+                    'value' => 'ns1.axc.nl.',
+                    'combined' => 'name=default.nl.&value=ns1.axc.nl.',
+                ],
+                [
+                    'type' => 'TXT',
+                    'name' => 'default.nl.',
+                    'value' => '"v=spf1 a mx ip4:92.63.169.145 ~all"',
+                    'combined' => 'name=default.nl.&value="v=spf1 a mx ip4:92.63.169.145 ~all"',
+                    'ttl' => '3600',
+                ],
+                [
+                    'type' => 'TXT',
+                    'name' => 'x._domainkey',
+                    'value' => '"v=DKIM1; fakedkim"',
+                    'combined' => '"name=x._domainkey&value="fakedkim"',
+                    'ttl' => '3600',
+                ],
+                [
+                    'type' => 'AAAA',
+                    'name' => 'default.nl.',
+                    'value' => '2a05:1500:600:8:1c00:b2ff:fe00:1432',
+                    'combined' => 'name=default.nl.&value=2a05:1500:600:8:1c00:b2ff:fe00:1432',
+                    'ttl' => '3600',
+                ],
+            ],
+        ];
 
         $this->fetchDkimRecord->responseReceived($response);
 
@@ -56,22 +87,60 @@ class FetchDKIMRecordTest extends DirectAdminTestCase
     #[Test]
     public function fetchMultipleDkimRecords(): void
     {
-        $response = ['records' => [
-            ['type' => 'A', 'name' => 'stmp', 'value' => '92.63.169.145', 'combined' => 'name=smtp&value=92.63.169.145', 'ttl' => '3600'],
-            ['type' => 'NS', 'name' => 'default.nl', 'value' => 'ns1.axc.nl.', 'combined' => 'name=default.nl.&value=ns1.axc.nl.'],
-            ['type' => 'TXT', 'name' => 'default.nl.', 'value' => '"v=spf1 a mx ip4:92.63.169.145 ~all"', 'combined' => 'name=default.nl.&value="v=spf1 a mx ip4:92.63.169.145 ~all"', 'ttl' => '3600'],
-            ['type' => 'TXT', 'name' => 'x._domainkey', 'value' => '"v=DKIM1; fakedkim"', 'combined' => '"name=x._domainkey&value="fakedkim"', 'ttl' => '3600'],
-            ['type' => 'TXT', 'name' => 'x._domainkey', 'value' => '"v=DKIM1; doubledkim"', 'combined' => '"name=x._domainkey&value="fakedkim"', 'ttl' => '3600'],
-            ['type' => 'AAAA', 'name' => 'default.nl.', 'value' => '2a05:1500:600:8:1c00:b2ff:fe00:1432', 'combined' => 'name=default.nl.&value=2a05:1500:600:8:1c00:b2ff:fe00:1432', 'ttl' => '3600'],
-        ]];
+        $response = [
+            'records' => [
+                [
+                    'type' => 'A',
+                    'name' => 'stmp',
+                    'value' => '92.63.169.145',
+                    'combined' => 'name=smtp&value=92.63.169.145',
+                    'ttl' => '3600',
+                ],
+                [
+                    'type' => 'NS',
+                    'name' => 'default.nl',
+                    'value' => 'ns1.axc.nl.',
+                    'combined' => 'name=default.nl.&value=ns1.axc.nl.',
+                ],
+                [
+                    'type' => 'TXT',
+                    'name' => 'default.nl.',
+                    'value' => '"v=spf1 a mx ip4:92.63.169.145 ~all"',
+                    'combined' => 'name=default.nl.&value="v=spf1 a mx ip4:92.63.169.145 ~all"',
+                    'ttl' => '3600',
+                ],
+                [
+                    'type' => 'TXT',
+                    'name' => 'x._domainkey',
+                    'value' => '"v=DKIM1; fakedkim"',
+                    'combined' => '"name=x._domainkey&value="fakedkim"',
+                    'ttl' => '3600',
+                ],
+                [
+                    'type' => 'TXT',
+                    'name' => 'x._domainkey',
+                    'value' => '"v=DKIM1; doubledkim"',
+                    'combined' => '"name=x._domainkey&value="fakedkim"',
+                    'ttl' => '3600',
+                ],
+                [
+                    'type' => 'AAAA',
+                    'name' => 'default.nl.',
+                    'value' => '2a05:1500:600:8:1c00:b2ff:fe00:1432',
+                    'combined' => 'name=default.nl.&value=2a05:1500:600:8:1c00:b2ff:fe00:1432',
+                    'ttl' => '3600',
+                ],
+            ],
+        ];
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 'Multiple dkim records found for domain {domain.name}, picking the first one.',
                 [
                     LoggingContextKeys::DOMAIN_NAME => 'default.nl',
-                ]
+                ],
             );
 
         $this->fetchDkimRecord->responseReceived($response);
@@ -90,11 +159,30 @@ class FetchDKIMRecordTest extends DirectAdminTestCase
     #[Test]
     public function fetchNoDkimRecord(): void
     {
-        $response = ['records' => [
-            ['type' => 'A', 'name' => 'stmp', 'value' => '92.63.169.145', 'combined' => 'name=smtp&value=92.63.169.145', 'ttl' => '3600'],
-            ['type' => 'NS', 'name' => 'default.nl', 'value' => 'ns1.axc.nl.', 'combined' => 'name=default.nl.&value=ns1.axc.nl.'],
-            ['type' => 'AAAA', 'name' => 'default.nl.', 'value' => '2a05:1500:600:8:1c00:b2ff:fe00:1432', 'combined' => 'name=default.nl.&value=2a05:1500:600:8:1c00:b2ff:fe00:1432', 'ttl' => '3600'],
-        ]];
+        $response = [
+            'records' => [
+                [
+                    'type' => 'A',
+                    'name' => 'stmp',
+                    'value' => '92.63.169.145',
+                    'combined' => 'name=smtp&value=92.63.169.145',
+                    'ttl' => '3600',
+                ],
+                [
+                    'type' => 'NS',
+                    'name' => 'default.nl',
+                    'value' => 'ns1.axc.nl.',
+                    'combined' => 'name=default.nl.&value=ns1.axc.nl.',
+                ],
+                [
+                    'type' => 'AAAA',
+                    'name' => 'default.nl.',
+                    'value' => '2a05:1500:600:8:1c00:b2ff:fe00:1432',
+                    'combined' => 'name=default.nl.&value=2a05:1500:600:8:1c00:b2ff:fe00:1432',
+                    'ttl' => '3600',
+                ],
+            ],
+        ];
 
         $this->fetchDkimRecord->responseReceived($response);
 

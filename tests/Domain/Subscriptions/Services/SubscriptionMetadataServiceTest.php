@@ -52,7 +52,10 @@ class SubscriptionMetadataServiceTest extends IntegrationTestCase
 
         $productGroup = new ProductGroupFactory()->extension()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
-        $this->subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->for($product)->createOne();
+        $this->subscription = new SubscriptionFactory()
+            ->for(new CustomerFactory()->createOne())
+            ->for($product)
+            ->createOne();
 
         $this->subscriptionCategory = new SubscriptionCategories();
         $this->subscriptionCategory->subscription_id = $this->subscription->id;
@@ -84,7 +87,11 @@ class SubscriptionMetadataServiceTest extends IntegrationTestCase
             metadataAdmin: null,
         );
 
-        $this->lighthouseApiService->expects(self::once())->method('getKratosIdentityByIdentifier')->with($this->assigneeUuid->toString())->willReturn($identity);
+        $this->lighthouseApiService
+            ->expects(self::once())
+            ->method('getKratosIdentityByIdentifier')
+            ->with($this->assigneeUuid->toString())
+            ->willReturn($identity);
 
         $this->service->assignEmployee($this->subscription, $this->assigneeUuid);
 
@@ -108,7 +115,11 @@ class SubscriptionMetadataServiceTest extends IntegrationTestCase
     #[Test]
     public function assignEmployeeNoIdentityInLighthouse(): void
     {
-        $this->lighthouseApiService->expects(self::once())->method('getKratosIdentityByIdentifier')->with($this->assigneeUuid->toString())->willThrowException(new ResourceNotFoundException());
+        $this->lighthouseApiService
+            ->expects(self::once())
+            ->method('getKratosIdentityByIdentifier')
+            ->with($this->assigneeUuid->toString())
+            ->willThrowException(new ResourceNotFoundException());
 
         $this->expectException(RuntimeException::class);
         $this->service->assignEmployee($this->subscription, $this->assigneeUuid);
@@ -117,7 +128,11 @@ class SubscriptionMetadataServiceTest extends IntegrationTestCase
     #[Test]
     public function assignEmployeeLighthouseExceptionIsHandled(): void
     {
-        $this->lighthouseApiService->expects(self::once())->method('getKratosIdentityByIdentifier')->with($this->assigneeUuid->toString())->willThrowException(new LighthouseException('API error'));
+        $this->lighthouseApiService
+            ->expects(self::once())
+            ->method('getKratosIdentityByIdentifier')
+            ->with($this->assigneeUuid->toString())
+            ->willThrowException(new LighthouseException('API error'));
 
         $this->expectException(RuntimeException::class);
         $this->service->assignEmployee($this->subscription, $this->assigneeUuid);
@@ -141,7 +156,11 @@ class SubscriptionMetadataServiceTest extends IntegrationTestCase
             metadataAdmin: null,
         );
 
-        $this->lighthouseApiService->expects(self::once())->method('getKratosIdentityByIdentifier')->with($this->assigneeUuid->toString())->willReturn($identity);
+        $this->lighthouseApiService
+            ->expects(self::once())
+            ->method('getKratosIdentityByIdentifier')
+            ->with($this->assigneeUuid->toString())
+            ->willReturn($identity);
 
         $this->expectException(RuntimeException::class);
         $this->service->assignEmployee($this->subscription, $this->assigneeUuid);
@@ -165,7 +184,11 @@ class SubscriptionMetadataServiceTest extends IntegrationTestCase
             metadataAdmin: null,
         );
 
-        $this->lighthouseApiService->expects(self::once())->method('getKratosIdentityByIdentifier')->with($this->assigneeUuid->toString())->willReturn($identity);
+        $this->lighthouseApiService
+            ->expects(self::once())
+            ->method('getKratosIdentityByIdentifier')
+            ->with($this->assigneeUuid->toString())
+            ->willReturn($identity);
 
         $this->service->assignEmployee($this->subscription, $this->assigneeUuid);
 
@@ -178,7 +201,10 @@ class SubscriptionMetadataServiceTest extends IntegrationTestCase
     #[Test]
     public function overwriteAsigneeByAsigningDifferentEmployee(): void
     {
-        $this->subscriptionCategory->assignee_metadata = new IdentityMetadataDTO(Uuid::uuid4(), 'randomEmployee@sandwave.io');
+        $this->subscriptionCategory->assignee_metadata = new IdentityMetadataDTO(
+            Uuid::uuid4(),
+            'randomEmployee@sandwave.io',
+        );
         $this->subscriptionCategory->save();
         $assigneeMetadata = $this->subscriptionCategory->refresh()->assignee_metadata;
         self::assertNotNull($assigneeMetadata);
@@ -199,7 +225,11 @@ class SubscriptionMetadataServiceTest extends IntegrationTestCase
             metadataAdmin: null,
         );
 
-        $this->lighthouseApiService->expects(self::once())->method('getKratosIdentityByIdentifier')->with($this->assigneeUuid->toString())->willReturn($identity);
+        $this->lighthouseApiService
+            ->expects(self::once())
+            ->method('getKratosIdentityByIdentifier')
+            ->with($this->assigneeUuid->toString())
+            ->willReturn($identity);
 
         $this->service->assignEmployee($this->subscription, $this->assigneeUuid);
 
@@ -264,7 +294,10 @@ class SubscriptionMetadataServiceTest extends IntegrationTestCase
             metadataAdmin: null,
         );
 
-        $this->subscriptionCategory->assignee_metadata = new IdentityMetadataDTO(Uuid::fromString($identity->id), $identity->traits->email);
+        $this->subscriptionCategory->assignee_metadata = new IdentityMetadataDTO(
+            Uuid::fromString($identity->id),
+            $identity->traits->email,
+        );
         $this->subscriptionCategory->save();
         $assigneeMetadata = $this->subscriptionCategory->refresh()->assignee_metadata;
         self::assertNotNull($assigneeMetadata);

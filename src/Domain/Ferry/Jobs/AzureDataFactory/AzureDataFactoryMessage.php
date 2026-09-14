@@ -11,8 +11,10 @@ class AzureDataFactoryMessage
     /**
      * @param array<int|string, mixed> $body
      */
-    private function __construct(private readonly string $type, private readonly array $body = [])
-    {
+    private function __construct(
+        private readonly string $type,
+        private readonly array $body = [],
+    ) {
     }
 
     /**

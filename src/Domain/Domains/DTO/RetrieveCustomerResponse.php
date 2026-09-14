@@ -26,7 +26,7 @@ class RetrieveCustomerResponse
         private string $streetNumber,
         private string $zip,
         private string $city,
-        private string $countryCode
+        private string $countryCode,
     ) {
     }
 
@@ -34,6 +34,7 @@ class RetrieveCustomerResponse
     {
         $object = new RetrieveCustomerResponse(null, null, 0, '', null, '', '', '', '', '', '', '', '', '', '', '');
         $object->parseReply((string) $response->getBody());
+
         return $object;
     }
 
@@ -105,12 +106,12 @@ class RetrieveCustomerResponse
         if ($this->responseCode === 0) {
             return [
                 'organization' => $this->organization,
-                'first_name'   => $this->firstName,
-                'last_name'    => $this->lastName,
-                'gender'       => $this->gender,
-                'phone'        => $this->phone,
-                'email'        => $this->email,
-                'address'      => [
+                'first_name' => $this->firstName,
+                'last_name' => $this->lastName,
+                'gender' => $this->gender,
+                'phone' => $this->phone,
+                'email' => $this->email,
+                'address' => [
                     'street' => $this->streetName,
                     'number' => $this->streetNumber,
                     'zipcode' => $this->zip,

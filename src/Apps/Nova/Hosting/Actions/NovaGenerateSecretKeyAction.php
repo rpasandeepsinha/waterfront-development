@@ -39,7 +39,7 @@ class NovaGenerateSecretKeyAction extends Action
             /** @var Server $server */
             $secretKey = $this->secretKeyService->getPleskSecretKey(
                 server: $server,
-                credentials: $credentials
+                credentials: $credentials,
             );
 
             $server->update(['secret_key' => $secretKey]);
@@ -53,10 +53,12 @@ class NovaGenerateSecretKeyAction extends Action
     {
         return [
             Text::make($this->translator->translate('server.attributes.username'), 'username'),
-            Password::make($this->translator->translate('server.attributes.password'), 'password')
-                ->fillUsing(function (NovaRequest $request, $model): void {
-                    $model->password = $request->password;
-                }),
+            Password::make($this->translator->translate('server.attributes.password'), 'password')->fillUsing(function (
+                NovaRequest $request,
+                $model,
+            ): void {
+                $model->password = $request->password;
+            }),
         ];
     }
 }

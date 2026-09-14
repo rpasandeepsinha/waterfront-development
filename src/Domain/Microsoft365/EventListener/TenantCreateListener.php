@@ -63,7 +63,7 @@ class TenantCreateListener implements TenantObserverInterface
                     LoggingContextKeys::META => [
                         'tenant_order' => $tenantOrderMeta,
                     ],
-                ]
+                ],
             );
 
             return;
@@ -77,7 +77,7 @@ class TenantCreateListener implements TenantObserverInterface
                 LoggingContextKeys::META => [
                     'tenant_order' => $tenantOrderMeta,
                 ],
-            ]
+            ],
         );
 
         $customerInfo->tenant_order_id = $tenantOrder->getOrderId();
@@ -92,7 +92,7 @@ class TenantCreateListener implements TenantObserverInterface
                     LoggingContextKeys::META => [
                         'tenant_order' => $tenantOrderMeta,
                     ],
-                ]
+                ],
             );
 
             $this->microsoft365Service->prepareOrders(

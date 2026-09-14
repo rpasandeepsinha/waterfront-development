@@ -28,8 +28,10 @@ class ProvisioningResultRepository
      *
      * @return Collection<int, ProvisioningFilteredResult>
      */
-    public function fetchProvisioningResults(ProvisioningResultQueryFilters $queryFilters, ?int $limit = null): Collection
-    {
+    public function fetchProvisioningResults(
+        ProvisioningResultQueryFilters $queryFilters,
+        ?int $limit = null,
+    ): Collection {
         $filters = [
             new CreateRequestFilter($queryFilters->onlyCreateRequests),
             new TagFilter($queryFilters->tag),
@@ -42,16 +44,14 @@ class ProvisioningResultRepository
                 retryOf: $queryFilters->retryOf,
                 retryRequester: $queryFilters->retryRequester,
             ),
-            new DateFilter(fromDate: $queryFilters->fromDate, toDate:  $queryFilters->toDate),
+            new DateFilter(fromDate: $queryFilters->fromDate, toDate: $queryFilters->toDate),
             new LimitFilter($limit),
         ];
 
         $query = ProvisioningResult::query()->with('provisioningRequest', 'provisioningRequest.retryOf');
 
         /** @var Builder<ProvisioningResult> $queryWithFilters */
-        $queryWithFilters = Pipeline::send($query)
-            ->through($filters)
-            ->thenReturn();
+        $queryWithFilters = Pipeline::send($query)->through($filters)->thenReturn();
 
         /** @var Collection<int, ProvisioningResult> $provisioningResults */
         $provisioningResults = $queryWithFilters->orderBy('created_at', SortDirection::Descending)->get();

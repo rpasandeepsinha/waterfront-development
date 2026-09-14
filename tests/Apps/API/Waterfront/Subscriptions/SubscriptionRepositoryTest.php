@@ -55,15 +55,18 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
             'value' => 'true',
         ]);
 
-        $servicePlusProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->addon())
-            ->createOne(['name' => 'service_plus']);
+        $servicePlusProduct = new ProductFactory()->for(new ProductGroupFactory()->addon())->createOne([
+            'name' => 'service_plus',
+        ]);
         ProductSpecFactory::new()->for($servicePlusProduct)->createOne([
             'name' => ProductSpecName::HAS_SERVICE_PLUS,
             'value' => 'true',
         ]);
 
-        $productThatCannotOrderServicePlus = new ProductFactory()->for($group)->createOne(['name' => 'legacyhosting', 'orderable' => false]);
+        $productThatCannotOrderServicePlus = new ProductFactory()->for($group)->createOne([
+            'name' => 'legacyhosting',
+            'orderable' => false,
+        ]);
 
         //Cheap product no service plus, no child
         $noServicePlusSub = new SubscriptionFactory()
@@ -79,7 +82,10 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
             ->createOne();
 
         //Expensive product, so service plus
-        new SubscriptionFactory()->for($this->customer)->for($productWithServicePlus)->createOne();
+        new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($productWithServicePlus)
+            ->createOne();
 
         //Cheap product no service plus, serviceplus addon bought
         $parent = new SubscriptionFactory()
@@ -136,9 +142,11 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
         ProviderFactory::new()->sslOpenProvider()->createOne();
 
         new SubscriptionFactory()->for($this->customer)->createOne([
-            'start_date' => CarbonImmutable::today()->subYear()->addDays(
-                $this->getConfiguration()->getAsInteger('constants.renewal-days') - 10
-            ),
+            'start_date' => CarbonImmutable::today()
+                ->subYear()
+                ->addDays(
+                    $this->getConfiguration()->getAsInteger('constants.renewal-days') - 10,
+                ),
             'product_uuid' => $product->uuid,
         ]);
 
@@ -153,9 +161,12 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
 
         $renewableItem = $renewable->firstOrFail();
 
-        self::assertLessThan(CarbonImmutable::today()->addDays(
-            $this->getConfiguration()->getAsInteger('constants.renewal-days')
-        ), $renewableItem->end_date);
+        self::assertLessThan(
+            CarbonImmutable::today()->addDays(
+                $this->getConfiguration()->getAsInteger('constants.renewal-days'),
+            ),
+            $renewableItem->end_date,
+        );
         self::assertNotContains($renewableItem, new Collection($nonRenewable));
     }
 
@@ -173,19 +184,31 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
 
         $otherCustomer = new CustomerFactory()->createOne();
 
-        new SubscriptionFactory()->for($product)->for($customer)->createOne([
-            'next_billing_date' => new CarbonImmutable('2022-12-12'),
-        ]);
-        new SubscriptionFactory()->for($product)->for($customer)->createOne([
-            'next_billing_date' => new CarbonImmutable('2022-12-13'),
-        ]);
+        new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->createOne([
+                'next_billing_date' => new CarbonImmutable('2022-12-12'),
+            ]);
+        new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->createOne([
+                'next_billing_date' => new CarbonImmutable('2022-12-13'),
+            ]);
 
-        $subscriptionNotEligibleForInvoicingWithBillingDate = new SubscriptionFactory()->for($otherCustomer)->for($product)->createOne([
-            'next_billing_date' => new CarbonImmutable('2022-12-14'),
-        ]);
-        $subscriptionNotEligibleForInvoicingWithDateInFuture = new SubscriptionFactory()->for($otherCustomer)->for($product)->createOne([
-            'next_billing_date' => new CarbonImmutable('2022-12-15'),
-        ]);
+        $subscriptionNotEligibleForInvoicingWithBillingDate = new SubscriptionFactory()
+            ->for($otherCustomer)
+            ->for($product)
+            ->createOne([
+                'next_billing_date' => new CarbonImmutable('2022-12-14'),
+            ]);
+        $subscriptionNotEligibleForInvoicingWithDateInFuture = new SubscriptionFactory()
+            ->for($otherCustomer)
+            ->for($product)
+            ->createOne([
+                'next_billing_date' => new CarbonImmutable('2022-12-15'),
+            ]);
 
         $customers = $this->subscriptionRepository->getAllCustomersEligibleForInvoicing($billingDate);
 
@@ -218,7 +241,7 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
 
         $renewable = $this->subscriptionRepository->getAllDueForInvoicing(
             $this->customer,
-            CarbonImmutable::tomorrow()
+            CarbonImmutable::tomorrow(),
         );
 
         self::assertNotEmpty($renewable);
@@ -426,21 +449,25 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
         DateTimeImmutable $startDate,
         DateTimeImmutable $endDate,
         string $status,
-        bool $shouldTerminate
+        bool $shouldTerminate,
     ): void {
-        new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne()))->create([
-            'start_date' => $startDate,
-            'end_date' => $endDate,
-            'termination_date' => $shouldTerminate ? $endDate : null,
-            'parent_subscription_id' => null,
-            'administrative_status' => $status,
-            'technical_status' => TechnicalStatus::OK->value,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne()))
+            ->create([
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'termination_date' => $shouldTerminate ? $endDate : null,
+                'parent_subscription_id' => null,
+                'administrative_status' => $status,
+                'technical_status' => TechnicalStatus::OK->value,
+            ]);
 
         $terminate = $this->subscriptionRepository->getAllDueForTermination();
 
         if ($shouldTerminate === false) {
             self::assertEmpty($terminate);
+
             return;
         }
 
@@ -448,9 +475,12 @@ class SubscriptionRepositoryTest extends IntegrationTestCase
 
         $terminateItem = $terminate->firstOrFail();
 
-        self::assertLessThan(CarbonImmutable::today()->addDays(
-            $this->getConfiguration()->getAsInteger('constants.invoice-ahead-days')
-        ), $terminateItem->next_billing_date);
+        self::assertLessThan(
+            CarbonImmutable::today()->addDays(
+                $this->getConfiguration()->getAsInteger('constants.invoice-ahead-days'),
+            ),
+            $terminateItem->next_billing_date,
+        );
     }
 
     public static function getTerminationDates(): Generator

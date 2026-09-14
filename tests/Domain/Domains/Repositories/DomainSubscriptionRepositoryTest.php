@@ -34,12 +34,9 @@ class DomainSubscriptionRepositoryTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->domainProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension())
-            ->createOne();
+        $this->domainProduct = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne();
 
-        $this->freeDnsProduct = new ProductFactory()->freeDns()
-            ->createOne();
+        $this->freeDnsProduct = new ProductFactory()->freeDns()->createOne();
 
         $this->domainRepository = new DomainDeploymentRepository();
     }
@@ -51,9 +48,7 @@ class DomainSubscriptionRepositoryTest extends IntegrationTestCase
 
         $activeDomainDeployment = new DomainDeploymentFactory()
             ->for(
-                new ProviderFactory()
-                    ->domainOpenProvider()
-                    ->createOne()
+                new ProviderFactory()->domainOpenProvider()->createOne(),
             )
             ->for(
                 new SubscriptionFactory()
@@ -61,7 +56,7 @@ class DomainSubscriptionRepositoryTest extends IntegrationTestCase
                     ->for($this->domainProduct)
                     ->forDomain($activeDomain)
                     ->administrativeStatusActive(),
-                'subscription'
+                'subscription',
             )
             ->createOne();
 
@@ -132,9 +127,7 @@ class DomainSubscriptionRepositoryTest extends IntegrationTestCase
 
         new DomainDeploymentFactory()
             ->for(
-                new ProviderFactory()
-                    ->domainOpenProvider()
-                    ->createOne()
+                new ProviderFactory()->domainOpenProvider()->createOne(),
             )
             ->for(
                 new SubscriptionFactory()
@@ -142,12 +135,131 @@ class DomainSubscriptionRepositoryTest extends IntegrationTestCase
                     ->for($this->domainProduct)
                     ->forDomain($inactiveDomain)
                     ->administrativeStatusInactive(),
-                'subscription'
+                'subscription',
             )
             ->createOne();
 
         self::assertNull($this->domainRepository->getActiveDeploymentByDomain($inactiveDomain));
         self::assertNull($this->domainRepository->getActiveDeploymentByDomain($nonExistingDomain));
+    }
+
+    #[Test]
+    public function getDomainDeploymentByDomainIncludingSuspendedReturnsSuspendedDeployment(): void
+    {
+        $domain = 'suspended-domain.com';
+        $businessUnit = DomainProviderBusinessUnitFactory::new()->waterfront()->createOne();
+
+        $deployment = new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->for(
+                new SubscriptionFactory()
+                    ->withCustomer()
+                    ->for($this->domainProduct)
+                    ->forDomain($domain)
+                    ->administrativeStatusSuspended(),
+                'subscription',
+            )
+            ->for($businessUnit, 'businessUnit')
+            ->createOne();
+
+        // The status-filtered lookup would drop a suspended domain and cause a wrong RTR account fallback.
+        self::assertNull($this->domainRepository->getDomainDeploymentByDomain($domain));
+
+        $resolved = $this->domainRepository->getDomainDeploymentByDomainIncludingSuspended($domain);
+
+        self::assertInstanceOf(DomainDeployment::class, $resolved);
+        self::assertSame($deployment->id, $resolved->id);
+        self::assertNotNull($resolved->businessUnit);
+        self::assertSame($businessUnit->id, $resolved->businessUnit->id);
+    }
+
+    #[Test]
+    public function getDomainDeploymentByDomainIncludingSuspendedReturnsMostRecentDeployment(): void
+    {
+        $domain = 'rereg-domain.com';
+
+        $olderDeployment = new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->for(
+                new SubscriptionFactory()
+                    ->withCustomer()
+                    ->for($this->domainProduct)
+                    ->forDomain($domain)
+                    ->administrativeStatusCancelled(),
+                'subscription',
+            )
+            ->createOne(['created_at' => '2020-01-01 00:00:00']);
+
+        $newerDeployment = new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->for(
+                new SubscriptionFactory()
+                    ->withCustomer()
+                    ->for($this->domainProduct)
+                    ->forDomain($domain)
+                    ->administrativeStatusActive(),
+                'subscription',
+            )
+            ->createOne(['created_at' => '2024-01-01 00:00:00']);
+
+        $resolved = $this->domainRepository->getDomainDeploymentByDomainIncludingSuspended($domain);
+
+        self::assertInstanceOf(DomainDeployment::class, $resolved);
+        self::assertSame($newerDeployment->id, $resolved->id);
+        self::assertNotSame($olderDeployment->id, $resolved->id);
+    }
+
+    #[Test]
+    public function getDomainDeploymentByDomainIncludingSuspendedExcludesEndedAndDeletedDeployments(): void
+    {
+        $archivedDomain = 'archived-domain.com';
+        new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->for(
+                new SubscriptionFactory()
+                    ->withCustomer()
+                    ->for($this->domainProduct)
+                    ->forDomain($archivedDomain)
+                    ->administrativeStatusArchived(),
+                'subscription',
+            )
+            ->createOne();
+
+        $expiredDomain = 'expired-domain.com';
+        new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->for(
+                new SubscriptionFactory()
+                    ->withCustomer()
+                    ->for($this->domainProduct)
+                    ->forDomain($expiredDomain)
+                    ->administrativeStatusExpired(),
+                'subscription',
+            )
+            ->createOne();
+
+        $deletedDomain = 'deleted-domain.com';
+        new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->for(
+                new SubscriptionFactory()
+                    ->withCustomer()
+                    ->for($this->domainProduct)
+                    ->forDomain($deletedDomain)
+                    ->administrativeStatusActive(),
+                'subscription',
+            )
+            ->createOne(['deleted_at' => '2024-01-01 00:00:00']);
+
+        self::assertNull($this->domainRepository->getDomainDeploymentByDomainIncludingSuspended($archivedDomain));
+        self::assertNull($this->domainRepository->getDomainDeploymentByDomainIncludingSuspended($expiredDomain));
+        self::assertNull($this->domainRepository->getDomainDeploymentByDomainIncludingSuspended($deletedDomain));
+    }
+
+    #[Test]
+    public function getDomainDeploymentByDomainIncludingSuspendedReturnsNullWhenMissing(): void
+    {
+        self::assertNull($this->domainRepository->getDomainDeploymentByDomainIncludingSuspended('not-in-db.com'));
     }
 
     #[Test]
@@ -157,21 +269,18 @@ class DomainSubscriptionRepositoryTest extends IntegrationTestCase
         $businessUnitWaterfront = DomainProviderBusinessUnitFactory::new()->waterfront()->createOne();
         $businessUnitArgeweb = DomainProviderBusinessUnitFactory::new()->argeweb();
 
-        RtrProviderCredentialsFactory::new()
-            ->for($businessUnitArgeweb)
-            ->createOne();
+        RtrProviderCredentialsFactory::new()->for($businessUnitArgeweb)->createOne();
 
-        $rtrCredentials = RtrProviderCredentialsFactory::new()
-            ->for($businessUnitWaterfront)
-            ->createOne();
+        $rtrCredentials = RtrProviderCredentialsFactory::new()->for($businessUnitWaterfront)->createOne();
 
-        $domainDeployment = DomainDeploymentFactory::new()
-            ->withRtrProvider()
-            ->withSubscription($this->domainProduct, ['domain' => $domain])
-            ->for($businessUnitWaterfront, 'businessUnit')
-            ->createOne();
+        $domainDeployment = DomainDeploymentFactory::new()->withRtrProvider()->withSubscription($this->domainProduct, [
+            'domain' => $domain,
+        ])->for($businessUnitWaterfront, 'businessUnit')->createOne();
 
-        $credentials = $this->domainRepository->getDomainProviderCredentials($domainDeployment->provider->slug, $businessUnitWaterfront);
+        $credentials = $this->domainRepository->getDomainProviderCredentials(
+            $domainDeployment->provider->slug,
+            $businessUnitWaterfront,
+        );
         self::assertInstanceOf(RtrProviderCredentials::class, $credentials);
         self::assertSame($rtrCredentials->id, $credentials->id);
     }
@@ -190,9 +299,12 @@ class DomainSubscriptionRepositoryTest extends IntegrationTestCase
 
         self::expectException(InvalidArgumentException::class);
         self::expectExceptionMessageIs(
-            'Invalid provider type [placeholder] for domain provider credentials'
+            'Invalid provider type [placeholder] for domain provider credentials',
         );
-        $this->domainRepository->getDomainProviderCredentials($domainDeployment->provider->slug, $businessUnitWaterfront);
+        $this->domainRepository->getDomainProviderCredentials(
+            $domainDeployment->provider->slug,
+            $businessUnitWaterfront,
+        );
     }
 
     #[Test]
@@ -201,16 +313,17 @@ class DomainSubscriptionRepositoryTest extends IntegrationTestCase
         $domain = 'domain-with-missing-credentials.com';
         $businessUnitWaterfront = DomainProviderBusinessUnitFactory::new()->waterfront()->createOne();
 
-        $domainDeployment = DomainDeploymentFactory::new()
-            ->withRtrProvider()
-            ->withSubscription($this->domainProduct, ['domain' => $domain])
-            ->for($businessUnitWaterfront, 'businessUnit')
-            ->createOne();
+        $domainDeployment = DomainDeploymentFactory::new()->withRtrProvider()->withSubscription($this->domainProduct, [
+            'domain' => $domain,
+        ])->for($businessUnitWaterfront, 'businessUnit')->createOne();
 
         self::expectException(ModelNotFoundException::class);
         self::expectExceptionMessageIs(
-            'No query results for model [Waterfront\Domain\Domains\Models\RtrProviderCredentials].'
+            'No query results for model [Waterfront\Domain\Domains\Models\RtrProviderCredentials].',
         );
-        $this->domainRepository->getDomainProviderCredentials($domainDeployment->provider->slug, $businessUnitWaterfront);
+        $this->domainRepository->getDomainProviderCredentials(
+            $domainDeployment->provider->slug,
+            $businessUnitWaterfront,
+        );
     }
 }

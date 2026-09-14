@@ -11,8 +11,9 @@ use Waterfront\Infra\Authentication\AuthenticationManager;
 
 class RequireAuthenticatedCustomer
 {
-    public function __construct(private readonly AuthenticationManager $authManager)
-    {
+    public function __construct(
+        private readonly AuthenticationManager $authManager,
+    ) {
     }
 
     /**

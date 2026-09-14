@@ -8,8 +8,10 @@ use Waterfront\Domain\Hosting\Interfaces\Hosting\RequestInterface;
 
 class CreateSiteRequest implements RequestInterface
 {
-    public function __construct(private readonly string $domain, private readonly int $webspaceId)
-    {
+    public function __construct(
+        private readonly string $domain,
+        private readonly int $webspaceId,
+    ) {
     }
 
     /**
@@ -28,7 +30,7 @@ class CreateSiteRequest implements RequestInterface
                         'vrt_hst' => [
                             'property' => [
                                 [
-                                    'name'  => 'ssl',
+                                    'name' => 'ssl',
                                     'value' => true,
                                 ],
                             ],

@@ -44,7 +44,7 @@ class RedirectMigrationPipe extends ValidationPipe
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Start'
+            message: 'Start',
         );
 
         /** @var array<array<string, string|int>> $redirects */
@@ -57,7 +57,7 @@ class RedirectMigrationPipe extends ValidationPipe
             $payload->addValidationTimeline(
                 pipeline: $this->getValidationIdentifier(),
                 message: 'looping',
-                id: $domain
+                id: $domain,
             );
 
             /** @var array<int, array<string, string>> $redirectsData */
@@ -70,7 +70,7 @@ class RedirectMigrationPipe extends ValidationPipe
                     publicSuffixList: $this->publicSuffixList,
                     customer: null,
                     domain: $domain,
-                )
+                ),
             );
 
             try {
@@ -90,13 +90,13 @@ class RedirectMigrationPipe extends ValidationPipe
             } catch (DnsZoneNotFoundException) {
                 $message = sprintf(
                     'Zone %s does not exist. The migration will only run the redirect migration itself.',
-                    $domain
+                    $domain,
                 );
 
                 $this->addValidationResult(
                     $payload,
                     MigrationValidation::REDIRECT_DNS_ZONE_NOT_FOUND,
-                    $message
+                    $message,
                 );
 
                 $this->logger->debug($message, [
@@ -117,13 +117,13 @@ class RedirectMigrationPipe extends ValidationPipe
                         LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                         LoggingContextKeys::DOMAIN_NAME => $domain,
                         LoggingContextKeys::EXCEPTION => $exception,
-                    ]
+                    ],
                 );
 
                 $this->addValidationResult(
                     $payload,
                     MigrationValidation::REDIRECT_DNS_ZONE_UNEXPECTED_EXCEPTION,
-                    $message
+                    $message,
                 );
             }
         }
@@ -132,7 +132,7 @@ class RedirectMigrationPipe extends ValidationPipe
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Finish'
+            message: 'Finish',
         );
 
         return $this->finishPipe(MigrationValidation::REDIRECT_PIPE_PASSED, $payload, $this->logger, $next);
@@ -156,13 +156,13 @@ class RedirectMigrationPipe extends ValidationPipe
         if (! $hasLegacyRedirectServers) {
             $message = sprintf(
                 'There are no Legacy Redirect Servers configured for this business unit %s',
-                $bu
+                $bu,
             );
 
             $this->addValidationResult(
                 $payload,
                 MigrationValidation::REDIRECT_NO_LEGACY_SERVERS_CONFIGURED,
-                $message
+                $message,
             );
 
             $this->logger->error($message, [

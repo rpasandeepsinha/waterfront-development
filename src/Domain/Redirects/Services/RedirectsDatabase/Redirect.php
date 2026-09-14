@@ -9,8 +9,14 @@ use Waterfront\Infra\Common\PublicSuffixList;
 
 class Redirect
 {
-    public function __construct(public int $customerId, public string $domainBody, public string $tld, public string $source, public string $destination, public string $type)
-    {
+    public function __construct(
+        public int $customerId,
+        public string $domainBody,
+        public string $tld,
+        public string $source,
+        public string $destination,
+        public string $type,
+    ) {
     }
 
     /** @return array{string|null, string|null, string|null} */
@@ -22,6 +28,7 @@ class Redirect
         $subdomain = $domain->subDomain()->toString();
         $extension = $domain->suffix()->toString();
         $body = str_replace(".{$extension}", '', $domain->registrableDomain()->toString());
+
         return [$subdomain, $body, $extension];
     }
 }

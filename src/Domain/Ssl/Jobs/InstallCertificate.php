@@ -16,7 +16,7 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
 class InstallCertificate extends AbstractQueueableJob
 {
     public function __construct(
-        private readonly SslDeployment $sslDeployment
+        private readonly SslDeployment $sslDeployment,
     ) {
         parent::__construct();
     }

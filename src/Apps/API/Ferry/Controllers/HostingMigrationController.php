@@ -34,14 +34,17 @@ class HostingMigrationController
 
     public function execute(HostingMigrationRequest $request, Customer $customer): JsonResponse
     {
-        $subscriptions = $this->migratableSubscriptionRepository->getSubscriptionsForHostingMigration($customer)
+        $subscriptions = $this->migratableSubscriptionRepository
+            ->getSubscriptionsForHostingMigration($customer)
             ->filter(function ($subscription) use ($customer) {
                 try {
                     $this->subscriptionMigrationValidator->validateEligibleForHostingMigration($subscription);
                 } catch (NotEligibleForMigrationException $e) {
                     $this->responseDto->addFailure($this->makeFailureDto($e, $customer, $subscription));
+
                     return false;
                 }
+
                 return true;
             });
 
@@ -58,8 +61,11 @@ class HostingMigrationController
         return new JsonResponse($this->responseDto->toArray(), Response::HTTP_MULTI_STATUS);
     }
 
-    private function makeFailureDto(NotEligibleForMigrationException $e, Customer $customer, Subscription $subscription): FailureDto
-    {
+    private function makeFailureDto(
+        NotEligibleForMigrationException $e,
+        Customer $customer,
+        Subscription $subscription,
+    ): FailureDto {
         return FailureDto::create(
             sprintf('Hosting migration step not allowed for subscription: %s', $e->getMessage()),
             [
@@ -78,7 +84,13 @@ class HostingMigrationController
             'Created jobs to migrate hosting for every eligible subscription',
             [
                 Parameter::create('customerId', $customer->id),
-                Parameter::create('subscriptionIds', $subscriptions->map(fn (Subscription $subscription) => $subscription->id)->sort()->join(',')),
+                Parameter::create(
+                    'subscriptionIds',
+                    $subscriptions
+                        ->map(fn (Subscription $subscription) => $subscription->id)
+                        ->sort()
+                        ->join(','),
+                ),
             ],
         );
     }
@@ -95,8 +107,10 @@ class HostingMigrationController
 
         $hostingMigrationPayloads = [];
         foreach ($technicalPayloads as $mappablePayload) {
-            $hostingMigrationPayloads[] = $this->hostingMapper
-                ->mapSubscriptionsWithConnectionDetails($subscriptions, $mappablePayload);
+            $hostingMigrationPayloads[] = $this->hostingMapper->mapSubscriptionsWithConnectionDetails(
+                $subscriptions,
+                $mappablePayload,
+            );
         }
 
         return $hostingMigrationPayloads;

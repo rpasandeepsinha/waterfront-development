@@ -23,7 +23,6 @@ class VpsLineItem extends LineItem
         ?ProductPriceType $status,
         ?CartOrderSubscription $children,
         ?array $oneTimeServices,
-        ?string $experimentSlug,
     ) {
         parent::__construct(
             $uuid,
@@ -36,7 +35,6 @@ class VpsLineItem extends LineItem
             $status,
             $children,
             $oneTimeServices,
-            $experimentSlug,
         );
     }
 }

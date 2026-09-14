@@ -53,7 +53,7 @@ class RedirectDnsRecordUpdater
     {
         $this->logger->info(
             sprintf('Updating DNS for redirect with source [%s] and destination [%s]', $source, $rootDomain),
-            $this->getLogContext($rootDomain, $source)
+            $this->getLogContext($rootDomain, $source),
         );
 
         $existingRecords = $this->removeLegacyRedirectDNS($rootDomain, $source);
@@ -63,7 +63,11 @@ class RedirectDnsRecordUpdater
     public function updateRedirectDnsFromProvisionDeployment(CaddyContext $caddyContext): void
     {
         $this->logger->info(
-            sprintf('Updating DNS records for [%d] redirect deployments for context [%s]', count($caddyContext->redirectDeployments), $caddyContext->context_uuid),
+            sprintf(
+                'Updating DNS records for [%d] redirect deployments for context [%s]',
+                count($caddyContext->redirectDeployments),
+                $caddyContext->context_uuid,
+            ),
             [
                 LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CADDY,
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
@@ -72,7 +76,7 @@ class RedirectDnsRecordUpdater
                 LoggingContextKeys::META => [
                     'dry-run' => $this->dryRun,
                 ],
-            ]
+            ],
         );
 
         foreach ($caddyContext->redirectDeployments as $deployment) {
@@ -90,6 +94,7 @@ class RedirectDnsRecordUpdater
     {
         if ($source === $rootDomain) {
             $this->createCaddyRootDomainRecords($rootDomain, $source, $existingRecords);
+
             return;
         }
 
@@ -102,23 +107,36 @@ class RedirectDnsRecordUpdater
     private function createCaddyRootDomainRecords(string $rootDomain, string $source, Collection $existingRecords): void
     {
         $existingNonLegacyRecords = $existingRecords->filter(
-            fn (DnsRecordInterface $record) => $record->getName() === $source
+            fn (DnsRecordInterface $record) => (
+                $record->getName() === $source
                 && in_array($record->getType(), ['A', 'AAAA', 'ALIAS'], true)
                 && $record->getContent() !== $this->legacyIpv4
                 && $record->getContent() !== $this->legacyIpv6
                 && $record->getContent() !== $this->caddyRedirectIpv4
                 && $record->getContent() !== $this->caddyRedirectIpv6
                 && $record->getContent() !== $this->aliasOrCnameContent
+            ),
         );
 
         if ($existingNonLegacyRecords->isNotEmpty()) {
             $this->logger->warning(
-                sprintf('A,AAAA or ALIAS records already exist for [%s], skipping caddy DNS record creation to avoid breaking existing DNS.', $source),
+                sprintf(
+                    'A,AAAA or ALIAS records already exist for [%s], skipping caddy DNS record creation to avoid breaking existing DNS.',
+                    $source,
+                ),
                 $this->getLogContext($rootDomain, $source, [
-                    'existing_records' => $existingNonLegacyRecords->map(
-                        fn (DnsRecordInterface $record) => sprintf('%s %s %s', $record->getName(), $record->getType(), $record->getContent())
-                    )->values()->toArray(),
-                ])
+                    'existing_records' => $existingNonLegacyRecords
+                        ->map(
+                            fn (DnsRecordInterface $record) => sprintf(
+                                '%s %s %s',
+                                $record->getName(),
+                                $record->getType(),
+                                $record->getContent(),
+                            ),
+                        )
+                        ->values()
+                        ->toArray(),
+                ]),
             );
 
             return;
@@ -129,12 +147,12 @@ class RedirectDnsRecordUpdater
             name: $rootDomain,
             content: $this->aliasOrCnameContent,
             ttl: self::DNS_RECORD_TTL,
-            disabled: false
+            disabled: false,
         );
 
         $this->logger->info(
             sprintf('Redirect is on root domain [%s], Setting ALIAS record for caddy.', $rootDomain),
-            $this->getLogContext($rootDomain, $source, ['ALIAS_record' => $aliasRecord->toArray()])
+            $this->getLogContext($rootDomain, $source, ['ALIAS_record' => $aliasRecord->toArray()]),
         );
 
         if (! $this->dryRun) {
@@ -148,16 +166,26 @@ class RedirectDnsRecordUpdater
     private function createCaddySubdomainRecord(string $rootDomain, string $source, Collection $existingRecords): void
     {
         $existingCname = $existingRecords->first(
-            fn (DnsRecordInterface $record) => $record->getName() === $source
+            fn (DnsRecordInterface $record) => (
+                $record->getName() === $source
                 && ($record->getType() === 'CNAME' || $record->getType() === 'AAAA' || $record->getType() === 'A')
+            ),
         );
 
         if ($existingCname !== null) {
             $this->logger->warning(
-                sprintf('CNAME record already exists for [%s], skipping caddy DNS record creation to avoid breaking existing DNS.', $source),
+                sprintf(
+                    'CNAME record already exists for [%s], skipping caddy DNS record creation to avoid breaking existing DNS.',
+                    $source,
+                ),
                 $this->getLogContext($rootDomain, $source, [
-                    'existing_record' => sprintf('%s %s %s', $existingCname->getName(), $existingCname->getType(), $existingCname->getContent()),
-                ])
+                    'existing_record' => sprintf(
+                        '%s %s %s',
+                        $existingCname->getName(),
+                        $existingCname->getType(),
+                        $existingCname->getContent(),
+                    ),
+                ]),
             );
 
             return;
@@ -167,12 +195,12 @@ class RedirectDnsRecordUpdater
             name: $source,
             content: $this->aliasOrCnameContent,
             ttl: self::DNS_RECORD_TTL,
-            disabled: false
+            disabled: false,
         );
 
         $this->logger->info(
             sprintf('Setting CNAME record for subdomain [%s] that points to [%s]', $source, $this->aliasOrCnameContent),
-            $this->getLogContext($rootDomain, $source, ['CNAME_record' => $cname->toArray()])
+            $this->getLogContext($rootDomain, $source, ['CNAME_record' => $cname->toArray()]),
         );
 
         if (! $this->dryRun) {
@@ -188,7 +216,7 @@ class RedirectDnsRecordUpdater
         if (! $this->dnsService->hasDnsZone($rootDomain)) {
             $this->logger->info(
                 sprintf('No DNS zone found for [%s], creating new zone.', $rootDomain),
-                $this->getLogContext($rootDomain, $source)
+                $this->getLogContext($rootDomain, $source),
             );
 
             if (! $this->dryRun) {
@@ -200,28 +228,39 @@ class RedirectDnsRecordUpdater
 
         $records = $this->dnsService->getDnsRecordsForDomain($rootDomain);
 
-        $legacyRedirectRecords = $records->filter(fn (DnsRecordInterface $record) => $record instanceof DefaultRecord)
+        $legacyRedirectRecords = $records
+            ->filter(fn (DnsRecordInterface $record) => $record instanceof DefaultRecord)
             ->filter(fn (DnsRecordInterface $record) => $record->getName() === $source)
             ->filter(
-                fn (DnsRecordInterface $record) =>
-                    ($record->getType() === 'A' && $record->getContent() === $this->legacyIpv4)
-                    || ($record->getType() === 'AAAA' && $record->getContent() === $this->legacyIpv6)
-                    || ($record->getType() === 'A' && $record->getContent() === $this->caddyRedirectIpv4)
-                    || ($record->getType() === 'AAAA' && $record->getContent() === $this->caddyRedirectIpv6)
+                fn (DnsRecordInterface $record) => (
+                    $record->getType() === 'A'
+                    && $record->getContent() === $this->legacyIpv4
+                    || $record->getType() === 'AAAA'
+                    && $record->getContent() === $this->legacyIpv6
+                    || $record->getType() === 'A'
+                    && $record->getContent() === $this->caddyRedirectIpv4
+                    || $record->getType() === 'AAAA'
+                    && $record->getContent() === $this->caddyRedirectIpv6
+                ),
             );
 
         $this->logger->info(
-            sprintf('Deleting [%d] legacy redirect DNS records for domain [%s] and source [%s]', $legacyRedirectRecords->count(), $rootDomain, $source),
+            sprintf(
+                'Deleting [%d] legacy redirect DNS records for domain [%s] and source [%s]',
+                $legacyRedirectRecords->count(),
+                $rootDomain,
+                $source,
+            ),
             $this->getLogContext($rootDomain, $source, [
                 'records' => $legacyRedirectRecords->map(
                     fn (DefaultRecord $record) => sprintf(
                         '%s %s %s',
                         $record->getName(),
                         $record->getType(),
-                        $record->getContent()
-                    )
+                        $record->getContent(),
+                    ),
                 )->toArray(),
-            ])
+            ]),
         );
 
         if (! $this->dryRun) {
@@ -244,13 +283,13 @@ class RedirectDnsRecordUpdater
     private function getLogContext(string $rootDomain, string $source, array $meta = []): array
     {
         return [
-            LoggingContextKeys::DOMAIN_NAME           => $rootDomain,
+            LoggingContextKeys::DOMAIN_NAME => $rootDomain,
             LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CADDY,
-            LoggingContextKeys::PROVISIONING_TYPE     => ProvisionType::REDIRECT,
-            LoggingContextKeys::ONE_OFF_SCRIPT        => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
-            LoggingContextKeys::META                  => array_merge_recursive([
-                'dry-run'              => $this->dryRun,
-                'redirect_source'      => $source,
+            LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
+            LoggingContextKeys::ONE_OFF_SCRIPT => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
+            LoggingContextKeys::META => array_merge_recursive([
+                'dry-run' => $this->dryRun,
+                'redirect_source' => $source,
                 'redirect_destination' => $rootDomain,
             ], $meta),
         ];

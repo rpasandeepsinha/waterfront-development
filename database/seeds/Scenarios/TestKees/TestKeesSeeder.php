@@ -125,7 +125,7 @@ use Webmozart\Assert\Assert;
 class TestKeesSeeder extends Seeder
 {
     public function __construct(
-        private readonly ReferenceRepository $referenceRepo
+        private readonly ReferenceRepository $referenceRepo,
     ) {
     }
 
@@ -406,7 +406,10 @@ class TestKeesSeeder extends Seeder
         $contact->customer_id = $customer->id;
         $contact->save();
 
-        $argewebBusinessUnit = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_BUSINESS_UNIT_ARGEWEB, DomainProviderBusinessUnit::class);
+        $argewebBusinessUnit = $this->referenceRepo->get(
+            ProductReference::DOMAIN_PROVIDER_BUSINESS_UNIT_ARGEWEB,
+            DomainProviderBusinessUnit::class,
+        );
         $contact->providers()->attach($provider, [
             'external_contact' => 'ARGEWEB-HANDLE',
             'domain_business_unit_id' => $argewebBusinessUnit->id,
@@ -415,7 +418,10 @@ class TestKeesSeeder extends Seeder
 
     private function discounts(Customer $customer): void
     {
-        $productDiscount = $this->referenceRepo->get(ProductReference::DOMAIN_RESELLER_DISCOUNT, ProductDiscount::class);
+        $productDiscount = $this->referenceRepo->get(
+            ProductReference::DOMAIN_RESELLER_DISCOUNT,
+            ProductDiscount::class,
+        );
 
         $discount = new CustomerProductDiscount();
         $discount->customer_id = $customer->id;
@@ -488,14 +494,23 @@ class TestKeesSeeder extends Seeder
     private function domainNlWithPriceLadderExperiment(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
-        $priceLadderExperiment = $this->referenceRepo->get(PlatformReference::EXPERIMENT_PRICE_LADDER, Experiment::class);
+        $priceLadderExperiment = $this->referenceRepo->get(
+            PlatformReference::EXPERIMENT_PRICE_LADDER,
+            Experiment::class,
+        );
 
         // DNS dependecies
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -628,7 +643,11 @@ class TestKeesSeeder extends Seeder
         $domainInvoiceItem->gross_price = $domainSubscription->gross_price;
         $domainInvoiceItem->net_price = $domainSubscription->net_price;
         $domainInvoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $domainInvoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $domainInvoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $domainInvoiceItem->group_label = null;
         $domainInvoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $domainInvoiceItem->prepaid_reference = null;
@@ -695,11 +714,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $dnsInvoiceItem = new Invoice();
         $dnsInvoiceItem->subscription_id = $dnsSubscription->id;
@@ -725,13 +746,19 @@ class TestKeesSeeder extends Seeder
     private function domainNLUnProcessedOrder(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         // DNS dependecies
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -825,7 +852,11 @@ class TestKeesSeeder extends Seeder
         $domainInvoiceItem->gross_price = $domainSubscription->gross_price;
         $domainInvoiceItem->net_price = $domainSubscription->net_price;
         $domainInvoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $domainInvoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $domainInvoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $domainInvoiceItem->group_label = null;
         $domainInvoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $domainInvoiceItem->prepaid_reference = null;
@@ -891,11 +922,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $dnsInvoiceItem = new Invoice();
         $dnsInvoiceItem->subscription_id = $dnsSubscription->id;
@@ -921,13 +954,19 @@ class TestKeesSeeder extends Seeder
     private function domainNlWithExternalNameservers(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         // DNS dependecies
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -990,7 +1029,10 @@ class TestKeesSeeder extends Seeder
 
         $domainSubscription->subscription_price_id = $domainSubscriptionPrice->id;
         $domainSubscription->save();
-        $this->referenceRepo->set(ScenarioReference::TEST_KEES_DOMAIN_NL_SUBSCRIPTION_EXTERNAL_NAMESERVERS, $domainSubscription);
+        $this->referenceRepo->set(
+            ScenarioReference::TEST_KEES_DOMAIN_NL_SUBSCRIPTION_EXTERNAL_NAMESERVERS,
+            $domainSubscription,
+        );
 
         $hubspotCustomerEventSuccess = new HubspotEvent();
         $hubspotCustomerEventSuccess->customer_id = $customer->id;
@@ -1040,7 +1082,11 @@ class TestKeesSeeder extends Seeder
         $domainInvoiceItem->gross_price = $domainSubscription->gross_price;
         $domainInvoiceItem->net_price = $domainSubscription->net_price;
         $domainInvoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $domainInvoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $domainInvoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $domainInvoiceItem->group_label = null;
         $domainInvoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $domainInvoiceItem->prepaid_reference = null;
@@ -1149,13 +1195,19 @@ class TestKeesSeeder extends Seeder
     private function domainNlWithDnsRecordsChanges(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         // DNS dependencies
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -1249,7 +1301,11 @@ class TestKeesSeeder extends Seeder
         $domainInvoiceItem->gross_price = $domainSubscription->gross_price;
         $domainInvoiceItem->net_price = $domainSubscription->net_price;
         $domainInvoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $domainInvoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $domainInvoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $domainInvoiceItem->group_label = null;
         $domainInvoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $domainInvoiceItem->prepaid_reference = null;
@@ -1316,11 +1372,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $dnsInvoiceItem = new Invoice();
         $dnsInvoiceItem->subscription_id = $dnsSubscription->id;
@@ -1352,7 +1410,10 @@ class TestKeesSeeder extends Seeder
         $dnsRecordChange->subscription_id = $dnsSubscription->id;
         $dnsRecordChange->ip_address = '::1';
         $dnsRecordChange->changed_by_uuid = $customer->uuid;
-        $dnsRecordChange->changed_by_metadata = json_encode(['email' => $customer->email, 'schemaId' => SchemaId::CUSTOMER], JSON_THROW_ON_ERROR);
+        $dnsRecordChange->changed_by_metadata = json_encode([
+            'email' => $customer->email,
+            'schemaId' => SchemaId::CUSTOMER,
+        ], JSON_THROW_ON_ERROR);
         $dnsRecordChange->save();
 
         $dnsRecordChange = new DnsRecordChange();
@@ -1365,7 +1426,10 @@ class TestKeesSeeder extends Seeder
         $dnsRecordChange->subscription_id = $dnsSubscription->id;
         $dnsRecordChange->ip_address = '192.128.0.1';
         $dnsRecordChange->changed_by_uuid = $customer->uuid;
-        $dnsRecordChange->changed_by_metadata = json_encode(['email' => $customer->email, 'schemaId' => SchemaId::CUSTOMER], JSON_THROW_ON_ERROR);
+        $dnsRecordChange->changed_by_metadata = json_encode([
+            'email' => $customer->email,
+            'schemaId' => SchemaId::CUSTOMER,
+        ], JSON_THROW_ON_ERROR);
         $dnsRecordChange->save();
 
         $dnsRecordChange = new DnsRecordChange();
@@ -1378,7 +1442,10 @@ class TestKeesSeeder extends Seeder
         $dnsRecordChange->subscription_id = $dnsSubscription->id;
         $dnsRecordChange->ip_address = '192.128.0.1';
         $dnsRecordChange->changed_by_uuid = $customer->uuid;
-        $dnsRecordChange->changed_by_metadata = json_encode(['email' => $customer->email, 'schemaId' => SchemaId::CUSTOMER], JSON_THROW_ON_ERROR);
+        $dnsRecordChange->changed_by_metadata = json_encode([
+            'email' => $customer->email,
+            'schemaId' => SchemaId::CUSTOMER,
+        ], JSON_THROW_ON_ERROR);
         $dnsRecordChange->save();
 
         $dnsRecordChange = new DnsRecordChange();
@@ -1391,7 +1458,10 @@ class TestKeesSeeder extends Seeder
         $dnsRecordChange->subscription_id = $dnsSubscription->id;
         $dnsRecordChange->ip_address = '192.128.0.1';
         $dnsRecordChange->changed_by_uuid = $customer->uuid;
-        $dnsRecordChange->changed_by_metadata = json_encode(['email' => $customer->email, 'schemaId' => SchemaId::CUSTOMER], JSON_THROW_ON_ERROR);
+        $dnsRecordChange->changed_by_metadata = json_encode([
+            'email' => $customer->email,
+            'schemaId' => SchemaId::CUSTOMER,
+        ], JSON_THROW_ON_ERROR);
         $dnsRecordChange->save();
 
         $dnsRecordChange = new DnsRecordChange();
@@ -1404,20 +1474,29 @@ class TestKeesSeeder extends Seeder
         $dnsRecordChange->subscription_id = $dnsSubscription->id;
         $dnsRecordChange->ip_address = '192.128.0.1';
         $dnsRecordChange->changed_by_uuid = $customer->uuid;
-        $dnsRecordChange->changed_by_metadata = json_encode(['email' => $customer->email, 'schemaId' => SchemaId::CUSTOMER], JSON_THROW_ON_ERROR);
+        $dnsRecordChange->changed_by_metadata = json_encode([
+            'email' => $customer->email,
+            'schemaId' => SchemaId::CUSTOMER,
+        ], JSON_THROW_ON_ERROR);
         $dnsRecordChange->save();
     }
 
     private function domainEu(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::DOMAIN_EU, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::DOMAIN_EU_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::DOMAIN_EU_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         // DNS dependecies
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -1544,7 +1623,11 @@ class TestKeesSeeder extends Seeder
         $domainInvoiceItem->gross_price = $domainSubscription->gross_price;
         $domainInvoiceItem->net_price = $domainSubscription->net_price;
         $domainInvoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $domainInvoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $domainInvoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $domainInvoiceItem->group_label = null;
         $domainInvoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $domainInvoiceItem->prepaid_reference = null;
@@ -1611,11 +1694,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $dnsInvoiceItem = new Invoice();
         $dnsInvoiceItem->subscription_id = $dnsSubscription->id;
@@ -1668,13 +1753,19 @@ class TestKeesSeeder extends Seeder
     private function domainBe(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::DOMAIN_BE, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::DOMAIN_BE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::DOMAIN_BE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         // DNS dependencies
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -1806,7 +1897,9 @@ class TestKeesSeeder extends Seeder
         $invoice->end_date = $oneTimeService->execution_date;
         $invoice->period = 0;
         $invoice->gross_price = $oneTimeService->gross_price;
-        $invoice->net_price = (int) round($oneTimeService->gross_price * (1 - ($oneTimeService->discount_percentage * 0.01)));
+        $invoice->net_price = (int) round(
+            $oneTimeService->gross_price * (1 - ($oneTimeService->discount_percentage * 0.01)),
+        );
         $invoice->title = $product->name;
         $invoice->description = $product->name;
         $invoice->group_label = null;
@@ -1861,7 +1954,11 @@ class TestKeesSeeder extends Seeder
         $domainInvoiceItem->gross_price = $domainSubscription->gross_price;
         $domainInvoiceItem->net_price = $domainSubscription->net_price;
         $domainInvoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $domainInvoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $domainInvoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $domainInvoiceItem->group_label = null;
         $domainInvoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $domainInvoiceItem->prepaid_reference = null;
@@ -1928,11 +2025,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $dnsInvoiceItem = new Invoice();
         $dnsInvoiceItem->subscription_id = $dnsSubscription->id;
@@ -1958,16 +2057,31 @@ class TestKeesSeeder extends Seeder
     private function domainComWithPremiumDns(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::DOMAIN_COM, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::DOMAIN_COM_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::DOMAIN_COM_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         // DNS dependencies
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_PREMIUM, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_PREMIUM_REGISTRATION_PRICE, ProductPriceComponent::class);
-        $vanityNameServer1 = $this->referenceRepo->get(ProductReference::DNS_VANITY_NAMESERVER_1, DnsVanityNameserver::class);
-        $vanityNameServer2 = $this->referenceRepo->get(ProductReference::DNS_VANITY_NAMESERVER_2, DnsVanityNameserver::class);
-        $vanityNameServer3 = $this->referenceRepo->get(ProductReference::DNS_VANITY_NAMESERVER_3, DnsVanityNameserver::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_PREMIUM_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
+        $vanityNameServer1 = $this->referenceRepo->get(
+            ProductReference::DNS_VANITY_NAMESERVER_1,
+            DnsVanityNameserver::class,
+        );
+        $vanityNameServer2 = $this->referenceRepo->get(
+            ProductReference::DNS_VANITY_NAMESERVER_2,
+            DnsVanityNameserver::class,
+        );
+        $vanityNameServer3 = $this->referenceRepo->get(
+            ProductReference::DNS_VANITY_NAMESERVER_3,
+            DnsVanityNameserver::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -2093,7 +2207,11 @@ class TestKeesSeeder extends Seeder
         $domainInvoiceItem->gross_price = $domainSubscription->gross_price;
         $domainInvoiceItem->net_price = $domainSubscription->net_price;
         $domainInvoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $domainInvoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $domainInvoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $domainInvoiceItem->group_label = null;
         $domainInvoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $domainInvoiceItem->prepaid_reference = null;
@@ -2160,11 +2278,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::VANITY;
         $dnsDeployment->save();
 
-        $dnsDeployment->vanityNameservers()->saveMany([
-            $vanityNameServer1,
-            $vanityNameServer2,
-            $vanityNameServer3,
-        ]);
+        $dnsDeployment
+            ->vanityNameservers()
+            ->saveMany([
+                $vanityNameServer1,
+                $vanityNameServer2,
+                $vanityNameServer3,
+            ]);
 
         $mutation = new SubscriptionMutation();
         $mutation->subscription_id = $dnsSubscription->id;
@@ -2199,32 +2319,48 @@ class TestKeesSeeder extends Seeder
 
     private function labels(Customer $customer): void
     {
-        $nlDomainSubscription = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_NL_SUBSCRIPTION, Subscription::class);
-        $euDomainSubscription = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_EU_SUBSCRIPTION, Subscription::class);
-        $beDomainSubscription = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_BE_SUBSCRIPTION, Subscription::class);
-        $comDomainSubscription = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_COM_SUBSCRIPTION, Subscription::class);
+        $nlDomainSubscription = $this->referenceRepo->get(
+            ScenarioReference::TEST_KEES_DOMAIN_NL_SUBSCRIPTION,
+            Subscription::class,
+        );
+        $euDomainSubscription = $this->referenceRepo->get(
+            ScenarioReference::TEST_KEES_DOMAIN_EU_SUBSCRIPTION,
+            Subscription::class,
+        );
+        $beDomainSubscription = $this->referenceRepo->get(
+            ScenarioReference::TEST_KEES_DOMAIN_BE_SUBSCRIPTION,
+            Subscription::class,
+        );
+        $comDomainSubscription = $this->referenceRepo->get(
+            ScenarioReference::TEST_KEES_DOMAIN_COM_SUBSCRIPTION,
+            Subscription::class,
+        );
 
         $label = new Label();
         $label->value = 'webshop';
         $label->customer_id = $customer->id;
         $label->save();
-        $label->subscriptions()->saveMany(
-            [
-                $nlDomainSubscription,
-                $euDomainSubscription,
-            ]
-        );
+        $label
+            ->subscriptions()
+            ->saveMany(
+                [
+                    $nlDomainSubscription,
+                    $euDomainSubscription,
+                ],
+            );
 
         $label = new Label();
         $label->value = 'marketing-campagne';
         $label->customer_id = $customer->id;
         $label->save();
-        $label->subscriptions()->saveMany(
-            [
-                $beDomainSubscription,
-                $comDomainSubscription,
-            ]
-        );
+        $label
+            ->subscriptions()
+            ->saveMany(
+                [
+                    $beDomainSubscription,
+                    $comDomainSubscription,
+                ],
+            );
     }
 
     private function managerDomainHaarlem(Customer $customer): void
@@ -2241,7 +2377,10 @@ class TestKeesSeeder extends Seeder
         $managerDomainDeployment->last_subscription_sync_at = CarbonImmutable::now()->subHour();
         $managerDomainDeployment->environment_id = $environment->id;
         $managerDomainDeployment->save();
-        $this->referenceRepo->set(ScenarioReference::TEST_KEES_VPS_MANAGER_DOMAIN_DEPLOYMENT_HAARLEM, $managerDomainDeployment);
+        $this->referenceRepo->set(
+            ScenarioReference::TEST_KEES_VPS_MANAGER_DOMAIN_DEPLOYMENT_HAARLEM,
+            $managerDomainDeployment,
+        );
     }
 
     private function vpsUnlinkedSSHKey(Customer $customer): void
@@ -2270,19 +2409,31 @@ class TestKeesSeeder extends Seeder
         $managerDomainDeployment->last_subscription_sync_at = CarbonImmutable::now()->subHour();
         $managerDomainDeployment->environment_id = $environment->id;
         $managerDomainDeployment->save();
-        $this->referenceRepo->set(ScenarioReference::TEST_KEES_VPS_MANAGER_DOMAIN_DEPLOYMENT_AMSTERDAM, $managerDomainDeployment);
+        $this->referenceRepo->set(
+            ScenarioReference::TEST_KEES_VPS_MANAGER_DOMAIN_DEPLOYMENT_AMSTERDAM,
+            $managerDomainDeployment,
+        );
     }
 
     private function vpsCloud2UbuntuSshHaarlem(Customer $customer): void
     {
         $vpsProduct = $this->referenceRepo->get(ProductReference::VPS_CLOUD_2, Product::class);
-        $vpsPrice = $this->referenceRepo->get(ProductReference::VPS_CLOUD_2_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $vpsPrice = $this->referenceRepo->get(
+            ProductReference::VPS_CLOUD_2_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
-        $managerDomainDeployment = $this->referenceRepo->get(ScenarioReference::TEST_KEES_VPS_MANAGER_DOMAIN_DEPLOYMENT_HAARLEM, ManagerDomainDeployment::class);
+        $managerDomainDeployment = $this->referenceRepo->get(
+            ScenarioReference::TEST_KEES_VPS_MANAGER_DOMAIN_DEPLOYMENT_HAARLEM,
+            ManagerDomainDeployment::class,
+        );
 
         // OS dependencies
         $osProduct = $this->referenceRepo->get(ProductReference::VPS_OS_UBUNTU_SSH_REQUIRED, Product::class);
-        $osPrice = $this->referenceRepo->get(ProductReference::VPS_OS_UBUNTU_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $osPrice = $this->referenceRepo->get(
+            ProductReference::VPS_OS_UBUNTU_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -2430,13 +2581,22 @@ class TestKeesSeeder extends Seeder
     private function vpsCloud5UbuntuSshHaarlem(Customer $customer): void
     {
         $vpsProduct = $this->referenceRepo->get(ProductReference::VPS_CLOUD_5, Product::class);
-        $vpsPrice = $this->referenceRepo->get(ProductReference::VPS_CLOUD_5_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $vpsPrice = $this->referenceRepo->get(
+            ProductReference::VPS_CLOUD_5_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
-        $managerDomainDeployment = $this->referenceRepo->get(ScenarioReference::TEST_KEES_VPS_MANAGER_DOMAIN_DEPLOYMENT_HAARLEM, ManagerDomainDeployment::class);
+        $managerDomainDeployment = $this->referenceRepo->get(
+            ScenarioReference::TEST_KEES_VPS_MANAGER_DOMAIN_DEPLOYMENT_HAARLEM,
+            ManagerDomainDeployment::class,
+        );
 
         // OS dependencies
         $osProduct = $this->referenceRepo->get(ProductReference::VPS_OS_UBUNTU_SSH_REQUIRED, Product::class);
-        $osPrice = $this->referenceRepo->get(ProductReference::VPS_OS_UBUNTU_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $osPrice = $this->referenceRepo->get(
+            ProductReference::VPS_OS_UBUNTU_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -2583,13 +2743,22 @@ class TestKeesSeeder extends Seeder
     private function vpsCloud10UbuntuHaarlem(Customer $customer): void
     {
         $vpsProduct = $this->referenceRepo->get(ProductReference::VPS_CLOUD_10, Product::class);
-        $vpsPrice = $this->referenceRepo->get(ProductReference::VPS_CLOUD_10_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $vpsPrice = $this->referenceRepo->get(
+            ProductReference::VPS_CLOUD_10_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
-        $managerDomainDeployment = $this->referenceRepo->get(ScenarioReference::TEST_KEES_VPS_MANAGER_DOMAIN_DEPLOYMENT_HAARLEM, ManagerDomainDeployment::class);
+        $managerDomainDeployment = $this->referenceRepo->get(
+            ScenarioReference::TEST_KEES_VPS_MANAGER_DOMAIN_DEPLOYMENT_HAARLEM,
+            ManagerDomainDeployment::class,
+        );
 
         // OS dependencies
         $osProduct = $this->referenceRepo->get(ProductReference::VPS_OS_UBUNTU, Product::class);
-        $osPrice = $this->referenceRepo->get(ProductReference::VPS_OS_UBUNTU_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $osPrice = $this->referenceRepo->get(
+            ProductReference::VPS_OS_UBUNTU_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -2722,13 +2891,22 @@ class TestKeesSeeder extends Seeder
     private function vpsCloud20UbuntuSshAmsterdam(Customer $customer): void
     {
         $vpsProduct = $this->referenceRepo->get(ProductReference::VPS_CLOUD_20, Product::class);
-        $vpsPrice = $this->referenceRepo->get(ProductReference::VPS_CLOUD_20_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $vpsPrice = $this->referenceRepo->get(
+            ProductReference::VPS_CLOUD_20_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
-        $managerDomainDeployment = $this->referenceRepo->get(ScenarioReference::TEST_KEES_VPS_MANAGER_DOMAIN_DEPLOYMENT_AMSTERDAM, ManagerDomainDeployment::class);
+        $managerDomainDeployment = $this->referenceRepo->get(
+            ScenarioReference::TEST_KEES_VPS_MANAGER_DOMAIN_DEPLOYMENT_AMSTERDAM,
+            ManagerDomainDeployment::class,
+        );
 
         // OS dependencies
         $osProduct = $this->referenceRepo->get(ProductReference::VPS_OS_UBUNTU_SSH_REQUIRED, Product::class);
-        $osPrice = $this->referenceRepo->get(ProductReference::VPS_OS_UBUNTU_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $osPrice = $this->referenceRepo->get(
+            ProductReference::VPS_OS_UBUNTU_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -2861,21 +3039,33 @@ class TestKeesSeeder extends Seeder
     private function sitebuilder(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::SITEBUILDER_BASEKIT, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::SITEBUILDER_BASEKIT_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::SITEBUILDER_BASEKIT_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::SITEBUILDER_PROVIDER, Provider::class);
-        $mailOnlyProvider = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_PROVIDER_DIRECT_ADMIN, Provider::class);
+        $mailOnlyProvider = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_PROVIDER_DIRECT_ADMIN,
+            Provider::class,
+        );
         $server = $this->referenceRepo->get(ProductReference::SITEBUILDER_SERVER, Server::class);
         $mailServer = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_SERVER_DIRECT_ADMIN, Server::class);
 
         // Domain dependencies
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         // DNS dependencies
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -2975,7 +3165,11 @@ class TestKeesSeeder extends Seeder
         $sitebuilderInvoiceItem->gross_price = $sitebuilderSubscription->gross_price;
         $sitebuilderInvoiceItem->net_price = $sitebuilderSubscription->net_price;
         $sitebuilderInvoiceItem->title = $sitebuilderSubscription->domain ?? $sitebuilderSubscription->product->name;
-        $sitebuilderInvoiceItem->description = sprintf('%s for %s', $sitebuilderSubscription->product->name, $sitebuilderSubscription->domain);
+        $sitebuilderInvoiceItem->description = sprintf(
+            '%s for %s',
+            $sitebuilderSubscription->product->name,
+            $sitebuilderSubscription->domain,
+        );
         $sitebuilderInvoiceItem->group_label = null;
         $sitebuilderInvoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $sitebuilderInvoiceItem->prepaid_reference = null;
@@ -3056,7 +3250,11 @@ class TestKeesSeeder extends Seeder
         $domainInvoiceItem->gross_price = $domainSubscription->gross_price;
         $domainInvoiceItem->net_price = $domainSubscription->net_price;
         $domainInvoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $domainInvoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $domainInvoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $domainInvoiceItem->group_label = null;
         $domainInvoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $domainInvoiceItem->prepaid_reference = null;
@@ -3123,11 +3321,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $dnsSubscription->id;
@@ -3153,15 +3353,24 @@ class TestKeesSeeder extends Seeder
     private function provisionSitebuilderBasekit(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::SITEBUILDER_BASEKIT, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::SITEBUILDER_BASEKIT_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::SITEBUILDER_BASEKIT_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -3237,7 +3446,10 @@ class TestKeesSeeder extends Seeder
         $provisionRequest->context_uuid = Uuid::fromString($sitebuilderSubscription->uuid);
         $provisionRequest->uuid = Uuid::uuid4();
         $provisionRequest->tag = Uuid::fromString($sitebuilderSubscription->uuid);
-        $provisionRequest->request_data = json_encode(['domain' => $sitebuilderOrderItem->domain, 'package_ref' => 'totally invalid'], JSON_THROW_ON_ERROR);
+        $provisionRequest->request_data = json_encode([
+            'domain' => $sitebuilderOrderItem->domain,
+            'package_ref' => 'totally invalid',
+        ], JSON_THROW_ON_ERROR);
         $provisionRequest->request_name = ProvisionRequestName::CREATE_SITEBUILDER;
         $provisionRequest->request_type = ProvisionType::SITEBUILDER;
         $provisionRequest->provision_provider = ProvisionProvider::BASEKIT;
@@ -3265,7 +3477,10 @@ class TestKeesSeeder extends Seeder
         $retryProvisionRequest->context_uuid = Uuid::fromString($sitebuilderSubscription->uuid);
         $retryProvisionRequest->uuid = Uuid::uuid4();
         $retryProvisionRequest->tag = Uuid::fromString($sitebuilderSubscription->uuid);
-        $retryProvisionRequest->request_data = json_encode(['domain' => $sitebuilderOrderItem->domain, 'package_ref' => 1234], JSON_THROW_ON_ERROR);
+        $retryProvisionRequest->request_data = json_encode([
+            'domain' => $sitebuilderOrderItem->domain,
+            'package_ref' => 1234,
+        ], JSON_THROW_ON_ERROR);
         $retryProvisionRequest->request_name = ProvisionRequestName::CREATE_SITEBUILDER;
         $retryProvisionRequest->request_type = ProvisionType::SITEBUILDER;
         $retryProvisionRequest->provision_provider = ProvisionProvider::BASEKIT;
@@ -3278,7 +3493,10 @@ class TestKeesSeeder extends Seeder
         $provisionResult = new ProvisioningResult();
         $provisionResult->uuid = Uuid::uuid4();
         $provisionResult->request_id = $retryProvisionRequest->id;
-        $provisionResult->response = json_encode(['status' => ProvisionStatus::SUCCESS, 'message' => 'created sitebuilder successfully'], JSON_THROW_ON_ERROR);
+        $provisionResult->response = json_encode([
+            'status' => ProvisionStatus::SUCCESS,
+            'message' => 'created sitebuilder successfully',
+        ], JSON_THROW_ON_ERROR);
         $provisionResult->status = ProvisionStatus::SUCCESS;
         $provisionResult->created_at = $retryProvisionRequest->created_at?->addMinute();
         $provisionResult->updated_at = $retryProvisionRequest->updated_at?->addMinute();
@@ -3306,8 +3524,16 @@ class TestKeesSeeder extends Seeder
         $hostingDeployment->subscription_uuid = $sitebuilderSubscription->uuid;
         $hostingDeployment->provider_id = null;
         $hostingDeployment->server_id = null;
-        $hostingDeployment->mail_only_provider_id = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_PROVIDER_DIRECT_ADMIN, Provider::class)->id;
-        $hostingDeployment->mailOnlyServer()->associate($this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_SERVER_DIRECT_ADMIN, Server::class));
+        $hostingDeployment->mail_only_provider_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_PROVIDER_DIRECT_ADMIN,
+            Provider::class,
+        )->id;
+        $hostingDeployment
+            ->mailOnlyServer()
+            ->associate($this->referenceRepo->get(
+                ProductReference::HOSTING_MAIL_ONLY_SERVER_DIRECT_ADMIN,
+                Server::class,
+            ));
         $hostingDeployment->directadmin_customer_username = 'da-sitebuilder-mail-only-username';
         $hostingDeployment->last_created_result = '{}';
         $hostingDeployment->last_created_result_received = $sitebuilderSubscription->start_date->addHour();
@@ -3333,7 +3559,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $sitebuilderSubscription->net_price;
         $invoiceItem->gross_price = $sitebuilderSubscription->gross_price;
         $invoiceItem->title = $sitebuilderSubscription->domain ?? $sitebuilderSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $sitebuilderSubscription->product->name, $sitebuilderSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $sitebuilderSubscription->product->name,
+            $sitebuilderSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -3415,7 +3645,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $domainSubscription->net_price;
         $invoiceItem->gross_price = $domainSubscription->gross_price;
         $invoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -3483,11 +3717,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $dnsSubscription->id;
@@ -3513,18 +3749,30 @@ class TestKeesSeeder extends Seeder
     private function provisionSitebuilderBasekitWithAddons(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::SITEBUILDER_BASEKIT, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::SITEBUILDER_BASEKIT_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::SITEBUILDER_BASEKIT_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $productAddon = $this->referenceRepo->get(ProductReference::BASEKIT_ADD_ON_BOOKING, Product::class);
-        $addonPrice = $this->referenceRepo->get(ProductReference::BASEKIT_ADD_ON_BOOKING_PRICE, ProductPriceComponent::class);
+        $addonPrice = $this->referenceRepo->get(
+            ProductReference::BASEKIT_ADD_ON_BOOKING_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -3620,11 +3868,13 @@ class TestKeesSeeder extends Seeder
         $sitebuilderBookingAddonSubscriptionPrice->save();
 
         $sitebuilderBookingAddonSubscriptionPriceComponent = new SubscriptionPriceComponent();
-        $sitebuilderBookingAddonSubscriptionPriceComponent->subscription_price_id = $sitebuilderBookingAddonSubscriptionPrice->id;
+        $sitebuilderBookingAddonSubscriptionPriceComponent->subscription_price_id =
+            $sitebuilderBookingAddonSubscriptionPrice->id;
         $sitebuilderBookingAddonSubscriptionPriceComponent->type = $addonPrice->type;
         $sitebuilderBookingAddonSubscriptionPriceComponent->percentage_discount = null;
         $sitebuilderBookingAddonSubscriptionPriceComponent->fixed_discount = null;
-        $sitebuilderBookingAddonSubscriptionPriceComponent->fixed_price = $sitebuilderBookingAddonSubscription->net_price;
+        $sitebuilderBookingAddonSubscriptionPriceComponent->fixed_price =
+            $sitebuilderBookingAddonSubscription->net_price;
         $sitebuilderBookingAddonSubscriptionPriceComponent->new_price = $sitebuilderBookingAddonSubscription->net_price;
         $sitebuilderBookingAddonSubscriptionPriceComponent->order_applied = 1;
         $sitebuilderBookingAddonSubscriptionPriceComponent->save();
@@ -3639,7 +3889,10 @@ class TestKeesSeeder extends Seeder
         $provisionRequest->context_uuid = Uuid::fromString($sitebuilderSubscription->uuid);
         $provisionRequest->uuid = Uuid::uuid4();
         $provisionRequest->tag = Uuid::fromString($sitebuilderSubscription->uuid);
-        $provisionRequest->request_data = json_encode(['domain' => $sitebuilderOrderItem->domain, 'package_ref' => 'invalid'], JSON_THROW_ON_ERROR);
+        $provisionRequest->request_data = json_encode([
+            'domain' => $sitebuilderOrderItem->domain,
+            'package_ref' => 'invalid',
+        ], JSON_THROW_ON_ERROR);
         $provisionRequest->request_name = ProvisionRequestName::CREATE_SITEBUILDER;
         $provisionRequest->request_type = ProvisionType::SITEBUILDER;
         $provisionRequest->provision_provider = ProvisionProvider::BASEKIT;
@@ -3667,7 +3920,10 @@ class TestKeesSeeder extends Seeder
         $retryProvisionRequest->context_uuid = Uuid::fromString($sitebuilderSubscription->uuid);
         $retryProvisionRequest->uuid = Uuid::uuid4();
         $retryProvisionRequest->tag = Uuid::fromString($sitebuilderSubscription->uuid);
-        $retryProvisionRequest->request_data = json_encode(['domain' => $sitebuilderOrderItem->domain, 'package_ref' => 1234], JSON_THROW_ON_ERROR);
+        $retryProvisionRequest->request_data = json_encode([
+            'domain' => $sitebuilderOrderItem->domain,
+            'package_ref' => 1234,
+        ], JSON_THROW_ON_ERROR);
         $retryProvisionRequest->request_name = ProvisionRequestName::CREATE_SITEBUILDER;
         $retryProvisionRequest->request_type = ProvisionType::SITEBUILDER;
         $retryProvisionRequest->provision_provider = ProvisionProvider::BASEKIT;
@@ -3680,7 +3936,10 @@ class TestKeesSeeder extends Seeder
         $provisionResult = new ProvisioningResult();
         $provisionResult->uuid = Uuid::uuid4();
         $provisionResult->request_id = $retryProvisionRequest->id;
-        $provisionResult->response = json_encode(['status' => ProvisionStatus::SUCCESS, 'message' => 'created sitebuilder successfully'], JSON_THROW_ON_ERROR);
+        $provisionResult->response = json_encode([
+            'status' => ProvisionStatus::SUCCESS,
+            'message' => 'created sitebuilder successfully',
+        ], JSON_THROW_ON_ERROR);
         $provisionResult->status = ProvisionStatus::SUCCESS;
         $provisionResult->created_at = $retryProvisionRequest->created_at?->addMinute();
         $provisionResult->updated_at = $retryProvisionRequest->updated_at?->addMinute();
@@ -3708,8 +3967,16 @@ class TestKeesSeeder extends Seeder
         $hostingDeployment->subscription_uuid = $sitebuilderSubscription->uuid;
         $hostingDeployment->provider_id = null;
         $hostingDeployment->server_id = null;
-        $hostingDeployment->mail_only_provider_id = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_PROVIDER_DIRECT_ADMIN, Provider::class)->id;
-        $hostingDeployment->mailOnlyServer()->associate($this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_SERVER_DIRECT_ADMIN, Server::class));
+        $hostingDeployment->mail_only_provider_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_PROVIDER_DIRECT_ADMIN,
+            Provider::class,
+        )->id;
+        $hostingDeployment
+            ->mailOnlyServer()
+            ->associate($this->referenceRepo->get(
+                ProductReference::HOSTING_MAIL_ONLY_SERVER_DIRECT_ADMIN,
+                Server::class,
+            ));
         $hostingDeployment->directadmin_customer_username = 'da-sitebuilder-mail-only-username';
         $hostingDeployment->last_created_result = '{}';
         $hostingDeployment->last_created_result_received = $sitebuilderSubscription->start_date->addHour();
@@ -3735,7 +4002,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $sitebuilderSubscription->net_price;
         $invoiceItem->gross_price = $sitebuilderSubscription->gross_price;
         $invoiceItem->title = $sitebuilderSubscription->domain ?? $sitebuilderSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $sitebuilderSubscription->product->name, $sitebuilderSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $sitebuilderSubscription->product->name,
+            $sitebuilderSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -3817,7 +4088,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $domainSubscription->net_price;
         $invoiceItem->gross_price = $domainSubscription->gross_price;
         $invoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -3885,11 +4160,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $dnsSubscription->id;
@@ -3915,18 +4192,30 @@ class TestKeesSeeder extends Seeder
     private function provisionSitebuilderWebShopBasekitWithAddons(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::SITEBUILDER_SHOP_BASEKIT, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::SITEBUILDER_SHOP_BASEKIT_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::SITEBUILDER_SHOP_BASEKIT_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $productAddon = $this->referenceRepo->get(ProductReference::BASEKIT_ADD_ON_BOOKING, Product::class);
-        $addonPrice = $this->referenceRepo->get(ProductReference::BASEKIT_ADD_ON_BOOKING_PRICE, ProductPriceComponent::class);
+        $addonPrice = $this->referenceRepo->get(
+            ProductReference::BASEKIT_ADD_ON_BOOKING_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -4022,11 +4311,13 @@ class TestKeesSeeder extends Seeder
         $sitebuilderBookingAddonSubscriptionPrice->save();
 
         $sitebuilderBookingAddonSubscriptionPriceComponent = new SubscriptionPriceComponent();
-        $sitebuilderBookingAddonSubscriptionPriceComponent->subscription_price_id = $sitebuilderBookingAddonSubscriptionPrice->id;
+        $sitebuilderBookingAddonSubscriptionPriceComponent->subscription_price_id =
+            $sitebuilderBookingAddonSubscriptionPrice->id;
         $sitebuilderBookingAddonSubscriptionPriceComponent->type = $addonPrice->type;
         $sitebuilderBookingAddonSubscriptionPriceComponent->percentage_discount = null;
         $sitebuilderBookingAddonSubscriptionPriceComponent->fixed_discount = null;
-        $sitebuilderBookingAddonSubscriptionPriceComponent->fixed_price = $sitebuilderBookingAddonSubscription->net_price;
+        $sitebuilderBookingAddonSubscriptionPriceComponent->fixed_price =
+            $sitebuilderBookingAddonSubscription->net_price;
         $sitebuilderBookingAddonSubscriptionPriceComponent->new_price = $sitebuilderBookingAddonSubscription->net_price;
         $sitebuilderBookingAddonSubscriptionPriceComponent->order_applied = 1;
         $sitebuilderBookingAddonSubscriptionPriceComponent->save();
@@ -4041,7 +4332,10 @@ class TestKeesSeeder extends Seeder
         $provisionRequest->context_uuid = Uuid::fromString($sitebuilderSubscription->uuid);
         $provisionRequest->uuid = Uuid::uuid4();
         $provisionRequest->tag = Uuid::fromString($sitebuilderSubscription->uuid);
-        $provisionRequest->request_data = json_encode(['domain' => $sitebuilderOrderItem->domain, 'package_ref' => 'invalid_ref'], JSON_THROW_ON_ERROR);
+        $provisionRequest->request_data = json_encode([
+            'domain' => $sitebuilderOrderItem->domain,
+            'package_ref' => 'invalid_ref',
+        ], JSON_THROW_ON_ERROR);
         $provisionRequest->request_name = ProvisionRequestName::CREATE_SITEBUILDER;
         $provisionRequest->request_type = ProvisionType::SITEBUILDER;
         $provisionRequest->provision_provider = ProvisionProvider::BASEKIT;
@@ -4069,7 +4363,10 @@ class TestKeesSeeder extends Seeder
         $retryProvisionRequest->context_uuid = Uuid::fromString($sitebuilderSubscription->uuid);
         $retryProvisionRequest->uuid = Uuid::uuid4();
         $retryProvisionRequest->tag = Uuid::fromString($sitebuilderSubscription->uuid);
-        $retryProvisionRequest->request_data = json_encode(['domain' => $sitebuilderOrderItem->domain, 'package_ref' => 123], JSON_THROW_ON_ERROR);
+        $retryProvisionRequest->request_data = json_encode([
+            'domain' => $sitebuilderOrderItem->domain,
+            'package_ref' => 123,
+        ], JSON_THROW_ON_ERROR);
         $retryProvisionRequest->request_name = ProvisionRequestName::CREATE_SITEBUILDER;
         $retryProvisionRequest->request_type = ProvisionType::SITEBUILDER;
         $retryProvisionRequest->provision_provider = ProvisionProvider::BASEKIT;
@@ -4082,7 +4379,10 @@ class TestKeesSeeder extends Seeder
         $provisionResult = new ProvisioningResult();
         $provisionResult->uuid = Uuid::uuid4();
         $provisionResult->request_id = $retryProvisionRequest->id;
-        $provisionResult->response = json_encode(['status' => ProvisionStatus::SUCCESS, 'message' => 'created sitebuilder successfully'], JSON_THROW_ON_ERROR);
+        $provisionResult->response = json_encode([
+            'status' => ProvisionStatus::SUCCESS,
+            'message' => 'created sitebuilder successfully',
+        ], JSON_THROW_ON_ERROR);
         $provisionResult->status = ProvisionStatus::SUCCESS;
         $provisionResult->created_at = $retryProvisionRequest->created_at?->addMinute();
         $provisionResult->updated_at = $retryProvisionRequest->updated_at?->addMinute();
@@ -4110,8 +4410,16 @@ class TestKeesSeeder extends Seeder
         $hostingDeployment->subscription_uuid = $sitebuilderSubscription->uuid;
         $hostingDeployment->provider_id = null;
         $hostingDeployment->server_id = null;
-        $hostingDeployment->mail_only_provider_id = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_PROVIDER_DIRECT_ADMIN, Provider::class)->id;
-        $hostingDeployment->mailOnlyServer()->associate($this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_SERVER_DIRECT_ADMIN, Server::class));
+        $hostingDeployment->mail_only_provider_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_PROVIDER_DIRECT_ADMIN,
+            Provider::class,
+        )->id;
+        $hostingDeployment
+            ->mailOnlyServer()
+            ->associate($this->referenceRepo->get(
+                ProductReference::HOSTING_MAIL_ONLY_SERVER_DIRECT_ADMIN,
+                Server::class,
+            ));
         $hostingDeployment->directadmin_customer_username = 'da-sitebuilder-mail-only-username';
         $hostingDeployment->last_created_result = '{}';
         $hostingDeployment->last_created_result_received = $sitebuilderSubscription->start_date->addHour();
@@ -4137,7 +4445,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $sitebuilderSubscription->net_price;
         $invoiceItem->gross_price = $sitebuilderSubscription->gross_price;
         $invoiceItem->title = $sitebuilderSubscription->domain ?? $sitebuilderSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $sitebuilderSubscription->product->name, $sitebuilderSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $sitebuilderSubscription->product->name,
+            $sitebuilderSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -4219,7 +4531,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $domainSubscription->net_price;
         $invoiceItem->gross_price = $domainSubscription->gross_price;
         $invoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -4287,11 +4603,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $dnsSubscription->id;
@@ -4317,15 +4635,24 @@ class TestKeesSeeder extends Seeder
     private function provisionSitebuilderWebshop(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::SITEBUILDER_SHOP_BASEKIT, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::SITEBUILDER_SHOP_BASEKIT_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::SITEBUILDER_SHOP_BASEKIT_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -4401,7 +4728,10 @@ class TestKeesSeeder extends Seeder
         $provisionRequest->context_uuid = Uuid::fromString($sitebuilderSubscription->uuid);
         $provisionRequest->uuid = Uuid::uuid4();
         $provisionRequest->tag = Uuid::fromString($sitebuilderSubscription->uuid);
-        $provisionRequest->request_data = json_encode(['domain' => $sitebuilderOrderItem->domain, 'package_ref' => 3], JSON_THROW_ON_ERROR);
+        $provisionRequest->request_data = json_encode([
+            'domain' => $sitebuilderOrderItem->domain,
+            'package_ref' => 3,
+        ], JSON_THROW_ON_ERROR);
         $provisionRequest->request_name = ProvisionRequestName::CREATE_SITEBUILDER;
         $provisionRequest->request_type = ProvisionType::SITEBUILDER;
         $provisionRequest->provision_provider = ProvisionProvider::BASEKIT;
@@ -4429,7 +4759,10 @@ class TestKeesSeeder extends Seeder
         $retryProvisionRequest->context_uuid = Uuid::fromString($sitebuilderSubscription->uuid);
         $retryProvisionRequest->uuid = Uuid::uuid4();
         $retryProvisionRequest->tag = Uuid::fromString($sitebuilderSubscription->uuid);
-        $retryProvisionRequest->request_data = json_encode(['domain' => $sitebuilderOrderItem->domain, 'package_ref' => 3], JSON_THROW_ON_ERROR);
+        $retryProvisionRequest->request_data = json_encode([
+            'domain' => $sitebuilderOrderItem->domain,
+            'package_ref' => 3,
+        ], JSON_THROW_ON_ERROR);
         $retryProvisionRequest->request_name = ProvisionRequestName::CREATE_SITEBUILDER;
         $retryProvisionRequest->request_type = ProvisionType::SITEBUILDER;
         $retryProvisionRequest->provision_provider = ProvisionProvider::BASEKIT;
@@ -4442,7 +4775,10 @@ class TestKeesSeeder extends Seeder
         $provisionResult = new ProvisioningResult();
         $provisionResult->uuid = Uuid::uuid4();
         $provisionResult->request_id = $retryProvisionRequest->id;
-        $provisionResult->response = json_encode(['status' => ProvisionStatus::SUCCESS, 'message' => 'created sitebuilder successfully'], JSON_THROW_ON_ERROR);
+        $provisionResult->response = json_encode([
+            'status' => ProvisionStatus::SUCCESS,
+            'message' => 'created sitebuilder successfully',
+        ], JSON_THROW_ON_ERROR);
         $provisionResult->status = ProvisionStatus::SUCCESS;
         $provisionResult->created_at = $retryProvisionRequest->created_at?->addMinute();
         $provisionResult->updated_at = $retryProvisionRequest->updated_at?->addMinute();
@@ -4470,8 +4806,16 @@ class TestKeesSeeder extends Seeder
         $hostingDeployment->subscription_uuid = $sitebuilderSubscription->uuid;
         $hostingDeployment->provider_id = null;
         $hostingDeployment->server_id = null;
-        $hostingDeployment->mail_only_provider_id = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_PROVIDER_DIRECT_ADMIN, Provider::class)->id;
-        $hostingDeployment->mailOnlyServer()->associate($this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_SERVER_DIRECT_ADMIN, Server::class));
+        $hostingDeployment->mail_only_provider_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_PROVIDER_DIRECT_ADMIN,
+            Provider::class,
+        )->id;
+        $hostingDeployment
+            ->mailOnlyServer()
+            ->associate($this->referenceRepo->get(
+                ProductReference::HOSTING_MAIL_ONLY_SERVER_DIRECT_ADMIN,
+                Server::class,
+            ));
         $hostingDeployment->directadmin_customer_username = 'da-sitebuilder-mail-only-username';
         $hostingDeployment->last_created_result = '{}';
         $hostingDeployment->last_created_result_received = $sitebuilderSubscription->start_date->addHour();
@@ -4497,7 +4841,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $sitebuilderSubscription->net_price;
         $invoiceItem->gross_price = $sitebuilderSubscription->gross_price;
         $invoiceItem->title = $sitebuilderSubscription->domain ?? $sitebuilderSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $sitebuilderSubscription->product->name, $sitebuilderSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $sitebuilderSubscription->product->name,
+            $sitebuilderSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -4579,7 +4927,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $domainSubscription->net_price;
         $invoiceItem->gross_price = $domainSubscription->gross_price;
         $invoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -4647,11 +4999,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $dnsSubscription->id;
@@ -4677,17 +5031,26 @@ class TestKeesSeeder extends Seeder
     private function bronze(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_BRONZE, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_BRONZE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_BRONZE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -4787,7 +5150,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $hostingSubscription->net_price;
         $invoiceItem->gross_price = $hostingSubscription->gross_price;
         $invoiceItem->title = $hostingSubscription->domain ?? $hostingSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $hostingSubscription->product->name, $hostingSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $hostingSubscription->product->name,
+            $hostingSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -4869,7 +5236,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $domainSubscription->net_price;
         $invoiceItem->gross_price = $domainSubscription->gross_price;
         $invoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -4937,11 +5308,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $dnsSubscription->id;
@@ -4968,17 +5341,26 @@ class TestKeesSeeder extends Seeder
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC, Product::class);
 
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_BASIC_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -4987,11 +5369,23 @@ class TestKeesSeeder extends Seeder
         $fancyInstallerProduct = $this->referenceRepo->get(ProductReference::ADD_ON_FANCY_INSTALLER, Product::class);
         $extraDatabaseProduct = $this->referenceRepo->get(ProductReference::ADD_ON_EXTRA_DB, Product::class);
         $extraStorageProduct = $this->referenceRepo->get(ProductReference::ADD_ON_EXTRA_STORAGE, Product::class);
-        $fancyInstallerPrice = $this->referenceRepo->get(ProductReference::ADD_ON_FANCY_INSTALLER_PRICE, ProductPriceComponent::class);
-        $extraDatabasePrice = $this->referenceRepo->get(ProductReference::ADD_ON_EXTRA_DB_PRICE, ProductPriceComponent::class);
-        $extraStoragePrice = $this->referenceRepo->get(ProductReference::ADD_ON_EXTRA_STORAGE_PRICE, ProductPriceComponent::class);
+        $fancyInstallerPrice = $this->referenceRepo->get(
+            ProductReference::ADD_ON_FANCY_INSTALLER_PRICE,
+            ProductPriceComponent::class,
+        );
+        $extraDatabasePrice = $this->referenceRepo->get(
+            ProductReference::ADD_ON_EXTRA_DB_PRICE,
+            ProductPriceComponent::class,
+        );
+        $extraStoragePrice = $this->referenceRepo->get(
+            ProductReference::ADD_ON_EXTRA_STORAGE_PRICE,
+            ProductPriceComponent::class,
+        );
         $servicePlusProduct = $this->referenceRepo->get(ProductReference::SERVICE_SERVICE_PLUS, Product::class);
-        $servicePlusPrice = $this->referenceRepo->get(ProductReference::SERVICE_SERVICE_PLUS_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $servicePlusPrice = $this->referenceRepo->get(
+            ProductReference::SERVICE_SERVICE_PLUS_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -5294,7 +5688,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $hostingSubscription->net_price;
         $invoiceItem->gross_price = $hostingSubscription->gross_price;
         $invoiceItem->title = $hostingSubscription->domain ?? $hostingSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $hostingSubscription->product->name, $hostingSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $hostingSubscription->product->name,
+            $hostingSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -5376,7 +5774,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $domainSubscription->net_price;
         $invoiceItem->gross_price = $domainSubscription->gross_price;
         $invoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -5444,11 +5846,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $dnsSubscription->id;
@@ -5474,20 +5878,32 @@ class TestKeesSeeder extends Seeder
     private function webBasicWpWithOneTimeService(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC_WP, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC_WP_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_BASIC_WP_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $otsProduct = $this->referenceRepo->get(ProductReference::ONE_TIME_SERVICE_WORDPRESS_DESIGN, Product::class);
-        $otsPrice = $this->referenceRepo->get(ProductReference::ONE_TIME_SERVICE_WORDPRESS_DESIGN_PRICE, ProductPriceComponent::class);
+        $otsPrice = $this->referenceRepo->get(
+            ProductReference::ONE_TIME_SERVICE_WORDPRESS_DESIGN_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -5521,17 +5937,27 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingWebBasicWpOrderLineItem
+            $hostingWebBasicWpOrderLineItem,
         );
 
         $hostingWebBasicWpOrderLineItem->subscription_uuid = $hostingWebBasicWpSubscription->uuid;
         $hostingWebBasicWpOrderLineItem->save();
 
-        $this->createDirectAdminHostingDeployment($hostingWebBasicWpSubscription, $server, $provider, 'direct-admin-web-basic-wp');
+        $this->createDirectAdminHostingDeployment(
+            $hostingWebBasicWpSubscription,
+            $server,
+            $provider,
+            'direct-admin-web-basic-wp',
+        );
 
         $this->createInvoiceItem($hostingWebBasicWpSubscription, $customer, $product);
 
-        $domainOrderItem = $this->createDnsOrderItem($order, $hostingWebBasicWpOrderLineItem, $domainProduct, $domainPrice);
+        $domainOrderItem = $this->createDnsOrderItem(
+            $order,
+            $hostingWebBasicWpOrderLineItem,
+            $domainProduct,
+            $domainPrice,
+        );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
 
@@ -5549,7 +5975,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -5616,12 +6042,18 @@ class TestKeesSeeder extends Seeder
     private function webBasicWpWithUnprocessedOneTimeService(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC_WP, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC_WP_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_BASIC_WP_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $otsProduct = $this->referenceRepo->get(ProductReference::ONE_TIME_SERVICE_WORDPRESS_DESIGN, Product::class);
-        $otsPrice = $this->referenceRepo->get(ProductReference::ONE_TIME_SERVICE_WORDPRESS_DESIGN_PRICE, ProductPriceComponent::class);
+        $otsPrice = $this->referenceRepo->get(
+            ProductReference::ONE_TIME_SERVICE_WORDPRESS_DESIGN_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -5661,7 +6093,7 @@ class TestKeesSeeder extends Seeder
             $hostingSubscription,
             $server,
             $provider,
-            'direct-admin-web-basic-wp-unprocessed-ots'
+            'direct-admin-web-basic-wp-unprocessed-ots',
         );
 
         $this->createInvoiceItem($hostingSubscription, $customer, $product);
@@ -5685,17 +6117,26 @@ class TestKeesSeeder extends Seeder
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC, Product::class);
 
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_BASIC_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -5795,7 +6236,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $hostingSubscription->net_price;
         $invoiceItem->gross_price = $hostingSubscription->gross_price;
         $invoiceItem->title = $hostingSubscription->domain ?? $hostingSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $hostingSubscription->product->name, $hostingSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $hostingSubscription->product->name,
+            $hostingSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -5877,7 +6322,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $domainSubscription->net_price;
         $invoiceItem->gross_price = $domainSubscription->gross_price;
         $invoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -5945,11 +6394,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $dnsSubscription->id;
@@ -5975,17 +6426,26 @@ class TestKeesSeeder extends Seeder
     private function webGrow(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_WEB_GROW, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WEB_GROW_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_GROW_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -6019,17 +6479,27 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingWebGrowOrderLineItem
+            $hostingWebGrowOrderLineItem,
         );
 
         $hostingWebGrowOrderLineItem->subscription_uuid = $hostingWebGrowSubscription->uuid;
         $hostingWebGrowOrderLineItem->save();
 
-        $this->createDirectAdminHostingDeployment($hostingWebGrowSubscription, $server, $provider, 'direct-admin-web-grow');
+        $this->createDirectAdminHostingDeployment(
+            $hostingWebGrowSubscription,
+            $server,
+            $provider,
+            'direct-admin-web-grow',
+        );
 
         $this->createInvoiceItem($hostingWebGrowSubscription, $customer, $product);
 
-        $domainOrderItem = $this->createDnsOrderItem($order, $hostingWebGrowOrderLineItem, $domainProduct, $domainPrice);
+        $domainOrderItem = $this->createDnsOrderItem(
+            $order,
+            $hostingWebGrowOrderLineItem,
+            $domainProduct,
+            $domainPrice,
+        );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
 
@@ -6047,7 +6517,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -6062,18 +6532,27 @@ class TestKeesSeeder extends Seeder
     private function webStart(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_WEB_START, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WEB_START_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_START_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -6107,13 +6586,18 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingWebStartOrderLineItem
+            $hostingWebStartOrderLineItem,
         );
 
         $hostingWebStartOrderLineItem->subscription_uuid = $hostingWebStartSubscription->uuid;
         $hostingWebStartOrderLineItem->save();
 
-        $this->createDirectAdminHostingDeployment($hostingWebStartSubscription, $server, $provider, 'da-hosting-web-start-username');
+        $this->createDirectAdminHostingDeployment(
+            $hostingWebStartSubscription,
+            $server,
+            $provider,
+            'da-hosting-web-start-username',
+        );
 
         $this->createInvoiceItem($hostingWebStartSubscription, $customer, $product);
 
@@ -6121,7 +6605,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $hostingWebStartOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -6140,7 +6624,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -6155,17 +6639,26 @@ class TestKeesSeeder extends Seeder
     private function webPlus(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_WEB_PLUS, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WEB_PLUS_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_PLUS_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -6199,17 +6692,27 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingWebPlusOrderLineItem
+            $hostingWebPlusOrderLineItem,
         );
 
         $hostingWebPlusOrderLineItem->subscription_uuid = $hostingWebPlusSubscription->uuid;
         $hostingWebPlusOrderLineItem->save();
 
-        $this->createDirectAdminHostingDeployment($hostingWebPlusSubscription, $server, $provider, 'da-hosting-web-plus-username');
+        $this->createDirectAdminHostingDeployment(
+            $hostingWebPlusSubscription,
+            $server,
+            $provider,
+            'da-hosting-web-plus-username',
+        );
 
         $this->createInvoiceItem($hostingWebPlusSubscription, $customer, $product);
 
-        $domainOrderItem = $this->createDnsOrderItem($order, $hostingWebPlusOrderLineItem, $domainProduct, $domainPrice);
+        $domainOrderItem = $this->createDnsOrderItem(
+            $order,
+            $hostingWebPlusOrderLineItem,
+            $domainProduct,
+            $domainPrice,
+        );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
 
@@ -6227,7 +6730,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -6242,17 +6745,26 @@ class TestKeesSeeder extends Seeder
     private function mailOnlyBasicDirectAdmin(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -6286,13 +6798,19 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingMailOnlyBasicDirectAdminOrderLineItem
+            $hostingMailOnlyBasicDirectAdminOrderLineItem,
         );
 
-        $hostingMailOnlyBasicDirectAdminOrderLineItem->subscription_uuid = $hostingMailOnlyBasicDirectAdminSubscription->uuid;
+        $hostingMailOnlyBasicDirectAdminOrderLineItem->subscription_uuid =
+            $hostingMailOnlyBasicDirectAdminSubscription->uuid;
         $hostingMailOnlyBasicDirectAdminOrderLineItem->save();
 
-        $this->createDirectAdminHostingDeployment($hostingMailOnlyBasicDirectAdminSubscription, $server, $provider, 'da-hosting-mail-only-basic-username');
+        $this->createDirectAdminHostingDeployment(
+            $hostingMailOnlyBasicDirectAdminSubscription,
+            $server,
+            $provider,
+            'da-hosting-mail-only-basic-username',
+        );
 
         $this->createInvoiceItem($hostingMailOnlyBasicDirectAdminSubscription, $customer, $product);
 
@@ -6300,7 +6818,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $hostingMailOnlyBasicDirectAdminOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -6316,7 +6834,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $hostingMailOnlyBasicDirectAdminOrderLineItem,
             $dnsProduct,
-            $dnsPrice
+            $dnsPrice,
         );
 
         $dnsSubscription = $this->createDnsSubscription(
@@ -6324,7 +6842,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -6339,17 +6857,26 @@ class TestKeesSeeder extends Seeder
     private function premium(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_PREMIUM, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_PREMIUM_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_PREMIUM_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -6383,17 +6910,27 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingPremiumOrderLineItem
+            $hostingPremiumOrderLineItem,
         );
 
         $hostingPremiumOrderLineItem->subscription_uuid = $hostingPremiumSubscription->uuid;
         $hostingPremiumOrderLineItem->save();
 
-        $this->createDirectAdminHostingDeployment($hostingPremiumSubscription, $server, $provider, 'direct-admin-premium');
+        $this->createDirectAdminHostingDeployment(
+            $hostingPremiumSubscription,
+            $server,
+            $provider,
+            'direct-admin-premium',
+        );
 
         $this->createInvoiceItem($hostingPremiumSubscription, $customer, $product);
 
-        $domainOrderItem = $this->createDnsOrderItem($order, $hostingPremiumOrderLineItem, $domainProduct, $domainPrice);
+        $domainOrderItem = $this->createDnsOrderItem(
+            $order,
+            $hostingPremiumOrderLineItem,
+            $domainProduct,
+            $domainPrice,
+        );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
 
@@ -6411,7 +6948,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -6426,16 +6963,25 @@ class TestKeesSeeder extends Seeder
     private function mailOnly(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $server = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -6469,17 +7015,26 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingMailOnlyOrderLineItem
+            $hostingMailOnlyOrderLineItem,
         );
 
         $hostingMailOnlyOrderLineItem->subscription_uuid = $hostingMailOnlySubscription->uuid;
         $hostingMailOnlyOrderLineItem->save();
 
-        $this->createDirectAdminMailOnlyHostingDeployment($hostingMailOnlySubscription, $server, 'direct-admin-mail-only');
+        $this->createDirectAdminMailOnlyHostingDeployment(
+            $hostingMailOnlySubscription,
+            $server,
+            'direct-admin-mail-only',
+        );
 
         $this->createInvoiceItem($hostingMailOnlySubscription, $customer, $product);
 
-        $domainOrderItem = $this->createDnsOrderItem($order, $hostingMailOnlyOrderLineItem, $domainProduct, $domainPrice);
+        $domainOrderItem = $this->createDnsOrderItem(
+            $order,
+            $hostingMailOnlyOrderLineItem,
+            $domainProduct,
+            $domainPrice,
+        );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
 
@@ -6497,7 +7052,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -6512,17 +7067,26 @@ class TestKeesSeeder extends Seeder
     private function wordpressToolkit(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_WORDPRESS_TOOLKIT, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WORDPRESS_TOOLKIT_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WORDPRESS_TOOLKIT_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_PLESK, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_PLESK, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -6556,7 +7120,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $wordpressToolkitOrderLineItem
+            $wordpressToolkitOrderLineItem,
         );
 
         $wordpressToolkitOrderLineItem->subscription_uuid = $hostingWebPlusSubscription->uuid;
@@ -6575,7 +7139,12 @@ class TestKeesSeeder extends Seeder
 
         $this->createInvoiceItem($hostingWebPlusSubscription, $customer, $product);
 
-        $domainOrderItem = $this->createDnsOrderItem($order, $wordpressToolkitOrderLineItem, $domainProduct, $domainPrice);
+        $domainOrderItem = $this->createDnsOrderItem(
+            $order,
+            $wordpressToolkitOrderLineItem,
+            $domainProduct,
+            $domainPrice,
+        );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
 
@@ -6593,7 +7162,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -6608,7 +7177,10 @@ class TestKeesSeeder extends Seeder
     private function hostingPlaceholder(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_PLACEHOLDER, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_PLACEHOLDER_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_PLACEHOLDER_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_PLACEHOLDER, Provider::class);
 
         $hostingPlaceHolderSubscription = new Subscription();
@@ -6659,17 +7231,26 @@ class TestKeesSeeder extends Seeder
     private function mailOnlyGrowPlesk(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_GROW_PLESK, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_GROW_PLESK_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_GROW_PLESK_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_MAIL_ONLY_PLESK, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_PLESK, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -6703,13 +7284,18 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingMailOnlyPleskOrderLineItem
+            $hostingMailOnlyPleskOrderLineItem,
         );
 
         $hostingMailOnlyPleskOrderLineItem->subscription_uuid = $hostingMailOnlyPleskSubscription->uuid;
         $hostingMailOnlyPleskOrderLineItem->save();
 
-        $this->createPleskHostingDeployment($hostingMailOnlyPleskSubscription, $server, $provider, 'plesk-hosting-mail-only-username');
+        $this->createPleskHostingDeployment(
+            $hostingMailOnlyPleskSubscription,
+            $server,
+            $provider,
+            'plesk-hosting-mail-only-username',
+        );
 
         $this->createInvoiceItem($hostingMailOnlyPleskSubscription, $customer, $product);
 
@@ -6717,7 +7303,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $hostingMailOnlyPleskOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -6736,7 +7322,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -6751,17 +7337,26 @@ class TestKeesSeeder extends Seeder
     private function mailOnlyStartPlesk(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_START_PLESK, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_START_PLESK_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_START_PLESK_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_MAIL_ONLY_PLESK, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_PLESK, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -6795,13 +7390,18 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingMailOnlyStartOrderLineItem
+            $hostingMailOnlyStartOrderLineItem,
         );
 
         $hostingMailOnlyStartOrderLineItem->subscription_uuid = $hostingMailOnlyStartSubscription->uuid;
         $hostingMailOnlyStartOrderLineItem->save();
 
-        $this->createPleskHostingDeployment($hostingMailOnlyStartSubscription, $server, $provider, 'plesk-hosting-mail-only-start-username');
+        $this->createPleskHostingDeployment(
+            $hostingMailOnlyStartSubscription,
+            $server,
+            $provider,
+            'plesk-hosting-mail-only-start-username',
+        );
 
         $this->createInvoiceItem($hostingMailOnlyStartSubscription, $customer, $product);
 
@@ -6809,7 +7409,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $hostingMailOnlyStartOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -6828,7 +7428,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -6843,17 +7443,26 @@ class TestKeesSeeder extends Seeder
     private function mailOnlyPlusPlesk(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_PLUS_PLESK, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_PLUS_PLESK_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_PLUS_PLESK_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_MAIL_ONLY_PLESK, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_PLESK, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -6887,13 +7496,18 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingMailOnlyPlusPleskOrderLineItem
+            $hostingMailOnlyPlusPleskOrderLineItem,
         );
 
         $hostingMailOnlyPlusPleskOrderLineItem->subscription_uuid = $hostingMailOnlyPlusPleskSubscription->uuid;
         $hostingMailOnlyPlusPleskOrderLineItem->save();
 
-        $this->createPleskHostingDeployment($hostingMailOnlyPlusPleskSubscription, $server, $provider, 'plesk-hosting-mail-only-plus-username');
+        $this->createPleskHostingDeployment(
+            $hostingMailOnlyPlusPleskSubscription,
+            $server,
+            $provider,
+            'plesk-hosting-mail-only-plus-username',
+        );
 
         $this->createInvoiceItem($hostingMailOnlyPlusPleskSubscription, $customer, $product);
 
@@ -6901,7 +7515,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $hostingMailOnlyPlusPleskOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -6917,7 +7531,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $hostingMailOnlyPlusPleskOrderLineItem,
             $dnsProduct,
-            $dnsPrice
+            $dnsPrice,
         );
 
         $dnsSubscription = $this->createDnsSubscription(
@@ -6925,7 +7539,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -6940,17 +7554,26 @@ class TestKeesSeeder extends Seeder
     private function webOnlyMini(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_MINI, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_MINI_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_MINI_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -6984,13 +7607,18 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingWebOnlyMiniOrderLineItem
+            $hostingWebOnlyMiniOrderLineItem,
         );
 
         $hostingWebOnlyMiniOrderLineItem->subscription_uuid = $hostingWebOnlyMiniSubscription->uuid;
         $hostingWebOnlyMiniOrderLineItem->save();
 
-        $this->createDirectAdminHostingDeployment($hostingWebOnlyMiniSubscription, $server, $provider, 'direct-admin-web-only-mini');
+        $this->createDirectAdminHostingDeployment(
+            $hostingWebOnlyMiniSubscription,
+            $server,
+            $provider,
+            'direct-admin-web-only-mini',
+        );
 
         $this->createInvoiceItem($hostingWebOnlyMiniSubscription, $customer, $product);
 
@@ -6998,7 +7626,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $hostingWebOnlyMiniOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -7017,7 +7645,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -7032,17 +7660,26 @@ class TestKeesSeeder extends Seeder
     private function webOnlyBasic(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_BASIC, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_BASIC_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_BASIC_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -7076,13 +7713,18 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingWebOnlyBasicOrderLineItem
+            $hostingWebOnlyBasicOrderLineItem,
         );
 
         $hostingWebOnlyBasicOrderLineItem->subscription_uuid = $hostingWebOnlyBasicSubscription->uuid;
         $hostingWebOnlyBasicOrderLineItem->save();
 
-        $this->createDirectAdminHostingDeployment($hostingWebOnlyBasicSubscription, $server, $provider, 'direct-admin-web-only-basic');
+        $this->createDirectAdminHostingDeployment(
+            $hostingWebOnlyBasicSubscription,
+            $server,
+            $provider,
+            'direct-admin-web-only-basic',
+        );
 
         $this->createInvoiceItem($hostingWebOnlyBasicSubscription, $customer, $product);
 
@@ -7090,7 +7732,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $hostingWebOnlyBasicOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -7109,7 +7751,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -7124,17 +7766,26 @@ class TestKeesSeeder extends Seeder
     private function webOnlyBasicWp(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_BASIC_WP, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_BASIC_WP_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_BASIC_WP_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -7168,13 +7819,18 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingWebOnlyBasicOrderLineItem
+            $hostingWebOnlyBasicOrderLineItem,
         );
 
         $hostingWebOnlyBasicOrderLineItem->subscription_uuid = $hostingWebOnlyBasicSubscription->uuid;
         $hostingWebOnlyBasicOrderLineItem->save();
 
-        $this->createDirectAdminHostingDeployment($hostingWebOnlyBasicSubscription, $server, $provider, 'direct-admin-web-only-basic-wp');
+        $this->createDirectAdminHostingDeployment(
+            $hostingWebOnlyBasicSubscription,
+            $server,
+            $provider,
+            'direct-admin-web-only-basic-wp',
+        );
 
         $this->createInvoiceItem($hostingWebOnlyBasicSubscription, $customer, $product);
 
@@ -7182,7 +7838,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $hostingWebOnlyBasicOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -7201,7 +7857,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -7216,17 +7872,26 @@ class TestKeesSeeder extends Seeder
     private function webOnlyGrow(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_GROW, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_GROW_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_GROW_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -7260,13 +7925,18 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingWebOnlyGrowOrderLineItem
+            $hostingWebOnlyGrowOrderLineItem,
         );
 
         $hostingWebOnlyGrowOrderLineItem->subscription_uuid = $hostingWebOnlyGrowSubscription->uuid;
         $hostingWebOnlyGrowOrderLineItem->save();
 
-        $this->createDirectAdminHostingDeployment($hostingWebOnlyGrowSubscription, $server, $provider, 'direct-admin-web-only-grow');
+        $this->createDirectAdminHostingDeployment(
+            $hostingWebOnlyGrowSubscription,
+            $server,
+            $provider,
+            'direct-admin-web-only-grow',
+        );
 
         $this->createInvoiceItem($hostingWebOnlyGrowSubscription, $customer, $product);
 
@@ -7274,7 +7944,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $hostingWebOnlyGrowOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -7293,7 +7963,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -7308,18 +7978,27 @@ class TestKeesSeeder extends Seeder
     private function webOnlyStart(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_START, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_START_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_START_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -7353,13 +8032,18 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingWebOnlyStartOrderLineItem
+            $hostingWebOnlyStartOrderLineItem,
         );
 
         $hostingWebOnlyStartOrderLineItem->subscription_uuid = $hostingWebOnlyStartSubscription->uuid;
         $hostingWebOnlyStartOrderLineItem->save();
 
-        $this->createDirectAdminHostingDeployment($hostingWebOnlyStartSubscription, $server, $provider, 'da-hosting-web-only-start-username');
+        $this->createDirectAdminHostingDeployment(
+            $hostingWebOnlyStartSubscription,
+            $server,
+            $provider,
+            'da-hosting-web-only-start-username',
+        );
 
         $this->createInvoiceItem($hostingWebOnlyStartSubscription, $customer, $product);
 
@@ -7367,7 +8051,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $hostingWebOnlyStartOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -7386,7 +8070,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -7401,17 +8085,26 @@ class TestKeesSeeder extends Seeder
     private function webOnlyPlus(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_PLUS, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_PLUS_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_PLUS_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -7445,13 +8138,18 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingWebOnlyPlusOrderLineItem
+            $hostingWebOnlyPlusOrderLineItem,
         );
 
         $hostingWebOnlyPlusOrderLineItem->subscription_uuid = $hostingWebOnlyPlusSubscription->uuid;
         $hostingWebOnlyPlusOrderLineItem->save();
 
-        $this->createDirectAdminHostingDeployment($hostingWebOnlyPlusSubscription, $server, $provider, 'direct-admin-web-only-plus');
+        $this->createDirectAdminHostingDeployment(
+            $hostingWebOnlyPlusSubscription,
+            $server,
+            $provider,
+            'direct-admin-web-only-plus',
+        );
 
         $this->createInvoiceItem($hostingWebOnlyPlusSubscription, $customer, $product);
 
@@ -7459,7 +8157,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $hostingWebOnlyPlusOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -7478,7 +8176,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -7496,12 +8194,18 @@ class TestKeesSeeder extends Seeder
         $price = $this->referenceRepo->get(ProductReference::REDIRECT_REGISTRATION_PRICE, ProductPriceComponent::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -7535,7 +8239,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $hostingRedirectOrderLineItem
+            $hostingRedirectOrderLineItem,
         );
 
         $hostingRedirectOrderLineItem->subscription_uuid = $hostingRedirectSubscription->uuid;
@@ -7547,7 +8251,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $hostingRedirectOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -7566,7 +8270,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -7584,12 +8288,18 @@ class TestKeesSeeder extends Seeder
         $price = $this->referenceRepo->get(ProductReference::REDIRECT_REGISTRATION_PRICE, ProductPriceComponent::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -7623,7 +8333,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $caddyRedirectOrderLineItem
+            $caddyRedirectOrderLineItem,
         );
 
         $caddyRedirectOrderLineItem->subscription_uuid = $caddyRedirectSubscription->uuid;
@@ -7635,7 +8345,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $caddyRedirectOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -7644,7 +8354,10 @@ class TestKeesSeeder extends Seeder
         $provisionRequest->context_uuid = Uuid::fromString($caddyRedirectSubscription->uuid);
         $provisionRequest->uuid = Uuid::uuid4();
         $provisionRequest->tag = Uuid::fromString($caddyRedirectSubscription->uuid);
-        $provisionRequest->request_data = json_encode(['domain' => $caddyRedirectOrderLineItem->domain, 'destination' => 'invalid'], JSON_THROW_ON_ERROR);
+        $provisionRequest->request_data = json_encode([
+            'domain' => $caddyRedirectOrderLineItem->domain,
+            'destination' => 'invalid',
+        ], JSON_THROW_ON_ERROR);
         $provisionRequest->request_name = ProvisionRequestName::CREATE_REDIRECT;
         $provisionRequest->request_type = ProvisionType::REDIRECT;
         $provisionRequest->provision_provider = ProvisionProvider::INTERNAL;
@@ -7673,7 +8386,11 @@ class TestKeesSeeder extends Seeder
         $retryProvisionRequest->context_uuid = Uuid::fromString($caddyRedirectSubscription->uuid);
         $retryProvisionRequest->uuid = Uuid::uuid4();
         $retryProvisionRequest->tag = Uuid::fromString($caddyRedirectSubscription->uuid);
-        $retryProvisionRequest->request_data = json_encode(['domain' => $caddyRedirectOrderLineItem->domain, 'destination' => 'google.nl', 'type' => '301'], JSON_THROW_ON_ERROR);
+        $retryProvisionRequest->request_data = json_encode([
+            'domain' => $caddyRedirectOrderLineItem->domain,
+            'destination' => 'google.nl',
+            'type' => '301',
+        ], JSON_THROW_ON_ERROR);
         $retryProvisionRequest->request_name = ProvisionRequestName::CREATE_REDIRECT;
         $retryProvisionRequest->request_type = ProvisionType::REDIRECT;
         $retryProvisionRequest->provision_provider = ProvisionProvider::INTERNAL;
@@ -7686,7 +8403,10 @@ class TestKeesSeeder extends Seeder
         $provisionResult = new ProvisioningResult();
         $provisionResult->uuid = Uuid::uuid4();
         $provisionResult->request_id = $retryProvisionRequest->id;
-        $provisionResult->response = json_encode(['status' => ProvisionStatus::SUCCESS, 'message' => 'added redirect successfully'], JSON_THROW_ON_ERROR);
+        $provisionResult->response = json_encode([
+            'status' => ProvisionStatus::SUCCESS,
+            'message' => 'added redirect successfully',
+        ], JSON_THROW_ON_ERROR);
         $provisionResult->status = ProvisionStatus::SUCCESS;
         $provisionResult->created_at = $retryProvisionRequest->created_at?->addMinute();
         $provisionResult->updated_at = $retryProvisionRequest->updated_at?->addMinute();
@@ -7726,7 +8446,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -7741,16 +8461,25 @@ class TestKeesSeeder extends Seeder
     private function singleDomain(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::SSL_SINGLE_DOMAIN, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::SSL_SINGLE_DOMAIN_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::SSL_SINGLE_DOMAIN_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $sslProvider = $this->referenceRepo->get(ProductReference::SSL_PROVIDER_RTR, Provider::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -7784,7 +8513,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $sslSingleDomainOrderLineItem
+            $sslSingleDomainOrderLineItem,
         );
 
         $sslSingleDomainOrderLineItem->subscription_uuid = $sslSubscription->uuid;
@@ -7810,7 +8539,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $sslSingleDomainOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -7829,7 +8558,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -7844,16 +8573,25 @@ class TestKeesSeeder extends Seeder
     private function wildcard(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::SSL_WILDCARD, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::SSL_WILDCARD_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::SSL_WILDCARD_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $sslProvider = $this->referenceRepo->get(ProductReference::SSL_PROVIDER_RTR, Provider::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -7887,7 +8625,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $sslSingleDomainOrderLineItem
+            $sslSingleDomainOrderLineItem,
         );
 
         $sslSingleDomainOrderLineItem->subscription_uuid = $sslSubscription->uuid;
@@ -7913,7 +8651,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $sslSingleDomainOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -7932,7 +8670,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -7947,16 +8685,25 @@ class TestKeesSeeder extends Seeder
     private function extendedValidation(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::SSL_EXTENDED_VALIDATION, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::SSL_EXTENDED_VALIDATION_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::SSL_EXTENDED_VALIDATION_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $sslProvider = $this->referenceRepo->get(ProductReference::SSL_PROVIDER_RTR, Provider::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -7990,7 +8737,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $sslSingleDomainOrderLineItem
+            $sslSingleDomainOrderLineItem,
         );
 
         $sslSingleDomainOrderLineItem->subscription_uuid = $sslSubscription->uuid;
@@ -8016,7 +8763,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $sslSingleDomainOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -8035,7 +8782,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -8050,16 +8797,25 @@ class TestKeesSeeder extends Seeder
     private function sslPlaceholder(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::SSL_PLACEHOLDER, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::SSL_PLACEHOLDER_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::SSL_PLACEHOLDER_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $this->referenceRepo->get(ProductReference::SSL_PROVIDER_PLACEHOLDER, Provider::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -8093,7 +8849,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $sslPlaceHolderOrderLineItem
+            $sslPlaceHolderOrderLineItem,
         );
 
         $sslPlaceHolderOrderLineItem->subscription_uuid = $sslSubscription->uuid;
@@ -8105,7 +8861,7 @@ class TestKeesSeeder extends Seeder
             $order,
             $sslPlaceHolderOrderLineItem,
             $domainProduct,
-            $domainPrice
+            $domainPrice,
         );
 
         $domainSubscription = $this->createSubscription($customer, $domainProduct, $domainPrice, $domainOrderItem);
@@ -8124,7 +8880,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -8139,7 +8895,10 @@ class TestKeesSeeder extends Seeder
     private function sslOnlyFromMigrations(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::SSL_SINGLE_DOMAIN, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::SSL_SINGLE_DOMAIN_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::SSL_SINGLE_DOMAIN_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $sslProvider = $this->referenceRepo->get(ProductReference::SSL_PROVIDER_RTR, Provider::class);
 
         $order = new Order();
@@ -8174,7 +8933,7 @@ class TestKeesSeeder extends Seeder
             $customer,
             $product,
             $price,
-            $sslSingleDomainOrderLineItem
+            $sslSingleDomainOrderLineItem,
         );
 
         $sslSingleDomainOrderLineItem->subscription_uuid = $sslSubscription->uuid;
@@ -8200,7 +8959,7 @@ class TestKeesSeeder extends Seeder
     private function createDomainDeployment(
         Subscription $domainSubscription,
         Provider $domainProvider,
-        DomainContact $domainContact
+        DomainContact $domainContact,
     ): void {
         $domainDeployment = new DomainDeployment();
         $domainDeployment->subscription_uuid = $domainSubscription->uuid;
@@ -8226,18 +8985,20 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
     }
 
     private function createSubscription(
         Customer $customer,
         Product $product,
         ProductPriceComponent $productPrice,
-        OrderLineItem $orderItem
+        OrderLineItem $orderItem,
     ): Subscription {
         $subscription = new Subscription();
         $subscription->administrative_status = AdministrativeStatus::ACTIVE->value;
@@ -8254,10 +9015,10 @@ class TestKeesSeeder extends Seeder
         $subscription->technical_status = TechnicalStatus::OK->value;
         $subscription->start_date = CarbonImmutable::yesterday();
         $subscription->next_billing_date = $subscription->start_date->addMonths(
-            $subscription->billing_period
+            $subscription->billing_period,
         );
         $subscription->end_date = $subscription->start_date->addMonths(
-            $subscription->contract_period
+            $subscription->contract_period,
         );
         $subscription->save();
 
@@ -8286,7 +9047,7 @@ class TestKeesSeeder extends Seeder
     private function createInvoiceItem(
         Subscription $subscription,
         Customer $customer,
-        Product $product
+        Product $product,
     ): Invoice {
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $subscription->id;
@@ -8307,6 +9068,7 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
         $invoiceItem->save();
+
         return $invoiceItem;
     }
 
@@ -8315,7 +9077,7 @@ class TestKeesSeeder extends Seeder
         Customer $customer,
         Product $dnsProduct,
         ProductPriceComponent $dnsPrice,
-        OrderLineItem $dnsOrderItem
+        OrderLineItem $dnsOrderItem,
     ): Subscription {
         $dnsSubscription = new Subscription();
         $dnsSubscription->administrative_status = AdministrativeStatus::ACTIVE->value;
@@ -8372,7 +9134,7 @@ class TestKeesSeeder extends Seeder
         Order $order,
         OrderLineItem $orderlineItem,
         Product $dnsProduct,
-        ProductPriceComponent $dnsPrice
+        ProductPriceComponent $dnsPrice,
     ): OrderLineItem {
         $dnsOrderItem = new OrderLineItem();
         $dnsOrderItem->order_id = $order->id;
@@ -8387,13 +9149,14 @@ class TestKeesSeeder extends Seeder
         $dnsOrderItem->processed_at = CarbonImmutable::now();
         $dnsOrderItem->should_invoice = true;
         $dnsOrderItem->save();
+
         return $dnsOrderItem;
     }
 
     private function createDirectAdminHostingDeployment(
         Subscription $hostingWebOnlyPlusSubscription,
         Server $server,
-        Provider|null $provider,
+        ?Provider $provider,
         string $username,
         ?Provider $mailOnlyProvider = null,
     ): void {
@@ -8417,7 +9180,10 @@ class TestKeesSeeder extends Seeder
         Server $mailOnlyServer,
         string $directadminCustomerUsername,
     ): void {
-        $mailOnlyProvider = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_PROVIDER_DIRECT_ADMIN, Provider::class);
+        $mailOnlyProvider = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_PROVIDER_DIRECT_ADMIN,
+            Provider::class,
+        );
 
         $hostingDeployment = new HostingDeployment();
         $hostingDeployment->subscription()->associate($subscription);
@@ -8430,9 +9196,9 @@ class TestKeesSeeder extends Seeder
     private function createPleskHostingDeployment(
         Subscription $subscription,
         Server $server,
-        Provider|null $provider,
+        ?Provider $provider,
         string $username,
-        Provider|null $mailOnlyProvider = null,
+        ?Provider $mailOnlyProvider = null,
     ): void {
         $hostingDeployment = new HostingDeployment();
         $hostingDeployment->subscription_uuid = $subscription->uuid;
@@ -8449,7 +9215,10 @@ class TestKeesSeeder extends Seeder
     private function emailHistory(Customer $customer): void
     {
         $emailHistory = new EmailHistory();
-        $emailHistory->template_id = $this->referenceRepo->get(PlatformReference::MAIL_TEMPLATE_ACTIVATE_ACCOUNT, Template::class)->id;
+        $emailHistory->template_id = $this->referenceRepo->get(
+            PlatformReference::MAIL_TEMPLATE_ACTIVATE_ACCOUNT,
+            Template::class,
+        )->id;
         $emailHistory->uuid = Uuid::uuid4()->toString();
         $emailHistory->receiver_email = $customer->getEmail();
         $emailHistory->receiver_type = ReceiverType::CUSTOMER;
@@ -8461,7 +9230,10 @@ class TestKeesSeeder extends Seeder
         $emailHistory->save();
 
         $emailHistory = new EmailHistory();
-        $emailHistory->template_id = $this->referenceRepo->get(PlatformReference::MAIL_TEMPLATE_PLESK_DETAILS, Template::class)->id;
+        $emailHistory->template_id = $this->referenceRepo->get(
+            PlatformReference::MAIL_TEMPLATE_PLESK_DETAILS,
+            Template::class,
+        )->id;
         $emailHistory->uuid = Uuid::uuid4()->toString();
         $emailHistory->receiver_email = $customer->getEmail();
         $emailHistory->receiver_type = ReceiverType::CUSTOMER;
@@ -8473,7 +9245,10 @@ class TestKeesSeeder extends Seeder
         $emailHistory->save();
 
         $emailHistory = new EmailHistory();
-        $emailHistory->template_id = $this->referenceRepo->get(PlatformReference::MAIL_TEMPLATE_ACTIVATE_ACCOUNT, Template::class)->id;
+        $emailHistory->template_id = $this->referenceRepo->get(
+            PlatformReference::MAIL_TEMPLATE_ACTIVATE_ACCOUNT,
+            Template::class,
+        )->id;
         $emailHistory->uuid = Uuid::uuid4()->toString();
         $emailHistory->receiver_email = $customer->getEmail();
         $emailHistory->receiver_type = ReceiverType::CUSTOMER;
@@ -8501,10 +9276,19 @@ class TestKeesSeeder extends Seeder
         $customerInfo->mca_signed_at = CarbonImmutable::now();
         $customerInfo->save();
 
-        $parentProduct = $this->referenceRepo->get(ProductReference::MICROSOFT_APPS_FOR_BUSINESS_PARENT, Product::class);
+        $parentProduct = $this->referenceRepo->get(
+            ProductReference::MICROSOFT_APPS_FOR_BUSINESS_PARENT,
+            Product::class,
+        );
         $childProduct = $this->referenceRepo->get(ProductReference::MICROSOFT_APPS_FOR_BUSINESS_CHILD, Product::class);
-        $parentProductPriceMonth = $this->referenceRepo->get(ProductReference::MICROSOFT_APPS_FOR_BUSINESS_PARENT_REGISTRATION_PRICE_MONTH, ProductPriceComponent::class);
-        $childProductPriceMonth = $this->referenceRepo->get(ProductReference::MICROSOFT_APPS_FOR_BUSINESS_CHILD_REGISTRATION_PRICE_MONTH, ProductPriceComponent::class);
+        $parentProductPriceMonth = $this->referenceRepo->get(
+            ProductReference::MICROSOFT_APPS_FOR_BUSINESS_PARENT_REGISTRATION_PRICE_MONTH,
+            ProductPriceComponent::class,
+        );
+        $childProductPriceMonth = $this->referenceRepo->get(
+            ProductReference::MICROSOFT_APPS_FOR_BUSINESS_CHILD_REGISTRATION_PRICE_MONTH,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -8512,7 +9296,8 @@ class TestKeesSeeder extends Seeder
         $order->status = OrderStatus::PROCESSED;
         $order->payment_method = PaymentMethod::INVOICE;
         $order->administration_fees = 0;
-        $order->total_price = $parentProductPriceMonth->price + $childProductPriceMonth->price + $childProductPriceMonth->price;
+        $order->total_price =
+            $parentProductPriceMonth->price + $childProductPriceMonth->price + $childProductPriceMonth->price;
         $order->ordered_by_uuid = $customer->uuid;
         $order->ordered_by_metadata = (string) json_encode([
             'email' => $customer->email,
@@ -8647,10 +9432,19 @@ class TestKeesSeeder extends Seeder
         $deployment->microsoft365_customer_info_id = $customerInfo->id;
         $deployment->save();
 
-        $parentProduct = $this->referenceRepo->get(ProductReference::MICROSOFT_APPS_FOR_BUSINESS_PARENT, Product::class);
+        $parentProduct = $this->referenceRepo->get(
+            ProductReference::MICROSOFT_APPS_FOR_BUSINESS_PARENT,
+            Product::class,
+        );
         $childProduct = $this->referenceRepo->get(ProductReference::MICROSOFT_APPS_FOR_BUSINESS_CHILD, Product::class);
-        $parentProductPriceYear = $this->referenceRepo->get(ProductReference::MICROSOFT_APPS_FOR_BUSINESS_PARENT_REGISTRATION_PRICE_YEAR, ProductPriceComponent::class);
-        $childProductPriceYear = $this->referenceRepo->get(ProductReference::MICROSOFT_APPS_FOR_BUSINESS_CHILD_REGISTRATION_PRICE_YEAR, ProductPriceComponent::class);
+        $parentProductPriceYear = $this->referenceRepo->get(
+            ProductReference::MICROSOFT_APPS_FOR_BUSINESS_PARENT_REGISTRATION_PRICE_YEAR,
+            ProductPriceComponent::class,
+        );
+        $childProductPriceYear = $this->referenceRepo->get(
+            ProductReference::MICROSOFT_APPS_FOR_BUSINESS_CHILD_REGISTRATION_PRICE_YEAR,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -8658,7 +9452,8 @@ class TestKeesSeeder extends Seeder
         $order->status = OrderStatus::PROCESSED;
         $order->payment_method = PaymentMethod::INVOICE;
         $order->administration_fees = 0;
-        $order->total_price = $parentProductPriceYear->price + $childProductPriceYear->price + $childProductPriceYear->price;
+        $order->total_price =
+            $parentProductPriceYear->price + $childProductPriceYear->price + $childProductPriceYear->price;
         $order->ordered_by_uuid = $customer->uuid;
         $order->ordered_by_metadata = (string) json_encode([
             'email' => $customer->email,
@@ -8794,7 +9589,8 @@ class TestKeesSeeder extends Seeder
         $deployment->save();
 
         $microsoft365CustomerXmlResponse = (string) file_get_contents(__DIR__ . '/Data/NewCustomerResponse.xml');
-        $microsoft365SubscriptionXmlResponse = (string) file_get_contents(__DIR__ . '/Data/NewCloudLicenseOrderResponse.xml');
+        $microsoft365SubscriptionXmlResponse = (string) file_get_contents(__DIR__
+        . '/Data/NewCloudLicenseOrderResponse.xml');
         $microsoft365TerminationXmlResponse = (string) file_get_contents(__DIR__ . '/Data/TerminateOrderResponse.xml');
 
         $httpLog = new Microsoft365HttpLog();
@@ -8831,7 +9627,11 @@ class TestKeesSeeder extends Seeder
         $httpLog->kpn_order_id = (string) $deployment->kpn_order_id;
         $httpLog->tenant_name = $customerInfo->tenant_name;
         $httpLog->partner_reference = null;
-        $httpLog->log = str_replace('<OrderId>1</OrderId>', '<OrderId>2</OrderId>', $microsoft365SubscriptionXmlResponse);
+        $httpLog->log = str_replace(
+            '<OrderId>1</OrderId>',
+            '<OrderId>2</OrderId>',
+            $microsoft365SubscriptionXmlResponse,
+        );
         $httpLog->xml_root_name = 'NewCloudLicenseOrderResponse_V4';
         $httpLog->subscription_id = $parentSubscriptionYear->id;
         $httpLog->save();
@@ -8841,7 +9641,10 @@ class TestKeesSeeder extends Seeder
         $syncLog->save();
 
         $syncLog = new Microsoft365SyncLog();
-        $syncLog->log = sprintf('Microsoft365 subscription was kpn_order_id {0} and is now updated to {%d}. Updating subscription with the same product.', $deployment->kpn_order_id);
+        $syncLog->log = sprintf(
+            'Microsoft365 subscription was kpn_order_id {0} and is now updated to {%d}. Updating subscription with the same product.',
+            $deployment->kpn_order_id,
+        );
         $syncLog->microsoft365_customer_info_id = $customerInfo->id;
         $syncLog->microsoft365_deployment_id = $deployment->id;
         $syncLog->save();
@@ -8855,17 +9658,26 @@ class TestKeesSeeder extends Seeder
     {
         $product = $this->referenceRepo->get(ProductReference::RESELLER_HOSTING_BRONS, Product::class);
 
-        $price = $this->referenceRepo->get(ProductReference::RESELLER_HOSTING_BRONS_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::RESELLER_HOSTING_BRONS_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
@@ -8967,7 +9779,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $hostingSubscription->net_price;
         $invoiceItem->gross_price = $hostingSubscription->gross_price;
         $invoiceItem->title = $hostingSubscription->domain ?? $hostingSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $hostingSubscription->product->name, $hostingSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $hostingSubscription->product->name,
+            $hostingSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -9049,7 +9865,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $domainSubscription->net_price;
         $invoiceItem->gross_price = $domainSubscription->gross_price;
         $invoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -9117,11 +9937,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $dnsSubscription->id;
@@ -9148,17 +9970,26 @@ class TestKeesSeeder extends Seeder
     {
         $product = $this->referenceRepo->get(ProductReference::RESELLER_HOSTING_SILVER, Product::class);
 
-        $price = $this->referenceRepo->get(ProductReference::RESELLER_HOSTING_SILVER_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::RESELLER_HOSTING_SILVER_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
@@ -9260,7 +10091,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $hostingSubscription->net_price;
         $invoiceItem->gross_price = $hostingSubscription->gross_price;
         $invoiceItem->title = $hostingSubscription->domain ?? $hostingSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $hostingSubscription->product->name, $hostingSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $hostingSubscription->product->name,
+            $hostingSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -9341,7 +10176,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $domainSubscription->net_price;
         $invoiceItem->gross_price = $domainSubscription->gross_price;
         $invoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -9409,11 +10248,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $dnsSubscription->id;
@@ -9440,17 +10281,26 @@ class TestKeesSeeder extends Seeder
     {
         $product = $this->referenceRepo->get(ProductReference::RESELLER_HOSTING_GOLD, Product::class);
 
-        $price = $this->referenceRepo->get(ProductReference::RESELLER_HOSTING_GOLD_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::RESELLER_HOSTING_GOLD_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
@@ -9552,7 +10402,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $hostingSubscription->net_price;
         $invoiceItem->gross_price = $hostingSubscription->gross_price;
         $invoiceItem->title = $hostingSubscription->domain ?? $hostingSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $hostingSubscription->product->name, $hostingSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $hostingSubscription->product->name,
+            $hostingSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -9634,7 +10488,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $domainSubscription->net_price;
         $invoiceItem->gross_price = $domainSubscription->gross_price;
         $invoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -9702,11 +10560,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $dnsSubscription->id;
@@ -9820,14 +10680,23 @@ class TestKeesSeeder extends Seeder
     private function domainNlWithArgewebBusinessUnitRtr(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_RTR, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
-        $businessUnit = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_BUSINESS_UNIT_ARGEWEB, DomainProviderBusinessUnit::class);
+        $businessUnit = $this->referenceRepo->get(
+            ProductReference::DOMAIN_PROVIDER_BUSINESS_UNIT_ARGEWEB,
+            DomainProviderBusinessUnit::class,
+        );
 
         // DNS dependecies
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -9944,7 +10813,11 @@ class TestKeesSeeder extends Seeder
         $domainInvoiceItem->gross_price = $domainSubscription->gross_price;
         $domainInvoiceItem->net_price = $domainSubscription->net_price;
         $domainInvoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $domainInvoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $domainInvoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $domainInvoiceItem->group_label = null;
         $domainInvoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $domainInvoiceItem->prepaid_reference = null;
@@ -10011,11 +10884,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $dnsInvoiceItem = new Invoice();
         $dnsInvoiceItem->subscription_id = $dnsSubscription->id;
@@ -10041,14 +10916,23 @@ class TestKeesSeeder extends Seeder
     private function domainNlWithWaterfrontBusinessUnitRtr(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_RTR, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
-        $businessUnit = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_BUSINESS_UNIT_WATERFRONT, DomainProviderBusinessUnit::class);
+        $businessUnit = $this->referenceRepo->get(
+            ProductReference::DOMAIN_PROVIDER_BUSINESS_UNIT_WATERFRONT,
+            DomainProviderBusinessUnit::class,
+        );
 
         // DNS dependecies
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -10165,7 +11049,11 @@ class TestKeesSeeder extends Seeder
         $domainInvoiceItem->gross_price = $domainSubscription->gross_price;
         $domainInvoiceItem->net_price = $domainSubscription->net_price;
         $domainInvoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $domainInvoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $domainInvoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $domainInvoiceItem->group_label = null;
         $domainInvoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $domainInvoiceItem->prepaid_reference = null;
@@ -10232,11 +11120,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $dnsInvoiceItem = new Invoice();
         $dnsInvoiceItem->subscription_id = $dnsSubscription->id;
@@ -10262,13 +11152,19 @@ class TestKeesSeeder extends Seeder
     private function domainFrWithTrusteeAddon(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::DOMAIN_FR, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::DOMAIN_FR_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::DOMAIN_FR_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         // DNS dependencies
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -10370,7 +11266,11 @@ class TestKeesSeeder extends Seeder
         $domainInvoiceItem->gross_price = $domainSubscription->gross_price;
         $domainInvoiceItem->net_price = $domainSubscription->net_price;
         $domainInvoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $domainInvoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $domainInvoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $domainInvoiceItem->group_label = null;
         $domainInvoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $domainInvoiceItem->prepaid_reference = null;
@@ -10437,11 +11337,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $dnsInvoiceItem = new Invoice();
         $dnsInvoiceItem->subscription_id = $dnsSubscription->id;
@@ -10516,7 +11418,11 @@ class TestKeesSeeder extends Seeder
         $trusteeInvoiceItem->gross_price = $trusteeSubscription->gross_price;
         $trusteeInvoiceItem->net_price = $trusteeSubscription->net_price;
         $trusteeInvoiceItem->title = $trusteeSubscription->domain ?? $trusteeSubscription->product->name;
-        $trusteeInvoiceItem->description = sprintf('%s for %s', $trusteeSubscription->product->name, $trusteeSubscription->domain);
+        $trusteeInvoiceItem->description = sprintf(
+            '%s for %s',
+            $trusteeSubscription->product->name,
+            $trusteeSubscription->domain,
+        );
         $trusteeInvoiceItem->group_label = null;
         $trusteeInvoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $trusteeInvoiceItem->prepaid_reference = null;
@@ -10527,16 +11433,25 @@ class TestKeesSeeder extends Seeder
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_PROVISIONING, Product::class);
 
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_PROVISIONING_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_PROVISIONING_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -10612,7 +11527,10 @@ class TestKeesSeeder extends Seeder
         $provisionRequest->context_uuid = Uuid::uuid4();
         $provisionRequest->uuid = Uuid::uuid4();
         $provisionRequest->tag = Uuid::fromString($hostingSubscription->uuid);
-        $provisionRequest->request_data = json_encode(['domain' => $hostingOrderItem->domain, 'servicePlan' => 'invalid'], JSON_THROW_ON_ERROR);
+        $provisionRequest->request_data = json_encode([
+            'domain' => $hostingOrderItem->domain,
+            'servicePlan' => 'invalid',
+        ], JSON_THROW_ON_ERROR);
         $provisionRequest->request_name = ProvisionRequestName::CREATE_HOSTING;
         $provisionRequest->request_type = ProvisionType::HOSTING;
         $provisionRequest->provision_provider = ProvisionProvider::PLESK;
@@ -10641,7 +11559,11 @@ class TestKeesSeeder extends Seeder
         $retryProvisionRequest->context_uuid = Uuid::uuid4();
         $retryProvisionRequest->uuid = Uuid::uuid4();
         $retryProvisionRequest->tag = Uuid::fromString($hostingSubscription->uuid);
-        $retryProvisionRequest->request_data = json_encode(['domain' => $hostingOrderItem->domain, 'servicePlan' => 'valid', 'ipv4' => '12.34.12.34'], JSON_THROW_ON_ERROR);
+        $retryProvisionRequest->request_data = json_encode([
+            'domain' => $hostingOrderItem->domain,
+            'servicePlan' => 'valid',
+            'ipv4' => '12.34.12.34',
+        ], JSON_THROW_ON_ERROR);
         $retryProvisionRequest->request_name = ProvisionRequestName::CREATE_HOSTING;
         $retryProvisionRequest->request_type = ProvisionType::HOSTING;
         $retryProvisionRequest->provision_provider = ProvisionProvider::PLESK;
@@ -10654,7 +11576,10 @@ class TestKeesSeeder extends Seeder
         $provisionResult = new ProvisioningResult();
         $provisionResult->uuid = Uuid::uuid4();
         $provisionResult->request_id = $retryProvisionRequest->id;
-        $provisionResult->response = json_encode(['status' => ProvisionStatus::SUCCESS, 'message' => 'created hosting successfully'], JSON_THROW_ON_ERROR);
+        $provisionResult->response = json_encode([
+            'status' => ProvisionStatus::SUCCESS,
+            'message' => 'created hosting successfully',
+        ], JSON_THROW_ON_ERROR);
         $provisionResult->status = ProvisionStatus::SUCCESS;
         $provisionResult->created_at = $retryProvisionRequest->created_at?->addMinute();
         $provisionResult->updated_at = $retryProvisionRequest->updated_at?->addMinute();
@@ -10688,7 +11613,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $hostingSubscription->net_price;
         $invoiceItem->gross_price = $hostingSubscription->gross_price;
         $invoiceItem->title = $hostingSubscription->domain ?? $hostingSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $hostingSubscription->product->name, $hostingSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $hostingSubscription->product->name,
+            $hostingSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -10770,7 +11699,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $domainSubscription->net_price;
         $invoiceItem->gross_price = $domainSubscription->gross_price;
         $invoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -10838,11 +11771,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $dnsSubscription->id;
@@ -10869,16 +11804,25 @@ class TestKeesSeeder extends Seeder
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_PROVISIONING, Product::class);
 
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_PROVISIONING_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_PROVISIONING_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_PLESK, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
         $dnsNameserver3 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_3, DnsNameserver::class);
@@ -10954,7 +11898,10 @@ class TestKeesSeeder extends Seeder
         $provisionRequest->context_uuid = Uuid::uuid4();
         $provisionRequest->uuid = Uuid::uuid4();
         $provisionRequest->tag = Uuid::fromString($hostingSubscription->uuid);
-        $provisionRequest->request_data = json_encode(['domain' => $hostingOrderItem->domain, 'servicePlan' => 'invalid'], JSON_THROW_ON_ERROR);
+        $provisionRequest->request_data = json_encode([
+            'domain' => $hostingOrderItem->domain,
+            'servicePlan' => 'invalid',
+        ], JSON_THROW_ON_ERROR);
         $provisionRequest->request_name = ProvisionRequestName::CREATE_HOSTING;
         $provisionRequest->request_type = ProvisionType::HOSTING;
         $provisionRequest->provision_provider = ProvisionProvider::PLESK;
@@ -10983,7 +11930,11 @@ class TestKeesSeeder extends Seeder
         $retryProvisionRequest->context_uuid = Uuid::uuid4();
         $retryProvisionRequest->uuid = Uuid::uuid4();
         $retryProvisionRequest->tag = Uuid::fromString($hostingSubscription->uuid);
-        $retryProvisionRequest->request_data = json_encode(['domain' => $hostingOrderItem->domain, 'servicePlan' => 'valid', 'ipv4' => '12.34.45.67'], JSON_THROW_ON_ERROR);
+        $retryProvisionRequest->request_data = json_encode([
+            'domain' => $hostingOrderItem->domain,
+            'servicePlan' => 'valid',
+            'ipv4' => '12.34.45.67',
+        ], JSON_THROW_ON_ERROR);
         $retryProvisionRequest->request_name = ProvisionRequestName::CREATE_HOSTING;
         $retryProvisionRequest->request_type = ProvisionType::HOSTING;
         $retryProvisionRequest->provision_provider = ProvisionProvider::PLESK;
@@ -10996,7 +11947,10 @@ class TestKeesSeeder extends Seeder
         $provisionResult = new ProvisioningResult();
         $provisionResult->uuid = Uuid::uuid4();
         $provisionResult->request_id = $retryProvisionRequest->id;
-        $provisionResult->response = json_encode(['status' => ProvisionStatus::SUCCESS, 'message' => 'created hosting successfully'], JSON_THROW_ON_ERROR);
+        $provisionResult->response = json_encode([
+            'status' => ProvisionStatus::SUCCESS,
+            'message' => 'created hosting successfully',
+        ], JSON_THROW_ON_ERROR);
         $provisionResult->status = ProvisionStatus::SUCCESS;
         $provisionResult->created_at = $retryProvisionRequest->created_at?->addMinute();
         $provisionResult->updated_at = $retryProvisionRequest->updated_at?->addMinute();
@@ -11030,7 +11984,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $hostingSubscription->net_price;
         $invoiceItem->gross_price = $hostingSubscription->gross_price;
         $invoiceItem->title = $hostingSubscription->domain ?? $hostingSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $hostingSubscription->product->name, $hostingSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $hostingSubscription->product->name,
+            $hostingSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -11112,7 +12070,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $domainSubscription->net_price;
         $invoiceItem->gross_price = $domainSubscription->gross_price;
         $invoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -11180,11 +12142,13 @@ class TestKeesSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $dnsSubscription->id;
@@ -11211,16 +12175,15 @@ class TestKeesSeeder extends Seeder
     {
         $firstSlot = $this->referenceRepo->get(
             ScenarioReference::TEST_KEES_PUZZEL_FIRST_CALLBACK_TIMESLOT,
-            PuzzelCallbackTimeslot::class
+            PuzzelCallbackTimeslot::class,
         );
 
         $slotTime = $firstSlot->start_timeslot;
-        $desiredTime = CarbonImmutable::tomorrow()
-            ->setTime(
-                hour: $slotTime->hour,
-                minute: $slotTime->minute,
-                second: $slotTime->second
-            );
+        $desiredTime = CarbonImmutable::tomorrow()->setTime(
+            hour: $slotTime->hour,
+            minute: $slotTime->minute,
+            second: $slotTime->second,
+        );
 
         $request = new PuzzelCallbackRequest();
         $request->uuid = Uuid::uuid4();
@@ -11246,14 +12209,19 @@ class TestKeesSeeder extends Seeder
 
         $blockedDateNoReason = new PuzzelBlockedDate();
         // We check if the date is not tomorrow because we already seeded a callback request on this date.
-        $blockedDateNoReason->date = $nextWorkingDay->isTomorrow() ? $nextWorkingDay->addDays(3) : $nextWorkingDay->addDay();
+        $blockedDateNoReason->date = $nextWorkingDay->isTomorrow()
+            ? $nextWorkingDay->addDays(3)
+            : $nextWorkingDay->addDay();
         $blockedDateNoReason->save();
     }
 
     private function customerRetentionOffers(Customer $customer): void
     {
         $hostingProduct = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC, Product::class);
-        $hostingPrice = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $hostingPrice = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_BASIC_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $retentionSubscription = new Subscription();
         $retentionSubscription->administrative_status = AdministrativeStatus::ACTIVE->value;
@@ -11296,7 +12264,7 @@ class TestKeesSeeder extends Seeder
         $consumerOffer->created_by_metadata = new IdentityMetadataDTO(uuid: $employeeUuid, email: $employeeEmail);
         $consumerOffer->customer_type = CustomerType::CONSUMER;
         $consumerOffer->subscription_id = $retentionSubscription->id;
-        $consumerOffer->selected_action = SelectedAction::TK_OPTION_1;
+        $consumerOffer->selected_action = SelectedAction::TK_OPTION_2;
         $consumerOffer->puzzel_ticket_id = '100001';
         $consumerOffer->effective_at = CarbonImmutable::now();
         $consumerOffer->save();
@@ -11314,7 +12282,10 @@ class TestKeesSeeder extends Seeder
     private function provisionBackupAcronis(Customer $customer): void
     {
         $backupProduct = $this->referenceRepo->get(ProductReference::BACKUP_ACRONIS_100, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::BACKUP_ACRONIS_100_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::BACKUP_ACRONIS_100_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Uuid::uuid4()->toString();
@@ -11385,7 +12356,13 @@ class TestKeesSeeder extends Seeder
         $provisionRequest->context_uuid = Uuid::fromString($backupSubscription->uuid);
         $provisionRequest->uuid = Uuid::uuid4();
         $provisionRequest->tag = Uuid::fromString($backupSubscription->uuid);
-        $provisionRequest->request_data = json_encode(['language' => 'en', 'email' => 'test.kees-not-valid', 'firstname' => 'Test', 'username' => 'tkees', 'cloudStorageInGb' => 50.0], JSON_THROW_ON_ERROR);
+        $provisionRequest->request_data = json_encode([
+            'language' => 'en',
+            'email' => 'test.kees-not-valid',
+            'firstname' => 'Test',
+            'username' => 'tkees',
+            'cloudStorageInGb' => 50.0,
+        ], JSON_THROW_ON_ERROR);
         $provisionRequest->request_name = ProvisionRequestName::CREATE_BACKUP;
         $provisionRequest->request_type = ProvisionType::BACKUP;
         $provisionRequest->provision_provider = ProvisionProvider::ACRONIS;
@@ -11414,7 +12391,14 @@ class TestKeesSeeder extends Seeder
         $retryProvisionRequest->context_uuid = Uuid::fromString($backupSubscription->uuid);
         $retryProvisionRequest->uuid = Uuid::uuid4();
         $retryProvisionRequest->tag = Uuid::fromString($backupSubscription->uuid);
-        $retryProvisionRequest->request_data = json_encode(['language' => 'en', 'email' => 'test.kees@valid.nl', 'firstname' => 'Test', 'username' => 'tkees', 'lastname' => 'Kees', 'cloudStorageInGb' => 50.0], JSON_THROW_ON_ERROR);
+        $retryProvisionRequest->request_data = json_encode([
+            'language' => 'en',
+            'email' => 'test.kees@valid.nl',
+            'firstname' => 'Test',
+            'username' => 'tkees',
+            'lastname' => 'Kees',
+            'cloudStorageInGb' => 50.0,
+        ], JSON_THROW_ON_ERROR);
         $retryProvisionRequest->request_name = ProvisionRequestName::CREATE_BACKUP;
         $retryProvisionRequest->request_type = ProvisionType::BACKUP;
         $retryProvisionRequest->provision_provider = ProvisionProvider::ACRONIS;
@@ -11427,7 +12411,10 @@ class TestKeesSeeder extends Seeder
         $provisionResult = new ProvisioningResult();
         $provisionResult->uuid = Uuid::uuid4();
         $provisionResult->request_id = $retryProvisionRequest->id;
-        $provisionResult->response = json_encode(['status' => ProvisionStatus::SUCCESS, 'message' => 'acronis backup successfully provisioned'], JSON_THROW_ON_ERROR);
+        $provisionResult->response = json_encode([
+            'status' => ProvisionStatus::SUCCESS,
+            'message' => 'acronis backup successfully provisioned',
+        ], JSON_THROW_ON_ERROR);
         $provisionResult->status = ProvisionStatus::SUCCESS;
         $provisionResult->created_at = $retryProvisionRequest->created_at?->addMinute();
         $provisionResult->updated_at = $retryProvisionRequest->updated_at?->addMinute();
@@ -11435,7 +12422,7 @@ class TestKeesSeeder extends Seeder
 
         $acronisProvider = $this->referenceRepo->get(
             ProductReference::ACRONIS_PROVIDER_YOURHOSTING,
-            AcronisProvider::class
+            AcronisProvider::class,
         );
 
         $backupDeployment = new BackupDeployment();
@@ -11466,7 +12453,11 @@ class TestKeesSeeder extends Seeder
         $invoiceItem->net_price = $backupSubscription->net_price;
         $invoiceItem->gross_price = $backupSubscription->gross_price;
         $invoiceItem->title = $backupSubscription->domain ?? $backupSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $backupSubscription->product->name, $backupSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $backupSubscription->product->name,
+            $backupSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -11483,9 +12474,17 @@ class TestKeesSeeder extends Seeder
     {
         $webBasic = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC, Product::class);
         $webGrow = $this->referenceRepo->get(ProductReference::HOSTING_WEB_GROW, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::HOSTING_WEB_GROW_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_GROW_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
-        $subscription = $this->createSubscriptionForChanges($customer, $webGrow, $price, 'subscription-changes-hosting.nl');
+        $subscription = $this->createSubscriptionForChanges(
+            $customer,
+            $webGrow,
+            $price,
+            'subscription-changes-hosting.nl',
+        );
 
         $this->createSubscriptionChange(
             $subscription,
@@ -11494,7 +12493,7 @@ class TestKeesSeeder extends Seeder
             ProductChangeType::UPGRADE,
             SubscriptionChangeStatus::COMPLETED,
             null,
-            null
+            null,
         );
 
         $this->createSubscriptionChange(
@@ -11504,7 +12503,7 @@ class TestKeesSeeder extends Seeder
             ProductChangeType::DOWNGRADE,
             SubscriptionChangeStatus::REQUESTED,
             null,
-            null
+            null,
         );
 
         $this->createSubscriptionChange(
@@ -11514,7 +12513,7 @@ class TestKeesSeeder extends Seeder
             ProductChangeType::DOWNGRADE,
             SubscriptionChangeStatus::EXECUTION_FAILED,
             500,
-            'Downgrade failed because the target package does not meet the requirements'
+            'Downgrade failed because the target package does not meet the requirements',
         );
     }
 
@@ -11523,7 +12522,10 @@ class TestKeesSeeder extends Seeder
         $acronis50 = $this->referenceRepo->get(ProductReference::BACKUP_ACRONIS_50, Product::class);
         $acronis100 = $this->referenceRepo->get(ProductReference::BACKUP_ACRONIS_100, Product::class);
         $acronis250 = $this->referenceRepo->get(ProductReference::BACKUP_ACRONIS_250, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::BACKUP_ACRONIS_100_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::BACKUP_ACRONIS_100_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $subscription = $this->createSubscriptionForChanges($customer, $acronis100, $price, null);
 
@@ -11534,7 +12536,7 @@ class TestKeesSeeder extends Seeder
             ProductChangeType::UPGRADE,
             SubscriptionChangeStatus::EXECUTION_FAILED,
             422,
-            'Backup upgrade failed'
+            'Backup upgrade failed',
         );
 
         $this->createSubscriptionChange(
@@ -11544,7 +12546,7 @@ class TestKeesSeeder extends Seeder
             ProductChangeType::UPGRADE,
             SubscriptionChangeStatus::EXECUTION_FAILED,
             0,
-            'Something went wrong'
+            'Something went wrong',
         );
     }
 
@@ -11552,7 +12554,7 @@ class TestKeesSeeder extends Seeder
         Customer $customer,
         Product $product,
         ProductPriceComponent $price,
-        ?string $domain
+        ?string $domain,
     ): Subscription {
         $subscription = new Subscription();
         $subscription->administrative_status = AdministrativeStatus::ACTIVE->value;
@@ -11580,7 +12582,7 @@ class TestKeesSeeder extends Seeder
         ProductChangeType $type,
         SubscriptionChangeStatus $status,
         ?int $failureCode,
-        ?string $failureMessage
+        ?string $failureMessage,
     ): void {
         $change = new SubscriptionChange();
         $change->uuid = Uuid::uuid4();

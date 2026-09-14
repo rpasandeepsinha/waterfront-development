@@ -9,8 +9,9 @@ use Waterfront\Domain\Ssl\Interfaces\Models\CertificateInstall\Parameters;
 
 class Request implements RequestInterface
 {
-    public function __construct(private readonly Parameters $parameters)
-    {
+    public function __construct(
+        private readonly Parameters $parameters,
+    ) {
     }
 
     /**
@@ -21,14 +22,14 @@ class Request implements RequestInterface
         return [
             'certificate' => [
                 'install' => [
-                    'name'     => $this->parameters->getName(),
+                    'name' => $this->parameters->getName(),
                     'webspace' => $this->parameters->getDomain(),
 
-                    'content'    => [
-                        'csr'  => $this->parameters->getCsr(),
-                        'pvt'  => $this->parameters->getPvt(),
+                    'content' => [
+                        'csr' => $this->parameters->getCsr(),
+                        'pvt' => $this->parameters->getPvt(),
                         'cert' => $this->parameters->getCert(),
-                        'ca'   => $this->parameters->getCa(),
+                        'ca' => $this->parameters->getCa(),
                     ],
                 ],
             ],

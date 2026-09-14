@@ -53,9 +53,11 @@ class NovaVirtualMachineDeploymentResource extends Resource
             BelongsTo::make(
                 self::translate('nova-resource-labels.subscription'),
                 'subscription',
-                NovaSubscriptionResource::class
+                NovaSubscriptionResource::class,
             )
-                ->display(fn ($subscription) => $subscription instanceof NovaSubscriptionResource ? $subscription->resource->product->name : 'No subscription')
+                ->display(fn ($subscription) => $subscription instanceof NovaSubscriptionResource
+                    ? $subscription->resource->product->name
+                    : 'No subscription')
                 ->exceptOnForms(),
 
             Text::make(self::translate('nova-resource-labels.cloudstack-id'), 'cloudstack_id')
@@ -66,35 +68,32 @@ class NovaVirtualMachineDeploymentResource extends Resource
 
             Text::make(
                 self::translate('nova-resource-labels.manager-domain-account'),
-                fn (VirtualMachineDeployment $deployment) => $deployment->managerDomainDeployment->account
+                fn (VirtualMachineDeployment $deployment) => $deployment->managerDomainDeployment->account,
             )
                 ->copyable()
                 ->onlyOnDetail(),
 
             Text::make(
                 self::translate('cloudstack-environments.singular'),
-                fn (VirtualMachineDeployment $deployment) => $deployment->managerDomainDeployment->environment->name
-            )
-                ->onlyOnDetail(),
+                fn (VirtualMachineDeployment $deployment) => $deployment->managerDomainDeployment->environment->name,
+            )->onlyOnDetail(),
 
-            DateTime::make(self::translate('nova-resource-labels.created_at'))
-                ->onlyOnIndex()
-                ->sortable(),
+            DateTime::make(self::translate('nova-resource-labels.created_at'))->onlyOnIndex()->sortable(),
 
             Code::make(
                 self::translate('subscription.vm-deployment.last_result'),
-                'last_result'
+                'last_result',
             )->exceptOnForms(),
 
             DateTime::make(
                 self::translate('subscription.vm-deployment.last_result_received'),
-                'last_result_received'
+                'last_result_received',
             )->exceptOnForms(),
 
             BelongsToMany::make(
                 self::translate('subscription.vm-deployment.ssh_keys'),
                 'sshKeys',
-                NovaSshKeyResource::class
+                NovaSshKeyResource::class,
             )->onlyOnDetail(),
         ];
     }

@@ -9,8 +9,9 @@ use Waterfront\Domain\Email\Repositories\EmailHistoryRepository;
 
 class CleanEmailHistoryAction
 {
-    public function __construct(private readonly EmailHistoryRepository $emailHistoryRepository)
-    {
+    public function __construct(
+        private readonly EmailHistoryRepository $emailHistoryRepository,
+    ) {
     }
 
     public function execute(EmailHistory $emailHistory): void

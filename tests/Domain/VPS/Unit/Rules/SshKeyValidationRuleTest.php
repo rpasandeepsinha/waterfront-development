@@ -27,12 +27,10 @@ class SshKeyValidationRuleTest extends TestCase
             translator: self::createStub(TranslatorInterface::class),
             productRepository: self::createStub(ProductRepository::class),
             productSpecRepository: $productSpecRepository = self::createMock(ProductSpecRepository::class),
-            sshKeyRepository: self::createStub(SshKeyRepository::class)
+            sshKeyRepository: self::createStub(SshKeyRepository::class),
         );
 
-        $productSpecRepository->expects(self::once())
-            ->method('booleanSpecificationIsTrue')
-            ->willReturn(false);
+        $productSpecRepository->expects(self::once())->method('booleanSpecificationIsTrue')->willReturn(false);
 
         $rule->validate('attribute', ['slug' => 'dummy-slug'], self::assertClosureIsCalled(false));
     }
@@ -45,20 +43,19 @@ class SshKeyValidationRuleTest extends TestCase
             translator: $translator = self::createMock(TranslatorInterface::class),
             productRepository: self::createStub(ProductRepository::class),
             productSpecRepository: $productSpecRepository = self::createMock(ProductSpecRepository::class),
-            sshKeyRepository: self::createStub(SshKeyRepository::class)
+            sshKeyRepository: self::createStub(SshKeyRepository::class),
         );
 
         $message = 'validation.vps.ssh-key-not-required';
-        $translator->expects(self::once())
-            ->method('translate')
-            ->with($message)
-            ->willReturn($message);
+        $translator->expects(self::once())->method('translate')->with($message)->willReturn($message);
 
-        $productSpecRepository->expects(self::once())
-            ->method('booleanSpecificationIsTrue')
-            ->willReturn(false);
+        $productSpecRepository->expects(self::once())->method('booleanSpecificationIsTrue')->willReturn(false);
 
-        $rule->validate('attribute', ['slug' => 'dummy-slug', 'ssh_key_uuid' => 'some-ssh-key-uuid'], self::assertClosureIsCalled(true, $message));
+        $rule->validate(
+            'attribute',
+            ['slug' => 'dummy-slug', 'ssh_key_uuid' => 'some-ssh-key-uuid'],
+            self::assertClosureIsCalled(true, $message),
+        );
     }
 
     #[Test]
@@ -69,18 +66,21 @@ class SshKeyValidationRuleTest extends TestCase
             translator: self::createStub(TranslatorInterface::class),
             productRepository: self::createStub(ProductRepository::class),
             productSpecRepository: $productSpecRepository = self::createMock(ProductSpecRepository::class),
-            sshKeyRepository: $sshKeyRepository = self::createMock(SshKeyRepository::class)
+            sshKeyRepository: $sshKeyRepository = self::createMock(SshKeyRepository::class),
         );
 
-        $productSpecRepository->expects(self::once())
-            ->method('booleanSpecificationIsTrue')
-            ->willReturn(true);
+        $productSpecRepository->expects(self::once())->method('booleanSpecificationIsTrue')->willReturn(true);
 
-        $sshKeyRepository->expects(self::once())
+        $sshKeyRepository
+            ->expects(self::once())
             ->method('findByCustomerAndUuid')
             ->willReturn(self::createStub(SshKey::class));
 
-        $rule->validate('attribute', ['slug' => 'dummy-slug', 'ssh_key_uuid' => 'some-ssh-key-uuid'], self::assertClosureIsCalled(false));
+        $rule->validate(
+            'attribute',
+            ['slug' => 'dummy-slug', 'ssh_key_uuid' => 'some-ssh-key-uuid'],
+            self::assertClosureIsCalled(false),
+        );
     }
 
     #[Test]
@@ -91,18 +91,13 @@ class SshKeyValidationRuleTest extends TestCase
             translator: $translator = self::createMock(TranslatorInterface::class),
             productRepository: self::createStub(ProductRepository::class),
             productSpecRepository: $productSpecRepository = self::createMock(ProductSpecRepository::class),
-            sshKeyRepository: self::createStub(SshKeyRepository::class)
+            sshKeyRepository: self::createStub(SshKeyRepository::class),
         );
 
         $message = 'validation.vps.ssh-key-required';
-        $translator->expects(self::once())
-            ->method('translate')
-            ->with($message)
-            ->willReturn($message);
+        $translator->expects(self::once())->method('translate')->with($message)->willReturn($message);
 
-        $productSpecRepository->expects(self::once())
-            ->method('booleanSpecificationIsTrue')
-            ->willReturn(true);
+        $productSpecRepository->expects(self::once())->method('booleanSpecificationIsTrue')->willReturn(true);
 
         $rule->validate('attribute', ['slug' => 'dummy-slug'], self::assertClosureIsCalled(true, $message));
     }
@@ -115,23 +110,23 @@ class SshKeyValidationRuleTest extends TestCase
             translator: $translator = self::createMock(TranslatorInterface::class),
             productRepository: self::createStub(ProductRepository::class),
             productSpecRepository: $productSpecRepository = self::createMock(ProductSpecRepository::class),
-            sshKeyRepository: $sshKeyRepository = self::createMock(SshKeyRepository::class)
+            sshKeyRepository: $sshKeyRepository = self::createMock(SshKeyRepository::class),
         );
 
         $message = 'validation.vps.ssh-key-not-found';
-        $translator->expects(self::once())
-            ->method('translate')
-            ->with($message)
-            ->willReturn($message);
+        $translator->expects(self::once())->method('translate')->with($message)->willReturn($message);
 
-        $productSpecRepository->expects(self::once())
-            ->method('booleanSpecificationIsTrue')
-            ->willReturn(true);
+        $productSpecRepository->expects(self::once())->method('booleanSpecificationIsTrue')->willReturn(true);
 
-        $sshKeyRepository->expects(self::once())
+        $sshKeyRepository
+            ->expects(self::once())
             ->method('findByCustomerAndUuid')
             ->willThrowException(new ModelNotFoundException());
 
-        $rule->validate('attribute', ['slug' => 'dummy-slug', 'ssh_key_uuid' => 'some-ssh-key-uuid'], self::assertClosureIsCalled(true, $message));
+        $rule->validate(
+            'attribute',
+            ['slug' => 'dummy-slug', 'ssh_key_uuid' => 'some-ssh-key-uuid'],
+            self::assertClosureIsCalled(true, $message),
+        );
     }
 }

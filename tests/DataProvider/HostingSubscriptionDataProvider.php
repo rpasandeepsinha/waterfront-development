@@ -24,11 +24,14 @@ class HostingSubscriptionDataProvider
 {
     public static function administrativeSubscription(
         ?string $domain = null,
-        ?Customer $customer = null
+        ?Customer $customer = null,
     ): Subscription {
         $productGroupFilled = new ProductGroupFactory()->hosting()->createOne();
         $filledProduct = new ProductFactory()->for($productGroupFilled)->createOne();
-        new ProductPriceComponentFactory()->for($filledProduct)->registration()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($filledProduct)
+            ->registration()
+            ->createOne();
         $filledCustomer = $customer ?? new CustomerFactory()->createOne();
         $filledDomain = $domain ?? Factory::create()->domainName();
 
@@ -42,17 +45,20 @@ class HostingSubscriptionDataProvider
     /** Default provider that gets made is an directadmin provider */
     public static function technicalSubscription(
         ?Subscription $subscription = null,
-        ?Provider $hostingProvider = null
+        ?Provider $hostingProvider = null,
     ): HostingDeployment {
         $filledSubscription = $subscription ?? self::administrativeSubscription();
-        $filledProvider = $hostingProvider ?? new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        $filledProvider = $hostingProvider ?? new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $filledServer = new ServerFactory()->createOne();
 
-        return new HostingDeploymentFactory()
-            ->for($filledServer)
-            ->createOne([
-                'subscription_uuid' => $filledSubscription->uuid,
-                'provider_id' => $filledProvider->id,
-            ]);
+        return new HostingDeploymentFactory()->for($filledServer)->createOne([
+            'subscription_uuid' => $filledSubscription->uuid,
+            'provider_id' => $filledProvider->id,
+        ]);
     }
 }

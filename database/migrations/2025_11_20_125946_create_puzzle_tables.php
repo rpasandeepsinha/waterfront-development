@@ -6,7 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
+return new class() extends Migration {
     public function up(): void
     {
         Schema::create('puzzle_callback_timeslots', function (Blueprint $table): void {
@@ -21,12 +21,9 @@ return new class () extends Migration {
         Schema::create('puzzle_callback_requests', function (Blueprint $table): void {
             $table->id();
             $table->uuid('uuid');
-            $table->foreignId('customer_id')
-                ->constrained('customers')
-                ->cascadeOnDelete();
+            $table->foreignId('customer_id')->constrained('customers')->cascadeOnDelete();
 
-            $table->foreignId('puzzle_callback_timeslot_id')
-                ->constrained('puzzle_callback_timeslots');
+            $table->foreignId('puzzle_callback_timeslot_id')->constrained('puzzle_callback_timeslots');
 
             $table->string('phone_number', 16);
 

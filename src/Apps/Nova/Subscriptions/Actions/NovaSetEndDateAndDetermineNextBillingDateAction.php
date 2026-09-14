@@ -35,7 +35,7 @@ class NovaSetEndDateAndDetermineNextBillingDateAction extends NovaSubscriptionAc
         $this->sole();
 
         $this->canSee(
-            fn (NovaRequest $request): bool => $this->onlyForSingleSubscription($request)
+            fn (NovaRequest $request): bool => $this->onlyForSingleSubscription($request),
         );
     }
 
@@ -78,17 +78,20 @@ class NovaSetEndDateAndDetermineNextBillingDateAction extends NovaSubscriptionAc
         Assert::stringNotEmpty($newNextBillingDate);
         Assert::stringNotEmpty($reason);
 
-        $priceRequest = new PriceRequest([new ProlongationPriceRequest($subscription->product)], $subscription->customer);
+        $priceRequest = new PriceRequest(
+            [new ProlongationPriceRequest($subscription->product)],
+            $subscription->customer,
+        );
         $priceList = $this->priceResolver->getPriceList($priceRequest);
         try {
             $priceList->getProductPrice($subscription->product->slug, $newContractPeriod, $newBillingPeriod);
         } catch (ItemNotFoundException) {
             throw ValidationException::withMessages([
                 'billing_period' => $this->translator->translate(
-                    'nova-action.update-billing-and-contract-dates-and-periods.no-matching-price-found'
+                    'nova-action.update-billing-and-contract-dates-and-periods.no-matching-price-found',
                 ),
                 'contract_period' => $this->translator->translate(
-                    'nova-action.update-billing-and-contract-dates-and-periods.no-matching-price-found'
+                    'nova-action.update-billing-and-contract-dates-and-periods.no-matching-price-found',
                 ),
             ]);
         }
@@ -107,7 +110,7 @@ class NovaSetEndDateAndDetermineNextBillingDateAction extends NovaSubscriptionAc
         ) {
             throw ValidationException::withMessages([
                 'next_billing_date' => $this->translator->translate(
-                    'nova-action.update-billing-and-contract-dates-and-periods.no-next-billing-date-found'
+                    'nova-action.update-billing-and-contract-dates-and-periods.no-next-billing-date-found',
                 ),
             ]);
         }
@@ -118,10 +121,12 @@ class NovaSetEndDateAndDetermineNextBillingDateAction extends NovaSubscriptionAc
             $newContractPeriod,
             $formattedEndDate,
             $formattedNextBillingDate,
-            $reason
+            $reason,
         );
 
-        return self::message($this->translator->translate('nova-action.update-billing-and-contract-dates-and-periods.success'));
+        return self::message($this->translator->translate(
+            'nova-action.update-billing-and-contract-dates-and-periods.success',
+        ));
     }
 
     /**
@@ -132,10 +137,14 @@ class NovaSetEndDateAndDetermineNextBillingDateAction extends NovaSubscriptionAc
         $subscription = Subscription::where('id', $request->selectedResourceIds()?->first())->first();
 
         return [
-            Number::make($this->translator->translate('subscription.attributes.contract_period'), 'contract_period')
-                ->default(fn () => $subscription->contract_period ?? 12),
-            Number::make($this->translator->translate('subscription.attributes.billing_period'), 'billing_period')
-                ->default(fn () => $subscription->billing_period ?? 12),
+            Number::make(
+                $this->translator->translate('subscription.attributes.contract_period'),
+                'contract_period',
+            )->default(fn () => $subscription->contract_period ?? 12),
+            Number::make(
+                $this->translator->translate('subscription.attributes.billing_period'),
+                'billing_period',
+            )->default(fn () => $subscription->billing_period ?? 12),
             Date::make($this->translator->translate('subscription.attributes.end_date'), 'end_date')
                 ->default(fn () => $subscription?->end_date->format('Y-m-d') ?? CarbonImmutable::now()->format('Y-m-d'))
                 ->required()
@@ -144,19 +153,28 @@ class NovaSetEndDateAndDetermineNextBillingDateAction extends NovaSubscriptionAc
                 ->dependsOn(
                     ['end_date', 'contract_period', 'billing_period'],
                     function (Select $field, NovaRequest $novaRequest, FormData $formData) {
-                        $endDate = CarbonImmutable::createFromFormat('Y-m-d', $formData->string('end_date')->toString());
+                        $endDate = CarbonImmutable::createFromFormat(
+                            'Y-m-d',
+                            $formData->string('end_date')->toString(),
+                        );
                         Assert::isInstanceOf($endDate, CarbonImmutable::class);
                         $options = $this->calculatePossibleOptions($formData->integer('billing_period'), $endDate);
                         $field->options($options);
-                    }
-                )->required()
+                    },
+                )
+                ->required()
                 ->default(fn () => $subscription?->next_billing_date->format('Y-m-d'))
                 ->rules(['date', 'after:today', 'before_or_equal:end_date']),
 
-            Textarea::make($this->translator->translate('nova-action.update-billing-and-contract-dates-and-periods.reason'), 'reason')
+            Textarea::make(
+                $this->translator->translate('nova-action.update-billing-and-contract-dates-and-periods.reason'),
+                'reason',
+            )
                 ->required()
                 ->rules(['string', 'min:1'])
-                ->help($this->translator->translate('nova-action.update-billing-and-contract-dates-and-periods.reason-hint')),
+                ->help($this->translator->translate(
+                    'nova-action.update-billing-and-contract-dates-and-periods.reason-hint',
+                )),
         ];
     }
 
@@ -184,8 +202,14 @@ class NovaSetEndDateAndDetermineNextBillingDateAction extends NovaSubscriptionAc
     /**
      * @throws JsonException
      */
-    private function persistSubscriptionUpdates(int $newBillingPeriod, Subscription $subscription, int $newContractPeriod, CarbonImmutable $newEndDate, CarbonImmutable $newNextBillingDate, string $reason): void
-    {
+    private function persistSubscriptionUpdates(
+        int $newBillingPeriod,
+        Subscription $subscription,
+        int $newContractPeriod,
+        CarbonImmutable $newEndDate,
+        CarbonImmutable $newNextBillingDate,
+        string $reason,
+    ): void {
         $subscription->billing_period = $newBillingPeriod;
         $subscription->contract_period = $newContractPeriod;
         $subscription->end_date = $newEndDate;

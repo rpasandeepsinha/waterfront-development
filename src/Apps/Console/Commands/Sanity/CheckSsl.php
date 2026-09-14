@@ -28,12 +28,15 @@ class CheckSsl extends Command
      */
     public function handle(
         CertificateManager $certificateManager,
-        CsrManager $csrManager
+        CsrManager $csrManager,
     ): int {
         $domainOption = $this->argument('domain');
 
         $subscriptions = Subscription::whereProductGroupType(ProductGroupType::SSL)
-            ->whereIn('administrative_status', [AdministrativeStatus::ACTIVE->value, AdministrativeStatus::CANCELED->value])
+            ->whereIn('administrative_status', [
+                AdministrativeStatus::ACTIVE->value,
+                AdministrativeStatus::CANCELED->value,
+            ])
             ->whereNotIn('technical_status', [TechnicalStatus::DELETED->value])
             ->when($domainOption, function ($query) use ($domainOption): void {
                 $query->where('domain', $domainOption);
@@ -46,9 +49,7 @@ class CheckSsl extends Command
             $subscriptionDomain = $subscription->domain;
             Assert::notNull($subscriptionDomain, 'Provided subscription has no domain');
 
-            $domain = ($subscription->product->slug === 'ssl_wildcard')
-                ? "*.{$subscriptionDomain}"
-                : $subscriptionDomain;
+            $domain = $subscription->product->slug === 'ssl_wildcard' ? "*.{$subscriptionDomain}" : $subscriptionDomain;
 
             $current = $key + 1;
 

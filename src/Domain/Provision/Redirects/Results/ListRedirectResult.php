@@ -23,13 +23,13 @@ class ListRedirectResult extends RedirectResult
         public ProvisionStatus $provisionStatus,
         public ?array $redirects = null,
         public ?Throwable $exception = null,
-        public ?ValidationResult $validationResult = null
+        public ?ValidationResult $validationResult = null,
     ) {
         parent::__construct(
             provisionData: $this->provisionData,
             provisionStatus: $this->provisionStatus,
             exception: $this->exception,
-            validationResult: $this->validationResult
+            validationResult: $this->validationResult,
         );
     }
 }

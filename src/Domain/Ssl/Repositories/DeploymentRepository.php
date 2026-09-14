@@ -22,7 +22,7 @@ use Waterfront\Infra\Common\PublicSuffixList;
 class DeploymentRepository
 {
     public function __construct(
-        private readonly PublicSuffixList $publicSuffixList
+        private readonly PublicSuffixList $publicSuffixList,
     ) {
     }
 
@@ -37,8 +37,8 @@ class DeploymentRepository
             ],
             array_merge(
                 $data,
-                ['custom_csr' => $customCsr]
-            )
+                ['custom_csr' => $customCsr],
+            ),
         );
     }
 
@@ -79,7 +79,8 @@ class DeploymentRepository
             return null;
         }
 
-        $baseHostingSubscription = Subscription::query()->whereProductGroupType(ProductGroupType::HOSTING)
+        $baseHostingSubscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::HOSTING)
             ->where('domain', $domain)
             ->where('customer_id', $sslDeployment->subscription->customer_id)
             ->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())
@@ -92,7 +93,9 @@ class DeploymentRepository
 
         $hostingDeployment = $baseHostingSubscription->hostingDeployment;
         if ($hostingDeployment === null) {
-            throw new ModelNotFoundException("Unable to find hosting deployment for {$sslDeployment->subscription->domain}");
+            throw new ModelNotFoundException(
+                "Unable to find hosting deployment for {$sslDeployment->subscription->domain}",
+            );
         }
 
         return $hostingDeployment;
@@ -107,8 +110,10 @@ class DeploymentRepository
         $to = CarbonImmutable::now()->addDays($days)->endOfDay();
 
         return SslDeployment::whereHas('subscription', static function (Builder $query) use ($from, $to): void {
-            $query->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())
-                ->whereBetween('end_date', [$from, $to]);
+            $query->whereNotIn(
+                'administrative_status',
+                AdministrativeStatus::administrativelyEnded(),
+            )->whereBetween('end_date', [$from, $to]);
         })
             ->with([
                 'subscription:id,uuid,customer_id,end_date',
@@ -158,12 +163,16 @@ class DeploymentRepository
             ->whereHas('subscription', function (Builder $query) use ($graceEnd) {
                 $query->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded());
                 $query->where(function (Builder $q) use ($graceEnd) {
-                    $q->where('administrative_status', '!=', AdministrativeStatus::CANCELED)
-                        ->orWhere(function (Builder $qq) use ($graceEnd) {
-                            $qq->where('administrative_status', AdministrativeStatus::CANCELED)
-                                ->whereNotNull('end_date')
-                                ->where('end_date', '>', $graceEnd);
-                        });
+                    $q->where(
+                        'administrative_status',
+                        '!=',
+                        AdministrativeStatus::CANCELED,
+                    )->orWhere(function (Builder $qq) use ($graceEnd) {
+                        $qq
+                            ->where('administrative_status', AdministrativeStatus::CANCELED)
+                            ->whereNotNull('end_date')
+                            ->where('end_date', '>', $graceEnd);
+                    });
                 });
             })
             ->with(['subscription'])

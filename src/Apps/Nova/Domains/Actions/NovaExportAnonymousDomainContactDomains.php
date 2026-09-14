@@ -19,7 +19,7 @@ class NovaExportAnonymousDomainContactDomains extends Action
 {
     public function __construct(
         private readonly FilesystemManager $filesystemManager,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->standalone();
     }
@@ -39,7 +39,7 @@ class NovaExportAnonymousDomainContactDomains extends Action
         $csvContent = Subscription::query()
             ->whereHas(
                 'domainDeployment.contactOwner.providers',
-                fn (Builder $query) => $query->whereIn('external_contact', $anonHandles)
+                fn (Builder $query) => $query->whereIn('external_contact', $anonHandles),
             )
             ->pluck('domain')
             ->implode("\n");
@@ -56,9 +56,7 @@ class NovaExportAnonymousDomainContactDomains extends Action
     {
         $csvFileName = 'customer-anonymous-domain-contacts.csv';
 
-        $this->filesystemManager
-            ->disk('private')
-            ->put('exports/' . $csvFileName, $csvContent);
+        $this->filesystemManager->disk('private')->put('exports/' . $csvFileName, $csvContent);
 
         return $csvFileName;
     }

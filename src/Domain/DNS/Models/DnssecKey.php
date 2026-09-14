@@ -23,7 +23,7 @@ class DnssecKey
         $matched = preg_match(
             '/^(?<flags>[0-9]+) (?<protocol>[0-9]+) (?<alg>[0-9]+) (?<pubKey>.*)$/',
             $key->getDnsKey() ?? '',
-            $keyinfo
+            $keyinfo,
         );
 
         $this->flags = $matched === 1 ? intval($keyinfo['flags']) : 0;
@@ -38,10 +38,10 @@ class DnssecKey
     public function toArray(): array
     {
         return [
-            'flags'     => $this->getFlags(),
-            'alg'       => $this->getAlgorithm(),
-            'protocol'  => $this->getProtocol(),
-            'pubKey'    => $this->getPubKey(),
+            'flags' => $this->getFlags(),
+            'alg' => $this->getAlgorithm(),
+            'protocol' => $this->getProtocol(),
+            'pubKey' => $this->getPubKey(),
         ];
     }
 

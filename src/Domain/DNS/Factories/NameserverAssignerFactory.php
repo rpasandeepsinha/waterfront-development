@@ -15,7 +15,7 @@ class NameserverAssignerFactory
     public function __construct(
         private readonly DnsNameserverAssigner $dnsNameserverAssigner,
         private readonly DnsVanityNameserverAssigner $dnsVanityNameserverAssigner,
-        private readonly DnsExternalNameserverAssigner $dnsExternalNameserverAssigner
+        private readonly DnsExternalNameserverAssigner $dnsExternalNameserverAssigner,
     ) {
     }
 

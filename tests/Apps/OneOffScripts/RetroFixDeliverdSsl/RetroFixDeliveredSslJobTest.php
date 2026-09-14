@@ -57,10 +57,11 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
             ->forDomain('example.com')
             ->createOne();
 
-        self::resolve(Dispatcher::class)->dispatch(new RetroFixDeliveredSslJob(
-            subscription: $subscription,
-            isDryRun: false,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new RetroFixDeliveredSslJob(
+                subscription: $subscription,
+                isDryRun: false,
+            ));
 
         Queue::assertPushedOn(QueueName::ONE_TIME_SCRIPTS->value, RetroFixDeliveredSslJob::class);
     }
@@ -80,10 +81,11 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
             ->forDomain('example.com')
             ->createOne();
 
-        self::resolve(Dispatcher::class)->dispatch(new RetroFixDeliveredSslJob(
-            subscription: $subscription,
-            isDryRun: false,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new RetroFixDeliveredSslJob(
+                subscription: $subscription,
+                isDryRun: false,
+            ));
 
         Bus::assertNotDispatchedSync(RetroFixDeliveredSslJob::class);
     }
@@ -102,15 +104,16 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
             ->state(['domain' => null])
             ->createOne();
 
-        $this->rtrSslService
-            ->expects(self::never())
-            ->method('getLatestSslProcess');
+        $this->rtrSslService->expects(self::never())->method('getLatestSslProcess');
 
         $this->logger
             ->expects(self::once())
             ->method('info')
             ->with(
-                sprintf('Skipping subscription %d due to missing domain or SSL deployment or installation error.', $subscription->id),
+                sprintf(
+                    'Skipping subscription %d due to missing domain or SSL deployment or installation error.',
+                    $subscription->id,
+                ),
                 [
                     LoggingContextKeys::ONE_OFF_SCRIPT => 'retro-fix-deliverd-ssl',
                     LoggingContextKeys::META => [
@@ -147,15 +150,16 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
             ->forDomain('example-no-ssl.com')
             ->createOne();
 
-        $this->rtrSslService
-            ->expects(self::never())
-            ->method('getLatestSslProcess');
+        $this->rtrSslService->expects(self::never())->method('getLatestSslProcess');
 
         $this->logger
             ->expects(self::once())
             ->method('info')
             ->with(
-                sprintf('Skipping subscription %d due to missing domain or SSL deployment or installation error.', $subscription->id),
+                sprintf(
+                    'Skipping subscription %d due to missing domain or SSL deployment or installation error.',
+                    $subscription->id,
+                ),
                 [
                     LoggingContextKeys::ONE_OFF_SCRIPT => 'retro-fix-deliverd-ssl',
                     LoggingContextKeys::META => [
@@ -192,24 +196,23 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
             ->forDomain('example-install-error.com')
             ->createOne();
 
-        $sslDeployment = SslDeploymentFactory::new()
-            ->rtrProvider()
-            ->createOne([
-                'subscription_uuid' => $subscription->uuid,
-                'last_result' => json_encode([
-                    'certificate_status' => 'Installation error.',
-                ], JSON_THROW_ON_ERROR),
-            ]);
+        $sslDeployment = SslDeploymentFactory::new()->rtrProvider()->createOne([
+            'subscription_uuid' => $subscription->uuid,
+            'last_result' => json_encode([
+                'certificate_status' => 'Installation error.',
+            ], JSON_THROW_ON_ERROR),
+        ]);
 
-        $this->rtrSslService
-            ->expects(self::never())
-            ->method('getLatestSslProcess');
+        $this->rtrSslService->expects(self::never())->method('getLatestSslProcess');
 
         $this->logger
             ->expects(self::once())
             ->method('info')
             ->with(
-                sprintf('Skipping subscription %d due to missing domain or SSL deployment or installation error.', $subscription->id),
+                sprintf(
+                    'Skipping subscription %d due to missing domain or SSL deployment or installation error.',
+                    $subscription->id,
+                ),
                 [
                     LoggingContextKeys::ONE_OFF_SCRIPT => 'retro-fix-deliverd-ssl',
                     LoggingContextKeys::META => [
@@ -246,11 +249,9 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
             ->forDomain('example-completed.com')
             ->createOne();
 
-        $sslDeployment = SslDeploymentFactory::new()
-            ->rtrProvider()
-            ->createOne([
-                'subscription_uuid' => $subscription->uuid,
-            ]);
+        $sslDeployment = SslDeploymentFactory::new()->rtrProvider()->createOne([
+            'subscription_uuid' => $subscription->uuid,
+        ]);
 
         $this->rtrSslService
             ->expects(self::once())
@@ -277,7 +278,11 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
             ->expects(self::once())
             ->method('info')
             ->with(
-                sprintf('Checked SSL deployment for with domain %s, ssl completed at RTR: %s', 'example-completed.com', 'yes'),
+                sprintf(
+                    'Checked SSL deployment for with domain %s, ssl completed at RTR: %s',
+                    'example-completed.com',
+                    'yes',
+                ),
                 [
                     LoggingContextKeys::ONE_OFF_SCRIPT => 'retro-fix-deliverd-ssl',
                     LoggingContextKeys::META => [
@@ -304,9 +309,15 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
         self::assertSame(TechnicalStatus::OK->value, $subscription->technical_status);
 
         $sslDeployment->refresh();
-        self::assertSame('Set to OK because RTR has a completed SSL process for this domain.', $sslDeployment->last_result);
+        self::assertSame(
+            'Set to OK because RTR has a completed SSL process for this domain.',
+            $sslDeployment->last_result,
+        );
         self::assertNotNull($sslDeployment->last_result_received);
-        self::assertSame(CarbonImmutable::now()->format('Y-m-d H:i:s'), $sslDeployment->last_result_received->format('Y-m-d H:i:s'));
+        self::assertSame(
+            CarbonImmutable::now()->format('Y-m-d H:i:s'),
+            $sslDeployment->last_result_received->format('Y-m-d H:i:s'),
+        );
     }
 
     #[Test]
@@ -323,11 +334,9 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
             ->forDomain('example-not-completed.com')
             ->createOne();
 
-        $sslDeployment = SslDeploymentFactory::new()
-            ->rtrProvider()
-            ->createOne([
-                'subscription_uuid' => $subscription->uuid,
-            ]);
+        $sslDeployment = SslDeploymentFactory::new()->rtrProvider()->createOne([
+            'subscription_uuid' => $subscription->uuid,
+        ]);
 
         $originalTechnicalStatus = $subscription->technical_status;
         $originalLastResult = $sslDeployment->last_result;
@@ -357,7 +366,11 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
             ->expects(self::once())
             ->method('info')
             ->with(
-                sprintf('Checked SSL deployment for with domain %s, ssl completed at RTR: %s', 'example-not-completed.com', 'no'),
+                sprintf(
+                    'Checked SSL deployment for with domain %s, ssl completed at RTR: %s',
+                    'example-not-completed.com',
+                    'no',
+                ),
                 [
                     LoggingContextKeys::ONE_OFF_SCRIPT => 'retro-fix-deliverd-ssl',
                     LoggingContextKeys::META => [
@@ -401,11 +414,9 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
             ->forDomain('example-no-process.com')
             ->createOne();
 
-        SslDeploymentFactory::new()
-            ->rtrProvider()
-            ->createOne([
-                'subscription_uuid' => $subscription->uuid,
-            ]);
+        SslDeploymentFactory::new()->rtrProvider()->createOne([
+            'subscription_uuid' => $subscription->uuid,
+        ]);
 
         $originalTechnicalStatus = $subscription->technical_status;
 
@@ -417,9 +428,7 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
                 'entities' => [],
             ]));
 
-        $this->logger
-            ->expects(self::once())
-            ->method('info');
+        $this->logger->expects(self::once())->method('info');
 
         $job = new RetroFixDeliveredSslJob(
             subscription: $subscription->refresh(),
@@ -446,11 +455,9 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
             ->forDomain('example-dryrun.com')
             ->createOne();
 
-        SslDeploymentFactory::new()
-            ->rtrProvider()
-            ->createOne([
-                'subscription_uuid' => $subscription->uuid,
-            ]);
+        SslDeploymentFactory::new()->rtrProvider()->createOne([
+            'subscription_uuid' => $subscription->uuid,
+        ]);
 
         $originalTechnicalStatus = $subscription->technical_status;
 
@@ -475,9 +482,7 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
                 ],
             ]));
 
-        $this->logger
-            ->expects(self::once())
-            ->method('info');
+        $this->logger->expects(self::once())->method('info');
 
         $job = new RetroFixDeliveredSslJob(
             subscription: $subscription->refresh(),
@@ -504,12 +509,10 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
             ->forDomain('example-invalid-json.com')
             ->createOne();
 
-        $sslDeployment = SslDeploymentFactory::new()
-            ->rtrProvider()
-            ->createOne([
-                'subscription_uuid' => $subscription->uuid,
-                'last_result' => 'Set to OK because RTR has a completed SSL process for this domain.',
-            ]);
+        $sslDeployment = SslDeploymentFactory::new()->rtrProvider()->createOne([
+            'subscription_uuid' => $subscription->uuid,
+            'last_result' => 'Set to OK because RTR has a completed SSL process for this domain.',
+        ]);
 
         $this->rtrSslService
             ->expects(self::once())
@@ -536,7 +539,11 @@ class RetroFixDeliveredSslJobTest extends IntegrationTestCase
             ->expects(self::once())
             ->method('info')
             ->with(
-                sprintf('Checked SSL deployment for with domain %s, ssl completed at RTR: %s', 'example-invalid-json.com', 'yes'),
+                sprintf(
+                    'Checked SSL deployment for with domain %s, ssl completed at RTR: %s',
+                    'example-invalid-json.com',
+                    'yes',
+                ),
                 [
                     LoggingContextKeys::ONE_OFF_SCRIPT => 'retro-fix-deliverd-ssl',
                     LoggingContextKeys::META => [

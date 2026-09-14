@@ -22,14 +22,14 @@ class PaymentParameters
     public function toArray(): array
     {
         $parameters = [
-            'amount'      => [
+            'amount' => [
                 'currency' => $this->currency,
-                'value'    => $this->amount,
+                'value' => $this->amount,
             ],
             'description' => $this->description,
             'redirectUrl' => $this->redirectUrl,
-            'webhookUrl'  => $this->webhookUrl,
-            'metadata'    => $this->metaData,
+            'webhookUrl' => $this->webhookUrl,
+            'metadata' => $this->metaData,
         ];
 
         if ($this->method !== null) {

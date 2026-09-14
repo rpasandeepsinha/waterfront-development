@@ -66,24 +66,21 @@ class UpdateBackupIntegrationTest extends IntegrationTestCase
         $password = '#$AQ%we5we2!12332112!!!!!ss';
         $version = (int) floor(microtime(true) * 1000);
 
-        AcronisBackupDeploymentFactory::new()
-            ->for(
-                BackupDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->backup()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_BACKUP,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne([
-                'user_uuid' => $userUuid,
-                'tenant_uuid' => $tenantUuid,
-            ]);
+        AcronisBackupDeploymentFactory::new()->for(
+            BackupDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->backup()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_BACKUP,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne([
+            'user_uuid' => $userUuid,
+            'tenant_uuid' => $tenantUuid,
+        ]);
 
         $userClient = self::createMock(AcronisUserClient::class);
         $userClient
@@ -127,7 +124,7 @@ class UpdateBackupIntegrationTest extends IntegrationTestCase
                     self::assertNull($item->quota->overage);
 
                     return true;
-                })
+                }),
             )
             ->willReturn($offeringItems);
 
@@ -169,9 +166,9 @@ class UpdateBackupIntegrationTest extends IntegrationTestCase
         self::assertSame(
             sprintf(
                 '{"vms": null, "servers": null, "password": "****", "websites": null, "m365Seats": null, "m365Teams": null, "workStations": null, "mobileDevices": %d, "hostingServers": null, "cloudStorageInGb": null, "localStorageInGb": null, "m365SharepointSites": null, "googleWorkspaceSeats": null, "enableGoogleWorkspaceDrive": null}',
-                3
+                3,
             ),
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         $savedResult = $this->resultRepository
@@ -200,8 +197,14 @@ class UpdateBackupIntegrationTest extends IntegrationTestCase
 
         self::assertCount(2, $result->validationResult->messages);
         self::assertArrayHasKey('tag', $result->validationResult->messages);
-        self::assertSame(['At least one resource value must be provided.'], $result->validationResult->messages['resources']);
-        self::assertSame(['No create request with this tag in the [backup] type.'], $result->validationResult->messages['tag']);
+        self::assertSame(
+            ['At least one resource value must be provided.'],
+            $result->validationResult->messages['resources'],
+        );
+        self::assertSame(
+            ['No create request with this tag in the [backup] type.'],
+            $result->validationResult->messages['tag'],
+        );
 
         self::assertDatabaseCount(ProvisioningResult::class, 1);
         self::assertDatabaseCount(ProvisioningRequest::class, 1);
@@ -213,7 +216,7 @@ class UpdateBackupIntegrationTest extends IntegrationTestCase
         self::assertSame(ProvisionRequestName::UPDATE_BACKUP, $savedRequest->request_name);
         self::assertSame(
             '{"vms": null, "servers": null, "password": "****", "websites": null, "m365Seats": null, "m365Teams": null, "workStations": null, "mobileDevices": null, "hostingServers": null, "cloudStorageInGb": null, "localStorageInGb": null, "m365SharepointSites": null, "googleWorkspaceSeats": null, "enableGoogleWorkspaceDrive": null}',
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         $savedResult = $this->resultRepository
@@ -231,24 +234,21 @@ class UpdateBackupIntegrationTest extends IntegrationTestCase
         $tenantUuid = Uuid::uuid4();
         $userUuid = Uuid::uuid4();
 
-        AcronisBackupDeploymentFactory::new()
-            ->for(
-                BackupDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->backup()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_BACKUP,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne([
-                'user_uuid' => $userUuid,
-                'tenant_uuid' => $tenantUuid,
-            ]);
+        AcronisBackupDeploymentFactory::new()->for(
+            BackupDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->backup()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_BACKUP,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne([
+            'user_uuid' => $userUuid,
+            'tenant_uuid' => $tenantUuid,
+        ]);
 
         $expectedException = new SaloonException('Something went wrong');
 
@@ -294,9 +294,9 @@ class UpdateBackupIntegrationTest extends IntegrationTestCase
         self::assertSame(
             sprintf(
                 '{"vms": null, "servers": %d, "password": "****", "websites": null, "m365Seats": null, "m365Teams": null, "workStations": null, "mobileDevices": null, "hostingServers": null, "cloudStorageInGb": null, "localStorageInGb": null, "m365SharepointSites": null, "googleWorkspaceSeats": null, "enableGoogleWorkspaceDrive": null}',
-                3
+                3,
             ),
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         $savedResult = $this->resultRepository

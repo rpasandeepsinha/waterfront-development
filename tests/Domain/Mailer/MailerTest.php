@@ -62,8 +62,7 @@ class MailerTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
 
         $mailer = self::createMock(ContractMailer::class);
-        $mailer->expects(self::once())
-            ->method('send');
+        $mailer->expects(self::once())->method('send');
 
         $emailHistory = new EmailHistory();
         $emailHistory->uuid = Uuid::uuid4()->toString();
@@ -115,12 +114,11 @@ class MailerTest extends IntegrationTestCase
             $subscription->product->name,
             $subscription->domain ?? '',
             $subscription->end_date->format(DateTimeFormat::DUTCHNOTIME),
-            'testCancelOption'
+            'testCancelOption',
         );
 
         $jobMock = self::createMock(Dispatcher::class);
-        $jobMock->expects(self::exactly(3))
-            ->method('dispatch');
+        $jobMock->expects(self::exactly(3))->method('dispatch');
 
         $mailer = new Mailer(
             $jobMock,
@@ -150,7 +148,7 @@ class MailerTest extends IntegrationTestCase
         ]);
         $customer->migratedCustomers()->attach($migratedCustomer);
 
-        $template = new class () implements MailTemplateInterface {
+        $template = new class() implements MailTemplateInterface {
             public static function getTemplateSlug(): string
             {
                 return 'template-string';
@@ -169,7 +167,8 @@ class MailerTest extends IntegrationTestCase
         ]);
 
         $jobMock = self::createMock(Dispatcher::class);
-        $jobMock->expects(self::once())
+        $jobMock
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::callback(function (SendEmail $job): bool {
                 self::assertTrue($job->afterCommit);
@@ -194,7 +193,7 @@ class MailerTest extends IntegrationTestCase
         ]);
         $migratedCustomer->customers()->attach($customer);
 
-        $template = new class () implements MailTemplateInterface {
+        $template = new class() implements MailTemplateInterface {
             public static function getTemplateSlug(): string
             {
                 return 'template-string';
@@ -211,8 +210,7 @@ class MailerTest extends IntegrationTestCase
         ]);
 
         $jobMock = self::createMock(Dispatcher::class);
-        $jobMock->expects(self::once())
-            ->method('dispatch');
+        $jobMock->expects(self::once())->method('dispatch');
 
         $mailer = new Mailer(
             $jobMock,
@@ -237,7 +235,7 @@ class MailerTest extends IntegrationTestCase
         ]);
         $blockedCustomer->migratedCustomers()->attach($migratedCustomer);
 
-        $template = new class () implements MailTemplateInterface {
+        $template = new class() implements MailTemplateInterface {
             public static function getTemplateSlug(): string
             {
                 return 'template-string';
@@ -263,14 +261,15 @@ class MailerTest extends IntegrationTestCase
         $emailHistoryRecord->method('__get')->willReturn(1);
 
         $emailHistoryRepository = self::createMock(EmailHistoryRepository::class);
-        $emailHistoryRepository->expects(self::once())
+        $emailHistoryRepository
+            ->expects(self::once())
             ->method('createHistoryRecord')
             ->with(
                 $customer,
                 ReceiverType::CUSTOMER,
                 self::isInstanceOf(Template::class),
                 'hank@example.com, tank@example.com',
-                self::isNull()
+                self::isNull(),
             )
             ->willReturn($emailHistoryRecord);
 
@@ -284,9 +283,12 @@ class MailerTest extends IntegrationTestCase
             self::resolve(CustomerRepository::class),
         );
 
-        $cc = [new Recipient('Hank', 'hank@example.com', Uuid::uuid4()), new Recipient('Tank', 'tank@example.com', Uuid::uuid4())];
+        $cc = [
+            new Recipient('Hank', 'hank@example.com', Uuid::uuid4()),
+            new Recipient('Tank', 'tank@example.com', Uuid::uuid4()),
+        ];
 
-        $template = new class () implements MailTemplateInterface {
+        $template = new class() implements MailTemplateInterface {
             public static function getTemplateSlug(): string
             {
                 return 'template-string';

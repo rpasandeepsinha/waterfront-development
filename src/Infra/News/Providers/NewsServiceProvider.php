@@ -12,7 +12,7 @@ class NewsServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/news.php',
-            'news'
+            'news',
         );
     }
 }

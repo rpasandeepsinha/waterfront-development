@@ -63,8 +63,7 @@ class NovaSpamExpertsClusterResource extends Resource
                 ->creationRules('required')
                 ->updateRules('nullable'),
 
-            NovaBoolField::make(self::translate('spamexperts-cluster.attributes.ssl'), 'ssl')
-                ->default(true),
+            NovaBoolField::make(self::translate('spamexperts-cluster.attributes.ssl'), 'ssl')->default(true),
         ];
     }
 

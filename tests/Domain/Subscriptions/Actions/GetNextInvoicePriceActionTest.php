@@ -45,23 +45,36 @@ class GetNextInvoicePriceActionTest extends IntegrationTestCase
 
         $this->product = new ProductFactory()->hostingBrons()->createOne();
 
-        $this->registrationPrice = new ProductPriceComponentFactory()->for($this->product)->registration()->createOne(['price' => 200]);
-        $promotionPrice = new ProductPriceComponentFactory()->for($this->product)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 100]);
-
-        $this->prolongationPrice = new ProductPriceComponentFactory()->for($this->product)->prolongation()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 300,
+        $this->registrationPrice = new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->registration()
+            ->createOne(['price' => 200]);
+        $promotionPrice = new ProductPriceComponentFactory()->for($this->product)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 100,
         ]);
 
-        $this->subscription = new SubscriptionFactory()->withCustomer()->withPrice()->for($this->product)->createOne([
-            'contract_period' => $this->registrationPrice->contract_period,
-            'billing_period' => $this->registrationPrice->billing_period,
-            'gross_price' => $this->registrationPrice->price,
-            'net_price' => $promotionPrice->price,
-            'end_date' => CarbonImmutable::now(),
-            'next_billing_date' => CarbonImmutable::now(),
-        ]);
+        $this->prolongationPrice = new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 300,
+            ]);
+
+        $this->subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->withPrice()
+            ->for($this->product)
+            ->createOne([
+                'contract_period' => $this->registrationPrice->contract_period,
+                'billing_period' => $this->registrationPrice->billing_period,
+                'gross_price' => $this->registrationPrice->price,
+                'net_price' => $promotionPrice->price,
+                'end_date' => CarbonImmutable::now(),
+                'next_billing_date' => CarbonImmutable::now(),
+            ]);
     }
 
     #[Test]
@@ -73,8 +86,14 @@ class GetNextInvoicePriceActionTest extends IntegrationTestCase
         self::assertSame($this->subscription->billing_period, $nextInvoicePrice->billingPeriod);
         self::assertSame($this->prolongationPrice->price, $nextInvoicePrice->grossPrice);
         self::assertSame($this->prolongationPrice->price, $nextInvoicePrice->netPrice);
-        self::assertSame(CarbonImmutable::now()->startOfDay()->getTimestamp(), $nextInvoicePrice->startDate->startOfDay()->getTimestamp());
-        self::assertSame(CarbonImmutable::now()->addMonths($this->registrationPrice->billing_period)->startOfDay()->getTimestamp(), $nextInvoicePrice->endDate->startOfDay()->getTimestamp());
+        self::assertSame(
+            CarbonImmutable::now()->startOfDay()->getTimestamp(),
+            $nextInvoicePrice->startDate->startOfDay()->getTimestamp(),
+        );
+        self::assertSame(
+            CarbonImmutable::now()->addMonths($this->registrationPrice->billing_period)->startOfDay()->getTimestamp(),
+            $nextInvoicePrice->endDate->startOfDay()->getTimestamp(),
+        );
     }
 
     #[Test]
@@ -90,8 +109,14 @@ class GetNextInvoicePriceActionTest extends IntegrationTestCase
         self::assertSame($this->subscription->billing_period, $nextInvoicePrice->billingPeriod);
         self::assertSame($this->subscription->gross_price, $nextInvoicePrice->grossPrice);
         self::assertSame($this->subscription->net_price, $nextInvoicePrice->netPrice);
-        self::assertSame(CarbonImmutable::now()->startOfDay()->getTimestamp(), $nextInvoicePrice->startDate->startOfDay()->getTimestamp());
-        self::assertSame(CarbonImmutable::now()->addMonths($this->registrationPrice->billing_period)->startOfDay()->getTimestamp(), $nextInvoicePrice->endDate->startOfDay()->getTimestamp());
+        self::assertSame(
+            CarbonImmutable::now()->startOfDay()->getTimestamp(),
+            $nextInvoicePrice->startDate->startOfDay()->getTimestamp(),
+        );
+        self::assertSame(
+            CarbonImmutable::now()->addMonths($this->registrationPrice->billing_period)->startOfDay()->getTimestamp(),
+            $nextInvoicePrice->endDate->startOfDay()->getTimestamp(),
+        );
     }
 
     #[Test]
@@ -154,7 +179,10 @@ class GetNextInvoicePriceActionTest extends IntegrationTestCase
     public function subscriptionWithoutProlongationPriceShouldTakeRegistrationPrice(): void
     {
         $product = new ProductFactory()->nlDomain()->createOne();
-        $price = new ProductPriceComponentFactory()->for($product)->registration()->createOne();
+        $price = new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne();
 
         $subscription = new SubscriptionFactory()
             ->for($product)
@@ -166,7 +194,7 @@ class GetNextInvoicePriceActionTest extends IntegrationTestCase
                 'next_billing_date' => CarbonImmutable::now()->addMonth(),
                 'gross_price' => $price->price * 2,
                 'net_price' => $price->price,
-        ]);
+            ]);
 
         $nextInvoicePrice = $this->getNextInvoicePriceAction->execute($subscription);
 
@@ -196,8 +224,14 @@ class GetNextInvoicePriceActionTest extends IntegrationTestCase
         self::assertSame(1, $nextInvoicePrice->billingPeriod);
         self::assertSame(50, $nextInvoicePrice->grossPrice);
         self::assertSame(40, $nextInvoicePrice->netPrice);
-        self::assertSame(CarbonImmutable::now()->startOfDay()->getTimestamp(), $nextInvoicePrice->startDate->startOfDay()->getTimestamp());
-        self::assertSame(CarbonImmutable::now()->addMonth()->startOfDay()->getTimestamp(), $nextInvoicePrice->endDate->startOfDay()->getTimestamp());
+        self::assertSame(
+            CarbonImmutable::now()->startOfDay()->getTimestamp(),
+            $nextInvoicePrice->startDate->startOfDay()->getTimestamp(),
+        );
+        self::assertSame(
+            CarbonImmutable::now()->addMonth()->startOfDay()->getTimestamp(),
+            $nextInvoicePrice->endDate->startOfDay()->getTimestamp(),
+        );
     }
 
     #[Test]

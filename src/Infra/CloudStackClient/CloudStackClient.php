@@ -51,12 +51,12 @@ class CloudStackClient
         return $this->list(
             'listDomainChildren',
             [
-                'id'      => $domainId,
+                'id' => $domainId,
                 'listall' => 'true',
-                'name'    => $name ?? '',
+                'name' => $name ?? '',
             ],
             'domain',
-            new DomainMapper()
+            new DomainMapper(),
         );
     }
 
@@ -66,7 +66,7 @@ class CloudStackClient
     public function createDomain(string $parentDomainId, string $name): Domain
     {
         $response = $this->client->execute('createDomain', [
-            'name'           => $name,
+            'name' => $name,
             'parentdomainid' => $parentDomainId,
         ]);
 
@@ -83,14 +83,14 @@ class CloudStackClient
     public function listNetworks(): array
     {
         $parameters = [
-            'traffictype'     => 'Guest',
-            'listall'         => 'true',
-            'type'            => 'shared',
+            'traffictype' => 'Guest',
+            'listall' => 'true',
+            'type' => 'shared',
             'canusefordeploy' => 'true',
-            'tags'            => [
+            'tags' => [
                 [
                     // These tags are used to filter networks that have been created for VPS usage by Operations (CLDIN).
-                    'key'   => TagFilter::VPS_NETWORK_KEY->value,
+                    'key' => TagFilter::VPS_NETWORK_KEY->value,
                     'value' => TagFilter::VPS_NETWORK->value,
                 ],
             ],
@@ -98,7 +98,7 @@ class CloudStackClient
 
         $response = $this->client->execute(
             command: 'listNetworks',
-            params: $parameters
+            params: $parameters,
         );
 
         if ($response === [] || ! array_key_exists('network', $response)) {
@@ -123,14 +123,14 @@ class CloudStackClient
     public function listTemplates(?string $templateSlugTag = null): array
     {
         $parameters = [
-                'templatefilter' => 'featured',
-                'listall'        => 'true',
-            ];
+            'templatefilter' => 'featured',
+            'listall' => 'true',
+        ];
 
         if ($templateSlugTag !== null) {
             $parameters['tags'] = [
                 [
-                    'key'   => TagFilter::TEMPLATE_SLUG->value,
+                    'key' => TagFilter::TEMPLATE_SLUG->value,
                     'value' => $templateSlugTag,
                 ],
             ];
@@ -138,7 +138,7 @@ class CloudStackClient
 
         $response = $this->client->execute(
             command: 'listTemplates',
-            params: $parameters
+            params: $parameters,
         );
 
         if ($response === [] || ! array_key_exists('template', $response)) {
@@ -164,10 +164,10 @@ class CloudStackClient
             'listAccounts',
             [
                 'domainid' => $domainId,
-                'name'     => $name ?? '',
+                'name' => $name ?? '',
             ],
             'account',
-            new AccountMapper()
+            new AccountMapper(),
         );
     }
 
@@ -177,15 +177,20 @@ class CloudStackClient
             command: 'createConsoleEndpoint',
             params: [
                 'virtualmachineid' => $virtualMachineId,
-            ]
+            ],
         );
 
-        if ($response === [] || ! array_key_exists('consoleendpoint', $response) || $response['consoleendpoint'] === []) {
+        if (
+            $response === []
+            || ! array_key_exists('consoleendpoint', $response)
+            || $response['consoleendpoint'] === []
+        ) {
             throw new ClientException('Invalid response from Cloudstack, missing `consoleendpoint` object.');
         }
 
         /** @var ConsoleEndpoint $consoleEndpoint */
         $consoleEndpoint = $this->serializer->denormalize($response['consoleendpoint'], ConsoleEndpoint::class);
+
         return $consoleEndpoint;
     }
 
@@ -202,13 +207,13 @@ class CloudStackClient
         string $roleId,
     ): Account {
         $response = $this->client->execute('createAccount', [
-            'domainid'  => $domainId,
-            'username'  => $username,
+            'domainid' => $domainId,
+            'username' => $username,
             'firstname' => $firstName,
-            'lastname'  => $lastName,
-            'email'     => $email,
-            'password'  => $password,
-            'roleid'    => $roleId,
+            'lastname' => $lastName,
+            'email' => $email,
+            'password' => $password,
+            'roleid' => $roleId,
         ]);
 
         assert(is_array($response['account']));
@@ -228,6 +233,7 @@ class CloudStackClient
 
         /** @var AsynchronousCloudstackResponse $async */
         $async = $this->serializer->denormalize($response, AsynchronousCloudstackResponse::class);
+
         return $async;
     }
 
@@ -236,9 +242,14 @@ class CloudStackClient
      */
     public function listRoles(?string $name = null): Iterator
     {
-        return $this->list('listRoles', [
-            'name' => $name ?? '',
-        ], 'role', new RoleMapper());
+        return $this->list(
+            'listRoles',
+            [
+                'name' => $name ?? '',
+            ],
+            'role',
+            new RoleMapper(),
+        );
     }
 
     /**
@@ -246,10 +257,15 @@ class CloudStackClient
      */
     public function listUsers(string $domainId, ?string $username = null): Iterator
     {
-        return $this->list('listUsers', [
-            'domainid' => $domainId,
-            'username' => $username ?? '',
-        ], 'user', new UserMapper());
+        return $this->list(
+            'listUsers',
+            [
+                'domainid' => $domainId,
+                'username' => $username ?? '',
+            ],
+            'user',
+            new UserMapper(),
+        );
     }
 
     /**
@@ -363,7 +379,7 @@ class CloudStackClient
         ?string $id = null,
         ?string $domainId = null,
         ?string $name = null,
-        ?CloudstackMachineState $state = null
+        ?CloudstackMachineState $state = null,
     ): Iterator {
         $params = [
             'listall' => 'true',
@@ -390,7 +406,7 @@ class CloudStackClient
     public function updateUser(string $id, string $password): User
     {
         $response = $this->client->execute('updateUser', [
-            'id'       => $id,
+            'id' => $id,
             'password' => $password,
         ]);
 
@@ -422,7 +438,7 @@ class CloudStackClient
                 'domainid' => $domainId,
             ],
             'serviceoffering',
-            new ServiceOfferingMapper()
+            new ServiceOfferingMapper(),
         );
     }
 
@@ -461,7 +477,7 @@ class CloudStackClient
      */
     public function restoreVirtualMachine(
         string $virtualMachineId,
-        ?string $templateId = null
+        ?string $templateId = null,
     ): AsynchronousCloudstackResponse {
         $params = ['virtualmachineid' => $virtualMachineId];
         if ($templateId !== null) {
@@ -473,6 +489,7 @@ class CloudStackClient
 
         /** @var AsynchronousCloudstackResponse $async */
         $async = $this->serializer->denormalize($response, AsynchronousCloudstackResponse::class);
+
         return $async;
     }
 
@@ -557,12 +574,17 @@ class CloudStackClient
         string $hostname,
         string $fqdn,
         ?string $keyPair,
-        ?string $networkId = null
+        ?string $networkId = null,
     ): AsynchronousCloudstackResponse {
-        $userData = '#cloud-config
+        $userData =
+            '#cloud-config
                         manage_etc_hosts: true
-                        fqdn: ' . $fqdn . '
-                        hostname: ' . $hostname . '
+                        fqdn: '
+            . $fqdn
+            . '
+                        hostname: '
+            . $hostname
+            . '
                         timezone: Europe/Amsterdam
                         ssh_pwauth: True
                         chpasswd:
@@ -570,14 +592,14 @@ class CloudStackClient
 
         $parameters = [
             'serviceofferingid' => $serviceOfferingId,
-            'templateid'        => $osTemplateId,
-            'zoneId'            => $zoneId,
-            'account'           => $account,
-            'domainid'          => $domainId,
-            'securitygroupids'  => $securityGroupId,
-            'displayname'       => $displayName,
-            'userdata'          => base64_encode($userData),
-            'networkids'        => $networkId,
+            'templateid' => $osTemplateId,
+            'zoneId' => $zoneId,
+            'account' => $account,
+            'domainid' => $domainId,
+            'securitygroupids' => $securityGroupId,
+            'displayname' => $displayName,
+            'userdata' => base64_encode($userData),
+            'networkids' => $networkId,
         ];
 
         /**
@@ -593,6 +615,7 @@ class CloudStackClient
 
         /** @var AsynchronousCloudstackResponse $asyncJobresponse */
         $asyncJobresponse = $this->serializer->denormalize($job, AsynchronousCloudstackResponse::class);
+
         return $asyncJobresponse;
     }
 
@@ -602,10 +625,10 @@ class CloudStackClient
     public function createSecurityGroup(string $account, string $domainId, ?string $name = null): string
     {
         $response = $this->client->execute('createSecurityGroup', [
-            'name'        => $name ?? $account,
+            'name' => $name ?? $account,
             'description' => 'Default for ' . $account,
-            'account'     => $account,
-            'domainid'    => $domainId,
+            'account' => $account,
+            'domainid' => $domainId,
         ]);
 
         assert(is_array($response['securitygroup']));
@@ -620,18 +643,18 @@ class CloudStackClient
     public function authorizeSecurityGroupIngress(string $account, string $domainId, string $securityGroupId): void
     {
         $this->client->execute('authorizeSecurityGroupIngress', [
-            'account'         => $account,
-            'domainid'        => $domainId,
-            'cidrlist'        => '0.0.0.0/0',
-            'protocol'        => 'ALL',
+            'account' => $account,
+            'domainid' => $domainId,
+            'cidrlist' => '0.0.0.0/0',
+            'protocol' => 'ALL',
             'securitygroupid' => $securityGroupId,
         ]);
 
         $this->client->execute('authorizeSecurityGroupIngress', [
-            'account'         => $account,
-            'domainid'        => $domainId,
-            'cidrlist'        => '::/0',
-            'protocol'        => 'ALL',
+            'account' => $account,
+            'domainid' => $domainId,
+            'cidrlist' => '::/0',
+            'protocol' => 'ALL',
             'securitygroupid' => $securityGroupId,
         ]);
     }

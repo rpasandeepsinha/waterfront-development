@@ -12,8 +12,10 @@ use Waterfront\Domain\Customers\Models\CustomerAddress;
 
 class CustomerAddressObserver
 {
-    public function __construct(private readonly JobDispatcher $jobDispatcher, private readonly EventDispatcher $eventDispatcher)
-    {
+    public function __construct(
+        private readonly JobDispatcher $jobDispatcher,
+        private readonly EventDispatcher $eventDispatcher,
+    ) {
     }
 
     public function created(CustomerAddress $customerAddress): void

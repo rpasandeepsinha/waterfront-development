@@ -34,8 +34,7 @@ class InvoiceFilter
         }
 
         $query->where(function (Builder $q) use ($search): void {
-            $q->where('title', 'ilike', "%{$search}%")
-                ->orWhere('description', 'ilike', "%{$search}%");
+            $q->where('title', 'ilike', "%{$search}%")->orWhere('description', 'ilike', "%{$search}%");
         });
     }
 }

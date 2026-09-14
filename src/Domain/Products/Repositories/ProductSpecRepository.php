@@ -12,16 +12,12 @@ class ProductSpecRepository
 {
     public function findBySpecification(Product $product, string $specification): ?ProductSpec
     {
-        return $product->productSpecs
-            ->where('name', $specification)
-            ->first();
+        return $product->productSpecs->where('name', $specification)->first();
     }
 
     public function getStringValueOfSpecification(Product $product, ProductSpecName $specification): ?string
     {
-        $productSpec = $product->productSpecs
-            ->where('name', $specification->value)
-            ->first();
+        $productSpec = $product->productSpecs->where('name', $specification->value)->first();
 
         if ($productSpec === null) {
             return null;
@@ -32,9 +28,7 @@ class ProductSpecRepository
 
     public function getIntegerValueOfSpecification(Product $product, ProductSpecName $specification): ?int
     {
-        $productSpec = $product->productSpecs
-            ->where('name', $specification->value)
-            ->first();
+        $productSpec = $product->productSpecs->where('name', $specification->value)->first();
 
         $filtered = filter_var($productSpec?->value, FILTER_VALIDATE_INT);
 
@@ -43,9 +37,7 @@ class ProductSpecRepository
 
     public function getFloatValueOfSpecification(Product $product, ProductSpecName $specification): ?float
     {
-        $productSpec = $product->productSpecs
-            ->where('name', $specification->value)
-            ->first();
+        $productSpec = $product->productSpecs->where('name', $specification->value)->first();
 
         $filtered = filter_var($productSpec?->value, FILTER_VALIDATE_FLOAT);
 
@@ -54,9 +46,6 @@ class ProductSpecRepository
 
     public function booleanSpecificationIsTrue(Product $product, ProductSpecName $specName): bool
     {
-        return ! $product->productSpecs
-            ->where('name', $specName->value)
-            ->where('value', '1')
-            ->isEmpty();
+        return ! $product->productSpecs->where('name', $specName->value)->where('value', '1')->isEmpty();
     }
 }

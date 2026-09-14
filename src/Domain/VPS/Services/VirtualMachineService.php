@@ -69,7 +69,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                     LoggingContextKeys::PROVISIONING_ID => $deployment->id,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
-                ]
+                ],
             );
 
             return null;
@@ -126,7 +126,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                     LoggingContextKeys::PROVISIONING_ID => $deployment,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
-                ]
+                ],
             );
 
             return false;
@@ -156,7 +156,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                     LoggingContextKeys::PROVISIONING_ID => $deployment,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
-                ]
+                ],
             );
 
             return false;
@@ -166,7 +166,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
             $client = $this->clientFactory->create($deployment->managerDomainDeployment);
 
             $client->stopVirtualMachine($deployment->cloudstack_id);
-        } catch (ClientFactoryException | ClientException $exception) {
+        } catch (ClientFactoryException|ClientException $exception) {
             $this->logger->error($exception->getMessage(), [
                 LoggingContextKeys::EXCEPTION => $exception,
             ]);
@@ -186,7 +186,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                     LoggingContextKeys::PROVISIONING_ID => $deployment,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
-                ]
+                ],
             );
 
             return false;
@@ -196,7 +196,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
             $client = $this->clientFactory->create($deployment->managerDomainDeployment);
 
             $client->rebootVirtualMachine($deployment->cloudstack_id);
-        } catch (ClientFactoryException | ClientException $exception) {
+        } catch (ClientFactoryException|ClientException $exception) {
             $this->logger->error($exception->getMessage(), [
                 LoggingContextKeys::EXCEPTION => $exception,
             ]);
@@ -214,16 +214,15 @@ class VirtualMachineService implements VirtualMachineServiceInterface
      */
     public function getAvailableReinstallOptions(Subscription $osSubscription): Collection
     {
-        return $this->productAllowedChangeRepository
-            ->getPotentialReinstallsForCustomer(
-                $osSubscription->product
-            );
+        return $this->productAllowedChangeRepository->getPotentialReinstallsForCustomer(
+            $osSubscription->product,
+        );
     }
 
     public function reinstall(
         VirtualMachineDeployment $deployment,
         Product $newOs,
-        ?string $sshKeyUuid = null
+        ?string $sshKeyUuid = null,
     ): bool {
         if ($deployment->cloudstack_id === null) {
             $this->logger->warning(
@@ -232,8 +231,9 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                     LoggingContextKeys::PROVISIONING_ID => $deployment->id,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
-                ]
+                ],
             );
+
             return false;
         }
 
@@ -241,15 +241,16 @@ class VirtualMachineService implements VirtualMachineServiceInterface
             $client = $this->clientFactory->create($deployment->managerDomainDeployment);
             $template = $this->vpsTemplateService->getTemplateByProduct(
                 product: $newOs,
-                environment: $deployment->managerDomainDeployment->environment
+                environment: $deployment->managerDomainDeployment->environment,
             );
-        } catch (ClientFactoryException | NoCloudstackTemplateFoundFromProduct | NonVpsOsProductException $e) {
+        } catch (ClientFactoryException|NoCloudstackTemplateFoundFromProduct|NonVpsOsProductException $e) {
             $this->logger->error('Reinstall init failed: ' . $e->getMessage(), [
                 LoggingContextKeys::PROVISIONING_ID => $deployment->id,
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                 LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
                 LoggingContextKeys::EXCEPTION => $e,
             ]);
+
             return false;
         }
 
@@ -260,6 +261,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                 LoggingContextKeys::PROVISIONING_ID => $deployment->cloudstack_id,
                 LoggingContextKeys::EXCEPTION => $e,
             ]);
+
             return false;
         }
 
@@ -281,7 +283,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                 LoggingContextKeys::META => [
                     'cloudstack_job' => $jobModel->toArray(),
                 ],
-            ]
+            ],
         );
 
         $deployment->last_action_status = VpsActionStatus::REINSTALLING;
@@ -290,7 +292,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
 
         $this->bus->dispatch(new ReinstallVirtualMachineJob(
             $deployment,
-            $jobModel
+            $jobModel,
         ));
 
         return true;
@@ -298,7 +300,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
 
     public function postReinstall(
         VirtualMachineDeployment $deployment,
-        CloudstackJob $jobModel
+        CloudstackJob $jobModel,
     ): void {
         $templateUuid = $jobModel->template_uuid;
         if ($templateUuid === null) {
@@ -306,7 +308,10 @@ class VirtualMachineService implements VirtualMachineServiceInterface
         }
 
         $product = $this->productRepository->findProductByUuid($templateUuid);
-        $sshKeyNeeded = $this->productSpecRepository->booleanSpecificationIsTrue($product, ProductSpecName::SSH_KEY_REQUIRED);
+        $sshKeyNeeded = $this->productSpecRepository->booleanSpecificationIsTrue(
+            $product,
+            ProductSpecName::SSH_KEY_REQUIRED,
+        );
 
         if ($sshKeyNeeded) {
             $this->logger->info(
@@ -320,7 +325,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                         'ssh_key_uuid' => $jobModel->ssh_key_uuid,
                         'template_uuid' => $jobModel->template_uuid,
                     ],
-                ]
+                ],
             );
             $this->bindAndResetSshKey($jobModel, $deployment);
         } else {
@@ -331,10 +336,11 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                     LoggingContextKeys::PROVISIONING_ID => $deployment->id,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
-                ]
+                ],
             );
             $deployment->sshKeys()->detach();
         }
+
         $deployment->subscription->technical_status = TechnicalStatus::OK->value;
         $deployment->last_action_status = VpsActionStatus::REINSTALL_SUCCESS;
         $deployment->subscription->save();
@@ -350,7 +356,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                     LoggingContextKeys::PROVISIONING_ID => $vmDeployment,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
-                ]
+                ],
             );
 
             return false;
@@ -379,18 +385,18 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                     LoggingContextKeys::META => [
                         'cloudstack_job' => $cloudstackJob->toArray(),
                     ],
-                ]
+                ],
             );
 
             $this->bus->dispatch(new DestroyVirtualMachineJob(
                 $vmDeployment,
-                $cloudstackJob
+                $cloudstackJob,
             ));
 
             // Job has been dispatched so subscription status is deleting until job completes or fails
             $subscription->technical_status = TechnicalStatus::DELETING->value;
             $subscription->save();
-        } catch (ClientFactoryException | ClientException $exception) {
+        } catch (ClientFactoryException|ClientException $exception) {
             $this->logger->error($exception->getMessage(), [
                 LoggingContextKeys::EXCEPTION => $exception,
             ]);
@@ -425,7 +431,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                     LoggingContextKeys::PROVISIONING_ID => $deployment,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
-                ]
+                ],
             );
 
             return false;
@@ -452,7 +458,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                     LoggingContextKeys::META => [
                         'cloudstack_job' => $cloudstackJob->toArray(),
                     ],
-                ]
+                ],
             );
 
             $deployment->last_action_status = VpsActionStatus::RESETTING_CREDENTIALS;
@@ -460,13 +466,13 @@ class VirtualMachineService implements VirtualMachineServiceInterface
 
             $this->bus->dispatch(new ResetPasswordJob(
                 $deployment,
-                $cloudstackJob
+                $cloudstackJob,
             ));
 
             // Job has been dispatched so subscription status is pending until job completes or fails
             $subscription->technical_status = TechnicalStatus::PENDING->value;
             $subscription->save();
-        } catch (ClientFactoryException | ClientException $exception) {
+        } catch (ClientFactoryException|ClientException $exception) {
             $this->logger->error($exception->getMessage(), [
                 LoggingContextKeys::EXCEPTION => $exception,
             ]);
@@ -492,7 +498,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                     LoggingContextKeys::PROVISIONING_ID => $deployment->id,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
-                ]
+                ],
             );
 
             return false;
@@ -503,7 +509,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
 
             $resetSshKeyResetJob = $client->resetSshKeyForVirtualMachine(
                 vmId: $deployment->cloudstack_id,
-                keyPair: $newKeyName
+                keyPair: $newKeyName,
             );
 
             $cloudstackJob = $this->createCloudstackJob($resetSshKeyResetJob, $deployment, [
@@ -522,7 +528,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                     LoggingContextKeys::META => [
                         'cloudstack_job' => $cloudstackJob->toArray(),
                     ],
-                ]
+                ],
             );
 
             $deployment->last_action_status = VpsActionStatus::RESETTING_SSH_KEY;
@@ -530,13 +536,13 @@ class VirtualMachineService implements VirtualMachineServiceInterface
 
             $this->bus->dispatch(new ResetSshKeyForVirtualMachineJob(
                 $deployment,
-                $cloudstackJob
+                $cloudstackJob,
             ));
 
             // Job has been dispatched so subscription status is pending until job completes or fails
             $deployment->subscription->technical_status = TechnicalStatus::PENDING->value;
             $deployment->subscription->save();
-        } catch (ClientFactoryException | CloudstackException $exception) {
+        } catch (ClientFactoryException|CloudstackException $exception) {
             $this->logger->error($exception->getMessage(), [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $deployment->subscription->uuid,
                 LoggingContextKeys::PROVISIONING_ID => $deployment->id,
@@ -568,8 +574,8 @@ class VirtualMachineService implements VirtualMachineServiceInterface
                 sprintf(
                     'Failed to get console URL for VM %s: %s',
                     $deployment->id,
-                    $consoleEndpoint->details ?? 'Unknown error'
-                )
+                    $consoleEndpoint->details ?? 'Unknown error',
+                ),
             );
         }
 
@@ -582,7 +588,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
     protected function createCloudstackJob(
         AsynchronousCloudstackResponse $asyncResponse,
         VirtualMachineDeployment $deployment,
-        array $extraFields = []
+        array $extraFields = [],
     ): CloudstackJob {
         $jobData = $this->serializer->normalize($asyncResponse);
         Assert::isArray($jobData);
@@ -601,7 +607,7 @@ class VirtualMachineService implements VirtualMachineServiceInterface
         $cloudName = $this->linkSshKeyAction->execute(
             $sshUuid,
             $deployment->id,
-            $deployment->managerDomainDeployment
+            $deployment->managerDomainDeployment,
         );
         $this->resetSshKey($deployment, $cloudName);
     }

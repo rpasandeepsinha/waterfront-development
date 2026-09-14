@@ -6,11 +6,12 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
+return new class() extends Migration {
     public function up(): void
     {
         Schema::table('order_line_items', function (Blueprint $table) {
-            $table->foreignId('subscription_mutation_id')
+            $table
+                ->foreignId('subscription_mutation_id')
                 ->nullable(true)
                 ->constrained()
                 ->references('id')

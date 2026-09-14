@@ -36,7 +36,7 @@ class NovaCancelMissedRtrTransferAwaySubscriptionsAction extends NovaOneOffScrip
                 /*
                  * RTR PHP client v1.1.0 removed the transferType from the Notification DTO.
                  * That date is used as the default start date
-                */
+                 */
                 ->default('2025-02-14')
                 ->max(CarbonImmutable::today()->format(DateTimeFormat::DATE))
                 ->rules('required', 'date', 'before_or_equal:today'),

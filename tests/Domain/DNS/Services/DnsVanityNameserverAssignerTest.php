@@ -63,14 +63,17 @@ class DnsVanityNameserverAssignerTest extends IntegrationTestCase
         $this->logger = self::mock(LoggerInterface::class);
 
         $mockVanityNameserverGenerator = self::createMock(VanityNameserverGenerator::class);
-        $mockVanityNameserverGenerator->expects(self::once())
+        $mockVanityNameserverGenerator
+            ->expects(self::once())
             ->method('generateVanityNames')
             ->willReturn($this->vanityNameservers);
 
         $this->mockDnsDeploymentRepository = self::createMock(DnsDeploymentRepository::class);
 
         $configMock = $this->createMock(ConfigurationInterface::class);
-        $configMock->expects($this->exactly(3))->method('getAsString')
+        $configMock
+            ->expects($this->exactly(3))
+            ->method('getAsString')
             ->willReturnMap([
                 ['dns.gandi.vanity_nameservers.ns1', $this->vanityConfig[0]],
                 ['dns.gandi.vanity_nameservers.ns2', $this->vanityConfig[1]],
@@ -95,27 +98,26 @@ class DnsVanityNameserverAssignerTest extends IntegrationTestCase
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
-            ->method('getNameservers')
-            ->with($dnsDeployment);
+        $this->mockDnsDeploymentRepository->expects(self::once())->method('getNameservers')->with($dnsDeployment);
 
-        $this->logger->shouldReceive('debug')
+        $this->logger
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 'Assigning vanity nameservers to DNS deployment ({domain.name})',
                 [
-                    LoggingContextKeys::DOMAIN_NAME           => $this->dnsSubscription->domain,
-                    LoggingContextKeys::PROVISIONING_TYPE     => ProvisionType::DNS->value,
-                    LoggingContextKeys::SUBSCRIPTION_UUID     => $dnsDeployment->subscription_uuid,
+                    LoggingContextKeys::DOMAIN_NAME => $this->dnsSubscription->domain,
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS->value,
+                    LoggingContextKeys::SUBSCRIPTION_UUID => $dnsDeployment->subscription_uuid,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::GANDI->value,
-                    LoggingContextKeys::META                  => [
+                    LoggingContextKeys::META => [
                         'nameservers' => [
                             'ns1.vanity-test.nl',
                             'ns221.vanity-test.de',
                             'ns184.vanity-test.be',
                         ],
                     ],
-                ]
+                ],
             );
 
         $this->dnsVanityNameserverAssigner->assign($dnsDeployment);
@@ -142,41 +144,41 @@ class DnsVanityNameserverAssignerTest extends IntegrationTestCase
     #[Test]
     public function assignAlreadyAssigned(): void
     {
-        new DnsVanityNameserverFactory()->count(5)->create();
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->for($this->dnsSubscription)
-            ->createOne(['nameserver_type' => NameserverType::VANITY]);
+        new DnsVanityNameserverFactory()
+            ->count(5)
+            ->create();
+        $dnsDeployment = DnsDeploymentFactory::new()->for($this->dnsSubscription)->createOne([
+            'nameserver_type' => NameserverType::VANITY,
+        ]);
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
-            ->method('getNameservers')
-            ->with($dnsDeployment);
+        $this->mockDnsDeploymentRepository->expects(self::once())->method('getNameservers')->with($dnsDeployment);
 
-        $this->logger->shouldReceive('debug')
+        $this->logger
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 'Assigning vanity nameservers to DNS deployment ({domain.name})',
                 [
-                    LoggingContextKeys::DOMAIN_NAME           => $this->dnsSubscription->domain,
-                    LoggingContextKeys::PROVISIONING_TYPE     => ProvisionType::DNS->value,
-                    LoggingContextKeys::SUBSCRIPTION_UUID     => $dnsDeployment->subscription_uuid,
+                    LoggingContextKeys::DOMAIN_NAME => $this->dnsSubscription->domain,
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS->value,
+                    LoggingContextKeys::SUBSCRIPTION_UUID => $dnsDeployment->subscription_uuid,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::GANDI->value,
-                    LoggingContextKeys::META                  => [
+                    LoggingContextKeys::META => [
                         'nameservers' => [
                             'ns1.vanity-test.nl',
                             'ns221.vanity-test.de',
                             'ns184.vanity-test.be',
                         ],
                     ],
-                ]
-            )
-        ;
+                ],
+            );
 
         $this->dnsVanityNameserverAssigner->assign($dnsDeployment);
 
         $exceptionMessage = sprintf(
             'Name servers have already been assigned for DNS deployment id :%d with domain %s',
             $dnsDeployment->id,
-            $dnsDeployment->subscription->domain
+            $dnsDeployment->subscription->domain,
         );
 
         $this->expectException(DnsNamerverAlreadyAssignedException::class);
@@ -197,23 +199,24 @@ class DnsVanityNameserverAssignerTest extends IntegrationTestCase
 
         $dnsDeployment = new DnsDeploymentFactory()->for($this->dnsSubscription)->createOne();
 
-        $this->logger->shouldReceive('debug')
+        $this->logger
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 'Assigning vanity nameservers to DNS deployment ({domain.name})',
                 [
-                    LoggingContextKeys::DOMAIN_NAME           => $this->dnsSubscription->domain,
-                    LoggingContextKeys::PROVISIONING_TYPE     => ProvisionType::DNS->value,
-                    LoggingContextKeys::SUBSCRIPTION_UUID     => $dnsDeployment->subscription_uuid,
+                    LoggingContextKeys::DOMAIN_NAME => $this->dnsSubscription->domain,
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS->value,
+                    LoggingContextKeys::SUBSCRIPTION_UUID => $dnsDeployment->subscription_uuid,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::GANDI->value,
-                    LoggingContextKeys::META                  => [
+                    LoggingContextKeys::META => [
                         'nameservers' => [
                             'ns1.vanity-test.nl',
                             'ns221.vanity-test.de',
                             'ns184.vanity-test.be',
                         ],
                     ],
-                ]
+                ],
             );
 
         $this->dnsVanityNameserverAssigner->assign($dnsDeployment);
@@ -230,32 +233,33 @@ class DnsVanityNameserverAssignerTest extends IntegrationTestCase
     #[Test]
     public function clear(): void
     {
-        new DnsVanityNameserverFactory()->count(5)->create();
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->for($this->dnsSubscription)
-            ->createOne(['nameserver_type' => NameserverType::VANITY]);
+        new DnsVanityNameserverFactory()
+            ->count(5)
+            ->create();
+        $dnsDeployment = DnsDeploymentFactory::new()->for($this->dnsSubscription)->createOne([
+            'nameserver_type' => NameserverType::VANITY,
+        ]);
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
-            ->method('getNameservers')
-            ->with($dnsDeployment);
+        $this->mockDnsDeploymentRepository->expects(self::once())->method('getNameservers')->with($dnsDeployment);
 
-        $this->logger->shouldReceive('debug')
+        $this->logger
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 'Assigning vanity nameservers to DNS deployment ({domain.name})',
                 [
-                    LoggingContextKeys::DOMAIN_NAME           => $this->dnsSubscription->domain,
-                    LoggingContextKeys::PROVISIONING_TYPE     => ProvisionType::DNS->value,
-                    LoggingContextKeys::SUBSCRIPTION_UUID     => $dnsDeployment->subscription_uuid,
+                    LoggingContextKeys::DOMAIN_NAME => $this->dnsSubscription->domain,
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS->value,
+                    LoggingContextKeys::SUBSCRIPTION_UUID => $dnsDeployment->subscription_uuid,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::GANDI->value,
-                    LoggingContextKeys::META                  => [
+                    LoggingContextKeys::META => [
                         'nameservers' => [
                             'ns1.vanity-test.nl',
                             'ns221.vanity-test.de',
                             'ns184.vanity-test.be',
                         ],
                     ],
-                ]
+                ],
             );
 
         $this->dnsVanityNameserverAssigner->assign($dnsDeployment);

@@ -32,15 +32,17 @@ class FailedUncategorizedSubscriptions extends HtmlCard
             NovaSubscriptionResource::uriKey(),
             new UncategorizedFailedSubscriptionsLens()->uriKey(),
         );
+
         return <<<HTML
-<a class="no-underline dim text-primary font-bold" href="{$url}">{$failedSubscriptionAmount} (Failed) uncategorized Subscriptions</a><br />
-<i>subscriptions without a category assigned</i>
-HTML;
+        <a class="no-underline dim text-primary font-bold" href="{$url}">{$failedSubscriptionAmount} (Failed) uncategorized Subscriptions</a><br />
+        <i>subscriptions without a category assigned</i>
+        HTML;
     }
 
     private function countTechnicallyFailedSubscriptionsWithoutCategory(): int
     {
-        return Subscription::query()->whereDoesntHave('category')
+        return Subscription::query()
+            ->whereDoesntHave('category')
             ->whereIn('technical_status', [
                 TechnicalStatus::ERROR->value,
                 TechnicalStatus::REGISTRATION->value,
@@ -49,13 +51,14 @@ HTML;
                 TechnicalStatus::DELETING_FAILED->value,
                 TechnicalStatus::SUSPENSION_FAILED->value,
                 TechnicalStatus::UNSUSPENSION_FAILED->value,
-            ])->whereNotIn(
+            ])
+            ->whereNotIn(
                 'administrative_status',
                 [
                     AdministrativeStatus::CANCELED->value,
                     AdministrativeStatus::ARCHIVING->value,
                     ...AdministrativeStatus::administrativelyEnded(),
-                ]
+                ],
             )
             ->count();
     }

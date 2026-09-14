@@ -69,7 +69,7 @@ class TransferDomainNotificationHandlerTest extends IntegrationTestCase
             rtrResponseLogPersister: self::createStub(RtrResponseLogService::class),
             parseRtrTransferStatusToWfStatusAction: self::resolve(ParseRtrTransferStatusToWfStatusAction::class),
             logger: self::createStub(LoggerInterface::class),
-            notificationHelper: self::resolve(NotificationHelper::class)
+            notificationHelper: self::resolve(NotificationHelper::class),
         );
     }
 

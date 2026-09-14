@@ -40,7 +40,7 @@ class AcronisValidator implements BackupValidatorInterface
             SetBackupSuspensionStateRequest::class => $this->setBackupSuspensionStateValidator($provisionRequest),
             CreateBackupRequest::class => $this->getCreateBackupValidator($provisionRequest),
             GetBackupUsageRequest::class => $this->getBackupUsageRequestValidator($provisionRequest),
-            default => throw new UnknownBackupRequestException($provisionRequest)
+            default => throw new UnknownBackupRequestException($provisionRequest),
         };
     }
 
@@ -118,18 +118,18 @@ class AcronisValidator implements BackupValidatorInterface
 
         $validator->after(function ($validator) use ($data) {
             $hasAtLeastOne =
-                $data['password'] !== null ||
-                $data['cloudStorageInGb'] !== null ||
-                $data['localStorageInGb'] !== null ||
-                $data['mobileDevices'] !== null ||
-                $data['workStations'] !== null ||
-                $data['vms'] !== null ||
-                $data['servers'] !== null;
+                $data['password'] !== null
+                || $data['cloudStorageInGb'] !== null
+                || $data['localStorageInGb'] !== null
+                || $data['mobileDevices'] !== null
+                || $data['workStations'] !== null
+                || $data['vms'] !== null
+                || $data['servers'] !== null;
 
             if (! $hasAtLeastOne) {
                 $validator->errors()->add(
                     'resources',
-                    'At least one resource value must be provided.'
+                    'At least one resource value must be provided.',
                 );
             }
         });

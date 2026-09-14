@@ -70,8 +70,8 @@ class DisableZonePresigningActionTest extends IntegrationTestCase
                             ],
                             'ttl' => 3600,
                         ],
-                    ]
-                )
+                    ],
+                ),
             ),
             new Response(
                 204,
@@ -120,7 +120,10 @@ class DisableZonePresigningActionTest extends IntegrationTestCase
                 self::assertSame(3600, $soaSet->ttl);
                 self::assertSame('REPLACE', $soaSet->changetype);
                 self::assertCount(1, $soaSet->records);
-                self::assertSame('a.misconfigured.powerdns.server. hostmaster.sandwave.io. 2023121101 10800 3600 604800 3600', $soaSet->records[0]->content);
+                self::assertSame(
+                    'a.misconfigured.powerdns.server. hostmaster.sandwave.io. 2023121101 10800 3600 604800 3600',
+                    $soaSet->records[0]->content,
+                );
                 self::assertFalse($soaSet->records[0]->disabled);
             } elseif ($requestCount === 4) {
                 self::assertSame(Request::METHOD_GET, $request->getMethod());

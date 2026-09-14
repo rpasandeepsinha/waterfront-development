@@ -36,23 +36,21 @@ class CreateDirectDebitMandateActionTest extends IntegrationTestCase
     public function execute(): void
     {
         Http::fake([
-            'api.mollie.sandwaveio.test/v2/customers' =>
-                function (Request $request) {
-                    self::assertSame('POST', $request->method());
+            'api.mollie.sandwaveio.test/v2/customers' => function (Request $request) {
+                self::assertSame('POST', $request->method());
 
-                    return Http::response(include __DIR__ . '/data/create_customer_response.php', 201);
-                },
+                return Http::response(include __DIR__ . '/data/create_customer_response.php', 201);
+            },
 
-            'api.mollie.sandwaveio.test/v2/customers/cst_kEn1PlbGa/mandates' =>
-                function (Request $request) {
-                    if ($request->method() === 'GET') {
-                        return Http::response(include __DIR__ . '/data/list_mandates_no_mandates_response.php');
-                    }
+            'api.mollie.sandwaveio.test/v2/customers/cst_kEn1PlbGa/mandates' => function (Request $request) {
+                if ($request->method() === 'GET') {
+                    return Http::response(include __DIR__ . '/data/list_mandates_no_mandates_response.php');
+                }
 
-                    if ($request->method() === 'POST') {
-                        return Http::response(include __DIR__ . '/data/create_mollie_mandate_directdebit_response.php');
-                    }
-                },
+                if ($request->method() === 'POST') {
+                    return Http::response(include __DIR__ . '/data/create_mollie_mandate_directdebit_response.php');
+                }
+            },
 
             'api.mollie.sandwaveio.test/v2/customers/cst_kEn1PlbGa/mandates/mdt_h3gAaD5zP' =>
                 function (Request $request) {
@@ -68,12 +66,11 @@ class CreateDirectDebitMandateActionTest extends IntegrationTestCase
                     return Http::response(['data' => []]);
                 },
 
-            'api.paytsoftware.test/v1/psp_mandates' =>
-                function (Request $request) {
-                    self::assertSame('POST', $request->method());
+            'api.paytsoftware.test/v1/psp_mandates' => function (Request $request) {
+                self::assertSame('POST', $request->method());
 
-                    return Http::response(include __DIR__ . '/data/create_payt_mandate_response.php', 201);
-                },
+                return Http::response(include __DIR__ . '/data/create_payt_mandate_response.php', 201);
+            },
         ]);
 
         $action = self::resolve(CreateDirectDebitMandateAction::class);

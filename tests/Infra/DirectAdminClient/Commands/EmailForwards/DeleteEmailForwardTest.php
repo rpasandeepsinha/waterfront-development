@@ -36,7 +36,7 @@ class DeleteEmailForwardTest extends DirectAdminTestCase
 
         $api = new DirectAdminApi(
             $this->getTestServer(),
-            new Client(['handler' => $handlerStack])
+            new Client(['handler' => $handlerStack]),
         );
 
         $command = $api->loginAs('fake-user')->call($command);
@@ -47,12 +47,12 @@ class DeleteEmailForwardTest extends DirectAdminTestCase
                 'result' => '',
                 'success' => 'Forwarders deleted',
             ],
-            $command->getFormValues()
+            $command->getFormValues(),
         );
 
         self::assertSame(
             'action=delete&domain=test.com&select0=test',
-            $command->getRequest()->getBody()->getContents()
+            $command->getRequest()->getBody()->getContents(),
         );
     }
 
@@ -79,11 +79,13 @@ class DeleteEmailForwardTest extends DirectAdminTestCase
                 // Since we are injecting a custom client we need to ensure the same error handling
                 // as the client set through the normal flow.
                 'http_errors' => false,
-            ])
+            ]),
         );
 
         $this->expectException(DirectAdminCommandException::class);
-        $this->expectExceptionMessageIs('Failed [DeleteEmailForward]: Could not execute your request - You do not own that domain');
+        $this->expectExceptionMessageIs(
+            'Failed [DeleteEmailForward]: Could not execute your request - You do not own that domain',
+        );
 
         $api->loginAs('fake-user')->call($command);
     }

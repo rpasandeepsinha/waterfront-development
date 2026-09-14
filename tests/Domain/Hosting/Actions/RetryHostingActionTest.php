@@ -36,10 +36,12 @@ class RetryHostingActionTest extends IntegrationTestCase
 
         Event::assertDispatched(
             CreateHosting::class,
-            fn (CreateHosting $event): bool => $event->subscriptionUuid === $subscription->uuid
+            fn (CreateHosting $event): bool => (
+                $event->subscriptionUuid === $subscription->uuid
                 && $event->serverId === 4321
                 && $event->domain === $subscription->domain
                 && $event->contactEmail === $subscription->customer->email
+            ),
         );
     }
 
@@ -54,7 +56,7 @@ class RetryHostingActionTest extends IntegrationTestCase
 
         Event::assertDispatched(
             CreateHosting::class,
-            fn (CreateHosting $event): bool => $event->serverId === null
+            fn (CreateHosting $event): bool => $event->serverId === null,
         );
     }
 
@@ -100,8 +102,10 @@ class RetryHostingActionTest extends IntegrationTestCase
 
         Event::assertDispatched(
             CreateSitebuilder::class,
-            fn (CreateSitebuilder $event): bool => $event->subscription->uuid === $subscription->uuid
+            fn (CreateSitebuilder $event): bool => (
+                $event->subscription->uuid === $subscription->uuid
                 && $event->contactEmail === $subscription->customer->email
+            ),
         );
     }
 
@@ -128,7 +132,7 @@ class RetryHostingActionTest extends IntegrationTestCase
 
         Event::assertDispatched(
             CreateMailOnlyHosting::class,
-            fn (CreateMailOnlyHosting $event): bool => $event->subscription->uuid === $subscription->uuid
+            fn (CreateMailOnlyHosting $event): bool => $event->subscription->uuid === $subscription->uuid,
         );
     }
 
@@ -148,8 +152,10 @@ class RetryHostingActionTest extends IntegrationTestCase
 
         Bus::assertDispatched(
             CreateResellerHostingJob::class,
-            fn (CreateResellerHostingJob $job): bool => $job->subscriptionUuid === $subscription->uuid
+            fn (CreateResellerHostingJob $job): bool => (
+                $job->subscriptionUuid === $subscription->uuid
                 && $job->serverId === 99
+            ),
         );
     }
 

@@ -70,6 +70,7 @@ class DomainNotificationHandler
 
         if ($domainName === null) {
             $this->skip('no usable domainName', $rtrResponseLog, $domainName);
+
             return;
         }
 
@@ -89,11 +90,15 @@ class DomainNotificationHandler
 
         if ($rtrError === RtrValidationError::REGISTRY_REQUIREMENTS_NOT_MET) {
             $this->dnsRetryAction->execute($domainName);
+
             return;
         }
 
         try {
-            $subscription = $this->subscriptionRepository->getSubscriptionByDomainAndGroup($domainName, ProductGroupType::EXTENSION);
+            $subscription = $this->subscriptionRepository->getSubscriptionByDomainAndGroup(
+                $domainName,
+                ProductGroupType::EXTENSION,
+            );
         } catch (ModelNotFoundException $exception) {
             $this->logger->warning('Unable to find domain subscription for domain {domain.name}', [
                 LoggingContextKeys::EXCEPTION => $exception,
@@ -101,6 +106,7 @@ class DomainNotificationHandler
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
                 LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::RTR,
             ]);
+
             return;
         }
 
@@ -127,6 +133,7 @@ class DomainNotificationHandler
                     message: $notification->message,
                     sendMail: false,
                 );
+
                 return;
             }
 
@@ -135,14 +142,12 @@ class DomainNotificationHandler
 
         $primaryDomainStatus = $this->rtrService->getPrimaryDomainStatusFromDomainStatusList($remoteDomain->status);
 
-        if (
-            $primaryDomainStatus === null
-            && $this->notificationHelper->isCreateDomainNotification($notification)
-        ) {
+        if ($primaryDomainStatus === null && $this->notificationHelper->isCreateDomainNotification($notification)) {
             throw new UnexpectedValueException('RTR returned no recognized domain status');
         }
 
-        $wasPendingValidation = $subscription->technical_status === TechnicalStatus::PENDING->value
+        $wasPendingValidation =
+            $subscription->technical_status === TechnicalStatus::PENDING->value
             && $domainDeployment instanceof DomainDeployment
             && $domainDeployment->domain_status === DomainStatus::PENDING_VALIDATION;
 
@@ -165,8 +170,7 @@ class DomainNotificationHandler
         } elseif ($hasInactiveStatus) {
             $status = TechnicalStatus::PENDING->value;
             $sendMail = false;
-            $shouldDispatchNameserverUpdate =
-                $this->getLocalNameserverHostnames($domainName) !== [];
+            $shouldDispatchNameserverUpdate = $this->getLocalNameserverHostnames($domainName) !== [];
 
             if (! $shouldDispatchNameserverUpdate) {
                 $this->logger->warning('RTR domain inactive without local nameservers', [
@@ -185,8 +189,7 @@ class DomainNotificationHandler
             }
 
             if ($wasPendingValidation) {
-                $shouldDispatchNameserverUpdate =
-                    $this->localNameserversDifferFromRemote($domainName, $remoteDomain);
+                $shouldDispatchNameserverUpdate = $this->localNameserversDifferFromRemote($domainName, $remoteDomain);
 
                 $this->logPrevalidationCompletion($domainName, DomainStatus::OK);
             }
@@ -231,7 +234,13 @@ class DomainNotificationHandler
         bool $sendMail,
     ): void {
         try {
-            $this->domainProviderHistory->saveHistory($rtrResponseLog, ProviderSlug::REALTIME_REGISTER, $domainName, $status, $message);
+            $this->domainProviderHistory->saveHistory(
+                $rtrResponseLog,
+                ProviderSlug::REALTIME_REGISTER,
+                $domainName,
+                $status,
+                $message,
+            );
             $this->subscriptionService->updateSubscriptionStatus($domainName, $status, $message, $sendMail);
         } catch (ModelNotFoundException $exception) {
             $this->logger->warning('Unable to find domain subscription for domain {domain.name}', [
@@ -287,15 +296,19 @@ class DomainNotificationHandler
 
     private function supportsDomainNotification(Notification $notification): bool
     {
-        return $this->notificationHelper->isCreateDomainNotification($notification)
+        return (
+            $this->notificationHelper->isCreateDomainNotification($notification)
             || $this->notificationHelper->isUpdateDomainNotification($notification)
-            || $this->notificationHelper->isDeleteDomainNotification($notification);
+            || $this->notificationHelper->isDeleteDomainNotification($notification)
+        );
     }
 
     private function isFailedCreateDomainNotification(Notification $notification): bool
     {
-        return $this->notificationHelper->isCreateDomainNotification($notification)
-            && $notification->subjectStatus === SubjectStatusType::FAILED->value;
+        return (
+            $this->notificationHelper->isCreateDomainNotification($notification)
+            && $notification->subjectStatus === SubjectStatusType::FAILED->value
+        );
     }
 
     private function skip(string $reason, RtrResponseLog $rtrResponseLog, ?string $domainName): void

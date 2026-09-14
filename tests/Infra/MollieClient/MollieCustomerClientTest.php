@@ -30,14 +30,13 @@ class MollieCustomerClientTest extends IntegrationTestCase
         $mollieCustomerId = 'cst_kEn1PlbGa';
 
         Http::fake([
-            "api.mollie.sandwaveio.test/v2/customers/$mollieCustomerId" =>
-                function (Request $request) {
-                    self::assertSame('GET', $request->method());
+            "api.mollie.sandwaveio.test/v2/customers/$mollieCustomerId" => function (Request $request) {
+                self::assertSame('GET', $request->method());
 
-                    $expectedListData = include __DIR__ . '/data/customers/fetch_customer_response.php';
+                $expectedListData = include __DIR__ . '/data/customers/fetch_customer_response.php';
 
-                    return Http::response($expectedListData);
-                },
+                return Http::response($expectedListData);
+            },
         ]);
 
         $client = self::resolve(MollieCustomerClient::class);
@@ -57,14 +56,13 @@ class MollieCustomerClientTest extends IntegrationTestCase
     public function createCustomer(): void
     {
         Http::fake([
-            'api.mollie.sandwaveio.test/v2/customers' =>
-                function (Request $request) {
-                    self::assertSame('POST', $request->method());
+            'api.mollie.sandwaveio.test/v2/customers' => function (Request $request) {
+                self::assertSame('POST', $request->method());
 
-                    $expectedResponseData = include __DIR__ . '/data/customers/create_customer_response.php';
+                $expectedResponseData = include __DIR__ . '/data/customers/create_customer_response.php';
 
-                    return Http::response($expectedResponseData, 201);
-                },
+                return Http::response($expectedResponseData, 201);
+            },
         ]);
 
         $customerToCreate = new MollieCustomerRequestDTO(
@@ -90,8 +88,10 @@ class MollieCustomerClientTest extends IntegrationTestCase
     public function fetchCustomerNotFound(): void
     {
         Http::fake([
-            'api.mollie.sandwaveio.test/v2/customers*' => Http::sequence()
-                ->push(include __DIR__ . '/data/customers/errors/not_found.php', 404),
+            'api.mollie.sandwaveio.test/v2/customers*' => Http::sequence()->push(
+                include __DIR__ . '/data/customers/errors/not_found.php',
+                404,
+            ),
         ]);
 
         $client = self::resolve(MollieCustomerClient::class);
@@ -104,8 +104,8 @@ class MollieCustomerClientTest extends IntegrationTestCase
                 404,
                 'Not Found',
                 'The resource with the token "testje" could not be found.',
-                ''
-            )
+                '',
+            ),
         );
 
         $client->getCustomerById('testje');
@@ -115,8 +115,10 @@ class MollieCustomerClientTest extends IntegrationTestCase
     public function createCustomerUnprocessableEntity(): void
     {
         Http::fake([
-            'api.mollie.sandwaveio.test/v2/customers*' => Http::sequence()
-                ->push(include __DIR__ . '/data/customers/errors/unprocessable_entity.php', 422),
+            'api.mollie.sandwaveio.test/v2/customers*' => Http::sequence()->push(
+                include __DIR__ . '/data/customers/errors/unprocessable_entity.php',
+                422,
+            ),
         ]);
 
         $client = self::resolve(MollieCustomerClient::class);
@@ -136,8 +138,8 @@ class MollieCustomerClientTest extends IntegrationTestCase
                 422,
                 'Unprocessable Entity',
                 "The email address 'hoi' is invalid",
-                'email'
-            )
+                'email',
+            ),
         );
 
         $client->createCustomer($customerToCreate);
@@ -147,14 +149,13 @@ class MollieCustomerClientTest extends IntegrationTestCase
     public function updateCustomer(): void
     {
         Http::fake([
-            'api.mollie.sandwaveio.test/v2/customers/cst_kEn1PlbGa' =>
-                function (Request $request) {
-                    self::assertSame('PATCH', $request->method());
+            'api.mollie.sandwaveio.test/v2/customers/cst_kEn1PlbGa' => function (Request $request) {
+                self::assertSame('PATCH', $request->method());
 
-                    $expectedResponseData = include __DIR__ . '/data/customers/update_customer_response.php';
+                $expectedResponseData = include __DIR__ . '/data/customers/update_customer_response.php';
 
-                    return Http::response($expectedResponseData);
-                },
+                return Http::response($expectedResponseData);
+            },
         ]);
 
         $customerUpdateData = new MollieCustomerRequestDTO(
@@ -180,8 +181,10 @@ class MollieCustomerClientTest extends IntegrationTestCase
     public function updateCustomerNotFound(): void
     {
         Http::fake([
-            'api.mollie.sandwaveio.test/v2/customers*' => Http::sequence()
-                ->push(include __DIR__ . '/data/customers/errors/not_found.php', 404),
+            'api.mollie.sandwaveio.test/v2/customers*' => Http::sequence()->push(
+                include __DIR__ . '/data/customers/errors/not_found.php',
+                404,
+            ),
         ]);
 
         $client = self::resolve(MollieCustomerClient::class);
@@ -194,8 +197,8 @@ class MollieCustomerClientTest extends IntegrationTestCase
                 404,
                 'Not Found',
                 'The resource with the token "testje" could not be found.',
-                ''
-            )
+                '',
+            ),
         );
 
         $customerToUpdate = new MollieCustomerRequestDTO(

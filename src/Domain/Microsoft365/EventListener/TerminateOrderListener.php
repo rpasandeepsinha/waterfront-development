@@ -35,8 +35,9 @@ class TerminateOrderListener implements TerminateObserverInterface
                     "%s::execute - KPN order id '%d' could not be found.",
                     self::class,
                     $terminate->getOrderId(),
-                )
+                ),
             );
+
             return;
         }
 
@@ -45,7 +46,7 @@ class TerminateOrderListener implements TerminateObserverInterface
                 "%s::execute -> received termination webhook call for order_id '%d'",
                 self::class,
                 $terminate->getOrderId(),
-            )
+            ),
         );
 
         $subscription = $microsoft365Deployment->subscription;
@@ -55,14 +56,24 @@ class TerminateOrderListener implements TerminateObserverInterface
             $subscription->technical_status = TechnicalStatus::DELETED->value;
             $subscription->save();
 
-            $allArchivingChildren = $subscription->children->filter(fn (Subscription $subscription) => $subscription->administrative_status === AdministrativeStatus::ARCHIVING->value);
+            $allArchivingChildren = $subscription->children->filter(
+                fn (Subscription $subscription) => (
+                    $subscription->administrative_status === AdministrativeStatus::ARCHIVING->value
+                ),
+            );
             foreach ($allArchivingChildren as $child) {
                 $child->administrative_status = AdministrativeStatus::ARCHIVED->value;
                 $child->technical_status = TechnicalStatus::DELETED->value;
                 $child->save();
             }
 
-            if ($subscription->children->filter(fn (Subscription $subscription) => $subscription->administrative_status !== AdministrativeStatus::ARCHIVED->value)->count() === 0) {
+            if (
+                $subscription->children->filter(
+                    fn (Subscription $subscription) => (
+                        $subscription->administrative_status !== AdministrativeStatus::ARCHIVED->value
+                    ),
+                )->count() === 0
+            ) {
                 $microsoft365Deployment->kpn_status = Microsoft365OrderStatus::TERMINATED;
                 $microsoft365Deployment->save();
             }
@@ -73,7 +84,7 @@ class TerminateOrderListener implements TerminateObserverInterface
                     self::class,
                     $subscription->id,
                     $subscription->administrative_status,
-                )
+                ),
             );
         }
     }

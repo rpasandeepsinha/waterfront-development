@@ -42,7 +42,7 @@ class NewProductAndAddonAndUpgradeOrderTest extends IntegrationTestCase
 
         ProductAllowedChangeFactory::new()->upgradeChange()->create([
             'from_product_id' => $product->id,
-            'to_product_id' =>  $upgradeProduct->id,
+            'to_product_id' => $upgradeProduct->id,
             'display_order' => 1,
         ]);
 
@@ -51,37 +51,56 @@ class NewProductAndAddonAndUpgradeOrderTest extends IntegrationTestCase
             'addon_product_id' => $addonProduct->id,
         ]);
 
-        new ProductPriceComponentFactory()->for($product)->registration()
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 1000]);
 
-        new ProductPriceComponentFactory()->for($addonProduct)->registration()
+        new ProductPriceComponentFactory()
+            ->for($addonProduct)
+            ->registration()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 1000]);
-        new ProductPriceComponentFactory()->for($addonProduct)->prolongation()
+        new ProductPriceComponentFactory()
+            ->for($addonProduct)
+            ->prolongation()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 2580]);
 
-        new ProductPriceComponentFactory()->for($upgradeProduct)->registration()
+        new ProductPriceComponentFactory()
+            ->for($upgradeProduct)
+            ->registration()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 1000]);
-        new ProductPriceComponentFactory()->for($upgradeProduct)->prolongation()
+        new ProductPriceComponentFactory()
+            ->for($upgradeProduct)
+            ->prolongation()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 2580]);
 
-        new ProductPriceComponentFactory()->for($sslProduct)->registration()
+        new ProductPriceComponentFactory()
+            ->for($sslProduct)
+            ->registration()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 1000]);
 
         new TemplateFactory()->createOne(['slug' => MailSubscriptionCreated::getTemplateSlug()]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/order_new_product_addon_and_upgrade_payload.json');
 
-        $customer = new CustomerFactory()->createOne(['payment_type' => 'direct', 'has_direct_debit' => true, 'credit_limit' => 500000]);
-
-        $subscription = new SubscriptionFactory()->for($customer)->for($product)->createOne([
-            'uuid' => '24ab093c-d742-4637-b3f4-fc4c4823e70f',
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'gross_price' => 1000,
-            'net_price' => 1000,
-            'start_date' => $startDate,
-            'next_billing_date' => $nextBillingDate,
+        $customer = new CustomerFactory()->createOne([
+            'payment_type' => 'direct',
+            'has_direct_debit' => true,
+            'credit_limit' => 500000,
         ]);
+
+        $subscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($product)
+            ->createOne([
+                'uuid' => '24ab093c-d742-4637-b3f4-fc4c4823e70f',
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'gross_price' => 1000,
+                'net_price' => 1000,
+                'start_date' => $startDate,
+                'next_billing_date' => $nextBillingDate,
+            ]);
         $dispatcherMock = self::createStub(Dispatcher::class);
         $this->app->bind(Dispatcher::class, fn () => $dispatcherMock);
 
@@ -90,10 +109,13 @@ class NewProductAndAddonAndUpgradeOrderTest extends IntegrationTestCase
 
         self::assertCount(0, OrderLineItem::all());
 
-        $this->withoutExceptionHandling()->actingAsCustomer($customer)->postJson(
-            $this->generateRoute('partners.order.order'),
-            $orderPayload
-        )->assertOk();
+        $this->withoutExceptionHandling()
+            ->actingAsCustomer($customer)
+            ->postJson(
+                $this->generateRoute('partners.order.order'),
+                $orderPayload,
+            )
+            ->assertOk();
 
         self::assertCount(3, OrderLineItem::all());
 

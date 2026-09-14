@@ -8,7 +8,7 @@ class ArbiterResult
 {
     public function __construct(
         private readonly bool $propagationAllowed,
-        private readonly string|null $reason
+        private readonly ?string $reason,
     ) {
     }
 

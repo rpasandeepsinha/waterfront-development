@@ -72,7 +72,9 @@ class Payment extends Model implements AuditableContract
     public function getStatusAttribute(): PaymentStatus
     {
         $statusAttribute = $this->attributes['status'];
-        $status = $statusAttribute instanceof PaymentStatus ? $statusAttribute : PaymentStatus::tryFrom($statusAttribute);
+        $status = $statusAttribute instanceof PaymentStatus
+            ? $statusAttribute
+            : PaymentStatus::tryFrom($statusAttribute);
         Assert::notNull($status);
 
         return $status;

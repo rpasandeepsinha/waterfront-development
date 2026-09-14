@@ -24,12 +24,12 @@ class RedirectsProvider extends BaseProvider implements DeferrableProvider
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/database.php',
-            'database.connections.redirects'
+            'database.connections.redirects',
         );
 
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/service.php',
-            'redirects.service'
+            'redirects.service',
         );
     }
 
@@ -43,7 +43,7 @@ class RedirectsProvider extends BaseProvider implements DeferrableProvider
             $this->resolve(PublicSuffixList::class),
             $this->resolve(LoggerInterface::class),
             $configuration,
-            $this->resolve(DnsZoneService::class)
+            $this->resolve(DnsZoneService::class),
         ));
 
         $this->app->bind(RedirectServiceInterface::class, RedirectService::class);

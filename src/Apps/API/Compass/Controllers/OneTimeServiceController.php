@@ -21,6 +21,7 @@ use Waterfront\Domain\Products\Repositories\ProductRepository;
 use Waterfront\Domain\Subscriptions\Models\Subscription;
 use Waterfront\Infra\Authentication\Attributes\RequirePermission;
 use Waterfront\Infra\Common\DateTimeFormat;
+use Waterfront\Infra\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
 
 class OneTimeServiceController
@@ -29,12 +30,28 @@ class OneTimeServiceController
         private readonly ProductRepository $productRepository,
         private readonly CreateOneTimeServiceAction $createOneTimeServiceAction,
         private readonly OneTimeServiceInvoiceService $oneTimeServiceInvoiceService,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
     public function show(OneTimeService $oneTimeService): string
     {
         return $this->loadForResource($oneTimeService)->toJson();
+    }
+
+    #[RequirePermission(Permissions::CREATE_MANUAL_INVOICE_LINE_FOR_SUBSCRIPTION)]
+    public function invoice(OneTimeService $oneTimeService): JsonResponse
+    {
+        if ($oneTimeService->invoices()->exists()) {
+            return new JsonResponse([
+                'message' => $this->translator->translate('one_time_service.invoice.already_invoiced'),
+                'errors' => [],
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $this->oneTimeServiceInvoiceService->createFromCollection(new Collection([$oneTimeService]));
+
+        return $this->loadForResource($oneTimeService)->response();
     }
 
     #[RequirePermission(Permissions::CREATE_MANUAL_INVOICE_LINE_FOR_SUBSCRIPTION)]
@@ -48,9 +65,7 @@ class OneTimeServiceController
             $this->oneTimeServiceInvoiceService->createFromCollection($oneTimeServices);
         }
 
-        return $this->loadForResource($oneTimeServices->sole())
-            ->response()
-            ->setStatusCode(JsonResponse::HTTP_CREATED);
+        return $this->loadForResource($oneTimeServices->sole())->response()->setStatusCode(JsonResponse::HTTP_CREATED);
     }
 
     #[RequirePermission(Permissions::CREATE_MANUAL_INVOICE_LINE_FOR_SUBSCRIPTION)]
@@ -95,9 +110,14 @@ class OneTimeServiceController
 
     private function loadForResource(OneTimeService $oneTimeService): OneTimeServiceResource
     {
-        $oneTimeService->loadMissing(['customer', 'subscription', 'product'])
+        $oneTimeService
+            ->loadMissing(['customer', 'subscription', 'product'])
             ->loadCount('invoices')
-            ->loadCount(['invoices as unannounced_invoices_count' => static fn ($query) => $query->whereNull('announced_by_harbor_at')]);
+            ->loadCount([
+                'invoices as unannounced_invoices_count' => static fn ($query) => $query->whereNull(
+                    'announced_by_harbor_at',
+                ),
+            ]);
 
         return OneTimeServiceResource::make($oneTimeService);
     }

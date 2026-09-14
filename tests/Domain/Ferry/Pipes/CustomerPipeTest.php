@@ -23,8 +23,8 @@ class CustomerPipeTest extends IntegrationTestCase
     #[Test]
     public function validateCustomerBadData(): void
     {
-        $customer = include(__DIR__ . '/data/customer_bad_data.php');
-        $subscriptions = include(__DIR__ . '/data/subscriptions_correct.php');
+        $customer = include __DIR__ . '/data/customer_bad_data.php';
+        $subscriptions = include __DIR__ . '/data/subscriptions_correct.php';
 
         $customer['dnsTemplates'] = [
             [
@@ -55,13 +55,13 @@ class CustomerPipeTest extends IntegrationTestCase
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $customerPipe = self::resolve(CustomerPipe::class);
         $validationPayload = $customerPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame(self::REFERENCE, $validationPayload->validationReference);
@@ -115,15 +115,15 @@ class CustomerPipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 
     #[Test]
     public function validateCustomerAlreadyMigrated(): void
     {
-        $customerData = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/subscriptions_correct.php');
+        $customerData = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/subscriptions_correct.php';
 
         $migratedCustomer = MigratedCustomersFactory::new()->createOne([
             'reference_customer_number' => 'identifier',
@@ -138,13 +138,13 @@ class CustomerPipeTest extends IntegrationTestCase
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customerData,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $customerPipe = self::resolve(CustomerPipe::class);
         $validationPayload = $customerPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame(self::REFERENCE, $validationPayload->validationReference);
@@ -157,7 +157,7 @@ class CustomerPipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 }

@@ -30,7 +30,7 @@ class Parameters
 
     public const int STATUS_EXPIRED = 256;
 
-    private Server|null $server = null;
+    private ?Server $server = null;
 
     /** @var string|null */
     private $companyName;

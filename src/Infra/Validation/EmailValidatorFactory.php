@@ -9,8 +9,9 @@ use Waterfront\Support\Enums\Environment;
 
 class EmailValidatorFactory
 {
-    public function __construct(private readonly Environment $environment)
-    {
+    public function __construct(
+        private readonly Environment $environment,
+    ) {
     }
 
     public function getValidator(): Email

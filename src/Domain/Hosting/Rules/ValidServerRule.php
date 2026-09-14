@@ -39,11 +39,10 @@ class ValidServerRule implements DataAwareRule, ValidationRule
         try {
             $driverName = $this->hostingServiceFactory->getDriverFromServer($server);
 
-            $validServer = $this->hostingServiceFactory
-                ->driver($driverName)
-                ->serverIsValid($server);
+            $validServer = $this->hostingServiceFactory->driver($driverName)->serverIsValid($server);
         } catch (DriverNotDefinedException) {
             $fail('validation.server.driver');
+
             return;
         }
 

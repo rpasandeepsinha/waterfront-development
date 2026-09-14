@@ -10,6 +10,7 @@ enum MigrationValidation: string
     case DEFAULT_VALIDATION = 'laravel_validation';
 
     case CUSTOMER_PIPE_VALIDATION_UNKNOWN_EXCEPTION = 'customer_validation_unknown_exception';
+    case CUSTOMER_PIPE_IS_EMPLOYEE = 'customer_validation_is_employee';
     case CUSTOMER_PIPE_PASSED = 'customer_passed';
 
     case SUBSCRIPTION_PIPE_PASSED = 'subscription_passed';

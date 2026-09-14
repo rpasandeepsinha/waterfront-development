@@ -32,7 +32,7 @@ class ProductCreationService
 {
     public function __construct(
         private readonly ProductGroupRepository $groupRepository,
-        private readonly AuthorizationChecker $authorizationChecker
+        private readonly AuthorizationChecker $authorizationChecker,
     ) {
     }
 
@@ -71,6 +71,7 @@ class ProductCreationService
                 $this->storeProductPeriods($product, $productDTO->productPrices);
                 $this->storeProductPrices($product, $productDTO->productPrices);
             }
+
             if ($productDTO->introductionPriceConfiguration !== null) {
                 $this->storeIntroductionPriceConfiguration($product, $productDTO->introductionPriceConfiguration);
             }
@@ -158,10 +159,10 @@ class ProductCreationService
             $promotionModel->platform = $promotion->platform;
             $promotionModel->placement_url = $promotion->placementUrl;
             $promotionModel->call_to_action = [
-                'title'             => $promotion->callToAction->title,
-                'button_text'       => $promotion->callToAction->buttonText,
-                'description'       => $promotion->callToAction->description,
-                'destination_url'   => $promotion->callToAction->destinationUrl,
+                'title' => $promotion->callToAction->title,
+                'button_text' => $promotion->callToAction->buttonText,
+                'description' => $promotion->callToAction->description,
+                'destination_url' => $promotion->callToAction->destinationUrl,
                 'price_description' => $promotion->callToAction->priceDescription,
             ];
             $promotionModel->save();
@@ -180,26 +181,50 @@ class ProductCreationService
 
             foreach ($entry->additionalPrices ?? [] as $additionalPrice) {
                 match ($additionalPrice->type) {
-                    PriceComponentType::INTRODUCTION  => $introductionPrice = $additionalPrice->price,
-                    PriceComponentType::PROMOTION     => $promotionPrice = $additionalPrice->price,
-                    PriceComponentType::PROLONGATION  => $prolongationPrice = $additionalPrice->price,
+                    PriceComponentType::INTRODUCTION => $introductionPrice = $additionalPrice->price,
+                    PriceComponentType::PROMOTION => $promotionPrice = $additionalPrice->price,
+                    PriceComponentType::PROLONGATION => $prolongationPrice = $additionalPrice->price,
                     default => null,
                 };
             }
 
             if ($promotionPrice !== null && $promotionPrice !== $entry->registrationPrice) {
-                $this->storeProductPrice($product, PriceComponentType::PROMOTION, $entry->contractPeriod, $entry->billingPeriod, max(0, $promotionPrice));
+                $this->storeProductPrice(
+                    $product,
+                    PriceComponentType::PROMOTION,
+                    $entry->contractPeriod,
+                    $entry->billingPeriod,
+                    max(0, $promotionPrice),
+                );
             }
 
             if ($introductionPrice !== null && $introductionPrice !== $entry->registrationPrice) {
-                $this->storeProductPrice($product, PriceComponentType::INTRODUCTION, $entry->contractPeriod, $entry->billingPeriod, max(0, $introductionPrice));
+                $this->storeProductPrice(
+                    $product,
+                    PriceComponentType::INTRODUCTION,
+                    $entry->contractPeriod,
+                    $entry->billingPeriod,
+                    max(0, $introductionPrice),
+                );
             }
 
             if ($prolongationPrice !== null && $prolongationPrice !== $entry->registrationPrice) {
-                $this->storeProductPrice($product, PriceComponentType::PROLONGATION, $entry->contractPeriod, $entry->billingPeriod, max(0, $prolongationPrice));
+                $this->storeProductPrice(
+                    $product,
+                    PriceComponentType::PROLONGATION,
+                    $entry->contractPeriod,
+                    $entry->billingPeriod,
+                    max(0, $prolongationPrice),
+                );
             }
 
-            $this->storeProductPrice($product, PriceComponentType::REGISTRATION, $entry->contractPeriod, $entry->billingPeriod, max(0, $entry->registrationPrice));
+            $this->storeProductPrice(
+                $product,
+                PriceComponentType::REGISTRATION,
+                $entry->contractPeriod,
+                $entry->billingPeriod,
+                max(0, $entry->registrationPrice),
+            );
         }
     }
 
@@ -223,8 +248,13 @@ class ProductCreationService
         }
     }
 
-    private function storeProductPrice(Product $product, PriceComponentType $type, int $contractPeriod, int $billingPeriod, int $price): void
-    {
+    private function storeProductPrice(
+        Product $product,
+        PriceComponentType $type,
+        int $contractPeriod,
+        int $billingPeriod,
+        int $price,
+    ): void {
         Assert::natural($price);
 
         $registrationPriceComponent = new ProductPriceComponent();

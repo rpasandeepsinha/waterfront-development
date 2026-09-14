@@ -22,12 +22,13 @@ class NovaAddDomainToSpamExpertsAction extends NovaSubscriptionAction
         private readonly SpamExpertsClient $spamExpertsClient,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool =>
+            fn (NovaRequest $request): bool => (
                 $this->onlyForSingleSubscription($request)
                 && (
                     $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::HOSTING)
                     || $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::EXTENSION)
                 )
+            ),
         );
 
         $this->sole();

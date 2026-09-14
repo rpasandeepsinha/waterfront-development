@@ -20,8 +20,9 @@ class GetEmail extends DirectAdminCommand
 
     private int $storage = 0;
 
-    public function __construct(private readonly string $domain)
-    {
+    public function __construct(
+        private readonly string $domain,
+    ) {
     }
 
     /**
@@ -34,8 +35,8 @@ class GetEmail extends DirectAdminCommand
                 sprintf(
                     'Cannot retrieve dkim enabled for domain %s. Response is missing the data; %s',
                     'DKIM_ENABLED',
-                    json_encode($decodedContent, JSON_THROW_ON_ERROR)
-                )
+                    json_encode($decodedContent, JSON_THROW_ON_ERROR),
+                ),
             );
         }
 

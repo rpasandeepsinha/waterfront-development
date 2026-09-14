@@ -15,8 +15,9 @@ use Waterfront\Domain\Hosting\Plesk\Services\ClientList\OnlyOneInstanceShouldRet
  */
 class ClientListStrategyFactory
 {
-    public function __construct(private readonly bool $devMode)
-    {
+    public function __construct(
+        private readonly bool $devMode,
+    ) {
     }
 
     /**

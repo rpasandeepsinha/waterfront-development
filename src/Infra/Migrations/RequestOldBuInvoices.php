@@ -21,8 +21,12 @@ class RequestOldBuInvoices
     /**
      * @throws GuzzleException
      */
-    public function handle(string $referenceNumber, string $buName, CarbonImmutable $fromDate, CarbonImmutable $toDate): void
-    {
+    public function handle(
+        string $referenceNumber,
+        string $buName,
+        CarbonImmutable $fromDate,
+        CarbonImmutable $toDate,
+    ): void {
         $url = $this->getEndpoint($buName);
         $apikey = $this->getApiKey($buName);
 
@@ -31,7 +35,7 @@ class RequestOldBuInvoices
                 'x-apikey' => $apikey,
                 'content-type' => 'application/json',
             ],
-           'body' => json_encode(['customer' => $referenceNumber, 'start_date' => $fromDate, 'end_date' => $toDate]),
+            'body' => json_encode(['customer' => $referenceNumber, 'start_date' => $fromDate, 'end_date' => $toDate]),
         ]);
     }
 
@@ -49,7 +53,7 @@ class RequestOldBuInvoices
     {
         $lowerString = strtolower($buName);
 
-        $key =  match ($lowerString) {
+        $key = match ($lowerString) {
             'versio' => Config::get('old-bu.versio1_0_api_key'),
             'yourhosting' => Config::get('old-bu.yourhosting1_0_api_key'),
             default => throw new Exception("bad value received: $lowerString"),
@@ -60,6 +64,7 @@ class RequestOldBuInvoices
         }
 
         assert(is_string($key));
+
         return $key;
     }
 }

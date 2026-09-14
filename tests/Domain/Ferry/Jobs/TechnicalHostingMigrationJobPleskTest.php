@@ -76,7 +76,10 @@ class TechnicalHostingMigrationJobPleskTest extends IntegrationTestCase
         $extensionHostingGroup = ProductGroupFactory::new()->hosting()->createOne();
         $extensionGroup = ProductGroupFactory::new()->extension()->createOne();
 
-        $hostingProduct = ProductFactory::new()->for($extensionHostingGroup)->hostingBrons($extensionHostingGroup)->createOne();
+        $hostingProduct = ProductFactory::new()
+            ->for($extensionHostingGroup)
+            ->hostingBrons($extensionHostingGroup)
+            ->createOne();
         $this->extensionProduct = ProductFactory::new()->for($extensionGroup)->createOne([
             'name' => '.nl',
             'slug' => 'extension_nl',
@@ -91,14 +94,19 @@ class TechnicalHostingMigrationJobPleskTest extends IntegrationTestCase
             ]);
 
         /** @var Server $server */
-        $server = ServerFactory::new()->plesk()->createOne([
-            'hostname' => self::TEST_PLESK_SERVER,
-            'domain' => self::TEST_PLESK_SERVER,
-            'name' => self::TEST_PLESK_SERVER,
-        ])->fresh(); // fresh or else the "wasRecentlyCreated" won't match in the mocked "with" params
+        $server = ServerFactory::new()
+            ->plesk()
+            ->createOne([
+                'hostname' => self::TEST_PLESK_SERVER,
+                'domain' => self::TEST_PLESK_SERVER,
+                'name' => self::TEST_PLESK_SERVER,
+            ])
+            ->fresh(); // fresh or else the "wasRecentlyCreated" won't match in the mocked "with" params
         $this->server = $server;
 
-        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1']);
+        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1',
+        ]);
         $this->pleskSubscription->migratedSubscriptions()->attach($migratedSubscription);
 
         $migratedCustomer = MigratedCustomersFactory::new()->createOne();
@@ -114,15 +122,15 @@ class TechnicalHostingMigrationJobPleskTest extends IntegrationTestCase
         $this->pleskUsername = 'test_remote_username123';
         $this->pleskCustomerId = 132;
 
-        HostingDeploymentFactory::new()
-            ->for($this->pleskSubscription, 'subscription')
-            ->for($placeholderProvider, 'provider')
-            ->createOne([
-                'plesk_customer_username' => null,
-                'plesk_customer_id' => null,
-                'directadmin_customer_username' => null,
-                'server_id' => null,
-            ]);
+        HostingDeploymentFactory::new()->for($this->pleskSubscription, 'subscription')->for(
+            $placeholderProvider,
+            'provider',
+        )->createOne([
+            'plesk_customer_username' => null,
+            'plesk_customer_id' => null,
+            'directadmin_customer_username' => null,
+            'server_id' => null,
+        ]);
 
         $this->migratedSubscription = $migratedSubscription;
     }
@@ -130,12 +138,12 @@ class TechnicalHostingMigrationJobPleskTest extends IntegrationTestCase
     #[DataProvider('hostingMigrationJobProvider')]
     #[Test]
     public function hostingMigrationJob(
-        string|null $originalSubscriptionDomain,
-        string|null $defaultDomain,
+        ?string $originalSubscriptionDomain,
+        ?string $defaultDomain,
         string $expectedSubscriptionDomain,
         bool $loginKeysSetting,
         bool $isUsingHostingServerAsNameserver,
-        string|null $extensionAdministrativeStatus,
+        ?string $extensionAdministrativeStatus,
         bool $isReseller,
         string $packageName,
         bool $changeServicePlanCalled,
@@ -159,13 +167,12 @@ class TechnicalHostingMigrationJobPleskTest extends IntegrationTestCase
 
         $pleskHostingService = self::createMock(PleskHostingService::class);
 
-        $pleskHostingService->method('isUsingHostingServerAsNameserver')
-            ->willReturn($isUsingHostingServerAsNameserver);
+        $pleskHostingService->method('isUsingHostingServerAsNameserver')->willReturn($isUsingHostingServerAsNameserver);
 
-        $pleskHostingService->method('getDefaultDomain')
-            ->willReturn($defaultDomain);
+        $pleskHostingService->method('getDefaultDomain')->willReturn($defaultDomain);
 
-        $pleskHostingService->method('getPackageOnServerAsDto')
+        $pleskHostingService
+            ->method('getPackageOnServerAsDto')
             ->willReturn(new PleskHostingPackage(
                 maxAmountDomains: 2,
                 maxAmountMailAccounts: 5,
@@ -175,7 +182,8 @@ class TechnicalHostingMigrationJobPleskTest extends IntegrationTestCase
                 package: 'basic',
             ));
 
-        $pleskHostingService->method('getUserConfigAsDto')
+        $pleskHostingService
+            ->method('getUserConfigAsDto')
             ->willReturn(
                 new UserConfig(
                     dnscontrol: 'ON',
@@ -189,10 +197,11 @@ class TechnicalHostingMigrationJobPleskTest extends IntegrationTestCase
                     package: $packageName,
                     usertype: $isReseller ? HostingUserType::RESELLER : HostingUserType::USER,
                     domain: $defaultDomain,
-                )
+                ),
             );
 
-        $pleskHostingService->expects($changeServicePlanCalled ? self::once() : self::never())
+        $pleskHostingService
+            ->expects($changeServicePlanCalled ? self::once() : self::never())
             ->method('changeServicePlan');
 
         $this->app->bind(PleskHostingService::class, fn (): PleskHostingService => $pleskHostingService);
@@ -207,22 +216,19 @@ class TechnicalHostingMigrationJobPleskTest extends IntegrationTestCase
             $this->server->getDomain(),
             new PleskHostingDetails(
                 pleskCustomerUsername: $this->pleskUsername,
-                pleskCustomerId: $this->pleskCustomerId
-            )
+                pleskCustomerId: $this->pleskCustomerId,
+            ),
         );
 
         $ssoMock = self::createMock(HostingCanGenerateSSOAction::class);
-        $ssoMock->expects(! $isReseller && $loginKeysSetting ? self::once() : self::never())
+        $ssoMock
+            ->expects(! $isReseller && $loginKeysSetting ? self::once() : self::never())
             ->method('execute')
             ->with(
                 $this->pleskSubscription->refresh(),
-                $this->pleskSubscription
-                    ->customer()
-                    ->firstOrFail()
-                    ->migratedCustomers()
-                    ->firstOrFail(),
+                $this->pleskSubscription->customer()->firstOrFail()->migratedCustomers()->firstOrFail(),
                 $payload,
-                $this->server
+                $this->server,
             );
 
         $this->app->bind(HostingCanGenerateSSOAction::class, fn (): HostingCanGenerateSSOAction => $ssoMock);
@@ -247,147 +253,159 @@ class TechnicalHostingMigrationJobPleskTest extends IntegrationTestCase
      */
     public static function hostingMigrationJobProvider(): iterable
     {
-        yield 'Set default domain when subscription domain is null + External domain + Internal nameservers + is not a reseller + package found' => [
-            'originalSubscriptionDomain' => null,
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'default-domain.testing',
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => null,
-            'isReseller' => false,
-            'packageName' => 'hosting_brons',
-            'changeServicePlanCalled' => false,
-        ];
+        yield 'Set default domain when subscription domain is null + External domain + Internal nameservers + is not a reseller + package found' =>
+            [
+                'originalSubscriptionDomain' => null,
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'default-domain.testing',
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => null,
+                'isReseller' => false,
+                'packageName' => 'hosting_brons',
+                'changeServicePlanCalled' => false,
+            ];
 
-        yield 'Set default domain when subscription domain is null + External domain + Internal nameservers + is a reseller + package found' => [
-            'originalSubscriptionDomain' => null,
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'default-domain.testing',
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => null,
-            'isReseller' => true,
-            'packageName' => 'hosting_brons',
-            'changeServicePlanCalled' => false,
-        ];
+        yield 'Set default domain when subscription domain is null + External domain + Internal nameservers + is a reseller + package found' =>
+            [
+                'originalSubscriptionDomain' => null,
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'default-domain.testing',
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => null,
+                'isReseller' => true,
+                'packageName' => 'hosting_brons',
+                'changeServicePlanCalled' => false,
+            ];
 
-        yield 'Set default domain when subscription domain is null + External domain + Internal nameservers + SSO disabled + is not a reseller' => [
-            'originalSubscriptionDomain' => null,
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'default-domain.testing',
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => null,
-            'isReseller' => false,
-            'packageName' => 'hosting_brons',
-            'changeServicePlanCalled' => false,
-        ];
+        yield 'Set default domain when subscription domain is null + External domain + Internal nameservers + SSO disabled + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => null,
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'default-domain.testing',
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => null,
+                'isReseller' => false,
+                'packageName' => 'hosting_brons',
+                'changeServicePlanCalled' => false,
+            ];
 
-        yield 'Subscription domain should not be overwritten + Internal domain + Internal nameservers + is not a reseller' => [
-            'originalSubscriptionDomain' => 'already-set-domain.testing',
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'already-set-domain.testing',
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
-            'isReseller' => false,
-            'packageName' => 'web-mini',
-            'changeServicePlanCalled' => true,
-        ];
+        yield 'Subscription domain should not be overwritten + Internal domain + Internal nameservers + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => 'already-set-domain.testing',
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'already-set-domain.testing',
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
+                'isReseller' => false,
+                'packageName' => 'web-mini',
+                'changeServicePlanCalled' => true,
+            ];
 
-        yield 'Subscription domain should not be overwritten + Internal domain + Internal nameservers + is not a reseller + package is already the same' => [
-            'originalSubscriptionDomain' => 'already-set-domain.testing',
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'already-set-domain.testing',
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
-            'isReseller' => false,
-            'packageName' => 'hosting_brons',
-            'changeServicePlanCalled' => false,
-        ];
+        yield 'Subscription domain should not be overwritten + Internal domain + Internal nameservers + is not a reseller + package is already the same' =>
+            [
+                'originalSubscriptionDomain' => 'already-set-domain.testing',
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'already-set-domain.testing',
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
+                'isReseller' => false,
+                'packageName' => 'hosting_brons',
+                'changeServicePlanCalled' => false,
+            ];
 
-        yield 'Subscription domain should not be overwritten + Internal Domain + External nameservers + is not a reseller' => [
-            'originalSubscriptionDomain' => 'already-set-domain.testing',
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'already-set-domain.testing',
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => false,
-            'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
-            'isReseller' => false,
-            'packageName' => 'hosting_brons',
-            'changeServicePlanCalled' => false,
-        ];
+        yield 'Subscription domain should not be overwritten + Internal Domain + External nameservers + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => 'already-set-domain.testing',
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'already-set-domain.testing',
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => false,
+                'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
+                'isReseller' => false,
+                'packageName' => 'hosting_brons',
+                'changeServicePlanCalled' => false,
+            ];
 
-        yield 'Subscription domain should not be overwritten + Internal domain (canceled) + Internal nameservers + is not a reseller' => [
-            'originalSubscriptionDomain' => 'already-set-domain.testing',
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'already-set-domain.testing',
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => AdministrativeStatus::CANCELED->value,
-            'isReseller' => false,
-            'packageName' => 'hosting_brons',
-            'changeServicePlanCalled' => false,
-        ];
+        yield 'Subscription domain should not be overwritten + Internal domain (canceled) + Internal nameservers + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => 'already-set-domain.testing',
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'already-set-domain.testing',
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => AdministrativeStatus::CANCELED->value,
+                'isReseller' => false,
+                'packageName' => 'hosting_brons',
+                'changeServicePlanCalled' => false,
+            ];
 
-        yield 'Subscription domain should not be overwritten + Internal domain (expired) + Internal nameservers + is not a reseller' => [
-            'originalSubscriptionDomain' => 'already-set-domain.testing',
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'already-set-domain.testing',
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => AdministrativeStatus::EXPIRED->value,
-            'isReseller' => false,
-            'packageName' => 'hosting_brons',
-            'changeServicePlanCalled' => false,
-        ];
+        yield 'Subscription domain should not be overwritten + Internal domain (expired) + Internal nameservers + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => 'already-set-domain.testing',
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'already-set-domain.testing',
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => AdministrativeStatus::EXPIRED->value,
+                'isReseller' => false,
+                'packageName' => 'hosting_brons',
+                'changeServicePlanCalled' => false,
+            ];
 
-        yield 'Subscription domain should not be overwritten + Internal domain (archived) + Internal nameservers + is not a reseller' => [
-            'originalSubscriptionDomain' => 'already-set-domain.testing',
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'already-set-domain.testing',
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => AdministrativeStatus::ARCHIVED->value,
-            'isReseller' => false,
-            'packageName' => 'hosting_brons',
-            'changeServicePlanCalled' => false,
-        ];
+        yield 'Subscription domain should not be overwritten + Internal domain (archived) + Internal nameservers + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => 'already-set-domain.testing',
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'already-set-domain.testing',
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => AdministrativeStatus::ARCHIVED->value,
+                'isReseller' => false,
+                'packageName' => 'hosting_brons',
+                'changeServicePlanCalled' => false,
+            ];
 
-        yield 'Set default domain when subscription domain is null and backend domain is null + External Domain + External nameservers + is not a reseller' => [
-            'originalSubscriptionDomain' => null,
-            'defaultDomain' => null,
-            'expectedSubscriptionDomain' => 'test_remote_username123.test.plesk.test', // Fallback test
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => false,
-            'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
-            'isReseller' => false,
-            'packageName' => 'hosting_brons',
-            'changeServicePlanCalled' => false,
-        ];
+        yield 'Set default domain when subscription domain is null and backend domain is null + External Domain + External nameservers + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => null,
+                'defaultDomain' => null,
+                'expectedSubscriptionDomain' => 'test_remote_username123.test.plesk.test', // Fallback test
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => false,
+                'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
+                'isReseller' => false,
+                'packageName' => 'hosting_brons',
+                'changeServicePlanCalled' => false,
+            ];
 
-        yield 'Set default domain when subscription domain is null + External Domain + External nameservers + is not a reseller + package found' => [
-            'originalSubscriptionDomain' => null,
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'default-domain.testing',
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => false,
-            'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
-            'isReseller' => false,
-            'packageName' => 'hosting_brons',
-            'changeServicePlanCalled' => false,
-        ];
+        yield 'Set default domain when subscription domain is null + External Domain + External nameservers + is not a reseller + package found' =>
+            [
+                'originalSubscriptionDomain' => null,
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'default-domain.testing',
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => false,
+                'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
+                'isReseller' => false,
+                'packageName' => 'hosting_brons',
+                'changeServicePlanCalled' => false,
+            ];
     }
 
     #[Test]
     public function hostingMigrationJobRollback(): void
     {
         $exceptionMessage = 'testing error';
-        $exceptionStatus  = 404;
+        $exceptionStatus = 404;
         $pleskHostingService = self::createStub(PleskHostingService::class);
-        $pleskHostingService->method('getDefaultDomain')
-            ->willThrowException((new PleskClientException($exceptionMessage, $exceptionStatus)));
+        $pleskHostingService
+            ->method('getDefaultDomain')
+            ->willThrowException(new PleskClientException($exceptionMessage, $exceptionStatus));
 
         $this->app->bind(PleskHostingService::class, fn (): PleskHostingService => $pleskHostingService);
 
@@ -405,7 +423,7 @@ class TechnicalHostingMigrationJobPleskTest extends IntegrationTestCase
             new PleskHostingDetails(
                 pleskCustomerUsername: $this->pleskUsername,
                 pleskCustomerId: $this->pleskCustomerId,
-            )
+            ),
         );
 
         $job = new TechnicalHostingMigrationJob(
@@ -424,8 +442,8 @@ class TechnicalHostingMigrationJobPleskTest extends IntegrationTestCase
                 'Hosting default domain could not be set using server %s for subscription %d (payload: %s)',
                 $this->server->hostname,
                 $this->pleskSubscription->id,
-                json_encode($payload->toArray(), JSON_THROW_ON_ERROR)
-            )
+                json_encode($payload->toArray(), JSON_THROW_ON_ERROR),
+            ),
         );
 
         $job->handle($adfService, $dispatcher, $logger);

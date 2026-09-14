@@ -89,10 +89,14 @@ class CustomersController
         $accountNumber = $request->string('accountNumber')->toString();
 
         if ($customer->has_direct_debit) {
-            throw ValidationException::withMessages(['error' => $this->translator->translate('customer.already-enabled-direct-debit')]);
+            throw ValidationException::withMessages([
+                'error' => $this->translator->translate('customer.already-enabled-direct-debit'),
+            ]);
         }
 
-        $this->dispatcher->dispatch(new RequestDirectDebitMandateJob($accountName, $accountNumber, null, $customer, CarbonImmutable::now()));
+        $this->dispatcher->dispatch(
+            new RequestDirectDebitMandateJob($accountName, $accountNumber, null, $customer, CarbonImmutable::now()),
+        );
 
         return new JsonResponse();
     }
@@ -142,7 +146,9 @@ class CustomersController
         $countryCode = strval($request->string('country_code'));
         $streetName = strval($request->string('street_name'));
         $streetNumber = strval($request->string('street_number'));
-        $streetNumberAddition = $request->input('street_number_addition') !== null ? strval($request->string('street_number_addition')) : null;
+        $streetNumberAddition = $request->input('street_number_addition') !== null
+            ? strval($request->string('street_number_addition'))
+            : null;
         $zipCode = strval($request->string('zip_code'));
         $city = strval($request->string('city'));
         $organization = $request->input('organization') !== null ? strval($request->string('organization')) : null;
@@ -174,7 +180,7 @@ class CustomersController
             vat_number: $vatNumber,
             paymentTerms: $this->configuration->getAsInteger('constants.payment-terms.default'),
             creditLimit: Customer::CREDIT_LIMIT,
-            dataLastConfirmedAt: new CarbonImmutable()
+            dataLastConfirmedAt: new CarbonImmutable(),
         );
 
         $this->storeCustomerAddressAction->execute(
@@ -197,11 +203,17 @@ class CustomersController
         );
 
         try {
-            $identity = $this->lighthouseApiService->getKratosIdentityByIdentifier($authenticatedSubject->identitySchema->id->toString());
+            $identity = $this->lighthouseApiService->getKratosIdentityByIdentifier(
+                $authenticatedSubject->identitySchema->id->toString(),
+            );
 
             $identity->metadataPublic = new CustomerMetadataPublic(
-                array_merge(($identity->metadataPublic->customerNumbers ?? []), [$customer->customer_number]),
-                array_merge($identity->metadataPublic->customerRelations ?? [], [new CustomerRelation($customer->customer_number, null, null)]),
+                array_merge($identity->metadataPublic->customerNumbers ?? [], [$customer->customer_number]),
+                array_merge($identity->metadataPublic->customerRelations ?? [], [new CustomerRelation(
+                    $customer->customer_number,
+                    null,
+                    null,
+                )]),
                 array_merge($identity->metadataPublic->businessRelations ?? [], [self::WF_CLIENT_RELATION]),
                 null,
                 null,
@@ -209,7 +221,7 @@ class CustomersController
             );
 
             $this->lighthouseApiService->updateKratosIdentity($identity);
-        } catch (JsonException| LighthouseException | ResourceNotFoundException $exception) {
+        } catch (JsonException|LighthouseException|ResourceNotFoundException $exception) {
             $this->logger->error('Creating customer failed', [
                 LoggingContextKeys::CUSTOMER_ID => $customer->id,
                 LoggingContextKeys::EXCEPTION => $exception,
@@ -230,10 +242,11 @@ class CustomersController
 
         if ($address === null) {
             Log::error("Failed to update Customer {$customer->uuid} because customer had no address coupled to it");
+
             //TODO:: Refactor this return status. https://yh-jira.atlassian.net/browse/WATER-4781
             return new JsonResponse(
                 ['message' => $this->translator->translate('customer.update_failed')],
-                Response::HTTP_INTERNAL_SERVER_ERROR
+                Response::HTTP_INTERNAL_SERVER_ERROR,
             );
         }
 
@@ -245,10 +258,14 @@ class CustomersController
         $department = $request->input('department') !== null ? strval($request->string('department')) : null;
         $vatNumber = $request->input('vat_number') !== null ? strval($request->string('vat_number')) : null;
         $cocNumber = $request->input('coc_number') !== null ? strval($request->string('coc_number')) : null;
-        $purchaseReference = $request->input('purchase_reference') !== null ? strval($request->string('purchase_reference')) : null;
+        $purchaseReference = $request->input('purchase_reference') !== null
+            ? strval($request->string('purchase_reference'))
+            : null;
         $streetName = strval($request->string('address.0.street_name'));
         $streetNumber = strval($request->string('address.0.street_number'));
-        $streetNumberAddition = $request->input('address.0.street_number_addition') !== null ? strval($request->string('address.0.street_number_addition')) : null;
+        $streetNumberAddition = $request->input('address.0.street_number_addition') !== null
+            ? strval($request->string('address.0.street_number_addition'))
+            : null;
         $zipCode = strval($request->string('address.0.zip_code'));
         $city = strval($request->string('address.0.city'));
         $countryCode = strval($request->string('address.0.country_code'));

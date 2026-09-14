@@ -31,9 +31,12 @@ class NovaSubscriptionChangeStatusFilter extends Filter
     public function options(NovaRequest $request): array
     {
         return [
-            $this->translator->translate('subscription-change.status.requested') => SubscriptionChangeStatus::REQUESTED->value,
-            $this->translator->translate('subscription-change.status.in_progress') => SubscriptionChangeStatus::INPROGRESS->value,
-            $this->translator->translate('subscription-change.status.completed') => SubscriptionChangeStatus::COMPLETED->value,
+            $this->translator->translate('subscription-change.status.requested') =>
+                SubscriptionChangeStatus::REQUESTED->value,
+            $this->translator->translate('subscription-change.status.in_progress') =>
+                SubscriptionChangeStatus::INPROGRESS->value,
+            $this->translator->translate('subscription-change.status.completed') =>
+                SubscriptionChangeStatus::COMPLETED->value,
         ];
     }
 }

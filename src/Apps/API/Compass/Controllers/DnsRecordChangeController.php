@@ -34,8 +34,7 @@ readonly class DnsRecordChangeController
         $logs->appends('pageSize', (string) $pageSize);
 
         return DnsRecordChangeResource::collection($logs)->additional([
-            'meta' =>
-                ['totalLogs' => $logBuilder->count()],
+            'meta' => ['totalLogs' => $logBuilder->count()],
         ]);
     }
 }

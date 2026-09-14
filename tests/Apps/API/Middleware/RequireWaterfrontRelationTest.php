@@ -60,9 +60,7 @@ class RequireWaterfrontRelationTest extends IntegrationTestCase
             true,
         );
 
-        $this->authenticationManager->expects(self::once())
-            ->method('getAuthenticatedSubject')
-            ->willReturn($customer);
+        $this->authenticationManager->expects(self::once())->method('getAuthenticatedSubject')->willReturn($customer);
 
         $this->middleware->handle(new Request(), fn () => new Response());
     }
@@ -90,9 +88,7 @@ class RequireWaterfrontRelationTest extends IntegrationTestCase
             true,
         );
 
-        $this->authenticationManager->expects(self::once())
-            ->method('getAuthenticatedSubject')
-            ->willReturn($customer);
+        $this->authenticationManager->expects(self::once())->method('getAuthenticatedSubject')->willReturn($customer);
 
         self::expectException(AuthorizationException::class);
 
@@ -121,9 +117,7 @@ class RequireWaterfrontRelationTest extends IntegrationTestCase
             true,
         );
 
-        $this->authenticationManager->expects(self::once())
-            ->method('getAuthenticatedSubject')
-            ->willReturn($employee);
+        $this->authenticationManager->expects(self::once())->method('getAuthenticatedSubject')->willReturn($employee);
 
         $this->middleware->handle(new Request(), fn () => new Response());
     }

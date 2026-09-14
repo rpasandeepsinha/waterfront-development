@@ -19,7 +19,7 @@ abstract class MessageDto
     protected function __construct(
         private readonly string $message,
         array $parameters,
-        array $baseParameters
+        array $baseParameters,
     ) {
         foreach ($parameters as $parameter) {
             if (! $parameter instanceof Parameter) {
@@ -41,12 +41,14 @@ abstract class MessageDto
     final public function addBaseParameter(Parameter $parameter): self
     {
         $this->baseParameters[] = $parameter;
+
         return $this;
     }
 
     final public function addParameter(Parameter $parameter): self
     {
         $this->parameters[] = $parameter;
+
         return $this;
     }
 

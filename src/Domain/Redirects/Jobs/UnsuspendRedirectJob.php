@@ -49,11 +49,12 @@ class UnsuspendRedirectJob extends AbstractQueueableJob
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
                     LoggingContextKeys::EXCEPTION => $result->exception,
-                ]
+                ],
             );
 
             $this->subscription->technical_status = TechnicalStatus::UNSUSPENSION_FAILED->value;
             $this->subscription->save();
+
             return;
         }
 
@@ -86,7 +87,7 @@ class UnsuspendRedirectJob extends AbstractQueueableJob
             [
                 LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
-            ]
+            ],
         );
         $sendSubscriptionUnSuspendedMailAction->execute($this->subscription);
     }

@@ -43,14 +43,15 @@ class DebtCollectionStatusUpdatedHandlerTest extends IntegrationTestCase
                     'id' => $subscription->id,
                     'debt_collection_status' => DebtCollectionStatus::NORMAL,
                 ],
-            ]
+            ],
         );
 
         $unsuspendSubscriptionAction = self::createMock(UnsuspendSubscriptionService::class);
-        $unsuspendSubscriptionAction->expects(self::once())
+        $unsuspendSubscriptionAction
+            ->expects(self::once())
             ->method('execute')
             ->with(self::callback(
-                fn (Subscription $subscription) => $subscription->id === $message->getSubscriptions()[0]['id']
+                fn (Subscription $subscription) => $subscription->id === $message->getSubscriptions()[0]['id'],
             ));
 
         $storeNoteAction = self::createMock(StoreNoteAction::class);
@@ -65,7 +66,7 @@ class DebtCollectionStatusUpdatedHandlerTest extends IntegrationTestCase
             $unsuspendSubscriptionAction,
             $storeNoteAction,
             self::createStub(LoggerInterface::class),
-            $cancellationService
+            $cancellationService,
         );
 
         $handler->handle($message);
@@ -90,7 +91,7 @@ class DebtCollectionStatusUpdatedHandlerTest extends IntegrationTestCase
                     'id' => $subscription->id,
                     'debt_collection_status' => DebtCollectionStatus::NORMAL,
                 ],
-            ]
+            ],
         );
 
         $unsuspendSubscriptionAction = self::createMock(UnsuspendSubscriptionService::class);
@@ -108,7 +109,7 @@ class DebtCollectionStatusUpdatedHandlerTest extends IntegrationTestCase
             $unsuspendSubscriptionAction,
             $storeNoteAction,
             self::createStub(LoggerInterface::class),
-            $cancellationService
+            $cancellationService,
         );
 
         $handler->handle($message);
@@ -145,14 +146,15 @@ class DebtCollectionStatusUpdatedHandlerTest extends IntegrationTestCase
                     'id' => $subscription2->id,
                     'debt_collection_status' => DebtCollectionStatus::IN_ARREARS,
                 ],
-            ]
+            ],
         );
 
         $suspendSubscriptionAction = self::createMock(SuspendSubscriptionService::class);
-        $suspendSubscriptionAction->expects(self::once())
+        $suspendSubscriptionAction
+            ->expects(self::once())
             ->method('execute')
             ->with(self::callback(
-                fn (Subscription $subscription) => $subscription2->id === $message->getSubscriptions()[1]['id']
+                fn (Subscription $subscription) => $subscription2->id === $message->getSubscriptions()[1]['id'],
             ));
 
         $storeNoteAction = self::createMock(StoreNoteAction::class);
@@ -167,7 +169,7 @@ class DebtCollectionStatusUpdatedHandlerTest extends IntegrationTestCase
             self::createStub(UnsuspendSubscriptionService::class),
             $storeNoteAction,
             self::createStub(LoggerInterface::class),
-            $cancellationService
+            $cancellationService,
         );
 
         $handler->handle($message);
@@ -192,12 +194,11 @@ class DebtCollectionStatusUpdatedHandlerTest extends IntegrationTestCase
                     'id' => $subscription->id,
                     'debt_collection_status' => DebtCollectionStatus::IN_ARREARS,
                 ],
-            ]
+            ],
         );
 
         $suspendSubscriptionAction = self::createMock(SuspendSubscriptionService::class);
-        $suspendSubscriptionAction->expects(self::never())
-            ->method('execute');
+        $suspendSubscriptionAction->expects(self::never())->method('execute');
 
         $storeNoteAction = self::createMock(StoreNoteAction::class);
         $storeNoteAction->expects(self::never())->method('execute');
@@ -211,7 +212,7 @@ class DebtCollectionStatusUpdatedHandlerTest extends IntegrationTestCase
             self::createStub(UnsuspendSubscriptionService::class),
             $storeNoteAction,
             self::createStub(LoggerInterface::class),
-            $cancellationService
+            $cancellationService,
         );
 
         $handler->handle($message);
@@ -246,17 +247,19 @@ class DebtCollectionStatusUpdatedHandlerTest extends IntegrationTestCase
                     'id' => $activeSubscription->id,
                     'debt_collection_status' => DebtCollectionStatus::BAD_DEBT,
                 ],
-            ]
+            ],
         );
 
         $suspendSubscriptionAction = self::createMock(SuspendSubscriptionService::class);
-        $suspendSubscriptionAction->expects(self::never())
-            ->method('execute');
+        $suspendSubscriptionAction->expects(self::never())->method('execute');
 
         $cancellationService = self::createMock(CancellationService::class);
-        $cancellationService->expects(self::once())->method('cancel')->with(self::callback(
-            fn (Subscription $subscription): bool => $subscription->id === $suspendedSubscription->id
-        ));
+        $cancellationService
+            ->expects(self::once())
+            ->method('cancel')
+            ->with(self::callback(
+                fn (Subscription $subscription): bool => $subscription->id === $suspendedSubscription->id,
+            ));
 
         $handler = new DebtCollectionStatusUpdatedHandler(
             self::resolve(SubscriptionRepository::class),
@@ -264,7 +267,7 @@ class DebtCollectionStatusUpdatedHandlerTest extends IntegrationTestCase
             self::createStub(UnsuspendSubscriptionService::class),
             self::createStub(StoreNoteAction::class),
             self::createStub(LoggerInterface::class),
-            $cancellationService
+            $cancellationService,
         );
 
         $handler->handle($message);
@@ -274,7 +277,7 @@ class DebtCollectionStatusUpdatedHandlerTest extends IntegrationTestCase
     public function handleInArrearsDoesNotSuspendSubscriptionIfSubscriptionIsCanceledForBadDebt(): void
     {
         $subscription = SubscriptionFactory::new(
-            ['cancel_reason' => SubscriptionCancelReason::REASON_BAD_DEBT]
+            ['cancel_reason' => SubscriptionCancelReason::REASON_BAD_DEBT],
         )
             ->withCustomer()
             ->for(ProductFactory::new()->nlDomain())
@@ -291,12 +294,11 @@ class DebtCollectionStatusUpdatedHandlerTest extends IntegrationTestCase
                     'id' => $subscription->id,
                     'debt_collection_status' => DebtCollectionStatus::IN_ARREARS,
                 ],
-            ]
+            ],
         );
 
         $suspendSubscriptionAction = self::createMock(SuspendSubscriptionService::class);
-        $suspendSubscriptionAction->expects(self::never())
-            ->method('execute');
+        $suspendSubscriptionAction->expects(self::never())->method('execute');
 
         $storeNoteAction = self::createMock(StoreNoteAction::class);
         $storeNoteAction->expects(self::never())->method('execute');
@@ -310,7 +312,7 @@ class DebtCollectionStatusUpdatedHandlerTest extends IntegrationTestCase
             self::createStub(UnsuspendSubscriptionService::class),
             $storeNoteAction,
             self::createStub(LoggerInterface::class),
-            $cancellationService
+            $cancellationService,
         );
 
         $handler->handle($message);

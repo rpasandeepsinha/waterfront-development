@@ -10,7 +10,7 @@ readonly class RedirectMigrationPayload
 {
     public function __construct(
         public Subscription $subscription,
-        public RedirectTechnicalPayload $redirectTechnicalPayload
+        public RedirectTechnicalPayload $redirectTechnicalPayload,
     ) {
     }
 }

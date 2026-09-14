@@ -48,7 +48,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             [
                 'http_errors' => true,
                 'handler' => $stack,
-            ]
+            ],
         );
 
         $server = new ServerFactory()->createOne([
@@ -64,7 +64,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $setServer = $pleskClient->setServer($server, ['username' => 'Secret', 'password', 'secret']);
@@ -97,7 +97,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             [
                 'http_errors' => true,
                 'handler' => $stack,
-            ]
+            ],
         );
 
         $connection = new Connection();
@@ -106,7 +106,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $parameters = new ResellerHostingParameters(
@@ -119,7 +119,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             ipv6Address: null,
             packageName: null,
             resellerHostingId: null,
-            providerId: 1
+            providerId: 1,
         );
 
         $this->expectException(PleskClientException::class);
@@ -153,7 +153,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             [
                 'http_errors' => true,
                 'handler' => $stack,
-            ]
+            ],
         );
 
         $connection = new Connection();
@@ -162,7 +162,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $parameters = new ResellerHostingParameters(
@@ -175,7 +175,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             ipv6Address: null,
             packageName: null,
             resellerHostingId: null,
-            providerId: 1
+            providerId: 1,
         );
 
         $this->expectException(PleskClientException::class);
@@ -212,7 +212,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             [
                 'http_errors' => true,
                 'handler' => $stack,
-            ]
+            ],
         );
 
         $connection = new Connection();
@@ -221,7 +221,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $parameters = new ResellerHostingParameters(
@@ -234,7 +234,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             ipv6Address: null,
             packageName: null,
             resellerHostingId: null,
-            providerId: 1
+            providerId: 1,
         );
 
         $response = $pleskClient->createResellerHosting($parameters);
@@ -267,7 +267,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             [
                 'http_errors' => true,
                 'handler' => $stack,
-            ]
+            ],
         );
 
         $connection = new Connection();
@@ -276,7 +276,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $parameters = new ResellerHostingParameters(
@@ -290,7 +290,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             packageName: null,
             // The reseller ID should correspond to the one from the error response.
             resellerHostingId: 12345,
-            providerId: 1
+            providerId: 1,
         );
 
         $this->expectException(PleskClientException::class);
@@ -329,7 +329,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             [
                 'http_errors' => true,
                 'handler' => $stack,
-            ]
+            ],
         );
 
         $connection = new Connection();
@@ -338,7 +338,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $parameters = new ResellerHostingParameters(
@@ -351,7 +351,7 @@ class ResellerHostingCreateTest extends IntegrationTestCase
             ipv6Address: null,
             packageName: null,
             resellerHostingId: 2,
-            providerId: 1
+            providerId: 1,
         );
 
         $pleskClient->setResellerHostingSpecs($parameters);

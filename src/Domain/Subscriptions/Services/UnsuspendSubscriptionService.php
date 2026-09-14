@@ -45,7 +45,7 @@ class UnsuspendSubscriptionService
             [
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-            ]
+            ],
         );
 
         $this->checkIfSubscriptionIsEligible($subscription);
@@ -53,9 +53,9 @@ class UnsuspendSubscriptionService
         /** @var Subscription $subscription */
         $subscription = $subscription->loadMissing(['product.productGroup']);
 
-        $subscription->administrative_status = $subscription->cancel_date !== null ?
-            AdministrativeStatus::CANCELED->value :
-            AdministrativeStatus::ACTIVE->value;
+        $subscription->administrative_status = $subscription->cancel_date !== null
+            ? AdministrativeStatus::CANCELED->value
+            : AdministrativeStatus::ACTIVE->value;
         $subscription->suspended_at = null;
         $subscription->save();
 
@@ -75,7 +75,7 @@ class UnsuspendSubscriptionService
             [
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-            ]
+            ],
         );
 
         match ($subscription->product->productGroup->slug) {
@@ -83,7 +83,10 @@ class UnsuspendSubscriptionService
             ProductGroupType::REDIRECT => $this->dispatchUnsuspendRedirectJob($subscription),
             ProductGroupType::EXTENSION => $this->dispatchUnsuspendDomainJob($subscription),
             ProductGroupType::HOSTING => $this->dispatchUnsuspendHostingJob($subscription),
-            default => throw new NotImplementedException(sprintf('Products with product group "%s" can not be unsuspended.', $subscription->product->productGroup->slug->value))
+            default => throw new NotImplementedException(sprintf(
+                'Products with product group "%s" can not be unsuspended.',
+                $subscription->product->productGroup->slug->value,
+            )),
         };
     }
 
@@ -92,8 +95,14 @@ class UnsuspendSubscriptionService
      */
     public function checkIfSubscriptionIsEligible(Subscription $subscription): void
     {
-        if ($subscription->administrative_status !== AdministrativeStatus::SUSPENDED->value && $subscription->administrative_status !== AdministrativeStatus::EXPIRED->value) {
-            throw UnableToSuspendSubscriptionException::subscriptionAdministrativeOrTechnicalStatusNotSufficient(AuditLogEvent::UNSUSPENSION, $subscription);
+        if (
+            $subscription->administrative_status !== AdministrativeStatus::SUSPENDED->value
+            && $subscription->administrative_status !== AdministrativeStatus::EXPIRED->value
+        ) {
+            throw UnableToSuspendSubscriptionException::subscriptionAdministrativeOrTechnicalStatusNotSufficient(
+                AuditLogEvent::UNSUSPENSION,
+                $subscription,
+            );
         }
     }
 
@@ -113,7 +122,7 @@ class UnsuspendSubscriptionService
                     ProductGroupType::BACKUP,
                     ProductGroupType::REDIRECT,
                 ],
-                true
+                true,
             )
         ) {
             return false;
@@ -147,6 +156,8 @@ class UnsuspendSubscriptionService
             return;
         }
 
-        $this->jobDispatcher->dispatch(new UnsuspendHostingJob($subscription->hostingDeployment, sendEmailOnSuccess: true));
+        $this->jobDispatcher->dispatch(
+            new UnsuspendHostingJob($subscription->hostingDeployment, sendEmailOnSuccess: true),
+        );
     }
 }

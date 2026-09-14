@@ -40,13 +40,13 @@ class NovaResumeExpiredSubscriptionsAction extends NovaSubscriptionAction
         return [
             NovaBoolField::make(
                 $this->translator->translate('nova-action.subscription.resume.quarantaine_costs.label'),
-                'create_invoice'
+                'create_invoice',
             )->help(
-                $this->translator->translate('nova-action.subscription.resume.quarantaine_costs.confirmtext')
+                $this->translator->translate('nova-action.subscription.resume.quarantaine_costs.confirmtext'),
             ),
             NovaBoolField::make(
                 '',
-                'confirm_action'
+                'confirm_action',
             )->help($this->translator->translate('nova-action.subscription.resume.execute.confirmation_checkbox')),
         ];
     }
@@ -58,7 +58,7 @@ class NovaResumeExpiredSubscriptionsAction extends NovaSubscriptionAction
     {
         if (! $fields->confirm_action) {
             return self::danger(
-                $this->translator->translate('nova-action.subscription.resume.execute.confirmation_checkbox_error')
+                $this->translator->translate('nova-action.subscription.resume.execute.confirmation_checkbox_error'),
             );
         }
 

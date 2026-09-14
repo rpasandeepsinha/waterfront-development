@@ -71,6 +71,7 @@ class GetBasekitByUserRefIntegrationTest extends IntegrationTestCase
                 logger: $app->make(LoggerInterface::class),
             );
             $basekit->userApi = $mockUserApi;
+
             return $basekit;
         });
 
@@ -93,23 +94,20 @@ class GetBasekitByUserRefIntegrationTest extends IntegrationTestCase
             'user_ref' => 42,
         ]);
 
-        BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->sitebuilder()
-                            ->state([
-                                'request_name' => ProvisionRequestName::GET_BASEKIT_USER_BY_REF_REQUEST,
-                                'context_uuid' => $contextUuid,
-                                'uuid' => $originRequestUuid,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne();
+        BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->sitebuilder()
+                    ->state([
+                        'request_name' => ProvisionRequestName::GET_BASEKIT_USER_BY_REF_REQUEST,
+                        'context_uuid' => $contextUuid,
+                        'uuid' => $originRequestUuid,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne();
 
         $accountHolder = new AccountHolder(
             $userRef,
@@ -143,15 +141,11 @@ class GetBasekitByUserRefIntegrationTest extends IntegrationTestCase
             null,
         );
 
-        $this->mockUserApi
-            ->expects('get')
-            ->once()
-            ->with($userRef)
-            ->andReturn($accountHolder);
+        $this->mockUserApi->expects('get')->once()->with($userRef)->andReturn($accountHolder);
 
         $request = new GetBasekitUserByRefRequest(
             context: $contextUuid,
-            userRef: $userRef
+            userRef: $userRef,
         );
 
         $request->provider = ProvisionProvider::BASEKIT;
@@ -175,8 +169,8 @@ class GetBasekitByUserRefIntegrationTest extends IntegrationTestCase
             $savedRequest->request_data,
             sprintf(
                 '{"userRef": %d}',
-                $userRef
-            )
+                $userRef,
+            ),
         );
 
         $savedResult = $this->resultRepository
@@ -198,34 +192,27 @@ class GetBasekitByUserRefIntegrationTest extends IntegrationTestCase
             'user_ref' => 42,
         ]);
 
-        BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->sitebuilder()
-                            ->state([
-                                'request_name' => ProvisionRequestName::GET_BASEKIT_USER_BY_REF_REQUEST,
-                                'context_uuid' => $contextUuid,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne();
+        BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->sitebuilder()
+                    ->state([
+                        'request_name' => ProvisionRequestName::GET_BASEKIT_USER_BY_REF_REQUEST,
+                        'context_uuid' => $contextUuid,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne();
 
         $expectedException = new BaseKitRequestException('Something went wrong');
 
-        $this->mockUserApi
-            ->expects('get')
-            ->once()
-            ->with($userRef)
-            ->andThrow($expectedException);
+        $this->mockUserApi->expects('get')->once()->with($userRef)->andThrow($expectedException);
 
         $request = new GetBasekitUserByRefRequest(
             context: $contextUuid,
-            userRef: $userRef
+            userRef: $userRef,
         );
 
         $request->provider = ProvisionProvider::BASEKIT;
@@ -249,8 +236,8 @@ class GetBasekitByUserRefIntegrationTest extends IntegrationTestCase
             $savedRequest->request_data,
             sprintf(
                 '{"userRef": %d}',
-                $userRef
-            )
+                $userRef,
+            ),
         );
 
         $savedResult = $this->resultRepository

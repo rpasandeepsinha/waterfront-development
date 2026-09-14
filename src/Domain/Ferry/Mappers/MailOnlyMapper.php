@@ -18,21 +18,24 @@ class MailOnlyMapper
     /**
      * @param Collection<int, Subscription> $subscriptions
      */
-    public function mapSubscriptionsWithConnectionDetails(Collection $subscriptions, MappableHostingPayload $mappableHostingPayload): HostingMigrationPayload
-    {
+    public function mapSubscriptionsWithConnectionDetails(
+        Collection $subscriptions,
+        MappableHostingPayload $mappableHostingPayload,
+    ): HostingMigrationPayload {
         $referenceSubscriptionId = $mappableHostingPayload->referenceSubscriptionId;
 
         if (! MigratedSubscription::query()->where('reference_subscription_id', $referenceSubscriptionId)->exists()) {
             throw new ModelNotFoundException(sprintf(
                 'Migrated subscription with legacy subscription id "%s" does not exist',
-                $referenceSubscriptionId
+                $referenceSubscriptionId,
             ));
         }
 
         $filteredSubscriptions = $subscriptions->filter(
-            fn (Subscription $subscription): bool =>
-                $subscription->migratedSubscriptions->contains('reference_subscription_id', $referenceSubscriptionId) &&
-                $subscription->hostingDeployment?->mailProvider?->slug === ProviderSlug::PLACEHOLDER
+            fn (Subscription $subscription): bool => (
+                $subscription->migratedSubscriptions->contains('reference_subscription_id', $referenceSubscriptionId)
+                && $subscription->hostingDeployment?->mailProvider?->slug === ProviderSlug::PLACEHOLDER
+            ),
         );
 
         return HostingMigrationPayload::fromArray([
@@ -57,10 +60,14 @@ class MailOnlyMapper
         foreach ($payloads as $payload) {
             $referenceSubscriptionId = $payload['reference_subscription_id'];
 
-            $existsInValidated = $subscriptions->filter(
-                fn (Subscription $subscription) =>
-                    $subscription->migratedSubscriptions()->first()?->reference_subscription_id === $referenceSubscriptionId
-            )->isNotEmpty();
+            $existsInValidated = $subscriptions
+                ->filter(
+                    fn (Subscription $subscription) => (
+                        $subscription->migratedSubscriptions()->first()?->reference_subscription_id
+                        === $referenceSubscriptionId
+                    ),
+                )
+                ->isNotEmpty();
 
             if ($existsInValidated) {
                 $technicalPayloads[] = $payload;
@@ -68,7 +75,10 @@ class MailOnlyMapper
         }
 
         /** @var array<int, MappableHostingPayload> $mappablePayloads */
-        $mappablePayloads = FerrySerializerFactory::getSerializer()->denormalize($technicalPayloads, MappableHostingPayload::class . '[]');
+        $mappablePayloads = FerrySerializerFactory::getSerializer()->denormalize(
+            $technicalPayloads,
+            MappableHostingPayload::class . '[]',
+        );
 
         return $mappablePayloads;
     }

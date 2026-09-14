@@ -183,7 +183,7 @@ class ProvisionSerializeFactoryTest extends TestCase
                     'tag' => ['tag is invalid.'],
                 ],
             ],
-            $normalizedResult['validationResult']
+            $normalizedResult['validationResult'],
         );
 
         self::assertArrayHasKey('exception', $normalizedResult);
@@ -256,11 +256,21 @@ class ProvisionSerializeFactoryTest extends TestCase
         $strippedJson = $this->provisionSerializer->serialize(
             $sitebuilder,
             'json',
-            [AbstractNormalizer::IGNORED_ATTRIBUTES => [
-                'tagUuid', 'tag', 'context', 'name', 'type',
-                'requiresValidation', 'provider', 'requestId',
-                'retryOf', 'retryRequester', 'retry',
-            ]],
+            [
+                AbstractNormalizer::IGNORED_ATTRIBUTES => [
+                    'tagUuid',
+                    'tag',
+                    'context',
+                    'name',
+                    'type',
+                    'requiresValidation',
+                    'provider',
+                    'requestId',
+                    'retryOf',
+                    'retryRequester',
+                    'retry',
+                ],
+            ],
         );
 
         /** @var array<string, mixed> $storedData */

@@ -58,7 +58,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
         private readonly MailerInterface $mailer,
         private readonly BehavesAsDirectAdmin $directAdmin,
         private readonly Configuration $configuration,
-        private readonly DirectAdminPassword $passwordGenerator
+        private readonly DirectAdminPassword $passwordGenerator,
     ) {
     }
 
@@ -84,7 +84,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
         string $subscriptionUuid,
         array $specs,
         int $providerId,
-        ?Server $server = null
+        ?Server $server = null,
     ): string {
         $server ??= $this->findServer();
 
@@ -98,7 +98,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
                     'customer email' => $customerEmail,
                     'specs' => $specs,
                 ],
-            ]
+            ],
         );
 
         $parameters = $this->parameters($providerId, $customerEmail, $server, $specs);
@@ -112,7 +112,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
             $server,
             $parameters,
             $specs,
-            $createResellerResult->getStatus()
+            $createResellerResult->getStatus(),
         );
 
         return $createResellerResult->getStatus();
@@ -127,18 +127,15 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
             ])
             ->with('hostingDeployments')
             ->get()
-            ->sortByDesc(fn (Server $server): int => $server->available_websites)->firstOrFail();
+            ->sortByDesc(fn (Server $server): int => $server->available_websites)
+            ->firstOrFail();
     }
 
     public function generateUsername(): string
     {
         do {
             $username = 'r' . random_int(11111, 99999);
-        } while (
-            ResellerHostingDeployment::withTrashed()
-                ->where('directadmin_customer_username', $username)
-                ->exists()
-        );
+        } while (ResellerHostingDeployment::withTrashed()->where('directadmin_customer_username', $username)->exists());
 
         return $username;
     }
@@ -162,7 +159,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
 
         if ($resellerUsername === null) {
             throw ResellerHostingException::noDirectAdminUserNameForReseller(
-                $resellerHostingDeployment->subscription_uuid
+                $resellerHostingDeployment->subscription_uuid,
             );
         }
 
@@ -173,10 +170,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
         $command->setReseller($resellerUsername);
 
         /** @var ShowResellerUsers $result */
-        $result = $this->directAdmin
-            ->useServer($server)
-            ->loginAs($resellerUsername)
-            ->call($command);
+        $result = $this->directAdmin->useServer($server)->loginAs($resellerUsername)->call($command);
 
         return array_merge([$resellerUsername], $result->getResellerUsersList());
     }
@@ -189,14 +183,16 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
         $result = new Result();
         $result->setStatus(Result::STATUS_ERROR);
 
-        $response = $this->directAdmin->reseller($server)->create([
-            'username' => $parameters->username,
-            'passwd' => $parameters->password,
-            'email' => $parameters->email,
-            'domain' => $parameters->domain,
-            'ip' => $parameters->ipv4Address ?? $parameters->ipv6Address,
-            'package' => $parameters->packageName,
-        ]);
+        $response = $this->directAdmin
+            ->reseller($server)
+            ->create([
+                'username' => $parameters->username,
+                'passwd' => $parameters->password,
+                'email' => $parameters->email,
+                'domain' => $parameters->domain,
+                'ip' => $parameters->ipv4Address ?? $parameters->ipv6Address,
+                'package' => $parameters->packageName,
+            ]);
 
         if ($response->hasSucceeded()) {
             Log::info(self::class . '::create - New reseller created successfully', [
@@ -204,7 +200,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
                     'result' => sprintf(
                         '%s successfully created under domain %s',
                         $parameters->username,
-                        $parameters->domain
+                        $parameters->domain,
                     ),
                 ],
             ]);
@@ -243,7 +239,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
 
         if ($username === null) {
             throw ResellerHostingException::noDirectAdminUserNameForReseller(
-                $deployment->subscription_uuid
+                $deployment->subscription_uuid,
             );
         }
 
@@ -257,7 +253,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
                     LoggingContextKeys::META => [
                         'user' => $username,
                     ],
-                ]
+                ],
             );
 
             return false;
@@ -283,7 +279,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
         if (! $resellerHostingDeployment instanceof ResellerHostingDeployment) {
             throw ResellerHostingException::noDirectadminUsernameFound(
                 $parameters->username,
-                'resetPassword'
+                'resetPassword',
             );
         }
 
@@ -315,7 +311,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
             throw ResellerHostingException::directadminCommandFailed(
                 'resetPassword - ChangePassword',
                 $error->getCode(),
-                $error
+                $error,
             );
         }
 
@@ -359,7 +355,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
 
         if ($resellerHostingDeployment->directadmin_customer_username === null) {
             throw ResellerHostingException::noDirectAdminUserNameForReseller(
-                $resellerHostingDeployment->subscription_uuid
+                $resellerHostingDeployment->subscription_uuid,
             );
         }
 
@@ -376,15 +372,14 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
             /**
              * @var DomainDeployment $domainParentSubscription
              */
-            $domainParentSubscription = DomainDeployment::where('subscription_uuid', $domainDeployment->uuid)
-                ->first();
+            $domainParentSubscription = DomainDeployment::where('subscription_uuid', $domainDeployment->uuid)->first();
 
             $resultSetNameServer = $this->setNameserversForDomain(
                 $domainParentSubscription,
                 $resellerHostingDeployment->server,
             );
         } catch (DirectAdminCommandException $exception) {
-            throw  new ResellerHostingNameserverCoupleException($domain, $exception->getCode(), $exception);
+            throw new ResellerHostingNameserverCoupleException($domain, $exception->getCode(), $exception);
         } catch (Exception $exception) {
             throw new ResellerHostingException($exception->getMessage(), $exception->getCode(), $exception);
         }
@@ -404,9 +399,10 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
             $this->installCertificate(
                 $resellerHostingDeployment->server,
                 $domain,
-                $parameters->getUserName()
+                $parameters->getUserName(),
             );
         }
+
         return true;
     }
 
@@ -424,7 +420,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
         $ns2 = $nameserver->getFormValues()['NS2'];
         $nameservers = [
             new Nameserver(is_array($ns1) ? reset($ns1) : $ns1),
-            new Nameserver((is_array($ns2) ? reset($ns2) : $ns2)),
+            new Nameserver(is_array($ns2) ? reset($ns2) : $ns2),
         ];
 
         return $this->domainService->setCustomNameservers(
@@ -459,9 +455,13 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
                 self::class . '::installCertificate',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
-            throw ResellerHostingSslCoupleException::installCertificateError($domain, $exception->getCode(), $exception);
+            throw ResellerHostingSslCoupleException::installCertificateError(
+                $domain,
+                $exception->getCode(),
+                $exception,
+            );
         }
 
         if (! $status) {
@@ -471,10 +471,11 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
                     LoggingContextKeys::META => [
                         'message' => "Failed to install an SSL certificate for domain {$parameters->getDomain()}",
                     ],
-                ]
+                ],
             );
             throw new ResellerHostingNameserverCoupleException($domain);
         }
+
         return true;
     }
 
@@ -493,7 +494,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
     {
         $resellerHostingDeployment = ResellerHostingDeployment::where(
             'directadmin_customer_username',
-            $username
+            $username,
         )->firstOrFail();
 
         $server = $resellerHostingDeployment->server;
@@ -519,7 +520,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
                 // Dev note: These fields are only added if there is a "set" function in the ModifyReseller class
                 'dnscontrol' => 'OFF',
                 'login_keys' => 'ON',
-            ]
+            ],
         );
 
         Log::debug(
@@ -532,7 +533,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
                     'username' => $username,
                     'new_reseller_payload' => $newPayload,
                 ],
-            ]
+            ],
         );
 
         $response = $this->directAdmin->reseller($server)->update(
@@ -550,7 +551,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
                     'username' => $username,
                     'response_body' => $response->getResponseBody(),
                 ],
-            ]
+            ],
         );
 
         return $response->hasSucceeded();
@@ -567,19 +568,17 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
         int $providerId,
         string $customerEmail,
         Server $server,
-        array $specs
+        array $specs,
     ): ResellerHostingParameters {
         $username = $this->generateUsername();
 
         $domain = $this->generateDomain(
             $username,
-            $this->configuration->getAsString('hostingservice.directadmin.create_placeholder_domain')
+            $this->configuration->getAsString('hostingservice.directadmin.create_placeholder_domain'),
         );
 
         $specsArray = (array) Arr::first($specs);
-        $productId = is_numeric(Arr::get($specsArray, 'product_id'))
-            ? (int) Arr::get($specsArray, 'product_id')
-            : 0;
+        $productId = is_numeric(Arr::get($specsArray, 'product_id')) ? (int) Arr::get($specsArray, 'product_id') : 0;
 
         Log::info(
             self::class . '::parameters',
@@ -588,7 +587,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
                     'message' => "The following specifications are configured for the product with id {$productId}",
                     'specs' => $specs,
                 ],
-            ]
+            ],
         );
 
         $product = Product::findOrFail($productId);
@@ -603,7 +602,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
             ipv6Address: $server->getIpv6(),
             packageName: $product->slug,
             resellerHostingId: null,
-            providerId: $providerId
+            providerId: $providerId,
         );
     }
 
@@ -614,7 +613,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
         string $contactPersonName,
         string $contactEmail,
         UuidInterface $uuid,
-        ResellerHostingParameters $parameters
+        ResellerHostingParameters $parameters,
     ): void {
         $resellerHostingDeployment = ResellerHostingDeployment::find($parameters->resellerHostingId);
         $port = null;
@@ -635,7 +634,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
                 $parameters->ipv4Address ?? '',
                 $use_ssl,
                 $port,
-            )
+            ),
         );
     }
 
@@ -647,7 +646,7 @@ class DirectAdminResellerHostingService implements ResellerHostingServiceInterfa
         Server $server,
         ResellerHostingParameters $parameters,
         array $specs,
-        ?string $commandResult = null
+        ?string $commandResult = null,
     ): void {
         $resellerHostingDeployment = ResellerHostingDeployment::query()
             ->where('subscription_uuid', $subscriptionUuid)

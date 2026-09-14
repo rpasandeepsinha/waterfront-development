@@ -58,7 +58,9 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
         );
 
         $this->parentProduct = new ProductFactory()->for(new ProductGroupFactory()->ssl())->createOne();
-        $this->oneTimeServiceProduct = new ProductFactory()->for(new ProductGroupFactory()->oneTimeService())->createOne();
+        $this->oneTimeServiceProduct = new ProductFactory()->for(
+            new ProductGroupFactory()->oneTimeService(),
+        )->createOne();
     }
 
     #[Test]
@@ -66,31 +68,32 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
     {
         $order = new OrderFactory()->for(new CustomerFactory()->createOne())->createOne();
 
-        $orderLineItem = new OrderLineItemFactory()->for($order)
-            ->createOne(
-                [
-                    'parent_id' => null,
-                    'subscription_uuid' => null,
-                    'status' => 'registration',
-                ]
-            );
-        $this->logger->expects(self::once())
+        $orderLineItem = new OrderLineItemFactory()->for($order)->createOne(
+            [
+                'parent_id' => null,
+                'subscription_uuid' => null,
+                'status' => 'registration',
+            ],
+        );
+        $this->logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Creating one time services from order {order.id}',
                 [
                     LoggingContextKeys::ORDER_ID => $order->id,
-                ]
+                ],
             );
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Product is required to create a one time service for order line #{order_line.id} for order #{order.id}.',
                 [
                     LoggingContextKeys::ORDER_ID => $order->id,
                     LoggingContextKeys::ORDER_LINE_ID => $orderLineItem->id,
-                ]
+                ],
             );
 
         self::expectException(RuntimeException::class);
@@ -104,25 +107,28 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
     {
         $order = new OrderFactory()->for(new CustomerFactory()->createOne())->createOne();
 
-        $orderLineItem = new OrderLineItemFactory()->for($order)
+        $orderLineItem = new OrderLineItemFactory()
+            ->for($order)
             ->for($this->oneTimeServiceProduct)
             ->createOne(
                 [
                     'parent_id' => null,
                     'subscription_uuid' => null,
                     'status' => 'registration',
-                ]
+                ],
             );
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Creating one time services from order {order.id}',
                 [
                     LoggingContextKeys::ORDER_ID => $order->id,
-                ]
+                ],
             );
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Parent subscription missing for one time service for order line #{order_line.id} for order #{order.id}.',
@@ -131,7 +137,7 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
                     LoggingContextKeys::ORDER_LINE_ID => $orderLineItem->id,
                     LoggingContextKeys::PRODUCT_ID => $orderLineItem->product?->id,
                     LoggingContextKeys::PRODUCT_SLUG => $orderLineItem->product?->slug,
-                ]
+                ],
             );
 
         self::expectException(RuntimeException::class);
@@ -145,24 +151,27 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
     {
         $order = new OrderFactory()->for(new CustomerFactory()->createOne())->createOne();
 
-        $parentOrderLine = new OrderLineItemFactory()->for($order)
+        $parentOrderLine = new OrderLineItemFactory()
+            ->for($order)
             ->for($this->parentProduct)
             ->createOne(
                 [
                     'subscription_uuid' => null,
                     'status' => 'registration',
-                ]
+                ],
             );
-        $orderLineItem = new OrderLineItemFactory()->for($order)
+        $orderLineItem = new OrderLineItemFactory()
+            ->for($order)
             ->for($this->oneTimeServiceProduct)
             ->createOne(
                 [
                     'parent_id' => $parentOrderLine->id,
                     'subscription_uuid' => null,
                     'status' => 'registration',
-                ]
+                ],
             );
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Could not create one time service for order line #{order_line.id} for order #{order.id} because of missing subscription. Subscription should be created first.',
@@ -171,7 +180,7 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
                     LoggingContextKeys::ORDER_LINE_ID => $orderLineItem->id,
                     LoggingContextKeys::PRODUCT_ID => $orderLineItem->product?->id,
                     LoggingContextKeys::PRODUCT_SLUG => $orderLineItem->product?->slug,
-                ]
+                ],
             );
 
         self::expectException(RuntimeException::class);
@@ -187,17 +196,22 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
         $order = new OrderFactory()->for($customer)->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($this->parentProduct)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->parentProduct)
+            ->createOne();
 
-        $parentOrderLine = new OrderLineItemFactory()->for($order)
+        $parentOrderLine = new OrderLineItemFactory()
+            ->for($order)
             ->for($this->parentProduct)
             ->for($subscription)
             ->createOne(
                 [
                     'status' => 'registration',
-                ]
+                ],
             );
-        $orderLineItem = new OrderLineItemFactory()->for($order)
+        $orderLineItem = new OrderLineItemFactory()
+            ->for($order)
             ->for($this->oneTimeServiceProduct)
             ->createOne(
                 [
@@ -206,17 +220,19 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
                     'status' => 'registration',
                     'gross_price' => 101,
                     'net_price' => 50,
-                ]
+                ],
             );
-        $oneTimeService = new OneTimeServiceFactory()->for($customer)
+        $oneTimeService = new OneTimeServiceFactory()
+            ->for($customer)
             ->for($subscription)
             ->createOne(
                 [
                     'product_id' => $this->oneTimeServiceProduct->id,
-                ]
+                ],
             );
 
-        $this->oneTimeServiceRepository->expects(self::once())
+        $this->oneTimeServiceRepository
+            ->expects(self::once())
             ->method('create')
             ->with(self::callback(fn (OneTimeServiceContext $context) => $context->discountPercentage === 50), 101)
             ->willReturn($oneTimeService);
@@ -236,17 +252,22 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
         $order = new OrderFactory()->for($customer)->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($this->parentProduct)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->parentProduct)
+            ->createOne();
 
-        $parentOrderLine = new OrderLineItemFactory()->for($order)
+        $parentOrderLine = new OrderLineItemFactory()
+            ->for($order)
             ->for($this->parentProduct)
             ->for($subscription)
             ->createOne(
                 [
                     'status' => 'registration',
-                ]
+                ],
             );
-        new OrderLineItemFactory()->for($order)
+        new OrderLineItemFactory()
+            ->for($order)
             ->for($this->oneTimeServiceProduct)
             ->createOne(
                 [
@@ -255,10 +276,11 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
                     'status' => 'registration',
                     'gross_price' => 101,
                     'net_price' => 0,
-                ]
+                ],
             );
 
-        $this->oneTimeServiceRepository->expects(self::once())
+        $this->oneTimeServiceRepository
+            ->expects(self::once())
             ->method('create')
             ->with(self::callback(fn (OneTimeServiceContext $context) => $context->discountPercentage === 100), 101);
 
@@ -272,17 +294,22 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
         $order = new OrderFactory()->for($customer)->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($this->parentProduct)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->parentProduct)
+            ->createOne();
 
-        $parentOrderLine = new OrderLineItemFactory()->for($order)
+        $parentOrderLine = new OrderLineItemFactory()
+            ->for($order)
             ->for($this->parentProduct)
             ->for($subscription)
             ->createOne(
                 [
                     'status' => 'registration',
-                ]
+                ],
             );
-        new OrderLineItemFactory()->for($order)
+        new OrderLineItemFactory()
+            ->for($order)
             ->for($this->oneTimeServiceProduct)
             ->createOne(
                 [
@@ -291,10 +318,11 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
                     'status' => 'registration',
                     'gross_price' => 0,
                     'net_price' => 0,
-                ]
+                ],
             );
 
-        $this->oneTimeServiceRepository->expects(self::once())
+        $this->oneTimeServiceRepository
+            ->expects(self::once())
             ->method('create')
             ->with(self::callback(fn (OneTimeServiceContext $context) => $context->discountPercentage === 0), 0);
 
@@ -306,40 +334,47 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
         $order = new OrderFactory()->for($customer)->createOne();
-        new PaymentFactory()->for($order)->for($customer)->createOne([
-            'status' => PaymentStatus::PAID,
-        ]);
+        new PaymentFactory()
+            ->for($order)
+            ->for($customer)
+            ->createOne([
+                'status' => PaymentStatus::PAID,
+            ]);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($this->parentProduct)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->parentProduct)
+            ->createOne();
 
-        $parentOrderLine = new OrderLineItemFactory()->for($order)
+        $parentOrderLine = new OrderLineItemFactory()
+            ->for($order)
             ->for($this->parentProduct)
             ->for($subscription)
             ->createOne(
                 [
                     'status' => 'registration',
-                ]
+                ],
             );
-        $orderLineItem = new OrderLineItemFactory()->for($order)
+        $orderLineItem = new OrderLineItemFactory()
+            ->for($order)
             ->for($this->oneTimeServiceProduct)
             ->createOne(
                 [
                     'parent_id' => $parentOrderLine->id,
                     'subscription_uuid' => null,
                     'status' => 'registration',
-                ]
+                ],
             );
-        $oneTimeService = new OneTimeServiceFactory()->for($customer)
+        $oneTimeService = new OneTimeServiceFactory()
+            ->for($customer)
             ->for($subscription)
             ->createOne(
                 [
                     'product_id' => $this->oneTimeServiceProduct->id,
-                ]
+                ],
             );
 
-        $this->oneTimeServiceRepository->expects(self::once())
-            ->method('create')
-            ->willReturn($oneTimeService);
+        $this->oneTimeServiceRepository->expects(self::once())->method('create')->willReturn($oneTimeService);
 
         $this->oneTimeServiceCreator->createFromOrder($order);
 
@@ -353,25 +388,31 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
         $order = new OrderFactory()->for($customer)->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($this->parentProduct)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->parentProduct)
+            ->createOne();
 
-        $parentOrderLine = new OrderLineItemFactory()->for($order)
+        $parentOrderLine = new OrderLineItemFactory()
+            ->for($order)
             ->for($this->parentProduct)
             ->for($subscription)
             ->createOne(
                 [
                     'status' => 'registration',
-                ]
+                ],
             );
-        $oneTimeService = new OneTimeServiceFactory()->for($customer)
+        $oneTimeService = new OneTimeServiceFactory()
+            ->for($customer)
             ->for($subscription)
             ->createOne(
                 [
                     'product_id' => $this->oneTimeServiceProduct->id,
-                ]
+                ],
             );
 
-        $orderLineItem = new OrderLineItemFactory()->for($order)
+        $orderLineItem = new OrderLineItemFactory()
+            ->for($order)
             ->for($this->oneTimeServiceProduct)
             ->createOne(
                 [
@@ -379,11 +420,9 @@ class OneTimeServiceCreatorTest extends IntegrationTestCase
                     'subscription_uuid' => null,
                     'status' => 'registration',
                     'one_time_service_id' => $oneTimeService->id,
-                ]
+                ],
             );
-        $this->oneTimeServiceRepository->expects(self::never())
-            ->method('create')
-            ->willReturn($oneTimeService);
+        $this->oneTimeServiceRepository->expects(self::never())->method('create')->willReturn($oneTimeService);
 
         $this->oneTimeServiceCreator->createFromOrder($order);
 

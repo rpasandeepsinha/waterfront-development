@@ -31,7 +31,7 @@ class RemoveCustomerNumberFromIdentityAction
                     'Detaching customer number %d from lighthouse identity %s',
                     $customerNumber,
                     $uuid,
-                )
+                ),
             );
             $this->lighthouseApiService->detachIdentityForBusinessUnit($uuid, $customerNumber);
         } catch (LighthouseException $exception) {
@@ -45,7 +45,7 @@ class RemoveCustomerNumberFromIdentityAction
             throw new DetachCustomerNumberFromIdentityFailedException(
                 $message,
                 $exception->getCode(),
-                $exception
+                $exception,
             );
         }
     }

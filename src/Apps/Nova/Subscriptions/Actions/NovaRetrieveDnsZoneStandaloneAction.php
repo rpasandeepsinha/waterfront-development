@@ -40,9 +40,7 @@ class NovaRetrieveDnsZoneStandaloneAction extends NovaSubscriptionAction
     public function fields(NovaRequest $request): array
     {
         return [
-            Text::make('Domain', 'domain')
-                ->rules('required')
-                ->required(),
+            Text::make('Domain', 'domain')->rules('required')->required(),
         ];
     }
 
@@ -58,7 +56,7 @@ class NovaRetrieveDnsZoneStandaloneAction extends NovaSubscriptionAction
                 'nova-action.retrieve_dns_zone_description',
                 [
                     'version' => $this->rawPowerDnsRetriever->getPowerDnsVersion(),
-                ]
+                ],
             ),
             'code' => json_encode([
                 'zone' => $this->rawPowerDnsRetriever->getPowerDnsZoneResponseBody($domain),

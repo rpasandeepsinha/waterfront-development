@@ -52,7 +52,7 @@ class HubspotClientProvider extends BaseProvider implements DeferrableProvider
             return new ContactsClient(
                 crm: $crm,
                 serializer: HubspotSerializerFactory::get(),
-                config: $config
+                config: $config,
             );
         });
     }

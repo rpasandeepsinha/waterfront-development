@@ -72,9 +72,7 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
             ->administrativeStatusActive()
             ->for($this->customer)
             ->for(
-                new ProductFactory()
-                ->hostingBrons()
-                ->withServicePlus()
+                new ProductFactory()->hostingBrons()->withServicePlus(),
             )
             ->createOne();
 
@@ -92,19 +90,15 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $secondStart = $date->setTime(11, 0);
         $secondEnd = $date->setTime(11, 30);
 
-        $firstSlot = PuzzelCallbackTimeslotFactory::new()
-            ->state([
-                'start_timeslot' => $firstStart,
-                'end_timeslot' => $firstEnd,
-            ])
-            ->makeOne();
+        $firstSlot = PuzzelCallbackTimeslotFactory::new()->state([
+            'start_timeslot' => $firstStart,
+            'end_timeslot' => $firstEnd,
+        ])->makeOne();
 
-        $secondSlot = PuzzelCallbackTimeslotFactory::new()
-            ->state([
-                'start_timeslot' => $secondStart,
-                'end_timeslot' => $secondEnd,
-            ])
-            ->makeOne();
+        $secondSlot = PuzzelCallbackTimeslotFactory::new()->state([
+            'start_timeslot' => $secondStart,
+            'end_timeslot' => $secondEnd,
+        ])->makeOne();
 
         $desiredCallbackTime = $date->setTime(10, 15);
 
@@ -178,12 +172,10 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $startTimeslot = new CarbonImmutable('2025-12-05 14:00:00');
         $endTimeslot = new CarbonImmutable('2025-12-05 15:00:00');
 
-        $timeslot = PuzzelCallbackTimeslotFactory::new()
-            ->state([
-                'start_timeslot' => $startTimeslot,
-                'end_timeslot' => $endTimeslot,
-            ])
-            ->makeOne();
+        $timeslot = PuzzelCallbackTimeslotFactory::new()->state([
+            'start_timeslot' => $startTimeslot,
+            'end_timeslot' => $endTimeslot,
+        ])->makeOne();
 
         $dateKey = '2025-12-05';
 
@@ -232,20 +224,22 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         CarbonImmutable::setTestNow($now);
 
         $mockPuzzelClient = new OAuthMockClient([
-            RequestVisualQueues::class => MockResponse::make('{"result": [], "code": 0, "id": "550e8400-e29b-41d4-a716-446655440000", "message": "OK"}'),
-            RequestVisualQueue::class => MockResponse::make('{"result": [], "code": 0, "id": "550e8400-e29b-41d4-a716-446655440000", "message": "OK"}'),
+            RequestVisualQueues::class => MockResponse::make(
+                '{"result": [], "code": 0, "id": "550e8400-e29b-41d4-a716-446655440000", "message": "OK"}',
+            ),
+            RequestVisualQueue::class => MockResponse::make(
+                '{"result": [], "code": 0, "id": "550e8400-e29b-41d4-a716-446655440000", "message": "OK"}',
+            ),
         ]);
 
         $this->puzzelConnector->withMockClient($mockPuzzelClient);
         $this->app->bind(PuzzelConnector::class, fn () => $this->puzzelConnector);
 
-        PuzzelCallbackTimeslotFactory::new()
-            ->state([
-                'start_timeslot' => $now->setTime(9, 0),
-                'end_timeslot' => $now->setTime(9, 30),
-                'capacity' => 5,
-            ])
-            ->createOne();
+        PuzzelCallbackTimeslotFactory::new()->state([
+            'start_timeslot' => $now->setTime(9, 0),
+            'end_timeslot' => $now->setTime(9, 30),
+            'capacity' => 5,
+        ])->createOne();
 
         $response = $this->actingAsCustomer($this->customer)
             ->getJson(
@@ -307,13 +301,11 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $endTimeslot = $now->setTime(10, 30);
         $dateKey = $now->format('Y-m-d');
 
-        $timeslot = PuzzelCallbackTimeslotFactory::new()
-            ->state([
-                'start_timeslot' => $startTimeslot,
-                'end_timeslot' => $endTimeslot,
-                'capacity' => 1,
-            ])
-            ->createOne();
+        $timeslot = PuzzelCallbackTimeslotFactory::new()->state([
+            'start_timeslot' => $startTimeslot,
+            'end_timeslot' => $endTimeslot,
+            'capacity' => 1,
+        ])->createOne();
 
         PuzzelCallbackRequestFactory::new()
             ->for($this->customer, 'customer')
@@ -349,7 +341,9 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne();
 
         $mockClient = new OAuthMockClient([
-            CreateCallback::class => MockResponse::make(body: '', status: 301, headers: ['Location' => CreateCallback::REDIRECT_OK]),
+            CreateCallback::class => MockResponse::make(body: '', status: 301, headers: [
+                'Location' => CreateCallback::REDIRECT_OK,
+            ]),
         ]);
 
         $this->puzzelConnector->withMockClient($mockClient);
@@ -365,7 +359,7 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 uri: $this->generateRoute('partners.puzzel.support-call.store'),
-                data: $postData
+                data: $postData,
             )
             ->assertCreated()
             ->assertJson([
@@ -393,7 +387,9 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne();
 
         $mockClient = new OAuthMockClient([
-            CreateCallback::class => MockResponse::make(body: '', status: 301, headers: ['Location' => CreateCallback::REDIRECT_OK]),
+            CreateCallback::class => MockResponse::make(body: '', status: 301, headers: [
+                'Location' => CreateCallback::REDIRECT_OK,
+            ]),
         ]);
 
         $this->puzzelConnector->withMockClient($mockClient);
@@ -409,7 +405,7 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 uri: $this->generateRoute('partners.puzzel.support-call.store'),
-                data: $postData
+                data: $postData,
             )
             ->assertUnprocessable()
             ->assertJson([
@@ -437,7 +433,9 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne();
 
         $mockClient = new OAuthMockClient([
-            CreateCallback::class => MockResponse::make(body: '', status: 301, headers: ['Location' => CreateCallback::REDIRECT_OK]),
+            CreateCallback::class => MockResponse::make(body: '', status: 301, headers: [
+                'Location' => CreateCallback::REDIRECT_OK,
+            ]),
         ]);
 
         $this->puzzelConnector->withMockClient($mockClient);
@@ -451,7 +449,7 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 uri: $this->generateRoute('partners.puzzel.support-call.store'),
-                data: $postData
+                data: $postData,
             )
             ->assertCreated()
             ->assertJson([
@@ -477,7 +475,9 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne();
 
         $mockClient = new OAuthMockClient([
-            CreateCallback::class => MockResponse::make(body: '', status: 301, headers: ['Location' => CreateCallback::REDIRECT_OK]),
+            CreateCallback::class => MockResponse::make(body: '', status: 301, headers: [
+                'Location' => CreateCallback::REDIRECT_OK,
+            ]),
         ]);
 
         $this->puzzelConnector->withMockClient($mockClient);
@@ -493,7 +493,7 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 uri: $this->generateRoute('partners.puzzel.support-call.store'),
-                data: $postData
+                data: $postData,
             )
             ->assertCreated()
             ->assertJson([
@@ -537,7 +537,7 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 uri: $this->generateRoute('partners.puzzel.support-call.store'),
-                data: $postData
+                data: $postData,
             )
             ->assertServerError()
             ->assertJson([
@@ -572,7 +572,7 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 uri: $this->generateRoute('partners.puzzel.support-call.store'),
-                data: $postData
+                data: $postData,
             )
             ->assertUnprocessable()
             ->assertJson([
@@ -612,7 +612,7 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 uri: $this->generateRoute('partners.puzzel.support-call.store'),
-                data: $postData
+                data: $postData,
             )
             ->assertUnprocessable()
             ->assertJson([
@@ -640,7 +640,9 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne();
 
         $mockClient = new OAuthMockClient([
-            CreateCallback::class => MockResponse::make(body: '', status: 301, headers: ['Location' => CreateCallback::REDIRECT_ERROR])->throw(new SaloonException('error')),
+            CreateCallback::class => MockResponse::make(body: '', status: 301, headers: [
+                'Location' => CreateCallback::REDIRECT_ERROR,
+            ])->throw(new SaloonException('error')),
         ]);
 
         $this->puzzelConnector->withMockClient($mockClient);
@@ -656,7 +658,7 @@ class ScheduledSupportCallControllerTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 uri: $this->generateRoute('partners.puzzel.support-call.store'),
-                data: $postData
+                data: $postData,
             )
             ->assertServerError()
             ->assertJson([

@@ -13,8 +13,9 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
 
 class CancelSubscription extends AbstractQueueableJob
 {
-    public function __construct(private readonly Subscription $subscription)
-    {
+    public function __construct(
+        private readonly Subscription $subscription,
+    ) {
         parent::__construct();
     }
 

@@ -33,7 +33,8 @@ class RequireCompassAccessTest extends TestCase
     #[Test]
     public function passesWhenCompassAccessIsGranted(): void
     {
-        $this->authorizationChecker->expects(self::once())
+        $this->authorizationChecker
+            ->expects(self::once())
             ->method('can')
             ->with(Permissions::ACCESS_COMPASS)
             ->willReturn(true);
@@ -46,7 +47,8 @@ class RequireCompassAccessTest extends TestCase
     #[Test]
     public function throwsWhenCompassAccessIsNotGranted(): void
     {
-        $this->authorizationChecker->expects(self::once())
+        $this->authorizationChecker
+            ->expects(self::once())
             ->method('can')
             ->with(Permissions::ACCESS_COMPASS)
             ->willReturn(false);

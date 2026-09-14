@@ -25,7 +25,7 @@ class HubspotCrmHttpClient
 
     public function __construct(
         private readonly HubspotConfigDTO $config,
-        Client|null $client = null
+        ?Client $client = null,
     ) {
         $stack = HandlerStack::create();
         $stack->setHandler(new CurlHandler());
@@ -48,6 +48,7 @@ class HubspotCrmHttpClient
     {
         self::assertAuthenticated();
         $response = $this->client->get($uri, $this->getOptions());
+
         return $this->parseResponse($response);
     }
 
@@ -64,6 +65,7 @@ class HubspotCrmHttpClient
     {
         self::assertAuthenticated();
         $response = $this->client->post($uri, $this->getOptions(body: $body));
+
         return $this->parseResponse($response);
     }
 
@@ -80,6 +82,7 @@ class HubspotCrmHttpClient
     {
         self::assertAuthenticated();
         $response = $this->client->patch($uri, $this->getOptions(body: $body));
+
         return $this->parseResponse($response);
     }
 
@@ -95,6 +98,7 @@ class HubspotCrmHttpClient
     {
         self::assertAuthenticated();
         $response = $this->client->put($uri, $this->getOptions(body: $body));
+
         return $this->parseResponse($response);
     }
 
@@ -107,17 +111,28 @@ class HubspotCrmHttpClient
     {
         if ($response->getStatusCode() >= 400) {
             throw match ($response->getStatusCode()) {
-                401     => new HubspotConflictException('Invalid API credentials'),
-                403     => new HubspotConflictException('Forbidden, cannot access this part of the API with the given credentials'),
-                409     => new HubspotConflictException(sprintf('Hubspot conflict, reason: %s', $response->getBody()->getContents())),
-                429     => new HubspotThrottledException('Too many requests, was the API request quotum reached?'),
-                default => new HubspotUnexpectedResponseException(sprintf('Unexpected hubspot response (status=%s): %s', $response->getStatusCode(), $response->getBody()->getContents())),
+                401 => new HubspotConflictException('Invalid API credentials'),
+                403 => new HubspotConflictException(
+                    'Forbidden, cannot access this part of the API with the given credentials',
+                ),
+                409 => new HubspotConflictException(sprintf(
+                    'Hubspot conflict, reason: %s',
+                    $response->getBody()->getContents(),
+                )),
+                429 => new HubspotThrottledException('Too many requests, was the API request quotum reached?'),
+                default => new HubspotUnexpectedResponseException(sprintf(
+                    'Unexpected hubspot response (status=%s): %s',
+                    $response->getStatusCode(),
+                    $response->getBody()->getContents(),
+                )),
             };
         }
+
         $body = $response->getBody()->getContents();
         try {
             $json = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
             assert(is_array($json));
+
             return $json;
         } catch (JsonException $exception) {
             throw new HubspotJsonException('Decoding data from HubSpot failed', $exception->getCode(), $exception);
@@ -131,7 +146,7 @@ class HubspotCrmHttpClient
      *
      * @return array<string,mixed>
      */
-    private function getOptions(array|null $body = null): array
+    private function getOptions(?array $body = null): array
     {
         $options = [
             RequestOptions::HEADERS => $this->getHeaders(),
@@ -141,6 +156,7 @@ class HubspotCrmHttpClient
         if ($body !== null) {
             $options[RequestOptions::BODY] = json_encode($body, JSON_THROW_ON_ERROR);
         }
+
         return $options;
     }
 

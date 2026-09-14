@@ -32,7 +32,12 @@ class ProlongationPriceComponentHandler
                     ->first();
 
                 if ($prolongationPrice instanceof Price) {
-                    $registrationPrice->possiblePriceComponents[] = new ProlongationPriceComponent(null, null, $prolongationPrice->regularPrice, $prolongationPrice->regularPrice);
+                    $registrationPrice->possiblePriceComponents[] = new ProlongationPriceComponent(
+                        null,
+                        null,
+                        $prolongationPrice->regularPrice,
+                        $prolongationPrice->regularPrice,
+                    );
                 } else {
                     // We're only adding a new prolongation price here. As we use the same price as registration
                     // there is no need to add a priceComponent to the registration price

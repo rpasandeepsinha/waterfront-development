@@ -44,16 +44,20 @@ class NovaMigratedCustomerResource extends Resource
     public function fields(NovaRequest $request): array
     {
         return [
-            ID::make(self::translate('ID'), 'id')
-                ->sortable()
-                ->hideFromDetail(),
+            ID::make(self::translate('ID'), 'id')->sortable()->hideFromDetail(),
 
             Text::make(self::translate('migrated.customer.source_name'), 'reference_name')->readonly(),
             Text::make(self::translate('migrated.customer.group_type'), 'group_type')->readonly(),
-            Text::make(self::translate('migrated.customer.reference_customer_id'), 'reference_customer_number')->readonly(),
+            Text::make(
+                self::translate('migrated.customer.reference_customer_id'),
+                'reference_customer_number',
+            )->readonly(),
             DateTime::make(self::translate('migrated.customer.migration_date'), 'migrated_at'),
 
-            NovaBoolField::make(self::translate('migrated.customer.administrative_successful'), 'administrative_successful'),
+            NovaBoolField::make(
+                self::translate('migrated.customer.administrative_successful'),
+                'administrative_successful',
+            ),
 
             NovaBoolField::make(self::translate('migrated.customer.enable_invoicing'), 'enable_invoicing')
                 ->help(self::translate('nova-action.enable-invoicing.help'))
@@ -64,12 +68,12 @@ class NovaMigratedCustomerResource extends Resource
             HasMany::make(
                 self::translate('nova-resource-labels.customers'),
                 'customers',
-                NovaCustomerResource::class
+                NovaCustomerResource::class,
             ),
             HasMany::make(
                 self::translate('subscription.plural'),
                 'migratedSubscriptions',
-                NovaMigratedSubscriptionResource::class
+                NovaMigratedSubscriptionResource::class,
             ),
         ];
     }

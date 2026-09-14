@@ -55,7 +55,7 @@ class SubscriptionPolicyTest extends IntegrationTestCase
                 null,
                 null,
             ),
-            true
+            true,
         );
         $mockAuthManager->method('getAuthenticatedCustomer')->willReturn($customerDto);
         $mockAuthManager->method('getAuthenticatedSubject')->willReturn($customerDto);
@@ -118,7 +118,7 @@ class SubscriptionPolicyTest extends IntegrationTestCase
                 null,
                 null,
             ),
-            true
+            true,
         );
         $mockAuthManager->method('getAuthenticatedCustomer')->willReturn($customerDto);
         $mockAuthManager->method('getAuthenticatedSubject')->willReturn($customerDto);
@@ -162,7 +162,7 @@ class SubscriptionPolicyTest extends IntegrationTestCase
                 null,
                 null,
             ),
-            true
+            true,
         );
         $mockAuthManager->method('getAuthenticatedCustomer')->willReturn($customerDto);
         $mockAuthManager->method('getAuthenticatedSubject')->willReturn($customerDto);
@@ -206,7 +206,7 @@ class SubscriptionPolicyTest extends IntegrationTestCase
                 null,
                 null,
             ),
-            true
+            true,
         );
         $mockAuthManager->method('getAuthenticatedCustomer')->willReturn($customerDto);
         $mockAuthManager->method('getAuthenticatedSubject')->willReturn($customerDto);
@@ -246,7 +246,7 @@ class SubscriptionPolicyTest extends IntegrationTestCase
                 null,
                 null,
             ),
-            true
+            true,
         );
         $mockAuthManager->method('getAuthenticatedCustomer')->willReturn($customerDto);
         $mockAuthManager->method('getAuthenticatedSubject')->willReturn($customerDto);

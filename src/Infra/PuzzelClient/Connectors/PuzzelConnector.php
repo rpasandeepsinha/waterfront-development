@@ -33,7 +33,7 @@ class PuzzelConnector extends ClientCredentialsGrandConnector
                 (string) $this->puzzelConfig->userId,
             ],
             scopeSeparator: ':',
-            retryConfig: $this->puzzelConfig->retryConfig
+            retryConfig: $this->puzzelConfig->retryConfig,
         );
     }
 

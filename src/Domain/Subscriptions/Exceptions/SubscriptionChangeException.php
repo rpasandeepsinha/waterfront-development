@@ -13,12 +13,15 @@ class SubscriptionChangeException extends Exception
         return new self(sprintf(
             'Unable to change subscription with UUID "%s" to product "%s". No potential up- or downgrades found.',
             $subscriptionUuid,
-            $productName
+            $productName,
         ));
     }
 
-    public static function noProlongationProductPrice(string $productName, int $billingPeriod, int $contractPeriod): self
-    {
+    public static function noProlongationProductPrice(
+        string $productName,
+        int $billingPeriod,
+        int $contractPeriod,
+    ): self {
         return new self(sprintf(
             'No prolongation product price available for product "%s", billing period "%d" and contract period "%d".',
             $productName,

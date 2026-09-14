@@ -65,12 +65,13 @@ class CreditAndDispatchInvoiceLinesToHarbor
     {
         if ($invoiceLinesToCredit->count() === 0) {
             $this->logger->error('No invoice lines given that should be credited.');
+
             return;
         }
 
         $invoiceLineIds = array_map(
             fn (InvoiceToCredit $invoiceToCredit) => $invoiceToCredit->getInvoice()->id,
-            $invoiceLinesToCredit->getInvoicesToCredit()
+            $invoiceLinesToCredit->getInvoicesToCredit(),
         );
         $this->logger->notice(
             'Trying to credit and dispatch invoices lines',
@@ -82,9 +83,7 @@ class CreditAndDispatchInvoiceLinesToHarbor
         $this->validateCreditForSingleCustomer($invoiceLinesToCredit);
         $this->validateSentToHarbor($invoiceLinesToCredit);
 
-        DB::transaction(function () use (
-            &$invoiceLinesToCredit,
-        ) {
+        DB::transaction(function () use (&$invoiceLinesToCredit) {
             $this->logger->debug('Batch crediting the given invoice lines');
             $creditResult = $this->batchCrediter->batchCredit($invoiceLinesToCredit);
 
@@ -113,7 +112,9 @@ class CreditAndDispatchInvoiceLinesToHarbor
             $customerId ??= $invoiceToCredit->getInvoice()->customer_id;
 
             if ($invoiceToCredit->getInvoice()->customer_id !== $customerId) {
-                $this->logAndThrowException(new MultipleCustomersException($invoiceToCredit->getInvoice(), $customerId, self::class));
+                $this->logAndThrowException(
+                    new MultipleCustomersException($invoiceToCredit->getInvoice(), $customerId, self::class),
+                );
             }
         }
     }
@@ -125,7 +126,9 @@ class CreditAndDispatchInvoiceLinesToHarbor
     {
         foreach ($invoiceToCreditBatch->getInvoicesToCredit() as $invoiceToCredit) {
             if ($invoiceToCredit->getInvoice()->sent_to_harbor_at === null) {
-                $this->logAndThrowException(new UnsentInvoiceLineException($invoiceToCredit->getInvoice(), self::class));
+                $this->logAndThrowException(
+                    new UnsentInvoiceLineException($invoiceToCredit->getInvoice(), self::class),
+                );
             }
         }
     }
@@ -143,32 +146,35 @@ class CreditAndDispatchInvoiceLinesToHarbor
         return $this->messageBuilder->build(
             $customer,
             $creditInvoiceLines,
-            array_map(function (Invoice $invoiceLine): InvoiceLineMessageConfig {
-                $parentInvoiceLine = $invoiceLine->parentInvoice;
+            array_map(
+                function (Invoice $invoiceLine): InvoiceLineMessageConfig {
+                    $parentInvoiceLine = $invoiceLine->parentInvoice;
 
-                /**
-                 * Since this cannot ever occur so long as the InvoiceCrediter service sets parent_invoice_id the way it does now,
-                 * this logically cannot ever occur either.
-                 * I decided to include it like this anyway for formality's sake,
-                 * so that this case would be covered in the event that the aforementioned service is changed.
-                 * This means this case also does not appear in the integration test.
-                 *
-                 * @see InvoiceCrediter::credit()
-                 */
-                if ($parentInvoiceLine === null) {
-                    $this->logAndThrowException(new MissingParentInvoiceLineException($invoiceLine, self::class));
-                }
+                    /**
+                     * Since this cannot ever occur so long as the InvoiceCrediter service sets parent_invoice_id the way it does now,
+                     * this logically cannot ever occur either.
+                     * I decided to include it like this anyway for formality's sake,
+                     * so that this case would be covered in the event that the aforementioned service is changed.
+                     * This means this case also does not appear in the integration test.
+                     *
+                     * @see InvoiceCrediter::credit()
+                     */
+                    if ($parentInvoiceLine === null) {
+                        $this->logAndThrowException(new MissingParentInvoiceLineException($invoiceLine, self::class));
+                    }
 
-                $subscription = $invoiceLine->subscription;
-                $product = $invoiceLine->product;
+                    $subscription = $invoiceLine->subscription;
+                    $product = $invoiceLine->product;
 
-                return new InvoiceLineMessageConfig(
-                    invoice: $invoiceLine,
-                    product: $product,
-                    subscription: $subscription,
-                    creditedInvoiceId: $parentInvoiceLine->id,
-                );
-            }, $creditInvoiceLines),
+                    return new InvoiceLineMessageConfig(
+                        invoice: $invoiceLine,
+                        product: $product,
+                        subscription: $subscription,
+                        creditedInvoiceId: $parentInvoiceLine->id,
+                    );
+                },
+                $creditInvoiceLines,
+            ),
         );
     }
 

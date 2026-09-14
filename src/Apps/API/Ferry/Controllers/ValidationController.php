@@ -32,7 +32,7 @@ class ValidationController
         $validationPayload = new ValidationPayload(
             validationReference: $reference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $this->executeValidationAction->execute($validationPayload);

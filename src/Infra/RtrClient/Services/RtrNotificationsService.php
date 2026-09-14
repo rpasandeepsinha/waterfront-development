@@ -17,7 +17,7 @@ class RtrNotificationsService
     public function __construct(
         private readonly RealtimeRegister $realtimeRegister,
         private readonly LoggerInterface $logger,
-        private readonly string $rtrCustomer
+        private readonly string $rtrCustomer,
     ) {
     }
 
@@ -31,7 +31,7 @@ class RtrNotificationsService
             limit: $limit,
             parameters: [
                 'acknowledgeDate:null' => '',
-            ]
+            ],
         );
 
         $notifications = [];
@@ -44,7 +44,7 @@ class RtrNotificationsService
                 $this->logger->warning(sprintf(
                     'Enum error when converting RTR notification to DTO (Event: %s, Notification: %s)',
                     $rtrNotificationArray['eventType'] ?? 'null',
-                    $rtrNotificationArray['notificationType'] ?? 'null'
+                    $rtrNotificationArray['notificationType'] ?? 'null',
                 ), [
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
@@ -53,6 +53,7 @@ class RtrNotificationsService
                 ]);
             }
         }
+
         return $notifications;
     }
 

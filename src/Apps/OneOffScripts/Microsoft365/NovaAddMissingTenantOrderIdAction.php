@@ -35,8 +35,7 @@ class NovaAddMissingTenantOrderIdAction extends NovaOneOffScriptAbstractAction
     {
         return [
             ...$this->getOneOffScriptInfoFields(),
-            Boolean::make('Dry run', 'dry-run')
-                ->withMeta(['value' => true]),
+            Boolean::make('Dry run', 'dry-run')->withMeta(['value' => true]),
             Number::make('Batch amount', 'amount')->default(500),
         ];
     }
@@ -52,12 +51,12 @@ class NovaAddMissingTenantOrderIdAction extends NovaOneOffScriptAbstractAction
             sprintf(
                 'Executing one-time script %s in %s mode',
                 $this->getOneOffScriptSlug(),
-                $mode
+                $mode,
             ),
             [
                 LoggingContextKeys::ONE_OFF_SCRIPT => $this->getOneOffScriptSlug(),
                 LoggingContextKeys::META => ['dry-run' => $dryRun],
-            ]
+            ],
         );
 
         $customerInfos = Microsoft365CustomerInfo::query()
@@ -73,7 +72,7 @@ class NovaAddMissingTenantOrderIdAction extends NovaOneOffScriptAbstractAction
         if ($dryRun) {
             return self::message(sprintf(
                 'Dry run found %d customer infos with missing tenant order id.',
-                $customerInfos->count()
+                $customerInfos->count(),
             ));
         }
 
@@ -87,7 +86,7 @@ class NovaAddMissingTenantOrderIdAction extends NovaOneOffScriptAbstractAction
 
         return self::message(sprintf(
             'Found %d customer infos with missing tenant order id. Updating will be done async.',
-            $customerInfos->count()
+            $customerInfos->count(),
         ));
     }
 

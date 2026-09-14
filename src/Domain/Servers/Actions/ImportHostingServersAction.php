@@ -79,7 +79,7 @@ class ImportHostingServersAction
                     [
                         'found' => (string) count($servers),
                         'max' => (string) self::MAX_ROWS,
-                    ]
+                    ],
                 ),
             ],
         ]);
@@ -133,7 +133,7 @@ class ImportHostingServersAction
                     'line' => (string) $this->lineNumber($index),
                     'found' => (string) $foundColumnCount,
                     'expected' => (string) $expectedColumnCount,
-                ]
+                ],
             );
         }
 
@@ -171,15 +171,11 @@ class ImportHostingServersAction
 
         foreach ($columns as $column) {
             /** @var array<int, string|null> $values */
-            $values = Server::query()
-                ->whereNull('deleted_at')
-                ->whereNotNull($column)
-                ->pluck($column)
-                ->all();
+            $values = Server::query()->whereNull('deleted_at')->whereNotNull($column)->pluck($column)->all();
 
             $this->takenValues[$column] = array_fill_keys(
                 array_filter($values, static fn (?string $value): bool => $value !== null),
-                true
+                true,
             );
         }
     }
@@ -273,7 +269,7 @@ class ImportHostingServersAction
                 ],
             ],
             default => throw new ValueError(
-                sprintf('Server type [%s] cannot be imported.', $serverType->value)
+                sprintf('Server type [%s] cannot be imported.', $serverType->value),
             ),
         };
 
@@ -301,7 +297,7 @@ class ImportHostingServersAction
             ServerType::PLESK => $this->applyPleskFields($server, $serverData),
             ServerType::DIRECTADMIN => $this->applyDirectAdminFields($server, $serverData),
             default => throw new ValueError(
-                sprintf('Server type [%s] cannot be imported.', $serverType->value)
+                sprintf('Server type [%s] cannot be imported.', $serverType->value),
             ),
         };
 
@@ -357,7 +353,7 @@ class ImportHostingServersAction
                         [
                             'line' => (string) $this->lineNumber((int) $rowIndex),
                             'message' => $message,
-                        ]
+                        ],
                     )
                     : $this->translator->translate(
                         'hosting.server-import.error.line-field',
@@ -365,7 +361,7 @@ class ImportHostingServersAction
                             'line' => (string) $this->lineNumber((int) $rowIndex),
                             'field' => $column,
                             'message' => $message,
-                        ]
+                        ],
                     );
             }
         }
@@ -383,7 +379,7 @@ class ImportHostingServersAction
                 [
                     'error_count' => (string) $totalMessages,
                     'max_to_display' => (string) self::MAX_VALIDATION_MESSAGES,
-                ]
+                ],
             ),
         ];
     }

@@ -15,8 +15,9 @@ class RequireWaterfrontRelation
 {
     private const string WF_RELATION = 'waterfront';
 
-    public function __construct(private readonly AuthenticationManager $authManager)
-    {
+    public function __construct(
+        private readonly AuthenticationManager $authManager,
+    ) {
     }
 
     /**
@@ -30,10 +31,7 @@ class RequireWaterfrontRelation
             return $next($request);
         }
 
-        $businessRelations = $authenticatedSubject
-            ->identitySchema
-            ->metadataPublic
-            ->businessRelations ?? null;
+        $businessRelations = $authenticatedSubject->identitySchema->metadataPublic->businessRelations ?? null;
 
         if (is_null($businessRelations) || ! in_array(self::WF_RELATION, $businessRelations, true)) {
             throw new AuthorizationException();

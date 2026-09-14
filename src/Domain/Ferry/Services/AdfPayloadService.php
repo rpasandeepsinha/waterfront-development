@@ -41,25 +41,46 @@ class AdfPayloadService
     ) {
     }
 
-    public function fetchMigrationADFPayload(Subscription $subscription, MigrationStep $migrationStep): MigrationTypeADFPayload
-    {
+    public function fetchMigrationADFPayload(
+        Subscription $subscription,
+        MigrationStep $migrationStep,
+    ): MigrationTypeADFPayload {
         return match ($migrationStep) {
-            MigrationStep::NAMESERVER, MigrationStep::ENABLE_DNSSEC => $this->retrieveBySubscriptionForMigration($subscription, $migrationStep),
-            MigrationStep::HOSTING_MIGRATION => $this->retrieveHostingBySubscriptionForMigration($subscription, $migrationStep),
-            MigrationStep::MAIL_ONLY_MIGRATION => $this->retrieveMailOnlyBySubscriptionForMigration($subscription, $migrationStep),
-            MigrationStep::RESELLER_HOSTING_MIGRATION => $this->retrieveResellerHostingBySubscriptionForMigration($subscription, $migrationStep),
-            MigrationStep::SITEBUILDER_MIGRATION => $this->retrieveSitebuilderBySubscriptionForMigration($subscription, $migrationStep),
+            MigrationStep::NAMESERVER, MigrationStep::ENABLE_DNSSEC => $this->retrieveBySubscriptionForMigration(
+                $subscription,
+                $migrationStep,
+            ),
+            MigrationStep::HOSTING_MIGRATION => $this->retrieveHostingBySubscriptionForMigration(
+                $subscription,
+                $migrationStep,
+            ),
+            MigrationStep::MAIL_ONLY_MIGRATION => $this->retrieveMailOnlyBySubscriptionForMigration(
+                $subscription,
+                $migrationStep,
+            ),
+            MigrationStep::RESELLER_HOSTING_MIGRATION => $this->retrieveResellerHostingBySubscriptionForMigration(
+                $subscription,
+                $migrationStep,
+            ),
+            MigrationStep::SITEBUILDER_MIGRATION => $this->retrieveSitebuilderBySubscriptionForMigration(
+                $subscription,
+                $migrationStep,
+            ),
             MigrationStep::CONFIGURE_DNS,
             MigrationStep::DOMAIN_MIGRATION,
             MigrationStep::SSL_MIGRATION,
             MigrationStep::BACKUP_MIGRATION,
-            MigrationStep::REDIRECT_MIGRATION => $this->defaultPayload($subscription, $migrationStep),
+            MigrationStep::REDIRECT_MIGRATION,
+                => $this->defaultPayload($subscription, $migrationStep),
             default => throw new UnexpectedValueException('Unexpected migration step: ' . $migrationStep->value),
         };
     }
 
-    public function fetchMigrationBulkCustomerPayload(CustomerDTO $customerDTO, int|null $waterfrontCustomerId, MigrationStep $migrationStep): MigrationTypeADFPayload
-    {
+    public function fetchMigrationBulkCustomerPayload(
+        CustomerDTO $customerDTO,
+        ?int $waterfrontCustomerId,
+        MigrationStep $migrationStep,
+    ): MigrationTypeADFPayload {
         return new MigratableBulkCustomerState(
             migrationStep: $migrationStep,
             referenceName: $customerDTO->buCustomerNumber,
@@ -70,8 +91,11 @@ class AdfPayloadService
     /**
      * @param array<int<0, max>, array{waterfront_subscription_id: int, reference_subscription_id: string|null}> $subscriptions
      */
-    public function fetchMigrationBulkSubscriptionPayload(CreateSubscriptionsDTO $createSubscriptionsDTO, array $subscriptions, MigrationStep $migrationStep): MigrationTypeADFPayload
-    {
+    public function fetchMigrationBulkSubscriptionPayload(
+        CreateSubscriptionsDTO $createSubscriptionsDTO,
+        array $subscriptions,
+        MigrationStep $migrationStep,
+    ): MigrationTypeADFPayload {
         return new MigratableBulkSubscriptionState(
             migrationStep: $migrationStep,
             referenceName: $createSubscriptionsDTO->getReferenceCustomerId(),
@@ -80,14 +104,17 @@ class AdfPayloadService
         );
     }
 
-    public function fetchTechnicalMigrationBulkCustomerStatePayload(Customer $customer, MigratedCustomer $migratedCustomer, MigrationStep $migrationStep): MigrationTypeADFPayload
-    {
+    public function fetchTechnicalMigrationBulkCustomerStatePayload(
+        Customer $customer,
+        MigratedCustomer $migratedCustomer,
+        MigrationStep $migrationStep,
+    ): MigrationTypeADFPayload {
         return new MigratableTechnicalMigrationBulkCustomerState(
             migrationStep: $migrationStep,
             referenceName: $migratedCustomer->reference_name,
             waterfrontCustomerId: $customer->id,
             waterfrontCustomerNumber: $customer->customer_number,
-            referenceCustomerNumber: $migratedCustomer->reference_customer_number
+            referenceCustomerNumber: $migratedCustomer->reference_customer_number,
         );
     }
 
@@ -97,18 +124,21 @@ class AdfPayloadService
             migrationStep: $migrationStep,
             referenceName: $this->migratableSubscriptionRepository->getBuOriginNameFromSubscription($subscription),
             domain: $subscription->domain,
-            migrationSubscriptionReferenceId: $this->getReferenceId($subscription)
+            migrationSubscriptionReferenceId: $this->getReferenceId($subscription),
         );
     }
 
-    private function retrieveBySubscriptionForMigration(Subscription $subscription, MigrationStep $migrationStep): MigratableNameserverState
-    {
+    private function retrieveBySubscriptionForMigration(
+        Subscription $subscription,
+        MigrationStep $migrationStep,
+    ): MigratableNameserverState {
         $deployment = $subscription->domainDeployment;
 
         $nameservers = [];
         if ($deployment instanceof DomainDeployment) {
             $nameservers = $this->dnsDeploymentRepository->getNameserverHostnamesFromDomainDeployment($deployment);
         }
+
         /** @var array<int, string> $nameservers */
         return new MigratableNameserverState(
             migrationStep: $migrationStep,
@@ -119,8 +149,10 @@ class AdfPayloadService
         );
     }
 
-    private function retrieveHostingBySubscriptionForMigration(Subscription $subscription, MigrationStep $migrationStep): MigratableHostingState
-    {
+    private function retrieveHostingBySubscriptionForMigration(
+        Subscription $subscription,
+        MigrationStep $migrationStep,
+    ): MigratableHostingState {
         /** @var HostingDeployment $hostingDeployment */
         $hostingDeployment = $subscription->hostingDeployment()->firstOrFail();
 
@@ -133,13 +165,15 @@ class AdfPayloadService
             domain: $subscription->domain,
             migrationSubscriptionReferenceId: $this->getReferenceId($subscription),
             hostname: $hostname,
-            username:  $this->hostingDeploymentService->getUsername($hostingDeployment) ?? '',
+            username: $this->hostingDeploymentService->getUsername($hostingDeployment) ?? '',
             driver: $hostingDeployment->provider?->slug->value ?? '',
         );
     }
 
-    private function retrieveMailOnlyBySubscriptionForMigration(Subscription $subscription, MigrationStep $migrationStep): MigratableMailOnlyHostingState
-    {
+    private function retrieveMailOnlyBySubscriptionForMigration(
+        Subscription $subscription,
+        MigrationStep $migrationStep,
+    ): MigratableMailOnlyHostingState {
         /** @var HostingDeployment $hostingDeployment */
         $hostingDeployment = $subscription->hostingDeployment()->firstOrFail();
 
@@ -154,8 +188,10 @@ class AdfPayloadService
         );
     }
 
-    private function retrieveSitebuilderBySubscriptionForMigration(Subscription $subscription, MigrationStep $migrationStep): MigratableSitebuilderHostingState
-    {
+    private function retrieveSitebuilderBySubscriptionForMigration(
+        Subscription $subscription,
+        MigrationStep $migrationStep,
+    ): MigratableSitebuilderHostingState {
         /** @var HostingDeployment $hostingDeployment */
         $hostingDeployment = $subscription->hostingDeployment()->firstOrFail();
 
@@ -166,15 +202,18 @@ class AdfPayloadService
             migrationSubscriptionReferenceId: $this->getReferenceId($subscription),
             sitebuilderHostname: $hostingDeployment->basekitServer?->hostname,
             mailOnlyHostname: $hostingDeployment->mailOnlyServer->hostname ?? $hostingDeployment->server?->hostname,
-            mailOnlyUsername: $hostingDeployment->directadmin_customer_username ?? $hostingDeployment->plesk_customer_username,
+            mailOnlyUsername: $hostingDeployment->directadmin_customer_username
+            ?? $hostingDeployment->plesk_customer_username,
             basekitUserRef: $hostingDeployment->basekit_user_ref,
             basekitSiteRef: $hostingDeployment->basekit_site_ref,
             driver: $hostingDeployment->sitebuilderProvider?->slug->value ?? '',
         );
     }
 
-    private function retrieveResellerHostingBySubscriptionForMigration(Subscription $subscription, MigrationStep $migrationStep): MigratableResellerHostingState
-    {
+    private function retrieveResellerHostingBySubscriptionForMigration(
+        Subscription $subscription,
+        MigrationStep $migrationStep,
+    ): MigratableResellerHostingState {
         /** @var ResellerHostingDeployment $resellerHostingDeployment */
         $resellerHostingDeployment = $subscription->resellerHostingDeployment()->firstOrFail();
 
@@ -188,13 +227,14 @@ class AdfPayloadService
             migrationSubscriptionReferenceId: $this->getReferenceId($subscription),
             hostname: $hostname,
             username: $resellerHostingDeployment->relevant_username,
-            driver: $providerSlug
+            driver: $providerSlug,
         );
     }
 
     private function getReferenceId(Subscription $subscription): string
     {
         $migrationSubscription = $subscription->migratedSubscriptions->firstOrFail();
+
         /** @var MigratedSubscription $migrationSubscription */
         return $migrationSubscription->reference_subscription_id ?? '';
     }

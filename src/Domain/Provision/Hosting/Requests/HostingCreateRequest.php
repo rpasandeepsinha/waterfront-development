@@ -40,7 +40,7 @@ class HostingCreateRequest extends HostingProvisionRequest
         public readonly bool $enableSsh = false,
         public readonly bool $enableSsl = false,
         public readonly ?bool $installWordpress = false,
-        public readonly ?string $ipv4 = null
+        public readonly ?string $ipv4 = null,
     ) {
         $this->tag = $this->context;
     }

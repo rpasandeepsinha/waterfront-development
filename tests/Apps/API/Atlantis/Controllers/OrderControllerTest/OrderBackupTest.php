@@ -34,15 +34,26 @@ class OrderBackupTest extends IntegrationTestCase
 
         $this->backupProduct = new ProductFactory()->backupAcronis()->createOne();
 
-        new ProductPriceComponentFactory()->for($this->backupProduct)->registration()->createOne(['price' => 120]);
-        new ProductPriceComponentFactory()->for($this->backupProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($this->backupProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($this->backupProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
     }
 
     #[Test]
     public function orderSuccess(): void
     {
         /** @var mixed[] $orderData */
-        $orderData = json_decode((string) file_get_contents(__DIR__ . '/data/order_payload_backup.json'), true, 512, JSON_THROW_ON_ERROR);
+        $orderData = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/order_payload_backup.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
         $this->actingAsCustomer($this->customer)
             ->postJson($this->generateRoute('partners.order.order'), $orderData)
@@ -56,7 +67,7 @@ class OrderBackupTest extends IntegrationTestCase
             'order_line_items',
             [
                 'product_uuid' => $this->backupProduct->uuid,
-            ]
+            ],
         );
     }
 }

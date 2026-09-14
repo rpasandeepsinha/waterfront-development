@@ -52,6 +52,8 @@ use Waterfront\Domain\Domains\DTO\CheckResult;
 use Waterfront\Domain\Domains\DTO\HandleParameters;
 use Waterfront\Domain\Domains\DTO\Handles;
 use Waterfront\Domain\Domains\Enums\DomainStatus;
+use Waterfront\Domain\Domains\Exceptions\DomainDoesNotExistException;
+use Waterfront\Domain\Domains\Exceptions\DomainForbiddenException;
 use Waterfront\Domain\Domains\Exceptions\DomainModificationFailedException;
 use Waterfront\Domain\Domains\Interfaces\HandleInterface;
 use Waterfront\Domain\Domains\Models\DomainDeployment;
@@ -59,6 +61,8 @@ use Waterfront\Domain\Domains\Services\PremiumDomainService;
 use Waterfront\Domain\Products\Enums\ProductGroupType;
 use Waterfront\Domain\Products\Models\ProductGroup;
 use Waterfront\Domain\Provision\DNS\Enums\NameserverType;
+use Waterfront\Domain\Provision\Enums\ProvisionProvider;
+use Waterfront\Domain\Provision\Enums\ProvisionType;
 use Waterfront\Domain\Subscriptions\Enums\TechnicalStatus;
 use Waterfront\Infra\Common\DateTimeFormat;
 use Waterfront\Infra\Common\PublicSuffixList;
@@ -112,10 +116,12 @@ class RtrServiceTest extends IntegrationTestCase
 
         $dnsProduct = new ProductFactory()->for($this->dnsProductGroup)->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain' => 'example.nl',
-            'product_uuid' => $product->uuid,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => 'example.nl',
+                'product_uuid' => $product->uuid,
+            ]);
 
         $dnsSubscription = SubscriptionFactory::new()
             ->withCustomer()
@@ -124,13 +130,9 @@ class RtrServiceTest extends IntegrationTestCase
             ->parentSubscription($subscription)
             ->createOne();
 
-        $this->dnsDeployment = DnsDeploymentFactory::new()
-            ->for($dnsSubscription)
-            ->createOne();
+        $this->dnsDeployment = DnsDeploymentFactory::new()->for($dnsSubscription)->createOne();
 
-        $nameservers = new DnsNameserverFactory()
-            ->for((new DnsRegionFactory()))
-            ->createMany(3);
+        $nameservers = new DnsNameserverFactory()->for(new DnsRegionFactory())->createMany(3);
 
         $this->dnsDeployment->dnsNameservers()->saveMany($nameservers);
 
@@ -141,10 +143,12 @@ class RtrServiceTest extends IntegrationTestCase
             'customer_id' => $customer->id,
         ]);
 
-        $this->deployment = new DomainDeploymentFactory()->withRtrProvider()->createOne([
-            'subscription_uuid' => $subscription->uuid,
-            'contact_owner_id' => $domainContact->id,
-        ]);
+        $this->deployment = new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->createOne([
+                'subscription_uuid' => $subscription->uuid,
+                'contact_owner_id' => $domainContact->id,
+            ]);
 
         $this->rtrService = self::resolve(RtrService::class);
 
@@ -160,11 +164,13 @@ class RtrServiceTest extends IntegrationTestCase
 
         $mockRtr = self::createMock(AuthorizedClient::class);
 
-        $this->app->when(RtrService::class)
+        $this->app
+            ->when(RtrService::class)
             ->needs(RealtimeRegister::class)
             ->give(function () use ($mockRtr) {
                 $externalRtr = new RealtimeRegister('api-key');
                 $externalRtr->setClient($mockRtr);
+
                 return $externalRtr;
             });
 
@@ -216,11 +222,13 @@ class RtrServiceTest extends IntegrationTestCase
 
         $mockRtr = self::createMock(AuthorizedClient::class);
 
-        $this->app->when(RtrService::class)
+        $this->app
+            ->when(RtrService::class)
             ->needs(RealtimeRegister::class)
             ->give(function () use ($mockRtr) {
                 $externalRtr = new RealtimeRegister('api-key');
                 $externalRtr->setClient($mockRtr);
+
                 return $externalRtr;
             });
 
@@ -245,11 +253,13 @@ class RtrServiceTest extends IntegrationTestCase
 
         $mockRtr = self::createMock(AuthorizedClient::class);
 
-        $this->app->when(RtrService::class)
+        $this->app
+            ->when(RtrService::class)
             ->needs(RealtimeRegister::class)
             ->give(function () use ($mockRtr) {
                 $externalRtr = new RealtimeRegister('api-key');
                 $externalRtr->setClient($mockRtr);
+
                 return $externalRtr;
             });
 
@@ -273,11 +283,13 @@ class RtrServiceTest extends IntegrationTestCase
 
         $mockRtr = self::createMock(AuthorizedClient::class);
 
-        $this->app->when(RtrService::class)
+        $this->app
+            ->when(RtrService::class)
             ->needs(RealtimeRegister::class)
             ->give(function () use ($mockRtr) {
                 $externalRtr = new RealtimeRegister('api-key');
                 $externalRtr->setClient($mockRtr);
+
                 return $externalRtr;
             });
 
@@ -301,11 +313,13 @@ class RtrServiceTest extends IntegrationTestCase
 
         $mockRtr = self::createMock(AuthorizedClient::class);
 
-        $this->app->when(RtrService::class)
+        $this->app
+            ->when(RtrService::class)
             ->needs(RealtimeRegister::class)
             ->give(function () use ($mockRtr) {
                 $externalRtr = new RealtimeRegister('api-key');
                 $externalRtr->setClient($mockRtr);
+
                 return $externalRtr;
             });
 
@@ -332,12 +346,10 @@ class RtrServiceTest extends IntegrationTestCase
             static function (RequestInterface $request): void {
                 self::assertSame('GET', $request->getMethod());
                 self::assertSame('v2/tlds/nl/info', $request->getUri()->getPath());
-            }
+            },
         );
 
-        $categories = $this->rtrService
-            ->setClient($sdk)
-            ->getContactValidationCategoriesForDomain('example.nl');
+        $categories = $this->rtrService->setClient($sdk)->getContactValidationCategoriesForDomain('example.nl');
 
         self::assertSame(['General'], $categories);
     }
@@ -354,12 +366,10 @@ class RtrServiceTest extends IntegrationTestCase
             static function (RequestInterface $request): void {
                 self::assertSame('GET', $request->getMethod());
                 self::assertSame('v2/tlds/nl/info', $request->getUri()->getPath());
-            }
+            },
         );
 
-        $categories = $this->rtrService
-            ->setClient($sdk)
-            ->getContactValidationCategoriesForDomain('example.nl');
+        $categories = $this->rtrService->setClient($sdk)->getContactValidationCategoriesForDomain('example.nl');
 
         self::assertSame(['General'], $categories);
     }
@@ -376,12 +386,10 @@ class RtrServiceTest extends IntegrationTestCase
             static function (RequestInterface $request): void {
                 self::assertSame('GET', $request->getMethod());
                 self::assertSame('v2/tlds/nl/info', $request->getUri()->getPath());
-            }
+            },
         );
 
-        $categories = $this->rtrService
-            ->setClient($sdk)
-            ->getContactValidationCategoriesForDomain('example.nl');
+        $categories = $this->rtrService->setClient($sdk)->getContactValidationCategoriesForDomain('example.nl');
 
         self::assertSame([], $categories);
     }
@@ -396,16 +404,16 @@ class RtrServiceTest extends IntegrationTestCase
                 self::assertSame('POST', $request->getMethod());
                 self::assertSame(
                     'v2/customers/sandwave-ote1/contacts/test-handle/validate',
-                    $request->getUri()->getPath()
+                    $request->getUri()->getPath(),
                 );
 
                 $body = (array) json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
                 self::assertSame(
                     ['categories' => ['General']],
-                    $body
+                    $body,
                 );
-            }
+            },
         );
 
         $this->rtrService
@@ -419,11 +427,12 @@ class RtrServiceTest extends IntegrationTestCase
     {
         $exception = new RuntimeException('RTR contact validation failed', 400);
         $rtrClient = self::createMock(AuthorizedClient::class);
-        $rtrClient->expects(self::once())
+        $rtrClient
+            ->expects(self::once())
             ->method('post')
             ->with(
                 'v2/customers/sandwave-ote1/contacts/test-handle/validate',
-                ['categories' => ['General']]
+                ['categories' => ['General']],
             )
             ->willThrowException($exception);
 
@@ -448,12 +457,14 @@ class RtrServiceTest extends IntegrationTestCase
 
         $regions = new DnsRegionFactory()->createMany(2);
         foreach ($regions as $i => $region) {
-            $this->dnsDeployment->dnsNameservers()->save(
-                new DnsNameserverFactory()->createOne([
-                    'dns_region_id' => $region->id,
-                    'nameserver' => "int-ns{$i}.example.net",
-                ])
-            );
+            $this->dnsDeployment
+                ->dnsNameservers()
+                ->save(
+                    new DnsNameserverFactory()->createOne([
+                        'dns_region_id' => $region->id,
+                        'nameserver' => "int-ns{$i}.example.net",
+                    ]),
+                );
         }
 
         $data = include __DIR__ . '/../data/domain_details_valid.php';
@@ -461,7 +472,10 @@ class RtrServiceTest extends IntegrationTestCase
 
         $retrieveResult = $this->rtrService->setClient($sdk)->nameservers($this->deployment);
 
-        self::assertTrue($retrieveResult->getIsDefaultNameservers(), 'When nameserver_type is INTERNAL, isDefaultNameservers should be true');
+        self::assertTrue(
+            $retrieveResult->getIsDefaultNameservers(),
+            'When nameserver_type is INTERNAL, isDefaultNameservers should be true',
+        );
     }
 
     #[Test]
@@ -480,7 +494,10 @@ class RtrServiceTest extends IntegrationTestCase
 
         $retrieve = $this->rtrService->setClient($sdk)->nameservers($this->deployment);
 
-        self::assertFalse($retrieve->getIsDefaultNameservers(), 'When nameserver_type is EXTERNAL, isDefaultNameservers should be false');
+        self::assertFalse(
+            $retrieve->getIsDefaultNameservers(),
+            'When nameserver_type is EXTERNAL, isDefaultNameservers should be false',
+        );
     }
 
     #[Test]
@@ -499,7 +516,10 @@ class RtrServiceTest extends IntegrationTestCase
 
         $retrieve = $this->rtrService->setClient($sdk)->nameservers($this->deployment);
 
-        self::assertTrue($retrieve->getIsDefaultNameservers(), 'When nameserver_type is VANITY, isDefaultNameservers should be true');
+        self::assertTrue(
+            $retrieve->getIsDefaultNameservers(),
+            'When nameserver_type is VANITY, isDefaultNameservers should be true',
+        );
     }
 
     #[Test]
@@ -509,7 +529,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($data)
+            $this->getJsonString($data),
         );
 
         $result = $this->rtrService->setClient($sdk)->check('mydomain.com');
@@ -524,10 +544,7 @@ class RtrServiceTest extends IntegrationTestCase
         $data = include __DIR__ . '/../data/tld_info_data_valid.php';
 
         $dnsMock = self::createMock(DnsService::class);
-        $dnsMock
-            ->expects(self::once())
-            ->method('getDnsZone')
-            ->willReturn($this->masterExampleZone);
+        $dnsMock->expects(self::once())->method('getDnsZone')->willReturn($this->masterExampleZone);
 
         $sdk = MockedClientFactory::makeSdkWithMultipleReponses([
             new Response(200, [], $this->getJsonString($data)),
@@ -557,9 +574,7 @@ class RtrServiceTest extends IntegrationTestCase
     public function isDnssecSupportedNoDnsZone(string $domain, string $unusedTld): void
     {
         $dnsMock = self::createMock(DnsService::class);
-        $dnsMock->expects(self::once())
-            ->method('getDnsZone')
-            ->willThrowException(new DnsZoneNotFoundException());
+        $dnsMock->expects(self::once())->method('getDnsZone')->willThrowException(new DnsZoneNotFoundException());
 
         $this->rtrService = new RtrService(
             self::resolve(RealtimeRegister::class),
@@ -647,17 +662,19 @@ class RtrServiceTest extends IntegrationTestCase
         $regions = new DnsRegionFactory()->createMany(3);
 
         foreach ($regions as $key => $region) {
-            $this->dnsDeployment->dnsNameservers()->save(
-                new DnsNameserverFactory()->createOne([
-                    'dns_region_id' => $region->id,
-                    'nameserver' => $nameserverArray[$key],
-                ])
-            );
+            $this->dnsDeployment
+                ->dnsNameservers()
+                ->save(
+                    new DnsNameserverFactory()->createOne([
+                        'dns_region_id' => $region->id,
+                        'nameserver' => $nameserverArray[$key],
+                    ]),
+                );
         }
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($data)
+            $this->getJsonString($data),
         );
 
         $retrieveResult = $this->rtrService->setClient($sdk)->nameservers($this->deployment);
@@ -690,7 +707,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($data)
+            $this->getJsonString($data),
         );
 
         $handle = 'sandwave-ote1';
@@ -710,7 +727,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($data)
+            $this->getJsonString($data),
         );
 
         $handle = 'sandwave-ote1';
@@ -727,7 +744,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($data)
+            $this->getJsonString($data),
         );
 
         $handle = 'sandwave-ote1';
@@ -744,7 +761,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($data)
+            $this->getJsonString($data),
         );
 
         $handle = 'sandwave-ote1';
@@ -761,7 +778,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($data)
+            $this->getJsonString($data),
         );
 
         $handle = 'sandwave-ote1';
@@ -854,8 +871,7 @@ class RtrServiceTest extends IntegrationTestCase
             ])),
         ]);
 
-        $process = $this->rtrService->setClient($sdk)
-            ->findOpenPrevalidationProcessForDomain('missing-domain.nl');
+        $process = $this->rtrService->setClient($sdk)->findOpenPrevalidationProcessForDomain('missing-domain.nl');
 
         self::assertNotNull($process);
         self::assertSame(3, $process->id);
@@ -870,7 +886,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($domainDetailsValidData)
+            $this->getJsonString($domainDetailsValidData),
         );
 
         $date = $this->rtrService->setClient($sdk)->retrieveRenewalDate($domain);
@@ -923,7 +939,7 @@ class RtrServiceTest extends IntegrationTestCase
         $tldInfoValidData = json_encode(include __DIR__ . '/../data/tld_info_data_valid.php', JSON_THROW_ON_ERROR);
         $domainRegistrationData = json_encode(
             include __DIR__ . '/../data/domain_registration_valid.php',
-            JSON_THROW_ON_ERROR
+            JSON_THROW_ON_ERROR,
         );
 
         $rtrClient
@@ -933,14 +949,15 @@ class RtrServiceTest extends IntegrationTestCase
                 ...self::withConsecutive(
                     ['v2/customers/sandwave-ote1/contacts/test-handle'],
                     ['v2/tlds/nl/info'],
-                )
+                ),
             )
             ->willReturnOnConsecutiveCalls(
                 new RealtimeRegisterResponse($contactValidData, [], 200),
                 new RealtimeRegisterResponse($tldInfoValidData, [], 200),
             );
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Minimal Register Using handles',
@@ -961,7 +978,7 @@ class RtrServiceTest extends IntegrationTestCase
                             ],
                         ],
                     ],
-                ]
+                ],
             );
 
         $rtrClient
@@ -970,11 +987,13 @@ class RtrServiceTest extends IntegrationTestCase
             ->with(
                 'v2/domains/example.nl',
                 self::callback(
-                    fn (array $body) => ! array_key_exists('ns', $body)
-                    && ! array_key_exists('keyData', $body)
-                    && $body['privacyProtect'] === false
-                    && $body['contacts'][0]['handle'] === 'test-handle'
-                )
+                    fn (array $body) => (
+                        ! array_key_exists('ns', $body)
+                        && ! array_key_exists('keyData', $body)
+                        && $body['privacyProtect'] === false
+                        && $body['contacts'][0]['handle'] === 'test-handle'
+                    ),
+                ),
             )
             ->willReturn(new RealtimeRegisterResponse($domainRegistrationData, [], 200));
 
@@ -983,16 +1002,15 @@ class RtrServiceTest extends IntegrationTestCase
             ->method('logApiResponse')
             ->with(
                 self::callback(
-                    fn (string $json) => str_contains($json, '"domainName":"example.nl"')
-                )
+                    fn (string $json) => str_contains($json, '"domainName":"example.nl"'),
+                ),
             );
 
         $sdk = new RealtimeRegister('mock-key-rtr');
         $sdk->setClient($rtrClient);
 
         $configurationMock = self::createStub(ConfigurationInterface::class);
-        $configurationMock->method('getAsString')
-            ->willReturn('sandwave-ote1');
+        $configurationMock->method('getAsString')->willReturn('sandwave-ote1');
 
         $rtrService = new RtrService(
             $sdk,
@@ -1033,22 +1051,23 @@ class RtrServiceTest extends IntegrationTestCase
                 new Response(
                     status: 200,
                     headers: [],
-                    body: $this->getJsonString(include __DIR__ . '/../data/contact_valid.php')
+                    body: $this->getJsonString(include __DIR__ . '/../data/contact_valid.php'),
                 ),
                 new Response(
                     status: 200,
                     headers: [],
-                    body: (string) file_get_contents(__DIR__ . '/../../../Apps/API/Waterfront/Orders/data/rtr-tld-metadata-com.json')
+                    body: (string) file_get_contents(__DIR__
+                    . '/../../../Apps/API/Waterfront/Orders/data/rtr-tld-metadata-com.json'),
                 ),
                 new Response(
                     status: 201,
                     headers: [],
-                    body: $this->getJsonString($domainRegistrationData)
+                    body: $this->getJsonString($domainRegistrationData),
                 ),
             ],
             assertClosure: static function (RequestInterface $request) use (&$rtrRequests): void {
                 $rtrRequests[] = $request;
-            }
+            },
         );
 
         $this->rtrService
@@ -1182,7 +1201,8 @@ class RtrServiceTest extends IntegrationTestCase
         $exception = new RealtimeRegisterClientException('Some error');
 
         $mockLogger = self::createMock(LoggerInterface::class);
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Minimal Register Using handles',
@@ -1203,16 +1223,17 @@ class RtrServiceTest extends IntegrationTestCase
                             ],
                         ],
                     ],
-                ]
+                ],
             );
 
         $mockRtrResponseLog = self::createMock(RtrResponseLogService::class);
-        $mockRtrResponseLog->expects(self::once())
+        $mockRtrResponseLog
+            ->expects(self::once())
             ->method('logApiResponse')
             ->with(
                 self::callback(
-                    fn (string $json) => $json === json_encode($exception->getMessage())
-                )
+                    fn (string $json) => $json === json_encode($exception->getMessage()),
+                ),
             );
 
         $rtrDomainsClientMock = self::createMock(AuthorizedClient::class);
@@ -1235,8 +1256,7 @@ class RtrServiceTest extends IntegrationTestCase
         $sdk->contacts = new ContactsApi($rtrContactsClientMock);
 
         $configurationMock = self::createStub(ConfigurationInterface::class);
-        $configurationMock->method('getAsString')
-            ->willReturn('sandwave-ote1');
+        $configurationMock->method('getAsString')->willReturn('sandwave-ote1');
 
         $rtrService = new RtrService(
             $sdk,
@@ -1271,7 +1291,8 @@ class RtrServiceTest extends IntegrationTestCase
         $contactValidData = json_encode(include __DIR__ . '/../data/contact_valid.php', JSON_THROW_ON_ERROR);
 
         $mockLogger = self::createMock(LoggerInterface::class);
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Minimal Register Using handles',
@@ -1292,10 +1313,11 @@ class RtrServiceTest extends IntegrationTestCase
                             ],
                         ],
                     ],
-                ]
+                ],
             );
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Failed to register the domain {domain.name} with unknown error',
@@ -1303,35 +1325,31 @@ class RtrServiceTest extends IntegrationTestCase
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->deployment->subscription_uuid,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
         $mockRtrResponseLog = self::createMock(RtrResponseLogService::class);
-        $mockRtrResponseLog->expects(self::once())
+        $mockRtrResponseLog
+            ->expects(self::once())
             ->method('logApiResponse')
             ->with(
                 self::callback(
-                    fn (string $json) => $json === json_encode($exception->getMessage())
-                )
+                    fn (string $json) => $json === json_encode($exception->getMessage()),
+                ),
             );
 
         $rtrDomainsApiMock = self::createMock(AuthorizedClient::class);
-        $rtrDomainsApiMock
-            ->expects(self::once())
-            ->method('get')
-            ->willThrowException($exception);
+        $rtrDomainsApiMock->expects(self::once())->method('get')->willThrowException($exception);
 
         $rtrContactsClientMock = self::createStub(AuthorizedClient::class);
-        $rtrContactsClientMock->method('get')
-            ->willReturn(new RealtimeRegisterResponse($contactValidData, [], 200));
+        $rtrContactsClientMock->method('get')->willReturn(new RealtimeRegisterResponse($contactValidData, [], 200));
 
         $sdk = new RealtimeRegister('mock-key-rtr');
         $sdk->setClient($rtrDomainsApiMock);
         $sdk->contacts = new ContactsApi($rtrContactsClientMock);
 
         $configurationMock = self::createStub(ConfigurationInterface::class);
-        $configurationMock->method('getAsString')
-            ->willReturn('sandwave-ote1');
+        $configurationMock->method('getAsString')->willReturn('sandwave-ote1');
 
         $rtrService = new RtrService(
             $sdk,
@@ -1364,17 +1382,17 @@ class RtrServiceTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('example.nl')
+                $this->getMockedZoneResponseBody('example.nl'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('example.nl')
+                $this->getMockedZoneResponseBody('example.nl'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedKeyResponseBody()
+                $this->getMockedKeyResponseBody(),
             ),
         ]);
 
@@ -1401,7 +1419,7 @@ class RtrServiceTest extends IntegrationTestCase
             $customer,
             $handles,
             true,
-            true
+            true,
         );
 
         self::assertSame(DomainStatus::ACTIVE, $result->getStatus());
@@ -1434,7 +1452,7 @@ class RtrServiceTest extends IntegrationTestCase
             $customer,
             $handles,
             true,
-            true
+            true,
         );
 
         self::assertSame(DomainStatus::ACTIVE, $result->getStatus());
@@ -1455,22 +1473,23 @@ class RtrServiceTest extends IntegrationTestCase
                 new Response(
                     status: 200,
                     headers: [],
-                    body: $this->getJsonString(include __DIR__ . '/../data/contact_valid.php')
+                    body: $this->getJsonString(include __DIR__ . '/../data/contact_valid.php'),
                 ),
                 new Response(
                     status: 200,
                     headers: [],
-                    body: (string) file_get_contents(__DIR__ . '/../../../Apps/API/Waterfront/Orders/data/rtr-tld-metadata-com.json')
+                    body: (string) file_get_contents(__DIR__
+                    . '/../../../Apps/API/Waterfront/Orders/data/rtr-tld-metadata-com.json'),
                 ),
                 new Response(
                     status: 201,
                     headers: [],
-                    body: $this->getJsonString($domainRegistrationData)
+                    body: $this->getJsonString($domainRegistrationData),
                 ),
             ],
             assertClosure: static function (RequestInterface $request) use (&$rtrRequests): void {
                 $rtrRequests[] = $request;
-            }
+            },
         );
 
         $this->rtrService->setDnsService(self::resolve(DnsService::class));
@@ -1501,17 +1520,17 @@ class RtrServiceTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('example.nl')
+                $this->getMockedZoneResponseBody('example.nl'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('example.nl')
+                $this->getMockedZoneResponseBody('example.nl'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedKeyResponseBody()
+                $this->getMockedKeyResponseBody(),
             ),
         ]);
 
@@ -1537,14 +1556,14 @@ class RtrServiceTest extends IntegrationTestCase
             $customer,
             $handles,
             true,
-            true
+            true,
         );
 
         self::assertNotNull($result->getExceptionMessage());
         self::assertStringContainsString($rtrJsonError, $result->getExceptionMessage());
         self::assertSame(
             self::resolve(TranslatorInterface::class)->translate($expectedTranslation),
-            $result->getReason()
+            $result->getReason(),
         );
     }
 
@@ -1555,17 +1574,17 @@ class RtrServiceTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('example.nl')
+                $this->getMockedZoneResponseBody('example.nl'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('example.nl')
+                $this->getMockedZoneResponseBody('example.nl'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedKeyResponseBody()
+                $this->getMockedKeyResponseBody(),
             ),
         ]);
 
@@ -1592,7 +1611,7 @@ class RtrServiceTest extends IntegrationTestCase
             $customer,
             $handles,
             true,
-            true
+            true,
         );
 
         self::assertSame(DomainStatus::ACTIVE, $result->getStatus());
@@ -1608,15 +1627,17 @@ class RtrServiceTest extends IntegrationTestCase
             [
                 'name' => '.cars',
                 'slug' => 'extension_premium_example_nl',
-            ]
+            ],
         );
 
         $dnsProduct = new ProductFactory()->for($this->dnsProductGroup)->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain' => 'example.nl',
-            'product_uuid' => $product->uuid,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => 'example.nl',
+                'product_uuid' => $product->uuid,
+            ]);
 
         $domainContact = new DomainContactFactory()->createOne([
             'email' => 'domain@fake.nl',
@@ -1625,10 +1646,12 @@ class RtrServiceTest extends IntegrationTestCase
             'customer_id' => $customer->id,
         ]);
 
-        $domainDeployment = new DomainDeploymentFactory()->withRtrProvider()->createOne([
-            'subscription_uuid' => $subscription->uuid,
-            'contact_owner_id' => $domainContact->id,
-        ]);
+        $domainDeployment = new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->createOne([
+                'subscription_uuid' => $subscription->uuid,
+                'contact_owner_id' => $domainContact->id,
+            ]);
 
         $dnsSubscription = new SubscriptionFactory()
             ->for($customer)
@@ -1637,12 +1660,10 @@ class RtrServiceTest extends IntegrationTestCase
             ->parentSubscription($subscription)
             ->createOne();
 
-        $dnsDeployment = new DnsDeploymentFactory()
-            ->for($dnsSubscription)
-            ->createOne();
+        $dnsDeployment = new DnsDeploymentFactory()->for($dnsSubscription)->createOne();
 
         $nameservers = new DnsNameserverFactory()
-            ->for((new DnsRegionFactory()))
+            ->for(new DnsRegionFactory())
             ->createMany(3)
             ->each(function (DnsNameserver $dnsNameserver) use ($dnsDeployment) {
                 $dnsDeployment->dnsNameservers()->save($dnsNameserver);
@@ -1654,17 +1675,17 @@ class RtrServiceTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('example.nl')
+                $this->getMockedZoneResponseBody('example.nl'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('example.nl')
+                $this->getMockedZoneResponseBody('example.nl'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedKeyResponseBody()
+                $this->getMockedKeyResponseBody(),
             ),
         ]);
 
@@ -1691,7 +1712,7 @@ class RtrServiceTest extends IntegrationTestCase
             $customer,
             $handles,
             true,
-            true
+            true,
         );
 
         self::assertSame(DomainStatus::ACTIVE, $result->getStatus());
@@ -1704,17 +1725,17 @@ class RtrServiceTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('example.nl')
+                $this->getMockedZoneResponseBody('example.nl'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('example.nl')
+                $this->getMockedZoneResponseBody('example.nl'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedKeyResponseBody()
+                $this->getMockedKeyResponseBody(),
             ),
         ]);
 
@@ -1758,7 +1779,7 @@ class RtrServiceTest extends IntegrationTestCase
         $contactValidData = json_encode(include __DIR__ . '/../data/contact_valid.php', JSON_THROW_ON_ERROR);
         $domainTransferValidData = json_encode(
             include __DIR__ . '/../data/domain_minimal_transfer_valid.php',
-            JSON_THROW_ON_ERROR
+            JSON_THROW_ON_ERROR,
         );
 
         $rtrClient
@@ -1773,11 +1794,13 @@ class RtrServiceTest extends IntegrationTestCase
             ->with(
                 'v2/domains/minimal-transfer.nl/transfer',
                 self::callback(
-                    fn (array $body) => $body['authcode'] === $transferCode
-                    && ! array_key_exists('ns', $body)
-                    && ! array_key_exists('keyData', $body)
-                    && ! array_key_exists('privacyProtect', $body)
-                )
+                    fn (array $body) => (
+                        $body['authcode'] === $transferCode
+                        && ! array_key_exists('ns', $body)
+                        && ! array_key_exists('keyData', $body)
+                        && ! array_key_exists('privacyProtect', $body)
+                    ),
+                ),
             )
             ->willReturn(new RealtimeRegisterResponse($domainTransferValidData, [], 200));
 
@@ -1791,7 +1814,8 @@ class RtrServiceTest extends IntegrationTestCase
         $mockLogger = self::createMock(LoggerInterface::class);
         $mockRtrResponseLog = self::createMock(RtrResponseLogService::class);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Minimal Transfer for domain {domain.name}',
@@ -1799,20 +1823,20 @@ class RtrServiceTest extends IntegrationTestCase
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->deployment->subscription_uuid,
                     LoggingContextKeys::PROVISIONING_TYPE => 'domains',
-                ]
+                ],
             );
 
-        $mockRtrResponseLog->expects(self::once())
+        $mockRtrResponseLog
+            ->expects(self::once())
             ->method('logApiResponse')
             ->with(
                 self::callback(
-                    fn (string $json) => str_contains($json, '"domainName":"minimal-transfer.nl"')
-                )
+                    fn (string $json) => str_contains($json, '"domainName":"minimal-transfer.nl"'),
+                ),
             );
 
         $configurationMock = self::createStub(ConfigurationInterface::class);
-        $configurationMock->method('getAsString')
-            ->willReturn('sandwave-ote1');
+        $configurationMock->method('getAsString')->willReturn('sandwave-ote1');
 
         $rtrService = new RtrService(
             $sdk,
@@ -1855,10 +1879,7 @@ class RtrServiceTest extends IntegrationTestCase
             ->with('v2/customers/sandwave-ote1/contacts/test-handle')
             ->willReturn(new RealtimeRegisterResponse($contactValidData, [], 200));
 
-        $rtrClient
-            ->expects(self::once())
-            ->method('post')
-            ->willThrowException($exception);
+        $rtrClient->expects(self::once())->method('post')->willThrowException($exception);
 
         $sdk = new RealtimeRegister('mock-key-rtr');
         $sdk->setClient($rtrClient);
@@ -1870,7 +1891,8 @@ class RtrServiceTest extends IntegrationTestCase
         $mockLogger = self::createMock(LoggerInterface::class);
         $mockRtrResponseLog = self::createMock(RtrResponseLogService::class);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Minimal Transfer for domain {domain.name}',
@@ -1878,20 +1900,20 @@ class RtrServiceTest extends IntegrationTestCase
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->deployment->subscription_uuid,
                     LoggingContextKeys::PROVISIONING_TYPE => 'domains',
-                ]
+                ],
             );
 
-        $mockRtrResponseLog->expects(self::once())
+        $mockRtrResponseLog
+            ->expects(self::once())
             ->method('logApiResponse')
             ->with(
                 self::callback(
-                    fn (string $json) => json_decode($json) === $exception->getMessage()
-                )
+                    fn (string $json) => json_decode($json) === $exception->getMessage(),
+                ),
             );
 
         $configurationMock = self::createStub(ConfigurationInterface::class);
-        $configurationMock->method('getAsString')
-            ->willReturn('sandwave-ote1');
+        $configurationMock->method('getAsString')->willReturn('sandwave-ote1');
 
         $rtrService = new RtrService(
             $sdk,
@@ -1934,10 +1956,7 @@ class RtrServiceTest extends IntegrationTestCase
             ->with('v2/customers/sandwave-ote1/contacts/test-handle')
             ->willReturn(new RealtimeRegisterResponse($contactValidData, [], 200));
 
-        $rtrClient
-            ->expects(self::once())
-            ->method('post')
-            ->willThrowException($exception);
+        $rtrClient->expects(self::once())->method('post')->willThrowException($exception);
 
         $sdk = new RealtimeRegister('mock-key-rtr');
         $sdk->setClient($rtrClient);
@@ -1949,7 +1968,8 @@ class RtrServiceTest extends IntegrationTestCase
         $mockLogger = self::createMock(LoggerInterface::class);
         $mockRtrResponseLog = self::createMock(RtrResponseLogService::class);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Minimal Transfer for domain {domain.name}',
@@ -1957,10 +1977,11 @@ class RtrServiceTest extends IntegrationTestCase
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->deployment->subscription_uuid,
                     LoggingContextKeys::PROVISIONING_TYPE => 'domains',
-                ]
+                ],
             );
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Failed to do minimal transfer for a domain [{domain.name}] with unknown error',
@@ -1968,20 +1989,20 @@ class RtrServiceTest extends IntegrationTestCase
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->deployment->subscription_uuid,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
-        $mockRtrResponseLog->expects(self::once())
+        $mockRtrResponseLog
+            ->expects(self::once())
             ->method('logApiResponse')
             ->with(
                 self::callback(
-                    fn (string $json) => json_decode($json) === $exception->getMessage()
-                )
+                    fn (string $json) => json_decode($json) === $exception->getMessage(),
+                ),
             );
 
         $configurationMock = self::createStub(ConfigurationInterface::class);
-        $configurationMock->method('getAsString')
-            ->willReturn('sandwave-ote1');
+        $configurationMock->method('getAsString')->willReturn('sandwave-ote1');
 
         $rtrService = new RtrService(
             $sdk,
@@ -2017,17 +2038,17 @@ class RtrServiceTest extends IntegrationTestCase
             [
                 'name' => '.cars',
                 'slug' => 'extension_premium_example_nl',
-            ]
+            ],
         );
 
-        $dnsProduct = new ProductFactory()
-            ->for($this->dnsProductGroup)
-            ->createOne();
+        $dnsProduct = new ProductFactory()->for($this->dnsProductGroup)->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain' => 'example.nl',
-            'product_uuid' => $product->uuid,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => 'example.nl',
+                'product_uuid' => $product->uuid,
+            ]);
 
         $domainContact = new DomainContactFactory()->createOne([
             'email' => 'domain@fake.nl',
@@ -2036,10 +2057,12 @@ class RtrServiceTest extends IntegrationTestCase
             'customer_id' => $customer->id,
         ]);
 
-        $domainDeployment = new DomainDeploymentFactory()->withRtrProvider()->createOne([
-            'subscription_uuid' => $subscription->uuid,
-            'contact_owner_id' => $domainContact->id,
-        ]);
+        $domainDeployment = new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->createOne([
+                'subscription_uuid' => $subscription->uuid,
+                'contact_owner_id' => $domainContact->id,
+            ]);
 
         $dnsSubscription = new SubscriptionFactory()
             ->for($customer)
@@ -2057,17 +2080,17 @@ class RtrServiceTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('example.nl')
+                $this->getMockedZoneResponseBody('example.nl'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('example.nl')
+                $this->getMockedZoneResponseBody('example.nl'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedKeyResponseBody()
+                $this->getMockedKeyResponseBody(),
             ),
         ]);
 
@@ -2108,17 +2131,17 @@ class RtrServiceTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('example.nl')
+                $this->getMockedZoneResponseBody('example.nl'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('example.nl')
+                $this->getMockedZoneResponseBody('example.nl'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedKeyResponseBody()
+                $this->getMockedKeyResponseBody(),
             ),
         ]);
 
@@ -2152,7 +2175,7 @@ class RtrServiceTest extends IntegrationTestCase
         self::assertStringContainsString($rtrJsonError, $result->getExceptionMessage());
         self::assertSame(
             self::resolve(TranslatorInterface::class)->translate($expectedTranslation),
-            $result->getReason()
+            $result->getReason(),
         );
     }
 
@@ -2191,7 +2214,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($domainDetailsValidData)
+            $this->getJsonString($domainDetailsValidData),
         );
 
         $parameters = [
@@ -2211,14 +2234,14 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($domainDetailsValidData)
+            $this->getJsonString($domainDetailsValidData),
         );
 
         $retrieveResult = $this->rtrService->setClient($sdk)->nameservers($this->deployment);
 
         self::assertTrue(
             $retrieveResult->getIsDefaultNameservers(),
-            'Default nameserver should be set. Did you assign nameservers to the domain subscription?'
+            'Default nameserver should be set. Did you assign nameservers to the domain subscription?',
         );
     }
 
@@ -2239,7 +2262,7 @@ class RtrServiceTest extends IntegrationTestCase
                     ],
                     $body['ns'],
                 );
-            }
+            },
         );
 
         $domain = 'example.nl';
@@ -2262,7 +2285,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($domainDetailsValidData)
+            $this->getJsonString($domainDetailsValidData),
         );
 
         $domain = 'example.nl';
@@ -2298,13 +2321,8 @@ class RtrServiceTest extends IntegrationTestCase
         ]);
 
         $dnsMock = self::createMock(DnsService::class);
-        $dnsMock
-            ->expects(self::exactly(2))
-            ->method('getDnsZone')
-            ->willReturn($this->masterExampleZone);
-        $dnsMock
-            ->expects(self::once())
-            ->method('enableDnssec');
+        $dnsMock->expects(self::exactly(2))->method('getDnsZone')->willReturn($this->masterExampleZone);
+        $dnsMock->expects(self::once())->method('enableDnssec');
         $dnsMock
             ->expects(self::once())
             ->method('getDnsZoneKeys')
@@ -2342,13 +2360,8 @@ class RtrServiceTest extends IntegrationTestCase
         ]);
 
         $dnsMock = self::createMock(DnsService::class);
-        $dnsMock
-            ->expects(self::exactly(2))
-            ->method('getDnsZone')
-            ->willReturn($this->masterExampleZone);
-        $dnsMock
-            ->expects(self::once())
-            ->method('enableDnssec');
+        $dnsMock->expects(self::exactly(2))->method('getDnsZone')->willReturn($this->masterExampleZone);
+        $dnsMock->expects(self::once())->method('enableDnssec');
         $dnsMock
             ->expects(self::once())
             ->method('getDnsZoneKeys')
@@ -2381,10 +2394,7 @@ class RtrServiceTest extends IntegrationTestCase
         $zoneSlave->kind = PowerDnsZoneKind::SLAVE->value;
 
         $dnsMock = self::createMock(DnsService::class);
-        $dnsMock
-            ->expects(self::once())
-            ->method('getDnsZone')
-            ->willReturn($zoneSlave);
+        $dnsMock->expects(self::once())->method('getDnsZone')->willReturn($zoneSlave);
         $this->app->bind(DnsService::class, static fn () => $dnsMock);
 
         $this->rtrService = self::resolve(RtrService::class);
@@ -2403,13 +2413,9 @@ class RtrServiceTest extends IntegrationTestCase
     public function enableDnssecWithDnsSecKey(): void
     {
         $dnsMock = self::createMock(DnsService::class);
-        $dnsMock->expects(self::once())
-            ->method('getDnsZone')
-            ->willReturn($this->masterExampleZone);
-        $dnsMock->expects(self::never())
-            ->method('enableDnssec');
-        $dnsMock->expects(self::never())
-            ->method('getDnsZoneKeys');
+        $dnsMock->expects(self::once())->method('getDnsZone')->willReturn($this->masterExampleZone);
+        $dnsMock->expects(self::never())->method('enableDnssec');
+        $dnsMock->expects(self::never())->method('getDnsZoneKeys');
 
         $this->rtrService = new RtrService(
             self::resolve(RealtimeRegister::class),
@@ -2452,7 +2458,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($domainDetailsValidData)
+            $this->getJsonString($domainDetailsValidData),
         );
 
         $domain = 'example.nl';
@@ -2468,7 +2474,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($domainDetailsValidData)
+            $this->getJsonString($domainDetailsValidData),
         );
 
         $domain = 'example.nl';
@@ -2484,7 +2490,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($domainDetailsValidData)
+            $this->getJsonString($domainDetailsValidData),
         );
 
         $domain = 'example.nl';
@@ -2500,7 +2506,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($contactValidData)
+            $this->getJsonString($contactValidData),
         );
 
         $customer = new CustomerFactory()->makeOne(['customer_number' => 1]);
@@ -2534,11 +2540,11 @@ class RtrServiceTest extends IntegrationTestCase
         self::assertCount(2, $rtrRequests);
         self::assertSame(
             '{"status":["CLIENT_HOLD","OK"]}',
-            $rtrRequests[1]->getBody()->getContents()
+            $rtrRequests[1]->getBody()->getContents(),
         );
         self::assertSame(
             sprintf('v2/domains/%s/update', 'domain.nl'),
-            $rtrRequests[1]->getUri()->getPath()
+            $rtrRequests[1]->getUri()->getPath(),
         );
     }
 
@@ -2550,7 +2556,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($domainDetailsData)
+            $this->getJsonString($domainDetailsData),
         );
 
         $this->rtrService->setClient($sdk)->suspend('domain.nl');
@@ -2562,19 +2568,20 @@ class RtrServiceTest extends IntegrationTestCase
         $domainDetailsData = include __DIR__ . '/../data/domain_details_status_pending_delete.php';
 
         $loggerMock = self::createMock(LoggerInterface::class);
-        $loggerMock->expects(self::once())
+        $loggerMock
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'skipping suspending for {domain.name}, unable to update domain when pending_delete.',
                 [
                     LoggingContextKeys::DOMAIN_NAME => 'domain.nl',
-                ]
+                ],
             );
 
         $authorizedClientMock = self::createMock(AuthorizedClient::class);
-        $authorizedClientMock->expects(self::never())
-            ->method('post');
-        $authorizedClientMock->expects(self::once())
+        $authorizedClientMock->expects(self::never())->method('post');
+        $authorizedClientMock
+            ->expects(self::once())
             ->method('get')
             ->willReturn(new RealtimeRegisterResponse((string) json_encode($domainDetailsData), [], 200));
 
@@ -2614,6 +2621,46 @@ class RtrServiceTest extends IntegrationTestCase
     }
 
     #[Test]
+    public function suspendThrowsDomainForbiddenExceptionWhenRtrReturnsForbidden(): void
+    {
+        $loggerMock = self::createMock(LoggerInterface::class);
+        $loggerMock
+            ->expects(self::once())
+            ->method('error')
+            ->with(
+                'Failed suspend domain {domain.name}, access forbidden by RTR.',
+                self::callback(
+                    static fn (array $context): bool => (
+                        $context[LoggingContextKeys::DOMAIN_NAME] === 'domain.nl'
+                        && $context[LoggingContextKeys::PROVISIONING_PROVIDER] === ProvisionProvider::RTR
+                        && $context[LoggingContextKeys::PROVISIONING_TYPE] === ProvisionType::DOMAIN_NAME
+                    ),
+                ),
+            );
+
+        $rtrSdk = MockedClientFactory::makeSdk(403, '');
+
+        $rtrService = new RtrService(
+            $rtrSdk,
+            self::createStub(DnsService::class),
+            self::resolve(DnsNameserverAssigner::class),
+            self::resolve(RtrErrorParseService::class),
+            self::resolve(PremiumDomainService::class),
+            self::resolve(ConfigurationInterface::class),
+            self::resolve(RtrResponseLogService::class),
+            self::resolve(ParseRtrTransferStatusToWfStatusAction::class),
+            self::resolve(PublicSuffixList::class),
+            $loggerMock,
+            self::createStub(DnsDeploymentRepository::class),
+            self::resolve(Repository::class),
+            self::resolve(RtrIdnLanguageCodeResolver::class),
+        );
+
+        $this->expectException(DomainForbiddenException::class);
+        $rtrService->suspend('domain.nl');
+    }
+
+    #[Test]
     public function unsuspendSuccessful(): void
     {
         $domainDetailsData = include __DIR__ . '/../data/domain_details_status_suspended.php';
@@ -2631,11 +2678,11 @@ class RtrServiceTest extends IntegrationTestCase
         self::assertCount(2, $rtrRequests);
         self::assertSame(
             '{"status":["OK"]}',
-            $rtrRequests[1]->getBody()->getContents()
+            $rtrRequests[1]->getBody()->getContents(),
         );
         self::assertSame(
             sprintf('v2/domains/%s/update', 'domain.nl'),
-            $rtrRequests[1]->getUri()->getPath()
+            $rtrRequests[1]->getUri()->getPath(),
         );
     }
 
@@ -2647,7 +2694,7 @@ class RtrServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString($domainDetailsData)
+            $this->getJsonString($domainDetailsData),
         );
 
         $this->rtrService->setClient($sdk)->unsuspend('domain.nl');
@@ -2665,6 +2712,84 @@ class RtrServiceTest extends IntegrationTestCase
 
         $this->expectException(DomainModificationFailedException::class);
         $this->rtrService->setClient($rtrSdk)->unsuspend('domain.nl');
+    }
+
+    #[Test]
+    public function unsuspendThrowsDomainForbiddenExceptionWhenRtrReturnsForbidden(): void
+    {
+        $loggerMock = self::createMock(LoggerInterface::class);
+        $loggerMock
+            ->expects(self::once())
+            ->method('error')
+            ->with(
+                'Failed unsuspend domain {domain.name}, access forbidden by RTR.',
+                self::callback(
+                    static fn (array $context): bool => (
+                        $context[LoggingContextKeys::DOMAIN_NAME] === 'domain.nl'
+                        && $context[LoggingContextKeys::PROVISIONING_PROVIDER] === ProvisionProvider::RTR
+                        && $context[LoggingContextKeys::PROVISIONING_TYPE] === ProvisionType::DOMAIN_NAME
+                    ),
+                ),
+            );
+
+        $rtrSdk = MockedClientFactory::makeSdk(403, '');
+
+        $rtrService = new RtrService(
+            $rtrSdk,
+            self::createStub(DnsService::class),
+            self::resolve(DnsNameserverAssigner::class),
+            self::resolve(RtrErrorParseService::class),
+            self::resolve(PremiumDomainService::class),
+            self::resolve(ConfigurationInterface::class),
+            self::resolve(RtrResponseLogService::class),
+            self::resolve(ParseRtrTransferStatusToWfStatusAction::class),
+            self::resolve(PublicSuffixList::class),
+            $loggerMock,
+            self::createStub(DnsDeploymentRepository::class),
+            self::resolve(Repository::class),
+            self::resolve(RtrIdnLanguageCodeResolver::class),
+        );
+
+        $this->expectException(DomainForbiddenException::class);
+        $rtrService->unsuspend('domain.nl');
+    }
+
+    #[Test]
+    public function unsuspendThrowsDomainDoesNotExistExceptionWhenRtrReturnsNotFound(): void
+    {
+        $loggerMock = self::createMock(LoggerInterface::class);
+        $loggerMock
+            ->expects(self::once())
+            ->method('error')
+            ->with(
+                'Failed unsuspend domain {domain.name}, because it does not exist with RTR.',
+                [
+                    LoggingContextKeys::DOMAIN_NAME => 'domain.nl',
+                    LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::RTR,
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
+                ],
+            );
+
+        $rtrSdk = MockedClientFactory::makeSdk(404, '');
+
+        $rtrService = new RtrService(
+            $rtrSdk,
+            self::createStub(DnsService::class),
+            self::resolve(DnsNameserverAssigner::class),
+            self::resolve(RtrErrorParseService::class),
+            self::resolve(PremiumDomainService::class),
+            self::resolve(ConfigurationInterface::class),
+            self::resolve(RtrResponseLogService::class),
+            self::resolve(ParseRtrTransferStatusToWfStatusAction::class),
+            self::resolve(PublicSuffixList::class),
+            $loggerMock,
+            self::createStub(DnsDeploymentRepository::class),
+            self::resolve(Repository::class),
+            self::resolve(RtrIdnLanguageCodeResolver::class),
+        );
+
+        $this->expectException(DomainDoesNotExistException::class);
+        $rtrService->unsuspend('domain.nl');
     }
 
     #[Test]
@@ -2690,8 +2815,8 @@ class RtrServiceTest extends IntegrationTestCase
                 [
                     'domain' => 'domain.nl',
                     'expiryDate' => $datetime->format(DateTimeFormat::DEFAULT),
-                ]
-            )
+                ],
+            ),
         );
         $loggerMock = self::createMock(RtrResponseLogService::class);
         $loggerMock->expects(self::once())->method('logApiResponse');
@@ -2724,13 +2849,15 @@ class RtrServiceTest extends IntegrationTestCase
                 [
                     'type' => 'ProcessError',
                     'message' => 'An unrecoverable error was encountered during the execution of your request',
-                ]
-            )
+                ],
+            ),
         );
         $loggerMock = self::createMock(RtrResponseLogService::class);
-        $loggerMock->expects(self::once())->method('logApiResponse')
+        $loggerMock
+            ->expects(self::once())
+            ->method('logApiResponse')
             ->with(
-                'Bad Request: {"type":"ProcessError","message":"An unrecoverable error was encountered during the execution of your request"}'
+                'Bad Request: {"type":"ProcessError","message":"An unrecoverable error was encountered during the execution of your request"}',
             );
 
         $rtrService = new RtrService(

@@ -55,24 +55,29 @@ class RegisterDomainNameJob extends AbstractQueueableJob
             $this->fail(new RegisterDomainNameException(
                 sprintf(
                     'Error registering domain: Domain is missing from Subscription (%s)',
-                    $this->domainSubscription->uuid
-                )
+                    $this->domainSubscription->uuid,
+                ),
             ));
+
             return;
         }
 
         $registerOrTransfer = $this->isTransfer ? 'domain.transfer' : 'domain.registration';
         $logger->info(
-            sprintf('RegisterDomainJob started for domain %s. Registration or transfer: %s', $this->domainSubscription->domain, $registerOrTransfer),
+            sprintf(
+                'RegisterDomainJob started for domain %s. Registration or transfer: %s',
+                $this->domainSubscription->domain,
+                $registerOrTransfer,
+            ),
             [
                 LoggingContextKeys::DOMAIN_NAME => $this->domainSubscription->domain,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $this->domainSubscription->uuid,
                 LoggingContextKeys::SUBSCRIPTION_ID => $this->domainSubscription->id,
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
-            ]
+            ],
         );
 
-        if ($this->domainDeployment->transfer_secret === 'deferred_transfer') {
+        if ($this->domainDeployment->transfer_secret === DomainService::DEFERRED_TRANSFER) {
             $subscription = $this->domainSubscription;
             $subscription->technical_status = TechnicalStatus::TRANSFER_FAILED->value;
             $subscription->save();
@@ -91,7 +96,7 @@ class RegisterDomainNameJob extends AbstractQueueableJob
         $this->domainSubscription->update(['technical_status' => $resultStatus]);
 
         $this->domainDeployment->update([
-            'last_result'          => $result->getExceptionMessage() ?? $result->getReason(),
+            'last_result' => $result->getExceptionMessage() ?? $result->getReason(),
             'last_result_received' => CarbonImmutable::now(),
         ]);
 
@@ -102,7 +107,11 @@ class RegisterDomainNameJob extends AbstractQueueableJob
          */
         $this->domainSubscription->refresh();
 
-        if (in_array($this->domainSubscription->technical_status, [DomainStatus::FAILED->value, TechnicalStatus::FAILED->value], true)) {
+        if (in_array(
+            $this->domainSubscription->technical_status,
+            [DomainStatus::FAILED->value, TechnicalStatus::FAILED->value],
+            true,
+        )) {
             $this->fail(new LogicException($this->resultMessage));
         }
     }
@@ -120,7 +129,7 @@ class RegisterDomainNameJob extends AbstractQueueableJob
                 LoggingContextKeys::EXCEPTION => $throwable,
                 LoggingContextKeys::PROVISIONING_TYPE => $this->isTransfer ? 'domain.transfer' : 'domain.registration',
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
-            ]
+            ],
         );
 
         $this->domainSubscription->update([
@@ -144,7 +153,10 @@ class RegisterDomainNameJob extends AbstractQueueableJob
             : $translator->translate('domain-register-transfer-failed-unknown-reason');
 
         $mailer = $container->make(MailerInterface::class);
-        $mailer->send([$this->domainSubscription->customer], new MailDomainCreationFailed($this->domainSubscription->domain ?? '-', $reason));
+        $mailer->send(
+            [$this->domainSubscription->customer],
+            new MailDomainCreationFailed($this->domainSubscription->domain ?? '-', $reason),
+        );
     }
 
     protected function getQueueName(): QueueName
@@ -172,21 +184,21 @@ class RegisterDomainNameJob extends AbstractQueueableJob
         $this->resultMessage = sprintf(
             'Domain registration status: %s. Reason: %s',
             $result->getStatus()->value,
-            $result->getReason()
+            $result->getReason(),
         );
 
         $logger->info(
             'RegisterDomainJob status after registration: {domain_registration.status}. Reason: {domain_registration.reason}',
             [
-                LoggingContextKeys::DOMAIN_NAME       => $this->domainSubscription->domain,
+                LoggingContextKeys::DOMAIN_NAME => $this->domainSubscription->domain,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $this->domainSubscription->uuid,
-                LoggingContextKeys::SUBSCRIPTION_ID   => $this->domainSubscription->id,
+                LoggingContextKeys::SUBSCRIPTION_ID => $this->domainSubscription->id,
                 LoggingContextKeys::PROVISIONING_TYPE => 'domain.registration',
                 LoggingContextKeys::META => [
-                    'domain_registration.status'      => $result->getStatus()->value,
-                    'domain_registration.reason'      => $result->getReason(),
+                    'domain_registration.status' => $result->getStatus()->value,
+                    'domain_registration.reason' => $result->getReason(),
                 ],
-            ]
+            ],
         );
 
         return $result;
@@ -213,21 +225,21 @@ class RegisterDomainNameJob extends AbstractQueueableJob
         $this->resultMessage = sprintf(
             'Domain transfer status: %s. Reason: %s',
             $result->getStatus(),
-            $result->getReason()
+            $result->getReason(),
         );
 
         $logger->info(
             'RegisterDomainJob status after transfer: {status}. Reason: {reason}',
             [
-                LoggingContextKeys::DOMAIN_NAME       => $this->domainSubscription->domain,
+                LoggingContextKeys::DOMAIN_NAME => $this->domainSubscription->domain,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $this->domainSubscription->uuid,
-                LoggingContextKeys::SUBSCRIPTION_ID   => $this->domainSubscription->id,
+                LoggingContextKeys::SUBSCRIPTION_ID => $this->domainSubscription->id,
                 LoggingContextKeys::PROVISIONING_TYPE => 'domain.transfer',
                 LoggingContextKeys::META => [
-                    'domain_transfer.status'      => $result->getStatus(),
-                    'domain_transfer.reason'      => $result->getReason(),
+                    'domain_transfer.status' => $result->getStatus(),
+                    'domain_transfer.reason' => $result->getReason(),
                 ],
-            ]
+            ],
         );
 
         return $result;

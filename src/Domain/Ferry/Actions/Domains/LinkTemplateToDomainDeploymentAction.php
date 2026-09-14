@@ -40,8 +40,9 @@ class LinkTemplateToDomainDeploymentAction
                     LoggingContextKeys::META => [
                         'reference_template_id' => $referenceTemplateId,
                     ],
-                ]
+                ],
             );
+
             return;
         }
 

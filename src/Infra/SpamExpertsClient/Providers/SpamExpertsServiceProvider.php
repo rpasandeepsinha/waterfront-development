@@ -33,27 +33,28 @@ class SpamExpertsServiceProvider extends BaseProvider
             $connection = new Connection(
                 $configuration->getAsString('spamexpertsclient.connection.api_url'),
                 $configuration->getAsString('spamexpertsclient.connection.username'),
-                $configuration->getAsString('spamexpertsclient.connection.password')
+                $configuration->getAsString('spamexpertsclient.connection.password'),
             );
 
             return new HttpClient([
-                'base_uri'    => $connection->getApiUrl(),
-                'headers'     => [
+                'base_uri' => $connection->getApiUrl(),
+                'headers' => [
                     'Authorization' => 'Basic ' . $connection->getCredentials(),
                 ],
                 'http_errors' => false,
-                'verify'      => $configuration->getAsBoolean('spamexpertsclient.connection.verify'),
+                'verify' => $configuration->getAsBoolean('spamexpertsclient.connection.verify'),
             ]);
         });
 
-        $this->app->when(SpamExpertsClient::class)
+        $this->app
+            ->when(SpamExpertsClient::class)
             ->needs(HttpClient::class)
             ->give(fn () => $this->app->get('spam-experts-http-client'));
 
         if (Env::get('APP_FAKE_SPAM_FILTER_CLIENT') === true) {
             $this->app->bind(
                 SpamExpertsClient::class,
-                SpamExpertsClientFaker::class
+                SpamExpertsClientFaker::class,
             );
         }
     }
@@ -62,7 +63,7 @@ class SpamExpertsServiceProvider extends BaseProvider
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/connection.php',
-            'spamexpertsclient'
+            'spamexpertsclient',
         );
     }
 }

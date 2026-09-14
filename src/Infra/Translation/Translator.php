@@ -8,8 +8,9 @@ use Illuminate\Contracts\Translation\Translator as LaravelTranslator;
 
 class Translator implements TranslatorInterface
 {
-    public function __construct(private readonly LaravelTranslator $translator)
-    {
+    public function __construct(
+        private readonly LaravelTranslator $translator,
+    ) {
     }
 
     public function translate(string $key, array $replace = [], ?string $locale = null): string

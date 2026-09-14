@@ -15,7 +15,7 @@ class AddDomainToSpamFilter extends AbstractQueueableJob
 {
     public function __construct(
         private readonly string $domain,
-        private readonly SpamExpertsCluster|null $spamExpertsCluster,
+        private readonly ?SpamExpertsCluster $spamExpertsCluster,
     ) {
         parent::__construct();
     }
@@ -28,7 +28,7 @@ class AddDomainToSpamFilter extends AbstractQueueableJob
             throw new RuntimeException(
                 'Failed to add domain to spam filter: ' . $exception->getMessage(),
                 $exception->getCode(),
-                $exception
+                $exception,
             );
         }
     }

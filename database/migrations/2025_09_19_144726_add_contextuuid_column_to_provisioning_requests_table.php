@@ -7,7 +7,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Ramsey\Uuid\Uuid;
 
-return new class () extends Migration {
+return new class() extends Migration {
     public function up(): void
     {
         Schema::table('provisioning_requests', function (Blueprint $table) {

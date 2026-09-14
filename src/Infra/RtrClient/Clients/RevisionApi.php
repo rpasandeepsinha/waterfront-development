@@ -33,7 +33,7 @@ class RevisionApi extends AbstractApi
             parameters: [
                 'from' => $from?->format('Y-m-d\TH:i:s\Z'),
                 'to' => $to?->format('Y-m-d\TH:i:s\Z'),
-            ]
+            ],
         );
 
         $response = $this->client->get(sprintf('v2/domains/%s/revisions', $domain), $query);

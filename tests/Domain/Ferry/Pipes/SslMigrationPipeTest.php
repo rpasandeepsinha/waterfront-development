@@ -56,7 +56,7 @@ class SslMigrationPipeTest extends IntegrationTestCase
         bool $domainAlreadyRegisteredAtRtrForSsl,
         int $numberOfTimesHostingPackageIsFetched,
         bool $hostingHasSslDisabled,
-        array $expectedValidationResults
+        array $expectedValidationResults,
     ): void {
         ServerFactory::new()->directadmin()->createOne([
             'hostname' => self::TEST_DIRECTADMIN_SERVER,
@@ -74,21 +74,22 @@ class SslMigrationPipeTest extends IntegrationTestCase
         DnsNameserverFactory::new()->for($region)->createOne(['nameserver' => 'nameserver01.testing_from_db.test']);
         DnsNameserverFactory::new()->for($region)->createOne(['nameserver' => 'nameserver02.testing_from_db.test']);
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
 
         $reference = 'unique_reference_for_adf';
 
         $validationPayload = new ValidationPayload(
             validationReference: $reference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $rtrMigrationService = $this->createPartialMock(
             DomainAndSslMigrationService::class,
-            ['listRtrSslCertificates']
+            ['listRtrSslCertificates'],
         );
-        $rtrMigrationService->method('listRtrSslCertificates')
+        $rtrMigrationService
+            ->method('listRtrSslCertificates')
             ->willReturnCallback(function () use ($domainAlreadyRegisteredAtRtrForSsl): CertificateCollection {
                 if ($domainAlreadyRegisteredAtRtrForSsl) {
                     return CertificateCollection::fromArray([
@@ -98,7 +99,10 @@ class SslMigrationPipeTest extends IntegrationTestCase
 
                 return CertificateCollection::fromArray([]);
             });
-        $this->app->bind(DomainAndSslMigrationService::class, fn (): DomainAndSslMigrationService => $rtrMigrationService);
+        $this->app->bind(
+            DomainAndSslMigrationService::class,
+            fn (): DomainAndSslMigrationService => $rtrMigrationService,
+        );
 
         $mockHostingService = self::createMock(HostingService::class);
         $mockHostingService
@@ -124,7 +128,7 @@ class SslMigrationPipeTest extends IntegrationTestCase
 
         $validationPayload = $sslMigrationPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame($reference, $validationPayload->validationReference);
@@ -134,9 +138,7 @@ class SslMigrationPipeTest extends IntegrationTestCase
     #[Test]
     public function sslValidationPipelineWithBu(): void
     {
-        $dnsNameserver = DnsNameserverFactory::new()
-            ->for(DnsRegionFactory::new()->createOne())
-            ->createOne();
+        $dnsNameserver = DnsNameserverFactory::new()->for(DnsRegionFactory::new()->createOne())->createOne();
 
         $businessUnit = DomainProviderBusinessUnitFactory::new()->argeweb()->createOne();
         $expectedDriver = 'openprovider';
@@ -169,34 +171,36 @@ class SslMigrationPipeTest extends IntegrationTestCase
             ->with(ProviderSlug::from($expectedDriver), $businessUnit)
             ->andReturn($mockDomainDriver);
 
-        $mockDomainDriver
-            ->shouldReceive('fetchDomain')
-            ->andReturn($domainDetails);
+        $mockDomainDriver->shouldReceive('fetchDomain')->andReturn($domainDetails);
 
         $this->app->bind(DomainServiceFactory::class, fn () => $mockDomainServiceFactory);
 
         $rtrMigrationService = $this->createPartialMock(
             DomainAndSslMigrationService::class,
-            ['listRtrSslCertificates']
+            ['listRtrSslCertificates'],
         );
-        $rtrMigrationService->method('listRtrSslCertificates')
+        $rtrMigrationService
+            ->method('listRtrSslCertificates')
             ->willReturnCallback(fn (): CertificateCollection => CertificateCollection::fromArray([]));
-        $this->app->bind(DomainAndSslMigrationService::class, fn (): DomainAndSslMigrationService => $rtrMigrationService);
+        $this->app->bind(
+            DomainAndSslMigrationService::class,
+            fn (): DomainAndSslMigrationService => $rtrMigrationService,
+        );
 
-        $subscriptions = include(__DIR__ . '/data/subscription_domain_ssl_with_bu_correct.php');
-        $customer = include(__DIR__ . '/data/customer_correct.php');
+        $subscriptions = include __DIR__ . '/data/subscription_domain_ssl_with_bu_correct.php';
+        $customer = include __DIR__ . '/data/customer_correct.php';
         $reference = 'unique_reference_for_adf';
 
         $validationPayload = new ValidationPayload(
             validationReference: $reference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
         $sslMigrationPipe = self::resolve(SslMigrationPipe::class);
 
         $sslMigrationPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame(
@@ -208,7 +212,7 @@ class SslMigrationPipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 
@@ -218,7 +222,7 @@ class SslMigrationPipeTest extends IntegrationTestCase
     public static function sslValidationPipelineProvider(): iterable
     {
         yield 'Domain in RTR already exists as SSL certificate' => [
-            'subscriptions' => include(__DIR__ . '/data/subscriptions_correct.php'),
+            'subscriptions' => include __DIR__ . '/data/subscriptions_correct.php',
             'domainAlreadyRegisteredAtRtrForSsl' => true,
             'numberOfTimesHostingPackageIsFetched' => 0,
             'hostingHasSslDisabled' => false,
@@ -237,7 +241,7 @@ class SslMigrationPipeTest extends IntegrationTestCase
         ];
 
         yield 'Domain has a hosting package but package has SSL disabled' => [
-            'subscriptions' => include(__DIR__ . '/data/subscriptions_correct.php'),
+            'subscriptions' => include __DIR__ . '/data/subscriptions_correct.php',
             'domainAlreadyRegisteredAtRtrForSsl' => false,
             'numberOfTimesHostingPackageIsFetched' => 1,
             'hostingHasSslDisabled' => true,
@@ -257,7 +261,7 @@ class SslMigrationPipeTest extends IntegrationTestCase
         ];
 
         yield 'Domain has a hosting package and SSL is subdomain' => [
-            'subscriptions' => include(__DIR__ . '/data/subscriptions_correct_ssl_subdomain.php'),
+            'subscriptions' => include __DIR__ . '/data/subscriptions_correct_ssl_subdomain.php',
             'domainAlreadyRegisteredAtRtrForSsl' => false,
             'numberOfTimesHostingPackageIsFetched' => 1,
             'hostingHasSslDisabled' => false,
@@ -272,7 +276,7 @@ class SslMigrationPipeTest extends IntegrationTestCase
         ];
 
         yield 'Domain has a hosting package and SSL is subdomain. But serverType is Plesk' => [
-            'subscriptions' => include(__DIR__ . '/data/subscriptions_correct_ssl_subdomain_plesk.php'),
+            'subscriptions' => include __DIR__ . '/data/subscriptions_correct_ssl_subdomain_plesk.php',
             'domainAlreadyRegisteredAtRtrForSsl' => false,
             'numberOfTimesHostingPackageIsFetched' => 1,
             'hostingHasSslDisabled' => false,
@@ -287,7 +291,7 @@ class SslMigrationPipeTest extends IntegrationTestCase
         ];
 
         yield 'Domain has invalid base domain' => [
-            'subscriptions' => include(__DIR__ . '/data/subscriptions_bad_ssl_domain.php'),
+            'subscriptions' => include __DIR__ . '/data/subscriptions_bad_ssl_domain.php',
             'domainAlreadyRegisteredAtRtrForSsl' => false,
             'numberOfTimesHostingPackageIsFetched' => 0,
             'hostingHasSslDisabled' => false,

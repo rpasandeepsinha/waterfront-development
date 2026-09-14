@@ -46,12 +46,11 @@ class NameserverSetCurrentTest extends IntegrationTestCase
             ->parentSubscription($domainSubscription)
             ->createOne();
 
-        $dnsDeployment = new DnsDeploymentFactory()
-            ->for($dnsSubscription)
-            ->createOne();
+        $dnsDeployment = new DnsDeploymentFactory()->for($dnsSubscription)->createOne();
 
         $dnsHelperMock = self::createStub(DnsHelper::class);
-        $dnsHelperMock->method('dnsGetRecord')
+        $dnsHelperMock
+            ->method('dnsGetRecord')
             ->willReturn([
                 ['target' => 'ns1.external-dns.com'],
                 ['target' => 'ns2.external-dns.com'],
@@ -66,6 +65,9 @@ class NameserverSetCurrentTest extends IntegrationTestCase
         $dnsDeployment->refresh();
 
         self::assertSame(NameserverType::EXTERNAL, $dnsDeployment->nameserver_type);
-        self::assertEqualsCanonicalizing(['ns1.external-dns.com', 'ns2.external-dns.com'], $dnsDeployment->externalNameservers->pluck('nameserver')->toArray());
+        self::assertEqualsCanonicalizing(
+            ['ns1.external-dns.com', 'ns2.external-dns.com'],
+            $dnsDeployment->externalNameservers->pluck('nameserver')->toArray(),
+        );
     }
 }

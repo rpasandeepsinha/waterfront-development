@@ -56,7 +56,8 @@ return [
                             'Illuminate\Support\Facades',
                         ],
                     ],
-                ], [
+                ],
+                [
                     'processor' => UidProcessor::class,
                     'with' => [
                         'length' => 24,
@@ -90,12 +91,14 @@ return [
                             'Illuminate\Support\Facades',
                         ],
                     ],
-                ], [
+                ],
+                [
                     'processor' => UidProcessor::class,
                     'with' => [
                         'length' => 24,
                     ],
-                ], [
+                ],
+                [
                     'processor' => WebProcessor::class,
                     'with' => [
                         'extraFields' => ['ip'],

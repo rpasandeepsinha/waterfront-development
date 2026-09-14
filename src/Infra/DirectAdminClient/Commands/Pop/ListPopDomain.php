@@ -77,8 +77,8 @@ class ListPopDomain extends DirectAdminCommand
     private function getPostBody(): StreamInterface
     {
         $params = [
-            'action'	=> 'list',
-            'domain'	=> $this->getDomain(),
+            'action' => 'list',
+            'domain' => $this->getDomain(),
         ];
 
         return Utils::streamFor(http_build_query($params));

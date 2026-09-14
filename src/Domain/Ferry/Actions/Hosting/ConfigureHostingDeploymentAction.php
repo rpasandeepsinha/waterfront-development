@@ -46,7 +46,7 @@ class ConfigureHostingDeploymentAction
                     'hosting_details' => $hostingDetails->toArray(),
                 ],
                 LoggingContextKeys::PROVISIONING_PROVIDER => $hostingProvider->slug,
-            ]
+            ],
         );
 
         /**
@@ -71,7 +71,7 @@ class ConfigureHostingDeploymentAction
                     hostingDeployment: $hostingDeployment,
                     baseKitDetails: $hostingDetails,
                     server: $server,
-                    hostingProvider: $hostingProvider
+                    hostingProvider: $hostingProvider,
                 );
                 break;
 

@@ -39,8 +39,10 @@ class NovaRetryVpsAction extends NovaSubscriptionAction
         private readonly CartSerializerFactory $cartSerializerFactory,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool =>
-            $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::VPS)
+            fn (NovaRequest $request): bool => $this->onlyForSubscriptionsWithProductGroupType(
+                $request,
+                ProductGroupType::VPS,
+            ),
         );
 
         $this->sole();
@@ -54,11 +56,16 @@ class NovaRetryVpsAction extends NovaSubscriptionAction
     public function fields(NovaRequest $request): array
     {
         return [
-            Heading::make("<h3 class=\"text-xl\">{$this->translator->translate('nova-action.retry_vps.strategy_header')}</h3><hr /><p class=\"text-md\">{$this->translator->translate('nova-action.retry_vps.strategy_p')}</p>")
-                ->asHtml(),
+            Heading::make(
+                "<h3 class=\"text-xl\">{$this->translator->translate(
+                    'nova-action.retry_vps.strategy_header',
+                )}</h3><hr /><p class=\"text-md\">{$this->translator->translate(
+                    'nova-action.retry_vps.strategy_p',
+                )}</p>",
+            )->asHtml(),
             NovaBoolField::make(
                 $this->translator->translate('nova-action.retry_vps.delete_vm_first'),
-                'delete_vm_first'
+                'delete_vm_first',
             )->help($this->translator->translate('nova-action.retry_vps.delete_vm_first_help')),
         ];
     }
@@ -78,9 +85,7 @@ class NovaRetryVpsAction extends NovaSubscriptionAction
         $deployment = $subscription->cloudStackVirtualMachineDeployment()->first();
 
         if ($deployment instanceof VirtualMachineDeployment) {
-            $sshKeyUuid = $deployment->sshKeys->isNotEmpty()
-                ? $deployment->sshKeys->first()->uuid->toString()
-                : null;
+            $sshKeyUuid = $deployment->sshKeys->isNotEmpty() ? $deployment->sshKeys->first()->uuid->toString() : null;
         } else {
             $sshKeyUuid = $this->getSshKeyUuidFromMetadata($subscription);
         }
@@ -96,9 +101,9 @@ class NovaRetryVpsAction extends NovaSubscriptionAction
 
         $this->logger->debug(
             $deleteVmFirst
-            ? 'Start Nova VPS Retry action with deleting existing VM deployment'
-            : 'Start Nova VPS Retry action without deleting existing VM deployment',
-            $context
+                ? 'Start Nova VPS Retry action with deleting existing VM deployment'
+                : 'Start Nova VPS Retry action without deleting existing VM deployment',
+            $context,
         );
 
         try {
@@ -136,18 +141,18 @@ class NovaRetryVpsAction extends NovaSubscriptionAction
      */
     private function getSshKeyUuidFromMetadata(Subscription $subscription): ?string
     {
-        $osSubscription = $this->vmSubscriptionRepository
-            ->getOsSubscriptionChildFromSubscriptionUuid($subscription->uuid);
+        $osSubscription = $this->vmSubscriptionRepository->getOsSubscriptionChildFromSubscriptionUuid($subscription->uuid);
 
         $metaData = null;
         if ($osSubscription->orderLineItem?->meta_data !== null) {
             $osSubscriptionMetaData = $osSubscription->orderLineItem->meta_data;
-            $metaData = $this->cartSerializerFactory->get()
-                ->deserialize($osSubscriptionMetaData, MetaData::class, 'json');
+            $metaData = $this->cartSerializerFactory->get()->deserialize(
+                $osSubscriptionMetaData,
+                MetaData::class,
+                'json',
+            );
         }
 
-        return $metaData instanceof OsMetaData
-            ? $metaData->sshKeyUuid
-            : null;
+        return $metaData instanceof OsMetaData ? $metaData->sshKeyUuid : null;
     }
 }

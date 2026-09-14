@@ -85,7 +85,7 @@ class AccountClientTest extends TestCase
             'Doe',
             'support@example.com',
             's3cr3t',
-            'foo'
+            'foo',
         );
     }
 }

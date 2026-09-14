@@ -110,7 +110,10 @@ class VpsSeeder extends Seeder
     {
         $group = $this->referenceRepo->get(ProductReference::VPS_GROUP, ProductGroup::class);
         $haarlemEnvironment = $this->referenceRepo->get(ProductReference::VPS_ENVIRONMENT_HAARLEM, Environment::class);
-        $amsterdamEnvironment = $this->referenceRepo->get(ProductReference::VPS_ENVIRONMENT_AMSTERDAM, Environment::class);
+        $amsterdamEnvironment = $this->referenceRepo->get(
+            ProductReference::VPS_ENVIRONMENT_AMSTERDAM,
+            Environment::class,
+        );
 
         $product = new Product();
         $product->uuid = Str::uuid()->toString();
@@ -121,8 +124,12 @@ class VpsSeeder extends Seeder
         $product->weight = 61;
         $product->product_group_id = $group->id;
         $product->save();
-        $haarlemEnvironment->products()->attach($product->id, ['product_identifier' => '15393ee6-ab0c-45ec-80dc-a0eb33b68a3a']);
-        $amsterdamEnvironment->products()->attach($product->id, ['product_identifier' => 'ab0c3ee6-80dc-ec0a-15qy-j6se92l69c8w']);
+        $haarlemEnvironment->products()->attach($product->id, [
+            'product_identifier' => '15393ee6-ab0c-45ec-80dc-a0eb33b68a3a',
+        ]);
+        $amsterdamEnvironment->products()->attach($product->id, [
+            'product_identifier' => 'ab0c3ee6-80dc-ec0a-15qy-j6se92l69c8w',
+        ]);
         $this->referenceRepo->set(ProductReference::VPS_CLOUD_2, $product);
 
         ProductSpec::insert([
@@ -158,7 +165,10 @@ class VpsSeeder extends Seeder
     private function vpsCloud5(): void
     {
         $group = $this->referenceRepo->get(ProductReference::VPS_GROUP, ProductGroup::class);
-        $amsterdamEnvironment = $this->referenceRepo->get(ProductReference::VPS_ENVIRONMENT_AMSTERDAM, Environment::class);
+        $amsterdamEnvironment = $this->referenceRepo->get(
+            ProductReference::VPS_ENVIRONMENT_AMSTERDAM,
+            Environment::class,
+        );
 
         $product = new Product();
         $product->uuid = Str::uuid()->toString();
@@ -169,7 +179,9 @@ class VpsSeeder extends Seeder
         $product->weight = 62;
         $product->product_group_id = $group->id;
         $product->save();
-        $amsterdamEnvironment->products()->attach($product->id, ['product_identifier' => 'b59aeb3a-b4f4-4766-8527-ddc663568c9b']);
+        $amsterdamEnvironment->products()->attach($product->id, [
+            'product_identifier' => 'b59aeb3a-b4f4-4766-8527-ddc663568c9b',
+        ]);
         $this->referenceRepo->set(ProductReference::VPS_CLOUD_5, $product);
 
         ProductSpec::insert([
@@ -206,7 +218,10 @@ class VpsSeeder extends Seeder
     {
         $group = $this->referenceRepo->get(ProductReference::VPS_GROUP, ProductGroup::class);
         $haarlemEnvironment = $this->referenceRepo->get(ProductReference::VPS_ENVIRONMENT_HAARLEM, Environment::class);
-        $amsterdamEnvironment = $this->referenceRepo->get(ProductReference::VPS_ENVIRONMENT_AMSTERDAM, Environment::class);
+        $amsterdamEnvironment = $this->referenceRepo->get(
+            ProductReference::VPS_ENVIRONMENT_AMSTERDAM,
+            Environment::class,
+        );
 
         $product = new Product();
         $product->uuid = Str::uuid()->toString();
@@ -217,8 +232,12 @@ class VpsSeeder extends Seeder
         $product->weight = 63;
         $product->product_group_id = $group->id;
         $product->save();
-        $haarlemEnvironment->products()->attach($product->id, ['product_identifier' => '5da20ef5-f124-4814-9ecc-361fd5141a67']);
-        $amsterdamEnvironment->products()->attach($product->id, ['product_identifier' => '361fd514-ab0c-45ec-80dc-5da20ef58a3a']);
+        $haarlemEnvironment->products()->attach($product->id, [
+            'product_identifier' => '5da20ef5-f124-4814-9ecc-361fd5141a67',
+        ]);
+        $amsterdamEnvironment->products()->attach($product->id, [
+            'product_identifier' => '361fd514-ab0c-45ec-80dc-5da20ef58a3a',
+        ]);
         $this->referenceRepo->set(ProductReference::VPS_CLOUD_10, $product);
 
         ProductSpec::insert([
@@ -265,7 +284,9 @@ class VpsSeeder extends Seeder
         $product->weight = 64;
         $product->product_group_id = $group->id;
         $product->save();
-        $haarlemEnvironment->products()->attach($product->id, ['product_identifier' => '15393ee6-ab0c-45ec-80dc-a0eb33b68a3a']);
+        $haarlemEnvironment->products()->attach($product->id, [
+            'product_identifier' => '15393ee6-ab0c-45ec-80dc-a0eb33b68a3a',
+        ]);
         $this->referenceRepo->set(ProductReference::VPS_CLOUD_20, $product);
 
         ProductSpec::insert([
@@ -317,7 +338,10 @@ class VpsSeeder extends Seeder
     {
         $group = $this->referenceRepo->get(ProductReference::VPS_GROUP_OS, ProductGroup::class);
         $haarlemEnvironment = $this->referenceRepo->get(ProductReference::VPS_ENVIRONMENT_HAARLEM, Environment::class);
-        $amsterdamEnvironment = $this->referenceRepo->get(ProductReference::VPS_ENVIRONMENT_AMSTERDAM, Environment::class);
+        $amsterdamEnvironment = $this->referenceRepo->get(
+            ProductReference::VPS_ENVIRONMENT_AMSTERDAM,
+            Environment::class,
+        );
 
         $product = new Product();
         $product->uuid = Str::uuid()->toString();
@@ -330,7 +354,11 @@ class VpsSeeder extends Seeder
         $product->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::VPS_CLOUDSTACK_TEMPLATE_SLUG->value, 'value' => 'Ubuntu-24.04', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::VPS_CLOUDSTACK_TEMPLATE_SLUG->value,
+                'value' => 'Ubuntu-24.04',
+                'product_id' => $product->id,
+            ],
         ]);
 
         $haarlemEnvironment->products()->attach($product->id, ['product_identifier' => Str::uuid()->toString()]);
@@ -364,7 +392,10 @@ class VpsSeeder extends Seeder
     {
         $group = $this->referenceRepo->get(ProductReference::VPS_GROUP_OS, ProductGroup::class);
         $haarlemEnvironment = $this->referenceRepo->get(ProductReference::VPS_ENVIRONMENT_HAARLEM, Environment::class);
-        $amsterdamEnvironment = $this->referenceRepo->get(ProductReference::VPS_ENVIRONMENT_AMSTERDAM, Environment::class);
+        $amsterdamEnvironment = $this->referenceRepo->get(
+            ProductReference::VPS_ENVIRONMENT_AMSTERDAM,
+            Environment::class,
+        );
 
         $product = new Product();
         $product->uuid = Str::uuid()->toString();
@@ -378,7 +409,11 @@ class VpsSeeder extends Seeder
 
         ProductSpec::insert([
             ['name' => ProductSpecName::SSH_KEY_REQUIRED->value, 'value' => 1, 'product_id' => $product->id],
-            ['name' => ProductSpecName::VPS_CLOUDSTACK_TEMPLATE_SLUG->value, 'value' => 'Ubuntu-24.04', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::VPS_CLOUDSTACK_TEMPLATE_SLUG->value,
+                'value' => 'Ubuntu-24.04',
+                'product_id' => $product->id,
+            ],
         ]);
 
         $haarlemEnvironment->products()->attach($product->id, ['product_identifier' => Str::uuid()->toString()]);
@@ -434,11 +469,11 @@ class VpsSeeder extends Seeder
         foreach ($osProducts as $fromProduct) {
             foreach ($osProducts as $toProduct) {
                 $reinstall = new ProductAllowedChange();
-                $reinstall->from_product_id               = $fromProduct->id;
-                $reinstall->to_product_id                 = $toProduct->id;
-                $reinstall->change_type                   = ProductChangeType::REINSTALL;
-                $reinstall->is_available_for_customer     = true;
-                $reinstall->display_order                 = $displayOrder++;
+                $reinstall->from_product_id = $fromProduct->id;
+                $reinstall->to_product_id = $toProduct->id;
+                $reinstall->change_type = ProductChangeType::REINSTALL;
+                $reinstall->is_available_for_customer = true;
+                $reinstall->display_order = $displayOrder++;
                 $reinstall->save();
             }
         }

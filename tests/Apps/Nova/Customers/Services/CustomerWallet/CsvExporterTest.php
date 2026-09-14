@@ -23,7 +23,7 @@ class CsvExporterTest extends TestCase
                 'amount',
             ],
             [
-               [ 123, 'B. Chungus', 'NL02ABNA0123456789', 1337],
+                [123, 'B. Chungus', 'NL02ABNA0123456789', 1337],
             ],
         );
 

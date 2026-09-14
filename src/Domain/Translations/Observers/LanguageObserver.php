@@ -18,7 +18,7 @@ class LanguageObserver
         $this->onlyOneDefaultLanguage($language);
     }
 
-    public function onlyOneDefaultLanguage(TranslationLanguage $language): void
+    private function onlyOneDefaultLanguage(TranslationLanguage $language): void
     {
         if ($language->default === true) {
             TranslationLanguage::where('id', '!=', $language->id)->update(['default' => 0]);

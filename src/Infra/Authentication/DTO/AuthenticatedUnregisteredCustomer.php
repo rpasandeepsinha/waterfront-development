@@ -8,7 +8,8 @@ use SandwaveIo\LighthouseAuthBase\Identity\KratosIdentity;
 
 class AuthenticatedUnregisteredCustomer
 {
-    public function __construct(public readonly KratosIdentity $identitySchema)
-    {
+    public function __construct(
+        public readonly KratosIdentity $identitySchema,
+    ) {
     }
 }

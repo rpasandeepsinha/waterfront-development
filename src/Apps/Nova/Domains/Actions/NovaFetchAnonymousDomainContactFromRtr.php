@@ -17,7 +17,7 @@ class NovaFetchAnonymousDomainContactFromRtr extends Action
 {
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private readonly RtrService $rtrService
+        private readonly RtrService $rtrService,
     ) {
         $this->sole();
     }
@@ -49,7 +49,7 @@ class NovaFetchAnonymousDomainContactFromRtr extends Action
 
         $title = sprintf(
             'Fetched anonymous domain contact with handle {%s} from Rtr with response:',
-            $anonymousHandle->handle
+            $anonymousHandle->handle,
         );
 
         return self::modal('modal-response', [

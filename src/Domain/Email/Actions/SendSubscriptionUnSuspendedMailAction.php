@@ -10,15 +10,16 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class SendSubscriptionUnSuspendedMailAction
 {
-    public function __construct(private readonly MailerInterface $mailer)
-    {
+    public function __construct(
+        private readonly MailerInterface $mailer,
+    ) {
     }
 
     public function execute(Subscription $subscription): void
     {
         $this->mailer->send(
             recipients: [$subscription->customer],
-            template: new MailSubscriptionUnSuspendedDetails($subscription->domain ?? '')
+            template: new MailSubscriptionUnSuspendedDetails($subscription->domain ?? ''),
         );
     }
 }

@@ -59,7 +59,7 @@ class NovaBulkUpdateDomainHandlePrivacyProtectAction extends NovaOneOffScriptAbs
                 '[%s] Dispatched %d domain handle update jobs.',
                 $dryRun ? 'DRY RUN' : 'EXECUTED',
                 count($rows),
-            )
+            ),
         );
     }
 
@@ -70,8 +70,7 @@ class NovaBulkUpdateDomainHandlePrivacyProtectAction extends NovaOneOffScriptAbs
     {
         return [
             ...$this->getOneOffScriptInfoFields(),
-            Boolean::make('Dry run', 'dry-run')
-                ->withMeta(['value' => true]),
+            Boolean::make('Dry run', 'dry-run')->withMeta(['value' => true]),
             Number::make('Limit (0 = all)', 'limit')->default(0)->min(0),
             File::make('CSV upload', 'csv_upload')
                 ->disableDownload()
@@ -118,8 +117,8 @@ class NovaBulkUpdateDomainHandlePrivacyProtectAction extends NovaOneOffScriptAbs
             }
 
             $values = array_map(
-                fn (string|null $value): ?string => ($value === null || $value === '') ? null : $value,
-                str_getcsv($line, escape: '\\')
+                fn (?string $value): ?string => $value === null || $value === '' ? null : $value,
+                str_getcsv($line, escape: '\\'),
             );
 
             $rows[] = array_combine($headers, $values);

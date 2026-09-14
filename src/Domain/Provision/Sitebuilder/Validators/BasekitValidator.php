@@ -41,15 +41,19 @@ class BasekitValidator implements SitebuilderValidatorInterface
         return match ($provisionRequest::class) {
             TerminateSitebuilderContextRequest::class => $this->getTerminateContextRequestValidator($provisionRequest),
             CreateSitebuilderRequest::class => $this->getCreateSitebuilderValidator($provisionRequest),
-            CreateBasekitDeploymentsFromMigrationRequest::class => $this->getCreateBasekitFromMigrationValidator($provisionRequest),
-            RollbackBasekitDeploymentsFromMigrationRequest::class => $this->getRollbackBasekitFromMigrationValidator($provisionRequest),
+            CreateBasekitDeploymentsFromMigrationRequest::class => $this->getCreateBasekitFromMigrationValidator(
+                $provisionRequest,
+            ),
+            RollbackBasekitDeploymentsFromMigrationRequest::class => $this->getRollbackBasekitFromMigrationValidator(
+                $provisionRequest,
+            ),
             GetSitebuilderSsoRequest::class => $this->getSsoRequestValidator($provisionRequest),
             AddSslSitebuilderRequest::class => $this->getAddSslSitebuilderValidator($provisionRequest),
             TerminateSitebuilderRequest::class => $this->getTerminateSitebuilderSiteRequestValidator($provisionRequest),
             UpdateSitebuilderRequest::class => $this->getUpdateRequestValidator($provisionRequest),
             GetBasekitSiteByRefRequest::class => $this->getGetBasekitSiteByRefRequestValidator($provisionRequest),
             GetBasekitUserByRefRequest::class => $this->getGetBasekitUserByRefRequestValidator($provisionRequest),
-            default => throw new UnknownSitebuilderRequestException($provisionRequest)
+            default => throw new UnknownSitebuilderRequestException($provisionRequest),
         };
     }
 

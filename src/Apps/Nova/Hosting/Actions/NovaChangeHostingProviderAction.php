@@ -29,9 +29,10 @@ class NovaChangeHostingProviderAction extends NovaSubscriptionAction
         private readonly ProviderRepository $providerRepository,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool =>
+            fn (NovaRequest $request): bool => (
                 $this->onlyForSingleSubscription($request)
                 && $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::HOSTING)
+            ),
         );
 
         $this->sole();
@@ -50,10 +51,15 @@ class NovaChangeHostingProviderAction extends NovaSubscriptionAction
         $subscription = $models->firstOrFail();
 
         if (! $subscription->hostingDeployment instanceof HostingDeployment) {
-            return self::danger($this->translator->translate('nova-action.error.only_hosting_subscriptions_supported_providers'));
+            return self::danger($this->translator->translate(
+                'nova-action.error.only_hosting_subscriptions_supported_providers',
+            ));
         }
 
-        $newProvider = $this->providerRepository->getByType(ProviderType::HOSTING, ProviderSlug::from($fields->provider));
+        $newProvider = $this->providerRepository->getByType(
+            ProviderType::HOSTING,
+            ProviderSlug::from($fields->provider),
+        );
 
         $hostingDeployment = $subscription->hostingDeployment;
 

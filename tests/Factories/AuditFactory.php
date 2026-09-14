@@ -31,6 +31,6 @@ class AuditFactory extends Factory
             'tags' => null,
             'created_at' => CarbonImmutable::now(),
             'updated_at' => CarbonImmutable::now(),
-       ];
+        ];
     }
 }

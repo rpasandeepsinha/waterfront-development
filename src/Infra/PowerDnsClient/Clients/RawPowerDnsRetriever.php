@@ -16,7 +16,7 @@ class RawPowerDnsRetriever
     private readonly string $apiKey;
 
     public function __construct(
-        private readonly ConfigurationInterface $configuration
+        private readonly ConfigurationInterface $configuration,
     ) {
         $this->apiBaseUrl = $this->configuration->getAsString('powerdnsclient.connection.api_url');
         $this->apiKey = $this->configuration->getAsString('powerdnsclient.connection.api_key');
@@ -24,8 +24,7 @@ class RawPowerDnsRetriever
 
     public function getPowerDnsVersion(): string
     {
-        $serversResponse = $this->powerDnsRequest()
-            ->get('api/v1/servers');
+        $serversResponse = $this->powerDnsRequest()->get('api/v1/servers');
 
         if ($serversResponse->header('Content-Type') !== 'application/json') {
             return $serversResponse->body();
@@ -48,20 +47,19 @@ class RawPowerDnsRetriever
      */
     public function getPowerDnsZoneResponseBody(string $domain): array|string
     {
-        $zoneResponse = $this->powerDnsRequest()
-            ->get('api/v1/servers/localhost/zones/' . urlencode($domain));
+        $zoneResponse = $this->powerDnsRequest()->get('api/v1/servers/localhost/zones/' . urlencode($domain));
 
         // If it's json we want some nice formatting, else show the raw body
         /** @var array<string, string>|string $zoneResponseBody */
-        $zoneResponseBody = $zoneResponse->header('Content-Type') === 'application/json' ?
-            $zoneResponse->json() : $zoneResponse->body();
+        $zoneResponseBody = $zoneResponse->header('Content-Type') === 'application/json'
+            ? $zoneResponse->json()
+            : $zoneResponse->body();
 
         return $zoneResponseBody;
     }
 
     private function powerDnsRequest(): PendingRequest
     {
-        return Http::baseUrl($this->apiBaseUrl)
-            ->withHeader('X-API-Key', $this->apiKey);
+        return Http::baseUrl($this->apiBaseUrl)->withHeader('X-API-Key', $this->apiKey);
     }
 }

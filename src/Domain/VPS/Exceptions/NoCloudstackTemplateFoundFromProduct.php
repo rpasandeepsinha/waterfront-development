@@ -15,7 +15,7 @@ class NoCloudstackTemplateFoundFromProduct extends Exception
         $message = sprintf(
             'No Cloudstack template found for product "%s" with generated template_slug tag "%s"',
             $product->slug,
-            $templateSlug
+            $templateSlug,
         );
 
         parent::__construct($message, $code, $previous);

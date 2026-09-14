@@ -11,7 +11,7 @@ use Waterfront\Domain\Ferry\Repositories\MigratedCustomersRepository;
 class MigrationSubscriptionPayloadToDtoConverter
 {
     public function __construct(
-        private readonly MigratedCustomersRepository $migratedCustomersRepository
+        private readonly MigratedCustomersRepository $migratedCustomersRepository,
     ) {
     }
 
@@ -23,7 +23,8 @@ class MigrationSubscriptionPayloadToDtoConverter
         $referencedCustomerId = $this->getAsString($subscriptionPayload, 'reference_customer_id');
         $subscriptions = $this->getAsArray($subscriptionPayload, 'subscriptions');
 
-        $customer = $this->migratedCustomersRepository->getFirstCustomerByMigratedCustomerReferenceId($referencedCustomerId);
+        $customer =
+            $this->migratedCustomersRepository->getFirstCustomerByMigratedCustomerReferenceId($referencedCustomerId);
 
         return CreateSubscriptionsDTO::create(
             $customer,

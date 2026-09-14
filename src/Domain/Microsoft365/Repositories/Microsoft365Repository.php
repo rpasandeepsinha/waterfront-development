@@ -24,9 +24,13 @@ class Microsoft365Repository
 
     public function hasMicrosoft365Subscriptions(Customer $customer): bool
     {
-        return Subscription::query()->whereProductGroupType(ProductGroupType::MICROSOFT_365)
+        return Subscription::query()
+            ->whereProductGroupType(ProductGroupType::MICROSOFT_365)
             ->where('customer_id', $customer->id)
-            ->whereNotIn('administrative_status', [...AdministrativeStatus::administrativelyEnded(), AdministrativeStatus::ARCHIVING->value])
+            ->whereNotIn('administrative_status', [
+                ...AdministrativeStatus::administrativelyEnded(),
+                AdministrativeStatus::ARCHIVING->value,
+            ])
             // The 'parent_subscription_id' is null when it is a parent (read: administrative) subscription.
             ->whereNull('parent_subscription_id')
             ->exists();
@@ -51,24 +55,26 @@ class Microsoft365Repository
                 Db::raw('DATE(MAX(s.next_billing_date)) AS next_billing_date'),
                 's.contract_period',
                 's.billing_period',
-                'products.id AS product_id'
+                'products.id AS product_id',
             )
             ->join('products', 's.product_uuid', '=', 'products.uuid')
             ->join('product_groups', 'products.product_group_id', '=', 'product_groups.id')
             ->where('product_groups.slug', '=', ProductGroupType::MICROSOFT_365)
             ->where('s.customer_id', $customer->id)
-            ->whereNotIn('administrative_status', [...AdministrativeStatus::administrativelyEnded(), AdministrativeStatus::ARCHIVING->value])
+            ->whereNotIn('administrative_status', [
+                ...AdministrativeStatus::administrativelyEnded(),
+                AdministrativeStatus::ARCHIVING->value,
+            ])
             ->whereIn('products.id', $productIds)
             ->groupBy(
                 's.contract_period',
                 's.billing_period',
-                'products.id'
+                'products.id',
             )
-            ->get()
-        ;
+            ->get();
 
         return $res->mapWithKeys(
-            fn (stdClass $row) => [$row->product_id . $row->contract_period . $row->billing_period => $row]
+            fn (stdClass $row) => [$row->product_id . $row->contract_period . $row->billing_period => $row],
         );
     }
 
@@ -126,7 +132,8 @@ class Microsoft365Repository
 
     public function activeChildrenCount(Microsoft365Deployment $microsoft365Deployment): int
     {
-        return $microsoft365Deployment->subscriptionChildren
+        return $microsoft365Deployment
+            ->subscriptionChildren
             ->where('administrative_status', AdministrativeStatus::ACTIVE->value)
             ->count();
     }
@@ -140,8 +147,10 @@ class Microsoft365Repository
             ->whereRelation('subscription.product', 'slug', ProductSlug::MICROSOFT_COPILOT_PARENT->value)
             ->whereHas(
                 'subscriptionChildren',
-                fn (Builder $query): Builder => $query
-                    ->where('administrative_status', AdministrativeStatus::ACTIVE->value)
+                fn (Builder $query): Builder => $query->where(
+                    'administrative_status',
+                    AdministrativeStatus::ACTIVE->value,
+                ),
             )
             ->with(['subscription.product', 'microsoft365CustomerInfo.customer', 'subscriptionChildren'])
             ->first();
@@ -154,14 +163,16 @@ class Microsoft365Repository
             ->where('kpn_status', Microsoft365OrderStatus::ACTIVE->value)
             ->whereHas(
                 'subscriptionChildren',
-                fn (Builder $query): Builder => $query
-                    ->where('administrative_status', AdministrativeStatus::ACTIVE->value)
-                    ->whereHas(
-                        'product.productSpecs',
-                        fn (Builder $query): Builder => $query
-                            ->where('name', ProductSpecName::MICROSOFT365_ALLOW_COPILOT->value)
-                            ->whereIn('value', self::PRODUCT_SPEC_TRUE_VALUES)
-                    )
+                fn (Builder $query): Builder => $query->where(
+                    'administrative_status',
+                    AdministrativeStatus::ACTIVE->value,
+                )->whereHas(
+                    'product.productSpecs',
+                    fn (Builder $query): Builder => $query->where(
+                        'name',
+                        ProductSpecName::MICROSOFT365_ALLOW_COPILOT->value,
+                    )->whereIn('value', self::PRODUCT_SPEC_TRUE_VALUES),
+                ),
             )
             ->exists();
     }
@@ -171,13 +182,9 @@ class Microsoft365Repository
      */
     public function getDeploymentsByCustomerAndDomainName(Customer $customer, ?string $domain): Collection
     {
-        return Microsoft365Deployment::query()
-            ->whereHas(
-                'microsoft365CustomerInfo',
-                fn (Builder $query) => $query
-                    ->where('customer_id', $customer->id)
-                    ->where('primary_domain', $domain)
-            )
-            ->get();
+        return Microsoft365Deployment::query()->whereHas(
+            'microsoft365CustomerInfo',
+            fn (Builder $query) => $query->where('customer_id', $customer->id)->where('primary_domain', $domain),
+        )->get();
     }
 }

@@ -38,6 +38,9 @@ class OneTimeServiceRepository
 
     public function getBySubscriptionIdAndProductId(int $subscriptionId, int $productId): ?OneTimeService
     {
-        return OneTimeService::query()->where('subscription_id', $subscriptionId)->where('product_id', $productId)->first();
+        return OneTimeService::query()
+            ->where('subscription_id', $subscriptionId)
+            ->where('product_id', $productId)
+            ->first();
     }
 }

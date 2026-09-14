@@ -42,11 +42,10 @@ class AllowAllDirectAdminFeatureSetAction
 
         Assert::string($userName);
 
-        $userConfig = $this->directAdminHostingService
-            ->getUserConfigAsAdmin(
-                identifier: $userName,
-                server: $server
-            );
+        $userConfig = $this->directAdminHostingService->getUserConfigAsAdmin(
+            identifier: $userName,
+            server: $server,
+        );
 
         if (array_key_exists('feature_sets', $userConfig) && $userConfig['feature_sets'] === '') {
             return;
@@ -64,7 +63,7 @@ class AllowAllDirectAdminFeatureSetAction
                     'hosting_details' => $hostingDetails->toArray(),
                 ],
                 LoggingContextKeys::PROVISIONING_PROVIDER => $mailOnlyProvider->slug,
-            ]
+            ],
         );
 
         $userConfig['feature_sets'] = '';
@@ -72,11 +71,9 @@ class AllowAllDirectAdminFeatureSetAction
         // See comment in Directadmin modifyCustomer()
         unset($userConfig['package']);
 
-        $this->directAdmin
-            ->user($server)
-            ->update(
-                $userName,
-                $userConfig
-            );
+        $this->directAdmin->user($server)->update(
+            $userName,
+            $userConfig,
+        );
     }
 }

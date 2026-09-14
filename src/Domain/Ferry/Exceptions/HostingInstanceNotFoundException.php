@@ -12,8 +12,12 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class HostingInstanceNotFoundException extends Exception
 {
-    public function __construct(HostingMigrationPayload $payload, Server $server, Subscription $subscription, ?Throwable $previous = null)
-    {
+    public function __construct(
+        HostingMigrationPayload $payload,
+        Server $server,
+        Subscription $subscription,
+        ?Throwable $previous = null,
+    ) {
         parent::__construct(
             sprintf(
                 'Hosting instance not found on server %s for subscription %d (payload: %s)',
@@ -22,7 +26,7 @@ class HostingInstanceNotFoundException extends Exception
                 json_encode($payload->toArray(), JSON_THROW_ON_ERROR),
             ),
             0,
-            $previous
+            $previous,
         );
     }
 }

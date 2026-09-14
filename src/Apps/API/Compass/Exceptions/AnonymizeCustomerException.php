@@ -14,7 +14,7 @@ class AnonymizeCustomerException extends Exception
     {
         return new self(sprintf(
             'Customer %d is already anonymized',
-            $customer->customer_number
+            $customer->customer_number,
         ));
     }
 
@@ -22,7 +22,7 @@ class AnonymizeCustomerException extends Exception
     {
         return new self(sprintf(
             'Customer %d still has active subscriptions',
-            $customer->customer_number
+            $customer->customer_number,
         ));
     }
 
@@ -30,7 +30,7 @@ class AnonymizeCustomerException extends Exception
     {
         return new self(sprintf(
             'Customer %d still has cancelled subscriptions',
-            $customer->customer_number
+            $customer->customer_number,
         ));
     }
 
@@ -38,7 +38,7 @@ class AnonymizeCustomerException extends Exception
     {
         return new self(sprintf(
             'Customer %d still has open orders',
-            $customer->customer_number
+            $customer->customer_number,
         ));
     }
 
@@ -46,23 +46,23 @@ class AnonymizeCustomerException extends Exception
     {
         return new self(sprintf(
             'Customer %d still has unpaid invoices',
-            $customer->customer_number
+            $customer->customer_number,
         ));
     }
 
     public static function failedToDetachCustomerNumberFromIdentity(
         int $customerNumber,
         string $identifier,
-        DetachCustomerNumberFromIdentityFailedException $exception
+        DetachCustomerNumberFromIdentityFailedException $exception,
     ): self {
         return new self(
             sprintf(
                 'Failed to detach customer number %d from lighthouse identity %s',
                 $customerNumber,
-                $identifier
+                $identifier,
             ),
             $exception->getCode(),
-            $exception
+            $exception,
         );
     }
 }

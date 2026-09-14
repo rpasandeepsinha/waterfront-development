@@ -32,7 +32,7 @@ class Handler extends ExceptionHandler
                 sprintf('Uncaught exception: %s', $exception->getMessage()),
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
         });
     }
@@ -47,6 +47,7 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $e): Response
     {
         $request->headers->set('Accept', 'application/json');
+
         return parent::render($request, $e);
     }
 }

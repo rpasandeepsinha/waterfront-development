@@ -20,7 +20,7 @@ class BackupCreateResult extends AbstractProvisionResult
         #[SensitiveParameter]
         public ?string $password = null,
         ?Throwable $exception = null,
-        ?ValidationResult $validationResult = null
+        ?ValidationResult $validationResult = null,
     ) {
         parent::__construct($provisionData, $provisionStatus, $exception, $validationResult);
     }

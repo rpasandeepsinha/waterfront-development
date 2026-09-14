@@ -21,8 +21,10 @@ class FetchDkimRecord extends DirectAdminCommand
     /** @var string[] */
     private ?array $dkimRecord = null;
 
-    public function __construct(private readonly string $domain, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly string $domain,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -33,11 +35,15 @@ class FetchDkimRecord extends DirectAdminCommand
         $records = $decodedContent['records'];
         Assert::isArray($records);
 
-        $dkimRecords = array_filter($records, fn ($record) => $record['type'] === 'TXT' && str_contains($record['value'], 'v=DKIM1'));
+        $dkimRecords = array_filter(
+            $records,
+            fn ($record) => $record['type'] === 'TXT' && str_contains($record['value'], 'v=DKIM1'),
+        );
 
         if (count($dkimRecords) === 0) {
             $this->dkimRecord = null;
             $this->succeeded = false;
+
             return $this;
         }
 
@@ -46,7 +52,7 @@ class FetchDkimRecord extends DirectAdminCommand
                 'Multiple dkim records found for domain {domain.name}, picking the first one.',
                 [
                     LoggingContextKeys::DOMAIN_NAME => $this->domain,
-                ]
+                ],
             );
         }
 

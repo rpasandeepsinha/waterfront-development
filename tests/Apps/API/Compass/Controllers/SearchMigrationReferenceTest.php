@@ -40,21 +40,29 @@ class SearchMigrationReferenceTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
 
-        new MigratedCustomersFactory()->createOne([
-            'reference_customer_number' => self::REFERENCE_CUSTOMER_NUMBER,
-        ])->customers()->attach($this->customer);
+        new MigratedCustomersFactory()
+            ->createOne([
+                'reference_customer_number' => self::REFERENCE_CUSTOMER_NUMBER,
+            ])
+            ->customers()
+            ->attach($this->customer);
 
         $this->product = new ProductFactory()->hostingBrons()->createOne();
 
-        $this->subscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOne([
-            'domain' => 'example.dev',
-        ]);
+        $this->subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'domain' => 'example.dev',
+            ]);
 
-        $this->subscription->migratedSubscriptions()->attach(
-            new MigratedSubscriptionsFactory()->createOne([
-                'reference_subscription_id' => self::REFERENCE_SUBSCRIPTION_ID,
-            ])
-        );
+        $this->subscription
+            ->migratedSubscriptions()
+            ->attach(
+                new MigratedSubscriptionsFactory()->createOne([
+                    'reference_subscription_id' => self::REFERENCE_SUBSCRIPTION_ID,
+                ]),
+            );
     }
 
     /** @return iterable<string, array<string>> */
@@ -70,8 +78,9 @@ class SearchMigrationReferenceTest extends IntegrationTestCase
     #[Test]
     public function searchOnMigrationReferenceReturnsLinkedCustomer(string $searchterm): void
     {
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.migration-references', ['searchterm' => $searchterm]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.migration-references', [
+            'searchterm' => $searchterm,
+        ]));
 
         $response->assertOk();
         $response->assertExactJson([$this->expectedCustomerResult()]);
@@ -90,8 +99,9 @@ class SearchMigrationReferenceTest extends IntegrationTestCase
     #[Test]
     public function searchOnMigrationReferenceReturnsLinkedSubscription(string $searchterm): void
     {
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.migration-references', ['searchterm' => $searchterm]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.migration-references', [
+            'searchterm' => $searchterm,
+        ]));
 
         $response->assertOk();
         $response->assertExactJson([$this->expectedSubscriptionResult()]);
@@ -102,18 +112,24 @@ class SearchMigrationReferenceTest extends IntegrationTestCase
     {
         $sharedReference = 'shared_reference_42';
 
-        new MigratedCustomersFactory()->createOne([
-            'reference_customer_number' => $sharedReference,
-        ])->customers()->attach($this->customer);
-
-        $this->subscription->migratedSubscriptions()->attach(
-            new MigratedSubscriptionsFactory()->createOne([
-                'reference_subscription_id' => $sharedReference,
+        new MigratedCustomersFactory()
+            ->createOne([
+                'reference_customer_number' => $sharedReference,
             ])
-        );
+            ->customers()
+            ->attach($this->customer);
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.migration-references', ['searchterm' => $sharedReference]));
+        $this->subscription
+            ->migratedSubscriptions()
+            ->attach(
+                new MigratedSubscriptionsFactory()->createOne([
+                    'reference_subscription_id' => $sharedReference,
+                ]),
+            );
+
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.migration-references', [
+            'searchterm' => $sharedReference,
+        ]));
 
         $response->assertOk();
         $response->assertJsonCount(2);
@@ -124,18 +140,24 @@ class SearchMigrationReferenceTest extends IntegrationTestCase
     #[Test]
     public function searchReturnsSubscriptionWithoutDomain(): void
     {
-        $hostingSubscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOne([
-            'domain' => null,
-        ]);
+        $hostingSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'domain' => null,
+            ]);
 
-        $hostingSubscription->migratedSubscriptions()->attach(
-            new MigratedSubscriptionsFactory()->createOne([
-                'reference_subscription_id' => 'hosting_reference_7',
-            ])
-        );
+        $hostingSubscription
+            ->migratedSubscriptions()
+            ->attach(
+                new MigratedSubscriptionsFactory()->createOne([
+                    'reference_subscription_id' => 'hosting_reference_7',
+                ]),
+            );
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.migration-references', ['searchterm' => 'hosting_reference_7']));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.migration-references', [
+            'searchterm' => 'hosting_reference_7',
+        ]));
 
         $response->assertOk();
         $response->assertExactJson([
@@ -154,8 +176,9 @@ class SearchMigrationReferenceTest extends IntegrationTestCase
     #[Test]
     public function searchOnUnknownMigrationReferenceReturnsNoResults(): void
     {
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.migration-references', ['searchterm' => 'no_such_reference']));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.migration-references', [
+            'searchterm' => 'no_such_reference',
+        ]));
 
         $response->assertOk();
         $response->assertExactJson([]);
@@ -166,8 +189,9 @@ class SearchMigrationReferenceTest extends IntegrationTestCase
     {
         $unmigratedCustomer = new CustomerFactory()->createOne();
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.migration-references', ['searchterm' => self::REFERENCE_CUSTOMER_NUMBER]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.migration-references', [
+            'searchterm' => self::REFERENCE_CUSTOMER_NUMBER,
+        ]));
 
         $response->assertOk();
         $response->assertJsonCount(1);
@@ -177,10 +201,14 @@ class SearchMigrationReferenceTest extends IntegrationTestCase
     #[Test]
     public function searchDoesNotReturnSubscriptionsWithoutMigratedSubscription(): void
     {
-        $unmigratedSubscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOne();
+        $unmigratedSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne();
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.migration-references', ['searchterm' => self::REFERENCE_SUBSCRIPTION_ID]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.migration-references', [
+            'searchterm' => self::REFERENCE_SUBSCRIPTION_ID,
+        ]));
 
         $response->assertOk();
         $response->assertJsonCount(1);
@@ -190,8 +218,7 @@ class SearchMigrationReferenceTest extends IntegrationTestCase
     #[Test]
     public function searchWithoutSearchtermIsRejected(): void
     {
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.migration-references'));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.migration-references'));
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors('searchterm');

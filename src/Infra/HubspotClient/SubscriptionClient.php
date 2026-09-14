@@ -36,7 +36,9 @@ class SubscriptionClient
      */
     public function create(HubspotSubscriptionDTO $subscriptionRequest): HubspotSubscriptionDTO
     {
-        $context = new ObjectNormalizerContextBuilder()->withGroups('create')->toArray();
+        $context = new ObjectNormalizerContextBuilder()
+            ->withGroups('create')
+            ->toArray();
 
         $response = $this->crm->post(
             sprintf('objects/%s', $this->config->subscriptionObjectTypeId),
@@ -60,7 +62,9 @@ class SubscriptionClient
      */
     public function update(HubspotSubscriptionDTO $subscriptionRequest): array
     {
-        $context = new ObjectNormalizerContextBuilder()->withGroups('update')->toArray();
+        $context = new ObjectNormalizerContextBuilder()
+            ->withGroups('update')
+            ->toArray();
 
         return $this->crm->patch(
             sprintf('objects/%s/%d', $this->config->subscriptionObjectTypeId, $subscriptionRequest->hubspotId),
@@ -77,14 +81,19 @@ class SubscriptionClient
      */
     public function createBatch(array $subscriptions): ?array
     {
-        $context = new ObjectNormalizerContextBuilder()->withGroups('create')->toArray();
+        $context = new ObjectNormalizerContextBuilder()
+            ->withGroups('create')
+            ->toArray();
         $body = [
             'inputs' => array_map(fn (HubspotSubscriptionDTO $subscription) => (object) [
                 'properties' => (object) $this->serializer->normalize($subscription, context: $context),
             ], $subscriptions),
         ];
 
-        $response = $this->crm->post(sprintf('objects/%s/batch/create', $this->config->subscriptionObjectTypeId), $body);
+        $response = $this->crm->post(
+            sprintf('objects/%s/batch/create', $this->config->subscriptionObjectTypeId),
+            $body,
+        );
 
         if (array_key_exists('status', $response) && $response['status'] !== 'COMPLETE') {
             return null;
@@ -107,7 +116,9 @@ class SubscriptionClient
      */
     public function updateBatch(array $subscriptions): void
     {
-        $context = new ObjectNormalizerContextBuilder()->withGroups('update')->toArray();
+        $context = new ObjectNormalizerContextBuilder()
+            ->withGroups('update')
+            ->toArray();
         $body = [
             'inputs' => array_map(fn (HubspotSubscriptionDTO $subscription) => (object) [
                 'id' => (string) $subscription->hubspotId,
@@ -147,6 +158,10 @@ class SubscriptionClient
         }
 
         /** @phpstan-ignore argument.type */
-        return array_map(fn (array $result) => ['hubspotId' => $result['id'], 'swUuid' => $result['properties']['sw_uuid'], 'otsStatus' => $result['properties']['ots_status']], $result['results']);
+        return array_map(fn (array $result) => [
+            'hubspotId' => $result['id'],
+            'swUuid' => $result['properties']['sw_uuid'],
+            'otsStatus' => $result['properties']['ots_status'],
+        ], $result['results']);
     }
 }

@@ -60,7 +60,10 @@ class ProductRepositoryTest extends IntegrationTestCase
     #[Test]
     public function slugExistsForGroup(): void
     {
-        $group = new ProductGroupFactory()->hosting()->has((new ProductFactory()))->createOne();
+        $group = new ProductGroupFactory()
+            ->hosting()
+            ->has(new ProductFactory())
+            ->createOne();
         $productSlug = $group->products->firstOrFail()->slug;
 
         self::assertTrue($this->repository->slugExistsForGroup($productSlug, $group->slug));

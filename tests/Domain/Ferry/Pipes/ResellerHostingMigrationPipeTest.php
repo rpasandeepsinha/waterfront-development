@@ -38,25 +38,28 @@ class ResellerHostingMigrationPipeTest extends IntegrationTestCase
         $serverDirectAdmin = $serverDirectAdmin->fresh();
 
         $mock = self::createStub(HostingService::class);
-        $mock->method('getUserConfigAsDto')
-            ->willReturnCallback(
-                fn (string $driver, string $userName, Server $server): SiteConfigInterface => match ([$driver, $userName, $server->hostname]) {
-                    [ProviderSlug::DIRECTADMIN->value, $username, $serverHostname] => new UserConfig(
-                        dnscontrol: 'ON',
-                        ssl: 'ON',
-                        loginKeys: 'ON',
-                        vdomains: '10',
-                        nemails: '10',
-                        mysql: '10',
-                        bandwidth: '1024',
-                        quota: '1024',
-                        package: 'basic',
-                        usertype: HostingUserType::USER,
-                        domain: 'testupgradefixversio.nl',
-                    ),
-                    default => throw new UnexpectedValueException(),
-                }
-            );
+        $mock->method('getUserConfigAsDto')->willReturnCallback(
+            fn (string $driver, string $userName, Server $server): SiteConfigInterface => match ([
+                $driver,
+                $userName,
+                $server->hostname,
+            ]) {
+                [ProviderSlug::DIRECTADMIN->value, $username, $serverHostname] => new UserConfig(
+                    dnscontrol: 'ON',
+                    ssl: 'ON',
+                    loginKeys: 'ON',
+                    vdomains: '10',
+                    nemails: '10',
+                    mysql: '10',
+                    bandwidth: '1024',
+                    quota: '1024',
+                    package: 'basic',
+                    usertype: HostingUserType::USER,
+                    domain: 'testupgradefixversio.nl',
+                ),
+                default => throw new UnexpectedValueException(),
+            },
+        );
 
         $this->app->bind(HostingService::class, fn () => $mock);
 
@@ -74,17 +77,20 @@ class ResellerHostingMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/reseller_hosting_migration/reseller_user_not_a_reseller.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/reseller_hosting_migration/reseller_user_not_a_reseller.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $resellerHostingMigrationPipe = self::resolve(ResellerHostingMigrationPipe::class);
-        $processedPayload = $resellerHostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $resellerHostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }

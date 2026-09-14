@@ -66,7 +66,9 @@ class Microsoft365CustomerInfo extends Model
 
     public function setTechnicalStatusAttribute(Microsoft365ProcessStatus|string $status): void
     {
-        $this->attributes['technical_status'] = $status instanceof Microsoft365ProcessStatus ? $status : Microsoft365ProcessStatus::from($status);
+        $this->attributes['technical_status'] = $status instanceof Microsoft365ProcessStatus
+            ? $status
+            : Microsoft365ProcessStatus::from($status);
     }
 
     /**

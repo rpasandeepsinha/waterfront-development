@@ -42,7 +42,10 @@ class DomainDeploymentControllerTest extends IntegrationTestCase
             ->createOne(['domain' => self::DOMAIN]);
 
         $provider = new ProviderFactory()->domainRtr()->createOne();
-        $businessUnit = new DomainProviderBusinessUnitFactory()->createOne(['name' => 'Yourhosting', 'slug' => 'yourhosting']);
+        $businessUnit = new DomainProviderBusinessUnitFactory()->createOne([
+            'name' => 'Yourhosting',
+            'slug' => 'yourhosting',
+        ]);
         $lastResult = '{"domainName":"example.nl"}';
 
         new DomainDeploymentFactory()

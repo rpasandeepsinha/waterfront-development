@@ -20,7 +20,9 @@ class ResellerHostingDeploymentController
     {
         $resellerHostingDeployment = $subscription->resellerHostingDeployment;
         if ($resellerHostingDeployment === null) {
-            return new JsonResponse(['message' => 'The deployment could not be found'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new JsonResponse([
+                'message' => 'The deployment could not be found',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return $this->resellerHostingDeploymentResource->toJson($resellerHostingDeployment);

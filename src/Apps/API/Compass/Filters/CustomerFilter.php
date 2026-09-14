@@ -18,8 +18,9 @@ class CustomerFilter
         'has_direct_debit',
     ];
 
-    public function __construct(private readonly Sorting $sorting)
-    {
+    public function __construct(
+        private readonly Sorting $sorting,
+    ) {
     }
 
     /** @param Builder<Customer> $query
@@ -69,13 +70,13 @@ class CustomerFilter
         }
 
         $query->where(function (Builder $q) use ($search): void {
-            $q->where('email', 'ilike', "%{$search}%")
+            $q
+                ->where('email', 'ilike', "%{$search}%")
                 ->orWhere('first_name', 'ilike', "%{$search}%")
                 ->orWhere('last_name', 'ilike', "%{$search}%")
                 ->orWhere('customer_number', 'ilike', "%{$search}%")
                 ->orWhereHas('address', function (Builder $address) use ($search): void {
-                    $address->where('street_name', 'ilike', "%{$search}%")
-                        ->orWhere('zip_code', 'ilike', "%{$search}%");
+                    $address->where('street_name', 'ilike', "%{$search}%")->orWhere('zip_code', 'ilike', "%{$search}%");
                 });
         });
     }

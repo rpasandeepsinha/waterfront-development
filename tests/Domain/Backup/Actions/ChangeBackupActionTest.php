@@ -58,30 +58,28 @@ class ChangeBackupActionTest extends IntegrationTestCase
             'slug' => 'backup-100',
         ]);
 
-        new ProductSpecFactory()
-            ->for($newProduct)
-            ->createMany([
-                [
-                    'name'  => ProductSpecName::ACRONIS_CLOUD_STORAGE_GB->value,
-                    'value' => '100',
-                ],
-                [
-                    'name'  => ProductSpecName::ACRONIS_LOCAL_STORAGE_GB->value,
-                    'value' => '100',
-                ],
-                [
-                    'name'  => ProductSpecName::ACRONIS_MOBILE_DEVICES->value,
-                    'value' => '15',
-                ],
-                [
-                    'name'  => ProductSpecName::ACRONIS_WORKSTATIONS->value,
-                    'value' => '10',
-                ],
-                [
-                    'name'  => ProductSpecName::ACRONIS_VMS->value,
-                    'value' => '20',
-                ],
-            ]);
+        new ProductSpecFactory()->for($newProduct)->createMany([
+            [
+                'name' => ProductSpecName::ACRONIS_CLOUD_STORAGE_GB->value,
+                'value' => '100',
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_LOCAL_STORAGE_GB->value,
+                'value' => '100',
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_MOBILE_DEVICES->value,
+                'value' => '15',
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_WORKSTATIONS->value,
+                'value' => '10',
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_VMS->value,
+                'value' => '20',
+            ],
+        ]);
 
         $this->subscription = new SubscriptionFactory()
             ->for(new CustomerFactory())
@@ -104,14 +102,15 @@ class ChangeBackupActionTest extends IntegrationTestCase
         $this->changeBackupAction = new ChangeBackupAction(
             $this->gateway,
             $this->logger,
-            self::resolve(BackupProductSpecRepository::class)
+            self::resolve(BackupProductSpecRepository::class),
         );
     }
 
     #[Test]
     public function changeSubscriptionSuccessful(): void
     {
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 sprintf(
@@ -126,7 +125,7 @@ class ChangeBackupActionTest extends IntegrationTestCase
                         'to_product_slug' => $this->subscriptionChange->toProduct->slug,
                         'subscription_change_id' => $this->subscriptionChange->id,
                     ],
-                ]
+                ],
             );
 
         $mockResult = new BackupUpdateResult(
@@ -148,7 +147,7 @@ class ChangeBackupActionTest extends IntegrationTestCase
                     self::assertNull($request->servers);
 
                     return true;
-                })
+                }),
             )
             ->willReturn($mockResult);
 
@@ -166,7 +165,8 @@ class ChangeBackupActionTest extends IntegrationTestCase
     #[Test]
     public function changeSubscriptionFailed(): void
     {
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 sprintf(
@@ -181,7 +181,7 @@ class ChangeBackupActionTest extends IntegrationTestCase
                         'to_product_slug' => $this->subscriptionChange->toProduct->slug,
                         'subscription_change_id' => $this->subscriptionChange->id,
                     ],
-                ]
+                ],
             );
 
         $exception = new Exception('Something went wrong');
@@ -205,7 +205,7 @@ class ChangeBackupActionTest extends IntegrationTestCase
                     self::assertNull($request->servers);
 
                     return true;
-                })
+                }),
             )
             ->willReturn($mockResult);
 

@@ -20,7 +20,7 @@ class DomainServiceProvider extends ServiceProvider
         ], 'config');
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/nameservers.php',
-            'domainservice'
+            'domainservice',
         );
     }
 }

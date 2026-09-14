@@ -12,8 +12,9 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
 
 class TerminateSubscription extends AbstractQueueableJob
 {
-    public function __construct(public readonly Subscription $subscription)
-    {
+    public function __construct(
+        public readonly Subscription $subscription,
+    ) {
         parent::__construct();
     }
 

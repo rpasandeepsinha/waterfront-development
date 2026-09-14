@@ -57,9 +57,11 @@ class DomainTransferResponse
             if ($this->expirationDate !== null) {
                 $result->setExpirationDate($this->expirationDate);
             }
+
             if ($this->renewalDate !== null) {
                 $result->setRenewalDate($this->renewalDate);
             }
+
             if ($this->transferSecret !== null) {
                 $result->setTransferSecret($this->transferSecret);
             }
@@ -80,9 +82,11 @@ class DomainTransferResponse
         if ((string) $data->expirationDate !== '') {
             $this->expirationDate = (string) $data->expirationDate;
         }
+
         if ((string) $data->renewalDate !== '') {
             $this->renewalDate = (string) $data->renewalDate;
         }
+
         if ((string) $data->authCode !== '') {
             $this->transferSecret = (string) $data->authCode;
         }

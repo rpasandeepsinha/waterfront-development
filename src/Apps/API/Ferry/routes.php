@@ -48,27 +48,47 @@ Route::domain($domain)
                 Route::prefix('subscriptions')->as('subscriptions.')->group(function (): void {
                     Route::post('/', [SubscriptionController::class, 'create'])->name('create');
 
-                    Route::post('/migrate_domains', [DomainMigrationController::class, 'execute'])->name('migrate_domain');
+                    Route::post('/migrate_domains', [DomainMigrationController::class, 'execute'])->name(
+                        'migrate_domain',
+                    );
 
-                    Route::post('/configure_dns', [ConfigureDnsController::class, 'configureDns'])->name('configure_dns');
+                    Route::post('/configure_dns', [ConfigureDnsController::class, 'configureDns'])->name(
+                        'configure_dns',
+                    );
 
                     Route::post('/enable_dnssec', [EnableDnsSecController::class, 'enable'])->name('enable_dnssec');
 
-                    Route::post('/migrate_nameservers', [NameserverMigrationController::class, 'migrateNameservers'])->name('migrate_nameservers');
+                    Route::post('/migrate_nameservers', [
+                        NameserverMigrationController::class,
+                        'migrateNameservers',
+                    ])->name('migrate_nameservers');
 
-                    Route::post('/migrate_backups', [BackupMigrationController::class, 'execute'])->name('migrate_backups');
+                    Route::post('/migrate_backups', [BackupMigrationController::class, 'execute'])->name(
+                        'migrate_backups',
+                    );
 
-                    Route::post('/migrate_hosting', [HostingMigrationController::class, 'execute'])->name('migrate_hosting');
+                    Route::post('/migrate_hosting', [HostingMigrationController::class, 'execute'])->name(
+                        'migrate_hosting',
+                    );
 
-                    Route::post('/migrate_reseller_hosting', [ResellerHostingMigrationController::class, 'execute'])->name('migrate_reseller_hosting');
+                    Route::post('/migrate_reseller_hosting', [
+                        ResellerHostingMigrationController::class,
+                        'execute',
+                    ])->name('migrate_reseller_hosting');
 
-                    Route::post('/migrate_mail_hosting', [MailOnlyMigrationController::class, 'execute'])->name('migrate_mail_only');
+                    Route::post('/migrate_mail_hosting', [MailOnlyMigrationController::class, 'execute'])->name(
+                        'migrate_mail_only',
+                    );
 
                     Route::post('/migrate_ssl', [SslMigrationController::class, 'execute'])->name('migrate_ssl');
 
-                    Route::post('/migrate_redirects', [RedirectMigrationController::class, 'execute'])->name('migrate_redirects');
+                    Route::post('/migrate_redirects', [RedirectMigrationController::class, 'execute'])->name(
+                        'migrate_redirects',
+                    );
 
-                    Route::post('/migrate_sitebuilder', [SitebuilderMigrationController::class, 'execute'])->name('migrate_sitebuilder');
+                    Route::post('/migrate_sitebuilder', [SitebuilderMigrationController::class, 'execute'])->name(
+                        'migrate_sitebuilder',
+                    );
                 });
 
                 Route::prefix('invoices')->as('invoices.')->group(function (): void {
@@ -78,10 +98,18 @@ Route::domain($domain)
 
             Route::prefix('subscriptions')->as('subscriptions.')->group(function (): void {
                 Route::post('/bulk', [SubscriptionBulkController::class, 'create'])->name('create.bulk');
-                Route::post('/migrate_domains/bulk', [DomainBulkMigrationController::class, 'execute'])->name('migrate_domain.bulk');
-                Route::post('/configure_dns/bulk', [ConfigureDnsBulkMigrationController::class, 'execute'])->name('configure_dns.bulk');
-                Route::post('/migrate_nameservers/bulk', [NameserverBulkMigrationController::class, 'execute'])->name('migrate_nameservers.bulk');
-                Route::post('/migrate_hosting/bulk', [HostingBulkMigrationController::class, 'execute'])->name('migrate_hosting.bulk');
+                Route::post('/migrate_domains/bulk', [DomainBulkMigrationController::class, 'execute'])->name(
+                    'migrate_domain.bulk',
+                );
+                Route::post('/configure_dns/bulk', [ConfigureDnsBulkMigrationController::class, 'execute'])->name(
+                    'configure_dns.bulk',
+                );
+                Route::post('/migrate_nameservers/bulk', [NameserverBulkMigrationController::class, 'execute'])->name(
+                    'migrate_nameservers.bulk',
+                );
+                Route::post('/migrate_hosting/bulk', [HostingBulkMigrationController::class, 'execute'])->name(
+                    'migrate_hosting.bulk',
+                );
             });
         });
     });

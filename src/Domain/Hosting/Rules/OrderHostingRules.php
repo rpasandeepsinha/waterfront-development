@@ -35,7 +35,7 @@ class OrderHostingRules
                 $this->subscriptionRepository,
                 $this->productRepository,
                 $this->productSpecRepository,
-                $this->translator
+                $this->translator,
             )],
         ];
     }

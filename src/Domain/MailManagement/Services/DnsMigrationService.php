@@ -24,8 +24,9 @@ class DnsMigrationService
 
     public const RECORD_TTL = 3600;
 
-    public function __construct(private readonly DnsService $dns)
-    {
+    public function __construct(
+        private readonly DnsService $dns,
+    ) {
     }
 
     /**
@@ -46,7 +47,15 @@ class DnsMigrationService
                 }
             });
 
-        Log::debug(sprintf('Found %d auto-configured A `mail.%s` records for zone %s. Cleaned up.', $aMailRecords->count(), $domain, $domain), $aMailRecords->toArray());
+        Log::debug(
+            sprintf(
+                'Found %d auto-configured A `mail.%s` records for zone %s. Cleaned up.',
+                $aMailRecords->count(),
+                $domain,
+                $domain,
+            ),
+            $aMailRecords->toArray(),
+        );
 
         $this->addARecord($domain, $ipAddress);
     }
@@ -87,7 +96,7 @@ class DnsMigrationService
                 LoggingContextKeys::META => [
                     'mxrecords' => $mxRecords->toArray(),
                 ],
-            ]
+            ],
         );
     }
 
@@ -113,7 +122,7 @@ class DnsMigrationService
                 LoggingContextKeys::META => [
                     'mxrecords' => $mxRecords->toArray(),
                 ],
-            ]
+            ],
         );
     }
 
@@ -126,8 +135,14 @@ class DnsMigrationService
     private function addMxRecords(string $domain, string $primaryHost, string $fallbackHost): void
     {
         Log::debug("Setting auto-configured MX records on zone {$domain}..");
-        $this->dns->addRecordFromObject($domain, new MxRecord($domain, $primaryHost, self::PRIMARY_PRIO, self::RECORD_TTL));
-        $this->dns->addRecordFromObject($domain, new MxRecord($domain, $fallbackHost, self::FALLBACK_PRIO, self::RECORD_TTL));
+        $this->dns->addRecordFromObject(
+            $domain,
+            new MxRecord($domain, $primaryHost, self::PRIMARY_PRIO, self::RECORD_TTL),
+        );
+        $this->dns->addRecordFromObject(
+            $domain,
+            new MxRecord($domain, $fallbackHost, self::FALLBACK_PRIO, self::RECORD_TTL),
+        );
     }
 
     /**

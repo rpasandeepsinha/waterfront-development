@@ -38,7 +38,7 @@ class InvoiceCreator
                 $newInvoiceIds[] = $createInvoiceFromResult->getNewInvoice()->id;
 
                 return $createInvoiceFromResult;
-            }, $invoices)
+            }, $invoices),
         );
 
         Log::info(sprintf(
@@ -69,23 +69,23 @@ class InvoiceCreator
 
         /** @var Invoice $createdInvoice */
         $createdInvoice = Invoice::query()->create([
-            'subscription_id'    => $invoiceLine->subscription_id,
-            'customer_id'        => $endCustomer->id,
-            'product_id'         => $invoiceLine->product_id,
-            'start_date'         => $invoiceLine->start_date,
-            'end_date'           => $invoiceLine->end_date,
-            'period'             => $invoiceLine->period,
-            'gross_price'        => $invoiceLine->gross_price,
-            'net_price'          => $invoiceLine->net_price,
-            'vat_code'           => $customerVatDTO->vatCode,
-            'vat_rate'           => $customerVatDTO->vatRate,
-            'ledger_code'        => $invoiceLine->ledger_code,
-            'paid'               => false,
-            'title'              => $invoiceLine->title,
-            'description'        => $invoiceLine->description,
-            'group_label'        => $invoiceLine->group_label,
-            'type'               => $invoiceLine->type,
-            'prepaid_reference'  => null,
+            'subscription_id' => $invoiceLine->subscription_id,
+            'customer_id' => $endCustomer->id,
+            'product_id' => $invoiceLine->product_id,
+            'start_date' => $invoiceLine->start_date,
+            'end_date' => $invoiceLine->end_date,
+            'period' => $invoiceLine->period,
+            'gross_price' => $invoiceLine->gross_price,
+            'net_price' => $invoiceLine->net_price,
+            'vat_code' => $customerVatDTO->vatCode,
+            'vat_rate' => $customerVatDTO->vatRate,
+            'ledger_code' => $invoiceLine->ledger_code,
+            'paid' => false,
+            'title' => $invoiceLine->title,
+            'description' => $invoiceLine->description,
+            'group_label' => $invoiceLine->group_label,
+            'type' => $invoiceLine->type,
+            'prepaid_reference' => null,
         ]);
 
         return new CreateInvoiceFromResult($invoiceLine, $createdInvoice);

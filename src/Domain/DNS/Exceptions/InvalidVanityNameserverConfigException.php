@@ -18,7 +18,7 @@ class InvalidVanityNameserverConfigException extends RuntimeException
         parent::__construct(
             sprintf('Invalid or missing DNS vanity nameserver configuration for key "%s".', $configKey),
             0,
-            $previous
+            $previous,
         );
     }
 }

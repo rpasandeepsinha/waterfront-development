@@ -44,7 +44,9 @@ class LegacyMailer
 
         Assert::string($emailHistory->receiver_email);
 
-        $customer = $emailHistory->receiver_type === ReceiverType::CUSTOMER ? $this->customerRepository->findByUuid(Uuid::fromString($emailHistory->receiver_uuid)) : null;
+        $customer = $emailHistory->receiver_type === ReceiverType::CUSTOMER
+            ? $this->customerRepository->findByUuid(Uuid::fromString($emailHistory->receiver_uuid))
+            : null;
 
         $data = $emailHistory->payload !== null ? $this->payloadDeserializer->deserialize($emailHistory->payload) : [];
 
@@ -53,7 +55,9 @@ class LegacyMailer
             $body = $this->viewFactory->make(view: $body, data: $data)->render();
         }
 
-        $subject = $this->environment === Environment::PROD ? $emailTemplate->subject ?? '' : sprintf('%s (%s)', $emailTemplate->subject ?? '', $this->environment->value);
+        $subject = $this->environment === Environment::PROD
+            ? $emailTemplate->subject ?? ''
+            : sprintf('%s (%s)', $emailTemplate->subject ?? '', $this->environment->value);
 
         $data = [
             'subject' => $subject,
@@ -61,7 +65,10 @@ class LegacyMailer
             'body' => $body,
             'footer' => $emailTemplate->footer,
             'logoPath' => $this->getLogoPath(),
-            'greeting' => $customer !== null ? $this->translator->translate('email.personalised_greetings', ['firstName' => $customer->getFirstName()]) : null,
+            'greeting' => $customer !== null
+                ? $this->translator->translate('email.personalised_greetings', [
+                    'firstName' => $customer->getFirstName(),
+                ]) : null,
         ];
 
         $this->mailer->send(
@@ -76,7 +83,7 @@ class LegacyMailer
                 if ($customer !== null) {
                     $message->getHeaders()->add(new MetadataHeader('customer-id', (string) $customer->id));
                 }
-            }
+            },
         );
 
         $emailHistory->requested_at = CarbonImmutable::now();

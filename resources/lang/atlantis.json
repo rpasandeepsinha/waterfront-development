@@ -6399,6 +6399,16 @@
             }
         }
     },
+    "cart-overview.group.yearly.title": {
+        "locales": {
+            "nl": {
+                "translated_string": "Jaarlijks"
+            },
+            "en": {
+                "translated_string": "Yearly"
+            }
+        }
+    },
     "cart-overview.group.non-monthly.title": {
         "locales": {
             "nl": {
@@ -6446,6 +6456,46 @@
             },
             "en": {
                 "translated_string": "Introductory discount"
+            }
+        }
+    },
+    "cart-overview.action-badge.first-years": {
+        "locales": {
+            "nl": {
+                "translated_string": "Eerste {years} jaar {actionPrice}, daarna {regularPrice}/jr"
+            },
+            "en": {
+                "translated_string": "First {years} years {actionPrice}, then {regularPrice}/yr"
+            }
+        }
+    },
+    "cart-overview.action-badge.first-year": {
+        "locales": {
+            "nl": {
+                "translated_string": "Eerste jaar {actionPrice}, daarna {regularPrice}/jr"
+            },
+            "en": {
+                "translated_string": "First year {actionPrice}, then {regularPrice}/yr"
+            }
+        }
+    },
+    "cart-overview.action-badge.free-months": {
+        "locales": {
+            "nl": {
+                "translated_string": "{months} maanden gratis, daarna {regularPrice}/mnd"
+            },
+            "en": {
+                "translated_string": "{months} months free, then {regularPrice}/mo"
+            }
+        }
+    },
+    "cart-overview.action-badge.months": {
+        "locales": {
+            "nl": {
+                "translated_string": "{months} maanden {actionPrice}/mnd, daarna {regularPrice}/mnd"
+            },
+            "en": {
+                "translated_string": "{months} months {actionPrice}/mo, then {regularPrice}/mo"
             }
         }
     },
@@ -6516,6 +6566,96 @@
             },
             "en": {
                 "translated_string": "Pay now"
+            }
+        }
+    },
+    "cart-overview.promotion-savings": {
+        "locales": {
+            "nl": {
+                "translated_string": "Actievoordeel"
+            },
+            "en": {
+                "translated_string": "Promotion savings"
+            }
+        }
+    },
+    "cart-overview.term-savings": {
+        "locales": {
+            "nl": {
+                "translated_string": "Looptijdvoordeel"
+            },
+            "en": {
+                "translated_string": "Contract length saving"
+            }
+        }
+    },
+    "cart-overview.total-savings": {
+        "locales": {
+            "nl": {
+                "translated_string": "Je bespaart"
+            },
+            "en": {
+                "translated_string": "You save"
+            }
+        }
+    },
+    "cart-overview.price-breakdown.toggle": {
+        "locales": {
+            "nl": {
+                "translated_string": "Bekijk prijsopbouw"
+            },
+            "en": {
+                "translated_string": "View price breakdown"
+            }
+        }
+    },
+    "cart-overview.price-breakdown.excl-vat-note": {
+        "locales": {
+            "nl": {
+                "translated_string": "Bedragen hieronder zijn excl. BTW."
+            },
+            "en": {
+                "translated_string": "Amounts below are excl. VAT."
+            }
+        }
+    },
+    "cart-overview.price-breakdown.from-month": {
+        "locales": {
+            "nl": {
+                "translated_string": "Vanaf maand {month}"
+            },
+            "en": {
+                "translated_string": "From month {month}"
+            }
+        }
+    },
+    "cart-overview.price-breakdown.first-year": {
+        "locales": {
+            "nl": {
+                "translated_string": "Eerste jaar"
+            },
+            "en": {
+                "translated_string": "First year"
+            }
+        }
+    },
+    "cart-overview.price-breakdown.from-next-year": {
+        "locales": {
+            "nl": {
+                "translated_string": "Vanaf volgend jaar"
+            },
+            "en": {
+                "translated_string": "From next year"
+            }
+        }
+    },
+    "cart-overview.price-breakdown.total-incl-vat": {
+        "locales": {
+            "nl": {
+                "translated_string": "Totaal vandaag incl. BTW"
+            },
+            "en": {
+                "translated_string": "Total today incl. VAT"
             }
         }
     },

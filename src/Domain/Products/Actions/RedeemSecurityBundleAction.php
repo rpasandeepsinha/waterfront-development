@@ -62,13 +62,13 @@ class RedeemSecurityBundleAction
 
         if ($offering === null) {
             throw new ProductExperimentOfferingNotClaimableException(
-                sprintf('Customer %d is not enrolled in a product experiment offering', $customer->id)
+                sprintf('Customer %d is not enrolled in a product experiment offering', $customer->id),
             );
         }
 
         if ($this->offeringRepository->isRedeemedByCustomer($offering, $customer)) {
             throw new ProductExperimentOfferingAlreadyRedeemedException(
-                sprintf('Customer %d already redeemed offering %d', $customer->id, $offering->id)
+                sprintf('Customer %d already redeemed offering %d', $customer->id, $offering->id),
             );
         }
 
@@ -80,7 +80,7 @@ class RedeemSecurityBundleAction
 
             if ($offeredProduct === null) {
                 throw new ProductExperimentOfferingNotClaimableException(
-                    sprintf('Offering %d does not contain product %s', $offering->id, $selectedProductSlug)
+                    sprintf('Offering %d does not contain product %s', $offering->id, $selectedProductSlug),
                 );
             }
 
@@ -90,7 +90,7 @@ class RedeemSecurityBundleAction
             if ($offeredProduct->product->productGroup->slug === ProductGroupType::DNS) {
                 if (! $offeredProduct->isFree) {
                     throw new ProductExperimentOfferingNotClaimableException(
-                        sprintf('Product %s can only be offered free of charge', $offeredProduct->product->slug)
+                        sprintf('Product %s can only be offered free of charge', $offeredProduct->product->slug),
                     );
                 }
 
@@ -109,7 +109,7 @@ class RedeemSecurityBundleAction
         $order->is_invoiced = false;
         // Known up front: the DNS lines are always free, so the paid products are the whole total.
         $order->total_price = array_sum(
-            array_map(static fn (Price $price): int => $price->calculatedPrice ?? 0, $newSubscriptionPrices)
+            array_map(static fn (Price $price): int => $price->calculatedPrice ?? 0, $newSubscriptionPrices),
         );
         $order->administration_fees = 0;
         $order->customer()->associate($customer);
@@ -141,17 +141,23 @@ class RedeemSecurityBundleAction
      * A stakeholder decision: when the DNS product is ordered, every domain the customer owns moves to
      * it. Domains registered after this point keep whatever DNS product they are created with.
      */
-    private function addDnsUpgradeForEveryDomain(Customer $customer, Order $order, OfferedProductDTO $offeredProduct): void
-    {
+    private function addDnsUpgradeForEveryDomain(
+        Customer $customer,
+        Order $order,
+        OfferedProductDTO $offeredProduct,
+    ): void {
         $product = $offeredProduct->product;
 
-        foreach ($this->subscriptionRepository->getDnsSubscriptionsNotUsingProduct($customer, $product) as $dnsSubscription) {
+        foreach ($this->subscriptionRepository->getDnsSubscriptionsNotUsingProduct(
+            $customer,
+            $product,
+        ) as $dnsSubscription) {
             $orderLine = $this->createOrderLine(
                 $order,
                 $product,
                 $dnsSubscription->contract_period,
                 $dnsSubscription->billing_period,
-                isFree: true
+                isFree: true,
             );
 
             $orderLine->domain = $dnsSubscription->domain;
@@ -160,7 +166,11 @@ class RedeemSecurityBundleAction
 
             $this->pricePersistService->persistOrderLineItemPrice(
                 $orderLine,
-                $this->freePersistentPrice($product, $dnsSubscription->contract_period, $dnsSubscription->billing_period)
+                $this->freePersistentPrice(
+                    $product,
+                    $dnsSubscription->contract_period,
+                    $dnsSubscription->billing_period,
+                ),
             );
         }
     }
@@ -171,7 +181,12 @@ class RedeemSecurityBundleAction
 
         return $offeredProduct->isFree
             ? $this->freePersistentPrice($product, self::CONTRACT_PERIOD_IN_MONTHS, self::BILLING_PERIOD_IN_MONTHS)
-            : $this->registrationPrice($customer, $product, self::CONTRACT_PERIOD_IN_MONTHS, self::BILLING_PERIOD_IN_MONTHS);
+            : $this->registrationPrice(
+                $customer,
+                $product,
+                self::CONTRACT_PERIOD_IN_MONTHS,
+                self::BILLING_PERIOD_IN_MONTHS,
+            );
     }
 
     private function addProductToOrder(Order $order, OfferedProductDTO $offeredProduct, Price $price): void
@@ -181,7 +196,7 @@ class RedeemSecurityBundleAction
             $offeredProduct->product,
             $price->contractPeriod,
             $price->billingPeriod,
-            $offeredProduct->isFree
+            $offeredProduct->isFree,
         );
 
         $this->pricePersistService->persistOrderLineItemPrice($orderLine, $price);
@@ -203,10 +218,14 @@ class RedeemSecurityBundleAction
         );
     }
 
-    private function registrationPrice(Customer $customer, Product $product, int $contractPeriod, int $billingPeriod): Price
-    {
+    private function registrationPrice(
+        Customer $customer,
+        Product $product,
+        int $contractPeriod,
+        int $billingPeriod,
+    ): Price {
         $priceList = $this->priceResolver->getPriceList(
-            new PriceRequest([new RegistrationPriceRequest($product)], $customer)
+            new PriceRequest([new RegistrationPriceRequest($product)], $customer),
         );
 
         return $priceList->getProductPrice($product->slug, $contractPeriod, $billingPeriod);
@@ -217,7 +236,7 @@ class RedeemSecurityBundleAction
         Product $product,
         int $contractPeriod,
         int $billingPeriod,
-        bool $isFree
+        bool $isFree,
     ): OrderLineItem {
         $orderLine = new OrderLineItem();
         $orderLine->order()->associate($order);

@@ -84,6 +84,7 @@ abstract class Resource extends NovaResource
             $actions = ActionCollection::make(
                 [resolve(NovaNoActionsPlaceholderAction::class)],
             );
+
             return $actions->values();
         }
 

@@ -43,10 +43,7 @@ class SslDnsManagementResolverTest extends IntegrationTestCase
         $this->freeDnsUuid = ProductFactory::new()->freeDns()->createOne()->uuid;
         $this->sslSingleDomainUuid = ProductFactory::new()->sslSingleDomain()->createOne()->uuid;
 
-        $this->sslProviderId = ProviderFactory::new()
-            ->sslRtr()
-            ->createOne()
-            ->id;
+        $this->sslProviderId = ProviderFactory::new()->sslRtr()->createOne()->id;
     }
 
     #[Test]
@@ -61,7 +58,10 @@ class SslDnsManagementResolverTest extends IntegrationTestCase
     #[Test]
     public function hasManagedDnsIsFalseWhenDnsChildExternal(): void
     {
-        ['sslDeployment' => $sslDeployment] = $this->makeDomainWithDnsAndSsl('external.example', NameserverType::EXTERNAL);
+        ['sslDeployment' => $sslDeployment] = $this->makeDomainWithDnsAndSsl(
+            'external.example',
+            NameserverType::EXTERNAL,
+        );
         $resolver = self::resolve(SslDnsManagementResolver::class);
 
         self::assertFalse($resolver->hasManagedDns($sslDeployment));
@@ -70,7 +70,10 @@ class SslDnsManagementResolverTest extends IntegrationTestCase
     #[Test]
     public function hasManagedDnsIsTrueWhenDnsChildInternal(): void
     {
-        ['sslDeployment' => $sslDeployment] = $this->makeDomainWithDnsAndSsl('internal.example', NameserverType::INTERNAL);
+        ['sslDeployment' => $sslDeployment] = $this->makeDomainWithDnsAndSsl(
+            'internal.example',
+            NameserverType::INTERNAL,
+        );
         $resolver = self::resolve(SslDnsManagementResolver::class);
 
         self::assertTrue($resolver->hasManagedDns($sslDeployment));
@@ -89,8 +92,16 @@ class SslDnsManagementResolverTest extends IntegrationTestCase
     public function repositoryGetReminderCandidatesRespectsDateWindow(): void
     {
         ['sslDeployment' => $in3] = $this->makeDomainWithDnsAndSsl('in-3.example', null, daysUntilExpiry: 3);
-        ['sslDeployment' => $in7] = $this->makeDomainWithDnsAndSsl('in-7.example', NameserverType::EXTERNAL, daysUntilExpiry: 7);
-        ['sslDeployment' => $out8] = $this->makeDomainWithDnsAndSsl('out-8.example', NameserverType::INTERNAL, daysUntilExpiry: 8);
+        ['sslDeployment' => $in7] = $this->makeDomainWithDnsAndSsl(
+            'in-7.example',
+            NameserverType::EXTERNAL,
+            daysUntilExpiry: 7,
+        );
+        ['sslDeployment' => $out8] = $this->makeDomainWithDnsAndSsl(
+            'out-8.example',
+            NameserverType::INTERNAL,
+            daysUntilExpiry: 8,
+        );
         ['sslDeployment' => $past] = $this->makeDomainWithDnsAndSsl('past.example', null, daysUntilExpiry: -1);
 
         /** @var SslDeploymentRepository $sslDeploymentRepository */
@@ -178,12 +189,10 @@ class SslDnsManagementResolverTest extends IntegrationTestCase
             ->createOne();
 
         /** @var SslDeployment $sslDeployment */
-        $sslDeployment = SslDeploymentFactory::new()
-            ->state([
-                'provider_id' => $this->sslProviderId,
-                'subscription_uuid' => $sslSubscription->uuid,
-            ])
-            ->createOne();
+        $sslDeployment = SslDeploymentFactory::new()->state([
+            'provider_id' => $this->sslProviderId,
+            'subscription_uuid' => $sslSubscription->uuid,
+        ])->createOne();
 
         return [
             'domainParent' => $domainParent,

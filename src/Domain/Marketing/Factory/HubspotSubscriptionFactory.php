@@ -12,8 +12,9 @@ use Waterfront\Infra\HubspotClient\DTO\HubspotSubscriptionDTO;
 
 class HubspotSubscriptionFactory
 {
-    public function __construct(private readonly CancellationFlowService $cancellationFlowService)
-    {
+    public function __construct(
+        private readonly CancellationFlowService $cancellationFlowService,
+    ) {
     }
 
     public function createDTOFromSubscription(Subscription $subscription): HubspotSubscriptionDTO
@@ -26,7 +27,9 @@ class HubspotSubscriptionFactory
             hubspotId: null,
             sandwaveId: (string) $subscription->id,
             uuid: $subscription->uuid,
-            parentSubscriptionId: $subscription->parent_subscription_id === null ? null : (string) $subscription->parent_subscription_id,
+            parentSubscriptionId: $subscription->parent_subscription_id === null
+                ? null
+                : (string) $subscription->parent_subscription_id,
             domain: $subscription->domain,
             administrativeStatus: $subscription->administrative_status,
             technicalStatus: $subscription->technical_status,
@@ -51,6 +54,7 @@ class HubspotSubscriptionFactory
             otsStatus: null,
             cancellationFlowReason: $cancellationFlowReason,
             switchContact: false,
+            experimentSlug: $subscription->experiments()->first()?->slug->value,
         );
     }
 
@@ -87,6 +91,7 @@ class HubspotSubscriptionFactory
             otsStatus: $oneTimeService->status->value,
             cancellationFlowReason: null,
             switchContact: false,
+            experimentSlug: null,
         );
     }
 }

@@ -59,7 +59,8 @@ class RtrNotificationProcessorTest extends IntegrationTestCase
         ]);
 
         $dispatcher = self::createMock(Dispatcher::class);
-        $dispatcher->expects(self::once())
+        $dispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::callback(function (NewNotificationReceived $event) use ($notification): bool {
                 self::assertSame($notification, $event->getNotification());
@@ -106,9 +107,7 @@ class RtrNotificationProcessorTest extends IntegrationTestCase
         $exception = new RuntimeException('Dispatch failed');
 
         $dispatcher = self::createMock(Dispatcher::class);
-        $dispatcher->expects(self::once())
-            ->method('dispatch')
-            ->willThrowException($exception);
+        $dispatcher->expects(self::once())->method('dispatch')->willThrowException($exception);
 
         $notificationProcessor = new RtrNotificationProcessor(
             rtrResponseLogRepository: $this->rtrResponseLogRepository,
@@ -156,8 +155,7 @@ class RtrNotificationProcessorTest extends IntegrationTestCase
         ]);
 
         $dispatcher = self::createMock(Dispatcher::class);
-        $dispatcher->expects(self::never())
-            ->method('dispatch');
+        $dispatcher->expects(self::never())->method('dispatch');
 
         $notificationProcessor = new RtrNotificationProcessor(
             rtrResponseLogRepository: $this->rtrResponseLogRepository,

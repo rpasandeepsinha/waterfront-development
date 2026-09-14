@@ -47,7 +47,7 @@ class HostingInstanceFetchAction
                     'username' => $username,
                     'payload.driver' => $payload->driver,
                 ],
-            ]
+            ],
         );
 
         try {

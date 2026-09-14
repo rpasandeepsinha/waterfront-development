@@ -76,6 +76,7 @@ class DnsService
     {
         try {
             $this->getDnsZone($domain);
+
             return true;
         } catch (DnsZoneNotFoundException) {
             return false;
@@ -159,7 +160,7 @@ class DnsService
      */
     public function removeDnsRecord(
         string $domain,
-        DnsRecordInterface $record
+        DnsRecordInterface $record,
     ): DnsZone {
         $dnsZone = $this->powerDnsClient->removeDnsRecord($domain, $record);
 
@@ -216,7 +217,7 @@ class DnsService
                 LoggingContextKeys::META => [
                     'diff' => $diff->getChangedRows(),
                 ],
-            ]
+            ],
         );
 
         $dnsZone = $this->powerDnsClient->getZone($domain);
@@ -244,7 +245,7 @@ class DnsService
                 LoggingContextKeys::META => [
                     'diff' => $diff->getChangedRows(),
                 ],
-            ]
+            ],
         );
 
         $dnsZone = $this->powerDnsClient->getZone($domain);
@@ -318,7 +319,11 @@ class DnsService
         $domain = $zone->getFqdn()->toNative();
 
         foreach ($diff->getRemovedRows() as $removedRow) {
-            $this->dnsLogService->logSingleRecordOfDnsZone($removedRow->getDnsRecord(), $domain, DnsChangeType::DELETED);
+            $this->dnsLogService->logSingleRecordOfDnsZone(
+                $removedRow->getDnsRecord(),
+                $domain,
+                DnsChangeType::DELETED,
+            );
         }
 
         foreach ($diff->getAddedRows() as $addedRow) {
@@ -456,17 +461,17 @@ class DnsService
         $this->powerDnsClient->createMetadata(
             $domain,
             PowerDnsMetadataType::ALLOW_AXFR_FROM,
-            $ipAddresses
+            $ipAddresses,
         );
         $this->powerDnsClient->createMetadata(
             $domain,
             PowerDnsMetadataType::ALSO_NOTIFY,
-            $ipAddresses
+            $ipAddresses,
         );
         $this->powerDnsClient->createMetadata(
             $domain,
             PowerDnsMetadataType::SOA_EDIT,
-            ['INCEPTION-INCREMENT']
+            ['INCEPTION-INCREMENT'],
         );
         $this->powerDnsClient->updateLiveDns($domain, true);
 
@@ -514,7 +519,7 @@ class DnsService
                 LoggingContextKeys::META => [
                     'record' => $record,
                 ],
-            ]
+            ],
         );
 
         return $this->addDnsRecord($domain, $record);
@@ -549,7 +554,7 @@ class DnsService
                 LoggingContextKeys::META => [
                     'record' => $record,
                 ],
-            ]
+            ],
         );
 
         return $this->removeDnsRecord($domain, $record);
@@ -569,7 +574,7 @@ class DnsService
     {
         $change = new ChangedDnsRecord(
             $this->hydrator->hydrate($old, false),
-            $this->hydrator->hydrate($new)
+            $this->hydrator->hydrate($new),
         );
 
         $this->logger->info(
@@ -579,7 +584,7 @@ class DnsService
                 LoggingContextKeys::META => [
                     'change' => $change,
                 ],
-            ]
+            ],
         );
 
         return $this->updateRecord($domain, $change);
@@ -598,7 +603,7 @@ class DnsService
             'Fetching records for zone',
             [
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-            ]
+            ],
         );
 
         $zone = $this->getDnsZone($domain);
@@ -709,15 +714,22 @@ class DnsService
         return new Collection(
             array_filter(
                 $dnsZone->getRecords(),
-                fn (DnsRecordInterface $dnsRecord): bool => in_array($dnsRecord->getType(), DnsRecordTypes::getModifiable(), true)
-            )
+                fn (DnsRecordInterface $dnsRecord): bool => in_array(
+                    $dnsRecord->getType(),
+                    DnsRecordTypes::getModifiable(),
+                    true,
+                ),
+            ),
         );
     }
 
     private function removeParkingDnsRecords(string $domain, DnsZone $dnsZone): void
     {
         foreach ($this->dnsZoneService->getParkingAddressRecords($domain) as $parkingRecord) {
-            foreach ($dnsZone->getRecordsOfTypeAndName($parkingRecord->getType(), $parkingRecord->getName()) as $existingRecord) {
+            foreach ($dnsZone->getRecordsOfTypeAndName(
+                $parkingRecord->getType(),
+                $parkingRecord->getName(),
+            ) as $existingRecord) {
                 $dnsZone->removeRecord($existingRecord);
             }
         }
@@ -738,26 +750,29 @@ class DnsService
             if (array_key_exists($name, $handledNames)) {
                 continue;
             }
+
             $handledNames[$name] = true;
 
             $parkingContents = array_values(array_map(
                 fn (DnsRecordInterface $record): string => $record->getContent(),
                 array_filter(
                     $parkingRecords,
-                    fn (DnsRecordInterface $record): bool => $record->getType() === $parkingRecord->getType()
+                    fn (DnsRecordInterface $record): bool => (
+                        $record->getType() === $parkingRecord->getType()
                         && $record->getName() === $parkingRecord->getName()
-                )
+                    ),
+                ),
             ));
 
             $liveRecords = $dnsZone->getRecordsOfTypeAndName($parkingRecord->getType(), $parkingRecord->getName());
 
             $parkingLiveRecords = array_values(array_filter(
                 $liveRecords,
-                fn (DnsRecordInterface $record): bool => in_array($record->getContent(), $parkingContents, true)
+                fn (DnsRecordInterface $record): bool => in_array($record->getContent(), $parkingContents, true),
             ));
             $otherLiveRecords = array_filter(
                 $liveRecords,
-                fn (DnsRecordInterface $record): bool => ! in_array($record->getContent(), $parkingContents, true)
+                fn (DnsRecordInterface $record): bool => ! in_array($record->getContent(), $parkingContents, true),
             );
 
             if ($parkingLiveRecords !== [] && $otherLiveRecords !== []) {
@@ -778,7 +793,7 @@ class DnsService
             ->each(function (DnsRecordInterface $record) use ($newZone) {
                 $newRecord = $this->hydrator->hydrate(
                     ['ttl' => self::MINIMUM_TTL_PREMIUM_DNS] + $record->toArray(),
-                    false
+                    false,
                 );
 
                 $newZone->removeRecord($record);

@@ -42,8 +42,12 @@ class AdministrationFeesManager
         private readonly TranslatorInterface $translator,
         private readonly PriceResolver $priceResolver,
     ) {
-        $this->administrationFeesDailyBillingEnabled = $configuration->getAsBoolean('financial.administration_fees_daily_billing_enabled');
-        $this->administrationFeesOrderBillingEnabled = $configuration->getAsBoolean('financial.administration_fees_order_billing_enabled');
+        $this->administrationFeesDailyBillingEnabled = $configuration->getAsBoolean(
+            'financial.administration_fees_daily_billing_enabled',
+        );
+        $this->administrationFeesOrderBillingEnabled = $configuration->getAsBoolean(
+            'financial.administration_fees_order_billing_enabled',
+        );
         $this->administrationFeesOtsEnabled = $configuration->getAsBoolean('financial.administration_fees_ots_enabled');
     }
 
@@ -88,32 +92,34 @@ class AdministrationFeesManager
     public function shouldBeChargedWithOrder(
         Customer $customer,
         ?string $paymentMethod,
-        bool $createDirectDebitMandateWithOrder
+        bool $createDirectDebitMandateWithOrder,
     ): bool {
-        return $this->administrationFeesOrderBillingEnabled
+        return (
+            $this->administrationFeesOrderBillingEnabled
             && $customer->has_direct_debit === false
             && $paymentMethod !== null
             && $paymentMethod !== PaymentType::CREDIT->value
-            && $createDirectDebitMandateWithOrder === false;
+            && $createDirectDebitMandateWithOrder === false
+        );
     }
 
     public function shouldBeChargedWithDailyBilling(Customer $customer): bool
     {
-        return $this->administrationFeesDailyBillingEnabled
-            && $customer->has_direct_debit === false;
+        return $this->administrationFeesDailyBillingEnabled && $customer->has_direct_debit === false;
     }
 
     public function shouldBeChargedWithOneTimeService(Customer $customer): bool
     {
-        return $this->administrationFeesOtsEnabled
-            && $customer->has_direct_debit === false;
+        return $this->administrationFeesOtsEnabled && $customer->has_direct_debit === false;
     }
 
     public function getAdministrationFees(Customer $customer): ?AdministrationFees
     {
-        if (! $this->administrationFeesDailyBillingEnabled
+        if (
+            ! $this->administrationFeesDailyBillingEnabled
             && ! $this->administrationFeesOrderBillingEnabled
-            && ! $this->administrationFeesOtsEnabled) {
+            && ! $this->administrationFeesOtsEnabled
+        ) {
             return null;
         }
 
@@ -126,6 +132,7 @@ class AdministrationFeesManager
             $this->logger->warning('Administration fees could not be loaded: ' . $exception->getMessage(), [
                 LoggingContextKeys::EXCEPTION => $exception,
             ]);
+
             return null;
         }
 

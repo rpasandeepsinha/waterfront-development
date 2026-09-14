@@ -18,16 +18,14 @@ class NovaTotalCustomersMetric extends Value
 
     public function __construct(
         private readonly TranslatorInterface $translator,
-        string|null $component = null,
+        ?string $component = null,
     ) {
         parent::__construct($component);
     }
 
     public function calculate(NovaRequest $request): ValueResult
     {
-        $customerCount = Customer::query()
-            ->whereNull('anonymized_at')
-            ->count();
+        $customerCount = Customer::query()->whereNull('anonymized_at')->count();
 
         $migratedCustomerCount = MigratedCustomer::query()
             ->whereHas('customers', function (Builder $query) {
@@ -37,7 +35,9 @@ class NovaTotalCustomersMetric extends Value
 
         return $this->result($customerCount)
             ->format('0')
-            ->suffix($this->translator->translate('nova_dashboard.metrics.from_migrations', ['count' => $migratedCustomerCount]));
+            ->suffix($this->translator->translate('nova_dashboard.metrics.from_migrations', [
+                'count' => $migratedCustomerCount,
+            ]));
     }
 
     public function name(): string

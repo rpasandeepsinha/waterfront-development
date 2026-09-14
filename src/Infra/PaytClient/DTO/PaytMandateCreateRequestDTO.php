@@ -13,7 +13,7 @@ readonly class PaytMandateCreateRequestDTO
     public function __construct(
         public string $administrationId,
         public array $pspMandates,
-        public array|null $fields = null,
+        public ?array $fields = null,
     ) {
     }
 }

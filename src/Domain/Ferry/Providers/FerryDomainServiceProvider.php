@@ -12,7 +12,7 @@ class FerryDomainServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/ferry-domain.php',
-            'ferry-domain'
+            'ferry-domain',
         );
     }
 }

@@ -8,7 +8,7 @@ interface SiteConfigInterface extends FerryWebhookInterface
 {
     public function isDnsControlEnabled(): bool;
 
-    public function getDomain(): string|null;
+    public function getDomain(): ?string;
 
     public function getPackage(): string;
 

@@ -16,11 +16,11 @@ class CsrSubjectDataTest extends TestCase
     public function constructor(): void
     {
         $customerData = [
-            'name'       => 'Luigi',
+            'name' => 'Luigi',
             'organization' => 'Mario World ORG',
-            'address'    => [
-                'city'         => 'Toad Town',
-                'province'     => 'Mushroom Kingdom',
+            'address' => [
+                'city' => 'Toad Town',
+                'province' => 'Mushroom Kingdom',
                 'country_code' => 'MUSH',
             ],
             'department' => '?/! Blocks',
@@ -30,7 +30,7 @@ class CsrSubjectDataTest extends TestCase
         self::assertSame('Mushroom Kingdom', $testItem->getProvince());
         self::assertSame(
             '/C=MUSH/ST=Mushroom Kingdom/L=Toad Town/O=Luigi/OU=?! Blocks/CN=my-domain.nl',
-            $testItem->__toString()
+            $testItem->__toString(),
         );
     }
 
@@ -38,10 +38,10 @@ class CsrSubjectDataTest extends TestCase
     public function noProvinceEntered(): void
     {
         $customerData = [
-            'name'       => 'Luigi',
+            'name' => 'Luigi',
             'organization' => 'Mario World ORG',
-            'address'    => [
-                'city'         => 'Toad Town',
+            'address' => [
+                'city' => 'Toad Town',
                 'country_code' => 'MUSH',
             ],
             'department' => '?-Blocks',

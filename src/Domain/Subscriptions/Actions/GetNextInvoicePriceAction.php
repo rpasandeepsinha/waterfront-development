@@ -44,7 +44,8 @@ class GetNextInvoicePriceAction
 
             assert($subscription->activePrice instanceof SubscriptionPrice);
 
-            $nextPrice = $subscription->prices()
+            $nextPrice = $subscription
+                ->prices()
                 ->where('valid_from', '>', $subscription->activePrice->valid_from)
                 ->orderBy('valid_from')
                 ->first();
@@ -81,7 +82,7 @@ class GetNextInvoicePriceAction
     private function getInvoiceEndDate(
         CarbonImmutable $invoiceStartDate,
         int $billingPeriod,
-        CarbonImmutable $currentSubscriptionEndDate
+        CarbonImmutable $currentSubscriptionEndDate,
     ): CarbonImmutable {
         $invoiceEndDate = $invoiceStartDate->addMonths($billingPeriod)->startOfDay();
 

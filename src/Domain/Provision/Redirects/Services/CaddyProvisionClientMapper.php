@@ -27,9 +27,7 @@ class CaddyProvisionClientMapper
         return new RedirectSourceMatchers(
             host: is_string($host) && $host !== '' ? $host : $fromUrl,
             paths: is_string($path) && $path !== '/' ? [$path] : null,
-            query: is_string($rawQuery) && $rawQuery !== ''
-            ? $this->normalizeQueryString($rawQuery)
-            : null,
+            query: is_string($rawQuery) && $rawQuery !== '' ? $this->normalizeQueryString($rawQuery) : null,
         );
     }
 
@@ -66,9 +64,7 @@ class CaddyProvisionClientMapper
                 continue;
             }
 
-            [$rawName, $rawValue] = str_contains($parameter, '=')
-                ? explode('=', $parameter, 2)
-                : [$parameter, ''];
+            [$rawName, $rawValue] = str_contains($parameter, '=') ? explode('=', $parameter, 2) : [$parameter, ''];
 
             $name = $this->normalizeQueryParameterName(urldecode($rawName));
 
@@ -93,10 +89,7 @@ class CaddyProvisionClientMapper
     private function getSourceFromCaddyDto(RedirectRoute $redirectRoute): string
     {
         $match = array_first($redirectRoute->match);
-        if (
-            $match === null
-            || $match->host === null
-        ) {
+        if ($match === null || $match->host === null) {
             throw new CaddyMapperException(sprintf(self::MAPPER_EXCEPTION_MESSAGE, 'source'));
         }
 
@@ -160,6 +153,7 @@ class CaddyProvisionClientMapper
                 if ($iframes->length === 0) {
                     throw new CaddyMapperException(sprintf(self::MAPPER_EXCEPTION_MESSAGE, 'Destination'));
                 }
+
                 return $iframes->item(0)?->getAttribute('src') ?? '';
         }
     }

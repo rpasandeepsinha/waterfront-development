@@ -64,7 +64,7 @@ class OpenproviderServiceTest extends IntegrationTestCase
             dnsService: self::resolve(DnsService::class),
             nameserverAssigner: $this->dnsNameserverAssignerMock,
             configuration: self::resolve(ConfigurationInterface::class),
-            dnsDeploymentRepository:  $this->dnsDeploymentRepositoryMock
+            dnsDeploymentRepository: $this->dnsDeploymentRepositoryMock,
         );
 
         $productGroup = new ProductGroupFactory()->extension()->create();
@@ -73,8 +73,9 @@ class OpenproviderServiceTest extends IntegrationTestCase
             ->for(new CustomerFactory())
             ->forDomain(self::DOMAIN)
             ->for(
-                new ProductFactory()->nlDomain()
-                    ->recycle($productGroup)
+                new ProductFactory()
+                    ->nlDomain()
+                    ->recycle($productGroup),
             )
             ->has(new DomainDeploymentFactory()->withOpenProvider())
             ->createOne();
@@ -87,13 +88,13 @@ class OpenproviderServiceTest extends IntegrationTestCase
         $this->expectException(DnsDeploymentNotFoundException::class);
         $this->expectExceptionMessageIs($exceptionMessage);
 
-        $this->dnsDeploymentRepositoryMock->expects(self::once())
+        $this->dnsDeploymentRepositoryMock
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->with(self::DOMAIN)
             ->willReturn(null);
 
-        $this->dnsNameserverAssignerMock->expects(self::never())
-            ->method('clear');
+        $this->dnsNameserverAssignerMock->expects(self::never())->method('clear');
 
         $domainDeployment = $this->subscription->domainDeployment;
         self::assertInstanceOf(DomainDeployment::class, $domainDeployment);
@@ -102,7 +103,7 @@ class OpenproviderServiceTest extends IntegrationTestCase
             deployment: $domainDeployment,
             period: 12,
             customer: $this->subscription->customer,
-            handles: self::createStub(Handles::class)
+            handles: self::createStub(Handles::class),
         );
     }
 
@@ -110,17 +111,16 @@ class OpenproviderServiceTest extends IntegrationTestCase
     public function registerFailedDueGenericException(): void
     {
         $dnsDeployment = DnsDeploymentFactory::new()->create([
-        'subscription_uuid' => $this->subscription->uuid,
+            'subscription_uuid' => $this->subscription->uuid,
         ]);
 
-        $this->dnsDeploymentRepositoryMock->expects(self::once())
+        $this->dnsDeploymentRepositoryMock
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->with(self::DOMAIN)
             ->willReturn($dnsDeployment);
 
-        $this->dnsNameserverAssignerMock->expects(self::once())
-            ->method('clear')
-            ->with($dnsDeployment);
+        $this->dnsNameserverAssignerMock->expects(self::once())->method('clear')->with($dnsDeployment);
 
         $this->expectException(RuntimeException::class);
 
@@ -130,7 +130,7 @@ class OpenproviderServiceTest extends IntegrationTestCase
             deployment: $domainDeployment,
             period: 12,
             customer: $this->subscription->customer,
-            handles: self::createStub(Handles::class)
+            handles: self::createStub(Handles::class),
         );
     }
 

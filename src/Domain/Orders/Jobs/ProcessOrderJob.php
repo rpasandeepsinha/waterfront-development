@@ -44,7 +44,7 @@ class ProcessOrderJob extends AbstractQueueableJob implements ShouldBeUnique
             $logger->critical(
                 'Error processing order with id {order.id}, job failed without exception',
                 [
-                    LoggingContextKeys::ORDER_ID  => $this->order->id,
+                    LoggingContextKeys::ORDER_ID => $this->order->id,
                     LoggingContextKeys::EXCEPTION => $exception,
                 ],
             );
@@ -55,7 +55,7 @@ class ProcessOrderJob extends AbstractQueueableJob implements ShouldBeUnique
         $logger->critical(
             sprintf('Error processing order, job failed with exception message: %s', $exception->getMessage()),
             [
-                LoggingContextKeys::ORDER_ID  => $this->order->id,
+                LoggingContextKeys::ORDER_ID => $this->order->id,
                 LoggingContextKeys::EXCEPTION => $exception,
             ],
         );
@@ -69,8 +69,8 @@ class ProcessOrderJob extends AbstractQueueableJob implements ShouldBeUnique
         OrderService $orderService,
     ): void {
         $logger->debug('Starting ProcessOrderJob for order {order.id} with attempt {job.attempt}/{job.max_attempts}', [
-                LoggingContextKeys::ORDER_ID => $this->order->id,
-                LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
+            LoggingContextKeys::ORDER_ID => $this->order->id,
+            LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
         ]);
 
         if (in_array($this->order->status, [OrderStatus::PROCESSED, OrderStatus::ABUSE])) {
@@ -88,13 +88,14 @@ class ProcessOrderJob extends AbstractQueueableJob implements ShouldBeUnique
             $logger->critical(
                 sprintf('Error processing order: %s', $exception->getMessage()),
                 [
-                    LoggingContextKeys::ORDER_ID  => $this->order->id,
+                    LoggingContextKeys::ORDER_ID => $this->order->id,
                     LoggingContextKeys::EXCEPTION => $exception,
                 ],
             );
 
             throw $exception;
         }
+
         $dispatcher->dispatch(new BillOrderJob($this->order));
     }
 

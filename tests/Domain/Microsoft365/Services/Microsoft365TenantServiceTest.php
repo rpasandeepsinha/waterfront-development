@@ -20,7 +20,7 @@ class Microsoft365TenantServiceTest extends IntegrationTestCase
         parent::setUp();
 
         $this->microsoft365TenantService = new Microsoft365TenantService(
-            self::resolve(CartSerializerFactory::class)
+            self::resolve(CartSerializerFactory::class),
         );
     }
 

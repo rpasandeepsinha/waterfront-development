@@ -36,16 +36,22 @@ class MailConfigurationTest extends IntegrationTestCase
 
         $product = new ProductFactory()->mailOnly()->createOne();
 
-        new ProductSpecFactory()
-        ->for($product)
-        ->createOne([
-            'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+        new ProductSpecFactory()->for($product)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
             'value' => '1',
         ]);
 
-        $this->subscription = new SubscriptionFactory()->for($this->customer)->for($product)->createOne();
+        $this->subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($product)
+            ->createOne();
 
-        $mailProvider = ProviderFactory::new()->createOne(['type' => ProviderType::MAILONLY, 'slug' => ProviderSlug::DIRECTADMIN, 'default' => true, 'enabled' => true]);
+        $mailProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::MAILONLY,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'default' => true,
+            'enabled' => true,
+        ]);
 
         new HostingDeploymentFactory()
             ->for(new ServerFactory()->createOne(), 'mailOnlyServer')
@@ -58,13 +64,13 @@ class MailConfigurationTest extends IntegrationTestCase
     public function mailConfiguration(): void
     {
         $this->actingAsCustomer($this->customer)
-             ->getJson(
-                 $this->generateRoute('partners.mail.configuration', [
-                     'domain' => $this->subscription->domain,
-                 ])
-             )
-             ->assertOk()
-             ->assertJson([
+            ->getJson(
+                $this->generateRoute('partners.mail.configuration', [
+                    'domain' => $this->subscription->domain,
+                ]),
+            )
+            ->assertOk()
+            ->assertJson([
                 'data' => [
                     'imap_host' => 'mail.sandwaveio.dev',
                     'imap_port' => 993,
@@ -89,18 +95,19 @@ class MailConfigurationTest extends IntegrationTestCase
                             'prio' => 20,
                         ],
                     ],
-                 ],
-             ]);
+                ],
+            ]);
     }
 
     #[Test]
     public function configurationForUnknownDomain(): void
     {
         $this->actingAsCustomer($this->customer)
-             ->getJson(
-                 $this->generateRoute('partners.mail.configuration', [
-                     'domain' => 'wrongdomain.com',
-                 ])
-             )->assertForbidden();
+            ->getJson(
+                $this->generateRoute('partners.mail.configuration', [
+                    'domain' => 'wrongdomain.com',
+                ]),
+            )
+            ->assertForbidden();
     }
 }

@@ -40,12 +40,10 @@ class Microsoft365ValidationTest extends IntegrationTestCase
             'product_group_id' => $productGroupMicrosoft->id,
         ]);
 
-        new ProductSpecFactory()
-            ->for($this->product)
-            ->createOne([
-                'name' => ProductSpecName::MICROSOFT365_ALLOW_COPILOT->value,
-                'value' => true,
-            ]);
+        new ProductSpecFactory()->for($this->product)->createOne([
+            'name' => ProductSpecName::MICROSOFT365_ALLOW_COPILOT->value,
+            'value' => true,
+        ]);
 
         new ProductFactory()->createOne([
             'slug' => 'microsoft-business-premium',
@@ -63,7 +61,8 @@ class Microsoft365ValidationTest extends IntegrationTestCase
     #[Test]
     public function equalWithNonCopilotSpecProduct(): void
     {
-        $orderEqualCopilotAndMicrosoftProducts = include __DIR__ . '/data/order_microsoft_copilot_equal_with_no_spec_product.php';
+        $orderEqualCopilotAndMicrosoftProducts = include
+            __DIR__ . '/data/order_microsoft_copilot_equal_with_no_spec_product.php';
         $validator = $this->validatorFactory->make($orderEqualCopilotAndMicrosoftProducts, []);
         self::assertTrue($validator->passes());
     }
@@ -71,19 +70,27 @@ class Microsoft365ValidationTest extends IntegrationTestCase
     #[Test]
     public function unequalCopilotAndMicrosoftProducts(): void
     {
-        $orderUnequalCopilotAndMicrosoftProducts = include __DIR__ . '/data/order_microsoft_copilot_unequal_products.php';
+        $orderUnequalCopilotAndMicrosoftProducts = include
+            __DIR__ . '/data/order_microsoft_copilot_unequal_products.php';
         $validator = $this->validatorFactory->make($orderUnequalCopilotAndMicrosoftProducts, []);
         self::assertFalse($validator->passes());
-        self::assertSame('validation.m365.more-copilot-then-products', $validator->messages()->toArray()['subscriptions.microsoft-365'][0]);
+        self::assertSame(
+            'validation.m365.more-copilot-then-products',
+            $validator->messages()->toArray()['subscriptions.microsoft-365'][0],
+        );
     }
 
     #[Test]
     public function copilotWithProductWithNoSpec(): void
     {
-        $orderEqualCopilotAndMicrosoftProducts = include __DIR__ . '/data/order_microsoft_copilot_only_product_with_no_spec.php';
+        $orderEqualCopilotAndMicrosoftProducts = include
+            __DIR__ . '/data/order_microsoft_copilot_only_product_with_no_spec.php';
         $validator = $this->validatorFactory->make($orderEqualCopilotAndMicrosoftProducts, []);
         self::assertFalse($validator->passes());
-        self::assertSame('validation.m365.more-copilot-then-products', $validator->messages()->toArray()['subscriptions.microsoft-365'][0]);
+        self::assertSame(
+            'validation.m365.more-copilot-then-products',
+            $validator->messages()->toArray()['subscriptions.microsoft-365'][0],
+        );
     }
 
     #[Test]

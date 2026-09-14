@@ -35,15 +35,23 @@ class AddonOrderTest extends IntegrationTestCase
         $addonProduct = new ProductFactory()->for($addonProductGroup)->createOne(['slug' => 'booking']);
         $product = new ProductFactory()->for($productGroup)->createOne(['slug' => 'basic']);
 
-        new ProductAddonCouplingFactory()
-            ->createOne(['parent_product_id' => $product->id, 'addon_product_id' => $addonProduct->id]);
+        new ProductAddonCouplingFactory()->createOne([
+            'parent_product_id' => $product->id,
+            'addon_product_id' => $addonProduct->id,
+        ]);
 
-        new ProductPriceComponentFactory()->for($product)->registration()
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 1000]);
 
-        new ProductPriceComponentFactory()->for($addonProduct)->registration()
+        new ProductPriceComponentFactory()
+            ->for($addonProduct)
+            ->registration()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 1000]);
-        new ProductPriceComponentFactory()->for($addonProduct)->prolongation()
+        new ProductPriceComponentFactory()
+            ->for($addonProduct)
+            ->prolongation()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 2580]);
 
         new TemplateFactory()->createOne(['slug' => MailSubscriptionCreated::getTemplateSlug()]);
@@ -52,25 +60,30 @@ class AddonOrderTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne(['payment_type' => 'direct', 'has_direct_debit' => true]);
 
-        $subscription = new SubscriptionFactory()->for($customer)->for($product)->createOne([
-            'uuid' => '24ab093c-d742-4637-b3f4-fc4c4823e70f',
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'start_date' => $startDate,
-            'next_billing_date' => $nextBillingDate,
-            'net_price' => 1000,
-            'gross_price' => 1000,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($product)
+            ->createOne([
+                'uuid' => '24ab093c-d742-4637-b3f4-fc4c4823e70f',
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'start_date' => $startDate,
+                'next_billing_date' => $nextBillingDate,
+                'net_price' => 1000,
+                'gross_price' => 1000,
+            ]);
         $dispatcherMock = self::createStub(Dispatcher::class);
         $this->app->bind(Dispatcher::class, fn () => $dispatcherMock);
 
         /** @var array<int, array<string>> $orderPayload */
         $orderPayload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        $this->actingAsCustomer($customer)->postJson(
-            $this->generateRoute('partners.order.order'),
-            $orderPayload
-        )->assertOk();
+        $this->actingAsCustomer($customer)
+            ->postJson(
+                $this->generateRoute('partners.order.order'),
+                $orderPayload,
+            )
+            ->assertOk();
 
         /*
          * We're doing the following for an existing hosting subscription after 41 days;

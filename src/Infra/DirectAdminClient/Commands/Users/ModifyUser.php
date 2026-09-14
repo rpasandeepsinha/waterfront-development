@@ -70,6 +70,7 @@ class ModifyUser extends DirectAdminCommand
     public function setBandwidth(string $bandwidth): ModifyUser
     {
         $this->userData['bandwidth'] = $bandwidth;
+
         return $this;
     }
 
@@ -79,6 +80,7 @@ class ModifyUser extends DirectAdminCommand
     public function setUbandwidth(string $ubandwidth): ModifyUser
     {
         $this->userData['ubandwidth'] = $ubandwidth;
+
         return $this;
     }
 
@@ -88,6 +90,7 @@ class ModifyUser extends DirectAdminCommand
     public function setQuota(string $quota): ModifyUser
     {
         $this->userData['quota'] = $quota;
+
         return $this;
     }
 
@@ -97,6 +100,7 @@ class ModifyUser extends DirectAdminCommand
     public function setUquota(string $uquota): ModifyUser
     {
         $this->userData['uquota'] = $uquota;
+
         return $this;
     }
 
@@ -106,6 +110,7 @@ class ModifyUser extends DirectAdminCommand
     public function setVdomains(string $vdomains): ModifyUser
     {
         $this->userData['vdomains'] = $vdomains;
+
         return $this;
     }
 
@@ -115,6 +120,7 @@ class ModifyUser extends DirectAdminCommand
     public function setUvdomains(string $uvdomains): ModifyUser
     {
         $this->userData['uvdomains'] = $uvdomains;
+
         return $this;
     }
 
@@ -124,6 +130,7 @@ class ModifyUser extends DirectAdminCommand
     public function setNsubdomains(string $nsubdomains): ModifyUser
     {
         $this->userData['nsubdomains'] = $nsubdomains;
+
         return $this;
     }
 
@@ -133,6 +140,7 @@ class ModifyUser extends DirectAdminCommand
     public function setUnsubdomains(string $unsubdomains): ModifyUser
     {
         $this->userData['unsubdomains'] = $unsubdomains;
+
         return $this;
     }
 
@@ -142,6 +150,7 @@ class ModifyUser extends DirectAdminCommand
     public function setNemails(string $nemails): ModifyUser
     {
         $this->userData['nemails'] = $nemails;
+
         return $this;
     }
 
@@ -151,6 +160,7 @@ class ModifyUser extends DirectAdminCommand
     public function setUnemails(string $unemails): ModifyUser
     {
         $this->userData['unemails'] = $unemails;
+
         return $this;
     }
 
@@ -160,6 +170,7 @@ class ModifyUser extends DirectAdminCommand
     public function setNemailf(string $nemailf): ModifyUser
     {
         $this->userData['nemailf'] = $nemailf;
+
         return $this;
     }
 
@@ -169,6 +180,7 @@ class ModifyUser extends DirectAdminCommand
     public function setUnemailf(string $unemailf): ModifyUser
     {
         $this->userData['unemailf'] = $unemailf;
+
         return $this;
     }
 
@@ -178,6 +190,7 @@ class ModifyUser extends DirectAdminCommand
     public function setNemailml(string $nemailml): ModifyUser
     {
         $this->userData['nemailml'] = $nemailml;
+
         return $this;
     }
 
@@ -187,6 +200,7 @@ class ModifyUser extends DirectAdminCommand
     public function setUnemailml(string $unemailml): ModifyUser
     {
         $this->userData['unemailml'] = $unemailml;
+
         return $this;
     }
 
@@ -196,6 +210,7 @@ class ModifyUser extends DirectAdminCommand
     public function setNemailr(string $nemailr): ModifyUser
     {
         $this->userData['nemailr'] = $nemailr;
+
         return $this;
     }
 
@@ -205,6 +220,7 @@ class ModifyUser extends DirectAdminCommand
     public function setUnemailr(string $unemailr): ModifyUser
     {
         $this->userData['unemailr'] = $unemailr;
+
         return $this;
     }
 
@@ -214,6 +230,7 @@ class ModifyUser extends DirectAdminCommand
     public function setMysql(string $mysql): ModifyUser
     {
         $this->userData['mysql'] = $mysql;
+
         return $this;
     }
 
@@ -223,6 +240,7 @@ class ModifyUser extends DirectAdminCommand
     public function setUmysql(string $umysql): ModifyUser
     {
         $this->userData['umysql'] = $umysql;
+
         return $this;
     }
 
@@ -232,6 +250,7 @@ class ModifyUser extends DirectAdminCommand
     public function setDomainptr(string $domainptr): ModifyUser
     {
         $this->userData['domainptr'] = $domainptr;
+
         return $this;
     }
 
@@ -241,6 +260,7 @@ class ModifyUser extends DirectAdminCommand
     public function setUdomainptr(string $udomainptr): ModifyUser
     {
         $this->userData['udomainptr'] = $udomainptr;
+
         return $this;
     }
 
@@ -250,6 +270,7 @@ class ModifyUser extends DirectAdminCommand
     public function setLoginKeys(string $loginKeys): ModifyUser
     {
         $this->userData['login_keys'] = $loginKeys;
+
         return $this;
     }
 
@@ -259,6 +280,7 @@ class ModifyUser extends DirectAdminCommand
     public function setFtp(string $ftp): ModifyUser
     {
         $this->userData['ftp'] = $ftp;
+
         return $this;
     }
 
@@ -268,6 +290,7 @@ class ModifyUser extends DirectAdminCommand
     public function setUftp(string $uftp): ModifyUser
     {
         $this->userData['uftp'] = $uftp;
+
         return $this;
     }
 
@@ -277,6 +300,7 @@ class ModifyUser extends DirectAdminCommand
     public function setAftp(string $aftp): ModifyUser
     {
         $this->userData['aftp'] = $aftp;
+
         return $this;
     }
 
@@ -286,6 +310,7 @@ class ModifyUser extends DirectAdminCommand
     public function setCgi(string $cgi): ModifyUser
     {
         $this->userData['cgi'] = $cgi;
+
         return $this;
     }
 
@@ -295,6 +320,7 @@ class ModifyUser extends DirectAdminCommand
     public function setPhp(string $php): ModifyUser
     {
         $this->userData['php'] = $php;
+
         return $this;
     }
 
@@ -304,6 +330,7 @@ class ModifyUser extends DirectAdminCommand
     public function setSpam(string $spam): ModifyUser
     {
         $this->userData['spam'] = $spam;
+
         return $this;
     }
 
@@ -313,6 +340,7 @@ class ModifyUser extends DirectAdminCommand
     public function setCron(string $cron): ModifyUser
     {
         $this->userData['cron'] = $cron;
+
         return $this;
     }
 
@@ -322,6 +350,7 @@ class ModifyUser extends DirectAdminCommand
     public function setSsl(string $ssl): ModifyUser
     {
         $this->userData['ssl'] = $ssl;
+
         return $this;
     }
 
@@ -331,6 +360,7 @@ class ModifyUser extends DirectAdminCommand
     public function setSysinfo(string $sysinfo): ModifyUser
     {
         $this->userData['sysinfo'] = $sysinfo;
+
         return $this;
     }
 
@@ -340,6 +370,7 @@ class ModifyUser extends DirectAdminCommand
     public function setSsh(string $ssh): ModifyUser
     {
         $this->userData['ssh'] = $ssh;
+
         return $this;
     }
 
@@ -349,6 +380,7 @@ class ModifyUser extends DirectAdminCommand
     public function setDnscontrol(string $dnscontrol): ModifyUser
     {
         $this->userData['dnscontrol'] = $dnscontrol;
+
         return $this;
     }
 
@@ -358,6 +390,7 @@ class ModifyUser extends DirectAdminCommand
     public function setSkin(string $skin): ModifyUser
     {
         $this->userData['skin'] = $skin;
+
         return $this;
     }
 
@@ -367,6 +400,7 @@ class ModifyUser extends DirectAdminCommand
     public function setNs1(string $ns1): ModifyUser
     {
         $this->userData['ns1'] = $ns1;
+
         return $this;
     }
 
@@ -376,6 +410,7 @@ class ModifyUser extends DirectAdminCommand
     public function setNs2(string $ns2): ModifyUser
     {
         $this->userData['ns2'] = $ns2;
+
         return $this;
     }
 
@@ -385,6 +420,7 @@ class ModifyUser extends DirectAdminCommand
     public function setUser(string $user): ModifyUser
     {
         $this->userData['user'] = $user;
+
         return $this;
     }
 
@@ -405,6 +441,7 @@ class ModifyUser extends DirectAdminCommand
     public function setCatchall(string $catch): ModifyUser
     {
         $this->userData['catchall'] = $catch;
+
         return $this;
     }
 
@@ -414,6 +451,7 @@ class ModifyUser extends DirectAdminCommand
     public function setFeatureSets(string $featureSets): ModifyUser
     {
         $this->userData['feature_sets'] = $featureSets;
+
         return $this;
     }
 

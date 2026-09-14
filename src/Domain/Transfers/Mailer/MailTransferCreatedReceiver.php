@@ -11,8 +11,9 @@ class MailTransferCreatedReceiver implements MailTemplateInterface
     /**
      * @param string[] $domains
      */
-    public function __construct(public readonly array $domains)
-    {
+    public function __construct(
+        public readonly array $domains,
+    ) {
     }
 
     public static function getTemplateSlug(): string

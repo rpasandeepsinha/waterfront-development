@@ -21,8 +21,10 @@ abstract class BaseRequest
     /** @var string */
     protected $password;
 
-    public function __construct(protected Client $client, OpenProviderConnectionInterface $connection)
-    {
+    public function __construct(
+        protected Client $client,
+        OpenProviderConnectionInterface $connection,
+    ) {
         $this->apiUrl = $connection->getApiUrl();
         $this->username = $connection->getUsername();
         $this->password = $connection->getPassword();
@@ -39,15 +41,17 @@ abstract class BaseRequest
             'POST',
             $this->apiUrl,
             [
-                'body'        => $xmlMessage,
+                'body' => $xmlMessage,
                 'http_errors' => false,
-            ]
+            ],
         );
     }
 
     public function getXml(): string
     {
-        return ArrayToXml::convert($this->getMessage(), 'openXML', false, 'UTF-8', options: ['convertNullToXsiNil' => true]);
+        return ArrayToXml::convert($this->getMessage(), 'openXML', false, 'UTF-8', options: [
+            'convertNullToXsiNil' => true,
+        ]);
     }
 
     /**

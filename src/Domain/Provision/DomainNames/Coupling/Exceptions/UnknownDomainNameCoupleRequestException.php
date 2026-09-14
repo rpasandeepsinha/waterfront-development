@@ -11,6 +11,9 @@ class UnknownDomainNameCoupleRequestException extends ProvisionException
 {
     public function __construct(ProvisionRequestInterface $request)
     {
-        parent::__construct(message: sprintf('No implementation found in domain name couple service for request [%s]', $request::class));
+        parent::__construct(message: sprintf(
+            'No implementation found in domain name couple service for request [%s]',
+            $request::class,
+        ));
     }
 }

@@ -26,7 +26,6 @@ class Microsoft365LineItem extends LineItem
         ?ProductPriceType $status,
         ?CartOrderSubscription $children,
         ?array $oneTimeServices,
-        ?string $experimentSlug,
         #[Groups(['meta_data'])]
         #[SerializedName('tenant_name')]
         public ?string $tenantName,
@@ -45,7 +44,6 @@ class Microsoft365LineItem extends LineItem
             $status,
             $children,
             $oneTimeServices,
-            $experimentSlug,
         );
     }
 }

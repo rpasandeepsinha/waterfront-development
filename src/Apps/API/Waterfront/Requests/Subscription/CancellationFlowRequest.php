@@ -18,7 +18,7 @@ class CancellationFlowRequest extends FormRequest
     {
         return [
             'subscriptionUuids' => ['required', 'array'],
-            'subscriptionUuids.*'  => ['bail', 'required', 'distinct:strict', 'uuid', 'exists:subscriptions,uuid'],
+            'subscriptionUuids.*' => ['bail', 'required', 'distinct:strict', 'uuid', 'exists:subscriptions,uuid'],
         ];
     }
 }

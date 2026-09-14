@@ -52,7 +52,7 @@ class VatCode extends AbstractValidator
                 $this->cache->put(
                     key: $cacheKey,
                     value: true,
-                    ttl: 1209600 // two weeks
+                    ttl: 1209600, // two weeks
                 );
             }
 
@@ -66,10 +66,11 @@ class VatCode extends AbstractValidator
                         'vat_number' => $vatNumber,
                         'country_code' => $countryCode,
                     ],
-                ]
+                ],
             );
 
             $this->error = false;
+
             return true;
         }
     }

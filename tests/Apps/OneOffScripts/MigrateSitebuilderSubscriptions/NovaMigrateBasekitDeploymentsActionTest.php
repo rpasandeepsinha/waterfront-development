@@ -53,7 +53,7 @@ class NovaMigrateBasekitDeploymentsActionTest extends IntegrationTestCase
             dispatcher: $this->dispatcher,
             logger: $this->logger,
             basekitSubscriptionRepository: $basekitSubscriptionRepository,
-            basekitMigrationService: self::createStub(BasekitMigrationService::class)
+            basekitMigrationService: self::createStub(BasekitMigrationService::class),
         );
 
         $fields = $action->fields(NovaRequest::create('/'));
@@ -68,11 +68,15 @@ class NovaMigrateBasekitDeploymentsActionTest extends IntegrationTestCase
         $limitField = new Collection($serializedFields)->firstWhere('attribute', 'limit');
         self::assertIsArray($limitField, 'limit field should be present');
         self::assertSame('limit', $limitField['attribute'] ?? null);
-        $enforcesMinimumZero = (($limitField['min'] ?? null) === 0)
-            || (array_key_exists('rules', $limitField) && in_array('min:0', (array) $limitField['rules'], true));
+        $enforcesMinimumZero =
+            ($limitField['min'] ?? null) === 0
+            || array_key_exists('rules', $limitField) && in_array('min:0', (array) $limitField['rules'], true);
         self::assertTrue($enforcesMinimumZero, 'limit should enforce min=0');
 
-        $eligibleEstimateField = new Collection($serializedFields)->firstWhere('name', 'Eligible subscriptions (estimate)');
+        $eligibleEstimateField = new Collection($serializedFields)->firstWhere(
+            'name',
+            'Eligible subscriptions (estimate)',
+        );
         self::assertIsArray($eligibleEstimateField, 'estimate field should be present');
         self::assertTrue((bool) ($eligibleEstimateField['readonly'] ?? false), 'estimate should be readonly');
     }
@@ -84,39 +88,46 @@ class NovaMigrateBasekitDeploymentsActionTest extends IntegrationTestCase
             (function () {
                 $subscription = new Subscription();
                 $subscription->id = 1;
+
                 return $subscription;
             })(),
             (function () {
                 $subscription = new Subscription();
                 $subscription->id = 2;
+
                 return $subscription;
             })(),
             (function () {
                 $subscription = new Subscription();
                 $subscription->id = 3;
+
                 return $subscription;
             })(),
             (function () {
                 $subscription = new Subscription();
                 $subscription->id = 4;
+
                 return $subscription;
             })(),
             (function () {
                 $subscription = new Subscription();
                 $subscription->id = 5;
+
                 return $subscription;
             })(),
         ]);
 
         $basekitSubscriptionRepository = self::createMock(BasekitSubscriptionRepository::class);
-        $basekitSubscriptionRepository->expects(self::once())
+        $basekitSubscriptionRepository
+            ->expects(self::once())
             ->method('chunkBasekitSubscriptions')
             ->willReturnCallback(static function (callable $callback) use ($subscriptions): void {
                 $callback($subscriptions);
             });
 
         $basekitMigrationService = self::createMock(BasekitMigrationService::class);
-        $basekitMigrationService->expects(self::exactly(5))
+        $basekitMigrationService
+            ->expects(self::exactly(5))
             ->method('assessEligibility')
             ->willReturnOnConsecutiveCalls(
                 BasekitMigrationEligibility::ELIGIBLE,
@@ -132,12 +143,12 @@ class NovaMigrateBasekitDeploymentsActionTest extends IntegrationTestCase
             dispatcher: $this->dispatcher,
             logger: $this->logger,
             basekitSubscriptionRepository: $basekitSubscriptionRepository,
-            basekitMigrationService: $basekitMigrationService
+            basekitMigrationService: $basekitMigrationService,
         );
 
         $actionFields = new ActionFields(
             new Collection(['dry-run' => true, 'limit' => 0]),
-            new Collection()
+            new Collection(),
         );
 
         $actionResponse = $action->handle($actionFields);
@@ -163,29 +174,34 @@ class NovaMigrateBasekitDeploymentsActionTest extends IntegrationTestCase
             (function () {
                 $subscription = new Subscription();
                 $subscription->uuid = 'sub-10';
+
                 return $subscription;
             })(),
             (function () {
                 $subscription = new Subscription();
                 $subscription->uuid = 'sub-11';
+
                 return $subscription;
             })(),
             (function () {
                 $subscription = new Subscription();
                 $subscription->uuid = 'sub-12';
+
                 return $subscription;
             })(),
         ]);
 
         $basekitSubscriptionRepository = self::createMock(BasekitSubscriptionRepository::class);
-        $basekitSubscriptionRepository->expects(self::once())
+        $basekitSubscriptionRepository
+            ->expects(self::once())
             ->method('chunkBasekitSubscriptions')
             ->willReturnCallback(static function (callable $callback) use ($subscriptions): void {
                 $callback($subscriptions);
             });
 
         $basekitMigrationService = self::createMock(BasekitMigrationService::class);
-        $basekitMigrationService->expects(self::exactly(2))
+        $basekitMigrationService
+            ->expects(self::exactly(2))
             ->method('assessEligibility')
             ->willReturn(
                 BasekitMigrationEligibility::ELIGIBLE,
@@ -200,6 +216,7 @@ class NovaMigrateBasekitDeploymentsActionTest extends IntegrationTestCase
                 if (! $queuedJob instanceof MigrateBasekitSubscriptionJob) {
                     return false;
                 }
+
                 return in_array($queuedJob->subscriptionUuid, ['sub-10', 'sub-11'], true);
             }));
 
@@ -207,12 +224,12 @@ class NovaMigrateBasekitDeploymentsActionTest extends IntegrationTestCase
             dispatcher: $this->dispatcher,
             logger: $this->logger,
             basekitSubscriptionRepository: $basekitSubscriptionRepository,
-            basekitMigrationService: $basekitMigrationService
+            basekitMigrationService: $basekitMigrationService,
         );
 
         $actionFields = new ActionFields(
             new Collection(['dry-run' => false, 'limit' => 2]),
-            new Collection()
+            new Collection(),
         );
 
         $actionResponse = $action->handle($actionFields);

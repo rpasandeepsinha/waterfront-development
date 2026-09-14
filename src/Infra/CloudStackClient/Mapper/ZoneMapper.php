@@ -23,14 +23,14 @@ class ZoneMapper implements Mapper
         assert(is_bool($data['localstorageenabled']));
 
         return new Zone(
-            id:                    $data['id'],
-            name:                  $data['name'],
-            networktype:           $data['networktype'],
+            id: $data['id'],
+            name: $data['name'],
+            networktype: $data['networktype'],
             securitygroupsenabled: $data['securitygroupsenabled'],
-            allocationstate:       $data['allocationstate'],
-            zonetoken:             $data['zonetoken'],
-            dhcpprovider:          $data['dhcpprovider'],
-            localstorageenabled:   $data['localstorageenabled']
+            allocationstate: $data['allocationstate'],
+            zonetoken: $data['zonetoken'],
+            dhcpprovider: $data['dhcpprovider'],
+            localstorageenabled: $data['localstorageenabled'],
         );
     }
 }

@@ -30,15 +30,20 @@ class RtrServiceEnsureContactValidatedForDomainTest extends IntegrationTestCase
         parent::setUp();
 
         $domainGroup = new ProductGroupFactory()->extension()->createOne();
-        new ProductFactory()->nlDomain()->for($domainGroup)->createOne();
+        new ProductFactory()
+            ->nlDomain()
+            ->for($domainGroup)
+            ->createOne();
 
         $this->mockRtr = self::createMock(AuthorizedClient::class);
 
-        $this->app->when(RtrService::class)
+        $this->app
+            ->when(RtrService::class)
             ->needs(RealtimeRegister::class)
             ->give(function () {
                 $externalRtr = new RealtimeRegister('api-key');
                 $externalRtr->setClient($this->mockRtr);
+
                 return $externalRtr;
             });
     }
@@ -60,9 +65,7 @@ class RtrServiceEnsureContactValidatedForDomainTest extends IntegrationTestCase
                 return new RealtimeRegisterResponse($contactResponse, [], 200);
             });
 
-        $this->mockRtr
-            ->expects(self::never())
-            ->method('post');
+        $this->mockRtr->expects(self::never())->method('post');
 
         $rtrService = self::resolve(RtrService::class);
         $rtrService->ensureContactValidatedForDomain(self::DOMAIN_NU, self::HANDLE);
@@ -109,9 +112,7 @@ class RtrServiceEnsureContactValidatedForDomainTest extends IntegrationTestCase
             ->with(self::stringContains('v2/tlds/'))
             ->willReturn(new RealtimeRegisterResponse($tldResponse, [], 200));
 
-        $this->mockRtr
-            ->expects(self::never())
-            ->method('post');
+        $this->mockRtr->expects(self::never())->method('post');
 
         $rtrService = self::resolve(RtrService::class);
         $rtrService->ensureContactValidatedForDomain(self::DOMAIN_NL, self::HANDLE);
@@ -152,7 +153,7 @@ class RtrServiceEnsureContactValidatedForDomainTest extends IntegrationTestCase
         /** @var array{metadata: array<string, mixed>} $data */
         $data = json_decode(
             (string) file_get_contents(__DIR__ . '/../data/tld_metadata_nu.json'),
-            true
+            true,
         );
         $data['metadata']['validationCategory'] = $validationCategory;
 
@@ -165,7 +166,7 @@ class RtrServiceEnsureContactValidatedForDomainTest extends IntegrationTestCase
         /** @var array<string, mixed> $data */
         $data = json_decode(
             (string) file_get_contents(__DIR__ . '/../data/contact_validated.json'),
-            true
+            true,
         );
         $data['handle'] = $handle;
         $data['validations'] = array_map(fn (string $category) => [

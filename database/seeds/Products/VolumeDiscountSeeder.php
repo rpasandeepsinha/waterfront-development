@@ -99,7 +99,10 @@ class VolumeDiscountSeeder extends Seeder
             'price_id' => $price->id,
         ]);
 
-        $this->referenceRepo->set(ProductReference::VOLUME_DISCOUNT_HOSTING_BRONS_PRODUCT_DISCOUNT_REGISTRATION_PRICE, $price);
+        $this->referenceRepo->set(
+            ProductReference::VOLUME_DISCOUNT_HOSTING_BRONS_PRODUCT_DISCOUNT_REGISTRATION_PRICE,
+            $price,
+        );
         $this->referenceRepo->set(ProductReference::VOLUME_DISCOUNT_HOSTING_BRONS_PRODUCT_DISCOUNT, $volumeDiscount);
     }
 }

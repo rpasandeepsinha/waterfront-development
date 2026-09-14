@@ -37,8 +37,8 @@ class AddDomainTest extends TestCase
 
         self::assertSame(
             'api/domain/add/domain/' . urlencode($this->testDomain) . '/destinations/'
-            . urlencode(json_encode(['mail.' . $this->testDomain], JSON_THROW_ON_ERROR)),
-            $clientRequest->getUri()->getPath()
+                . urlencode(json_encode(['mail.' . $this->testDomain], JSON_THROW_ON_ERROR)),
+            $clientRequest->getUri()->getPath(),
         );
     }
 
@@ -47,7 +47,7 @@ class AddDomainTest extends TestCase
     {
         $response = new GuzzleResponse(
             200,
-            ['Content-Type' => 'text/html']
+            ['Content-Type' => 'text/html'],
         );
 
         $response = new Response($response);

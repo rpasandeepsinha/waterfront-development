@@ -21,6 +21,7 @@ use Tests\Factories\ProviderFactory;
 use Tests\Factories\SubscriptionFactory;
 use Tests\IntegrationTestCase;
 use Waterfront\Domain\DNS\Events\CreateDns;
+use Waterfront\Domain\Domains\DomainService;
 use Waterfront\Domain\Domains\Events\CreateDomain;
 use Waterfront\Domain\Domains\Models\DomainDeployment;
 use Waterfront\Domain\Hosting\Events\CreateHosting;
@@ -94,7 +95,9 @@ class ProvisionServiceTest extends IntegrationTestCase
         $customer = new CustomerFactory()->withAddress()->createOne();
 
         $hostingProduct = new ProductFactory()->hostingBrons()->createOne();
-        $transferProduct = new ProductFactory()->for(new ProductGroupFactory()->oneTimeService()->createOne())->createOne([
+        $transferProduct = new ProductFactory()->for(
+            new ProductGroupFactory()->oneTimeService()->createOne(),
+        )->createOne([
             'slug' => 'transfer_service',
         ]);
 
@@ -128,9 +131,9 @@ class ProvisionServiceTest extends IntegrationTestCase
         $this->service->provision([$subscription]);
 
         $domainDeployment = DomainDeployment::where('subscription_uuid', $subscription->uuid)->firstOrFail();
-        Assert::assertSame('deferred_transfer', $domainDeployment->transfer_secret);
+        Assert::assertSame(DomainService::DEFERRED_TRANSFER, $domainDeployment->transfer_secret);
         $note = Notes::where('subscription_id', $subscription->id)->firstOrFail()->firstOrFail();
-        Assert::assertStringContainsString('deferred_transfer', $note->note);
+        Assert::assertStringContainsString(DomainService::DEFERRED_TRANSFER, $note->note);
     }
 
     #[Test]
@@ -148,7 +151,7 @@ class ProvisionServiceTest extends IntegrationTestCase
             'domain' => $subscription->domain,
             'product_uuid' => $subscription->product_uuid,
             'subscription_uuid' => $subscription->uuid,
-            'transfer_secret' => 'deferred_transfer',
+            'transfer_secret' => DomainService::DEFERRED_TRANSFER,
         ]);
 
         $this->eventDispatcher
@@ -159,7 +162,7 @@ class ProvisionServiceTest extends IntegrationTestCase
         $this->service->provision([$subscription]);
 
         $domainDeployment = DomainDeployment::where('subscription_uuid', $subscription->uuid)->firstOrFail();
-        Assert::assertSame('deferred_transfer', $domainDeployment->transfer_secret);
+        Assert::assertSame(DomainService::DEFERRED_TRANSFER, $domainDeployment->transfer_secret);
     }
 
     #[Test]
@@ -195,16 +198,15 @@ class ProvisionServiceTest extends IntegrationTestCase
     #[Test]
     public function provisionSsl(): void
     {
-        new ProviderFactory()->sslRtr()->createOne(['default' => true]);
+        new ProviderFactory()
+            ->sslRtr()
+            ->createOne(['default' => true]);
         $subscription = new SubscriptionFactory()
             ->for(new CustomerFactory())
             ->for(new ProductFactory()->for(new ProductGroupFactory()->ssl()))
             ->createOne();
 
-        $this->eventDispatcher
-            ->expects(self::once())
-            ->method('dispatch')
-            ->with(self::isInstanceOf(CreateSsl::class));
+        $this->eventDispatcher->expects(self::once())->method('dispatch')->with(self::isInstanceOf(CreateSsl::class));
 
         $this->service->provision([$subscription]);
     }
@@ -217,10 +219,7 @@ class ProvisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->dns()))
             ->createOne();
 
-        $this->eventDispatcher
-            ->expects(self::once())
-            ->method('dispatch')
-            ->with(self::isInstanceOf(CreateDns::class));
+        $this->eventDispatcher->expects(self::once())->method('dispatch')->with(self::isInstanceOf(CreateDns::class));
 
         $this->service->provision([$subscription]);
     }
@@ -249,17 +248,16 @@ class ProvisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->vps()))
             ->createOne();
 
-        $subscription->children()->save(
-            new SubscriptionFactory()
-                ->for(new CustomerFactory())
-                ->for(new ProductFactory()->for(new ProductGroupFactory()->cloudstackOs()))
-                ->createOne()
-        );
+        $subscription
+            ->children()
+            ->save(
+                new SubscriptionFactory()
+                    ->for(new CustomerFactory())
+                    ->for(new ProductFactory()->for(new ProductGroupFactory()->cloudstackOs()))
+                    ->createOne(),
+            );
 
-        $this->eventDispatcher
-            ->expects(self::once())
-            ->method('dispatch')
-            ->with(self::isInstanceOf(CreateVps::class));
+        $this->eventDispatcher->expects(self::once())->method('dispatch')->with(self::isInstanceOf(CreateVps::class));
 
         $this->service->provision([$subscription]);
     }
@@ -293,7 +291,9 @@ class ProvisionServiceTest extends IntegrationTestCase
             ->for(new CustomerFactory())
             ->for($mailOnlyProduct)
             ->createOne();
-        $sitebuilderProduct = new ProductFactory()->for($productGroup)->createOne(['slug' => ProductType::SITEBUILDER->value]);
+        $sitebuilderProduct = new ProductFactory()->for($productGroup)->createOne([
+            'slug' => ProductType::SITEBUILDER->value,
+        ]);
         $sitebuilderSubscription = new SubscriptionFactory()
             ->for(new CustomerFactory())
             ->for($sitebuilderProduct)
@@ -311,7 +311,7 @@ class ProvisionServiceTest extends IntegrationTestCase
                     [self::isInstanceOf(CreateMailOnlyHosting::class)],
                     [self::isInstanceOf(CreateSitebuilder::class)],
                     [self::isInstanceOf(CreateHosting::class)],
-                )
+                ),
             );
 
         $this->service->provision([$mailOnlySubscription, $sitebuilderSubscription, $hostingSubscription]);
@@ -325,9 +325,7 @@ class ProvisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->cloudstackVirtualMachine()))
             ->createOne();
 
-        $this->eventDispatcher
-            ->expects(self::never())
-            ->method(self::anything());
+        $this->eventDispatcher->expects(self::never())->method(self::anything());
 
         $this->service->provision([$subscription]);
     }
@@ -340,9 +338,7 @@ class ProvisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->cloudstackVolume()))
             ->createOne();
 
-        $this->eventDispatcher
-            ->expects(self::never())
-            ->method(self::anything());
+        $this->eventDispatcher->expects(self::never())->method(self::anything());
 
         $this->service->provision([$subscription]);
     }
@@ -355,9 +351,7 @@ class ProvisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->cloudstackOs()))
             ->createOne();
 
-        $this->eventDispatcher
-            ->expects(self::never())
-            ->method(self::anything());
+        $this->eventDispatcher->expects(self::never())->method(self::anything());
 
         $this->service->provision([$subscription]);
     }
@@ -387,9 +381,7 @@ class ProvisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->oneTimeService()))
             ->createOne();
 
-        $this->eventDispatcher
-            ->expects(self::never())
-            ->method(self::anything());
+        $this->eventDispatcher->expects(self::never())->method(self::anything());
 
         $this->service->provision([$subscription]);
     }
@@ -402,9 +394,7 @@ class ProvisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->volumeDiscount()))
             ->createOne();
 
-        $this->eventDispatcher
-            ->expects(self::never())
-            ->method(self::anything());
+        $this->eventDispatcher->expects(self::never())->method(self::anything());
 
         $this->service->provision([$subscription]);
     }
@@ -417,9 +407,7 @@ class ProvisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->addon()))
             ->createOne();
 
-        $this->eventDispatcher
-            ->expects(self::never())
-            ->method(self::anything());
+        $this->eventDispatcher->expects(self::never())->method(self::anything());
 
         $this->service->provision([$subscription]);
     }

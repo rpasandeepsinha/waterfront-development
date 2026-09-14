@@ -19,14 +19,15 @@ class HandleValidationBulkPayloadJob extends AbstractQueueableJob
     /**
      * @param array<string, array<mixed>> $validationPayloads
      */
-    public function __construct(private readonly array $validationPayloads)
-    {
+    public function __construct(
+        private readonly array $validationPayloads,
+    ) {
         parent::__construct();
     }
 
     public function handle(
         Dispatcher $dispatcher,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ): void {
         $amount = count($this->validationPayloads);
 
@@ -48,10 +49,10 @@ class HandleValidationBulkPayloadJob extends AbstractQueueableJob
                     validationPayload: new ValidationPayload(
                         validationReference: $this->getAsString($validationPayload, 'reference'),
                         customer: $this->getAsArray($validationPayload, 'customer'),
-                        subscriptions: $this->getAsArray($validationPayload, 'subscriptions')
+                        subscriptions: $this->getAsArray($validationPayload, 'subscriptions'),
                     ),
                     pipes: $pipes,
-                )
+                ),
             );
         }
 

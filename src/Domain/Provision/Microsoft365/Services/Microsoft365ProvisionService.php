@@ -38,7 +38,7 @@ class Microsoft365ProvisionService extends AbstractProvisionService
         try {
             $validator = $this->serviceFactory->getValidator(
                 $this->getProviderForRequest($provisionData),
-                $provisionData
+                $provisionData,
             );
 
             if ($validator->fails()) {
@@ -54,21 +54,27 @@ class Microsoft365ProvisionService extends AbstractProvisionService
     public function send(ProvisionRequestInterface $provisionData): ProvisionResultInterface
     {
         return match ($provisionData::class) {
-            Microsoft365AuthorizationUrlRequest::class => $this->microsoftOnlineService->getAuthorizationUrl($provisionData),
+            Microsoft365AuthorizationUrlRequest::class => $this->microsoftOnlineService->getAuthorizationUrl(
+                $provisionData,
+            ),
             Microsoft365TenantIdRequest::class => $this->microsoftOnlineService->getTenantId($provisionData),
             Microsoft365GetDomainRequest::class => $this->graphService->getDomain($provisionData),
             Microsoft365VerifyDomainRequest::class => $this->graphService->verifyDomain($provisionData),
             Microsoft365CreateDomainRequest::class => $this->graphService->createDomain($provisionData),
             Microsoft365PromoteDomainRequest::class => $this->graphService->promoteDomain($provisionData),
             Microsoft365DeleteDomainRequest::class => $this->graphService->deleteDomain($provisionData),
-            Microsoft365SetDomainAsDefaultDomainRequest::class => $this->graphService->setDomainToDefaultDomain($provisionData),
+            Microsoft365SetDomainAsDefaultDomainRequest::class => $this->graphService->setDomainToDefaultDomain(
+                $provisionData,
+            ),
             Microsoft365GetServiceDnsRecordsRequest::class => $this->graphService->getServiceDnsRecords($provisionData),
-            Microsoft365GetVerificationDnsRecordsRequest::class => $this->graphService->getVerificationDnsRecords($provisionData),
+            Microsoft365GetVerificationDnsRecordsRequest::class => $this->graphService->getVerificationDnsRecords(
+                $provisionData,
+            ),
             default => new ProvisionResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: new UnknownMicrosoft365RequestException($provisionData)
-            )
+                exception: new UnknownMicrosoft365RequestException($provisionData),
+            ),
         };
     }
 

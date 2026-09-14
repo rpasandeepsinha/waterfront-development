@@ -15,8 +15,10 @@ use Waterfront\Infra\Authentication\DTO\AuthenticatedCustomer;
 
 class RedirectPolicy
 {
-    public function __construct(private readonly AuthenticationManager $authManager, private readonly TransferService $transferService)
-    {
+    public function __construct(
+        private readonly AuthenticationManager $authManager,
+        private readonly TransferService $transferService,
+    ) {
     }
 
     /**
@@ -102,12 +104,14 @@ class RedirectPolicy
 
     private function isSuspended(Subscription $subscription): bool
     {
-        return $subscription->technical_status === TechnicalStatus::SUSPENDING->value
+        return (
+            $subscription->technical_status === TechnicalStatus::SUSPENDING->value
             || $subscription->technical_status === TechnicalStatus::UNSUSPENDING->value
             || $subscription->administrative_status === AdministrativeStatus::SUSPENDED->value
             // In fail cases we will treat the subscription as suspended
             || $subscription->technical_status === TechnicalStatus::SUSPENSION_FAILED->value
-            || $subscription->technical_status === TechnicalStatus::UNSUSPENSION_FAILED->value;
+            || $subscription->technical_status === TechnicalStatus::UNSUSPENSION_FAILED->value
+        );
     }
 
     private function isModifiable(Subscription $subscription): bool

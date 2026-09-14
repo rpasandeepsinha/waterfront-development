@@ -81,10 +81,11 @@ class ResetPasswordJobTest extends IntegrationTestCase
 
         Queue::assertNothingPushed();
 
-        self::resolve(Dispatcher::class)->dispatch(new ResetPasswordJob(
-            (new VirtualMachineDeployment()),
-            (new CloudstackJob())
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new ResetPasswordJob(
+                new VirtualMachineDeployment(),
+                new CloudstackJob(),
+            ));
 
         Queue::assertPushedOn(QueueName::CLOUDSTACK->value, ResetPasswordJob::class);
     }
@@ -94,10 +95,11 @@ class ResetPasswordJobTest extends IntegrationTestCase
     {
         Bus::fake();
 
-        self::resolve(Dispatcher::class)->dispatch(new ResetPasswordJob(
-            (new VirtualMachineDeployment()),
-            (new CloudstackJob())
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new ResetPasswordJob(
+                new VirtualMachineDeployment(),
+                new CloudstackJob(),
+            ));
 
         Bus::assertNotDispatchedSync(ResetPasswordJob::class);
     }
@@ -105,7 +107,8 @@ class ResetPasswordJobTest extends IntegrationTestCase
     #[Test]
     public function resetPasswordVirtualMachinePendingIsReleased(): void
     {
-        $cloudstackJobPendingResponse = (string) file_get_contents(__DIR__ . '/../../data/reset_password/pending_job.json');
+        $cloudstackJobPendingResponse = (string) file_get_contents(__DIR__
+        . '/../../data/reset_password/pending_job.json');
         /** @var array<string, array<int|string, mixed>|int|string> $cloudStackPendingJob */
         $cloudStackPendingJob = json_decode($cloudstackJobPendingResponse, true, 512, JSON_THROW_ON_ERROR);
 
@@ -117,7 +120,9 @@ class ResetPasswordJobTest extends IntegrationTestCase
 
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())->method('execute')
+        $baseClientMock
+            ->expects(self::once())
+            ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
             ->willReturn($cloudStackPendingJob);
         $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
@@ -132,10 +137,11 @@ class ResetPasswordJobTest extends IntegrationTestCase
 
         self::assertNull($this->vmDeployment->subscription->technical_status);
 
-        self::resolve(Dispatcher::class)->dispatch(new ResetPasswordJob(
-            $this->vmDeployment,
-            $this->cloudstackJob
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new ResetPasswordJob(
+                $this->vmDeployment,
+                $this->cloudstackJob,
+            ));
 
         $this->vmDeployment->refresh();
 
@@ -146,7 +152,8 @@ class ResetPasswordJobTest extends IntegrationTestCase
     #[Test]
     public function resetPasswordVirtualMachineFailsAndLogs(): void
     {
-        $cloudstackJobFailedResponse = (string) file_get_contents(__DIR__ . '/../../data/reset_password/failed_job.json');
+        $cloudstackJobFailedResponse = (string) file_get_contents(__DIR__
+        . '/../../data/reset_password/failed_job.json');
         /** @var array<string, array<int|string, mixed>|int|string> $cloudStackFailedJob */
         $cloudStackFailedJob = json_decode($cloudstackJobFailedResponse, true, 512, JSON_THROW_ON_ERROR);
 
@@ -156,7 +163,9 @@ class ResetPasswordJobTest extends IntegrationTestCase
         $clientFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())->method('execute')
+        $baseClientMock
+            ->expects(self::once())
+            ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
             ->willReturn($cloudStackFailedJob);
         $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
@@ -171,15 +180,19 @@ class ResetPasswordJobTest extends IntegrationTestCase
 
         self::assertNull($this->vmDeployment->subscription->technical_status);
 
-        self::resolve(Dispatcher::class)->dispatch(new ResetPasswordJob(
-            $this->vmDeployment,
-            $this->cloudstackJob
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new ResetPasswordJob(
+                $this->vmDeployment,
+                $this->cloudstackJob,
+            ));
 
         $this->vmDeployment->refresh();
 
         self::assertNotNull($this->vmDeployment->last_result_received);
-        self::assertStringContainsString('Unable to reset password for VM instance', (string) $this->vmDeployment->last_result);
+        self::assertStringContainsString(
+            'Unable to reset password for VM instance',
+            (string) $this->vmDeployment->last_result,
+        );
         self::assertSame(TechnicalStatus::OK->value, $this->vmDeployment->subscription->technical_status);
         self::assertSame(VpsActionStatus::RESET_CREDENTIALS_FAILED, $this->vmDeployment->last_action_status);
     }
@@ -188,7 +201,8 @@ class ResetPasswordJobTest extends IntegrationTestCase
     public function resetPasswordJobSuccess(): void
     {
         $subscription = $this->vmDeployment->subscription;
-        $cloudstackJobFinishedResponse = (string) file_get_contents(__DIR__ . '/../../data/reset_password/finished_job.json');
+        $cloudstackJobFinishedResponse = (string) file_get_contents(__DIR__
+        . '/../../data/reset_password/finished_job.json');
         /** @var array<string, array<int|string, mixed>|int|string> $cloudStackFinishedJob */
         $cloudStackFinishedJob = json_decode($cloudstackJobFinishedResponse, true, 512, JSON_THROW_ON_ERROR);
 
@@ -198,7 +212,9 @@ class ResetPasswordJobTest extends IntegrationTestCase
         $clientFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())->method('execute')
+        $baseClientMock
+            ->expects(self::once())
+            ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
             ->willReturn($cloudStackFinishedJob);
         $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
@@ -213,10 +229,11 @@ class ResetPasswordJobTest extends IntegrationTestCase
 
         self::assertNull($subscription->technical_status);
 
-        self::resolve(Dispatcher::class)->dispatch(new ResetPasswordJob(
-            $this->vmDeployment,
-            $this->cloudstackJob
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new ResetPasswordJob(
+                $this->vmDeployment,
+                $this->cloudstackJob,
+            ));
 
         $subscription->refresh();
         $this->vmDeployment->refresh();

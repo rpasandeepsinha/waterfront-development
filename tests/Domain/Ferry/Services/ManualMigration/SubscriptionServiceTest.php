@@ -45,14 +45,15 @@ class SubscriptionServiceTest extends IntegrationTestCase
         $subscription = DomainSubscriptionDataProvider::subscription();
 
         $storeSubscriptionAction = self::createStub(StoreSubscriptionAction::class);
-        $storeSubscriptionAction->method('execute')
-            ->willReturn([$subscription]);
+        $storeSubscriptionAction->method('execute')->willReturn([$subscription]);
 
         $service = new SubscriptionService(
             $storeSubscriptionAction,
             self::createStub(LoggerInterface::class),
         );
-        $createdSubscription = $service->storeSubscription($customer, $referenceCustomerId, [ImplementableProducts::DOMAIN_EXTENSION->value => $subscriptionData]);
+        $createdSubscription = $service->storeSubscription($customer, $referenceCustomerId, [
+            ImplementableProducts::DOMAIN_EXTENSION->value => $subscriptionData,
+        ]);
 
         self::assertSame($createdSubscription->id, $subscription->id);
     }
@@ -81,8 +82,7 @@ class SubscriptionServiceTest extends IntegrationTestCase
         ];
 
         $storeSubscriptionAction = self::createStub(StoreSubscriptionAction::class);
-        $storeSubscriptionAction->method('execute')
-            ->willReturn([]);
+        $storeSubscriptionAction->method('execute')->willReturn([]);
 
         $service = new SubscriptionService(
             $storeSubscriptionAction,
@@ -91,6 +91,8 @@ class SubscriptionServiceTest extends IntegrationTestCase
 
         $this->expectException(NoSubscriptionsStoredException::class);
 
-        $service->storeSubscription($customer, $referenceCustomerId, [ImplementableProducts::DOMAIN_EXTENSION->value => $subscriptionData]);
+        $service->storeSubscription($customer, $referenceCustomerId, [
+            ImplementableProducts::DOMAIN_EXTENSION->value => $subscriptionData,
+        ]);
     }
 }

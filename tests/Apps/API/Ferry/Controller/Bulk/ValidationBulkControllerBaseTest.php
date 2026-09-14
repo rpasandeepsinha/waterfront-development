@@ -22,31 +22,21 @@ class ValidationBulkControllerBaseTest extends IntegrationTestCase
     public function bulkValidateCompleteSuccess(): void
     {
         Http::fake();
-        Http::shouldReceive('post')
-            ->twice()
-            ->andReturn(new LaravelResponse(new Response()));
+        Http::shouldReceive('post')->twice()->andReturn(new LaravelResponse(new Response()));
 
         Http::shouldReceive('withHeaders')->twice()->andReturnSelf();
 
         $pipelineMock = self::createMock(Pipeline::class);
 
-        $pipelineMock->expects(self::exactly(2))
-            ->method('through')
-            ->willReturn($pipelineMock);
+        $pipelineMock->expects(self::exactly(2))->method('through')->willReturn($pipelineMock);
 
-        $pipelineMock->expects(self::exactly(2))
-            ->method('send')
-            ->willReturn($pipelineMock);
+        $pipelineMock->expects(self::exactly(2))->method('send')->willReturn($pipelineMock);
 
-        $pipelineMock->expects(self::exactly(2))
-            ->method('via')
-            ->willReturn($pipelineMock);
+        $pipelineMock->expects(self::exactly(2))->method('via')->willReturn($pipelineMock);
 
         $fakePayload = new ValidationPayload('fake', [], []);
 
-        $pipelineMock->expects(self::exactly(2))
-            ->method('then')
-            ->willReturn($fakePayload);
+        $pipelineMock->expects(self::exactly(2))->method('then')->willReturn($fakePayload);
 
         $this->app->instance(Pipeline::class, $pipelineMock);
 
@@ -54,14 +44,13 @@ class ValidationBulkControllerBaseTest extends IntegrationTestCase
         /** @var array<string, mixed> $payload */
         $payload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        $response = $this->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.validate.bulk'),
-                $payload,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.validate.bulk'),
+            $payload,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+            ],
+        );
 
         $response->assertStatus(SymphonyResponse::HTTP_MULTI_STATUS);
     }

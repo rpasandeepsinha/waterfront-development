@@ -40,7 +40,10 @@ class ValidationServiceTest extends IntegrationTestCase
     public function validateThatSubscriptionDataIsPassedToValidationPipe(): void
     {
         $product = new ProductFactory()->nlDomain()->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($product)
+            ->createOne();
 
         $httpRequest = ManualMigrationValidateRequest::create('', parameters: [
             'billing_period' => 12,
@@ -56,9 +59,7 @@ class ValidationServiceTest extends IntegrationTestCase
         ]);
 
         $pipelineMock = self::createMock(Pipeline::class);
-        $pipelineMock->expects(self::once())
-            ->method('send')
-            ->willReturn($pipelineMock);
+        $pipelineMock->expects(self::once())->method('send')->willReturn($pipelineMock);
 
         $pipelineMock->method('through')->willReturn($pipelineMock);
         $pipelineMock->method('via')->willReturn($pipelineMock);
@@ -79,7 +80,10 @@ class ValidationServiceTest extends IntegrationTestCase
     public function validateThatSubscriptionDataIsPassedToValidationPipeWithHostingValues(): void
     {
         $product = new ProductFactory()->hostingBrons()->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($product)
+            ->createOne();
 
         $httpRequest = ManualMigrationValidateRequest::create('', parameters: [
             'billing_period' => 12,
@@ -95,19 +99,19 @@ class ValidationServiceTest extends IntegrationTestCase
         ]);
 
         $pipelineMock = self::createMock(Pipeline::class);
-        $pipelineMock->expects(self::once())
-            ->method('send')
-            ->willReturn($pipelineMock);
+        $pipelineMock->expects(self::once())->method('send')->willReturn($pipelineMock);
 
-        $pipelineMock->expects(self::once())
+        $pipelineMock
+            ->expects(self::once())
             ->method('through')
             ->with(
                 self::equalToCanonicalizing([
                     SubscriptionPipe::class,
                     HostingMigrationPipe::class,
                     MailOnlyMigrationPipe::class,
-                ])
-            )->willReturn($pipelineMock);
+                ]),
+            )
+            ->willReturn($pipelineMock);
         $pipelineMock->method('via')->willReturn($pipelineMock);
         $pipelineMock->method('then')->willReturn(new ValidationPayload('', [], []));
 
@@ -128,7 +132,10 @@ class ValidationServiceTest extends IntegrationTestCase
     public function validateThrowsNotImplementedException(): void
     {
         $product = new ProductFactory()->vps()->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($product)
+            ->createOne();
 
         $httpRequest = ManualMigrationValidateRequest::create('', parameters: [
             'billing_period' => 12,
@@ -163,7 +170,12 @@ class ValidationServiceTest extends IntegrationTestCase
     public function validateDomain(): void
     {
         $ferryValidationError = new ValidationErrorResult(MigrationValidation::DNSSEC_ZONE_UNEXPECTED_EXCEPTION, []);
-        $ferryValidationPayload = new ValidationPayload('', [], [], [MigrationValidationPipes::DNSSEC_ENABLE->value => [$ferryValidationError->toArray()]]);
+        $ferryValidationPayload = new ValidationPayload(
+            '',
+            [],
+            [],
+            [MigrationValidationPipes::DNSSEC_ENABLE->value => [$ferryValidationError->toArray()]],
+        );
 
         $pipeline = self::createStub(Pipeline::class);
         $pipeline->method('then')->willReturn($ferryValidationPayload);
@@ -188,7 +200,10 @@ class ValidationServiceTest extends IntegrationTestCase
 
         $validatedDomain = $validationService->processDomain($ferryValidationResults, 'example.com');
         $options = array_merge(...array_values($validatedDomain->options));
-        $options = array_map(fn (MigrationOption $o) => ['option' => $o->title, 'available' => $o->optionAvailable], $options);
+        $options = array_map(fn (MigrationOption $o) => [
+            'option' => $o->title,
+            'available' => $o->optionAvailable,
+        ], $options);
 
         self::assertFalse($validatedDomain->dnsSecEnabled);
         self::assertTrue($validatedDomain->zoneIsNative);
@@ -205,9 +220,12 @@ class ValidationServiceTest extends IntegrationTestCase
                 ['option' => ManualMigrationOption::DNS_DEFAULT_TEMPLATE, 'available' => true],
                 ['option' => ManualMigrationOption::DNS_NEW_EMPTY, 'available' => true],
             ],
-            $options
+            $options,
         );
-        self::assertSame([MigrationValidation::DNSSEC_ZONE_UNEXPECTED_EXCEPTION->value], array_keys($validatedDomain->errors));
+        self::assertSame(
+            [MigrationValidation::DNSSEC_ZONE_UNEXPECTED_EXCEPTION->value],
+            array_keys($validatedDomain->errors),
+        );
     }
 
     #[Test]
@@ -226,7 +244,7 @@ class ValidationServiceTest extends IntegrationTestCase
         $dnsService->method('getDnsZone')->willReturn(
             $mockedZone,
             $mockedZone2,
-            $mockedZone3
+            $mockedZone3,
         );
         $validationService = new ValidationService(
             self::resolve(PipeLine::class),
@@ -244,12 +262,18 @@ class ValidationServiceTest extends IntegrationTestCase
     #[Test]
     public function filterImportantErrors(): void
     {
-        $ferryValidationResults = [MigrationValidation::DNS_CONFIGURATION_ZONE_UNEXPECTED_EXCEPTION, MigrationValidation::RESELLER_HOSTING_PIPE_PASSED];
+        $ferryValidationResults = [
+            MigrationValidation::DNS_CONFIGURATION_ZONE_UNEXPECTED_EXCEPTION,
+            MigrationValidation::RESELLER_HOSTING_PIPE_PASSED,
+        ];
         $validationService = self::resolve(ValidationService::class);
 
         $errors = $validationService->filterImportantErrors($ferryValidationResults);
 
-        self::assertSame([MigrationValidation::DNS_CONFIGURATION_ZONE_UNEXPECTED_EXCEPTION->value], array_keys($errors));
+        self::assertSame(
+            [MigrationValidation::DNS_CONFIGURATION_ZONE_UNEXPECTED_EXCEPTION->value],
+            array_keys($errors),
+        );
     }
 
     /**
@@ -257,13 +281,26 @@ class ValidationServiceTest extends IntegrationTestCase
      */
     #[Test]
     #[DataProvider('stateProvider')]
-    public function calculateDomainSelectableOptions(bool $zoneInPowerDns, bool $domainInSupportedRegistry, bool $zoneIsNative, bool $dnsSecTldSupported, array $expectedOptions): void
-    {
+    public function calculateDomainSelectableOptions(
+        bool $zoneInPowerDns,
+        bool $domainInSupportedRegistry,
+        bool $zoneIsNative,
+        bool $dnsSecTldSupported,
+        array $expectedOptions,
+    ): void {
         $validationService = self::resolve(ValidationService::class);
-        $options = $validationService->calculateDomainSelectableOptions($zoneInPowerDns, $domainInSupportedRegistry, $zoneIsNative, $dnsSecTldSupported);
+        $options = $validationService->calculateDomainSelectableOptions(
+            $zoneInPowerDns,
+            $domainInSupportedRegistry,
+            $zoneIsNative,
+            $dnsSecTldSupported,
+        );
 
         $options = array_merge(...array_values($options));
-        $options = array_map(fn (MigrationOption $o) => ['option' => $o->title, 'available' => $o->optionAvailable], $options);
+        $options = array_map(fn (MigrationOption $o) => [
+            'option' => $o->title,
+            'available' => $o->optionAvailable,
+        ], $options);
 
         self::assertEqualsCanonicalizing($expectedOptions, $options);
     }

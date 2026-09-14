@@ -39,8 +39,8 @@ class EnableDnsSecMigrationJob extends MigrationJob implements ShouldQueue
             $domain,
             sprintf(
                 'Provided subscription with ID: {%d} has no domain',
-                $this->subscription->id
-            )
+                $this->subscription->id,
+            ),
         );
 
         /** @var ProviderSlug $providerSlug */
@@ -49,7 +49,7 @@ class EnableDnsSecMigrationJob extends MigrationJob implements ShouldQueue
         if (! $this->domainService->isDnssecSupported($domain, $providerSlug)) {
             throw new DnsSecNotSupportedForTldException(sprintf(
                 'DnsSec is not support for the tld with the domain: {%s}',
-                $domain
+                $domain,
             ));
         }
 
@@ -60,14 +60,15 @@ class EnableDnsSecMigrationJob extends MigrationJob implements ShouldQueue
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                 LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
-            ]
+                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                    $this->migratedCustomer->reference_customer_number,
+            ],
         );
 
         if (! $this->domainService->enableDnssec($domain, $providerSlug)) {
             throw new UnexpectedValueException(sprintf(
                 'DnsSec could not be enabled for domain: {%s} needs deeper research',
-                $domain
+                $domain,
             ));
         }
     }
@@ -81,8 +82,8 @@ class EnableDnsSecMigrationJob extends MigrationJob implements ShouldQueue
             ProductGroupType::EXTENSION => DomainStatus::ACTIVE->value,
             ProductGroupType::DNS => TechnicalStatus::OK->value,
             default => throw new UnknownProductGroupException(
-                'Unknown product group type: ' . $this->subscription->product->productGroup->slug->value
-            )
+                'Unknown product group type: ' . $this->subscription->product->productGroup->slug->value,
+            ),
         };
     }
 

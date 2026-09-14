@@ -100,13 +100,13 @@ class ProvisionGateway
         return $this->repository->fetchProvisioningResults($filters, $limit);
     }
 
-    private function failedResultFromException(Exception $exception, ProvisionRequestInterface $provisionRequest): ProvisionResultInterface
-    {
+    private function failedResultFromException(
+        Exception $exception,
+        ProvisionRequestInterface $provisionRequest,
+    ): ProvisionResultInterface {
         $this->logger->error(
             sprintf('Provisioning failed internally: %s', $exception->getMessage()),
-            LogContextBuilder::for($provisionRequest)
-                ->withException($exception)
-                ->build()
+            LogContextBuilder::for($provisionRequest)->withException($exception)->build(),
         );
 
         return new ProvisionResult(
@@ -127,7 +127,7 @@ class ProvisionGateway
             throw new StoreProvisionResultException(
                 result: $validationResult,
                 originRequestId: $requestId,
-                previous: $exception
+                previous: $exception,
             );
         }
     }
@@ -142,7 +142,7 @@ class ProvisionGateway
         } catch (Exception $exception) {
             throw new StoreProvisionRequestException(
                 request: $provisionData,
-                previous: $exception
+                previous: $exception,
             );
         }
     }

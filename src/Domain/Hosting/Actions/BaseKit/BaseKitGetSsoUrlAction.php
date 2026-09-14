@@ -30,7 +30,7 @@ class BaseKitGetSsoUrlAction
                     '%s, with basekit user ref: %s',
                     $exception->getMessage(),
                     $basekitUserRef,
-                )
+                ),
             );
             throw new SitebuilderException($exception->getMessage(), $exception->getCode(), $exception);
         }

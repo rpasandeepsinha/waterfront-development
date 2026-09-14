@@ -37,7 +37,8 @@ class AuthenticationManagerEmployeeTest extends IntegrationTestCase
         $authManager = self::resolve(AuthManager::class);
 
         $authManagerMock = self::createStub(AuthManager::class);
-        $authManagerMock->method('__call')
+        $authManagerMock
+            ->method('__call')
             ->willReturnCallback(fn (string $method, array $args): mixed => match ($method) {
                 'check' => false,
                 /** @phpstan-ignore-next-line  */
@@ -56,7 +57,8 @@ class AuthenticationManagerEmployeeTest extends IntegrationTestCase
     #[Test]
     public function adminRouteSucceedsWithEmployeeIdentity(): void
     {
-        $this->oathKeeperService->expects(self::once())
+        $this->oathKeeperService
+            ->expects(self::once())
             ->method('retrieveValidatedJwt')
             ->with('tokentokentoken')
             ->willReturn($this->getJwtAsArray([
@@ -76,14 +78,15 @@ class AuthenticationManagerEmployeeTest extends IntegrationTestCase
 
         $this->getJson(
             $this->generateRoute('admin.customers.show', ['customer' => $this->customer->customer_number]),
-            ['authorization' => 'Bearer tokentokentoken']
+            ['authorization' => 'Bearer tokentokentoken'],
         )->assertOk();
     }
 
     #[Test]
     public function wFApiRoutesShouldNotWorkAsEmployeeSchema(): void
     {
-        $this->oathKeeperService->expects(self::once())
+        $this->oathKeeperService
+            ->expects(self::once())
             ->method('retrieveValidatedJwt')
             ->with('tokentokentoken')
             ->willReturn($this->getJwtAsArray([
@@ -100,14 +103,15 @@ class AuthenticationManagerEmployeeTest extends IntegrationTestCase
 
         $this->getJson(
             $this->generateRoute('partners.customers.who-am-i', $this->customer->uuid),
-            ['authorization' => 'Bearer tokentokentoken']
+            ['authorization' => 'Bearer tokentokentoken'],
         )->assertForbidden();
     }
 
     #[Test]
     public function adminRouteReturnsUnauthorizedWithNonEmployeeIdentityAndJsonAcceptHeader(): void
     {
-        $this->oathKeeperService->expects(self::once())
+        $this->oathKeeperService
+            ->expects(self::once())
             ->method('retrieveValidatedJwt')
             ->with('tokentokentoken')
             ->willReturn($this->getJwtAsArray([
@@ -124,14 +128,15 @@ class AuthenticationManagerEmployeeTest extends IntegrationTestCase
 
         $this->getJson(
             $this->generateRoute('admin.customers.show', ['customer' => $this->customer->customer_number]),
-            ['authorization' => 'Bearer tokentokentoken']
+            ['authorization' => 'Bearer tokentokentoken'],
         )->assertForbidden();
     }
 
     #[Test]
     public function adminRouteReturnsRedirectWithNonEmployeeIdentity(): void
     {
-        $this->oathKeeperService->expects(self::once())
+        $this->oathKeeperService
+            ->expects(self::once())
             ->method('retrieveValidatedJwt')
             ->with('tokentokentoken')
             ->willReturn($this->getJwtAsArray([
@@ -150,7 +155,7 @@ class AuthenticationManagerEmployeeTest extends IntegrationTestCase
             $this->generateRoute('admin.customers.show', ['customer' => $this->customer->customer_number]),
             [
                 'authorization' => 'Bearer tokentokentoken',
-            ]
+            ],
         )->assertRedirect();
     }
 }

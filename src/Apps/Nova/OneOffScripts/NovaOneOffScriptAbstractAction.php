@@ -32,7 +32,7 @@ abstract class NovaOneOffScriptAbstractAction extends Action
 
         $this->oneOffScript = $this->findOrCreateBySlug(
             $this->getOneOffScriptSlug(),
-            $this->getOneOffScriptTicketUrl()
+            $this->getOneOffScriptTicketUrl(),
         );
     }
 
@@ -53,9 +53,7 @@ abstract class NovaOneOffScriptAbstractAction extends Action
     protected function getOneOffScriptInfoFields(): array
     {
         return [
-            URL::make('Ticket ref')
-                ->default($this->oneOffScript->ticket_ref)
-                ->readonly(),
+            URL::make('Ticket ref')->default($this->oneOffScript->ticket_ref)->readonly(),
             Date::make('Last executed at')
                 ->default($this->oneOffScript->last_executed_at?->format(DateTimeFormat::DUTCH))
                 ->readonly(),
@@ -71,13 +69,12 @@ abstract class NovaOneOffScriptAbstractAction extends Action
     private function findOrCreateBySlug(string $slug, string $ticketRef): OneOffScript
     {
         /** @var OneOffScript $oneOff */
-        $oneOff = OneOffScript::query()
-            ->firstOrCreate([
-                'slug' => $slug,
-            ], [
-                'slug' => $slug,
-                'ticket_ref' => $ticketRef,
-            ]);
+        $oneOff = OneOffScript::query()->firstOrCreate([
+            'slug' => $slug,
+        ], [
+            'slug' => $slug,
+            'ticket_ref' => $ticketRef,
+        ]);
 
         return $oneOff;
     }

@@ -28,7 +28,7 @@ class InstallWordpressTest extends DirectAdminTestCase
         parent::setUp();
 
         // Setup config
-        $this->wordpress  = new WordpressInstall();
+        $this->wordpress = new WordpressInstall();
         $this->createUser = new CreateUser();
     }
 
@@ -37,7 +37,7 @@ class InstallWordpressTest extends DirectAdminTestCase
     {
         Assert::assertSame(
             'CMD_PLUGINS/softaculous/index.raw?act=software&soft=26&jsnohf=1&soft=26',
-            $this->wordpress->getCommand()
+            $this->wordpress->getCommand(),
         );
 
         Assert::assertSame('POST', $this->wordpress->getMethod());
@@ -70,9 +70,7 @@ class InstallWordpressTest extends DirectAdminTestCase
 
         Assert::assertStringContainsString('Unix User created successfully', $createUser->getResult());
 
-        $wordpress = $this->wordpress
-            ->setDomain('test-domain.nl')
-            ->setEmail('test@user.nl');
+        $wordpress = $this->wordpress->setDomain('test-domain.nl')->setEmail('test@user.nl');
 
         $installedWordpress = $api->loginAs('tester')->call($wordpress);
 

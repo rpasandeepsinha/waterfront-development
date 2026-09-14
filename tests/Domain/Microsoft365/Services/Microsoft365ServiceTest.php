@@ -127,7 +127,7 @@ class Microsoft365ServiceTest extends IntegrationTestCase
                 new SubscriptionFactory()
                     ->for($this->customer)
                     ->for($this->product)
-                    ->createOne()
+                    ->createOne(),
             )
             ->for($this->microsoft365CustomerInfo)
             ->createOne();
@@ -180,16 +180,18 @@ class Microsoft365ServiceTest extends IntegrationTestCase
             exception: $mockException,
         );
 
-        $mockGateway->expects(self::once())
+        $mockGateway
+            ->expects(self::once())
             ->method('request')
             ->with(
                 self::callback(
-                    fn (Microsoft365TenantIdRequest $request) => $request->tenantName === $tenantNameWithHost
-                )
+                    fn (Microsoft365TenantIdRequest $request) => $request->tenantName === $tenantNameWithHost,
+                ),
             )
             ->willReturn($mockNotFoundResult);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 'Retrieving tenant id from name [meta.tenant_name] failed.',
@@ -200,7 +202,7 @@ class Microsoft365ServiceTest extends IntegrationTestCase
                         'tenant_name' => $tenantNameWithHost,
                     ],
                     LoggingContextKeys::EXCEPTION => $mockException,
-                ]
+                ],
             );
 
         $mockHandler = new MockHandler();
@@ -240,12 +242,13 @@ class Microsoft365ServiceTest extends IntegrationTestCase
             tenantId: $expectedTenantId,
         );
 
-        $mockGateway->expects(self::once())
+        $mockGateway
+            ->expects(self::once())
             ->method('request')
             ->with(
                 self::callback(
-                    fn (Microsoft365TenantIdRequest $request) => $request->tenantName === $tenantNameWithHost
-                )
+                    fn (Microsoft365TenantIdRequest $request) => $request->tenantName === $tenantNameWithHost,
+                ),
             )
             ->willReturn($mockNotFoundResult);
 
@@ -285,12 +288,13 @@ class Microsoft365ServiceTest extends IntegrationTestCase
             tenantId: $expectedTenantId,
         );
 
-        $mockGateway->expects(self::once())
+        $mockGateway
+            ->expects(self::once())
             ->method('request')
             ->with(
                 self::callback(
-                    fn (Microsoft365TenantIdRequest $request) => $request->tenantName === $tenantName
-                )
+                    fn (Microsoft365TenantIdRequest $request) => $request->tenantName === $tenantName,
+                ),
             )
             ->willReturn($mockNotFoundResult);
 
@@ -321,7 +325,11 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     public function tenantExists(): void
     {
         $mockHandler = new MockHandler([
-            new Response(200, [], (string) file_get_contents(__DIR__ . '/Data/Response/MicrosoftTenantExistsCheckSuccessResponse_V1.xml')),
+            new Response(
+                200,
+                [],
+                (string) file_get_contents(__DIR__ . '/Data/Response/MicrosoftTenantExistsCheckSuccessResponse_V1.xml'),
+            ),
         ]);
         $stack = HandlerStack::create($mockHandler);
         $officeClient = new OfficeClient('example.com', 'test', 'test', ['handler' => $stack]);
@@ -350,7 +358,11 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     public function tenantExistsFailure(): void
     {
         $mockHandler = new MockHandler([
-            new Response(200, [], (string) file_get_contents(__DIR__ . '/Data/Response/MicrosoftTenantExistsCheckFailureResponse_V1.xml')),
+            new Response(
+                200,
+                [],
+                (string) file_get_contents(__DIR__ . '/Data/Response/MicrosoftTenantExistsCheckFailureResponse_V1.xml'),
+            ),
         ]);
         $stack = HandlerStack::create($mockHandler);
         $officeClient = new OfficeClient('example.com', 'test', 'test', ['handler' => $stack]);
@@ -380,10 +392,18 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     {
         $generated_tenant = $this->microsoft365Service->generateTenantName(customer: $this->customer);
 
-        self::assertSame($this->getConfiguration()->getAsString('microsoft365.tenant_prefix') . $this->customer->id . '.onmicrosoft.com', $generated_tenant);
+        self::assertSame(
+            $this->getConfiguration()->getAsString('microsoft365.tenant_prefix')
+            . $this->customer->id
+            . '.onmicrosoft.com',
+            $generated_tenant,
+        );
         self::assertSame(18 + strlen((string) $this->customer->id), strlen($generated_tenant));
 
-        $retry_generated_tenant = $this->microsoft365Service->generateTenantName(customer: $this->customer, retry: true);
+        $retry_generated_tenant = $this->microsoft365Service->generateTenantName(
+            customer: $this->customer,
+            retry: true,
+        );
 
         //If retry is true it will add a random 5 char string to it.
         self::assertSame(24 + strlen((string) $this->customer->id), strlen($retry_generated_tenant));
@@ -413,7 +433,10 @@ class Microsoft365ServiceTest extends IntegrationTestCase
             self::createStub(DomainDeploymentRepository::class),
         );
 
-        $orderSummary = $microsoft365Service->orderSummary(customer: (int) $this->microsoft365CustomerInfo->kpn_customer_id, productName: $this->product->name);
+        $orderSummary = $microsoft365Service->orderSummary(
+            customer: (int) $this->microsoft365CustomerInfo->kpn_customer_id,
+            productName: $this->product->name,
+        );
 
         self::assertCount(3, $orderSummary);
         self::assertSame('Activate', $orderSummary[0]->getOrderState());
@@ -454,7 +477,9 @@ class Microsoft365ServiceTest extends IntegrationTestCase
         $this->microsoft365CustomerInfo->tenant_order_id = null;
         $this->microsoft365CustomerInfo->save();
 
-        $microsoft365Service = $this->createMicrosoft365Service('/Data/Response/OrderSummaryResponse_TenantNotActive.xml');
+        $microsoft365Service = $this->createMicrosoft365Service(
+            '/Data/Response/OrderSummaryResponse_TenantNotActive.xml',
+        );
 
         $tenantOrderIdSynchronized = $microsoft365Service->synchronizeTenantOrderIdFromOrderSummary($this->microsoft365CustomerInfo);
 
@@ -489,16 +514,17 @@ class Microsoft365ServiceTest extends IntegrationTestCase
             ])
             ->onlyMethods(['synchronizeTenantOrderIdFromOrderSummary', 'createTenant', 'createOrder'])
             ->getMock();
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('synchronizeTenantOrderIdFromOrderSummary')
             ->with($this->microsoft365CustomerInfo)
             ->willReturn(false);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('createTenant')
             ->with($this->microsoft365CustomerInfo)
             ->willReturn(true);
-        $microsoft365Service->expects(self::never())
-            ->method('createOrder');
+        $microsoft365Service->expects(self::never())->method('createOrder');
 
         $microsoft365Service->prepareOrders($this->microsoft365CustomerInfo);
     }
@@ -544,13 +570,14 @@ class Microsoft365ServiceTest extends IntegrationTestCase
             ])
             ->onlyMethods(['synchronizeTenantOrderIdFromOrderSummary', 'createTenant', 'createOrder'])
             ->getMock();
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('synchronizeTenantOrderIdFromOrderSummary')
             ->with($this->microsoft365CustomerInfo)
             ->willReturn(true);
-        $microsoft365Service->expects(self::never())
-            ->method('createTenant');
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service->expects(self::never())->method('createTenant');
+        $microsoft365Service
+            ->expects(self::once())
             ->method('createOrder')
             ->with(
                 self::isInstanceOf(Microsoft365Deployment::class),
@@ -570,7 +597,8 @@ class Microsoft365ServiceTest extends IntegrationTestCase
         $orderSummaryException = new OrderSummaryException('Something went wrong while retrieving order summary.');
 
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Tenant order summary retrieval failed',
@@ -603,14 +631,13 @@ class Microsoft365ServiceTest extends IntegrationTestCase
             ])
             ->onlyMethods(['synchronizeTenantOrderIdFromOrderSummary', 'createTenant', 'createOrder'])
             ->getMock();
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('synchronizeTenantOrderIdFromOrderSummary')
             ->with($this->microsoft365CustomerInfo)
             ->willThrowException($orderSummaryException);
-        $microsoft365Service->expects(self::never())
-            ->method('createTenant');
-        $microsoft365Service->expects(self::never())
-            ->method('createOrder');
+        $microsoft365Service->expects(self::never())->method('createTenant');
+        $microsoft365Service->expects(self::never())->method('createOrder');
 
         $microsoft365Service->prepareOrders($this->microsoft365CustomerInfo);
     }
@@ -627,14 +654,18 @@ class Microsoft365ServiceTest extends IntegrationTestCase
             'kpn_product_code' => '120A00179B',
         ]);
 
-        foreach ([AdministrativeStatus::ARCHIVED, AdministrativeStatus::EXPIRED, AdministrativeStatus::ARCHIVING] as $status) {
+        foreach ([
+            AdministrativeStatus::ARCHIVED,
+            AdministrativeStatus::EXPIRED,
+            AdministrativeStatus::ARCHIVING,
+        ] as $status) {
             new Microsoft365DeploymentFactory()
                 ->for(
                     new SubscriptionFactory()
                         ->for($this->customer)
                         ->for($this->product)
                         ->administrativeStatus($status->value)
-                        ->createOne()
+                        ->createOne(),
                 )
                 ->for($this->microsoft365CustomerInfo)
                 ->createOne();
@@ -662,11 +693,10 @@ class Microsoft365ServiceTest extends IntegrationTestCase
             ->onlyMethods(['synchronizeTenantOrderIdFromOrderSummary', 'createTenant', 'createOrder'])
             ->getMock();
 
-        $microsoft365Service->expects(self::never())
-            ->method('synchronizeTenantOrderIdFromOrderSummary');
-        $microsoft365Service->expects(self::never())
-            ->method('createTenant');
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service->expects(self::never())->method('synchronizeTenantOrderIdFromOrderSummary');
+        $microsoft365Service->expects(self::never())->method('createTenant');
+        $microsoft365Service
+            ->expects(self::once())
             ->method('createOrder')
             ->with(
                 self::callback(fn (Microsoft365Deployment $deployment) => $deployment->id === $activeDeployment->id),
@@ -684,7 +714,11 @@ class Microsoft365ServiceTest extends IntegrationTestCase
         $this->expectException(OrderSummaryCustomerNotFoundException::class);
 
         $mockHandler = new MockHandler([
-            new Response(200, [], (string) file_get_contents(__DIR__ . '/Data/Response/OrderSummaryMissingCustomer.xml')),
+            new Response(
+                200,
+                [],
+                (string) file_get_contents(__DIR__ . '/Data/Response/OrderSummaryMissingCustomer.xml'),
+            ),
         ]);
         $stack = HandlerStack::create($mockHandler);
         $officeClient = new OfficeClient('example.com', 'test', 'test', ['handler' => $stack]);
@@ -704,7 +738,10 @@ class Microsoft365ServiceTest extends IntegrationTestCase
             self::createStub(DomainDeploymentRepository::class),
         );
 
-        $microsoft365Service->orderSummary(customer: (int) $this->microsoft365CustomerInfo->kpn_customer_id, productName: $this->product->name);
+        $microsoft365Service->orderSummary(
+            customer: (int) $this->microsoft365CustomerInfo->kpn_customer_id,
+            productName: $this->product->name,
+        );
     }
 
     #[Test]
@@ -740,7 +777,9 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     #[Test]
     public function getTenantOrderIdReturnsNullWhenTenantOrderIsNotActive(): void
     {
-        $microsoft365Service = $this->createMicrosoft365Service('/Data/Response/OrderSummaryResponse_TenantNotActive.xml');
+        $microsoft365Service = $this->createMicrosoft365Service(
+            '/Data/Response/OrderSummaryResponse_TenantNotActive.xml',
+        );
 
         $tenantOrderId = $microsoft365Service->getTenantOrderId((int) $this->microsoft365CustomerInfo->kpn_customer_id);
 
@@ -792,7 +831,8 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     public function modifyKpnCustomerDeclined(): void
     {
         $loggerMock = self::createMock(LoggerInterface::class);
-        $loggerMock->expects(self::once())
+        $loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with('ModifyKpnCustomer - KPN error code: 108, message: Failed, details: []');
 
@@ -836,8 +876,11 @@ class Microsoft365ServiceTest extends IntegrationTestCase
 
     #[DataProvider('streetNumberProvider')]
     #[Test]
-    public function streetNumberLetters(string $street_number_full, int $street_number, ?string $street_number_letter): void
-    {
+    public function streetNumberLetters(
+        string $street_number_full,
+        int $street_number,
+        ?string $street_number_letter,
+    ): void {
         new CustomerAddressFactory()->for($this->customer)->create([
             'street_number' => $street_number_full,
         ]);
@@ -870,7 +913,12 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     public function hasDomainOwnershipReturnsTrue(): void
     {
         $mockHandler = new MockHandler([
-            new Response(200, [], (string) file_get_contents(__DIR__ . '/Data/Response/MicrosoftTenantDomainOwnershipCheckResponse_V1.xml')),
+            new Response(
+                200,
+                [],
+                (string) file_get_contents(__DIR__
+                . '/Data/Response/MicrosoftTenantDomainOwnershipCheckResponse_V1.xml'),
+            ),
         ]);
         $stack = HandlerStack::create($mockHandler);
         $officeClient = new OfficeClient('example.com', 'test', 'test', ['handler' => $stack]);
@@ -899,7 +947,12 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     public function hasDomainOwnershipReturnsFalse(): void
     {
         $mockHandler = new MockHandler([
-            new Response(200, [], (string) file_get_contents(__DIR__ . '/Data/Response/MicrosoftTenantDomainOwnershipCheckResponse_V1_returns_false.xml')),
+            new Response(
+                200,
+                [],
+                (string) file_get_contents(__DIR__
+                . '/Data/Response/MicrosoftTenantDomainOwnershipCheckResponse_V1_returns_false.xml'),
+            ),
         ]);
         $stack = HandlerStack::create($mockHandler);
         $officeClient = new OfficeClient('example.com', 'test', 'test', ['handler' => $stack]);
@@ -956,7 +1009,9 @@ class Microsoft365ServiceTest extends IntegrationTestCase
         $this->mockProvisionGateway
             ->shouldReceive('request')
             ->once()
-            ->withArgs(fn (ProvisionRequestInterface $request) => $request instanceof Microsoft365GetServiceDnsRecordsRequest)
+            ->withArgs(
+                fn (ProvisionRequestInterface $request) => $request instanceof Microsoft365GetServiceDnsRecordsRequest,
+            )
             ->andReturn(new ServiceDnsRecordsResult($provisionRequest, ProvisionStatus::SUCCESS, $records));
 
         $zone = new DnsZone(new Fqdn(self::DOMAIN));
@@ -968,13 +1023,27 @@ class Microsoft365ServiceTest extends IntegrationTestCase
         self::assertNotNull($domainDnsMxRecord->getMailExchange());
         self::assertNotNull($domainDnsMxRecord->getTtl());
         $zone->setRecords([
-            new DefaultRecord(DnsRecordType::TXT->value, $domainDnsTxtRecord->getLabel(), $domainDnsTxtRecord->getText(), $domainDnsTxtRecord->getTtl()),
-            new MxRecord($domainDnsMxRecord->getLabel(), $domainDnsMxRecord->getMailExchange(), 10, $domainDnsMxRecord->getTtl()),
+            new DefaultRecord(
+                DnsRecordType::TXT->value,
+                $domainDnsTxtRecord->getLabel(),
+                $domainDnsTxtRecord->getText(),
+                $domainDnsTxtRecord->getTtl(),
+            ),
+            new MxRecord(
+                $domainDnsMxRecord->getLabel(),
+                $domainDnsMxRecord->getMailExchange(),
+                10,
+                $domainDnsMxRecord->getTtl(),
+            ),
             $deleteMxRecord,
         ]);
-        $this->mockDnsService->expects(self::exactly(2))->method('getDnsRecordsForDomain')->willReturn(new Collection($zone->getRecords()));
+        $this->mockDnsService
+            ->expects(self::exactly(2))
+            ->method('getDnsRecordsForDomain')
+            ->willReturn(new Collection($zone->getRecords()));
         $this->mockDnsService->expects(self::never())->method('addRecordFromObject');
-        $this->mockDnsService->expects(self::once())
+        $this->mockDnsService
+            ->expects(self::once())
             ->method('removeDnsRecord')
             ->with(
                 self::DOMAIN,
@@ -1046,7 +1115,9 @@ class Microsoft365ServiceTest extends IntegrationTestCase
         $this->mockProvisionGateway
             ->shouldReceive('request')
             ->once()
-            ->withArgs(fn (ProvisionRequestInterface $request) => $request instanceof Microsoft365GetServiceDnsRecordsRequest)
+            ->withArgs(
+                fn (ProvisionRequestInterface $request) => $request instanceof Microsoft365GetServiceDnsRecordsRequest,
+            )
             ->andReturn(new ServiceDnsRecordsResult($provisionRequest, ProvisionStatus::SUCCESS, $records));
 
         self::assertNotNull($domainDnsTxtRecord->getRecordType());
@@ -1063,7 +1134,8 @@ class Microsoft365ServiceTest extends IntegrationTestCase
         self::assertNotNull($domainDnsCnameRecord->getCanonicalName());
         self::assertNotNull($domainDnsCnameRecord->getTtl());
 
-        $this->mockDnsService->expects(self::exactly(2))
+        $this->mockDnsService
+            ->expects(self::exactly(2))
             ->method('getDnsRecordsForDomain')
             ->willReturn(
                 new Collection(
@@ -1072,21 +1144,20 @@ class Microsoft365ServiceTest extends IntegrationTestCase
                             name: self::DOMAIN,
                             content: 'primary.yourfilter.nl',
                             priority: 10,
-                            ttl: 3600
+                            ttl: 3600,
                         ),
                         new DefaultRecord(
                             type: DnsRecordType::TXT->value,
                             name: self::DOMAIN,
                             content: 'SPF',
-                            ttl: 3600
+                            ttl: 3600,
                         ),
-                    ]
-                )
+                    ],
+                ),
             );
-        $this->mockDnsService->expects(self::once())
-            ->method('removeDnsRecord')
-            ->with(self::DOMAIN, $existingMxRecord);
-        $this->mockDnsService->expects(self::exactly(3))
+        $this->mockDnsService->expects(self::once())->method('removeDnsRecord')->with(self::DOMAIN, $existingMxRecord);
+        $this->mockDnsService
+            ->expects(self::exactly(3))
             ->method('addRecordFromObject')
             ->with(
                 ...self::withConsecutive(
@@ -1116,7 +1187,7 @@ class Microsoft365ServiceTest extends IntegrationTestCase
                             ttl: $domainDnsCnameRecord->getTtl(),
                         ),
                     ],
-                )
+                ),
             );
 
         $hasDomainOwnership = $this->microsoft365Service->setServiceConfigurationRecordsForPrimaryDomain(
@@ -1135,10 +1206,12 @@ class Microsoft365ServiceTest extends IntegrationTestCase
         $attestationUrl = 'https://cdn.partner.microsoft.com/mca/?attestationid=49a69a39-8244-4c51-9805-4f5aa3adac6b'; // from XML
         $attestationStatus = 'Pending'; // from XML
 
-        $microsoft365Service = $this->createMicrosoft365Service('/Data/Response/MicrosoftCustomerAgreementAttestationResponse_V1.xml');
+        $microsoft365Service = $this->createMicrosoft365Service(
+            '/Data/Response/MicrosoftCustomerAgreementAttestationResponse_V1.xml',
+        );
 
         $response = $microsoft365Service->getMicrosoftCustomerAgreementUrl(
-            $this->customer
+            $this->customer,
         );
 
         self::assertSame($attestationId, $response->attestationId);
@@ -1151,10 +1224,12 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     {
         $dateSigned = '2025-09-10 00:00:00'; // from XML
 
-        $microsoft365Service = $this->createMicrosoft365Service('/Data/Response/MicrosoftCustomerAgreementResponse_V1.xml');
+        $microsoft365Service = $this->createMicrosoft365Service(
+            '/Data/Response/MicrosoftCustomerAgreementResponse_V1.xml',
+        );
 
         $response = $microsoft365Service->getMicrosoftCustomerAgreement(
-            $this->customer
+            $this->customer,
         );
 
         self::assertTrue($response->mcaSigned);
@@ -1170,7 +1245,7 @@ class Microsoft365ServiceTest extends IntegrationTestCase
         $microsoft365Service = $this->createMicrosoft365Service('/Data/Response/NinaResponse_Success.xml');
 
         $result = $microsoft365Service->createTenant(
-            microsoft365CustomerInfo: $this->microsoft365CustomerInfo
+            microsoft365CustomerInfo: $this->microsoft365CustomerInfo,
         );
         self::assertTrue($result);
     }
@@ -1180,7 +1255,8 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     {
         $microsoft365Service = $this->createMicrosoft365Service('/Data/Response/NinaResponse_Fail.xml');
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 sprintf(
@@ -1188,11 +1264,11 @@ class Microsoft365ServiceTest extends IntegrationTestCase
                     108,
                     'Failed',
                     '[]',
-                )
+                ),
             );
 
         $result = $microsoft365Service->createTenant(
-            microsoft365CustomerInfo: $this->microsoft365CustomerInfo
+            microsoft365CustomerInfo: $this->microsoft365CustomerInfo,
         );
         self::assertFalse($result);
     }
@@ -1231,7 +1307,7 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     public function createTenantThrowsOffice365Exception(): void
     {
         $mockHandler = new MockHandler(
-            [new Response(500, [])]
+            [new Response(500, [])],
         );
 
         $stack = HandlerStack::create($mockHandler);
@@ -1260,14 +1336,21 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     public function createTenantWithTenantNameGenerationWhenTenantNameTaken(): void
     {
         $mockHandler = new MockHandler([
-            new Response(200, [], (string) file_get_contents(__DIR__ . '/Data/Response/MicrosoftTenantExistsCheckSuccessResponse_V1.xml')),
-            new Response(200, [], (string) file_get_contents(__DIR__ . '/Data/Response/MicrosoftTenantExistsCheckFailureResponse_V1.xml')),
+            new Response(
+                200,
+                [],
+                (string) file_get_contents(__DIR__ . '/Data/Response/MicrosoftTenantExistsCheckSuccessResponse_V1.xml'),
+            ),
+            new Response(
+                200,
+                [],
+                (string) file_get_contents(__DIR__ . '/Data/Response/MicrosoftTenantExistsCheckFailureResponse_V1.xml'),
+            ),
             new Response(200, [], (string) file_get_contents(__DIR__ . '/Data/Response/NinaResponse_Success.xml')),
         ]);
 
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::atLeastOnce())
-            ->method('error');
+        $logger->expects(self::atLeastOnce())->method('error');
 
         $stack = HandlerStack::create($mockHandler);
         $officeClient = new OfficeClient('example.com', 'test', 'test', ['handler' => $stack]);
@@ -1335,14 +1418,19 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     public function createOrderFails(): void
     {
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'CreateOrder - KPN error code: 108, message: Failed, details: []',
-                self::callback(fn (array $context): bool => $context[LoggingContextKeys::CUSTOMER_ID] === $this->customer->id
-                    && $context[LoggingContextKeys::PROVISIONING_TYPE] === ProvisionType::M365
-                    && $context[LoggingContextKeys::PROVISIONING_PROVIDER] === ProvisionProvider::MICROSOFT_IRMA
-                    && array_key_exists('microsoft365_customer_info', $context[LoggingContextKeys::META]))
+                self::callback(
+                    fn (array $context): bool => (
+                        $context[LoggingContextKeys::CUSTOMER_ID] === $this->customer->id
+                        && $context[LoggingContextKeys::PROVISIONING_TYPE] === ProvisionType::M365
+                        && $context[LoggingContextKeys::PROVISIONING_PROVIDER] === ProvisionProvider::MICROSOFT_IRMA
+                        && array_key_exists('microsoft365_customer_info', $context[LoggingContextKeys::META])
+                    ),
+                ),
             );
 
         $mockHandler = new MockHandler([
@@ -1427,13 +1515,14 @@ class Microsoft365ServiceTest extends IntegrationTestCase
             ->createOne();
 
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Retrying pending Copilot order',
                 self::callback(
-                    fn (array $context): bool => ($context[LoggingContextKeys::META]['seat_count'] ?? null) === 2
-                )
+                    fn (array $context): bool => ($context[LoggingContextKeys::META]['seat_count'] ?? null) === 2,
+                ),
             );
 
         $stack = HandlerStack::create($mockHandler);
@@ -1532,9 +1621,10 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     {
         $mockHandler = new MockHandler();
 
-        [$microsoft365CustomerInfo, $copilotDeployment] = $this->createPendingCopilotRetryContext(
-            copilotKpnOrderId: 987654,
-        );
+        [$microsoft365CustomerInfo, $copilotDeployment] =
+            $this->createPendingCopilotRetryContext(
+                copilotKpnOrderId: 987654,
+            );
 
         $stack = HandlerStack::create($mockHandler);
         $officeClient = new OfficeClient('example.com', 'test', 'test', ['handler' => $stack]);
@@ -1565,9 +1655,10 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     {
         $mockHandler = new MockHandler();
 
-        [$microsoft365CustomerInfo, $copilotDeployment] = $this->createPendingCopilotRetryContext(
-            hasActivePrerequisite: false,
-        );
+        [$microsoft365CustomerInfo, $copilotDeployment] =
+            $this->createPendingCopilotRetryContext(
+                hasActivePrerequisite: false,
+            );
 
         $stack = HandlerStack::create($mockHandler);
         $officeClient = new OfficeClient('example.com', 'test', 'test', ['handler' => $stack]);
@@ -1598,16 +1689,18 @@ class Microsoft365ServiceTest extends IntegrationTestCase
     {
         $mockHandler = new MockHandler();
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Pending Copilot retry failed',
-                self::callback(fn (array $context): bool => array_key_exists(LoggingContextKeys::EXCEPTION, $context))
+                self::callback(fn (array $context): bool => array_key_exists(LoggingContextKeys::EXCEPTION, $context)),
             );
 
         [$microsoft365CustomerInfo, $copilotDeployment] = $this->createPendingCopilotRetryContext();
         $microsoft365KpnProductRepository = self::createMock(Microsoft365KpnProductRepository::class);
-        $microsoft365KpnProductRepository->expects(self::once())
+        $microsoft365KpnProductRepository
+            ->expects(self::once())
             ->method('getBySubscription')
             ->willThrowException(new ModelNotFoundException());
 
@@ -1642,7 +1735,8 @@ class Microsoft365ServiceTest extends IntegrationTestCase
             new Response(200, [], (string) file_get_contents(__DIR__ . '/Data/Response/NinaResponse_Fail.xml')),
         ]);
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::exactly(2))
+        $logger
+            ->expects(self::exactly(2))
             ->method('error')
             ->with(...self::withConsecutive(
                 [
@@ -1651,7 +1745,9 @@ class Microsoft365ServiceTest extends IntegrationTestCase
                 ],
                 [
                     'Pending Copilot retry failed unsuccessful response',
-                    self::callback(fn (array $context): bool => array_key_exists(LoggingContextKeys::SUBSCRIPTION_ID, $context)),
+                    self::callback(
+                        fn (array $context): bool => array_key_exists(LoggingContextKeys::SUBSCRIPTION_ID, $context),
+                    ),
                 ],
             ));
 
@@ -1701,7 +1797,7 @@ class Microsoft365ServiceTest extends IntegrationTestCase
                 new SubscriptionFactory()
                     ->for($this->customer)
                     ->for($this->product)
-                    ->createOne()
+                    ->createOne(),
             )
             ->for($this->microsoft365CustomerInfo)
             ->createOne([
@@ -1772,7 +1868,7 @@ class Microsoft365ServiceTest extends IntegrationTestCase
                 new SubscriptionFactory()
                     ->for($this->customer)
                     ->for($this->product)
-                    ->createOne()
+                    ->createOne(),
             )
             ->for($this->microsoft365CustomerInfo)
             ->createOne([
@@ -1853,12 +1949,10 @@ class Microsoft365ServiceTest extends IntegrationTestCase
             ]);
 
         if ($hasKpnProduct) {
-            new Microsoft365KpnProductFactory()
-                ->for($copilotParentProduct)
-                ->createOne([
-                    'contract_period' => $copilotParentSubscription->contract_period,
-                    'kpn_product_code' => '120A01070B',
-                ]);
+            new Microsoft365KpnProductFactory()->for($copilotParentProduct)->createOne([
+                'contract_period' => $copilotParentSubscription->contract_period,
+                'kpn_product_code' => '120A01070B',
+            ]);
         }
 
         return [$microsoft365CustomerInfo, $copilotDeployment];

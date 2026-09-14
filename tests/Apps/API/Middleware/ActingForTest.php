@@ -44,7 +44,8 @@ class ActingForTest extends IntegrationTestCase
         $this->authManager = self::createMock(AuthManager::class);
 
         $oathKeeperService = self::createMock(OathKeeperService::class);
-        $oathKeeperService->expects(self::once())
+        $oathKeeperService
+            ->expects(self::once())
             ->method('retrieveValidatedJwt')
             ->with('tokentokentoken')
             ->willReturn([]);
@@ -68,7 +69,8 @@ class ActingForTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
 
-        $this->identitySchemaConverter->expects(self::once())
+        $this->identitySchemaConverter
+            ->expects(self::once())
             ->method('convert')
             ->with([])
             ->willReturn(
@@ -86,14 +88,15 @@ class ActingForTest extends IntegrationTestCase
                     null,
                     null,
                     null,
-                )
+                ),
             );
 
         $request = new Request();
         $request->headers->set('authorization', 'tokentokentoken');
         $request->headers->set('x-customer-id', (string) $customer->customer_number);
 
-        $this->customerRepository->expects(self::once())
+        $this->customerRepository
+            ->expects(self::once())
             ->method('findByCustomerNumber')
             ->with(1)
             ->willReturn($customer);
@@ -108,7 +111,8 @@ class ActingForTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
 
-        $this->identitySchemaConverter->expects(self::once())
+        $this->identitySchemaConverter
+            ->expects(self::once())
             ->method('convert')
             ->with([])
             ->willReturn(
@@ -126,18 +130,16 @@ class ActingForTest extends IntegrationTestCase
                     new MetadataPublic(null, [1], [], null, null, null, null),
                     null,
                     null,
-                )
+                ),
             );
 
-        $this->customerRepository->expects(self::once())
+        $this->customerRepository
+            ->expects(self::once())
             ->method('findByCustomerNumber')
             ->with(1)
             ->willReturn($customer);
 
-        $this->authManager->expects(self::once())
-            ->method('__call')
-            ->with('login', [$customer])
-            ->willReturn($customer);
+        $this->authManager->expects(self::once())->method('__call')->with('login', [$customer])->willReturn($customer);
 
         $request = new Request();
         $request->headers->set('authorization', 'tokentokentoken');
@@ -153,7 +155,8 @@ class ActingForTest extends IntegrationTestCase
     {
         $this->expectException(AuthenticationException::class);
 
-        $this->identitySchemaConverter->expects(self::once())
+        $this->identitySchemaConverter
+            ->expects(self::once())
             ->method('convert')
             ->with([])
             ->willReturn(
@@ -171,11 +174,10 @@ class ActingForTest extends IntegrationTestCase
                     null,
                     null,
                     null,
-                )
+                ),
             );
 
-        $this->authManager->expects(self::never())
-            ->method('__call');
+        $this->authManager->expects(self::never())->method('__call');
 
         $request = new Request();
         $request->headers->set('authorization', 'tokentokentoken');
@@ -187,7 +189,8 @@ class ActingForTest extends IntegrationTestCase
     #[Test]
     public function requestWithCustomerHeaderAsNonAdminIgnoresCustomerHeader(): void
     {
-        $this->identitySchemaConverter->expects(self::once())
+        $this->identitySchemaConverter
+            ->expects(self::once())
             ->method('convert')
             ->with([])
             ->willReturn(
@@ -205,7 +208,7 @@ class ActingForTest extends IntegrationTestCase
                     null,
                     null,
                     null,
-                )
+                ),
             );
 
         $request = new Request();
@@ -214,6 +217,9 @@ class ActingForTest extends IntegrationTestCase
 
         $this->authenticationManager->handleRequest($request);
 
-        self::assertInstanceOf(AuthenticatedUnregisteredCustomer::class, $this->authenticationManager->getAuthenticatedSubject());
+        self::assertInstanceOf(
+            AuthenticatedUnregisteredCustomer::class,
+            $this->authenticationManager->getAuthenticatedSubject(),
+        );
     }
 }

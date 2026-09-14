@@ -79,19 +79,22 @@ class SuspendSubscriptionServiceTest extends IntegrationTestCase
     #[Test]
     public function executeExtensionWillBeSuspended(): void
     {
-        new DomainDeploymentFactory()->withRtrProvider()->createOne([
-            'subscription_uuid' => $this->domainSubscription->uuid,
-        ]);
+        new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->createOne([
+                'subscription_uuid' => $this->domainSubscription->uuid,
+            ]);
         Queue::fake(SuspendDomainJob::class);
 
-        $this->storeAuditLogAction->expects(self::once())
+        $this->storeAuditLogAction
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 AuditLogEvent::SUSPENSION,
                 Subscription::class,
                 $this->domainSubscription->id,
                 [],
-                []
+                [],
             );
 
         $this->suspendSubscriptionsAction->execute($this->domainSubscription);
@@ -105,7 +108,12 @@ class SuspendSubscriptionServiceTest extends IntegrationTestCase
     #[Test]
     public function executeHostingWillBeSuspended(): void
     {
-        $provider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        $provider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
         new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $this->hostingSubscription->uuid,
             'provider_id' => $provider->id,
@@ -114,14 +122,15 @@ class SuspendSubscriptionServiceTest extends IntegrationTestCase
 
         $this->hostingSubscription->refresh();
 
-        $this->storeAuditLogAction->expects(self::once())
+        $this->storeAuditLogAction
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 AuditLogEvent::SUSPENSION,
                 Subscription::class,
                 $this->hostingSubscription->id,
                 [],
-                []
+                [],
             );
 
         $this->suspendSubscriptionsAction->execute($this->hostingSubscription);
@@ -146,8 +155,7 @@ class SuspendSubscriptionServiceTest extends IntegrationTestCase
 
         $this->expectException(UnableToSuspendSubscriptionException::class);
 
-        $this->storeAuditLogAction->expects(self::never())
-            ->method('execute');
+        $this->storeAuditLogAction->expects(self::never())->method('execute');
 
         try {
             $this->suspendSubscriptionsAction->execute($this->domainSubscription);
@@ -172,8 +180,7 @@ class SuspendSubscriptionServiceTest extends IntegrationTestCase
                 'technical_status' => TechnicalStatus::OK->value,
             ]);
 
-        $this->storeAuditLogAction->expects(self::once())
-            ->method('execute');
+        $this->storeAuditLogAction->expects(self::once())->method('execute');
 
         $this->suspendSubscriptionsAction->execute($faultySubscription);
 

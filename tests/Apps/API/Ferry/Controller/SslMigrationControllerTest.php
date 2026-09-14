@@ -77,7 +77,9 @@ class SslMigrationControllerTest extends IntegrationTestCase
             'certificate_id' => null,
         ]);
 
-        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1']);
+        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1',
+        ]);
         $this->sslSubscription->migratedSubscriptions()->attach($migratedSubscription);
 
         $migrationCustomer = MigratedCustomersFactory::new()->createOne();
@@ -105,15 +107,16 @@ class SslMigrationControllerTest extends IntegrationTestCase
             realtimeRegister: self::resolve(RealtimeRegister::class),
             certificateDownloader: $downloader = self::mock(Downloader::class),
             logger: self::createStub(LoggerInterface::class),
-            sslDeploymentRepository: self::createStub(DeploymentRepository::class)
+            sslDeploymentRepository: self::createStub(DeploymentRepository::class),
         );
-        $downloader->expects('downloadCertificateFromUrl')
+        $downloader
+            ->expects('downloadCertificateFromUrl')
             ->once()
             ->with($this->sslSubscription->domain)
             ->andReturn(
                 new SslCertificate([
                     'validTo_time_t' => $expireTimestamp,
-                ])
+                ]),
             );
 
         $this->app->bind(CertificateService::class, fn (): CertificateService => $certificateService);
@@ -125,8 +128,9 @@ class SslMigrationControllerTest extends IntegrationTestCase
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            )->assertStatus(Response::HTTP_MULTI_STATUS)
+                ],
+            )
+            ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [],
                 'success' => [
@@ -149,7 +153,10 @@ class SslMigrationControllerTest extends IntegrationTestCase
         self::assertSame(AdministrativeStatus::ACTIVE->value, $this->sslSubscription->administrative_status);
         self::assertSame(TechnicalStatus::OK->value, $this->sslSubscription->technical_status);
         self::assertNull($this->sslSubscription->sslDeployment?->certificate_id, 'Certificate id should be null');
-        self::assertSame($expireDate->format(DateTimeFormat::DATE), $this->sslSubscription->sslDeployment?->expire_date?->format(DateTimeFormat::DATE));
+        self::assertSame(
+            $expireDate->format(DateTimeFormat::DATE),
+            $this->sslSubscription->sslDeployment?->expire_date?->format(DateTimeFormat::DATE),
+        );
 
         self::assertSame([], Invoice::all()->toArray(), 'Technical migration should not create any invoices');
     }
@@ -166,8 +173,9 @@ class SslMigrationControllerTest extends IntegrationTestCase
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            )->assertStatus(Response::HTTP_MULTI_STATUS)
+                ],
+            )
+            ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [
                     [

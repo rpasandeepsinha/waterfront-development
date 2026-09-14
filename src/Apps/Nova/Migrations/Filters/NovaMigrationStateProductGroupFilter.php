@@ -36,9 +36,6 @@ class NovaMigrationStateProductGroupFilter extends Filter
      */
     public function options(NovaRequest $request): array
     {
-        return ProductGroup::query()
-            ->orderBy('name')
-            ->pluck('slug', 'name')
-            ->toArray();
+        return ProductGroup::query()->orderBy('name')->pluck('slug', 'name')->toArray();
     }
 }

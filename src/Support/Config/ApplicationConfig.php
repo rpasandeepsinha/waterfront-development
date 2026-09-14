@@ -6,7 +6,8 @@ namespace Waterfront\Support\Config;
 
 class ApplicationConfig
 {
-    public function __construct(public readonly int $defaultTaxRate)
-    {
+    public function __construct(
+        public readonly int $defaultTaxRate,
+    ) {
     }
 }

@@ -36,11 +36,13 @@ class NovaOneOffScriptSpecsAbstractActionTest extends IntegrationTestCase
 
         Config::set('app.tenant', Environments::YOURHOSTING_UAT->value);
 
-        $productGroupHosting =  ProductGroupFactory::new()->createOne(['slug' => ProductGroupType::HOSTING]);
+        $productGroupHosting = ProductGroupFactory::new()->createOne(['slug' => ProductGroupType::HOSTING]);
 
-        $this->hostingBrons = new ProductFactory()->hostingBrons($productGroupHosting)->createOne();
+        $this->hostingBrons = new ProductFactory()
+            ->hostingBrons($productGroupHosting)
+            ->createOne();
 
-        $this->novaOneOffScriptSpecsAbstractAction = new class () extends NovaOneOffScriptSpecsAbstractAction {
+        $this->novaOneOffScriptSpecsAbstractAction = new class() extends NovaOneOffScriptSpecsAbstractAction {
             public function __construct()
             {
                 $logger = Container::getInstance()->make(LoggerInterface::class);
@@ -57,7 +59,7 @@ class NovaOneOffScriptSpecsAbstractActionTest extends IntegrationTestCase
                     [Environments::VERSIO_UAT],
                     'ignore-needed-for-abstract-class',
                     '1',
-                    ['ignore-needed-for-abstract-class']
+                    ['ignore-needed-for-abstract-class'],
                 );
 
                 return [$ignoreOneTimeActionSpec];
@@ -83,13 +85,19 @@ class NovaOneOffScriptSpecsAbstractActionTest extends IntegrationTestCase
             [Environments::YOURHOSTING_UAT],
             ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART->value,
             '1',
-            ['hosting_brons']
+            ['hosting_brons'],
         );
 
         $result = $this->novaOneOffScriptSpecsAbstractAction->handleSpec([$oneOffScriptSpecs], false);
 
-        self::assertSame('<table class="w-full divide-y divide-gray-100 dark:divide-gray-700"><tr class="text-left px-6 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-5"><th>Environment</th><th>Spec Name</th><th>Spec Value</th><th>Action</th><th>Product Slug</th><th>Result</th></tr><tr><td>yourhosting-uat</td><td>product.product-should-be-hidden-in-shoppingcart</td><td>1</td><td>create</td><td>hosting_brons</td><td>Created</td></tr></table>', $result);
-        self::assertSame($this->hostingBrons->productSpecs()->firstOrFail()->name, ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART->value);
+        self::assertSame(
+            '<table class="w-full divide-y divide-gray-100 dark:divide-gray-700"><tr class="text-left px-6 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-5"><th>Environment</th><th>Spec Name</th><th>Spec Value</th><th>Action</th><th>Product Slug</th><th>Result</th></tr><tr><td>yourhosting-uat</td><td>product.product-should-be-hidden-in-shoppingcart</td><td>1</td><td>create</td><td>hosting_brons</td><td>Created</td></tr></table>',
+            $result,
+        );
+        self::assertSame(
+            $this->hostingBrons->productSpecs()->firstOrFail()->name,
+            ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART->value,
+        );
     }
 
     #[Test]
@@ -100,15 +108,24 @@ class NovaOneOffScriptSpecsAbstractActionTest extends IntegrationTestCase
             [Environments::YOURHOSTING_UAT],
             ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART->value,
             '1',
-            ['hosting_brons']
+            ['hosting_brons'],
         );
 
-        new ProductSpecFactory()->for($this->hostingBrons)->createOne(['name' => ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART, 'value' => true]);
-        self::assertSame(ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART->value, $this->hostingBrons->productSpecs()->firstOrFail()->name);
+        new ProductSpecFactory()->for($this->hostingBrons)->createOne([
+            'name' => ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART,
+            'value' => true,
+        ]);
+        self::assertSame(
+            ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART->value,
+            $this->hostingBrons->productSpecs()->firstOrFail()->name,
+        );
 
         $result = $this->novaOneOffScriptSpecsAbstractAction->handleSpec([$oneOffScriptSpecs], false);
 
-        self::assertSame('<table class="w-full divide-y divide-gray-100 dark:divide-gray-700"><tr class="text-left px-6 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-5"><th>Environment</th><th>Spec Name</th><th>Spec Value</th><th>Action</th><th>Product Slug</th><th>Result</th></tr><tr><td>yourhosting-uat</td><td>product.product-should-be-hidden-in-shoppingcart</td><td>1</td><td>delete</td><td>hosting_brons</td><td>Deleted</td></tr></table>', $result);
+        self::assertSame(
+            '<table class="w-full divide-y divide-gray-100 dark:divide-gray-700"><tr class="text-left px-6 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-5"><th>Environment</th><th>Spec Name</th><th>Spec Value</th><th>Action</th><th>Product Slug</th><th>Result</th></tr><tr><td>yourhosting-uat</td><td>product.product-should-be-hidden-in-shoppingcart</td><td>1</td><td>delete</td><td>hosting_brons</td><td>Deleted</td></tr></table>',
+            $result,
+        );
         self::assertNull($this->hostingBrons->productSpecs()->first());
     }
 
@@ -120,12 +137,15 @@ class NovaOneOffScriptSpecsAbstractActionTest extends IntegrationTestCase
             [Environments::VERSIO_UAT],
             ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART->value,
             '1',
-            ['hosting_brons']
+            ['hosting_brons'],
         );
 
         $result = $this->novaOneOffScriptSpecsAbstractAction->handleSpec([$oneOffScriptSpecs], false);
 
-        self::assertSame('<table class="w-full divide-y divide-gray-100 dark:divide-gray-700"><tr class="text-left px-6 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-5"><th>Environment</th><th>Spec Name</th><th>Spec Value</th><th>Action</th><th>Product Slug</th><th>Result</th></tr><tr><td>versio-uat</td><td>product.product-should-be-hidden-in-shoppingcart</td><td>1</td><td>create</td><td>-</td><td>Environment yourhosting-uat does not match versio-uat</td></tr></table>', $result);
+        self::assertSame(
+            '<table class="w-full divide-y divide-gray-100 dark:divide-gray-700"><tr class="text-left px-6 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-5"><th>Environment</th><th>Spec Name</th><th>Spec Value</th><th>Action</th><th>Product Slug</th><th>Result</th></tr><tr><td>versio-uat</td><td>product.product-should-be-hidden-in-shoppingcart</td><td>1</td><td>create</td><td>-</td><td>Environment yourhosting-uat does not match versio-uat</td></tr></table>',
+            $result,
+        );
     }
 
     #[Test]
@@ -136,12 +156,15 @@ class NovaOneOffScriptSpecsAbstractActionTest extends IntegrationTestCase
             [Environments::YOURHOSTING_UAT],
             ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART->value,
             '1',
-            ['hosting_brons']
+            ['hosting_brons'],
         );
 
         $result = $this->novaOneOffScriptSpecsAbstractAction->handleSpec([$oneOffScriptSpecs], false);
 
-        self::assertSame('<table class="w-full divide-y divide-gray-100 dark:divide-gray-700"><tr class="text-left px-6 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-5"><th>Environment</th><th>Spec Name</th><th>Spec Value</th><th>Action</th><th>Product Slug</th><th>Result</th></tr><tr><td>yourhosting-uat</td><td>product.product-should-be-hidden-in-shoppingcart</td><td>1</td><td>delete</td><td>hosting_brons</td><td>Spec is not present</td></tr></table>', $result);
+        self::assertSame(
+            '<table class="w-full divide-y divide-gray-100 dark:divide-gray-700"><tr class="text-left px-6 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-5"><th>Environment</th><th>Spec Name</th><th>Spec Value</th><th>Action</th><th>Product Slug</th><th>Result</th></tr><tr><td>yourhosting-uat</td><td>product.product-should-be-hidden-in-shoppingcart</td><td>1</td><td>delete</td><td>hosting_brons</td><td>Spec is not present</td></tr></table>',
+            $result,
+        );
     }
 
     #[Test]
@@ -152,14 +175,17 @@ class NovaOneOffScriptSpecsAbstractActionTest extends IntegrationTestCase
             [Environments::YOURHOSTING_UAT],
             ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART->value,
             '1',
-            ['hosting_brons']
+            ['hosting_brons'],
         );
 
         $this->hostingBrons->delete();
 
         $result = $this->novaOneOffScriptSpecsAbstractAction->handleSpec([$oneOffScriptSpecs], false);
 
-        self::assertSame('<table class="w-full divide-y divide-gray-100 dark:divide-gray-700"><tr class="text-left px-6 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-5"><th>Environment</th><th>Spec Name</th><th>Spec Value</th><th>Action</th><th>Product Slug</th><th>Result</th></tr><tr><td>yourhosting-uat</td><td>product.product-should-be-hidden-in-shoppingcart</td><td>1</td><td>create</td><td>hosting_brons</td><td>Product does not exist</td></tr></table>', $result);
+        self::assertSame(
+            '<table class="w-full divide-y divide-gray-100 dark:divide-gray-700"><tr class="text-left px-6 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-5"><th>Environment</th><th>Spec Name</th><th>Spec Value</th><th>Action</th><th>Product Slug</th><th>Result</th></tr><tr><td>yourhosting-uat</td><td>product.product-should-be-hidden-in-shoppingcart</td><td>1</td><td>create</td><td>hosting_brons</td><td>Product does not exist</td></tr></table>',
+            $result,
+        );
     }
 
     #[Test]
@@ -170,15 +196,24 @@ class NovaOneOffScriptSpecsAbstractActionTest extends IntegrationTestCase
             [Environments::YOURHOSTING_UAT],
             ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART->value,
             '1',
-            ['hosting_brons']
+            ['hosting_brons'],
         );
 
-        new ProductSpecFactory()->for($this->hostingBrons)->createOne(['name' => ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART, 'value' => true]);
-        self::assertSame(ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART->value, $this->hostingBrons->productSpecs()->firstOrFail()->name);
+        new ProductSpecFactory()->for($this->hostingBrons)->createOne([
+            'name' => ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART,
+            'value' => true,
+        ]);
+        self::assertSame(
+            ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART->value,
+            $this->hostingBrons->productSpecs()->firstOrFail()->name,
+        );
 
         $result = $this->novaOneOffScriptSpecsAbstractAction->handleSpec([$oneOffScriptSpecs], false);
 
-        self::assertSame('<table class="w-full divide-y divide-gray-100 dark:divide-gray-700"><tr class="text-left px-6 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-5"><th>Environment</th><th>Spec Name</th><th>Spec Value</th><th>Action</th><th>Product Slug</th><th>Result</th></tr><tr><td>yourhosting-uat</td><td>product.product-should-be-hidden-in-shoppingcart</td><td>1</td><td>create</td><td>hosting_brons</td><td>Spec already exists on the product</td></tr></table>', $result);
+        self::assertSame(
+            '<table class="w-full divide-y divide-gray-100 dark:divide-gray-700"><tr class="text-left px-6 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-5"><th>Environment</th><th>Spec Name</th><th>Spec Value</th><th>Action</th><th>Product Slug</th><th>Result</th></tr><tr><td>yourhosting-uat</td><td>product.product-should-be-hidden-in-shoppingcart</td><td>1</td><td>create</td><td>hosting_brons</td><td>Spec already exists on the product</td></tr></table>',
+            $result,
+        );
     }
 
     #[Test]
@@ -189,12 +224,15 @@ class NovaOneOffScriptSpecsAbstractActionTest extends IntegrationTestCase
             [Environments::YOURHOSTING_UAT],
             ProductSpecName::PRODUCT_SHOULD_BE_HIDDEN_IN_SHOPPINGCART->value,
             '1',
-            ['hosting_brons']
+            ['hosting_brons'],
         );
 
         $result = $this->novaOneOffScriptSpecsAbstractAction->handleSpec([$oneOffScriptSpecs], true);
 
-        self::assertSame('<table class="w-full divide-y divide-gray-100 dark:divide-gray-700"><tr class="text-left px-6 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-5"><th>Environment</th><th>Spec Name</th><th>Spec Value</th><th>Action</th><th>Product Slug</th><th>Result</th></tr><tr><td>yourhosting-uat</td><td>product.product-should-be-hidden-in-shoppingcart</td><td>1</td><td>create</td><td>hosting_brons</td><td>Created</td></tr></table>', $result);
+        self::assertSame(
+            '<table class="w-full divide-y divide-gray-100 dark:divide-gray-700"><tr class="text-left px-6 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-5"><th>Environment</th><th>Spec Name</th><th>Spec Value</th><th>Action</th><th>Product Slug</th><th>Result</th></tr><tr><td>yourhosting-uat</td><td>product.product-should-be-hidden-in-shoppingcart</td><td>1</td><td>create</td><td>hosting_brons</td><td>Created</td></tr></table>',
+            $result,
+        );
         self::assertCount(0, $this->hostingBrons->productSpecs);
     }
 }

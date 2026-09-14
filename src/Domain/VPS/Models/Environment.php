@@ -61,9 +61,11 @@ class Environment extends Model
      */
     public function products(): BelongsToMany
     {
-        return $this
-            ->belongsToMany(Product::class, 'cloudstack_environment_products')
-            ->withPivot(['product_identifier', 'created_at', 'updated_at']);
+        return $this->belongsToMany(Product::class, 'cloudstack_environment_products')->withPivot([
+            'product_identifier',
+            'created_at',
+            'updated_at',
+        ]);
     }
 
     /**

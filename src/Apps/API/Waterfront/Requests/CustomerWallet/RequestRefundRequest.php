@@ -24,8 +24,8 @@ class RequestRefundRequest extends FormRequest
          * at time of implementation, the lowest number of character was 15
          */
         return [
-            'bank_account_name' => ['required', 'max:255', 'min:1',  new FilterSpecialChars('.')],
-            'bank_account_number' => ['required', 'max:255', 'min:15',  new FilterSpecialChars(), new IBAN()],
+            'bank_account_name' => ['required', 'max:255', 'min:1', new FilterSpecialChars('.')],
+            'bank_account_number' => ['required', 'max:255', 'min:15', new FilterSpecialChars(), new IBAN()],
         ];
     }
 }

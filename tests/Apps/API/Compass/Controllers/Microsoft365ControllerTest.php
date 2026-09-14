@@ -51,9 +51,7 @@ class Microsoft365ControllerTest extends IntegrationTestCase
         ]);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
-            ->method('createKpnCustomer')
-            ->willReturn(true);
+        $microsoft365Service->expects(self::once())->method('createKpnCustomer')->willReturn(true);
         $this->app->bind(Microsoft365Service::class, fn (): Microsoft365Service => $microsoft365Service);
 
         $this->actingAsEmployee()
@@ -70,9 +68,7 @@ class Microsoft365ControllerTest extends IntegrationTestCase
         ]);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
-            ->method('createKpnCustomer')
-            ->willReturn(false);
+        $microsoft365Service->expects(self::once())->method('createKpnCustomer')->willReturn(false);
         $this->app->bind(Microsoft365Service::class, fn (): Microsoft365Service => $microsoft365Service);
 
         $this->actingAsEmployee()
@@ -93,7 +89,8 @@ class Microsoft365ControllerTest extends IntegrationTestCase
         ]);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('createKpnCustomer')
             ->willThrowException(new Office365Exception('KPN customer creation failed'));
         $this->app->bind(Microsoft365Service::class, fn (): Microsoft365Service => $microsoft365Service);
@@ -111,8 +108,7 @@ class Microsoft365ControllerTest extends IntegrationTestCase
         ]);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::never())
-            ->method('createKpnCustomer');
+        $microsoft365Service->expects(self::never())->method('createKpnCustomer');
         $this->app->bind(Microsoft365Service::class, fn (): Microsoft365Service => $microsoft365Service);
 
         $this->actingAsEmployee()
@@ -126,7 +122,8 @@ class Microsoft365ControllerTest extends IntegrationTestCase
         $deployment = $this->createDeployment(activeChildCount: 2);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('createOrder')
             ->with($this->callbackDeployment($deployment), '120A00179B', 2)
             ->willReturn(true);
@@ -187,7 +184,8 @@ class Microsoft365ControllerTest extends IntegrationTestCase
         $deployment = $this->createDeployment(activeChildCount: 1, customerInfoAttributes: ['tenant_order_id' => null]);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('synchronizeTenantOrderIdFromOrderSummary')
             ->willThrowException(new OrderSummaryException('Something went wrong while retrieving order summary.'));
         $microsoft365Service->expects(self::never())->method('createOrder');
@@ -204,7 +202,8 @@ class Microsoft365ControllerTest extends IntegrationTestCase
         $deployment = $this->createDeployment(activeChildCount: 1);
 
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('createOrder')
             ->willThrowException(new Office365Exception('Order creation failed'));
         $this->app->bind(Microsoft365Service::class, fn (): Microsoft365Service => $microsoft365Service);
@@ -226,7 +225,9 @@ class Microsoft365ControllerTest extends IntegrationTestCase
 
         /** @var array<int, array<string, mixed>> $response */
         $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute(self::ROUTE_CUSTOMER_OVERVIEW, ['customer' => $this->customer->customer_number]))
+            ->getJson($this->generateRoute(self::ROUTE_CUSTOMER_OVERVIEW, [
+                'customer' => $this->customer->customer_number,
+            ]))
             ->assertOk()
             ->json();
 
@@ -249,7 +250,9 @@ class Microsoft365ControllerTest extends IntegrationTestCase
     {
         /** @var array<int, array<string, mixed>> $response */
         $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute(self::ROUTE_CUSTOMER_OVERVIEW, ['customer' => $this->customer->customer_number]))
+            ->getJson($this->generateRoute(self::ROUTE_CUSTOMER_OVERVIEW, [
+                'customer' => $this->customer->customer_number,
+            ]))
             ->assertOk()
             ->json();
 
@@ -263,7 +266,9 @@ class Microsoft365ControllerTest extends IntegrationTestCase
         self::assertInstanceOf(Microsoft365Deployment::class, $deployment);
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute(self::ROUTE_SUBSCRIPTION_DEPLOYMENT, ['subscription' => $deployment->subscription->uuid]))
+            ->getJson($this->generateRoute(self::ROUTE_SUBSCRIPTION_DEPLOYMENT, [
+                'subscription' => $deployment->subscription->uuid,
+            ]))
             ->assertOk()
             ->assertJson([
                 'id' => $deployment->id,
@@ -275,10 +280,15 @@ class Microsoft365ControllerTest extends IntegrationTestCase
 
     public function testSubscriptionDeploymentReturnsNotFoundWhenSubscriptionHasNoDeployment(): void
     {
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($this->createMicrosoft365Product())->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->createMicrosoft365Product())
+            ->createOne();
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute(self::ROUTE_SUBSCRIPTION_DEPLOYMENT, ['subscription' => $subscription->uuid]))
+            ->getJson($this->generateRoute(self::ROUTE_SUBSCRIPTION_DEPLOYMENT, [
+                'subscription' => $subscription->uuid,
+            ]))
             ->assertNotFound()
             ->assertJson(['message' => 'microsoft365.deployment.not-found']);
     }
@@ -286,9 +296,14 @@ class Microsoft365ControllerTest extends IntegrationTestCase
     /**
      * @param array<string, mixed> $customerInfoAttributes
      */
-    private function createTenantWithDeployment(Product $product, array $customerInfoAttributes = []): Microsoft365CustomerInfo
-    {
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($product)->createOne();
+    private function createTenantWithDeployment(
+        Product $product,
+        array $customerInfoAttributes = [],
+    ): Microsoft365CustomerInfo {
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($product)
+            ->createOne();
 
         $customerInfo = new Microsoft365CustomerInfoFactory()->for($this->customer)->createOne($customerInfoAttributes);
 
@@ -310,7 +325,7 @@ class Microsoft365ControllerTest extends IntegrationTestCase
     private function callbackDeployment(Microsoft365Deployment $expected): callable
     {
         return self::callback(
-            static fn (Microsoft365Deployment $deployment): bool => $deployment->id === $expected->id
+            static fn (Microsoft365Deployment $deployment): bool => $deployment->id === $expected->id,
         );
     }
 
@@ -336,9 +351,12 @@ class Microsoft365ControllerTest extends IntegrationTestCase
             'kpn_product_code' => '120A00179B',
         ]);
 
-        $parentSubscription = new SubscriptionFactory()->for($this->customer)->for($parentProduct)->createOne([
-            'contract_period' => 12,
-        ]);
+        $parentSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($parentProduct)
+            ->createOne([
+                'contract_period' => 12,
+            ]);
 
         for ($i = 0; $i < $activeChildCount; $i++) {
             new SubscriptionFactory()

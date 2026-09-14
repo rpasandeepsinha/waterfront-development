@@ -13,7 +13,8 @@ use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
 use Tests\IntegrationTestCase;
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailGetAccountSettings\Parameters as EmailGetAccountSettingsParameters;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailGetAccountSettings\Parameters as EmailGetAccountSettingsParameters
+;
 use Waterfront\Infra\Configuration\ConfigurationInterface;
 use Waterfront\Infra\PleskClient\Fakers\HostingPackageClientFaker;
 use Waterfront\Infra\PleskClient\Messages\Connection;
@@ -31,11 +32,19 @@ class EmailGetPreferencesTest extends IntegrationTestCase
     public function getHostingSiteSendsCorrectXmlMessageAndReturnsStatusOk(): void
     {
         $mock = new MockHandler([
-            new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_email_get_preferences_response.xml')),
+            new Response(
+                200,
+                [],
+                (string) file_get_contents(__DIR__ . '/data/plesk_email_get_preferences_response.xml'),
+            ),
         ]);
         $handlerStack = HandlerStack::create($mock);
         $handlerStack->push(fn (callable $handler) => function (RequestInterface $request, $options) use ($handler) {
-            self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_email_get_preferences_request.xml'), (string) $request->getBody());
+            self::assertSame(
+                (string) file_get_contents(__DIR__ . '/data/plesk_email_get_preferences_request.xml'),
+                (string) $request->getBody(),
+            );
+
             return $handler($request, $options);
         });
 
@@ -46,7 +55,7 @@ class EmailGetPreferencesTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $data = require __DIR__ . '/data/pleskEmailGetAccountSettingsData.php';

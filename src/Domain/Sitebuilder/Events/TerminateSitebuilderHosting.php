@@ -12,7 +12,7 @@ class TerminateSitebuilderHosting implements MailableEventInterface
     public function __construct(
         public readonly string $contactPersonName,
         public readonly string $contactEmail,
-        public readonly Subscription $subscription
+        public readonly Subscription $subscription,
     ) {
     }
 

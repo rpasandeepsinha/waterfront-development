@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Waterfront\Domain\Subscriptions\Actions;
 
 use Carbon\CarbonImmutable;
+use Waterfront\Domain\Experiment\Enums\ExperimentType;
+use Waterfront\Domain\Experiment\Repositories\ExperimentRepository;
+use Waterfront\Domain\Pricing\Enums\PriceComponentType;
 use Waterfront\Domain\Pricing\Repositories\PriceRepository;
 use Waterfront\Domain\Products\DTO\PriceList;
 use Waterfront\Domain\Products\DTO\PriceRequest;
@@ -31,18 +34,23 @@ class GetRenewalInfoAction
         private readonly SubscriptionMutationRepository $subscriptionMutationRepository,
         private readonly PriceResolver $priceResolver,
         private readonly PriceRepository $priceRepository,
+        private readonly ExperimentRepository $experimentRepository,
     ) {
     }
 
     /**
      * If there is an open upcoming mutation use that for the renewal info.
-     * Else use the prolongation price form the price list and apply that on the invoice.
+     * Else use the prolongation price from the price list and apply that on the invoice.
      */
     public function execute(Subscription $subscription, ?PriceList $priceList): RenewalInfoDTO
     {
         $renewalStartDate = $subscription->end_date;
         $subscription->loadMissing(['parent', 'activePrice.components']);
-        $renewalEndDate = $this->getRenewalEndDate($renewalStartDate, $subscription->contract_period, $subscription->parent);
+        $renewalEndDate = $this->getRenewalEndDate(
+            $renewalStartDate,
+            $subscription->contract_period,
+            $subscription->parent,
+        );
 
         $openMutation = $this->subscriptionMutationRepository->findOpenMutation($subscription);
         if ($openMutation !== null) {
@@ -56,7 +64,7 @@ class GetRenewalInfoAction
                 $openMutation->net_price,
                 $renewalStartDate,
                 $renewalEndDate,
-                $openMutation
+                $openMutation,
             );
         }
 
@@ -78,8 +86,17 @@ class GetRenewalInfoAction
             return $this->cachedInfos[$cacheHash];
         }
 
-        $priceRequest = new PriceRequest([new ProlongationPriceRequest($subscription->product)], $subscription->customer);
-        $priceList ??= $this->priceResolver->getPriceList($priceRequest);
+        if ($priceList === null) {
+            $experimentSlug = $this->resolveExperimentSlug($subscription);
+
+            $priceRequest = new PriceRequest(
+                [new ProlongationPriceRequest($subscription->product, experimentSlug: $experimentSlug)],
+                $subscription->customer,
+            );
+
+            $priceList = $this->priceResolver->getPriceList($priceRequest);
+        }
+
         $price = $priceList->getProductPrice(
             productSlug: $subscription->product->slug,
             contractPeriod: $subscription->contract_period,
@@ -103,8 +120,11 @@ class GetRenewalInfoAction
         return $this->cachedInfos[$cacheHash];
     }
 
-    private function getRenewalEndDate(CarbonImmutable $renewalStartDate, int $contractPeriod, ?Subscription $parentSubscription): CarbonImmutable
-    {
+    private function getRenewalEndDate(
+        CarbonImmutable $renewalStartDate,
+        int $contractPeriod,
+        ?Subscription $parentSubscription,
+    ): CarbonImmutable {
         /*
          * Child subscriptions should be in sync with their parent.
          * Because the parent subscription is renewed before the child, we can use that end date if it's already
@@ -119,6 +139,33 @@ class GetRenewalInfoAction
 
     private function getSubscriptionCacheHash(Subscription $subscription): string
     {
-        return $subscription->product_uuid . $subscription->start_date . $subscription->end_date . $subscription->billing_period . $subscription->contract_period;
+        return (
+            $subscription->product_uuid
+            . $subscription->start_date
+            . $subscription->end_date
+            . $subscription->billing_period
+            . $subscription->contract_period
+        );
+    }
+
+    private function resolveExperimentSlug(Subscription $subscription): ?string
+    {
+        $experiment = $this->experimentRepository->findEnrolledExperiment(
+            $subscription,
+            ExperimentType::PRICING_LADDER,
+        );
+
+        if ($experiment === null) {
+            return null;
+        }
+
+        if ($this->priceRepository->hasAppliedPriceComponent(
+            $subscription,
+            PriceComponentType::EXPERIMENT_PRICE_LADDER,
+        )) {
+            return null;
+        }
+
+        return $experiment->slug->value;
     }
 }

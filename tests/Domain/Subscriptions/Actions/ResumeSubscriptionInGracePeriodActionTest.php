@@ -37,20 +37,26 @@ class ResumeSubscriptionInGracePeriodActionTest extends IntegrationTestCase
         $date = CarbonImmutable::now();
 
         $product = new ProductFactory()->for(
-            new ProductGroupFactory()->extension()
+            new ProductGroupFactory()->extension(),
         )->createOne();
 
-        new ProductPriceComponentFactory()->registration()->for($product)->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
+        new ProductPriceComponentFactory()
+            ->registration()
+            ->for($product)
+            ->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($product)
+            ->createOne();
 
         $this->subscription = new SubscriptionFactory()
             ->withCustomer()
             ->administrativeStatusExpired()
             ->for($product)
             ->createOne([
-            'cancel_date' => $date->subWeek(),
-            'termination_date' => $date->addWeek(),
-        ]);
+                'cancel_date' => $date->subWeek(),
+                'termination_date' => $date->addWeek(),
+            ]);
 
         $this->resumeSubscriptionInGracePeriodAction = self::resolve(ResumeSubscriptionInGracePeriodAction::class);
     }

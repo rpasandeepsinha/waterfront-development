@@ -18,17 +18,16 @@ class SslDeploymentObserverTest extends IntegrationTestCase
     #[Test]
     public function updateCertificateIdDispatchesUpdateSslExpireDateJob(): void
     {
-        $sslDeployment = new SslDeploymentFactory()
-            ->rtrProvider()
-            ->createOneQuietly();
+        $sslDeployment = new SslDeploymentFactory()->rtrProvider()->createOneQuietly();
 
         $dispatcher = $this->createMock(Dispatcher::class);
-        $dispatcher->expects(self::once())
+        $dispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(
                 new UpdateSslExpireDate(
-                    sslDeployment: $sslDeployment
-                )
+                    sslDeployment: $sslDeployment,
+                ),
             );
         $this->app->bind(Dispatcher::class, fn (): Dispatcher => $dispatcher);
 

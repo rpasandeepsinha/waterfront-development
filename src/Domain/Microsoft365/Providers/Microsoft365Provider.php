@@ -21,6 +21,7 @@ class Microsoft365Provider extends BaseProvider implements DeferrableProvider
     {
         $this->app->bind(function (): OfficeClient {
             $configuration = $this->resolve(ConfigurationInterface::class);
+
             return new OfficeClient(
                 $configuration->getAsString('microsoft365.api_url'),
                 $configuration->getAsString('microsoft365.api_user'),
@@ -44,7 +45,7 @@ class Microsoft365Provider extends BaseProvider implements DeferrableProvider
         ], 'config');
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/microsoft365.php',
-            'microsoft365'
+            'microsoft365',
         );
     }
 

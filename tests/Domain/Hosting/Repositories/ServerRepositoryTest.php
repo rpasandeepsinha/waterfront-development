@@ -53,7 +53,10 @@ class ServerRepositoryTest extends IntegrationTestCase
         $server1 = new ServerFactory()->createOne();
         $server2 = new ServerFactory()->createOne();
 
-        $subscription = new SubscriptionFactory()->for($customer)->for($product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($product)
+            ->createOne();
         new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
             'server_id' => $server1->id,

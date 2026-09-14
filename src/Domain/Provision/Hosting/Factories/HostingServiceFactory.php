@@ -35,7 +35,7 @@ class HostingServiceFactory implements ProvisionServiceFactoryInterface
         return match ($provider) {
             ProvisionProvider::DIRECTADMIN => $this->directAdminValidator->getValidatorByRequest($provisionRequest),
             ProvisionProvider::PLESK => $this->pleskValidator->getValidatorByRequest($provisionRequest),
-            default => throw new UnknownHostingProviderException($provider)
+            default => throw new UnknownHostingProviderException($provider),
         };
     }
 
@@ -47,7 +47,7 @@ class HostingServiceFactory implements ProvisionServiceFactoryInterface
         return match ($provider) {
             ProvisionProvider::DIRECTADMIN => $this->directadminService,
             ProvisionProvider::PLESK => $this->pleskService,
-            default => throw new UnknownHostingProviderException($provider)
+            default => throw new UnknownHostingProviderException($provider),
         };
     }
 }

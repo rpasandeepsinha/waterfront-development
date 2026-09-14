@@ -41,7 +41,7 @@ class VpsTemplateService
 
         $cloudstackTemplateSlug = $this->productSpecRepository->getStringValueOfSpecification(
             product: $product,
-            specification: ProductSpecName::VPS_CLOUDSTACK_TEMPLATE_SLUG
+            specification: ProductSpecName::VPS_CLOUDSTACK_TEMPLATE_SLUG,
         );
 
         if ($cloudstackTemplateSlug === null) {
@@ -51,7 +51,7 @@ class VpsTemplateService
                     'No Cloudstack template set as product spec, searching for template slug %s from product slug %s on environment %s',
                     $product->slug,
                     $cloudstackTemplateSlug,
-                    $environment->slug
+                    $environment->slug,
                 ),
                 [
                     LoggingContextKeys::PRODUCT_SLUG => $product->slug,
@@ -61,7 +61,7 @@ class VpsTemplateService
                         'template_slug_cloudstack' => $cloudstackTemplateSlug,
                         'environment_slug' => $environment->slug,
                     ],
-                ]
+                ],
             );
         }
 
@@ -80,7 +80,7 @@ class VpsTemplateService
                 sprintf(
                     'Found multiple templates with value [%s] for single slug [%s].',
                     $cloudstackTemplateSlug,
-                    $product->slug
+                    $product->slug,
                 ),
                 [
                     LoggingContextKeys::PRODUCT_SLUG => $product->slug,
@@ -91,10 +91,10 @@ class VpsTemplateService
                         'total_found_templates' => $templateCount,
                         'template_list' => array_map(
                             static fn (Template $template) => $template->id,
-                            $templates
+                            $templates,
                         ),
                     ],
-                ]
+                ],
             );
         }
 
@@ -118,8 +118,10 @@ class VpsTemplateService
      */
     private function filterSshOrPasswordFromProduct(array $templates, Product $product): array
     {
-        $productUsesSsh = $this->productSpecRepository
-            ->booleanSpecificationIsTrue($product, ProductSpecName::SSH_KEY_REQUIRED);
+        $productUsesSsh = $this->productSpecRepository->booleanSpecificationIsTrue(
+            $product,
+            ProductSpecName::SSH_KEY_REQUIRED,
+        );
 
         return $productUsesSsh
             ? array_filter($templates, fn (Template $template) => $template->sshKeyEnabled)

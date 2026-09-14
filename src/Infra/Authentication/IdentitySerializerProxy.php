@@ -28,8 +28,12 @@ class IdentitySerializerProxy implements DenormalizerInterface
     /**
      * @param mixed[] $context
      */
-    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
-    {
+    public function supportsDenormalization(
+        mixed $data,
+        string $type,
+        ?string $format = null,
+        array $context = [],
+    ): bool {
         return IdentitySerializerFactory::create()->supportsDenormalization($data, $type, $format, $context);
     }
 

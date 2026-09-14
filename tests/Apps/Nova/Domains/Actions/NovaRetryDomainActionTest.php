@@ -35,7 +35,10 @@ class NovaRetryDomainActionTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->provider = ProviderFactory::new()->createOne(['slug' => ProviderSlug::PLACEHOLDER, 'type' => ProviderType::DOMAIN]);
+        $this->provider = ProviderFactory::new()->createOne([
+            'slug' => ProviderSlug::PLACEHOLDER,
+            'type' => ProviderType::DOMAIN,
+        ]);
         $this->retryAction = self::resolve(NovaRetryDomainAction::class);
     }
 
@@ -46,34 +49,37 @@ class NovaRetryDomainActionTest extends IntegrationTestCase
             ->withCustomer()
             ->forDomain('test-retry-domain.nl')
             ->for(
-                new ProductFactory()
-                ->for(new ProductGroupFactory()->extension())
-                ->nlDomain()
+                new ProductFactory()->for(new ProductGroupFactory()->extension())->nlDomain(),
             )
             ->has(new DomainDeploymentFactory()->for($this->provider))
-            ->has(new SubscriptionFactory()
-                ->withCustomer()
-                ->forDomain('test-retry-domain.nl')
-                ->for(
-                    new ProductFactory()
-                        ->for(new ProductGroupFactory()->dns())
-                        ->freeDns()
-                ), 'children')
+            ->has(
+                new SubscriptionFactory()
+                    ->withCustomer()
+                    ->forDomain('test-retry-domain.nl')
+                    ->for(
+                        new ProductFactory()->for(new ProductGroupFactory()->dns())->freeDns(),
+                    ),
+                'children',
+            )
             ->createOne();
 
         $domainListenerMock = self::mock(DomainCreationListener::class);
 
         $domainListenerMock->shouldReceive('setJob')->once();
-        $domainListenerMock->shouldReceive('handle')
+        $domainListenerMock
+            ->shouldReceive('handle')
             ->once()
             ->withArgs(fn (CreateDomain $event) => $event->subscription->uuid === $domainSubscription->uuid);
 
         $dnsListenerMock = self::mock(DnsCreationListener::class);
 
         $dnsListenerMock->shouldReceive('setJob')->once();
-        $dnsListenerMock->shouldReceive('handle')
+        $dnsListenerMock
+            ->shouldReceive('handle')
             ->once()
-            ->withArgs(fn (CreateDns $event) => $event->subscriptionUuid === $domainSubscription->children->first()?->uuid);
+            ->withArgs(
+                fn (CreateDns $event) => $event->subscriptionUuid === $domainSubscription->children->first()?->uuid,
+            );
 
         $models = new Collection([$domainSubscription]);
 
@@ -96,9 +102,7 @@ class NovaRetryDomainActionTest extends IntegrationTestCase
             ->withCustomer()
             ->forDomain('test-retry-domain.nl')
             ->for(
-                new ProductFactory()
-                ->for(new ProductGroupFactory()->extension())
-                ->nlDomain()
+                new ProductFactory()->for(new ProductGroupFactory()->extension())->nlDomain(),
             )
             ->has(new DomainDeploymentFactory()->for($this->provider))
             ->createOne();

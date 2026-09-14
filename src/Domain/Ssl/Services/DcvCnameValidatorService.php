@@ -17,7 +17,7 @@ class DcvCnameValidatorService
     public function __construct(
         private readonly DnsService $dnsService,
         private readonly PublicSuffixList $publicSuffixList,
-        private readonly DnsHelper $dnsHelper
+        private readonly DnsHelper $dnsHelper,
     ) {
     }
 
@@ -26,26 +26,27 @@ class DcvCnameValidatorService
         $expectedName = self::normalizeFqdn($dcv->dnsRecord);
         $expectedValue = self::normalizeFqdn($dcv->dnsContent);
 
-        $registrable = $this->publicSuffixList
-            ->getRules()
-            ->resolve($expectedName)
-            ->registrableDomain()
-            ->toString();
+        $registrable = $this->publicSuffixList->getRules()->resolve($expectedName)->registrableDomain()->toString();
 
         try {
             $zone = $this->dnsService->getDnsZone($registrable);
 
             $records = array_filter(
                 $zone->getRecords(),
-                static fn (DnsRecordInterface $record): bool =>
-                $record->getType() === DnsRecordType::CNAME->value
-                && self::normalizeFqdn($record->getName()) === $expectedName
+                static fn (DnsRecordInterface $record): bool => (
+                    $record->getType() === DnsRecordType::CNAME->value
+                    && self::normalizeFqdn($record->getName()) === $expectedName
+                ),
             );
 
             if ($records === []) {
                 return true;
             }
-            return array_all($records, fn ($record) => ! (strcasecmp(self::normalizeFqdn($record->getContent()), $expectedValue) === 0));
+
+            return array_all(
+                $records,
+                fn ($record) => ! (strcasecmp(self::normalizeFqdn($record->getContent()), $expectedValue) === 0),
+            );
         } catch (DnsZoneNotFoundException) {
             // @ignoreException Intentionally fall back to public DNS when authoritative zone is not found.
         }
@@ -58,7 +59,7 @@ class DcvCnameValidatorService
             DNS_CNAME,
             $authoritative,
             $additional,
-            false
+            false,
         );
 
         $answers = is_array($answersRaw) ? $answersRaw : [];
@@ -68,7 +69,7 @@ class DcvCnameValidatorService
         }
 
         foreach ($answers as $answer) {
-            $target = rtrim(($answer['target'] ?? ''), '.');
+            $target = rtrim($answer['target'] ?? '', '.');
             if (strcasecmp($target, $expectedValue) === 0) {
                 return false;
             }

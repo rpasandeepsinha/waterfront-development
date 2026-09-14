@@ -51,7 +51,7 @@ class CustomerClientFaker extends CustomerClient
     {
         Assert::stringNotEmpty(
             $parameters->getCustomerLogin(),
-            'Customer login not allowed to be empty string!'
+            'Customer login not allowed to be empty string!',
         );
 
         $desiredResponseCode = $this->getDesiredResponseCode();

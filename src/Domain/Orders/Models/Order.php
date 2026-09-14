@@ -78,6 +78,7 @@ class Order extends Model implements AuditableContract
     public function isPending(): bool
     {
         $status = $this->payments->last()->status ?? PaymentStatus::PENDING;
+
         return $status === PaymentStatus::PENDING;
     }
 
@@ -88,10 +89,7 @@ class Order extends Model implements AuditableContract
 
     public function getLatestPaidPayment(): ?Payment
     {
-        if (
-            $this->payments->count() === 0
-            || $this->payments->last() === null
-        ) {
+        if ($this->payments->count() === 0 || $this->payments->last() === null) {
             return null;
         }
 

@@ -11,24 +11,35 @@ use Waterfront\Infra\Translation\TranslatorInterface;
 
 class NovaSubscriptionTechnicalStatusSelectField
 {
-    public static function make(string $name = 'technical_status', string $translation_string = 'subscription.attributes.technical_status'): Select
-    {
+    public static function make(
+        string $name = 'technical_status',
+        string $translation_string = 'subscription.attributes.technical_status',
+    ): Select {
         $translator = resolve(TranslatorInterface::class);
 
-        return Select::make($translator->translate($translation_string), $name)
-            ->options([
-                TechnicalStatus::OK->value => $translator->translate('subscription.technical_statuses.ok'),
-                TechnicalStatus::ERROR->value => $translator->translate('subscription.technical_statuses.error'),
-                TechnicalStatus::FAILED->value => $translator->translate('subscription.technical_statuses.failed'),
-                TechnicalStatus::REGISTRATION->value => $translator->translate('subscription.technical_statuses.registration'),
-                TechnicalStatus::SUSPENDED->value => $translator->translate('subscription.administrative_statuses.suspended'),
-                TechnicalStatus::DELETED->value => $translator->translate('subscription.technical_statuses.deleted'),
-                TechnicalStatus::PENDING->value => $translator->translate('subscription.technical_statuses.pending'),
-                DomainStatus::ACTIVE->value => $translator->translate('subscription.technical_statuses.extension_active'),
-                TechnicalStatus::SUSPENSION_FAILED->value => $translator->translate('subscription.technical_statuses.failed_suspension'),
-                TechnicalStatus::UNSUSPENSION_FAILED->value => $translator->translate('subscription.technical_statuses.failed_unsuspension'),
-                TechnicalStatus::SUSPENDING->value => $translator->translate('subscription.technical_statuses.suspending'),
-                TechnicalStatus::UNSUSPENDING->value => $translator->translate('subscription.technical_statuses.unsuspending'),
-            ]);
+        return Select::make($translator->translate($translation_string), $name)->options([
+            TechnicalStatus::OK->value => $translator->translate('subscription.technical_statuses.ok'),
+            TechnicalStatus::ERROR->value => $translator->translate('subscription.technical_statuses.error'),
+            TechnicalStatus::FAILED->value => $translator->translate('subscription.technical_statuses.failed'),
+            TechnicalStatus::REGISTRATION->value => $translator->translate(
+                'subscription.technical_statuses.registration',
+            ),
+            TechnicalStatus::SUSPENDED->value => $translator->translate(
+                'subscription.administrative_statuses.suspended',
+            ),
+            TechnicalStatus::DELETED->value => $translator->translate('subscription.technical_statuses.deleted'),
+            TechnicalStatus::PENDING->value => $translator->translate('subscription.technical_statuses.pending'),
+            DomainStatus::ACTIVE->value => $translator->translate('subscription.technical_statuses.extension_active'),
+            TechnicalStatus::SUSPENSION_FAILED->value => $translator->translate(
+                'subscription.technical_statuses.failed_suspension',
+            ),
+            TechnicalStatus::UNSUSPENSION_FAILED->value => $translator->translate(
+                'subscription.technical_statuses.failed_unsuspension',
+            ),
+            TechnicalStatus::SUSPENDING->value => $translator->translate('subscription.technical_statuses.suspending'),
+            TechnicalStatus::UNSUSPENDING->value => $translator->translate(
+                'subscription.technical_statuses.unsuspending',
+            ),
+        ]);
     }
 }

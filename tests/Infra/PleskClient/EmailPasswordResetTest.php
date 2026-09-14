@@ -35,12 +35,28 @@ class EmailPasswordResetTest extends TestCase
 
         $mock = new MockHandler([
             function (RequestInterface $request) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_get_hosting_website_request.xml'), (string) $request->getBody());
-                return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_get_hosting_website_response.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_get_hosting_website_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    200,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_get_hosting_website_response.xml'),
+                );
             },
             function (RequestInterface $request) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_email_reset_password_request.xml'), (string) $request->getBody());
-                return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_email_reset_password_response.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_email_reset_password_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    200,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_email_reset_password_response.xml'),
+                );
             },
         ]);
         $handlerStack = HandlerStack::create($mock);
@@ -53,13 +69,13 @@ class EmailPasswordResetTest extends TestCase
             client: $client,
             configuration: $this->app->make(ConfigurationInterface::class),
             logger: $this->app->make(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $result = $hostingClient->resetEmailPassword(
             domain: $domain,
             emailAccount: $emailAccount,
-            password: 'new-password'
+            password: 'new-password',
         );
 
         self::assertSame(Result::STATUS_OK, $result->getStatus());

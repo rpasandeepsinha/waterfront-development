@@ -105,9 +105,7 @@ class Server extends Model implements AuditableContract, DirectAdminServer
 
     public function getApiUrlAttribute(): string
     {
-        $protocol = $this->use_ssl === null || ! $this->use_ssl
-            ? 'http://'
-            : 'https://';
+        $protocol = $this->use_ssl === null || ! $this->use_ssl ? 'http://' : 'https://';
 
         $serverUrl = $protocol . $this->hostname . ':' . $this->port;
 
@@ -144,9 +142,11 @@ class Server extends Model implements AuditableContract, DirectAdminServer
 
     public function getNumberOfWebsitesAttribute(): int
     {
-        return $this->hostingDeployments()->whereHas('subscription', function (Builder $query): void {
-            $query->whereNot('administrative_status', AdministrativeStatus::ARCHIVED->value);
-        })->count();
+        return $this->hostingDeployments()
+            ->whereHas('subscription', function (Builder $query): void {
+                $query->whereNot('administrative_status', AdministrativeStatus::ARCHIVED->value);
+            })
+            ->count();
     }
 
     /**
@@ -222,7 +222,7 @@ class Server extends Model implements AuditableContract, DirectAdminServer
 
         throw new RuntimeException(
             "The hosting deployment was not coupled with a provider backend!
-            hosting deployment id: {$hostingDeployment->id}"
+            hosting deployment id: {$hostingDeployment->id}",
         );
     }
 
@@ -236,7 +236,7 @@ class Server extends Model implements AuditableContract, DirectAdminServer
         return $this->getLoginKeyAttribute() ?? '';
     }
 
-    public function getLoginKeyAttribute(): string|null
+    public function getLoginKeyAttribute(): ?string
     {
         /** @var Encrypter $encrypter */
         $encrypter = Container::getInstance()->make(Encrypter::class);
@@ -255,7 +255,7 @@ class Server extends Model implements AuditableContract, DirectAdminServer
         }
     }
 
-    public function setLoginKey(string|null $loginKey): void
+    public function setLoginKey(?string $loginKey): void
     {
         $this->setLoginKeyAttribute($loginKey);
     }
@@ -263,12 +263,12 @@ class Server extends Model implements AuditableContract, DirectAdminServer
     /**
      * Encypt the login key.
      */
-    public function setLoginKeyAttribute(string|null $loginKey): void
+    public function setLoginKeyAttribute(?string $loginKey): void
     {
         /** @var Encrypter $encrypter */
         $encrypter = Container::getInstance()->make(Encrypter::class);
 
-        $this->attributes['loginkey'] = ($loginKey !== null) ? $encrypter->encrypt($loginKey) : $loginKey;
+        $this->attributes['loginkey'] = $loginKey !== null ? $encrypter->encrypt($loginKey) : $loginKey;
     }
 
     public function getSecretKey(): string
@@ -276,7 +276,7 @@ class Server extends Model implements AuditableContract, DirectAdminServer
         return $this->getSecretKeyAttribute() ?? '';
     }
 
-    public function getSecretKeyAttribute(): string|null
+    public function getSecretKeyAttribute(): ?string
     {
         /** @var Encrypter $encrypter */
         $encrypter = Container::getInstance()->make(Encrypter::class);
@@ -296,17 +296,17 @@ class Server extends Model implements AuditableContract, DirectAdminServer
         }
     }
 
-    public function setSecretKey(string|null $secret_key): void
+    public function setSecretKey(?string $secret_key): void
     {
         $this->setSecretKeyAttribute($secret_key);
     }
 
-    public function setSecretKeyAttribute(string|null $secret_key): void
+    public function setSecretKeyAttribute(?string $secret_key): void
     {
         /** @var Encrypter $encrypter */
         $encrypter = Container::getInstance()->make(Encrypter::class);
 
-        $this->attributes['secret_key'] = ($secret_key !== null) ? $encrypter->encrypt($secret_key) : $secret_key;
+        $this->attributes['secret_key'] = $secret_key !== null ? $encrypter->encrypt($secret_key) : $secret_key;
     }
 
     public function getPassword(): string
@@ -314,7 +314,7 @@ class Server extends Model implements AuditableContract, DirectAdminServer
         return $this->getPasswordAttribute() ?? '';
     }
 
-    public function getPasswordAttribute(): string|null
+    public function getPasswordAttribute(): ?string
     {
         /** @var Encrypter $encrypter */
         $encrypter = Container::getInstance()->make(Encrypter::class);
@@ -334,17 +334,17 @@ class Server extends Model implements AuditableContract, DirectAdminServer
         }
     }
 
-    public function setPassword(string|null $password): void
+    public function setPassword(?string $password): void
     {
         $this->setPasswordAttribute($password);
     }
 
-    public function setPasswordAttribute(string|null $password): void
+    public function setPasswordAttribute(?string $password): void
     {
         /** @var Encrypter $encrypter */
         $encrypter = Container::getInstance()->make(Encrypter::class);
 
-        $this->attributes['password'] = ($password !== null) ? $encrypter->encrypt($password) : $password;
+        $this->attributes['password'] = $password !== null ? $encrypter->encrypt($password) : $password;
     }
 
     protected static function booted(): void
@@ -353,6 +353,7 @@ class Server extends Model implements AuditableContract, DirectAdminServer
             if (is_null($server->hostname) && ! is_null($server->domain)) {
                 $server->hostname = $server->domain;
             }
+
             if (is_null($server->domain) && ! is_null($server->hostname)) {
                 $server->domain = $server->hostname;
             }

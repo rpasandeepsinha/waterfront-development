@@ -12,8 +12,13 @@ use Waterfront\Domain\Provision\Redirects\Models\RedirectDeployment;
 
 class RedirectDeploymentRepository
 {
-    public function create(int $requestId, string $source, string $destination, RedirectType $type, UuidInterface $context): RedirectDeployment
-    {
+    public function create(
+        int $requestId,
+        string $source,
+        string $destination,
+        RedirectType $type,
+        UuidInterface $context,
+    ): RedirectDeployment {
         $redirectDeployment = new RedirectDeployment();
         $redirectDeployment->uuid = Uuid::uuid4();
         $redirectDeployment->source = $source;
@@ -31,15 +36,12 @@ class RedirectDeploymentRepository
      */
     public function findAllByContext(UuidInterface $contextUuid): Collection
     {
-        return RedirectDeployment::where('context_uuid', $contextUuid)
-            ->get();
+        return RedirectDeployment::where('context_uuid', $contextUuid)->get();
     }
 
     public function findBySourceAndContext(string $source, UuidInterface $contextUuid): ?RedirectDeployment
     {
-        return RedirectDeployment::where('context_uuid', $contextUuid)
-            ->where('source', $source)
-            ->first();
+        return RedirectDeployment::where('context_uuid', $contextUuid)->where('source', $source)->first();
     }
 
     public function update(

@@ -27,7 +27,7 @@ class UpdateZoneToMasterActionTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::ZONE_NAME)
+                $this->getMockedZoneResponseBody(self::ZONE_NAME),
             ),
             new Response(
                 204,
@@ -50,7 +50,7 @@ class UpdateZoneToMasterActionTest extends IntegrationTestCase
                     'masters' => [],
                 ],
                 $mastersPayload,
-                'PDNS zone to master failed'
+                'PDNS zone to master failed',
             );
         });
 

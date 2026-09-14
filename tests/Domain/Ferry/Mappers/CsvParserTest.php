@@ -28,7 +28,7 @@ class CsvParserTest extends TestCase
                     'header3' => 'value3',
                 ],
             ],
-            $parsedCSV
+            $parsedCSV,
         );
     }
 }

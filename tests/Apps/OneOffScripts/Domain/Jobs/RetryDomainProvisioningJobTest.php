@@ -48,14 +48,11 @@ class RetryDomainProvisioningJobTest extends TestCase
         $this->logger = self::createStub(LoggerInterface::class);
         $this->eventSubscriptionDataBuilder = self::createMock(EventSubscriptionDataBuilder::class);
 
-        $this->subscription = SubscriptionFactory::new()
-            ->forDomain('example.test')
-            ->makeOne();
+        $this->subscription = SubscriptionFactory::new()->forDomain('example.test')->makeOne();
 
-        $this->domainDeployment = DomainDeploymentFactory::new()
-            ->makeOne([
-                'subscription_uuid' => $this->subscription->uuid,
-            ]);
+        $this->domainDeployment = DomainDeploymentFactory::new()->makeOne([
+            'subscription_uuid' => $this->subscription->uuid,
+        ]);
 
         $this->subscription->setRelation('domainDeployment', $this->domainDeployment);
         $this->domainDeployment->setRelation('subscription', $this->subscription);
@@ -66,11 +63,13 @@ class RetryDomainProvisioningJobTest extends TestCase
     {
         Queue::fake();
 
-        $this->app->make(Dispatcher::class)->dispatch(new RetryDomainProvisioningJob(
-            subscription: $this->subscription,
-            dryRun: true,
-            triggeredBy: self::TRIGGERED_BY,
-        ));
+        $this->app
+            ->make(Dispatcher::class)
+            ->dispatch(new RetryDomainProvisioningJob(
+                subscription: $this->subscription,
+                dryRun: true,
+                triggeredBy: self::TRIGGERED_BY,
+            ));
 
         Queue::assertPushedOn(QueueName::DEFAULT->value, RetryDomainProvisioningJob::class);
     }
@@ -80,11 +79,13 @@ class RetryDomainProvisioningJobTest extends TestCase
     {
         Bus::fake();
 
-        $this->app->make(Dispatcher::class)->dispatch(new RetryDomainProvisioningJob(
-            subscription: $this->subscription,
-            dryRun: true,
-            triggeredBy: self::TRIGGERED_BY,
-        ));
+        $this->app
+            ->make(Dispatcher::class)
+            ->dispatch(new RetryDomainProvisioningJob(
+                subscription: $this->subscription,
+                dryRun: true,
+                triggeredBy: self::TRIGGERED_BY,
+            ));
 
         Bus::assertNotDispatchedSync(RetryDomainProvisioningJob::class);
     }
@@ -92,9 +93,7 @@ class RetryDomainProvisioningJobTest extends TestCase
     #[Test]
     public function handleDoesNotDispatchRegisterDomainNameJobInDryRun(): void
     {
-        $this->dispatcher
-            ->expects(self::never())
-            ->method('dispatch');
+        $this->dispatcher->expects(self::never())->method('dispatch');
 
         $job = new RetryDomainProvisioningJob(
             subscription: $this->subscription,
@@ -143,9 +142,7 @@ class RetryDomainProvisioningJobTest extends TestCase
     #[Test]
     public function handleLogsDryRunMessage(): void
     {
-        $this->dispatcher
-            ->expects(self::never())
-            ->method('dispatch');
+        $this->dispatcher->expects(self::never())->method('dispatch');
 
         $logger = self::createMock(LoggerInterface::class);
         $logger
@@ -221,29 +218,20 @@ class RetryDomainProvisioningJobTest extends TestCase
         $this->subscription->setRelation('domainDeployment', null);
         $this->subscription->setRelation('orderLineItem', null);
 
-        $recreatedDomainDeployment = DomainDeploymentFactory::new()
-            ->makeOne([
-                'subscription_uuid' => $this->subscription->uuid,
-            ]);
+        $recreatedDomainDeployment = DomainDeploymentFactory::new()->makeOne([
+            'subscription_uuid' => $this->subscription->uuid,
+        ]);
         $recreatedDomainDeployment->setRelation('subscription', $this->subscription);
 
         $extensionMetaData = self::createStub(ExtensionMetaData::class);
 
-        $this->eventSubscriptionDataBuilder
-            ->method('buildExtensionMetaData')
-            ->willReturn($extensionMetaData);
+        $this->eventSubscriptionDataBuilder->method('buildExtensionMetaData')->willReturn($extensionMetaData);
 
-        $this->eventSubscriptionDataBuilder
-            ->method('buildDnssecEnabled')
-            ->willReturn(true);
+        $this->eventSubscriptionDataBuilder->method('buildDnssecEnabled')->willReturn(true);
 
-        $this->eventSubscriptionDataBuilder
-            ->method('buildPrivateWhoisStatus')
-            ->willReturn(false);
+        $this->eventSubscriptionDataBuilder->method('buildPrivateWhoisStatus')->willReturn(false);
 
-        $this->eventSubscriptionDataBuilder
-            ->method('buildDomainDeployment')
-            ->willReturn($recreatedDomainDeployment);
+        $this->eventSubscriptionDataBuilder->method('buildDomainDeployment')->willReturn($recreatedDomainDeployment);
 
         $this->dispatcher
             ->expects(self::once())

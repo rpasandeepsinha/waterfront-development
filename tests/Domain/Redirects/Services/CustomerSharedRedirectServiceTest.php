@@ -99,15 +99,9 @@ class CustomerSharedRedirectServiceTest extends TestCase
             ->with($sourceHost)
             ->willReturn($baseDomain);
 
-        $this->redirectDnsService
-            ->expects(self::once())
-            ->method('cleanupDnsRecords')
-            ->with($baseDomain, $sourceHost);
+        $this->redirectDnsService->expects(self::once())->method('cleanupDnsRecords')->with($baseDomain, $sourceHost);
 
-        $this->redirects
-            ->expects(self::once())
-            ->method('remove')
-            ->with($this->customer->id, $source);
+        $this->redirects->expects(self::once())->method('remove')->with($this->customer->id, $source);
 
         $this->service->remove($this->customer, $source);
     }

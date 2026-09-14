@@ -25,7 +25,7 @@ class KeyCloud
     {
         return $this->filesystem->put(
             $this->getCsrPath($domain),
-            $csr
+            $csr,
         );
     }
 
@@ -40,7 +40,7 @@ class KeyCloud
 
         return $this->filesystem->put(
             $this->getEncryptedKeyPath($domain),
-            $encrypted
+            $encrypted,
         );
     }
 
@@ -68,6 +68,7 @@ class KeyCloud
     {
         if ($this->hasEncryptedPrivateKey($domain)) {
             $key = $this->filesystem->get($this->getEncryptedKeyPath($domain)) ?? '';
+
             return $this->decrypt($key);
         }
 
@@ -141,7 +142,8 @@ class KeyCloud
 
     private function assertValidDomain(string $domain): void
     {
-        if (! str_contains($domain, '/')
+        if (
+            ! str_contains($domain, '/')
             && ! str_contains($domain, '\\')
             && ! (bool) preg_match('#\s#', $domain)
             && $domain !== '.'

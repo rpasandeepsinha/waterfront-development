@@ -79,44 +79,90 @@ class ValidationControllerBaseTest extends IntegrationTestCase
     #[Test]
     public function validateCompleteSuccess(): void
     {
-        $extensionProduct = ProductFactory::new()->for(ProductGroupFactory::new()->extension()->createOne())->createOne(['slug' => 'extension_nl']);
-        new ProductPriceComponentFactory()->for($extensionProduct)->prolongation()->createOne(['price' => 1120]);
+        $extensionProduct = ProductFactory::new()->for(
+            ProductGroupFactory::new()->extension()->createOne(),
+        )->createOne(['slug' => 'extension_nl']);
+        new ProductPriceComponentFactory()
+            ->for($extensionProduct)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
         $hostingProductGroup = ProductGroupFactory::new()->hosting()->createOne();
         $hostingProduct = ProductFactory::new()->for($hostingProductGroup)->createOne(['slug' => 'directadmin_basic']);
         $hostingProductPlesk = ProductFactory::new()->for($hostingProductGroup)->createOne(['slug' => 'plesk_basic']);
         $mailProduct = ProductFactory::new()->for($hostingProductGroup)->createOne(['slug' => 'mail_start']);
-        new ProductPriceComponentFactory()->for($hostingProduct)->prolongation()->createOne(['price' => 1120]);
-        new ProductPriceComponentFactory()->for($hostingProductPlesk)->prolongation()->createOne(['price' => 1120]);
-        new ProductPriceComponentFactory()->for($mailProduct)->prolongation()->createOne(['price' => 1120]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProductPlesk)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
+        new ProductPriceComponentFactory()
+            ->for($mailProduct)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
         $redirectProduct = ProductFactory::new()->freeRedirect()->createOne();
-        new ProductPriceComponentFactory()->for($redirectProduct)->prolongation()->createOne(['price' => 1120]);
+        new ProductPriceComponentFactory()
+            ->for($redirectProduct)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
-        $sslProduct = ProductFactory::new()->for(ProductGroupFactory::new()->ssl()->createOne())->createOne(['slug' => 'ssl_single_domain']);
-        new ProductPriceComponentFactory()->for($sslProduct)->prolongation()->createOne(['price' => 1120]);
+        $sslProduct = ProductFactory::new()->for(ProductGroupFactory::new()->ssl()->createOne())->createOne([
+            'slug' => 'ssl_single_domain',
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($sslProduct)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
         $backupGroup = ProductGroupFactory::new()->backup()->createOne();
         $backupProduct = ProductFactory::new()->for($backupGroup)->createOne(['slug' => 'home_50']);
-        new ProductPriceComponentFactory()->for($backupProduct)->prolongation()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($backupProduct)
+            ->prolongation()
+            ->createOne();
         $backupProduct2 = ProductFactory::new()->for($backupGroup)->createOne(['slug' => 'acronis-personal-100']);
-        new ProductPriceComponentFactory()->for($backupProduct2)->prolongation()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($backupProduct2)
+            ->prolongation()
+            ->createOne();
 
-        $dnsProduct = ProductFactory::new()->for(ProductGroupFactory::new()->dns()->createOne())->createOne(['slug' => 'dns_free']);
-        new ProductPriceComponentFactory()->for($dnsProduct)->prolongation()->createOne(['price' => 1120]);
+        $dnsProduct = ProductFactory::new()->for(ProductGroupFactory::new()->dns()->createOne())->createOne([
+            'slug' => 'dns_free',
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
-        $productVolumeDiscount = ProductFactory::new()->for(ProductGroupFactory::new()->volumeDiscount()->createOne())->createOne(['slug' => 'volume_discount_brons']);
-        new ProductPriceComponentFactory()->for($productVolumeDiscount)->prolongation()->createOne(['price' => 1120]);
-
-        ProductDiscountFactory::new()
+        $productVolumeDiscount = ProductFactory::new()->for(
+            ProductGroupFactory::new()->volumeDiscount()->createOne(),
+        )->createOne(['slug' => 'volume_discount_brons']);
+        new ProductPriceComponentFactory()
             ->for($productVolumeDiscount)
-            ->createOne(['name' => 'volume discount for domains']);
+            ->prolongation()
+            ->createOne(['price' => 1120]);
+
+        ProductDiscountFactory::new()->for($productVolumeDiscount)->createOne([
+            'name' => 'volume discount for domains',
+        ]);
 
         $sitebuilderProduct = ProductFactory::new()->for($hostingProductGroup)->createOne(['slug' => 'sitebuilder']);
-        new ProductPriceComponentFactory()->for($sitebuilderProduct)->prolongation()->createOne(['price' => 1120]);
+        new ProductPriceComponentFactory()
+            ->for($sitebuilderProduct)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
-        $resellerProduct = ProductFactory::new()->for(ProductGroupFactory::new()->resellerHosting()->createOne())->createOne(['slug' => 'reseller-brons']);
-        new ProductPriceComponentFactory()->for($resellerProduct)->prolongation()->createOne(['price' => 13200]);
+        $resellerProduct = ProductFactory::new()->for(
+            ProductGroupFactory::new()->resellerHosting()->createOne(),
+        )->createOne(['slug' => 'reseller-brons']);
+        new ProductPriceComponentFactory()
+            ->for($resellerProduct)
+            ->prolongation()
+            ->createOne(['price' => 13200]);
 
         $serverDirectadmin = ServerFactory::new()->directadmin()->createOne(['hostname' => 'my_hostname.nl']);
         $serverPlesk = ServerFactory::new()->plesk()->createOne(['hostname' => 'plesk.server.test']);
@@ -152,21 +198,23 @@ class ValidationControllerBaseTest extends IntegrationTestCase
         $backupUserClient->method('getSso')->willReturn(new OneTimeToken(ott: 'test'));
 
         $acronisClientFactory = $this->createMock(AcronisClientFactory::class);
-        $acronisClientFactory->method('create')->willReturn(new AcronisClient(
-            tenantId: $acronisProvider->tenant_uuid,
-            userClient: $backupUserClient,
-            offeringItemsClient: $this->createStub(AcronisOfferingItemsClient::class),
-            tenantClient: $this->createStub(AcronisTenantClient::class),
-            genericClient: $backupGenericClient
-        ));
+        $acronisClientFactory
+            ->method('create')
+            ->willReturn(new AcronisClient(
+                tenantId: $acronisProvider->tenant_uuid,
+                userClient: $backupUserClient,
+                offeringItemsClient: $this->createStub(AcronisOfferingItemsClient::class),
+                tenantClient: $this->createStub(AcronisTenantClient::class),
+                genericClient: $backupGenericClient,
+            ));
 
-        $this->app->bind(AcronisClientFactory::class, fn () =>  $acronisClientFactory);
+        $this->app->bind(AcronisClientFactory::class, fn () => $acronisClientFactory);
 
         $mockHostingService = self::createMock(HostingService::class);
-        $mockHostingService->method('getPackageOnServerAsDto')
+        $mockHostingService
+            ->method('getPackageOnServerAsDto')
             ->willReturnCallback(
-                fn (Server $server, string $packageName): HostingOfferingInterface =>
-                match ($packageName) {
+                fn (Server $server, string $packageName): HostingOfferingInterface => match ($packageName) {
                     'directadmin_basic' => new DirectAdminUserPackage(
                         vdomains: '2',
                         nemails: '5',
@@ -181,7 +229,7 @@ class ValidationControllerBaseTest extends IntegrationTestCase
                         maxAmountDatabases: 2,
                         maxNetworkTrafficInMB: 2048,
                         maxDiskSpaceInMB: 2048,
-                        package: 'plesk_basic'
+                        package: 'plesk_basic',
                     ),
                     'reseller-brons' => new DirectAdminUserPackage(
                         vdomains: '5',
@@ -192,74 +240,76 @@ class ValidationControllerBaseTest extends IntegrationTestCase
                         package: 'reseller-brons',
                     ),
                     default => throw new UnexpectedValueException(),
-                }
-            );
-
-        $mockHostingService->method('getUserConfigAsDto')
-            ->willReturnCallback(
-                fn (string $driver, string $userName, Server $server): SiteConfigInterface =>
-                    match ([$driver, $userName, $server->hostname]) {
-                        [ProviderSlug::DIRECTADMIN->value, 'i_do_exist_for_reseller', 'my_hostname.nl'] => new UserConfig(
-                            dnscontrol: 'ON',
-                            ssl: 'ON',
-                            loginKeys: 'ON',
-                            vdomains: '5',
-                            nemails: '10',
-                            mysql: '15',
-                            bandwidth: '2048',
-                            quota: '2048',
-                            package: 'reseller-brons',
-                            usertype: HostingUserType::RESELLER,
-                            domain: 'reseller1337.testing.test',
-                        ),
-                        [ProviderSlug::PLESK->value, 'plesk_username_test', 'plesk.server.test'] => new UserConfig(
-                            dnscontrol: 'ON',
-                            ssl: 'ON',
-                            loginKeys: 'ON',
-                            vdomains: '10',
-                            nemails: '10',
-                            mysql: '10',
-                            bandwidth: '1024',
-                            quota: '1024',
-                            package: 'basic',
-                            usertype: HostingUserType::USER,
-                            domain: 'testupgradefixversio.nl',
-                        ),
-                        default => new UserConfig(
-                            dnscontrol: 'ON',
-                            ssl: 'ON',
-                            loginKeys: 'ON',
-                            vdomains: '10',
-                            nemails: '10',
-                            mysql: '10',
-                            bandwidth: '1024',
-                            quota: '1024',
-                            package: 'directadmin_basic',
-                            usertype: HostingUserType::USER,
-                            domain: 'testupgradefixversio.nl',
-                        ),
-                    }
+                },
             );
 
         $mockHostingService
-            ->method('isUsingHostingServerAsNameserver')
-            ->willReturn(true);
+            ->method('getUserConfigAsDto')
+            ->willReturnCallback(
+                fn (string $driver, string $userName, Server $server): SiteConfigInterface => match ([
+                    $driver,
+                    $userName,
+                    $server->hostname,
+                ]) {
+                    [ProviderSlug::DIRECTADMIN->value, 'i_do_exist_for_reseller', 'my_hostname.nl'] => new UserConfig(
+                        dnscontrol: 'ON',
+                        ssl: 'ON',
+                        loginKeys: 'ON',
+                        vdomains: '5',
+                        nemails: '10',
+                        mysql: '15',
+                        bandwidth: '2048',
+                        quota: '2048',
+                        package: 'reseller-brons',
+                        usertype: HostingUserType::RESELLER,
+                        domain: 'reseller1337.testing.test',
+                    ),
+                    [ProviderSlug::PLESK->value, 'plesk_username_test', 'plesk.server.test'] => new UserConfig(
+                        dnscontrol: 'ON',
+                        ssl: 'ON',
+                        loginKeys: 'ON',
+                        vdomains: '10',
+                        nemails: '10',
+                        mysql: '10',
+                        bandwidth: '1024',
+                        quota: '1024',
+                        package: 'basic',
+                        usertype: HostingUserType::USER,
+                        domain: 'testupgradefixversio.nl',
+                    ),
+                    default => new UserConfig(
+                        dnscontrol: 'ON',
+                        ssl: 'ON',
+                        loginKeys: 'ON',
+                        vdomains: '10',
+                        nemails: '10',
+                        mysql: '10',
+                        bandwidth: '1024',
+                        quota: '1024',
+                        package: 'directadmin_basic',
+                        usertype: HostingUserType::USER,
+                        domain: 'testupgradefixversio.nl',
+                    ),
+                },
+            );
 
-        $this->app->bind(HostingService::class, fn () =>  $mockHostingService);
+        $mockHostingService->method('isUsingHostingServerAsNameserver')->willReturn(true);
+
+        $this->app->bind(HostingService::class, fn () => $mockHostingService);
 
         $mockSitebuilderService = self::createMock(SitebuilderService::class);
-        $mockSitebuilderService->method('getSiteFromRef')
+        $mockSitebuilderService
+            ->method('getSiteFromRef')
             ->willReturn(new BaseKitSite(
                 id: 123,
                 domain: 'test-dns-intern-mail-11.nl',
             ));
 
-        $this->app->bind(SitebuilderService::class, fn () =>  $mockSitebuilderService);
+        $this->app->bind(SitebuilderService::class, fn () => $mockSitebuilderService);
 
         $mockAction = self::createMock(GetSsoUrlAction::class);
 
-        $mockAction->method('execute')
-            ->willReturn('my_sso_link');
+        $mockAction->method('execute')->willReturn('my_sso_link');
 
         $this->app->bind(GetSsoUrlAction::class, fn () => $mockAction);
 
@@ -268,41 +318,41 @@ class ValidationControllerBaseTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-10.nl', [], 'Slave')
+                $this->getMockedZoneResponseBody('test-dns-intern-10.nl', [], 'Slave'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-11.nl', [], 'Slave')
+                $this->getMockedZoneResponseBody('test-dns-intern-11.nl', [], 'Slave'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-12.nl', [], 'Slave')
+                $this->getMockedZoneResponseBody('test-dns-intern-12.nl', [], 'Slave'),
             ),
 
             // DNSSEC master check
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-10.nl', [], 'Master')
+                $this->getMockedZoneResponseBody('test-dns-intern-10.nl', [], 'Master'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-11.nl', [], 'Master')
+                $this->getMockedZoneResponseBody('test-dns-intern-11.nl', [], 'Master'),
             ),
             // SSL get Zone
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-12.nl', [], 'Master')
+                $this->getMockedZoneResponseBody('test-dns-intern-12.nl', [], 'Master'),
             ),
 
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-10.nl', [], 'Master')
+                $this->getMockedZoneResponseBody('test-dns-intern-10.nl', [], 'Master'),
             ),
 
             // Redirect validation
@@ -315,7 +365,7 @@ class ValidationControllerBaseTest extends IntegrationTestCase
                     redirectContentForARrset: '127.0.0.1',
                     redirectNameForAAAARrset: 'test-dns-intern-10.nl',
                     redirectContentForAAAARrset: '::1',
-                )
+                ),
             ),
         ]);
 
@@ -323,7 +373,8 @@ class ValidationControllerBaseTest extends IntegrationTestCase
 
         $dnsHelper = self::createMock(DnsHelper::class);
 
-        $dnsHelper->expects(self::exactly(3))
+        $dnsHelper
+            ->expects(self::exactly(3))
             ->method('dnsGetRecord')
             ->willReturnOnConsecutiveCalls(
                 // SOA record
@@ -433,65 +484,75 @@ class ValidationControllerBaseTest extends IntegrationTestCase
         $rtrService = $this->createMock(RtrService::class);
         $rtrMigrationService = $this->createMock(DomainAndSslMigrationService::class);
 
-        $rtrService->expects(self::exactly(4))
+        $rtrService
+            ->expects(self::exactly(4))
             ->method('fetchDomain')
             ->willReturnCallback(
                 fn (string $domain) => match ($domain) {
                     'test-dns-intern-10.nl', 'test-dns-intern-11.nl', 'test-dns-intern-12.nl' => $domainDetails,
-                    default => throw new LogicException()
-                }
+                    default => throw new LogicException(),
+                },
             );
 
         $certificateCollection = CertificateCollection::fromArray([]);
         $rtrMigrationService = $this->createPartialMock(
             DomainAndSslMigrationService::class,
-            ['listRtrSslCertificates', 'parseRemotePhone']
+            ['listRtrSslCertificates', 'parseRemotePhone'],
         );
         $rtrMigrationService->method('listRtrSslCertificates')->willReturn($certificateCollection);
-        $this->app->bind(DomainAndSslMigrationService::class, fn (): DomainAndSslMigrationService => $rtrMigrationService);
+        $this->app->bind(
+            DomainAndSslMigrationService::class,
+            fn (): DomainAndSslMigrationService => $rtrMigrationService,
+        );
 
-        $rtrService->expects(self::exactly(2))
+        $rtrService
+            ->expects(self::exactly(2))
             ->method('retrieveCustomerHandle')
             ->with(self::equalTo('testdummy'))
             ->willReturn($contactResponse);
 
-        $rtrMigrationService->expects(self::exactly(2))
+        $rtrMigrationService
+            ->expects(self::exactly(2))
             ->method('parseRemotePhone')
             ->with(self::equalTo($contactResponse));
 
-        $rtrService->expects(self::exactly(2))
+        $rtrService
+            ->expects(self::exactly(2))
             ->method('isDnssecSupported')
             ->willReturnCallback(
                 fn (string $domain): bool => match ($domain) {
                     'test-dns-intern-10.nl' => true,
                     'test-dns-intern-11.nl' => true,
-                    default => throw new LogicException()
-                }
+                    default => throw new LogicException(),
+                },
             );
 
-        $rtrService
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrService->method('setHandle')->willReturnSelf();
 
-        $rtrService
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrService->method('setClient')->willReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
         $this->app->bind(DomainAndSslMigrationService::class, fn () => $rtrMigrationService);
 
         $dnsMigrationService = $this->createPartialMock(
             DnsMigrationService::class,
-            ['isMigratableNameserver']
+            ['isMigratableNameserver'],
         );
 
-        $dnsMigrationService->expects(self::exactly(4))
+        $dnsMigrationService
+            ->expects(self::exactly(4))
             ->method('isMigratableNameserver')
             ->willReturnCallback(
                 fn (string $hostname): bool => match ($hostname) {
-                    'ns02.sandwave-test.com','ns1.sandwave-test.com', 'nameserver01.testing_from_db.test', 'nameserver01.testing.test', 'nameserver02.testing.test', 'a.misconfigured.powerdns.server' => true,
-                    default => throw new LogicException()
-                }
+                    'ns02.sandwave-test.com',
+                    'ns1.sandwave-test.com',
+                    'nameserver01.testing_from_db.test',
+                    'nameserver01.testing.test',
+                    'nameserver02.testing.test',
+                    'a.misconfigured.powerdns.server',
+                        => true,
+                    default => throw new LogicException(),
+                },
             );
 
         $this->app->bind(DnsMigrationService::class, fn () => $dnsMigrationService);
@@ -517,14 +578,13 @@ class ValidationControllerBaseTest extends IntegrationTestCase
         /** @var array<string, mixed> $payload */
         $payload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        $response = $this->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.validate'),
-                $payload,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.validate'),
+            $payload,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+            ],
+        );
 
         $response->assertStatus(SymphonyResponse::HTTP_MULTI_STATUS);
 
@@ -540,7 +600,7 @@ class ValidationControllerBaseTest extends IntegrationTestCase
                         ],
                     ],
                 ],
-            ]
+            ],
         );
 
         self::assertSame($expectedWebhookPayload, $pointedPayload);
@@ -549,17 +609,30 @@ class ValidationControllerBaseTest extends IntegrationTestCase
     #[Test]
     public function validateOnlyDomainsSuccessWithBusinessUnit(): void
     {
-        $product = ProductFactory::new()->for(ProductGroupFactory::new()->extension()->createOne())->createOne(['slug' => 'extension_nl']);
-        new ProductPriceComponentFactory()->for($product)->prolongation()->createOne(['price' => 1120]);
+        $product = ProductFactory::new()->for(ProductGroupFactory::new()->extension()->createOne())->createOne([
+            'slug' => 'extension_nl',
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
-        $product = ProductFactory::new()->for(ProductGroupFactory::new()->hosting()->createOne())->createOne(['slug' => 'start']);
-        new ProductPriceComponentFactory()->for($product)->prolongation()->createOne(['price' => 1120]);
+        $product = ProductFactory::new()->for(ProductGroupFactory::new()->hosting()->createOne())->createOne([
+            'slug' => 'start',
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
         $serverDirectadmin = ServerFactory::new()->directadmin()->createOne(['hostname' => 'my_hostname.nl']);
         $serverDirectadmin = $serverDirectadmin->fresh();
 
         $businessUnit = DomainProviderBusinessUnitFactory::new()->argeweb()->createOne();
-        $argewebRtrCredentials = RtrProviderCredentialsFactory::new()->state(['api_key' => 'rtr-argeweb-client'])->for($businessUnit)->createOne();
+        $argewebRtrCredentials = RtrProviderCredentialsFactory::new()
+            ->state(['api_key' => 'rtr-argeweb-client'])
+            ->for($businessUnit)
+            ->createOne();
 
         LegacyRedirectingServerFactory::new()->createOne([
             'original_business_unit' => 'testmigration',
@@ -574,24 +647,24 @@ class ValidationControllerBaseTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-10.nl', [], 'Slave')
+                $this->getMockedZoneResponseBody('test-dns-intern-10.nl', [], 'Slave'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-11.nl', [], 'Slave')
+                $this->getMockedZoneResponseBody('test-dns-intern-11.nl', [], 'Slave'),
             ),
 
             // DNSSEC master check
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-10.nl', [], 'Master')
+                $this->getMockedZoneResponseBody('test-dns-intern-10.nl', [], 'Master'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-11.nl', [], 'Master')
+                $this->getMockedZoneResponseBody('test-dns-intern-11.nl', [], 'Master'),
             ),
 
             // Redirect validation
@@ -603,15 +676,16 @@ class ValidationControllerBaseTest extends IntegrationTestCase
                     redirectNameForARrset: 'test-dns-intern-10.nl',
                     redirectContentForARrset: '127.0.0.1',
                     redirectNameForAAAARrset: 'test-dns-intern-10.nl',
-                    redirectContentForAAAARrset: '::1'
-                )
+                    redirectContentForAAAARrset: '::1',
+                ),
             ),
         ]);
 
         $this->pdns($pdnsMock);
 
         $dnsHelper = self::createMock(DnsHelper::class);
-        $dnsHelper->expects(self::exactly(4))
+        $dnsHelper
+            ->expects(self::exactly(4))
             ->method('dnsGetRecord')
             ->willReturnOnConsecutiveCalls(
                 // SOA record
@@ -712,23 +786,20 @@ class ValidationControllerBaseTest extends IntegrationTestCase
             ->shouldReceive('fetchDomain')
             ->times(4)
             ->andReturnUsing(fn ($domain) => match ($domain) {
-                'test-dns-intern-10.nl',
-                'test-dns-intern-11.nl' => $domainDetails,
-                default => throw new LogicException()
+                'test-dns-intern-10.nl', 'test-dns-intern-11.nl' => $domainDetails,
+                default => throw new LogicException(),
             });
 
-        $rtrService
-            ->shouldReceive('retrieveCustomerHandle')
-            ->times(2)
-            ->with('testdummy')
-            ->andReturn($contactResponse);
+        $rtrService->shouldReceive('retrieveCustomerHandle')->times(2)->with('testdummy')->andReturn($contactResponse);
 
-        $rtrMigrationService->expects(self::exactly(6))
+        $rtrMigrationService
+            ->expects(self::exactly(6))
             ->method('getProviderBusinessUnit')
             ->with($businessUnit->slug, ProviderSlug::REALTIME_REGISTER)
             ->willReturn($businessUnit);
 
-        $rtrMigrationService->expects(self::exactly(2))
+        $rtrMigrationService
+            ->expects(self::exactly(2))
             ->method('parseRemotePhone')
             ->with(self::equalTo($contactResponse));
 
@@ -739,11 +810,12 @@ class ValidationControllerBaseTest extends IntegrationTestCase
                 fn ($domain): bool => match ($domain) {
                     'test-dns-intern-10.nl' => true,
                     'test-dns-intern-11.nl' => true,
-                    default => throw new LogicException()
-                }
+                    default => throw new LogicException(),
+                },
             );
 
-        $rtrService->shouldReceive('setClient')
+        $rtrService
+            ->shouldReceive('setClient')
             ->once()
             ->withArgs(function ($client) use ($argewebRtrCredentials) {
                 $clientArray = (array) $client;
@@ -755,33 +827,36 @@ class ValidationControllerBaseTest extends IntegrationTestCase
                 $authorizedClientArray = (array) $domainsApiArray[$clientKey];
 
                 $values = array_values($authorizedClientArray);
+
                 return $values[0] !== null && $values[0] === $argewebRtrCredentials->api_key;
             })
             ->andReturn($rtrService);
 
-        $rtrService
-            ->shouldReceive('setHandle')
-            ->andReturnSelf();
+        $rtrService->shouldReceive('setHandle')->andReturnSelf();
 
-        $rtrService
-            ->shouldReceive('setClient')
-            ->andReturnSelf();
+        $rtrService->shouldReceive('setClient')->andReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
         $this->app->bind(DomainAndSslMigrationService::class, fn () => $rtrMigrationService);
 
         $dnsMigrationService = $this->createPartialMock(
             DnsMigrationService::class,
-            ['isMigratableNameserver']
+            ['isMigratableNameserver'],
         );
 
-        $dnsMigrationService->expects(self::exactly(10))
+        $dnsMigrationService
+            ->expects(self::exactly(10))
             ->method('isMigratableNameserver')
             ->willReturnCallback(
                 fn (string $hostname): bool => match ($hostname) {
-                    'ns02.sandwave-test.com', 'ns1.sandwave-test.com','nameserver01.testing.test', 'nameserver02.testing.test', 'a.misconfigured.powerdns.server' => true,
-                    default => throw new LogicException()
-                }
+                    'ns02.sandwave-test.com',
+                    'ns1.sandwave-test.com',
+                    'nameserver01.testing.test',
+                    'nameserver02.testing.test',
+                    'a.misconfigured.powerdns.server',
+                        => true,
+                    default => throw new LogicException(),
+                },
             );
 
         $this->app->bind(DnsMigrationService::class, fn () => $dnsMigrationService);
@@ -804,18 +879,18 @@ class ValidationControllerBaseTest extends IntegrationTestCase
 
         Http::shouldReceive('post')->withAnyArgs()->andReturn(new LaravelResponse(new Response()));
 
-        $json = (string) file_get_contents(__DIR__ . '/data/validation/validation_payload_full_correct_only_domains_with_bu.json');
+        $json = (string) file_get_contents(__DIR__
+        . '/data/validation/validation_payload_full_correct_only_domains_with_bu.json');
         /** @var array<string, mixed> $payload */
         $payload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        $response = $this->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.validate'),
-                $payload,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.validate'),
+            $payload,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+            ],
+        );
 
         $response->assertStatus(SymphonyResponse::HTTP_MULTI_STATUS);
 
@@ -831,7 +906,7 @@ class ValidationControllerBaseTest extends IntegrationTestCase
                         ],
                     ],
                 ],
-            ]
+            ],
         );
 
         self::assertSame($expectedWebhookPayload, $pointedPayload);
@@ -840,11 +915,21 @@ class ValidationControllerBaseTest extends IntegrationTestCase
     #[Test]
     public function validateOnlyDomainsSuccess(): void
     {
-        $product = ProductFactory::new()->for(ProductGroupFactory::new()->extension()->createOne())->createOne(['slug' => 'extension_nl']);
-        new ProductPriceComponentFactory()->for($product)->prolongation()->createOne(['price' => 1120]);
+        $product = ProductFactory::new()->for(ProductGroupFactory::new()->extension()->createOne())->createOne([
+            'slug' => 'extension_nl',
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
-        $product = ProductFactory::new()->for(ProductGroupFactory::new()->hosting()->createOne())->createOne(['slug' => 'start']);
-        new ProductPriceComponentFactory()->for($product)->prolongation()->createOne(['price' => 1120]);
+        $product = ProductFactory::new()->for(ProductGroupFactory::new()->hosting()->createOne())->createOne([
+            'slug' => 'start',
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
         $serverDirectadmin = ServerFactory::new()->directadmin()->createOne(['hostname' => 'my_hostname.nl']);
         $serverDirectadmin = $serverDirectadmin->fresh();
@@ -862,24 +947,24 @@ class ValidationControllerBaseTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-10.nl', [], 'Slave')
+                $this->getMockedZoneResponseBody('test-dns-intern-10.nl', [], 'Slave'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-11.nl', [], 'Slave')
+                $this->getMockedZoneResponseBody('test-dns-intern-11.nl', [], 'Slave'),
             ),
 
             // DNSSEC master check
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-10.nl', [], 'Master')
+                $this->getMockedZoneResponseBody('test-dns-intern-10.nl', [], 'Master'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test-dns-intern-11.nl', [], 'Master')
+                $this->getMockedZoneResponseBody('test-dns-intern-11.nl', [], 'Master'),
             ),
 
             // Redirect validation
@@ -891,15 +976,16 @@ class ValidationControllerBaseTest extends IntegrationTestCase
                     redirectNameForARrset: 'test-dns-intern-10.nl',
                     redirectContentForARrset: '127.0.0.1',
                     redirectNameForAAAARrset: 'test-dns-intern-10.nl',
-                    redirectContentForAAAARrset: '::1'
-                )
+                    redirectContentForAAAARrset: '::1',
+                ),
             ),
         ]);
 
         $this->pdns($pdnsMock);
 
         $dnsHelper = self::createMock(DnsHelper::class);
-        $dnsHelper->expects(self::exactly(4))
+        $dnsHelper
+            ->expects(self::exactly(4))
             ->method('dnsGetRecord')
             ->willReturnOnConsecutiveCalls(
                 // SOA record
@@ -996,58 +1082,63 @@ class ValidationControllerBaseTest extends IntegrationTestCase
         $rtrService = $this->createMock(RtrService::class);
         $rtrMigrationService = $this->createMock(DomainAndSslMigrationService::class);
 
-        $rtrService->expects(self::exactly(4))
+        $rtrService
+            ->expects(self::exactly(4))
             ->method('fetchDomain')
             ->willReturnCallback(
                 fn (string $domain) => match ($domain) {
-                    'test-dns-intern-10.nl',
-                    'test-dns-intern-11.nl' => $domainDetails,
-                    default => throw new LogicException()
-                }
+                    'test-dns-intern-10.nl', 'test-dns-intern-11.nl' => $domainDetails,
+                    default => throw new LogicException(),
+                },
             );
 
-        $rtrService->expects(self::exactly(2))
+        $rtrService
+            ->expects(self::exactly(2))
             ->method('retrieveCustomerHandle')
             ->with(self::equalTo('testdummy'))
             ->willReturn($contactResponse);
 
-        $rtrMigrationService->expects(self::exactly(2))
+        $rtrMigrationService
+            ->expects(self::exactly(2))
             ->method('parseRemotePhone')
             ->with(self::equalTo($contactResponse));
 
-        $rtrService->expects(self::exactly(2))
+        $rtrService
+            ->expects(self::exactly(2))
             ->method('isDnssecSupported')
             ->willReturnCallback(
                 fn (string $domain): bool => match ($domain) {
                     'test-dns-intern-10.nl' => true,
                     'test-dns-intern-11.nl' => true,
-                    default => throw new LogicException()
-                }
+                    default => throw new LogicException(),
+                },
             );
 
-        $rtrService
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrService->method('setHandle')->willReturnSelf();
 
-        $rtrService
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrService->method('setClient')->willReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
         $this->app->bind(DomainAndSslMigrationService::class, fn () => $rtrMigrationService);
 
         $dnsMigrationService = $this->createPartialMock(
             DnsMigrationService::class,
-            ['isMigratableNameserver']
+            ['isMigratableNameserver'],
         );
 
-        $dnsMigrationService->expects(self::exactly(10))
+        $dnsMigrationService
+            ->expects(self::exactly(10))
             ->method('isMigratableNameserver')
             ->willReturnCallback(
                 fn (string $hostname): bool => match ($hostname) {
-                    'ns02.sandwave-test.com', 'ns1.sandwave-test.com','nameserver01.testing.test', 'nameserver02.testing.test', 'a.misconfigured.powerdns.server' => true,
-                    default => throw new LogicException()
-                }
+                    'ns02.sandwave-test.com',
+                    'ns1.sandwave-test.com',
+                    'nameserver01.testing.test',
+                    'nameserver02.testing.test',
+                    'a.misconfigured.powerdns.server',
+                        => true,
+                    default => throw new LogicException(),
+                },
             );
 
         $this->app->bind(DnsMigrationService::class, fn () => $dnsMigrationService);
@@ -1070,18 +1161,18 @@ class ValidationControllerBaseTest extends IntegrationTestCase
 
         Http::shouldReceive('post')->withAnyArgs()->andReturn(new LaravelResponse(new Response()));
 
-        $json = (string) file_get_contents(__DIR__ . '/data/validation/validation_payload_full_correct_only_domains.json');
+        $json = (string) file_get_contents(__DIR__
+        . '/data/validation/validation_payload_full_correct_only_domains.json');
         /** @var array<string, mixed> $payload */
         $payload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        $response = $this->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.validate'),
-                $payload,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.validate'),
+            $payload,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+            ],
+        );
 
         $response->assertStatus(SymphonyResponse::HTTP_MULTI_STATUS);
 
@@ -1097,7 +1188,7 @@ class ValidationControllerBaseTest extends IntegrationTestCase
                         ],
                     ],
                 ],
-            ]
+            ],
         );
 
         self::assertSame($expectedWebhookPayload, $pointedPayload);
@@ -1110,14 +1201,13 @@ class ValidationControllerBaseTest extends IntegrationTestCase
         /** @var array<string, mixed> $payload */
         $payload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        $response = $this->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.validate'),
-                $payload,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.validate'),
+            $payload,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+            ],
+        );
 
         $response->assertStatus(SymphonyResponse::HTTP_UNPROCESSABLE_ENTITY);
         $response->assertUnprocessable();
@@ -1131,14 +1221,13 @@ class ValidationControllerBaseTest extends IntegrationTestCase
         /** @var array<string, mixed> $payload */
         $payload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        $response = $this->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.validate'),
-                $payload,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.validate'),
+            $payload,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+            ],
+        );
 
         $response->assertStatus(SymphonyResponse::HTTP_UNPROCESSABLE_ENTITY);
         $response->assertUnprocessable();
@@ -1152,10 +1241,7 @@ class ValidationControllerBaseTest extends IntegrationTestCase
 
         ProviderFactory::new()->sslPlaceholder()->createOne();
 
-        $productSsl = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->ssl())
-            ->sslSingleDomain()
-            ->createOne();
+        $productSsl = ProductFactory::new()->for(ProductGroupFactory::new()->ssl())->sslSingleDomain()->createOne();
 
         new ProductPriceComponentFactory()
             ->for($productSsl)
@@ -1184,13 +1270,12 @@ class ValidationControllerBaseTest extends IntegrationTestCase
             $configuration->getAsString('ferry.ferry_azure_data_factory_job_api_url'),
         );
 
-        Http::shouldReceive('post')
-            ->withArgs(function ($url, $payload) use ($expectedUrl, &$pointedPayload) {
-                self::assertSame($expectedUrl, $url);
-                // Time re;ated ;omes in this part of the payload. Irrelevant for the functionality itself.
-                unset($payload['data']['timeline']);
-                $pointedPayload = $payload;
-            });
+        Http::shouldReceive('post')->withArgs(function ($url, $payload) use ($expectedUrl, &$pointedPayload) {
+            self::assertSame($expectedUrl, $url);
+            // Time re;ated ;omes in this part of the payload. Irrelevant for the functionality itself.
+            unset($payload['data']['timeline']);
+            $pointedPayload = $payload;
+        });
 
         Http::shouldReceive('withHeaders')->once()->andReturnSelf();
 
@@ -1198,24 +1283,27 @@ class ValidationControllerBaseTest extends IntegrationTestCase
 
         $rtrMigrationService = $this->createPartialMock(
             DomainAndSslMigrationService::class,
-            ['listRtrSslCertificates']
+            ['listRtrSslCertificates'],
         );
-        $rtrMigrationService->method('listRtrSslCertificates')
+        $rtrMigrationService
+            ->method('listRtrSslCertificates')
             ->willReturnCallback(fn (): CertificateCollection => CertificateCollection::fromArray([]));
-        $this->app->bind(DomainAndSslMigrationService::class, fn (): DomainAndSslMigrationService => $rtrMigrationService);
+        $this->app->bind(
+            DomainAndSslMigrationService::class,
+            fn (): DomainAndSslMigrationService => $rtrMigrationService,
+        );
 
         $json = (string) file_get_contents(__DIR__ . '/data/validation/validation_payload_existing_subscription.json');
         /** @var array<string, mixed> $payload */
         $payload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        $response = $this->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.validate'),
-                $payload,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.validate'),
+            $payload,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+            ],
+        );
 
         $response->assertStatus(SymphonyResponse::HTTP_MULTI_STATUS);
 
@@ -1231,7 +1319,7 @@ class ValidationControllerBaseTest extends IntegrationTestCase
                         ],
                     ],
                 ],
-            ]
+            ],
         );
 
         self::assertSame(
@@ -1252,7 +1340,73 @@ class ValidationControllerBaseTest extends IntegrationTestCase
                     'message' => 'subscription reference: unique_reference_for_adf',
                 ],
             ],
-            $pointedPayload['data']['results']['subscription']
+            $pointedPayload['data']['results']['subscription'],
+        );
+    }
+
+    #[Test]
+    public function validateEmployeeFails(): void
+    {
+        Http::fake();
+
+        $pointedPayload = [];
+
+        $configuration = self::resolve(ConfigurationInterface::class);
+        $expectedUrl = sprintf(
+            '%s/api/ConsumeFerryResponse',
+            $configuration->getAsString('ferry.ferry_azure_data_factory_job_api_url'),
+        );
+
+        Http::shouldReceive('post')->withArgs(function ($url, $payload) use ($expectedUrl, &$pointedPayload) {
+            self::assertSame($expectedUrl, $url);
+            unset($payload['data']['timeline']);
+            $pointedPayload = $payload;
+        });
+
+        Http::shouldReceive('withHeaders')->once()->andReturnSelf();
+        Http::shouldReceive('post')->withAnyArgs()->andReturn(new LaravelResponse(new Response()));
+
+        $json = (string) file_get_contents(__DIR__ . '/data/validation/validation_payload_customer_employee.json');
+        /** @var array<string, mixed> $payload */
+        $payload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.validate'),
+            $payload,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+            ],
+        );
+
+        $response
+            ->assertStatus(SymphonyResponse::HTTP_MULTI_STATUS)
+            ->assertExactJson(
+                [
+                    'failures' => [],
+                    'success' => [
+                        [
+                            'message' => 'Created pipeline to validate the customer payload',
+                            'baseParameters' => [],
+                            'parameters' => [
+                                'reference' => 'unique_reference_for_adf',
+                            ],
+                        ],
+                    ],
+                ],
+            );
+
+        self::assertSame(
+            [
+                [
+                    'id' => 'customer_validation_is_employee',
+                    'message' => 'Customer payload contains employee e-mail address: t.dummy@yourhosting.nl',
+                ],
+                [
+                    'id' => 'customer_passed',
+                    'message' => 'customer reference: unique_reference_for_adf',
+                ],
+            ],
+            $pointedPayload['data']['results']['customer'],
         );
     }
 }

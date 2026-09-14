@@ -20,7 +20,7 @@ class AcronisClientServiceProvider extends BaseProvider implements DeferrablePro
         ], 'config');
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/config.php',
-            'acronisclient'
+            'acronisclient',
         );
     }
 

@@ -10,8 +10,9 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class SendEnableAutoRenewFailedMailAction
 {
-    public function __construct(private readonly MailerInterface $mailer)
-    {
+    public function __construct(
+        private readonly MailerInterface $mailer,
+    ) {
     }
 
     public function execute(Subscription $subscription): void
@@ -23,7 +24,7 @@ class SendEnableAutoRenewFailedMailAction
                 $subscription->product->description ?? '',
                 $subscription->end_date->format('d M Y'),
                 $subscription->contract_period,
-            )
+            ),
         );
     }
 }

@@ -24,7 +24,7 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
 
 class CreateDirectDebitMandateJob extends AbstractQueueableJob implements ShouldQueue
 {
-    public int $tries   = 5;
+    public int $tries = 5;
 
     public int $timeout = 60;
 
@@ -33,7 +33,7 @@ class CreateDirectDebitMandateJob extends AbstractQueueableJob implements Should
     public function __construct(
         public readonly Customer $customer,
         public readonly MollieMandateDirectDebitCreateDTO $mollieMandateDirectDebitCreateDTO,
-        public readonly MigratedCustomer|null $migratedCustomer = null
+        public readonly ?MigratedCustomer $migratedCustomer = null,
     ) {
         parent::__construct();
     }
@@ -49,8 +49,9 @@ class CreateDirectDebitMandateJob extends AbstractQueueableJob implements Should
                 LoggingContextKeys::QUEUE_JOB_ID => $this->getJobUuid(),
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                 LoggingContextKeys::CUSTOMER_ID => $this->customer->id,
-                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer?->reference_customer_number,
-            ]
+                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                    $this->migratedCustomer?->reference_customer_number,
+            ],
         );
 
         try {
@@ -60,20 +61,20 @@ class CreateDirectDebitMandateJob extends AbstractQueueableJob implements Should
                     consumerName: $this->mollieMandateDirectDebitCreateDTO->consumerName,
                     consumerAccount: $this->mollieMandateDirectDebitCreateDTO->consumerAccount,
                     signatureDate: new CarbonImmutable($this->mollieMandateDirectDebitCreateDTO->signatureDate),
-                    consumerBic: $this->mollieMandateDirectDebitCreateDTO->consumerBic
+                    consumerBic: $this->mollieMandateDirectDebitCreateDTO->consumerBic,
                 );
             } catch (MollieMandateApiException $exception) {
                 $mandate = $this->handleBICUnprocessable(
                     exception: $exception,
                     createDirectDebitMandateAction: $createDirectDebitMandateAction,
-                    logger: $logger
+                    logger: $logger,
                 );
             }
         } catch (Throwable $exception) {
             $this->handleDefaultExceptionState(
                 exception: $exception,
                 logger: $logger,
-                dispatcher: $dispatcher
+                dispatcher: $dispatcher,
             );
 
             throw $exception;
@@ -85,12 +86,13 @@ class CreateDirectDebitMandateJob extends AbstractQueueableJob implements Should
                 LoggingContextKeys::QUEUE_JOB_ID => $this->getJobUuid(),
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                 LoggingContextKeys::CUSTOMER_ID => $this->customer->id,
-                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer?->reference_customer_number,
+                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                    $this->migratedCustomer?->reference_customer_number,
                 LoggingContextKeys::META => [
                     'payt_mandate_reference_id' => $mandate->payt_mandate_reference_id,
                     'signature_date' => $mandate->signature_date->format('Y-m-d'),
                 ],
-            ]
+            ],
         );
 
         if ($this->migratedCustomer instanceof MigratedCustomer) {
@@ -102,7 +104,8 @@ class CreateDirectDebitMandateJob extends AbstractQueueableJob implements Should
                     LoggingContextKeys::QUEUE_JOB_ID => $this->getJobUuid(),
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                     LoggingContextKeys::CUSTOMER_ID => $this->customer->id,
-                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
+                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                        $this->migratedCustomer->reference_customer_number,
                     LoggingContextKeys::META => [
                         'payt_mandate_reference_id' => $mandate->payt_mandate_reference_id,
                     ],
@@ -124,7 +127,7 @@ class CreateDirectDebitMandateJob extends AbstractQueueableJob implements Should
     private function handleBICUnprocessable(
         MollieMandateApiException $exception,
         CreateDirectDebitMandateAction $createDirectDebitMandateAction,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ): Mandate {
         if ($exception->status === 422 && str_contains($exception->detail, 'BIC')) {
             $logger->warning(
@@ -133,9 +136,10 @@ class CreateDirectDebitMandateJob extends AbstractQueueableJob implements Should
                     LoggingContextKeys::QUEUE_JOB_ID => $this->getJobUuid(),
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                     LoggingContextKeys::CUSTOMER_ID => $this->customer->id,
-                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer?->reference_customer_number,
+                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                        $this->migratedCustomer?->reference_customer_number,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return $createDirectDebitMandateAction->execute(
@@ -152,7 +156,7 @@ class CreateDirectDebitMandateJob extends AbstractQueueableJob implements Should
     private function handleDefaultExceptionState(
         Throwable $exception,
         LoggerInterface $logger,
-        Dispatcher $dispatcher
+        Dispatcher $dispatcher,
     ): void {
         $logger->error(
             'Unknown exception while creating direct debit mandate',
@@ -160,21 +164,19 @@ class CreateDirectDebitMandateJob extends AbstractQueueableJob implements Should
                 LoggingContextKeys::QUEUE_JOB_ID => $this->getJobUuid(),
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                 LoggingContextKeys::CUSTOMER_ID => $this->customer->id,
-                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer?->reference_customer_number,
+                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                    $this->migratedCustomer?->reference_customer_number,
                 LoggingContextKeys::EXCEPTION => $exception,
-            ]
+            ],
         );
 
-        if (
-            $this->attempts() >= $this->tries &&
-            $this->migratedCustomer instanceof MigratedCustomer
-        ) {
+        if ($this->attempts() >= $this->tries && $this->migratedCustomer instanceof MigratedCustomer) {
             $this->callADFWebhook(
                 $dispatcher,
                 $this->migratedCustomer,
                 AzureDataFactoryMessageType::DIRECT_DEBIT_CREATION_UNSUCCESSFUL,
                 $exception->__toString(),
-                $this->migratedCustomer->reference_customer_number
+                $this->migratedCustomer->reference_customer_number,
             );
         }
     }
@@ -184,7 +186,7 @@ class CreateDirectDebitMandateJob extends AbstractQueueableJob implements Should
         MigratedCustomer $migratedCustomer,
         AzureDataFactoryMessageType $messageType,
         string $exceptionString,
-        string $reference
+        string $reference,
     ): void {
         $jobDispatcher->dispatch(
             new AzureDataFactoryJobRequester(
@@ -194,10 +196,10 @@ class CreateDirectDebitMandateJob extends AbstractQueueableJob implements Should
                         'reference_customer_number' => $migratedCustomer->reference_customer_number,
                         'reference_name' => $migratedCustomer->reference_name,
                         'error' => $exceptionString,
-                    ]
+                    ],
                 ),
-                reference: $reference
-            )
+                reference: $reference,
+            ),
         );
     }
 }

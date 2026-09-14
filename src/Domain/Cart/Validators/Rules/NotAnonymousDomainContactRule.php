@@ -27,13 +27,16 @@ class NotAnonymousDomainContactRule extends AbstractValidator
 
         if (! $domainContact instanceof DomainContact) {
             $this->message = $this->translator->translate('validation.domain_contact.does_not_exist');
+
             return false;
         }
 
         if ($domainContact->has_anonymous_handle) {
             $this->message = $this->translator->translate('validation.domain_contact.anonymous.rule');
+
             return false;
         }
+
         return true;
     }
 

@@ -51,8 +51,7 @@ class RetentionEffectiveDateCalculatorTest extends TestCase
         $subscriptionMutationRepository = self::createStub(
             SubscriptionMutationRepository::class,
         );
-        $subscriptionMutationRepository->method('findOpenMutation')
-            ->willReturn(null);
+        $subscriptionMutationRepository->method('findOpenMutation')->willReturn(null);
         $this->dateCalculator = new RetentionEffectiveDateCalculator(
             $subscriptionMutationRepository,
         );
@@ -203,8 +202,7 @@ class RetentionEffectiveDateCalculatorTest extends TestCase
         $subscriptionMutationRepository = self::createStub(
             SubscriptionMutationRepository::class,
         );
-        $subscriptionMutationRepository->method('findOpenMutation')
-            ->willReturn($openMutation);
+        $subscriptionMutationRepository->method('findOpenMutation')->willReturn($openMutation);
         $dateCalculator = new RetentionEffectiveDateCalculator(
             $subscriptionMutationRepository,
         );

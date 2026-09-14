@@ -44,7 +44,10 @@ class NovaVerifyServerHealthAction extends Action
         $this->dispatcher->dispatch(new VerifyServerHealth($serverType));
 
         return self::modal('modal-response', [
-            'title' => sprintf('Health checking all standard hosting servers with package fetching for Server Type: %s in a queued job. Check the log on debug level for the results', $serverType->value),
+            'title' => sprintf(
+                'Health checking all standard hosting servers with package fetching for Server Type: %s in a queued job. Check the log on debug level for the results',
+                $serverType->value,
+            ),
         ]);
     }
 
@@ -54,10 +57,12 @@ class NovaVerifyServerHealthAction extends Action
     public function fields(NovaRequest $request): array
     {
         return [
-            Select::make('Server type', 'server_type')->options([
-                ServerType::DIRECTADMIN->value => 'DirectAdmin',
-                ServerType::PLESK->value => 'Plesk',
-            ])->default(ServerType::DIRECTADMIN->value),
+            Select::make('Server type', 'server_type')
+                ->options([
+                    ServerType::DIRECTADMIN->value => 'DirectAdmin',
+                    ServerType::PLESK->value => 'Plesk',
+                ])
+                ->default(ServerType::DIRECTADMIN->value),
         ];
     }
 }

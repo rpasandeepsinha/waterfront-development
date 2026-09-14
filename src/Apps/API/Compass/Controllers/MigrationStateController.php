@@ -34,7 +34,7 @@ class MigrationStateController
             $this->migrationStateRepository->listQuery(
                 new FieldSelectionProxy($request, MigrationStateResource::fieldDefinitions()),
             ),
-            $request
+            $request,
         );
 
         $migrationStates = $query->paginate($pageSize);
@@ -48,19 +48,20 @@ class MigrationStateController
     {
         $subscription->load(
             [
-            'customer.wallet',
-            'customer.migratedCustomers',
-            'migratedSubscriptions',
-            'product.productGroup',
-            'domainDeployment.provider',
-            'domainDeployment.contactOwner.providers',
-            'hostingDeployment.provider',
-            'hostingDeployment.mailProvider',
-            'hostingDeployment.sitebuilderProvider',
-            'hostingDeployment.server',
-            'hostingDeployment.mailOnlyServer',
-            'hostingDeployment.basekitServer',
-            'sslDeployment.provider']
+                'customer.wallet',
+                'customer.migratedCustomers',
+                'migratedSubscriptions',
+                'product.productGroup',
+                'domainDeployment.provider',
+                'domainDeployment.contactOwner.providers',
+                'hostingDeployment.provider',
+                'hostingDeployment.mailProvider',
+                'hostingDeployment.sitebuilderProvider',
+                'hostingDeployment.server',
+                'hostingDeployment.mailOnlyServer',
+                'hostingDeployment.basekitServer',
+                'sslDeployment.provider',
+            ],
         );
 
         if ($subscription->migratedSubscriptions()->count() === 0) {

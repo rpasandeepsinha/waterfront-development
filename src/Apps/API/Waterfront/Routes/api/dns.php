@@ -12,11 +12,11 @@ Route::prefix('domain/{domain}')->group(
         Route::apiResource('dns', DnsController::class)->except('show')->parameter('dns', 'dns');
         // Zones
         Route::apiResource('dns-zone', DnsZoneController::class)->only('store');
-    }
+    },
 );
 
 Route::prefix('dns/{subscription:uuid}')->group(
     function (): void {
         Route::get('record-changes', [DnsRecordChangesController::class, 'index'])->name('dns.record-changes');
-    }
+    },
 );

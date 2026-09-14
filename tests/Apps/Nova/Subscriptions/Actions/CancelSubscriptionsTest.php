@@ -92,9 +92,7 @@ class CancelSubscriptionsTest extends IntegrationTestCase
 
         $this->loggerMock = self::createMock(LoggerInterface::class);
 
-        $product = new ProductFactory()
-            ->for($productGroup)
-            ->createOne();
+        $product = new ProductFactory()->for($productGroup)->createOne();
 
         $groupDns = new ProductGroupFactory()->dns()->createOne();
 
@@ -103,13 +101,14 @@ class CancelSubscriptionsTest extends IntegrationTestCase
             'name' => ProductType::FREE_DNS->value,
         ]);
 
-        new ProductPriceComponentFactory()->for($freeDnsProduct)->prolongation()->createOne([
-            'contract_period' => 12,
-        ]);
-
-        $premiumDnsProduct = new ProductFactory()
-            ->for($groupDns)
+        new ProductPriceComponentFactory()
+            ->for($freeDnsProduct)
+            ->prolongation()
             ->createOne([
+                'contract_period' => 12,
+            ]);
+
+        $premiumDnsProduct = new ProductFactory()->for($groupDns)->createOne([
             'slug' => ProductType::PREMIUM_DNS->value,
             'name' => ProductType::PREMIUM_DNS->value,
         ]);
@@ -125,59 +124,77 @@ class CancelSubscriptionsTest extends IntegrationTestCase
             'to_product_id' => $freeDnsProduct,
         ]);
 
-        $this->subscriptionOne = new SubscriptionFactory()->withCustomer()->for($product)->createOneQuietly([
-            'next_billing_date' => CarbonImmutable::now()->addMonth(),
-            'end_date' => CarbonImmutable::now()->addYear(),
-            'start_date' => CarbonImmutable::now(),
-            'gross_price' => 100,
-            'net_price' => 100,
-            'administrative_status' => AdministrativeStatus::CANCELED->value,
-        ]);
+        $this->subscriptionOne = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->createOneQuietly([
+                'next_billing_date' => CarbonImmutable::now()->addMonth(),
+                'end_date' => CarbonImmutable::now()->addYear(),
+                'start_date' => CarbonImmutable::now(),
+                'gross_price' => 100,
+                'net_price' => 100,
+                'administrative_status' => AdministrativeStatus::CANCELED->value,
+            ]);
 
-        $this->subscriptionTwo = new SubscriptionFactory()->withCustomer()->for($product)->createOneQuietly([
-            'next_billing_date' => CarbonImmutable::now()->addMonth(),
-            'end_date' => CarbonImmutable::now()->addYear(),
-            'start_date' => CarbonImmutable::now(),
-            'gross_price' => 90,
-            'net_price' => 80,
-            'administrative_status' => AdministrativeStatus::CANCELED->value,
-        ]);
+        $this->subscriptionTwo = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->createOneQuietly([
+                'next_billing_date' => CarbonImmutable::now()->addMonth(),
+                'end_date' => CarbonImmutable::now()->addYear(),
+                'start_date' => CarbonImmutable::now(),
+                'gross_price' => 90,
+                'net_price' => 80,
+                'administrative_status' => AdministrativeStatus::CANCELED->value,
+            ]);
 
-        $this->subscriptionThree = new SubscriptionFactory()->withCustomer()->for($product)->createOneQuietly([
-            'next_billing_date' => CarbonImmutable::now()->addMonth(),
-            'end_date' => CarbonImmutable::now()->addYear(),
-            'start_date' => CarbonImmutable::now(),
-            'gross_price' => 100,
-            'net_price' => 100,
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-        ]);
+        $this->subscriptionThree = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->createOneQuietly([
+                'next_billing_date' => CarbonImmutable::now()->addMonth(),
+                'end_date' => CarbonImmutable::now()->addYear(),
+                'start_date' => CarbonImmutable::now(),
+                'gross_price' => 100,
+                'net_price' => 100,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+            ]);
 
-        $this->subscriptionFour = new SubscriptionFactory()->withCustomer()->for($product)->createOneQuietly([
-            'next_billing_date' => CarbonImmutable::now()->addMonth(),
-            'end_date' => CarbonImmutable::now()->addYear(),
-            'start_date' => CarbonImmutable::now(),
-            'gross_price' => 90,
-            'net_price' => 80,
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-        ]);
+        $this->subscriptionFour = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->createOneQuietly([
+                'next_billing_date' => CarbonImmutable::now()->addMonth(),
+                'end_date' => CarbonImmutable::now()->addYear(),
+                'start_date' => CarbonImmutable::now(),
+                'gross_price' => 90,
+                'net_price' => 80,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+            ]);
 
-        $this->subscriptionFive = new SubscriptionFactory()->withCustomer()->for($product)->createOneQuietly([
-            'next_billing_date' => CarbonImmutable::now()->addMonth(),
-            'end_date' => CarbonImmutable::now()->addYear(),
-            'start_date' => CarbonImmutable::now(),
-            'gross_price' => 100,
-            'net_price' => 100,
-            'administrative_status' => AdministrativeStatus::ARCHIVED->value,
-        ]);
+        $this->subscriptionFive = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->createOneQuietly([
+                'next_billing_date' => CarbonImmutable::now()->addMonth(),
+                'end_date' => CarbonImmutable::now()->addYear(),
+                'start_date' => CarbonImmutable::now(),
+                'gross_price' => 100,
+                'net_price' => 100,
+                'administrative_status' => AdministrativeStatus::ARCHIVED->value,
+            ]);
 
-        $this->subscriptionSix = new SubscriptionFactory()->withCustomer()->for($product)->createOneQuietly([
-            'next_billing_date' => CarbonImmutable::now()->addMonth(),
-            'end_date' => CarbonImmutable::now()->addYear(),
-            'start_date' => CarbonImmutable::now(),
-            'gross_price' => 90,
-            'net_price' => 80,
-            'administrative_status' => AdministrativeStatus::ARCHIVED->value,
-        ]);
+        $this->subscriptionSix = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->createOneQuietly([
+                'next_billing_date' => CarbonImmutable::now()->addMonth(),
+                'end_date' => CarbonImmutable::now()->addYear(),
+                'start_date' => CarbonImmutable::now(),
+                'gross_price' => 90,
+                'net_price' => 80,
+                'administrative_status' => AdministrativeStatus::ARCHIVED->value,
+            ]);
 
         $this->premiumDnsSubscription = new SubscriptionFactory()
             ->withCustomer()
@@ -210,9 +227,7 @@ class CancelSubscriptionsTest extends IntegrationTestCase
             $this->subscriptionSix,
         ]);
 
-        $this->mockDnsProductSpecRepository->expects(self::exactly(2))
-            ->method('isPremiumDns')
-            ->willReturn(false);
+        $this->mockDnsProductSpecRepository->expects(self::exactly(2))->method('isPremiumDns')->willReturn(false);
 
         $this->loggerMock->expects(self::never())->method('warning');
 
@@ -222,7 +237,7 @@ class CancelSubscriptionsTest extends IntegrationTestCase
             $this->changeDnsAction,
             $this->mockDnsProductSpecRepository,
             $this->loggerMock,
-            $this->cancellationService
+            $this->cancellationService,
         );
         $action->handle($this->actionFields, $subscriptions);
 
@@ -244,11 +259,11 @@ class CancelSubscriptionsTest extends IntegrationTestCase
             $this->premiumDnsSubscription,
         ]);
 
-        $this->mockChangeDnsAction->expects(self::never())
-            ->method('execute');
+        $this->mockChangeDnsAction->expects(self::never())->method('execute');
         $this->app->bind(ChangeDnsAction::class, fn () => $this->mockChangeDnsAction);
 
-        $this->mockDnsProductSpecRepository->expects(self::exactly(2))
+        $this->mockDnsProductSpecRepository
+            ->expects(self::exactly(2))
             ->method('isPremiumDns')
             ->willReturnOnConsecutiveCalls(false, true);
 
@@ -260,7 +275,7 @@ class CancelSubscriptionsTest extends IntegrationTestCase
             $this->mockChangeDnsAction,
             $this->mockDnsProductSpecRepository,
             $this->loggerMock,
-            $this->cancellationService
+            $this->cancellationService,
         );
         $action->handle($this->actionFields, $subscriptions);
 
@@ -276,13 +291,10 @@ class CancelSubscriptionsTest extends IntegrationTestCase
             $this->premiumDnsSubscription,
         ]);
 
-        $this->mockChangeDnsAction->expects(self::once())
-            ->method('execute');
+        $this->mockChangeDnsAction->expects(self::once())->method('execute');
         $this->app->bind(ChangeDnsAction::class, fn () => $this->mockChangeDnsAction);
 
-        $this->mockDnsProductSpecRepository->expects(self::once())
-            ->method('isPremiumDns')
-            ->willReturn(true);
+        $this->mockDnsProductSpecRepository->expects(self::once())->method('isPremiumDns')->willReturn(true);
 
         $this->loggerMock->expects(self::never())->method('warning');
 
@@ -292,7 +304,7 @@ class CancelSubscriptionsTest extends IntegrationTestCase
             $this->mockChangeDnsAction,
             $this->mockDnsProductSpecRepository,
             $this->loggerMock,
-            $this->cancellationService
+            $this->cancellationService,
         );
         $action->handle($this->actionFields, $subscriptions);
 
@@ -312,12 +324,11 @@ class CancelSubscriptionsTest extends IntegrationTestCase
         $changeServiceMock = self::createMock(SubscriptionChangeService::class);
         $changeActionMock = self::createMock(ChangeDnsAction::class);
 
-        $this->mockDnsProductSpecRepository->expects(self::exactly(1))
-            ->method('isPremiumDns')
-            ->willReturn(true);
+        $this->mockDnsProductSpecRepository->expects(self::exactly(1))->method('isPremiumDns')->willReturn(true);
 
         $testException = new SubscriptionChangeException();
-        $changeServiceMock->expects(self::exactly(1))
+        $changeServiceMock
+            ->expects(self::exactly(1))
             ->method('getAvailableDowngradeWhenCanceled')
             ->with($this->premiumDnsSubscription)
             ->willThrowException($testException);
@@ -328,7 +339,7 @@ class CancelSubscriptionsTest extends IntegrationTestCase
             $changeActionMock,
             $this->mockDnsProductSpecRepository,
             $this->loggerMock,
-            $this->cancellationService
+            $this->cancellationService,
         );
         $action->handle($this->actionFields, $subscriptions);
     }

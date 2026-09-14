@@ -72,35 +72,34 @@ class PaytMandateManagerTest extends IntegrationTestCase
                     return Http::response(include __DIR__ . '/data/mandates/get_mandate_response.php');
                 },
 
-            'api.paytsoftware.test/v1/psp_mandates' =>
-                function (Request $request) {
-                    self::assertSame('POST', $request->method());
+            'api.paytsoftware.test/v1/psp_mandates' => function (Request $request) {
+                self::assertSame('POST', $request->method());
 
-                    self::assertSame(
-                        [
-                            'administration_id' => '1234',
-                            'psp_mandates' => [
-                                [
-                                    'bank_account_name' => 'Tester de Test',
-                                    'bank_account_number' => 'NL18RABO0123459876',
-                                    'mandate_identifier' => 'mdt_Uq9stfyFwz',
-                                    'debtor_code' => '10001234',
-                                    'customer_identifier' => 'cst_gbPhDjoPSn',
-                                    'provider_code' => 'mollie',
-                                ],
-                            ],
-                            'fields' => [
-                                'only' => [
-                                    'id',
-                                    'mandate_identifier',
-                                ],
+                self::assertSame(
+                    [
+                        'administration_id' => '1234',
+                        'psp_mandates' => [
+                            [
+                                'bank_account_name' => 'Tester de Test',
+                                'bank_account_number' => 'NL18RABO0123459876',
+                                'mandate_identifier' => 'mdt_Uq9stfyFwz',
+                                'debtor_code' => '10001234',
+                                'customer_identifier' => 'cst_gbPhDjoPSn',
+                                'provider_code' => 'mollie',
                             ],
                         ],
-                        $request->data()
-                    );
+                        'fields' => [
+                            'only' => [
+                                'id',
+                                'mandate_identifier',
+                            ],
+                        ],
+                    ],
+                    $request->data(),
+                );
 
-                    return Http::response(include __DIR__ . '/data/payt_mandates/create_mandate_response.php', 201);
-                },
+                return Http::response(include __DIR__ . '/data/payt_mandates/create_mandate_response.php', 201);
+            },
         ]);
 
         self::assertNull($this->mandate->payt_mandate_reference_id);
@@ -135,35 +134,34 @@ class PaytMandateManagerTest extends IntegrationTestCase
                     return Http::response(include __DIR__ . '/data/mandates/get_mandate_response.php');
                 },
 
-            'api.paytsoftware.test/v1/psp_mandates' =>
-                function (Request $request) {
-                    self::assertSame('POST', $request->method());
+            'api.paytsoftware.test/v1/psp_mandates' => function (Request $request) {
+                self::assertSame('POST', $request->method());
 
-                    self::assertSame(
-                        [
-                            'administration_id' => '1234',
-                            'psp_mandates' => [
-                                [
-                                    'bank_account_name' => 'Tester de Test',
-                                    'bank_account_number' => 'NL18RABO0123459876',
-                                    'mandate_identifier' => 'mdt_Uq9stfyFwz',
-                                    'debtor_code' => '10001234',
-                                    'customer_identifier' => 'cst_gbPhDjoPSn',
-                                    'provider_code' => 'mollie',
-                                ],
-                            ],
-                            'fields' => [
-                                'only' => [
-                                    'id',
-                                    'mandate_identifier',
-                                ],
+                self::assertSame(
+                    [
+                        'administration_id' => '1234',
+                        'psp_mandates' => [
+                            [
+                                'bank_account_name' => 'Tester de Test',
+                                'bank_account_number' => 'NL18RABO0123459876',
+                                'mandate_identifier' => 'mdt_Uq9stfyFwz',
+                                'debtor_code' => '10001234',
+                                'customer_identifier' => 'cst_gbPhDjoPSn',
+                                'provider_code' => 'mollie',
                             ],
                         ],
-                        $request->data()
-                    );
+                        'fields' => [
+                            'only' => [
+                                'id',
+                                'mandate_identifier',
+                            ],
+                        ],
+                    ],
+                    $request->data(),
+                );
 
-                    return Http::response(include __DIR__ . '/data/payt_mandates/create_mandate_response_null.php', 201);
-                },
+                return Http::response(include __DIR__ . '/data/payt_mandates/create_mandate_response_null.php', 201);
+            },
         ]);
 
         self::assertNull($this->mandate->payt_mandate_reference_id);
@@ -233,11 +231,11 @@ class PaytMandateManagerTest extends IntegrationTestCase
     public function getMandatesSuccess(): void
     {
         Http::fake([
-            'api.paytsoftware.test/v1/psp_mandates?administration_id=1234&ids=5678' =>
-                function (Request $request) {
-                    self::assertSame('GET', $request->method());
-                    return Http::response(include __DIR__ . '/data/payt_mandates/get_psp_mandates_response.php');
-                },
+            'api.paytsoftware.test/v1/psp_mandates?administration_id=1234&ids=5678' => function (Request $request) {
+                self::assertSame('GET', $request->method());
+
+                return Http::response(include __DIR__ . '/data/payt_mandates/get_psp_mandates_response.php');
+            },
         ]);
 
         $this->mandate->payt_mandate_reference_id = '5678';

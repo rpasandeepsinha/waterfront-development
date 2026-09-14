@@ -30,22 +30,23 @@ class EmailClientTest extends IntegrationTestCase
         );
 
         $jsonResponse = <<<JSON
-{
-  "eventId": {
-    "created": "2024-10-07T13:00:56.048Z",
-    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-  },
-  "completedAt": "2024-10-07T13:00:56.048Z",
-  "statusId": "string",
-  "sendResult": "SENT",
-  "requestedAt": "2024-10-07T13:00:56.048Z",
-  "startedAt": "2024-10-07T13:00:56.048Z",
-  "status": "PENDING"
-}
-JSON;
+        {
+          "eventId": {
+            "created": "2024-10-07T13:00:56.048Z",
+            "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          },
+          "completedAt": "2024-10-07T13:00:56.048Z",
+          "statusId": "string",
+          "sendResult": "SENT",
+          "requestedAt": "2024-10-07T13:00:56.048Z",
+          "startedAt": "2024-10-07T13:00:56.048Z",
+          "status": "PENDING"
+        }
+        JSON;
 
         $mockHubspotClient = $this->createMock(HubspotCrmHttpClient::class);
-        $mockHubspotClient->expects(self::once())
+        $mockHubspotClient
+            ->expects(self::once())
             ->method('post')
             ->with(
                 '/marketing/v4/email/single-send',

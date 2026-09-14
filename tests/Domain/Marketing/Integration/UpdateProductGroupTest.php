@@ -26,8 +26,14 @@ class UpdateProductGroupTest extends IntegrationTestCase
         $extensionProduct = new ProductFactory()->nlDomain()->createOne();
         $hostingProduct = new ProductFactory()->hostingBrons()->createOne();
 
-        $domainSubscription = new SubscriptionFactory()->withCustomer()->for($extensionProduct)->createOne();
-        $hostingDeployment = new SubscriptionFactory()->withCustomer()->for($hostingProduct)->createOne();
+        $domainSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($extensionProduct)
+            ->createOne();
+        $hostingDeployment = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($hostingProduct)
+            ->createOne();
 
         self::assertSame($yesterday->timestamp, $domainSubscription->updated_at?->timestamp);
         self::assertSame($yesterday->timestamp, $hostingDeployment->updated_at?->timestamp);

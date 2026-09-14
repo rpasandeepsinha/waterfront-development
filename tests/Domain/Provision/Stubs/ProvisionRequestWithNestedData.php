@@ -21,8 +21,9 @@ class ProvisionRequestWithNestedData extends BackupProvisionRequest
     #[SerializedName('primary_user')]
     public ?ProvisionNestedItemDTO $primaryUser = null;
 
-    public function __construct(public UuidInterface $tagUuid)
-    {
+    public function __construct(
+        public UuidInterface $tagUuid,
+    ) {
         $this->tag = $this->tagUuid;
     }
 }

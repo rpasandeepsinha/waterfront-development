@@ -20,8 +20,9 @@ class ShowAllUserDomains extends DirectAdminCommand
      */
     private array $showDomainData = [];
 
-    public function __construct(private readonly string $user)
-    {
+    public function __construct(
+        private readonly string $user,
+    ) {
     }
 
     /**

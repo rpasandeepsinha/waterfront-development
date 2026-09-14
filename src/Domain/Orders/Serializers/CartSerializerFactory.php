@@ -30,7 +30,10 @@ class CartSerializerFactory
 
         $classMetadataFactory = new ClassMetadataFactory(new AttributeLoader());
 
-        $metadataAwareNameConverter = new MetadataAwareNameConverter($classMetadataFactory, new CamelCaseToSnakeCaseNameConverter());
+        $metadataAwareNameConverter = new MetadataAwareNameConverter(
+            $classMetadataFactory,
+            new CamelCaseToSnakeCaseNameConverter(),
+        );
         $discriminator = new ClassDiscriminatorFromClassMetadata($classMetadataFactory);
 
         $normalizer = [
@@ -42,7 +45,7 @@ class CartSerializerFactory
                 classMetadataFactory: $classMetadataFactory,
                 nameConverter: $metadataAwareNameConverter,
                 propertyTypeExtractor: $extractor,
-                classDiscriminatorResolver: $discriminator
+                classDiscriminatorResolver: $discriminator,
             ),
         ];
 
@@ -71,7 +74,7 @@ class CartSerializerFactory
                 classMetadataFactory: $classMetadataFactory,
                 nameConverter: $metadataAwareNameConverter,
                 propertyTypeExtractor: $extractor,
-                classDiscriminatorResolver: $discriminator
+                classDiscriminatorResolver: $discriminator,
             ),
         ];
 

@@ -33,7 +33,7 @@ class TranslationProvider extends ServiceProvider implements DeferrableProvider
             $app['files'],
             $this->app->make(CacheManager::class)->store(),
             $this->app->make(ConfigurationInterface::class),
-            $app['path.lang']
+            $app['path.lang'],
         ));
 
         $this->app->alias('translation.loader', Loader::class);
@@ -45,7 +45,7 @@ class TranslationProvider extends ServiceProvider implements DeferrableProvider
             // locale as well as the fallback locale. So, we'll grab the application
             // configuration so we can easily get both of these values from there.
             $locale = $app['config']['app.locale'];
-            $trans  = new Translator($loader, $locale);
+            $trans = new Translator($loader, $locale);
             $trans->setFallback($app['config']['app.fallback_locale']);
 
             return $trans;

@@ -22,8 +22,10 @@ class EnableDisableDKIM extends DirectAdminCommand
      */
     private array $domainData;
 
-    public function __construct(private readonly string $domain, private readonly bool $dkim)
-    {
+    public function __construct(
+        private readonly string $domain,
+        private readonly bool $dkim,
+    ) {
         $this->domainData['domain'] = $this->domain;
         $dkimValue = $this->dkim ? 'enable' : 'disable';
         $this->domainData[$dkimValue] = $dkimValue;

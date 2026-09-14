@@ -14,8 +14,10 @@ use Waterfront\Infra\Authentication\DTO\AuthenticatedSystem;
 
 class RequireAuthenticatedSystem
 {
-    public function __construct(private readonly AuthenticationManager $authManager, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly AuthenticationManager $authManager,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**

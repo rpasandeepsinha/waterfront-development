@@ -54,17 +54,23 @@ class NovaRetryWordpressInstallationIdJobTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $this->hostingProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->hosting())
-            ->createOne();
+        $this->hostingProduct = new ProductFactory()->for(new ProductGroupFactory()->hosting())->createOne();
 
-        $subscription = new SubscriptionFactory()->for(
-            $this->hostingProduct
-        )->for($customer)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for(
+                $this->hostingProduct,
+            )
+            ->for($customer)
+            ->createOne();
 
         $this->hostingDeployment = new HostingDeploymentFactory()
             ->for(new ServerFactory()->directadmin()->createOne())
-            ->for(ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]), 'provider')
+            ->for(ProviderFactory::new()->createOne([
+                'type' => ProviderType::HOSTING,
+                'slug' => ProviderSlug::DIRECTADMIN,
+                'enabled' => true,
+                'default' => true,
+            ]), 'provider')
             ->createOne([
                 'subscription_uuid' => $subscription->uuid,
             ]);
@@ -78,7 +84,7 @@ class NovaRetryWordpressInstallationIdJobTest extends IntegrationTestCase
             self::resolve(ProductSpecRepository::class),
             $this->dispatcher,
             $this->logger,
-            self::resolve(HostingDeploymentRepository::class)
+            self::resolve(HostingDeploymentRepository::class),
         );
     }
 
@@ -93,24 +99,26 @@ class NovaRetryWordpressInstallationIdJobTest extends IntegrationTestCase
         $server = $this->hostingDeployment->server;
         self::assertInstanceOf(Server::class, $server);
 
-        $this->dispatcher->expects(self::once())
+        $this->dispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(new ReceiveWpInstallationIdJob(
                 $this->hostingDeployment->subscription->uuid,
-                $server
+                $server,
             ));
 
         $hostingDeploymentCollection = new Collection();
         $hostingDeploymentCollection->add($this->hostingDeployment);
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('debug')
             ->with(
                 'Starting ReceiveWpInstallationId job from nova action for domain {domain.name} on server {server.id}.',
                 [
                     LoggingContextKeys::DOMAIN_NAME => $this->hostingDeployment->subscription->domain,
                     LoggingContextKeys::SERVER_ID => $server->id,
-                ]
+                ],
             );
 
         $actionResponse = $this->action->handle($this->getFields([]), $hostingDeploymentCollection);

@@ -30,7 +30,7 @@ readonly class BackupServiceFactory implements ProvisionServiceFactoryInterface
     {
         return match ($provider) {
             ProvisionProvider::ACRONIS => $this->acronisValidator->getValidatorByRequest($provisionRequest),
-            default => throw new UnknownBackupProviderException($provider)
+            default => throw new UnknownBackupProviderException($provider),
         };
     }
 
@@ -41,7 +41,7 @@ readonly class BackupServiceFactory implements ProvisionServiceFactoryInterface
     {
         return match ($provider) {
             ProvisionProvider::ACRONIS => $this->acronisProvisionService,
-            default => throw new UnknownBackupProviderException($provider)
+            default => throw new UnknownBackupProviderException($provider),
         };
     }
 }

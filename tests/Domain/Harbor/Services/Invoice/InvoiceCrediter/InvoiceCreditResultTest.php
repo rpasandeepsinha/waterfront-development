@@ -26,7 +26,8 @@ class InvoiceCreditResultTest extends IntegrationTestCase
             new InvoiceFactory()
                 ->withCustomer()
                 ->for($product)
-                ->createOne() ];
+                ->createOne(),
+        ];
         $result = new InvoiceCreditResult(...$invoices);
 
         $originalInvoice = $result->getOriginalInvoice();

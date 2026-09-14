@@ -24,7 +24,9 @@ class TranslationService
         $languageCollection = TranslationLanguage::get();
         foreach ($translations as $locale => $translationString) {
             $language = $languageCollection->where('locale', $locale)->firstOrFail();
-            TranslationString::where('key_id', $newTranslationKey->id)->where('language_id', $language->id)->update(['translated_string' => $translationString]);
+            TranslationString::where('key_id', $newTranslationKey->id)
+                ->where('language_id', $language->id)
+                ->update(['translated_string' => $translationString]);
         }
     }
 
@@ -35,10 +37,14 @@ class TranslationService
     {
         $languageCollection = TranslationLanguage::get();
         foreach ($translations as $locale => $translationString) {
-            $translationKeyModel = TranslationKey::where('key', $translationKey)->where('source', $source->value)->first();
+            $translationKeyModel = TranslationKey::where('key', $translationKey)
+                ->where('source', $source->value)
+                ->first();
             assert($translationKeyModel instanceof TranslationKey);
             $language = $languageCollection->where('locale', $locale)->firstOrFail();
-            TranslationString::where('key_id', $translationKeyModel->id)->where('language_id', $language->id)->update(['translated_string' => $translationString]);
+            TranslationString::where('key_id', $translationKeyModel->id)
+                ->where('language_id', $language->id)
+                ->update(['translated_string' => $translationString]);
         }
     }
 }

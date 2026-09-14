@@ -65,6 +65,7 @@ class NovaProcessOrderLineItemAction extends Action
 
         if ($orderLineItem->product?->productGroup->slug === ProductGroupType::ONE_TIME_SERVICE) {
             $this->oneTimeServiceCreator->createFromOrderLineItem($orderLineItem);
+
             return self::message($this->translator->translate('nova-action.success.invoice_propagated_to_harbor'));
         }
 
@@ -82,7 +83,7 @@ class NovaProcessOrderLineItemAction extends Action
 
         $subscription = $this->subscriptionService->createSubscriptionFromOrderLineItem(
             $orderLineItem,
-            $manageSubscriptions
+            $manageSubscriptions,
         );
 
         $orderLineItem->subscription()->associate($subscription);
@@ -113,7 +114,10 @@ class NovaProcessOrderLineItemAction extends Action
     public function fields(NovaRequest $request): array
     {
         return [
-            NovaBoolField::make($this->translator->translate('nova-action.manage_subscriptions'), 'manage_subscriptions')->default(false),
+            NovaBoolField::make(
+                $this->translator->translate('nova-action.manage_subscriptions'),
+                'manage_subscriptions',
+            )->default(false),
 
             NovaSubscriptionAdministrativeStatusSelectField::makeForEditing()
                 ->displayUsingLabels()
@@ -126,7 +130,10 @@ class NovaProcessOrderLineItemAction extends Action
                 ->default(TechnicalStatus::OK->value)
                 ->help($this->translator->translate('subscription.info.technical_status')),
 
-            Number::make($this->translator->translate('nova-action.parent_subscription'), 'parent_subscription')->default(null),
+            Number::make(
+                $this->translator->translate('nova-action.parent_subscription'),
+                'parent_subscription',
+            )->default(null),
         ];
     }
 }

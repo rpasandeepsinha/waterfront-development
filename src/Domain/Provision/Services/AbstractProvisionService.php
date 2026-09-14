@@ -17,14 +17,14 @@ abstract class AbstractProvisionService implements ProvisionServiceInterface
 {
     protected function createFailedValidationResult(
         ProvisionRequestInterface $provisionData,
-        Validator $validator
+        Validator $validator,
     ): AbstractProvisionResult {
         $validationResult = ValidationResult::fromValidator($validator);
 
         return new ProvisionResult(
             provisionData: $provisionData,
             provisionStatus: ProvisionStatus::VALIDATION_ERROR,
-            validationResult: $validationResult
+            validationResult: $validationResult,
         );
     }
 

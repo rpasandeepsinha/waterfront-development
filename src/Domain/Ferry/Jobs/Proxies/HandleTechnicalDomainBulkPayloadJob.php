@@ -36,8 +36,9 @@ class HandleTechnicalDomainBulkPayloadJob extends AbstractQueueableJob
     /**
      * @param array<int, array<mixed>> $domainPayloads
      */
-    public function __construct(private readonly array $domainPayloads)
-    {
+    public function __construct(
+        private readonly array $domainPayloads,
+    ) {
         parent::__construct();
     }
 
@@ -62,7 +63,7 @@ class HandleTechnicalDomainBulkPayloadJob extends AbstractQueueableJob
         foreach ($this->domainPayloads as $key => $domainPayload) {
             $waterfrontCustomerId = $this->getAsInteger($domainPayload, 'waterfront_customer_id');
             /** @var array<int, array<string, mixed>> $rawSubscriptionData */
-            $rawSubscriptionData  = $this->getAsArray($domainPayload, 'subscriptions');
+            $rawSubscriptionData = $this->getAsArray($domainPayload, 'subscriptions');
 
             $customer = Customer::find($waterfrontCustomerId);
             if (! $customer instanceof Customer) {
@@ -78,20 +79,24 @@ class HandleTechnicalDomainBulkPayloadJob extends AbstractQueueableJob
 
             $migratedCustomer = $customer->migratedCustomers->first();
             if (! $migratedCustomer instanceof MigratedCustomer) {
-                $logger->warning('No migrated customer found for existing customer in ferry technical domain bulk migrations proxy job. Was this customer ID part of the migration? Skipping this payload.', [
-                    LoggingContextKeys::QUEUE_JOB_ID => $this->job?->getJobId(),
-                    LoggingContextKeys::CUSTOMER_ID => $waterfrontCustomerId,
-                    LoggingContextKeys::META => [
-                        'array_key' => $key,
+                $logger->warning(
+                    'No migrated customer found for existing customer in ferry technical domain bulk migrations proxy job. Was this customer ID part of the migration? Skipping this payload.',
+                    [
+                        LoggingContextKeys::QUEUE_JOB_ID => $this->job?->getJobId(),
+                        LoggingContextKeys::CUSTOMER_ID => $waterfrontCustomerId,
+                        LoggingContextKeys::META => [
+                            'array_key' => $key,
+                        ],
                     ],
-                ]);
+                );
                 continue;
             }
+
             $subscriptions = $this->gatherEligibleSubscriptionsForCustomer(
                 customer: $customer,
                 migratableSubscriptionRepository: $migratableSubscriptionRepository,
                 subscriptionMigrationValidator: $subscriptionMigrationValidator,
-                responseDto: $responseDto
+                responseDto: $responseDto,
             );
 
             if (! $subscriptions->isEmpty()) {
@@ -107,16 +112,18 @@ class HandleTechnicalDomainBulkPayloadJob extends AbstractQueueableJob
                     message: AzureDataFactoryMessage::create(
                         $messageType,
                         [
-                            ...$adfPayloadService->fetchTechnicalMigrationBulkCustomerStatePayload(
-                                customer: $customer,
-                                migratedCustomer: $migratedCustomer,
-                                migrationStep: MigrationStep::DOMAIN_MIGRATION
-                            )->toArray(),
+                            ...$adfPayloadService
+                                ->fetchTechnicalMigrationBulkCustomerStatePayload(
+                                    customer: $customer,
+                                    migratedCustomer: $migratedCustomer,
+                                    migrationStep: MigrationStep::DOMAIN_MIGRATION,
+                                )
+                                ->toArray(),
                             ...$validationPayload,
-                        ]
+                        ],
                     ),
-                    reference: $migratedCustomer->reference_customer_number
-                )
+                    reference: $migratedCustomer->reference_customer_number,
+                ),
             );
         }
 
@@ -140,22 +147,28 @@ class HandleTechnicalDomainBulkPayloadJob extends AbstractQueueableJob
         Customer $customer,
         MigratableSubscriptionRepository $migratableSubscriptionRepository,
         SubscriptionMigrationValidator $subscriptionMigrationValidator,
-        ResponseDto $responseDto
+        ResponseDto $responseDto,
     ): Collection {
-        return $migratableSubscriptionRepository->getSubscriptionsForDomainContactMigration($customer)
+        return $migratableSubscriptionRepository
+            ->getSubscriptionsForDomainContactMigration($customer)
             ->filter(function ($subscription) use ($customer, $subscriptionMigrationValidator, $responseDto) {
                 try {
                     $subscriptionMigrationValidator->validateEligibleForDomainMigration($subscription);
                 } catch (NotEligibleForMigrationException $e) {
                     $responseDto->addFailure($this->makeFailureDto($e, $customer, $subscription));
+
                     return false;
                 }
+
                 return true;
             });
     }
 
-    private function makeFailureDto(NotEligibleForMigrationException $e, Customer $customer, Subscription $subscription): FailureDto
-    {
+    private function makeFailureDto(
+        NotEligibleForMigrationException $e,
+        Customer $customer,
+        Subscription $subscription,
+    ): FailureDto {
         return FailureDto::create(
             sprintf('Domain migration step not allowed for subscription: %s', $e->getMessage()),
             [
@@ -174,7 +187,13 @@ class HandleTechnicalDomainBulkPayloadJob extends AbstractQueueableJob
             'Created jobs to migrate domain for every eligible subscription',
             [
                 Parameter::create('customerId', $customer->id),
-                Parameter::create('subscriptionIds', $subscriptions->map(fn ($s) => $s->id)->sort()->join(',')),
+                Parameter::create(
+                    'subscriptionIds',
+                    $subscriptions
+                        ->map(fn ($s) => $s->id)
+                        ->sort()
+                        ->join(','),
+                ),
             ],
         );
     }
@@ -190,8 +209,8 @@ class HandleTechnicalDomainBulkPayloadJob extends AbstractQueueableJob
             throw new UnexpectedValueException(
                 sprintf(
                     'Value for %s needs to be a number',
-                    $key
-                )
+                    $key,
+                ),
             );
         }
 

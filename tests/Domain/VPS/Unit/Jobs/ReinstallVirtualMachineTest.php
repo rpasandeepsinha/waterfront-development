@@ -50,8 +50,8 @@ class ReinstallVirtualMachineTest extends IntegrationTestCase
         $vpsProductGroup = new ProductGroupFactory()->vps()->createOne();
         $vmProduct = new ProductFactory()->createOne([
             'product_group_id' => $vpsProductGroup->id,
-            'name'             => 'VPS large',
-            'slug'             => 'vps_large',
+            'name' => 'VPS large',
+            'slug' => 'vps_large',
         ]);
 
         $subscription = new SubscriptionFactory()
@@ -71,7 +71,7 @@ class ReinstallVirtualMachineTest extends IntegrationTestCase
             ->for($subscription, 'subscription')
             ->createOne(['cloudstack_id' => self::MOCK_CLOUDSTACK_VM_ID]);
 
-        $osProduct  = new ProductFactory()->ubuntu()->createOne();
+        $osProduct = new ProductFactory()->ubuntu()->createOne();
         new SubscriptionFactory()
             ->withCustomer()
             ->for($osProduct)
@@ -79,7 +79,7 @@ class ReinstallVirtualMachineTest extends IntegrationTestCase
             ->createOne();
 
         $this->cloudstackJob = new CloudstackJobFactory()->createOne([
-            'job_id'        => self::MOCK_JOB_ID,
+            'job_id' => self::MOCK_JOB_ID,
             'template_uuid' => $this->vmDeployment->subscription->product->uuid,
         ]);
     }
@@ -91,10 +91,11 @@ class ReinstallVirtualMachineTest extends IntegrationTestCase
 
         Queue::assertNothingPushed();
 
-        self::resolve(Dispatcher::class)->dispatch(new ReinstallVirtualMachineJob(
-            (new VirtualMachineDeployment()),
-            (new CloudstackJob()),
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new ReinstallVirtualMachineJob(
+                new VirtualMachineDeployment(),
+                new CloudstackJob(),
+            ));
 
         Queue::assertPushedOn(QueueName::CLOUDSTACK->value, ReinstallVirtualMachineJob::class);
     }
@@ -104,10 +105,11 @@ class ReinstallVirtualMachineTest extends IntegrationTestCase
     {
         Bus::fake();
 
-        self::resolve(Dispatcher::class)->dispatch(new ReinstallVirtualMachineJob(
-            (new VirtualMachineDeployment()),
-            (new CloudstackJob()),
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new ReinstallVirtualMachineJob(
+                new VirtualMachineDeployment(),
+                new CloudstackJob(),
+            ));
 
         Bus::assertNotDispatchedSync(ReinstallVirtualMachineJob::class);
     }
@@ -127,7 +129,9 @@ class ReinstallVirtualMachineTest extends IntegrationTestCase
 
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())->method('execute')
+        $baseClientMock
+            ->expects(self::once())
+            ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
             ->willReturn($cloudStackPendingJob);
         $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
@@ -142,10 +146,11 @@ class ReinstallVirtualMachineTest extends IntegrationTestCase
 
         self::assertNull($this->vmDeployment->subscription->technical_status);
 
-        self::resolve(Dispatcher::class)->dispatch(new ReinstallVirtualMachineJob(
-            $this->vmDeployment,
-            $this->cloudstackJob,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new ReinstallVirtualMachineJob(
+                $this->vmDeployment,
+                $this->cloudstackJob,
+            ));
 
         $this->vmDeployment->refresh();
 
@@ -166,7 +171,9 @@ class ReinstallVirtualMachineTest extends IntegrationTestCase
         $clientFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())->method('execute')
+        $baseClientMock
+            ->expects(self::once())
+            ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
             ->willReturn($cloudStackFailedJob);
         $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
@@ -181,10 +188,11 @@ class ReinstallVirtualMachineTest extends IntegrationTestCase
 
         self::assertNull($this->vmDeployment->subscription->technical_status);
 
-        self::resolve(Dispatcher::class)->dispatch(new ReinstallVirtualMachineJob(
-            $this->vmDeployment,
-            $this->cloudstackJob,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new ReinstallVirtualMachineJob(
+                $this->vmDeployment,
+                $this->cloudstackJob,
+            ));
 
         $this->vmDeployment->refresh();
         self::assertNotNull($this->vmDeployment->last_result_received);
@@ -200,24 +208,23 @@ class ReinstallVirtualMachineTest extends IntegrationTestCase
             MailCloudstackManagerVpsDetails::class,
         ]);
 
-        $cloudstackJobFinishedResponse = (string) file_get_contents(__DIR__ . '/../../data/reinstall/finished_job.json');
+        $cloudstackJobFinishedResponse = (string) file_get_contents(__DIR__
+        . '/../../data/reinstall/finished_job.json');
         /** @var array<string, mixed> $cloudStackFinishedJob */
         $cloudStackFinishedJob = json_decode($cloudstackJobFinishedResponse, true, 512, JSON_THROW_ON_ERROR);
 
         $baseClientMock = self::createMock(CloudStackBaseClient::class);
         $clientMock = self::createMock(CloudStackClient::class);
         $clientFactoryMock = self::createStub(ClientFactoryInterface::class);
-        $clientFactoryMock->method('create')
-            ->willReturn($clientMock);
+        $clientFactoryMock->method('create')->willReturn($clientMock);
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())
+        $baseClientMock
+            ->expects(self::once())
             ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
             ->willReturn($cloudStackFinishedJob);
-        $clientMock->expects(self::once())
-            ->method('getBaseClient')
-            ->willReturn($baseClientMock);
+        $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
 
         $vmDto = new VirtualMachine(
             id: self::MOCK_CLOUDSTACK_VM_ID,
@@ -227,7 +234,7 @@ class ReinstallVirtualMachineTest extends IntegrationTestCase
             username: 'user',
             nic: [],
             state: CloudstackMachineState::STOPPED,
-            serviceOfferingId: 'so-id'
+            serviceOfferingId: 'so-id',
         );
         $clientMock
             ->expects(self::once())
@@ -248,17 +255,18 @@ class ReinstallVirtualMachineTest extends IntegrationTestCase
 
         self::assertNull($this->vmDeployment->subscription->technical_status);
 
-        self::resolve(Dispatcher::class)->dispatch(new ReinstallVirtualMachineJob(
-            $this->vmDeployment,
-            $this->cloudstackJob,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new ReinstallVirtualMachineJob(
+                $this->vmDeployment,
+                $this->cloudstackJob,
+            ));
 
         self::assertEqualsCanonicalizing(
             [
                 ReinstallVirtualMachineJob::class,
                 WaitForVirtualMachineStoppedSetCredentialsJob::class,
             ],
-            $processed
+            $processed,
         );
 
         $this->vmDeployment->refresh();

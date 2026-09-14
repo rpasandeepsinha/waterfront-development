@@ -61,19 +61,19 @@ readonly class CartOrderSubscription implements IteratorAggregate
     public function getIterator(): Traversable
     {
         return new ArrayIterator([
-                ...$this->backup ?? [],
-                ...$this->dns ?? [],
-                ...$this->ssl ?? [],
-                ...$this->hosting ?? [],
-                ...$this->extension ?? [],
-                ...$this->vps ?? [],
-                ...$this->other ?? [],
-                ...$this->redirect ?? [],
-                ...$this->microsoft365 ?? [],
-                ...$this->resellerHosting ?? [],
-                ...$this->addOn ?? [],
-                ...$this->vpsOs ?? [],
-                ...$this->manualSubscription ?? [],
+            ...($this->backup ?? []),
+            ...($this->dns ?? []),
+            ...($this->ssl ?? []),
+            ...($this->hosting ?? []),
+            ...($this->extension ?? []),
+            ...($this->vps ?? []),
+            ...($this->other ?? []),
+            ...($this->redirect ?? []),
+            ...($this->microsoft365 ?? []),
+            ...($this->resellerHosting ?? []),
+            ...($this->addOn ?? []),
+            ...($this->vpsOs ?? []),
+            ...($this->manualSubscription ?? []),
         ]);
     }
 }

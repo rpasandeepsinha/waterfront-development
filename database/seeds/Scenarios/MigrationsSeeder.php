@@ -57,8 +57,9 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class MigrationsSeeder extends Seeder
 {
-    public function __construct(private readonly ReferenceRepository $referenceRepository)
-    {
+    public function __construct(
+        private readonly ReferenceRepository $referenceRepository,
+    ) {
     }
 
     public function run(): void
@@ -93,6 +94,7 @@ class MigrationsSeeder extends Seeder
         $migratedCustomer->successful = false;
         $migratedCustomer->save();
         $migratedCustomer->customers()->attach($customer);
+
         return $migratedCustomer;
     }
 
@@ -134,6 +136,7 @@ class MigrationsSeeder extends Seeder
         $address->save();
 
         $this->testKeesFerryContacts($customer);
+
         return $customer;
     }
 
@@ -160,10 +163,15 @@ class MigrationsSeeder extends Seeder
         $contact->save();
     }
 
-    private function domainSubscriptionPlaceholder(Customer $ferryTestKeesCustomer, MigratedCustomer $migratedCustomer): void
-    {
+    private function domainSubscriptionPlaceholder(
+        Customer $ferryTestKeesCustomer,
+        MigratedCustomer $migratedCustomer,
+    ): void {
         $product = $this->referenceRepository->get(ProductReference::DOMAIN_NL, Product::class);
-        $price = $this->referenceRepository->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepository->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepository->get(ProductReference::DOMAIN_PROVIDER_PLACEHOLDER, Provider::class);
 
         $dnsNameserver1 = $this->referenceRepository->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
@@ -222,7 +230,10 @@ class MigrationsSeeder extends Seeder
         $migratedSubscription->migratedCustomers()->attach($migratedCustomer);
 
         $dnsProduct = $this->referenceRepository->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepository->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepository->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $dnsSubscription = new Subscription();
         $dnsSubscription->uuid = Str::uuid()->toString();
@@ -266,17 +277,24 @@ class MigrationsSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
     }
 
-    private function domainSubscriptionMigrated(Customer $ferryTestKeesCustomer, MigratedCustomer $migratedCustomer): void
-    {
+    private function domainSubscriptionMigrated(
+        Customer $ferryTestKeesCustomer,
+        MigratedCustomer $migratedCustomer,
+    ): void {
         $product = $this->referenceRepository->get(ProductReference::DOMAIN_NL, Product::class);
-        $price = $this->referenceRepository->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepository->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepository->get(ProductReference::DOMAIN_PROVIDER_RTR, Provider::class);
 
         $dnsNameserver1 = $this->referenceRepository->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
@@ -357,7 +375,10 @@ class MigrationsSeeder extends Seeder
         $migratedSubscription->migratedCustomers()->attach($migratedCustomer);
 
         $dnsProduct = $this->referenceRepository->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepository->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepository->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $dnsSubscription = new Subscription();
         $dnsSubscription->uuid = Str::uuid()->toString();
@@ -401,17 +422,24 @@ class MigrationsSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
     }
 
-    private function hostingSubscriptionPlaceholder(Customer $ferryTestKeesCustomer, MigratedCustomer $migratedCustomer): void
-    {
-        $product  = $this->referenceRepository->get(ProductReference::HOSTING_BRONZE, Product::class);
-        $price    = $this->referenceRepository->get(ProductReference::HOSTING_BRONZE_PROLONGATION_PRICE, ProductPriceComponent::class);
+    private function hostingSubscriptionPlaceholder(
+        Customer $ferryTestKeesCustomer,
+        MigratedCustomer $migratedCustomer,
+    ): void {
+        $product = $this->referenceRepository->get(ProductReference::HOSTING_BRONZE, Product::class);
+        $price = $this->referenceRepository->get(
+            ProductReference::HOSTING_BRONZE_PROLONGATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepository->get(ProductReference::HOSTING_PROVIDER_PLACEHOLDER, Provider::class);
 
         $subscription = new Subscription();
@@ -462,12 +490,17 @@ class MigrationsSeeder extends Seeder
         $migratedSubscription->migratedCustomers()->attach($migratedCustomer);
     }
 
-    private function hostingSubscriptionMigrated(Customer $ferryTestKeesCustomer, MigratedCustomer $migratedCustomer): void
-    {
-        $product  = $this->referenceRepository->get(ProductReference::HOSTING_BRONZE, Product::class);
-        $price    = $this->referenceRepository->get(ProductReference::HOSTING_BRONZE_PROLONGATION_PRICE, ProductPriceComponent::class);
+    private function hostingSubscriptionMigrated(
+        Customer $ferryTestKeesCustomer,
+        MigratedCustomer $migratedCustomer,
+    ): void {
+        $product = $this->referenceRepository->get(ProductReference::HOSTING_BRONZE, Product::class);
+        $price = $this->referenceRepository->get(
+            ProductReference::HOSTING_BRONZE_PROLONGATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepository->get(ProductReference::HOSTING_PROVIDER_PLESK, Provider::class);
-        $server   = $this->referenceRepository->get(ProductReference::HOSTING_SERVER_PLESK, Server::class);
+        $server = $this->referenceRepository->get(ProductReference::HOSTING_SERVER_PLESK, Server::class);
 
         $subscription = new Subscription();
         $subscription->uuid = Str::uuid()->toString();
@@ -520,9 +553,18 @@ class MigrationsSeeder extends Seeder
 
     private function mailOnlySubscription(Customer $ferryTestKeesCustomer, MigratedCustomer $migratedCustomer): void
     {
-        $product  = $this->referenceRepository->get(ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN, Product::class);
-        $price    = $this->referenceRepository->get(ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN_PROLONGATION_PRICE, ProductPriceComponent::class);
-        $provider = $this->referenceRepository->get(ProductReference::HOSTING_MAIL_ONLY_PROVIDER_PLACEHOLDER, Provider::class);
+        $product = $this->referenceRepository->get(
+            ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN,
+            Product::class,
+        );
+        $price = $this->referenceRepository->get(
+            ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN_PROLONGATION_PRICE,
+            ProductPriceComponent::class,
+        );
+        $provider = $this->referenceRepository->get(
+            ProductReference::HOSTING_MAIL_ONLY_PROVIDER_PLACEHOLDER,
+            Provider::class,
+        );
 
         $subscription = new Subscription();
         $subscription->uuid = Str::uuid()->toString();
@@ -574,8 +616,11 @@ class MigrationsSeeder extends Seeder
 
     private function sslSubscription(Customer $ferryTestKeesCustomer, MigratedCustomer $migratedCustomer): void
     {
-        $product  = $this->referenceRepository->get(ProductReference::SSL_SINGLE_DOMAIN, Product::class);
-        $price    = $this->referenceRepository->get(ProductReference::SSL_SINGLE_DOMAIN_PROLONGATION_PRICE, ProductPriceComponent::class);
+        $product = $this->referenceRepository->get(ProductReference::SSL_SINGLE_DOMAIN, Product::class);
+        $price = $this->referenceRepository->get(
+            ProductReference::SSL_SINGLE_DOMAIN_PROLONGATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepository->get(ProductReference::SSL_PROVIDER_PLACEHOLDER, Provider::class);
 
         $subscription = new Subscription();
@@ -628,7 +673,7 @@ class MigrationsSeeder extends Seeder
 
     private function redirectSubscription(Customer $customer, MigratedCustomer $migratedCustomer): void
     {
-        $product  = $this->referenceRepository->get(ProductReference::REDIRECT_PAID_REDIRECT, Product::class);
+        $product = $this->referenceRepository->get(ProductReference::REDIRECT_PAID_REDIRECT, Product::class);
 
         $subscription = new Subscription();
         $subscription->uuid = Str::uuid()->toString();
@@ -672,11 +717,19 @@ class MigrationsSeeder extends Seeder
         $migratedSubscription->migratedCustomers()->attach($migratedCustomer);
     }
 
-    private function sitebuilderNoDeploymentOrPlaceholderSubscription(Customer $customer, MigratedCustomer $migratedCustomer): void
-    {
-        $product  = $this->referenceRepository->get(ProductReference::SITEBUILDER_BASEKIT, Product::class);
-        $price    = $this->referenceRepository->get(ProductReference::SITEBUILDER_BASEKIT_REGISTRATION_PRICE, ProductPriceComponent::class);
-        $mailProvider        = $this->referenceRepository->get(ProductReference::HOSTING_MAIL_ONLY_PROVIDER_PLACEHOLDER, Provider::class);
+    private function sitebuilderNoDeploymentOrPlaceholderSubscription(
+        Customer $customer,
+        MigratedCustomer $migratedCustomer,
+    ): void {
+        $product = $this->referenceRepository->get(ProductReference::SITEBUILDER_BASEKIT, Product::class);
+        $price = $this->referenceRepository->get(
+            ProductReference::SITEBUILDER_BASEKIT_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
+        $mailProvider = $this->referenceRepository->get(
+            ProductReference::HOSTING_MAIL_ONLY_PROVIDER_PLACEHOLDER,
+            Provider::class,
+        );
 
         $subscription = new Subscription();
         $subscription->uuid = Str::uuid()->toString();
@@ -728,11 +781,20 @@ class MigrationsSeeder extends Seeder
 
     private function sitebuilderSubscription(Customer $customer, MigratedCustomer $migratedCustomer): void
     {
-        $product  = $this->referenceRepository->get(ProductReference::SITEBUILDER_BASEKIT, Product::class);
-        $price    = $this->referenceRepository->get(ProductReference::SITEBUILDER_BASEKIT_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $product = $this->referenceRepository->get(ProductReference::SITEBUILDER_BASEKIT, Product::class);
+        $price = $this->referenceRepository->get(
+            ProductReference::SITEBUILDER_BASEKIT_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
-        $sitebuilderProvider = $this->referenceRepository->get(ProductReference::SITEBUILDER_PROVIDER_PLACEHOLDER, Provider::class);
-        $mailProvider        = $this->referenceRepository->get(ProductReference::HOSTING_MAIL_ONLY_PROVIDER_PLACEHOLDER, Provider::class);
+        $sitebuilderProvider = $this->referenceRepository->get(
+            ProductReference::SITEBUILDER_PROVIDER_PLACEHOLDER,
+            Provider::class,
+        );
+        $mailProvider = $this->referenceRepository->get(
+            ProductReference::HOSTING_MAIL_ONLY_PROVIDER_PLACEHOLDER,
+            Provider::class,
+        );
 
         $subscription = new Subscription();
         $subscription->uuid = Str::uuid()->toString();
@@ -825,10 +887,15 @@ class MigrationsSeeder extends Seeder
         $migratedRecord->save();
     }
 
-    private function resellerHostingSubscription(Customer $ferryTestKeesCustomer, MigratedCustomer $migratedCustomer): void
-    {
-        $product  = $this->referenceRepository->get(ProductReference::RESELLER_HOSTING_BRONS, Product::class);
-        $price    = $this->referenceRepository->get(ProductReference::RESELLER_HOSTING_BRONS_PROLONGATION_PRICE, ProductPriceComponent::class);
+    private function resellerHostingSubscription(
+        Customer $ferryTestKeesCustomer,
+        MigratedCustomer $migratedCustomer,
+    ): void {
+        $product = $this->referenceRepository->get(ProductReference::RESELLER_HOSTING_BRONS, Product::class);
+        $price = $this->referenceRepository->get(
+            ProductReference::RESELLER_HOSTING_BRONS_PROLONGATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $provider = $this->referenceRepository->get(ProductReference::HOSTING_PROVIDER_PLACEHOLDER, Provider::class);
 
@@ -883,9 +950,15 @@ class MigrationsSeeder extends Seeder
     private function backupSubscription(Customer $customer, MigratedCustomer $migratedCustomer): void
     {
         $product = $this->referenceRepository->get(ProductReference::BACKUP_ACRONIS_50, Product::class);
-        $price = $this->referenceRepository->get(ProductReference::BACKUP_ACRONIS_50_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepository->get(
+            ProductReference::BACKUP_ACRONIS_50_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
-        $acronisProvider = $this->referenceRepository->get(ProductReference::ACRONIS_PROVIDER_YOURHOSTING, AcronisProvider::class);
+        $acronisProvider = $this->referenceRepository->get(
+            ProductReference::ACRONIS_PROVIDER_YOURHOSTING,
+            AcronisProvider::class,
+        );
 
         $subscription = new Subscription();
         $subscription->uuid = Str::uuid()->toString();
@@ -974,7 +1047,13 @@ class MigrationsSeeder extends Seeder
         $provisionRequest->context_uuid = Uuid::fromString($subscriptionMigrated->uuid);
         $provisionRequest->uuid = Uuid::uuid4();
         $provisionRequest->tag = Uuid::fromString($subscriptionMigrated->uuid);
-        $provisionRequest->request_data = (string) json_encode(['language' => 'en', 'email' => 'test.kees-not-valid', 'firstname' => 'Test', 'username' => 'tkees', 'cloudStorageInGb' => 50.0]);
+        $provisionRequest->request_data = (string) json_encode([
+            'language' => 'en',
+            'email' => 'test.kees-not-valid',
+            'firstname' => 'Test',
+            'username' => 'tkees',
+            'cloudStorageInGb' => 50.0,
+        ]);
         $provisionRequest->request_name = ProvisionRequestName::CREATE_BACKUP_DEPLOYMENTS_FROM_MIGRATION;
         $provisionRequest->request_type = ProvisionType::BACKUP;
         $provisionRequest->provision_provider = ProvisionProvider::ACRONIS;
@@ -983,7 +1062,10 @@ class MigrationsSeeder extends Seeder
         $provisionResult = new ProvisioningResult();
         $provisionResult->uuid = Uuid::uuid4();
         $provisionResult->request_id = $provisionRequest->id;
-        $provisionResult->response = (string) json_encode(['status' => ProvisionStatus::SUCCESS, 'message' => 'acronis backup successfully provisioned']);
+        $provisionResult->response = (string) json_encode([
+            'status' => ProvisionStatus::SUCCESS,
+            'message' => 'acronis backup successfully provisioned',
+        ]);
         $provisionResult->status = ProvisionStatus::SUCCESS;
         $provisionResult->created_at = $provisionRequest->created_at?->addMinute();
         $provisionResult->updated_at = $provisionRequest->updated_at?->addMinute();

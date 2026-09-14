@@ -37,8 +37,7 @@ class NovaUpgradeFreeRedirectAction extends NovaOneOffScriptAbstractAction
     {
         return [
             ...$this->getOneOffScriptInfoFields(),
-            Boolean::make('Dry run', 'dry-run')
-                ->withMeta(['value' => true]),
+            Boolean::make('Dry run', 'dry-run')->withMeta(['value' => true]),
             Number::make('Batch amount', 'amount'),
         ];
     }
@@ -54,11 +53,11 @@ class NovaUpgradeFreeRedirectAction extends NovaOneOffScriptAbstractAction
             sprintf(
                 'Executing one-time script %s in %s mode',
                 $this->getOneOffScriptSlug(),
-                $mode
+                $mode,
             ),
             [
                 LoggingContextKeys::ONE_OFF_SCRIPT => $this->getOneOffScriptSlug(),
-            ]
+            ],
         );
 
         $freeRedirectSubscriptions = $this->subscriptionRepository->getActiveFreeRedirectSubscriptions($limit);
@@ -68,10 +67,16 @@ class NovaUpgradeFreeRedirectAction extends NovaOneOffScriptAbstractAction
                 $this->jobDispatcher->dispatch(new UpgradeFreeRedirectJob($freeRedirectSubscription));
             }
 
-            return self::message(sprintf('Found %d redirect deployments which might be upgraded. Upgrades will be done async', count($freeRedirectSubscriptions)));
+            return self::message(sprintf(
+                'Found %d redirect deployments which might be upgraded. Upgrades will be done async',
+                count($freeRedirectSubscriptions),
+            ));
         }
 
-        return self::message(sprintf('The dry run found %d redirect deployments which still can be checked for upgrade.', count($freeRedirectSubscriptions)));
+        return self::message(sprintf(
+            'The dry run found %d redirect deployments which still can be checked for upgrade.',
+            count($freeRedirectSubscriptions),
+        ));
     }
 
     protected function getOneOffScriptSlug(): string

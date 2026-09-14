@@ -16,7 +16,7 @@ class NoFutureScheduledCalls implements ValidationRule
     public function __construct(
         private readonly Translator $translator,
         private readonly PuzzelCallbackRequestRepository $callbackRequestRepository,
-        private readonly AuthenticationManager $authManager
+        private readonly AuthenticationManager $authManager,
     ) {
     }
 

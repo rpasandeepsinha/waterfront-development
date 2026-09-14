@@ -8,9 +8,6 @@ use Carbon\CarbonImmutable;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Pipeline\Pipeline;
 use Psr\Log\LoggerInterface;
-
-use function resolve as resolveFromContainer;
-
 use Throwable;
 use Waterfront\Domain\Ferry\Dto\Validation\ValidationPayload;
 use Waterfront\Domain\Ferry\Enums\AzureDataFactoryMessageType;
@@ -22,6 +19,7 @@ use Waterfront\Domain\Ferry\Pipes\ValidationPipeInterface;
 use Waterfront\Support\Enums\LoggingContextKeys;
 use Waterfront\Support\Enums\QueueName;
 use Waterfront\Support\Jobs\AbstractQueueableJob;
+use function resolve as resolveFromContainer;
 
 class ValidationJob extends AbstractQueueableJob
 {
@@ -63,7 +61,7 @@ class ValidationJob extends AbstractQueueableJob
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $this->validationPayload->validationReference,
                 LoggingContextKeys::MIGRATION_SOURCE => $this->migrationSource->value,
-            ]
+            ],
         );
 
         foreach ($this->pipes as $pipe) {
@@ -90,7 +88,7 @@ class ValidationJob extends AbstractQueueableJob
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $this->validationPayload->validationReference,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             if ($this->migrationSource === MigrationSource::AZURE_DATA_FACTORY) {
@@ -98,7 +96,7 @@ class ValidationJob extends AbstractQueueableJob
                 // Here we simply take any exception and force send it to adf and re-trow
                 // the exception.
                 $this->callADFValidationWebhook($dispatcher, $this->validationPayload->validationReference, [
-                    'message'   => 'Uncaught exception occurred in the validation pipelines. Please contact Ferry development',
+                    'message' => 'Uncaught exception occurred in the validation pipelines. Please contact Ferry development',
                     'exception' => $exception->getMessage(),
                 ]);
             }
@@ -116,10 +114,14 @@ class ValidationJob extends AbstractQueueableJob
                 LoggingContextKeys::META => [
                     'results' => $processedValidationPayload->validationResults,
                 ],
-            ]
+            ],
         );
 
-        $this->callADFValidationWebhook($dispatcher, $this->validationPayload->validationReference, $processedValidationPayload->validationResults);
+        $this->callADFValidationWebhook(
+            $dispatcher,
+            $this->validationPayload->validationReference,
+            $processedValidationPayload->validationResults,
+        );
 
         $logger->debug(
             'Migration validation job has been completed',
@@ -128,14 +130,14 @@ class ValidationJob extends AbstractQueueableJob
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $processedValidationPayload->validationReference,
                 LoggingContextKeys::MIGRATION_SOURCE => $this->migrationSource->value,
-            ]
+            ],
         );
 
         $this->reportValidationMetaData(
             start: $timestampStart,
             ended: CarbonImmutable::now(),
             logger: $logger,
-            validationReference: $this->validationPayload->validationReference
+            validationReference: $this->validationPayload->validationReference,
         );
 
         $this->delete();
@@ -158,7 +160,7 @@ class ValidationJob extends AbstractQueueableJob
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $this->validationPayload->validationReference,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return;
@@ -171,12 +173,12 @@ class ValidationJob extends AbstractQueueableJob
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $this->validationPayload->validationReference,
                 LoggingContextKeys::EXCEPTION => $exception,
-            ]
+            ],
         );
 
         if ($this->migrationSource === MigrationSource::AZURE_DATA_FACTORY) {
             $this->callADFValidationWebhook($dispatcher, $this->validationPayload->validationReference, [
-                'message'   => 'Job itself failed when running a ferry validation job. Full Exception should be present in the failed jobs table. Please contact Ferry development.',
+                'message' => 'Job itself failed when running a ferry validation job. Full Exception should be present in the failed jobs table. Please contact Ferry development.',
                 'exception' => $exception?->getMessage() ?? 'Exception was null',
             ]);
         }
@@ -225,7 +227,7 @@ class ValidationJob extends AbstractQueueableJob
     private function callADFValidationWebhook(
         Dispatcher $jobDispatcher,
         string $reference,
-        array $validationResults
+        array $validationResults,
     ): void {
         if ($this->adfWebhookHasBeenCalled && $this->migrationSource === MigrationSource::AZURE_DATA_FACTORY) {
             return;
@@ -239,10 +241,10 @@ class ValidationJob extends AbstractQueueableJob
                         'reference' => $this->validationPayload->validationReference,
                         'results' => $validationResults,
                         'timeline' => $this->validationPayload->validationTimeline,
-                    ]
+                    ],
                 ),
-                reference: $reference
-            )
+                reference: $reference,
+            ),
         );
 
         $this->adfWebhookHasBeenCalled = true;
@@ -252,7 +254,7 @@ class ValidationJob extends AbstractQueueableJob
         CarbonImmutable $start,
         CarbonImmutable $ended,
         LoggerInterface $logger,
-        string $validationReference
+        string $validationReference,
     ): void {
         $logger->debug(
             'Migration validation metadata',
@@ -271,7 +273,7 @@ class ValidationJob extends AbstractQueueableJob
                     'connection_name' => $this->job?->getConnectionName(),
                     'queue_name' => $this->job?->getQueue(),
                 ],
-            ]
+            ],
         );
     }
 }

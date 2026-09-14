@@ -55,26 +55,30 @@ class CustomerControllerTest extends IntegrationTestCase
         $productGroupExtension = ProductGroupFactory::new()->extension()->createOne();
         ProductGroupFactory::new()->hosting()->createOne();
 
-        $this->domainProduct = ProductFactory::new()->for($productGroupExtension)->createOne(['slug' => 'extension_com']);
-        new ProductPriceComponentFactory()->for($this->domainProduct)->prolongation()->createOne([
-            'contract_period' => 12,
-            'billing_period' => 12,
-            'price' => 500,
+        $this->domainProduct = ProductFactory::new()->for($productGroupExtension)->createOne([
+            'slug' => 'extension_com',
         ]);
+        new ProductPriceComponentFactory()
+            ->for($this->domainProduct)
+            ->prolongation()
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 500,
+            ]);
     }
 
     #[Test]
     public function thatCreateCustomerRequiresAuthorization(): void
     {
-        $response = $this
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                [],
-                [
-                    'Authorization' => 'Bearer fake_testing_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            [],
+            [
+                'Authorization' => 'Bearer fake_testing_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -172,15 +176,13 @@ class CustomerControllerTest extends IntegrationTestCase
             CreateDirectDebitMandateJob::class,
         ]);
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertOk();
 
@@ -275,7 +277,7 @@ class CustomerControllerTest extends IntegrationTestCase
 
         self::assertSame(
             '7x9F2qP5rKbLmN8sT3vY6wZ1cX4dA0eBfGhJkIoOpQ7uVnRtHyUzM5lW4S9D2x3E6Cv8Bn0m1qJkLpO9iIuYtR5eH2gF4dXs7aV6cQwZ8yT3rK4lM7x9F2qP5rKbLmN8sT3vY6wZ1cX4dA0eBfGhJkIoOpQ7uVnRtHyUzM5lW4S9D2x3E6Cv8Bn0m1qJkLpO9iIuYtR5eH2gF4dXs7aV6cQwZ8yT3rK4lM7x9F2qP5rKbLmN8sT3vY6wZ1cX4dA0eBfGhJkIoOpQ7uVnRtHyUzM5lW4S9D2x3E6Cv8Bn0m1qJkLpO9iIuYtR5eH2gF4dXs7aV6cQwZ8yT3rK4lM',
-            $note->note
+            $note->note,
         );
 
         self::assertSame(1, $customer->terms_of_payment);
@@ -296,7 +298,9 @@ class CustomerControllerTest extends IntegrationTestCase
         $migratedDnsTemplates = $migratedCustomer->migratedDnsTemplates;
         $migratedDnsTemplate = $migratedDnsTemplates->where('reference_template_id', '1234')->firstOrFail();
         $migratedDnsTemplateEmpty = $migratedDnsTemplates->where('reference_template_id', '1234_empty')->firstOrFail();
-        $migratedDnsTemplateNoRecordKey = $migratedDnsTemplates->where('reference_template_id', '1234_no_records')->firstOrFail();
+        $migratedDnsTemplateNoRecordKey = $migratedDnsTemplates
+            ->where('reference_template_id', '1234_no_records')
+            ->firstOrFail();
 
         self::assertSame('1234', $migratedDnsTemplate->reference_template_id);
 
@@ -388,22 +392,22 @@ class CustomerControllerTest extends IntegrationTestCase
             CreateDirectDebitMandateJob::class,
         ]);
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertOk();
 
         $customer = Customer::where('email', $email)->firstOrFail();
 
-        Queue::assertPushed(CreateDirectDebitMandateJob::class, function (CreateDirectDebitMandateJob $job) use ($customer): bool {
+        Queue::assertPushed(CreateDirectDebitMandateJob::class, function (CreateDirectDebitMandateJob $job) use (
+            $customer,
+        ): bool {
             self::assertSame($customer->id, $job->customer->id);
             self::assertSame('John Doe', $job->mollieMandateDirectDebitCreateDTO->consumerName);
             self::assertSame('NL18RABO0123459876', $job->mollieMandateDirectDebitCreateDTO->consumerAccount);
@@ -476,16 +480,14 @@ class CustomerControllerTest extends IntegrationTestCase
 
         Queue::fake();
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertOk();
 
@@ -510,16 +512,14 @@ class CustomerControllerTest extends IntegrationTestCase
         $postData['cocNumber'] = null;
         $postData['purchaseReference'] = null;
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertOk();
 
@@ -546,16 +546,14 @@ class CustomerControllerTest extends IntegrationTestCase
 
         Queue::fake();
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertOk();
 
@@ -580,16 +578,14 @@ class CustomerControllerTest extends IntegrationTestCase
 
         Queue::fake();
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertOk();
 
@@ -637,16 +633,14 @@ class CustomerControllerTest extends IntegrationTestCase
             ],
         ];
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertOk();
 
@@ -689,16 +683,14 @@ class CustomerControllerTest extends IntegrationTestCase
             ],
         ];
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertOk();
 
@@ -713,6 +705,7 @@ class CustomerControllerTest extends IntegrationTestCase
             if ($productGroup->slug === ProductGroupType::EXTENSION) {
                 self::assertSame('25.00', $discountPercentage);
             }
+
             if ($productGroup->slug === ProductGroupType::HOSTING) {
                 self::assertSame('77.32', $discountPercentage);
             }
@@ -755,16 +748,14 @@ class CustomerControllerTest extends IntegrationTestCase
             ],
         ];
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertUnprocessable();
         $response->assertExactJson([
@@ -808,16 +799,14 @@ class CustomerControllerTest extends IntegrationTestCase
             ],
         ];
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
         $response->assertJsonStructure([
@@ -842,16 +831,14 @@ class CustomerControllerTest extends IntegrationTestCase
             ],
         ];
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
         $response->assertJsonStructure([
@@ -881,16 +868,14 @@ class CustomerControllerTest extends IntegrationTestCase
             ],
         ];
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $data = [
             'message' => 'Dit veld moet een string zijn. (and 4 more errors)',
@@ -954,15 +939,14 @@ class CustomerControllerTest extends IntegrationTestCase
             'wallet_credit_balance' => 1,
         ];
 
-        $this
-            ->actingAsSystem()
+        $this->actingAsSystem()
             ->postJson(
                 $this->generateRoute('ferry.customers.create'),
                 $postData,
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
+                ],
             )
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonStructure([
@@ -981,16 +965,16 @@ class CustomerControllerTest extends IntegrationTestCase
         $email = 'example@example.com';
         $referenceCustomerId = 'testNr01';
 
-        $response = $this
-            ->actingAsSystem()
+        $response = $this->actingAsSystem()
             ->postJson(
                 $this->generateRoute('ferry.customers.create'),
                 $postData,
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            )->assertOk();
+                ],
+            )
+            ->assertOk();
 
         $customer = Customer::where('email', $email)->firstOrFail();
 
@@ -1000,7 +984,11 @@ class CustomerControllerTest extends IntegrationTestCase
             'referenceCustomerId' => $referenceCustomerId,
         ]);
 
-        $vatService = new Vat(null, $this->app->make(VatRateApiFaker::class), $this->app->make(VatNumberApiFaker::class));
+        $vatService = new Vat(
+            null,
+            $this->app->make(VatRateApiFaker::class),
+            $this->app->make(VatNumberApiFaker::class),
+        );
 
         self::assertSame(21.0, $vatService->europeanVatRate('NL'));
         self::assertSame(21.0, $customer->vat_rate);
@@ -1014,16 +1002,14 @@ class CustomerControllerTest extends IntegrationTestCase
         $postData['addresses'][0]['countryCode'] = 'XX';
         $postData['vatNumber'] = 'XX861350480B01';
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -1035,16 +1021,14 @@ class CustomerControllerTest extends IntegrationTestCase
 
         Queue::fake();
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertOk();
 
@@ -1059,16 +1043,14 @@ class CustomerControllerTest extends IntegrationTestCase
         $customer->save();
 
         // Try to run it again
-        $responseRetry = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $responseRetry = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $responseRetry->assertOk();
 
@@ -1084,16 +1066,14 @@ class CustomerControllerTest extends IntegrationTestCase
         // Try to run it again, but with a different e-mail address
         $postData['email'] = 'another-email@example.com';
 
-        $responseDifferentEmail = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $responseDifferentEmail = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $responseDifferentEmail->assertOk();
 
@@ -1103,16 +1083,14 @@ class CustomerControllerTest extends IntegrationTestCase
         // Try to run it again, but with the same e-mail address under the same bu should NOT result in new customer
         $postData['email'] = 'another-email@example.com';
 
-        $responseSameEmail = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $responseSameEmail = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $responseSameEmail->assertOk();
 
@@ -1123,16 +1101,14 @@ class CustomerControllerTest extends IntegrationTestCase
         $postData['email'] = 'another-email@example.com';
         $postData['referenceCustomerId'] = 'a_different_id_but_for_same_mail_should_be_another_customer_entry';
 
-        $responseSameEmail = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $responseSameEmail = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $responseSameEmail->assertOk();
 
@@ -1200,16 +1176,14 @@ class CustomerControllerTest extends IntegrationTestCase
 
         Queue::fake();
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertUnprocessable();
 
@@ -1269,16 +1243,14 @@ class CustomerControllerTest extends IntegrationTestCase
 
         Queue::fake();
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertUnprocessable();
 
@@ -1300,16 +1272,14 @@ class CustomerControllerTest extends IntegrationTestCase
 
         Queue::fake();
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertUnprocessable();
 

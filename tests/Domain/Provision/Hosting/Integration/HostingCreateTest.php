@@ -41,9 +41,12 @@ class HostingCreateTest extends IntegrationTestCase
     {
         $validateFactory = $this->mock(Factory::class);
         $this->app->bind(Factory::class, fn () => $validateFactory);
-        $validateFactory->shouldReceive('make')
+        $validateFactory
+            ->shouldReceive('make')
             ->once()
-            ->andReturnUsing(fn (array $data, array $rules) => new Validator($this->createStub(Translator::class), $data, $rules));
+            ->andReturnUsing(
+                fn (array $data, array $rules) => new Validator($this->createStub(Translator::class), $data, $rules),
+            );
 
         $create = new HostingCreateRequest(
             servicePlan: 'test',
@@ -73,9 +76,12 @@ class HostingCreateTest extends IntegrationTestCase
     {
         $validateFactory = $this->mock(Factory::class);
         $this->app->bind(Factory::class, fn () => $validateFactory);
-        $validateFactory->shouldReceive('make')
+        $validateFactory
+            ->shouldReceive('make')
             ->once()
-            ->andReturnUsing(fn (array $data, array $rules) => new Validator($this->createStub(Translator::class), $data, $rules));
+            ->andReturnUsing(
+                fn (array $data, array $rules) => new Validator($this->createStub(Translator::class), $data, $rules),
+            );
 
         $create = new HostingCreateRequest(
             servicePlan: 'test',
@@ -104,7 +110,10 @@ class HostingCreateTest extends IntegrationTestCase
 
         $create = new HostingCreateRequest('test', 'test@kees.nl', $this->context);
         $create->provider = $testProvider;
-        $expectedErrorMessage = sprintf("Can't resolve hosting service from unknown provider [%s]", $testProvider->value);
+        $expectedErrorMessage = sprintf(
+            "Can't resolve hosting service from unknown provider [%s]",
+            $testProvider->value,
+        );
 
         $provisionService = self::resolve(ProvisionGateway::class);
         $result = $provisionService->request($create);

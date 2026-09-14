@@ -17,8 +17,10 @@ use Waterfront\Infra\Validation\AbstractValidator;
 class NoDuplicate extends AbstractValidator
 {
     /** @param string[] $typesToCheck */
-    public function __construct(private readonly string $zoneName, private readonly array $typesToCheck)
-    {
+    public function __construct(
+        private readonly string $zoneName,
+        private readonly array $typesToCheck,
+    ) {
     }
 
     protected function passes(string $attribute, mixed $value): bool
@@ -32,8 +34,10 @@ class NoDuplicate extends AbstractValidator
 
         foreach ($records as $record) {
             // check if something already exists for this name
-            if (in_array($record->getType(), $this->typesToCheck, true) &&
-                strcasecmp(rtrim($value, '.'), rtrim($record->getName(), '.')) === 0) {
+            if (
+                in_array($record->getType(), $this->typesToCheck, true)
+                && strcasecmp(rtrim($value, '.'), rtrim($record->getName(), '.')) === 0
+            ) {
                 $noDuplicate = false;
                 break;
             }

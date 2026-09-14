@@ -15,8 +15,9 @@ use Waterfront\Support\Enums\LoggingContextKeys;
 
 readonly class VpsTerminationListener
 {
-    public function __construct(private VirtualMachineServiceInterface $vmService)
-    {
+    public function __construct(
+        private VirtualMachineServiceInterface $vmService,
+    ) {
     }
 
     /**
@@ -33,15 +34,14 @@ readonly class VpsTerminationListener
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                 LoggingContextKeys::PROVISIONING_ID => $event->vmDeployment->id,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-            ]
+            ],
         );
 
         $startedDestroy = $this->vmService->destroy($event->vmDeployment);
 
-        $subscription->technical_status =
-            $startedDestroy
-                ? TechnicalStatus::DELETING->value
-                : TechnicalStatus::DELETING_FAILED->value;
+        $subscription->technical_status = $startedDestroy
+            ? TechnicalStatus::DELETING->value
+            : TechnicalStatus::DELETING_FAILED->value;
 
         $subscription->save();
     }

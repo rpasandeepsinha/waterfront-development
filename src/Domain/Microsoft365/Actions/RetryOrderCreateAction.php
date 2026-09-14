@@ -35,16 +35,18 @@ class RetryOrderCreateAction
 
         if ($customerInfo->tenant_order_id === null) {
             try {
-                $tenantOrderIdSynchronized = $this->microsoft365Service->synchronizeTenantOrderIdFromOrderSummary($customerInfo);
+                $tenantOrderIdSynchronized =
+                    $this->microsoft365Service->synchronizeTenantOrderIdFromOrderSummary($customerInfo);
             } catch (OrderSummaryCustomerNotFoundException|OrderSummaryException) {
                 return Microsoft365RetryOrderCreateResult::ORDER_SUMMARY_RETRIEVAL_FAILED;
             }
 
             if (! $tenantOrderIdSynchronized) {
                 try {
-                    $tenantCreated = $this->microsoft365Service->createTenant(
-                        microsoft365CustomerInfo: $customerInfo
-                    );
+                    $tenantCreated =
+                        $this->microsoft365Service->createTenant(
+                            microsoft365CustomerInfo: $customerInfo,
+                        );
                 } catch (TenantNameTakenException|Office365Exception $exception) {
                     $this->logError($microsoft365Deployment, $exception);
 
@@ -67,7 +69,8 @@ class RetryOrderCreateAction
             Assert::notNull($customerInfo->kpn_customer_id);
 
             $kpnProduct = $this->microsoft365KpnProductRepository->getBySubscription($microsoft365Deployment->subscription);
-            $childCount = $microsoft365Deployment->subscriptionChildren
+            $childCount = $microsoft365Deployment
+                ->subscriptionChildren
                 ->where('administrative_status', AdministrativeStatus::ACTIVE->value)
                 ->count();
 
@@ -107,7 +110,7 @@ class RetryOrderCreateAction
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::M365,
                 LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::MICROSOFT_IRMA,
                 LoggingContextKeys::EXCEPTION => $exception,
-            ]
+            ],
         );
     }
 }

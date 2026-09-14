@@ -64,7 +64,7 @@ class NovaFetchEmailForwardsForDomain extends Action
         }
 
         $fetchedEmailForwards = [];
-        $exceptions  = [];
+        $exceptions = [];
 
         try {
             $relevantProviderSlug = $this->getRelevantProviderSlug($hostingDeployment);
@@ -97,7 +97,7 @@ class NovaFetchEmailForwardsForDomain extends Action
             'Fetched forward for domain {%s} for user {%s} from server with hostname {%s} with response:',
             $domain,
             $identifier,
-            $server->hostname
+            $server->hostname,
         );
 
         return self::modal('modal-response', [
@@ -113,9 +113,7 @@ class NovaFetchEmailForwardsForDomain extends Action
     public function fields(NovaRequest $request): array
     {
         return [
-            Text::make('domain', 'domain')
-                ->rules('required')
-                ->required(),
+            Text::make('domain', 'domain')->rules('required')->required(),
         ];
     }
 
@@ -124,12 +122,16 @@ class NovaFetchEmailForwardsForDomain extends Action
         $mailProvider = $hostingDeployment->mailProvider()->first();
         $standardProvider = $hostingDeployment->provider;
 
-        return $mailProvider instanceof Provider ?
-            $mailProvider->slug->value :
-            (
-                $standardProvider instanceof Provider ?
-                $standardProvider->slug->value :
-                throw new UnexpectedValueException("Hosting deployment with ID {$hostingDeployment->id} does not have a known provider coupled. Check database.}")
-            );
+        return (
+            $mailProvider instanceof Provider
+                ? $mailProvider->slug->value
+                : (
+                    $standardProvider instanceof Provider
+                        ? $standardProvider->slug->value
+                        : throw new UnexpectedValueException(
+                            "Hosting deployment with ID {$hostingDeployment->id} does not have a known provider coupled. Check database.}",
+                        )
+                )
+        );
     }
 }

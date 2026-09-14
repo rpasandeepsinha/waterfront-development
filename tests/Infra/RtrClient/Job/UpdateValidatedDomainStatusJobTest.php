@@ -86,7 +86,8 @@ class UpdateValidatedDomainStatusJobTest extends IntegrationTestCase
     public function handleCompletesPendingValidatedDomainAndStoresHistory(): void
     {
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('notice')
             ->with('RTR domain validation completed', $this->expectedLogContext(
                 domainName: self::DOMAIN,
@@ -123,7 +124,8 @@ class UpdateValidatedDomainStatusJobTest extends IntegrationTestCase
         );
 
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('info')
             ->with('RTR validation skipped: domain already validated', $this->expectedLogContext(
                 domainName: self::DOMAIN,
@@ -172,7 +174,8 @@ class UpdateValidatedDomainStatusJobTest extends IntegrationTestCase
         $this->subscription->technical_status = $technicalStatus;
         $this->subscription->save();
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('warning')
             ->with('RTR validation skipped: subscription status cannot be completed', $this->expectedLogContext(
                 domainName: self::DOMAIN,
@@ -221,7 +224,8 @@ class UpdateValidatedDomainStatusJobTest extends IntegrationTestCase
         $this->domainDeployment->domain_status = $domainStatus;
         $this->domainDeployment->save();
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method($logLevel)
             ->with($logMessage, $this->expectedLogContext(
                 domainName: self::DOMAIN,
@@ -251,8 +255,16 @@ class UpdateValidatedDomainStatusJobTest extends IntegrationTestCase
     public static function nonPendingValidationRtrDomainStatusDataProvider(): array
     {
         return [
-            'inactive' => [RtrDomainStatus::INACTIVE, 'info', 'RTR validation skipped: domain requires nameserver activation'],
-            'client hold' => [RtrDomainStatus::CLIENT_HOLD, 'warning', 'RTR validation skipped: domain is not pending validation'],
+            'inactive' => [
+                RtrDomainStatus::INACTIVE,
+                'info',
+                'RTR validation skipped: domain requires nameserver activation',
+            ],
+            'client hold' => [
+                RtrDomainStatus::CLIENT_HOLD,
+                'warning',
+                'RTR validation skipped: domain is not pending validation',
+            ],
         ];
     }
 
@@ -261,7 +273,8 @@ class UpdateValidatedDomainStatusJobTest extends IntegrationTestCase
     {
         $domainName = 'unknown-validate-contact.com';
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('info')
             ->with('RTR validation skipped: active domain deployment not found', $this->expectedLogContext(
                 domainName: $domainName,
@@ -289,12 +302,15 @@ class UpdateValidatedDomainStatusJobTest extends IntegrationTestCase
     #[Test]
     public function handleSkipsNonRtrDomain(): void
     {
-        $this->domainDeployment->provider()->associate(
-            ProviderFactory::new()->domainOpenProvider()->createOne(),
-        );
+        $this->domainDeployment
+            ->provider()
+            ->associate(
+                ProviderFactory::new()->domainOpenProvider()->createOne(),
+            );
         $this->domainDeployment->save();
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('warning')
             ->with('RTR validation skipped: domain provider is not RTR', $this->expectedLogContext(
                 domainName: self::DOMAIN,

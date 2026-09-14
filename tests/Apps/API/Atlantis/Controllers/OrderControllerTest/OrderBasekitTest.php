@@ -36,22 +36,40 @@ class OrderBasekitTest extends IntegrationTestCase
             ->enable(ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)
             ->for($dnsProduct)
             ->create();
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne(['price' => 0]);
-        new ProductPriceComponentFactory()->for($dnsProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 0]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
+        new ProductPriceComponentFactory()->for($dnsProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 0,
+        ]);
         $addonGroup = new ProductGroupFactory()->addon()->createOne();
 
         $hostingGroup = new ProductGroupFactory()->hosting()->createOne();
         $sitebuilderProduct = new ProductFactory()->for($hostingGroup)->createOne([
             'slug' => 'sitebuilder',
         ]);
-        new ProductPriceComponentFactory()->for($sitebuilderProduct)->registration()->createOne(['price' => 120]);
-        new ProductPriceComponentFactory()->for($sitebuilderProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($sitebuilderProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($sitebuilderProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
 
         $bookinAddon = new ProductFactory()->for($addonGroup)->createOne([
             'slug' => 'booking',
         ]);
-        new ProductPriceComponentFactory()->for($bookinAddon)->registration()->createOne(['price' => 120]);
-        new ProductPriceComponentFactory()->for($bookinAddon)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($bookinAddon)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($bookinAddon)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
 
         $productSpec = new ProductSpec();
         $productSpec->name = ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value;
@@ -71,9 +89,24 @@ class OrderBasekitTest extends IntegrationTestCase
         $siteBuilderBookingCoupling->save();
 
         new ServerFactory()->createOne();
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
-        ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
-        ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $jsonData = (string) file_get_contents(__DIR__ . '/data/order_payload_basekit_with_addon.json');
 
@@ -81,10 +114,12 @@ class OrderBasekitTest extends IntegrationTestCase
         $orderData = json_decode($jsonData, associative: true, flags: JSON_THROW_ON_ERROR);
 
         $subscriptionService = self::createMock(SubscriptionService::class);
-        $subscriptionService->expects(self::once())
+        $subscriptionService
+            ->expects(self::once())
             ->method('dispatchProcessOrderJob')
             ->with(self::callback(function (Order $order) {
                 self::assertCount(2, $order->lineItems);
+
                 return true;
             }));
 
@@ -93,10 +128,7 @@ class OrderBasekitTest extends IntegrationTestCase
         $customer = new CustomerFactory()->withAddress()->createOne();
 
         $router = self::resolve(UrlGenerator::class);
-        $this
-            ->actingAsCustomer($customer)
-            ->postJson($router->route('partners.order.order'), $orderData)
-            ->assertOk();
+        $this->actingAsCustomer($customer)->postJson($router->route('partners.order.order'), $orderData)->assertOk();
     }
 
     #[Test]
@@ -107,22 +139,40 @@ class OrderBasekitTest extends IntegrationTestCase
             ->enable(ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)
             ->for($dnsProduct)
             ->create();
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne(['price' => 0]);
-        new ProductPriceComponentFactory()->for($dnsProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 0]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
+        new ProductPriceComponentFactory()->for($dnsProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 0,
+        ]);
         $addonGroup = new ProductGroupFactory()->addon()->createOne();
 
         $hostingGroup = new ProductGroupFactory()->hosting()->createOne();
         $sitebuilderProduct = new ProductFactory()->for($hostingGroup)->createOne([
             'slug' => 'sitebuilder',
         ]);
-        new ProductPriceComponentFactory()->for($sitebuilderProduct)->registration()->createOne(['price' => 120]);
-        new ProductPriceComponentFactory()->for($sitebuilderProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($sitebuilderProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($sitebuilderProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
 
         $bookinAddon = new ProductFactory()->for($addonGroup)->createOne([
             'slug' => 'booking',
         ]);
-        new ProductPriceComponentFactory()->for($bookinAddon)->registration()->createOne(['price' => 120]);
-        new ProductPriceComponentFactory()->for($bookinAddon)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($bookinAddon)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($bookinAddon)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
 
         $productSpec = new ProductSpec();
         $productSpec->name = ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value;
@@ -137,9 +187,24 @@ class OrderBasekitTest extends IntegrationTestCase
         $productSpec->save();
 
         new ServerFactory()->createOne();
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
-        ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
-        ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $jsonData = (string) file_get_contents(__DIR__ . '/data/order_payload_basekit_with_addon.json');
 
@@ -149,8 +214,7 @@ class OrderBasekitTest extends IntegrationTestCase
         $customer = new CustomerFactory()->withAddress()->createOne();
 
         $router = self::resolve(UrlGenerator::class);
-        $this
-            ->actingAsCustomer($customer)
+        $this->actingAsCustomer($customer)
             ->postJson($router->route('partners.order.order'), $orderData)
             ->assertUnprocessable();
     }

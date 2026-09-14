@@ -124,8 +124,11 @@ class ProductAllowedChangeRepository
             ->values();
     }
 
-    public function isProductChangeAllowed(ProductChangeType $changeType, Product $fromProduct, Product $toProduct): bool
-    {
+    public function isProductChangeAllowed(
+        ProductChangeType $changeType,
+        Product $fromProduct,
+        Product $toProduct,
+    ): bool {
         return ProductAllowedChange::query()
             ->where('change_type', $changeType)
             ->where('from_product_id', $fromProduct->id)

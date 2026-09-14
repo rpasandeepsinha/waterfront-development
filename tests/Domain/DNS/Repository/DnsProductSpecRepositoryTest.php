@@ -28,14 +28,14 @@ class DnsProductSpecRepositoryTest extends IntegrationTestCase
     public function isPremiumDnsExpectTrue(): void
     {
         $product = new ProductFactory()
-             ->premiumDns()
-             ->has(
-                 new ProductSpecFactory()->state([
-                     'name' => ProductSpecName::DNS_IS_PREMIUM->value,
-                     'value' => true,
-                 ])
-             )
-        ->createOne();
+            ->premiumDns()
+            ->has(
+                new ProductSpecFactory()->state([
+                    'name' => ProductSpecName::DNS_IS_PREMIUM->value,
+                    'value' => true,
+                ]),
+            )
+            ->createOne();
 
         self::assertTrue($this->dnsProductSpecRepository->isPremiumDns($product));
     }
@@ -49,7 +49,7 @@ class DnsProductSpecRepositoryTest extends IntegrationTestCase
                 new ProductSpecFactory()->state([
                     'name' => ProductSpecName::DNS_IS_PREMIUM->value,
                     'value' => false,
-                ])
+                ]),
             )
             ->createOne();
 
@@ -73,7 +73,7 @@ class DnsProductSpecRepositoryTest extends IntegrationTestCase
                 new ProductSpecFactory()->state([
                     'name' => ProductSpecName::DNS_CAN_EDIT_RECORDS->value,
                     'value' => true,
-                ])
+                ]),
             )
             ->createOne();
 
@@ -89,7 +89,7 @@ class DnsProductSpecRepositoryTest extends IntegrationTestCase
                 new ProductSpecFactory()->state([
                     'name' => ProductSpecName::DNS_CAN_EDIT_RECORDS->value,
                     'value' => false,
-                ])
+                ]),
             )
             ->createOne();
 

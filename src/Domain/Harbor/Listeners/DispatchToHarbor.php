@@ -19,13 +19,16 @@ class DispatchToHarbor implements ShouldQueue
     public int $tries = 5;
 
     public function __construct(
-        private readonly CommunicatesWithHarbor $harbor
+        private readonly CommunicatesWithHarbor $harbor,
     ) {
     }
 
     public function handle(CustomerDataChangedEvent $customerDataChangedEvent): void
     {
-        if ($customerDataChangedEvent->customer->anonymized_at === null && $customerDataChangedEvent->customer->address()->exists()) {
+        if (
+            $customerDataChangedEvent->customer->anonymized_at === null
+            && $customerDataChangedEvent->customer->address()->exists()
+        ) {
             $this->harbor->propagateCustomer($customerDataChangedEvent->customer);
         }
     }

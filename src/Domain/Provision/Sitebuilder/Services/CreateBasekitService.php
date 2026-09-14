@@ -48,9 +48,10 @@ class CreateBasekitService
     {
         $this->logger->debug(
             'Provisioning new Basekit sitebuilder deployment',
-            LogContextBuilder::for($createSitebuilderRequest)
-                ->with(LoggingContextKeys::DOMAIN_NAME, $createSitebuilderRequest->domain)
-                ->build()
+            LogContextBuilder::for($createSitebuilderRequest)->with(
+                LoggingContextKeys::DOMAIN_NAME,
+                $createSitebuilderRequest->domain,
+            )->build(),
         );
 
         try {
@@ -59,14 +60,18 @@ class CreateBasekitService
             if ($basekitContext === null) {
                 $this->logger->debug(
                     'Creating new Basekit user / context',
-                    LogContextBuilder::for($createSitebuilderRequest)
-                        ->with(LoggingContextKeys::DOMAIN_NAME, $createSitebuilderRequest->domain)
-                        ->build()
+                    LogContextBuilder::for($createSitebuilderRequest)->with(
+                        LoggingContextKeys::DOMAIN_NAME,
+                        $createSitebuilderRequest->domain,
+                    )->build(),
                 );
 
                 $userReference = $this->createUser($createSitebuilderRequest);
 
-                $basekitContext = $this->baseKitContextRepository->create($createSitebuilderRequest->context, $userReference);
+                $basekitContext = $this->baseKitContextRepository->create(
+                    $createSitebuilderRequest->context,
+                    $userReference,
+                );
             }
 
             foreach ($createSitebuilderRequest->packages as $packageReference) {
@@ -81,19 +86,19 @@ class CreateBasekitService
                 request: $createSitebuilderRequest,
                 userReference: $basekitContext->user_ref,
             );
-        } catch (BasekitException | UnexpectedValueException $exception) {
+        } catch (BasekitException|UnexpectedValueException $exception) {
             $this->logger->warning(
                 'Provisioning Basekit sitebuilder deployment failed at basekit',
                 LogContextBuilder::for($createSitebuilderRequest)
                     ->withException($exception)
                     ->with(LoggingContextKeys::DOMAIN_NAME, $createSitebuilderRequest->domain)
-                    ->build()
+                    ->build(),
             );
 
             return new SitebuilderResult(
                 provisionData: $createSitebuilderRequest,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
 
@@ -101,7 +106,7 @@ class CreateBasekitService
             DB::beginTransaction();
             $sitebuilderDeployment = $this->sitebuilderDeploymentRepository->create(
                 requestId: $createSitebuilderRequest->requestId,
-                domain: $createSitebuilderRequest->domain
+                domain: $createSitebuilderRequest->domain,
             );
             $this->basekitSitebuilderDeploymentRepository->create($sitebuilderDeployment, $externalSite->ref);
             DB::commit();
@@ -113,7 +118,7 @@ class CreateBasekitService
                 LogContextBuilder::for($createSitebuilderRequest)
                     ->withException($exception)
                     ->with(LoggingContextKeys::DOMAIN_NAME, $createSitebuilderRequest->domain)
-                    ->build()
+                    ->build(),
             );
 
             return new SitebuilderResult(
@@ -133,13 +138,14 @@ class CreateBasekitService
     {
         $this->logger->debug(
             'Provisioning new Basekit sitebuilder deployment from migration',
-            LogContextBuilder::for($createBasekitDeploymentsFromMigrationRequest)
-                ->with(LoggingContextKeys::DOMAIN_NAME, $createBasekitDeploymentsFromMigrationRequest->domain)
-                ->build()
+            LogContextBuilder::for($createBasekitDeploymentsFromMigrationRequest)->with(
+                LoggingContextKeys::DOMAIN_NAME,
+                $createBasekitDeploymentsFromMigrationRequest->domain,
+            )->build(),
         );
 
         $basekitContext = $this->baseKitContextRepository->findWithTrashedByContext(
-            $createBasekitDeploymentsFromMigrationRequest->context
+            $createBasekitDeploymentsFromMigrationRequest->context,
         );
 
         try {
@@ -148,21 +154,22 @@ class CreateBasekitService
             if ($basekitContext === null) {
                 $this->logger->debug(
                     'Creating new Basekit user / context',
-                    LogContextBuilder::for($createBasekitDeploymentsFromMigrationRequest)
-                        ->with(LoggingContextKeys::DOMAIN_NAME, $createBasekitDeploymentsFromMigrationRequest->domain)
-                        ->build()
+                    LogContextBuilder::for($createBasekitDeploymentsFromMigrationRequest)->with(
+                        LoggingContextKeys::DOMAIN_NAME,
+                        $createBasekitDeploymentsFromMigrationRequest->domain,
+                    )->build(),
                 );
 
                 $basekitContext = $this->baseKitContextRepository->create(
                     context: $createBasekitDeploymentsFromMigrationRequest->context,
-                    userReference: $createBasekitDeploymentsFromMigrationRequest->userRef
+                    userReference: $createBasekitDeploymentsFromMigrationRequest->userRef,
                 );
             }
 
             if ($basekitContext->trashed()) {
                 $this->logger->debug(
                     'Restoring soft deleted Basekit context for migration',
-                    LogContextBuilder::for($createBasekitDeploymentsFromMigrationRequest)->build()
+                    LogContextBuilder::for($createBasekitDeploymentsFromMigrationRequest)->build(),
                 );
 
                 $basekitContext->restore();
@@ -170,12 +177,12 @@ class CreateBasekitService
 
             $sitebuilderDeployment = $this->sitebuilderDeploymentRepository->create(
                 requestId: $createBasekitDeploymentsFromMigrationRequest->requestId,
-                domain: $createBasekitDeploymentsFromMigrationRequest->domain
+                domain: $createBasekitDeploymentsFromMigrationRequest->domain,
             );
 
             $this->basekitSitebuilderDeploymentRepository->create(
                 sitebuilderDeployment: $sitebuilderDeployment,
-                siteReference: $createBasekitDeploymentsFromMigrationRequest->siteRef
+                siteReference: $createBasekitDeploymentsFromMigrationRequest->siteRef,
             );
 
             DB::commit();
@@ -187,19 +194,19 @@ class CreateBasekitService
                 LogContextBuilder::for($createBasekitDeploymentsFromMigrationRequest)
                     ->withException($exception)
                     ->with(LoggingContextKeys::PROVISIONING_CONTEXT, $basekitContext)
-                    ->build()
+                    ->build(),
             );
 
             return new SitebuilderResult(
                 provisionData: $createBasekitDeploymentsFromMigrationRequest,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
 
         return new SitebuilderResult(
             provisionData: $createBasekitDeploymentsFromMigrationRequest,
-            provisionStatus: ProvisionStatus::SUCCESS
+            provisionStatus: ProvisionStatus::SUCCESS,
         );
     }
 
@@ -218,7 +225,7 @@ class CreateBasekitService
                 $request->email,
                 self::LOCALE,
             );
-        } catch (BaseKitClientException | UnexpectedValueException $exception) {
+        } catch (BaseKitClientException|UnexpectedValueException $exception) {
             $this->logger->error(
                 sprintf(
                     'Failed to create sitebuilder user for context %s',
@@ -227,12 +234,12 @@ class CreateBasekitService
                 LogContextBuilder::for($request)
                     ->withException($exception)
                     ->with(LoggingContextKeys::DOMAIN_NAME, $request->domain)
-                    ->build()
+                    ->build(),
             );
 
             throw new BasekitUserCreateException(
                 context: $request->context,
-                previous: $exception
+                previous: $exception,
             );
         }
 
@@ -248,14 +255,14 @@ class CreateBasekitService
             $this->baseKitClient->packageApi->addUserPackage(
                 $userReference,
                 $packageRef,
-                $request->contractPeriod
+                $request->contractPeriod,
             );
-        } catch (BaseKitClientException | UnexpectedValueException $exception) {
+        } catch (BaseKitClientException|UnexpectedValueException $exception) {
             $this->logger->error(
                 sprintf(
                     'Failed to add package %d for user %d',
                     $packageRef,
-                    $userReference
+                    $userReference,
                 ),
                 LogContextBuilder::for($request)
                     ->withException($exception)
@@ -264,12 +271,12 @@ class CreateBasekitService
                         'basekit_user_ref' => $userReference,
                         'basekit_subscription_period' => $request->contractPeriod,
                     ])
-                    ->build()
+                    ->build(),
             );
             throw new BasekitAddPackageException(
                 packageReference: $packageRef,
                 userReference: $userReference,
-                previous: $exception
+                previous: $exception,
             );
         }
     }
@@ -282,12 +289,12 @@ class CreateBasekitService
                 $this->config->brandReference,
                 $request->domain,
             );
-        } catch (BaseKitClientException | UnexpectedValueException $exception) {
+        } catch (BaseKitClientException|UnexpectedValueException $exception) {
             $this->logger->error(
                 sprintf(
                     'Failed to create site "%s" for user %d',
                     $request->domain,
-                    $userReference
+                    $userReference,
                 ),
                 LogContextBuilder::for($request)
                     ->withException($exception)
@@ -295,7 +302,7 @@ class CreateBasekitService
                     ->withMeta([
                         'basekit_user_ref' => $userReference,
                     ])
-                    ->build()
+                    ->build(),
             );
             throw new BasekitCreateSiteException(
                 domain: $request->domain,

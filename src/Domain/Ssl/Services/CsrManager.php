@@ -16,7 +16,7 @@ class CsrManager
     public function __construct(
         private readonly OpenSslExtensionStrategy $openSsl,
         private readonly KeyCloud $cloudDisk,
-        private readonly LocalDisk $localDisk
+        private readonly LocalDisk $localDisk,
     ) {
     }
 
@@ -33,7 +33,7 @@ class CsrManager
             $subjectData,
             $encryptionStrength,
             $this->localDisk->getPrivateKeyPath($domain),
-            $this->localDisk->getCsrPath($domain)
+            $this->localDisk->getCsrPath($domain),
         );
 
         $this->storeCsr($domain);

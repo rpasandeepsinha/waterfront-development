@@ -25,7 +25,7 @@ class CreateCertificateStep
             throw new RuntimeException(
                 'Failed to create SSL deployment: ' . $exception->getMessage(),
                 $exception->getCode(),
-                $exception
+                $exception,
             );
         }
     }

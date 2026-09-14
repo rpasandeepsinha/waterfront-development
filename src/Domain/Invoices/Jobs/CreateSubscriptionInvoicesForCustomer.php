@@ -15,8 +15,10 @@ class CreateSubscriptionInvoicesForCustomer extends AbstractQueueableJob
     /* 15 minutes */
     public int $timeout = 900;
 
-    public function __construct(private readonly Customer $customer, private readonly DateTimeInterface $billingDate)
-    {
+    public function __construct(
+        private readonly Customer $customer,
+        private readonly DateTimeInterface $billingDate,
+    ) {
         parent::__construct();
     }
 

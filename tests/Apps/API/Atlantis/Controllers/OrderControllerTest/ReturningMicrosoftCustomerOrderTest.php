@@ -46,21 +46,27 @@ class ReturningMicrosoftCustomerOrderTest extends IntegrationTestCase
             'slug' => 'microsoft-business-standard-parent',
         ]);
 
-        new ProductPriceComponentFactory()->for($parentProduct)->registration()->createOne([
-            'billing_period' => 1,
-            'contract_period' => 1,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($parentProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 1,
+                'contract_period' => 1,
+            ]);
 
         $childProduct = new ProductFactory()->for($productGroup)->createOne([
             'slug' => 'microsoft-business-standard',
             'name' => 'Business Standard',
         ]);
 
-        new ProductPriceComponentFactory()->for($childProduct)->registration()->createOne([
-            'billing_period' => 1,
-            'contract_period' => 1,
-            'price' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($childProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 1,
+                'contract_period' => 1,
+                'price' => 12,
+            ]);
 
         $microsoft365CustomerInfo = new Microsoft365CustomerInfoFactory()->for($this->customer)->createOne([
             'tenant_access_verified' => true,
@@ -73,14 +79,19 @@ class ReturningMicrosoftCustomerOrderTest extends IntegrationTestCase
             'technical_status' => TechnicalStatus::OK->value,
         ]);
 
-        new SubscriptionFactory()->withCustomer()->createOne([
-            'contract_period' => 1,
-            'product_uuid' => $childProduct->uuid,
-            'technical_status' => TechnicalStatus::OK->value,
-            'parent_subscription_id' => $parentSubscription->id,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'contract_period' => 1,
+                'product_uuid' => $childProduct->uuid,
+                'technical_status' => TechnicalStatus::OK->value,
+                'parent_subscription_id' => $parentSubscription->id,
+            ]);
 
-        $this->microsoft365Deployment = new Microsoft365DeploymentFactory()->for($microsoft365CustomerInfo)->for($parentSubscription)->createOne();
+        $this->microsoft365Deployment = new Microsoft365DeploymentFactory()
+            ->for($microsoft365CustomerInfo)
+            ->for($parentSubscription)
+            ->createOne();
     }
 
     #[Test]
@@ -103,12 +114,18 @@ class ReturningMicrosoftCustomerOrderTest extends IntegrationTestCase
             ->postJson($this->generateRoute('partners.order.order'), $orderPayload)
             ->assertOk();
 
-        $this->triggerKPNOrderModifyingOrModifiedResponseEvent(Microsoft365OrderStatus::MODIFY_PENDING->value, (int) $this->microsoft365Deployment->kpn_order_id);
+        $this->triggerKPNOrderModifyingOrModifiedResponseEvent(
+            Microsoft365OrderStatus::MODIFY_PENDING->value,
+            (int) $this->microsoft365Deployment->kpn_order_id,
+        );
 
         $this->microsoft365Deployment->refresh();
         self::assertSame(Microsoft365OrderStatus::MODIFY_PENDING, $this->microsoft365Deployment->kpn_status);
 
-        $this->triggerKPNOrderModifyingOrModifiedResponseEvent(Microsoft365OrderStatus::MODIFIED->value, (int) $this->microsoft365Deployment->kpn_order_id);
+        $this->triggerKPNOrderModifyingOrModifiedResponseEvent(
+            Microsoft365OrderStatus::MODIFIED->value,
+            (int) $this->microsoft365Deployment->kpn_order_id,
+        );
 
         $this->microsoft365Deployment->refresh();
         self::assertSame(Microsoft365OrderStatus::MODIFIED, $this->microsoft365Deployment->kpn_status);
@@ -118,8 +135,10 @@ class ReturningMicrosoftCustomerOrderTest extends IntegrationTestCase
         self::assertCount(3, $parentSubscription->children);
     }
 
-    private function triggerKPNOrderModifyingOrModifiedResponseEvent(string $microsoft365OrderStatus, int $kpnOrderId): void
-    {
+    private function triggerKPNOrderModifyingOrModifiedResponseEvent(
+        string $microsoft365OrderStatus,
+        int $kpnOrderId,
+    ): void {
         $orderModifyQuantity = EntityHelper::deserializeArray(OrderModifyQuantity::class, [
             'CustomerId' => '123',
             'Quantity' => 2,

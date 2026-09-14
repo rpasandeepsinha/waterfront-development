@@ -20,8 +20,14 @@ class BatchInvoiceCreditResultTest extends IntegrationTestCase
     {
         $customer = CustomerFactory::new()->createOne();
         $product = new ProductFactory()->nlDomain()->createOne();
-        $newInvoice = new InvoiceFactory()->for($customer)->for($product)->createOne();
-        $creditInvoice = new InvoiceFactory()->for($customer)->for($product)->createOne();
+        $newInvoice = new InvoiceFactory()
+            ->for($customer)
+            ->for($product)
+            ->createOne();
+        $creditInvoice = new InvoiceFactory()
+            ->for($customer)
+            ->for($product)
+            ->createOne();
 
         $result = new BatchInvoiceCreditResult([$creditInvoice], [$newInvoice]);
         $creditInvoices = $result->getCreditInvoices();

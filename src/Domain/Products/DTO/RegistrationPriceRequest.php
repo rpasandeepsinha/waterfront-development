@@ -9,14 +9,19 @@ use Webmozart\Assert\Assert;
 
 class RegistrationPriceRequest extends ProductPriceRequest
 {
-    public function __construct(Product $product, int $quantity = 1, ?int $contractPeriod = null, ?int $billingPeriod = null, ?string $experimentSlug = null)
-    {
+    public function __construct(
+        Product $product,
+        int $quantity = 1,
+        ?int $contractPeriod = null,
+        ?int $billingPeriod = null,
+        public ?string $experimentSlug = null,
+    ) {
         // When requesting more than 1 item we need to know for which period.
         if ($quantity > 1) {
             Assert::notNull($contractPeriod);
             Assert::notNull($billingPeriod);
         }
 
-        parent::__construct($product, $quantity, $contractPeriod, $billingPeriod, $experimentSlug);
+        parent::__construct($product, $quantity, $contractPeriod, $billingPeriod);
     }
 }

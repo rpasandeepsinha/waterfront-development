@@ -13,8 +13,9 @@ use Waterfront\Infra\Authentication\Helpers\PermissionsHelper;
 
 class StoreNoteAction
 {
-    public function __construct(private readonly AuthenticationManager $authenticationManager)
-    {
+    public function __construct(
+        private readonly AuthenticationManager $authenticationManager,
+    ) {
     }
 
     /**

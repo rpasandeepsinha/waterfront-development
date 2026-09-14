@@ -57,18 +57,19 @@ class NovaFindMandateAction extends Action
         try {
             $mollieResponseDTO = $this->mollieMandateClient->getMandate(
                 $mollieCustomer->mollie_customer_reference_id,
-                $mollieMandateReferenceId
+                $mollieMandateReferenceId,
             );
 
-            $paytResponseDTO = $this->paytMandateClient->getPspMandatesByPaytId(
-                $paytMandateReferenceId
-            );
+            $paytResponseDTO =
+                $this->paytMandateClient->getPspMandatesByPaytId(
+                    $paytMandateReferenceId,
+                );
 
             return self::modal('modal-response', [
                 'title' => $this->translator->translate('nova-action.search.title'),
                 'code' => json_encode([
                     'Mollie' => $mollieSerializer->normalize($mollieResponseDTO),
-                    'Payt'   => $paytSerializer->normalize($paytResponseDTO),
+                    'Payt' => $paytSerializer->normalize($paytResponseDTO),
                 ], JSON_PRETTY_PRINT),
             ]);
         } catch (MollieMandateApiException|PaytMandateApiException $exception) {
@@ -89,11 +90,9 @@ class NovaFindMandateAction extends Action
     public function fields(NovaRequest $request): array
     {
         return [
-            Text::make('Mollie mandate reference id', 'mollie_mandate_reference_id')
-                ->required(),
+            Text::make('Mollie mandate reference id', 'mollie_mandate_reference_id')->required(),
 
-            Text::make('Payt mandate reference id', 'payt_mandate_reference_id')
-                ->required(),
+            Text::make('Payt mandate reference id', 'payt_mandate_reference_id')->required(),
         ];
     }
 }

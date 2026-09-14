@@ -32,6 +32,7 @@ class DomainSerializerFactory
             new DateTimeNormalizer($defaultDateContext),
             new ObjectNormalizer($classMetadataFactory, $metadataAwareNameConverter, null, $extractor),
         ];
+
         return new Serializer($normalizer, $encoder);
     }
 }

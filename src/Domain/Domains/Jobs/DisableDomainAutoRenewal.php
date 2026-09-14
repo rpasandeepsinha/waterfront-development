@@ -12,8 +12,9 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
 
 class DisableDomainAutoRenewal extends AbstractQueueableJob
 {
-    public function __construct(private readonly DomainDeployment $domainDeployment)
-    {
+    public function __construct(
+        private readonly DomainDeployment $domainDeployment,
+    ) {
         parent::__construct();
     }
 

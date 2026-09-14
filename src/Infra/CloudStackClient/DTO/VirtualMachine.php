@@ -23,7 +23,7 @@ class VirtualMachine
         public CloudstackMachineState $state,
         #[SerializedName('serviceofferingid')]
         public string $serviceOfferingId,
-        public ?string $password = null
+        public ?string $password = null,
     ) {
     }
 }

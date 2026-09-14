@@ -70,25 +70,21 @@ class InvoiceOneTimeServiceActionTest extends IntegrationTestCase
                 [
                     'vat_rate' => 21.0,
                     'icp' => false,
-                ]
+                ],
             );
 
         $extensionGroup = new ProductGroupFactory()->extension()->createOne();
-        $this->subscriptionProduct1 = new ProductFactory()
-            ->for($extensionGroup)
-            ->createOne([
-                'slug' => 'product-1',
-            ]);
+        $this->subscriptionProduct1 = new ProductFactory()->for($extensionGroup)->createOne([
+            'slug' => 'product-1',
+        ]);
 
-        $this->subscriptionProduct2 = new ProductFactory()
-            ->for($extensionGroup)
-            ->createOne([
-                'slug' => 'product-2',
-            ]);
+        $this->subscriptionProduct2 = new ProductFactory()->for($extensionGroup)->createOne([
+            'slug' => 'product-2',
+        ]);
 
-        $this->oneTimeServiceProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->oneTimeService())
-            ->createOne();
+        $this->oneTimeServiceProduct = new ProductFactory()->for(
+            new ProductGroupFactory()->oneTimeService(),
+        )->createOne();
         $price = new ProductPriceComponentFactory()
             ->oneTimeService()
             ->for($this->oneTimeServiceProduct)
@@ -116,17 +112,14 @@ class InvoiceOneTimeServiceActionTest extends IntegrationTestCase
     #[Test]
     public function createFromCollectionForCustomerWithoutMandateWillAddAdminFeesInvoice(): void
     {
-        $customer = CustomerFactory::new()
-            ->withAddress()
-            ->createOne([
-                'has_direct_debit' => false,
-            ]);
+        $customer = CustomerFactory::new()->withAddress()->createOne([
+            'has_direct_debit' => false,
+        ]);
 
         $product = ProductFactory::new()->administrationFees()->createOne();
-        ProductPriceComponentFactory::new()->administrationFee()
-            ->createOne([
-                'product_id' => $product->id,
-            ]);
+        ProductPriceComponentFactory::new()->administrationFee()->createOne([
+            'product_id' => $product->id,
+        ]);
 
         self::assertCount(0, Invoice::all());
         $executionDate = CarbonImmutable::tomorrow();
@@ -144,9 +137,7 @@ class InvoiceOneTimeServiceActionTest extends IntegrationTestCase
 
         $oneTimeServices = new Collection([$oneTimeService]);
 
-        $this->messageService
-            ->expects(self::exactly(1))
-            ->method('queue');
+        $this->messageService->expects(self::exactly(1))->method('queue');
 
         $this->getOneTimeServiceInvoiceService()->createFromCollection($oneTimeServices);
 
@@ -168,6 +159,7 @@ class InvoiceOneTimeServiceActionTest extends IntegrationTestCase
             self::assertSame(1000, $invoice->gross_price);
             self::assertSame(900, $invoice->net_price);
         }
+
         self::assertCount(3, Invoice::all());
 
         self::assertDatabaseHas('invoices', [
@@ -175,8 +167,8 @@ class InvoiceOneTimeServiceActionTest extends IntegrationTestCase
             'subscription_id' => null,
             'start_date' => CarbonImmutable::now(),
             'end_date' => CarbonImmutable::now(),
-            'product_id'         => $product->id,
-            'title'              => $product->name,
+            'product_id' => $product->id,
+            'title' => $product->name,
         ]);
     }
 
@@ -185,24 +177,21 @@ class InvoiceOneTimeServiceActionTest extends IntegrationTestCase
      */
     public static function dataInvoiceLinesToCreate(): iterable
     {
-        yield 'Customer with direct debit, does not get admin fees charged' =>
-        [
+        yield 'Customer with direct debit, does not get admin fees charged' => [
             'adminFeesEnabled' => true,
             'hasDirectDebit' => true,
             'expectedAdminFees' => false,
             'expectedAmountOfInvoices' => 2,
         ];
 
-        yield 'Customer without direct debit, admin fees will be charged' =>
-        [
+        yield 'Customer without direct debit, admin fees will be charged' => [
             'adminFeesEnabled' => true,
             'hasDirectDebit' => false,
             'expectedAdminFees' => true,
             'expectedAmountOfInvoices' => 3,
         ];
 
-        yield 'Customer without direct debit, but admin fees disabled' =>
-        [
+        yield 'Customer without direct debit, but admin fees disabled' => [
             'adminFeesEnabled' => false,
             'hasDirectDebit' => false,
             'expectedAdminFees' => false,
@@ -222,7 +211,7 @@ class InvoiceOneTimeServiceActionTest extends IntegrationTestCase
         int $discountPercentage,
         ?string $comment,
         int $expectedInvoiceLines,
-        array $expectedNetPrices
+        array $expectedNetPrices,
     ): void {
         $products = [
             $this->subscriptionProduct1->slug => $this->subscriptionProduct1,
@@ -242,13 +231,13 @@ class InvoiceOneTimeServiceActionTest extends IntegrationTestCase
                     status: OneTimeServiceStatus::OPEN,
                     executionDate: $executionDate,
                     comment: $comment,
-                    grossPrice: null
-                )
+                    grossPrice: null,
+                ),
             );
         }
 
         $invoiceLinesPreview = new Collection(
-            $this->getOneTimeServiceInvoiceService()->getInvoiceLinesPreview($contexts)
+            $this->getOneTimeServiceInvoiceService()->getInvoiceLinesPreview($contexts),
         );
         $invoiceLinesPreview = $invoiceLinesPreview->keyBy('subscriptionId');
 

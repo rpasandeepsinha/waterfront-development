@@ -32,17 +32,20 @@ class UpdateCaaRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'CAA',
-                'name'     => 'google.com',
+                'type' => 'CAA',
+                'name' => 'google.com',
                 'disabled' => true,
-                'ttl'      => '600',
+                'ttl' => '600',
             ],
         ];
 
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     #[Test]
@@ -50,11 +53,11 @@ class UpdateCaaRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'CAA',
-                'name'     => 'google.com',
-                'content'  => 'testerdetest',
+                'type' => 'CAA',
+                'name' => 'google.com',
+                'content' => 'testerdetest',
                 'disabled' => true,
-                'ttl'      => '600',
+                'ttl' => '600',
             ],
         ];
 
@@ -63,7 +66,7 @@ class UpdateCaaRecordValidationTest extends IntegrationTestCase
         self::assertTrue($validator->fails());
         self::assertSame(
             ['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.caa_content')]],
-            $validator->errors()->toArray()
+            $validator->errors()->toArray(),
         );
     }
 
@@ -72,11 +75,11 @@ class UpdateCaaRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'CAA',
-                'name'     => 'google.com',
-                'content'  => '0 issue "certauth.org"',
+                'type' => 'CAA',
+                'name' => 'google.com',
+                'content' => '0 issue "certauth.org"',
                 'disabled' => true,
-                'ttl'      => '600',
+                'ttl' => '600',
             ],
         ];
 

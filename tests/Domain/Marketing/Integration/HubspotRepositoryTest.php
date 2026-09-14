@@ -36,7 +36,7 @@ class HubspotRepositoryTest extends IntegrationTestCase
             [
                 'updated_at' => CarbonImmutable::yesterday(),
                 'created_at' => CarbonImmutable::yesterday(),
-            ]
+            ],
         );
 
         $hos = new HubspotObjectSync();
@@ -50,16 +50,17 @@ class HubspotRepositoryTest extends IntegrationTestCase
     #[Test]
     public function outdatedSubscriptionWillBeReturnedForSync(): void
     {
-        $extensionProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
+        $extensionProduct = new ProductFactory()->nlDomain()->createOne();
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($extensionProduct)->createOne(
-            [
-                'updated_at' => CarbonImmutable::yesterday()->addHour(),
-                'created_at' => CarbonImmutable::yesterday(),
-            ]
-        );
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($extensionProduct)
+            ->createOne(
+                [
+                    'updated_at' => CarbonImmutable::yesterday()->addHour(),
+                    'created_at' => CarbonImmutable::yesterday(),
+                ],
+            );
 
         $hos = new HubspotObjectSync();
         $hos->sandwave_object_type = HubspotObjectType::SUBSCRIPTION;
@@ -73,27 +74,28 @@ class HubspotRepositoryTest extends IntegrationTestCase
         self::assertNotNull(
             array_find(
                 $customerIds,
-                fn ($record): bool => $record->id === $this->customer->id
-            )
+                fn ($record): bool => $record->id === $this->customer->id,
+            ),
         );
     }
 
     #[Test]
     public function outdatedCustomerOfSubscriptionWillBeReturnedForSync(): void
     {
-        $extensionProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
+        $extensionProduct = new ProductFactory()->nlDomain()->createOne();
 
         $this->customer->updated_at = CarbonImmutable::yesterday()->addHour();
         $this->customer->save();
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($extensionProduct)->createOne(
-            [
-                'updated_at' => CarbonImmutable::yesterday(),
-                'created_at' => CarbonImmutable::yesterday(),
-            ]
-        );
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($extensionProduct)
+            ->createOne(
+                [
+                    'updated_at' => CarbonImmutable::yesterday(),
+                    'created_at' => CarbonImmutable::yesterday(),
+                ],
+            );
 
         $hos = new HubspotObjectSync();
         $hos->sandwave_object_type = HubspotObjectType::SUBSCRIPTION;
@@ -107,42 +109,39 @@ class HubspotRepositoryTest extends IntegrationTestCase
         self::assertNotNull(
             array_find(
                 $customerIds,
-                fn ($record): bool => $record->id === $this->customer->id
-            )
+                fn ($record): bool => $record->id === $this->customer->id,
+            ),
         );
     }
 
     #[Test]
     public function outdatedOneTimeServiceWillBeReturnedForSync(): void
     {
-        $extensionProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
+        $extensionProduct = new ProductFactory()->nlDomain()->createOne();
 
         $this->customer->updated_at = CarbonImmutable::yesterday()->addHour();
         $this->customer->save();
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($extensionProduct)->createOne(
-            [
-                'updated_at' => CarbonImmutable::yesterday(),
-                'created_at' => CarbonImmutable::yesterday(),
-            ]
-        );
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($extensionProduct)
+            ->createOne(
+                [
+                    'updated_at' => CarbonImmutable::yesterday(),
+                    'created_at' => CarbonImmutable::yesterday(),
+                ],
+            );
 
         $hos = new HubspotObjectSync();
         $hos->sandwave_object_type = HubspotObjectType::SUBSCRIPTION;
-        $hos->sandwave_object_id =  Uuid::fromString($subscription->uuid);
+        $hos->sandwave_object_id = Uuid::fromString($subscription->uuid);
         $hos->hubspot_object_id = 'any-fake-hubspot-subscription-object-id';
         $hos->synced_at = CarbonImmutable::yesterday();
         $hos->save();
 
-        $oneTimeServiceProductGroup = new ProductGroupFactory()
-            ->oneTimeService()
-            ->createOne();
+        $oneTimeServiceProductGroup = new ProductGroupFactory()->oneTimeService()->createOne();
 
-        $oneTimeServiceProduct = new ProductFactory()
-            ->for($oneTimeServiceProductGroup)
-            ->createOne();
+        $oneTimeServiceProduct = new ProductFactory()->for($oneTimeServiceProductGroup)->createOne();
 
         $oneTimeService = new OneTimeServiceFactory()
             ->for($subscription)
@@ -152,7 +151,7 @@ class HubspotRepositoryTest extends IntegrationTestCase
                 [
                     'updated_at' => CarbonImmutable::yesterday(),
                     'created_at' => CarbonImmutable::yesterday(),
-                ]
+                ],
             );
 
         $hos = new HubspotObjectSync();
@@ -166,39 +165,36 @@ class HubspotRepositoryTest extends IntegrationTestCase
         self::assertNotNull(
             array_find(
                 $customerIds,
-                fn ($record): bool => $record->id === $this->customer->id
-            )
+                fn ($record): bool => $record->id === $this->customer->id,
+            ),
         );
     }
 
     #[Test]
     public function outdatedCustomerOfOneTimeServiceWillBeReturnedForSync(): void
     {
-        $extensionProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
+        $extensionProduct = new ProductFactory()->nlDomain()->createOne();
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($extensionProduct)->createOne(
-            [
-                'updated_at' => CarbonImmutable::yesterday(),
-                'created_at' => CarbonImmutable::yesterday(),
-            ]
-        );
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($extensionProduct)
+            ->createOne(
+                [
+                    'updated_at' => CarbonImmutable::yesterday(),
+                    'created_at' => CarbonImmutable::yesterday(),
+                ],
+            );
 
         $hos = new HubspotObjectSync();
         $hos->sandwave_object_type = HubspotObjectType::SUBSCRIPTION;
-        $hos->sandwave_object_id =  Uuid::fromString($subscription->uuid);
+        $hos->sandwave_object_id = Uuid::fromString($subscription->uuid);
         $hos->hubspot_object_id = 'any-fake-hubspot-subscription-object-id';
         $hos->synced_at = CarbonImmutable::yesterday();
         $hos->save();
 
-        $oneTimeServiceProductGroup = new ProductGroupFactory()
-            ->oneTimeService()
-            ->createOne();
+        $oneTimeServiceProductGroup = new ProductGroupFactory()->oneTimeService()->createOne();
 
-        $oneTimeServiceProduct = new ProductFactory()
-            ->for($oneTimeServiceProductGroup)
-            ->createOne();
+        $oneTimeServiceProduct = new ProductFactory()->for($oneTimeServiceProductGroup)->createOne();
 
         $oneTimeService = new OneTimeServiceFactory()
             ->for($subscription)
@@ -208,7 +204,7 @@ class HubspotRepositoryTest extends IntegrationTestCase
                 [
                     'updated_at' => CarbonImmutable::yesterday(),
                     'created_at' => CarbonImmutable::yesterday(),
-                ]
+                ],
             );
 
         $hos = new HubspotObjectSync();
@@ -222,56 +218,54 @@ class HubspotRepositoryTest extends IntegrationTestCase
         self::assertNotNull(
             array_find(
                 $customerIds,
-                fn ($record): bool => $record->id === $this->customer->id
-            )
+                fn ($record): bool => $record->id === $this->customer->id,
+            ),
         );
     }
 
     #[Test]
     public function newSubscriptionWillBeReturnedForSync(): void
     {
-        $extensionProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
+        $extensionProduct = new ProductFactory()->nlDomain()->createOne();
 
-        new SubscriptionFactory()->for($this->customer)->for($extensionProduct)->createOne(
-            [
-                'updated_at' => CarbonImmutable::yesterday(),
-                'created_at' => CarbonImmutable::yesterday(),
-            ]
-        );
+        new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($extensionProduct)
+            ->createOne(
+                [
+                    'updated_at' => CarbonImmutable::yesterday(),
+                    'created_at' => CarbonImmutable::yesterday(),
+                ],
+            );
 
         $customerIds = $this->repository->getCustomerIdsReadyToBeSyncedByUpdatedAt();
 
         self::assertNotNull(
             array_find(
                 $customerIds,
-                fn ($record): bool => $record->id === $this->customer->id
-            )
+                fn ($record): bool => $record->id === $this->customer->id,
+            ),
         );
     }
 
     #[Test]
     public function newOneTimeServiceWillBeReturnedForSync(): void
     {
-        $extensionProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
+        $extensionProduct = new ProductFactory()->nlDomain()->createOne();
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($extensionProduct)->createOne(
-            [
-                'updated_at' => CarbonImmutable::yesterday(),
-                'created_at' => CarbonImmutable::yesterday(),
-            ]
-        );
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($extensionProduct)
+            ->createOne(
+                [
+                    'updated_at' => CarbonImmutable::yesterday(),
+                    'created_at' => CarbonImmutable::yesterday(),
+                ],
+            );
 
-        $oneTimeServiceProductGroup = new ProductGroupFactory()
-            ->oneTimeService()
-            ->createOne();
+        $oneTimeServiceProductGroup = new ProductGroupFactory()->oneTimeService()->createOne();
 
-        $oneTimeServiceProduct = new ProductFactory()
-            ->for($oneTimeServiceProductGroup)
-            ->createOne();
+        $oneTimeServiceProduct = new ProductFactory()->for($oneTimeServiceProductGroup)->createOne();
 
         new OneTimeServiceFactory()
             ->for($subscription)
@@ -279,9 +273,9 @@ class HubspotRepositoryTest extends IntegrationTestCase
             ->for($oneTimeServiceProduct)
             ->createOne(
                 [
-                'updated_at' => CarbonImmutable::yesterday(),
-                'created_at' => CarbonImmutable::yesterday(),
-            ]
+                    'updated_at' => CarbonImmutable::yesterday(),
+                    'created_at' => CarbonImmutable::yesterday(),
+                ],
             );
 
         $customerIds = $this->repository->getCustomerIdsReadyToBeSyncedByUpdatedAt();
@@ -289,24 +283,25 @@ class HubspotRepositoryTest extends IntegrationTestCase
         self::assertNotNull(
             array_find(
                 $customerIds,
-                fn ($record): bool => $record->id === $this->customer->id
-            )
+                fn ($record): bool => $record->id === $this->customer->id,
+            ),
         );
     }
 
     #[Test]
     public function outdatedSubscriptionWithPreviousSyncEventWillBeReturnedForSync(): void
     {
-        $extensionProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
+        $extensionProduct = new ProductFactory()->nlDomain()->createOne();
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($extensionProduct)->createOne(
-            [
-                'updated_at' => CarbonImmutable::yesterday()->addHour(),
-                'created_at' => CarbonImmutable::yesterday(),
-            ]
-        );
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($extensionProduct)
+            ->createOne(
+                [
+                    'updated_at' => CarbonImmutable::yesterday()->addHour(),
+                    'created_at' => CarbonImmutable::yesterday(),
+                ],
+            );
 
         CarbonImmutable::setTestNow(CarbonImmutable::now()->subWeek());
 
@@ -333,8 +328,8 @@ class HubspotRepositoryTest extends IntegrationTestCase
         self::assertNotNull(
             array_find(
                 $customerIds,
-                fn ($record): bool => $record->id === $this->customer->id
-            )
+                fn ($record): bool => $record->id === $this->customer->id,
+            ),
         );
     }
 }

@@ -13,8 +13,9 @@ class StatusFilter
     /**
      * @param list<ProvisionStatus>|null $statuses
      */
-    public function __construct(private readonly ?array $statuses)
-    {
+    public function __construct(
+        private readonly ?array $statuses,
+    ) {
     }
 
     /**

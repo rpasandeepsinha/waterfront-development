@@ -57,10 +57,7 @@ class ProvisionRetryResponseMapperTest extends TestCase
         ];
 
         $serializerMock = self::createMock(Serializer::class);
-        $serializerMock->expects(self::once())
-            ->method('normalize')
-            ->with($result)
-            ->willReturn($normalizedResult);
+        $serializerMock->expects(self::once())->method('normalize')->with($result)->willReturn($normalizedResult);
         $this->serializerFactory->method('get')->willReturn($serializerMock);
         $this->translatorMock->expects(self::never())->method('translate');
 
@@ -82,7 +79,8 @@ class ProvisionRetryResponseMapperTest extends TestCase
             ]),
         );
 
-        $this->translatorMock->expects(self::once())
+        $this->translatorMock
+            ->expects(self::once())
             ->method('translate')
             ->with('provision.errors.retry_origin_not_failed')
             ->willReturn('Translated retry error.');
@@ -90,13 +88,16 @@ class ProvisionRetryResponseMapperTest extends TestCase
         $response = $this->responseMapper->fromResult($result);
 
         self::assertSame(422, $response->status());
-        self::assertSame([
-            'message' => '',
-            'errors' => [
-                'retryOf' => ['Translated retry error.'],
-                'retryData.items.0.email' => ['Invalid email.'],
+        self::assertSame(
+            [
+                'message' => '',
+                'errors' => [
+                    'retryOf' => ['Translated retry error.'],
+                    'retryData.items.0.email' => ['Invalid email.'],
+                ],
             ],
-        ], $response->getData(true));
+            $response->getData(true),
+        );
     }
 
     #[Test]
@@ -108,12 +109,14 @@ class ProvisionRetryResponseMapperTest extends TestCase
         );
 
         $serializerMock = self::createMock(Serializer::class);
-        $serializerMock->expects(self::once())
+        $serializerMock
+            ->expects(self::once())
             ->method('normalize')
             ->with($result)
             ->willThrowException(new NotNormalizableValueException('Technical serializer message'));
         $this->serializerFactory->method('get')->willReturn($serializerMock);
-        $this->translatorMock->expects(self::once())
+        $this->translatorMock
+            ->expects(self::once())
             ->method('translate')
             ->with('provision.retry.execution_failed')
             ->willReturn('Execution failed.');
@@ -121,10 +124,13 @@ class ProvisionRetryResponseMapperTest extends TestCase
         $response = $this->responseMapper->fromResult($result);
 
         self::assertSame(500, $response->status());
-        self::assertSame([
-            'message' => 'Execution failed.',
-            'errors' => [],
-        ], $response->getData(true));
+        self::assertSame(
+            [
+                'message' => 'Execution failed.',
+                'errors' => [],
+            ],
+            $response->getData(true),
+        );
     }
 
     #[Test]
@@ -136,7 +142,8 @@ class ProvisionRetryResponseMapperTest extends TestCase
             exception: new Exception('Technical details'),
         );
 
-        $this->translatorMock->expects(self::once())
+        $this->translatorMock
+            ->expects(self::once())
             ->method('translate')
             ->with('provision.retry.execution_failed')
             ->willReturn('Execution failed.');
@@ -144,10 +151,13 @@ class ProvisionRetryResponseMapperTest extends TestCase
         $response = $this->responseMapper->fromResult($result);
 
         self::assertSame(500, $response->status());
-        self::assertSame([
-            'message' => 'Execution failed.',
-            'errors' => [],
-        ], $response->getData(true));
+        self::assertSame(
+            [
+                'message' => 'Execution failed.',
+                'errors' => [],
+            ],
+            $response->getData(true),
+        );
     }
 
     #[Test]
@@ -155,7 +165,8 @@ class ProvisionRetryResponseMapperTest extends TestCase
     {
         $exception = new RetryOriginNotFoundException(Uuid::uuid4());
 
-        $this->translatorMock->expects(self::once())
+        $this->translatorMock
+            ->expects(self::once())
             ->method('translate')
             ->with('provision.errors.retry_origin_not_found')
             ->willReturn('Retry origin not found.');
@@ -163,12 +174,15 @@ class ProvisionRetryResponseMapperTest extends TestCase
         $response = $this->responseMapper->fromException($exception);
 
         self::assertSame(422, $response->status());
-        self::assertSame([
-            'message' => '',
-            'errors' => [
-                'retryOf' => ['Retry origin not found.'],
+        self::assertSame(
+            [
+                'message' => '',
+                'errors' => [
+                    'retryOf' => ['Retry origin not found.'],
+                ],
             ],
-        ], $response->getData(true));
+            $response->getData(true),
+        );
     }
 
     #[Test]
@@ -176,7 +190,8 @@ class ProvisionRetryResponseMapperTest extends TestCase
     {
         $exception = new NotNormalizableValueException('Technical serializer message');
 
-        $this->translatorMock->expects(self::once())
+        $this->translatorMock
+            ->expects(self::once())
             ->method('translate')
             ->with('provision.retry.invalid_request')
             ->willReturn('Invalid request.');
@@ -184,9 +199,12 @@ class ProvisionRetryResponseMapperTest extends TestCase
         $response = $this->responseMapper->fromException($exception);
 
         self::assertSame(422, $response->status());
-        self::assertSame([
-            'message' => 'Invalid request.',
-            'errors' => [],
-        ], $response->getData(true));
+        self::assertSame(
+            [
+                'message' => 'Invalid request.',
+                'errors' => [],
+            ],
+            $response->getData(true),
+        );
     }
 }

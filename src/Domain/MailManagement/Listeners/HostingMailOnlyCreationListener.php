@@ -14,8 +14,9 @@ class HostingMailOnlyCreationListener implements ShouldQueue
 {
     public string $queue = QueueName::HOSTING->value;
 
-    public function __construct(private readonly MailManagementService $mailService)
-    {
+    public function __construct(
+        private readonly MailManagementService $mailService,
+    ) {
     }
 
     public function handle(MailableEventInterface $event): void
@@ -32,7 +33,7 @@ class HostingMailOnlyCreationListener implements ShouldQueue
 
         $this->mailService->createDomain(
             $event->getSubscription(),
-            $event->getContactEmail()
+            $event->getContactEmail(),
         );
     }
 }

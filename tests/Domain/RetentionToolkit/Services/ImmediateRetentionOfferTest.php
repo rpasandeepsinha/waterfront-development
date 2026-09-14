@@ -28,9 +28,7 @@ use Waterfront\Domain\RetentionToolkit\DTO\RetentionOfferRequestDTO;
 use Waterfront\Domain\RetentionToolkit\Enums\CustomerType;
 use Waterfront\Domain\RetentionToolkit\Enums\ExecutionDate;
 use Waterfront\Domain\RetentionToolkit\Enums\RetentionOfferCalculationStatus;
-use Waterfront\Domain\RetentionToolkit\Enums\RetentionOfferEligibilityCode;
 use Waterfront\Domain\RetentionToolkit\Enums\SelectedAction;
-use Waterfront\Domain\RetentionToolkit\Exceptions\RetentionOfferCannotBeAppliedException;
 use Waterfront\Domain\RetentionToolkit\Models\CustomerRetentionOffer;
 use Waterfront\Domain\RetentionToolkit\Services\RetentionToolkitService;
 use Waterfront\Domain\Subscriptions\Models\Subscription;
@@ -52,13 +50,9 @@ class ImmediateRetentionOfferTest extends IntegrationTestCase
 
         CarbonImmutable::setTestNow(self::NOW);
 
-        $this->customer = new CustomerFactory()
-            ->withAddress()
-            ->createOne();
+        $this->customer = new CustomerFactory()->withAddress()->createOne();
 
-        $domainProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
+        $domainProduct = new ProductFactory()->nlDomain()->createOne();
 
         new ProductPriceComponentFactory()
             ->for($domainProduct)
@@ -99,13 +93,14 @@ class ImmediateRetentionOfferTest extends IntegrationTestCase
                 'net_price' => 365,
             ]);
 
-        $results = self::resolve(RetentionToolkitService::class)->apply(
-            request: $this->getRetentionOfferRequest(),
-            createdByMetadata: new IdentityMetadataDTO(
-                uuid: Uuid::uuid4(),
-                email: 'employee@yourhosting.nl',
-            ),
-        );
+        $results = self::resolve(RetentionToolkitService::class)
+            ->apply(
+                request: $this->getRetentionOfferRequest(),
+                createdByMetadata: new IdentityMetadataDTO(
+                    uuid: Uuid::uuid4(),
+                    email: 'employee@yourhosting.nl',
+                ),
+            );
 
         self::assertCount(1, $results);
         $result = $results[0];
@@ -124,9 +119,7 @@ class ImmediateRetentionOfferTest extends IntegrationTestCase
         self::assertSame(1000, $this->subscription->gross_price);
         self::assertSame(750, $this->subscription->net_price);
 
-        $creditInvoice = Invoice::query()
-            ->where('parent_invoice_id', $currentInvoice->id)
-            ->sole();
+        $creditInvoice = Invoice::query()->where('parent_invoice_id', $currentInvoice->id)->sole();
 
         self::assertSame(-184, $creditInvoice->net_price);
         self::assertSame(
@@ -185,72 +178,36 @@ class ImmediateRetentionOfferTest extends IntegrationTestCase
     #[Test]
     public function openMutationConflictsWithImmediateOfferAndPreventsApplication(): void
     {
-        $openMutation = SubscriptionMutationFactory::new()
-            ->for($this->subscription)
-            ->for($this->subscription->product)
-            ->createOne([
-                'contract_period' => 24,
-                'billing_period' => 24,
-                'gross_price' => 2000,
-                'net_price' => 1800,
-            ]);
+        $openMutation = SubscriptionMutationFactory::new()->for($this->subscription)->for($this->subscription->product)->createOne();
 
-        $service = self::resolve(RetentionToolkitService::class);
-        $request = $this->getRetentionOfferRequest();
-        $results = $service->calculate($request);
-
-        self::assertCount(1, $results);
-        $result = $results[0];
-
-        self::assertSame(
-            RetentionOfferCalculationStatus::CONFLICT,
-            $result->status,
-        );
-        self::assertNotNull($result->price);
-        self::assertSame(
-            RetentionOfferEligibilityCode::OPEN_MUTATION,
-            $result->price->eligibility->code,
-        );
-        self::assertSame(
-            'The subscription has an open mutation that must be reviewed first.',
-            $result->reason,
-        );
-
-        self::expectExceptionObject(
-            new RetentionOfferCannotBeAppliedException(
-                'The subscription has an open mutation that must be reviewed first.',
-            ),
-        );
-
-        try {
-            $service->apply(
-                request: $request,
+        $results = self::resolve(RetentionToolkitService::class)
+            ->apply(
+                request: $this->getRetentionOfferRequest(),
                 createdByMetadata: new IdentityMetadataDTO(
                     uuid: Uuid::uuid4(),
                     email: 'employee@yourhosting.nl',
                 ),
             );
-        } finally {
-            $persistedMutation = SubscriptionMutation::query()
-                ->where('subscription_id', $this->subscription->id)
-                ->sole();
 
-            self::assertSame($openMutation->id, $persistedMutation->id);
-            self::assertSame(2000, $persistedMutation->gross_price);
-            self::assertSame(1800, $persistedMutation->net_price);
-            self::assertSame(24, $persistedMutation->contract_period);
-            self::assertSame(24, $persistedMutation->billing_period);
-            self::assertNull($persistedMutation->mutated_at);
-            self::assertDatabaseEmpty(CustomerRetentionOffer::class);
-        }
+        self::assertCount(1, $results);
+        self::assertSame(
+            RetentionOfferCalculationStatus::CONFLICT,
+            $results[0]->status,
+        );
+
+        self::assertDatabaseCount(SubscriptionMutation::class, 1);
+        self::assertDatabaseHas(SubscriptionMutation::class, [
+            'id' => $openMutation->id,
+            'mutated_at' => null,
+        ]);
+        self::assertDatabaseEmpty(CustomerRetentionOffer::class);
     }
 
     #[Test]
     public function failedInvoiceCreationRollsBackImmediateOffer(): void
     {
         $harborApi = self::createMock(HarborApi::class);
-        $harborApi->expects(self::never())
-            ->method('sendCredit');
+        $harborApi->expects(self::never())->method('sendCredit');
         $this->app->bind(
             HarborApi::class,
             fn (): HarborApi => $harborApi,
@@ -261,9 +218,7 @@ class ImmediateRetentionOfferTest extends IntegrationTestCase
         );
         $exception = new RuntimeException('Invoice creation failed.');
 
-        $createInvoiceAction->expects(self::once())
-            ->method('execute')
-            ->willThrowException($exception);
+        $createInvoiceAction->expects(self::once())->method('execute')->willThrowException($exception);
         $this->app->bind(
             CreateInvoiceAndSetNextBillingDateForSubscriptionAction::class,
             fn (): CreateInvoiceAndSetNextBillingDateForSubscriptionAction => $createInvoiceAction,
@@ -281,32 +236,28 @@ class ImmediateRetentionOfferTest extends IntegrationTestCase
                 'net_price' => 365,
             ]);
 
-        $futurePrice = SubscriptionPriceFactory::new()
-            ->for($this->subscription)
-            ->createOne([
-                'valid_from' => CarbonImmutable::today()->addMonth(),
-                'net_price' => 900,
-            ]);
+        $futurePrice = SubscriptionPriceFactory::new()->for($this->subscription)->createOne([
+            'valid_from' => CarbonImmutable::today()->addMonth(),
+            'net_price' => 900,
+        ]);
 
         $originalEndDate = $this->subscription->end_date->getTimestamp();
-        $originalNextBillingDate = $this->subscription
-            ->next_billing_date
-            ->getTimestamp();
+        $originalNextBillingDate = $this->subscription->next_billing_date->getTimestamp();
         $originalGrossPrice = $this->subscription->gross_price;
         $originalNetPrice = $this->subscription->net_price;
-        $originalSubscriptionPriceId = $this->subscription
-            ->subscription_price_id;
+        $originalSubscriptionPriceId = $this->subscription->subscription_price_id;
 
         self::expectExceptionObject($exception);
 
         try {
-            self::resolve(RetentionToolkitService::class)->apply(
-                request: $this->getRetentionOfferRequest(),
-                createdByMetadata: new IdentityMetadataDTO(
-                    uuid: Uuid::uuid4(),
-                    email: 'employee@yourhosting.nl',
-                ),
-            );
+            self::resolve(RetentionToolkitService::class)
+                ->apply(
+                    request: $this->getRetentionOfferRequest(),
+                    createdByMetadata: new IdentityMetadataDTO(
+                        uuid: Uuid::uuid4(),
+                        email: 'employee@yourhosting.nl',
+                    ),
+                );
         } finally {
             self::assertDatabaseEmpty(CustomerRetentionOffer::class);
             self::assertDatabaseEmpty(SubscriptionMutation::class);

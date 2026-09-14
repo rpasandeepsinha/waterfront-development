@@ -7,12 +7,12 @@ use Illuminate\Support\Env;
 return [
     'plesk' => [
         /*
-    |--------------------------------------------------------------------------
-    | Plesk-related configuration
-    |--------------------------------------------------------------------------
-    */
-        'username_max_length'  => 10,
-        'port'                 => 8443,
+         |--------------------------------------------------------------------------
+         | Plesk-related configuration
+         |--------------------------------------------------------------------------
+         */
+        'username_max_length' => 10,
+        'port' => 8443,
 
         /**
          * Mail only delivered on plesk are actually just hosting packages
@@ -34,6 +34,5 @@ return [
          * deliver the mail_only hosting because plesk can have multiple.
          */
         'mail_only_sitebuilder_slug' => Env::get('MAIL_ONLY_SITEBUILDER_PLESK_SLUG'),
-
     ],
 ];

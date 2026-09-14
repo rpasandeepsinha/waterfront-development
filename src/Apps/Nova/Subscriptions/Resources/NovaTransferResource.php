@@ -45,21 +45,21 @@ class NovaTransferResource extends Resource
             BelongsTo::make(
                 self::translate('transfer.relations.from_customer'),
                 'fromCustomer',
-                NovaCustomerResource::class
+                NovaCustomerResource::class,
             )->sortable(),
             BelongsTo::make(
                 self::translate('transfer.relations.to_customer'),
                 'toCustomer',
-                NovaCustomerResource::class
+                NovaCustomerResource::class,
             )->sortable(),
             Text::make(
                 self::translate('transfer.attributes.status'),
-                'Transferstatus'
+                'Transferstatus',
             ),
             BelongsToMany::make(
                 self::translate('transfer.relations.subscriptions'),
                 'subscriptions',
-                NovaSubscriptionResource::class
+                NovaSubscriptionResource::class,
             ),
         ];
     }

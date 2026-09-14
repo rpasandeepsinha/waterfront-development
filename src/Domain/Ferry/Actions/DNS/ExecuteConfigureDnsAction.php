@@ -12,8 +12,9 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class ExecuteConfigureDnsAction
 {
-    public function __construct(private readonly Dispatcher $jobDispatcher)
-    {
+    public function __construct(
+        private readonly Dispatcher $jobDispatcher,
+    ) {
     }
 
     /**
@@ -27,7 +28,7 @@ class ExecuteConfigureDnsAction
 
             $this->jobDispatcher->dispatch(new ConfigureDnsMigrationJob(
                 subscription: $subscription,
-                failedTechnicalStatus: DomainStatus::FAILED->value
+                failedTechnicalStatus: DomainStatus::FAILED->value,
             ));
         }
     }

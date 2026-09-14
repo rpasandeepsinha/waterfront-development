@@ -40,6 +40,7 @@ class CloudstackService
             if (! $environment instanceof Environment) {
                 throw new CloudstackException('Environment not found');
             }
+
             $adminClient = $this->adminClientFactory->create($environment);
             $serviceOfferings = $adminClient->listServiceOfferings($environment->domain_id);
             $serviceOfferingsArray = iterator_to_array($serviceOfferings);
@@ -64,6 +65,7 @@ class CloudstackService
 
         /** @var AsynchronousCloudstackResponse $asyncJobresponse */
         $asyncJobresponse = $this->serializer->denormalize($jobResult, AsynchronousCloudstackResponse::class);
+
         return $asyncJobresponse;
     }
 
@@ -77,10 +79,14 @@ class CloudstackService
      *
      * @return mixed[]
      */
-    public function registerSshKeyPair(ManagerDomainDeployment $managerDomainDeployment, string $name, string $publicKey): array
-    {
+    public function registerSshKeyPair(
+        ManagerDomainDeployment $managerDomainDeployment,
+        string $name,
+        string $publicKey,
+    ): array {
         try {
             $client = $this->clientFactory->create($managerDomainDeployment);
+
             return $client->registerSshKeyPair($name, $publicKey);
         } catch (ClientFactoryException $exception) {
             throw new CloudstackException($exception->getMessage(), $exception->getCode(), $exception);
@@ -90,14 +96,17 @@ class CloudstackService
     /**
      * @throws CloudstackException
      */
-    public function deleteSshKeyPair(ManagerDomainDeployment $managerDomainDeployment, string $name): DeleteSshKeyPairResponse
-    {
+    public function deleteSshKeyPair(
+        ManagerDomainDeployment $managerDomainDeployment,
+        string $name,
+    ): DeleteSshKeyPairResponse {
         try {
             $client = $this->clientFactory->create($managerDomainDeployment);
             $clientResponse = $client->deleteSshKeyPair($name);
 
             /** @var DeleteSshKeyPairResponse $deleteResponse */
             $deleteResponse = $this->serializer->denormalize($clientResponse, DeleteSshKeyPairResponse::class);
+
             return $deleteResponse;
         } catch (ClientFactoryException $exception) {
             throw new CloudstackException($exception->getMessage(), $exception->getCode(), $exception);

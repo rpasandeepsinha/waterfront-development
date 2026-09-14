@@ -14,7 +14,7 @@ readonly class SubscriptionDTO
     public function __construct(
         public CreateSubscriptionDTO $createSubscription,
         public Product $product,
-        public Price $productPrice
+        public Price $productPrice,
     ) {
     }
 
@@ -30,13 +30,14 @@ readonly class SubscriptionDTO
             'start_date' => new CarbonImmutable($this->createSubscription->startDate),
             'next_billing_date' => new CarbonImmutable($this->createSubscription->nextBillingDate),
             'end_date' => new CarbonImmutable($this->createSubscription->nextContractDate),
-            'cancel_date' => $this->createSubscription->cancelDate !== null ?
-                new CarbonImmutable($this->createSubscription->cancelDate) : null,
+            'cancel_date' => $this->createSubscription->cancelDate !== null
+                ? new CarbonImmutable($this->createSubscription->cancelDate)
+                : null,
             'internal_comment' => $this->createSubscription->internalComment,
             'domain' => $this->createSubscription->domain,
-            'administrative_status' => $this->createSubscription->cancelDate === null ?
-                AdministrativeStatus::ACTIVE->value :
-                AdministrativeStatus::CANCELED->value,
+            'administrative_status' => $this->createSubscription->cancelDate === null
+                ? AdministrativeStatus::ACTIVE->value
+                : AdministrativeStatus::CANCELED->value,
             'net_price' => $this->productPrice->calculatedPrice,
             'gross_price' => $this->productPrice->regularPrice,
         ];

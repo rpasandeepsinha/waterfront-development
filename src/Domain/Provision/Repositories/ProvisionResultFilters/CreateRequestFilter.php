@@ -10,8 +10,9 @@ use Waterfront\Domain\Provision\Models\ProvisioningResult;
 
 class CreateRequestFilter
 {
-    public function __construct(private readonly bool $onlyCreateRequests)
-    {
+    public function __construct(
+        private readonly bool $onlyCreateRequests,
+    ) {
     }
 
     /**

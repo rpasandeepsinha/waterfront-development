@@ -28,28 +28,38 @@ readonly class SubscriptionFormatter
     /**
      * @return array<string, mixed>
      */
-    public function formatFromRequest(ManualMigrationValidateRequest|ManualMigrationMigrateRequest $request, Customer $customer): array
-    {
+    public function formatFromRequest(
+        ManualMigrationValidateRequest|ManualMigrationMigrateRequest $request,
+        Customer $customer,
+    ): array {
         $product = $this->productRepository->findProductByUuid($request->product_uuid);
         $priceRequest = new PriceRequest([new ProlongationPriceRequest($product)], $customer);
         $priceList = $this->priceResolver->getPriceList($priceRequest);
-        $productPrice = $priceList->getProductPrice($product->slug, $request->integer('contract_period'), $request->integer('billing_period'));
+        $productPrice = $priceList->getProductPrice(
+            $product->slug,
+            $request->integer('contract_period'),
+            $request->integer('billing_period'),
+        );
 
         $data = [
-            'domain' =>  $request->domain_name === '' ? null : $request->domain_name,
-            'start_date' =>  $request->string('start_date')->toString(),
-            'next_contract_date' =>  $request->string('end_date')->toString(),
-            'next_billing_date' =>  $request->string('next_billing_date')->toString(),
+            'domain' => $request->domain_name === '' ? null : $request->domain_name,
+            'start_date' => $request->string('start_date')->toString(),
+            'next_contract_date' => $request->string('end_date')->toString(),
+            'next_billing_date' => $request->string('next_billing_date')->toString(),
             'contract_period' => $productPrice->contractPeriod,
             'billing_period' => $productPrice->billingPeriod,
             'slug' => $product->slug,
             'product_group_slug' => $product->productGroup->slug,
-            'reference_product_id' =>  $request->string('reference_product_id')->toString(),
-            'reference_subscription_id' =>  $request->reference_subscription_id,
+            'reference_product_id' => $request->string('reference_product_id')->toString(),
+            'reference_subscription_id' => $request->reference_subscription_id,
         ];
 
         // Only for domain migrations that are not targeting the "default RTR" account we should fill in some info.
-        if ($product->productGroup->slug === ProductGroupType::EXTENSION && $request->source_domain_provider !== null && $request->source_domain_provider !== ManualMigrationDomainProvider::RTRNEW->value) {
+        if (
+            $product->productGroup->slug === ProductGroupType::EXTENSION
+            && $request->source_domain_provider !== null
+            && $request->source_domain_provider !== ManualMigrationDomainProvider::RTRNEW->value
+        ) {
             $data['reference_domain_provider_business_unit_slug'] = $request->source_business_unit;
             $data['driver'] = $request->source_domain_provider;
         }
@@ -67,9 +77,11 @@ readonly class SubscriptionFormatter
                 ImplementableProducts::HOSTING->value => [
                     [
                         ...$data,
-                        'driver' =>  $request->provider,
-                        'hostname' =>  $request->hostname,
-                        'server_data' => $request instanceof ManualMigrationMigrateRequest ? $this->formatServerDataFromRequest($request) : [],
+                        'driver' => $request->provider,
+                        'hostname' => $request->hostname,
+                        'server_data' => $request instanceof ManualMigrationMigrateRequest
+                            ? $this->formatServerDataFromRequest($request)
+                            : [],
                     ],
                 ],
             ],

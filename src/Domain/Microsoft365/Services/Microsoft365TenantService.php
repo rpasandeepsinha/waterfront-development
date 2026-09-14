@@ -10,14 +10,14 @@ use Waterfront\Domain\Orders\Serializers\CartSerializerFactory;
 
 class Microsoft365TenantService
 {
-    public function __construct(private readonly CartSerializerFactory $cartSerializerFactory)
-    {
+    public function __construct(
+        private readonly CartSerializerFactory $cartSerializerFactory,
+    ) {
     }
 
     public function getMicrosoft365MetaData(string $metaData): Microsoft365MetaData
     {
-        $metaData = $this->cartSerializerFactory->get()
-            ->deserialize($metaData, MetaData::class, 'json');
+        $metaData = $this->cartSerializerFactory->get()->deserialize($metaData, MetaData::class, 'json');
 
         assert($metaData instanceof Microsoft365MetaData);
 

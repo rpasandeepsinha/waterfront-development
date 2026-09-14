@@ -10,7 +10,7 @@ class MailDomainCreationFailed implements MailTemplateInterface
 {
     public function __construct(
         public readonly string $domain,
-        public readonly string $reason
+        public readonly string $reason,
     ) {
     }
 

@@ -9,7 +9,7 @@ readonly class RedirectTechnicalPayload
     public function __construct(
         public string $source,
         public string $destination,
-        public string $type = '301'
+        public string $type = '301',
     ) {
     }
 

@@ -17,7 +17,8 @@ class MailManagementServiceTest extends TestCase
     {
         $service = $this->app->make(MailManagementService::class);
 
-        $expected = require(__DIR__ . '/../../../../src/Domain/MailManagement/Config/ConnectionDetails/connection-details.php');
+        $expected = require
+            __DIR__ . '/../../../../src/Domain/MailManagement/Config/ConnectionDetails/connection-details.php';
         self::assertSame($expected, $service->configuration());
     }
 }

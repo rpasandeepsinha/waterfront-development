@@ -57,21 +57,19 @@ class ModifyHostingDnsSettingsAction
         // Subscription now has a real and COMPLETE backend coupling instead of the default placeholder setup.
         $domain = $this->resolveDomain($subscription);
 
-        $isUsingServerHostnameAsNameserver = $this->hostingIsUsingServerHostnameAsNameservers
-            ->execute(
-                payload: $payload,
-                migratedCustomer: $migratedCustomer,
-                server: $server,
-                siteConfig: $siteDto,
-                jobUuid: $jobId
-            );
+        $isUsingServerHostnameAsNameserver = $this->hostingIsUsingServerHostnameAsNameservers->execute(
+            payload: $payload,
+            migratedCustomer: $migratedCustomer,
+            server: $server,
+            siteConfig: $siteDto,
+            jobUuid: $jobId,
+        );
 
-        $isUsingLocalDomain = $this->subscriptionRepository
-            ->subscriptionExistsForCustomerIdAndDomainForType(
-                customerId: $subscription->customer->id,
-                domain: $domain,
-                productGroupType: ProductGroupType::EXTENSION
-            );
+        $isUsingLocalDomain = $this->subscriptionRepository->subscriptionExistsForCustomerIdAndDomainForType(
+            customerId: $subscription->customer->id,
+            domain: $domain,
+            productGroupType: ProductGroupType::EXTENSION,
+        );
 
         // See the comments made in the HostingMigrationPipe recordDnsState function or
         // https://lucid.app/lucidchart/40243863-34db-44f7-8dbb-d43d8357e0a3
@@ -91,9 +89,8 @@ class ModifyHostingDnsSettingsAction
     private function resolveDomain(Subscription $subscription): string
     {
         $subscription->refresh();
-        return is_string($subscription->domain)
-            ? $subscription->domain
-            : '';
+
+        return is_string($subscription->domain) ? $subscription->domain : '';
     }
 
     private function delayHostingModification(
@@ -108,7 +105,7 @@ class ModifyHostingDnsSettingsAction
 
         if (
             ! $subscription->hostingDeployment?->provider instanceof Provider
-            || ! $subscription->hostingDeployment->server instanceof  Server
+            || ! $subscription->hostingDeployment->server instanceof Server
         ) {
             $this->logger->error(
                 'Dns disabling unable to be executed as no hosting provider or normal server has been configured',
@@ -118,8 +115,9 @@ class ModifyHostingDnsSettingsAction
                     LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $migratedCustomer->id,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                     LoggingContextKeys::QUEUE_JOB_ID => $jobId,
-                ]
+                ],
             );
+
             return;
         }
 
@@ -129,7 +127,7 @@ class ModifyHostingDnsSettingsAction
             $payload,
             $jobId,
             $isUsingServerHostnameAsNameserver,
-            $isUsingLocalDomain
+            $isUsingLocalDomain,
         ) {
             $hostingModifySiteForMigrationAction = Application::getInstance()->get(HostingModifySiteForMigrationAction::class);
 
@@ -141,7 +139,7 @@ class ModifyHostingDnsSettingsAction
                 dnsSetting: $isUsingServerHostnameAsNameserver && ! $isUsingLocalDomain,
                 ssoSetting: true,
                 isUsingHostingServersAsNameserver: $isUsingServerHostnameAsNameserver,
-                isUsingLocalDomain: $isUsingLocalDomain
+                isUsingLocalDomain: $isUsingLocalDomain,
             );
         };
 

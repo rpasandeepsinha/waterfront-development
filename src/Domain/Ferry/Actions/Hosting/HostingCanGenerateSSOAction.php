@@ -41,7 +41,7 @@ class HostingCanGenerateSSOAction
                 LoggingContextKeys::META => [
                     'username' => $username,
                 ],
-            ]
+            ],
         );
 
         try {

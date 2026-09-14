@@ -21,13 +21,15 @@ class DirectadminGetSsoUrlActionTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->directadminServer = new ServerFactory()->directadmin()->createOne([
-            'hostname' => 'directadmin.sso.testing',
-            'domain' => 'directadmin.sso.testing',
-            'name' => 'username123',
-            'port' => 1337,
-            'use_ssl' => true,
-        ]);
+        $this->directadminServer = new ServerFactory()
+            ->directadmin()
+            ->createOne([
+                'hostname' => 'directadmin.sso.testing',
+                'domain' => 'directadmin.sso.testing',
+                'name' => 'username123',
+                'port' => 1337,
+                'use_ssl' => true,
+            ]);
     }
 
     #[Test]
@@ -36,9 +38,7 @@ class DirectadminGetSsoUrlActionTest extends IntegrationTestCase
         $expectedUrl = 'https://directadmin.sso.testing:1337/login-hash';
 
         $mockClient = self::createMock(DirectAdminClient::class);
-        $mockClient->expects(self::once())
-            ->method('createLoginUrl')
-            ->willReturn($expectedUrl);
+        $mockClient->expects(self::once())->method('createLoginUrl')->willReturn($expectedUrl);
 
         $action = new DirectAdminGetSsoUrlAction($mockClient);
         $ssoUrl = $action->execute($this->directadminServer, 'Test');

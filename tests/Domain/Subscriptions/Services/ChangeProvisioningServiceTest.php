@@ -32,7 +32,9 @@ class ChangeProvisioningServiceTest extends IntegrationTestCase
     public function receivedSubscriptionWithWrongGroupThrowsException(): void
     {
         $domainProduct = new ProductFactory()->nlDomain()->createOne();
-        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->createOne(['product_uuid' => $domainProduct->uuid]);
+        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->createOne([
+            'product_uuid' => $domainProduct->uuid,
+        ]);
         $randomProduct = new ProductFactory()->for($domainProduct->productGroup)->createOne();
 
         $service = new ChangeProvisioningService(
@@ -62,7 +64,9 @@ class ChangeProvisioningServiceTest extends IntegrationTestCase
         $hostingAction->expects(self::once())->method('execute');
 
         $hostingProduct = new ProductFactory()->hostingBrons()->createOne();
-        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->createOne(['product_uuid' => $hostingProduct->uuid]);
+        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->createOne([
+            'product_uuid' => $hostingProduct->uuid,
+        ]);
         $hostingGrootProduct = new ProductFactory()->for($hostingProduct->productGroup)->createOne([
             'slug' => 'groot',
         ]);
@@ -95,7 +99,9 @@ class ChangeProvisioningServiceTest extends IntegrationTestCase
         $hostingAction->expects(self::never())->method('execute');
 
         $hostingProduct = new ProductFactory()->hostingBrons()->createOne();
-        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->createOne(['product_uuid' => $hostingProduct->uuid]);
+        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->createOne([
+            'product_uuid' => $hostingProduct->uuid,
+        ]);
         $hostingGrootProduct = new ProductFactory()->for($hostingProduct->productGroup)->createOne([
             'slug' => 'groot',
         ]);
@@ -127,12 +133,17 @@ class ChangeProvisioningServiceTest extends IntegrationTestCase
         $dnsAction->expects(self::once())->method('execute');
 
         $freeDns = new ProductFactory()->freeDns()->createOne();
-        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->createOne(['product_uuid' => $freeDns->uuid]);
+        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->createOne([
+            'product_uuid' => $freeDns->uuid,
+        ]);
         $premiumDNS = new ProductFactory()->for($freeDns->productGroup)->createOne([
             'slug' => 'premiumDNS',
         ]);
 
-        new DnsDeploymentFactory()->withInternalNameserver()->for($subscription)->createOne();
+        new DnsDeploymentFactory()
+            ->withInternalNameserver()
+            ->for($subscription)
+            ->createOne();
 
         $service = new ChangeProvisioningService(
             self::resolve(ProductRepository::class),
@@ -160,7 +171,9 @@ class ChangeProvisioningServiceTest extends IntegrationTestCase
         $dnsAction->expects(self::never())->method('execute');
 
         $freeDns = new ProductFactory()->freeDns()->createOne();
-        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->createOne(['product_uuid' => $freeDns->uuid]);
+        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->createOne([
+            'product_uuid' => $freeDns->uuid,
+        ]);
         $premiumDNS = new ProductFactory()->for($freeDns->productGroup)->createOne();
 
         $service = new ChangeProvisioningService(
@@ -190,7 +203,9 @@ class ChangeProvisioningServiceTest extends IntegrationTestCase
         $redirectAction->expects(self::once())->method('execute');
 
         $redirect = new ProductFactory()->freeRedirect()->createOne();
-        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->createOne(['product_uuid' => $redirect->uuid]);
+        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->createOne([
+            'product_uuid' => $redirect->uuid,
+        ]);
         $hosting = new ProductFactory()->for($redirect->productGroup)->createOne();
 
         new HostingDeploymentFactory()->for($subscription)->createOne();
@@ -221,7 +236,9 @@ class ChangeProvisioningServiceTest extends IntegrationTestCase
         $backupAction->expects(self::once())->method('execute');
 
         $backupProduct = new ProductFactory()->backupAcronis()->createOne();
-        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->createOne(['product_uuid' => $backupProduct->uuid]);
+        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->createOne([
+            'product_uuid' => $backupProduct->uuid,
+        ]);
         $backup250 = new ProductFactory()->for($backupProduct->productGroup)->createOne([
             'slug' => 'backup-250',
         ]);

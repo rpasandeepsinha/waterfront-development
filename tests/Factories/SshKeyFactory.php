@@ -27,10 +27,10 @@ class SshKeyFactory extends Factory
 
         return [
             'uuid' => Uuid::uuid4(),
-            'key_name' =>  $this->faker->word(),
+            'key_name' => $this->faker->word(),
             'public_key' => base64_encode($sshKey->toString('OpenSSH')),
             'fingerprint' => $sshKey->getFingerprint('md5'),
-            'cloudstack_ssh_name'  => sha1($sshKey->toString('OpenSSH')),
+            'cloudstack_ssh_name' => sha1($sshKey->toString('OpenSSH')),
         ];
     }
 }

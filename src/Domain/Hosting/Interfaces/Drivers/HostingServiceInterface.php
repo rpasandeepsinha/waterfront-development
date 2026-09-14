@@ -30,14 +30,14 @@ interface HostingServiceInterface
 
     public function coupleDomainToExistingHosting(
         DomainDeployment $domainDeployment,
-        HostingDeployment $hostingDeployment
+        HostingDeployment $hostingDeployment,
     ): bool;
 
     public function getSsoUrl(
         string $username,
         Server $server,
         string $ipAddress,
-        bool $redirectToMail = false
+        bool $redirectToMail = false,
     ): string;
 
     public function serverIsValid(Server $server): bool;
@@ -72,7 +72,7 @@ interface HostingServiceInterface
         array $specs,
         ?Server $server = null,
         ?string $forwardingUrl = null,
-        ?string $domain = null
+        ?string $domain = null,
     ): array;
 
     public function getServerSsoUrl(int $serverId): string;
@@ -134,11 +134,20 @@ interface HostingServiceInterface
      */
     public function getUserConfigAsAdmin(string $identifier, Server $server): array;
 
-    public function isUsingHostingServerAsNameserver(string|null $ipv4HostingServer, string|null $ipv6HostingServer, SiteConfigInterface $userConfig): bool;
+    public function isUsingHostingServerAsNameserver(
+        ?string $ipv4HostingServer,
+        ?string $ipv6HostingServer,
+        SiteConfigInterface $userConfig,
+    ): bool;
 
     public function modifyCustomer(Parameters $parameters): bool;
 
-    public function createEmailForward(Server $server, string $domain, string $sourceEmailAddressUsername, string $destinationEmailAddresses): string;
+    public function createEmailForward(
+        Server $server,
+        string $domain,
+        string $sourceEmailAddressUsername,
+        string $destinationEmailAddresses,
+    ): string;
 
     public function setEmailCatchAll(Server $server, string $domain, string $destinationEmailAddresses): string;
 
@@ -155,7 +164,7 @@ interface HostingServiceInterface
 
     public function unsuspend(HostingDeployment $hostingDeployment): void;
 
-    public function getDefaultDomain(string $username, Server $server): string|null;
+    public function getDefaultDomain(string $username, Server $server): ?string;
 
     /**
      * @return string[]

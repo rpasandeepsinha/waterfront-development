@@ -40,6 +40,7 @@ class TimeslotExistsWithCapacityTest extends TestCase
         $this->rule->validate('attribute', 123, function (string $message, ?string $attribute = null) use (&$fail) {
             self::assertSame('validation.uuid', $message);
             $fail = true;
+
             return new PotentiallyTranslatedString('fail', $this->app->make(Translator::class));
         });
         self::assertTrue($fail);
@@ -49,9 +50,12 @@ class TimeslotExistsWithCapacityTest extends TestCase
     public function invalidUuidError(): void
     {
         $fail = false;
-        $this->rule->validate('attribute', 'not-a-uuid', function (string $message, ?string $attribute = null) use (&$fail) {
+        $this->rule->validate('attribute', 'not-a-uuid', function (string $message, ?string $attribute = null) use (
+            &$fail,
+        ) {
             self::assertSame('validation.uuid', $message);
             $fail = true;
+
             return new PotentiallyTranslatedString('fail', $this->app->make(Translator::class));
         });
         self::assertTrue($fail);
@@ -65,14 +69,16 @@ class TimeslotExistsWithCapacityTest extends TestCase
 
         $uuid = Uuid::uuid4();
 
-        $this->mockTimeslotRepository->expects($this->once())
-            ->method('getByUuid')
-            ->willReturn(null);
+        $this->mockTimeslotRepository->expects($this->once())->method('getByUuid')->willReturn(null);
 
         $fail = false;
-        $this->rule->validate('attribute', $uuid->toString(), function (string $message, ?string $attribute = null) use (&$fail) {
+        $this->rule->validate('attribute', $uuid->toString(), function (
+            string $message,
+            ?string $attribute = null,
+        ) use (&$fail) {
             self::assertSame('validation.exists', $message);
             $fail = true;
+
             return new PotentiallyTranslatedString('fail', $this->app->make(Translator::class));
         });
         self::assertTrue($fail);
@@ -87,24 +93,31 @@ class TimeslotExistsWithCapacityTest extends TestCase
 
         $uuid = Uuid::uuid4();
 
-        $this->mockTimeslotRepository->expects($this->once())
+        $this->mockTimeslotRepository
+            ->expects($this->once())
             ->method('getByUuid')
             ->willReturn($this->createStub(PuzzelCallbackTimeslot::class));
 
-        $this->mockTimeslotRepository->expects($this->once())
+        $this->mockTimeslotRepository
+            ->expects($this->once())
             ->method('hasAvailableCapacity')
             ->with($this->createStub(PuzzelCallbackTimeslot::class))
             ->willReturn(false);
 
-        $this->mockTranslator->expects($this->once())
+        $this->mockTranslator
+            ->expects($this->once())
             ->method('translate')
             ->with('validation.puzzel-timeslot-full')
             ->willReturn('validation.puzzel-timeslot-full');
 
         $fail = false;
-        $this->rule->validate('attribute', $uuid->toString(), function (string $message, ?string $attribute = null) use (&$fail) {
+        $this->rule->validate('attribute', $uuid->toString(), function (
+            string $message,
+            ?string $attribute = null,
+        ) use (&$fail) {
             self::assertSame('validation.puzzel-timeslot-full', $message);
             $fail = true;
+
             return new PotentiallyTranslatedString('fail', $this->app->make(Translator::class));
         });
         self::assertTrue($fail);
@@ -118,11 +131,13 @@ class TimeslotExistsWithCapacityTest extends TestCase
 
         $uuid = Uuid::uuid4();
 
-        $this->mockTimeslotRepository->expects($this->once())
+        $this->mockTimeslotRepository
+            ->expects($this->once())
             ->method('getByUuid')
             ->willReturn($this->createStub(PuzzelCallbackTimeslot::class));
 
-        $this->mockTimeslotRepository->expects($this->once())
+        $this->mockTimeslotRepository
+            ->expects($this->once())
             ->method('hasAvailableCapacity')
             ->with($this->createStub(PuzzelCallbackTimeslot::class))
             ->willReturn(true);
@@ -130,6 +145,7 @@ class TimeslotExistsWithCapacityTest extends TestCase
         $fail = false;
         $this->rule->validate('attribute', $uuid->toString(), function () use (&$fail) {
             $fail = true;
+
             return new PotentiallyTranslatedString('fail', $this->app->make(Translator::class));
         });
         self::assertFalse($fail, 'Validation should pass');

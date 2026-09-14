@@ -8,8 +8,10 @@ use Waterfront\Domain\VPS\Models\ManagerDomainDeployment;
 
 class ManagerDomainDeploymentRepository
 {
-    public function getManagerDomainDeploymentByEnvironment(int $customerId, int $environmentId): ?ManagerDomainDeployment
-    {
+    public function getManagerDomainDeploymentByEnvironment(
+        int $customerId,
+        int $environmentId,
+    ): ?ManagerDomainDeployment {
         return ManagerDomainDeployment::query()
             ->where('customer_id', $customerId)
             ->where('environment_id', $environmentId)

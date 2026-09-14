@@ -31,7 +31,7 @@ class MailManagementPleskService implements MailManagementDriverInterface
         private readonly ServerRepository $serverRepository,
         private readonly DnsZoneService $dnsZoneService,
         private readonly JobDispatcher $jobDispatcher,
-        private readonly EventDispatcher $eventDispatcher
+        private readonly EventDispatcher $eventDispatcher,
     ) {
     }
 
@@ -70,7 +70,7 @@ class MailManagementPleskService implements MailManagementDriverInterface
         if (! $subscription->product->isSitebuilderProduct() && ! $subscription->product->isMailOnlyServer()) {
             throw new NotImplementedException(sprintf(
                 'Plesk mail-only does only support sitebuilder, subscription %s is not a sitebuilder subscription.',
-                $subscription->uuid
+                $subscription->uuid,
             ));
         }
 
@@ -85,9 +85,9 @@ class MailManagementPleskService implements MailManagementDriverInterface
             throw new MailOnlyException(
                 message: sprintf(
                     'Server %s does not have an IPv4 or IPv6 address.',
-                    $server->id
+                    $server->id,
                 ),
-                server: $server
+                server: $server,
             );
         }
 
@@ -104,8 +104,8 @@ class MailManagementPleskService implements MailManagementDriverInterface
             throw new MailOnlyException(
                 sprintf(
                     'Could not create mail only hosting in Plesk for SubscriptionUuid "%s"',
-                    $subscription->uuid
-                )
+                    $subscription->uuid,
+                ),
             );
         }
 
@@ -127,14 +127,15 @@ class MailManagementPleskService implements MailManagementDriverInterface
         string $mailUser,
         string $password,
         int $limit,
-        int $quota
+        int $quota,
     ): Result {
         $server = $this->serverRepository->findByHostname($hostname);
+
         return $this->hostingService->createEmailAccount(
             server: $server,
             mailAccount: $mailUser,
             domain: $domain,
-            password: $password
+            password: $password,
         );
     }
 
@@ -144,14 +145,15 @@ class MailManagementPleskService implements MailManagementDriverInterface
         string $domainUser,
         string $mailUser,
         string $password,
-        int $quota
+        int $quota,
     ): Result {
         $server = $this->serverRepository->findByHostname($hostname);
+
         return $this->hostingService->resetEmailPassword(
             server: $server,
             mailAccount: $mailUser,
             domain: $domain,
-            password: $password
+            password: $password,
         );
     }
 
@@ -162,7 +164,7 @@ class MailManagementPleskService implements MailManagementDriverInterface
         if (! $subscription->product->isSitebuilderProduct() && ! $subscription->product->isMailOnlyServer()) {
             throw new NotImplementedException(sprintf(
                 'Plesk mail-only does only support sitebuilder, subscription %s is not a sitebuilder subscription.',
-                $subscription->uuid
+                $subscription->uuid,
             ));
         }
 
@@ -174,8 +176,8 @@ class MailManagementPleskService implements MailManagementDriverInterface
             throw new MailOnlyException(
                 sprintf(
                     'Could not terminate mail only hosting in Plesk for hostingSubscriptionUuid "%s"',
-                    $hostingDeployment->uuid
-                )
+                    $hostingDeployment->uuid,
+                ),
             );
         }
 
@@ -188,6 +190,7 @@ class MailManagementPleskService implements MailManagementDriverInterface
     public function deleteUser(string $hostname, string $domain, string $domainUser, string $mailUser): Result
     {
         $server = $this->serverRepository->findByHostname($hostname);
+
         return $this->hostingService->deleteEmailAccount($server, $domain, $mailUser);
     }
 
@@ -202,8 +205,8 @@ class MailManagementPleskService implements MailManagementDriverInterface
             throw new MailOnlyException(
                 sprintf(
                     'Could not retrieve plesk customer username from hosting deployment UUID "%s"',
-                    $hostingDeployment->uuid
-                )
+                    $hostingDeployment->uuid,
+                ),
             );
         }
 
@@ -218,7 +221,7 @@ class MailManagementPleskService implements MailManagementDriverInterface
         string $identifier,
         string $domain,
         string $sourceEmailAddressUsername,
-        array $destinationEmailAddresses
+        array $destinationEmailAddresses,
     ): bool {
         throw new NotImplementedException();
     }
@@ -239,7 +242,7 @@ class MailManagementPleskService implements MailManagementDriverInterface
             $changes = $this->dnsZoneService->getHostingDnsRecords(
                 $domain,
                 $server->getIpv4(),
-                $server->getIpv6()
+                $server->getIpv6(),
             );
 
             $this->eventDispatcher->dispatch(new UpdateDns($domain, $changes));

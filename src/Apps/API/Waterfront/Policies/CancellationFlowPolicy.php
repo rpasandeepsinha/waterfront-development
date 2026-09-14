@@ -24,7 +24,10 @@ class CancellationFlowPolicy
     {
         $subject = $this->authManager->getAuthenticatedSubject();
 
-        return $subject->identitySchema->schemaId === SchemaId::EMPLOYEE || $this->authorizationChecker->can(Permissions::MANAGE_SUBSCRIPTION);
+        return (
+            $subject->identitySchema->schemaId === SchemaId::EMPLOYEE
+            || $this->authorizationChecker->can(Permissions::MANAGE_SUBSCRIPTION)
+        );
     }
 
     /**
@@ -35,10 +38,10 @@ class CancellationFlowPolicy
         return $subscriptions->every(fn (Subscription $sub): bool => in_array(
             $sub->administrative_status,
             [
-               AdministrativeStatus::ACTIVE->value,
-               AdministrativeStatus::CANCELED->value,
+                AdministrativeStatus::ACTIVE->value,
+                AdministrativeStatus::CANCELED->value,
             ],
-            true
+            true,
         ));
     }
 

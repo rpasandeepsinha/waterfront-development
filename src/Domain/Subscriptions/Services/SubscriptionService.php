@@ -14,6 +14,7 @@ use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Waterfront\Domain\Customers\Models\Customer;
 use Waterfront\Domain\Domains\Mailers\MailDomainCreationFailed;
+use Waterfront\Domain\Experiment\Repositories\ExperimentRepository;
 use Waterfront\Domain\Mailer\MailerInterface;
 use Waterfront\Domain\Orders\Jobs\ProcessOrderJob;
 use Waterfront\Domain\Orders\Models\Order;
@@ -54,6 +55,7 @@ class SubscriptionService
         private readonly ProvisionService $provisionService,
         private readonly PriceResolver $priceResolver,
         private readonly PricePersistService $pricePersistService,
+        private readonly ExperimentRepository $experimentRepository,
     ) {
     }
 
@@ -68,7 +70,7 @@ class SubscriptionService
             sprintf('Creating base subscriptions from order %d', $order->id),
             [
                 LoggingContextKeys::ORDER_ID => $order->id,
-            ]
+            ],
         );
 
         $order->loadMissing(
@@ -76,13 +78,15 @@ class SubscriptionService
             'lineItems.parentSubscription',
             'lineItems.product.productSpecs',
             'lineItems.subscription',
-            'lineItems.voucherClaim.voucher'
+            'lineItems.voucherClaim.voucher',
         );
 
         $orderLineItems = [];
 
         //Filtering all unprocessed
-        $unProcessedOrderLineItems = $order->lineItems->filter(fn (OrderLineItem $item) => $item->processed_at === null);
+        $unProcessedOrderLineItems = $order->lineItems->filter(
+            fn (OrderLineItem $item) => $item->processed_at === null,
+        );
 
         /*
          * @see https://yh-jira.atlassian.net/browse/SWD-379
@@ -111,6 +115,7 @@ class SubscriptionService
 
         if (count($orderLineItems) === 0) {
             $this->logger->debug('No subscriptions to process');
+
             return;
         }
 
@@ -129,8 +134,7 @@ class SubscriptionService
         /** @var array<string, list<OrderLineItem>> $sortedOrderLineItems */
         $sortedOrderLineItems = new Collection($orderLineItems)
             ->sortKeysUsing(
-                fn ($typeKeyA, $typeKeyB) =>
-                    ($typesOrder[$typeKeyA] ?? 999) <=> ($typesOrder[$typeKeyB] ?? 999)
+                fn ($typeKeyA, $typeKeyB) => ($typesOrder[$typeKeyA] ?? 999) <=> ($typesOrder[$typeKeyB] ?? 999),
             )
             ->toArray();
 
@@ -176,16 +180,17 @@ class SubscriptionService
                         'voucher_code' => $orderLineItem->voucherClaim->voucher->code ?? null,
                         'amount_claimed' => $amountClaimed,
                     ];
+
                     return $subscriptions;
                 },
-                []
+                [],
             ),
         ]);
     }
 
     public function createSubscriptionFromOrderLineItem(
         OrderLineItem $orderLineItem,
-        bool $manageSubscription
+        bool $manageSubscription,
     ): Subscription {
         $customer = $orderLineItem->order->customer;
 
@@ -211,14 +216,24 @@ class SubscriptionService
         return Subscription::query()->where('customer_id', $customer->id);
     }
 
-    public function updateSubscriptionStatus(string $domain, string $status, string $message, bool $sendFailedMailToCustomer = true): void
-    {
-        $subscription = $this->subscriptionRepository->getSubscriptionByDomainAndGroup($domain, ProductGroupType::EXTENSION);
+    public function updateSubscriptionStatus(
+        string $domain,
+        string $status,
+        string $message,
+        bool $sendFailedMailToCustomer = true,
+    ): void {
+        $subscription = $this->subscriptionRepository->getSubscriptionByDomainAndGroup(
+            $domain,
+            ProductGroupType::EXTENSION,
+        );
 
         $subscription->technical_status = $status;
         $subscription->save();
 
-        if ($sendFailedMailToCustomer && ($status === TechnicalStatus::PENDING->value || $status === TechnicalStatus::FAILED->value)) {
+        if (
+            $sendFailedMailToCustomer
+            && ($status === TechnicalStatus::PENDING->value || $status === TechnicalStatus::FAILED->value)
+        ) {
             $this->sendFailedDomainEmail($subscription, $domain, $message);
         }
     }
@@ -226,7 +241,12 @@ class SubscriptionService
     public function updateSubscription(Subscription $subscription, SubscriptionUpdateRequestDTO $values): void
     {
         if ($subscription->net_price !== $values->net_price) {
-            $this->pricePersistService->persistCustomPrice($subscription, $values->net_price, true, CustomPriceReasonType::MANUAL_COMPASS_OVERRIDE);
+            $this->pricePersistService->persistCustomPrice(
+                $subscription,
+                $values->net_price,
+                true,
+                CustomPriceReasonType::MANUAL_COMPASS_OVERRIDE,
+            );
         }
 
         $subscription->domain = $values->domain;
@@ -238,21 +258,26 @@ class SubscriptionService
         $subscription->save();
     }
 
-    public function createFreeDnsSubscriptionForExtension(Subscription $subscription, ?string $administrative_status = null, ?string $technical_status = null): ?Subscription
-    {
-        if (
-            Subscription::query()->whereProductGroupType(ProductGroupType::DNS)
-                ->where('domain', $subscription->domain)
-                ->whereNotIn('administrative_status', [
-                    AdministrativeStatus::ARCHIVED->value,
-                    AdministrativeStatus::ARCHIVING->value,
-                ])
-                ->exists()
-        ) {
+    public function createFreeDnsSubscriptionForExtension(
+        Subscription $subscription,
+        ?string $administrative_status = null,
+        ?string $technical_status = null,
+    ): ?Subscription {
+        if (Subscription::query()
+            ->whereProductGroupType(ProductGroupType::DNS)
+            ->where('domain', $subscription->domain)
+            ->whereNotIn('administrative_status', [
+                AdministrativeStatus::ARCHIVED->value,
+                AdministrativeStatus::ARCHIVING->value,
+            ])
+            ->exists()) {
             return null;
         }
 
-        $freeDnsProduct = $this->productRepository->findProductByProductGroupSlugAndWildcardProductSlug(ProductGroupType::DNS, '%free-%');
+        $freeDnsProduct = $this->productRepository->findProductByProductGroupSlugAndWildcardProductSlug(
+            ProductGroupType::DNS,
+            '%free-%',
+        );
 
         Assert::notNull($freeDnsProduct, 'Free DNS product could not be found');
 
@@ -276,8 +301,23 @@ class SubscriptionService
         // See https://yh-jira.atlassian.net/browse/WATER-5308
         $freeDnsSubscription->saveQuietly();
 
-        $price = new Price(ProductPriceType::REGISTRATION, $freeDnsSubscription->billing_period, $freeDnsProduct->id, $freeDnsProduct->productGroup->uuid, 0, $freeDnsSubscription->contract_period, false, false, appliedPriceComponents: [new RegistrationPriceComponent(0)], calculatedPrice: 0);
-        $this->pricePersistService->persistSubscriptionPrice($freeDnsSubscription, $price, $freeDnsSubscription->start_date);
+        $price = new Price(
+            ProductPriceType::REGISTRATION,
+            $freeDnsSubscription->billing_period,
+            $freeDnsProduct->id,
+            $freeDnsProduct->productGroup->uuid,
+            0,
+            $freeDnsSubscription->contract_period,
+            false,
+            false,
+            appliedPriceComponents: [new RegistrationPriceComponent(0)],
+            calculatedPrice: 0,
+        );
+        $this->pricePersistService->persistSubscriptionPrice(
+            $freeDnsSubscription,
+            $price,
+            $freeDnsSubscription->start_date,
+        );
 
         return $freeDnsSubscription;
     }
@@ -337,7 +377,7 @@ class SubscriptionService
             false,
             false,
             appliedPriceComponents: [new RegistrationPriceComponent(0)],
-            calculatedPrice: 0
+            calculatedPrice: 0,
         );
         $this->pricePersistService->persistSubscriptionPrice($subscription, $price, $subscription->start_date);
 
@@ -375,6 +415,11 @@ class SubscriptionService
 
         $this->pricePersistService->persistSubscriptionPriceFromOrderLine($subscription, $orderLineItem);
 
+        if ($orderLineItem->experiment_slug !== null) {
+            $experiment = $this->experimentRepository->getBySlug($orderLineItem->experiment_slug);
+            $experiment->subscriptions()->attach($subscription);
+        }
+
         return $subscription;
     }
 
@@ -385,7 +430,7 @@ class SubscriptionService
             new MailDomainCreationFailed(
                 $domain,
                 $message,
-            )
+            ),
         );
     }
 
@@ -394,6 +439,10 @@ class SubscriptionService
         $priceRequest = new PriceRequest([new RegistrationPriceRequest($product)], $subscription->customer);
         $priceList = $this->priceResolver->getPriceList($priceRequest);
 
-        return $priceList->getProductPrice($product->slug, $subscription->contract_period, $subscription->billing_period);
+        return $priceList->getProductPrice(
+            $product->slug,
+            $subscription->contract_period,
+            $subscription->billing_period,
+        );
     }
 }

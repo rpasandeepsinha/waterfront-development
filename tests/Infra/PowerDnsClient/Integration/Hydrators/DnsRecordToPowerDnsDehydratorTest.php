@@ -31,10 +31,10 @@ class DnsRecordToPowerDnsDehydratorTest extends IntegrationTestCase
         $record = new DefaultRecord('A', 'google.com', '127.0.0.1', 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'A',
-            'name'     => 'google.com.',
-            'content'  => '127.0.0.1',
-            'ttl'      => 600,
+            'type' => 'A',
+            'name' => 'google.com.',
+            'content' => '127.0.0.1',
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertSame($expected, $data);
@@ -46,10 +46,10 @@ class DnsRecordToPowerDnsDehydratorTest extends IntegrationTestCase
         $record = new DefaultRecord('AAAA', 'google.com', '2001:1460:2:0:1c21:1fff:fe00:1aa', 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'AAAA',
-            'name'     => 'google.com.',
-            'content'  => '2001:1460:2:0:1c21:1fff:fe00:1aa',
-            'ttl'      => 600,
+            'type' => 'AAAA',
+            'name' => 'google.com.',
+            'content' => '2001:1460:2:0:1c21:1fff:fe00:1aa',
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertSame($expected, $data);
@@ -61,10 +61,10 @@ class DnsRecordToPowerDnsDehydratorTest extends IntegrationTestCase
         $record = new CnameRecord('google.com', 'google.nl', 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'CNAME',
-            'name'     => 'google.com.',
-            'content'  => 'google.nl.',
-            'ttl'      => 600,
+            'type' => 'CNAME',
+            'name' => 'google.com.',
+            'content' => 'google.nl.',
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertSame($expected, $data);
@@ -76,10 +76,10 @@ class DnsRecordToPowerDnsDehydratorTest extends IntegrationTestCase
         $record = new CnameRecord('k1._domainkey.domain.nl.', 'dkimmcsv.', 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'CNAME',
-            'name'     => 'k1._domainkey.domain.nl.',
-            'content'  => 'dkimmcsv.',
-            'ttl'      => 600,
+            'type' => 'CNAME',
+            'name' => 'k1._domainkey.domain.nl.',
+            'content' => 'dkimmcsv.',
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertSame($expected, $data);
@@ -91,11 +91,11 @@ class DnsRecordToPowerDnsDehydratorTest extends IntegrationTestCase
         $record = new MxRecord('google.com', 'mx.spamservice.nl', 10, 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'MX',
-            'name'     => 'google.com.',
-            'content'  => 'mx.spamservice.nl.',
+            'type' => 'MX',
+            'name' => 'google.com.',
+            'content' => 'mx.spamservice.nl.',
             'priority' => 10,
-            'ttl'      => 600,
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertSame($expected, $data);
@@ -107,10 +107,10 @@ class DnsRecordToPowerDnsDehydratorTest extends IntegrationTestCase
         $record = new DefaultRecord('SPF', 'google.com', 'v=spf1 include:spf.spamservice.nl mx a ~all', 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'SPF',
-            'name'     => 'google.com.',
-            'content'  => 'v=spf1 include:spf.spamservice.nl mx a ~all',
-            'ttl'      => 600,
+            'type' => 'SPF',
+            'name' => 'google.com.',
+            'content' => 'v=spf1 include:spf.spamservice.nl mx a ~all',
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertSame($expected, $data);
@@ -122,13 +122,13 @@ class DnsRecordToPowerDnsDehydratorTest extends IntegrationTestCase
         $record = new SrvRecord('_sip._tcp.example.com', 'bigbox.example.com', 10, 10, 5000, 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'SRV',
-            'name'     => '_sip._tcp.example.com.',
-            'content'  => 'bigbox.example.com.',
+            'type' => 'SRV',
+            'name' => '_sip._tcp.example.com.',
+            'content' => 'bigbox.example.com.',
             'priority' => 10,
-            'weight'   => 10,
-            'port'     => 5000,
-            'ttl'      => 600,
+            'weight' => 10,
+            'port' => 5000,
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertSame($expected, $data);
@@ -140,10 +140,10 @@ class DnsRecordToPowerDnsDehydratorTest extends IntegrationTestCase
         $record = new DefaultRecord('TXT', 'google.com', 'random text', 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'TXT',
-            'name'     => 'google.com.',
-            'content'  => 'random text',
-            'ttl'      => 600,
+            'type' => 'TXT',
+            'name' => 'google.com.',
+            'content' => 'random text',
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertSame($expected, $data);
@@ -155,10 +155,10 @@ class DnsRecordToPowerDnsDehydratorTest extends IntegrationTestCase
         $record = new DefaultRecord('UNKNOWN', 'google.com', 'unknown data format', 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'UNKNOWN',
-            'name'     => 'google.com.',
-            'content'  => 'unknown data format',
-            'ttl'      => 600,
+            'type' => 'UNKNOWN',
+            'name' => 'google.com.',
+            'content' => 'unknown data format',
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertSame($expected, $data);

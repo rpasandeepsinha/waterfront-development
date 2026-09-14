@@ -27,7 +27,7 @@ class DnsConfigurationPipe extends ValidationPipe
         private readonly DnsService $dnsService,
         private readonly DnsMigrationService $dnsMigrationService,
         private readonly LoggerInterface $logger,
-        private readonly DnsHelper $dnsHelper
+        private readonly DnsHelper $dnsHelper,
     ) {
     }
 
@@ -38,12 +38,12 @@ class DnsConfigurationPipe extends ValidationPipe
             [
                 LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
-            ]
+            ],
         );
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Start'
+            message: 'Start',
         );
 
         /** @var array<int, array<string,string>> $extensionSubscriptions */
@@ -64,7 +64,7 @@ class DnsConfigurationPipe extends ValidationPipe
             $payload->addValidationTimeline(
                 pipeline: $this->getValidationIdentifier(),
                 message: 'looping',
-                id: $domain
+                id: $domain,
             );
 
             $this->logger->debug(
@@ -73,7 +73,7 @@ class DnsConfigurationPipe extends ValidationPipe
                     LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                     LoggingContextKeys::DOMAIN_NAME => $domain,
-                ]
+                ],
             );
 
             // check if PowerDNS zone exists
@@ -83,7 +83,7 @@ class DnsConfigurationPipe extends ValidationPipe
             } catch (DnsZoneNotFoundException) {
                 $message = sprintf(
                     'PowerDNS zone %s does not exist',
-                    $domain
+                    $domain,
                 );
 
                 $this->logger->debug(
@@ -92,13 +92,13 @@ class DnsConfigurationPipe extends ValidationPipe
                         LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                         LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                         LoggingContextKeys::DOMAIN_NAME => $domain,
-                    ]
+                    ],
                 );
 
                 $this->addValidationResult(
                     $payload,
                     MigrationValidation::DNS_CONFIGURATION_ZONE_DOESNT_EXIST,
-                    $message
+                    $message,
                 );
             } catch (Throwable $exception) { // @phpstan-ignore-line
                 $message = sprintf(
@@ -114,13 +114,13 @@ class DnsConfigurationPipe extends ValidationPipe
                         LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                         LoggingContextKeys::DOMAIN_NAME => $domain,
                         LoggingContextKeys::EXCEPTION => $exception,
-                    ]
+                    ],
                 );
 
                 $this->addValidationResult(
                     $payload,
                     MigrationValidation::DNS_CONFIGURATION_ZONE_UNEXPECTED_EXCEPTION,
-                    $message
+                    $message,
                 );
             }
 
@@ -132,13 +132,13 @@ class DnsConfigurationPipe extends ValidationPipe
                 $rawNameserver = Arr::get($domainSoaRecord, '0.mname', '');
                 $primaryNameserver = rtrim($rawNameserver, '.');
 
-                $domainNsRecords =  $this->fetchAndValidateDomainNsRecords($domain, $payload);
+                $domainNsRecords = $this->fetchAndValidateDomainNsRecords($domain, $payload);
 
                 // Check on both the SOA primary nameserver and all targets from the ns records if they all are internal
                 // or not.
                 $flatNsRecords = array_merge(
                     Arr::map($domainNsRecords, fn ($ns) => $ns['target']),
-                    [$primaryNameserver]
+                    [$primaryNameserver],
                 );
 
                 $isInternal = $this->dnsMigrationService->isSetOfNameserversMigratable($flatNsRecords);
@@ -172,7 +172,7 @@ class DnsConfigurationPipe extends ValidationPipe
                         sprintf(
                             'Domain %s has internal primary nameserver %s but PowerDNS zone does not exist for it',
                             $domain,
-                            $primaryNameserver
+                            $primaryNameserver,
                         ),
                     );
                 }
@@ -187,9 +187,9 @@ class DnsConfigurationPipe extends ValidationPipe
 
             // Check if 2.0 zone is synced
             if (
-                $domainSoaRecord !== null &&
-                $this->isSoaRecordValidToVerify($domainSoaRecord) &&
-                $zone->kind !== PowerDnsZoneKind::MASTER->value
+                $domainSoaRecord !== null
+                && $this->isSoaRecordValidToVerify($domainSoaRecord)
+                && $zone->kind !== PowerDnsZoneKind::MASTER->value
             ) {
                 $this->compareSoaRecords($zone, $domainSoaRecord, $payload);
             }
@@ -197,7 +197,7 @@ class DnsConfigurationPipe extends ValidationPipe
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Finish'
+            message: 'Finish',
         );
 
         return $this->finishPipe(MigrationValidation::DNS_CONFIGURATION_PIPE_PASSED, $payload, $this->logger, $next);
@@ -208,7 +208,7 @@ class DnsConfigurationPipe extends ValidationPipe
         return MigrationValidationPipes::DNS_CONFIGURATION;
     }
 
-    public function validatePdnsZone(DnsZone $zone, ?string $domain, ValidationPayload $payload): void
+    private function validatePdnsZone(DnsZone $zone, ?string $domain, ValidationPayload $payload): void
     {
         // Check if it has any records
         if ($zone->getRecords() === []) {
@@ -220,7 +220,7 @@ class DnsConfigurationPipe extends ValidationPipe
             $this->addValidationResult(
                 $payload,
                 MigrationValidation::DNS_CONFIGURATION_ZONE_NO_RECORDS,
-                $message
+                $message,
             );
 
             $this->logger->debug(
@@ -232,7 +232,7 @@ class DnsConfigurationPipe extends ValidationPipe
                     LoggingContextKeys::META => [
                         'zone' => $zone->toArray(),
                     ],
-                ]
+                ],
             );
         }
 
@@ -240,13 +240,13 @@ class DnsConfigurationPipe extends ValidationPipe
         if ($zone->kind === PowerDnsZoneKind::MASTER->value) {
             $message = sprintf(
                 'PowerDNS zone %s is already master',
-                $domain
+                $domain,
             );
 
             $this->addValidationResult(
                 $payload,
                 MigrationValidation::DNS_CONFIGURATION_ZONE_ALREADY_MASTER,
-                $message
+                $message,
             );
 
             $this->logger->debug($message, [
@@ -270,12 +270,12 @@ class DnsConfigurationPipe extends ValidationPipe
         if (! $dnsRecordRRSIGOrDNSKEYFound) {
             $message = sprintf(
                 'Zone %s RRSIG and DNSKEY records are already removed',
-                $domain
+                $domain,
             );
             $this->addValidationResult(
                 $payload,
                 MigrationValidation::DNS_CONFIGURATION_ZONE_DNSKEY_RRSIG_ALREADY_REMOVED,
-                $message
+                $message,
             );
 
             $this->logger->debug($message, [
@@ -301,7 +301,7 @@ class DnsConfigurationPipe extends ValidationPipe
         if ($pdnsSoaRecord === null) {
             $message = sprintf(
                 'PDNS Zone for domain %s does not contain a SOA record.',
-                $domain
+                $domain,
             );
 
             $this->addValidationResult(
@@ -344,7 +344,7 @@ class DnsConfigurationPipe extends ValidationPipe
         if ($pdnsSoaContent !== $masterSoaContent) {
             $message = sprintf(
                 'SOA record is different for domain %s',
-                $domain
+                $domain,
             );
 
             $this->addValidationResult(
@@ -356,7 +356,7 @@ class DnsConfigurationPipe extends ValidationPipe
                     'domain_nameserver' => $primaryNameserver,
                     'domain_nameserver_soa_content' => $masterSoaContent,
                     'powerdns_soa_content' => $pdnsSoaContent,
-                ]
+                ],
             );
 
             $this->logger->debug($message, [
@@ -368,7 +368,7 @@ class DnsConfigurationPipe extends ValidationPipe
             $this->logger->debug(
                 sprintf(
                     'SOA record matches for %s',
-                    $domain
+                    $domain,
                 ),
                 [
                     LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
@@ -377,7 +377,7 @@ class DnsConfigurationPipe extends ValidationPipe
                     LoggingContextKeys::META => [
                         'domain_nameserver' => $primaryNameserver,
                     ],
-                ]
+                ],
             );
         }
     }
@@ -388,13 +388,13 @@ class DnsConfigurationPipe extends ValidationPipe
     private function fetchAndValidateDomainSoaRecord(
         string $domain,
         ValidationPayload $payload,
-    ): array|null {
+    ): ?array {
         $this->logger->debug(
             'Trying to resolve SOA record for domain',
             [
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-            ]
+            ],
         );
 
         $domainSoaRecord = null;
@@ -407,8 +407,8 @@ class DnsConfigurationPipe extends ValidationPipe
                 throw new ErrorException(
                     sprintf(
                         'Could not resolve SOA record. Domain %s',
-                        $domain
-                    )
+                        $domain,
+                    ),
                 );
             }
         } catch (Throwable $exception) { // @phpstan-ignore-line
@@ -422,7 +422,7 @@ class DnsConfigurationPipe extends ValidationPipe
                     LoggingContextKeys::META => [
                         'soa_record' => $domainSoaRecord,
                     ],
-                ]
+                ],
             );
 
             $this->addValidationResult(
@@ -432,7 +432,7 @@ class DnsConfigurationPipe extends ValidationPipe
                 data: [
                     'subscription_domain' => $domain,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return null;
@@ -446,7 +446,7 @@ class DnsConfigurationPipe extends ValidationPipe
                 LoggingContextKeys::META => [
                     'soa_record' => $domainSoaRecord,
                 ],
-            ]
+            ],
         );
 
         return $domainSoaRecord;
@@ -464,7 +464,7 @@ class DnsConfigurationPipe extends ValidationPipe
             [
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-            ]
+            ],
         );
 
         $domainNsRecords = [];
@@ -478,10 +478,11 @@ class DnsConfigurationPipe extends ValidationPipe
                 throw new ErrorException(
                     sprintf(
                         'Could not resolve NS records. Domain %s',
-                        $domain
-                    )
+                        $domain,
+                    ),
                 );
             }
+
             /** @var array<int, array<string, string|int>> $domainNsRecords */
         } catch (Throwable $exception) { // @phpstan-ignore-line
             $this->logger->error(
@@ -494,7 +495,7 @@ class DnsConfigurationPipe extends ValidationPipe
                     LoggingContextKeys::META => [
                         'ns_records' => $domainNsRecords,
                     ],
-                ]
+                ],
             );
 
             $this->addValidationResult(
@@ -504,8 +505,9 @@ class DnsConfigurationPipe extends ValidationPipe
                 data: [
                     'subscription_domain' => $domain,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
+
             /** @var array<int, array<string, string|int>> $domainNsRecords */
             return $domainNsRecords;
         }
@@ -518,7 +520,7 @@ class DnsConfigurationPipe extends ValidationPipe
                 LoggingContextKeys::META => [
                     'ns_records' => $domainNsRecords,
                 ],
-            ]
+            ],
         );
 
         return $domainNsRecords;
@@ -529,8 +531,10 @@ class DnsConfigurationPipe extends ValidationPipe
      */
     private function isSoaRecordValidToVerify(array $domainSoaRecord): bool
     {
-        return array_key_exists(0, $domainSoaRecord) &&
-            array_key_exists('mname', $domainSoaRecord[0]) &&
-            is_string($domainSoaRecord[0]['mname']);
+        return (
+            array_key_exists(0, $domainSoaRecord)
+            && array_key_exists('mname', $domainSoaRecord[0])
+            && is_string($domainSoaRecord[0]['mname'])
+        );
     }
 }

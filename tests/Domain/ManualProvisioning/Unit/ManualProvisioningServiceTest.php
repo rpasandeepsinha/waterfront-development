@@ -42,9 +42,11 @@ class ManualProvisioningServiceTest extends IntegrationTestCase
 
         $this->manualProvisioningService = self::resolve(ManualProvisioningService::class);
 
-        $this->productGroup = new ProductGroupFactory()->manualSubscription()->createOne([
-            'slug' => ProductGroupType::MANUAL_SUBSCRIPTION,
-        ]);
+        $this->productGroup = new ProductGroupFactory()
+            ->manualSubscription()
+            ->createOne([
+                'slug' => ProductGroupType::MANUAL_SUBSCRIPTION,
+            ]);
 
         $product = new ProductFactory()->createOne([
             'slug' => 'manual-testproduct',
@@ -61,11 +63,12 @@ class ManualProvisioningServiceTest extends IntegrationTestCase
     public function sendCreationNotificationSuccess(): void
     {
         $mailer = self::createMock(Mailer::class);
-        $mailer->expects(self::once())
+        $mailer
+            ->expects(self::once())
             ->method('send')
             ->with(
                 self::anything(),
-                self::isInstanceOf(OrderedManualSubscriptionEmployee::class)
+                self::isInstanceOf(OrderedManualSubscriptionEmployee::class),
             );
         $this->app->bind(Mailer::class, fn () => $mailer);
 
@@ -83,11 +86,12 @@ class ManualProvisioningServiceTest extends IntegrationTestCase
     public function sendTerminationNotificationSuccess(): void
     {
         $mailer = self::createMock(Mailer::class);
-        $mailer->expects(self::once())
+        $mailer
+            ->expects(self::once())
             ->method('send')
             ->with(
                 self::anything(),
-                self::isInstanceOf(CanceledManualSubscriptionEmployee::class)
+                self::isInstanceOf(CanceledManualSubscriptionEmployee::class),
             );
         $this->app->bind(Mailer::class, fn () => $mailer);
 
@@ -104,11 +108,12 @@ class ManualProvisioningServiceTest extends IntegrationTestCase
     public function sendTerminationReminderNotificationSuccess(): void
     {
         $mailer = self::createMock(Mailer::class);
-        $mailer->expects(self::once())
+        $mailer
+            ->expects(self::once())
             ->method('send')
             ->with(
                 self::anything(),
-                self::isInstanceOf(CanceledReminderManualSubscription::class)
+                self::isInstanceOf(CanceledReminderManualSubscription::class),
             );
         $this->app->bind(Mailer::class, fn () => $mailer);
 
@@ -125,11 +130,12 @@ class ManualProvisioningServiceTest extends IntegrationTestCase
     public function sendActivatedNotificationSuccess(): void
     {
         $mailer = self::createMock(Mailer::class);
-        $mailer->expects(self::once())
+        $mailer
+            ->expects(self::once())
             ->method('send')
             ->with(
                 self::anything(),
-                self::isInstanceOf(ActivatedManualSubscriptionCustomer::class)
+                self::isInstanceOf(ActivatedManualSubscriptionCustomer::class),
             );
         $this->app->bind(Mailer::class, fn () => $mailer);
 
@@ -190,9 +196,11 @@ class ManualProvisioningServiceTest extends IntegrationTestCase
     #[Test]
     public function manualProductIsActivateFailedDueWrongProductGroup(): void
     {
-        $productGroup = new ProductGroupFactory()->manualSubscription()->createOne([
-            'slug' => ProductGroupType::EXTENSION,
-        ]);
+        $productGroup = new ProductGroupFactory()
+            ->manualSubscription()
+            ->createOne([
+                'slug' => ProductGroupType::EXTENSION,
+            ]);
 
         $product = new ProductFactory()->createOne([
             'slug' => 'wrong-testproduct',

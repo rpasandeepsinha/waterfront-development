@@ -24,7 +24,7 @@ class DomainHasNoSubdomainRule extends AbstractValidator
     protected function passes(string $attribute, mixed $value): bool
     {
         assert(is_string($value));
-        if (! ((bool) filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
+        if (! (bool) filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
             return false;
         }
 

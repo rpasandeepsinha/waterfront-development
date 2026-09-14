@@ -39,8 +39,7 @@ class NovaRemoveStrayParkingDnsAction extends NovaOneOffScriptAbstractAction
     {
         return [
             ...$this->getOneOffScriptInfoFields(),
-            Boolean::make('Dry run', 'dry-run')
-                ->withMeta(['value' => true]),
+            Boolean::make('Dry run', 'dry-run')->withMeta(['value' => true]),
             Number::make('Batch amount', 'amount')->default(500),
         ];
     }
@@ -53,7 +52,7 @@ class NovaRemoveStrayParkingDnsAction extends NovaOneOffScriptAbstractAction
 
         $domains = $this->subscriptionRepository->getRecentDomainNames(
             CarbonImmutable::now()->subMonths(self::MONTHS_LOOKBACK),
-            $limit
+            $limit,
         );
 
         $this->logger->debug(
@@ -64,7 +63,7 @@ class NovaRemoveStrayParkingDnsAction extends NovaOneOffScriptAbstractAction
                     'dry_run' => $dryRun,
                     'count' => count($domains),
                 ],
-            ]
+            ],
         );
 
         foreach ($domains as $domain) {
@@ -74,13 +73,13 @@ class NovaRemoveStrayParkingDnsAction extends NovaOneOffScriptAbstractAction
         if (! $dryRun) {
             return self::message(sprintf(
                 'Dispatched %d domains to check and remove stray parking DNS records asynchronously.',
-                count($domains)
+                count($domains),
             ));
         }
 
         return self::message(sprintf(
             'Dry run: dispatched %d domains to check for stray parking DNS records asynchronously. Nothing will be removed.',
-            count($domains)
+            count($domains),
         ));
     }
 

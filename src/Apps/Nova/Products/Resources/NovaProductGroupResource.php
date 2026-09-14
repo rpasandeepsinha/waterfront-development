@@ -52,9 +52,7 @@ class NovaProductGroupResource extends Resource
     {
         return [
             ID::make()->hideFromIndex(),
-            Text::make(self::translate('product-group.attributes.name'), 'name')
-                ->rules('required')
-                ->sortable(),
+            Text::make(self::translate('product-group.attributes.name'), 'name')->rules('required')->sortable(),
             Text::make(self::translate('product-group.attributes.slug'), 'slug')
                 ->rules('required', 'alpha_dash')
                 ->sortable()
@@ -70,19 +68,21 @@ class NovaProductGroupResource extends Resource
             HasMany::make(
                 self::translate('product.plural'),
                 'products',
-                NovaProductResource::class
+                NovaProductResource::class,
             ),
             BelongsToMany::make(
                 self::translate('product-group.relations.customers'),
                 'customers',
-                NovaCustomerResource::class
-            )->fields(fn (): array => [
-                Number::make(self::translate('customer.discount'), 'discount')
-                    ->min(0)
-                    ->max(100)
-                    ->step(0.01)
-                    ->help(self::translate('customer.info.discount')),
-            ])->singularLabel(self::translate('customer.singular')),
+                NovaCustomerResource::class,
+            )
+                ->fields(fn (): array => [
+                    Number::make(self::translate('customer.discount'), 'discount')
+                        ->min(0)
+                        ->max(100)
+                        ->step(0.01)
+                        ->help(self::translate('customer.info.discount')),
+                ])
+                ->singularLabel(self::translate('customer.singular')),
             Number::make(self::translate('product-group.default_billing_period'), 'default_billing_period')
                 ->rules('required')
                 ->min(0)

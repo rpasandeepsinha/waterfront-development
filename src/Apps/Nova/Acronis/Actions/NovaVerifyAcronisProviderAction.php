@@ -50,15 +50,20 @@ class NovaVerifyAcronisProviderAction extends Action
                     'Error when testing Acronis Provider [%d (%s)]: %s',
                     $provider->id,
                     $provider->name,
-                    $exception->getMessage()
+                    $exception->getMessage(),
                 ),
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
-                ]
+                ],
             );
-            return self::danger($this->translator->translate('nova-action.acronis-provider.verify.failure') . ' => ' . $exception::class);
+
+            return self::danger(
+                $this->translator->translate('nova-action.acronis-provider.verify.failure')
+                . ' => '
+                . $exception::class,
+            );
         }
 
         return self::modal('modal-response', [

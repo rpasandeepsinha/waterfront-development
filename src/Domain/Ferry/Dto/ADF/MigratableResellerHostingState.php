@@ -11,11 +11,11 @@ readonly class MigratableResellerHostingState implements MigrationTypeADFPayload
     public function __construct(
         public MigrationStep $migrationStep,
         public string $referenceName,
-        public string|null $domain,
+        public ?string $domain,
         public string $migrationSubscriptionReferenceId,
-        public string|null $hostname,
-        public string|null $username,
-        public string $driver
+        public ?string $hostname,
+        public ?string $username,
+        public string $driver,
     ) {
     }
 

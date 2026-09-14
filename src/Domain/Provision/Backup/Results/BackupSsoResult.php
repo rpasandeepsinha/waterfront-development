@@ -23,7 +23,7 @@ class BackupSsoResult extends AbstractProvisionResult
         #[SensitiveParameter]
         public ?string $ssoUrl = null,
         ?Throwable $exception = null,
-        ?ValidationResult $validationResult = null
+        ?ValidationResult $validationResult = null,
     ) {
         parent::__construct($provisionData, $provisionStatus, $exception, $validationResult);
     }

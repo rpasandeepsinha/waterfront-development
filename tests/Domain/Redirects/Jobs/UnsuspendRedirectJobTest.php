@@ -36,7 +36,7 @@ class UnsuspendRedirectJobTest extends IntegrationTestCase
                 [
                     'technical_status' => TechnicalStatus::OK->value,
                     'suspended_at' => CarbonImmutable::now(),
-                ]
+                ],
             );
     }
 
@@ -47,16 +47,18 @@ class UnsuspendRedirectJobTest extends IntegrationTestCase
         $sendSubscriptionUnSuspendedMailAction = self::createMock(SendSubscriptionUnSuspendedMailAction::class);
         $provisionGateway = self::createMock(ProvisionGateway::class);
 
-        $provisionGateway->expects(self::once())
+        $provisionGateway
+            ->expects(self::once())
             ->method('request')
             ->willReturn(
                 new RedirectResult(
                     provisionData: self::createStub(ProvisionRequestInterface::class),
                     provisionStatus: ProvisionStatus::SUCCESS,
-                )
+                ),
             );
 
-        $sendSubscriptionUnSuspendedMailAction->expects(self::once())
+        $sendSubscriptionUnSuspendedMailAction
+            ->expects(self::once())
             ->method('execute')
             ->with($this->redirectSubscription);
 
@@ -79,17 +81,17 @@ class UnsuspendRedirectJobTest extends IntegrationTestCase
         $sendSubscriptionUnSuspendedMailAction = self::createMock(SendSubscriptionUnSuspendedMailAction::class);
         $provisionGateway = self::createMock(ProvisionGateway::class);
 
-        $provisionGateway->expects(self::once())
+        $provisionGateway
+            ->expects(self::once())
             ->method('request')
             ->willReturn(
                 new RedirectResult(
                     provisionData: self::createStub(ProvisionRequestInterface::class),
                     provisionStatus: ProvisionStatus::FAILED,
-                )
+                ),
             );
 
-        $sendSubscriptionUnSuspendedMailAction->expects(self::never())
-            ->method('execute');
+        $sendSubscriptionUnSuspendedMailAction->expects(self::never())->method('execute');
 
         $suspendRedirectJob = new UnsuspendRedirectJob($this->redirectSubscription);
         $suspendRedirectJob->handle(

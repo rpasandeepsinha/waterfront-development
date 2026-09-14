@@ -24,20 +24,23 @@ class ConfigureDnsController
         private readonly MigratableSubscriptionRepository $migratableSubscriptionRepository,
         private readonly SubscriptionMigrationValidator $subscriptionMigrationValidator,
         private readonly ExecuteConfigureDnsAction $executeConfigureDnsAction,
-        private readonly ResponseDto $responseDto
+        private readonly ResponseDto $responseDto,
     ) {
     }
 
     public function configureDns(Customer $customer): JsonResponse
     {
-        $subscriptions = $this->migratableSubscriptionRepository->getSubscriptionsForConfigureDnsMigration($customer)
+        $subscriptions = $this->migratableSubscriptionRepository
+            ->getSubscriptionsForConfigureDnsMigration($customer)
             ->filter(function ($subscription) use ($customer) {
                 try {
                     $this->subscriptionMigrationValidator->validateEligibleForDnsMigration($subscription);
                 } catch (NotEligibleForMigrationException $e) {
                     $this->responseDto->addFailure($this->makeFailureDto($e, $customer, $subscription));
+
                     return false;
                 }
+
                 return true;
             });
 
@@ -52,8 +55,11 @@ class ConfigureDnsController
         return new JsonResponse($this->responseDto->toArray(), Response::HTTP_MULTI_STATUS);
     }
 
-    private function makeFailureDto(NotEligibleForMigrationException $e, Customer $customer, Subscription $subscription): FailureDto
-    {
+    private function makeFailureDto(
+        NotEligibleForMigrationException $e,
+        Customer $customer,
+        Subscription $subscription,
+    ): FailureDto {
         return FailureDto::create(
             sprintf('Configure DNS migration step not allowed for subscription: %s', $e->getMessage()),
             [
@@ -72,7 +78,13 @@ class ConfigureDnsController
             'Created jobs to configure DNS zone for every eligible subscription',
             [
                 Parameter::create('customerId', $customer->id),
-                Parameter::create('subscriptionIds', $subscriptions->map(fn ($s) => $s->id)->sort()->join(',')),
+                Parameter::create(
+                    'subscriptionIds',
+                    $subscriptions
+                        ->map(fn ($s) => $s->id)
+                        ->sort()
+                        ->join(','),
+                ),
             ],
         );
     }

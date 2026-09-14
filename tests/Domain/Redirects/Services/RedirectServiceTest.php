@@ -77,7 +77,7 @@ class RedirectServiceTest extends IntegrationTestCase
             provisionGateway: $this->mockProvisionGateway,
             logger: $this->mockLogger,
             redirectDnsService: $this->mockRedirectDnsService,
-            publicSuffixList: $this->publicSuffixList
+            publicSuffixList: $this->publicSuffixList,
         );
     }
 
@@ -85,9 +85,12 @@ class RedirectServiceTest extends IntegrationTestCase
     public function list(): void
     {
         $mock = self::createMock(RedirectsRepositoryInterface::class);
-        $mock->expects(self::once())->method('listRedirects')->willReturn([
-            new Redirect(1, 'test.nl', 'nl', 'in.test.nl', 'https://out.test.nl', RedirectType::TEMPORARY->value),
-        ]);
+        $mock
+            ->expects(self::once())
+            ->method('listRedirects')
+            ->willReturn([
+                new Redirect(1, 'test.nl', 'nl', 'in.test.nl', 'https://out.test.nl', RedirectType::TEMPORARY->value),
+            ]);
         $this->app->bind(RedirectsRepositoryInterface::class, fn (): RedirectsRepositoryInterface => $mock);
 
         self::assertCount(1, self::resolve(RedirectServiceInterface::class)->index(1, 'test.nl'));
@@ -97,24 +100,36 @@ class RedirectServiceTest extends IntegrationTestCase
     public function create(): void
     {
         $mock = self::createMock(RedirectsRepositoryInterface::class);
-        $mock->expects(self::once())->method('createRedirect')->willReturn(
-            new Redirect(1, 'test.nl', 'nl', 'in.test.nl', 'https://out.test.nl', RedirectType::TEMPORARY->value)
-        );
+        $mock
+            ->expects(self::once())
+            ->method('createRedirect')
+            ->willReturn(
+                new Redirect(1, 'test.nl', 'nl', 'in.test.nl', 'https://out.test.nl', RedirectType::TEMPORARY->value),
+            );
         $this->app->bind(RedirectsRepositoryInterface::class, fn (): RedirectsRepositoryInterface => $mock);
 
-        self::assertInstanceOf(Redirect::class, self::resolve(RedirectServiceInterface::class)->add(1, 'in.test.nl', 'https://out.test.nl', RedirectType::TEMPORARY));
+        self::assertInstanceOf(Redirect::class, self::resolve(RedirectServiceInterface::class)->add(
+            1,
+            'in.test.nl',
+            'https://out.test.nl',
+            RedirectType::TEMPORARY,
+        ));
     }
 
     #[Test]
     public function update(): void
     {
         $mock = self::createMock(RedirectsRepositoryInterface::class);
-        $mock->expects(self::once())->method('updateRedirect')->willReturn(
-            new Redirect(1, 'test.nl', 'nl', 'in.test.nl', 'https://out.test.nl', RedirectType::TEMPORARY->value)
-        );
+        $mock
+            ->expects(self::once())
+            ->method('updateRedirect')
+            ->willReturn(
+                new Redirect(1, 'test.nl', 'nl', 'in.test.nl', 'https://out.test.nl', RedirectType::TEMPORARY->value),
+            );
         $this->app->bind(RedirectsRepositoryInterface::class, fn (): RedirectsRepositoryInterface => $mock);
 
-        self::assertInstanceOf(Redirect::class, self::resolve(RedirectServiceInterface::class)->update(1, 'in.test.nl', 'https://out.test.nl', RedirectType::TEMPORARY));
+        self::assertInstanceOf(Redirect::class, self::resolve(RedirectServiceInterface::class)
+            ->update(1, 'in.test.nl', 'https://out.test.nl', RedirectType::TEMPORARY));
     }
 
     #[Test]
@@ -147,7 +162,7 @@ class RedirectServiceTest extends IntegrationTestCase
                         redirectType: $redirectType,
                     ),
                 ),
-            ]
+            ],
         );
 
         $this->mockProvisionGateway
@@ -155,8 +170,8 @@ class RedirectServiceTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (ListRedirectsRequest $request) => $request->context->toString() === $this->subscription->uuid
-                )
+                    fn (ListRedirectsRequest $request) => $request->context->toString() === $this->subscription->uuid,
+                ),
             )
             ->willReturn($listRedirectResult);
 
@@ -176,7 +191,7 @@ class RedirectServiceTest extends IntegrationTestCase
 
         $listRedirectResult = new ListRedirectResult(
             provisionData: $provisionData,
-            provisionStatus: ProvisionStatus::FAILED
+            provisionStatus: ProvisionStatus::FAILED,
         );
 
         $this->mockProvisionGateway
@@ -184,12 +199,13 @@ class RedirectServiceTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (ListRedirectsRequest $request) => $request->context->toString() === $this->subscription->uuid
-                )
+                    fn (ListRedirectsRequest $request) => $request->context->toString() === $this->subscription->uuid,
+                ),
             )
             ->willReturn($listRedirectResult);
 
-        $this->mockLogger->expects(self::once())
+        $this->mockLogger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 sprintf('Redirect get list failed for subscription uuid %s', $this->subscription->uuid),
@@ -203,7 +219,7 @@ class RedirectServiceTest extends IntegrationTestCase
                         'provision_exception' => $listRedirectResult->exception?->getMessage(),
                         'provision_validation' => $listRedirectResult->validationResult,
                     ],
-                ]
+                ],
             );
 
         self::expectException(ListRedirectsException::class);
@@ -234,12 +250,18 @@ class RedirectServiceTest extends IntegrationTestCase
         $this->mockProvisionGateway
             ->expects(self::once())
             ->method('request')
-            ->willReturnCallback(function (mixed $request) use ($redirectCreateResult, $domain, $destinationUrl, $redirectType): RedirectResult {
+            ->willReturnCallback(function (mixed $request) use (
+                $redirectCreateResult,
+                $domain,
+                $destinationUrl,
+                $redirectType,
+            ): RedirectResult {
                 self::assertInstanceOf(CreateRedirectRequest::class, $request);
                 self::assertSame($this->subscription->uuid, $request->context->toString());
                 self::assertSame($domain, $request->domain);
                 self::assertSame($destinationUrl, $request->destinationUrl);
                 self::assertSame($redirectType, $request->redirectType);
+
                 return $redirectCreateResult;
             });
 
@@ -287,11 +309,17 @@ class RedirectServiceTest extends IntegrationTestCase
         $this->mockProvisionGateway
             ->expects(self::once())
             ->method('request')
-            ->willReturnCallback(function (mixed $request) use ($redirectCreateResult, $source, $destinationUrl, $redirectType): RedirectResult {
+            ->willReturnCallback(function (mixed $request) use (
+                $redirectCreateResult,
+                $source,
+                $destinationUrl,
+                $redirectType,
+            ): RedirectResult {
                 self::assertInstanceOf(CreateRedirectRequest::class, $request);
                 self::assertSame($source, $request->domain);
                 self::assertSame($destinationUrl, $request->destinationUrl);
                 self::assertSame($redirectType, $request->redirectType);
+
                 return $redirectCreateResult;
             });
 
@@ -345,10 +373,12 @@ class RedirectServiceTest extends IntegrationTestCase
             ->willReturnCallback(function (mixed $request) use ($redirectCreateResult): RedirectResult {
                 self::assertInstanceOf(CreateRedirectRequest::class, $request);
                 self::assertSame($this->subscription->uuid, $request->context->toString());
+
                 return $redirectCreateResult;
             });
 
-        $this->mockLogger->expects(self::once())
+        $this->mockLogger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 sprintf('Redirect create failed for subscription uuid %s', $this->subscription->uuid),
@@ -362,7 +392,7 @@ class RedirectServiceTest extends IntegrationTestCase
                         'provision_exception' => $redirectCreateResult->exception?->getMessage(),
                         'provision_validation' => $redirectCreateResult->validationResult,
                     ],
-                ]
+                ],
             );
 
         $result = $this->redirectService->createRedirect($this->subscription, $domain, $destinationUrl, $redirectType);
@@ -401,16 +431,24 @@ class RedirectServiceTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (UpdateRedirectRequest $request) => $request->context->toString() === $this->subscription->uuid
+                    fn (UpdateRedirectRequest $request) => (
+                        $request->context->toString() === $this->subscription->uuid
                         && $request->oldSource === $oldSource
                         && $request->newSource === $newSource
                         && $request->destinationUrl === $destinationUrl
                         && $request->redirectType === $redirectType
-                )
+                    ),
+                ),
             )
             ->willReturn($redirectUpdateResult);
 
-        $result = $this->redirectService->updateRedirect($this->subscription, $oldSource, $newSource, $destinationUrl, $redirectType);
+        $result = $this->redirectService->updateRedirect(
+            $this->subscription,
+            $oldSource,
+            $newSource,
+            $destinationUrl,
+            $redirectType,
+        );
 
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
         $this->subscription->refresh();
@@ -444,12 +482,13 @@ class RedirectServiceTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (UpdateRedirectRequest $request) => $request->context->toString() === $this->subscription->uuid
-                )
+                    fn (UpdateRedirectRequest $request) => $request->context->toString() === $this->subscription->uuid,
+                ),
             )
             ->willReturn($redirectUpdateResult);
 
-        $this->mockLogger->expects(self::once())
+        $this->mockLogger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 sprintf('Redirect update failed for subscription uuid %s', $this->subscription->uuid),
@@ -463,10 +502,16 @@ class RedirectServiceTest extends IntegrationTestCase
                         'provision_exception' => $redirectUpdateResult->exception?->getMessage(),
                         'provision_validation' => $redirectUpdateResult->validationResult,
                     ],
-                ]
+                ],
             );
 
-        $result = $this->redirectService->updateRedirect($this->subscription, $oldSource, $newSource, $destinationUrl, $redirectType);
+        $result = $this->redirectService->updateRedirect(
+            $this->subscription,
+            $oldSource,
+            $newSource,
+            $destinationUrl,
+            $redirectType,
+        );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         $this->subscription->refresh();
@@ -496,9 +541,11 @@ class RedirectServiceTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (DeleteRedirectRequest $request) => $request->context->toString() === $this->subscription->uuid
+                    fn (DeleteRedirectRequest $request) => (
+                        $request->context->toString() === $this->subscription->uuid
                         && $request->domainName === $domain
-                )
+                    ),
+                ),
             )
             ->willReturn($redirectDeleteResult);
 
@@ -546,6 +593,7 @@ class RedirectServiceTest extends IntegrationTestCase
                 self::assertInstanceOf(DeleteRedirectRequest::class, $request);
                 self::assertSame($source, $request->domainName);
                 self::assertSame($this->subscription->uuid, $request->context->toString());
+
                 return $redirectDeleteResult;
             });
 
@@ -594,12 +642,13 @@ class RedirectServiceTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (DeleteRedirectRequest $request) => $request->context->toString() === $this->subscription->uuid
-                )
+                    fn (DeleteRedirectRequest $request) => $request->context->toString() === $this->subscription->uuid,
+                ),
             )
             ->willReturn($redirectDeleteResult);
 
-        $this->mockLogger->expects(self::once())
+        $this->mockLogger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 sprintf('Redirect delete failed for subscription uuid %s', $this->subscription->uuid),
@@ -613,7 +662,7 @@ class RedirectServiceTest extends IntegrationTestCase
                         'provision_exception' => $redirectDeleteResult->exception?->getMessage(),
                         'provision_validation' => $redirectDeleteResult->validationResult,
                     ],
-                ]
+                ],
             );
 
         $result = $this->redirectService->deleteRedirect($this->subscription, $domain);
@@ -648,7 +697,7 @@ class RedirectServiceTest extends IntegrationTestCase
                         redirectType: $redirectType,
                     ),
                 ),
-            ]
+            ],
         );
 
         $deleteProvisionData = new DeleteRedirectRequest(
@@ -724,7 +773,7 @@ class RedirectServiceTest extends IntegrationTestCase
                         redirectType: $redirectType,
                     ),
                 ),
-            ]
+            ],
         );
 
         $deleteProvisionData = new DeleteRedirectRequest(
@@ -770,7 +819,8 @@ class RedirectServiceTest extends IntegrationTestCase
             ->with($source)
             ->willReturn($source);
 
-        $this->mockLogger->expects(self::once())
+        $this->mockLogger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 sprintf('Redirect terminate failed for subscription uuid %s', $this->subscription->uuid),
@@ -784,7 +834,7 @@ class RedirectServiceTest extends IntegrationTestCase
                         'provision_exception' => $terminateResult->exception?->getMessage(),
                         'provision_validation' => $terminateResult->validationResult,
                     ],
-                ]
+                ],
             );
 
         $result = $this->redirectService->terminateRedirect($this->subscription);

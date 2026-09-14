@@ -31,7 +31,7 @@ class DisableDomainAutoRenewal extends AbstractCommand
                 $this->line(sprintf(
                     'No domain deployment found for subscription %s (%s), skipping.',
                     $subscription->domain ?? '',
-                    $subscription->uuid
+                    $subscription->uuid,
                 ));
 
                 $bar->advance();
@@ -41,7 +41,7 @@ class DisableDomainAutoRenewal extends AbstractCommand
             $this->line(sprintf(
                 'Dispatching disable domain auto-renewal for subscription %s (%s)',
                 $subscription->domain ?? '',
-                $subscription->uuid
+                $subscription->uuid,
             ));
 
             $jobDispatcher->dispatch(new DisableDomainAutoRenewalJob($subscription->domainDeployment));

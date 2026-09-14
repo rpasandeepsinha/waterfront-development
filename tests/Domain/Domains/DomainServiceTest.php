@@ -19,6 +19,8 @@ use Tests\Factories\ProviderFactory;
 use Tests\Factories\RtrProviderCredentialsFactory;
 use Tests\Factories\SubscriptionFactory;
 use Tests\IntegrationTestCase;
+use Waterfront\Domain\CustomerActionNeeded\DTO\CustomerActionNeeded;
+use Waterfront\Domain\CustomerActionNeeded\Enums\CustomerActionSlug;
 use Waterfront\Domain\DNS\Actions\AssignNameserversToDomainAction;
 use Waterfront\Domain\DNS\DnsService;
 use Waterfront\Domain\DNS\DTO\Nameserver;
@@ -41,6 +43,7 @@ use Waterfront\Domain\Domains\Models\DomainDeployment;
 use Waterfront\Domain\Domains\Models\DomainProviderBusinessUnit;
 use Waterfront\Domain\Domains\Repositories\DomainDeploymentRepository;
 use Waterfront\Domain\Domains\Repositories\DomainProviderBusinessUnitRepository;
+use Waterfront\Domain\Products\Enums\ProductGroupType;
 use Waterfront\Domain\Products\Models\Product;
 use Waterfront\Domain\Providers\Enums\ProviderSlug;
 use Waterfront\Domain\Providers\Enums\ProviderType;
@@ -48,7 +51,9 @@ use Waterfront\Domain\Providers\Models\Provider;
 use Waterfront\Domain\Provision\DNS\Enums\NameserverType;
 use Waterfront\Domain\Provision\Enums\ProvisionType;
 use Waterfront\Domain\Subscriptions\Enums\TechnicalStatus;
+use Waterfront\Domain\Subscriptions\Models\Subscription;
 use Waterfront\Infra\RtrClient\Services\RtrService;
+use Waterfront\Infra\Translation\TranslatorInterface;
 use Waterfront\Support\Enums\LoggingContextKeys;
 
 #[CoversClass(DomainService::class)]
@@ -58,20 +63,24 @@ class DomainServiceTest extends IntegrationTestCase
 
     public Product $domainProduct;
 
+    public Subscription $subscription;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $domainGroup = new ProductGroupFactory()->extension()->createOne();
-        $this->domainProduct = new ProductFactory()->nlDomain()->for($domainGroup)->createOne();
+        $this->domainProduct = new ProductFactory()
+            ->nlDomain()
+            ->for($domainGroup)
+            ->createOne();
 
-        new SubscriptionFactory()
-            ->for((new CustomerFactory()))
+        $this->subscription = new SubscriptionFactory()
+            ->for(new CustomerFactory())
             ->forDomain(self::DOMAIN)
             ->for($this->domainProduct)
             ->has(
-                new DomainDeploymentFactory()
-                ->for(new ProviderFactory()->domainOpenProvider()->createOne())
+                new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()),
             )
             ->createOne();
     }
@@ -84,9 +93,9 @@ class DomainServiceTest extends IntegrationTestCase
             ->for(new CustomerFactory()->state(['id' => $testCustomerId]))
             ->forDomain(self::DOMAIN)
             ->has(
-                new DomainDeploymentFactory()
-                    ->withRtrProvider()
-                    ->for(new DomainContactFactory()->state(['customer_id' => $testCustomerId]), 'contactOwner')
+                new DomainDeploymentFactory()->withRtrProvider()->for(new DomainContactFactory()->state([
+                    'customer_id' => $testCustomerId,
+                ]), 'contactOwner'),
             )
             ->for($this->domainProduct)
             ->createOne();
@@ -106,32 +115,37 @@ class DomainServiceTest extends IntegrationTestCase
             self::resolve(DnsService::class),
             self::resolve(DomainDeploymentRepository::class),
             self::resolve(DomainProviderBusinessUnitRepository::class),
+            self::resolve(TranslatorInterface::class),
         );
 
-        $mockRtrService->expects(self::once())
-            ->method('createContact')
-            ->willReturn($testHandle);
+        $mockRtrService->expects(self::once())->method('createContact')->willReturn($testHandle);
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('minimalRegister')
-            ->with($domainSubscription->domainDeployment, self::callback(fn (Handles $handle) => $handle->getOwnerHandle() === $testHandle))
+            ->with(
+                $domainSubscription->domainDeployment,
+                self::callback(fn (Handles $handle) => $handle->getOwnerHandle() === $testHandle),
+            )
             ->willReturn(new RegistrationResult(DomainStatus::PENDING));
 
-        $mockServiceFactory->expects(self::exactly(2))
+        $mockServiceFactory
+            ->expects(self::exactly(2))
             ->method('driver')
             ->with(ProviderSlug::REALTIME_REGISTER)
             ->willReturn($mockRtrService);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
-        ->with(
-            'Starting minimal register for domain {domain.name}',
-            [
-                LoggingContextKeys::DOMAIN_NAME => $domainSubscription->domain,
-                LoggingContextKeys::SUBSCRIPTION_UUID => $domainSubscription->uuid,
-                LoggingContextKeys::SUBSCRIPTION_ID => $domainSubscription->id,
-            ]
-        );
+            ->with(
+                'Starting minimal register for domain {domain.name}',
+                [
+                    LoggingContextKeys::DOMAIN_NAME => $domainSubscription->domain,
+                    LoggingContextKeys::SUBSCRIPTION_UUID => $domainSubscription->uuid,
+                    LoggingContextKeys::SUBSCRIPTION_ID => $domainSubscription->id,
+                ],
+            );
 
         self::assertNotNull($domainSubscription->domainDeployment);
 
@@ -147,9 +161,9 @@ class DomainServiceTest extends IntegrationTestCase
             ->for(new CustomerFactory()->state(['id' => $testCustomerId]))
             ->forDomain(self::DOMAIN)
             ->has(
-                new DomainDeploymentFactory()
-                    ->withRtrProvider()
-                    ->for(new DomainContactFactory()->state(['customer_id' => $testCustomerId]), 'contactOwner')
+                new DomainDeploymentFactory()->withRtrProvider()->for(new DomainContactFactory()->state([
+                    'customer_id' => $testCustomerId,
+                ]), 'contactOwner'),
             )
             ->for($this->domainProduct)
             ->createOne();
@@ -169,23 +183,28 @@ class DomainServiceTest extends IntegrationTestCase
             self::resolve(DnsService::class),
             self::resolve(DomainDeploymentRepository::class),
             self::resolve(DomainProviderBusinessUnitRepository::class),
+            self::resolve(TranslatorInterface::class),
         );
 
-        $mockRtrService->expects(self::once())
-            ->method('createContact')
-            ->willReturn($testHandle);
+        $mockRtrService->expects(self::once())->method('createContact')->willReturn($testHandle);
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('minimalTransfer')
-            ->with($domainSubscription->domainDeployment, self::callback(fn (Handles $handle) => $handle->getOwnerHandle() === $testHandle))
+            ->with(
+                $domainSubscription->domainDeployment,
+                self::callback(fn (Handles $handle) => $handle->getOwnerHandle() === $testHandle),
+            )
             ->willReturn(new TransferResult(TechnicalStatus::PENDING->value));
 
-        $mockServiceFactory->expects(self::exactly(2))
+        $mockServiceFactory
+            ->expects(self::exactly(2))
             ->method('driver')
             ->with(ProviderSlug::REALTIME_REGISTER)
             ->willReturn($mockRtrService);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Starting minimal transfer for domain {domain.name}',
@@ -193,7 +212,7 @@ class DomainServiceTest extends IntegrationTestCase
                     LoggingContextKeys::DOMAIN_NAME => $domainSubscription->domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $domainSubscription->uuid,
                     LoggingContextKeys::SUBSCRIPTION_ID => $domainSubscription->id,
-                ]
+                ],
             );
 
         self::assertNotNull($domainSubscription->domainDeployment);
@@ -215,9 +234,9 @@ class DomainServiceTest extends IntegrationTestCase
             ->for($customer)
             ->forDomain($domainForSub1)
             ->has(
-                new DomainDeploymentFactory()
-                    ->withRtrProvider()
-                    ->for(new DomainContactFactory()->state(['customer_id' => $customer->id]), 'contactOwner')
+                new DomainDeploymentFactory()->withRtrProvider()->for(new DomainContactFactory()->state([
+                    'customer_id' => $customer->id,
+                ]), 'contactOwner'),
             )
             ->for($this->domainProduct)
             ->createOne();
@@ -234,9 +253,9 @@ class DomainServiceTest extends IntegrationTestCase
             ->for($customer)
             ->forDomain($domainForSub2)
             ->has(
-                new DomainDeploymentFactory()
-                    ->withRtrProvider()
-                    ->for(new DomainContactFactory()->state(['customer_id' => $customer->id]), 'contactOwner')
+                new DomainDeploymentFactory()->withRtrProvider()->for(new DomainContactFactory()->state([
+                    'customer_id' => $customer->id,
+                ]), 'contactOwner'),
             )
             ->for($this->domainProduct)
             ->createOne();
@@ -262,6 +281,7 @@ class DomainServiceTest extends IntegrationTestCase
             self::resolve(DnsService::class),
             self::resolve(DomainDeploymentRepository::class),
             self::resolve(DomainProviderBusinessUnitRepository::class),
+            self::resolve(TranslatorInterface::class),
         );
 
         $domains = [$domainForSub1, $domainForSub2];
@@ -296,7 +316,7 @@ class DomainServiceTest extends IntegrationTestCase
                     ->for(new CustomerFactory())
                     ->for(new ProductFactory()->freeDns())
                     ->forDomain($domain)
-                    ->state(['parent_subscription_id' => $domainSubscription->id])
+                    ->state(['parent_subscription_id' => $domainSubscription->id]),
             )
             ->withExternalNameserver()
             ->createOne();
@@ -311,35 +331,43 @@ class DomainServiceTest extends IntegrationTestCase
         $mockLogger = self::createMock(LoggerInterface::class);
         $mockDnsDeploymentRepository = self::createMock(DnsDeploymentRepository::class);
 
-        $mockDnsDeploymentRepository->expects(self::once())
+        $mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->with($domain)
             ->willReturn($dnsDeployment);
 
-        $mockNameserverAssignerFactory->expects(self::once())
+        $mockNameserverAssignerFactory
+            ->expects(self::once())
             ->method('createAssigner')
             ->with(NameserverType::EXTERNAL)
             ->willReturn($mockExternalAssigner);
 
-        $mockExternalAssigner->expects(self::once())
+        $mockExternalAssigner
+            ->expects(self::once())
             ->method('clear')
-            ->with(self::callback(fn (DnsDeployment $receivedDnsDeployment) => $receivedDnsDeployment->id === $dnsDeployment->id));
+            ->with(self::callback(
+                fn (DnsDeployment $receivedDnsDeployment) => $receivedDnsDeployment->id === $dnsDeployment->id,
+            ));
 
-        $mockDnsSpecRepo->expects(self::once())
+        $mockDnsSpecRepo
+            ->expects(self::once())
             ->method('isPremiumDns')
-            ->with(self::callback(fn (Product $receivedProduct) => $receivedProduct->id === $dnsDeployment->subscription->product->id))
+            ->with(self::callback(
+                fn (Product $receivedProduct) => $receivedProduct->id === $dnsDeployment->subscription->product->id,
+            ))
             ->willReturn(false);
 
-        $mockDomainFactory->expects(self::once())
+        $mockDomainFactory
+            ->expects(self::once())
             ->method('driver')
             ->with(ProviderSlug::REALTIME_REGISTER)
             ->willReturn($mockDomainDriver);
 
-        $mockDnsService->expects(self::once())
-            ->method('hasDnsZone')
-            ->willReturn(false);
+        $mockDnsService->expects(self::once())->method('hasDnsZone')->willReturn(false);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('debug')
             ->with(
                 'No internal zone yet for {domain.name}. Creating now',
@@ -347,29 +375,35 @@ class DomainServiceTest extends IntegrationTestCase
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
                     LoggingContextKeys::PROVISIONING_ID => $dnsDeployment->id,
-                ]
+                ],
             );
 
         $dnsNameservers = $dnsDeployment->dnsNameservers->all();
         $nameservers = array_map(fn (DnsNameserver $ns) => new Nameserver($ns->nameserver), $dnsNameservers);
 
-        $mockDnsDeploymentRepository->expects(self::once())
+        $mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getNameservers')
             ->with(self::assertCallbackIsModel($dnsDeployment))
             ->willReturn($nameservers);
 
-        $mockDnsService->expects(self::once())
+        $mockDnsService
+            ->expects(self::once())
             ->method('createDnsZone')
             ->with($domain, 'default', null, null, false, $nameservers);
 
-        $mockDomainDriver->expects(self::once())
+        $mockDomainDriver
+            ->expects(self::once())
             ->method('enableDnssec')
             ->with($domainSubscription->domain)
             ->willReturn(true);
 
-        $mockAssignNameserverAction->expects(self::once())
+        $mockAssignNameserverAction
+            ->expects(self::once())
             ->method('assign')
-            ->with(self::callback(fn (DomainDeployment $receivedDeployment) => $receivedDeployment->id === $domainDeployment->id));
+            ->with(self::callback(
+                fn (DomainDeployment $receivedDeployment) => $receivedDeployment->id === $domainDeployment->id,
+            ));
 
         $domainService = new DomainService(
             nameserverAssignerFactory: $mockNameserverAssignerFactory,
@@ -381,6 +415,7 @@ class DomainServiceTest extends IntegrationTestCase
             dnsService: $mockDnsService,
             domainDeploymentRepository: self::resolve(DomainDeploymentRepository::class),
             businessUnitRepository: self::resolve(DomainProviderBusinessUnitRepository::class),
+            translator: self::resolve(TranslatorInterface::class),
         );
 
         $reset = $domainService->resetNameServersToInternal($domainDeployment);
@@ -408,10 +443,10 @@ class DomainServiceTest extends IntegrationTestCase
         $dnsDeployment = DnsDeploymentFactory::new()
             ->for(
                 new SubscriptionFactory()
-                ->for(new CustomerFactory())
-                ->for(new ProductFactory()->freeDns())
-                ->forDomain($domain)
-                ->state(['parent_subscription_id' => $domainSubscription->id])
+                    ->for(new CustomerFactory())
+                    ->for(new ProductFactory()->freeDns())
+                    ->forDomain($domain)
+                    ->state(['parent_subscription_id' => $domainSubscription->id]),
             )
             ->withExternalNameserver()
             ->createOne();
@@ -424,37 +459,47 @@ class DomainServiceTest extends IntegrationTestCase
         $mockAssignNameserverAction = self::createMock(AssignNameserversToDomainAction::class);
         $mockNameserverAssignerFactory = self::createMock(NameserverAssignerFactory::class);
 
-        $mockNameserverAssignerFactory->expects(self::once())
+        $mockNameserverAssignerFactory
+            ->expects(self::once())
             ->method('createAssigner')
             ->with(NameserverType::EXTERNAL)
             ->willReturn($mockExternalAssigner);
 
-        $mockExternalAssigner->expects(self::once())
+        $mockExternalAssigner
+            ->expects(self::once())
             ->method('clear')
-            ->with(self::callback(fn (DnsDeployment $receivedDnsDeployment) => $receivedDnsDeployment->id === $dnsDeployment->id));
+            ->with(self::callback(
+                fn (DnsDeployment $receivedDnsDeployment) => $receivedDnsDeployment->id === $dnsDeployment->id,
+            ));
 
-        $mockDnsSpecRepo->expects(self::once())
+        $mockDnsSpecRepo
+            ->expects(self::once())
             ->method('isPremiumDns')
-            ->with(self::callback(fn (Product $receivedProduct) => $receivedProduct->id === $dnsDeployment->subscription->product->id))
+            ->with(self::callback(
+                fn (Product $receivedProduct) => $receivedProduct->id === $dnsDeployment->subscription->product->id,
+            ))
             ->willReturn(false);
 
-        $mockDomainFactory->expects(self::once())
+        $mockDomainFactory
+            ->expects(self::once())
             ->method('driver')
             ->with(ProviderSlug::REALTIME_REGISTER)
             ->willReturn($mockDomainDriver);
 
-        $mockDnsService->expects(self::once())
-            ->method('hasDnsZone')
-            ->willReturn(true);
+        $mockDnsService->expects(self::once())->method('hasDnsZone')->willReturn(true);
 
-        $mockDomainDriver->expects(self::once())
+        $mockDomainDriver
+            ->expects(self::once())
             ->method('enableDnssec')
             ->with($domainSubscription->domain)
             ->willReturn(true);
 
-        $mockAssignNameserverAction->expects(self::once())
+        $mockAssignNameserverAction
+            ->expects(self::once())
             ->method('assign')
-            ->with(self::callback(fn (DomainDeployment $receivedDeployment) => $receivedDeployment->id === $domainDeployment->id));
+            ->with(self::callback(
+                fn (DomainDeployment $receivedDeployment) => $receivedDeployment->id === $domainDeployment->id,
+            ));
 
         $domainService = new DomainService(
             nameserverAssignerFactory: $mockNameserverAssignerFactory,
@@ -466,6 +511,7 @@ class DomainServiceTest extends IntegrationTestCase
             dnsService: $mockDnsService,
             domainDeploymentRepository: self::resolve(DomainDeploymentRepository::class),
             businessUnitRepository: self::resolve(DomainProviderBusinessUnitRepository::class),
+            translator: self::resolve(TranslatorInterface::class),
         );
 
         $reset = $domainService->resetNameServersToInternal($domainDeployment);
@@ -493,10 +539,10 @@ class DomainServiceTest extends IntegrationTestCase
         $dnsDeployment = DnsDeploymentFactory::new()
             ->for(
                 new SubscriptionFactory()
-                ->for(new CustomerFactory())
-                ->for(new ProductFactory()->freeDns())
-                ->forDomain($domain)
-                ->state(['parent_subscription_id' => $domainSubscription->id])
+                    ->for(new CustomerFactory())
+                    ->for(new ProductFactory()->freeDns())
+                    ->forDomain($domain)
+                    ->state(['parent_subscription_id' => $domainSubscription->id]),
             )
             ->withExternalNameserver()
             ->createOne();
@@ -509,37 +555,47 @@ class DomainServiceTest extends IntegrationTestCase
         $mockNameserverAssignerFactory = self::createMock(NameserverAssignerFactory::class);
         $mockDnsService = self::createMock(DnsService::class);
 
-        $mockNameserverAssignerFactory->expects(self::once())
+        $mockNameserverAssignerFactory
+            ->expects(self::once())
             ->method('createAssigner')
             ->with(NameserverType::EXTERNAL)
             ->willReturn($mockExternalAssigner);
 
-        $mockExternalAssigner->expects(self::once())
+        $mockExternalAssigner
+            ->expects(self::once())
             ->method('clear')
-            ->with(self::callback(fn (DnsDeployment $receivedDnsDeployment) => $receivedDnsDeployment->id === $dnsDeployment->id));
+            ->with(self::callback(
+                fn (DnsDeployment $receivedDnsDeployment) => $receivedDnsDeployment->id === $dnsDeployment->id,
+            ));
 
-        $mockDnsSpecRepo->expects(self::once())
+        $mockDnsSpecRepo
+            ->expects(self::once())
             ->method('isPremiumDns')
-            ->with(self::callback(fn (Product $receivedProduct) => $receivedProduct->id === $dnsDeployment->subscription->product->id))
+            ->with(self::callback(
+                fn (Product $receivedProduct) => $receivedProduct->id === $dnsDeployment->subscription->product->id,
+            ))
             ->willReturn(true);
 
-        $mockDnsService->expects(self::once())
-            ->method('hasDnsZone')
-            ->willReturn(true);
+        $mockDnsService->expects(self::once())->method('hasDnsZone')->willReturn(true);
 
-        $mockDomainFactory->expects(self::once())
+        $mockDomainFactory
+            ->expects(self::once())
             ->method('driver')
             ->with(ProviderSlug::REALTIME_REGISTER)
             ->willReturn($mockDomainDriver);
 
-        $mockDomainDriver->expects(self::once())
+        $mockDomainDriver
+            ->expects(self::once())
             ->method('enableDnssec')
             ->with($domainSubscription->domain)
             ->willReturn(true);
 
-        $mockAssignNameserverAction->expects(self::once())
+        $mockAssignNameserverAction
+            ->expects(self::once())
             ->method('assign')
-            ->with(self::callback(fn (DomainDeployment $receivedDeployment) => $receivedDeployment->id === $domainDeployment->id));
+            ->with(self::callback(
+                fn (DomainDeployment $receivedDeployment) => $receivedDeployment->id === $domainDeployment->id,
+            ));
 
         $domainService = new DomainService(
             nameserverAssignerFactory: $mockNameserverAssignerFactory,
@@ -551,6 +607,7 @@ class DomainServiceTest extends IntegrationTestCase
             dnsService: $mockDnsService,
             domainDeploymentRepository: self::resolve(DomainDeploymentRepository::class),
             businessUnitRepository: self::resolve(DomainProviderBusinessUnitRepository::class),
+            translator: self::resolve(TranslatorInterface::class),
         );
 
         $reset = $domainService->resetNameServersToInternal($domainDeployment);
@@ -585,7 +642,7 @@ class DomainServiceTest extends IntegrationTestCase
                     ->for(new CustomerFactory())
                     ->for(new ProductFactory()->freeDns())
                     ->forDomain($domain)
-                    ->state(['parent_subscription_id' => $domainSubscription->id])
+                    ->state(['parent_subscription_id' => $domainSubscription->id]),
             )
             ->withExternalNameserver()
             ->createOne();
@@ -597,7 +654,8 @@ class DomainServiceTest extends IntegrationTestCase
         $mockDomainFactory = self::createMock(DomainServiceFactory::class);
         $mockDomainDriver = self::createMock(DomainDriverInterface::class);
 
-        $mockDnsDeploymentRepo->expects(self::once())
+        $mockDnsDeploymentRepo
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->with($domain)
             ->willReturn($dnsDeployment);
@@ -608,8 +666,7 @@ class DomainServiceTest extends IntegrationTestCase
             ->with($dnsDeployment->nameserver_type)
             ->andReturn($mockAssigner);
 
-        $mockAssigner->expects(self::once())
-            ->method('clear');
+        $mockAssigner->expects(self::once())->method('clear');
 
         $mockNameserverAssignFactory
             ->shouldReceive('createAssigner')
@@ -617,19 +674,24 @@ class DomainServiceTest extends IntegrationTestCase
             ->with(NameserverType::EXTERNAL)
             ->andReturn($mockExternalAssigner);
 
-        $mockExternalAssigner->expects(self::once())
+        $mockExternalAssigner
+            ->expects(self::once())
             ->method('assign')
             ->with(
-                self::callback(fn (DnsDeployment $receivedDnsDeployment) => $receivedDnsDeployment->id === $dnsDeployment->id),
-                $nameservers
+                self::callback(
+                    fn (DnsDeployment $receivedDnsDeployment) => $receivedDnsDeployment->id === $dnsDeployment->id,
+                ),
+                $nameservers,
             );
 
-        $mockDomainFactory->expects(self::once())
+        $mockDomainFactory
+            ->expects(self::once())
             ->method('driver')
             ->with(ProviderSlug::REALTIME_REGISTER)
             ->willReturn($mockDomainDriver);
 
-        $mockDomainDriver->expects(self::once())
+        $mockDomainDriver
+            ->expects(self::once())
             ->method('updateNameServers')
             ->with($domain, $nameservers)
             ->willReturn(true);
@@ -644,11 +706,56 @@ class DomainServiceTest extends IntegrationTestCase
             dnsService: self::resolve(DnsService::class),
             domainDeploymentRepository: self::resolve(DomainDeploymentRepository::class),
             businessUnitRepository: self::resolve(DomainProviderBusinessUnitRepository::class),
+            translator: self::resolve(TranslatorInterface::class),
         );
 
         $nameserversSet = $domainService->setCustomNameservers($domainDeployment, $nameservers);
 
         self::assertTrue($nameserversSet);
+    }
+
+    #[Test]
+    public function retrieveAuthCodeForSuspendedDomainResolvesItsBusinessUnit(): void
+    {
+        $domainService = new DomainService(
+            nameserverAssignerFactory: self::createStub(NameserverAssignerFactory::class),
+            assignNameserversToDomainAction: self::createStub(AssignNameserversToDomainAction::class),
+            domainServiceFactory: $domainServiceFactory = self::createMock(DomainServiceFactory::class),
+            logger: self::createStub(LoggerInterface::class),
+            dnsDeploymentRepository: self::resolve(DnsDeploymentRepository::class),
+            dnsProductSpecRepository: self::resolve(DnsProductSpecRepository::class),
+            dnsService: self::createStub(DnsService::class),
+            domainDeploymentRepository: self::resolve(DomainDeploymentRepository::class),
+            businessUnitRepository: self::resolve(DomainProviderBusinessUnitRepository::class),
+            translator: self::createStub(TranslatorInterface::class),
+        );
+
+        $domain = 'suspended-domain.nl';
+        new DomainProviderBusinessUnitFactory()->createOne(['slug' => 'argeweb']);
+        $businessUnit = DomainProviderBusinessUnit::query()->where('slug', 'argeweb')->first();
+        self::assertNotNull($businessUnit);
+
+        new DomainDeploymentFactory()
+            ->for(
+                new SubscriptionFactory()
+                    ->withCustomer()
+                    ->for($this->domainProduct)
+                    ->forDomain($domain)
+                    ->administrativeStatusSuspended(),
+                'subscription',
+            )
+            ->withRtrProvider()
+            ->createOne(['domain_business_unit_id' => $businessUnit->id]);
+
+        $domainServiceFactory
+            ->expects(self::once())
+            ->method('driver')
+            ->with(ProviderSlug::REALTIME_REGISTER, $businessUnit)
+            ->willReturn($domainDriver = self::createMock(DomainDriverInterface::class));
+
+        $domainDriver->expects(self::once())->method('retrieveAuthCode')->with($domain)->willReturn('AUTH-CODE');
+
+        self::assertSame('AUTH-CODE', $domainService->retrieveAuthCode(ProviderSlug::REALTIME_REGISTER, $domain));
     }
 
     #[Test]
@@ -664,10 +771,10 @@ class DomainServiceTest extends IntegrationTestCase
             dnsService: self::createStub(DnsService::class),
             domainDeploymentRepository: self::resolve(DomainDeploymentRepository::class),
             businessUnitRepository: self::resolve(DomainProviderBusinessUnitRepository::class),
+            translator: self::resolve(TranslatorInterface::class),
         );
 
-        $customer = new CustomerFactory()
-            ->createOne();
+        $customer = new CustomerFactory()->createOne();
 
         $subscription = new SubscriptionFactory()
             ->for($this->domainProduct)
@@ -675,14 +782,11 @@ class DomainServiceTest extends IntegrationTestCase
             ->forDomain('yourhosting.nl')
             ->createOne();
 
-        new DomainProviderBusinessUnitFactory()
-            ->createOne([
-                'slug' => 'argeweb',
-            ]);
+        new DomainProviderBusinessUnitFactory()->createOne([
+            'slug' => 'argeweb',
+        ]);
         // Query after creation so that recently created isn't set to true for assertion later
-        $businessUnit = DomainProviderBusinessUnit::query()
-            ->where('slug', 'argeweb')
-            ->first();
+        $businessUnit = DomainProviderBusinessUnit::query()->where('slug', 'argeweb')->first();
         self::assertNotNull($businessUnit);
 
         new DomainDeploymentFactory()
@@ -696,17 +800,13 @@ class DomainServiceTest extends IntegrationTestCase
 
         $mockDriver = self::createMock(DomainDriverInterface::class);
 
-        $mockDriver->expects(self::once())
-            ->method('doesContactExist')
-            ->with('EXTERNAL-HANDLE')
-            ->willReturn(true);
-        $mockDriver->expects(self::once())
-            ->method('ensureContactValidatedForDomain');
-        $mockDriver->expects(self::once())
-            ->method('linkContactHandle');
+        $mockDriver->expects(self::once())->method('doesContactExist')->with('EXTERNAL-HANDLE')->willReturn(true);
+        $mockDriver->expects(self::once())->method('ensureContactValidatedForDomain');
+        $mockDriver->expects(self::once())->method('linkContactHandle');
 
         // 1x for doesContactExist inside findOrCreateExternalHandle, 1x for ensureContactValidatedForDomain, 1x for linkContactHandle.
-        $domainServiceFactory->expects(self::exactly(3))
+        $domainServiceFactory
+            ->expects(self::exactly(3))
             ->method('driver')
             ->with(ProviderSlug::REALTIME_REGISTER, $businessUnit)
             ->willReturn($mockDriver);
@@ -716,16 +816,14 @@ class DomainServiceTest extends IntegrationTestCase
                 'domain' => 'yourhosting.nl',
             ],
         ];
-        $contact = new DomainContactFactory()
-            ->for($customer)
-            ->createOne();
+        $contact = new DomainContactFactory()->for($customer)->createOne();
         self::assertInstanceOf(Provider::class, $rtrProvider);
         $contact->providers()->attach(
             $rtrProvider,
             [
                 'external_contact' => 'EXTERNAL-HANDLE',
                 'domain_business_unit_id' => $businessUnit->id,
-            ]
+            ],
         );
         $contact->save();
         $result = $domainService->linkContactHandle($domains, $contact);
@@ -745,10 +843,10 @@ class DomainServiceTest extends IntegrationTestCase
             dnsService: self::createStub(DnsService::class),
             domainDeploymentRepository: self::resolve(DomainDeploymentRepository::class),
             businessUnitRepository: self::resolve(DomainProviderBusinessUnitRepository::class),
+            translator: self::resolve(TranslatorInterface::class),
         );
 
-        $customer = new CustomerFactory()
-            ->createOne();
+        $customer = new CustomerFactory()->createOne();
 
         $subscription = new SubscriptionFactory()
             ->for($this->domainProduct)
@@ -756,14 +854,11 @@ class DomainServiceTest extends IntegrationTestCase
             ->forDomain('yourhosting.nl')
             ->createOne();
 
-        new DomainProviderBusinessUnitFactory()
-            ->createOne([
-                'slug' => 'argeweb',
-            ]);
+        new DomainProviderBusinessUnitFactory()->createOne([
+            'slug' => 'argeweb',
+        ]);
         // Query after creation so that recently created isn't set to true for assertion later
-        $businessUnit = DomainProviderBusinessUnit::query()
-            ->where('slug', 'argeweb')
-            ->first();
+        $businessUnit = DomainProviderBusinessUnit::query()->where('slug', 'argeweb')->first();
         self::assertNotNull($businessUnit);
 
         new DomainDeploymentFactory()
@@ -777,12 +872,14 @@ class DomainServiceTest extends IntegrationTestCase
             ->where('type', ProviderType::DOMAIN)
             ->first();
 
-        $domainServiceFactory->expects(self::exactly(3))
+        $domainServiceFactory
+            ->expects(self::exactly(3))
             ->method('driver')
             ->with(ProviderSlug::REALTIME_REGISTER, $businessUnit)
             ->willReturn($domainDriver = self::createMock(DomainDriverInterface::class));
 
-        $domainDriver->expects(self::once())
+        $domainDriver
+            ->expects(self::once())
             ->method('retrieveCustomerHandle')
             ->willReturn(
                 new RetrieveCustomerResponse(
@@ -802,22 +899,20 @@ class DomainServiceTest extends IntegrationTestCase
                     zip: '1111AA',
                     city: 'City',
                     countryCode: 'NL',
-                )
+                ),
             );
 
         $domains = [
             'yourhosting.nl',
         ];
-        $contact = new DomainContactFactory()
-            ->for($customer)
-            ->createOne();
+        $contact = new DomainContactFactory()->for($customer)->createOne();
         self::assertInstanceOf(Provider::class, $rtrProvider);
         $contact->providers()->attach(
             $rtrProvider,
             [
                 'external_contact' => 'EXTERNAL-HANDLE',
                 'domain_business_unit_id' => $businessUnit->id,
-            ]
+            ],
         );
         $contact->save();
         $domainService->unlinkContactHandle($domains, $contact);
@@ -836,10 +931,10 @@ class DomainServiceTest extends IntegrationTestCase
             dnsService: self::createStub(DnsService::class),
             domainDeploymentRepository: self::resolve(DomainDeploymentRepository::class),
             businessUnitRepository: self::resolve(DomainProviderBusinessUnitRepository::class),
+            translator: self::resolve(TranslatorInterface::class),
         );
 
-        $customer = new CustomerFactory()
-            ->createOne();
+        $customer = new CustomerFactory()->createOne();
 
         $subscription = new SubscriptionFactory()
             ->for($this->domainProduct)
@@ -847,14 +942,11 @@ class DomainServiceTest extends IntegrationTestCase
             ->forDomain('yourhosting.nl')
             ->createOne();
 
-        new DomainProviderBusinessUnitFactory()
-            ->createOne([
-                'slug' => 'argeweb',
-            ]);
+        new DomainProviderBusinessUnitFactory()->createOne([
+            'slug' => 'argeweb',
+        ]);
         // Query after creation so that recently created isn't set to true for assertion later
-        $businessUnit = DomainProviderBusinessUnit::query()
-            ->where('slug', 'argeweb')
-            ->first();
+        $businessUnit = DomainProviderBusinessUnit::query()->where('slug', 'argeweb')->first();
         self::assertNotNull($businessUnit);
 
         new DomainDeploymentFactory()
@@ -866,20 +958,19 @@ class DomainServiceTest extends IntegrationTestCase
             ->where('type', ProviderType::DOMAIN)
             ->first();
 
-        $domainServiceFactory->expects(self::once())
+        $domainServiceFactory
+            ->expects(self::once())
             ->method('driver')
             ->with(ProviderSlug::REALTIME_REGISTER, $businessUnit);
 
-        $contact = new DomainContactFactory()
-            ->for($customer)
-            ->createOne();
+        $contact = new DomainContactFactory()->for($customer)->createOne();
         self::assertInstanceOf(Provider::class, $rtrProvider);
         $contact->providers()->attach(
             $rtrProvider,
             [
                 'external_contact' => 'EXTERNAL-HANDLE',
                 'domain_business_unit_id' => $businessUnit->id,
-            ]
+            ],
         );
         $contact->save();
         $domainService->destroyContactRemote($customer, $contact);
@@ -892,19 +983,18 @@ class DomainServiceTest extends IntegrationTestCase
         $argewebContactExternal = 12345;
         $rtrProvider = ProviderFactory::new()->domainRtr()->createOne();
 
-        $argewebBusinessUnit = DomainProviderBusinessUnitFactory::new()
-            ->argeweb()
-            ->createOne();
+        $argewebBusinessUnit = DomainProviderBusinessUnitFactory::new()->argeweb()->createOne();
 
-        RtrProviderCredentialsFactory::new()
-            ->state(['domain_business_unit_id' => $argewebBusinessUnit->id])
-            ->createOne();
+        RtrProviderCredentialsFactory::new()->state([
+            'domain_business_unit_id' => $argewebBusinessUnit->id,
+        ])->createOne();
 
-        $domainContact = new DomainContactFactory()
-            ->state(['customer_id' => $customer->id])
-            ->createOne();
+        $domainContact = new DomainContactFactory()->state(['customer_id' => $customer->id])->createOne();
 
-        $domainContact->providers()->attach($rtrProvider, ['external_contact' => $argewebContactExternal, 'domain_business_unit_id' => $argewebBusinessUnit->id]);
+        $domainContact->providers()->attach($rtrProvider, [
+            'external_contact' => $argewebContactExternal,
+            'domain_business_unit_id' => $argewebBusinessUnit->id,
+        ]);
 
         $argewebSubscription = new SubscriptionFactory()
             ->for($this->domainProduct)
@@ -932,7 +1022,7 @@ class DomainServiceTest extends IntegrationTestCase
                 new DomainDeploymentFactory()
                     ->withRtrProvider()
                     // Here we attach the domain contact that is currently only present at Argeweb RTR
-                    ->for($domainContact, 'contactOwner')
+                    ->for($domainContact, 'contactOwner'),
             )
             ->for($this->domainProduct)
             ->createOne();
@@ -951,26 +1041,31 @@ class DomainServiceTest extends IntegrationTestCase
             self::resolve(DnsService::class),
             self::resolve(DomainDeploymentRepository::class),
             self::resolve(DomainProviderBusinessUnitRepository::class),
+            self::resolve(TranslatorInterface::class),
         );
 
         $testHandle = 'handle-created-on-WF-rtr';
 
         // We expect to create a new contact because the one created before only exists on Argeweb RTR
-        $mockRtrService->expects(self::once())
-            ->method('createContact')
-            ->willReturn($testHandle);
+        $mockRtrService->expects(self::once())->method('createContact')->willReturn($testHandle);
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('minimalRegister')
-            ->with($domainSubscription->domainDeployment, self::callback(fn (Handles $handle) => $handle->getOwnerHandle() === $testHandle))
+            ->with(
+                $domainSubscription->domainDeployment,
+                self::callback(fn (Handles $handle) => $handle->getOwnerHandle() === $testHandle),
+            )
             ->willReturn(new RegistrationResult(DomainStatus::PENDING));
 
-        $mockServiceFactory->expects(self::exactly(2))
+        $mockServiceFactory
+            ->expects(self::exactly(2))
             ->method('driver')
             ->with(ProviderSlug::REALTIME_REGISTER)
             ->willReturn($mockRtrService);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Starting minimal register for domain {domain.name}',
@@ -978,7 +1073,7 @@ class DomainServiceTest extends IntegrationTestCase
                     LoggingContextKeys::DOMAIN_NAME => $domainSubscription->domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $domainSubscription->uuid,
                     LoggingContextKeys::SUBSCRIPTION_ID => $domainSubscription->id,
-                ]
+                ],
             );
 
         self::assertNotNull($domainSubscription->domainDeployment);
@@ -995,9 +1090,7 @@ class DomainServiceTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
         $rtrProvider = ProviderFactory::new()->domainRtr()->createOne();
 
-        $domainContact = new DomainContactFactory()
-            ->state(['customer_id' => $customer->id])
-            ->createOne();
+        $domainContact = new DomainContactFactory()->state(['customer_id' => $customer->id])->createOne();
 
         $domainContact->providers()->attach($rtrProvider, [
             'external_contact' => $existingHandle,
@@ -1007,9 +1100,7 @@ class DomainServiceTest extends IntegrationTestCase
             ->for($customer)
             ->forDomain('reuse-existing-handle.nl')
             ->has(
-                new DomainDeploymentFactory()
-                    ->withRtrProvider()
-                    ->for($domainContact, 'contactOwner')
+                new DomainDeploymentFactory()->withRtrProvider()->for($domainContact, 'contactOwner'),
             )
             ->for($this->domainProduct)
             ->createOne();
@@ -1028,25 +1119,25 @@ class DomainServiceTest extends IntegrationTestCase
             self::resolve(DnsService::class),
             self::resolve(DomainDeploymentRepository::class),
             self::resolve(DomainProviderBusinessUnitRepository::class),
+            self::resolve(TranslatorInterface::class),
         );
 
-        $mockRtrService->expects(self::once())
-            ->method('doesContactExist')
-            ->with($existingHandle)
-            ->willReturn(true);
+        $mockRtrService->expects(self::once())->method('doesContactExist')->with($existingHandle)->willReturn(true);
 
         $mockRtrService->expects(self::never())->method('createContact');
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('minimalRegister')
             ->with(
                 $domainSubscription->domainDeployment,
-                self::callback(fn (Handles $handle): bool => $handle->getOwnerHandle() === $existingHandle)
+                self::callback(fn (Handles $handle): bool => $handle->getOwnerHandle() === $existingHandle),
             )
             ->willReturn(new RegistrationResult(DomainStatus::PENDING));
 
         // 1x for doesContactExist, 1x for minimalRegister
-        $mockServiceFactory->expects(self::exactly(2))
+        $mockServiceFactory
+            ->expects(self::exactly(2))
             ->method('driver')
             ->with(ProviderSlug::REALTIME_REGISTER)
             ->willReturn($mockRtrService);
@@ -1074,9 +1165,7 @@ class DomainServiceTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
         $rtrProvider = ProviderFactory::new()->domainRtr()->createOne();
 
-        $domainContact = new DomainContactFactory()
-            ->state(['customer_id' => $customer->id])
-            ->createOne();
+        $domainContact = new DomainContactFactory()->state(['customer_id' => $customer->id])->createOne();
 
         $domainContact->providers()->attach($rtrProvider, [
             'external_contact' => $staleHandle,
@@ -1092,9 +1181,7 @@ class DomainServiceTest extends IntegrationTestCase
             ->for($customer)
             ->forDomain('remove-stale-pivot.nl')
             ->has(
-                new DomainDeploymentFactory()
-                    ->withRtrProvider()
-                    ->for($domainContact, 'contactOwner')
+                new DomainDeploymentFactory()->withRtrProvider()->for($domainContact, 'contactOwner'),
             )
             ->for($this->domainProduct)
             ->createOne();
@@ -1113,45 +1200,45 @@ class DomainServiceTest extends IntegrationTestCase
             self::resolve(DnsService::class),
             self::resolve(DomainDeploymentRepository::class),
             self::resolve(DomainProviderBusinessUnitRepository::class),
+            self::resolve(TranslatorInterface::class),
         );
 
-        $mockRtrService->expects(self::once())
-            ->method('doesContactExist')
-            ->with($staleHandle)
-            ->willReturn(false);
+        $mockRtrService->expects(self::once())->method('doesContactExist')->with($staleHandle)->willReturn(false);
 
-        $mockRtrService->expects(self::once())
-            ->method('createContact')
-            ->willReturn($newHandle);
+        $mockRtrService->expects(self::once())->method('createContact')->willReturn($newHandle);
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('minimalRegister')
             ->with(
                 $domainSubscription->domainDeployment,
-                self::callback(fn (Handles $handle): bool => $handle->getOwnerHandle() === $newHandle)
+                self::callback(fn (Handles $handle): bool => $handle->getOwnerHandle() === $newHandle),
             )
             ->willReturn(new RegistrationResult(DomainStatus::PENDING));
 
         // 1x doesContactExist, 1x createContact, 1x minimalRegister
-        $mockServiceFactory->expects(self::exactly(3))
+        $mockServiceFactory
+            ->expects(self::exactly(3))
             ->method('driver')
             ->with(ProviderSlug::REALTIME_REGISTER)
             ->willReturn($mockRtrService);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 self::callback(fn (string $message): bool => str_contains(
                     $message,
-                    sprintf('DomainContact with handle [%s] exists in DB but not at remote', $staleHandle)
+                    sprintf('DomainContact with handle [%s] exists in DB but not at remote', $staleHandle),
                 )),
                 self::callback(function (array $context) use ($staleHandle, $domainContact): bool {
                     self::assertSame(ProvisionType::DOMAIN_NAME, $context[LoggingContextKeys::PROVISIONING_TYPE]);
                     $meta = $context[LoggingContextKeys::META];
                     self::assertSame($staleHandle, $meta['external_contact']);
                     self::assertSame($domainContact->id, $meta['domain_contact_id']);
+
                     return true;
-                })
+                }),
             );
 
         self::assertNotNull($domainSubscription->domainDeployment);
@@ -1171,5 +1258,219 @@ class DomainServiceTest extends IntegrationTestCase
             'provider_id' => $rtrProvider->id,
             'external_contact' => $newHandle,
         ]);
+    }
+
+    #[Test]
+    public function getCustomerActionsReturnsEmptyWithoutMatch(): void
+    {
+        $domainService = $this->getStubbedDomainService(self::createStub(TranslatorInterface::class));
+
+        $domainDeployment = new DomainDeployment();
+        $domainDeployment->setRelation('provider', new ProviderFactory()->domainOpenProvider()->makeOne());
+
+        $actions = $domainService->getCustomerActions($domainDeployment);
+
+        self::assertEmpty($actions);
+    }
+
+    #[Test]
+    public function getCustomerActionsDeferredTransfer(): void
+    {
+        $title = 'deferred-title';
+        $message = 'deferred-message';
+
+        $expectedCustomerAction = new CustomerActionNeeded(
+            title: $title,
+            message: $message,
+            slug: CustomerActionSlug::DOMAIN_DEFERRED_TRANSFER,
+            productGroupSlug: ProductGroupType::EXTENSION,
+            productSlug: $this->subscription->product->slug,
+        );
+
+        self::assertNotNull($this->subscription->domainDeployment);
+
+        $domainDeployment = $this->subscription->domainDeployment;
+        $domainDeployment->transfer_secret = DomainService::DEFERRED_TRANSFER;
+
+        $mockTranslator = self::mock(TranslatorInterface::class);
+        $mockTranslator
+            ->expects('translate')
+            ->with('customer-action.deferred-transfer.title')
+            ->once()
+            ->andReturn($title);
+
+        $mockTranslator->expects('translate')->with('customer-action.deferred-transfer')->once()->andReturn($message);
+
+        $domainService = $this->getStubbedDomainService($mockTranslator);
+
+        $actions = $domainService->getCustomerActions($domainDeployment);
+
+        // Use Equals over Same because we create a new object in getCustomerActions that is not the same reference
+        self::assertEquals($expectedCustomerAction, $actions->firstOrFail());
+        self::assertCount(1, $actions);
+    }
+
+    #[Test]
+    public function getCustomerActionsContactValidationOnlyRTR(): void
+    {
+        self::assertNotNull($this->subscription->domainDeployment);
+
+        $domainDeployment = $this->subscription->domainDeployment;
+        $domainDeployment->provider->slug = ProviderSlug::OPEN_PROVIDER;
+        $domainDeployment->businessUnit = null;
+
+        $mockRtrService = self::mock(RtrService::class);
+        $mockRtrService->expects('creationRequiresPreValidation')->never();
+
+        $mockServiceFactory = self::mock(DomainServiceFactory::class);
+        $mockServiceFactory->expects('driver')->never();
+
+        $mockTranslator = self::mock(TranslatorInterface::class);
+        $mockTranslator->expects('translate')->with('customer-action.contact-verification.title')->never();
+
+        $mockTranslator
+            ->expects('translate')
+            ->with('customer-action.contact-verification', ['domain' => self::DOMAIN])
+            ->never();
+
+        $domainService = new DomainService(
+            self::createStub(NameserverAssignerFactory::class),
+            self::createStub(AssignNameserversToDomainAction::class),
+            $mockServiceFactory,
+            self::createStub(LoggerInterface::class),
+            self::createStub(DnsDeploymentRepository::class),
+            self::createStub(DnsProductSpecRepository::class),
+            self::createStub(DnsService::class),
+            self::createStub(DomainDeploymentRepository::class),
+            self::createStub(DomainProviderBusinessUnitRepository::class),
+            $mockTranslator,
+        );
+
+        $actions = $domainService->getCustomerActions($domainDeployment);
+        self::assertEmpty($actions);
+    }
+
+    #[Test]
+    public function getCustomerActionsContactValidationSpecificTLD(): void
+    {
+        self::assertNotNull($this->subscription->domainDeployment);
+
+        $domainDeployment = $this->subscription->domainDeployment;
+        $domainDeployment->provider->slug = ProviderSlug::REALTIME_REGISTER;
+        $domainDeployment->businessUnit = null;
+
+        $mockRtrService = self::mock(RtrService::class);
+        $mockRtrService->expects('creationRequiresPreValidation')->with($this->subscription->domain)->andReturnFalse();
+
+        $mockServiceFactory = self::mock(DomainServiceFactory::class);
+        $mockServiceFactory
+            ->expects('driver')
+            ->with(ProviderSlug::REALTIME_REGISTER, null)
+            ->once()
+            ->andReturn($mockRtrService);
+
+        $mockTranslator = self::mock(TranslatorInterface::class);
+        $mockTranslator->expects('translate')->with('customer-action.contact-verification.title')->never();
+
+        $mockTranslator
+            ->expects('translate')
+            ->with('customer-action.contact-verification', ['domain' => self::DOMAIN])
+            ->never();
+
+        $domainService = new DomainService(
+            self::createStub(NameserverAssignerFactory::class),
+            self::createStub(AssignNameserversToDomainAction::class),
+            $mockServiceFactory,
+            self::createStub(LoggerInterface::class),
+            self::createStub(DnsDeploymentRepository::class),
+            self::createStub(DnsProductSpecRepository::class),
+            self::createStub(DnsService::class),
+            self::createStub(DomainDeploymentRepository::class),
+            self::createStub(DomainProviderBusinessUnitRepository::class),
+            $mockTranslator,
+        );
+
+        $actions = $domainService->getCustomerActions($domainDeployment);
+
+        self::assertEmpty($actions);
+    }
+
+    #[Test]
+    public function getCustomerActionsContactValidation(): void
+    {
+        $title = 'contact-verification-title';
+        $message = 'contact-verification-message';
+
+        $expectedCustomerAction = new CustomerActionNeeded(
+            title: $title,
+            message: $message,
+            slug: CustomerActionSlug::DOMAIN_CONTACT_VERIFICATION,
+            productGroupSlug: ProductGroupType::EXTENSION,
+            productSlug: $this->subscription->product->slug,
+        );
+
+        self::assertNotNull($this->subscription->domainDeployment);
+
+        $domainDeployment = $this->subscription->domainDeployment;
+        $domainDeployment->provider->slug = ProviderSlug::REALTIME_REGISTER;
+        $domainDeployment->businessUnit = null;
+
+        $mockRtrService = self::mock(RtrService::class);
+        $mockRtrService->expects('creationRequiresPreValidation')->with($this->subscription->domain)->andReturnTrue();
+
+        $mockServiceFactory = self::mock(DomainServiceFactory::class);
+        $mockServiceFactory
+            ->expects('driver')
+            ->with(ProviderSlug::REALTIME_REGISTER, null)
+            ->once()
+            ->andReturn($mockRtrService);
+
+        $mockTranslator = self::mock(TranslatorInterface::class);
+        $mockTranslator
+            ->expects('translate')
+            ->with('customer-action.contact-verification.title')
+            ->once()
+            ->andReturn($title);
+
+        $mockTranslator
+            ->expects('translate')
+            ->with('customer-action.contact-verification', ['domain' => self::DOMAIN])
+            ->once()
+            ->andReturn($message);
+
+        $domainService = new DomainService(
+            self::createStub(NameserverAssignerFactory::class),
+            self::createStub(AssignNameserversToDomainAction::class),
+            $mockServiceFactory,
+            self::createStub(LoggerInterface::class),
+            self::createStub(DnsDeploymentRepository::class),
+            self::createStub(DnsProductSpecRepository::class),
+            self::createStub(DnsService::class),
+            self::createStub(DomainDeploymentRepository::class),
+            self::createStub(DomainProviderBusinessUnitRepository::class),
+            $mockTranslator,
+        );
+
+        $actions = $domainService->getCustomerActions($domainDeployment);
+
+        // Use Equals over Same because we create a new object in getCustomerActions that is not the same reference
+        self::assertEquals($expectedCustomerAction, $actions->firstOrFail());
+        self::assertCount(1, $actions);
+    }
+
+    public function getStubbedDomainService(TranslatorInterface $translator): DomainService
+    {
+        return new DomainService(
+            self::createStub(NameserverAssignerFactory::class),
+            self::createStub(AssignNameserversToDomainAction::class),
+            self::createStub(DomainServiceFactory::class),
+            self::createStub(LoggerInterface::class),
+            self::createStub(DnsDeploymentRepository::class),
+            self::createStub(DnsProductSpecRepository::class),
+            self::createStub(DnsService::class),
+            self::createStub(DomainDeploymentRepository::class),
+            self::createStub(DomainProviderBusinessUnitRepository::class),
+            $translator,
+        );
     }
 }

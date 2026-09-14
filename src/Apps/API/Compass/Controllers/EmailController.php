@@ -43,9 +43,9 @@ class EmailController
         $emailHistory->appends('pageSize', (string) $pageSize);
 
         $customerEmailHistoryCount = EmailHistory::where('receiver_uuid', $uuid)->count();
+
         return EmailHistoryResource::collection($emailHistory)->additional([
-            'meta' =>
-                ['emailHistoryCount' => $customerEmailHistoryCount],
+            'meta' => ['emailHistoryCount' => $customerEmailHistoryCount],
         ]);
     }
 
@@ -90,6 +90,7 @@ class EmailController
     public function resendEmail(EmailHistory $emailHistory): Response
     {
         $this->mailer->resend($emailHistory->id);
+
         return new Response(status: ResponseAlias::HTTP_NO_CONTENT);
     }
 
@@ -99,11 +100,13 @@ class EmailController
             $this->fetchEmailStatusAction->execute($emailHistory);
         } catch (FailedToFetchStatusException $exception) {
             $this->logger->error($exception->getMessage());
+
             return new Response(
                 content: ['message' => $this->translator->translate('email-history.failed-to-fetch-status')],
-                status: ResponseAlias::HTTP_INTERNAL_SERVER_ERROR
+                status: ResponseAlias::HTTP_INTERNAL_SERVER_ERROR,
             );
         }
+
         return new Response(status: ResponseAlias::HTTP_NO_CONTENT);
     }
 }

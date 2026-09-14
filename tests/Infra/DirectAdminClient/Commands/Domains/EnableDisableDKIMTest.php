@@ -33,9 +33,7 @@ class EnableDisableDKIMTest extends DirectAdminTestCase
 
         $api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $modifyDomain = $api
-            ->loginAs('admin')
-            ->call(new EnableDisableDKIM(self::DOMAIN, true));
+        $modifyDomain = $api->loginAs('admin')->call(new EnableDisableDKIM(self::DOMAIN, true));
 
         $successResponse = sprintf('"result": "%s: DKIM enabled"', self::DOMAIN);
 

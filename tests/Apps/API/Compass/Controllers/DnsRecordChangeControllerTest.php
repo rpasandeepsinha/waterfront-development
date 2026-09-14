@@ -29,7 +29,10 @@ class DnsRecordChangeControllerTest extends IntegrationTestCase
         $customer = new CustomerFactory()->withAddress()->createOne();
 
         $productGroup = new ProductGroupFactory()->dns()->createOne();
-        $product = new ProductFactory()->for($productGroup)->premiumDns($productGroup)->createOne();
+        $product = new ProductFactory()
+            ->for($productGroup)
+            ->premiumDns($productGroup)
+            ->createOne();
 
         $this->subscription = new SubscriptionFactory()
             ->for($customer)
@@ -43,13 +46,12 @@ class DnsRecordChangeControllerTest extends IntegrationTestCase
         $dnsRecordChanges = new DnsRecordChangeFactory()->for($this->subscription)->createMany(2);
         $translator = self::resolve(TranslatorInterface::class);
 
-        $response = $this->actingAsEmployee()
-            ->getJson(
-                $this->generateRoute(
-                    'admin.dns.dns_record_change',
-                    ['domain' => $this->subscription->domain]
-                )
-            );
+        $response = $this->actingAsEmployee()->getJson(
+            $this->generateRoute(
+                'admin.dns.dns_record_change',
+                ['domain' => $this->subscription->domain],
+            ),
+        );
 
         $response->assertOk();
 
@@ -62,7 +64,7 @@ class DnsRecordChangeControllerTest extends IntegrationTestCase
                 'record_type' => $dnsRecordChange->record_type->value,
                 'change_type' => $dnsRecordChange->change_type->value,
                 'agent_type' => $translator->translate(
-                    sprintf('dns.agent_type.%s', $dnsRecordChange->agent_type->value)
+                    sprintf('dns.agent_type.%s', $dnsRecordChange->agent_type->value),
                 ),
                 'content' => $dnsRecordChange->content,
                 'ttl' => $dnsRecordChange->ttl,
@@ -91,13 +93,12 @@ class DnsRecordChangeControllerTest extends IntegrationTestCase
     #[Test]
     public function noDnsRecordChangesCreated(): void
     {
-        $response = $this->actingAsEmployee()
-            ->getJson(
-                $this->generateRoute(
-                    'admin.dns.dns_record_change',
-                    ['domain' => $this->subscription->domain]
-                )
-            );
+        $response = $this->actingAsEmployee()->getJson(
+            $this->generateRoute(
+                'admin.dns.dns_record_change',
+                ['domain' => $this->subscription->domain],
+            ),
+        );
         $response->assertOk();
         $response->assertJsonFragment(['data' => []]);
         $response->assertJsonFragment(['per_page' => 100, 'to' => null, 'total' => 0, 'totalLogs' => 0]);

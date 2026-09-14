@@ -57,12 +57,10 @@ class MailManagementPleskTest extends IntegrationTestCase
     {
         $subscription = SubscriptionFactory::new()
             ->for(
-                ProductFactory::new()
-                    ->for(ProductGroupFactory::new()->hosting())
-                    ->state(fn (): array => [
-                        'name' => 'product-without-mail-management',
-                        'slug' => 'product-without-mail-management',
-                    ])
+                ProductFactory::new()->for(ProductGroupFactory::new()->hosting())->state(fn (): array => [
+                    'name' => 'product-without-mail-management',
+                    'slug' => 'product-without-mail-management',
+                ]),
             )
             ->withCustomer()
             ->createOne(['domain' => self::MAIL_DOMAIN]);
@@ -73,14 +71,20 @@ class MailManagementPleskTest extends IntegrationTestCase
 
         $this->actingAsCustomer($subscription->customer)
             ->post(
-                uri: $this->generateRoute('partners.mail.reset-user', ['domain' => self::MAIL_DOMAIN, 'username' => self::MAIL_ACCOUNT]),
+                uri: $this->generateRoute('partners.mail.reset-user', [
+                    'domain' => self::MAIL_DOMAIN,
+                    'username' => self::MAIL_ACCOUNT,
+                ]),
                 data: ['password' => self::NEW_PASSWORD, 'password_confirmation' => self::NEW_PASSWORD],
             )
             ->assertForbidden();
 
         $this->actingAsCustomer($subscription->customer)
             ->delete(
-                uri: $this->generateRoute('partners.mail.delete-user', ['domain' => self::MAIL_DOMAIN, 'username' => self::MAIL_ACCOUNT])
+                uri: $this->generateRoute('partners.mail.delete-user', [
+                    'domain' => self::MAIL_DOMAIN,
+                    'username' => self::MAIL_ACCOUNT,
+                ]),
             )
             ->assertForbidden();
     }
@@ -96,13 +100,21 @@ class MailManagementPleskTest extends IntegrationTestCase
 
         $this->mockLogger
             ->shouldReceive('info')
-            ->withArgs(fn (string $message, array $context): bool => $message === sprintf('Hosting deployment not found for subscription [%s - %s]', self::MAIL_DOMAIN, $subscription->uuid)
-            && array_key_exists('exception', $context)
-            && $context['exception'] instanceof Exception);
+            ->withArgs(
+                fn (string $message, array $context): bool => (
+                    $message === sprintf(
+                        'Hosting deployment not found for subscription [%s - %s]',
+                        self::MAIL_DOMAIN,
+                        $subscription->uuid,
+                    )
+                    && array_key_exists('exception', $context)
+                    && $context['exception'] instanceof Exception
+                ),
+            );
 
         $this->actingAsCustomer($subscription->customer)
-        ->get($this->generateRoute('partners.mail.users', ['domain' => self::MAIL_DOMAIN]))
-        ->assertUnprocessable();
+            ->get($this->generateRoute('partners.mail.users', ['domain' => self::MAIL_DOMAIN]))
+            ->assertUnprocessable();
     }
 
     #[Test]
@@ -121,16 +133,11 @@ class MailManagementPleskTest extends IntegrationTestCase
             ->shouldReceive('setServer')
             ->withArgs(fn (Server $receivedServer) => $receivedServer->is($hostingDeployment->server));
 
-        $this->mockClient
-            ->shouldReceive('getSiteIdByDomain')
-            ->with(self::MAIL_DOMAIN)
-            ->andReturn(self::SITE_ID);
+        $this->mockClient->shouldReceive('getSiteIdByDomain')->with(self::MAIL_DOMAIN)->andReturn(self::SITE_ID);
 
         $mockEmailResult = self::mock(EmailAccountResult::class);
 
-        $mockEmailResult
-            ->shouldReceive('getStatus')
-            ->andReturn(EmailAccountResult::STATUS_OK);
+        $mockEmailResult->shouldReceive('getStatus')->andReturn(EmailAccountResult::STATUS_OK);
 
         $mockEmailResult
             ->shouldReceive('getEmailAccounts')
@@ -140,20 +147,18 @@ class MailManagementPleskTest extends IntegrationTestCase
                     mailboxEnabled: true,
                     mailboxUsage: 10,
                     forwarding: false,
-                    forwardDestinationAddresses: null
+                    forwardDestinationAddresses: null,
                 ),
                 new MailAccount(
                     mailName: 'other',
                     mailboxEnabled: true,
                     mailboxUsage: 10,
                     forwarding: false,
-                    forwardDestinationAddresses: null
+                    forwardDestinationAddresses: null,
                 ),
             ]);
 
-        $this->mockClient
-            ->shouldReceive('getExistingEmailAccounts')
-            ->andReturn($mockEmailResult);
+        $this->mockClient->shouldReceive('getExistingEmailAccounts')->andReturn($mockEmailResult);
 
         $this->actingAsCustomer($subscription->customer)
             ->get($this->generateRoute('partners.mail.users', ['domain' => self::MAIL_DOMAIN]))
@@ -183,18 +188,13 @@ class MailManagementPleskTest extends IntegrationTestCase
             ->shouldReceive('setServer')
             ->withArgs(fn (Server $receivedServer) => $receivedServer->is($hostingDeployment->server));
 
-        $this->mockClient
-            ->shouldReceive('getSiteIdByDomain')
-            ->with(self::MAIL_DOMAIN)
-            ->andReturn(self::SITE_ID);
+        $this->mockClient->shouldReceive('getSiteIdByDomain')->with(self::MAIL_DOMAIN)->andReturn(self::SITE_ID);
 
         $mockEmailResult = self::mock(Result::class);
         $mockEmailResult->shouldReceive('getStatus')->andReturn(Result::STATUS_OK);
 
         $mockEmailCreateResponse = self::mock(EmailAccountCreateResponse::class);
-        $mockEmailCreateResponse
-            ->shouldReceive('getResult')
-            ->andReturn($mockEmailResult);
+        $mockEmailCreateResponse->shouldReceive('getResult')->andReturn($mockEmailResult);
 
         $mockEmailCreateResponse
             ->shouldReceive('getEmailAccounts')
@@ -204,56 +204,48 @@ class MailManagementPleskTest extends IntegrationTestCase
                     mailboxEnabled: true,
                     mailboxUsage: 10,
                     forwarding: false,
-                    forwardDestinationAddresses: null
+                    forwardDestinationAddresses: null,
                 ),
                 new MailAccount(
                     mailName: 'other',
                     mailboxEnabled: true,
                     mailboxUsage: 10,
                     forwarding: false,
-                    forwardDestinationAddresses: null
+                    forwardDestinationAddresses: null,
                 ),
             ]);
 
-        $this->mockClient
-            ->shouldReceive('getExistingEmailAccounts')
-            ->andReturn($mockEmailCreateResponse);
+        $this->mockClient->shouldReceive('getExistingEmailAccounts')->andReturn($mockEmailCreateResponse);
 
         $mockEmailCreateResponse = self::mock(EmailAccountCreateResponse::class);
-        $mockEmailCreateResponse
-            ->shouldReceive('getResult')
-            ->andReturn($mockEmailResult);
+        $mockEmailCreateResponse->shouldReceive('getResult')->andReturn($mockEmailResult);
 
-        $this->mockLogger
-            ->shouldReceive('info')
-            ->with(
-                'Mail createUser - Creating mail user',
-                [
-                    LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
-                    LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                    LoggingContextKeys::PRODUCT_SLUG => $subscription->product->slug,
-                    LoggingContextKeys::PRODUCT_ID => $subscription->product->id,
-                    LoggingContextKeys::DOMAIN_NAME => self::MAIL_DOMAIN,
-                    LoggingContextKeys::META => [
-                        'hostname' => $hostingDeployment->server?->hostname,
-                        'domain' => self::MAIL_DOMAIN,
-                        'domainUsername' => $hostingDeployment->plesk_customer_username,
-                        'mailUser' => $newAccount,
-                        'limit' => 0,
-                        'quota' => 0,
-                        'driver' => ProviderSlug::PLESK->value,
-                    ],
-                ]
-            );
+        $this->mockLogger->shouldReceive('info')->with(
+            'Mail createUser - Creating mail user',
+            [
+                LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
+                LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
+                LoggingContextKeys::PRODUCT_SLUG => $subscription->product->slug,
+                LoggingContextKeys::PRODUCT_ID => $subscription->product->id,
+                LoggingContextKeys::DOMAIN_NAME => self::MAIL_DOMAIN,
+                LoggingContextKeys::META => [
+                    'hostname' => $hostingDeployment->server?->hostname,
+                    'domain' => self::MAIL_DOMAIN,
+                    'domainUsername' => $hostingDeployment->plesk_customer_username,
+                    'mailUser' => $newAccount,
+                    'limit' => 0,
+                    'quota' => 0,
+                    'driver' => ProviderSlug::PLESK->value,
+                ],
+            ],
+        );
 
         $this->mockClient
             ->shouldReceive('createEmailAccount')
             ->with(self::MAIL_DOMAIN, $newAccount, self::NEW_PASSWORD)
             ->andReturn($mockEmailCreateResponse);
 
-        $this->mockLogger
-            ->shouldReceive('notice')
-            ->with('Template not found for slug: email-account-created');
+        $this->mockLogger->shouldReceive('notice')->with('Template not found for slug: email-account-created');
 
         $this->actingAsCustomer($subscription->customer)
             ->post($this->generateRoute('partners.mail.users', ['domain' => self::MAIL_DOMAIN]), [
@@ -287,16 +279,11 @@ class MailManagementPleskTest extends IntegrationTestCase
             ->shouldReceive('setServer')
             ->withArgs(fn (Server $receivedServer) => $receivedServer->is($server));
 
-        $this->mockClient
-            ->shouldReceive('getSiteIdByDomain')
-            ->with(self::MAIL_DOMAIN)
-            ->andReturn(self::SITE_ID);
+        $this->mockClient->shouldReceive('getSiteIdByDomain')->with(self::MAIL_DOMAIN)->andReturn(self::SITE_ID);
 
         $mockEmailResult = self::mock(EmailAccountResult::class);
 
-        $mockEmailResult
-            ->shouldReceive('getStatus')
-            ->andReturn(EmailAccountResult::STATUS_OK);
+        $mockEmailResult->shouldReceive('getStatus')->andReturn(EmailAccountResult::STATUS_OK);
 
         $mockEmailResult
             ->shouldReceive('getEmailAccounts')
@@ -306,36 +293,32 @@ class MailManagementPleskTest extends IntegrationTestCase
                     mailboxEnabled: true,
                     mailboxUsage: 10,
                     forwarding: false,
-                    forwardDestinationAddresses: null
+                    forwardDestinationAddresses: null,
                 ),
                 new MailAccount(
                     mailName: 'other',
                     mailboxEnabled: true,
                     mailboxUsage: 10,
                     forwarding: false,
-                    forwardDestinationAddresses: null
+                    forwardDestinationAddresses: null,
                 ),
             ]);
 
-        $this->mockClient
-            ->shouldReceive('getExistingEmailAccounts')
-            ->andReturn($mockEmailResult);
+        $this->mockClient->shouldReceive('getExistingEmailAccounts')->andReturn($mockEmailResult);
 
-        $this->mockLogger
-            ->shouldReceive('info')
-            ->with('Mail account - Resetting password for mail only user', [
-                LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
-                LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                LoggingContextKeys::PRODUCT_SLUG => $subscription->product->slug,
-                LoggingContextKeys::PRODUCT_ID => $subscription->product->id,
-                LoggingContextKeys::DOMAIN_NAME => self::MAIL_DOMAIN,
-                LoggingContextKeys::META => [
-                    'hostname' => $server->hostname,
-                    'domainUsername' => $hostingDeployment->plesk_customer_username,
-                    'mailUser' => self::MAIL_ACCOUNT,
-                    'quota' => 0,
-                ],
-            ]);
+        $this->mockLogger->shouldReceive('info')->with('Mail account - Resetting password for mail only user', [
+            LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
+            LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
+            LoggingContextKeys::PRODUCT_SLUG => $subscription->product->slug,
+            LoggingContextKeys::PRODUCT_ID => $subscription->product->id,
+            LoggingContextKeys::DOMAIN_NAME => self::MAIL_DOMAIN,
+            LoggingContextKeys::META => [
+                'hostname' => $server->hostname,
+                'domainUsername' => $hostingDeployment->plesk_customer_username,
+                'mailUser' => self::MAIL_ACCOUNT,
+                'quota' => 0,
+            ],
+        ]);
 
         $mockOkResult = new Result();
         $mockOkResult->setStatus(Result::STATUS_OK);
@@ -350,7 +333,10 @@ class MailManagementPleskTest extends IntegrationTestCase
 
         $this->actingAsCustomer($subscription->customer)
             ->post(
-                uri: $this->generateRoute('partners.mail.reset-user', ['domain' => self::MAIL_DOMAIN, 'username' => self::MAIL_ACCOUNT]),
+                uri: $this->generateRoute('partners.mail.reset-user', [
+                    'domain' => self::MAIL_DOMAIN,
+                    'username' => self::MAIL_ACCOUNT,
+                ]),
                 data: ['password' => self::NEW_PASSWORD, 'password_confirmation' => self::NEW_PASSWORD],
             )
             ->assertOk()
@@ -375,16 +361,11 @@ class MailManagementPleskTest extends IntegrationTestCase
             ->shouldReceive('setServer')
             ->withArgs(fn (Server $receivedServer) => $receivedServer->is($server));
 
-        $this->mockClient
-            ->shouldReceive('getSiteIdByDomain')
-            ->with(self::MAIL_DOMAIN)
-            ->andReturn(self::SITE_ID);
+        $this->mockClient->shouldReceive('getSiteIdByDomain')->with(self::MAIL_DOMAIN)->andReturn(self::SITE_ID);
 
         $mockEmailResult = self::mock(EmailAccountResult::class);
 
-        $mockEmailResult
-            ->shouldReceive('getStatus')
-            ->andReturn(EmailAccountResult::STATUS_OK);
+        $mockEmailResult->shouldReceive('getStatus')->andReturn(EmailAccountResult::STATUS_OK);
 
         $mockEmailResult
             ->shouldReceive('getEmailAccounts')
@@ -394,35 +375,31 @@ class MailManagementPleskTest extends IntegrationTestCase
                     mailboxEnabled: true,
                     mailboxUsage: 10,
                     forwarding: false,
-                    forwardDestinationAddresses: null
+                    forwardDestinationAddresses: null,
                 ),
                 new MailAccount(
                     mailName: 'other',
                     mailboxEnabled: true,
                     mailboxUsage: 10,
                     forwarding: false,
-                    forwardDestinationAddresses: null
+                    forwardDestinationAddresses: null,
                 ),
             ]);
 
-        $this->mockClient
-            ->shouldReceive('getExistingEmailAccounts')
-            ->andReturn($mockEmailResult);
+        $this->mockClient->shouldReceive('getExistingEmailAccounts')->andReturn($mockEmailResult);
 
-        $this->mockLogger
-            ->shouldReceive('info')
-            ->with('Deleting mail user account', [
-                LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
-                LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                LoggingContextKeys::PRODUCT_SLUG => $subscription->product->slug,
-                LoggingContextKeys::PRODUCT_ID => $subscription->product->id,
-                LoggingContextKeys::DOMAIN_NAME => self::MAIL_DOMAIN,
-                LoggingContextKeys::META => [
-                    'hostname' => $server->hostname,
-                    'domainUsername' => $hostingDeployment->plesk_customer_username,
-                    'mailUser' => self::MAIL_ACCOUNT,
-                ],
-            ]);
+        $this->mockLogger->shouldReceive('info')->with('Deleting mail user account', [
+            LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
+            LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
+            LoggingContextKeys::PRODUCT_SLUG => $subscription->product->slug,
+            LoggingContextKeys::PRODUCT_ID => $subscription->product->id,
+            LoggingContextKeys::DOMAIN_NAME => self::MAIL_DOMAIN,
+            LoggingContextKeys::META => [
+                'hostname' => $server->hostname,
+                'domainUsername' => $hostingDeployment->plesk_customer_username,
+                'mailUser' => self::MAIL_ACCOUNT,
+            ],
+        ]);
 
         $mockOkResult = new Result();
         $mockOkResult->setStatus(Result::STATUS_OK);
@@ -437,7 +414,10 @@ class MailManagementPleskTest extends IntegrationTestCase
 
         $this->actingAsCustomer($subscription->customer)
             ->delete(
-                uri: $this->generateRoute('partners.mail.delete-user', ['domain' => self::MAIL_DOMAIN, 'username' => self::MAIL_ACCOUNT])
+                uri: $this->generateRoute('partners.mail.delete-user', [
+                    'domain' => self::MAIL_DOMAIN,
+                    'username' => self::MAIL_ACCOUNT,
+                ]),
             )
             ->assertOk()
             ->assertJson(['status' => true]);

@@ -8,8 +8,9 @@ use Illuminate\Config\Repository;
 
 class Configuration implements ConfigurationInterface
 {
-    public function __construct(private readonly Repository $laravelConfig)
-    {
+    public function __construct(
+        private readonly Repository $laravelConfig,
+    ) {
     }
 
     /**

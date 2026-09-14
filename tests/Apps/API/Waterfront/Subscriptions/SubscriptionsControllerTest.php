@@ -44,7 +44,10 @@ class SubscriptionsControllerTest extends IntegrationTestCase
 
         $this->product = new ProductFactory()->for($productGroup)->createOne(['slug' => 'extension_nl']);
 
-        new ProductPriceComponentFactory()->prolongation()->for($this->product)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($this->product)
+            ->createOne();
 
         $this->subscription = new SubscriptionFactory()
             ->for($this->product)
@@ -67,25 +70,26 @@ class SubscriptionsControllerTest extends IntegrationTestCase
                 [
                     'subscriptions' => [
                         [
-                            'type'   => $this->subscription->product->productGroup->slug->value,
-                            'uuid'   => $this->subscription->uuid,
+                            'type' => $this->subscription->product->productGroup->slug->value,
+                            'uuid' => $this->subscription->uuid,
                             'cancel' => true,
                             'cancel_type' => SubscriptionCancelType::CANCEL_OTHER,
                             'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
                         ],
                     ],
-                ]
-            )->assertUnprocessable()
-            ->assertJsonFragment([
-            'errors' => [
-                'subscriptions.0.cancel_type' => [
-                    sprintf(
-                        "Can't cancel subscription with uuid [%s] that should downgrade or be cancelled at end date",
-                        $this->subscription->uuid
-                    ),
                 ],
-            ],
-        ]);
+            )
+            ->assertUnprocessable()
+            ->assertJsonFragment([
+                'errors' => [
+                    'subscriptions.0.cancel_type' => [
+                        sprintf(
+                            "Can't cancel subscription with uuid [%s] that should downgrade or be cancelled at end date",
+                            $this->subscription->uuid,
+                        ),
+                    ],
+                ],
+            ]);
     }
 
     #[Test]
@@ -95,25 +99,26 @@ class SubscriptionsControllerTest extends IntegrationTestCase
             ->postJson(
                 $this->generateRoute('partners.subscriptions.cancel'),
                 [
-                'subscriptions' => [
-                    [
-                        'type'   => $this->subscription->product->productGroup->slug->value,
-                        'uuid'   => $this->subscription->uuid,
-                        'cancel' => true,
-                        'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
-                        'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+                    'subscriptions' => [
+                        [
+                            'type' => $this->subscription->product->productGroup->slug->value,
+                            'uuid' => $this->subscription->uuid,
+                            'cancel' => true,
+                            'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
+                            'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+                        ],
                     ],
                 ],
-            ]
-            )->assertOk()
+            )
+            ->assertOk()
             ->assertJsonFragment([
-                'administrative_status'   => AdministrativeStatus::CANCELED->value,
-                'customer_id'             => $this->customer->id,
-                'domain'                  => $this->subscription->domain,
-                'product_name'            => $this->product->name,
-                'product_slug'            => $this->product->slug,
-                'type'                    => $this->subscription->product->productGroup->slug->value,
-                'uuid'                    => $this->subscription->uuid,
+                'administrative_status' => AdministrativeStatus::CANCELED->value,
+                'customer_id' => $this->customer->id,
+                'domain' => $this->subscription->domain,
+                'product_name' => $this->product->name,
+                'product_slug' => $this->product->slug,
+                'type' => $this->subscription->product->productGroup->slug->value,
+                'uuid' => $this->subscription->uuid,
             ]);
     }
 
@@ -126,17 +131,18 @@ class SubscriptionsControllerTest extends IntegrationTestCase
             ->postJson(
                 $this->generateRoute('partners.subscriptions.cancel'),
                 [
-                'subscriptions' => [
-                    [
-                        'type'   => $this->subscription->product->productGroup->slug->value,
-                        'uuid'   => $this->subscription->uuid,
-                        'cancel' => true,
-                        'cancel_type' => 'incorrect-cancel-type',
-                        'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+                    'subscriptions' => [
+                        [
+                            'type' => $this->subscription->product->productGroup->slug->value,
+                            'uuid' => $this->subscription->uuid,
+                            'cancel' => true,
+                            'cancel_type' => 'incorrect-cancel-type',
+                            'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+                        ],
                     ],
                 ],
-            ]
-            )->assertUnprocessable()
+            )
+            ->assertUnprocessable()
             ->assertJsonFragment([
                 'subscriptions.0.cancel_type' => [
                     $translator->translate('validation.enum', ['attribute' => 'subscriptions.0.cancel_type']),
@@ -149,19 +155,20 @@ class SubscriptionsControllerTest extends IntegrationTestCase
     public function wrongSubscriptionSupplied(): void
     {
         $this->actingAsCustomer($this->customer)
-               ->postJson(
-                   $this->generateRoute('partners.subscriptions.cancel'),
-                   [
-                   'subscriptions' => [
-                       [
-                           'type'   => 'extension',
-                           'uuid'   => 'wrong-uuid',
-                           'cancel' => true,
-                           'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE->value,
-                       ],
-                   ],
-            ]
-               )->assertUnprocessable();
+            ->postJson(
+                $this->generateRoute('partners.subscriptions.cancel'),
+                [
+                    'subscriptions' => [
+                        [
+                            'type' => 'extension',
+                            'uuid' => 'wrong-uuid',
+                            'cancel' => true,
+                            'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE->value,
+                        ],
+                    ],
+                ],
+            )
+            ->assertUnprocessable();
     }
 
     #[Test]
@@ -169,23 +176,49 @@ class SubscriptionsControllerTest extends IntegrationTestCase
     {
         $group = new ProductGroupFactory()->hosting()->createOne();
         $product = new ProductFactory()->for($group)->createOne(['name' => 'nee']);
-        new ProductPriceComponentFactory()->for($product)->registration()->createOne();
-        new ProductPriceComponentFactory()->for($product)->prolongation()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne();
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne();
 
-        $noServicePlusSub = new SubscriptionFactory()->for($this->customer)->for($product)->createOne(['domain' => 'geenserviceplus']);
-        $parent = new SubscriptionFactory()->for($this->customer)->for($product)->createOne(['domain' => 'geenservicesplusmaarchildwel']);
+        $noServicePlusSub = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($product)
+            ->createOne(['domain' => 'geenserviceplus']);
+        $parent = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($product)
+            ->createOne(['domain' => 'geenservicesplusmaarchildwel']);
 
         $productWithServicePlus = new ProductFactory()->for($group)->createOne(['name' => 'groot']);
         ProductSpecFactory::new()->for($productWithServicePlus)->createOne([
             'name' => ProductSpecName::HAS_SERVICE_PLUS,
             'value' => 'true',
         ]);
-        new ProductPriceComponentFactory()->for($productWithServicePlus)->registration()->createOne();
-        new ProductPriceComponentFactory()->for($productWithServicePlus)->prolongation()->createOne();
-        new SubscriptionFactory()->for($this->customer)->for($productWithServicePlus)->createOne(['domain' => 'hallo']);
-        new SubscriptionFactory()->for($this->customer)->for($productWithServicePlus)->createOne(['domain' => 'child', 'parent_subscription_id' => $parent->id]);
+        new ProductPriceComponentFactory()
+            ->for($productWithServicePlus)
+            ->registration()
+            ->createOne();
+        new ProductPriceComponentFactory()
+            ->for($productWithServicePlus)
+            ->prolongation()
+            ->createOne();
+        new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($productWithServicePlus)
+            ->createOne(['domain' => 'hallo']);
+        new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($productWithServicePlus)
+            ->createOne(['domain' => 'child', 'parent_subscription_id' => $parent->id]);
 
         $this->actingAsCustomer($this->customer)
-            ->getJson($this->generateRoute('partners.subscriptions.service-plus.eligible'))->assertOk()->assertJsonFragment(['domain' => $noServicePlusSub->domain]);
+            ->getJson($this->generateRoute('partners.subscriptions.service-plus.eligible'))
+            ->assertOk()
+            ->assertJsonFragment(['domain' => $noServicePlusSub->domain]);
     }
 }

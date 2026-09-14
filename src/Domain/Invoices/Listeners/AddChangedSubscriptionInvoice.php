@@ -26,7 +26,7 @@ class AddChangedSubscriptionInvoice implements ShouldQueue
 
     public function __construct(
         private readonly InvoiceRepository $invoiceRepository,
-        private readonly Dispatcher $dispatcher
+        private readonly Dispatcher $dispatcher,
     ) {
     }
 
@@ -39,7 +39,7 @@ class AddChangedSubscriptionInvoice implements ShouldQueue
             subscription: $event->subscription,
             charge: $event->charge,
             changeType: $event->changeType,
-            startDate: CarbonImmutable::now()
+            startDate: CarbonImmutable::now(),
         );
 
         /**
@@ -48,7 +48,7 @@ class AddChangedSubscriptionInvoice implements ShouldQueue
          */
         if ($event->changeType === ProductChangeType::UPGRADE) {
             $this->dispatcher->dispatch(
-                new InvoiceCreatedEvent($invoice, false)
+                new InvoiceCreatedEvent($invoice, false),
             );
         }
     }

@@ -44,7 +44,10 @@ class ManualMigationControllerTest extends IntegrationTestCase
         ];
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.manual-migration.migrate', ['customer' => $customer->customer_number]), $request)->assertOk();
+            ->postJson($this->generateRoute('admin.manual-migration.migrate', [
+                'customer' => $customer->customer_number,
+            ]), $request)
+            ->assertOk();
     }
 
     #[Test]
@@ -94,9 +97,15 @@ class ManualMigationControllerTest extends IntegrationTestCase
         ];
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.manual-migration.migrate', ['customer' => $customer->customer_number]), $daRequest)->assertOk();
+            ->postJson($this->generateRoute('admin.manual-migration.migrate', [
+                'customer' => $customer->customer_number,
+            ]), $daRequest)
+            ->assertOk();
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.manual-migration.migrate', ['customer' => $customer->customer_number]), $pleskRequest)->assertOk();
+            ->postJson($this->generateRoute('admin.manual-migration.migrate', [
+                'customer' => $customer->customer_number,
+            ]), $pleskRequest)
+            ->assertOk();
     }
 }

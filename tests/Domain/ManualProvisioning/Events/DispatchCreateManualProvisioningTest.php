@@ -22,9 +22,11 @@ class DispatchCreateManualProvisioningTest extends IntegrationTestCase
     #[Test]
     public function dispatchCreateManualProvisioning(): void
     {
-        $productGroup = new ProductGroupFactory()->manualSubscription()->createOne([
-            'slug' => ProductGroupType::MANUAL_SUBSCRIPTION,
-        ]);
+        $productGroup = new ProductGroupFactory()
+            ->manualSubscription()
+            ->createOne([
+                'slug' => ProductGroupType::MANUAL_SUBSCRIPTION,
+            ]);
 
         $product = new ProductFactory()->createOne([
             'slug' => 'manual-testproduct',
@@ -38,11 +40,12 @@ class DispatchCreateManualProvisioningTest extends IntegrationTestCase
 
         Event::fake([DispatchCreateManualProvisioning::class]);
 
-        self::resolve(Dispatcher::class)->dispatch(
-            new DispatchCreateManualProvisioning(
-                $subscription
-            )
-        );
+        self::resolve(Dispatcher::class)
+            ->dispatch(
+                new DispatchCreateManualProvisioning(
+                    $subscription,
+                ),
+            );
 
         Event::assertDispatched(fn (DispatchCreateManualProvisioning $event) => $event->subscription === $subscription);
     }

@@ -13,8 +13,9 @@ use Waterfront\Infra\Authentication\AuthorizationChecker;
 
 class RequireCompassAccess
 {
-    public function __construct(private readonly AuthorizationChecker $authorizationChecker)
-    {
+    public function __construct(
+        private readonly AuthorizationChecker $authorizationChecker,
+    ) {
     }
 
     /**

@@ -86,13 +86,13 @@ class NovaCustomerWalletDownloadOverviewCsvActionTest extends IntegrationTestCas
         $refDate = new DateTimeImmutable('2023-01-15');
         $exportAll = false;
         $expectedCSV = <<<CSV
-customer_number,bank_account_name,bank_account_number,amount,refund_requested_at,downloaded_at
-{$this->wallet1->customer->customer_number},testwallet1,test,100,2023-01-05,2023-01-15
-{$this->wallet2->customer->customer_number},testwallet2,test,200,2023-01-10,
-{$this->wallet3->customer->customer_number},,,300,,
-{$this->wallet4->customer->customer_number},,,400,,
+        customer_number,bank_account_name,bank_account_number,amount,refund_requested_at,downloaded_at
+        {$this->wallet1->customer->customer_number},testwallet1,test,100,2023-01-05,2023-01-15
+        {$this->wallet2->customer->customer_number},testwallet2,test,200,2023-01-10,
+        {$this->wallet3->customer->customer_number},,,300,,
+        {$this->wallet4->customer->customer_number},,,400,,
 
-CSV;
+        CSV;
 
         $this->setUpFilesystemMock($refDate, $expectedCSV);
 
@@ -103,8 +103,8 @@ CSV;
                     'ref_date' => $refDate->format(DateTimeFormat::DATE),
                     'export_all' => $exportAll,
                 ]),
-                new Collection([])
-            )
+                new Collection([]),
+            ),
         );
 
         self::assertArrayHasKey('download', $result);
@@ -116,20 +116,22 @@ CSV;
         $this->app->instance(Filesystem::class, $this->filesystem);
 
         $fileManager = self::createStub(FilesystemManager::class);
-        $fileManager
-            ->method('disk')
-            ->willReturn($this->filesystem);
+        $fileManager->method('disk')->willReturn($this->filesystem);
         $this->app->instance(FilesystemManager::class, $fileManager);
 
         $this->novaAction = self::resolve(NovaCustomerWalletDownloadOverviewCsvAction::class);
 
-        $this->filesystem->expects(self::once())
+        $this->filesystem
+            ->expects(self::once())
             ->method('put')
             ->with(
                 self::stringStartsWith(
-                    sprintf('exports/customer-wallet-overview-ref-date-%s.csv', $refDate->format(DateTimeFormat::FILENAME))
+                    sprintf(
+                        'exports/customer-wallet-overview-ref-date-%s.csv',
+                        $refDate->format(DateTimeFormat::FILENAME),
+                    ),
                 ),
-                self::equalTo($expectedCSV)
+                self::equalTo($expectedCSV),
             );
     }
 }

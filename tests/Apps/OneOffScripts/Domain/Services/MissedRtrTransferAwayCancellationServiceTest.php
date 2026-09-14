@@ -120,9 +120,7 @@ class MissedRtrTransferAwayCancellationServiceTest extends IntegrationTestCase
                 'processId' => self::PROCESS_ID,
             ]));
 
-        $this->cancelSubscriptionsAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->cancelSubscriptionsAction->expects(self::never())->method('execute');
 
         $processed = $this->missedRtrTransferAwayCancellationService->handle(
             startDate: $this->startDate,
@@ -154,13 +152,9 @@ class MissedRtrTransferAwayCancellationServiceTest extends IntegrationTestCase
             'created_at' => $this->startDate->addDay(),
         ]);
 
-        $this->rtrService
-            ->expects(self::never())
-            ->method('transferInfo');
+        $this->rtrService->expects(self::never())->method('transferInfo');
 
-        $this->cancelSubscriptionsAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->cancelSubscriptionsAction->expects(self::never())->method('execute');
 
         $processed = $this->missedRtrTransferAwayCancellationService->handle(
             startDate: $this->startDate,
@@ -216,12 +210,15 @@ class MissedRtrTransferAwayCancellationServiceTest extends IntegrationTestCase
             ->method('execute')
             ->with(self::callback(function (Cancellation $cancellation) use ($rtrLogCreatedAt): bool {
                 self::assertSame([$this->subscription->id], $cancellation->getSubscriptions()->pluck('id')->all());
-                self::assertSame(SubscriptionCancelReason::REASON_DOMAIN_TRANSFERRED_AWAY, $cancellation->getCancelReason());
+                self::assertSame(
+                    SubscriptionCancelReason::REASON_DOMAIN_TRANSFERRED_AWAY,
+                    $cancellation->getCancelReason(),
+                );
                 self::assertNull($cancellation->getCancelReasonOther());
                 self::assertSame(SubscriptionCancelType::CANCEL_OTHER, $cancellation->getCancelType());
                 self::assertSame(
                     $rtrLogCreatedAt->toDateTimeString(),
-                    $cancellation->getSelectedCancellationEndDate()?->toDateTimeString()
+                    $cancellation->getSelectedCancellationEndDate()?->toDateTimeString(),
                 );
                 self::assertFalse($cancellation->shouldCreditRelatedInvoices());
 
@@ -264,9 +261,7 @@ class MissedRtrTransferAwayCancellationServiceTest extends IntegrationTestCase
             ->with(self::DOMAIN, self::PROCESS_ID)
             ->willThrowException(new RealtimeRegisterClientException('RTR unavailable'));
 
-        $this->cancelSubscriptionsAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->cancelSubscriptionsAction->expects(self::never())->method('execute');
 
         $processed = $this->missedRtrTransferAwayCancellationService->handle(
             startDate: $this->startDate,
@@ -313,9 +308,7 @@ class MissedRtrTransferAwayCancellationServiceTest extends IntegrationTestCase
                 'processId' => self::PROCESS_ID,
             ]));
 
-        $this->cancelSubscriptionsAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->cancelSubscriptionsAction->expects(self::never())->method('execute');
 
         $processed = $this->missedRtrTransferAwayCancellationService->handle(
             startDate: $this->startDate,
@@ -353,14 +346,17 @@ class MissedRtrTransferAwayCancellationServiceTest extends IntegrationTestCase
                 self::callback(function (array $context) use ($rtrLog): bool {
                     self::assertSame(
                         NovaCancelMissedRtrTransferAwaySubscriptionsAction::SLUG,
-                        $context[LoggingContextKeys::ONE_OFF_SCRIPT]
+                        $context[LoggingContextKeys::ONE_OFF_SCRIPT],
                     );
                     self::assertArrayNotHasKey(LoggingContextKeys::DOMAIN_NAME, $context);
-                    self::assertSame([
-                        'dry_run' => false,
-                        'rtr_response_log_id' => $rtrLog->id,
-                        'notification_id' => 987,
-                    ], $context[LoggingContextKeys::META]);
+                    self::assertSame(
+                        [
+                            'dry_run' => false,
+                            'rtr_response_log_id' => $rtrLog->id,
+                            'notification_id' => 987,
+                        ],
+                        $context[LoggingContextKeys::META],
+                    );
 
                     return true;
                 }),
@@ -373,13 +369,9 @@ class MissedRtrTransferAwayCancellationServiceTest extends IntegrationTestCase
             logger: $logger,
         );
 
-        $this->rtrService
-            ->expects(self::never())
-            ->method('transferInfo');
+        $this->rtrService->expects(self::never())->method('transferInfo');
 
-        $this->cancelSubscriptionsAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->cancelSubscriptionsAction->expects(self::never())->method('execute');
 
         $processed = $this->missedRtrTransferAwayCancellationService->handle(
             startDate: $this->startDate,
@@ -414,14 +406,17 @@ class MissedRtrTransferAwayCancellationServiceTest extends IntegrationTestCase
                 self::callback(function (array $context) use ($rtrLog): bool {
                     self::assertSame(
                         NovaCancelMissedRtrTransferAwaySubscriptionsAction::SLUG,
-                        $context[LoggingContextKeys::ONE_OFF_SCRIPT]
+                        $context[LoggingContextKeys::ONE_OFF_SCRIPT],
                     );
                     self::assertSame(self::DOMAIN, $context[LoggingContextKeys::DOMAIN_NAME]);
-                    self::assertSame([
-                        'dry_run' => false,
-                        'rtr_response_log_id' => $rtrLog->id,
-                        'notification_id' => 988,
-                    ], $context[LoggingContextKeys::META]);
+                    self::assertSame(
+                        [
+                            'dry_run' => false,
+                            'rtr_response_log_id' => $rtrLog->id,
+                            'notification_id' => 988,
+                        ],
+                        $context[LoggingContextKeys::META],
+                    );
 
                     return true;
                 }),
@@ -434,13 +429,9 @@ class MissedRtrTransferAwayCancellationServiceTest extends IntegrationTestCase
             logger: $logger,
         );
 
-        $this->rtrService
-            ->expects(self::never())
-            ->method('transferInfo');
+        $this->rtrService->expects(self::never())->method('transferInfo');
 
-        $this->cancelSubscriptionsAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->cancelSubscriptionsAction->expects(self::never())->method('execute');
 
         $processed = $this->missedRtrTransferAwayCancellationService->handle(
             startDate: $this->startDate,
@@ -485,9 +476,7 @@ class MissedRtrTransferAwayCancellationServiceTest extends IntegrationTestCase
                 'processId' => self::PROCESS_ID,
             ]));
 
-        $this->cancelSubscriptionsAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->cancelSubscriptionsAction->expects(self::never())->method('execute');
 
         $processed = $this->missedRtrTransferAwayCancellationService->handle(
             startDate: $this->startDate,
@@ -523,13 +512,9 @@ class MissedRtrTransferAwayCancellationServiceTest extends IntegrationTestCase
             'created_at' => $this->startDate->addDay(),
         ]);
 
-        $this->rtrService
-            ->expects(self::never())
-            ->method('transferInfo');
+        $this->rtrService->expects(self::never())->method('transferInfo');
 
-        $this->cancelSubscriptionsAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->cancelSubscriptionsAction->expects(self::never())->method('execute');
 
         $processed = $this->missedRtrTransferAwayCancellationService->handle(
             startDate: $this->startDate,

@@ -53,11 +53,13 @@ class RtrServiceTest extends IntegrationTestCase
             'product_group_id' => $groupExtension->id,
         ]);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain' => $this->domainNl,
-            'customer_id' => $customer->id,
-            'product_uuid' => $productNl->uuid,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => $this->domainNl,
+                'customer_id' => $customer->id,
+                'product_uuid' => $productNl->uuid,
+            ]);
 
         $this->domainDeployment = new DomainDeploymentFactory()->createOne([
             'provider_id' => $provider->id,
@@ -89,7 +91,10 @@ class RtrServiceTest extends IntegrationTestCase
     {
         $realtimeRegister = $this->setUpRtrClient();
 
-        $nameservers = $this->rtrService->setClient($realtimeRegister)->nameservers($this->domainDeployment)->getNameServers();
+        $nameservers = $this->rtrService
+            ->setClient($realtimeRegister)
+            ->nameservers($this->domainDeployment)
+            ->getNameServers();
         self::assertNotEmpty($nameservers, 'Failed asserting that domain has nameservers');
     }
 
@@ -119,26 +124,29 @@ class RtrServiceTest extends IntegrationTestCase
 
         self::assertTrue(
             $retrieveResult->getIsDefaultNameservers(),
-            'Default nameserver should be set. Did you set the PRIMARY_NAMESERVER=ns01.example.com in your test env?'
+            'Default nameserver should be set. Did you set the PRIMARY_NAMESERVER=ns01.example.com in your test env?',
         );
     }
 
     #[Test]
     public function retrieveDnssecKeys(): void
     {
-        $result = $this->rtrService->setClient($this->setUpRtrClient())
-            ->retrieveDnssecKeys($this->domainNl);
+        $result = $this->rtrService->setClient($this->setUpRtrClient())->retrieveDnssecKeys($this->domainNl);
 
-        self::assertSame([
-            0 => include __DIR__ . '/data/key_data_valid.php',
-            1 => include __DIR__ . '/data/key_data_valid.php',
-        ], $result);
+        self::assertSame(
+            [
+                0 => include __DIR__ . '/data/key_data_valid.php',
+                1 => include __DIR__ . '/data/key_data_valid.php',
+            ],
+            $result,
+        );
     }
 
     private function setUpRtrClient(): RealtimeRegister
     {
         $key = $this->getConfiguration()->getAsString('realtimeregisterclient.connection.api_key');
         $url = $this->getConfiguration()->getAsString('realtimeregisterclient.connection.api_url');
+
         return new RealtimeRegister($key, $url);
     }
 }

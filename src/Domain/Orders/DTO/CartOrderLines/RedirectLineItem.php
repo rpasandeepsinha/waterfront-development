@@ -21,7 +21,6 @@ class RedirectLineItem extends LineItem
         ?ProductPriceType $status,
         ?CartOrderSubscription $children,
         ?array $oneTimeServices,
-        ?string $experimentSlug,
     ) {
         parent::__construct(
             $uuid,
@@ -34,7 +33,6 @@ class RedirectLineItem extends LineItem
             $status,
             $children,
             $oneTimeServices,
-            $experimentSlug,
         );
     }
 }

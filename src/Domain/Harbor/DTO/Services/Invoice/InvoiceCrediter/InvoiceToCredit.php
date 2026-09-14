@@ -60,19 +60,18 @@ class InvoiceToCredit
         // And because of that the checks can be skipped.
         if ($amountToCredit === null) {
             $this->amountToCredit = $this->invoice->net_price;
+
             return;
         }
 
         // Amount must be same polarity as the invoice line.
-        if (
-            ($amountToCredit ^ $this->invoice->net_price) < 0
-        ) {
+        if (($amountToCredit ^ $this->invoice->net_price) < 0) {
             $exception = new InvalidArgumentException(sprintf(
                 '%s with Invoice ID %d has opposite polarity set as amount to credit %d, invoice has amount %d',
                 self::class,
                 $this->invoice->id,
                 $amountToCredit,
-                $this->invoice->net_price
+                $this->invoice->net_price,
             ));
 
             Log::error($exception->getMessage());
@@ -88,7 +87,7 @@ class InvoiceToCredit
                 self::class,
                 $this->invoice->id,
                 $amountToCredit,
-                $this->invoice->net_price
+                $this->invoice->net_price,
             ));
 
             Log::error($exception->getMessage());

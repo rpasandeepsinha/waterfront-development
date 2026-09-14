@@ -46,7 +46,9 @@ class ResourceRecordSet
      */
     public function isEqual(string $name, string $type): bool
     {
-        return strcasecmp(rtrim($name, '.'), rtrim($this->name, '.')) === 0
-            && strcasecmp(rtrim($type, '.'), rtrim($this->type, '.')) === 0;
+        return (
+            strcasecmp(rtrim($name, '.'), rtrim($this->name, '.')) === 0
+            && strcasecmp(rtrim($type, '.'), rtrim($this->type, '.')) === 0
+        );
     }
 }

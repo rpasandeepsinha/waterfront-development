@@ -32,17 +32,18 @@ class VpsCreationListenerTest extends IntegrationTestCase
             ->createOne();
 
         $subscriptionRepository = self::createMock(SubscriptionRepository::class);
-        $subscriptionRepository->expects(self::once())
+        $subscriptionRepository
+            ->expects(self::once())
             ->method('getByUuid')
             ->with($vpsSubscription->uuid)
             ->willReturn($vpsSubscription);
 
         $mockVpsService = self::createMock(VpsService::class);
-        $mockVpsService->expects(self::once())
-            ->method('create');
+        $mockVpsService->expects(self::once())->method('create');
 
         $mockLogger = self::createMock(LoggerInterface::class);
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Create VPS',
@@ -50,7 +51,7 @@ class VpsCreationListenerTest extends IntegrationTestCase
                     LoggingContextKeys::SUBSCRIPTION_UUID => $vpsSubscription->uuid,
                     LoggingContextKeys::PROVISIONING_TYPE => ProductGroupType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => 'cloudstack',
-                ]
+                ],
             );
 
         $createEvent = new CreateVps(
@@ -74,7 +75,8 @@ class VpsCreationListenerTest extends IntegrationTestCase
             ->createOne(['technical_status' => TechnicalStatus::PENDING->value]);
 
         $subscriptionRepository = self::createMock(SubscriptionRepository::class);
-        $subscriptionRepository->expects(self::once())
+        $subscriptionRepository
+            ->expects(self::once())
             ->method('getByUuid')
             ->with($vpsSubscription->uuid)
             ->willReturn($vpsSubscription);
@@ -83,7 +85,8 @@ class VpsCreationListenerTest extends IntegrationTestCase
         $mockVpsService->expects(self::never())->method('create');
 
         $mockLogger = self::createMock(LoggerInterface::class);
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Failed to create VPS',
@@ -92,7 +95,7 @@ class VpsCreationListenerTest extends IntegrationTestCase
                     LoggingContextKeys::PROVISIONING_TYPE => ProductGroupType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => 'cloudstack',
                     LoggingContextKeys::EXCEPTION => new Exception('Test exception'),
-                ]
+                ],
             );
 
         $createEvent = new CreateVps(
@@ -120,7 +123,8 @@ class VpsCreationListenerTest extends IntegrationTestCase
             ->createOne(['technical_status' => TechnicalStatus::PENDING->value]);
 
         $subscriptionRepository = self::createMock(SubscriptionRepository::class);
-        $subscriptionRepository->expects(self::once())
+        $subscriptionRepository
+            ->expects(self::once())
             ->method('getByUuid')
             ->with($vpsSubscription->uuid)
             ->willReturn(null);
@@ -131,7 +135,8 @@ class VpsCreationListenerTest extends IntegrationTestCase
 
         $mockLogger = self::mock(LoggerInterface::class);
 
-        $mockLogger->shouldReceive('error')
+        $mockLogger
+            ->shouldReceive('error')
             ->once()
             ->with(
                 'Failed to create VPS',
@@ -140,10 +145,11 @@ class VpsCreationListenerTest extends IntegrationTestCase
                     LoggingContextKeys::PROVISIONING_TYPE => ProductGroupType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => 'cloudstack',
                     LoggingContextKeys::EXCEPTION => $expectedException,
-                ]
+                ],
             );
 
-        $mockLogger->shouldReceive('error')
+        $mockLogger
+            ->shouldReceive('error')
             ->once()
             ->with(
                 'Failed to update VPS subscriptions status, subscription not found with uuid {subscription.uuid}',

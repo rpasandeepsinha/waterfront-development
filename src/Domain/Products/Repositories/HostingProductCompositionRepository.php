@@ -12,8 +12,12 @@ class HostingProductCompositionRepository
     /** @return Collection<int, HostingProductComposition> */
     public function findAllHostingProductCompositions(): Collection
     {
-        return HostingProductComposition::query()
-            ->with(['composedProduct', 'wpComposedProduct', 'mailOnlyProduct', 'webOnlyProduct', 'wpWebOnlyProduct'])
-            ->get();
+        return HostingProductComposition::query()->with([
+            'composedProduct',
+            'wpComposedProduct',
+            'mailOnlyProduct',
+            'webOnlyProduct',
+            'wpWebOnlyProduct',
+        ])->get();
     }
 }

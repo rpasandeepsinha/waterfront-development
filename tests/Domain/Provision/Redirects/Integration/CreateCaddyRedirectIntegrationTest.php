@@ -125,7 +125,7 @@ class CreateCaddyRedirectIntegrationTest extends IntegrationTestCase
                 $redirectType->value,
                 $destination,
             ),
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         self::assertSame($context->toString(), $savedRequest->tag->toString());
@@ -183,7 +183,7 @@ class CreateCaddyRedirectIntegrationTest extends IntegrationTestCase
                 $destination,
                 CaddyRedirectType::MOVED_PERMANENTLY,
                 null,
-                null
+                null,
             )
             ->willReturn($caddyId);
 
@@ -243,10 +243,7 @@ class CreateCaddyRedirectIntegrationTest extends IntegrationTestCase
         );
 
         $requestException = self::createStub(RequestException::class);
-        $this->caddyClient
-            ->expects(self::once())
-            ->method('createRedirect')
-            ->willThrowException($requestException);
+        $this->caddyClient->expects(self::once())->method('createRedirect')->willThrowException($requestException);
 
         self::assertDatabaseCount(ProvisioningResult::class, 0);
         self::assertDatabaseCount(ProvisioningRequest::class, 0);
@@ -278,7 +275,7 @@ class CreateCaddyRedirectIntegrationTest extends IntegrationTestCase
                 $redirectType->value,
                 $destination,
             ),
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         self::assertSame($context->toString(), $savedRequest->context_uuid?->toString());

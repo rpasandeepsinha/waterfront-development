@@ -27,9 +27,7 @@ class ProvisionRetryController
         try {
             $result = $this->provisionRetryService->retry(
                 retryOf: Uuid::fromString($request->string('retryOf')->toString()),
-                retryRequester: $this->authenticationManager
-                    ->getAuthenticatedEmployee()
-                    ->getAuthIdentifier(),
+                retryRequester: $this->authenticationManager->getAuthenticatedEmployee()->getAuthIdentifier(),
                 retryData: $request->array('retryData'),
             );
         } catch (RetryOriginNotFoundException|SerializerExceptionInterface $exception) {

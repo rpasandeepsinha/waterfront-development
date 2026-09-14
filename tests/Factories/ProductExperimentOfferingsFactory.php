@@ -29,7 +29,7 @@ class ProductExperimentOfferingsFactory extends Factory
     public function offeringFirstProduct(Product $product, bool $free): self
     {
         return $this->state(fn (): array => [
-            'product_1_id'   => $product->id,
+            'product_1_id' => $product->id,
             'product_1_free' => $free,
         ]);
     }
@@ -37,7 +37,7 @@ class ProductExperimentOfferingsFactory extends Factory
     public function offeringSecondProduct(Product $product, bool $free): self
     {
         return $this->state(fn (): array => [
-            'product_2_id'   => $product->id,
+            'product_2_id' => $product->id,
             'product_2_free' => $free,
         ]);
     }

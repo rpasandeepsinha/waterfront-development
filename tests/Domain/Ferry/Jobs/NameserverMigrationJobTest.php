@@ -64,10 +64,7 @@ class NameserverMigrationJobTest extends IntegrationTestCase
         $extensionSubscription->migratedSubscriptions()->attach($migratedSubscription);
         $extensionSubscription->save();
 
-        $product = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->dns())
-            ->freeDns()
-            ->createOne();
+        $product = ProductFactory::new()->for(ProductGroupFactory::new()->dns())->freeDns()->createOne();
         $dnsSubscription = SubscriptionFactory::new()
             ->administrativeStatusActive()
             ->forDomain(self::TEST_DOMAIN)
@@ -102,34 +99,40 @@ class NameserverMigrationJobTest extends IntegrationTestCase
 
         $rtrRequests = [];
 
-        $rtrSdk = MockedClientFactory::makeSdkWithMultipleReponses([
-            new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasModernInternalNameservers
-            new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasLegacyInternalNameservers
-            new Response(200, []),
-        ], static function (RequestInterface $request) use (&$rtrRequests): void {
-            $rtrRequests[] = $request;
-        });
+        $rtrSdk = MockedClientFactory::makeSdkWithMultipleReponses(
+            [
+                new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasModernInternalNameservers
+                new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasLegacyInternalNameservers
+                new Response(200, []),
+            ],
+            static function (RequestInterface $request) use (&$rtrRequests): void {
+                $rtrRequests[] = $request;
+            },
+        );
 
         $this->app->instance(RealtimeRegister::class, $rtrSdk);
 
         $pdnsRequests = [];
 
-        $pdnsMock = $this->makePdnsWithMultipleResponses([
-            // get DNS zone
-            new Response(
-                200,
-                [],
-                $this->getMockedZoneResponseBody(self::TEST_DOMAIN)
-            ),
-            // Force an error to trigger the handle.
-            new Response(
-                500,
-                [],
-                $this->getMockedZoneResponseBody(self::TEST_DOMAIN)
-            ),
-        ], static function (RequestInterface $request) use (&$pdnsRequests): void {
-            $pdnsRequests[] = $request;
-        });
+        $pdnsMock = $this->makePdnsWithMultipleResponses(
+            [
+                // get DNS zone
+                new Response(
+                    200,
+                    [],
+                    $this->getMockedZoneResponseBody(self::TEST_DOMAIN),
+                ),
+                // Force an error to trigger the handle.
+                new Response(
+                    500,
+                    [],
+                    $this->getMockedZoneResponseBody(self::TEST_DOMAIN),
+                ),
+            ],
+            static function (RequestInterface $request) use (&$pdnsRequests): void {
+                $pdnsRequests[] = $request;
+            },
+        );
 
         $this->pdns($pdnsMock);
 
@@ -161,10 +164,7 @@ class NameserverMigrationJobTest extends IntegrationTestCase
             'technical_status' => DomainStatus::ACTIVE->value,
         ]);
 
-        $product = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->dns())
-            ->freeDns()
-            ->createOne();
+        $product = ProductFactory::new()->for(ProductGroupFactory::new()->dns())->freeDns()->createOne();
         $dnsSubscription = SubscriptionFactory::new()
             ->administrativeStatusActive()
             ->forDomain(self::TEST_DOMAIN)
@@ -206,34 +206,40 @@ class NameserverMigrationJobTest extends IntegrationTestCase
 
         $rtrRequests = [];
 
-        $rtrSdk = MockedClientFactory::makeSdkWithMultipleReponses([
-            new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasModernInternalNameservers
-            new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasLegacyInternalNameservers
-            new Response(200, []),
-        ], static function (RequestInterface $request) use (&$rtrRequests): void {
-            $rtrRequests[] = $request;
-        });
+        $rtrSdk = MockedClientFactory::makeSdkWithMultipleReponses(
+            [
+                new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasModernInternalNameservers
+                new Response(200, [], json_encode($domainDetailsResponse, JSON_THROW_ON_ERROR)), // hasLegacyInternalNameservers
+                new Response(200, []),
+            ],
+            static function (RequestInterface $request) use (&$rtrRequests): void {
+                $rtrRequests[] = $request;
+            },
+        );
 
         $this->app->instance(RealtimeRegister::class, $rtrSdk);
 
         $pdnsRequests = [];
 
-        $pdnsMock = $this->makePdnsWithMultipleResponses([
-            // get DNS zone
-            new Response(
-                200,
-                [],
-                $this->getMockedZoneResponseBody(self::TEST_DOMAIN)
-            ),
-            // Force an error to trigger the handle.
-            new Response(
-                500,
-                [],
-                $this->getMockedZoneResponseBody(self::TEST_DOMAIN)
-            ),
-        ], static function (RequestInterface $request) use (&$pdnsRequests): void {
-            $pdnsRequests[] = $request;
-        });
+        $pdnsMock = $this->makePdnsWithMultipleResponses(
+            [
+                // get DNS zone
+                new Response(
+                    200,
+                    [],
+                    $this->getMockedZoneResponseBody(self::TEST_DOMAIN),
+                ),
+                // Force an error to trigger the handle.
+                new Response(
+                    500,
+                    [],
+                    $this->getMockedZoneResponseBody(self::TEST_DOMAIN),
+                ),
+            ],
+            static function (RequestInterface $request) use (&$pdnsRequests): void {
+                $pdnsRequests[] = $request;
+            },
+        );
 
         $this->pdns($pdnsMock);
 
@@ -289,10 +295,7 @@ class NameserverMigrationJobTest extends IntegrationTestCase
         $migrationCustomer->migratedSubscriptions()->attach($migratedSubscription);
         $migrationCustomer->customers()->attach($customer);
 
-        DomainDeploymentFactory::new()
-            ->for($extensionSubscription)
-            ->withRtrProvider()
-            ->createOne();
+        DomainDeploymentFactory::new()->for($extensionSubscription)->withRtrProvider()->createOne();
 
         $nameserversActionMock = self::createMock(AssignNameserversToDomainAction::class);
         $invokedCount = $shouldResetDnssec ? self::exactly(2) : self::once();
@@ -363,10 +366,7 @@ class NameserverMigrationJobTest extends IntegrationTestCase
             ->forDomain(self::TEST_DOMAIN)
             ->createOne();
 
-        DomainDeploymentFactory::new()
-            ->for($extensionSubscription)
-            ->withRtrProvider()
-            ->createOne();
+        DomainDeploymentFactory::new()->for($extensionSubscription)->withRtrProvider()->createOne();
 
         $dnsSubscriptionCom = SubscriptionFactory::new()
             ->administrativeStatusActive()
@@ -380,11 +380,9 @@ class NameserverMigrationJobTest extends IntegrationTestCase
         $nameserver1 = new DnsNameserverFactory()->for($region)->createOne(['nameserver' => 'ns1.testing.test']);
         $nameserver2 = new DnsNameserverFactory()->for($region)->createOne(['nameserver' => 'ns2.testing.test']);
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->for($dnsSubscriptionCom)
-            ->createOne([
-                'nameserver_type' => NameserverType::INTERNAL,
-            ]);
+        $dnsDeployment = DnsDeploymentFactory::new()->for($dnsSubscriptionCom)->createOne([
+            'nameserver_type' => NameserverType::INTERNAL,
+        ]);
 
         $dnsDeployment->dnsNameservers()->attach([$nameserver1, $nameserver2]);
 

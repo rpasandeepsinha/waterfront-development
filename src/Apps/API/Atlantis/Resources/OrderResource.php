@@ -21,15 +21,15 @@ class OrderResource extends JsonResource
         $this->loadMissing('product', 'product.productGroup');
 
         return [
-            'id'           => $this->id,
-            'domain'       => $this->domain,
-            'gross_price'  => $this->gross_price,
-            'net_price'    => $this->net_price,
+            'id' => $this->id,
+            'domain' => $this->domain,
+            'gross_price' => $this->gross_price,
+            'net_price' => $this->net_price,
             'product_name' => $this->product_name,
             'contract_period' => $this->contract_period,
             'billing_period' => $this->billing_period,
-            'status'       => $this->status,
-            'type'         => $this->product?->productGroup?->slug,
+            'status' => $this->status,
+            'type' => $this->product?->productGroup?->slug,
         ];
     }
 }

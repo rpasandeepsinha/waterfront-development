@@ -31,6 +31,7 @@ class ShouldHaveNoExistingCreateTag implements ValidationRule
 
         if (! is_string($value)) {
             $fail('The tag must be a valid UUID string.');
+
             return;
         }
 
@@ -38,6 +39,7 @@ class ShouldHaveNoExistingCreateTag implements ValidationRule
             $tagUuid = Uuid::fromString($value);
         } catch (InvalidArgumentException) {
             $fail('The tag must be a valid UUID string.');
+
             return;
         }
 
@@ -45,8 +47,8 @@ class ShouldHaveNoExistingCreateTag implements ValidationRule
             $fail(
                 sprintf(
                     'A create request for tag already exists in the [%s] type.',
-                    $this->provisionType->value
-                )
+                    $this->provisionType->value,
+                ),
             );
         }
     }

@@ -41,12 +41,14 @@ class CreateEmailForward extends DirectAdminCommand
     public function setDomain(string $domain): self
     {
         $this->domain = $domain;
+
         return $this;
     }
 
     public function setUser(string $user): self
     {
         $this->user = $user;
+
         return $this;
     }
 
@@ -56,6 +58,7 @@ class CreateEmailForward extends DirectAdminCommand
     public function setEmail(array $emails): self
     {
         $this->email = implode(',', $emails);
+
         return $this;
     }
 

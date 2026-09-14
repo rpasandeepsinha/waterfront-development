@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 use OwenIt\Auditing\Models\Audit;
 use Waterfront\Domain\AuditLogs\Resolver\IdentityResolver;
 
@@ -11,7 +12,7 @@ return [
     //Define the morph prefix and authentication guards for the User resolver.
     'user' => [
         'morph_prefix' => 'user',
-        'resolver'     => IdentityResolver::class,
+        'resolver' => IdentityResolver::class,
     ],
 
     // Audit events that trigger a log
@@ -37,7 +38,7 @@ return [
     'driver' => 'database',
     'drivers' => [
         'database' => [
-            'table'      => 'audits',
+            'table' => 'audits',
             'connection' => null,
         ],
     ],

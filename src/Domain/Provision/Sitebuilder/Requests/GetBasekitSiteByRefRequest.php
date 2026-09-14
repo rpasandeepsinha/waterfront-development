@@ -13,7 +13,7 @@ class GetBasekitSiteByRefRequest extends SitebuilderProvisionRequestProvision
 
     public function __construct(
         public protected(set) UuidInterface $context,
-        public int $siteRef
+        public int $siteRef,
     ) {
         $this->tag = $this->context;
     }

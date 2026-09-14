@@ -65,7 +65,10 @@ class CancelSubscriptionsControllerTest extends IntegrationTestCase
         $this->product = new ProductFactory()->for($this->productGroup)->createOne();
 
         $this->cancelSubscriptionsAction = self::createMock(CancelSubscriptionsAction::class);
-        $this->app->bind(CancelSubscriptionsAction::class, fn (): CancelSubscriptionsAction => $this->cancelSubscriptionsAction);
+        $this->app->bind(
+            CancelSubscriptionsAction::class,
+            fn (): CancelSubscriptionsAction => $this->cancelSubscriptionsAction,
+        );
     }
 
     /**
@@ -79,31 +82,41 @@ class CancelSubscriptionsControllerTest extends IntegrationTestCase
         SubscriptionCancelType $type,
         ?int $typeOtherDateDaysFromNow,
         bool $credit,
-        array $expectedStages
+        array $expectedStages,
     ): void {
-        $subscription = new SubscriptionFactory()->administrativeStatusActive()->for($this->product)->for($this->customer)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->for($this->product)
+            ->for($this->customer)
+            ->createOne();
         $typeOtherDate = $typeOtherDateDaysFromNow === null
             ? null
             : CarbonImmutable::now()->addDays($typeOtherDateDaysFromNow);
 
         $matchesCancellation = self::callback(
-            static fn (Cancellation $cancellation): bool
-                => $cancellation->getSubscriptions()->count() === 1
-                    && $cancellation->getSubscriptions()->firstOrFail()->uuid === $subscription->uuid
-                    && $cancellation->getCancelReason() === $reason
-                    && $cancellation->getCancelReasonOther() === $reasonOther
-                    && $cancellation->getCancelType() === $type
-                    && $cancellation->getSelectedCancellationEndDate()?->format(DateTimeFormat::DATE)
-                        === $typeOtherDate?->format(DateTimeFormat::DATE)
-                    && $cancellation->shouldCreditRelatedInvoices() === $credit
+            static fn (Cancellation $cancellation): bool => (
+                $cancellation->getSubscriptions()->count() === 1
+                && $cancellation->getSubscriptions()->firstOrFail()->uuid === $subscription->uuid
+                && $cancellation->getCancelReason() === $reason
+                && $cancellation->getCancelReasonOther() === $reasonOther
+                && $cancellation->getCancelType() === $type
+                && $cancellation
+                    ->getSelectedCancellationEndDate()
+                    ?->format(DateTimeFormat::DATE) === $typeOtherDate?->format(DateTimeFormat::DATE)
+                && $cancellation->shouldCreditRelatedInvoices() === $credit
+            ),
         );
 
         $creditSubscriptionService = self::createMock(CreditSubscriptionService::class);
-        $creditSubscriptionService->expects($credit ? self::once() : self::never())
-        ->method('creditSubscriptions')
-        ->with($matchesCancellation)
-        ->willReturnCallback($this->recordStage(self::STAGE_CREDIT));
-        $this->app->bind(CreditSubscriptionService::class, fn (): CreditSubscriptionService => $creditSubscriptionService);
+        $creditSubscriptionService
+            ->expects($credit ? self::once() : self::never())
+            ->method('creditSubscriptions')
+            ->with($matchesCancellation)
+            ->willReturnCallback($this->recordStage(self::STAGE_CREDIT));
+        $this->app->bind(
+            CreditSubscriptionService::class,
+            fn (): CreditSubscriptionService => $creditSubscriptionService,
+        );
 
         $this->cancelSubscriptionsAction
             ->expects(self::once())
@@ -114,15 +127,16 @@ class CancelSubscriptionsControllerTest extends IntegrationTestCase
         $this->actingAsEmployee()
             ->postJson(
                 $this->generateRoute('admin.subscriptions.cancel-and-credit'),
-                ([
-            'subscription_uuids' => [$subscription->uuid],
-            'reason' => $reason->value,
-            'reason_other' => $reasonOther,
-            'type' => $type->value,
-            'type_other_date' => $typeOtherDate?->format(DateTimeFormat::DATE),
-            'credit' => $credit,
-        ])
-            )->assertNoContent();
+                [
+                    'subscription_uuids' => [$subscription->uuid],
+                    'reason' => $reason->value,
+                    'reason_other' => $reasonOther,
+                    'type' => $type->value,
+                    'type_other_date' => $typeOtherDate?->format(DateTimeFormat::DATE),
+                    'credit' => $credit,
+                ],
+            )
+            ->assertNoContent();
 
         self::assertSame($expectedStages, $this->performedStages);
     }
@@ -171,36 +185,42 @@ class CancelSubscriptionsControllerTest extends IntegrationTestCase
     #[Test]
     public function cancelDerivesCreditFlagInsteadOfTrustingThePayload(
         SubscriptionCancelReason $reason,
-        SubscriptionCancelType $type
+        SubscriptionCancelType $type,
     ): void {
-        $subscription = new SubscriptionFactory()->administrativeStatusActive()->for($this->product)->for($this->customer)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->for($this->product)
+            ->for($this->customer)
+            ->createOne();
 
         $creditSubscriptionService = self::createMock(CreditSubscriptionService::class);
-        $creditSubscriptionService
-            ->expects(self::never())
-            ->method('creditSubscriptions');
-        $this->app->bind(CreditSubscriptionService::class, fn (): CreditSubscriptionService => $creditSubscriptionService);
+        $creditSubscriptionService->expects(self::never())->method('creditSubscriptions');
+        $this->app->bind(
+            CreditSubscriptionService::class,
+            fn (): CreditSubscriptionService => $creditSubscriptionService,
+        );
 
         $this->cancelSubscriptionsAction
             ->expects(self::once())
             ->method('execute')
             ->with(self::callback(
-                static fn (Cancellation $cancellation): bool => $cancellation->shouldCreditRelatedInvoices() === false
+                static fn (Cancellation $cancellation): bool => $cancellation->shouldCreditRelatedInvoices() === false,
             ));
 
         $this->actingAsEmployee()
             ->postJson(
                 $this->generateRoute('admin.subscriptions.cancel-and-credit'),
-                ([
-            'subscription_uuids' => [$subscription->uuid],
-            'reason' => $reason->value,
-            'type' => $type->value,
-            'type_other_date' => $type === SubscriptionCancelType::CANCEL_OTHER
-                ? CarbonImmutable::now()->format(DateTimeFormat::DATE)
-                : null,
-            'credit' => true,
-        ])
-            )->assertNoContent();
+                [
+                    'subscription_uuids' => [$subscription->uuid],
+                    'reason' => $reason->value,
+                    'type' => $type->value,
+                    'type_other_date' => $type === SubscriptionCancelType::CANCEL_OTHER
+                        ? CarbonImmutable::now()->format(DateTimeFormat::DATE)
+                        : null,
+                    'credit' => true,
+                ],
+            )
+            ->assertNoContent();
     }
 
     /**
@@ -233,17 +253,31 @@ class CancelSubscriptionsControllerTest extends IntegrationTestCase
     #[Test]
     public function cancelOfChildSubscriptionDependsOnTheAllowCancelAsChildSpec(
         ?bool $allowCancelAsChild,
-        bool $expectCancellation
+        bool $expectCancellation,
     ): void {
-        $parentSub = new SubscriptionFactory()->administrativeStatusActive()->for($this->product)->for($this->customer)->createOne();
+        $parentSub = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->for($this->product)
+            ->for($this->customer)
+            ->createOne();
         $childProduct = new ProductFactory()->for($this->productGroup)->createOne();
-        $childSubscription = new SubscriptionFactory()->administrativeStatusActive()->for($childProduct)->for($this->customer)->createOne(['parent_subscription_id' => $parentSub->id]);
+        $childSubscription = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->for($childProduct)
+            ->for($this->customer)
+            ->createOne(['parent_subscription_id' => $parentSub->id]);
 
         if ($allowCancelAsChild !== null) {
             $productSpecFactory = new ProductSpecFactory();
             $allowCancelAsChild
-                ? $productSpecFactory->enable(ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD)->for($childProduct)->createOne()
-                : $productSpecFactory->disable(ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD)->for($childProduct)->createOne();
+                ? $productSpecFactory
+                    ->enable(ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD)
+                    ->for($childProduct)
+                    ->createOne()
+                : $productSpecFactory
+                    ->disable(ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD)
+                    ->for($childProduct)
+                    ->createOne();
         }
 
         if ($expectCancellation) {
@@ -251,29 +285,27 @@ class CancelSubscriptionsControllerTest extends IntegrationTestCase
                 ->expects(self::once())
                 ->method('execute')
                 ->with(self::callback(
-                    static fn (Cancellation $cancellation): bool
-                        => $cancellation->getSubscriptions()->count() === 1
-                            && $cancellation->getSubscriptions()->firstOrFail()->uuid === $childSubscription->uuid
+                    static fn (Cancellation $cancellation): bool => (
+                        $cancellation->getSubscriptions()->count() === 1
+                        && $cancellation->getSubscriptions()->firstOrFail()->uuid === $childSubscription->uuid
+                    ),
                 ));
         } else {
             $creditSubscriptionService = self::createStub(creditSubscriptionService::class);
             $creditSubscriptionService->method('creditSubscriptions');
 
-            $this->cancelSubscriptionsAction
-                ->expects(self::never())
-                ->method('execute');
+            $this->cancelSubscriptionsAction->expects(self::never())->method('execute');
         }
 
-        $response = $this->actingAsEmployee()
-            ->postJson(
-                $this->generateRoute('admin.subscriptions.cancel-and-credit'),
-                ([
-            'subscription_uuids' => [$childSubscription->uuid],
-            'reason' => SubscriptionCancelReason::REASON_CANCELLATION->value,
-            'type' => SubscriptionCancelType::CANCEL_END_DATE->value,
-            'credit' => false,
-        ])
-            );
+        $response = $this->actingAsEmployee()->postJson(
+            $this->generateRoute('admin.subscriptions.cancel-and-credit'),
+            [
+                'subscription_uuids' => [$childSubscription->uuid],
+                'reason' => SubscriptionCancelReason::REASON_CANCELLATION->value,
+                'type' => SubscriptionCancelType::CANCEL_END_DATE->value,
+                'credit' => false,
+            ],
+        );
 
         if ($expectCancellation) {
             $response->assertNoContent();
@@ -301,27 +333,35 @@ class CancelSubscriptionsControllerTest extends IntegrationTestCase
     #[Test]
     public function cancelFailsWhenSubscriptionsBelongToMultipleCustomers(): void
     {
-        $subscription = new SubscriptionFactory()->administrativeStatusActive()->for($this->product)->for($this->customer)->createOne();
-        $otherCustomersSubscription = new SubscriptionFactory()->administrativeStatusActive()->for($this->product)->for(new CustomerFactory()->createOne())->createOne();
+        $subscription = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->for($this->product)
+            ->for($this->customer)
+            ->createOne();
+        $otherCustomersSubscription = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->for($this->product)
+            ->for(new CustomerFactory()->createOne())
+            ->createOne();
 
         $creditSubscriptionService = self::createStub(CreditSubscriptionService::class);
-        $creditSubscriptionService
-            ->method('creditSubscriptions');
-        $this->app->bind(CreditSubscriptionService::class, fn (): CreditSubscriptionService => $creditSubscriptionService);
+        $creditSubscriptionService->method('creditSubscriptions');
+        $this->app->bind(
+            CreditSubscriptionService::class,
+            fn (): CreditSubscriptionService => $creditSubscriptionService,
+        );
 
-        $this->cancelSubscriptionsAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->cancelSubscriptionsAction->expects(self::never())->method('execute');
 
         $this->actingAsEmployee()
             ->postJson(
                 $this->generateRoute('admin.subscriptions.cancel-and-credit'),
-                ([
-            'subscription_uuids' => [$subscription->uuid, $otherCustomersSubscription->uuid],
-            'reason' => SubscriptionCancelReason::REASON_CANCELLATION->value,
-            'type' => SubscriptionCancelType::CANCEL_END_DATE->value,
-            'credit' => false,
-        ])
+                [
+                    'subscription_uuids' => [$subscription->uuid, $otherCustomersSubscription->uuid],
+                    'reason' => SubscriptionCancelReason::REASON_CANCELLATION->value,
+                    'type' => SubscriptionCancelType::CANCEL_END_DATE->value,
+                    'credit' => false,
+                ],
             )
             ->assertUnprocessable()
             ->assertJsonValidationErrors([
@@ -332,30 +372,34 @@ class CancelSubscriptionsControllerTest extends IntegrationTestCase
     #[Test]
     public function cancelReportsEveryReasonWhyTheSelectionCannotBeCancelled(): void
     {
-        $subscription = new SubscriptionFactory()->administrativeStatusActive()->for($this->product)->for($this->customer)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->for($this->product)
+            ->for($this->customer)
+            ->createOne();
         $otherCustomersArchivedSubscription = new SubscriptionFactory()
             ->for($this->product)
             ->for(new CustomerFactory()->createOne())
             ->createOne(['administrative_status' => AdministrativeStatus::ARCHIVED->value]);
 
         $creditSubscriptionService = self::createStub(CreditSubscriptionService::class);
-        $creditSubscriptionService
-            ->method('creditSubscriptions');
-        $this->app->bind(CreditSubscriptionService::class, fn (): CreditSubscriptionService => $creditSubscriptionService);
+        $creditSubscriptionService->method('creditSubscriptions');
+        $this->app->bind(
+            CreditSubscriptionService::class,
+            fn (): CreditSubscriptionService => $creditSubscriptionService,
+        );
 
-        $this->cancelSubscriptionsAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->cancelSubscriptionsAction->expects(self::never())->method('execute');
 
         $this->actingAsEmployee()
             ->postJson(
                 $this->generateRoute('admin.subscriptions.cancel-and-credit'),
-                ([
+                [
                     'subscription_uuids' => [$subscription->uuid, $otherCustomersArchivedSubscription->uuid],
                     'reason' => SubscriptionCancelReason::REASON_CANCELLATION->value,
                     'type' => SubscriptionCancelType::CANCEL_END_DATE->value,
                     'credit' => false,
-                ])
+                ],
             )
             ->assertUnprocessable()
             ->assertJsonPath('errors.subscription_uuids', [
@@ -373,30 +417,34 @@ class CancelSubscriptionsControllerTest extends IntegrationTestCase
     {
         $subscriptions = [];
         foreach ($statuses as $status) {
-            $subscription = new SubscriptionFactory()->for($this->product)->for($this->customer)->createOne(['administrative_status' => $status]);
+            $subscription = new SubscriptionFactory()
+                ->for($this->product)
+                ->for($this->customer)
+                ->createOne(['administrative_status' => $status]);
             $subscriptions[] = $subscription;
         }
-        $creditSubscriptionService = self::createStub(CreditSubscriptionService::class);
-        $creditSubscriptionService
-            ->method('creditSubscriptions');
-        $this->app->bind(CreditSubscriptionService::class, fn (): CreditSubscriptionService => $creditSubscriptionService);
 
-        $this->cancelSubscriptionsAction
-            ->expects(self::never())
-            ->method('execute');
+        $creditSubscriptionService = self::createStub(CreditSubscriptionService::class);
+        $creditSubscriptionService->method('creditSubscriptions');
+        $this->app->bind(
+            CreditSubscriptionService::class,
+            fn (): CreditSubscriptionService => $creditSubscriptionService,
+        );
+
+        $this->cancelSubscriptionsAction->expects(self::never())->method('execute');
 
         $this->actingAsEmployee()
             ->postJson(
                 $this->generateRoute('admin.subscriptions.cancel-and-credit'),
-                ([
-            'subscription_uuids' => array_map(
-                static fn (Subscription $subscription): string => $subscription->uuid,
-                $subscriptions
-            ),
-            'reason' => SubscriptionCancelReason::REASON_CANCELLATION->value,
-            'type' => SubscriptionCancelType::CANCEL_END_DATE->value,
-            'credit' => false,
-        ])
+                [
+                    'subscription_uuids' => array_map(
+                        static fn (Subscription $subscription): string => $subscription->uuid,
+                        $subscriptions,
+                    ),
+                    'reason' => SubscriptionCancelReason::REASON_CANCELLATION->value,
+                    'type' => SubscriptionCancelType::CANCEL_END_DATE->value,
+                    'credit' => false,
+                ],
             )
             ->assertUnprocessable()
             ->assertJsonValidationErrors([
@@ -421,7 +469,11 @@ class CancelSubscriptionsControllerTest extends IntegrationTestCase
     #[Test]
     public function cancelReturnsServerErrorWhenExecutionFails(string $failingStage): void
     {
-        $subscription = new SubscriptionFactory()->administrativeStatusActive()->for($this->product)->for($this->customer)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->for($this->product)
+            ->for($this->customer)
+            ->createOne();
         $creditingRequested = $failingStage === self::STAGE_CREDIT;
 
         $creditSubscriptionService = self::createMock(CreditSubscriptionService::class);
@@ -432,25 +484,25 @@ class CancelSubscriptionsControllerTest extends IntegrationTestCase
                 ->method('creditSubscriptions')
                 ->willThrowException(new CreditSubscriptionsException('Harbor is unavailable'));
 
-            $this->cancelSubscriptionsAction
-                ->expects(self::never())
-                ->method('execute');
+            $this->cancelSubscriptionsAction->expects(self::never())->method('execute');
         } else {
-            $creditSubscriptionService
-                ->expects(self::never())
-                ->method('creditSubscriptions');
+            $creditSubscriptionService->expects(self::never())->method('creditSubscriptions');
 
             $this->cancelSubscriptionsAction
                 ->expects(self::once())
                 ->method('execute')
                 ->willThrowException(new CancelCreditSubscriptionsException('Failed to cancel selected subscriptions'));
         }
-        $this->app->bind(CreditSubscriptionService::class, fn (): CreditSubscriptionService => $creditSubscriptionService);
+
+        $this->app->bind(
+            CreditSubscriptionService::class,
+            fn (): CreditSubscriptionService => $creditSubscriptionService,
+        );
 
         $this->actingAsEmployee()
             ->postJson(
                 $this->generateRoute('admin.subscriptions.cancel-and-credit'),
-                ([
+                [
                     'subscription_uuids' => [$subscription->uuid],
                     'reason' => SubscriptionCancelReason::REASON_WET_VAN_DAM->value,
                     'type' => $creditingRequested
@@ -460,8 +512,9 @@ class CancelSubscriptionsControllerTest extends IntegrationTestCase
                         ? CarbonImmutable::now()->format(DateTimeFormat::DATE)
                         : null,
                     'credit' => $creditingRequested,
-                ])
-            )->assertInternalServerError()
+                ],
+            )
+            ->assertInternalServerError()
             ->assertJson(['message' => 'subscription.cancel.failure_execution']);
     }
 

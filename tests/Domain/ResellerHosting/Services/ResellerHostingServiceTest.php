@@ -55,7 +55,7 @@ class ResellerHostingServiceTest extends IntegrationTestCase
 
         $domainProductGroup = new ProductGroupFactory()->extension()->createOne();
         $this->domainProduct = new ProductFactory()->for($domainProductGroup)->createOne([
-            'slug'              => 'extension_nl',
+            'slug' => 'extension_nl',
         ]);
 
         $this->resellerHostingService = self::resolve(ResellerHostingService::class);
@@ -67,9 +67,9 @@ class ResellerHostingServiceTest extends IntegrationTestCase
             ->for($this->customer)
             ->for($resellerProduct)
             ->createOne([
-                'domain'             => null,
-                'gross_price'        => 100,
-                'net_price'          => 100,
+                'domain' => null,
+                'gross_price' => 100,
+                'net_price' => 100,
             ]);
 
         $hostingProvider = ProviderFactory::new()->hostingDirectAdmin()->createOne(['default' => true]);
@@ -98,7 +98,7 @@ class ResellerHostingServiceTest extends IntegrationTestCase
 
         $this->instance(
             DirectAdminResellerHostingService::class,
-            $directAdminResellerHostingService
+            $directAdminResellerHostingService,
         );
 
         $resellerHostingService = self::resolve(ResellerHostingService::class);
@@ -134,12 +134,14 @@ class ResellerHostingServiceTest extends IntegrationTestCase
         $this->resellerDeployment->update();
 
         $directAdminResellerHostingService = self::createMock(DirectAdminResellerHostingService::class);
-        $directAdminResellerHostingService->expects(self::once())->method('resetPassword')
+        $directAdminResellerHostingService
+            ->expects(self::once())
+            ->method('resetPassword')
             ->willReturn(['username' => $userName, 'password' => $password]);
 
         $this->instance(
             DirectAdminResellerHostingService::class,
-            $directAdminResellerHostingService
+            $directAdminResellerHostingService,
         );
 
         $resellerHostingService = self::resolve(ResellerHostingService::class);
@@ -163,17 +165,17 @@ class ResellerHostingServiceTest extends IntegrationTestCase
             ->for($this->customer)
             ->for($this->domainProduct)
             ->createOne([
-            'gross_price'        => 600,
-            'net_price'          => 600,
-        ]);
+                'gross_price' => 600,
+                'net_price' => 600,
+            ]);
 
         new DomainDeploymentFactory()->createOne([
-            'subscription_uuid'    => $domainDeployment->uuid,
-            'last_result'          => json_encode([]),
+            'subscription_uuid' => $domainDeployment->uuid,
+            'last_result' => json_encode([]),
             'last_result_received' => CarbonImmutable::now(),
-            'provider_id'          => ProviderFactory::new()->createOne([
-                'type'    => ProviderType::DOMAIN,
-                'slug'    => ProviderSlug::OPEN_PROVIDER,
+            'provider_id' => ProviderFactory::new()->createOne([
+                'type' => ProviderType::DOMAIN,
+                'slug' => ProviderSlug::OPEN_PROVIDER,
                 'default' => true,
                 'enabled' => true,
             ])->id,
@@ -184,11 +186,11 @@ class ResellerHostingServiceTest extends IntegrationTestCase
 
         $this->instance(
             DirectAdminResellerHostingService::class,
-            $directAdminResellerHostingService
+            $directAdminResellerHostingService,
         );
 
         $parameters = AppResellerHostingDomainCoupleParameters::fromArray([
-            'uuid' =>  $this->resellerSubscription->uuid,
+            'uuid' => $this->resellerSubscription->uuid,
             'reseller_sub_username' => 'testuser',
             'domain' => 'testdomain.nl',
         ]);
@@ -213,24 +215,24 @@ class ResellerHostingServiceTest extends IntegrationTestCase
             ->for($this->customer)
             ->for($this->domainProduct)
             ->createOne([
-                'gross_price'        => 600,
-                'net_price'          => 600,
+                'gross_price' => 600,
+                'net_price' => 600,
             ]);
 
         new DomainDeploymentFactory()->createOne([
-            'subscription_uuid'    => $domainDeployment->uuid,
-            'last_result'          => json_encode([]),
+            'subscription_uuid' => $domainDeployment->uuid,
+            'last_result' => json_encode([]),
             'last_result_received' => CarbonImmutable::now(),
-            'provider_id'          => ProviderFactory::new()->createOne([
-                'type'      => ProviderType::DOMAIN,
-                'slug'      => ProviderSlug::OPEN_PROVIDER,
-                'enabled'   => true,
-                'default'   => true,
+            'provider_id' => ProviderFactory::new()->createOne([
+                'type' => ProviderType::DOMAIN,
+                'slug' => ProviderSlug::OPEN_PROVIDER,
+                'enabled' => true,
+                'default' => true,
             ])->id,
         ]);
 
         $parameters = [
-            'uuid' =>  $this->resellerSubscription->uuid,
+            'uuid' => $this->resellerSubscription->uuid,
             'reseller_sub_username' => 'testuser',
             'domain' => 'testdomain.nl',
         ];
@@ -252,7 +254,9 @@ class ResellerHostingServiceTest extends IntegrationTestCase
         $customer2 = 'TestJan';
 
         $directAdminResllerHostingService = self::createMock(DirectAdminResellerHostingService::class);
-        $directAdminResllerHostingService->expects(self::once())->method('getSubAccounts')
+        $directAdminResllerHostingService
+            ->expects(self::once())
+            ->method('getSubAccounts')
             ->willReturn([
                 $customer1,
                 $customer2,
@@ -260,7 +264,7 @@ class ResellerHostingServiceTest extends IntegrationTestCase
 
         $this->instance(
             DirectAdminResellerHostingService::class,
-            $directAdminResllerHostingService
+            $directAdminResllerHostingService,
         );
 
         $resellerHostingService = self::resolve(ResellerHostingService::class);

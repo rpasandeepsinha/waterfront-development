@@ -27,7 +27,7 @@ class HostingPackageFetchAction
         string $slug,
         string $migratedCustomerReference,
         Server $server,
-        string $jobUuid
+        string $jobUuid,
     ): HostingOfferingInterface {
         try {
             return $this->hostingService->getPackageOnServerAsDto($server, $slug);
@@ -43,13 +43,13 @@ class HostingPackageFetchAction
                     LoggingContextKeys::META => [
                         'slug' => $slug,
                     ],
-                ]
+                ],
             );
 
             throw new HostingPackageUnableToFetchException(
                 message: $exception->getMessage(),
                 code: $exception->getCode(),
-                previous: $exception
+                previous: $exception,
             );
         }
     }

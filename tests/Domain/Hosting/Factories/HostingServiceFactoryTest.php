@@ -38,7 +38,12 @@ class HostingServiceFactoryTest extends IntegrationTestCase
     {
         $this->expectNotToPerformAssertions();
 
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $this->hostingServiceFactory->defaultDriver();
     }
 

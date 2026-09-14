@@ -10,8 +10,12 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class HostingUnableToModifySettingsException extends Exception
 {
-    public function __construct(Subscription $subscription, bool $dnsSetting, bool $ssoSetting, ?Throwable $previous = null)
-    {
+    public function __construct(
+        Subscription $subscription,
+        bool $dnsSetting,
+        bool $ssoSetting,
+        ?Throwable $previous = null,
+    ) {
         parent::__construct(
             sprintf(
                 'Unable to change DNS management to {%b} and SSO setting to {%b} the hosting backend for subscription ID: {%d}',
@@ -20,7 +24,7 @@ class HostingUnableToModifySettingsException extends Exception
                 $subscription->id,
             ),
             0,
-            $previous
+            $previous,
         );
     }
 }

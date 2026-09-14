@@ -29,7 +29,8 @@ class PaytMandateClient
         ConfigurationInterface $config,
         private readonly Serializer $serializer,
         private readonly LoggerInterface $logger,
-        #[SensitiveParameter]private readonly string $apiKey
+        #[SensitiveParameter]
+        private readonly string $apiKey,
     ) {
         $this->uri = $config->getAsString('paytclient.api_url');
         $this->administrationId = $config->getAsString('paytclient.administration_id');
@@ -55,15 +56,13 @@ class PaytMandateClient
 
         $payload = $this->serializer->serialize($pspMandateCreateRequestDTO, 'json');
 
-        $response = $this->request()
-            ->withBody($payload)
-            ->post('psp_mandates');
+        $response = $this->request()->withBody($payload)->post('psp_mandates');
 
         try {
             /** @var PaytMandateResponseDTO $pspMandate */
             $pspMandate = $this->serializer->denormalize(
                 $response->json('0'),
-                PaytMandateResponseDTO::class
+                PaytMandateResponseDTO::class,
             );
         } finally {
             $this->logger->debug(
@@ -71,7 +70,7 @@ class PaytMandateClient
                 [
                     LoggingContextKeys::RESPONSE_CODE => $response->status(),
                     LoggingContextKeys::RESPONSE_DATA => $response->body(),
-                ]
+                ],
             );
         }
 
@@ -95,7 +94,7 @@ class PaytMandateClient
         /** @var array<int, PaytMandateResponseDTO> $pspMandates */
         $pspMandates = $this->serializer->denormalize(
             $response->json('data'),
-            PaytMandateResponseDTO::class . '[]'
+            PaytMandateResponseDTO::class . '[]',
         );
 
         return $pspMandates;
@@ -105,7 +104,7 @@ class PaytMandateClient
      * @throws PaytMandateIdNotNumericException
      * @throws PaytMandateApiException
      */
-    public function getPspMandatesByPaytId(string $paytMandateId): PaytMandateResponseDTO|null
+    public function getPspMandatesByPaytId(string $paytMandateId): ?PaytMandateResponseDTO
     {
         if (! is_numeric($paytMandateId)) {
             throw new PaytMandateIdNotNumericException($paytMandateId);
@@ -121,7 +120,7 @@ class PaytMandateClient
         /** @var array<int, PaytMandateResponseDTO> $pspMandates */
         $pspMandates = $this->serializer->denormalize(
             $response->json('data'),
-            PaytMandateResponseDTO::class . '[]'
+            PaytMandateResponseDTO::class . '[]',
         );
 
         return count($pspMandates) === 1 ? $pspMandates[0] : null;
@@ -133,18 +132,16 @@ class PaytMandateClient
     private function request(): PendingRequest
     {
         return Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
-            ])
-            ->baseUrl($this->uri)
-            ->throw(function (Response $response, RequestException $exception): never {
-                /** @var string $message */
-                $message = $response->json('error.message');
+            'Authorization' => 'Bearer ' . $this->apiKey,
+        ])->baseUrl($this->uri)->throw(function (Response $response, RequestException $exception): never {
+            /** @var string $message */
+            $message = $response->json('error.message');
 
-                throw new PaytMandateApiException(
-                    $message,
-                    $response->status(),
-                    $exception
-                );
-            });
+            throw new PaytMandateApiException(
+                $message,
+                $response->status(),
+                $exception,
+            );
+        });
     }
 }

@@ -40,12 +40,11 @@ class CustomerWalletTest extends IntegrationTestCase
     #[Test]
     public function showNoWallet(): void
     {
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->getJson(
                 $this->generateRoute('partners.customer-wallet.show', [
                     'customer' => $this->customer->id,
-                ])
+                ]),
             )
             ->assertOk()
             ->assertJsonFragment(['data' => []]);
@@ -59,7 +58,7 @@ class CustomerWalletTest extends IntegrationTestCase
             ->getJson(
                 $this->generateRoute('partners.customer-wallet.show', [
                     'customer' => $otherCustomer->id,
-                ])
+                ]),
             )
             ->assertForbidden();
     }
@@ -68,33 +67,29 @@ class CustomerWalletTest extends IntegrationTestCase
     public function showWallet(): void
     {
         new CustomerWalletFactory()->create(
-            ['customer_id' => $this->customer->customer()]
+            ['customer_id' => $this->customer->customer()],
         );
 
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->getJson(
                 $this->generateRoute('partners.customer-wallet.show', [
                     'customer' => $this->customer,
-                ])
+                ]),
             )
             ->assertOk()
             ->assertJson(
-                fn (AssertableJson $json) =>
-                $json->hasAll(
+                fn (AssertableJson $json) => $json->hasAll(
                     [
-                    'data',
-                    'data.id',
-                    'data.customer_id',
-                    'data.amount',
-                    'data.bank_account_name',
-                    'data.refund_requested_at',
-                    'data.csv_downloaded_at',
-                    'data.created_at',
-                    ]
-                )
-                ->missingAll(['message'])
-                ->whereAllType(
+                        'data',
+                        'data.id',
+                        'data.customer_id',
+                        'data.amount',
+                        'data.bank_account_name',
+                        'data.refund_requested_at',
+                        'data.csv_downloaded_at',
+                        'data.created_at',
+                    ],
+                )->missingAll(['message'])->whereAllType(
                     [
                         'data' => 'array',
                         'data.id' => 'integer',
@@ -104,8 +99,8 @@ class CustomerWalletTest extends IntegrationTestCase
                         'data.refund_requested_at' => 'string|null',
                         'data.csv_downloaded_at' => 'string|null',
                         'data.created_at' => 'string|null',
-                    ]
-                )
+                    ],
+                ),
             );
     }
 
@@ -119,6 +114,7 @@ class CustomerWalletTest extends IntegrationTestCase
         foreach ($invalidChars as $char) {
             $invalidAccountNumbers[sprintf('invalid char %s', $char)] = [sprintf('anyone containing %s', $char), $char];
         }
+
         return $invalidAccountNumbers;
     }
 
@@ -126,8 +122,7 @@ class CustomerWalletTest extends IntegrationTestCase
     #[Test]
     public function requestRefundInvalidAccountNumber(string $invalidAccountNumber, string $char): void
     {
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.customer-wallet.request-refund', [
                     'customer' => $this->customer->customer(),
@@ -135,13 +130,14 @@ class CustomerWalletTest extends IntegrationTestCase
                 [
                     'bank_account_number' => self::VALID_IBAN_NL,
                     'bank_account_name' => $invalidAccountNumber,
-                ]
+                ],
             )
             ->assertUnprocessable()
             ->assertJsonFragment([
                 'errors' => [
                     'bank_account_name' => [
-                        self::resolve(TranslatorInterface::class)->translate('customer.specialchar-error', ['characters' => $char]),
+                        self::resolve(TranslatorInterface::class)
+                            ->translate('customer.specialchar-error', ['characters' => $char]),
                     ],
                 ],
             ]);
@@ -150,8 +146,7 @@ class CustomerWalletTest extends IntegrationTestCase
     #[Test]
     public function requestRefundInvalidIban(): void
     {
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.customer-wallet.request-refund', [
                     'customer' => $this->customer->customer(),
@@ -159,7 +154,7 @@ class CustomerWalletTest extends IntegrationTestCase
                 [
                     'bank_account_number' => self::INVALID_IBAN_NL,
                     'bank_account_name' => 'any',
-                ]
+                ],
             )
             ->assertUnprocessable()
             ->assertJsonFragment([
@@ -174,39 +169,37 @@ class CustomerWalletTest extends IntegrationTestCase
     #[Test]
     public function requestRefundMissingParams(): void
     {
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.customer-wallet.request-refund', [
                     'customer' => $this->customer->customer(),
-                ])
+                ]),
             )
             ->assertUnprocessable()
             ->assertJsonFragment([
-            'errors' => [
-                'bank_account_name' => [
-                    self::resolve(TranslatorInterface::class)->translate('validation.required'),
+                'errors' => [
+                    'bank_account_name' => [
+                        self::resolve(TranslatorInterface::class)->translate('validation.required'),
+                    ],
+                    'bank_account_number' => [
+                        self::resolve(TranslatorInterface::class)->translate('validation.required'),
+                    ],
                 ],
-                'bank_account_number' => [
-                    self::resolve(TranslatorInterface::class)->translate('validation.required'),
-                ],
-            ],
-        ]);
+            ]);
     }
 
     #[Test]
     public function requestRefundNoWallet(): void
     {
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.customer-wallet.request-refund', [
                     'customer' => $this->customer->customer(),
                 ]),
                 [
-                'bank_account_number' => self::VALID_IBAN_NL,
-                'bank_account_name' => 'any',
-                ]
+                    'bank_account_number' => self::VALID_IBAN_NL,
+                    'bank_account_name' => 'any',
+                ],
             )
             ->assertStatus(Response::HTTP_CONFLICT)
             ->assertJsonFragment(['message' => 'no wallet found']);
@@ -219,7 +212,7 @@ class CustomerWalletTest extends IntegrationTestCase
             [
                 'refund_requested_at' => CarbonImmutable::now(),
                 'customer_id' => $this->customer->customer(),
-            ]
+            ],
         );
         $this->actingAsCustomer($this->customer)
             ->postJson(
@@ -229,7 +222,7 @@ class CustomerWalletTest extends IntegrationTestCase
                 [
                     'bank_account_number' => self::VALID_IBAN_NL,
                     'bank_account_name' => 'any',
-                ]
+                ],
             )
             ->assertStatus(Response::HTTP_CONFLICT)
             ->assertJsonFragment(['message' => 'already requested']);
@@ -241,7 +234,7 @@ class CustomerWalletTest extends IntegrationTestCase
         new TemplateFactory()->createOne(
             [
                 'slug' => CustomerWalletRefundRequested::getTemplateSlug(),
-            ]
+            ],
         );
 
         new CustomerWalletFactory()->create([
@@ -250,7 +243,8 @@ class CustomerWalletTest extends IntegrationTestCase
         ]);
 
         $mailer = self::createMock(Mailer::class);
-        $mailer->expects(self::once())
+        $mailer
+            ->expects(self::once())
             ->method('send')
             ->with(
                 self::anything(),
@@ -260,52 +254,47 @@ class CustomerWalletTest extends IntegrationTestCase
         $this->app->bind(Mailer::class, fn () => $mailer);
 
         //Before refund
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->getJson(
                 $this->generateRoute('partners.customer-wallet.show', [
                     'customer' => $this->customer,
-                ])
+                ]),
             )
             ->assertOk()
             ->assertJson(
-                fn (AssertableJson $json) =>
-                $json
-                    ->has('data.refund_requested_at')
-                    ->missingAll(['message'])
-                    ->whereType('data.refund_requested_at', 'null')
+                fn (AssertableJson $json) => $json->has('data.refund_requested_at')->missingAll(['message'])->whereType(
+                    'data.refund_requested_at',
+                    'null',
+                ),
             );
 
         //refunding
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute(
                     'partners.customer-wallet.request-refund',
-                    [$this->customer->id]
+                    [$this->customer->id],
                 ),
                 [
-                'bank_account_number' => self::VALID_IBAN_FOREIGN,
-                'bank_account_name' => 'any',
-                ]
+                    'bank_account_number' => self::VALID_IBAN_FOREIGN,
+                    'bank_account_name' => 'any',
+                ],
             )
             ->assertNoContent();
 
         //after refunding
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->getJson(
                 $this->generateRoute('partners.customer-wallet.show', [
                     'customer' => $this->customer,
-                ])
+                ]),
             )
             ->assertOk()
             ->assertJson(
-                fn (AssertableJson $json) =>
-                $json
-                    ->has('data.refund_requested_at')
-                    ->missingAll(['message'])
-                    ->whereType('data.refund_requested_at', 'string')
+                fn (AssertableJson $json) => $json->has('data.refund_requested_at')->missingAll(['message'])->whereType(
+                    'data.refund_requested_at',
+                    'string',
+                ),
             );
     }
 
@@ -314,8 +303,7 @@ class CustomerWalletTest extends IntegrationTestCase
     {
         // user has no customers
         $customer = new CustomerFactory()->createOne();
-        $this
-            ->actingAsCustomer($customer)
+        $this->actingAsCustomer($customer)
             ->postJson(
                 $this->generateRoute('partners.customer-wallet.request-refund', [
                     'customer' => 99999999,
@@ -323,7 +311,7 @@ class CustomerWalletTest extends IntegrationTestCase
                 [
                     'bank_account_number' => self::VALID_IBAN_NL,
                     'bank_account_name' => 'any .person',
-                ]
+                ],
             )
             ->assertNotFound();
     }

@@ -53,23 +53,25 @@ class DirectAdminApi implements DirectAdminApiInterface
                  */
                 $options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
             }
+
             $response = $client->send($command->getRequest(), $options);
             if (! $this->validResponse($response)) {
                 if ($command instanceof Softaculous) {
                     // Since Softaculous commands are fire and forget we enforce success.
                     $command->setSucceeded(true);
+
                     return $command;
                 }
 
                 throw new DirectAdminResponseException(
-                    'This is not a valid DirectAdmin Server response:' . $response->getBody()
+                    'This is not a valid DirectAdmin Server response:' . $response->getBody(),
                 );
             }
         } catch (Exception $e) {
             throw new DirectAdminConnectionException(
                 '[Could not connect to DirectAdminServer using ' . $this->connection . '] ' . $e->getMessage(),
                 $e->getCode(),
-                $e
+                $e,
             );
         } finally {
             $this->connection->resetUser();
@@ -101,6 +103,7 @@ class DirectAdminApi implements DirectAdminApiInterface
     public function useServer(DirectAdminServer $server): DirectAdminApiInterface
     {
         $this->connection = new Connection($server);
+
         return $this;
     }
 
@@ -112,6 +115,7 @@ class DirectAdminApi implements DirectAdminApiInterface
     public function loginAs(string $username): DirectAdminApiInterface
     {
         $this->connection->asUser($username);
+
         return $this;
     }
 

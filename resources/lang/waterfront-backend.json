@@ -1,4 +1,104 @@
 {
+  "customer-action.m365-license": {
+    "locales": {
+      "nl": {
+        "translated_string": "Omdat je een nieuwe Microsoft 365 licentie hebt afgesloten is het nodig de ondertekening te verifieren in Mijn Yourhosting."
+      },
+      "en": {
+        "translated_string": "Because you have taken out a new Microsoft 365 license, it is necessary to verify the signature in My Yourhosting."
+      }
+    }
+  },
+  "customer-action.m365-license.title": {
+    "locales": {
+      "nl": {
+        "translated_string": "Microsoft 365 licentie controleren"
+      },
+      "en": {
+        "translated_string": "Check Microsoft 365 license"
+      }
+    }
+  },
+  "customer-action.acronis": {
+    "locales": {
+      "nl": {
+        "translated_string": "Zet je back-up aan en installeer de app via de Acronis omgeving."
+      },
+      "en": {
+        "translated_string": "Turn on your back-up and install the application through the Acronis environment."
+      }
+    }
+  },
+  "customer-action.acronis.title": {
+    "locales": {
+      "nl": {
+        "translated_string": "Acronis back-up"
+      },
+      "en": {
+        "translated_string": "Acronis backup"
+      }
+    }
+  },
+  "customer-action.account-verification": {
+    "locales": {
+      "nl": {
+        "translated_string": "Je hebt een e-mail ontvangen op :email voor het verifieren van jouw accont."
+      },
+      "en": {
+        "translated_string": "You have received an e-mail at :email to validate your account."
+      }
+    }
+  },
+  "customer-action.account-verification.title": {
+    "locales": {
+      "nl": {
+        "translated_string": "Account verificatie"
+      },
+      "en": {
+        "translated_string": "Account verification"
+      }
+    }
+  },
+  "customer-action.contact-verification": {
+    "locales": {
+      "nl": {
+        "translated_string": "Je hebt ook een e-mail ontvangen voor het verifieren van het domein :domain. Wanner de verificatie voltooid is word deze opgeleverd."
+      },
+      "en": {
+        "translated_string": "You have also received an email to verify your domain :domain. Once the verification is complete, it will be delivered."
+      }
+    }
+  },
+  "customer-action.contact-verification.title": {
+    "locales": {
+      "nl": {
+        "translated_string": "Domein contact validatie"
+      },
+      "en": {
+        "translated_string": "Domain contact validation"
+      }
+    }
+  },
+  "customer-action.deferred-transfer": {
+    "locales": {
+      "nl": {
+        "translated_string": "Je hebt een verhuizing aangevraagd maar nog niet een verhuiscode opgegeven, je kunt dit doen in het klanten portaal."
+      },
+      "en": {
+        "translated_string": "You have requested a transfer but did not submit a transfer code yet, you can do this in the customer portal."
+      }
+    }
+  },
+  "customer-action.deferred-transfer.title": {
+    "locales": {
+      "nl": {
+        "translated_string": "Domein verhuizen met verhuiscode"
+      },
+      "en": {
+        "translated_string": "Domain transfer with transfer code."
+      }
+    }
+  },
   "validation.puzzel-existing-request": {
     "locales": {
       "nl": {
@@ -1236,6 +1336,16 @@
       }
     }
   },
+  "one_time_service.invoice.already_invoiced": {
+    "locales": {
+      "nl": {
+        "translated_string": "Deze eenmalige dienst is al gefactureerd"
+      },
+      "en": {
+        "translated_string": "This one-time service has already been invoiced"
+      }
+    }
+  },
   "spam_experts.action_failed": {
     "locales": {
       "nl": {
@@ -2327,33 +2437,6 @@
     "locales": {
       "nl": {
         "translated_string": "Hosting Types"
-      }
-    }
-  },
-  "nova-action.harbor_force_propagate": {
-    "locales": {
-      "nl": {
-        "translated_string": "Forceer propagatie naar Harbor"
-      }
-    }
-  },
-  "nova-action.harbor_dispatch_instantly_create_invoice.direct": {
-    "locales": {
-      "nl": {
-        "translated_string": "Direct"
-      },
-      "en": {
-        "translated_string": "Direct"
-      }
-    }
-  },
-  "nova-action.harbor_dispatch_instantly_create_invoice": {
-    "locales": {
-      "nl": {
-        "translated_string": "Genereer direct een factuur in harbor voor deze selectie"
-      },
-      "en": {
-        "translated_string": "Generate an invoice directly in harbor for this selection"
       }
     }
   },
@@ -3863,34 +3946,6 @@
     "locales": {
       "nl": {
         "translated_string": "Migratie batch"
-      }
-    }
-  },
-  "nova-filter.invoices_is_processed": {
-    "locales": {
-      "nl": {
-        "translated_string": "Is verwerkt"
-      }
-    }
-  },
-  "nova-filter.invoices_is_processed_statuses.true": {
-    "locales": {
-      "nl": {
-        "translated_string": "Verwerkt"
-      }
-    }
-  },
-  "nova-filter.invoices_is_processed_statuses.false": {
-    "locales": {
-      "nl": {
-        "translated_string": "Niet verwerkt"
-      }
-    }
-  },
-  "nova-filter.invoices_processed": {
-    "locales": {
-      "nl": {
-        "translated_string": "Verwerk datum"
       }
     }
   },
@@ -6355,16 +6410,6 @@
       }
     }
   },
-  "nova-action.error.invoice_already_sent_to_harbor": {
-    "locales": {
-      "nl": {
-        "translated_string": "Deze factuurregel is al verzonden naar Harbor."
-      },
-      "en": {
-        "translated_string": "This invoice line has already been sent to Harbor."
-      }
-    }
-  },
   "ID": {
     "locales": []
   },
@@ -6592,27 +6637,6 @@
       }
     }
   },
-  "invoice.attributes.subscription.technical_status": {
-    "locales": {
-      "nl": {
-        "translated_string": "Subscription Technical status"
-      }
-    }
-  },
-  "invoice.attributes.subscription.pre_paid": {
-    "locales": {
-      "nl": {
-        "translated_string": "Vooraf Betaald"
-      }
-    }
-  },
-  "invoice.attributes.subscription.order_id": {
-    "locales": {
-      "nl": {
-        "translated_string": "Order ID"
-      }
-    }
-  },
   "invoice.attributes.product_group": {
     "locales": {
       "nl": {
@@ -6634,46 +6658,6 @@
       }
     }
   },
-  "invoice.attributes.title": {
-    "locales": {
-      "nl": {
-        "translated_string": "Titel"
-      },
-      "en": {
-        "translated_string": "Title"
-      }
-    }
-  },
-  "invoice.attributes.description": {
-    "locales": {
-      "nl": {
-        "translated_string": "Omschrijving"
-      },
-      "en": {
-        "translated_string": "Description"
-      }
-    }
-  },
-  "invoice.attributes.type": {
-    "locales": {
-      "nl": {
-        "translated_string": "Type"
-      },
-      "en": {
-        "translated_string": "Type"
-      }
-    }
-  },
-  "invoice.attributes.group_label": {
-    "locales": {
-      "nl": {
-        "translated_string": "Groeplabel"
-      },
-      "en": {
-        "translated_string": "Group label"
-      }
-    }
-  },
   "invoice.attributes.start_date": {
     "locales": {
       "nl": {
@@ -6688,13 +6672,6 @@
       }
     }
   },
-  "invoice.attributes.period": {
-    "locales": {
-      "nl": {
-        "translated_string": "Periode"
-      }
-    }
-  },
   "invoice.description.for": {
     "locales": {
       "nl": {
@@ -6705,52 +6682,10 @@
       }
     }
   },
-  "invoice.info.period": {
-    "locales": {
-      "nl": {
-        "translated_string": "Looptijd in maanden"
-      }
-    }
-  },
-  "invoice.attributes.gross_price": {
-    "locales": {
-      "nl": {
-        "translated_string": "Prijs (exclusief BTW)"
-      }
-    }
-  },
   "invoice.attributes.net_price": {
     "locales": {
       "nl": {
         "translated_string": "Prijs inclusief korting (exclusief BTW)"
-      }
-    }
-  },
-  "invoice.attributes.ledger_code": {
-    "locales": {
-      "nl": {
-        "translated_string": "Grootboeknummer"
-      }
-    }
-  },
-  "invoice.attributes.paid": {
-    "locales": {
-      "nl": {
-        "translated_string": "Betaald via Mollie"
-      }
-    }
-  },
-  "invoice.attributes.sent_to_harbor_at": {
-    "locales": {
-      "nl": {
-        "translated_string": "Naar Harbor verstuurd op"
-      }
-    }
-  },
-  "invoice.attributes.created_at": {
-    "locales": {
-      "nl": {
-        "translated_string": "Aangemaakt op"
       }
     }
   },
@@ -12231,36 +12166,6 @@
       },
       "en": {
         "translated_string": "Failed to retrieve result"
-      }
-    }
-  },
-  "invoice.attributes.vat_code": {
-    "locales": {
-      "nl": {
-        "translated_string": "BTW code"
-      },
-      "en": {
-        "translated_string": "VAT code"
-      }
-    }
-  },
-  "invoice.attributes.vat_rate": {
-    "locales": {
-      "nl": {
-        "translated_string": "BTW tarief"
-      },
-      "en": {
-        "translated_string": "VAT rate"
-      }
-    }
-  },
-  "invoice.attributes.net_price_inc_vat": {
-    "locales": {
-      "nl": {
-        "translated_string": "Prijs inclusief korting (inclusief BTW)"
-      },
-      "en": {
-        "translated_string": "Price including discount (including VAT)"
       }
     }
   },
@@ -18280,56 +18185,6 @@
       },
       "en": {
         "translated_string": "Password"
-      }
-    }
-  },
-  "opensrs-provider-credentials.plural": {
-    "locales": {
-      "nl": {
-        "translated_string": "OpenSRS provider credentials"
-      },
-      "en": {
-        "translated_string": "OpenSRS provider credentials"
-      }
-    }
-  },
-  "opensrs-provider-credentials.singular": {
-    "locales": {
-      "nl": {
-        "translated_string": "OpenSRS provider credential"
-      },
-      "en": {
-        "translated_string": "OpenSRS provider credential"
-      }
-    }
-  },
-  "opensrs-provider-credentials.api_url": {
-    "locales": {
-      "nl": {
-        "translated_string": "API url"
-      },
-      "en": {
-        "translated_string": "API url"
-      }
-    }
-  },
-  "opensrs-provider-credentials.username": {
-    "locales": {
-      "nl": {
-        "translated_string": "Gebruikersnaam"
-      },
-      "en": {
-        "translated_string": "Username"
-      }
-    }
-  },
-  "opensrs-provider-credentials.api_key": {
-    "locales": {
-      "nl": {
-        "translated_string": "API key"
-      },
-      "en": {
-        "translated_string": "API key"
       }
     }
   },

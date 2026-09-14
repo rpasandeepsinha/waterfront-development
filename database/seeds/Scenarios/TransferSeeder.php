@@ -45,8 +45,9 @@ use Webmozart\Assert\Assert;
 
 class TransferSeeder extends Seeder
 {
-    public function __construct(private readonly ReferenceRepository $referenceRepo)
-    {
+    public function __construct(
+        private readonly ReferenceRepository $referenceRepo,
+    ) {
     }
 
     public function run(): void
@@ -78,7 +79,12 @@ class TransferSeeder extends Seeder
         $this->transferCompleted($customerSender, $customerReceiver, $subscriptionTransferCompleted);
 
         $subscriptionTransferCompletedButFails = $this->domainNl($customerSender, 'domain-transfer-completed-2.nl');
-        $this->transferCompleteButFailedTransfer($customerSender, $customerReceiver, $subscriptionTransferCompleted, $subscriptionTransferCompletedButFails);
+        $this->transferCompleteButFailedTransfer(
+            $customerSender,
+            $customerReceiver,
+            $subscriptionTransferCompleted,
+            $subscriptionTransferCompletedButFails,
+        );
     }
 
     private function customerSender(): Customer
@@ -236,13 +242,19 @@ class TransferSeeder extends Seeder
     private function domainNl(Customer $customer, string $domainName): Subscription
     {
         $product = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         // DNS dependecies
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Str::uuid()->toString();
@@ -285,7 +297,7 @@ class TransferSeeder extends Seeder
             $customer,
             $dnsProduct,
             $dnsPrice,
-            $dnsOrderItem
+            $dnsOrderItem,
         );
 
         $dnsOrderItem->parent_subscription_uuid = $domainSubscription->uuid;
@@ -302,7 +314,7 @@ class TransferSeeder extends Seeder
     private function createDomainDeployment(
         Subscription $domainSubscription,
         Provider $domainProvider,
-        DomainContact $domainContact
+        DomainContact $domainContact,
     ): void {
         $domainDeployment = new DomainDeployment();
         $domainDeployment->subscription_uuid = $domainSubscription->uuid;
@@ -328,18 +340,20 @@ class TransferSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
     }
 
     private function createSubscription(
         Customer $customer,
         Product $product,
         ProductPriceComponent $productPrice,
-        OrderLineItem $orderItem
+        OrderLineItem $orderItem,
     ): Subscription {
         $subscription = new Subscription();
         $subscription->administrative_status = AdministrativeStatus::ACTIVE->value;
@@ -356,10 +370,10 @@ class TransferSeeder extends Seeder
         $subscription->technical_status = TechnicalStatus::OK->value;
         $subscription->start_date = CarbonImmutable::yesterday();
         $subscription->next_billing_date = $subscription->start_date->addMonths(
-            $subscription->billing_period
+            $subscription->billing_period,
         );
         $subscription->end_date = $subscription->start_date->addMonths(
-            $subscription->contract_period
+            $subscription->contract_period,
         );
         $subscription->save();
 
@@ -388,7 +402,7 @@ class TransferSeeder extends Seeder
     private function createInvoiceItem(
         Subscription $subscription,
         Customer $customer,
-        Product $product
+        Product $product,
     ): Invoice {
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $subscription->id;
@@ -409,6 +423,7 @@ class TransferSeeder extends Seeder
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
         $invoiceItem->save();
+
         return $invoiceItem;
     }
 
@@ -417,7 +432,7 @@ class TransferSeeder extends Seeder
         Customer $customer,
         Product $dnsProduct,
         ProductPriceComponent $dnsPrice,
-        OrderLineItem $dnsOrderItem
+        OrderLineItem $dnsOrderItem,
     ): Subscription {
         $dnsSubscription = new Subscription();
         $dnsSubscription->administrative_status = AdministrativeStatus::ACTIVE->value;
@@ -465,7 +480,7 @@ class TransferSeeder extends Seeder
         Order $order,
         OrderLineItem $orderlineItem,
         Product $dnsProduct,
-        ProductPriceComponent $dnsPrice
+        ProductPriceComponent $dnsPrice,
     ): OrderLineItem {
         $dnsOrderItem = new OrderLineItem();
         $dnsOrderItem->order_id = $order->id;
@@ -479,11 +494,15 @@ class TransferSeeder extends Seeder
         $dnsOrderItem->contract_period = $dnsPrice->contract_period;
         $dnsOrderItem->should_invoice = true;
         $dnsOrderItem->save();
+
         return $dnsOrderItem;
     }
 
-    private function transferRequested(Customer $customerSender, Customer $customerReceiver, Subscription $subscription): void
-    {
+    private function transferRequested(
+        Customer $customerSender,
+        Customer $customerReceiver,
+        Subscription $subscription,
+    ): void {
         $transfer = new Transfer();
         $transfer->uuid = Uuid::uuid4()->toString();
         $transfer->fromCustomer()->associate($customerSender);
@@ -492,8 +511,11 @@ class TransferSeeder extends Seeder
         $transfer->subscriptions()->save($subscription);
     }
 
-    private function transferAccepted(Customer $customerSender, Customer $customerReceiver, Subscription $subscription): void
-    {
+    private function transferAccepted(
+        Customer $customerSender,
+        Customer $customerReceiver,
+        Subscription $subscription,
+    ): void {
         $transfer = new Transfer();
         $transfer->uuid = Uuid::uuid4()->toString();
         $transfer->fromCustomer()->associate($customerSender);
@@ -504,8 +526,11 @@ class TransferSeeder extends Seeder
         $transfer->accept();
     }
 
-    private function transferStarted(Customer $customerSender, Customer $customerReceiver, Subscription $subscription): void
-    {
+    private function transferStarted(
+        Customer $customerSender,
+        Customer $customerReceiver,
+        Subscription $subscription,
+    ): void {
         $transfer = new Transfer();
         $transfer->uuid = Uuid::uuid4()->toString();
         $transfer->fromCustomer()->associate($customerSender);
@@ -517,8 +542,11 @@ class TransferSeeder extends Seeder
         $transfer->start();
     }
 
-    private function transferCompleted(Customer $customerSender, Customer $customerReceiver, Subscription $subscription): void
-    {
+    private function transferCompleted(
+        Customer $customerSender,
+        Customer $customerReceiver,
+        Subscription $subscription,
+    ): void {
         // The receiver and sender are swapped intentionally here to reflect a completed transfer.
         $transfer = new Transfer();
         $transfer->uuid = Uuid::uuid4()->toString();
@@ -532,8 +560,12 @@ class TransferSeeder extends Seeder
         $transfer->complete();
     }
 
-    private function transferCompleteButFailedTransfer(Customer $customerSender, Customer $customerReceiver, Subscription $subscription, Subscription $subscriptionToFail): void
-    {
+    private function transferCompleteButFailedTransfer(
+        Customer $customerSender,
+        Customer $customerReceiver,
+        Subscription $subscription,
+        Subscription $subscriptionToFail,
+    ): void {
         // The receiver and sender are swapped intentionally here to reflect a completed transfer.
         $transfer = new Transfer();
         $transfer->uuid = Uuid::uuid4()->toString();
@@ -545,8 +577,11 @@ class TransferSeeder extends Seeder
             $subscriptionToFail->id,
             [
                 'failed_at' => CarbonImmutable::now(),
-                'reason_failed' => sprintf('[EXECUTE TRANSFER] Not allowed to start transfer with ID: {%s} REASON: failed on purpose because this is a seeder', $transfer->id),
-            ]
+                'reason_failed' => sprintf(
+                    '[EXECUTE TRANSFER] Not allowed to start transfer with ID: {%s} REASON: failed on purpose because this is a seeder',
+                    $transfer->id,
+                ),
+            ],
         );
 
         $transfer->accept();
@@ -554,8 +589,11 @@ class TransferSeeder extends Seeder
         $transfer->complete();
     }
 
-    private function transferFailed(Customer $customerSender, Customer $customerReceiver, Subscription $subscription): void
-    {
+    private function transferFailed(
+        Customer $customerSender,
+        Customer $customerReceiver,
+        Subscription $subscription,
+    ): void {
         $transfer = new Transfer();
         $transfer->uuid = Uuid::uuid4()->toString();
         $transfer->fromCustomer()->associate($customerSender);
@@ -566,13 +604,19 @@ class TransferSeeder extends Seeder
             $subscription->id,
             [
                 'failed_at' => CarbonImmutable::now(),
-                'reason_failed' => sprintf('[EXECUTE TRANSFER] Not allowed to start transfer with ID: {%s} REASON: failed on purpose because this is a seeder', $transfer->id),
-            ]
+                'reason_failed' => sprintf(
+                    '[EXECUTE TRANSFER] Not allowed to start transfer with ID: {%s} REASON: failed on purpose because this is a seeder',
+                    $transfer->id,
+                ),
+            ],
         );
     }
 
-    private function transferRejected(Customer $customerSender, Customer $customerReceiver, Subscription $subscription): void
-    {
+    private function transferRejected(
+        Customer $customerSender,
+        Customer $customerReceiver,
+        Subscription $subscription,
+    ): void {
         $transfer = new Transfer();
         $transfer->uuid = Uuid::uuid4()->toString();
         $transfer->fromCustomer()->associate($customerSender);

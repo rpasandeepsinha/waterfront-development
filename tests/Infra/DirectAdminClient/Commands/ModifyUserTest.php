@@ -85,8 +85,7 @@ class ModifyUserTest extends DirectAdminTestCase
 
         $this->api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->modifyUser
-            ->setUser('modifyuser')->setPackage('groot');
+        $this->modifyUser->setUser('modifyuser')->setPackage('groot');
 
         $modifyUser = $this->api->call($this->modifyUser);
 

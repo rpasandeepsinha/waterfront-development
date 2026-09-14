@@ -47,7 +47,10 @@ class PaytController extends Controller
 
         $signature = $request->header('X-PAYT-SIGNATURE');
 
-        if (! is_string($signature) || ! $this->signatureValidator->validate($request->getContent(), $signature, $secret)) {
+        if (
+            ! is_string($signature)
+            || ! $this->signatureValidator->validate($request->getContent(), $signature, $secret)
+        ) {
             $this->logger->warning('Payt webhook signature validation failed for business unit: {meta}', [
                 LoggingContextKeys::META => ['business_unit' => $businessUnit],
             ]);
@@ -57,7 +60,7 @@ class PaytController extends Controller
 
         try {
             $payload = $this->serializer->deserialize($request->getContent(), PaytWebhookPayload::class, 'json');
-        } catch (NotNormalizableValueException | JsonException $exception) {
+        } catch (NotNormalizableValueException|JsonException $exception) {
             $this->logger->notice('Failed to parse Payt webhook payload: {exception.message}', [
                 LoggingContextKeys::EXCEPTION => $exception,
                 LoggingContextKeys::META => ['business_unit' => $businessUnit],

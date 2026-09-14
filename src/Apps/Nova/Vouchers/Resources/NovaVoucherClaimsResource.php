@@ -34,19 +34,20 @@ class NovaVoucherClaimsResource extends Resource
             BelongsTo::make(
                 self::translate('nova-resource-labels.voucher-claims.fields.order-line-item'),
                 'orderLineItem',
-                NovaOrderLineItemResource::class
+                NovaOrderLineItemResource::class,
             )->searchable(),
 
             BelongsTo::make(
                 self::translate('nova-resource-labels.voucher-claims.fields.voucher'),
                 'voucher',
-                NovaVouchersResource::class
+                NovaVouchersResource::class,
             )->searchable(),
 
             Currency::make(
                 self::translate('nova-resource-labels.voucher-claims.fields.amount-claimed'),
-                'amount_claimed'
-            )->currency('EUR')
+                'amount_claimed',
+            )
+                ->currency('EUR')
                 ->step('0.01')
                 ->asMinorUnits()
                 ->required(),

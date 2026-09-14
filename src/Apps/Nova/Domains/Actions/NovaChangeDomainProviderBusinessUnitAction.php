@@ -24,7 +24,7 @@ class NovaChangeDomainProviderBusinessUnitAction extends Action
         private readonly Dispatcher $dispatcher,
     ) {
         $this->canSee(
-            fn (NovaRequest $request) => $request->resource() === NovaDomainSubscriptionResource::class
+            fn (NovaRequest $request) => $request->resource() === NovaDomainSubscriptionResource::class,
         );
     }
 
@@ -55,12 +55,14 @@ class NovaChangeDomainProviderBusinessUnitAction extends Action
             $this->dispatcher->dispatch(
                 new SetBusinessUnitOnDomainDeploymentsJob(
                     businessUnitId: $reset ? null : intval($businessUnitId),
-                    domainDeploymentIds: $domainDeploymentIds
-                )
+                    domainDeploymentIds: $domainDeploymentIds,
+                ),
             );
         }
 
-        return ActionResponse::message($this->translator->translate('nova-action.success.domain_provider_business_unit_changed'));
+        return ActionResponse::message($this->translator->translate(
+            'nova-action.success.domain_provider_business_unit_changed',
+        ));
     }
 
     /**
@@ -71,9 +73,13 @@ class NovaChangeDomainProviderBusinessUnitAction extends Action
         return [
             Select::make(
                 name: $this->translator->translate('domain-business-unit.singular'),
-                attribute: 'domain_business_unit_id'
-            )
-                ->options(fn (): array => DomainProviderBusinessUnit::get()->pluck('name', 'id')->toArray() + [null => $this->translator->translate('nova-action.select.reset_bu')]),
+                attribute: 'domain_business_unit_id',
+            )->options(
+                fn (): array => (
+                    DomainProviderBusinessUnit::get()->pluck('name', 'id')->toArray()
+                    + [null => $this->translator->translate('nova-action.select.reset_bu')]
+                ),
+            ),
         ];
     }
 }

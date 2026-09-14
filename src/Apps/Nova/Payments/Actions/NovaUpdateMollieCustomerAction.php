@@ -25,7 +25,7 @@ class NovaUpdateMollieCustomerAction extends Action
 
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private readonly MollieCustomerManager $customerManager
+        private readonly MollieCustomerManager $customerManager,
     ) {
     }
 
@@ -55,8 +55,8 @@ class NovaUpdateMollieCustomerAction extends Action
             email: $customer->email,
             locale: $customer->locale,
             metadata: new MollieCustomerMetadataDTO(
-                debtorId: $customer->customer_number
-            )
+                debtorId: $customer->customer_number,
+            ),
         );
 
         try {

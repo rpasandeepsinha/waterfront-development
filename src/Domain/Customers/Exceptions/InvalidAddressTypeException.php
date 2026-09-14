@@ -14,7 +14,7 @@ class InvalidAddressTypeException extends Exception
         parent::__construct(
             'Invalid Address Type.',
             $code,
-            $previous
+            $previous,
         );
     }
 }

@@ -45,15 +45,12 @@ class SyncCustomerToMollieTest extends IntegrationTestCase
             email: 'test@test.nl',
             locale: 'nl_NL',
             metadata: null,
-            createdAt: CarbonImmutable::now()
+            createdAt: CarbonImmutable::now(),
         );
 
         $customer = $this->customerWithMollie;
 
-        $manager
-            ->expects(self::once())
-            ->method('updateCustomer')
-            ->willReturn($response);
+        $manager->expects(self::once())->method('updateCustomer')->willReturn($response);
 
         $mollieCustomer = $customer->mollieCustomer;
 
@@ -75,15 +72,12 @@ class SyncCustomerToMollieTest extends IntegrationTestCase
             email: 'test@test.nl',
             locale: 'nl_NL',
             metadata: null,
-            createdAt: CarbonImmutable::now()
+            createdAt: CarbonImmutable::now(),
         );
 
         $customer = $this->customerWithMollie;
 
-        $manager
-            ->expects(self::once())
-            ->method('updateCustomer')
-            ->willReturn($response);
+        $manager->expects(self::once())->method('updateCustomer')->willReturn($response);
 
         $this->app->bind(MollieCustomerManager::class, fn (): MollieCustomerManager => $manager);
 
@@ -100,13 +94,13 @@ class SyncCustomerToMollieTest extends IntegrationTestCase
         $manager
             ->expects(self::once())
             ->method('updateCustomer')
-            ->willThrowException((new MollieCustomerApiException(
+            ->willThrowException(new MollieCustomerApiException(
                 status: 404,
                 title: 'title',
                 detail: '',
                 field: null,
-                previous: new Exception('placeholder')
-            )));
+                previous: new Exception('placeholder'),
+            ));
 
         $this->app->bind(MollieCustomerManager::class, fn (): MollieCustomerManager => $manager);
 

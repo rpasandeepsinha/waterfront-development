@@ -14,8 +14,11 @@ class SearchDomainRequest extends BaseRequest
     /**
      * @param array<string, string> $parameters
      */
-    public function __construct(Client $client, OpenProviderConnectionInterface $connection, private readonly array $parameters)
-    {
+    public function __construct(
+        Client $client,
+        OpenProviderConnectionInterface $connection,
+        private readonly array $parameters,
+    ) {
         parent::__construct($client, $connection);
     }
 

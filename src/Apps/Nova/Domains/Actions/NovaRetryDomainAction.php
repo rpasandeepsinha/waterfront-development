@@ -38,9 +38,10 @@ class NovaRetryDomainAction extends NovaSubscriptionAction
         private readonly LoggerInterface $logger,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool =>
+            fn (NovaRequest $request): bool => (
                 $this->onlyForSingleSubscription($request)
                 && $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::EXTENSION)
+            ),
         );
     }
 
@@ -65,7 +66,11 @@ class NovaRetryDomainAction extends NovaSubscriptionAction
             $subscription->refresh();
         }
 
-        Assert::isInstanceOf($subscription->domainDeployment, DomainDeployment::class, 'Only Domain Subscriptions allowed');
+        Assert::isInstanceOf(
+            $subscription->domainDeployment,
+            DomainDeployment::class,
+            'Only Domain Subscriptions allowed',
+        );
 
         if ($subscription->product->productGroup->slug !== ProductGroupType::EXTENSION) {
             return self::danger($this->translator->translate('nova-action.error.subscription_invalid_for_retry'));
@@ -97,7 +102,7 @@ class NovaRetryDomainAction extends NovaSubscriptionAction
                 [
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                ]
+                ],
             );
 
             return self::danger($this->translator->translate('nova-action.error.retry-domain-failed-dns'));
@@ -107,7 +112,7 @@ class NovaRetryDomainAction extends NovaSubscriptionAction
             new CreateDns(
                 $dnsSubscription->uuid,
                 $domain,
-            )
+            ),
         );
 
         $this->eventDispatcher->dispatch(
@@ -115,7 +120,7 @@ class NovaRetryDomainAction extends NovaSubscriptionAction
                 domain: $domain,
                 subscription: $subscription,
                 domainDeployment: $domainDeployment,
-            )
+            ),
         );
 
         return Action::message($this->translator->translate('nova-action.success.retried_domain'));

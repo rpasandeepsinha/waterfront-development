@@ -25,7 +25,7 @@ class PleskClientProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/connection.php',
-            'hosting-service-client'
+            'hosting-service-client',
         );
     }
 

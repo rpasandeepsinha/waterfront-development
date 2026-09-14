@@ -30,22 +30,22 @@ use Waterfront\Infra\RtrClient\Services\Ssl\CertificateDownloader;
 class DownloadCertificateTest extends IntegrationTestCase
 {
     private const string TEST_CERT = <<<CERT_WRAP
------BEGIN CERTIFICATE-----
-not a main intermediate certificate
------END CERTIFICATE-----
-CERT_WRAP;
+    -----BEGIN CERTIFICATE-----
+    not a main intermediate certificate
+    -----END CERTIFICATE-----
+    CERT_WRAP;
 
     private const string TEST_INTERMEDIATE = <<<CERT_WRAP
------BEGIN CERTIFICATE-----
-not a real intermediate certificate
------END CERTIFICATE-----
-CERT_WRAP;
+    -----BEGIN CERTIFICATE-----
+    not a real intermediate certificate
+    -----END CERTIFICATE-----
+    CERT_WRAP;
 
     private const string TEST_ROOT = <<<CERT_WRAP
------BEGIN CERTIFICATE-----
-not a real root certificate
------END CERTIFICATE-----
-CERT_WRAP;
+    -----BEGIN CERTIFICATE-----
+    not a real root certificate
+    -----END CERTIFICATE-----
+    CERT_WRAP;
 
     private SslDeployment $sslDeployment;
 
@@ -55,11 +55,19 @@ CERT_WRAP;
 
         $product = new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne())->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($product)->createOne([
-            'domain' => 'sandwave.io',
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->createOne([
+                'domain' => 'sandwave.io',
+            ]);
 
-        $rtrProvider = ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
+        $rtrProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $this->sslDeployment = new SslDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
@@ -78,32 +86,34 @@ CERT_WRAP;
             // Certiticate download
             new Response(
                 status: 200,
-                body: base64_encode(self::TEST_CERT)
+                body: base64_encode(self::TEST_CERT),
             ),
             // Certificate CA bundle download
             new Response(
                 status: 200,
-                body: base64_encode(self::TEST_INTERMEDIATE . "\n" . self::TEST_ROOT)
+                body: base64_encode(self::TEST_INTERMEDIATE . "\n" . self::TEST_ROOT),
             ),
         ]);
         $this->instance(RealtimeRegister::class, $rtrClient);
 
         $dispatcherMock = self::createMock(Dispatcher::class);
-        $dispatcherMock->expects(self::once())
+        $dispatcherMock
+            ->expects(self::once())
             ->method('dispatch')
             ->with(
                 self::callback(
-                    fn ($argument) =>
+                    fn ($argument) => (
                         $argument instanceof InstallCertificate
                         && $argument->getSslDeployment()->certificate_id === 77_665_544
-                )
+                    ),
+                ),
             );
         $this->instance(Dispatcher::class, $dispatcherMock);
 
         $downloadJob->handle(
             self::resolve(CertificateDownloader::class),
             self::resolve(Dispatcher::class),
-            self::resolve(MailerInterface::class)
+            self::resolve(MailerInterface::class),
         );
 
         $certificateManager = self::resolve(CertificateManager::class);

@@ -105,7 +105,10 @@ class VpsServiceTest extends IntegrationTestCase
             'weight' => 1,
         ]);
 
-        new ProductPriceComponentFactory()->for($vpsProduct)->registration()->createOne(['billing_period' => 1, 'contract_period' => 1, 'price' => 0]);
+        new ProductPriceComponentFactory()
+            ->for($vpsProduct)
+            ->registration()
+            ->createOne(['billing_period' => 1, 'contract_period' => 1, 'price' => 0]);
 
         $this->subscription = new SubscriptionFactory()->makeOne([
             'uuid' => $subscriptionUuid,
@@ -128,8 +131,10 @@ class VpsServiceTest extends IntegrationTestCase
         ]);
 
         $this->subscription
-            ->product()->associate($vpsProduct)
-            ->customer()->associate($customer)
+            ->product()
+            ->associate($vpsProduct)
+            ->customer()
+            ->associate($customer)
             ->save();
 
         $this->subscription->children()->save($osProductSubscription);
@@ -144,7 +149,7 @@ class VpsServiceTest extends IntegrationTestCase
 
         $vpsService->create(
             subscription: $this->subscription,
-            sshKeyUuid: null
+            sshKeyUuid: null,
         );
     }
 
@@ -163,44 +168,69 @@ class VpsServiceTest extends IntegrationTestCase
         $clientMock = self::createMock(CloudStackClient::class);
 
         /** @var array{network: array<mixed>} $response */
-        $response = json_decode((string) file_get_contents(__DIR__ . '/../data/networks/list-networks.json'), true, 512, JSON_THROW_ON_ERROR);
+        $response = json_decode(
+            (string) file_get_contents(__DIR__ . '/../data/networks/list-networks.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
         /** @var array<Network> $networks */
         $networks = CloudstackSerializerFactory::get()->denormalize($response['network'], Network::class . '[]');
-        $clientMock->expects(self::once())
-            ->method('listNetworks')
-            ->willReturn($networks);
+        $clientMock->expects(self::once())->method('listNetworks')->willReturn($networks);
 
-        $clientMock->expects(self::once())->method('listZones')->willReturn(
-            new Zone(
-                id: '1',
-                name: 'test',
-                networktype: 'Advanced',
-                securitygroupsenabled: true,
-                allocationstate: 'Enabled',
-                zonetoken: 'test',
-                dhcpprovider: 'DhcpProvider',
-                localstorageenabled: true,
-            )
-        );
+        $clientMock
+            ->expects(self::once())
+            ->method('listZones')
+            ->willReturn(
+                new Zone(
+                    id: '1',
+                    name: 'test',
+                    networktype: 'Advanced',
+                    securitygroupsenabled: true,
+                    allocationstate: 'Enabled',
+                    zonetoken: 'test',
+                    dhcpprovider: 'DhcpProvider',
+                    localstorageenabled: true,
+                ),
+            );
 
-        $clientMock->expects(self::once())->method('createAccount')->willReturn(new Account('1', 'test', 'test'));
-        $clientMock->expects(self::once())->method('createDomain')->willReturn(new Domain('1', 'test', 'test'));
+        $clientMock
+            ->expects(self::once())
+            ->method('createAccount')
+            ->willReturn(new Account('1', 'test', 'test'));
+        $clientMock
+            ->expects(self::once())
+            ->method('createDomain')
+            ->willReturn(new Domain('1', 'test', 'test'));
         $clientMock->expects(self::once())->method('createSecurityGroup')->willReturn('1');
         $clientMock->expects(self::once())->method('authorizeSecurityGroupIngress');
-        $clientMock->expects(self::exactly(2))->method('listDomainChildren')->willReturn(
-            new CloudStackPaginationIterator($baseClientMock, 'listDomainChildren', [], 'domain', new DomainMapper())
-        );
-        $clientMock->expects(self::once())->method('listAccounts')->willReturn(
-            new CloudStackPaginationIterator($baseClientMock, 'listAccounts', [], 'account', new AccountMapper())
-        );
+        $clientMock
+            ->expects(self::exactly(2))
+            ->method('listDomainChildren')
+            ->willReturn(
+                new CloudStackPaginationIterator(
+                    $baseClientMock,
+                    'listDomainChildren',
+                    [],
+                    'domain',
+                    new DomainMapper(),
+                ),
+            );
+        $clientMock
+            ->expects(self::once())
+            ->method('listAccounts')
+            ->willReturn(
+                new CloudStackPaginationIterator($baseClientMock, 'listAccounts', [], 'account', new AccountMapper()),
+            );
 
         $mockTemplate = self::createMock(Template::class);
         $mockTemplate->sshKeyEnabled = false;
         $mockTemplate->passwordEnabled = true;
         $mockTemplate->id = 'fa685028-1f5f-4acd-82a3-1693b91e605a';
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('listTemplates')
             ->with($this->templateSlug)
             ->willReturn([$mockTemplate]);
@@ -211,9 +241,7 @@ class VpsServiceTest extends IntegrationTestCase
         $cloudStackCreatedJob = json_decode($cloudstackJobResponse, true, 512, JSON_THROW_ON_ERROR);
         $asyncJobResponse = $serializer->denormalize($cloudStackCreatedJob, AsynchronousCloudstackResponse::class);
 
-        $clientMock->expects(self::once())
-            ->method('deployVirtualMachine')
-            ->willReturn($asyncJobResponse);
+        $clientMock->expects(self::once())->method('deployVirtualMachine')->willReturn($asyncJobResponse);
 
         $clientFactoryMock = self::createMock(ClientFactoryInterface::class);
         $clientFactoryMock->expects(self::exactly(2))->method('create')->willReturn($clientMock);
@@ -221,12 +249,10 @@ class VpsServiceTest extends IntegrationTestCase
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
         $clientAdminFactoryMockInterface = self::createMock(AdminClientFactoryInterface::class);
-        $clientAdminFactoryMockInterface->method('create')
-            ->willReturn($clientMock);
+        $clientAdminFactoryMockInterface->method('create')->willReturn($clientMock);
 
         $clientAdminFactoryMock = self::createMock(AdminClientFactory::class);
-        $clientAdminFactoryMock->method('create')
-            ->willReturn($clientMock);
+        $clientAdminFactoryMock->method('create')->willReturn($clientMock);
 
         $this->app->bind(AdminClientFactoryInterface::class, fn () => $clientAdminFactoryMockInterface);
         $this->app->bind(AdminClientFactory::class, fn () => $clientAdminFactoryMock);
@@ -237,7 +263,7 @@ class VpsServiceTest extends IntegrationTestCase
 
         $vpsService->create(
             subscription: $this->subscription,
-            sshKeyUuid: (string) $sshKey->uuid
+            sshKeyUuid: (string) $sshKey->uuid,
         );
 
         Queue::assertPushed(DeployVirtualMachineJob::class);
@@ -282,18 +308,16 @@ class VpsServiceTest extends IntegrationTestCase
             bus: $bus,
             mailer: $mailer,
             cloudstackJobRepository: $cloudstackJobRepository,
-            virtualMachineService: $virtualMachineServiceInterface
+            virtualMachineService: $virtualMachineServiceInterface,
         );
 
-        $mockManagerDomainService->expects(self::once())
-            ->method('create')
-            ->willThrowException(new ClientException());
+        $mockManagerDomainService->expects(self::once())->method('create')->willThrowException(new ClientException());
 
         self::expectException(ClientException::class);
 
         $vpsService->create(
             subscription: $this->subscription,
-            sshKeyUuid: null
+            sshKeyUuid: null,
         );
 
         self::assertSame(TechnicalStatus::ERROR->value, $this->subscription->refresh()->technical_status);
@@ -320,7 +344,8 @@ class VpsServiceTest extends IntegrationTestCase
         ]);
 
         $virtualMachineServiceMock = self::createMock(VirtualMachineServiceInterface::class);
-        $virtualMachineServiceMock->expects(self::once())
+        $virtualMachineServiceMock
+            ->expects(self::once())
             ->method('findByDeployment')
             ->with(self::callback(fn (VirtualMachineDeployment $d) => $d->id === $deployment->id))
             ->willReturn(self::createStub(VirtualMachine::class));
@@ -361,7 +386,8 @@ class VpsServiceTest extends IntegrationTestCase
         $this->app->bind(VirtualMachineServiceInterface::class, fn () => $virtualMachineServiceMock);
 
         $cloudstackJobRepoMock = self::createMock(CloudstackJobRepository::class);
-        $cloudstackJobRepoMock->expects(self::once())
+        $cloudstackJobRepoMock
+            ->expects(self::once())
             ->method('hasActiveJobForVmDeployment')
             ->with($deployment->id)
             ->willReturn(true);
@@ -389,7 +415,8 @@ class VpsServiceTest extends IntegrationTestCase
         ]);
 
         $vmRepo = self::createMock(VirtualMachineDeploymentRepositoryInterface::class);
-        $vmRepo->expects(self::once())
+        $vmRepo
+            ->expects(self::once())
             ->method('findBySubscriptionUuid')
             ->willThrowException(new VirtualMachineNotFoundException());
 
@@ -423,9 +450,7 @@ class VpsServiceTest extends IntegrationTestCase
             ])
             ->getMock();
 
-        $service->expects(self::once())
-            ->method('create')
-            ->with($this->subscription, 'ssh-uuid');
+        $service->expects(self::once())->method('create')->with($this->subscription, 'ssh-uuid');
 
         $service->retry(subscription: $this->subscription, sshKeyUuid: 'ssh-uuid', deleteVmFirst: false);
     }
@@ -507,21 +532,24 @@ class VpsServiceTest extends IntegrationTestCase
 
         $vmRepo = self::createMock(VirtualMachineDeploymentRepositoryInterface::class);
         $vmRepo->method('findBySubscriptionUuid')->willReturn($deployment);
-        $vmRepo->method('getOsSubscriptionChildFromSubscriptionUuid')->willReturn(
-            $this->subscription->children()->firstOrFail()
-        );
+        $vmRepo
+            ->method('getOsSubscriptionChildFromSubscriptionUuid')
+            ->willReturn(
+                $this->subscription->children()->firstOrFail(),
+            );
 
         $cloudstackJobRepo = self::createMock(CloudstackJobRepository::class);
         $cloudstackJobRepo->method('hasActiveJobForVmDeployment')->willReturn(false);
 
         $virtualMachineService = self::createMock(VirtualMachineServiceInterface::class);
         $virtualMachineService->method('findByDeployment')->willReturn(self::createStub(VirtualMachine::class));
-        $virtualMachineService->expects(self::once())
+        $virtualMachineService
+            ->expects(self::once())
             ->method('reinstall')
             ->with(
                 deployment: $deployment,
                 newOs: self::isInstanceOf(Product::class),
-                sshKeyUuid: 'ssh'
+                sshKeyUuid: 'ssh',
             );
 
         /** @var VpsService&MockObject $service */
@@ -692,11 +720,14 @@ class VpsServiceTest extends IntegrationTestCase
             ->for($this->operatingSystemProduct, 'product')
             ->createOne();
 
-        new ProductPriceComponentFactory()->for($vpsProduct)->prolongation()->createOne([
-            'billing_period' => 1,
-            'contract_period' => 1,
-            'price' => 0,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($vpsProduct)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 1,
+                'contract_period' => 1,
+                'price' => 0,
+            ]);
 
         $this->environment = Environment::create([
             'slug' => 'TEST01',
@@ -715,15 +746,19 @@ class VpsServiceTest extends IntegrationTestCase
         new EnvironmentProduct([
             'product_identifier' => 'd8a23fc6-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
         ])
-            ->environment()->associate($this->environment)
-            ->product()->associate($vpsProduct)
+            ->environment()
+            ->associate($this->environment)
+            ->product()
+            ->associate($vpsProduct)
             ->save();
 
         new EnvironmentProduct([
             'product_identifier' => 'd8a23fc6-bbbb-bbbb-bbbb-bbbbbbbbbbbc',
         ])
-            ->environment()->associate($this->environment)
-            ->product()->associate($this->operatingSystemProduct)
+            ->environment()
+            ->associate($this->environment)
+            ->product()
+            ->associate($this->operatingSystemProduct)
             ->save();
 
         $this->subscription = new SubscriptionFactory()->makeOne([
@@ -745,8 +780,10 @@ class VpsServiceTest extends IntegrationTestCase
         ]);
 
         $this->subscription
-            ->product()->associate($vpsProduct)
-            ->customer()->associate($customer)
+            ->product()
+            ->associate($vpsProduct)
+            ->customer()
+            ->associate($customer)
             ->save();
 
         $this->subscription->children()->save($osProductSubscription);

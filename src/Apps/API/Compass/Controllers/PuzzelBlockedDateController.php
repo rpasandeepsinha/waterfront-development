@@ -32,12 +32,13 @@ class PuzzelBlockedDateController
         $pageSize = $request->integer(key: 'pageSize', default: 100);
         $blockedDates = $this->blockedRepository->getTodayAndFutureDatesPagination($pageSize);
         $blockedDates->appends('pageSize', (string) $pageSize);
+
         return PuzzelBlockedDateResource::collection($blockedDates)->additional(['pageSize' => $pageSize]);
     }
 
     public function store(StoreBlockedDateRequest $request): Response
     {
-        $date =  $request->date('date');
+        $date = $request->date('date');
 
         Assert::isInstanceOf($date, CarbonInterface::class);
 

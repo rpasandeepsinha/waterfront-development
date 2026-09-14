@@ -115,10 +115,7 @@ xVRNbkk=
 -----END CERTIFICATE-----',
         ];
 
-        $this->sslUpload
-            ->setCert($data['cert'])
-            ->setKey($data['key'])
-            ->setDomain($domain);
+        $this->sslUpload->setCert($data['cert'])->setKey($data['key'])->setDomain($domain);
 
         $certificateCreated = $api->loginAs($user)->call($this->sslUpload);
 

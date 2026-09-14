@@ -54,12 +54,13 @@ class AuthenticateFeatureTest extends IntegrationTestCase
         );
 
         $authenticationManager = self::createMock(AuthenticationManager::class);
-        $authenticationManager->expects(self::once())
-            ->method('handleRequest');
-        $authenticationManager->expects(self::exactly(4))
+        $authenticationManager->expects(self::once())->method('handleRequest');
+        $authenticationManager
+            ->expects(self::exactly(4))
             ->method('getAuthenticatedCustomer')
             ->willReturn($authenticatedCustomer);
-        $authenticationManager->expects(self::exactly(2))
+        $authenticationManager
+            ->expects(self::exactly(2))
             ->method('getAuthenticatedSubject')
             ->willReturn($authenticatedCustomer);
 
@@ -73,10 +74,12 @@ class AuthenticateFeatureTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
 
-        $this->actingAsEmployee()->getJson(
-            $this->generateRoute('admin.customers.show', ['customer' => $customer->customer_number]),
-            ['Authorization' => 'Bearer tokentoken']
-        )->assertOk();
+        $this->actingAsEmployee()
+            ->getJson(
+                $this->generateRoute('admin.customers.show', ['customer' => $customer->customer_number]),
+                ['Authorization' => 'Bearer tokentoken'],
+            )
+            ->assertOk();
     }
 
     #[Test]
@@ -90,9 +93,9 @@ class AuthenticateFeatureTest extends IntegrationTestCase
     public function callingAuthenticatedAdminRouteWithoutEmployeePermissionFails(): void
     {
         $authenticationManager = self::createMock(AuthenticationManager::class);
-        $authenticationManager->expects(self::once())
-            ->method('handleRequest');
-        $authenticationManager->expects(self::once())
+        $authenticationManager->expects(self::once())->method('handleRequest');
+        $authenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedEmployee')
             ->willThrowException(new AuthorizationException());
 
@@ -100,7 +103,7 @@ class AuthenticateFeatureTest extends IntegrationTestCase
 
         $response = $this->get(
             $this->generateRoute('admin.customers.show', ['customer' => '1234']),
-            ['Authorization' => 'Bearer tokentoken']
+            ['Authorization' => 'Bearer tokentoken'],
         );
         $response->assertRedirect();
     }
@@ -109,9 +112,9 @@ class AuthenticateFeatureTest extends IntegrationTestCase
     public function callingAuthenticatedAdminRouteWithoutEmployeePermissionAndJsonAcceptHeaderFails(): void
     {
         $authenticationManager = self::createMock(AuthenticationManager::class);
-        $authenticationManager->expects(self::once())
-            ->method('handleRequest');
-        $authenticationManager->expects(self::once())
+        $authenticationManager->expects(self::once())->method('handleRequest');
+        $authenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedEmployee')
             ->willThrowException(new AuthorizationException());
 
@@ -119,7 +122,7 @@ class AuthenticateFeatureTest extends IntegrationTestCase
 
         $response = $this->getJson(
             $this->generateRoute('admin.customers.show', ['customer' => '1234']),
-            ['Authorization' => 'Bearer tokentoken']
+            ['Authorization' => 'Bearer tokentoken'],
         );
         $response->assertForbidden();
     }

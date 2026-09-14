@@ -39,18 +39,13 @@ class FetchMandateActionTest extends IntegrationTestCase
 
         $this->baseTime = CarbonImmutable::createFromTimeString('2023-08-11T12:34:03.000+02:00');
 
-        $customer = new CustomerFactory()
-            ->createOne();
+        $customer = new CustomerFactory()->createOne();
 
-        $mollieCustomer = new MollieCustomerFactory()
-            ->for($customer)
-            ->createOne();
+        $mollieCustomer = new MollieCustomerFactory()->for($customer)->createOne();
 
-        $mandate = new MandateFactory()
-            ->for($mollieCustomer)
-            ->createOne([
-                'payt_mandate_reference_id' => '5',
-            ]);
+        $mandate = new MandateFactory()->for($mollieCustomer)->createOne([
+            'payt_mandate_reference_id' => '5',
+        ]);
 
         $this->mandates = new Collection([$mandate]);
     }
@@ -61,8 +56,7 @@ class FetchMandateActionTest extends IntegrationTestCase
         $this->app->bind(function (): MollieMandateManager {
             $mock = self::createStub(MollieMandateManager::class);
 
-            $mock->method('getMandate')
-                ->willReturn($this->getMollieMandateResponseDTO());
+            $mock->method('getMandate')->willReturn($this->getMollieMandateResponseDTO());
 
             return $mock;
         });
@@ -70,14 +64,13 @@ class FetchMandateActionTest extends IntegrationTestCase
         $this->app->bind(function (): PaytMandateManager {
             $mock = self::createStub(PaytMandateManager::class);
 
-            $mock->method('getMandate')
-                ->willReturn($this->getPaytMandateResponseDTO());
+            $mock->method('getMandate')->willReturn($this->getPaytMandateResponseDTO());
 
             return $mock;
         });
 
-        $action   = self::resolve(NovaFetchMandateAction::class);
-        $fields   = $this->getActionFields();
+        $action = self::resolve(NovaFetchMandateAction::class);
+        $fields = $this->getActionFields();
         $response = $action->handle($fields, $this->mandates);
 
         self::assertInstanceOf(ActionResponse::class, $response);
@@ -95,7 +88,7 @@ class FetchMandateActionTest extends IntegrationTestCase
     {
         return new ActionFields(
             new Collection([]),
-            new Collection([])
+            new Collection([]),
         );
     }
 
@@ -110,11 +103,11 @@ class FetchMandateActionTest extends IntegrationTestCase
             details: new MollieMandateDetailsDTO(
                 consumerName: 'name',
                 consumerAccount: 'account',
-                consumerBic: 'bic'
+                consumerBic: 'bic',
             ),
             mandateReference: 'mdt_test_1',
             signatureDate: $this->baseTime->toDateString(),
-            createdAt: $this->baseTime
+            createdAt: $this->baseTime,
         );
     }
 

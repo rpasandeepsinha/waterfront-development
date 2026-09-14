@@ -92,7 +92,10 @@ class MessageService
         return new DebtorInvoiceLines(
             debtor: $this->debtorBuilder->fromCustomer($customer),
             items: new InvoiceLineCollection(
-                array_map(fn (Invoice $invoice): InvoiceLine => $this->createInvoiceLineFrom($this->getConfigForInvoice($invoice, $configs)), $invoices)
+                array_map(fn (Invoice $invoice): InvoiceLine => $this->createInvoiceLineFrom($this->getConfigForInvoice(
+                    $invoice,
+                    $configs,
+                )), $invoices),
             ),
             createInvoiceInstantly: $createInvoiceInstantly,
         );
@@ -113,7 +116,7 @@ class MessageService
     {
         $foundConfigs = array_filter(
             $configs,
-            fn (InvoiceLineMessageConfig $config): bool => $config->getInvoice()->id === $invoice->id
+            fn (InvoiceLineMessageConfig $config): bool => $config->getInvoice()->id === $invoice->id,
         );
         $config = reset($foundConfigs);
 
@@ -124,7 +127,10 @@ class MessageService
         if (! $config instanceof InvoiceLineMessageConfig) {
             $subscription = $invoice->subscription;
             $product = $invoice->product;
-            $prepaidReference = $invoice->prepaid_reference ?? $this->invoiceRepository->findPrepaidPayment($invoice->paid, $subscription);
+            $prepaidReference = $invoice->prepaid_reference ?? $this->invoiceRepository->findPrepaidPayment(
+                $invoice->paid,
+                $subscription,
+            );
 
             $config = new InvoiceLineMessageConfig(
                 invoice: $invoice,
@@ -139,10 +145,10 @@ class MessageService
 
     private function createInvoiceLineFrom(InvoiceLineMessageConfig $config): InvoiceLine
     {
-        $invoice            = $config->getInvoice();
-        $product            = $config->getProduct();
-        $subscription       = $config->getSubscription();
-        $creditedInvoiceId  = $config->getCreditedInvoiceId();
+        $invoice = $config->getInvoice();
+        $product = $config->getProduct();
+        $subscription = $config->getSubscription();
+        $creditedInvoiceId = $config->getCreditedInvoiceId();
 
         return new InvoiceLine(
             startDate: $invoice->start_date->format(DateTimeFormat::DATE),
@@ -165,7 +171,7 @@ class MessageService
             waterfrontInvoiceId: $invoice->id,
             creditReason: $invoice->credit_reason,
             type: $invoice->type,
-            mergeOnPdfWithWaterfrontInvoiceId: $invoice->merge_on_pdf_with_invoice_id
+            mergeOnPdfWithWaterfrontInvoiceId: $invoice->merge_on_pdf_with_invoice_id,
         );
     }
 

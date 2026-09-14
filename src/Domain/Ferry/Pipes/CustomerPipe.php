@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Waterfront\Domain\Ferry\Pipes;
 
 use Closure;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Factory as ValidatorFactory;
 use Illuminate\Validation\ValidationException;
 use Psr\Log\LoggerInterface;
@@ -21,7 +23,7 @@ class CustomerPipe extends ValidationPipe
     public function __construct(
         private readonly CustomerMigrationRules $customerMigrationRules,
         private readonly LoggerInterface $logger,
-        private readonly ValidatorFactory $validationFactory
+        private readonly ValidatorFactory $validationFactory,
     ) {
     }
 
@@ -32,13 +34,13 @@ class CustomerPipe extends ValidationPipe
             [
                 LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
-            ]
+            ],
         );
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
             message: 'Start',
-            id: $payload->validationReference
+            id: $payload->validationReference,
         );
 
         $customerData = $payload->customer;
@@ -48,7 +50,7 @@ class CustomerPipe extends ValidationPipe
         $validator = $this->validationFactory->make(
             $customerData,
             $rules,
-            $messages
+            $messages,
         );
 
         $this->logger->debug(
@@ -57,8 +59,10 @@ class CustomerPipe extends ValidationPipe
                 LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                 LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $customerData['referenceCustomerId'],
-            ]
+            ],
         );
+
+        $this->checkIsEmployee($payload);
 
         try {
             $validator->validate();
@@ -66,13 +70,13 @@ class CustomerPipe extends ValidationPipe
             $this->addValidationErrorResult(
                 $payload,
                 MigrationValidation::DEFAULT_VALIDATION,
-                $exception->validator->errors()->toArray()
+                $exception->validator->errors()->toArray(),
             );
 
             $payload->addValidationTimeline(
                 pipeline: $this->getValidationIdentifier(),
                 message: 'Validation finish',
-                id: $payload->validationReference
+                id: $payload->validationReference,
             );
 
             return $this->finishPipe(MigrationValidation::CUSTOMER_PIPE_PASSED, $payload, $this->logger, $next);
@@ -84,7 +88,7 @@ class CustomerPipe extends ValidationPipe
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                     LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $customerData['referenceCustomerId'],
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
             $this->addValidationResult(
                 $payload,
@@ -95,7 +99,7 @@ class CustomerPipe extends ValidationPipe
             $payload->addValidationTimeline(
                 pipeline: $this->getValidationIdentifier(),
                 message: 'Exception finish',
-                id: $payload->validationReference
+                id: $payload->validationReference,
             );
 
             return $this->finishPipe(MigrationValidation::CUSTOMER_PIPE_PASSED, $payload, $this->logger, $next);
@@ -107,7 +111,7 @@ class CustomerPipe extends ValidationPipe
                 LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                 LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $customerData['referenceCustomerId'],
-            ]
+            ],
         );
 
         $this->logger->debug(
@@ -116,13 +120,13 @@ class CustomerPipe extends ValidationPipe
                 LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                 LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $customerData['referenceCustomerId'],
-            ]
+            ],
         );
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
             message: 'Finish',
-            id: $payload->validationReference
+            id: $payload->validationReference,
         );
 
         return $this->finishPipe(MigrationValidation::CUSTOMER_PIPE_PASSED, $payload, $this->logger, $next);
@@ -139,5 +143,44 @@ class CustomerPipe extends ValidationPipe
     private function getBaseMessages(): array
     {
         return MigrationValidationLibrary::customerMessages();
+    }
+
+    private function checkIsEmployee(
+        ValidationPayload $payload,
+    ): void {
+        $email = Arr::string($payload->customer, 'email', '');
+
+        $isEmployeeEmail = Str::endsWith(
+            $email,
+            [
+                '@yourhosting.nl',
+                '@versio.nl',
+                '@cldin.eu',
+                '@sandwave.io',
+                // more...?
+            ],
+        );
+
+        if ($isEmployeeEmail) {
+            $message = sprintf(
+                'Customer payload contains employee e-mail address: %s',
+                $email,
+            );
+
+            $this->logger->debug(
+                $message,
+                [
+                    LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
+                    LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
+                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $payload->customer['referenceCustomerId'],
+                ],
+            );
+
+            $this->addValidationResult(
+                validationPayload: $payload,
+                migrationValidationKey: MigrationValidation::CUSTOMER_PIPE_IS_EMPLOYEE,
+                message: $message,
+            );
+        }
     }
 }

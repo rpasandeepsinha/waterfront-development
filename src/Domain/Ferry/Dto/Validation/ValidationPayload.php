@@ -12,7 +12,7 @@ use Waterfront\Domain\Ferry\Enums\MigrationValidationPipes;
 
 class ValidationPayload
 {
-    private string|null $jobUuid = null;
+    private ?string $jobUuid = null;
 
     /**
      * @param array<string, mixed>              $customer
@@ -48,8 +48,11 @@ class ValidationPayload
         $this->validationResults[$pipeline->value][] = $result->toArray();
     }
 
-    public function addValidationTimeline(MigrationValidationPipes $pipeline, string|null $message, int|string|null $id = null): void
-    {
+    public function addValidationTimeline(
+        MigrationValidationPipes $pipeline,
+        ?string $message,
+        int|string|null $id = null,
+    ): void {
         $trace = new Exception()->getTrace();
         /** @var array<string, string> $caller */
         $caller = array_shift($trace);
@@ -60,11 +63,11 @@ class ValidationPayload
             str_replace(
                 '.php',
                 '',
-                substr($caller['file'], (int) strrpos($caller['file'], '/') + 1)
+                substr($caller['file'], (int) strrpos($caller['file'], '/') + 1),
             ),
             $caller['line'],
             $message,
-            $id
+            $id,
         );
     }
 
@@ -83,22 +86,7 @@ class ValidationPayload
         return false;
     }
 
-    public function getDriverFromExtensionsArray(string $domain): string|null
-    {
-        $domains = Arr::get($this->subscriptions, 'domain_extensions', []);
-        assert(is_array($domains));
-
-        foreach ($domains as $subscription) {
-            assert(is_array($subscription));
-            if (array_key_exists('domain', $subscription) && $subscription['domain'] === $domain) {
-                return array_key_exists('driver', $subscription) && is_string($subscription['driver']) ? $subscription['driver'] : null;
-            }
-        }
-
-        return null;
-    }
-
-    public function getBusinessUnit(): string|null
+    public function getBusinessUnit(): ?string
     {
         /** @var string|null $bu */
         $bu = Arr::get($this->customer, 'referenceName');
@@ -106,25 +94,10 @@ class ValidationPayload
         return $bu;
     }
 
-    public function getProviderBuFromExtensionsArray(string $domain): string|null
-    {
-        $domains = Arr::get($this->subscriptions, 'domain_extensions', []);
-        assert(is_array($domains));
-
-        foreach ($domains as $subscription) {
-            assert(is_array($subscription));
-            if (array_key_exists('domain', $subscription) && $subscription['domain'] === $domain) {
-                return array_key_exists('reference_domain_provider_business_unit_slug', $subscription) && is_string($subscription['reference_domain_provider_business_unit_slug']) ? $subscription['reference_domain_provider_business_unit_slug'] : null;
-            }
-        }
-
-        return null;
-    }
-
     /**
      * @return array<string, mixed>|null
      */
-    public function findSubscriptionByDomain(ImplementableProducts $type, string $domain): array|null
+    public function findSubscriptionByDomain(ImplementableProducts $type, string $domain): ?array
     {
         $subscriptions = Arr::get($this->subscriptions, $type->value, []);
 
@@ -150,7 +123,7 @@ class ValidationPayload
         return $this->jobUuid ?? 'unknown';
     }
 
-    public function setJobId(string|null $jobUuid): void
+    public function setJobId(?string $jobUuid): void
     {
         $this->jobUuid = $jobUuid;
     }

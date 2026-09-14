@@ -8,8 +8,9 @@ use RuntimeException;
 
 class OrderLineItemNotProcessableException extends RuntimeException
 {
-    private function __construct(public readonly string $translationKey)
-    {
+    private function __construct(
+        public readonly string $translationKey,
+    ) {
         parent::__construct($translationKey);
     }
 

@@ -15,7 +15,7 @@ class InvalidRedirectSchemeException extends CaddyException
                 'Frame redirects only support http and https URLs, got "%s".',
                 $targetUrl,
             ),
-            previous: $previous
+            previous: $previous,
         );
     }
 }

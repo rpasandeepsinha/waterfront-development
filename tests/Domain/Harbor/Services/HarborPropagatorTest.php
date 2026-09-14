@@ -42,7 +42,7 @@ class HarborPropagatorTest extends IntegrationTestCase
             'customer_id' => $this->customer->id,
         ]);
         $group = new ProductGroupFactory()->hosting()->createOne();
-        $this->product  = new ProductFactory()->createOne([
+        $this->product = new ProductFactory()->createOne([
             'product_group_id' => $group->id,
         ]);
     }

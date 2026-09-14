@@ -46,7 +46,8 @@ readonly class IntroDiscountPricePriceHandler
             $orderCounts = $this->orderRepository->getCustomerOrderCountsByProductAndContractPeriod($customer);
         }
 
-        $introductionPrices = DB::select(<<<SQL
+        $introductionPrices = DB::select(
+            <<<SQL
             select distinct on (product_price_components.product_id, product_price_components.contract_period, product_price_components.billing_period) product_price_components.product_id, product_price_components.id, product_price_components.contract_period, product_price_components.billing_period, product_price_components.price
             from product_price_components
             where product_price_components.product_id in ({$productIdsString})
@@ -54,7 +55,9 @@ readonly class IntroDiscountPricePriceHandler
             and (product_price_components.expires_at is null or product_price_components.expires_at > :currentDate)
             and product_price_components.type = :priceType
             order by product_price_components.product_id, product_price_components.contract_period, product_price_components.billing_period, product_price_components.starts_at desc
-            SQL, ['currentDate' => CarbonImmutable::now(), 'priceType' => PriceComponentType::INTRODUCTION->value]);
+            SQL,
+            ['currentDate' => CarbonImmutable::now(), 'priceType' => PriceComponentType::INTRODUCTION->value],
+        );
 
         foreach ($introductionPrices as $introductionPrice) {
             $registrationPrice = $prices
@@ -72,16 +75,23 @@ readonly class IntroDiscountPricePriceHandler
                 continue;
             }
 
-            if (! array_key_exists($introductionPrice->contract_period, $introductionDiscountsMap[$introductionPrice->product_id])) {
+            if (! array_key_exists(
+                $introductionPrice->contract_period,
+                $introductionDiscountsMap[$introductionPrice->product_id],
+            )) {
                 continue;
             }
 
-            $firstMonthsDiscountPeriod = $introductionDiscountsMap[$introductionPrice->product_id][$introductionPrice->contract_period]['firstMonthsDiscountPeriod'];
-            $maxUsesPerCustomer = $introductionDiscountsMap[$introductionPrice->product_id][$introductionPrice->contract_period]['maxUsesPerCustomer'];
+            $firstMonthsDiscountPeriod =
+                $introductionDiscountsMap[$introductionPrice->product_id][$introductionPrice->contract_period]['firstMonthsDiscountPeriod'];
+            $maxUsesPerCustomer =
+                $introductionDiscountsMap[$introductionPrice->product_id][$introductionPrice->contract_period]['maxUsesPerCustomer'];
 
             $orderCount = $orderCounts->first(
-                fn (OrderCountDTO $count) =>
-                $count->productId === $introductionPrice->product_id && $count->contractPeriod === $introductionPrice->contract_period
+                fn (OrderCountDTO $count) => (
+                    $count->productId === $introductionPrice->product_id
+                    && $count->contractPeriod === $introductionPrice->contract_period
+                ),
             );
 
             if ($orderCount === null || $maxUsesPerCustomer === null) {
@@ -90,7 +100,15 @@ readonly class IntroDiscountPricePriceHandler
                 $remainingUses = max(0, $maxUsesPerCustomer - $orderCount->count);
             }
 
-            $registrationPrice->possiblePriceComponents[] = new IntroductionPriceComponent(null, null, $introductionPrice->price, $introductionPrice->price, $remainingUses, $maxUsesPerCustomer, $firstMonthsDiscountPeriod);
+            $registrationPrice->possiblePriceComponents[] = new IntroductionPriceComponent(
+                null,
+                null,
+                $introductionPrice->price,
+                $introductionPrice->price,
+                $remainingUses,
+                $maxUsesPerCustomer,
+                $firstMonthsDiscountPeriod,
+            );
         }
 
         return $prices;
@@ -101,7 +119,7 @@ readonly class IntroDiscountPricePriceHandler
      *
      * @return array<int, array<int, array{'maxUsesPerCustomer': non-negative-int|null, 'firstMonthsDiscountPeriod': int|null}>>
      */
-    public function getAllIntroductionDiscounts(array $productIds): array
+    private function getAllIntroductionDiscounts(array $productIds): array
     {
         // Yes we query all entries here. There are a couple of products with discount so right now adding a where is not needed.
         $allIntroductionDiscountProducts = ProductIntroductionDiscount::all();
@@ -113,11 +131,13 @@ readonly class IntroDiscountPricePriceHandler
                 continue;
             }
 
-            $introductionDiscountsMap[$allIntroductionDiscountProduct->product_id][$allIntroductionDiscountProduct->contract_period] = [
-                'maxUsesPerCustomer' => $allIntroductionDiscountProduct->max_uses_per_customer,
-                'firstMonthsDiscountPeriod' => $allIntroductionDiscountProduct->first_months_discount_period,
-            ];
+            $introductionDiscountsMap[$allIntroductionDiscountProduct->product_id][$allIntroductionDiscountProduct->contract_period] =
+                [
+                    'maxUsesPerCustomer' => $allIntroductionDiscountProduct->max_uses_per_customer,
+                    'firstMonthsDiscountPeriod' => $allIntroductionDiscountProduct->first_months_discount_period,
+                ];
         }
+
         return $introductionDiscountsMap;
     }
 }

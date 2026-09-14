@@ -26,8 +26,7 @@ class CloudstackJobRepository
             ->where('vm_deployment_id', $vmDeploymentId)
             ->whereNull('cloudstack_completed')
             ->where(function ($q): void {
-                $q->whereNull('status')
-                    ->orWhere('status', JobStatus::PENDING->value);
+                $q->whereNull('status')->orWhere('status', JobStatus::PENDING->value);
             })
             ->where('updated_at', '>=', CarbonImmutable::now()->subMinutes(self::ACTIVE_JOB_TTL_MINUTES))
             ->exists();

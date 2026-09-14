@@ -63,7 +63,7 @@ class PowerDnsClient
         $this->logDnsZoneInParts(
             'PowerDnsZone get domain: {domain.name}',
             $domain,
-            $powerDnsZone
+            $powerDnsZone,
         );
 
         return $this->converter->convertFromPowerDnsZone($powerDnsZone);
@@ -96,12 +96,12 @@ class PowerDnsClient
         $this->logDnsZoneInParts(
             'PowerDnsZone create domain: {domain.name}',
             rtrim('' . $powerDnsZone->id, '.'),
-            $powerDnsZone
+            $powerDnsZone,
         );
 
         $request = $this->internalClient->createPostRequest(
             'api/v1/servers/localhost/zones',
-            $powerDnsZone->toArray()
+            $powerDnsZone->toArray(),
         );
 
         $response = $this->internalClient->client->send($request);
@@ -111,8 +111,8 @@ class PowerDnsClient
                 sprintf(
                     'Zone for domain %s Already created! error message: %s',
                     $powerDnsZone->name,
-                    $response->getBody()->getContents()
-                )
+                    $response->getBody()->getContents(),
+                ),
             );
         }
 
@@ -121,8 +121,8 @@ class PowerDnsClient
                 sprintf(
                     'Zone for domain %s was provided with a invalid payload! error message: %s',
                     $powerDnsZone->name,
-                    $response->getBody()->getContents()
-                )
+                    $response->getBody()->getContents(),
+                ),
             );
         }
 
@@ -132,8 +132,8 @@ class PowerDnsClient
                     "Error patch zone for domain '%s' status code: %d error message from PDNS: %s",
                     $powerDnsZone->name,
                     $response->getStatusCode(),
-                    $response->getBody()->getContents()
-                )
+                    $response->getBody()->getContents(),
+                ),
             );
         }
 
@@ -245,18 +245,18 @@ class PowerDnsClient
             }
 
             $rrSets[$record->getType()] = [
-                'name'       => rtrim($record->getName(), '.') . '.',
-                'type'       => $record->getType(),
-                'ttl'        => $record->getTtl(),
+                'name' => rtrim($record->getName(), '.') . '.',
+                'type' => $record->getType(),
+                'ttl' => $record->getTtl(),
                 'changetype' => $changeType->value,
-                'records'    => [],
+                'records' => [],
                 // Records are added below
             ];
         }
 
         foreach ($records as $record) {
             $rrSets[$record->getType()]['records'][] = [
-                'content'  => $record->getContent(),
+                'content' => $record->getContent(),
                 'disabled' => $record->isDisabled(),
             ];
         }
@@ -264,10 +264,12 @@ class PowerDnsClient
         // We only used the array key to store the record type temporarily, so we don't need it.
         $rrSetsPayload = array_values($rrSets);
 
-        $request = $this->internalClient->createPutRequest(
-            'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain),
-            ['rrsets' => $rrSetsPayload]
-        )->withMethod('PATCH');
+        $request = $this->internalClient
+            ->createPutRequest(
+                'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain),
+                ['rrsets' => $rrSetsPayload],
+            )
+            ->withMethod('PATCH');
 
         $response = $this->internalClient->client->send($request);
 
@@ -279,7 +281,7 @@ class PowerDnsClient
                     $response->getStatusCode(),
                     $response->getBody()->getContents(),
                     json_encode($rrSetsPayload, JSON_THROW_ON_ERROR),
-                )
+                ),
             );
         }
     }
@@ -294,7 +296,7 @@ class PowerDnsClient
         $domain = $zone->getFqdn()->withoutTrailingDot();
 
         $this->internalClient->client->send(
-            $this->internalClient->createGetRequest('presigned/' . $this->encodeZoneDomain($domain))
+            $this->internalClient->createGetRequest('presigned/' . $this->encodeZoneDomain($domain)),
         );
     }
 
@@ -310,22 +312,22 @@ class PowerDnsClient
         $domain = $dnsZone->getFqdn()->withoutTrailingDot();
 
         $payload = [
-            'kind'       => PowerDnsZoneKind::MASTER->value,
+            'kind' => PowerDnsZoneKind::MASTER->value,
             'last_check' => 0,
-            'masters'    => [],
+            'masters' => [],
         ];
 
         $this->logger->info(
             'Updating zone kind and empty masters',
             [
-                LoggingContextKeys::DOMAIN_NAME  => $domain,
+                LoggingContextKeys::DOMAIN_NAME => $domain,
                 LoggingContextKeys::REQUEST_DATA => (string) json_encode($payload),
-            ]
+            ],
         );
 
         $request = $this->internalClient->createPutRequest(
             'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain),
-            $payload
+            $payload,
         );
 
         $response = $this->internalClient->client->send($request);
@@ -336,8 +338,8 @@ class PowerDnsClient
                     "Error put zone for domain '%s' status code: %d error message from PDNS: %s",
                     $domain,
                     $response->getStatusCode(),
-                    $response->getBody()->getContents()
-                )
+                    $response->getBody()->getContents(),
+                ),
             );
         }
     }
@@ -354,34 +356,39 @@ class PowerDnsClient
      */
     public function cleanupRecordsForPresigning(string $domain, array $records): void
     {
-        $rrsets = array_map(function (DnsRecordInterface $record) {
-            // Never remove the SOA record set
-            if ($record->getType() === 'SOA') {
-                return [
-                    'name'       => $record->getName() . '.',
-                    'type'       => 'SOA',
-                    'ttl'        => $record->getTtl() ?? 3600,
-                    'changetype' => PowerDnsRecordChangeType::REPLACE->value,
-                    'records'    => [
-                        [
-                            'content'  => PowerDnsSoaSerialUpdater::increaseSoaSerial($record->getContent()),
-                            'disabled' => false,
+        $rrsets = array_map(
+            function (DnsRecordInterface $record) {
+                // Never remove the SOA record set
+                if ($record->getType() === 'SOA') {
+                    return [
+                        'name' => $record->getName() . '.',
+                        'type' => 'SOA',
+                        'ttl' => $record->getTtl() ?? 3600,
+                        'changetype' => PowerDnsRecordChangeType::REPLACE->value,
+                        'records' => [
+                            [
+                                'content' => PowerDnsSoaSerialUpdater::increaseSoaSerial($record->getContent()),
+                                'disabled' => false,
+                            ],
                         ],
-                    ],
+                    ];
+                }
+
+                return [
+                    'name' => $record->getName() . '.',
+                    'type' => $record->getType(),
+                    'changetype' => PowerDnsRecordChangeType::DELETE->value,
                 ];
-            }
+            },
+            $records,
+        );
 
-            return [
-                'name'       => $record->getName() . '.',
-                'type'       => $record->getType(),
-                'changetype' => PowerDnsRecordChangeType::DELETE->value,
-            ];
-        }, $records);
-
-        $request = $this->internalClient->createPutRequest(
-            'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain),
-            ['rrsets' => $rrsets]
-        )->withMethod('PATCH');
+        $request = $this->internalClient
+            ->createPutRequest(
+                'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain),
+                ['rrsets' => $rrsets],
+            )
+            ->withMethod('PATCH');
 
         $response = $this->internalClient->client->send($request);
 
@@ -393,7 +400,7 @@ class PowerDnsClient
                     $response->getStatusCode(),
                     $response->getBody()->getContents(),
                     json_encode($rrsets, JSON_THROW_ON_ERROR),
-                )
+                ),
             );
         }
     }
@@ -408,7 +415,7 @@ class PowerDnsClient
             'PowerDnsZone delete zone for domain: {domain.name}',
             [
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-            ]
+            ],
         );
 
         $request = $this->internalClient->createDeleteRequest(
@@ -423,8 +430,8 @@ class PowerDnsClient
                     "Error delete zone for domain '%s' status code: %d error message from PDNS: %s",
                     $domain,
                     $response->getStatusCode(),
-                    $response->getBody()->getContents()
-                )
+                    $response->getBody()->getContents(),
+                ),
             );
         }
     }
@@ -439,7 +446,7 @@ class PowerDnsClient
     public function getMetadata(string $domain): array
     {
         $request = $this->internalClient->createGetRequest(
-            'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain) . '/metadata'
+            'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain) . '/metadata',
         );
 
         $response = $this->internalClient->client->send($request);
@@ -449,8 +456,8 @@ class PowerDnsClient
                 sprintf(
                     'Metadata for domain %s not found! error message: %s',
                     $domain,
-                    $response->getBody()
-                )
+                    $response->getBody(),
+                ),
             );
         }
 
@@ -481,21 +488,21 @@ class PowerDnsClient
         }
 
         $payload = [
-            'kind'     => $metadataType->value,
+            'kind' => $metadataType->value,
             'metadata' => $metaData,
         ];
 
         $this->logger->info(
             sprintf('Create metadata [%s] for %s', $metadataType->value, $domain),
             [
-                LoggingContextKeys::DOMAIN_NAME  => $domain,
+                LoggingContextKeys::DOMAIN_NAME => $domain,
                 LoggingContextKeys::REQUEST_DATA => (string) json_encode($payload),
-            ]
+            ],
         );
 
         $request = $this->internalClient->createPostRequest(
             'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain) . '/metadata',
-            $payload
+            $payload,
         );
 
         $response = $this->internalClient->client->send($request);
@@ -507,8 +514,8 @@ class PowerDnsClient
                     $metadataType->value,
                     $domain,
                     $response->getStatusCode(),
-                    $response->getBody()->getContents()
-                )
+                    $response->getBody()->getContents(),
+                ),
             );
         }
     }
@@ -529,11 +536,11 @@ class PowerDnsClient
         $this->logger->info(
             sprintf('PowerDnsZone delete metadata %s for domain: {domain.name}', $metadata->value),
             [
-                LoggingContextKeys::META        => [
+                LoggingContextKeys::META => [
                     'meta_type' => $metadata->value,
                 ],
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-            ]
+            ],
         );
 
         $request = $this->internalClient->createDeleteRequest(
@@ -549,8 +556,8 @@ class PowerDnsClient
                     $metadata->value,
                     $domain,
                     $response->getStatusCode(),
-                    $response->getBody()->getContents()
-                )
+                    $response->getBody()->getContents(),
+                ),
             );
         }
     }
@@ -566,7 +573,7 @@ class PowerDnsClient
             'Send notify for domain: {domain.name}',
             [
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-            ]
+            ],
         );
 
         $request = $this->internalClient->createPutRequest(
@@ -581,8 +588,8 @@ class PowerDnsClient
                     'Error send notify for domain %s status code: %d error message from PDNS: %s',
                     $domain,
                     $response->getStatusCode(),
-                    $response->getBody()->getContents()
-                )
+                    $response->getBody()->getContents(),
+                ),
             );
         }
 
@@ -600,9 +607,9 @@ class PowerDnsClient
             'Send custom CLDIN Gandi notify for domain: {domain.name}',
             [
                 LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::GANDI,
-                LoggingContextKeys::PROVISIONING_TYPE     => ProvisionType::DNS,
-                LoggingContextKeys::DOMAIN_NAME           => $domain,
-            ]
+                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
+                LoggingContextKeys::DOMAIN_NAME => $domain,
+            ],
         );
 
         $request = $this->internalClient->createGetRequest(
@@ -619,10 +626,11 @@ class PowerDnsClient
                 ),
                 [
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::GANDI,
-                    LoggingContextKeys::PROVISIONING_TYPE     => ProvisionType::DNS,
-                    LoggingContextKeys::DOMAIN_NAME           => $domain,
-                ]
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
+                    LoggingContextKeys::DOMAIN_NAME => $domain,
+                ],
             );
+
             return;
         }
 
@@ -630,9 +638,9 @@ class PowerDnsClient
             sprintf('Custom CLDIN Gandi notify response for {domain.name} is %d', $response->getStatusCode()),
             [
                 LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::GANDI,
-                LoggingContextKeys::PROVISIONING_TYPE     => ProvisionType::DNS,
-                LoggingContextKeys::DOMAIN_NAME           => $domain,
-            ]
+                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
+                LoggingContextKeys::DOMAIN_NAME => $domain,
+            ],
         );
     }
 
@@ -644,23 +652,23 @@ class PowerDnsClient
     public function updateLiveDns(string $domain, bool $enable): void
     {
         $payload = [
-            'kind'       => PowerDnsZoneKind::MASTER->value,
+            'kind' => PowerDnsZoneKind::MASTER->value,
             'last_check' => 0,
-            'masters'    => [],
-            'account'    => $enable ? 'LiveDns' : '',
+            'masters' => [],
+            'account' => $enable ? 'LiveDns' : '',
         ];
 
         $this->logger->info(
             sprintf('%s LiveDns for domain {domain.name}', $enable ? 'Enable' : 'Disable'),
             [
-                LoggingContextKeys::DOMAIN_NAME  => $domain,
+                LoggingContextKeys::DOMAIN_NAME => $domain,
                 LoggingContextKeys::REQUEST_DATA => (string) json_encode($payload),
-            ]
+            ],
         );
 
         $request = $this->internalClient->createPutRequest(
             'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain),
-            $payload
+            $payload,
         );
 
         $response = $this->internalClient->client->send($request);
@@ -672,8 +680,8 @@ class PowerDnsClient
                     $domain,
                     $enable ? 'LiveDns' : '',
                     $response->getStatusCode(),
-                    $response->getBody()->getContents()
-                )
+                    $response->getBody()->getContents(),
+                ),
             );
         }
     }
@@ -697,17 +705,17 @@ class PowerDnsClient
             sprintf(
                 '%s metadata %s for domain: {domain.name}',
                 $soaEdit === '' ? 'Clear' : 'Set',
-                PowerDnsMetadataType::SOA_EDIT->value
+                PowerDnsMetadataType::SOA_EDIT->value,
             ),
             [
-                LoggingContextKeys::DOMAIN_NAME  => $domain,
+                LoggingContextKeys::DOMAIN_NAME => $domain,
                 LoggingContextKeys::REQUEST_DATA => (string) json_encode($payload),
-            ]
+            ],
         );
 
         $request = $this->internalClient->createPutRequest(
             'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain),
-            $payload
+            $payload,
         );
 
         $response = $this->internalClient->client->send($request);
@@ -720,8 +728,8 @@ class PowerDnsClient
                     PowerDnsMetadataType::SOA_EDIT->value,
                     $domain,
                     $response->getStatusCode(),
-                    $response->getBody()->getContents()
-                )
+                    $response->getBody()->getContents(),
+                ),
             );
         }
     }
@@ -738,8 +746,8 @@ class PowerDnsClient
                 sprintf(
                     'Metadata %s takes exactly one value, %d given',
                     $metadataType->value,
-                    count($metaData)
-                )
+                    count($metaData),
+                ),
             );
         }
 
@@ -753,7 +761,9 @@ class PowerDnsClient
      */
     private function getPowerDnsZone(string $domain): PowerDnsZone
     {
-        $request = $this->internalClient->createGetRequest('api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain));
+        $request = $this->internalClient->createGetRequest(
+            'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain),
+        );
 
         $response = $this->internalClient->client->send($request);
         if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
@@ -761,8 +771,8 @@ class PowerDnsClient
                 sprintf(
                     'Zone for domain %s not found! error message: %s',
                     $domain,
-                    $response->getBody()
-                )
+                    $response->getBody(),
+                ),
             );
         }
 
@@ -786,13 +796,14 @@ class PowerDnsClient
     private function getPowerDnsZoneKeys(string $domain): array
     {
         $request = $this->internalClient->createGetRequest(
-            'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain) . '/cryptokeys'
+            'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain) . '/cryptokeys',
         );
 
         $response = $this->internalClient->client->send($request);
 
         $decoded = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
         assert(is_array($decoded));
+
         return $decoded;
     }
 
@@ -806,13 +817,15 @@ class PowerDnsClient
         $this->logDnsZoneInParts(
             'PowerDnsZone patch domain: {domain.name}',
             $domain,
-            $powerDnsZone
+            $powerDnsZone,
         );
 
-        $request = $this->internalClient->createPutRequest(
-            'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain),
-            $powerDnsZone->toArray()
-        )->withMethod('PATCH');
+        $request = $this->internalClient
+            ->createPutRequest(
+                'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain),
+                $powerDnsZone->toArray(),
+            )
+            ->withMethod('PATCH');
 
         $response = $this->internalClient->client->send($request);
 
@@ -822,8 +835,8 @@ class PowerDnsClient
                     "Error patch zone for domain '%s' status code: %d error message from PDNS: %s",
                     $domain,
                     $response->getStatusCode(),
-                    $response->getBody()->getContents()
-                )
+                    $response->getBody()->getContents(),
+                ),
             );
         }
     }
@@ -842,12 +855,12 @@ class PowerDnsClient
         $this->logDnsZoneInParts(
             'PowerDnsZone put domain: {domain.name}',
             $domain,
-            $powerDnsZone
+            $powerDnsZone,
         );
 
         $request = $this->internalClient->createPutRequest(
             'api/v1/servers/localhost/zones/' . $this->encodeZoneDomain($domain),
-            $powerDnsZone->toArray()
+            $powerDnsZone->toArray(),
         );
 
         $response = $this->internalClient->client->send($request);
@@ -858,8 +871,8 @@ class PowerDnsClient
                     "Error put zone for domain '%s' status code: %d error message from PDNS: %s",
                     $domain,
                     $response->getStatusCode(),
-                    $response->getBody()->getContents()
-                )
+                    $response->getBody()->getContents(),
+                ),
             );
         }
     }
@@ -886,10 +899,10 @@ class PowerDnsClient
                         LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::POWERDNS,
                         LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
                         LoggingContextKeys::DOMAIN_NAME => rtrim($domain, '.'),
-                        LoggingContextKeys::META        => [
+                        LoggingContextKeys::META => [
                             'powerdnszone.content' => json_encode($zoneLogData, JSON_THROW_ON_ERROR),
                         ],
-                    ]
+                    ],
                 );
             }
         }

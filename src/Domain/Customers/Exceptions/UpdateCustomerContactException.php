@@ -17,8 +17,8 @@ class UpdateCustomerContactException extends Exception
                 'Tried to update customer contact %d but customer id %d does not match customer id %d of contact',
                 $customerContact->id,
                 $customer->id,
-                $customerContact->customer_id
-            )
+                $customerContact->customer_id,
+            ),
         );
     }
 }

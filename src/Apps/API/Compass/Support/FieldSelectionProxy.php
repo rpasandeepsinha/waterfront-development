@@ -86,7 +86,9 @@ class FieldSelectionProxy
 
         // Always-required columns (qualified)
         $select = array_values(array_filter(
-            array_map(fn (string $col) => in_array($col, $existingColumns, true) ? "{$table}.{$col}" : null, $alwaysRequired),
+            array_map(fn (string $col) => in_array($col, $existingColumns, true)
+                ? "{$table}.{$col}"
+                : null, $alwaysRequired),
         ));
 
         // Collect all field names that need a column, then deduplicate before resolving

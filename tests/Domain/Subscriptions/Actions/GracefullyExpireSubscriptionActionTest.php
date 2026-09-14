@@ -86,34 +86,44 @@ class GracefullyExpireSubscriptionActionTest extends IntegrationTestCase
             ->administrativeStatusCancelled()
             ->for(new ProductFactory()->for($this->domainProductGroup))
             ->createOne();
-        $provider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => false, 'slug' => ProviderSlug::PLACEHOLDER]);
+        $provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'enabled' => true,
+            'default' => false,
+            'slug' => ProviderSlug::PLACEHOLDER,
+        ]);
         new DomainDeploymentFactory()
             ->for($provider)
             ->for($subscription)
             ->createOne();
 
-        $this->saveSubscriptionAdministrativeStatusAction->expects(self::once())
+        $this->saveSubscriptionAdministrativeStatusAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, AdministrativeStatus::EXPIRED);
 
-        $this->saveSubscriptionTerminationDateAction->expects(self::once())
+        $this->saveSubscriptionTerminationDateAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, self::callback(function ($givenDate) use ($terminationDate) {
                 self::assertInstanceOf(CarbonImmutable::class, $givenDate);
                 self::assertSame($givenDate->format('Y-m-d'), $terminationDate->format('Y-m-d'));
+
                 return true;
             }));
 
-        $this->jobDispatcher->expects(self::exactly(2))
+        $this->jobDispatcher
+            ->expects(self::exactly(2))
             ->method('dispatch')
             ->willReturnCallback(
                 fn ($job) => match ($job::class) {
                     DisableDomainAutoRenewal::class, SuspendDomainJob::class => true,
-                    default => throw new LogicException($job::class)
-                }
+                    default => throw new LogicException($job::class),
+                },
             );
 
-        $this->productSpecRepository->expects(self::once())
+        $this->productSpecRepository
+            ->expects(self::once())
             ->method('findBySpecification')
             ->willReturn(new ProductSpecFactory()->make(['value' => '30']));
 
@@ -138,22 +148,25 @@ class GracefullyExpireSubscriptionActionTest extends IntegrationTestCase
             ->parentSubscription($subscription)
             ->createOne();
 
-        $this->saveSubscriptionAdministrativeStatusAction->expects(self::once())
+        $this->saveSubscriptionAdministrativeStatusAction
+            ->expects(self::once())
             ->method('execute')
             ->with($dnsChild, AdministrativeStatus::EXPIRED);
 
-        $this->saveSubscriptionTerminationDateAction->expects(self::once())
+        $this->saveSubscriptionTerminationDateAction
+            ->expects(self::once())
             ->method('execute')
             ->with($dnsChild, self::callback(function ($givenDate) use ($terminationDate) {
                 self::assertInstanceOf(CarbonImmutable::class, $givenDate);
                 self::assertSame($givenDate->format('Y-m-d'), $terminationDate->format('Y-m-d'));
+
                 return true;
             }));
 
-        $this->jobDispatcher->expects(self::never())
-            ->method('dispatch');
+        $this->jobDispatcher->expects(self::never())->method('dispatch');
 
-        $this->productSpecRepository->expects(self::once())
+        $this->productSpecRepository
+            ->expects(self::once())
             ->method('findBySpecification')
             ->willReturn(new ProductSpecFactory()->make(['value' => '30']));
 
@@ -174,30 +187,35 @@ class GracefullyExpireSubscriptionActionTest extends IntegrationTestCase
             ->administrativeStatusCancelled()
             ->for(new ProductFactory()->for($this->domainProductGroup))
             ->createOne();
-        $provider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => false, 'slug' => ProviderSlug::PLACEHOLDER]);
+        $provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'enabled' => true,
+            'default' => false,
+            'slug' => ProviderSlug::PLACEHOLDER,
+        ]);
         new DomainDeploymentFactory()
             ->for($provider)
             ->for($subscription)
             ->createOne();
 
-        $this->saveSubscriptionAdministrativeStatusAction->expects(self::once())
+        $this->saveSubscriptionAdministrativeStatusAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, AdministrativeStatus::EXPIRED);
 
-        $this->saveSubscriptionTerminationDateAction->expects(self::once())
+        $this->saveSubscriptionTerminationDateAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, self::callback(function ($givenDate) use ($terminationDate) {
                 self::assertInstanceOf(CarbonImmutable::class, $givenDate);
                 self::assertSame($givenDate->format('Y-m-d'), $terminationDate->format('Y-m-d'));
+
                 return true;
             }));
 
-        $this->jobDispatcher->expects(self::never())
-            ->method('dispatch');
+        $this->jobDispatcher->expects(self::never())->method('dispatch');
 
-        $this->productSpecRepository->expects(self::once())
-            ->method('findBySpecification')
-            ->willReturn(null);
+        $this->productSpecRepository->expects(self::once())->method('findBySpecification')->willReturn(null);
 
         $this->gracefullyExpireSubscriptionAction->execute($subscription);
     }
@@ -213,28 +231,36 @@ class GracefullyExpireSubscriptionActionTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->hosting()))
             ->createOne();
 
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
-        new HostingDeploymentFactory()
-            ->for($subscription)
-            ->createOne();
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        new HostingDeploymentFactory()->for($subscription)->createOne();
 
-        $this->saveSubscriptionAdministrativeStatusAction->expects(self::once())
+        $this->saveSubscriptionAdministrativeStatusAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, AdministrativeStatus::EXPIRED);
 
-        $this->saveSubscriptionTerminationDateAction->expects(self::once())
+        $this->saveSubscriptionTerminationDateAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, self::callback(function ($givenDate) use ($terminationDate) {
                 self::assertInstanceOf(CarbonImmutable::class, $givenDate);
                 self::assertSame($givenDate->format('Y-m-d'), $terminationDate->format('Y-m-d'));
+
                 return true;
             }));
 
-        $this->jobDispatcher->expects(self::once())
+        $this->jobDispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(SuspendHostingJob::class));
 
-        $this->productSpecRepository->expects(self::once())
+        $this->productSpecRepository
+            ->expects(self::once())
             ->method('findBySpecification')
             ->willReturn(new ProductSpecFactory()->make(['value' => '30']));
 
@@ -252,22 +278,25 @@ class GracefullyExpireSubscriptionActionTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->hosting()))
             ->createOne();
 
-        $this->saveSubscriptionAdministrativeStatusAction->expects(self::once())
+        $this->saveSubscriptionAdministrativeStatusAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, AdministrativeStatus::EXPIRED);
 
-        $this->saveSubscriptionTerminationDateAction->expects(self::once())
+        $this->saveSubscriptionTerminationDateAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, self::callback(function ($givenDate) use ($terminationDate) {
                 self::assertInstanceOf(CarbonImmutable::class, $givenDate);
                 self::assertSame($givenDate->format('Y-m-d'), $terminationDate->format('Y-m-d'));
+
                 return true;
             }));
 
-        $this->jobDispatcher->expects(self::never())
-            ->method('dispatch');
+        $this->jobDispatcher->expects(self::never())->method('dispatch');
 
-        $this->productSpecRepository->expects(self::once())
+        $this->productSpecRepository
+            ->expects(self::once())
             ->method('findBySpecification')
             ->willReturn(new ProductSpecFactory()->make(['value' => '30']));
 

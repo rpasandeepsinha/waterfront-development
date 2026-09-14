@@ -53,12 +53,13 @@ class UnsuspendBackupJob extends AbstractQueueableJob
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
                     LoggingContextKeys::EXCEPTION => $result->exception,
-                ]
+                ],
             );
 
             $this->subscription->technical_status = TechnicalStatus::UNSUSPENSION_FAILED->value;
             $subscriptionMetadataService->assignCategory($this->subscription, SubscriptionCategory::UNSUSPENSION);
             $this->subscription->save();
+
             return;
         }
 
@@ -91,7 +92,7 @@ class UnsuspendBackupJob extends AbstractQueueableJob
             [
                 LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
-            ]
+            ],
         );
         $sendSubscriptionUnSuspendedMailAction->execute($this->subscription);
     }

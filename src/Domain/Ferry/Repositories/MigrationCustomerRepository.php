@@ -12,16 +12,16 @@ class MigrationCustomerRepository
     public function isCustomerInActiveMigrationWithInvoicingDisabled(int $customerId): bool
     {
         return MigratedCustomer::query()
-                ->whereHas('customers', function (Builder $qb) use ($customerId): void {
-                    $qb->where('id', $customerId);
-                })
-                ->where('enable_invoicing', false)
-                ->exists();
+            ->whereHas('customers', function (Builder $qb) use ($customerId): void {
+                $qb->where('id', $customerId);
+            })
+            ->where('enable_invoicing', false)
+            ->exists();
     }
 
-    public function findMigratedCustomerByCustomerNumberAndBU(string $customerNumber, string $buName): MigratedCustomer|null
+    public function findMigratedCustomerByCustomerNumberAndBU(string $customerNumber, string $buName): ?MigratedCustomer
     {
-        return  MigratedCustomer::query()
+        return MigratedCustomer::query()
             ->where('reference_customer_number', $customerNumber)
             ->where('reference_name', 'ilike', $buName)
             ->first();

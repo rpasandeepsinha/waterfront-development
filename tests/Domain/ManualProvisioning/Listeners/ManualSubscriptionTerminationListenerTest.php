@@ -26,9 +26,11 @@ class ManualSubscriptionTerminationListenerTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $productGroup = new ProductGroupFactory()->manualSubscription()->createOne([
-            'slug' => ProductGroupType::MANUAL_SUBSCRIPTION,
-        ]);
+        $productGroup = new ProductGroupFactory()
+            ->manualSubscription()
+            ->createOne([
+                'slug' => ProductGroupType::MANUAL_SUBSCRIPTION,
+            ]);
 
         $product = new ProductFactory()->createOne([
             'slug' => 'manual-testproduct',
@@ -49,7 +51,7 @@ class ManualSubscriptionTerminationListenerTest extends IntegrationTestCase
         ]);
 
         $event = new DispatchTerminateManualProvisioning(
-            $this->subscription
+            $this->subscription,
         );
 
         $listener = self::resolve(ManualSubscriptionTerminationListener::class);

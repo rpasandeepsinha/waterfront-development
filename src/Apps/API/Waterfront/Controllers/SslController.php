@@ -31,7 +31,7 @@ class SslController extends Controller
         private readonly CertificateRetriever $certificateRetriever,
         private readonly SslDeploymentResource $sslDeploymentResource,
         private readonly CustomerSharedSslService $customerSharedSslService,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -45,6 +45,7 @@ class SslController extends Controller
     {
         $sslDeployment->loadMissing('subscription');
         $this->subscriptionPolicy->assertCanManageSsl($sslDeployment->subscription);
+
         return $this->sslDeploymentResource->toArray($sslDeployment);
     }
 
@@ -53,7 +54,8 @@ class SslController extends Controller
         $uuid = $request->uuid;
         $type = $request->type;
 
-        $subscription = $this->subscriptionService->getSubscriptionsQuery()
+        $subscription = $this->subscriptionService
+            ->getSubscriptionsQuery()
             ->where('uuid', $uuid)
             ->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())
             ->firstOrFail();

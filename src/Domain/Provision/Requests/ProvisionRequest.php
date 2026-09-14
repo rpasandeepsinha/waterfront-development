@@ -31,8 +31,7 @@ abstract class ProvisionRequest implements ProvisionRequestInterface
 
     public function isRetry(): bool
     {
-        return $this->retryOf instanceof UuidInterface
-            && $this->retryRequester instanceof UuidInterface;
+        return $this->retryOf instanceof UuidInterface && $this->retryRequester instanceof UuidInterface;
     }
 
     /**

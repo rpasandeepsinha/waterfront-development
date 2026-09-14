@@ -40,7 +40,7 @@ class SendDcvReminderEmails extends AbstractCommand
         $reminderCandidates = $this->sslDeploymentRepository->getReminderCandidates(self::REMINDER_WINDOW);
 
         $template = $this->templateRepository->getBySlug(
-            SslRenewalFailedMissingCname::getTemplateSlug()
+            SslRenewalFailedMissingCname::getTemplateSlug(),
         );
 
         $queued = 0;
@@ -56,7 +56,7 @@ class SendDcvReminderEmails extends AbstractCommand
                 receiverType: ReceiverType::CUSTOMER,
                 receiverUuid: (string) $customer->getUuid(),
                 templateId: $template->id,
-                since: $today
+                since: $today,
             );
 
             if ($alreadySent) {

@@ -13,8 +13,9 @@ use Webmozart\Assert\Assert;
 
 class ExpireSubscriptionJob extends AbstractQueueableJob
 {
-    public function __construct(private readonly Subscription $subscription)
-    {
+    public function __construct(
+        private readonly Subscription $subscription,
+    ) {
         Assert::null($subscription->parent_subscription_id, 'Only parent subscription is allowed');
 
         parent::__construct();

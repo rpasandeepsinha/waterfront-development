@@ -18,8 +18,10 @@ class TemplateStoreRequest extends FormRequest
      *
      * @return array<mixed>
      */
-    public function rules(AuthenticationManager $authenticationManager, DnsRecordsValidationService $dnsRecordsValidationService): array
-    {
+    public function rules(
+        AuthenticationManager $authenticationManager,
+        DnsRecordsValidationService $dnsRecordsValidationService,
+    ): array {
         $customer = $authenticationManager->getAuthenticatedCustomer()->customer;
 
         return [
@@ -29,7 +31,7 @@ class TemplateStoreRequest extends FormRequest
                 Rule::unique('dns_customer_templates', 'name')
                     ->whereNull('deleted_at')
                     ->where('customer_id', $customer->id),
-                ],
+            ],
             'records' => ['sometimes', 'array'],
             'records.*' => ['required_with:records', new DnsCustomerRecord($dnsRecordsValidationService)],
         ];

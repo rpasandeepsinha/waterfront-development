@@ -38,11 +38,13 @@ class DeleteRedirectForDomainAction
             if ($this->isRedirectManagedDnsRecord($oldRecord) && $this->isPointingToRedirectService($oldRecord)) {
                 $this->deleteRedirects($subscription, $domain);
             }
+
             return;
         }
 
         if ($this->isRedirectManagedDnsRecord($oldRecord) && ! $this->isRedirectManagedDnsRecord($newRecord)) {
             $this->deleteRedirects($subscription, $domain);
+
             return;
         }
 
@@ -71,7 +73,7 @@ class DeleteRedirectForDomainAction
                 DnsRecordType::CNAME->value,
                 DnsRecordType::ALIAS->value,
             ],
-            true
+            true,
         );
     }
 

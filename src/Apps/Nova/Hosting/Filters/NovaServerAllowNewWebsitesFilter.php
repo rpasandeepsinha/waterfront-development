@@ -12,7 +12,7 @@ use Waterfront\Infra\Translation\TranslatorInterface;
 class NovaServerAllowNewWebsitesFilter extends Filter
 {
     public function __construct(
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 

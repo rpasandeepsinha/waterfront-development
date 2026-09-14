@@ -29,8 +29,10 @@ class MollieCustomerManager
     /**
      * @throws MollieCustomerApiException
      */
-    public function findOrCreate(MollieCustomerRequestDTO $mollieCustomerCreate, Customer $customer): MollieCustomerResponseDTO
-    {
+    public function findOrCreate(
+        MollieCustomerRequestDTO $mollieCustomerCreate,
+        Customer $customer,
+    ): MollieCustomerResponseDTO {
         $existingMollieCustomer = $customer->mollieCustomer;
 
         if ($existingMollieCustomer instanceof MollieCustomer) {
@@ -50,9 +52,14 @@ class MollieCustomerManager
     /**
      * @throws MollieCustomerApiException
      */
-    public function updateCustomer(MollieCustomer $mollieCustomer, MollieCustomerRequestDTO $mollieCustomerUpdateDTO): MollieCustomerResponseDTO
-    {
-        $updatedCustomer = $this->mollieCustomerClient->updateCustomer($mollieCustomer->mollie_customer_reference_id, $mollieCustomerUpdateDTO);
+    public function updateCustomer(
+        MollieCustomer $mollieCustomer,
+        MollieCustomerRequestDTO $mollieCustomerUpdateDTO,
+    ): MollieCustomerResponseDTO {
+        $updatedCustomer = $this->mollieCustomerClient->updateCustomer(
+            $mollieCustomer->mollie_customer_reference_id,
+            $mollieCustomerUpdateDTO,
+        );
 
         $mollieCustomer->touch();
 

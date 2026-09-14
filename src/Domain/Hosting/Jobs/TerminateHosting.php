@@ -13,8 +13,9 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
 
 class TerminateHosting extends AbstractQueueableJob
 {
-    public function __construct(private readonly TerminateHostingEvent $event)
-    {
+    public function __construct(
+        private readonly TerminateHostingEvent $event,
+    ) {
         parent::__construct();
     }
 
@@ -23,13 +24,13 @@ class TerminateHosting extends AbstractQueueableJob
         $logger->info(sprintf(
             'Terminating hosting for domain %s (attempts: %d)',
             $this->event->hostingDeployment->subscription->domain,
-            $this->attempts()
+            $this->attempts(),
         ));
 
         $provider = $this->event->hostingDeployment->provider;
         if ($provider === null) {
             throw new RuntimeException(
-                "Cannot resolve hosting provider for {$this->event->hostingDeployment->subscription->domain} upon termination."
+                "Cannot resolve hosting provider for {$this->event->hostingDeployment->subscription->domain} upon termination.",
             );
         }
 

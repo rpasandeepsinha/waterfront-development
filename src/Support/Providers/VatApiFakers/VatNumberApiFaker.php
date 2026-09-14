@@ -9,7 +9,8 @@ use SandwaveIo\Vat\VatNumbers\ValidatesVatNumbers;
 class VatNumberApiFaker implements ValidatesVatNumbers
 {
     private const array VALID_COUNTRY_CODES = [
-        'NL', 'BE',
+        'NL',
+        'BE',
         'DE',
     ];
 

@@ -77,19 +77,15 @@ class TechnicalSitebuilderMigrationJobTest extends IntegrationTestCase
 
         $sitebuilderProduct = ProductFactory::new()->siteBuilder()->for($hostingGroup)->createOne();
 
-        $this->baseKitServer = ServerFactory::new()
-            ->sitebuilder()
-            ->createOne([
-                'hostname' => 'basekit.test',
-                'domain' => 'basekit.test',
-            ]);
+        $this->baseKitServer = ServerFactory::new()->sitebuilder()->createOne([
+            'hostname' => 'basekit.test',
+            'domain' => 'basekit.test',
+        ]);
 
-        $this->mailOnlyServer = ServerFactory::new()
-            ->directadminMail()
-            ->createOne([
-                'hostname' => 'mail_server.directadmin.test',
-                'domain' => 'mail_server.directadmin.test',
-            ]);
+        $this->mailOnlyServer = ServerFactory::new()->directadminMail()->createOne([
+            'hostname' => 'mail_server.directadmin.test',
+            'domain' => 'mail_server.directadmin.test',
+        ]);
 
         $this->subscription = SubscriptionFactory::new()
             ->for($customer)
@@ -105,7 +101,9 @@ class TechnicalSitebuilderMigrationJobTest extends IntegrationTestCase
         ProviderFactory::new()->emailOnlyDirectAdmin()->createOne();
         ProviderFactory::new()->siteBuilderBaseKit()->createOne();
 
-        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1']);
+        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1',
+        ]);
         $this->subscription->migratedSubscriptions()->attach($migratedSubscription);
 
         $this->migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_name' => 'versio']);
@@ -123,24 +121,25 @@ class TechnicalSitebuilderMigrationJobTest extends IntegrationTestCase
             ]);
 
         $mockSitebuilderService = self::createStub(SitebuilderService::class);
-        $mockSitebuilderService->method('getSiteFromRef')
+        $mockSitebuilderService
+            ->method('getSiteFromRef')
             ->willReturn(new BaseKitSite(
                 id: 456,
                 domain: self::TEST_DOMAIN_SITEBUILDER,
             ));
 
-        $mockSitebuilderService->method('getUserFromRef')
+        $mockSitebuilderService
+            ->method('getUserFromRef')
             ->willReturn(new BaseKitUser(
                 id: 123,
                 email: 'test@email.test',
             ));
 
-        $this->app->bind(SitebuilderService::class, fn () =>  $mockSitebuilderService);
+        $this->app->bind(SitebuilderService::class, fn () => $mockSitebuilderService);
 
         $mockSsoAction = self::createStub(BaseKitGetSsoUrlAction::class);
-        $mockSsoAction->method('execute')
-            ->willReturn('https://basekit.test/sso-test');
-        $this->app->bind(BaseKitGetSsoUrlAction::class, fn () =>  $mockSsoAction);
+        $mockSsoAction->method('execute')->willReturn('https://basekit.test/sso-test');
+        $this->app->bind(BaseKitGetSsoUrlAction::class, fn () => $mockSsoAction);
 
         /**
          * @see SpamExpertsMigrationRepository::getSpamExpertsClusterByMigratedCustomerBuName uses where "ilike" so the capitalization doesn't matter
@@ -153,7 +152,7 @@ class TechnicalSitebuilderMigrationJobTest extends IntegrationTestCase
     #[DataProvider('sitebuilderMigrationJobProvider')]
     #[Test]
     public function sitebuilderJob(
-        string|null $subscriptionDomain,
+        ?string $subscriptionDomain,
         string $remoteDomain,
         bool $isReseller,
         bool $isUsingDefaultSpamExperts,
@@ -175,10 +174,10 @@ class TechnicalSitebuilderMigrationJobTest extends IntegrationTestCase
         }
 
         $daHostingService = self::createStub(DirectAdminHostingService::class);
-        $daHostingService->method('getDefaultDomain')
-            ->willReturn($remoteDomain);
+        $daHostingService->method('getDefaultDomain')->willReturn($remoteDomain);
 
-        $daHostingService->method('getUserConfigAsDto')
+        $daHostingService
+            ->method('getUserConfigAsDto')
             ->willReturn(
                 new UserConfig(
                     dnscontrol: 'OFF', // Since email is never managed in DA itself it will always be off
@@ -192,7 +191,7 @@ class TechnicalSitebuilderMigrationJobTest extends IntegrationTestCase
                     package: 'basic',
                     usertype: $isReseller ? HostingUserType::RESELLER : HostingUserType::USER,
                     domain: $remoteDomain,
-                )
+                ),
             );
 
         $this->app->bind(DirectAdminHostingService::class, fn (): DirectAdminHostingService => $daHostingService);
@@ -298,9 +297,8 @@ class TechnicalSitebuilderMigrationJobTest extends IntegrationTestCase
     public function rollback(): void
     {
         $mockSsoAction = self::createStub(BaseKitGetSsoUrlAction::class);
-        $mockSsoAction->method('execute')
-            ->willThrowException(new SitebuilderException('Could not generate SSO'));
-        $this->app->bind(BaseKitGetSsoUrlAction::class, fn () =>  $mockSsoAction);
+        $mockSsoAction->method('execute')->willThrowException(new SitebuilderException('Could not generate SSO'));
+        $this->app->bind(BaseKitGetSsoUrlAction::class, fn () => $mockSsoAction);
 
         $adfService = self::resolve(AdfPayloadService::class);
         $dispatcher = self::resolve(Dispatcher::class);
@@ -341,8 +339,8 @@ class TechnicalSitebuilderMigrationJobTest extends IntegrationTestCase
                 'Hosting SSO could not be generated on server %s for subscription %d (payload: %s)',
                 $this->baseKitServer->hostname,
                 $this->subscription->id,
-                json_encode($payload->sitebuilder->toArray(), JSON_THROW_ON_ERROR)
-            )
+                json_encode($payload->sitebuilder->toArray(), JSON_THROW_ON_ERROR),
+            ),
         );
 
         $job = new TechnicalSitebuilderMigrationJob(

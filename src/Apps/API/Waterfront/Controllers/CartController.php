@@ -43,17 +43,24 @@ class CartController
         try {
             $calculatedProductPrices = $this->cartService->checkVouchersAndCalculateAppliedVoucherAppliedAmount(
                 $customer,
-                $cart
+                $cart,
             );
 
-            $calculatedCart = $this->cartService->convertTotalPriceCollectionToCartWithPricesStructure($calculatedProductPrices, $cart, $customer);
+            $calculatedCart = $this->cartService->convertTotalPriceCollectionToCartWithPricesStructure(
+                $calculatedProductPrices,
+                $cart,
+                $customer,
+            );
         } catch (InvalidArgumentException) {
             return new JsonResponse(
                 data: ['message' => $this->translator->translate('cart.price.processing-error')],
-                status: Response::HTTP_UNPROCESSABLE_ENTITY
+                status: Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
 
-        return new JsonResponse($this->cartSerializerFactory->getPresenter()->serialize($calculatedCart, 'json'), json: true);
+        return new JsonResponse(
+            $this->cartSerializerFactory->getPresenter()->serialize($calculatedCart, 'json'),
+            json: true,
+        );
     }
 }

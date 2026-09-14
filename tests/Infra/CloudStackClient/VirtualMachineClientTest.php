@@ -26,7 +26,11 @@ class VirtualMachineClientTest extends TestCase
         $mock->method('execute')->willReturn([]);
         $client = new CloudStackClient($mock, CloudstackSerializerFactory::get());
 
-        $virtualMachines = $client->listVirtualMachines(domainId: 'foo', name: 'bar', state: CloudstackMachineState::PRESENT);
+        $virtualMachines = $client->listVirtualMachines(
+            domainId: 'foo',
+            name: 'bar',
+            state: CloudstackMachineState::PRESENT,
+        );
 
         self::assertCount(0, $virtualMachines);
     }
@@ -40,31 +44,35 @@ class VirtualMachineClientTest extends TestCase
             ->method('execute')
             ->with('listVirtualMachines', [
                 'domainid' => 'foo',
-                'name'     => 'bar',
-                'state'    => 'Present',
-                'listall'  => 'true',
-                'page'     => 1,
+                'name' => 'bar',
+                'state' => 'Present',
+                'listall' => 'true',
+                'page' => 1,
                 'pagesize' => 500,
             ])
             ->willReturn([
-                'count'          => 1,
+                'count' => 1,
                 'virtualmachine' => [
                     [
-                        'id'                => 'abc',
-                        'name'              => 'bar',
-                        'username'          => 'terminator',
-                        'nic'               => [['ipaddress' => '185.185.185.185', 'ip6address' => '2600:1801:1::1']],
-                        'state'             => 'Present',
-                        'domainid'          => 'foo',
-                        'account'           => 'myaccount',
+                        'id' => 'abc',
+                        'name' => 'bar',
+                        'username' => 'terminator',
+                        'nic' => [['ipaddress' => '185.185.185.185', 'ip6address' => '2600:1801:1::1']],
+                        'state' => 'Present',
+                        'domainid' => 'foo',
+                        'account' => 'myaccount',
                         'serviceofferingid' => 'def',
-                        'userdata'          => self::anything(),
+                        'userdata' => self::anything(),
                     ],
                 ],
             ]);
         $client = new CloudStackClient($mock, CloudstackSerializerFactory::get());
 
-        $virtualMachines = $client->listVirtualMachines(domainId: 'foo', name: 'bar', state: CloudstackMachineState::PRESENT);
+        $virtualMachines = $client->listVirtualMachines(
+            domainId: 'foo',
+            name: 'bar',
+            state: CloudstackMachineState::PRESENT,
+        );
 
         self::assertContainsOnlyInstancesOf(VirtualMachine::class, $virtualMachines);
         self::assertCount(1, $virtualMachines);
@@ -104,18 +112,18 @@ class VirtualMachineClientTest extends TestCase
                 'id' => $id,
             ])
             ->willReturn([
-                'count'          => 1,
+                'count' => 1,
                 'virtualmachine' => [
                     [
-                        'id'                => $id,
-                        'name'              => 'bar',
-                        'username'          => 'terminator',
-                        'nic'               => [$nic],
-                        'state'             => 'Present',
-                        'domainid'          => 'foo',
-                        'account'           => 'myaccount',
+                        'id' => $id,
+                        'name' => 'bar',
+                        'username' => 'terminator',
+                        'nic' => [$nic],
+                        'state' => 'Present',
+                        'domainid' => 'foo',
+                        'account' => 'myaccount',
                         'serviceofferingid' => 'def',
-                        'userdata'          => self::anything(),
+                        'userdata' => self::anything(),
                     ],
                 ],
             ]);
@@ -157,20 +165,24 @@ class VirtualMachineClientTest extends TestCase
             ->expects(self::exactly(2))
             ->method('execute')
             ->willReturnCallback(fn (string $command, array $params): array => match (true) {
-                $command === 'authorizeSecurityGroupIngress' && $params === [
-                    'account'         => $account,
-                    'domainid'        => $domainId,
-                    'cidrlist'        => '0.0.0.0/0',
-                    'protocol'        => 'ALL',
-                    'securitygroupid' => $securityGroupId,
-                ] => [],
-                $command === 'authorizeSecurityGroupIngress' && $params === [
-                    'account'         => $account,
-                    'domainid'        => $domainId,
-                    'cidrlist'        => '::/0',
-                    'protocol'        => 'ALL',
-                    'securitygroupid' => $securityGroupId,
-                ] => [],
+                $command === 'authorizeSecurityGroupIngress'
+                    && $params === [
+                        'account' => $account,
+                        'domainid' => $domainId,
+                        'cidrlist' => '0.0.0.0/0',
+                        'protocol' => 'ALL',
+                        'securitygroupid' => $securityGroupId,
+                    ]
+                    => [],
+                $command === 'authorizeSecurityGroupIngress'
+                    && $params === [
+                        'account' => $account,
+                        'domainid' => $domainId,
+                        'cidrlist' => '::/0',
+                        'protocol' => 'ALL',
+                        'securitygroupid' => $securityGroupId,
+                    ]
+                    => [],
                 default => throw new LogicException(),
             });
 
@@ -191,19 +203,19 @@ class VirtualMachineClientTest extends TestCase
             ->expects(self::once())
             ->method('execute')
             ->with('createSecurityGroup', [
-                'name'        => $account,
+                'name' => $account,
                 'description' => 'Default for ' . $account,
-                'account'     => $account,
-                'domainid'    => $domainId,
+                'account' => $account,
+                'domainid' => $domainId,
             ])
             ->willReturn([
-                'count'         => 1,
+                'count' => 1,
                 'securitygroup' => [
-                    'id'          => $securityGroupId,
+                    'id' => $securityGroupId,
                     'description' => 'security group info',
-                    'domainid'    => $domainId,
-                    'name'        => $account,
-                    'account'     => $account,
+                    'domainid' => $domainId,
+                    'name' => $account,
+                    'account' => $account,
                 ],
             ]);
 
@@ -219,38 +231,45 @@ class VirtualMachineClientTest extends TestCase
     {
         $hostname = 'builder';
         $fqdn = 'builder';
-        $userData = '#cloud-config
+        $userData =
+            '#cloud-config
                         manage_etc_hosts: true
-                        fqdn: ' . $fqdn . '
-                        hostname: ' . $hostname . '
+                        fqdn: '
+            . $fqdn
+            . '
+                        hostname: '
+            . $hostname
+            . '
                         timezone: Europe/Amsterdam
                         ssh_pwauth: True
                         chpasswd:
                             expire: false';
 
         $mockClient = self::createMock(CloudStackBaseClient::class);
-        $mockClient->expects(self::once())
+        $mockClient
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 'deployVirtualMachine',
                 [
                     'serviceofferingid' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-                    'templateid'        => '2cbb2073-523d-477b-af5b-c913076a8586',
-                    'zoneId'            => '10c85e3a-b499-4b73-a78d-f2f48ca2a3ba',
-                    'domainid'          => 'foo',
-                    'account'           => 'bar',
-                    'securitygroupids'  => 'baz',
-                    'displayname'       => 'VirtualMachine A',
-                    'userdata'          => base64_encode($userData),
-                    'networkids'         => '1f428807-11c1-488a-a640-dc6c3f615eeb',
-                ]
-            )->willReturn(
+                    'templateid' => '2cbb2073-523d-477b-af5b-c913076a8586',
+                    'zoneId' => '10c85e3a-b499-4b73-a78d-f2f48ca2a3ba',
+                    'domainid' => 'foo',
+                    'account' => 'bar',
+                    'securitygroupids' => 'baz',
+                    'displayname' => 'VirtualMachine A',
+                    'userdata' => base64_encode($userData),
+                    'networkids' => '1f428807-11c1-488a-a640-dc6c3f615eeb',
+                ],
+            )
+            ->willReturn(
                 json_decode(
                     (string) file_get_contents(__DIR__ . '/data/created_job.json'),
                     true,
                     512,
-                    JSON_THROW_ON_ERROR
-                )
+                    JSON_THROW_ON_ERROR,
+                ),
             );
 
         $client = new CloudStackClient($mockClient, CloudstackSerializerFactory::get());
@@ -275,39 +294,46 @@ class VirtualMachineClientTest extends TestCase
         $hostname = 'builder';
         $fqdn = 'builder';
         $sshKeyName = sha1('the cloudstack keyname');
-        $userData = '#cloud-config
+        $userData =
+            '#cloud-config
                         manage_etc_hosts: true
-                        fqdn: ' . $fqdn . '
-                        hostname: ' . $hostname . '
+                        fqdn: '
+            . $fqdn
+            . '
+                        hostname: '
+            . $hostname
+            . '
                         timezone: Europe/Amsterdam
                         ssh_pwauth: True
                         chpasswd:
                             expire: false';
 
         $mockClient = self::createMock(CloudStackBaseClient::class);
-        $mockClient->expects(self::once())
+        $mockClient
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 'deployVirtualMachine',
                 [
                     'serviceofferingid' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-                    'templateid'        => '2cbb2073-523d-477b-af5b-c913076a8586',
-                    'zoneId'            => '10c85e3a-b499-4b73-a78d-f2f48ca2a3ba',
-                    'domainid'          => 'foo',
-                    'account'           => 'bar',
-                    'securitygroupids'  => 'baz',
-                    'displayname'       => 'VirtualMachine A',
-                    'userdata'          => base64_encode($userData),
-                    'keypair'           => $sshKeyName,
-                    'networkids'        => '1f428807-11c1-488a-a640-dc6c3f615eeb',
-                ]
-            )->willReturn(
+                    'templateid' => '2cbb2073-523d-477b-af5b-c913076a8586',
+                    'zoneId' => '10c85e3a-b499-4b73-a78d-f2f48ca2a3ba',
+                    'domainid' => 'foo',
+                    'account' => 'bar',
+                    'securitygroupids' => 'baz',
+                    'displayname' => 'VirtualMachine A',
+                    'userdata' => base64_encode($userData),
+                    'keypair' => $sshKeyName,
+                    'networkids' => '1f428807-11c1-488a-a640-dc6c3f615eeb',
+                ],
+            )
+            ->willReturn(
                 json_decode(
                     (string) file_get_contents(__DIR__ . '/data/created_job.json'),
                     true,
                     512,
-                    JSON_THROW_ON_ERROR
-                )
+                    JSON_THROW_ON_ERROR,
+                ),
             );
 
         $client = new CloudStackClient($mockClient, CloudstackSerializerFactory::get());

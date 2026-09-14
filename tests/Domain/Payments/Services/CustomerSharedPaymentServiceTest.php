@@ -60,7 +60,7 @@ class CustomerSharedPaymentServiceTest extends IntegrationTestCase
                 self::assertSame($customer->id, $e->getPayment()->customer->id);
 
                 return true;
-            }
+            },
         );
     }
 
@@ -71,9 +71,7 @@ class CustomerSharedPaymentServiceTest extends IntegrationTestCase
         $parameters = self::createStub(PaymentParameters::class);
 
         $actualPaymentService = self::createMock(PaymentService::class);
-        $actualPaymentService->expects(self::once())
-            ->method('createPayment')
-            ->with($customer, $parameters);
+        $actualPaymentService->expects(self::once())->method('createPayment')->with($customer, $parameters);
         $this->app->bind(PaymentService::class, fn () => $actualPaymentService);
 
         $paymentService = self::resolve(CustomerSharedPaymentService::class);
@@ -89,7 +87,8 @@ class CustomerSharedPaymentServiceTest extends IntegrationTestCase
         $createPaymentException = new CreatePaymentException('some_message');
 
         $actualPaymentService = self::createMock(PaymentService::class);
-        $actualPaymentService->expects(self::once())
+        $actualPaymentService
+            ->expects(self::once())
             ->method('createPayment')
             ->willThrowException($createPaymentException);
         $this->app->bind(PaymentService::class, fn () => $actualPaymentService);
@@ -130,7 +129,8 @@ class CustomerSharedPaymentServiceTest extends IntegrationTestCase
             verified: true,
         );
         $authenticationManager = self::createMock(AuthenticationManager::class);
-        $authenticationManager->expects(self::once())
+        $authenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedSubject')
             ->willReturn($authenticatedCustomer);
         $this->app->bind(AuthenticationManager::class, fn () => $authenticationManager);
@@ -175,7 +175,8 @@ class CustomerSharedPaymentServiceTest extends IntegrationTestCase
         );
 
         $authenticationManager = self::createMock(AuthenticationManager::class);
-        $authenticationManager->expects(self::once())
+        $authenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedSubject')
             ->willReturn($authenticatedCustomer);
         $this->app->bind(AuthenticationManager::class, fn () => $authenticationManager);
@@ -198,7 +199,10 @@ class CustomerSharedPaymentServiceTest extends IntegrationTestCase
 
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne(['slug' => 'sitebuilder']);
-        $subscription = new SubscriptionFactory()->for($customer)->for($product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($product)
+            ->createOne();
 
         new ProductAddonCouplingFactory()->createOne([
             'parent_product_id' => $product->id,

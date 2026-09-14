@@ -24,20 +24,23 @@ class EnableDnsSecController
         private readonly MigratableSubscriptionRepository $migratableSubscriptionRepository,
         private readonly SubscriptionMigrationValidator $subscriptionMigrationValidator,
         private readonly ExecuteEnableDnsSecAction $executeEnableDnsSecAction,
-        private readonly ResponseDto $responseDto
+        private readonly ResponseDto $responseDto,
     ) {
     }
 
     public function enable(Customer $customer): JsonResponse
     {
-        $subscriptions = $this->migratableSubscriptionRepository->getSubscriptionsForEnableDnsSecMigration($customer)
+        $subscriptions = $this->migratableSubscriptionRepository
+            ->getSubscriptionsForEnableDnsSecMigration($customer)
             ->filter(function ($subscription) use ($customer) {
                 try {
                     $this->subscriptionMigrationValidator->validateEligibleForNameserverMigration($subscription);
                 } catch (NotEligibleForMigrationException $e) {
                     $this->responseDto->addFailure($this->makeFailureDto($e, $customer, $subscription));
+
                     return false;
                 }
+
                 return true;
             });
 
@@ -52,8 +55,11 @@ class EnableDnsSecController
         return new JsonResponse($this->responseDto->toArray(), Response::HTTP_MULTI_STATUS);
     }
 
-    private function makeFailureDto(NotEligibleForMigrationException $e, Customer $customer, Subscription $subscription): FailureDto
-    {
+    private function makeFailureDto(
+        NotEligibleForMigrationException $e,
+        Customer $customer,
+        Subscription $subscription,
+    ): FailureDto {
         return FailureDto::create(
             sprintf('Enable dnssec step not allowed for subscription: %s', $e->getMessage()),
             [

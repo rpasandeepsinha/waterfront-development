@@ -8,7 +8,7 @@ class BackupUsage
 {
     public function __construct(
         public readonly float $cloudStorageGbUsed,
-        public readonly ?float $cloudStorageGbTotal
+        public readonly ?float $cloudStorageGbTotal,
     ) {
     }
 }

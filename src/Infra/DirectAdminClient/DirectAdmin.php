@@ -82,8 +82,11 @@ class DirectAdmin implements BehavesAsDirectAdmin
         return $this->resellerPackage;
     }
 
-    public function sslCerificate(DirectAdminCommand $sslCommand, string $username, ?DirectAdminServer $server = null): DirectAdminCommand
-    {
+    public function sslCerificate(
+        DirectAdminCommand $sslCommand,
+        string $username,
+        ?DirectAdminServer $server = null,
+    ): DirectAdminCommand {
         if ($server !== null) {
             $this->api->useServer($server);
         }

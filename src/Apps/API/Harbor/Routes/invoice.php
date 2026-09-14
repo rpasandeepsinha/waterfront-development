@@ -12,5 +12,5 @@ Route::prefix('harbor/api/v1/invoice')
     ->group(
         function (): void {
             Route::post('/credit', [InvoiceController::class, 'credit'])->name('credit');
-        }
+        },
     );

@@ -22,7 +22,7 @@ class ExtensionRetrieveTest extends IntegrationTestCase
         $request = new ExtensionRetrieveRequest(
             new Client(),
             new Connection('https://test.nl', 'test-user', 'password'),
-            'nl'
+            'nl',
         );
 
         $requestXml = file_get_contents(__DIR__ . '/data/openprovider_retrieve_extension_request.xml');

@@ -70,15 +70,14 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
     #[Test]
     public function thatCreateSubscriptionRequiresAuthorization(): void
     {
-        $response = $this
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => 'test']),
-                [],
-                [
-                    'Authorization' => 'Bearer fake_testing_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => 'test']),
+            [],
+            [
+                'Authorization' => 'Bearer fake_testing_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertUnauthorized();
     }
@@ -89,10 +88,10 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         $productGroupExtension = ProductGroupFactory::new()->extension()->createOne();
         $productGroupDns = ProductGroupFactory::new()->dns()->createOne();
         $productGroupSsl = ProductGroupFactory::new()->ssl()->createOne();
-        $productGroupHosting =  ProductGroupFactory::new()->hosting()->createOne();
-        $productGroupRedirect =  ProductGroupFactory::new()->redirect()->createOne();
-        $productGroupManual =  ProductGroupFactory::new()->manualSubscription()->createOne();
-        $productGroupOther =  ProductGroupFactory::new()->other()->createOne();
+        $productGroupHosting = ProductGroupFactory::new()->hosting()->createOne();
+        $productGroupRedirect = ProductGroupFactory::new()->redirect()->createOne();
+        $productGroupManual = ProductGroupFactory::new()->manualSubscription()->createOne();
+        $productGroupOther = ProductGroupFactory::new()->other()->createOne();
         $productGroupVolumeDiscount = ProductGroupFactory::new()->volumeDiscount()->createOne();
 
         $sslProvider = ProviderFactory::new()->sslPlaceholder()->createOne();
@@ -109,17 +108,23 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         $productResellerHosting = ProductFactory::new()->resellerHostingBrons()->createOne();
         $productMailOnly = ProductFactory::new()->for($productGroupHosting)->createOne(['slug' => 'mail_only']);
 
-        new ProductSpecFactory()
-            ->for($productMailOnly)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
-                'value' => '1',
-            ]);
+        new ProductSpecFactory()->for($productMailOnly)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '1',
+        ]);
 
         $productSitebuilder = ProductFactory::new()->siteBuilder($productGroupHosting)->createOne();
-        $productManual = ProductFactory::new()->for($productGroupManual)->createOne(['slug' => 'manual', 'name' => 'manual']);
-        $productOther = ProductFactory::new()->for($productGroupOther)->createOne(['slug' => 'other', 'name' => 'other']);
-        $productVolumeDiscount = ProductFactory::new()->for($productGroupVolumeDiscount)->createOne(['slug' => 'volume_discount_brons']);
+        $productManual = ProductFactory::new()->for($productGroupManual)->createOne([
+            'slug' => 'manual',
+            'name' => 'manual',
+        ]);
+        $productOther = ProductFactory::new()->for($productGroupOther)->createOne([
+            'slug' => 'other',
+            'name' => 'other',
+        ]);
+        $productVolumeDiscount = ProductFactory::new()->for($productGroupVolumeDiscount)->createOne([
+            'slug' => 'volume_discount_brons',
+        ]);
 
         $productPriceData = [
             'billing_period' => 12,
@@ -148,7 +153,10 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         ProductPriceComponentFactory::new()->for($productManual)->prolongation()->createOne($productPriceData);
         ProductPriceComponentFactory::new()->for($productOther)->prolongation()->createOne($productPriceData);
         ProductPriceComponentFactory::new()->for($productDns)->registration()->createOne($productPriceDataDnsFree);
-        ProductPriceComponentFactory::new()->for($productRedirect)->prolongation()->createOne($productPriceDataRedirectFree);
+        ProductPriceComponentFactory::new()
+            ->for($productRedirect)
+            ->prolongation()
+            ->createOne($productPriceDataRedirectFree);
         ProductPriceComponentFactory::new()->for($productVolumeDiscount)->prolongation()->createOne($productPriceData);
 
         $referenceCustomer = MigratedCustomersFactory::new()->createOne();
@@ -158,9 +166,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         $migratedCustomer = $referenceCustomer;
         $migratedCustomer->customers()->attach($customer);
 
-        ProductDiscountFactory::new()
-            ->for($productVolumeDiscount)
-            ->createOne();
+        ProductDiscountFactory::new()->for($productVolumeDiscount)->createOne();
 
         new ProductPriceComponentFactory()
             ->for($productExtension)
@@ -214,16 +220,10 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         $this->app->bind(SitebuilderService::class, fn () => $mockSitebuilderService);
 
         // return false for first sitebuilder
-        $mockSitebuilderService
-            ->expects('hasSitebuilderThroughGateway')
-            ->twice()
-            ->andReturnFalse();
+        $mockSitebuilderService->expects('hasSitebuilderThroughGateway')->twice()->andReturnFalse();
 
         // return true for the remaining sitebuilder (gateway one).
-        $mockSitebuilderService
-            ->expects('hasSitebuilderThroughGateway')
-            ->zeroOrMoreTimes()
-            ->andReturnTrue();
+        $mockSitebuilderService->expects('hasSitebuilderThroughGateway')->zeroOrMoreTimes()->andReturnTrue();
 
         $hostname = 'test.com';
         ServerFactory::new()->createOne(['type' => ServerType::DIRECTADMIN_MAIL, 'hostname' => $hostname]);
@@ -435,29 +435,66 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
 
         Http::fake();
 
-        $response = $this
-            ->actingAsSystem($this->uuid)
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem($this->uuid)->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertOk();
 
-        $ssl = MigratedSubscription::where('reference_subscription_id', $sslReferenceSubscriptionId)->firstOrFail()->subscriptions()->firstOrFail();
-        $hosting = MigratedSubscription::where('reference_subscription_id', $hostingReferenceSubscriptionId)->firstOrFail()->subscriptions()->firstOrFail();
-        $hosting2 = MigratedSubscription::where('reference_subscription_id', $hosting2ReferenceSubscriptionId)->firstOrFail()->subscriptions()->firstOrFail();
-        $hosting3 = MigratedSubscription::where('reference_subscription_id', $hosting3ReferenceSubscriptionId)->firstOrFail()->subscriptions()->firstOrFail();
-        $redirect = MigratedSubscription::where('reference_subscription_id', $redirectReferenceSubscriptionId)->firstOrFail()->subscriptions()->firstOrFail();
-        $resellerHosting = MigratedSubscription::where('reference_subscription_id', $resellerHostingReferenceSubscriptionId)->firstOrFail()->subscriptions()->firstOrFail();
-        $mailOnly = MigratedSubscription::where('reference_subscription_id', $mailOnlyReferenceSubscriptionId)->firstOrFail()->subscriptions()->firstOrFail();
-        $volumeDiscount = MigratedSubscription::where('reference_subscription_id', $volumeDiscountReferenceSubscriptionId)->firstOrFail()->subscriptions()->firstOrFail();
-        $sitebuilder = MigratedSubscription::where('reference_subscription_id', $sitebuilderReferenceSubscriptionId)->firstOrFail()->subscriptions()->firstOrFail();
-        $gatewaySitebuilder = MigratedSubscription::where('reference_subscription_id', $gatewaySitebuilderReferenceSubscriptionId)->firstOrFail()->subscriptions()->firstOrFail();
+        $ssl = MigratedSubscription::where('reference_subscription_id', $sslReferenceSubscriptionId)
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
+        $hosting = MigratedSubscription::where('reference_subscription_id', $hostingReferenceSubscriptionId)
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
+        $hosting2 = MigratedSubscription::where('reference_subscription_id', $hosting2ReferenceSubscriptionId)
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
+        $hosting3 = MigratedSubscription::where('reference_subscription_id', $hosting3ReferenceSubscriptionId)
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
+        $redirect = MigratedSubscription::where('reference_subscription_id', $redirectReferenceSubscriptionId)
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
+        $resellerHosting = MigratedSubscription::where(
+            'reference_subscription_id',
+            $resellerHostingReferenceSubscriptionId,
+        )
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
+        $mailOnly = MigratedSubscription::where('reference_subscription_id', $mailOnlyReferenceSubscriptionId)
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
+        $volumeDiscount = MigratedSubscription::where(
+            'reference_subscription_id',
+            $volumeDiscountReferenceSubscriptionId,
+        )
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
+        $sitebuilder = MigratedSubscription::where('reference_subscription_id', $sitebuilderReferenceSubscriptionId)
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
+        $gatewaySitebuilder = MigratedSubscription::where(
+            'reference_subscription_id',
+            $gatewaySitebuilderReferenceSubscriptionId,
+        )
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
 
         $domainSubscription = Subscription::query()
             ->where('domain', $domain)
@@ -523,7 +560,10 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
 
         self::assertDatabaseHas('notes', [
             'noted_by_uuid' => $this->uuid,
-            'noted_by_metadata' => json_encode(['email' => 'pieter@post.nl', 'schemaId' => 'system'], JSON_THROW_ON_ERROR),
+            'noted_by_metadata' => json_encode([
+                'email' => 'pieter@post.nl',
+                'schemaId' => 'system',
+            ], JSON_THROW_ON_ERROR),
             'customer_id' => $customer->id,
             'note' => $internalComment,
             'subscription_id' => $domainSubscription->id,
@@ -532,7 +572,9 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         self::assertTrue($domainSubscription->exists());
         self::assertTrue($migratedCustomer->customers()->where('id', $customer->id)->exists());
         self::assertTrue($customer->migratedCustomers()->where('id', $migratedCustomer->id)->exists());
-        $createdMigratedCustomer = MigratedCustomer::query()->where('reference_customer_number', $referenceCustomerId)->first();
+        $createdMigratedCustomer = MigratedCustomer::query()
+            ->where('reference_customer_number', $referenceCustomerId)
+            ->first();
         self::assertInstanceOf(MigratedCustomer::class, $createdMigratedCustomer);
         self::assertNotNull($createdMigratedCustomer->migrated_at);
 
@@ -563,7 +605,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         self::assertSame($this->uuid->toString(), $sitebuilderNote->noted_by_uuid?->toString());
         self::assertSame(
             '{"email": "pieter@post.nl", "schemaId": "system"}',
-            $sitebuilderNote->noted_by_metadata
+            $sitebuilderNote->noted_by_metadata,
         );
         self::assertTrue($customer->is($sitebuilderNote->customer));
         self::assertSame('comment', $sitebuilderNote->note);
@@ -574,22 +616,22 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         self::assertSame($this->uuid->toString(), $gatewaySitebuilderNote->noted_by_uuid?->toString());
         self::assertSame(
             '{"email": "pieter@post.nl", "schemaId": "system"}',
-            $gatewaySitebuilderNote->noted_by_metadata
+            $gatewaySitebuilderNote->noted_by_metadata,
         );
         self::assertTrue($customer->is($gatewaySitebuilderNote->customer));
         self::assertSame('comment', $gatewaySitebuilderNote->note);
 
         self::assertDatabaseHas('domain_deployments', [
             'subscription_uuid' => $domainSubscription->uuid,
-            'provider_id'       => $domainProvider->id,
+            'provider_id' => $domainProvider->id,
         ]);
         self::assertDatabaseHas('ssl_deployments', [
             'subscription_uuid' => $ssl->uuid,
-            'provider_id'       => $sslProvider->id,
+            'provider_id' => $sslProvider->id,
         ]);
         self::assertDatabaseHas('hosting_deployments', [
-            'subscription_uuid'     => $hosting->uuid,
-            'provider_id'           => $hostingProvider->id,
+            'subscription_uuid' => $hosting->uuid,
+            'provider_id' => $hostingProvider->id,
             'mail_only_provider_id' => null,
             'sitebuilder_provider_id' => null,
             'server_id' => null,
@@ -597,11 +639,11 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             'mail_only_server_id' => null,
         ]);
         self::assertDatabaseMissing('hosting_deployments', [
-            'subscription_uuid'   => $redirect->uuid,
+            'subscription_uuid' => $redirect->uuid,
         ]);
         self::assertDatabaseHas('hosting_deployments', [
             'subscription_uuid' => $mailOnly->uuid,
-            'provider_id'       => null,
+            'provider_id' => null,
             'mail_only_provider_id' => $mailOnlyProvider->id,
             'sitebuilder_provider_id' => null,
             'server_id' => null,
@@ -610,7 +652,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         ]);
         self::assertDatabaseHas('hosting_deployments', [
             'subscription_uuid' => $sitebuilder->uuid,
-            'provider_id'       => null,
+            'provider_id' => null,
             'mail_only_provider_id' => $mailOnlyProvider->id,
             'sitebuilder_provider_id' => $sitebuilderProvider->id,
             'server_id' => null,
@@ -619,7 +661,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         ]);
         self::assertDatabaseHas('hosting_deployments', [
             'subscription_uuid' => $gatewaySitebuilder->uuid,
-            'provider_id'       => null,
+            'provider_id' => null,
             'mail_only_provider_id' => $mailOnlyProvider->id,
             'sitebuilder_provider_id' => null,
             'server_id' => null,
@@ -628,8 +670,8 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         ]);
         self::assertDatabaseHas('reseller_hosting_deployments', [
             'subscription_uuid' => $resellerHosting->uuid,
-            'provider_id'       => $hostingProvider->id,
-            'server_id'         => null,
+            'provider_id' => $hostingProvider->id,
+            'server_id' => null,
             'directadmin_customer_username' => null,
             'plesk_customer_username' => null,
             'plesk_customer_id' => null,
@@ -815,7 +857,9 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
 
         $productExtension = ProductFactory::new()->for($productGroupExtension)->createOne(['slug' => 'extension_com']);
         $productDns = ProductFactory::new()->for($productGroupDns)->createOne(['slug' => ProductType::FREE_DNS->value]);
-        $productVolumeDiscount = ProductFactory::new()->for($productGroupVolumeDiscount)->createOne(['slug' => 'volume_discount_brons']);
+        $productVolumeDiscount = ProductFactory::new()->for($productGroupVolumeDiscount)->createOne([
+            'slug' => 'volume_discount_brons',
+        ]);
 
         $productPriceData = [
             'billing_period' => 12,
@@ -836,9 +880,9 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         $referenceCustomer = MigratedCustomersFactory::new()->createOne();
         $referenceCustomerId = $referenceCustomer->reference_customer_number;
 
-        ProductDiscountFactory::new()
-            ->for($productVolumeDiscount)
-            ->createOne(['name' => 'volume discount for domains']);
+        ProductDiscountFactory::new()->for($productVolumeDiscount)->createOne([
+            'name' => 'volume discount for domains',
+        ]);
 
         $customer = CustomerFactory::new()->createOne();
 
@@ -895,16 +939,14 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
 
         Http::fake();
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $domainSubscription = Subscription::query()
             ->where('domain', $domain)
@@ -932,7 +974,9 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         self::assertTrue($domainSubscription->exists());
         self::assertTrue($migratedCustomer->customers()->where('id', $customer->id)->exists());
         self::assertTrue($customer->migratedCustomers()->where('id', $migratedCustomer->id)->exists());
-        $createdMigratedCustomer = MigratedCustomer::query()->where('reference_customer_number', $referenceCustomerId)->first();
+        $createdMigratedCustomer = MigratedCustomer::query()
+            ->where('reference_customer_number', $referenceCustomerId)
+            ->first();
         self::assertInstanceOf(MigratedCustomer::class, $createdMigratedCustomer);
         self::assertNotNull($createdMigratedCustomer->migrated_at);
 
@@ -944,13 +988,19 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         self::assertTrue($productVolumeDiscount->is($productDiscount->product));
         self::assertCount(1, $productDiscount->customers);
 
-        $volumeDiscount = MigratedSubscription::where('reference_subscription_id', $volumeDiscountReferenceSubscriptionId)->firstOrFail()->subscriptions()->firstOrFail();
+        $volumeDiscount = MigratedSubscription::where(
+            'reference_subscription_id',
+            $volumeDiscountReferenceSubscriptionId,
+        )
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
 
         self::assertSame(DomainStatus::ACTIVE->value, $domainSubscription->technical_status);
 
         self::assertDatabaseHas('domain_deployments', [
             'subscription_uuid' => $domainSubscription->uuid,
-            'provider_id'       => $domainProvider->id,
+            'provider_id' => $domainProvider->id,
         ]);
 
         self::assertDatabaseMissing('invoices', [
@@ -1002,8 +1052,10 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            )->assertOk()->assertExactJson([
+                ],
+            )
+            ->assertOk()
+            ->assertExactJson([
                 'failures' => [],
                 'success' => [
                     [
@@ -1053,11 +1105,16 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             'price' => 400,
         ];
 
-        new ProductPriceComponentFactory()->for($productSsl)->prolongation()->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productSsl)
+            ->prolongation()
+            ->createOne($productPriceData);
 
         $referenceCustomerId = 'test_customer_number';
         $customer = CustomerFactory::new()->createOne();
-        $migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_customer_number' => $referenceCustomerId]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => $referenceCustomerId,
+        ]);
         $migratedCustomer->customers()->attach($customer);
         $sslReferenceSubscriptionId = 'ssl_subscription_id';
         $sslReferenceProductId = 'ssl_reference_code';
@@ -1101,20 +1158,21 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             ],
         ];
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertUnprocessable();
 
-        $ssl = MigratedSubscription::where('reference_product_id', $sslReferenceProductId)->first()?->subscriptions()->first();
+        $ssl = MigratedSubscription::where('reference_product_id', $sslReferenceProductId)
+            ->first()
+            ?->subscriptions()
+            ->first();
         self::assertNull($ssl);
 
         self::assertDatabaseMissing('subscriptions', [
@@ -1134,11 +1192,16 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             'price' => 400,
         ];
 
-        new ProductPriceComponentFactory()->for($productSsl)->prolongation()->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productSsl)
+            ->prolongation()
+            ->createOne($productPriceData);
 
         $referenceCustomerId = 'test_customer_number';
         $customer = CustomerFactory::new()->createOne();
-        $migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_customer_number' => $referenceCustomerId]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => $referenceCustomerId,
+        ]);
         $migratedCustomer->customers()->attach($customer);
         $sslReferenceSubscriptionId = 'ssl_subscription_id';
         $sslReferenceProductId = 'ssl_reference_code';
@@ -1167,20 +1230,21 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             ],
         ];
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertUnprocessable();
 
-        $ssl = MigratedSubscription::where('reference_product_id', $sslReferenceProductId)->first()?->subscriptions()->first();
+        $ssl = MigratedSubscription::where('reference_product_id', $sslReferenceProductId)
+            ->first()
+            ?->subscriptions()
+            ->first();
         self::assertNull($ssl);
 
         self::assertDatabaseMissing('subscriptions', [
@@ -1191,9 +1255,9 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
     #[Test]
     public function productPriceReferenceMismatchCausesValidationError(): void
     {
-        $productSsl = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->ssl()->createOne())
-            ->createOne(['slug' => 'ssl']);
+        $productSsl = ProductFactory::new()->for(ProductGroupFactory::new()->ssl()->createOne())->createOne([
+            'slug' => 'ssl',
+        ]);
 
         new ProductPriceComponentFactory()
             ->for($productSsl)
@@ -1206,51 +1270,53 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
 
         $referenceCustomerId = 'test_customer_number';
         $customer = CustomerFactory::new()->createOne();
-        $migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_customer_number' => $referenceCustomerId]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => $referenceCustomerId,
+        ]);
         $migratedCustomer->customers()->attach($customer);
         $sslReferenceSubscriptionId = 'ssl_subscription_id';
         $sslReferenceProductId = 'ssl_reference_code';
 
-        $response = $this->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                [
-                    'reference_customer_id' => 'test_customer_number',
-                    'subscriptions' => [
-                        'domain_extensions' => [],
-                        'ssl' => [
-                            [
-                                'domain' => 'ssl-domain.nl',
-                                'slug' => 'ssl',
-                                'contract_period' => 12,
-                                'billing_period' => 12,
-                                'reference_subscription_id' => $sslReferenceSubscriptionId,
-                                'reference_product_id' => $sslReferenceProductId,
-                                'reference_net_price' => 500,
-                                'start_date' => '2022-08-10T11:31:08+02:00',
-                                'next_contract_date' => '2022-08-10T11:31:08+02:00',
-                                'next_billing_date' => '2022-08-10T11:31:08+02:00',
-                            ],
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            [
+                'reference_customer_id' => 'test_customer_number',
+                'subscriptions' => [
+                    'domain_extensions' => [],
+                    'ssl' => [
+                        [
+                            'domain' => 'ssl-domain.nl',
+                            'slug' => 'ssl',
+                            'contract_period' => 12,
+                            'billing_period' => 12,
+                            'reference_subscription_id' => $sslReferenceSubscriptionId,
+                            'reference_product_id' => $sslReferenceProductId,
+                            'reference_net_price' => 500,
+                            'start_date' => '2022-08-10T11:31:08+02:00',
+                            'next_contract_date' => '2022-08-10T11:31:08+02:00',
+                            'next_billing_date' => '2022-08-10T11:31:08+02:00',
                         ],
-                        'reseller-discount' => [],
-                        'manual-subscription' => [],
-                        'dns' => [],
-                        'other' => [],
-                        'hosting' => [],
                     ],
+                    'reseller-discount' => [],
+                    'manual-subscription' => [],
+                    'dns' => [],
+                    'other' => [],
+                    'hosting' => [],
                 ],
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+            ],
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $expectedMessage = sprintf(
             'Price is different for product ssl and customer %d: new product price 400, reference product price 500',
             $customer->id,
         );
 
-        $response->assertUnprocessable()
+        $response
+            ->assertUnprocessable()
             ->assertExactJson([
                 'message' => $expectedMessage,
                 'errors' => [
@@ -1260,7 +1326,10 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
                 ],
             ]);
 
-        $ssl = MigratedSubscription::where('reference_product_id', $sslReferenceProductId)->first()?->subscriptions()->first();
+        $ssl = MigratedSubscription::where('reference_product_id', $sslReferenceProductId)
+            ->first()
+            ?->subscriptions()
+            ->first();
         self::assertNull($ssl);
 
         self::assertDatabaseMissing('subscriptions', [
@@ -1271,9 +1340,9 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
     #[Test]
     public function productPriceReferenceIsFixedSetsDifferentSubscriptionPrice(): void
     {
-        $productHosting = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->hosting()->createOne())
-            ->createOne(['slug' => 'hosting']);
+        $productHosting = ProductFactory::new()->for(ProductGroupFactory::new()->hosting()->createOne())->createOne([
+            'slug' => 'hosting',
+        ]);
 
         new ProductPriceComponentFactory()
             ->for($productHosting)
@@ -1296,59 +1365,66 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         $hostingReferenceSubscriptionOneOffId = 'hosting_subscription_on_off_id';
         $hostingReferenceProductId = 'hosting_reference_code';
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                [
-                    'reference_customer_id' => $referenceCustomerId,
-                    'subscriptions' => [
-                        'hosting' => [
-                            [
-                                'domain' => 'hosting-domain1.nl',
-                                'slug' => 'hosting',
-                                'contract_period' => 24,
-                                'billing_period' => 12,
-                                'reference_subscription_id' => $hostingReferenceSubscriptionIndefiniteId,
-                                'reference_product_id' => $hostingReferenceProductId,
-                                'reference_net_price' => 301, // different from regular prolongation price
-                                'reference_net_price_is_fixed' => true,
-                                'reference_net_price_is_one_off' => false,
-                                'start_date' => '2022-08-10T11:31:08+02:00',
-                                'next_contract_date' => '2022-08-10T11:31:08+02:00',
-                                'next_billing_date' => '2022-08-10T11:31:08+02:00',
-                            ],
-                            [
-                                'domain' => 'hosting-domain2.nl',
-                                'slug' => 'hosting',
-                                'contract_period' => 24,
-                                'billing_period' => 12,
-                                'reference_subscription_id' => $hostingReferenceSubscriptionOneOffId,
-                                'reference_product_id' => $hostingReferenceProductId,
-                                'reference_net_price' => 302, // different from regular prolongation price
-                                'reference_net_price_is_fixed' => true,
-                                'reference_net_price_is_one_off' => true,
-                                'start_date' => '2022-08-10T11:31:08+02:00',
-                                'next_contract_date' => '2022-08-10T11:31:08+02:00',
-                                'next_billing_date' => '2022-08-10T11:31:08+02:00',
-                            ],
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            [
+                'reference_customer_id' => $referenceCustomerId,
+                'subscriptions' => [
+                    'hosting' => [
+                        [
+                            'domain' => 'hosting-domain1.nl',
+                            'slug' => 'hosting',
+                            'contract_period' => 24,
+                            'billing_period' => 12,
+                            'reference_subscription_id' => $hostingReferenceSubscriptionIndefiniteId,
+                            'reference_product_id' => $hostingReferenceProductId,
+                            'reference_net_price' => 301, // different from regular prolongation price
+                            'reference_net_price_is_fixed' => true,
+                            'reference_net_price_is_one_off' => false,
+                            'start_date' => '2022-08-10T11:31:08+02:00',
+                            'next_contract_date' => '2022-08-10T11:31:08+02:00',
+                            'next_billing_date' => '2022-08-10T11:31:08+02:00',
+                        ],
+                        [
+                            'domain' => 'hosting-domain2.nl',
+                            'slug' => 'hosting',
+                            'contract_period' => 24,
+                            'billing_period' => 12,
+                            'reference_subscription_id' => $hostingReferenceSubscriptionOneOffId,
+                            'reference_product_id' => $hostingReferenceProductId,
+                            'reference_net_price' => 302, // different from regular prolongation price
+                            'reference_net_price_is_fixed' => true,
+                            'reference_net_price_is_one_off' => true,
+                            'start_date' => '2022-08-10T11:31:08+02:00',
+                            'next_contract_date' => '2022-08-10T11:31:08+02:00',
+                            'next_billing_date' => '2022-08-10T11:31:08+02:00',
                         ],
                     ],
                 ],
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+            ],
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertOk();
-        $hosting1 = MigratedSubscription::where('reference_subscription_id', $hostingReferenceSubscriptionIndefiniteId)->firstOrFail()->subscriptions()->firstOrFail();
-        $hosting2 = MigratedSubscription::where('reference_subscription_id', $hostingReferenceSubscriptionOneOffId)->firstOrFail()->subscriptions()->firstOrFail();
+        $hosting1 = MigratedSubscription::where('reference_subscription_id', $hostingReferenceSubscriptionIndefiniteId)
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
+        $hosting2 = MigratedSubscription::where('reference_subscription_id', $hostingReferenceSubscriptionOneOffId)
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
 
         // it should be the fixed net price instead of the regular prolongation
         self::assertSame(301, $hosting1->gross_price);
         self::assertSame(301, $hosting1->net_price);
-        self::assertSame(PriceComponentType::CUSTOM_INDEFINITE, $hosting1->activePrice?->components->firstOrFail()->type);
+        self::assertSame(
+            PriceComponentType::CUSTOM_INDEFINITE,
+            $hosting1->activePrice?->components->firstOrFail()->type,
+        );
 
         self::assertSame(302, $hosting2->gross_price);
         self::assertSame(302, $hosting2->net_price);
@@ -1393,16 +1469,27 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         $referenceCustomerId = $referenceCustomer->id;
         $customer = CustomerFactory::new()->createOne();
         $discount = ProductDiscountFactory::new()->createOne(['product_id' => $productSsl->id]);
-        new CustomerProductDiscountFactory()->createOne(['customer_id' => $customer->id, 'product_discount_id' => $discount->id]);
+        new CustomerProductDiscountFactory()->createOne([
+            'customer_id' => $customer->id,
+            'product_discount_id' => $discount->id,
+        ]);
 
-        new ProductPriceComponentFactory()->for($productSsl)->prolongation()->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productSsl)
+            ->prolongation()
+            ->createOne($productPriceData);
 
         $discountPrice = ProductPriceComponentFactory::new()->for($productSsl)->createOne($productPriceData2);
         $productDiscountService->attachPrice($discount, $discountPrice);
 
-        new ProductPriceComponentFactory()->for($productSsl)->prolongation()->createOne($productPriceData3);
+        new ProductPriceComponentFactory()
+            ->for($productSsl)
+            ->prolongation()
+            ->createOne($productPriceData3);
 
-        $migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_customer_number' => $referenceCustomerId]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => $referenceCustomerId,
+        ]);
         $migratedCustomer->customers()->attach($customer);
         $sslReferenceSubscriptionId = 'ssl_subscription_id';
         $sslReferenceProductId = 'ssl_reference_code';
@@ -1447,23 +1534,25 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
 
         Http::fake();
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertOk();
 
-        $subscriptions = MigratedSubscription::where('reference_product_id', $sslReferenceProductId)->first()?->subscriptions;
+        $subscriptions = MigratedSubscription::where(
+            'reference_product_id',
+            $sslReferenceProductId,
+        )->first()?->subscriptions;
         $subscriptions?->firstOrFail();
 
-        $ssl2 = Subscription::query()->where('customer_id', $customer->id)
+        $ssl2 = Subscription::query()
+            ->where('customer_id', $customer->id)
             ->where(['contract_period' => 1, 'billing_period' => 1])
             ->firstOrFail();
 
@@ -1483,11 +1572,16 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             'price' => 400,
         ];
 
-        new ProductPriceComponentFactory()->for($productSsl)->prolongation()->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productSsl)
+            ->prolongation()
+            ->createOne($productPriceData);
 
         $referenceCustomerId = 'test_customer_number';
         $customer = CustomerFactory::new()->createOne();
-        $migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_customer_number' => $referenceCustomerId]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => $referenceCustomerId,
+        ]);
         $migratedCustomer->customers()->attach($customer);
         $sslReferenceSubscriptionId = 'ssl_subscription_id';
         $sslReferenceProductId = 'ssl_reference_code';
@@ -1517,16 +1611,14 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             ],
         ];
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertUnprocessable();
 
@@ -1558,10 +1650,10 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         $productSsl = ProductFactory::new()->for($productGroupSsl)->createOne(['slug' => 'ssl']);
         $productHosting = ProductFactory::new()->for($productGroupHosting)->createOne(['slug' => 'basic']);
         $productManual = ProductFactory::new()->for($productGroupManual)->createOne(
-            ['slug' => 'manual', 'name' => 'manual']
+            ['slug' => 'manual', 'name' => 'manual'],
         );
         $productOther = ProductFactory::new()->for($productGroupOther)->createOne(
-            ['slug' => 'other', 'name' => 'other']
+            ['slug' => 'other', 'name' => 'other'],
         );
 
         $productPriceData = [
@@ -1576,19 +1668,37 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             'price' => 800,
         ];
 
-        new ProductPriceComponentFactory()->for($productExtension)->prolongation()->createOne($productPriceData);
-        new ProductPriceComponentFactory()->for($productSsl)->prolongation()->createOne($productPriceData);
-        new ProductPriceComponentFactory()->for($productHosting)->prolongation()->createOne($productPriceData);
-        new ProductPriceComponentFactory()->for($productHosting)->prolongation()->createOne($productPriceData2);
-        new ProductPriceComponentFactory()->for($productManual)->prolongation()->createOne($productPriceData);
-        new ProductPriceComponentFactory()->for($productOther)->prolongation()->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productExtension)
+            ->prolongation()
+            ->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productSsl)
+            ->prolongation()
+            ->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productHosting)
+            ->prolongation()
+            ->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productHosting)
+            ->prolongation()
+            ->createOne($productPriceData2);
+        new ProductPriceComponentFactory()
+            ->for($productManual)
+            ->prolongation()
+            ->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productOther)
+            ->prolongation()
+            ->createOne($productPriceData);
 
         $referenceCustomer = MigratedCustomersFactory::new()->createOne();
         $referenceCustomerId = $referenceCustomer->id;
 
         $customer = CustomerFactory::new()->createOne();
         $migratedCustomer = MigratedCustomersFactory::new()->createOne(
-            ['reference_customer_number' => $referenceCustomerId]
+            ['reference_customer_number' => $referenceCustomerId],
         );
         $migratedCustomer->customers()->attach($customer);
         $domain = 'test-domain.com';
@@ -1693,16 +1803,14 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
 
         Http::fake();
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertUnprocessable();
 
@@ -1729,9 +1837,9 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
     {
         $productGroupExtension = ProductGroupFactory::new()->extension()->createOne();
         $productGroupSsl = ProductGroupFactory::new()->ssl()->createOne();
-        $productGroupHosting =  ProductGroupFactory::new()->hosting()->createOne();
-        $productGroupManual =  ProductGroupFactory::new()->manualSubscription()->createOne();
-        $productGroupOther =  ProductGroupFactory::new()->other()->createOne();
+        $productGroupHosting = ProductGroupFactory::new()->hosting()->createOne();
+        $productGroupManual = ProductGroupFactory::new()->manualSubscription()->createOne();
+        $productGroupOther = ProductGroupFactory::new()->other()->createOne();
 
         ProviderFactory::new()->sslPlaceholder()->createOne();
         ProviderFactory::new()->hostingPlaceholder()->createOne();
@@ -1743,9 +1851,15 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         $productExtension = ProductFactory::new()->for($productGroupExtension)->createOne(['slug' => 'extension_com']);
         $productSsl = ProductFactory::new()->for($productGroupSsl)->createOne(['slug' => 'ssl']);
         $productHosting = ProductFactory::new()->for($productGroupHosting)->createOne(['slug' => 'hosting']);
-        $productHosting2  = ProductFactory::new()->for($productGroupHosting)->createOne(['slug' => 'hosting2']);
-        $productManual = ProductFactory::new()->for($productGroupManual)->createOne(['slug' => 'manual', 'name' => 'manual']);
-        $productOther = ProductFactory::new()->for($productGroupOther)->createOne(['slug' => 'other', 'name' => 'other']);
+        $productHosting2 = ProductFactory::new()->for($productGroupHosting)->createOne(['slug' => 'hosting2']);
+        $productManual = ProductFactory::new()->for($productGroupManual)->createOne([
+            'slug' => 'manual',
+            'name' => 'manual',
+        ]);
+        $productOther = ProductFactory::new()->for($productGroupOther)->createOne([
+            'slug' => 'other',
+            'name' => 'other',
+        ]);
 
         $productPriceData = [
             'billing_period' => 12,
@@ -1759,19 +1873,42 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             'price' => 800,
         ];
 
-        new ProductPriceComponentFactory()->for($productExtension)->prolongation()->createOne($productPriceData);
-        new ProductPriceComponentFactory()->for($productSsl)->prolongation()->createOne($productPriceData);
-        new ProductPriceComponentFactory()->for($productHosting)->prolongation()->createOne($productPriceData);
-        new ProductPriceComponentFactory()->for($productHosting)->prolongation()->createOne($productPriceData2);
-        new ProductPriceComponentFactory()->for($productHosting2)->prolongation()->createOne($productPriceData);
-        new ProductPriceComponentFactory()->for($productManual)->prolongation()->createOne($productPriceData);
-        new ProductPriceComponentFactory()->for($productOther)->prolongation()->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productExtension)
+            ->prolongation()
+            ->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productSsl)
+            ->prolongation()
+            ->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productHosting)
+            ->prolongation()
+            ->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productHosting)
+            ->prolongation()
+            ->createOne($productPriceData2);
+        new ProductPriceComponentFactory()
+            ->for($productHosting2)
+            ->prolongation()
+            ->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productManual)
+            ->prolongation()
+            ->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productOther)
+            ->prolongation()
+            ->createOne($productPriceData);
 
         $referenceCustomer = MigratedCustomersFactory::new()->createOne();
         $referenceCustomerId = $referenceCustomer->id;
 
         $customer = CustomerFactory::new()->createOne();
-        $migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_customer_number' => $referenceCustomerId]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => $referenceCustomerId,
+        ]);
         $migratedCustomer->customers()->attach($customer);
         $domain = 'test-domain.com';
         $internalComment = 'lorem ipsum';
@@ -1873,16 +2010,14 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
 
         Http::fake();
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertUnprocessable();
 
@@ -1910,11 +2045,16 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             'price' => 400,
         ];
 
-        new ProductPriceComponentFactory()->for($productSsl)->prolongation()->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productSsl)
+            ->prolongation()
+            ->createOne($productPriceData);
 
         $referenceCustomerId = 'test_customer_number';
         $customer = CustomerFactory::new()->createOne();
-        $migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_customer_number' => $referenceCustomerId]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => $referenceCustomerId,
+        ]);
         $migratedCustomer->customers()->attach($customer);
         $sslReferenceSubscriptionId = 'ssl_subscription_id';
         $sslReferenceProductId = 'ssl_reference_code';
@@ -1950,16 +2090,14 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             ],
         ];
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertUnprocessable();
 
@@ -1975,7 +2113,10 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             ],
         ]);
 
-        $ssl = MigratedSubscription::where('reference_product_id', $sslReferenceProductId)->first()?->subscriptions()->first();
+        $ssl = MigratedSubscription::where('reference_product_id', $sslReferenceProductId)
+            ->first()
+            ?->subscriptions()
+            ->first();
         self::assertNull($ssl);
 
         self::assertDatabaseMissing('subscriptions', [
@@ -1986,27 +2127,21 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
     #[Test]
     public function duplicateSubscriptionsInvalid(): void
     {
-        $productNl = ProductFactory::new()
-            ->nlDomain()
-            ->createOne();
+        $productNl = ProductFactory::new()->nlDomain()->createOne();
 
         new ProductPriceComponentFactory()
             ->for($productNl)
             ->prolongation()
             ->createOne();
 
-        $productRedirect = ProductFactory::new()
-            ->redirect()
-            ->createOne();
+        $productRedirect = ProductFactory::new()->redirect()->createOne();
 
         new ProductPriceComponentFactory()
             ->for($productRedirect)
             ->prolongation()
             ->createOne();
 
-        $productSsl = ProductFactory::new()
-            ->sslSingleDomain()
-            ->createOne();
+        $productSsl = ProductFactory::new()->sslSingleDomain()->createOne();
 
         new ProductPriceComponentFactory()
             ->for($productSsl)
@@ -2015,7 +2150,9 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
 
         $referenceCustomerId = 'reference_customer_number';
         $customer = CustomerFactory::new()->createOne();
-        $migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_customer_number' => $referenceCustomerId]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => $referenceCustomerId,
+        ]);
         $migratedCustomer->customers()->attach($customer);
 
         // Domains per group are the same in the payload
@@ -2159,16 +2296,14 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             ],
         ];
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertUnprocessable();
 
@@ -2214,12 +2349,17 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             'price' => 400,
         ];
 
-        new ProductPriceComponentFactory()->for($productSsl)->prolongation()->createOne($productPriceData);
+        new ProductPriceComponentFactory()
+            ->for($productSsl)
+            ->prolongation()
+            ->createOne($productPriceData);
 
         $referenceCustomerId = 'test_customer_number';
         $customer = CustomerFactory::new()->createOne();
         $customer->labels()->save(LabelFactory::new()->for($customer)->createOne(['value' => 'ssl-label']));
-        $migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_customer_number' => $referenceCustomerId]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => $referenceCustomerId,
+        ]);
         $migratedCustomer->customers()->attach($customer);
         $sslReferenceSubscriptionId = 'ssl_subscription_id';
         $sslReferenceProductId = 'ssl_reference_code';
@@ -2254,16 +2394,14 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             ],
         ];
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertOk();
 
@@ -2284,24 +2422,36 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
     public function customerAlreadyLinkedToProductDiscount(): void
     {
         $productGroupVolumeDiscount = ProductGroupFactory::new()->volumeDiscount()->createOne();
-        $productVolumeDiscountBrons = ProductFactory::new()->for($productGroupVolumeDiscount)->createOne(['slug' => 'volume_discount_brons']);
-        $productVolumeDiscountZilver = ProductFactory::new()->for($productGroupVolumeDiscount)->createOne(['slug' => 'volume_discount_zilver']);
+        $productVolumeDiscountBrons = ProductFactory::new()->for($productGroupVolumeDiscount)->createOne([
+            'slug' => 'volume_discount_brons',
+        ]);
+        $productVolumeDiscountZilver = ProductFactory::new()->for($productGroupVolumeDiscount)->createOne([
+            'slug' => 'volume_discount_zilver',
+        ]);
 
-        new ProductPriceComponentFactory()->for($productVolumeDiscountBrons)->prolongation()->createOne();
-        new ProductPriceComponentFactory()->for($productVolumeDiscountZilver)->prolongation()->createOne();
-
-        $productDiscountBrons = ProductDiscountFactory::new()
+        new ProductPriceComponentFactory()
             ->for($productVolumeDiscountBrons)
-            ->createOne(['name' => 'volume discount for domains brons']);
-
-        ProductDiscountFactory::new()
+            ->prolongation()
+            ->createOne();
+        new ProductPriceComponentFactory()
             ->for($productVolumeDiscountZilver)
-            ->createOne(['name' => 'volume discount for domains zilver']);
+            ->prolongation()
+            ->createOne();
+
+        $productDiscountBrons = ProductDiscountFactory::new()->for($productVolumeDiscountBrons)->createOne([
+            'name' => 'volume discount for domains brons',
+        ]);
+
+        ProductDiscountFactory::new()->for($productVolumeDiscountZilver)->createOne([
+            'name' => 'volume discount for domains zilver',
+        ]);
 
         $referenceCustomerId = 'test_customer_number';
         $customer = CustomerFactory::new()->createOne();
         $productDiscountBrons->customers()->attach($customer);
-        $migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_customer_number' => $referenceCustomerId]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => $referenceCustomerId,
+        ]);
         $migratedCustomer->customers()->attach($customer);
         $volumeDiscountReferenceSubscriptionId = 'volume_discount_subscription_id';
         $volumeDiscountReferenceProductId = 'volume_discount_product_id';
@@ -2337,8 +2487,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
             $customer->id,
         ));
 
-        $this
-            ->withoutExceptionHandling()
+        $this->withoutExceptionHandling()
             ->actingAsSystem()
             ->postJson(
                 $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
@@ -2346,7 +2495,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
+                ],
             );
     }
 
@@ -2359,7 +2508,9 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         // Intentionally skip creating the placeholder provider so it throws an error.
         $referenceCustomerId = 'test_customer_number';
         $customer = CustomerFactory::new()->createOne();
-        $migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_customer_number' => $referenceCustomerId]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => $referenceCustomerId,
+        ]);
         $migratedCustomer->customers()->attach($customer);
 
         $productExtension = ProductFactory::new()
@@ -2376,10 +2527,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
                 'price' => 400,
             ]);
 
-        $productDns = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->dns())
-            ->freeDns()
-            ->createOne();
+        $productDns = ProductFactory::new()->for(ProductGroupFactory::new()->dns())->freeDns()->createOne();
 
         new ProductPriceComponentFactory()
             ->for($productDns)
@@ -2393,8 +2541,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
         self::expectException(ModelNotFoundException::class);
         self::expectExceptionMessageIs('No query results for model [Waterfront\Domain\Providers\Models\Provider].');
 
-        $this
-            ->withoutExceptionHandling()
+        $this->withoutExceptionHandling()
             ->actingAsSystem()
             ->postJson(
                 $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
@@ -2428,7 +2575,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
+                ],
             );
 
         self::assertSame(1, Customer::count());
@@ -2436,7 +2583,9 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
 
         self::assertTrue($migratedCustomer->customers()->where('id', $customer->id)->exists());
         self::assertTrue($customer->migratedCustomers()->where('id', $migratedCustomer->id)->exists());
-        $createdMigratedCustomer = MigratedCustomer::query()->where('reference_customer_number', $referenceCustomerId)->first();
+        $createdMigratedCustomer = MigratedCustomer::query()
+            ->where('reference_customer_number', $referenceCustomerId)
+            ->first();
         self::assertInstanceOf(MigratedCustomer::class, $createdMigratedCustomer);
     }
 
@@ -2445,7 +2594,9 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
     {
         $referenceCustomerId = 'test_customer_number';
         $customer = CustomerFactory::new()->createOne();
-        $migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_customer_number' => $referenceCustomerId]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => $referenceCustomerId,
+        ]);
         $migratedCustomer->customers()->attach($customer);
 
         $productExtension = ProductFactory::new()
@@ -2462,10 +2613,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
                 'price' => 400,
             ]);
 
-        $productDns = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->dns())
-            ->freeDns()
-            ->createOne();
+        $productDns = ProductFactory::new()->for(ProductGroupFactory::new()->dns())->freeDns()->createOne();
 
         new ProductPriceComponentFactory()
             ->for($productDns)
@@ -2490,111 +2638,107 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
                 'price' => 400,
             ]);
 
-        $productSsl = ProductFactory::new()
-            ->sslSingleDomain()
-            ->createOne();
+        $productSsl = ProductFactory::new()->sslSingleDomain()->createOne();
 
         new ProductPriceComponentFactory()
             ->for($productSsl)
             ->prolongation()
             ->createOne();
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                [
-                    'reference_customer_id' => $migratedCustomer->reference_customer_number,
-                    'subscriptions' => [
-                        'domain_extensions' => [
-                            [
-                                'domain' => 'bla.commmmmmmmmmmmmmm',
-                                'extension' => '.com',
-                                'slug' => $productExtension->slug,
-                                'contract_period' => 12,
-                                'billing_period' => 12,
-                                'reference_subscription_id' => 'no_placeholder_subscription_id',
-                                'reference_product_id' => 'no_placeholder_product_id',
-                                'status' => ProductPriceType::PROLONGATION,
-                                'start_date' => '2022-08-10T11:31:08+02:00',
-                                'next_contract_date' => '2022-08-10T11:31:08+02:00',
-                                'next_billing_date' => '2022-08-10T11:31:08+02:00',
-                            ],
-                            [
-                                'domain' => 'subdomain.not.allowed.bla.com',
-                                'extension' => '.com',
-                                'slug' => $productExtension->slug,
-                                'contract_period' => 12,
-                                'billing_period' => 12,
-                                'reference_subscription_id' => 'no_placeholder_subscription_id2',
-                                'reference_product_id' => 'no_placeholder_product_id2',
-                                'status' => ProductPriceType::PROLONGATION,
-                                'start_date' => '2022-08-10T11:31:08+02:00',
-                                'next_contract_date' => '2022-08-10T11:31:08+02:00',
-                                'next_billing_date' => '2022-08-10T11:31:08+02:00',
-                            ],
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            [
+                'reference_customer_id' => $migratedCustomer->reference_customer_number,
+                'subscriptions' => [
+                    'domain_extensions' => [
+                        [
+                            'domain' => 'bla.commmmmmmmmmmmmmm',
+                            'extension' => '.com',
+                            'slug' => $productExtension->slug,
+                            'contract_period' => 12,
+                            'billing_period' => 12,
+                            'reference_subscription_id' => 'no_placeholder_subscription_id',
+                            'reference_product_id' => 'no_placeholder_product_id',
+                            'status' => ProductPriceType::PROLONGATION,
+                            'start_date' => '2022-08-10T11:31:08+02:00',
+                            'next_contract_date' => '2022-08-10T11:31:08+02:00',
+                            'next_billing_date' => '2022-08-10T11:31:08+02:00',
                         ],
-                        'ssl' => [
-                            [
-                                // domain is required
-                                'slug' => $productSsl->slug,
-                                'contract_period' => 12,
-                                'billing_period' => 12,
-                                'reference_subscription_id' => 'ssl_subscription_id_1',
-                                'reference_product_id' => 'ssl_product_id_1',
-                                'status' => ProductPriceType::PROLONGATION,
-                                'start_date' => '2022-08-10T11:31:08+02:00',
-                                'next_contract_date' => '2022-08-10T11:31:08+02:00',
-                                'next_billing_date' => '2022-08-10T11:31:08+02:00',
-                            ],
+                        [
+                            'domain' => 'subdomain.not.allowed.bla.com',
+                            'extension' => '.com',
+                            'slug' => $productExtension->slug,
+                            'contract_period' => 12,
+                            'billing_period' => 12,
+                            'reference_subscription_id' => 'no_placeholder_subscription_id2',
+                            'reference_product_id' => 'no_placeholder_product_id2',
+                            'status' => ProductPriceType::PROLONGATION,
+                            'start_date' => '2022-08-10T11:31:08+02:00',
+                            'next_contract_date' => '2022-08-10T11:31:08+02:00',
+                            'next_billing_date' => '2022-08-10T11:31:08+02:00',
                         ],
-                        'reseller-discount' => [],
-                        'manual-subscription' => [],
-                        'dns' => [],
-                        'other' => [],
-                        'hosting' => [
-                            [
-                                // no domain is valid
-                                'slug' => $productHosting->slug,
-                                'contract_period' => 12,
-                                'billing_period' => 12,
-                                'reference_subscription_id' => 'hosting_1',
-                                'reference_product_id' => 'hosting_product',
-                                'start_date' => '1111-08-10T11:31:08+02:00',
-                                'next_contract_date' => '2022-08-10T11:31:08+02:00',
-                                'next_billing_date' => '2022-08-10T11:31:08+02:00',
-                            ],
-                            [
-                                'domain' => 'test.nl', // normal domain is valid
-                                'slug' => $productHosting->slug,
-                                'contract_period' => 12,
-                                'billing_period' => 12,
-                                'reference_subscription_id' => 'hosting_1',
-                                'reference_product_id' => 'hosting_product',
-                                'start_date' => '2022-08-10T11:31:08+02:00',
-                                'next_contract_date' => '2022-08-10T11:31:08+02:00',
-                                'next_billing_date' => '2022-08-10T11:31:08+02:00',
-                            ],
-                            [
-                                'domain' => null, // null is invalid
-                                'slug' => $productHosting->slug,
-                                'contract_period' => 12,
-                                'billing_period' => 12,
-                                'reference_subscription_id' => 'null_hosting_domain',
-                                'reference_product_id' => 'null_hosting_domain_product',
-                                'start_date' => '2022-08-10T11:31:08+02:00',
-                                'next_contract_date' => '2022-08-10T11:31:08+02:00',
-                                'next_billing_date' => '2022-08-10T11:31:08+02:00',
-                            ],
-                        ],
-                        'volume_discounts' => [],
                     ],
+                    'ssl' => [
+                        [
+                            // domain is required
+                            'slug' => $productSsl->slug,
+                            'contract_period' => 12,
+                            'billing_period' => 12,
+                            'reference_subscription_id' => 'ssl_subscription_id_1',
+                            'reference_product_id' => 'ssl_product_id_1',
+                            'status' => ProductPriceType::PROLONGATION,
+                            'start_date' => '2022-08-10T11:31:08+02:00',
+                            'next_contract_date' => '2022-08-10T11:31:08+02:00',
+                            'next_billing_date' => '2022-08-10T11:31:08+02:00',
+                        ],
+                    ],
+                    'reseller-discount' => [],
+                    'manual-subscription' => [],
+                    'dns' => [],
+                    'other' => [],
+                    'hosting' => [
+                        [
+                            // no domain is valid
+                            'slug' => $productHosting->slug,
+                            'contract_period' => 12,
+                            'billing_period' => 12,
+                            'reference_subscription_id' => 'hosting_1',
+                            'reference_product_id' => 'hosting_product',
+                            'start_date' => '1111-08-10T11:31:08+02:00',
+                            'next_contract_date' => '2022-08-10T11:31:08+02:00',
+                            'next_billing_date' => '2022-08-10T11:31:08+02:00',
+                        ],
+                        [
+                            'domain' => 'test.nl', // normal domain is valid
+                            'slug' => $productHosting->slug,
+                            'contract_period' => 12,
+                            'billing_period' => 12,
+                            'reference_subscription_id' => 'hosting_1',
+                            'reference_product_id' => 'hosting_product',
+                            'start_date' => '2022-08-10T11:31:08+02:00',
+                            'next_contract_date' => '2022-08-10T11:31:08+02:00',
+                            'next_billing_date' => '2022-08-10T11:31:08+02:00',
+                        ],
+                        [
+                            'domain' => null, // null is invalid
+                            'slug' => $productHosting->slug,
+                            'contract_period' => 12,
+                            'billing_period' => 12,
+                            'reference_subscription_id' => 'null_hosting_domain',
+                            'reference_product_id' => 'null_hosting_domain_product',
+                            'start_date' => '2022-08-10T11:31:08+02:00',
+                            'next_contract_date' => '2022-08-10T11:31:08+02:00',
+                            'next_billing_date' => '2022-08-10T11:31:08+02:00',
+                        ],
+                    ],
+                    'volume_discounts' => [],
                 ],
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+            ],
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertUnprocessable();
 
@@ -2619,7 +2763,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $response->json()
+            $response->json(),
         );
     }
 
@@ -2628,7 +2772,9 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
     {
         $referenceCustomerId = 'test_customer_number';
         $customer = CustomerFactory::new()->createOne();
-        $migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_customer_number' => $referenceCustomerId]);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => $referenceCustomerId,
+        ]);
         $migratedCustomer->customers()->attach($customer);
 
         $productExtension = ProductFactory::new()
@@ -2645,10 +2791,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
                 'price' => 400,
             ]);
 
-        $productDns = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->dns())
-            ->freeDns()
-            ->createOne();
+        $productDns = ProductFactory::new()->for(ProductGroupFactory::new()->dns())->freeDns()->createOne();
 
         new ProductPriceComponentFactory()
             ->for($productDns)
@@ -2659,42 +2802,40 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
                 'price' => 0,
             ]);
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                [
-                    'reference_customer_id' => $migratedCustomer->reference_customer_number,
-                    'subscriptions' => [
-                        'domain_extensions' => [
-                            [
-                                'domain' => 'no-placeholder-provider.com',
-                                'extension' => '.com',
-                                'slug' => $productExtension->slug,
-                                'contract_period' => '12',
-                                'billing_period' => '12',
-                                'reference_subscription_id' => 'no_placeholder_subscription_id',
-                                'reference_product_id' => 'no_placeholder_product_id',
-                                'status' => ProductPriceType::PROLONGATION,
-                                'start_date' => '2022-08-10T11:31:08+02:00',
-                                'next_contract_date' => '2022-08-10T11:31:08+02:00',
-                                'next_billing_date' => '2022-08-10T11:31:08+02:00',
-                            ],
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            [
+                'reference_customer_id' => $migratedCustomer->reference_customer_number,
+                'subscriptions' => [
+                    'domain_extensions' => [
+                        [
+                            'domain' => 'no-placeholder-provider.com',
+                            'extension' => '.com',
+                            'slug' => $productExtension->slug,
+                            'contract_period' => '12',
+                            'billing_period' => '12',
+                            'reference_subscription_id' => 'no_placeholder_subscription_id',
+                            'reference_product_id' => 'no_placeholder_product_id',
+                            'status' => ProductPriceType::PROLONGATION,
+                            'start_date' => '2022-08-10T11:31:08+02:00',
+                            'next_contract_date' => '2022-08-10T11:31:08+02:00',
+                            'next_billing_date' => '2022-08-10T11:31:08+02:00',
                         ],
-                        'ssl' => [],
-                        'reseller-discount' => [],
-                        'manual-subscription' => [],
-                        'dns' => [],
-                        'other' => [],
-                        'hosting' => [],
-                        'volume_discounts' => [],
                     ],
+                    'ssl' => [],
+                    'reseller-discount' => [],
+                    'manual-subscription' => [],
+                    'dns' => [],
+                    'other' => [],
+                    'hosting' => [],
+                    'volume_discounts' => [],
                 ],
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+            ],
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertUnprocessable();
 
@@ -2710,7 +2851,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $response->json()
+            $response->json(),
         );
     }
 
@@ -2718,7 +2859,9 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
     public function nonMigratedSubscriptionAlreadyExists(): void
     {
         $customer = CustomerFactory::new()->createOne();
-        $migratedCustomer = MigratedCustomersFactory::new()->createOne(['reference_customer_number' => 'test_customer_number']);
+        $migratedCustomer = MigratedCustomersFactory::new()->createOne([
+            'reference_customer_number' => 'test_customer_number',
+        ]);
         $migratedCustomer->customers()->attach($customer);
 
         ProviderFactory::new()->domainPlaceholder()->createOne();
@@ -2737,10 +2880,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
                 'price' => 400,
             ]);
 
-        $productDns = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->dns())
-            ->freeDns()
-            ->createOne();
+        $productDns = ProductFactory::new()->for(ProductGroupFactory::new()->dns())->freeDns()->createOne();
 
         ProductPriceComponentFactory::new()
             ->for($productDns)
@@ -2761,42 +2901,40 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
                 'domain' => 'subscription-already-exists.com',
             ]);
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
-                [
-                    'reference_customer_id' => $migratedCustomer->reference_customer_number,
-                    'subscriptions' => [
-                        'domain_extensions' => [
-                            [
-                                'domain' => 'subscription-already-exists.com',
-                                'extension' => '.com',
-                                'slug' => $productExtension->slug,
-                                'contract_period' => 12,
-                                'billing_period' => 12,
-                                'reference_subscription_id' => 'already_exists_subscription_id',
-                                'reference_product_id' => 'already_exists_product_id',
-                                'status' => ProductPriceType::PROLONGATION,
-                                'start_date' => '2022-08-10T11:31:08+02:00',
-                                'next_contract_date' => '2022-08-10T11:31:08+02:00',
-                                'next_billing_date' => '2022-08-10T11:31:08+02:00',
-                            ],
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create', ['customer' => $customer->id]),
+            [
+                'reference_customer_id' => $migratedCustomer->reference_customer_number,
+                'subscriptions' => [
+                    'domain_extensions' => [
+                        [
+                            'domain' => 'subscription-already-exists.com',
+                            'extension' => '.com',
+                            'slug' => $productExtension->slug,
+                            'contract_period' => 12,
+                            'billing_period' => 12,
+                            'reference_subscription_id' => 'already_exists_subscription_id',
+                            'reference_product_id' => 'already_exists_product_id',
+                            'status' => ProductPriceType::PROLONGATION,
+                            'start_date' => '2022-08-10T11:31:08+02:00',
+                            'next_contract_date' => '2022-08-10T11:31:08+02:00',
+                            'next_billing_date' => '2022-08-10T11:31:08+02:00',
                         ],
-                        'ssl' => [],
-                        'reseller-discount' => [],
-                        'manual-subscription' => [],
-                        'dns' => [],
-                        'other' => [],
-                        'hosting' => [],
-                        'volume_discounts' => [],
                     ],
+                    'ssl' => [],
+                    'reseller-discount' => [],
+                    'manual-subscription' => [],
+                    'dns' => [],
+                    'other' => [],
+                    'hosting' => [],
+                    'volume_discounts' => [],
                 ],
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+            ],
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $expectedMessage = sprintf(
             "An active subscription that is not part of any migration was found for product 'extension_nl' and domain 'subscription-already-exists.com' (found subscription id: %d)",
@@ -2812,7 +2950,7 @@ class SubscriptionMigrationControllerTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $response->json()
+            $response->json(),
         );
 
         $response->assertUnprocessable();

@@ -9,8 +9,9 @@ use Waterfront\Infra\Configuration\Configuration;
 
 class Url
 {
-    public function __construct(private readonly Configuration $configuration)
-    {
+    public function __construct(
+        private readonly Configuration $configuration,
+    ) {
     }
 
     public function getSubdomain(Request $request): ?string

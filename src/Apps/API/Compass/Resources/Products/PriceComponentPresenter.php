@@ -13,6 +13,7 @@ class PriceComponentPresenter
     {
         return [
             'id' => $price->id,
+            'productId' => $price->product_id,
             'billingPeriod' => $price->billing_period,
             'contractPeriod' => $price->contract_period,
             'price' => $price->price,
@@ -20,7 +21,6 @@ class PriceComponentPresenter
             'type' => $price->type,
             'startsAt' => $price->starts_at,
             'expiresAt' => $price->expires_at,
-            'priceExplanation' => $price->priceExplanation,
         ];
     }
 }

@@ -41,8 +41,13 @@ class DomainExtensionRuleTest extends IntegrationTestCase
      */
     #[DataProvider('passesProvider')]
     #[Test]
-    public function passes(bool $expectedResult, array $value, bool $shouldCallFindBySlug, bool $shouldCheckPremium, bool $isPremium): void
-    {
+    public function passes(
+        bool $expectedResult,
+        array $value,
+        bool $shouldCallFindBySlug,
+        bool $shouldCheckPremium,
+        bool $isPremium,
+    ): void {
         /** @var string $domain */
         $domain = $value['domain'];
 
@@ -55,7 +60,12 @@ class DomainExtensionRuleTest extends IntegrationTestCase
 
         $domainDriverFactory = $this->createDomainService($domain, $shouldCheckPremium, $isPremium);
 
-        $rule = new DomainExtensionRule($productRepository, $this->premiumDomainService, $domainDriverFactory, self::createStub(TranslatorInterface::class));
+        $rule = new DomainExtensionRule(
+            $productRepository,
+            $this->premiumDomainService,
+            $domainDriverFactory,
+            self::createStub(TranslatorInterface::class),
+        );
 
         $rule->validate('subscriptions.extension.*', $value, self::assertClosureIsCalled(! $expectedResult));
     }
@@ -67,38 +77,74 @@ class DomainExtensionRuleTest extends IntegrationTestCase
     {
         return [
             [
-                true, ['slug' => 'extension_nl', 'domain' => 'ketchup.nl'], true, true, false,
+                true,
+                ['slug' => 'extension_nl', 'domain' => 'ketchup.nl'],
+                true,
+                true,
+                false,
             ],
             [
-                false, ['slug' => 'extension_nl', 'domain' => 'ketchup.com'], true,  true, false,
+                false,
+                ['slug' => 'extension_nl', 'domain' => 'ketchup.com'],
+                true,
+                true,
+                false,
             ],
             [
-                false, ['slug' => 'extension_nl', 'domain' => ''], false, false, false,
+                false,
+                ['slug' => 'extension_nl', 'domain' => ''],
+                false,
+                false,
+                false,
             ],
             [
-                false, ['slug' => '', 'domain' => 'ketchup.com'], false, false, false,
+                false,
+                ['slug' => '', 'domain' => 'ketchup.com'],
+                false,
+                false,
+                false,
             ],
             [
-                false, ['slug' => 'extension_cars', 'domain' => 'fast.cars'], true, true, true,
+                false,
+                ['slug' => 'extension_cars', 'domain' => 'fast.cars'],
+                true,
+                true,
+                true,
             ],
             [
-                true, ['slug' => 'extension_premium_katten_club', 'domain' => 'katten.club'], true, true, true,
+                true,
+                ['slug' => 'extension_premium_katten_club', 'domain' => 'katten.club'],
+                true,
+                true,
+                true,
             ],
             [
-                false, ['slug' => 'extension_uk', 'domain' => 'ketchup.co.uk'], true, true, false,
+                false,
+                ['slug' => 'extension_uk', 'domain' => 'ketchup.co.uk'],
+                true,
+                true,
+                false,
             ],
             [
-                true, ['slug' => 'extension_co.uk', 'domain' => 'ketchup.co.uk'], true, true, false,
+                true,
+                ['slug' => 'extension_co.uk', 'domain' => 'ketchup.co.uk'],
+                true,
+                true,
+                false,
             ],
         ];
     }
 
-    private function createProductRepository(string $slug, bool $shouldCallFindBySlug, ?string $premiumDomainName): ProductRepository
-    {
+    private function createProductRepository(
+        string $slug,
+        bool $shouldCallFindBySlug,
+        ?string $premiumDomainName,
+    ): ProductRepository {
         $repository = $this->createMock(ProductRepository::class);
 
         if (! $shouldCallFindBySlug) {
             $repository->expects(self::never())->method('findProductBySlug');
+
             return $repository;
         }
 
@@ -108,9 +154,7 @@ class DomainExtensionRuleTest extends IntegrationTestCase
             $product = $this->createProduct($slug);
         }
 
-        $repository->expects(self::once())
-            ->method('findProductBySlug')
-            ->willReturn($product);
+        $repository->expects(self::once())->method('findProductBySlug')->willReturn($product);
 
         return $repository;
     }
@@ -118,6 +162,7 @@ class DomainExtensionRuleTest extends IntegrationTestCase
     private function createProduct(string $slug): Product
     {
         [, $tld] = explode('_', $slug, 2);
+
         return new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne())->createOne([
             'name' => '.' . $tld,
             'slug' => $slug,
@@ -132,14 +177,18 @@ class DomainExtensionRuleTest extends IntegrationTestCase
         ]);
     }
 
-    private function createDomainService(string $domain, bool $shouldCheckPremium, bool $isPremium): DomainServiceFactory&MockInterface
-    {
+    private function createDomainService(
+        string $domain,
+        bool $shouldCheckPremium,
+        bool $isPremium,
+    ): DomainServiceFactory&MockInterface {
         if (! $shouldCheckPremium) {
             $domainService = $this->mock(DomainDriverInterface::class);
             $domainService->shouldNotHaveBeenCalled();
 
             $domainDriverFactory = $this->mock(DomainServiceFactory::class);
             $domainDriverFactory->shouldNotHaveBeenCalled();
+
             return $domainDriverFactory;
         }
 
@@ -154,6 +203,7 @@ class DomainExtensionRuleTest extends IntegrationTestCase
 
         $domainDriverFactory = $this->mock(DomainServiceFactory::class);
         $domainDriverFactory->expects('defaultDriver')->andReturns($domainService);
+
         return $domainDriverFactory;
     }
 }

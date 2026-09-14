@@ -109,15 +109,9 @@ class SitebuilderSslTest extends IntegrationTestCase
             provisionStatus: ProvisionStatus::SUCCESS,
         );
 
-        $mockGatewayHelper
-            ->expects(self::once())
-            ->method('hasSitebuilderDeploymentUsingGateway')
-            ->willReturn(true);
+        $mockGatewayHelper->expects(self::once())->method('hasSitebuilderDeploymentUsingGateway')->willReturn(true);
 
-        $mockProvisionGateway
-            ->expects(self::once())
-            ->method('request')
-            ->willReturn($mockProvisionResult);
+        $mockProvisionGateway->expects(self::once())->method('request')->willReturn($mockProvisionResult);
 
         $sitebuilderService = new BaseKitService(
             certificateManager: $certificateManager,
@@ -170,15 +164,9 @@ class SitebuilderSslTest extends IntegrationTestCase
             exception: $mockException,
         );
 
-        $mockGatewayHelper
-            ->expects(self::once())
-            ->method('hasSitebuilderDeploymentUsingGateway')
-            ->willReturn(true);
+        $mockGatewayHelper->expects(self::once())->method('hasSitebuilderDeploymentUsingGateway')->willReturn(true);
 
-        $mockProvisionGateway
-            ->expects(self::once())
-            ->method('request')
-            ->willReturn($mockProvisionResult);
+        $mockProvisionGateway->expects(self::once())->method('request')->willReturn($mockProvisionResult);
 
         $sitebuilderService = new BaseKitService(
             certificateManager: $certificateManager,
@@ -203,7 +191,7 @@ class SitebuilderSslTest extends IntegrationTestCase
         $expectedErrorMessage = sprintf(
             'Failed to setup SSL for {%s}. Api returned {%s}',
             $sslSubscription->domain,
-            $exceptionMessage
+            $exceptionMessage,
         );
 
         self::assertEquals(TechnicalStatus::FAILED->value, $sslSubscription->technical_status);
@@ -307,7 +295,12 @@ class SitebuilderSslTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
 
-        $sslProvider = ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        $sslProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $sslProductGroup = new ProductGroupFactory()->createOne([
             'slug' => ProductGroupType::SSL,
@@ -318,19 +311,27 @@ class SitebuilderSslTest extends IntegrationTestCase
             'name' => 'single-domain',
             'slug' => 'ssl_single-domain',
         ]);
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $sslProduct->uuid,
-            'customer_id' => $customer->id,
-            'domain' => $domain,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $sslProduct->uuid,
+                'customer_id' => $customer->id,
+                'domain' => $domain,
+            ]);
 
         $sslDeployment = new SslDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
             'provider_id' => $sslProvider->id,
         ]);
 
-        $productHosting = new ProductFactory()->siteBuilder()->for(new ProductGroupFactory()->hosting())->createOne();
-        new SubscriptionFactory()->for($customer)->for($productHosting)->createOne(['domain' => $domain]);
+        $productHosting = new ProductFactory()
+            ->siteBuilder()
+            ->for(new ProductGroupFactory()->hosting())
+            ->createOne();
+        new SubscriptionFactory()
+            ->for($customer)
+            ->for($productHosting)
+            ->createOne(['domain' => $domain]);
 
         $customer->load('address');
 

@@ -26,10 +26,11 @@ class Microsoft365ServiceFactoryTest extends TestCase
 
         $serviceFactory = new Microsoft365ServiceFactory(
             microsoftOnlineValidator: $mockValidator,
-            microsoftOnlineService: $this->createStub(MicrosoftOnlineService::class)
+            microsoftOnlineService: $this->createStub(MicrosoftOnlineService::class),
         );
 
-        $mockValidator->expects(self::once())
+        $mockValidator
+            ->expects(self::once())
             ->method('getValidatorByRequest')
             ->with($mockRequest)
             ->willReturn($this->createStub(ValidatorContract::class));
@@ -42,7 +43,7 @@ class Microsoft365ServiceFactoryTest extends TestCase
     {
         $serviceFactory = new Microsoft365ServiceFactory(
             microsoftOnlineValidator: $this->createStub(MicrosoftOnlineValidator::class),
-            microsoftOnlineService: $this->createStub(MicrosoftOnlineService::class)
+            microsoftOnlineService: $this->createStub(MicrosoftOnlineService::class),
         );
 
         self::expectException(UnknownMicrosoft365ProviderException::class);
@@ -61,7 +62,10 @@ class Microsoft365ServiceFactoryTest extends TestCase
             microsoftOnlineService: $mockMicrosoftOnlineService,
         );
 
-        self::assertSame($mockMicrosoftOnlineService, $serviceFactory->getProviderService(ProvisionProvider::MICROSOFT_ONLINE));
+        self::assertSame(
+            $mockMicrosoftOnlineService,
+            $serviceFactory->getProviderService(ProvisionProvider::MICROSOFT_ONLINE),
+        );
     }
 
     #[Test]
@@ -69,7 +73,7 @@ class Microsoft365ServiceFactoryTest extends TestCase
     {
         $serviceFactory = new Microsoft365ServiceFactory(
             microsoftOnlineValidator: $this->createStub(MicrosoftOnlineValidator::class),
-            microsoftOnlineService: $this->createStub(MicrosoftOnlineService::class)
+            microsoftOnlineService: $this->createStub(MicrosoftOnlineService::class),
         );
 
         self::expectException(UnknownMicrosoft365ProviderException::class);

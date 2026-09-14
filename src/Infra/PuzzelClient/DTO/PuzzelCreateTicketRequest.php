@@ -16,13 +16,13 @@ readonly class PuzzelCreateTicketRequest
         public string $body,
         public PuzzelTicketCustomer $customer,
         public string $team,
-        public string|null $priority = null,
-        public string|null $status = null,
-        public string|null $user = null,
+        public ?string $priority = null,
+        public ?string $status = null,
+        public ?string $user = null,
         /** @var array<int, string>|null */
-        public array|null $tags = null,
+        public ?array $tags = null,
         /** @var array<int, array{name: string, value: string}>|null */
-        public array|null $categories = null,
+        public ?array $categories = null,
     ) {
         Assert::oneOf($team, [self::TEAM_CREDIT_MANAGEMENT, self::TEAM_CS_ADMIN]);
     }

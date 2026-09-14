@@ -39,25 +39,22 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
     {
         $paytDebtor = $this->createPaytDebtorWebhookDTO(
             id: 2002,
-            debtorCode: '3001244'
+            debtorCode: '3001244',
         );
         $paytCreditCase = $this->createPaytCreditCaseWebhookDTO(
-            id:2,
+            id: 2,
             resourceType: 'credit_case',
             creditCaseNumber: '123 456 789',
-            debtor: $paytDebtor
+            debtor: $paytDebtor,
         );
 
         $job = new HandleCaseNewCommentJob(
             $paytCreditCase,
-            PaytSupportedBusinessUnit::VERSIO2
+            PaytSupportedBusinessUnit::VERSIO2,
         );
 
         $paytClientMock = $this->createMock(PaytClient::class);
-        $paytClientMock
-            ->expects(self::atLeastOnce())
-            ->method('getDebtorByDebtorNumber')
-            ->willReturn([]);
+        $paytClientMock->expects(self::atLeastOnce())->method('getDebtorByDebtorNumber')->willReturn([]);
 
         $paytClientFactoryMock = self::createMock(PaytClientFactory::class);
         $paytClientFactoryMock
@@ -74,7 +71,7 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessageIs(
-            'Unable create ticket in Puzzel, unexpected amount of debtors (0) received from Payt'
+            'Unable create ticket in Puzzel, unexpected amount of debtors (0) received from Payt',
         );
         $job->handle($convertor);
     }
@@ -84,15 +81,15 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
     {
         $paytDebtor = $this->createPaytDebtorWebhookDTO(id: 2002);
         $paytCreditCase = $this->createPaytCreditCaseWebhookDTO(
-            id:2,
+            id: 2,
             resourceType: 'credit_case',
             creditCaseNumber: '123 456 789',
-            debtor: $paytDebtor
+            debtor: $paytDebtor,
         );
 
         $job = new HandleCaseNewCommentJob(
             $paytCreditCase,
-            PaytSupportedBusinessUnit::VERSIO2
+            PaytSupportedBusinessUnit::VERSIO2,
         );
 
         $convertor = new PaytToPuzzelConvertor(
@@ -110,18 +107,18 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
     {
         $paytDebtor = $this->createPaytDebtorWebhookDTO(
             id: 2002,
-            debtorCode: '3001244'
+            debtorCode: '3001244',
         );
         $paytCreditCase = $this->createPaytCreditCaseWebhookDTO(
-            id:2,
+            id: 2,
             resourceType: 'credit_case',
             creditCaseNumber: '123 456 789',
-            debtor: $paytDebtor
+            debtor: $paytDebtor,
         );
 
         $job = new HandleCaseNewCommentJob(
             $paytCreditCase,
-            PaytSupportedBusinessUnit::VERSIO2
+            PaytSupportedBusinessUnit::VERSIO2,
         );
 
         $paytDebtorDto = $this->createPaytDebtorApiDTO(
@@ -132,14 +129,8 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
         );
 
         $paytClientMock = $this->createMock(PaytClient::class);
-        $paytClientMock
-            ->expects(self::atLeastOnce())
-            ->method('getDebtorByDebtorNumber')
-            ->willReturn([$paytDebtorDto]);
-        $paytClientMock
-            ->expects(self::atLeastOnce())
-            ->method('getLastMessageByCreditCaseId')
-            ->willReturn(null);
+        $paytClientMock->expects(self::atLeastOnce())->method('getDebtorByDebtorNumber')->willReturn([$paytDebtorDto]);
+        $paytClientMock->expects(self::atLeastOnce())->method('getLastMessageByCreditCaseId')->willReturn(null);
 
         $paytClientFactoryMock = self::createMock(PaytClientFactory::class);
         $paytClientFactoryMock
@@ -156,7 +147,7 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageIs(
-            'expected to have a last message retrieved from Payt'
+            'expected to have a last message retrieved from Payt',
         );
 
         $job->handle($convertor);
@@ -167,18 +158,18 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
     {
         $paytDebtor = $this->createPaytDebtorWebhookDTO(
             id: 2002,
-            debtorCode: '3001244'
+            debtorCode: '3001244',
         );
         $paytCreditCase = $this->createPaytCreditCaseWebhookDTO(
-            id:2,
+            id: 2,
             resourceType: 'credit_case',
             creditCaseNumber: '123 456 789',
-            debtor: $paytDebtor
+            debtor: $paytDebtor,
         );
 
         $job = new HandleCaseNewCommentJob(
             $paytCreditCase,
-            PaytSupportedBusinessUnit::VERSIO2
+            PaytSupportedBusinessUnit::VERSIO2,
         );
 
         $lastPaytMessageDto = $this->createPaytMessageApiDTO(
@@ -196,10 +187,7 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
         );
 
         $paytClientMock = $this->createMock(PaytClient::class);
-        $paytClientMock
-            ->expects(self::atLeastOnce())
-            ->method('getDebtorByDebtorNumber')
-            ->willReturn([$paytDebtorDto]);
+        $paytClientMock->expects(self::atLeastOnce())->method('getDebtorByDebtorNumber')->willReturn([$paytDebtorDto]);
         $paytClientMock
             ->expects(self::atLeastOnce())
             ->method('getLastMessageByCreditCaseId')
@@ -230,37 +218,37 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
             'invoiceEmailAddress' => null,
             'expectedEmailAddress' => 'first@email.com',
             'expectedBody' =>
-                'content bla' .
-                '<br>The following email addresses are known in Payt to related debtor:<br>' .
-                'Primary email address: first@email.com,second@email.com<br>',
+                'content bla'
+                    . '<br>The following email addresses are known in Payt to related debtor:<br>'
+                    . 'Primary email address: first@email.com,second@email.com<br>',
         ];
         yield 'no primary email addresses, multiple invoice email addresses' => [
             'primaryEmailAddress' => null,
             'invoiceEmailAddress' => 'first@email.com,second@email.com',
             'expectedEmailAddress' => 'first@email.com',
             'expectedBody' =>
-                'content bla' .
-                '<br>The following email addresses are known in Payt to related debtor:<br>' .
-                'Invoice email address: first@email.com,second@email.com<br>',
+                'content bla'
+                    . '<br>The following email addresses are known in Payt to related debtor:<br>'
+                    . 'Invoice email address: first@email.com,second@email.com<br>',
         ];
         yield 'Only a single invoice email addresses' => [
             'primaryEmailAddress' => null,
             'invoiceEmailAddress' => 'first@email.com',
             'expectedEmailAddress' => 'first@email.com',
             'expectedBody' =>
-                'content bla' .
-                '<br>The following email addresses are known in Payt to related debtor:<br>' .
-                'Invoice email address: first@email.com<br>',
+                'content bla'
+                    . '<br>The following email addresses are known in Payt to related debtor:<br>'
+                    . 'Invoice email address: first@email.com<br>',
         ];
         yield 'both primary email addresses, multiple invoice email addresses' => [
             'primaryEmailAddress' => 'third@email.com',
             'invoiceEmailAddress' => 'first@email.com,second@email.com',
             'expectedEmailAddress' => 'third@email.com',
             'expectedBody' =>
-                'content bla' .
-                '<br>The following email addresses are known in Payt to related debtor:<br>' .
-                'Primary email address: third@email.com<br>' .
-                'Invoice email address: first@email.com,second@email.com<br>',
+                'content bla'
+                    . '<br>The following email addresses are known in Payt to related debtor:<br>'
+                    . 'Primary email address: third@email.com<br>'
+                    . 'Invoice email address: first@email.com,second@email.com<br>',
         ];
     }
 
@@ -277,18 +265,18 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
     ): void {
         $paytDebtor = $this->createPaytDebtorWebhookDTO(
             id: 2002,
-            debtorCode: '3001244'
+            debtorCode: '3001244',
         );
         $paytCreditCase = $this->createPaytCreditCaseWebhookDTO(
-            id:2,
+            id: 2,
             resourceType: 'credit_case',
             creditCaseNumber: '123 456 789',
-            debtor: $paytDebtor
+            debtor: $paytDebtor,
         );
 
         $job = new HandleCaseNewCommentJob(
             $paytCreditCase,
-            PaytSupportedBusinessUnit::VERSIO2
+            PaytSupportedBusinessUnit::VERSIO2,
         );
 
         $lastPaytMessageDto = $this->createPaytMessageApiDTO(
@@ -307,10 +295,7 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
         );
 
         $paytClientMock = $this->createMock(PaytClient::class);
-        $paytClientMock
-            ->expects(self::atLeastOnce())
-            ->method('getDebtorByDebtorNumber')
-            ->willReturn([$paytDebtorDto]);
+        $paytClientMock->expects(self::atLeastOnce())->method('getDebtorByDebtorNumber')->willReturn([$paytDebtorDto]);
         $paytClientMock
             ->expects(self::atLeastOnce())
             ->method('getLastMessageByCreditCaseId')
@@ -324,7 +309,8 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
             ->willReturn($paytClientMock);
 
         $puzzelPublicClient = self::createMock(PuzzelPublicClient::class);
-        $puzzelPublicClient->expects(self::once())
+        $puzzelPublicClient
+            ->expects(self::once())
             ->method('createTicket')
             ->with(self::equalTo(
                 new PuzzelCreateTicketRequest(
@@ -340,7 +326,7 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
                         ['name' => 'Brand', 'value' => 'Versio 2.0'],
                         ['name' => 'Customer ID', 'value' => $paytDebtorDto->debtorNumber],
                     ],
-                )
+                ),
             ));
         $convertor = new PaytToPuzzelConvertor(
             $puzzelPublicClient,
@@ -355,14 +341,14 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
         string $id,
         string $debtorNumber,
         string $name,
-        string|null $callPhoneNumber = null,
-        string|null $smsPhoneNumber = null,
-        string|null $primaryEmailAddress = null,
-        string|null $invoiceEmailAddress = null,
-        string|null $debtorIdentifier = null,
-        string|null $languageCode = null,
-        PaytDebtorPostalAddressDTO|null $postalAddress = null,
-        string|null $administrationId = null,
+        ?string $callPhoneNumber = null,
+        ?string $smsPhoneNumber = null,
+        ?string $primaryEmailAddress = null,
+        ?string $invoiceEmailAddress = null,
+        ?string $debtorIdentifier = null,
+        ?string $languageCode = null,
+        ?PaytDebtorPostalAddressDTO $postalAddress = null,
+        ?string $administrationId = null,
     ): PaytDebtorApiDTO {
         return new PaytDebtorApiDTO(
             id: $id,
@@ -375,7 +361,7 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
             debtorIdentifier: $debtorIdentifier,
             languageCode: $languageCode,
             postalAddress: $postalAddress,
-            administrationId: $administrationId
+            administrationId: $administrationId,
         );
     }
 
@@ -383,10 +369,10 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
         string $id,
         string $senderType,
         string $content,
-        string|null $sentAt = null,
-        string|null $receivedAt = null,
-        string|null $subject = null,
-        string|null $creditCaseId = null,
+        ?string $sentAt = null,
+        ?string $receivedAt = null,
+        ?string $subject = null,
+        ?string $creditCaseId = null,
     ): PaytMessageApiDTO {
         return new PaytMessageApiDTO(
             id: $id,
@@ -395,17 +381,17 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
             sentAt: $sentAt,
             receivedAt: $receivedAt,
             subject: $subject,
-            creditCaseId: $creditCaseId
+            creditCaseId: $creditCaseId,
         );
     }
 
     private function createPaytDebtorWebhookDTO(
         int $id,
-        string|null $resourceType = null,
-        string|null $companyName = null,
-        string|null $name = null,
-        string|null $debtorCode = null,
-        PaytAdministrationWebhookDTO|null $administration = null,
+        ?string $resourceType = null,
+        ?string $companyName = null,
+        ?string $name = null,
+        ?string $debtorCode = null,
+        ?PaytAdministrationWebhookDTO $administration = null,
     ): PaytDebtorWebhookDTO {
         return new PaytDebtorWebhookDTO(
             resourceType: $resourceType,
@@ -422,16 +408,16 @@ class HandleCaseNewCommentJobTest extends IntegrationTestCase
      */
     private function createPaytCreditCaseWebhookDTO(
         int $id,
-        string|null $resourceType = null,
-        string|null $creditCaseNumber = null,
-        string|null $interest = null,
-        string|null $collectionCosts = null,
-        string|null $openInterestAndCollectionCosts = null,
-        string|null $link = null,
-        string|null $publicLink = null,
+        ?string $resourceType = null,
+        ?string $creditCaseNumber = null,
+        ?string $interest = null,
+        ?string $collectionCosts = null,
+        ?string $openInterestAndCollectionCosts = null,
+        ?string $link = null,
+        ?string $publicLink = null,
         array $invoices = [],
-        PaytDebtorWebhookDTO|null $debtor = null,
-        PaytAdministrationWebhookDTO|null $administration = null,
+        ?PaytDebtorWebhookDTO $debtor = null,
+        ?PaytAdministrationWebhookDTO $administration = null,
     ): PaytCreditCaseWebhookDTO {
         return new PaytCreditCaseWebhookDTO(
             id: $id,

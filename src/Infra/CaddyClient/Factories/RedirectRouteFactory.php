@@ -61,7 +61,8 @@ class RedirectRouteFactory
             RedirectType::FOUND,
             RedirectType::SEE_OTHER,
             RedirectType::TEMPORARY_REDIRECT,
-            RedirectType::PERMANENT_REDIRECT => $this->makeRedirectHandle(
+            RedirectType::PERMANENT_REDIRECT,
+                => $this->makeRedirectHandle(
                 statusCode: $this->resolveStatusCode($redirectType),
                 toUrl: $toUrl,
             ),

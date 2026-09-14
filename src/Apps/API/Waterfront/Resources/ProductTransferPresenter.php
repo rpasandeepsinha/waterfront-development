@@ -22,20 +22,20 @@ class ProductTransferPresenter
     public function toArray(Transfer $productTransfer, Customer $authenticatedCustomer): array
     {
         return [
-            'id'                    => $productTransfer->uuid,
-            'from_customer_number'  => $productTransfer->fromCustomer->customer_number,
-            'to_customer_number'    => $productTransfer->toCustomer->customer_number,
-            'is_open'               => $productTransfer->isOpen(),
-            'status'                => strtoupper($productTransfer->getStatus()->value),
-            'type'                  => $this->determineTransferType($productTransfer, $authenticatedCustomer)->value,
-            'accepted_at'           => $productTransfer->accepted_at?->toW3cString(),
-            'completed_at'          => $productTransfer->completed_at?->toW3cString(),
-            'canceled_at'           => $productTransfer->canceled_at?->toW3cString(),
-            'rejected_at'           => $productTransfer->rejected_at?->toW3cString(),
-            'started_at'            => $productTransfer->started_at?->toW3cString(),
-            'created_at'            => $productTransfer->created_at?->toW3cString(),
-            'updated_at'            => $productTransfer->updated_at?->toW3cString(),
-            'subscriptions'         => $this->subscriptionPresenter->collectionToArray($productTransfer->subscriptions),
+            'id' => $productTransfer->uuid,
+            'from_customer_number' => $productTransfer->fromCustomer->customer_number,
+            'to_customer_number' => $productTransfer->toCustomer->customer_number,
+            'is_open' => $productTransfer->isOpen(),
+            'status' => strtoupper($productTransfer->getStatus()->value),
+            'type' => $this->determineTransferType($productTransfer, $authenticatedCustomer)->value,
+            'accepted_at' => $productTransfer->accepted_at?->toW3cString(),
+            'completed_at' => $productTransfer->completed_at?->toW3cString(),
+            'canceled_at' => $productTransfer->canceled_at?->toW3cString(),
+            'rejected_at' => $productTransfer->rejected_at?->toW3cString(),
+            'started_at' => $productTransfer->started_at?->toW3cString(),
+            'created_at' => $productTransfer->created_at?->toW3cString(),
+            'updated_at' => $productTransfer->updated_at?->toW3cString(),
+            'subscriptions' => $this->subscriptionPresenter->collectionToArray($productTransfer->subscriptions),
         ];
     }
 
@@ -57,6 +57,8 @@ class ProductTransferPresenter
 
     private function determineTransferType(Transfer $transfer, Customer $authenticatedCustomer): TransferType
     {
-        return $authenticatedCustomer->id !== $transfer->from_customer_id ? TransferType::INCOMING : TransferType::OUTGOING;
+        return $authenticatedCustomer->id !== $transfer->from_customer_id
+            ? TransferType::INCOMING
+            : TransferType::OUTGOING;
     }
 }

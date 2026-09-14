@@ -31,6 +31,7 @@ class Crm
         if (! $this->hasValidHubSpotConfig()) {
             return;
         }
+
         $this->jobDispatcher->dispatch(new AnonymizeContactInHubspotJob($customer));
     }
 
@@ -48,6 +49,7 @@ class Crm
         if (! $this->hasValidHubSpotConfig()) {
             return;
         }
+
         $this->jobDispatcher->dispatch(new DisableMarketingEmailsJob($customer));
     }
 
@@ -65,7 +67,9 @@ class Crm
         if (! $this->hasValidHubSpotConfig()) {
             return false;
         }
+
         $contact = $this->contactsClient->findBySandwaveUuid($customer->uuid);
+
         return $contact->isMarketable ?? false;
     }
 
@@ -89,6 +93,7 @@ class Crm
                 'isOptedInMailNewsletter' => false,
             ];
         }
+
         $contact = $this->contactsClient->findBySandwaveUuid($customer->uuid);
 
         return [

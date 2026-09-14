@@ -43,7 +43,7 @@ class DomainBulkMigrationControllerTest extends IntegrationTestCase
         $payload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
         $placeholder = ProviderFactory::new()->domainPlaceholder()->createOne();
-        $product  = ProductFactory::new()->nlDomain()->createOne();
+        $product = ProductFactory::new()->nlDomain()->createOne();
 
         $customerA = CustomerFactory::new()->createOne();
         $migratedCustomerA = MigratedCustomersFactory::new()->createOne();
@@ -56,8 +56,16 @@ class DomainBulkMigrationControllerTest extends IntegrationTestCase
             'reference_subscription_id' => 'my_subscription_id_another_one',
         ]);
 
-        $subscriptionOne = SubscriptionFactory::new()->for($product)->for($customerA)->technicalStatusDomainActive()->createOne();
-        $subscriptionTwo = SubscriptionFactory::new()->for($product)->for($customerA)->technicalStatus(TechnicalStatus::FAILED->value)->createOne();
+        $subscriptionOne = SubscriptionFactory::new()
+            ->for($product)
+            ->for($customerA)
+            ->technicalStatusDomainActive()
+            ->createOne();
+        $subscriptionTwo = SubscriptionFactory::new()
+            ->for($product)
+            ->for($customerA)
+            ->technicalStatus(TechnicalStatus::FAILED->value)
+            ->createOne();
 
         DomainDeploymentFactory::new()->for($subscriptionOne)->for($placeholder)->createOne();
         DomainDeploymentFactory::new()->for($subscriptionTwo)->for($placeholder)->createOne();
@@ -74,7 +82,11 @@ class DomainBulkMigrationControllerTest extends IntegrationTestCase
         $migratedSubscriptionTree = MigratedSubscriptionsFactory::new()->createOne([
             'reference_subscription_id' => 'my_subscription_id_second',
         ]);
-        $subscriptionTree = SubscriptionFactory::new()->for($product)->for($customerB)->technicalStatusDomainActive()->createOne();
+        $subscriptionTree = SubscriptionFactory::new()
+            ->for($product)
+            ->for($customerB)
+            ->technicalStatusDomainActive()
+            ->createOne();
 
         DomainDeploymentFactory::new()->for($subscriptionTree)->for($placeholder)->createOne();
         $migratedSubscriptionTree->subscriptions()->attach($subscriptionTree);
@@ -91,7 +103,7 @@ class DomainBulkMigrationControllerTest extends IntegrationTestCase
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
+                ],
             )
             ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertContent('Successfully created bulk technical domain migration jobs');

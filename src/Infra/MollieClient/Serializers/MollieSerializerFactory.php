@@ -38,7 +38,7 @@ class MollieSerializerFactory
             new ObjectNormalizer(
                 classMetadataFactory: $classMetadataFactory,
                 nameConverter: $metadataAwareNameConverter,
-                propertyTypeExtractor: $extractor
+                propertyTypeExtractor: $extractor,
             ),
         ];
 

@@ -12,7 +12,7 @@ class ZoneOutdated
     public function __construct(
         public DnsCustomerTemplate $template,
         public string $zone,
-        public ?DnsZone $pdnsZone = null
+        public ?DnsZone $pdnsZone = null,
     ) {
     }
 }

@@ -23,7 +23,7 @@ class UpgradeRedirectToHostingAction
     public function __construct(
         private readonly Dispatcher $eventDispatcher,
         private readonly LoggerInterface $logger,
-        private readonly ProvisionGateway $provisionGateway
+        private readonly ProvisionGateway $provisionGateway,
     ) {
     }
 
@@ -40,13 +40,16 @@ class UpgradeRedirectToHostingAction
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                 LoggingContextKeys::PRODUCT_ID => $subscription->product->id,
-            ]
+            ],
         );
 
         $result = $this->removeAllRedirects($subscription);
 
         if ($result->failed) {
-            throw $result->exception ?? new SubscriptionChangeException(sprintf('Unable to remove provisioned redirects for domain %s.', $subscription->domain));
+            throw $result->exception ?? new SubscriptionChangeException(sprintf(
+                'Unable to remove provisioned redirects for domain %s.',
+                $subscription->domain,
+            ));
         }
 
         $subscription->update([
@@ -63,7 +66,7 @@ class UpgradeRedirectToHostingAction
                 customer: $subscription->customer,
                 product: $subscription->product,
                 serverId: null,
-            )
+            ),
         );
 
         $this->logger->debug(
@@ -72,18 +75,18 @@ class UpgradeRedirectToHostingAction
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                 LoggingContextKeys::PRODUCT_ID => $subscription->product->id,
-            ]
+            ],
         );
 
         return new SubscriptionChangeResult(
-            status: SubscriptionChangeResult::STATUS_OK
+            status: SubscriptionChangeResult::STATUS_OK,
         );
     }
 
     private function removeAllRedirects(Subscription $subscription): ProvisionResultInterface
     {
         $terminateRequest = new TerminateRedirectsRequest(
-            context: Uuid::fromString($subscription->uuid)
+            context: Uuid::fromString($subscription->uuid),
         );
 
         return $this->provisionGateway->request($terminateRequest);

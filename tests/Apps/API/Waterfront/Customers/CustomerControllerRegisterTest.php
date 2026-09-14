@@ -35,9 +35,7 @@ class CustomerControllerRegisterTest extends IntegrationTestCase
 
         $oathKeeperService = self::createStub(OathKeeperService::class);
 
-        $oathKeeperService
-            ->method('retrieveValidatedJwt')
-            ->willReturn($this->getJwtAsArray());
+        $oathKeeperService->method('retrieveValidatedJwt')->willReturn($this->getJwtAsArray());
 
         $this->app->bind(OathKeeperService::class, fn () => $oathKeeperService);
     }
@@ -49,7 +47,8 @@ class CustomerControllerRegisterTest extends IntegrationTestCase
         $uuid = UuidV4::uuid4();
 
         $lighthouseApiServiceMock = self::createMock(LighthouseApiService::class);
-        $lighthouseApiServiceMock->expects(self::once())
+        $lighthouseApiServiceMock
+            ->expects(self::once())
             ->method('getKratosIdentityByIdentifier')
             ->with($uuid)
             ->willReturn(new Identity(
@@ -64,13 +63,16 @@ class CustomerControllerRegisterTest extends IntegrationTestCase
                 CarbonImmutable::now(),
                 [],
                 new CustomerMetadataPublic([], [], ['waterfront'], null, null, null),
-                null
+                null,
             ));
 
-        $lighthouseApiServiceMock->expects(self::once())
-            ->method('updateKratosIdentity')->with(self::callback(function (Identity $identityObject) {
+        $lighthouseApiServiceMock
+            ->expects(self::once())
+            ->method('updateKratosIdentity')
+            ->with(self::callback(function (Identity $identityObject) {
                 self::assertIsArray($identityObject->metadataPublic?->customerNumbers);
                 self::assertCount(1, $identityObject->metadataPublic->customerNumbers);
+
                 return true;
             }));
 
@@ -95,11 +97,12 @@ class CustomerControllerRegisterTest extends IntegrationTestCase
             'authorization' => 'Bearer tokentokentoken',
         ];
 
-        $this->actingAsUnregisteredCustomer($uuid)->postJson(
-            $this->generateRoute('partners.customers.register'),
-            $payload,
-            $headers,
-        )
+        $this->actingAsUnregisteredCustomer($uuid)
+            ->postJson(
+                $this->generateRoute('partners.customers.register'),
+                $payload,
+                $headers,
+            )
             ->assertNoContent();
 
         self::assertDatabaseHas('customers', [
@@ -126,7 +129,8 @@ class CustomerControllerRegisterTest extends IntegrationTestCase
         $uuid = UuidV4::uuid4();
 
         $lighthouseApiServiceMock = self::createMock(LighthouseApiService::class);
-        $lighthouseApiServiceMock->expects(self::once())
+        $lighthouseApiServiceMock
+            ->expects(self::once())
             ->method('getKratosIdentityByIdentifier')
             ->with($uuid)
             ->willReturn(new Identity(
@@ -141,13 +145,16 @@ class CustomerControllerRegisterTest extends IntegrationTestCase
                 CarbonImmutable::now(),
                 [],
                 new CustomerMetadataPublic([], [], ['waterfront'], null, null, null),
-                null
+                null,
             ));
 
-        $lighthouseApiServiceMock->expects(self::once())
-            ->method('updateKratosIdentity')->with(self::callback(function (Identity $identityObject) {
+        $lighthouseApiServiceMock
+            ->expects(self::once())
+            ->method('updateKratosIdentity')
+            ->with(self::callback(function (Identity $identityObject) {
                 self::assertIsArray($identityObject->metadataPublic?->customerNumbers);
                 self::assertCount(1, $identityObject->metadataPublic->customerNumbers);
+
                 return true;
             }));
 
@@ -171,11 +178,12 @@ class CustomerControllerRegisterTest extends IntegrationTestCase
             'authorization' => 'Bearer tokentokentoken',
         ];
 
-        $this->actingAsUnregisteredCustomer($uuid)->postJson(
-            $this->generateRoute('partners.customers.register'),
-            $payload,
-            $headers,
-        )
+        $this->actingAsUnregisteredCustomer($uuid)
+            ->postJson(
+                $this->generateRoute('partners.customers.register'),
+                $payload,
+                $headers,
+            )
             ->assertNoContent();
 
         $customer = Customer::where('email', $email)->first();
@@ -190,7 +198,10 @@ class CustomerControllerRegisterTest extends IntegrationTestCase
     {
         $email = 'Lee@towers.com';
         Http::fake([
-            'https://api.lighthouse.sandwaveio.dev/api/login' => Http::response(['data' => ['user' => 'test.kees@sandwave.io', 'token' => 'sandwave']]),
+            'https://api.lighthouse.sandwaveio.dev/api/login' => Http::response(['data' => [
+                'user' => 'test.kees@sandwave.io',
+                'token' => 'sandwave',
+            ]]),
             sprintf('https://api.lighthouse.sandwaveio.dev/kratos/identities/%s', $email) => Http::response([], 404),
         ]);
 
@@ -210,8 +221,7 @@ class CustomerControllerRegisterTest extends IntegrationTestCase
             'authorization' => 'Bearer tokentokentoken',
         ];
 
-        $this
-            ->actingAsUnregisteredCustomer()
+        $this->actingAsUnregisteredCustomer()
             ->postJson(
                 $this->generateRoute('partners.customers.register'),
                 $payload,

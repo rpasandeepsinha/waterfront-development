@@ -286,14 +286,46 @@ class AddOnSeeder extends Seeder
             ['name' => ProductSpecName::HAS_SERVICE_PLUS, 'value' => '1', 'product_id' => $hostingPlusWp->id],
             ['name' => ProductSpecName::HAS_SERVICE_PLUS, 'value' => '1', 'product_id' => $hostingPlusWeb->id],
             ['name' => ProductSpecName::HAS_SERVICE_PLUS, 'value' => '1', 'product_id' => $hostingPlusWebWp->id],
-            ['name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG, 'value' => $product->slug, 'product_id' => $hostingStart->id],
-            ['name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG, 'value' => $product->slug, 'product_id' => $hostingStartWp->id],
-            ['name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG, 'value' => $product->slug, 'product_id' => $hostingStartWeb->id],
-            ['name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG, 'value' => $product->slug, 'product_id' => $hostingStartWebWp->id],
-            ['name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG, 'value' => $product->slug, 'product_id' => $hostingPlus->id],
-            ['name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG, 'value' => $product->slug, 'product_id' => $hostingPlusWp->id],
-            ['name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG, 'value' => $product->slug, 'product_id' => $hostingPlusWeb->id],
-            ['name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG, 'value' => $product->slug, 'product_id' => $hostingPlusWebWp->id],
+            [
+                'name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG,
+                'value' => $product->slug,
+                'product_id' => $hostingStart->id,
+            ],
+            [
+                'name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG,
+                'value' => $product->slug,
+                'product_id' => $hostingStartWp->id,
+            ],
+            [
+                'name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG,
+                'value' => $product->slug,
+                'product_id' => $hostingStartWeb->id,
+            ],
+            [
+                'name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG,
+                'value' => $product->slug,
+                'product_id' => $hostingStartWebWp->id,
+            ],
+            [
+                'name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG,
+                'value' => $product->slug,
+                'product_id' => $hostingPlus->id,
+            ],
+            [
+                'name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG,
+                'value' => $product->slug,
+                'product_id' => $hostingPlusWp->id,
+            ],
+            [
+                'name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG,
+                'value' => $product->slug,
+                'product_id' => $hostingPlusWeb->id,
+            ],
+            [
+                'name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG,
+                'value' => $product->slug,
+                'product_id' => $hostingPlusWebWp->id,
+            ],
         ]);
 
         $websiteAddon = new ProductAddonCoupling();

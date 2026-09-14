@@ -54,9 +54,10 @@ class SubscriptionCancelTest extends IntegrationTestCase
             'slug' => MailSubscriptionCancelled::getTemplateSlug(),
         ]);
 
-        $this->product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension())
-            ->createOne(['name' => '.nl', 'slug' => 'extension_nl']);
+        $this->product = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne([
+            'name' => '.nl',
+            'slug' => 'extension_nl',
+        ]);
 
         $this->customer = new CustomerFactory()->createOne();
         $this->actingAsCustomer($this->customer);
@@ -82,7 +83,12 @@ class SubscriptionCancelTest extends IntegrationTestCase
         $subscription = $this->getSubscription();
 
         CarbonImmutable::setTestNow($this->cancelDate);
-        self::resolve(CancellationService::class)->cancel($subscription, SubscriptionCancelType::CANCEL_END_DATE, SubscriptionCancelReason::REASON_CANCELLATION);
+        self::resolve(CancellationService::class)
+            ->cancel(
+                $subscription,
+                SubscriptionCancelType::CANCEL_END_DATE,
+                SubscriptionCancelReason::REASON_CANCELLATION,
+            );
 
         self::assertSame(AdministrativeStatus::CANCELED->value, $subscription->administrative_status);
         self::assertSame($this->cancelDate->getTimestamp(), $subscription->cancel_date?->getTimestamp());
@@ -93,13 +99,17 @@ class SubscriptionCancelTest extends IntegrationTestCase
     public function cancelSingleSubscriptionOnEndDateWithoutEmail(): void
     {
         $mailer = self::createMock(Mailer::class);
-        $mailer->expects(self::never())
-            ->method('send');
+        $mailer->expects(self::never())->method('send');
         $this->app->bind(Mailer::class, fn () => $mailer);
         $subscription = $this->getSubscription();
 
         CarbonImmutable::setTestNow($this->cancelDate);
-        $this->cancellationService->cancel($subscription, SubscriptionCancelType::CANCEL_END_DATE, SubscriptionCancelReason::REASON_CANCELLATION, false);
+        $this->cancellationService->cancel(
+            $subscription,
+            SubscriptionCancelType::CANCEL_END_DATE,
+            SubscriptionCancelReason::REASON_CANCELLATION,
+            false,
+        );
 
         self::assertSame(AdministrativeStatus::CANCELED->value, $subscription->administrative_status);
         self::assertSame($this->cancelDate->getTimestamp(), $subscription->cancel_date?->getTimestamp());
@@ -120,7 +130,12 @@ class SubscriptionCancelTest extends IntegrationTestCase
         $freeRedirectProduct = new ProductFactory()->freeRedirect()->createOne();
         $freeDnsProduct = new ProductFactory()->freeDns()->createOne();
 
-        $provider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::PLACEHOLDER, 'enabled' => true, 'default' => true]);
+        $provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::PLACEHOLDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
         new DomainDeploymentFactory()->createOne([
             'provider_id' => $provider->id,
             'subscription_uuid' => $domainSubscription->uuid,
@@ -130,7 +145,11 @@ class SubscriptionCancelTest extends IntegrationTestCase
         $freeDnsSubscription = $this->getSubscription($domainSubscription, $freeDnsProduct);
 
         CarbonImmutable::setTestNow($this->cancelDate);
-        $this->cancellationService->cancel($domainSubscription, SubscriptionCancelType::CANCEL_END_DATE, SubscriptionCancelReason::REASON_CANCELLATION);
+        $this->cancellationService->cancel(
+            $domainSubscription,
+            SubscriptionCancelType::CANCEL_END_DATE,
+            SubscriptionCancelReason::REASON_CANCELLATION,
+        );
 
         $domainSubscription->refresh();
         $freeRedirectSubscription->refresh();
@@ -158,7 +177,11 @@ class SubscriptionCancelTest extends IntegrationTestCase
         $childSubscription = $this->getSubscription($subscription);
 
         CarbonImmutable::setTestNow($this->cancelDate);
-        $this->cancellationService->cancel($childSubscription, SubscriptionCancelType::CANCEL_END_DATE, SubscriptionCancelReason::REASON_CANCELLATION);
+        $this->cancellationService->cancel(
+            $childSubscription,
+            SubscriptionCancelType::CANCEL_END_DATE,
+            SubscriptionCancelReason::REASON_CANCELLATION,
+        );
 
         $subscription = $subscription->refresh();
         $childSubscription = $childSubscription->refresh();
@@ -180,7 +203,11 @@ class SubscriptionCancelTest extends IntegrationTestCase
         $childSubscription = $this->getSubscription($subscription);
 
         CarbonImmutable::setTestNow($this->cancelDate);
-        $this->cancellationService->cancel($subscription, SubscriptionCancelType::CANCEL_END_DATE, SubscriptionCancelReason::REASON_CANCELLATION);
+        $this->cancellationService->cancel(
+            $subscription,
+            SubscriptionCancelType::CANCEL_END_DATE,
+            SubscriptionCancelReason::REASON_CANCELLATION,
+        );
 
         $subscription->refresh();
         $childSubscription->refresh();
@@ -216,7 +243,7 @@ class SubscriptionCancelTest extends IntegrationTestCase
             SubscriptionCancelReason::REASON_CANCELLATION,
             true,
             $terminateDate,
-            'Wet van Dam'
+            'Wet van Dam',
         );
 
         $subscription->refresh();
@@ -229,7 +256,7 @@ class SubscriptionCancelTest extends IntegrationTestCase
         $noteMessage = sprintf(
             'Subscription cancelled. %s, generated end date: %s',
             'Wet van Dam',
-            $terminateDate->format('Y-m-d')
+            $terminateDate->format('Y-m-d'),
         );
 
         self::assertInstanceOf(Subscription::class, $notes->subscription);
@@ -242,16 +269,14 @@ class SubscriptionCancelTest extends IntegrationTestCase
         ?Subscription $parentSubscription = null,
         ?Product $product = null,
     ): Subscription {
-        $subscription = new SubscriptionFactory()
-            ->for($this->customer)
-            ->createOne([
-                'contract_period' => 12,
-                'domain' => 'cancelsubscription.nl',
-                'product_uuid' => $product !== null ? $product->uuid : $this->product->uuid,
-                'start_date' => $this->startDate,
-                'end_date' => $this->endDate,
-                'cancel_date' => null,
-            ]);
+        $subscription = new SubscriptionFactory()->for($this->customer)->createOne([
+            'contract_period' => 12,
+            'domain' => 'cancelsubscription.nl',
+            'product_uuid' => $product !== null ? $product->uuid : $this->product->uuid,
+            'start_date' => $this->startDate,
+            'end_date' => $this->endDate,
+            'cancel_date' => null,
+        ]);
 
         $parentSubscription?->children()->save($subscription);
 

@@ -20,7 +20,7 @@ class SitebuilderFaker implements SitebuilderDriverInterface
 {
     public function createSite(Subscription $subscription, Server $server, Server $mailOnlyServer): Result
     {
-        $result =  new Result();
+        $result = new Result();
         $result->setResponseBody([
             'ref' => 1,
             'domains' => [

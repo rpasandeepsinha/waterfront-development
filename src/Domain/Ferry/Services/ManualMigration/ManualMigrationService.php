@@ -28,7 +28,7 @@ class ManualMigrationService
         private readonly StoreNoteAction $storeNoteAction,
         private readonly TechnicalSteps $technicalSteps,
         private readonly ManualTechnicalMigrationsService $manualTechnicalMigrationsService,
-        private readonly RtrService $domainService
+        private readonly RtrService $domainService,
     ) {
     }
 
@@ -50,7 +50,11 @@ class ManualMigrationService
 
         $subscriptionData = $this->subscriptionFormatter->formatFromRequest($request, $customer);
 
-        $subscription = $this->subscriptionService->storeSubscription($customer, $request->reference_customer_number, $subscriptionData);
+        $subscription = $this->subscriptionService->storeSubscription(
+            $customer,
+            $request->reference_customer_number,
+            $subscriptionData,
+        );
 
         if ($request->internal_comment !== null) {
             $this->storeNoteAction->execute($request->internal_comment, $subscription);
@@ -60,7 +64,11 @@ class ManualMigrationService
 
         if ($subscription->product->productGroup->slug === ProductGroupType::EXTENSION) {
             $domainInSupportedRegistry = $this->isDomainPresentAtSupportedRegistry($request->domain_name);
-            $steps = $this->technicalSteps->getSteps($subscription->product->productGroup->slug, $options, $domainInSupportedRegistry);
+            $steps = $this->technicalSteps->getSteps(
+                $subscription->product->productGroup->slug,
+                $options,
+                $domainInSupportedRegistry,
+            );
         } else {
             $steps = $this->technicalSteps->getSteps($subscription->product->productGroup->slug, null);
         }
@@ -83,6 +91,7 @@ class ManualMigrationService
     {
         try {
             $this->domainService->fetchDomain($domain);
+
             return true;
         } catch (Throwable) { // @phpstan-ignore thecodingmachine.emptyCatch, thecodingmachine.exceptionMustBeRethrown
         }

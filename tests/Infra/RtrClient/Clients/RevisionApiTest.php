@@ -26,10 +26,13 @@ class RevisionApiTest extends TestCase
         $client = MockedClientFactory::makeAuthorizedClient(
             [new Response(200, [], $this->getResponseBody())],
             function (RequestInterface $request): void {
-                self::assertStringContainsString('v2/domains/' . self::DOMAIN . '/revisions', $request->getUri()->getPath());
+                self::assertStringContainsString(
+                    'v2/domains/' . self::DOMAIN . '/revisions',
+                    $request->getUri()->getPath(),
+                );
                 self::assertStringNotContainsString('from=', (string) $request->getUri());
                 self::assertStringNotContainsString('to=', (string) $request->getUri());
-            }
+            },
         );
 
         $revisionApi = new RevisionApi($client);
@@ -63,7 +66,7 @@ class RevisionApiTest extends TestCase
                 $query = (string) $request->getUri();
                 self::assertStringContainsString('from=' . urlencode($from->format('Y-m-d\TH:i:s\Z')), $query);
                 self::assertStringContainsString('to=' . urlencode($to->format('Y-m-d\TH:i:s\Z')), $query);
-            }
+            },
         );
 
         $revisionApi = new RevisionApi($client);
@@ -77,7 +80,7 @@ class RevisionApiTest extends TestCase
     public function revisionsReturnsEmptyArrayWhenNoRevisions(): void
     {
         $client = MockedClientFactory::makeAuthorizedClient(
-            [new Response(200, [], '[]')]
+            [new Response(200, [], '[]')],
         );
 
         $revisionApi = new RevisionApi($client);

@@ -11,7 +11,7 @@ use Waterfront\Domain\Provision\Models\ProvisioningResult;
 class RequestTypeFilter
 {
     public function __construct(
-        private readonly ?ProvisionType $type
+        private readonly ?ProvisionType $type,
     ) {
     }
 

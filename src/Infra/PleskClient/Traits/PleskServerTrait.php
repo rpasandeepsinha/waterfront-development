@@ -32,6 +32,7 @@ trait PleskServerTrait
         if ($server->type !== ServerType::PLESK) {
             return false;
         }
+
         $this->server = $server;
 
         try {
@@ -52,10 +53,14 @@ trait PleskServerTrait
             }
         } catch (PleskClientException $pleskClientException) {
             $this->logger->info(
-                'Server with the name ' . $server->name . '  for domain ' . $server->domain . ' was not found because of an exception in the Plesk Connection.',
+                'Server with the name '
+                . $server->name
+                . '  for domain '
+                . $server->domain
+                . ' was not found because of an exception in the Plesk Connection.',
                 [
                     LoggingContextKeys::EXCEPTION => $pleskClientException,
-                ]
+                ],
             );
 
             return false;

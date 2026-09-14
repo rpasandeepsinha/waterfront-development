@@ -16,7 +16,7 @@ class SslReissueResponse
 
     private string $status;
 
-    private string $reason ;
+    private string $reason;
 
     private ?int $certificateId = null;
 

@@ -97,10 +97,12 @@ class PleskHostingServiceTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
 
-        $this->hostingProductGroup = new ProductGroupFactory()->hosting()->createOne([
-            'name' => 'Hosting',
-            'slug' => ProductGroupType::HOSTING,
-        ]);
+        $this->hostingProductGroup = new ProductGroupFactory()
+            ->hosting()
+            ->createOne([
+                'name' => 'Hosting',
+                'slug' => ProductGroupType::HOSTING,
+            ]);
 
         $this->hostingService = self::resolve(PleskHostingService::class);
         $this->server = new ServerFactory()->plesk()->createOne();
@@ -117,9 +119,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $deployment = new HostingDeploymentFactory()
             ->for(new ServerFactory()->plesk())
             ->for(
-                SubscriptionFactory::new()
-                ->for($this->customer)
-                ->for(ProductFactory::new()->nlDomain())
+                SubscriptionFactory::new()->for($this->customer)->for(ProductFactory::new()->nlDomain()),
             )
             ->createOne([
                 'plesk_customer_username' => 'yezbcrfdbb', // matches json
@@ -153,9 +153,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
             subscriptionRepository: $this->app->make(SubscriptionRepository::class),
         );
 
-        $mockCustomerClient->shouldReceive('setServer')
-            ->with($deployment->server)
-            ->once();
+        $mockCustomerClient->shouldReceive('setServer')->with($deployment->server)->once();
 
         // Matches json file.
         $firstDomain = new Domain(
@@ -167,7 +165,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
             guid: '1a34115d-7f71-4e79-87e5-bda5ef407cf6',
             externalId: null,
             parentId: null,
-            domainId: null
+            domainId: null,
         );
 
         $secondDomain = new Domain(
@@ -179,32 +177,28 @@ class PleskHostingServiceTest extends IntegrationTestCase
             guid: '7d34115d-8h72-3a79-87e5-fgu2ef607cf8',
             externalId: null,
             parentId: null,
-            domainId: null
+            domainId: null,
         );
 
         $mockDomainResult = new CustomerGetDomainListResult();
         $mockDomainResult->domains = [$firstDomain, $secondDomain];
 
-        $mockCustomerClient
-            ->shouldReceive('getDomainList')
-            ->once()
-            ->andReturn($mockDomainResult);
+        $mockCustomerClient->shouldReceive('getDomainList')->once()->andReturn($mockDomainResult);
 
-        $mockHostingClient
-            ->shouldReceive('setServer')
-            ->with($deployment->server)
-            ->once();
+        $mockHostingClient->shouldReceive('setServer')->with($deployment->server)->once();
 
         /** @var array<mixed> $webspaceResponse */
-        $webspaceResponse = json_decode((string) file_get_contents(__DIR__ . '/data/get_webspace_response_multidomain.json'), true, 512, JSON_THROW_ON_ERROR);
+        $webspaceResponse = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/get_webspace_response_multidomain.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
         $webspaceResult = new WebspaceGetResult();
         $webspaceResult->setResponseBody($webspaceResponse);
 
-        $mockHostingClient
-            ->shouldReceive('getWebspaces')
-            ->once()
-            ->andReturn($webspaceResult);
+        $mockHostingClient->shouldReceive('getWebspaces')->once()->andReturn($webspaceResult);
 
         $occupation = $service->getDomainOccupation($deployment);
 
@@ -220,9 +214,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $deployment = new HostingDeploymentFactory()
             ->for(new ServerFactory()->plesk())
             ->for(
-                SubscriptionFactory::new()
-                ->for($this->customer)
-                ->for(ProductFactory::new()->nlDomain())
+                SubscriptionFactory::new()->for($this->customer)->for(ProductFactory::new()->nlDomain()),
             )
             ->createOne([
                 'plesk_customer_username' => 'yezbcrfdbb',
@@ -256,9 +248,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
             subscriptionRepository: $this->app->make(SubscriptionRepository::class),
         );
 
-        $mockCustomerClient->shouldReceive('setServer')
-            ->with($deployment->server)
-            ->once();
+        $mockCustomerClient->shouldReceive('setServer')->with($deployment->server)->once();
 
         $firstDomain = new Domain(
             id: 63,
@@ -269,7 +259,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
             guid: '1a34115d-7f71-4e79-87e5-bda5ef407cf6',
             externalId: null,
             parentId: null,
-            domainId: null
+            domainId: null,
         );
 
         $secondDomain = new Domain(
@@ -281,29 +271,20 @@ class PleskHostingServiceTest extends IntegrationTestCase
             guid: '7d34115d-8h72-3a79-87e5-fgu2ef607cf8',
             externalId: null,
             parentId: null,
-            domainId: null
+            domainId: null,
         );
 
         $mockDomainResult = new CustomerGetDomainListResult();
         $mockDomainResult->domains = [$firstDomain, $secondDomain];
 
-        $mockCustomerClient
-            ->shouldReceive('getDomainList')
-            ->once()
-            ->andReturn($mockDomainResult);
+        $mockCustomerClient->shouldReceive('getDomainList')->once()->andReturn($mockDomainResult);
 
-        $mockHostingClient
-            ->shouldReceive('setServer')
-            ->with($deployment->server)
-            ->once();
+        $mockHostingClient->shouldReceive('setServer')->with($deployment->server)->once();
 
         $webspaceResult = new WebspaceGetResult();
         $webspaceResult->setResponseBody([]);
 
-        $mockHostingClient
-            ->shouldReceive('getWebspaces')
-            ->once()
-            ->andReturn($webspaceResult);
+        $mockHostingClient->shouldReceive('getWebspaces')->once()->andReturn($webspaceResult);
 
         self::expectException(HostingException::class);
         self::expectExceptionMessageIs('Could not retrieve max domains from Plesk for user yezbcrfdbb.');
@@ -320,13 +301,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $result = new IpResult();
         $result->setStatus(IpResult::STATUS_OK);
 
-        $mockPleskClient->expects(self::once())
-            ->method('getIpAddresses')
-            ->willReturn($result);
+        $mockPleskClient->expects(self::once())->method('getIpAddresses')->willReturn($result);
 
         $mockLogger = self::createMock(LoggerInterface::class);
-        $mockLogger->expects(self::never())
-            ->method('notice');
+        $mockLogger->expects(self::never())->method('notice');
 
         $this->app->bind(LoggerInterface::class, fn () => $mockLogger);
         $this->app->bind(HostingPackageInterface::class, fn () => $mockPleskClient);
@@ -347,12 +325,11 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $result = new IpResult();
         $result->setStatus(IpResult::STATUS_ERROR);
 
-        $mockPleskClient->expects(self::once())
-            ->method('getIpAddresses')
-            ->willReturn($result);
+        $mockPleskClient->expects(self::once())->method('getIpAddresses')->willReturn($result);
 
         $mockLogger = self::createMock(LoggerInterface::class);
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('notice')
             ->with(
                 'Validation of hosting server failed with server: [{server.id}] - {server.name}',
@@ -360,7 +337,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
                     LoggingContextKeys::SERVER_ID => $pleskServer->id,
                     LoggingContextKeys::SERVER_HOSTNAME => $pleskServer->hostname,
                     LoggingContextKeys::EXCEPTION => $thrownException,
-                ]
+                ],
             );
         $this->app->bind(LoggerInterface::class, fn () => $mockLogger);
         $this->app->bind(HostingPackageInterface::class, fn () => $mockPleskClient);
@@ -378,12 +355,11 @@ class PleskHostingServiceTest extends IntegrationTestCase
 
         $thrownException = new PleskClientException();
 
-        $mockPleskClient->expects(self::once())
-            ->method('getIpAddresses')
-            ->willThrowException($thrownException);
+        $mockPleskClient->expects(self::once())->method('getIpAddresses')->willThrowException($thrownException);
 
         $mockLogger = self::createMock(LoggerInterface::class);
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('notice')
             ->with(
                 'Validation of hosting server failed with server: [{server.id}] - {server.name}',
@@ -391,7 +367,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
                     LoggingContextKeys::SERVER_ID => $pleskServer->id,
                     LoggingContextKeys::SERVER_HOSTNAME => $pleskServer->hostname,
                     LoggingContextKeys::EXCEPTION => $thrownException,
-                ]
+                ],
             );
 
         $this->app->bind(LoggerInterface::class, fn () => $mockLogger);
@@ -419,12 +395,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $successResult->setResponseBody($payload);
 
         $customerClientMock = $this->createMock(CustomerInterface::class);
-        $customerClientMock
-            ->expects(self::once())
-            ->method('fetchCustomer')
-            ->willReturn($successResult);
+        $customerClientMock->expects(self::once())->method('fetchCustomer')->willReturn($successResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(CustomerInterface::class)
             ->give(fn () => $customerClientMock);
 
@@ -457,12 +431,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $successResult->setResponseBody($payload);
 
         $customerClientMock = $this->createMock(CustomerInterface::class);
-        $customerClientMock
-            ->expects(self::once())
-            ->method('fetchCustomer')
-            ->willReturn($successResult);
+        $customerClientMock->expects(self::once())->method('fetchCustomer')->willReturn($successResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(CustomerInterface::class)
             ->give(fn () => $customerClientMock);
 
@@ -494,18 +466,13 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $successResult->setResponseBody($payloadGetWebspace);
 
         $hostingPackageMock = $this->createMock(HostingPackageInterface::class);
-        $hostingPackageMock
-            ->expects(self::once())
-            ->method('getWebspaces')
-            ->willReturn($successResult);
+        $hostingPackageMock->expects(self::once())->method('getWebspaces')->willReturn($successResult);
 
         $expectedPackage = 'exanple-package';
-        $hostingPackageMock
-            ->expects(self::once())
-            ->method('getServicePlanByGuid')
-            ->willReturn($expectedPackage);
+        $hostingPackageMock->expects(self::once())->method('getServicePlanByGuid')->willReturn($expectedPackage);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $hostingPackageMock);
 
@@ -544,12 +511,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $successResult->setResponseBody($payloadGetWebspace);
 
         $hostingPackageMock = $this->createMock(HostingPackageInterface::class);
-        $hostingPackageMock
-            ->expects(self::once())
-            ->method('getWebspaces')
-            ->willReturn($successResult);
+        $hostingPackageMock->expects(self::once())->method('getWebspaces')->willReturn($successResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $hostingPackageMock);
 
@@ -577,19 +542,20 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $notFoundResult->setResponseBody($payloadGetWebspaceNotFound);
 
         $hostingPackageMock = $this->createMock(HostingPackageInterface::class);
-        $hostingPackageMock
-            ->expects(self::once())
-            ->method('getWebspaces')
-            ->willReturn($notFoundResult);
+        $hostingPackageMock->expects(self::once())->method('getWebspaces')->willReturn($notFoundResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $hostingPackageMock);
 
         $hostingService = self::resolve(PleskHostingService::class);
 
         $this->expectException(PleskClientException::class);
-        $this->expectExceptionMessageIs(sprintf('getUserConfigAsDto error: Owner does not exist for identifier: %s', $pleskUsername));
+        $this->expectExceptionMessageIs(sprintf(
+            'getUserConfigAsDto error: Owner does not exist for identifier: %s',
+            $pleskUsername,
+        ));
 
         $hostingService->getUserConfigAsDto($pleskUsername, $server);
     }
@@ -602,7 +568,9 @@ class PleskHostingServiceTest extends IntegrationTestCase
     public function create(string $productSlug): void
     {
         self::assertEmailsSend([
-            $productSlug === ProductType::EMAIL_START->value ? MailPleskEmailOnlyDetails::class : MailPleskDetails::class,
+            $productSlug === ProductType::EMAIL_START->value
+                ? MailPleskEmailOnlyDetails::class
+                : MailPleskDetails::class,
         ]);
 
         $this->hostingService = self::resolve(PleskHostingService::class);
@@ -653,7 +621,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
 
         $this->hostingService = self::resolve(PleskHostingService::class);
 
-        $product = new ProductFactory()->hostingBrons()->for($this->hostingProductGroup)->createOne();
+        $product = new ProductFactory()
+            ->hostingBrons()
+            ->for($this->hostingProductGroup)
+            ->createOne();
 
         $subscription = new SubscriptionFactory()->for($this->customer)->createOne([
             'product_uuid' => $product->uuid,
@@ -681,7 +652,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
         self::assertSame('ok', $result['result']);
         self::assertDatabaseHas('hosting_deployments', [
             'subscription_uuid' => $subscription->uuid,
-            'server_id'     => $newServer->id,
+            'server_id' => $newServer->id,
         ]);
 
         self::assertDatabaseMissing('hosting_deployments', [
@@ -699,53 +670,57 @@ class PleskHostingServiceTest extends IntegrationTestCase
             'slug' => 'hosting-email-start',
         ]);
 
-        new ProductSpecFactory()
-            ->for($product)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_HAS_WEBSITE->value,
-                'value' => '0',
-            ]);
+        new ProductSpecFactory()->for($product)->createOne([
+            'name' => ProductSpecName::HOSTING_HAS_WEBSITE->value,
+            'value' => '0',
+        ]);
 
         $subscription = new SubscriptionFactory()->for($this->customer)->createOne([
             'product_uuid' => $product->uuid,
-            'domain'       => 'mailonly-test.example.com',
+            'domain' => 'mailonly-test.example.com',
         ]);
 
         new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
-            'server_id'         => $this->server->id,
+            'server_id' => $this->server->id,
         ]);
 
         $hostingPackageClientMock = $this->createMock(HostingPackageInterface::class);
-        $hostingPackageClientMock
-            ->method('servicePlanExists')
-            ->willReturn(true);
+        $hostingPackageClientMock->method('servicePlanExists')->willReturn(true);
 
         $hostingPackageClientMock
             ->expects(self::once())
             ->method('createHosting')
             ->with(self::callback(fn (Parameters $parameters) => $parameters->getMailOnlyHosting()))
-            ->willReturn((function () {
-                $result = new \Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Result();
-                $result->setStatus(\Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Result::STATUS_OK);
-                return $result;
-            })());
+            ->willReturn(
+                (function () {
+                    $result = new \Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Result();
+                    $result->setStatus(\Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Result::STATUS_OK);
+
+                    return $result;
+                })(),
+            );
 
         $customerClientMock = $this->createStub(CustomerInterface::class);
         $customerClientMock->method('setServer')->willReturn(true);
-        $customerClientMock->method('createCustomer')->willReturn(
-            (function () {
-                $result = new Result();
-                $result->setCustomerId('123');
-                return $result;
-            })()
-        );
+        $customerClientMock
+            ->method('createCustomer')
+            ->willReturn(
+                (function () {
+                    $result = new Result();
+                    $result->setCustomerId('123');
 
-        $this->app->when(PleskHostingService::class)
+                    return $result;
+                })(),
+            );
+
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $hostingPackageClientMock);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(CustomerInterface::class)
             ->give(fn () => $customerClientMock);
 
@@ -772,53 +747,57 @@ class PleskHostingServiceTest extends IntegrationTestCase
             'slug' => 'hosting-regular',
         ]);
 
-        new ProductSpecFactory()
-            ->for($product)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_HAS_WEBSITE->value,
-                'value' => '1',
-            ]);
+        new ProductSpecFactory()->for($product)->createOne([
+            'name' => ProductSpecName::HOSTING_HAS_WEBSITE->value,
+            'value' => '1',
+        ]);
 
         $subscription = new SubscriptionFactory()->for($this->customer)->createOne([
             'product_uuid' => $product->uuid,
-            'domain'       => 'regular-test.example.com',
+            'domain' => 'regular-test.example.com',
         ]);
 
         new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
-            'server_id'         => $this->server->id,
+            'server_id' => $this->server->id,
         ]);
 
         $hostingPackageClientMock = $this->createMock(HostingPackageInterface::class);
-        $hostingPackageClientMock
-            ->method('servicePlanExists')
-            ->willReturn(true);
+        $hostingPackageClientMock->method('servicePlanExists')->willReturn(true);
 
         $hostingPackageClientMock
             ->expects(self::once())
             ->method('createHosting')
             ->with(self::callback(fn (Parameters $parameters) => $parameters->getMailOnlyHosting() === false))
-            ->willReturn((function () {
-                $result = new \Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Result();
-                $result->setStatus(\Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Result::STATUS_OK);
-                return $result;
-            })());
+            ->willReturn(
+                (function () {
+                    $result = new \Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Result();
+                    $result->setStatus(\Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Result::STATUS_OK);
+
+                    return $result;
+                })(),
+            );
 
         $customerClientMock = $this->createStub(CustomerInterface::class);
         $customerClientMock->method('setServer')->willReturn(true);
-        $customerClientMock->method('createCustomer')->willReturn(
-            (function () {
-                $result = new Result();
-                $result->setCustomerId('123');
-                return $result;
-            })()
-        );
+        $customerClientMock
+            ->method('createCustomer')
+            ->willReturn(
+                (function () {
+                    $result = new Result();
+                    $result->setCustomerId('123');
 
-        $this->app->when(PleskHostingService::class)
+                    return $result;
+                })(),
+            );
+
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $hostingPackageClientMock);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(CustomerInterface::class)
             ->give(fn () => $customerClientMock);
 
@@ -891,12 +870,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $subscription = $this->prepareSitebuilderMailOnlySubscription();
 
         $pleskClientMock = $this->createMock(HostingPackageInterface::class);
-        $pleskClientMock
-            ->expects(self::once())
-            ->method('servicePlanExists')
-            ->willReturn(false);
+        $pleskClientMock->expects(self::once())->method('servicePlanExists')->willReturn(false);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $pleskClientMock);
 
@@ -904,8 +881,8 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $this->expectExceptionMessageIs(
             sprintf(
                 'Service plan %s was not found on the given plesk server',
-                $nonExistingPleskPlan
-            )
+                $nonExistingPleskPlan,
+            ),
         );
 
         self::assertIsString($subscription->domain);
@@ -934,12 +911,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $errorResult->setErrorCode($errorResultCode);
 
         $customerClientMock = $this->createMock(CustomerInterface::class);
-        $customerClientMock
-            ->expects(self::once())
-            ->method('createCustomer')
-            ->willReturn($errorResult);
+        $customerClientMock->expects(self::once())->method('createCustomer')->willReturn($errorResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(CustomerInterface::class)
             ->give(fn () => $customerClientMock);
 
@@ -968,7 +943,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
 
         $this->hostingService = self::resolve(PleskHostingService::class);
 
-        $product = new ProductFactory()->hostingBrons()->for($this->hostingProductGroup)->createOne();
+        $product = new ProductFactory()
+            ->hostingBrons()
+            ->for($this->hostingProductGroup)
+            ->createOne();
 
         $subscription = new SubscriptionFactory()->for($this->customer)->createOne([
             'product_uuid' => $product->uuid,
@@ -987,7 +965,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
             specs: [],
             server: $this->server,
             forwardingUrl: $subscription->domain,
-            domain: $subscription->domain
+            domain: $subscription->domain,
         );
 
         self::assertSame('ok', $result['result']);
@@ -1010,7 +988,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
             $this->server,
             $subscription->domain,
             $sourceEmailAddressUsername,
-            $destinationEmailAddress
+            $destinationEmailAddress,
         );
 
         self::assertSame('ok', $result);
@@ -1033,7 +1011,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
         self::assertIsString($subscription->domain);
         $result = $this->hostingService->terminatePleskMailOnly(
             domain: $subscription->domain,
-            hostingDeployment: $hostingDeployment
+            hostingDeployment: $hostingDeployment,
         );
 
         self::assertSame('ok', $result);
@@ -1064,15 +1042,17 @@ class PleskHostingServiceTest extends IntegrationTestCase
         self::assertNotNull($subscription->domain);
 
         $jobDispatcher = self::createMock(JobDispatcher::class);
-        $jobDispatcher->expects(self::once())
+        $jobDispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(RemoveDomainFromSpamFilter::class));
         $this->app->bind(JobDispatcher::class, fn () => $jobDispatcher);
 
-        $result = self::resolve(PleskHostingService::class)->terminate(
-            domain: $subscription->domain,
-            subscriptionUuid: $subscription->uuid
-        );
+        $result = self::resolve(PleskHostingService::class)
+            ->terminate(
+                domain: $subscription->domain,
+                subscriptionUuid: $subscription->uuid,
+            );
 
         self::assertTrue($result);
         self::assertSoftDeleted('hosting_deployments', [
@@ -1102,24 +1082,19 @@ class PleskHostingServiceTest extends IntegrationTestCase
 
         $mockHostingClient = $this->mock(HostingPackageInterface::class);
 
-        $mockHostingClient
-            ->expects('setServer')
-            ->once()
-            ->andReturnTrue();
+        $mockHostingClient->expects('setServer')->once()->andReturnTrue();
 
         $mockHostingClient
             ->expects('deleteWebsite')
             ->once()
             ->withArgs(
-                fn (WebsiteDeleteParameters $params) => $params->getDomain() === $subscription->domain
+                fn (WebsiteDeleteParameters $params) => $params->getDomain() === $subscription->domain,
             )
             ->andReturn(new Result());
 
         $mockWebspaceResult = self::mock(WebspaceGetResult::class);
 
-        $mockWebspaceResult
-            ->expects('getStatus')
-            ->andReturn(Result::STATUS_OK);
+        $mockWebspaceResult->expects('getStatus')->andReturn(Result::STATUS_OK);
 
         $mockWebspaceResult
             ->expects('getResponseBody')
@@ -1132,22 +1107,18 @@ class PleskHostingServiceTest extends IntegrationTestCase
                 ],
             ]);
 
-        $mockHostingClient
-            ->expects('getWebspaces')
-            ->once()
-            ->andReturn($mockWebspaceResult);
+        $mockHostingClient->expects('getWebspaces')->once()->andReturn($mockWebspaceResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $mockHostingClient);
 
         $customerClientMock = $this->createMock(CustomerInterface::class);
-        $customerClientMock
-            ->expects(self::once())
-            ->method('deleteCustomer')
-            ->willReturn($errorResult);
+        $customerClientMock->expects(self::once())->method('deleteCustomer')->willReturn($errorResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(CustomerInterface::class)
             ->give(fn () => $customerClientMock);
 
@@ -1157,7 +1128,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
 
         $result = $this->hostingService->terminate(
             domain: $subscription->domain,
-            subscriptionUuid: $subscription->uuid
+            subscriptionUuid: $subscription->uuid,
         );
 
         self::assertFalse($result);
@@ -1186,12 +1157,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $errorResult->setStatus(Result::STATUS_ERROR);
 
         $customerClientMock = $this->createMock(HostingPackageInterface::class);
-        $customerClientMock
-            ->expects(self::once())
-            ->method('deleteWebsite')
-            ->willReturn($errorResult);
+        $customerClientMock->expects(self::once())->method('deleteWebsite')->willReturn($errorResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $customerClientMock);
 
@@ -1199,7 +1168,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
 
         $result = $this->hostingService->terminate(
             domain: $invalidDomain,
-            subscriptionUuid: $subscription->uuid
+            subscriptionUuid: $subscription->uuid,
         );
 
         self::assertFalse($result);
@@ -1208,9 +1177,15 @@ class PleskHostingServiceTest extends IntegrationTestCase
     #[Test]
     public function changeServicePlanChangeable(): void
     {
-        $product = new ProductFactory()->hostingBrons()->for($this->hostingProductGroup)->createOne();
+        $product = new ProductFactory()
+            ->hostingBrons()
+            ->for($this->hostingProductGroup)
+            ->createOne();
 
-        $newProduct = new ProductFactory()->emailStart()->for($this->hostingProductGroup)->createOne();
+        $newProduct = new ProductFactory()
+            ->emailStart()
+            ->for($this->hostingProductGroup)
+            ->createOne();
 
         $subscription = new SubscriptionFactory()->for($this->customer)->createOne([
             'product_uuid' => $product->uuid,
@@ -1232,9 +1207,15 @@ class PleskHostingServiceTest extends IntegrationTestCase
     #[Test]
     public function changeServicePlanNotChangeable(): void
     {
-        $product = new ProductFactory()->hostingBrons()->for($this->hostingProductGroup)->createOne();
+        $product = new ProductFactory()
+            ->hostingBrons()
+            ->for($this->hostingProductGroup)
+            ->createOne();
 
-        $newProduct = new ProductFactory()->emailStart()->for($this->hostingProductGroup)->createOne();
+        $newProduct = new ProductFactory()
+            ->emailStart()
+            ->for($this->hostingProductGroup)
+            ->createOne();
 
         $subscription = new SubscriptionFactory()->for($this->customer)->createOne([
             'product_uuid' => $product->uuid,
@@ -1258,31 +1239,30 @@ class PleskHostingServiceTest extends IntegrationTestCase
             'name' => 'Mail Only',
         ]);
 
-        new ProductSpecFactory()
-            ->for($mailProduct)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_HAS_WEBSITE->value,
-                'value' => 0,
-            ]);
+        new ProductSpecFactory()->for($mailProduct)->createOne([
+            'name' => ProductSpecName::HOSTING_HAS_WEBSITE->value,
+            'value' => 0,
+        ]);
 
-        $newProduct = new ProductFactory()->hostingBrons()->for($this->hostingProductGroup)->createOne();
-        new ProductSpecFactory()
-            ->for($newProduct)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_HAS_WEBSITE->value,
-                'value' => 1,
-            ]);
+        $newProduct = new ProductFactory()
+            ->hostingBrons()
+            ->for($this->hostingProductGroup)
+            ->createOne();
+        new ProductSpecFactory()->for($newProduct)->createOne([
+            'name' => ProductSpecName::HOSTING_HAS_WEBSITE->value,
+            'value' => 1,
+        ]);
 
         $subscription = new SubscriptionFactory()->for($this->customer)->createOne([
             'product_uuid' => $newProduct->uuid,
-            'domain'       => 'mailonly.example.com',
+            'domain' => 'mailonly.example.com',
         ]);
 
         $hostingDeployment = new HostingDeploymentFactory()->createOne([
-            'subscription_uuid'       => $subscription->uuid,
-            'server_id'               => $this->server->id,
+            'subscription_uuid' => $subscription->uuid,
+            'server_id' => $this->server->id,
             'plesk_customer_username' => 'mailonlyuser',
-            'plesk_customer_id'       => 456,
+            'plesk_customer_id' => 456,
         ]);
 
         $domain = $subscription->domain;
@@ -1291,36 +1271,42 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $dummyResult->setStatus(Result::STATUS_OK);
 
         $hostingPackageClientMock = $this->createMock(HostingPackageInterface::class);
-        $hostingPackageClientMock->expects(self::once())
+        $hostingPackageClientMock
+            ->expects(self::once())
             ->method('isServicePlanChangeable')
             ->with($domain, $newProduct->slug)
             ->willReturn(true);
-        $hostingPackageClientMock->expects(self::once())
+        $hostingPackageClientMock
+            ->expects(self::once())
             ->method('changeServicePlan')
             ->with($domain, $newProduct->slug)
             ->willReturn($dummyResult);
 
-        $hostingPackageClientMock->expects(self::once())
+        $hostingPackageClientMock
+            ->expects(self::once())
             ->method('setFtpPassword')
             ->with(
                 self::equalTo($domain),
                 self::equalTo('mailonlyuser'),
-                self::callback(fn ($password) => is_string($password) && $password !== '')
+                self::callback(fn ($password) => is_string($password) && $password !== ''),
             )
             ->willReturn($dummyResult);
 
-        $hostingPackageClientMock->expects(self::once())
+        $hostingPackageClientMock
+            ->expects(self::once())
             ->method('syncSubscription')
             ->with($domain)
             ->willReturn($dummyResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $hostingPackageClientMock);
 
         $dummyCustomerClient = $this->createStub(CustomerInterface::class);
         $dummyCustomerClient->method('setServer')->willReturn(true);
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(CustomerInterface::class)
             ->give(fn () => $dummyCustomerClient);
 
@@ -1339,31 +1325,30 @@ class PleskHostingServiceTest extends IntegrationTestCase
             'name' => 'Mail Only',
         ]);
 
-        new ProductSpecFactory()
-            ->for($mailProduct)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_HAS_WEBSITE->value,
-                'value' => 0,
-            ]);
+        new ProductSpecFactory()->for($mailProduct)->createOne([
+            'name' => ProductSpecName::HOSTING_HAS_WEBSITE->value,
+            'value' => 0,
+        ]);
 
-        $newProduct = new ProductFactory()->hostingBrons()->for($this->hostingProductGroup)->createOne();
-        new ProductSpecFactory()
-            ->for($newProduct)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_HAS_WEBSITE->value,
-                'value' => 1,
-            ]);
+        $newProduct = new ProductFactory()
+            ->hostingBrons()
+            ->for($this->hostingProductGroup)
+            ->createOne();
+        new ProductSpecFactory()->for($newProduct)->createOne([
+            'name' => ProductSpecName::HOSTING_HAS_WEBSITE->value,
+            'value' => 1,
+        ]);
 
         $subscription = new SubscriptionFactory()->for($this->customer)->createOne([
             'product_uuid' => $newProduct->uuid,
-            'domain'       => 'mailonly.example.com',
+            'domain' => 'mailonly.example.com',
         ]);
 
         $hostingDeployment = new HostingDeploymentFactory()->createOne([
-            'subscription_uuid'       => $subscription->uuid,
-            'server_id'               => $this->server->id,
+            'subscription_uuid' => $subscription->uuid,
+            'server_id' => $this->server->id,
             'plesk_customer_username' => 'mailonlyuser',
-            'plesk_customer_id'       => 456,
+            'plesk_customer_id' => 456,
         ]);
 
         $domain = $subscription->domain;
@@ -1375,35 +1360,41 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $errorResult->setStatus(Result::STATUS_ERROR);
 
         $hostingPackageClientMock = $this->createMock(HostingPackageInterface::class);
-        $hostingPackageClientMock->expects(self::once())
+        $hostingPackageClientMock
+            ->expects(self::once())
             ->method('isServicePlanChangeable')
             ->with($domain, $newProduct->slug)
             ->willReturn(true);
-        $hostingPackageClientMock->expects(self::once())
+        $hostingPackageClientMock
+            ->expects(self::once())
             ->method('changeServicePlan')
             ->with($domain, $newProduct->slug)
             ->willReturn($dummyResult);
-        $hostingPackageClientMock->expects(self::once())
+        $hostingPackageClientMock
+            ->expects(self::once())
             ->method('setFtpPassword')
             ->with(
                 self::equalTo($domain),
                 self::equalTo('mailonlyuser'),
-                self::callback(fn ($password) => is_string($password) && $password !== '')
+                self::callback(fn ($password) => is_string($password) && $password !== ''),
             )
             ->willReturn($dummyResult);
 
-        $hostingPackageClientMock->expects(self::once())
+        $hostingPackageClientMock
+            ->expects(self::once())
             ->method('syncSubscription')
             ->with($domain)
             ->willReturn($errorResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $hostingPackageClientMock);
 
         $dummyCustomerClient = $this->createStub(CustomerInterface::class);
         $dummyCustomerClient->method('setServer')->willReturn(true);
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(CustomerInterface::class)
             ->give(fn () => $dummyCustomerClient);
 
@@ -1421,7 +1412,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
             MailPleskDetails::class,
         ]);
         $this->hostingService = self::resolve(PleskHostingService::class);
-        $product = new ProductFactory()->hostingBrons()->for($this->hostingProductGroup)->createOne();
+        $product = new ProductFactory()
+            ->hostingBrons()
+            ->for($this->hostingProductGroup)
+            ->createOne();
 
         $subscription = new SubscriptionFactory()->for($this->customer)->createOne([
             'product_uuid' => $product->uuid,
@@ -1440,7 +1434,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
             specs: [],
             server: $this->server,
             forwardingUrl: $subscription->domain,
-            domain: $subscription->domain
+            domain: $subscription->domain,
         );
 
         self::assertSame('ok', $result['result']);
@@ -1458,7 +1452,11 @@ class PleskHostingServiceTest extends IntegrationTestCase
 
         self::assertNotNull($subscription->domain);
 
-        $result = $this->hostingService->setEmailCatchAll($this->server, $subscription->domain, $destinationEmailAddress);
+        $result = $this->hostingService->setEmailCatchAll(
+            $this->server,
+            $subscription->domain,
+            $destinationEmailAddress,
+        );
 
         self::assertSame('ok', $result);
     }
@@ -1485,12 +1483,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $successResult->setCustomerId('1');
 
         $customerClientMock = $this->createMock(CustomerInterface::class);
-        $customerClientMock
-            ->expects(self::once())
-            ->method('fetchCustomer')
-            ->willReturn($successResult);
+        $customerClientMock->expects(self::once())->method('fetchCustomer')->willReturn($successResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(CustomerInterface::class)
             ->give(fn () => $customerClientMock);
 
@@ -1498,7 +1494,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
 
         $result = $this->hostingService->getUserConfig(
             identifier: 'testname',
-            server: $this->server
+            server: $this->server,
         );
 
         self::assertSame(
@@ -1517,21 +1513,19 @@ class PleskHostingServiceTest extends IntegrationTestCase
                 'response_body' => [],
                 'response_result' => '',
             ],
-            $result
+            $result,
         );
     }
 
     #[Test]
     public function getServicePlan(): void
     {
-        $expectedPlan = include  'data/plesk_plan.php';
+        $expectedPlan = include 'data/plesk_plan.php';
         $hostingPackageClient = $this->createMock(HostingPackageInterface::class);
-        $hostingPackageClient
-            ->expects(self::once())
-            ->method('getServicePlan')
-            ->willReturn($expectedPlan);
+        $hostingPackageClient->expects(self::once())->method('getServicePlan')->willReturn($expectedPlan);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $hostingPackageClient);
 
@@ -1544,14 +1538,12 @@ class PleskHostingServiceTest extends IntegrationTestCase
     #[Test]
     public function getPackageOnServerAsDto(): void
     {
-        $expectedPlan = include  'data/plesk_plan.php';
+        $expectedPlan = include 'data/plesk_plan.php';
         $hostingPackageClient = $this->createMock(HostingPackageInterface::class);
-        $hostingPackageClient
-            ->expects(self::once())
-            ->method('getServicePlan')
-            ->willReturn($expectedPlan);
+        $hostingPackageClient->expects(self::once())->method('getServicePlan')->willReturn($expectedPlan);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $hostingPackageClient);
 
@@ -1630,20 +1622,19 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $result->domains = $domains;
 
         $customerClientMock = $this->createMock(CustomerInterface::class);
-        $customerClientMock
-            ->expects(self::once())
-            ->method('getDomainList')
-            ->willReturn($result);
+        $customerClientMock->expects(self::once())->method('getDomainList')->willReturn($result);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(CustomerInterface::class)
             ->give(fn () => $customerClientMock);
 
         $this->hostingService = self::resolve(PleskHostingService::class);
 
-        $result = $this->hostingService->getCustomerDomainsForDkim(
-            $hostingDeployment
-        );
+        $result =
+            $this->hostingService->getCustomerDomainsForDkim(
+                $hostingDeployment,
+            );
 
         self::assertSame($expectedDomains, $result);
     }
@@ -1654,13 +1645,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $hostingDeployment = new HostingDeploymentFactory()->createOne();
 
         $hostingPackageClient = $this->createMock(HostingPackageInterface::class);
-        $hostingPackageClient
-            ->expects(self::once())
-            ->method('isDkimEnabled')
-            ->with(self::DOMAIN)
-            ->willReturn(true);
+        $hostingPackageClient->expects(self::once())->method('isDkimEnabled')->with(self::DOMAIN)->willReturn(true);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $hostingPackageClient);
 
@@ -1676,13 +1664,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $hostingDeployment = new HostingDeploymentFactory()->createOne();
 
         $hostingPackageClient = $this->createMock(HostingPackageInterface::class);
-        $hostingPackageClient
-            ->expects(self::once())
-            ->method('isDkimEnabled')
-            ->with(self::DOMAIN)
-            ->willReturn(false);
+        $hostingPackageClient->expects(self::once())->method('isDkimEnabled')->with(self::DOMAIN)->willReturn(false);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $hostingPackageClient);
 
@@ -1698,12 +1683,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $hostingDeployment = new HostingDeploymentFactory()->createOne();
 
         $hostingPackageClient = $this->createMock(HostingPackageInterface::class);
-        $hostingPackageClient
-            ->expects(self::once())
-            ->method('setDkim')
-            ->with(self::DOMAIN, true);
+        $hostingPackageClient->expects(self::once())->method('setDkim')->with(self::DOMAIN, true);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $hostingPackageClient);
 
@@ -1719,12 +1702,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $responsePlans = ['example-service-plan', 'example-service-plan-2', 'example-service-plan-3'];
 
         $pleskClientMock = $this->createMock(HostingPackageInterface::class);
-        $pleskClientMock
-            ->expects(self::once())
-            ->method('getServicePlans')
-            ->willReturn($responsePlans);
+        $pleskClientMock->expects(self::once())->method('getServicePlans')->willReturn($responsePlans);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $pleskClientMock);
 
@@ -1769,12 +1750,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $domainListResult->domains = $domains;
 
         $customerClientMock = $this->createMock(CustomerInterface::class);
-        $customerClientMock
-            ->expects(self::once())
-            ->method('getDomainList')
-            ->willReturn($domainListResult);
+        $customerClientMock->expects(self::once())->method('getDomainList')->willReturn($domainListResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(CustomerInterface::class)
             ->give(fn () => $customerClientMock);
 
@@ -1785,7 +1764,8 @@ class PleskHostingServiceTest extends IntegrationTestCase
             ->with($domain)
             ->willReturn($disableZoneResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $pleskClientMock);
 
@@ -1848,7 +1828,8 @@ class PleskHostingServiceTest extends IntegrationTestCase
             ->with(self::DOMAIN)
             ->willReturn($dnsRecordsResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $hostingPackageClient);
 
@@ -1902,20 +1883,15 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $successResult->setResponseBody($payloadGetWebspace);
 
         $pleskClientMock = $this->createMock(HostingPackageInterface::class);
-        $pleskClientMock
-            ->expects(self::once())
-            ->method('getWebspaces')
-            ->willReturn($successResult);
+        $pleskClientMock->expects(self::once())->method('getWebspaces')->willReturn($successResult);
 
         $createSiteSuccessResult = new CreateSiteResult();
         $createSiteSuccessResult->setStatus(Result::STATUS_OK);
 
-        $pleskClientMock
-            ->expects(self::once())
-            ->method('createSite')
-            ->willReturn($createSiteSuccessResult);
+        $pleskClientMock->expects(self::once())->method('createSite')->willReturn($createSiteSuccessResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $pleskClientMock);
 
@@ -1969,27 +1945,23 @@ class PleskHostingServiceTest extends IntegrationTestCase
         $successResult->setResponseBody($payloadGetWebspace);
 
         $pleskClientMock = $this->createMock(HostingPackageInterface::class);
-        $pleskClientMock
-            ->expects(self::once())
-            ->method('getWebspaces')
-            ->willReturn($successResult);
+        $pleskClientMock->expects(self::once())->method('getWebspaces')->willReturn($successResult);
 
         $createSiteSuccessResult = new CreateSiteResult();
         $createSiteSuccessResult->setStatus(Result::STATUS_ERROR);
         $createSiteSuccessResult->setErrorMessage('Failed to couple domain to existing hosting');
         $createSiteSuccessResult->setErrorCode(400);
 
-        $pleskClientMock
-            ->expects(self::once())
-            ->method('createSite')
-            ->willReturn($createSiteSuccessResult);
+        $pleskClientMock->expects(self::once())->method('createSite')->willReturn($createSiteSuccessResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $pleskClientMock);
 
         $mockLogger = self::createMock(LoggerInterface::class);
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 'Failed to couple domain to existing hosting',
@@ -2005,7 +1977,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
                         'server' => $hostingDeployment->server?->domain,
                         'server_id' => $hostingDeployment->server?->id,
                     ],
-                ]
+                ],
             );
 
         $this->app->bind(LoggerInterface::class, fn () => $mockLogger);
@@ -2043,7 +2015,8 @@ class PleskHostingServiceTest extends IntegrationTestCase
             ->with(self::DOMAIN)
             ->willReturn($removeSiteSuccessResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $pleskClientMock);
 
@@ -2078,7 +2051,8 @@ class PleskHostingServiceTest extends IntegrationTestCase
             ->with(self::DOMAIN)
             ->willReturn($removeSiteSuccessResult);
 
-        $this->app->when(PleskHostingService::class)
+        $this->app
+            ->when(PleskHostingService::class)
             ->needs(HostingPackageInterface::class)
             ->give(fn () => $pleskClientMock);
 
@@ -2108,10 +2082,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         new HostingDeploymentFactory()
             ->for(new ServerFactory()->plesk())
             ->for(
-                SubscriptionFactory::new()
-                    ->for($this->customer)
-                    ->for(ProductFactory::new()->nlDomain())
-                    ->state(['uuid' => $testSubscriptionUuid, 'domain' => $testDomain])
+                SubscriptionFactory::new()->for($this->customer)->for(ProductFactory::new()->nlDomain())->state([
+                    'uuid' => $testSubscriptionUuid,
+                    'domain' => $testDomain,
+                ]),
             )
             ->createOne([
                 'plesk_customer_username' => $pleskUser,
@@ -2119,24 +2093,19 @@ class PleskHostingServiceTest extends IntegrationTestCase
 
         $mockHostingClient = $this->mock(HostingPackageInterface::class);
 
-        $mockHostingClient
-            ->expects('setServer')
-            ->once()
-            ->andReturnTrue();
+        $mockHostingClient->expects('setServer')->once()->andReturnTrue();
 
         $mockHostingClient
             ->expects('deleteWebsite')
             ->once()
             ->withArgs(
-                fn (WebsiteDeleteParameters $params) => $params->getDomain() === $testDomain
+                fn (WebsiteDeleteParameters $params) => $params->getDomain() === $testDomain,
             )
             ->andReturn(new Result());
 
         $mockWebspaceResult = self::mock(WebspaceGetResult::class);
 
-        $mockWebspaceResult
-            ->expects('getStatus')
-            ->andReturn(Result::STATUS_OK);
+        $mockWebspaceResult->expects('getStatus')->andReturn(Result::STATUS_OK);
 
         $mockWebspaceResult
             ->expects('getResponseBody')
@@ -2149,22 +2118,13 @@ class PleskHostingServiceTest extends IntegrationTestCase
                 ],
             ]);
 
-        $mockHostingClient
-            ->expects('getWebspaces')
-            ->once()
-            ->andReturn($mockWebspaceResult);
+        $mockHostingClient->expects('getWebspaces')->once()->andReturn($mockWebspaceResult);
 
         $mockCustomerClient = $this->mock(CustomerClient::class);
 
-        $mockCustomerClient
-            ->expects('setServer')
-            ->once()
-            ->andReturnTrue();
+        $mockCustomerClient->expects('setServer')->once()->andReturnTrue();
 
-        $mockCustomerClient
-            ->expects('deleteCustomer')
-            ->once()
-            ->andReturn(new CustomerDeleteResult());
+        $mockCustomerClient->expects('deleteCustomer')->once()->andReturn(new CustomerDeleteResult());
 
         $this->app->bind(HostingPackageInterface::class, fn () => $mockHostingClient);
         $this->app->bind(CustomerInterface::class, fn () => $mockCustomerClient);
@@ -2186,10 +2146,10 @@ class PleskHostingServiceTest extends IntegrationTestCase
         new HostingDeploymentFactory()
             ->for(new ServerFactory()->plesk())
             ->for(
-                SubscriptionFactory::new()
-                    ->for($this->customer)
-                    ->for(ProductFactory::new()->nlDomain())
-                    ->state(['uuid' => $testSubscriptionUuid, 'domain' => $testDomain])
+                SubscriptionFactory::new()->for($this->customer)->for(ProductFactory::new()->nlDomain())->state([
+                    'uuid' => $testSubscriptionUuid,
+                    'domain' => $testDomain,
+                ]),
             )
             ->createOne([
                 'plesk_customer_username' => $pleskUser,
@@ -2197,24 +2157,19 @@ class PleskHostingServiceTest extends IntegrationTestCase
 
         $mockHostingClient = $this->mock(HostingPackageInterface::class);
 
-        $mockHostingClient
-            ->expects('setServer')
-            ->once()
-            ->andReturnTrue();
+        $mockHostingClient->expects('setServer')->once()->andReturnTrue();
 
         $mockHostingClient
             ->expects('deleteWebsite')
             ->once()
             ->withArgs(
-                fn (WebsiteDeleteParameters $params) => $params->getDomain() === $testDomain
+                fn (WebsiteDeleteParameters $params) => $params->getDomain() === $testDomain,
             )
             ->andReturn(new Result());
 
         $mockWebspaceResult = self::mock(WebspaceGetResult::class);
 
-        $mockWebspaceResult
-            ->expects('getStatus')
-            ->andReturn(Result::STATUS_OK);
+        $mockWebspaceResult->expects('getStatus')->andReturn(Result::STATUS_OK);
 
         $mockWebspaceResult
             ->expects('getResponseBody')
@@ -2231,20 +2186,13 @@ class PleskHostingServiceTest extends IntegrationTestCase
                 ],
             ]);
 
-        $mockHostingClient
-            ->expects('getWebspaces')
-            ->once()
-            ->andReturn($mockWebspaceResult);
+        $mockHostingClient->expects('getWebspaces')->once()->andReturn($mockWebspaceResult);
 
         $mockCustomerClient = $this->mock(CustomerClient::class);
 
-        $mockCustomerClient
-            ->expects('setServer')
-            ->never();
+        $mockCustomerClient->expects('setServer')->never();
 
-        $mockCustomerClient
-            ->expects('deleteCustomer')
-            ->never();
+        $mockCustomerClient->expects('deleteCustomer')->never();
 
         $this->app->bind(HostingPackageInterface::class, fn () => $mockHostingClient);
         $this->app->bind(CustomerInterface::class, fn () => $mockCustomerClient);
@@ -2273,6 +2221,7 @@ class PleskHostingServiceTest extends IntegrationTestCase
                 'plesk_customer_id' => null,
             ]);
         }
+
         return $subscription;
     }
 }

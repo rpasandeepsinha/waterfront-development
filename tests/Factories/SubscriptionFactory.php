@@ -25,18 +25,18 @@ class SubscriptionFactory extends Factory
     public function definition(): array
     {
         return [
-            'uuid'                => Uuid::uuid4()->toString(),
-            'product_uuid'        => Uuid::uuid4(),
-            'domain'              => $this->faker->domainName(),
-            'start_date'          => CarbonImmutable::now(),
-            'billing_period'      => 12,
-            'contract_period'     => 12,
+            'uuid' => Uuid::uuid4()->toString(),
+            'product_uuid' => Uuid::uuid4(),
+            'domain' => $this->faker->domainName(),
+            'start_date' => CarbonImmutable::now(),
+            'billing_period' => 12,
+            'contract_period' => 12,
             // The end_date & next_billing_date will be set automatically by the SubscriptionObserver.
-            'next_billing_date'   => null,
-            'end_date'            => null,
-            'cancel_date'         => null,
-            'gross_price'         => $this->faker->numberBetween(100, 5000),
-            'net_price'           => $this->faker->numberBetween(100, 5000),
+            'next_billing_date' => null,
+            'end_date' => null,
+            'cancel_date' => null,
+            'gross_price' => $this->faker->numberBetween(100, 5000),
+            'net_price' => $this->faker->numberBetween(100, 5000),
         ];
     }
 

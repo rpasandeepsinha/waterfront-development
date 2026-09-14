@@ -45,7 +45,7 @@ class DetermineExpirationPathForSubscriptionActionTest extends IntegrationTestCa
             ->for(new ProductFactory()->for($this->extensionProductGroup))
             ->createOne([
                 'end_date' => new CarbonImmutable('yesterday'),
-        ]);
+            ]);
 
         $this->childSubscription = new SubscriptionFactory()
             ->administrativeStatusCancelled()
@@ -69,8 +69,7 @@ class DetermineExpirationPathForSubscriptionActionTest extends IntegrationTestCa
                 'end_date' => new CarbonImmutable('yesterday'),
             ]);
 
-        $this->expireAction->expects(self::never())
-            ->method('execute');
+        $this->expireAction->expects(self::never())->method('execute');
 
         $this->expectException(InvalidArgumentException::class);
 
@@ -85,8 +84,7 @@ class DetermineExpirationPathForSubscriptionActionTest extends IntegrationTestCa
         $this->childSubscription->update(['parent_subscription_id' => null]);
         $this->parentSubscription->refresh();
 
-        $this->expireAction->expects(self::never())
-            ->method('execute');
+        $this->expireAction->expects(self::never())->method('execute');
 
         $determineAction = new DetermineExpirationPathForSubscriptionAction($this->expireAction);
         $determineAction->execute($this->parentSubscription);
@@ -98,9 +96,7 @@ class DetermineExpirationPathForSubscriptionActionTest extends IntegrationTestCa
         $this->childSubscription->update(['parent_subscription_id' => null]);
         $this->parentSubscription->refresh();
 
-        $this->expireAction->expects(self::once())
-            ->method('execute')
-            ->with($this->parentSubscription);
+        $this->expireAction->expects(self::once())->method('execute')->with($this->parentSubscription);
 
         $determineAction = new DetermineExpirationPathForSubscriptionAction($this->expireAction);
         $determineAction->execute($this->parentSubscription);
@@ -111,19 +107,22 @@ class DetermineExpirationPathForSubscriptionActionTest extends IntegrationTestCa
     {
         $childSubscription = $this->childSubscription;
 
-        $compareSubscriptionId = fn ($subscriptionId) =>
-            self::callback(function (Subscription $subscription) use ($subscriptionId) {
-                self::assertSame($subscription->id, $subscriptionId);
-                return true;
-            });
+        $compareSubscriptionId = fn ($subscriptionId) => self::callback(function (Subscription $subscription) use (
+            $subscriptionId,
+        ) {
+            self::assertSame($subscription->id, $subscriptionId);
 
-        $this->expireAction->expects(self::exactly(2))
+            return true;
+        });
+
+        $this->expireAction
+            ->expects(self::exactly(2))
             ->method('execute')
             ->with(
                 ...self::withConsecutive(
                     [$compareSubscriptionId($childSubscription->id)],
                     [$compareSubscriptionId($this->parentSubscription->id)],
-                )
+                ),
             );
 
         $determineAction = new DetermineExpirationPathForSubscriptionAction($this->expireAction);
@@ -138,21 +137,24 @@ class DetermineExpirationPathForSubscriptionActionTest extends IntegrationTestCa
         $childSubscription->end_date = new CarbonImmutable('tomorrow');
         $childSubscription->save();
 
-        $subscriptionAssertions = fn (Subscription $expectedSubscription, string $expectedStatus) =>
-        self::callback(function (Subscription $subscription) use ($expectedSubscription, $expectedStatus) {
+        $subscriptionAssertions = fn (
+            Subscription $expectedSubscription,
+            string $expectedStatus,
+        ) => self::callback(function (Subscription $subscription) use ($expectedSubscription, $expectedStatus) {
             self::assertSame($subscription->id, $expectedSubscription->id);
             self::assertSame($expectedStatus, $expectedSubscription->administrative_status);
 
             return true;
         });
 
-        $this->expireAction->expects(self::exactly(2))
+        $this->expireAction
+            ->expects(self::exactly(2))
             ->method('execute')
             ->with(
                 ...self::withConsecutive(
                     [$subscriptionAssertions($childSubscription, AdministrativeStatus::ACTIVE->value)],
                     [$subscriptionAssertions($this->parentSubscription, AdministrativeStatus::CANCELED->value)],
-                )
+                ),
             );
 
         $determineAction = new DetermineExpirationPathForSubscriptionAction($this->expireAction);
@@ -166,14 +168,19 @@ class DetermineExpirationPathForSubscriptionActionTest extends IntegrationTestCa
 
         $childSubscription = $this->childSubscription;
 
-        $this->expireAction->expects(self::once())
+        $this->expireAction
+            ->expects(self::once())
             ->method('execute')
             ->with(self::callback(
                 function ($subscription) use ($childSubscription) {
                     self::assertSame($subscription->id, $childSubscription->id);
-                    self::assertSame(AdministrativeStatus::ACTIVE->value, $this->parentSubscription->administrative_status);
+                    self::assertSame(
+                        AdministrativeStatus::ACTIVE->value,
+                        $this->parentSubscription->administrative_status,
+                    );
+
                     return true;
-                }
+                },
             ));
 
         $determineAction = new DetermineExpirationPathForSubscriptionAction($this->expireAction);

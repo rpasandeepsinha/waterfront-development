@@ -19,7 +19,7 @@ class DnsRecordsResponse extends BaseResponse
     /**
      * @var DnsRecord[]
      */
-    private array $records;
+    private array $records = [];
 
     public function getResult(): DnsRecordsResult
     {
@@ -52,24 +52,27 @@ class DnsRecordsResponse extends BaseResponse
             return;
         }
 
-        $xmlResponse = new SimpleXMLElement($reply);
-        $result = $xmlResponse->dns;
-        $recordElement = (array) $result->get_rec;
-        $records = (array) $recordElement['result'];
+        // xpath returns each <result> as its own element, so one record and many records
+        // are handled identically. A bare (array) cast would instead collapse a single
+        // record into its own fields, which then read back as the record's status string.
+        $xpathResult = new SimpleXMLElement($reply)->xpath('dns/get_rec/result');
+        $records = is_array($xpathResult) ? $xpathResult : [];
 
-        if (count($records) === 0) {
+        if ($records === []) {
             // No DNS records is a valid response
             $this->status = self::STATUS_OK;
             $this->errorCode = 0;
             $this->errorText = '';
+
             return;
         }
 
-        // Plesk sends the response in each record, but we only need it once.
-        $this->status = (string) array_first($records)->status;
+        // Plesk repeats the status in each record, but we only need it once.
+        $firstRecord = $records[0];
+        $this->status = (string) $firstRecord->status;
         if ($this->status !== self::STATUS_OK) {
-            $this->errorCode = (int) $result->errcode;
-            $this->errorText = (string) $result->errtext;
+            $this->errorCode = (int) $firstRecord->errcode;
+            $this->errorText = (string) $firstRecord->errtext;
         }
 
         foreach ($records as $dnsRecord) {

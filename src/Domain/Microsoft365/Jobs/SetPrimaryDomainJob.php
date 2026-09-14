@@ -56,7 +56,7 @@ class SetPrimaryDomainJob extends AbstractQueueableJob
                 LoggingContextKeys::META => [
                     'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
                 ],
-            ]
+            ],
         );
         $this->updatePrimaryDomainInfo(PrimaryDomainStatus::VERIFICATION_FAILED);
     }
@@ -83,9 +83,10 @@ class SetPrimaryDomainJob extends AbstractQueueableJob
                         LoggingContextKeys::META => [
                             'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
                         ],
-                    ]
+                    ],
                 );
                 $this->release($this->getBackoffDelay());
+
                 return;
             }
 
@@ -94,12 +95,15 @@ class SetPrimaryDomainJob extends AbstractQueueableJob
         }
 
         $subscription = $this->microsoft365CustomerInfo->microsoft365Deployments->first()?->subscription;
-        Assert::notNull($subscription, 'Microsoft365CustomerInfo must have at least one deployment with a subscription.');
+        Assert::notNull(
+            $subscription,
+            'Microsoft365CustomerInfo must have at least one deployment with a subscription.',
+        );
 
         $logger->debug(
             sprintf(
                 'Starting SetPrimaryDomainJob for domain [{domain.name}], attempt {queue.attempt}/%d',
-                $this->tries
+                $this->tries,
             ),
             [
                 LoggingContextKeys::DOMAIN_NAME => $this->domain,
@@ -107,7 +111,7 @@ class SetPrimaryDomainJob extends AbstractQueueableJob
                 LoggingContextKeys::META => [
                     'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
                 ],
-            ]
+            ],
         );
 
         $this->updatePrimaryDomainInfo(PrimaryDomainStatus::VERIFICATION_PENDING);
@@ -127,7 +131,7 @@ class SetPrimaryDomainJob extends AbstractQueueableJob
                     LoggingContextKeys::META => [
                         'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
                     ],
-                ]
+                ],
             );
 
             $createDomainSuccess = $microsoft365Service->createDomainInMicrosoftAccount(
@@ -137,18 +141,22 @@ class SetPrimaryDomainJob extends AbstractQueueableJob
             );
 
             $logger->debug(
-                sprintf('[{domain.name}] %s in Microsoft', $createDomainSuccess ? 'has successfully been created' : 'failed to create'),
+                sprintf(
+                    '[{domain.name}] %s in Microsoft',
+                    $createDomainSuccess ? 'has successfully been created' : 'failed to create',
+                ),
                 [
                     LoggingContextKeys::DOMAIN_NAME => $this->domain,
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                     LoggingContextKeys::META => [
                         'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
                     ],
-                ]
+                ],
             );
 
             if (! $createDomainSuccess) {
                 $this->release($this->getBackoffDelay());
+
                 return;
             }
         }
@@ -169,9 +177,10 @@ class SetPrimaryDomainJob extends AbstractQueueableJob
                     LoggingContextKeys::META => [
                         'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
                     ],
-                ]
+                ],
             );
             $this->release($this->getBackoffDelay());
+
             return;
         }
 
@@ -190,9 +199,10 @@ class SetPrimaryDomainJob extends AbstractQueueableJob
                     LoggingContextKeys::META => [
                         'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
                     ],
-                ]
+                ],
             );
             $this->release($this->getBackoffDelay());
+
             return;
         }
 
@@ -213,9 +223,10 @@ class SetPrimaryDomainJob extends AbstractQueueableJob
                     LoggingContextKeys::META => [
                         'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
                     ],
-                ]
+                ],
             );
             $this->release($this->getBackoffDelay());
+
             return;
         }
 
@@ -234,9 +245,10 @@ class SetPrimaryDomainJob extends AbstractQueueableJob
                     LoggingContextKeys::META => [
                         'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
                     ],
-                ]
+                ],
             );
             $this->release($this->getBackoffDelay());
+
             return;
         }
 
@@ -256,16 +268,17 @@ class SetPrimaryDomainJob extends AbstractQueueableJob
                     LoggingContextKeys::META => [
                         'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
                     ],
-                ]
+                ],
             );
             $this->release($this->getBackoffDelay());
+
             return;
         }
 
         $this->updatePrimaryDomainInfo(PrimaryDomainStatus::ACTIVE, $this->domain);
 
         $mailer->send([$this->microsoft365CustomerInfo->customer], new Microsoft365PrimaryDomainUpdated(
-            $this->domain
+            $this->domain,
         ));
     }
 
@@ -279,6 +292,7 @@ class SetPrimaryDomainJob extends AbstractQueueableJob
         if ($domain !== null) {
             $this->microsoft365CustomerInfo->primary_domain = $domain;
         }
+
         $this->microsoft365CustomerInfo->primary_domain_status = $primaryDomainStatus;
         $this->microsoft365CustomerInfo->save();
     }

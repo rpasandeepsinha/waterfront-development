@@ -8,8 +8,9 @@ use Waterfront\Domain\Hosting\Interfaces\Hosting\RequestInterface;
 
 class RemoveSiteRequest implements RequestInterface
 {
-    public function __construct(private readonly string $domain)
-    {
+    public function __construct(
+        private readonly string $domain,
+    ) {
     }
 
     /**

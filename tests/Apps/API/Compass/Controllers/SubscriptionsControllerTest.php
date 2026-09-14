@@ -67,7 +67,7 @@ class SubscriptionsControllerTest extends IntegrationTestCase
             [
                 'name' => ProductGroupType::EXTENSION,
                 'slug' => 'extension',
-            ]
+            ],
         );
         $this->product = new ProductFactory()->for($this->productGroup)->createOne(['slug' => 'extension_nl']);
 
@@ -84,27 +84,27 @@ class SubscriptionsControllerTest extends IntegrationTestCase
     #[Test]
     public function showSubscriptionOnExistingSubscription(): void
     {
-        $response = $this->actingAsEmployee()
-            ->getJson(
-                $this->generateRoute('admin.subscriptions.subscription.show', $this->subscription->id)
-            );
+        $response = $this->actingAsEmployee()->getJson(
+            $this->generateRoute('admin.subscriptions.subscription.show', $this->subscription->id),
+        );
 
         $response->assertJsonFragment([
-            'id'                    => $this->subscription->id,
-            'customer_number'       => $this->customer->customer_number,
-            'domain'                => $this->subscription->domain,
+            'id' => $this->subscription->id,
+            'customer_number' => $this->customer->customer_number,
+            'domain' => $this->subscription->domain,
             'administrative_status' => $this->subscription->administrative_status,
-            'technical_status'      => $this->subscription->technical_status,
-            'start_date'            => $this->subscription->start_date->toW3cString(),
-            'end_date'              => $this->subscription->end_date->toW3cString(),
+            'technical_status' => $this->subscription->technical_status,
+            'start_date' => $this->subscription->start_date->toW3cString(),
+            'end_date' => $this->subscription->end_date->toW3cString(),
         ]);
     }
 
     #[Test]
     public function showSubscriptionInvalidIdFail(): void
     {
-        $response = $this->actingAsEmployee($this->customer->uuid)
-            ->getJson($this->generateRoute('admin.subscriptions.subscription.show', ['identifier' => 4000]));
+        $response = $this->actingAsEmployee($this->customer->uuid)->getJson($this->generateRoute('admin.subscriptions.subscription.show', [
+            'identifier' => 4000,
+        ]));
 
         $response->assertNotFound();
     }
@@ -124,8 +124,10 @@ class SubscriptionsControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->getJson(
-                $this->generateRoute('admin.subscriptions.list.for.domain', ['domain' => $domain])
-            )->assertOk()->assertJsonCount(2);
+                $this->generateRoute('admin.subscriptions.list.for.domain', ['domain' => $domain]),
+            )
+            ->assertOk()
+            ->assertJsonCount(2);
     }
 
     #[Test]
@@ -148,7 +150,9 @@ class SubscriptionsControllerTest extends IntegrationTestCase
         $step->save();
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.subscriptions.subscription.migration', ['subscription' => $subscription->id]))
+            ->getJson($this->generateRoute('admin.subscriptions.subscription.migration', [
+                'subscription' => $subscription->id,
+            ]))
             ->assertOk()
             ->assertJsonCount(1);
     }
@@ -156,16 +160,21 @@ class SubscriptionsControllerTest extends IntegrationTestCase
     #[Test]
     public function updateContractWithRenewalPrice(): void
     {
-        new ProductPriceComponentFactory()->prolongation()->for($this->subscription->product)->createOne(['billing_period' => 24, 'contract_period' => 24, 'price' => 200]);
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($this->subscription->product)
+            ->createOne(['billing_period' => 24, 'contract_period' => 24, 'price' => 200]);
 
         $this->actingAsEmployee()
             ->putJson(
-                $this->generateRoute('admin.subscriptions.subscription.update.contract', ['subscription' => $this->subscription->id]),
+                $this->generateRoute('admin.subscriptions.subscription.update.contract', [
+                    'subscription' => $this->subscription->id,
+                ]),
                 [
                     'contractPeriod' => 24,
                     'billingPeriod' => 24,
                     'renewalPrice' => 125,
-                ]
+                ],
             )
             ->assertNoContent();
 
@@ -184,7 +193,9 @@ class SubscriptionsControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.cancel.revert', ['subscription' => $this->subscription->id])
+                $this->generateRoute('admin.subscriptions.subscription.cancel.revert', [
+                    'subscription' => $this->subscription->id,
+                ]),
             )
             ->assertNoContent();
 
@@ -202,11 +213,16 @@ class SubscriptionsControllerTest extends IntegrationTestCase
         $this->subscription->cancel_date = new CarbonImmutable();
         $this->subscription->save();
 
-        new DomainDeploymentFactory()->for($this->subscription)->withRtrProvider()->createOne();
+        new DomainDeploymentFactory()
+            ->for($this->subscription)
+            ->withRtrProvider()
+            ->createOne();
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.suspend', ['subscription' => $this->subscription->id])
+                $this->generateRoute('admin.subscriptions.subscription.suspend', [
+                    'subscription' => $this->subscription->id,
+                ]),
             )
             ->assertOk();
 
@@ -225,7 +241,9 @@ class SubscriptionsControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.suspend', ['subscription' => $this->subscription->id])
+                $this->generateRoute('admin.subscriptions.subscription.suspend', [
+                    'subscription' => $this->subscription->id,
+                ]),
             )
             ->assertServerError();
 
@@ -242,11 +260,16 @@ class SubscriptionsControllerTest extends IntegrationTestCase
         $this->subscription->cancel_date = new CarbonImmutable();
         $this->subscription->save();
 
-        new DomainDeploymentFactory()->for($this->subscription)->withRtrProvider()->createOne();
+        new DomainDeploymentFactory()
+            ->for($this->subscription)
+            ->withRtrProvider()
+            ->createOne();
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.unsuspend', ['subscription' => $this->subscription->id])
+                $this->generateRoute('admin.subscriptions.subscription.unsuspend', [
+                    'subscription' => $this->subscription->id,
+                ]),
             )
             ->assertOk();
 
@@ -264,7 +287,9 @@ class SubscriptionsControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.unsuspend', ['subscription' => $this->subscription->id])
+                $this->generateRoute('admin.subscriptions.subscription.unsuspend', [
+                    'subscription' => $this->subscription->id,
+                ]),
             )
             ->assertServerError();
 
@@ -274,11 +299,14 @@ class SubscriptionsControllerTest extends IntegrationTestCase
     #[Test]
     public function extendContractPercentageTooHigh(): void
     {
-        new ProductPriceComponentFactory()->for($this->product)->prolongation()->createOne([
-            'billing_period' => 24,
-            'contract_period' => 24,
-            'price' => 1000,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 24,
+                'contract_period' => 24,
+                'price' => 1000,
+            ]);
 
         $this->actingAsEmployee()
             ->putJson(
@@ -289,25 +317,30 @@ class SubscriptionsControllerTest extends IntegrationTestCase
                     'billingPeriod' => 24,
                     'contractPeriod' => 24,
                     'renewalPrice' => 250,
-            ]
+                ],
             )
-            ->assertUnprocessable()->assertJsonFragment([
+            ->assertUnprocessable()
+            ->assertJsonFragment([
                 'errors' => [
                     'discount' => [
                         'contract-extension.percentage-too-high',
-                    ]],
-                    'message' => 'contract-extension.percentage-too-high',
+                    ],
+                ],
+                'message' => 'contract-extension.percentage-too-high',
             ]);
     }
 
     #[Test]
     public function extendContract51PercentDiscountTooHigh(): void
     {
-        new ProductPriceComponentFactory()->for($this->product)->prolongation()->createOne([
-            'billing_period' => 24,
-            'contract_period' => 24,
-            'price' => 1000,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 24,
+                'contract_period' => 24,
+                'price' => 1000,
+            ]);
 
         $this->actingAsEmployee()
             ->putJson(
@@ -318,25 +351,30 @@ class SubscriptionsControllerTest extends IntegrationTestCase
                     'billingPeriod' => 24,
                     'contractPeriod' => 24,
                     'renewalPrice' => 499,
-            ]
+                ],
             )
-            ->assertUnprocessable()->assertJsonFragment([
+            ->assertUnprocessable()
+            ->assertJsonFragment([
                 'errors' => [
                     'discount' => [
                         'contract-extension.percentage-too-high',
-                    ]],
-                    'message' => 'contract-extension.percentage-too-high',
+                    ],
+                ],
+                'message' => 'contract-extension.percentage-too-high',
             ]);
     }
 
     #[Test]
     public function extendContract49PercentDiscountWillPass(): void
     {
-        new ProductPriceComponentFactory()->for($this->product)->prolongation()->createOne([
-            'billing_period' => 24,
-            'contract_period' => 24,
-            'price' => 1000,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 24,
+                'contract_period' => 24,
+                'price' => 1000,
+            ]);
 
         $this->actingAsEmployee()
             ->putJson(
@@ -347,7 +385,7 @@ class SubscriptionsControllerTest extends IntegrationTestCase
                     'billingPeriod' => 24,
                     'contractPeriod' => 24,
                     'renewalPrice' => 501,
-            ]
+                ],
             )
             ->assertNoContent();
     }
@@ -355,11 +393,14 @@ class SubscriptionsControllerTest extends IntegrationTestCase
     #[Test]
     public function extendContract50PercentDiscountWillPass(): void
     {
-        new ProductPriceComponentFactory()->for($this->product)->prolongation()->createOne([
-            'billing_period' => 24,
-            'contract_period' => 24,
-            'price' => 1000,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 24,
+                'contract_period' => 24,
+                'price' => 1000,
+            ]);
 
         $this->actingAsEmployee()
             ->putJson(
@@ -370,7 +411,7 @@ class SubscriptionsControllerTest extends IntegrationTestCase
                     'billingPeriod' => 24,
                     'contractPeriod' => 24,
                     'renewalPrice' => 500,
-            ]
+                ],
             )
             ->assertNoContent();
     }
@@ -394,10 +435,11 @@ class SubscriptionsControllerTest extends IntegrationTestCase
         ProvisioningResultFactory::new()->success()->for($otherRequest)->createOne();
         ProvisioningResultFactory::new()->success()->for($otherTagRequest)->createOne();
 
-        $response = $this->actingAsEmployee()
-            ->getJson(
-                $this->generateRoute('admin.subscriptions.subscription.provisioning-requests', ['subscription' => $this->subscription->id])
-            );
+        $response = $this->actingAsEmployee()->getJson(
+            $this->generateRoute('admin.subscriptions.subscription.provisioning-requests', [
+                'subscription' => $this->subscription->id,
+            ]),
+        );
 
         $response->assertOk();
         $response->assertJsonCount(2, 'data');
@@ -425,11 +467,12 @@ class SubscriptionsControllerTest extends IntegrationTestCase
             ProvisioningResultFactory::new()->success()->for($request)->createOne();
         }
 
-        $response = $this->actingAsEmployee()
-            ->getJson(
-                $this->generateRoute('admin.subscriptions.subscription.provisioning-requests', ['subscription' => $this->subscription->id])
-                . '?page=1&pageSize=2'
-            );
+        $response = $this->actingAsEmployee()->getJson(
+            $this->generateRoute('admin.subscriptions.subscription.provisioning-requests', [
+                'subscription' => $this->subscription->id,
+            ])
+                . '?page=1&pageSize=2',
+        );
 
         $response->assertOk();
 
@@ -451,13 +494,15 @@ class SubscriptionsControllerTest extends IntegrationTestCase
             ->method('assignEmployee')
             ->with(
                 self::callback(fn ($sub) => $sub->id === $this->subscription->id),
-                self::callback(fn ($arg) => $arg->toString() === $uuid->toString())
+                self::callback(fn ($arg) => $arg->toString() === $uuid->toString()),
             );
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.assign-employee', ['subscription' => $this->subscription->id]),
-                ['employee_uuid' => $uuid->toString()]
+                $this->generateRoute('admin.subscriptions.subscription.assign-employee', [
+                    'subscription' => $this->subscription->id,
+                ]),
+                ['employee_uuid' => $uuid->toString()],
             )
             ->assertOk();
     }
@@ -473,13 +518,15 @@ class SubscriptionsControllerTest extends IntegrationTestCase
             ->method('assignEmployee')
             ->with(
                 self::callback(fn ($sub) => $sub->id === $this->subscription->id),
-                null
+                null,
             );
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.assign-employee', ['subscription' => $this->subscription->id]),
-                ['employee_uuid' => null]
+                $this->generateRoute('admin.subscriptions.subscription.assign-employee', [
+                    'subscription' => $this->subscription->id,
+                ]),
+                ['employee_uuid' => null],
             )
             ->assertOk();
     }
@@ -498,8 +545,10 @@ class SubscriptionsControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.assign-employee', ['subscription' => $this->subscription->id]),
-                ['employee_uuid' => $uuid->toString()]
+                $this->generateRoute('admin.subscriptions.subscription.assign-employee', [
+                    'subscription' => $this->subscription->id,
+                ]),
+                ['employee_uuid' => $uuid->toString()],
             )
             ->assertUnprocessable();
     }
@@ -515,13 +564,15 @@ class SubscriptionsControllerTest extends IntegrationTestCase
             ->method('assignCategory')
             ->with(
                 self::callback(fn ($sub) => $sub->id === $this->subscription->id),
-                SubscriptionCategory::TECHNICAL
+                SubscriptionCategory::TECHNICAL,
             );
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.assign-category', ['subscription' => $this->subscription->id]),
-                ['category' => SubscriptionCategory::TECHNICAL->value]
+                $this->generateRoute('admin.subscriptions.subscription.assign-category', [
+                    'subscription' => $this->subscription->id,
+                ]),
+                ['category' => SubscriptionCategory::TECHNICAL->value],
             )
             ->assertOk();
     }
@@ -535,8 +586,10 @@ class SubscriptionsControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.assign-category', ['subscription' => $this->subscription->id]),
-                ['category' => 'randomCategory']
+                $this->generateRoute('admin.subscriptions.subscription.assign-category', [
+                    'subscription' => $this->subscription->id,
+                ]),
+                ['category' => 'randomCategory'],
             )
             ->assertUnprocessable();
     }
@@ -552,13 +605,15 @@ class SubscriptionsControllerTest extends IntegrationTestCase
             ->method('assignCategory')
             ->with(
                 self::callback(fn ($sub) => $sub->id === $this->subscription->id),
-                null
+                null,
             );
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.assign-category', ['subscription' => $this->subscription->id]),
-                []
+                $this->generateRoute('admin.subscriptions.subscription.assign-category', [
+                    'subscription' => $this->subscription->id,
+                ]),
+                [],
             )
             ->assertOk();
     }
@@ -567,7 +622,9 @@ class SubscriptionsControllerTest extends IntegrationTestCase
     public function invoicePrefillWithNoPriorInvoiceReturnsNullDefaults(): void
     {
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.subscriptions.subscription.invoice.prefill', ['subscription' => $this->subscription->id]))
+            ->getJson($this->generateRoute('admin.subscriptions.subscription.invoice.prefill', [
+                'subscription' => $this->subscription->id,
+            ]))
             ->assertOk()
             ->assertJsonFragment([
                 'start_date' => null,
@@ -595,7 +652,9 @@ class SubscriptionsControllerTest extends IntegrationTestCase
             ]);
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.subscriptions.subscription.invoice.prefill', ['subscription' => $this->subscription->id]))
+            ->getJson($this->generateRoute('admin.subscriptions.subscription.invoice.prefill', [
+                'subscription' => $this->subscription->id,
+            ]))
             ->assertOk()
             ->assertJsonFragment([
                 'start_date' => $lastInvoice->start_date->format('Y-m-d'),
@@ -621,7 +680,9 @@ class SubscriptionsControllerTest extends IntegrationTestCase
         $expectedEndDate = $lastInvoice->start_date->addMonths($this->subscription->billing_period);
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.subscriptions.subscription.invoice.prefill', ['subscription' => $this->subscription->id]))
+            ->getJson($this->generateRoute('admin.subscriptions.subscription.invoice.prefill', [
+                'subscription' => $this->subscription->id,
+            ]))
             ->assertOk()
             ->assertJsonFragment([
                 'start_date' => $lastInvoice->start_date->format('Y-m-d'),
@@ -641,7 +702,9 @@ class SubscriptionsControllerTest extends IntegrationTestCase
             ->createOne(['gross_price' => 0]);
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.subscriptions.subscription.invoice.prefill', ['subscription' => $this->subscription->id]))
+            ->getJson($this->generateRoute('admin.subscriptions.subscription.invoice.prefill', [
+                'subscription' => $this->subscription->id,
+            ]))
             ->assertOk()
             ->assertJsonFragment([
                 'start_date' => null,
@@ -659,13 +722,15 @@ class SubscriptionsControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.invoice.create', ['subscription' => $this->subscription->id]),
+                $this->generateRoute('admin.subscriptions.subscription.invoice.create', [
+                    'subscription' => $this->subscription->id,
+                ]),
                 [
                     'start_date' => $startDate->format('Y-m-d'),
                     'end_date' => $endDate->format('Y-m-d'),
                     'gross_price' => 1200,
                     'net_price' => 992,
-                ]
+                ],
             )
             ->assertCreated();
 
@@ -681,8 +746,10 @@ class SubscriptionsControllerTest extends IntegrationTestCase
     {
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.invoice.create', ['subscription' => $this->subscription->id]),
-                []
+                $this->generateRoute('admin.subscriptions.subscription.invoice.create', [
+                    'subscription' => $this->subscription->id,
+                ]),
+                [],
             )
             ->assertUnprocessable();
     }
@@ -692,14 +759,20 @@ class SubscriptionsControllerTest extends IntegrationTestCase
     {
         $freeProduct = new ProductFactory()->for($this->productGroup)->createOne();
 
-        new ProductPriceComponentFactory()->for($freeProduct)->prolongation()->createOne([
-            'billing_period' => 12,
-            'price' => 100,
-        ]);
-        new ProductPriceComponentFactory()->for($freeProduct)->registration()->createOne([
-            'billing_period' => 12,
-            'price' => 90,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($freeProduct)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'price' => 100,
+            ]);
+        new ProductPriceComponentFactory()
+            ->for($freeProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'price' => 90,
+            ]);
 
         $productSpec = new ProductSpecFactory()->createOne([
             'name' => ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG,
@@ -712,13 +785,15 @@ class SubscriptionsControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.invoice.create', ['subscription' => $this->subscription->id]),
+                $this->generateRoute('admin.subscriptions.subscription.invoice.create', [
+                    'subscription' => $this->subscription->id,
+                ]),
                 [
                     'start_date' => $startDate->format('Y-m-d'),
                     'end_date' => $startDate->addYear()->format('Y-m-d'),
                     'gross_price' => 1200,
                     'net_price' => 992,
-                ]
+                ],
             )
             ->assertCreated();
 
@@ -736,20 +811,24 @@ class SubscriptionsControllerTest extends IntegrationTestCase
         $this->customer->save();
 
         $adminFeesProduct = new ProductFactory()->administrationFees()->createOne();
-        new ProductPriceComponentFactory()->administrationFee()->createOne(['product_id' => $adminFeesProduct->id]);
+        new ProductPriceComponentFactory()
+            ->administrationFee()
+            ->createOne(['product_id' => $adminFeesProduct->id]);
 
         $startDate = CarbonImmutable::today();
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.invoice.create', ['subscription' => $this->subscription->id]),
+                $this->generateRoute('admin.subscriptions.subscription.invoice.create', [
+                    'subscription' => $this->subscription->id,
+                ]),
                 [
                     'start_date' => $startDate->format('Y-m-d'),
                     'end_date' => $startDate->addYear()->format('Y-m-d'),
                     'gross_price' => 1200,
                     'net_price' => 992,
                     'manually_add_admin_fees' => false,
-                ]
+                ],
             )
             ->assertCreated();
 
@@ -763,20 +842,24 @@ class SubscriptionsControllerTest extends IntegrationTestCase
         $this->customer->save();
 
         $adminFeesProduct = new ProductFactory()->administrationFees()->createOne();
-        new ProductPriceComponentFactory()->administrationFee()->createOne(['product_id' => $adminFeesProduct->id]);
+        new ProductPriceComponentFactory()
+            ->administrationFee()
+            ->createOne(['product_id' => $adminFeesProduct->id]);
 
         $startDate = CarbonImmutable::today();
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.invoice.create', ['subscription' => $this->subscription->id]),
+                $this->generateRoute('admin.subscriptions.subscription.invoice.create', [
+                    'subscription' => $this->subscription->id,
+                ]),
                 [
                     'start_date' => $startDate->format('Y-m-d'),
                     'end_date' => $startDate->addYear()->format('Y-m-d'),
                     'gross_price' => 1200,
                     'net_price' => 992,
                     'manually_add_admin_fees' => true,
-                ]
+                ],
             )
             ->assertCreated();
 
@@ -790,8 +873,12 @@ class SubscriptionsControllerTest extends IntegrationTestCase
     #[Test]
     public function listChangesReturnsChangesForSubscription(): void
     {
-        $fromProduct = new ProductFactory()->hostingBrons($this->productGroup)->createOne();
-        $toProduct = new ProductFactory()->hostingGold($this->productGroup)->createOne();
+        $fromProduct = new ProductFactory()
+            ->hostingBrons($this->productGroup)
+            ->createOne();
+        $toProduct = new ProductFactory()
+            ->hostingGold($this->productGroup)
+            ->createOne();
 
         new SubscriptionChangeFactory()->for($this->subscription)->createOne([
             'subscription_uuid' => $this->subscription->uuid,
@@ -803,15 +890,17 @@ class SubscriptionsControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->getJson(
-                $this->generateRoute('admin.subscriptions.subscription.list.changes', ['subscription' => $this->subscription->id])
+                $this->generateRoute('admin.subscriptions.subscription.list.changes', [
+                    'subscription' => $this->subscription->id,
+                ]),
             )
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment([
                 'from_product_name' => 'hosting_brons',
-                'to_product_name'   => 'hosting_gold',
-                'type'              => ProductChangeType::UPGRADE->value,
-                'status'            => SubscriptionChangeStatus::COMPLETED->value,
+                'to_product_name' => 'hosting_gold',
+                'type' => ProductChangeType::UPGRADE->value,
+                'status' => SubscriptionChangeStatus::COMPLETED->value,
             ])
             ->assertJsonPath('meta.totalChanges', 1);
     }
@@ -822,22 +911,27 @@ class SubscriptionsControllerTest extends IntegrationTestCase
         $fromProduct = new ProductFactory()->for($this->productGroup)->createOne();
         $toProduct = new ProductFactory()->for($this->productGroup)->createOne();
 
-        $subscriptionChange = new SubscriptionChangeFactory()->failed()->for($this->subscription)->createOne([
-            'subscription_uuid' => $this->subscription->uuid,
-            'from_product_uuid' => $fromProduct->uuid,
-            'to_product_uuid'   => $toProduct->uuid,
-            'type'              => ProductChangeType::DOWNGRADE,
-        ]);
+        $subscriptionChange = new SubscriptionChangeFactory()
+            ->failed()
+            ->for($this->subscription)
+            ->createOne([
+                'subscription_uuid' => $this->subscription->uuid,
+                'from_product_uuid' => $fromProduct->uuid,
+                'to_product_uuid' => $toProduct->uuid,
+                'type' => ProductChangeType::DOWNGRADE,
+            ]);
 
         $this->actingAsEmployee()
             ->getJson(
-                $this->generateRoute('admin.subscriptions.subscription.list.changes', ['subscription' => $this->subscription->id])
+                $this->generateRoute('admin.subscriptions.subscription.list.changes', [
+                    'subscription' => $this->subscription->id,
+                ]),
             )
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment([
-                'status'          => SubscriptionChangeStatus::EXECUTION_FAILED->value,
-                'failure_code'    => $subscriptionChange->failure_code,
+                'status' => SubscriptionChangeStatus::EXECUTION_FAILED->value,
+                'failure_code' => $subscriptionChange->failure_code,
                 'failure_message' => $subscriptionChange->failure_message,
             ]);
     }
@@ -847,7 +941,9 @@ class SubscriptionsControllerTest extends IntegrationTestCase
     {
         $this->actingAsEmployee()
             ->getJson(
-                $this->generateRoute('admin.subscriptions.subscription.list.changes', ['subscription' => $this->subscription->id])
+                $this->generateRoute('admin.subscriptions.subscription.list.changes', [
+                    'subscription' => $this->subscription->id,
+                ]),
             )
             ->assertOk()
             ->assertJsonCount(0, 'data')
@@ -863,7 +959,7 @@ class SubscriptionsControllerTest extends IntegrationTestCase
         new SubscriptionChangeFactory()->for($this->subscription)->createOne([
             'subscription_uuid' => $this->subscription->uuid,
             'from_product_uuid' => $fromProduct->uuid,
-            'to_product_uuid'   => $toProduct->uuid,
+            'to_product_uuid' => $toProduct->uuid,
         ]);
 
         $otherSubscription = new SubscriptionFactory()
@@ -874,12 +970,14 @@ class SubscriptionsControllerTest extends IntegrationTestCase
         new SubscriptionChangeFactory()->for($otherSubscription)->createOne([
             'subscription_uuid' => $otherSubscription->uuid,
             'from_product_uuid' => $fromProduct->uuid,
-            'to_product_uuid'   => $toProduct->uuid,
+            'to_product_uuid' => $toProduct->uuid,
         ]);
 
         $this->actingAsEmployee()
             ->getJson(
-                $this->generateRoute('admin.subscriptions.subscription.list.changes', ['subscription' => $this->subscription->id])
+                $this->generateRoute('admin.subscriptions.subscription.list.changes', [
+                    'subscription' => $this->subscription->id,
+                ]),
             )
             ->assertOk()
             ->assertJsonCount(1, 'data')
@@ -890,9 +988,7 @@ class SubscriptionsControllerTest extends IntegrationTestCase
     public function addDomainToSpamExpertsAddsTheDomainOfTheSubscription(): void
     {
         $spamExpertsClient = self::createMock(SpamExpertsClient::class);
-        $spamExpertsClient->expects(self::once())
-            ->method('addDomain')
-            ->with($this->subscription->domain, null);
+        $spamExpertsClient->expects(self::once())->method('addDomain')->with($this->subscription->domain, null);
 
         $this->app->instance(SpamExpertsClient::class, $spamExpertsClient);
 
@@ -900,7 +996,9 @@ class SubscriptionsControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.add.domain.to.spam.experts', ['subscription' => $this->subscription->uuid])
+                $this->generateRoute('admin.subscriptions.subscription.add.domain.to.spam.experts', [
+                    'subscription' => $this->subscription->uuid,
+                ]),
             )
             ->assertOk()
             ->assertJsonFragment(['message' => $translator->translate('spam_experts.action_success')]);
@@ -921,7 +1019,9 @@ class SubscriptionsControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.add.domain.to.spam.experts', ['subscription' => $this->subscription->uuid])
+                $this->generateRoute('admin.subscriptions.subscription.add.domain.to.spam.experts', [
+                    'subscription' => $this->subscription->uuid,
+                ]),
             )
             ->assertUnprocessable()
             ->assertJsonFragment(['message' => $translator->translate('spam_experts.action_failed')]);
@@ -931,7 +1031,8 @@ class SubscriptionsControllerTest extends IntegrationTestCase
     public function addDomainToSpamExpertsFailsWhenTheSpamExpertsClientFails(): void
     {
         $spamExpertsClient = self::createMock(SpamExpertsClient::class);
-        $spamExpertsClient->expects(self::once())
+        $spamExpertsClient
+            ->expects(self::once())
             ->method('addDomain')
             ->willThrowException(new RuntimeException('Domain already exists'));
 
@@ -941,9 +1042,42 @@ class SubscriptionsControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->postJson(
-                $this->generateRoute('admin.subscriptions.subscription.add.domain.to.spam.experts', ['subscription' => $this->subscription->uuid])
+                $this->generateRoute('admin.subscriptions.subscription.add.domain.to.spam.experts', [
+                    'subscription' => $this->subscription->uuid,
+                ]),
             )
             ->assertUnprocessable()
             ->assertJsonFragment(['message' => $translator->translate('spam_experts.action_failed')]);
+    }
+
+    #[Test]
+    public function listSubscriptionsCanBeSortedByCustomerNumber(): void
+    {
+        foreach (range(1, 2) as $ignored) {
+            new SubscriptionFactory()
+                ->for($this->product)
+                ->for(new CustomerFactory()->createOne())
+                ->administrativeStatusActive()
+                ->technicalStatusOk()
+                ->createOne();
+        }
+
+        $customerNumbers = Customer::query()->orderBy('customer_number')->pluck('customer_number')->all();
+
+        $this->actingAsEmployee()
+            ->getJson(
+                $this->generateRoute('admin.subscriptions.index.subscriptions') . '?'
+                    . http_build_query(['fields' => ['customer_number'], 'orderBy' => ['customer_number_asc']]),
+            )
+            ->assertOk()
+            ->assertJsonPath('data.*.customer_number', $customerNumbers);
+
+        $this->actingAsEmployee()
+            ->getJson(
+                $this->generateRoute('admin.subscriptions.index.subscriptions') . '?'
+                    . http_build_query(['fields' => ['customer_number'], 'orderBy' => ['customer_number_desc']]),
+            )
+            ->assertOk()
+            ->assertJsonPath('data.*.customer_number', array_reverse($customerNumbers));
     }
 }

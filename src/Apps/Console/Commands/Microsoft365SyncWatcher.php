@@ -70,6 +70,7 @@ class Microsoft365SyncWatcher extends AbstractCommand
                         'Microsoft365 sync watcher has reached it\'s too many request limit!',
                         $microsoft365CustomerInfo->id,
                     );
+
                     return self::FAILURE;
                 }
 
@@ -103,16 +104,23 @@ class Microsoft365SyncWatcher extends AbstractCommand
                         $microsoft365CustomerInfo->tenant_order_id = $orderSummary->getOrderId();
                         $microsoft365CustomerInfo->save();
                     }
+
                     unset($tenantOrderSummary[$key]);
                     break;
                 }
             }
 
             // Check differences between Irma and Waterfront count
-            $microsoft365SyncWatcherService->checkWaterfrontIrmaAmountDifferences($microsoft365CustomerInfo, count($tenantOrderSummary));
+            $microsoft365SyncWatcherService->checkWaterfrontIrmaAmountDifferences(
+                $microsoft365CustomerInfo,
+                count($tenantOrderSummary),
+            );
 
             // Some customers have active orders but wrong technical status
-            $microsoft365SyncWatcherService->incorrectMicrosoft365CustomerStatus($tenantOrderSummary, $microsoft365CustomerInfo);
+            $microsoft365SyncWatcherService->incorrectMicrosoft365CustomerStatus(
+                $tenantOrderSummary,
+                $microsoft365CustomerInfo,
+            );
 
             // Handle order summary
             $microsoft365SyncWatcherService->handleOrderSummary($tenantOrderSummary, $microsoft365CustomerInfo);

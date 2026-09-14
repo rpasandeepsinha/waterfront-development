@@ -111,7 +111,7 @@ class DomainPlaceholderService extends PlaceHolderService implements DomainDrive
         Customer $customer,
         Handles $handles,
         bool $isPrivateWhoisEnabled = false,
-        bool $dnssecEnabled = false
+        bool $dnssecEnabled = false,
     ): RegistrationResult {
         $provider = Provider::where('slug', ProviderSlug::PLACEHOLDER)->where('type', ProviderType::DOMAIN)->first();
 
@@ -119,7 +119,7 @@ class DomainPlaceholderService extends PlaceHolderService implements DomainDrive
             throw new DriverNotFoundException(sprintf(
                 'There was no domainprovider found with the slug %s for the subscription with uuid: %s',
                 ProviderSlug::PLACEHOLDER->value,
-                $deployment->subscription_uuid
+                $deployment->subscription_uuid,
             ));
         }
 
@@ -220,7 +220,7 @@ class DomainPlaceholderService extends PlaceHolderService implements DomainDrive
             $domainDeployment,
             $domainDeployment->subscription->contract_period,
             $domainDeployment->subscription->customer,
-            $handles
+            $handles,
         );
     }
 
@@ -245,6 +245,11 @@ class DomainPlaceholderService extends PlaceHolderService implements DomainDrive
     }
 
     public function creationRequiresPreValidation(string $domain): bool
+    {
+        throw new NotImplementedException();
+    }
+
+    public function getContactValidationCategoriesForDomain(string $domain): array
     {
         throw new NotImplementedException();
     }

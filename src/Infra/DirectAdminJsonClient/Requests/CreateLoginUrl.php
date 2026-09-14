@@ -16,8 +16,9 @@ class CreateLoginUrl extends Request implements HasBody, MaskKeysInterface
 
     protected Method $method = Method::POST;
 
-    public function __construct(private readonly string $password)
-    {
+    public function __construct(
+        private readonly string $password,
+    ) {
     }
 
     public function resolveEndpoint(): string

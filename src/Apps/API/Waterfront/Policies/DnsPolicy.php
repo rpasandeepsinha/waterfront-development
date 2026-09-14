@@ -16,7 +16,7 @@ class DnsPolicy
 {
     public function __construct(
         private readonly AuthenticationManager $authenticationManager,
-        private readonly DnsProductSpecRepository $dnsProductSpecRepository
+        private readonly DnsProductSpecRepository $dnsProductSpecRepository,
     ) {
     }
 
@@ -48,7 +48,7 @@ class DnsPolicy
                 [
                     'customer_id' => $subscription->customer_id,
                     'domain' => $subscription->domain,
-                ]
+                ],
             )
             ->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())
             ->whereProductGroupType(ProductGroupType::DNS)

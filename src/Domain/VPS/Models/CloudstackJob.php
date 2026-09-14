@@ -76,7 +76,7 @@ class CloudstackJob extends Model
     protected function casts(): array
     {
         return [
-            'cloudstack_created'   => 'datetime:datetime:Y-m-d\TH:i:sO',
+            'cloudstack_created' => 'datetime:datetime:Y-m-d\TH:i:sO',
             'cloudstack_completed' => 'datetime:datetime:Y-m-d\TH:i:sO',
         ];
     }

@@ -16,19 +16,22 @@ class MailOnlyException extends RuntimeException
         int $code = 0,
         ?Throwable $previous = null,
         public ?string $domain = null,
-        public ?Server $server = null
+        public ?Server $server = null,
     ) {
         parent::__construct($message, $code, $previous);
     }
 
-    public static function fromDirectAdminResponseException(DirectAdminException $exception, Server $server, string $domain): MailOnlyException
-    {
+    public static function fromDirectAdminResponseException(
+        DirectAdminException $exception,
+        Server $server,
+        string $domain,
+    ): MailOnlyException {
         return new MailOnlyException(
             $exception->getMessage(),
             $exception->getCode(),
             $exception->getPrevious(),
             $domain,
-            $server
+            $server,
         );
     }
 }

@@ -73,8 +73,11 @@ class RedirectDnsService implements RedirectDnsServiceInterface
      * @throws GuzzleException
      * @throws DnsNeedsRootDomain
      */
-    public function provisionDnsRecords(string $domain, string $source, DnsRedirectProvisionOption $dnsProvisionOption): void
-    {
+    public function provisionDnsRecords(
+        string $domain,
+        string $source,
+        DnsRedirectProvisionOption $dnsProvisionOption,
+    ): void {
         if (! $this->publicSuffixList->isRootDomain($domain)) {
             throw new DnsNeedsRootDomain($domain);
         }
@@ -83,11 +86,11 @@ class RedirectDnsService implements RedirectDnsServiceInterface
             "Provisioning target [{$source}] on [{$domain}] with DNS records that point towards the redirect servers.",
             [
                 LoggingContextKeys::DOMAIN_NAME => $source,
-                LoggingContextKeys::META        => [
+                LoggingContextKeys::META => [
                     'zone' => $domain,
                     'redirect_dns' => $this->cnameOrAliasContent,
                 ],
-            ]
+            ],
         );
 
         try {
@@ -97,10 +100,10 @@ class RedirectDnsService implements RedirectDnsServiceInterface
                 "Zone [{$domain}] was not found. Creating zone for redirect records",
                 [
                     LoggingContextKeys::DOMAIN_NAME => $source,
-                    LoggingContextKeys::META        => [
+                    LoggingContextKeys::META => [
                         'zone' => $domain,
                     ],
-                ]
+                ],
             );
 
             $zone = $this->dnsService->createDnsZone($domain);
@@ -113,6 +116,7 @@ class RedirectDnsService implements RedirectDnsServiceInterface
 
         if ($existingRecordConflicts->isEmpty()) {
             $this->addRedirectDnsRecord($domain, $source);
+
             return;
         }
 
@@ -121,12 +125,13 @@ class RedirectDnsService implements RedirectDnsServiceInterface
                 "Found existing records that conflict with the redirect record for [{$source}] on zone [{$domain}]. Skipping provisioning of redirect record due to provision option set to IGNORE.",
                 [
                     LoggingContextKeys::DOMAIN_NAME => $source,
-                    LoggingContextKeys::META        => [
+                    LoggingContextKeys::META => [
                         'zone' => $domain,
                         'conflicting_records' => $existingRecordConflicts->toArray(),
                     ],
-                ]
+                ],
             );
+
             return;
         }
 
@@ -146,10 +151,10 @@ class RedirectDnsService implements RedirectDnsServiceInterface
             "Cleaning up records that point towards the redirecting service on [{$source}] for [{$domain}].",
             [
                 LoggingContextKeys::DOMAIN_NAME => $source,
-                LoggingContextKeys::META        => [
+                LoggingContextKeys::META => [
                     'zone' => $domain,
                 ],
-            ]
+            ],
         );
         try {
             $records = $this->dnsService->getDnsRecordsForDomain($domain);
@@ -158,11 +163,12 @@ class RedirectDnsService implements RedirectDnsServiceInterface
                 "Zone [{$domain}] was not found.",
                 [
                     LoggingContextKeys::DOMAIN_NAME => $source,
-                    LoggingContextKeys::META        => [
+                    LoggingContextKeys::META => [
                         'zone' => $domain,
                     ],
-                ]
+                ],
             );
+
             return;
         }
 
@@ -178,13 +184,17 @@ class RedirectDnsService implements RedirectDnsServiceInterface
      * The A and AAAA types derive from the legacy systems and contain a legacy IP address
      * that points to those servers. The ALIAS and CNAME are the newest redirect record.
      */
-    public function isRedirectManagedRecord(DnsRecordInterface $record): bool
+    public function isRedirectManagedRecord(DnsRecordInterface $record, bool $includeLegacyServer): bool
     {
         return match ($record->getType()) {
-            DnsRecordType::A->value => in_array($record->getContent(), $this->getIpv4RedirectValues(), true),
-            DnsRecordType::AAAA->value => in_array($record->getContent(), $this->getIpv6RedirectValues(), true),
-            DnsRecordType::CNAME->value,
-            DnsRecordType::ALIAS->value => rtrim($record->getContent(), '.') === rtrim($this->cnameOrAliasContent, '.'),
+            DnsRecordType::A->value => in_array($record->getContent(), $this->getIpv4RedirectValues(), true)
+                && $includeLegacyServer,
+            DnsRecordType::AAAA->value => in_array($record->getContent(), $this->getIpv6RedirectValues(), true)
+                && $includeLegacyServer,
+            DnsRecordType::CNAME->value, DnsRecordType::ALIAS->value => rtrim($record->getContent(), '.') === rtrim(
+                $this->cnameOrAliasContent,
+                '.',
+            ),
             default => false,
         };
     }
@@ -203,11 +213,13 @@ class RedirectDnsService implements RedirectDnsServiceInterface
             "Removing parking DNS records for [{$source}] on zone [{$domain}]",
             [
                 LoggingContextKeys::DOMAIN_NAME => $source,
-                LoggingContextKeys::META        => [
+                LoggingContextKeys::META => [
                     'zone' => $domain,
-                    'parking_dns_records' => $parkingDnsRecords->map(fn (DnsRecordInterface $record): array => $record->toArray())->toArray(),
+                    'parking_dns_records' => $parkingDnsRecords->map(
+                        fn (DnsRecordInterface $record): array => $record->toArray(),
+                    )->toArray(),
                 ],
-            ]
+            ],
         );
 
         try {
@@ -217,11 +229,13 @@ class RedirectDnsService implements RedirectDnsServiceInterface
                 "Could not delete parking DNS records for [{$source}] on zone [{$domain}]",
                 [
                     LoggingContextKeys::DOMAIN_NAME => $source,
-                    LoggingContextKeys::META        => [
+                    LoggingContextKeys::META => [
                         'zone' => $domain,
-                        'parking_dns_records' => $parkingDnsRecords->map(fn (DnsRecordInterface $record): array => $record->toArray())->toArray(),
+                        'parking_dns_records' => $parkingDnsRecords->map(
+                            fn (DnsRecordInterface $record): array => $record->toArray(),
+                        )->toArray(),
                     ],
-                ]
+                ],
             );
         }
     }
@@ -262,17 +276,14 @@ class RedirectDnsService implements RedirectDnsServiceInterface
         $conflictingRecords = clone $existingRecords;
 
         return $conflictingRecords->filter(
-            fn (DnsRecordInterface $record) =>
-                $record->getName() === $source
-                && in_array($record->getType(), $conflictingTypes, true)
+            fn (DnsRecordInterface $record) => $record->getName() === $source
+            && in_array($record->getType(), $conflictingTypes, true),
         );
     }
 
     private function addRedirectDnsRecord(string $domain, string $source): void
     {
-        $recordType = $this->publicSuffixList->isRootDomain($source)
-            ? DnsRecordType::ALIAS
-            : DnsRecordType::CNAME;
+        $recordType = $this->publicSuffixList->isRootDomain($source) ? DnsRecordType::ALIAS : DnsRecordType::CNAME;
 
         $record = new DefaultRecord($recordType->value, $source, $this->cnameOrAliasContent, self::RECORD_TTL);
 
@@ -280,15 +291,15 @@ class RedirectDnsService implements RedirectDnsServiceInterface
             "Setting {$recordType->value} record on zone {$domain}.",
             [
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-                LoggingContextKeys::META        => [
+                LoggingContextKeys::META => [
                     'record' => $record->toArray(),
                 ],
-            ]
+            ],
         );
 
         $this->dnsService->addRecordFromObject(
             $domain,
-            $record
+            $record,
         );
     }
 
@@ -303,7 +314,9 @@ class RedirectDnsService implements RedirectDnsServiceInterface
     private function deleteDnsRecords(string $domain, string $source, Collection $records): void
     {
         $records->each(function (DnsRecordInterface $record) use ($domain): void {
-            $this->logger->debug("Provision deleting record {$record->getType()} [{$record->getName()}] [{$record->getContent()}]");
+            $this->logger->debug(
+                "Provision deleting record {$record->getType()} [{$record->getName()}] [{$record->getContent()}]",
+            );
             $this->dnsService->deleteRecordFromObject($domain, $record);
         });
 
@@ -315,7 +328,7 @@ class RedirectDnsService implements RedirectDnsServiceInterface
                     'zone' => $domain,
                     'filtered_records' => $records->toArray(),
                 ],
-            ]
+            ],
         );
     }
 
@@ -331,9 +344,14 @@ class RedirectDnsService implements RedirectDnsServiceInterface
     {
         $filteredRecords = $records
             ->filter(fn (DnsRecordInterface $record) => rtrim($record->getName(), '.') === rtrim($source, '.'))
-            ->filter(fn (DnsRecordInterface $record) => $this->isRedirectManagedRecord($record))
+            ->filter(fn (DnsRecordInterface $record) => $this->isRedirectManagedRecord(
+                record: $record,
+                includeLegacyServer: true,
+            ))
             ->each(function (DnsRecordInterface $record) use ($domain): void {
-                $this->logger->debug("Deleting legacy redirect record {$record->getType()} [{$record->getName()}] [{$record->getContent()}]");
+                $this->logger->debug(
+                    "Deleting legacy redirect record {$record->getType()} [{$record->getName()}] [{$record->getContent()}]",
+                );
                 $this->dnsService->deleteRecordFromObject($domain, $record);
             });
 
@@ -345,7 +363,7 @@ class RedirectDnsService implements RedirectDnsServiceInterface
                     'zone' => $domain,
                     'filtered_records' => $filteredRecords->toArray(),
                 ],
-            ]
+            ],
         );
     }
 

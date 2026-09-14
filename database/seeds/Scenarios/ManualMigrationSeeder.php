@@ -37,8 +37,9 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class ManualMigrationSeeder extends Seeder
 {
-    public function __construct(private readonly ReferenceRepository $referenceRepository)
-    {
+    public function __construct(
+        private readonly ReferenceRepository $referenceRepository,
+    ) {
     }
 
     public function run(): void
@@ -96,6 +97,7 @@ class ManualMigrationSeeder extends Seeder
         $address->save();
 
         $this->customerContact($customer);
+
         return $customer;
     }
 
@@ -114,7 +116,10 @@ class ManualMigrationSeeder extends Seeder
     private function domainSubscription(int $customerId, MigratedCustomer $migratedCustomer): void
     {
         $product = $this->referenceRepository->get(ProductReference::DOMAIN_NL, Product::class);
-        $price = $this->referenceRepository->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepository->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepository->get(ProductReference::DOMAIN_PROVIDER_PLACEHOLDER, Provider::class);
 
         $dnsNameserver1 = $this->referenceRepository->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
@@ -173,7 +178,10 @@ class ManualMigrationSeeder extends Seeder
         $migratedSubscription->migratedCustomers()->attach($migratedCustomer);
 
         $dnsProduct = $this->referenceRepository->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepository->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepository->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $dnsSubscription = new Subscription();
         $dnsSubscription->uuid = Str::uuid()->toString();
@@ -217,11 +225,13 @@ class ManualMigrationSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $this->makeManualMigrationSubscriptionSteps($subscription);
     }

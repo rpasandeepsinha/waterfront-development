@@ -62,25 +62,19 @@ class NovaSslRenewalHealthCheckActionTest extends IntegrationTestCase
 
         $this->customer = CustomerFactory::new()->createOne();
 
-        $this->hostingProduct = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->hosting()->createOne())
-            ->createOne(['slug' => 'start']);
+        $this->hostingProduct = ProductFactory::new()->for(
+            ProductGroupFactory::new()->hosting()->createOne(),
+        )->createOne(['slug' => 'start']);
 
-        $this->sslProduct = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->ssl()->createOne())
-            ->createOne(['slug' => 'ssl_single_domain']);
+        $this->sslProduct = ProductFactory::new()->for(ProductGroupFactory::new()->ssl()->createOne())->createOne([
+            'slug' => 'ssl_single_domain',
+        ]);
 
-        $this->serverDirectAdmin = ServerFactory::new()
-            ->directadmin()
-            ->createOne(['hostname' => 'my_hostname.nl']);
+        $this->serverDirectAdmin = ServerFactory::new()->directadmin()->createOne(['hostname' => 'my_hostname.nl']);
 
         $region = DnsRegionFactory::new()->createOne();
-        DnsNameserverFactory::new()
-            ->for($region)
-            ->createOne(['nameserver' => 'nameserver01.testing.test']);
-        DnsNameserverFactory::new()
-            ->for($region)
-            ->createOne(['nameserver' => 'nameserver02.testing.test']);
+        DnsNameserverFactory::new()->for($region)->createOne(['nameserver' => 'nameserver01.testing.test']);
+        DnsNameserverFactory::new()->for($region)->createOne(['nameserver' => 'nameserver02.testing.test']);
     }
 
     /**
@@ -94,29 +88,32 @@ class NovaSslRenewalHealthCheckActionTest extends IntegrationTestCase
         ProviderSlug $sslProviderType,
         bool $hostingForDomainExists,
     ): void {
-        $sslProvider = ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => $sslProviderType->value, 'enabled' => true, 'default' => true]);
-        $hostingProvider = ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        $sslProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => $sslProviderType->value,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        $hostingProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         // SSL subscription
-        $baseSubscriptionSsl = SubscriptionFactory::new()
-            ->for($this->customer)
-            ->for($this->sslProduct)
-            ->createOne([
-                'domain' => 'test-dns-intern-10.nl',
-            ]);
-        $sslDeployment  = SslDeploymentFactory::new()
-            ->for($sslProvider, 'provider')
-            ->for($baseSubscriptionSsl)
-            ->createOne();
+        $baseSubscriptionSsl = SubscriptionFactory::new()->for($this->customer)->for($this->sslProduct)->createOne([
+            'domain' => 'test-dns-intern-10.nl',
+        ]);
+        $sslDeployment = SslDeploymentFactory::new()->for($sslProvider, 'provider')->for(
+            $baseSubscriptionSsl,
+        )->createOne();
 
         if ($hostingForDomainExists) {
             // Hosting subscription
-            $baseSubscriptionHosting = SubscriptionFactory::new()
-                ->for($this->customer)
-                ->for($this->hostingProduct)
-                ->createOne([
-                    'domain' => 'test-dns-intern-10.nl',
-                ]);
+            $baseSubscriptionHosting = SubscriptionFactory::new()->for($this->customer)->for($this->hostingProduct)->createOne([
+                'domain' => 'test-dns-intern-10.nl',
+            ]);
             HostingDeploymentFactory::new()
                 ->for($hostingProvider, 'provider')
                 ->for($this->serverDirectAdmin)
@@ -128,7 +125,8 @@ class NovaSslRenewalHealthCheckActionTest extends IntegrationTestCase
             $hostingUser = 'i_do_exist';
 
             $mockHostingService = self::createMock(HostingService::class);
-            $mockHostingService->method('getPackageOnServerAsDto')
+            $mockHostingService
+                ->method('getPackageOnServerAsDto')
                 ->willReturn(new DirectAdminUserPackage(
                     vdomains: '2',
                     nemails: '5',
@@ -137,13 +135,17 @@ class NovaSslRenewalHealthCheckActionTest extends IntegrationTestCase
                     quota: '1024',
                     package: 'basic',
                 ));
-            $mockHostingService->method('getUserConfigAsDto')
+            $mockHostingService
+                ->method('getUserConfigAsDto')
                 ->willReturnCallback(
-                    fn (string $driver, string $userName, Server $server): SiteConfigInterface =>
-                    match ([$driver, $userName, $server]) {
+                    fn (string $driver, string $userName, Server $server): SiteConfigInterface => match ([
+                        $driver,
+                        $userName,
+                        $server,
+                    ]) {
                         [ProviderSlug::DIRECTADMIN->value, $hostingUser, $this->serverDirectAdmin] => [],
                         default => throw new UnexpectedValueException(),
-                    }
+                    },
                 )
                 ->willReturn(new UserConfig(
                     dnscontrol: 'ON',
@@ -159,9 +161,7 @@ class NovaSslRenewalHealthCheckActionTest extends IntegrationTestCase
                     domain: 'testupgradefixversio.nl',
                 ));
 
-            $mockHostingService
-                ->method('isUsingHostingServerAsNameserver')
-                ->willReturn(true);
+            $mockHostingService->method('isUsingHostingServerAsNameserver')->willReturn(true);
 
             $this->app->bind(HostingService::class, fn () => $mockHostingService);
         }
@@ -169,14 +169,17 @@ class NovaSslRenewalHealthCheckActionTest extends IntegrationTestCase
         $certificateCollection = CertificateCollection::fromArray([]);
         $rtrMigrationService = $this->createPartialMock(
             DomainAndSslMigrationService::class,
-            ['listRtrSslCertificates']
+            ['listRtrSslCertificates'],
         );
         $rtrMigrationService->method('listRtrSslCertificates')->willReturn($certificateCollection);
-        $this->app->bind(DomainAndSslMigrationService::class, fn (): DomainAndSslMigrationService => $rtrMigrationService);
+        $this->app->bind(
+            DomainAndSslMigrationService::class,
+            fn (): DomainAndSslMigrationService => $rtrMigrationService,
+        );
 
         $this->app->bind(DomainAndSslMigrationService::class, fn () => $rtrMigrationService);
 
-        $action   = self::resolve(NovaSslRenewalHealthCheckAction::class);
+        $action = self::resolve(NovaSslRenewalHealthCheckAction::class);
         $response = $action->handle($this->getActionFields(), new Collection([$sslDeployment]));
 
         self::assertInstanceOf(ActionResponse::class, $response);
@@ -200,28 +203,28 @@ class NovaSslRenewalHealthCheckActionTest extends IntegrationTestCase
     {
         yield 'Fully correct ssl deployment' => [
             'hostingSslEnabled' => true,
-            'expectedResponse' => include(__DIR__ . '/data/validate_ssl_success_response.php'),
+            'expectedResponse' => include __DIR__ . '/data/validate_ssl_success_response.php',
             'sslProviderType' => ProviderSlug::REALTIME_REGISTER,
             'hostingForDomainExists' => true,
         ];
 
         yield 'SSL disabled on matching domain hosting site' => [
             'hostingSslEnabled' => false,
-            'expectedResponse' => include(__DIR__ . '/data/validate_ssl_hosting_site_ssl_disabled.php'),
+            'expectedResponse' => include __DIR__ . '/data/validate_ssl_hosting_site_ssl_disabled.php',
             'sslProviderType' => ProviderSlug::REALTIME_REGISTER,
             'hostingForDomainExists' => true,
         ];
 
         yield 'SSL deployment (partially migrated or Invoice only migration) in placeholder state' => [
             'hostingSslEnabled' => true,
-            'expectedResponse' => include(__DIR__ . '/data/validate_ssl_placeholder_deployment_state.php'),
+            'expectedResponse' => include __DIR__ . '/data/validate_ssl_placeholder_deployment_state.php',
             'sslProviderType' => ProviderSlug::PLACEHOLDER,
             'hostingForDomainExists' => true,
         ];
 
         yield 'Standalone SSL certificate without a hosting site' => [
             'hostingSslEnabled' => true,
-            'expectedResponse' => include(__DIR__ . '/data/validate_ssl_no_hosting_site.php'),
+            'expectedResponse' => include __DIR__ . '/data/validate_ssl_no_hosting_site.php',
             'sslProviderType' => ProviderSlug::REALTIME_REGISTER,
             'hostingForDomainExists' => false,
         ];
@@ -231,7 +234,7 @@ class NovaSslRenewalHealthCheckActionTest extends IntegrationTestCase
     {
         return new ActionFields(
             new Collection([]),
-            new Collection([])
+            new Collection([]),
         );
     }
 }

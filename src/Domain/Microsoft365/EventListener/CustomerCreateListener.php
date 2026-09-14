@@ -40,8 +40,9 @@ class CustomerCreateListener implements CustomerObserverInterface
         if ($partnerReference === null) {
             $this->logger->error(sprintf(
                 'No partnerReference found for kpn customer id: [%s]',
-                $kpnCustomerNumber
+                $kpnCustomerNumber,
             ));
+
             return;
         }
 
@@ -53,13 +54,14 @@ class CustomerCreateListener implements CustomerObserverInterface
             sprintf(
                 "Received KPN customer created webhook call for Waterfront customer id '%d' and KPN customer number '%s'",
                 $waterfrontCustomerId,
-                $kpnCustomerNumber
-            )
+                $kpnCustomerNumber,
+            ),
         );
 
         $waterfrontCustomer = WaterfrontCustomer::where('id', $waterfrontCustomerId)->firstOrFail();
         $customerInfo = Microsoft365CustomerInfo::where('customer_id', $waterfrontCustomer->customer()->id)
-            ->where('id', $customerInfoId)->firstOrFail();
+            ->where('id', $customerInfoId)
+            ->firstOrFail();
         $customerInfo->kpn_customer_id = $kpnCustomerNumber;
         $customerInfo->technical_status = Microsoft365ProcessStatus::CUSTOMER_CREATED;
         $customerInfo->save();
@@ -76,7 +78,7 @@ class CustomerCreateListener implements CustomerObserverInterface
             [$customer],
             new Microsoft365SignMca(
                 $coastMicrosoftUrl,
-            )
+            ),
         );
     }
 }

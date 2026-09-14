@@ -102,10 +102,11 @@ class DeployVirtualMachineTest extends IntegrationTestCase
 
         Queue::assertNothingPushed();
 
-        self::resolve(Dispatcher::class)->dispatch(new DeployVirtualMachineJob(
-            (new VirtualMachineDeployment()),
-            (new CloudstackJob()),
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DeployVirtualMachineJob(
+                new VirtualMachineDeployment(),
+                new CloudstackJob(),
+            ));
 
         Queue::assertPushedOn(QueueName::CLOUDSTACK->value, DeployVirtualMachineJob::class);
     }
@@ -115,10 +116,11 @@ class DeployVirtualMachineTest extends IntegrationTestCase
     {
         Bus::fake();
 
-        self::resolve(Dispatcher::class)->dispatch(new DeployVirtualMachineJob(
-            (new VirtualMachineDeployment()),
-            (new CloudstackJob()),
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DeployVirtualMachineJob(
+                new VirtualMachineDeployment(),
+                new CloudstackJob(),
+            ));
 
         Bus::assertNotDispatchedSync(DeployVirtualMachineJob::class);
     }
@@ -138,7 +140,9 @@ class DeployVirtualMachineTest extends IntegrationTestCase
 
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())->method('execute')
+        $baseClientMock
+            ->expects(self::once())
+            ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
             ->willReturn($cloudStackPendingJob);
         $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
@@ -151,10 +155,11 @@ class DeployVirtualMachineTest extends IntegrationTestCase
             self::assertFalse($event->job->hasFailed());
         });
 
-        self::resolve(Dispatcher::class)->dispatch(new DeployVirtualMachineJob(
-            $this->vmDeployment,
-            $this->cloudstackJob,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DeployVirtualMachineJob(
+                $this->vmDeployment,
+                $this->cloudstackJob,
+            ));
     }
 
     #[Test]
@@ -170,7 +175,9 @@ class DeployVirtualMachineTest extends IntegrationTestCase
         $clientFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())->method('execute')
+        $baseClientMock
+            ->expects(self::once())
+            ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
             ->willReturn($cloudStackFailedJob);
         $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
@@ -185,16 +192,23 @@ class DeployVirtualMachineTest extends IntegrationTestCase
 
         self::assertNull($this->vmDeployment->subscription->technical_status);
 
-        self::resolve(Dispatcher::class)->dispatch(new DeployVirtualMachineJob(
-            $this->vmDeployment,
-            $this->cloudstackJob,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DeployVirtualMachineJob(
+                $this->vmDeployment,
+                $this->cloudstackJob,
+            ));
 
         $this->vmDeployment->refresh();
         self::assertSame(TechnicalStatus::FAILED->value, $this->vmDeployment->subscription->technical_status);
-        self::assertSame(TechnicalStatus::FAILED->value, $this->vmDeployment->subscription->children()->firstOrFail()->technical_status);
+        self::assertSame(
+            TechnicalStatus::FAILED->value,
+            $this->vmDeployment->subscription->children()->firstOrFail()->technical_status,
+        );
         self::assertNotNull($this->vmDeployment->last_result_received);
-        self::assertStringContainsString('No destination found for a deployment for VM instance', (string) $this->vmDeployment->last_result);
+        self::assertStringContainsString(
+            'No destination found for a deployment for VM instance',
+            (string) $this->vmDeployment->last_result,
+        );
     }
 
     #[Test]
@@ -204,12 +218,16 @@ class DeployVirtualMachineTest extends IntegrationTestCase
             MailCloudstackManagerVpsDetails::class,
         ]);
 
-        $cloudstackJobFinishedResponse = (string) file_get_contents(__DIR__ . '/../../data/deployment/finished_job.json');
+        $cloudstackJobFinishedResponse = (string) file_get_contents(__DIR__
+        . '/../../data/deployment/finished_job.json');
         /** @var array<string, array<int|string, mixed>|int|string> $cloudStackFinishedJob */
         $cloudStackFinishedJob = json_decode($cloudstackJobFinishedResponse, true, 512, JSON_THROW_ON_ERROR);
 
         /** @var AsynchronousCloudstackResponse $vmJob */
-        $vmJob = CloudstackSerializerFactory::get()->denormalize($cloudStackFinishedJob, AsynchronousCloudstackResponse::class);
+        $vmJob = CloudstackSerializerFactory::get()->denormalize(
+            $cloudStackFinishedJob,
+            AsynchronousCloudstackResponse::class,
+        );
 
         $baseClientMock = self::createMock(CloudStackBaseClient::class);
         $clientMock = self::createMock(CloudStackClient::class);
@@ -217,7 +235,9 @@ class DeployVirtualMachineTest extends IntegrationTestCase
         $clientFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())->method('execute')
+        $baseClientMock
+            ->expects(self::once())
+            ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
             ->willReturn($cloudStackFinishedJob);
         $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
@@ -233,16 +253,20 @@ class DeployVirtualMachineTest extends IntegrationTestCase
         self::assertNull($this->vmDeployment->cloudstack_id);
         self::assertNull($this->vmDeployment->subscription->technical_status);
 
-        self::resolve(Dispatcher::class)->dispatch(new DeployVirtualMachineJob(
-            $this->vmDeployment,
-            $this->cloudstackJob,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DeployVirtualMachineJob(
+                $this->vmDeployment,
+                $this->cloudstackJob,
+            ));
 
         $this->vmDeployment->refresh();
 
         self::assertArrayHasKey('id', $vmJob->retrieveVirtualMachineData());
         self::assertSame($vmJob->retrieveVirtualMachineData()['id'], $this->vmDeployment->cloudstack_id);
         self::assertSame(TechnicalStatus::OK->value, $this->vmDeployment->subscription->technical_status);
-        self::assertSame(TechnicalStatus::OK->value, $this->vmDeployment->subscription->children()->firstOrFail()->technical_status);
+        self::assertSame(
+            TechnicalStatus::OK->value,
+            $this->vmDeployment->subscription->children()->firstOrFail()->technical_status,
+        );
     }
 }

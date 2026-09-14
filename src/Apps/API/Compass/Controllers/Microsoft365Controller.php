@@ -44,7 +44,7 @@ class Microsoft365Controller
                 [
                     LoggingContextKeys::CUSTOMER_ID => $microsoft365CustomerInfo->customer_id,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return new JsonResponse([
@@ -70,12 +70,30 @@ class Microsoft365Controller
         $result = $this->retryOrderCreateAction->execute($microsoft365Deployment);
 
         [$translationKey, $status] = match ($result) {
-            Microsoft365RetryOrderCreateResult::ORDER_CREATED => ['microsoft365.retry-create-order.success', Response::HTTP_OK],
-            Microsoft365RetryOrderCreateResult::TENANT_CREATED => ['microsoft365.retry-create-order.tenant-created', Response::HTTP_OK],
-            Microsoft365RetryOrderCreateResult::MCA_NOT_SIGNED => ['microsoft365.retry-create-order.mca-not-signed', Response::HTTP_UNPROCESSABLE_ENTITY],
-            Microsoft365RetryOrderCreateResult::NO_SEATS => ['microsoft365.retry-create-order.no-seats', Response::HTTP_UNPROCESSABLE_ENTITY],
-            Microsoft365RetryOrderCreateResult::ORDER_SUMMARY_RETRIEVAL_FAILED => ['microsoft365.retry-create-order.order-summary-retrieval-failed', Response::HTTP_INTERNAL_SERVER_ERROR],
-            Microsoft365RetryOrderCreateResult::ORDER_CREATION_FAILED => ['microsoft365.retry-create-order.failure', Response::HTTP_INTERNAL_SERVER_ERROR],
+            Microsoft365RetryOrderCreateResult::ORDER_CREATED => [
+                'microsoft365.retry-create-order.success',
+                Response::HTTP_OK,
+            ],
+            Microsoft365RetryOrderCreateResult::TENANT_CREATED => [
+                'microsoft365.retry-create-order.tenant-created',
+                Response::HTTP_OK,
+            ],
+            Microsoft365RetryOrderCreateResult::MCA_NOT_SIGNED => [
+                'microsoft365.retry-create-order.mca-not-signed',
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+            ],
+            Microsoft365RetryOrderCreateResult::NO_SEATS => [
+                'microsoft365.retry-create-order.no-seats',
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+            ],
+            Microsoft365RetryOrderCreateResult::ORDER_SUMMARY_RETRIEVAL_FAILED => [
+                'microsoft365.retry-create-order.order-summary-retrieval-failed',
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+            ],
+            Microsoft365RetryOrderCreateResult::ORDER_CREATION_FAILED => [
+                'microsoft365.retry-create-order.failure',
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+            ],
         };
 
         return new JsonResponse([
@@ -125,7 +143,11 @@ class Microsoft365Controller
         }
 
         $microsoft365Deployment->setRelation('subscription', $subscription);
-        $microsoft365Deployment->loadMissing(['subscription.children.product', 'subscription.product', 'microsoft365CustomerInfo']);
+        $microsoft365Deployment->loadMissing([
+            'subscription.children.product',
+            'subscription.product',
+            'microsoft365CustomerInfo',
+        ]);
 
         return $this->microsoft365DeploymentResource->toJson($microsoft365Deployment);
     }

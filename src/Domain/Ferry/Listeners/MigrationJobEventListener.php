@@ -16,7 +16,7 @@ use Waterfront\Domain\Ferry\Services\ManualMigration\ManualTechnicalMigrationsSe
 class MigrationJobEventListener
 {
     public function __construct(
-        private readonly ManualTechnicalMigrationsService $manualMigrationService
+        private readonly ManualTechnicalMigrationsService $manualMigrationService,
     ) {
     }
 
@@ -25,7 +25,10 @@ class MigrationJobEventListener
      */
     public function handle(JobProcessed|JobFailed $event): void
     {
-        if (! is_subclass_of($event->job->resolveName(), MigrationJob::class) && ! is_subclass_of($event->job->resolveName(), ManualMigrationJob::class)) {
+        if (
+            ! is_subclass_of($event->job->resolveName(), MigrationJob::class)
+            && ! is_subclass_of($event->job->resolveName(), ManualMigrationJob::class)
+        ) {
             return;
         }
 
@@ -45,7 +48,9 @@ class MigrationJobEventListener
             return;
         }
 
-        $status = $event instanceof JobFailed ? MigrationSubscriptionStatus::FAILED : MigrationSubscriptionStatus::EXECUTED;
+        $status = $event instanceof JobFailed
+            ? MigrationSubscriptionStatus::FAILED
+            : MigrationSubscriptionStatus::EXECUTED;
         $this->manualMigrationService->setStepStatus($job->subscription, $job->getMigrationStep(), $status);
 
         if ($event instanceof JobFailed) {

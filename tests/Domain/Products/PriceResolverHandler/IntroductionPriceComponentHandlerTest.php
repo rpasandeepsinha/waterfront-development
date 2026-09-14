@@ -51,7 +51,7 @@ class IntroductionPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 1234,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
             new Price(
                 type: ProductPriceType::REGISTRATION,
@@ -61,7 +61,7 @@ class IntroductionPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 789,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
 
             new Price(
@@ -72,7 +72,7 @@ class IntroductionPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 3423,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
         ]);
 
@@ -126,7 +126,7 @@ class IntroductionPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 1234,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
             new Price(
                 type: ProductPriceType::REGISTRATION,
@@ -136,7 +136,7 @@ class IntroductionPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 789,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
 
             new Price(
@@ -147,7 +147,7 @@ class IntroductionPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 3423,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
         ]);
 

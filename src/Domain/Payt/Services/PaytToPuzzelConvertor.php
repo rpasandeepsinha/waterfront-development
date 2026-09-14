@@ -25,12 +25,14 @@ readonly class PaytToPuzzelConvertor
     public function __construct(
         private PuzzelPublicClient $client,
         private LoggerInterface $logger,
-        private PaytClientFactory $paytClientFactory
+        private PaytClientFactory $paytClientFactory,
     ) {
     }
 
-    public function createPuzzelTicketFromPaytInvoice(PaytInvoice $paytInvoice, PaytSupportedBusinessUnit $businessUnit): void
-    {
+    public function createPuzzelTicketFromPaytInvoice(
+        PaytInvoice $paytInvoice,
+        PaytSupportedBusinessUnit $businessUnit,
+    ): void {
         $debtorCode = $paytInvoice->debtor?->debtorCode;
         Assert::notNull($debtorCode);
 
@@ -54,7 +56,7 @@ readonly class PaytToPuzzelConvertor
         ]);
 
         $this->createPuzzelTicket(
-            paytMessage:  $message,
+            paytMessage: $message,
             paytDebtor: $paytDebtorDto,
             businessUnit: $businessUnit,
             team: PuzzelCreateTicketRequest::TEAM_CS_ADMIN,
@@ -62,8 +64,10 @@ readonly class PaytToPuzzelConvertor
         );
     }
 
-    public function createPuzzelTicketFromPaytCreditCase(PaytCreditCase $paytCreditCase, PaytSupportedBusinessUnit $businessUnit): void
-    {
+    public function createPuzzelTicketFromPaytCreditCase(
+        PaytCreditCase $paytCreditCase,
+        PaytSupportedBusinessUnit $businessUnit,
+    ): void {
         $debtorCode = $paytCreditCase->debtor?->debtorCode;
         Assert::notNull($debtorCode, 'Debtor code should not be empty');
 
@@ -95,8 +99,10 @@ readonly class PaytToPuzzelConvertor
         ]);
     }
 
-    public function createPuzzelTicketFromPaytDebtor(PaytDebtor $paytDebtor, PaytSupportedBusinessUnit $businessUnit): void
-    {
+    public function createPuzzelTicketFromPaytDebtor(
+        PaytDebtor $paytDebtor,
+        PaytSupportedBusinessUnit $businessUnit,
+    ): void {
         $debtorCode = $paytDebtor->debtorCode;
         Assert::notNull($debtorCode);
 
@@ -140,23 +146,27 @@ readonly class PaytToPuzzelConvertor
         if (sizeof($debtors) !== 1) {
             throw new RuntimeException(sprintf(
                 'Unable create ticket in Puzzel, unexpected amount of debtors (%d) received from Payt',
-                sizeof($debtors)
+                sizeof($debtors),
             ));
         }
 
         return $debtors[0];
     }
 
-    private function getBodySupplementedWithEmailAddresses(PaytMessageDTO $paytMessageDTO, PaytDebtorDTO $paytDebtorDTO): string
-    {
+    private function getBodySupplementedWithEmailAddresses(
+        PaytMessageDTO $paytMessageDTO,
+        PaytDebtorDTO $paytDebtorDTO,
+    ): string {
         $string = $paytMessageDTO->content;
         $string .= '<br>The following email addresses are known in Payt to related debtor:<br>';
         if ($paytDebtorDTO->primaryEmailAddress !== null) {
             $string .= 'Primary email address: ' . $paytDebtorDTO->primaryEmailAddress . '<br>';
         }
+
         if ($paytDebtorDTO->invoiceEmailAddress !== null) {
             $string .= 'Invoice email address: ' . $paytDebtorDTO->invoiceEmailAddress . '<br>';
         }
+
         return $string;
     }
 
@@ -184,7 +194,7 @@ readonly class PaytToPuzzelConvertor
         PaytDebtorDTO $paytDebtor,
         PaytSupportedBusinessUnit $businessUnit,
         string $team,
-        string $subject
+        string $subject,
     ): void {
         $brand = $this->getPuzzelBrandForBusinessUnit($businessUnit);
         $categories = [

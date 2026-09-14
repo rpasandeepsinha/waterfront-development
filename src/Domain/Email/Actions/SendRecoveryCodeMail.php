@@ -10,8 +10,9 @@ use Waterfront\Domain\Mailer\MailRecoveryCode;
 
 class SendRecoveryCodeMail
 {
-    public function __construct(private readonly MailerInterface $mailer)
-    {
+    public function __construct(
+        private readonly MailerInterface $mailer,
+    ) {
     }
 
     public function execute(Recipient $recipient, string $recoveryCode, string $recoveryLink): void
@@ -21,7 +22,7 @@ class SendRecoveryCodeMail
             template: new MailRecoveryCode(
                 $recoveryCode,
                 $recoveryLink,
-            )
+            ),
         );
     }
 }

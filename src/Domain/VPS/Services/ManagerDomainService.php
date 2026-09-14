@@ -52,10 +52,9 @@ class ManagerDomainService
         Customer $customer,
     ): ManagerDomainDeployment {
         $managerDomainDeployment = new ManagerDomainDeployment();
-        $managerDomainDeployment->domain_name
-            = $managerDomainDeployment->account
-            = $managerDomainDeployment->username
-            = $this->generateUniqueName($environment);
+        $managerDomainDeployment->domain_name =
+            $managerDomainDeployment->account =
+                $managerDomainDeployment->username = $this->generateUniqueName($environment);
 
         $this->logger->debug(
             sprintf('Creating VPS manager domain [%s]', $managerDomainDeployment->domain_name),
@@ -68,7 +67,7 @@ class ManagerDomainService
                     'environment_id' => $environment->id,
                     'manager_domain_deployment_domain_name' => $managerDomainDeployment->domain_name,
                 ],
-            ]
+            ],
         );
 
         $managerDomainDeployment->customer()->associate($customer);
@@ -106,12 +105,12 @@ class ManagerDomainService
                     LoggingContextKeys::META => [
                         'cloudstack_job' => $cloudstackJob->toArray(),
                     ],
-                ]
+                ],
             );
 
             $this->bus->dispatch(new DeleteDomainJob(
                 $managerDomainDeployment,
-                $cloudstackJob
+                $cloudstackJob,
             ));
         } catch (ClientFactoryException|ClientException|AdminClientFactoryException $exception) {
             $this->logger->error(
@@ -120,7 +119,7 @@ class ManagerDomainService
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return false;
@@ -160,7 +159,7 @@ class ManagerDomainService
     protected function createCloudstackJob(
         AsynchronousCloudstackResponse $asyncResponse,
         ManagerDomainDeployment $deployment,
-        array $extraFields = []
+        array $extraFields = [],
     ): CloudstackJob {
         $jobData = $this->serializer->normalize($asyncResponse);
         Assert::isArray($jobData);
@@ -248,7 +247,7 @@ class ManagerDomainService
             lastName: $customer->last_name,
             email: $customer->email,
             password: $this->passwordGenerator->generatePassword(self::PASSWORD_LENGTH),
-            roleId: $deployment->environment->default_role_id
+            roleId: $deployment->environment->default_role_id,
         );
     }
 }

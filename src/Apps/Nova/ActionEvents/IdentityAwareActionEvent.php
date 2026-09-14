@@ -20,8 +20,12 @@ use Waterfront\Infra\Authentication\Helpers\PermissionsHelper;
 
 class IdentityAwareActionEvent extends ActionEvent
 {
-    public static function defaultAttributes(ActionRequest $request, Action $action, string $batchId, string $status = 'running'): array
-    {
+    public static function defaultAttributes(
+        ActionRequest $request,
+        Action $action,
+        string $batchId,
+        string $status = 'running',
+    ): array {
         return self::replaceUserAttributesWithIdentity(parent::defaultAttributes($request, $action, $batchId, $status));
     }
 
@@ -169,6 +173,7 @@ class IdentityAwareActionEvent extends ActionEvent
         $authenticationManager = resolve(AuthenticationManager::class);
 
         $authenticatedEmployee = $authenticationManager->getAuthenticatedEmployee();
+
         return [
             'identity_uuid' => $authenticatedEmployee->identitySchema->id,
             'identity_metadata' => json_encode([

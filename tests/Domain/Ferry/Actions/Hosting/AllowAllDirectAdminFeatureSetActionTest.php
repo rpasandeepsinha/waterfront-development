@@ -51,7 +51,9 @@ class AllowAllDirectAdminFeatureSetActionTest extends IntegrationTestCase
             ->technicalStatusOk()
             ->createOne();
 
-        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1']);
+        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1',
+        ]);
 
         $subscription->migratedSubscriptions()->attach($migratedSubscription);
 

@@ -12,7 +12,7 @@ class MailSubscriptionCancelRevertedFailed implements MailTemplateInterface
         public readonly string $domainName,
         public readonly string $productDescription,
         public readonly string $subscriptionEndDate,
-        public readonly int $contractPeriod
+        public readonly int $contractPeriod,
     ) {
     }
 

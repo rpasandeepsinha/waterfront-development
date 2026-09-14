@@ -32,7 +32,7 @@ class ReissueExpiringSslCertificates extends AbstractCommand
 
         $expiringSslDeployments = $this->sslDeploymentRepository->getExpiringSslDeployments(
             days: self::EXPIRE_WINDOW,
-            gracePeriodDays: self::GRACE_EXPIRE_WINDOW
+            gracePeriodDays: self::GRACE_EXPIRE_WINDOW,
         );
 
         $this->line(
@@ -40,7 +40,7 @@ class ReissueExpiringSslCertificates extends AbstractCommand
                 '%d SSL certificates will expire in %d days or less',
                 $expiringSslDeployments->count(),
                 self::EXPIRE_WINDOW,
-            )
+            ),
         );
 
         foreach ($expiringSslDeployments as $expiringSslDeployment) {

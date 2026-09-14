@@ -13,8 +13,9 @@ class LogContextBuilder
     /**
      * @param array<LoggingContextKeys::class, mixed> $context
      */
-    private function __construct(private array $context)
-    {
+    private function __construct(
+        private array $context,
+    ) {
     }
 
     public static function for(ProvisionRequestInterface $request): self

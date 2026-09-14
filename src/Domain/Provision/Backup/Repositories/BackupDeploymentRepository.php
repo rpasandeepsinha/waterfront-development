@@ -21,7 +21,7 @@ use Waterfront\Support\Enums\LoggingContextKeys;
 class BackupDeploymentRepository
 {
     public function __construct(
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -60,19 +60,18 @@ class BackupDeploymentRepository
      */
     public function getByTag(UuidInterface $tag): Collection
     {
-        return BackupDeployment::query()
-            ->whereHas('request', function ($query) use ($tag) {
-                $query->where('tag', $tag)
-                    ->where('request_type', ProvisionType::BACKUP)
-                    ->whereIn('request_name', [
-                        ProvisionRequestName::CREATE_BACKUP,
-                        ProvisionRequestName::CREATE_BACKUP_DEPLOYMENTS_FROM_MIGRATION,
-                    ])
-                    ->whereHas('result', function ($query) {
-                        $query->where('status', ProvisionStatus::SUCCESS);
-                    });
-            })
-            ->get();
+        return BackupDeployment::query()->whereHas('request', function ($query) use ($tag) {
+            $query
+                ->where('tag', $tag)
+                ->where('request_type', ProvisionType::BACKUP)
+                ->whereIn('request_name', [
+                    ProvisionRequestName::CREATE_BACKUP,
+                    ProvisionRequestName::CREATE_BACKUP_DEPLOYMENTS_FROM_MIGRATION,
+                ])
+                ->whereHas('result', function ($query) {
+                    $query->where('status', ProvisionStatus::SUCCESS);
+                });
+        })->get();
     }
 
     public function countCreateRequestsByTag(UuidInterface $tag): int
@@ -94,9 +93,9 @@ class BackupDeploymentRepository
             $deletedChild = $deployment->acronisBackupDeployment()->delete();
             if ($deletedChild === 0) {
                 $this->logger->warning('Acronis backup deployment was not found when deleting backup deployment', [
-                    LoggingContextKeys::PROVISIONING_TYPE     => ProvisionType::BACKUP,
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
-                    LoggingContextKeys::PROVISIONING_ID       => $deployment->id,
+                    LoggingContextKeys::PROVISIONING_ID => $deployment->id,
                 ]);
             }
 

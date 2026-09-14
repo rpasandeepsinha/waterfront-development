@@ -23,9 +23,10 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listOnlyReturnsSubscriptionsThatCameOutOfAMigration(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
 
         $migratedCustomer = new CustomerFactory()->createOne();
         $migratedCustomer->migratedCustomers()->attach(new MigratedCustomersFactory()->createOne());
@@ -48,7 +49,10 @@ class MigrationStateControllerTest extends IntegrationTestCase
             ->createOne();
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query(['orderBy' => ['domain_asc']]))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?'
+                    . http_build_query(['orderBy' => ['domain_asc']]),
+            )
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
             ->assertJsonCount(1, 'data')
@@ -58,12 +62,14 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listSearchMatchesTheDomain(): void
     {
-        $extensionProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
-        $hostingProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->hosting()->createOne())
-            ->createOne(['name' => 'Hosting Brons', 'slug' => 'hosting_brons']);
+        $extensionProduct = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
+        $hostingProduct = new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne())->createOne([
+            'name' => 'Hosting Brons',
+            'slug' => 'hosting_brons',
+        ]);
 
         $extensionCustomer = new CustomerFactory()->createOne();
         $extensionCustomer->migratedCustomers()->attach(new MigratedCustomersFactory()->createOne());
@@ -90,7 +96,10 @@ class MigrationStateControllerTest extends IntegrationTestCase
         $hosting->migratedSubscriptions()->attach(new MigratedSubscriptionsFactory()->createOne());
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query(['search' => 'migrated-hosting']))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?'
+                    . http_build_query(['search' => 'migrated-hosting']),
+            )
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
             ->assertJsonCount(1, 'data')
@@ -100,12 +109,14 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listSearchMatchesTheProductName(): void
     {
-        $extensionProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
-        $hostingProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->hosting()->createOne())
-            ->createOne(['name' => 'Hosting Brons', 'slug' => 'hosting_brons']);
+        $extensionProduct = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
+        $hostingProduct = new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne())->createOne([
+            'name' => 'Hosting Brons',
+            'slug' => 'hosting_brons',
+        ]);
 
         $extensionCustomer = new CustomerFactory()->createOne();
         $extensionCustomer->migratedCustomers()->attach(new MigratedCustomersFactory()->createOne());
@@ -132,7 +143,10 @@ class MigrationStateControllerTest extends IntegrationTestCase
         $hosting->migratedSubscriptions()->attach(new MigratedSubscriptionsFactory()->createOne());
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query(['search' => 'hosting brons']))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?'
+                    . http_build_query(['search' => 'hosting brons']),
+            )
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
             ->assertJsonCount(1, 'data')
@@ -142,14 +156,17 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listSearchMatchesTheBatchGroup(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
 
         $batchOneCustomer = new CustomerFactory()->createOne();
-        $batchOneCustomer->migratedCustomers()->attach(
-            new MigratedCustomersFactory()->createOne(['group_type' => 'batch-one']),
-        );
+        $batchOneCustomer
+            ->migratedCustomers()
+            ->attach(
+                new MigratedCustomersFactory()->createOne(['group_type' => 'batch-one']),
+            );
 
         $batchOne = new SubscriptionFactory()
             ->for($product)
@@ -161,9 +178,11 @@ class MigrationStateControllerTest extends IntegrationTestCase
         $batchOne->migratedSubscriptions()->attach(new MigratedSubscriptionsFactory()->createOne());
 
         $batchTwoCustomer = new CustomerFactory()->createOne();
-        $batchTwoCustomer->migratedCustomers()->attach(
-            new MigratedCustomersFactory()->createOne(['group_type' => 'batch-two']),
-        );
+        $batchTwoCustomer
+            ->migratedCustomers()
+            ->attach(
+                new MigratedCustomersFactory()->createOne(['group_type' => 'batch-two']),
+            );
 
         $batchTwo = new SubscriptionFactory()
             ->for($product)
@@ -175,7 +194,9 @@ class MigrationStateControllerTest extends IntegrationTestCase
         $batchTwo->migratedSubscriptions()->attach(new MigratedSubscriptionsFactory()->createOne());
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query(['search' => 'batch-one']))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?' . http_build_query(['search' => 'batch-one']),
+            )
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
             ->assertJsonCount(1, 'data')
@@ -185,9 +206,10 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listSearchMatchesTheReferenceSubscriptionId(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
 
         $extensionCustomer = new CustomerFactory()->createOne();
         $extensionCustomer->migratedCustomers()->attach(new MigratedCustomersFactory()->createOne());
@@ -199,9 +221,13 @@ class MigrationStateControllerTest extends IntegrationTestCase
             ->technicalStatusOk()
             ->forDomain('migrated-extension.nl')
             ->createOne();
-        $extension->migratedSubscriptions()->attach(
-            new MigratedSubscriptionsFactory()->createOne(['reference_subscription_id' => 'reference-migrated-extension.nl']),
-        );
+        $extension
+            ->migratedSubscriptions()
+            ->attach(
+                new MigratedSubscriptionsFactory()->createOne([
+                    'reference_subscription_id' => 'reference-migrated-extension.nl',
+                ]),
+            );
 
         $hostingCustomer = new CustomerFactory()->createOne();
         $hostingCustomer->migratedCustomers()->attach(new MigratedCustomersFactory()->createOne());
@@ -213,14 +239,21 @@ class MigrationStateControllerTest extends IntegrationTestCase
             ->technicalStatusOk()
             ->forDomain('migrated-hosting.nl')
             ->createOne();
-        $hosting->migratedSubscriptions()->attach(
-            new MigratedSubscriptionsFactory()->createOne(['reference_subscription_id' => 'reference-migrated-hosting.nl']),
-        );
+        $hosting
+            ->migratedSubscriptions()
+            ->attach(
+                new MigratedSubscriptionsFactory()->createOne([
+                    'reference_subscription_id' => 'reference-migrated-hosting.nl',
+                ]),
+            );
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query([
-                'search' => 'reference-migrated-hosting.nl',
-            ]))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?'
+                    . http_build_query([
+                        'search' => 'reference-migrated-hosting.nl',
+                    ]),
+            )
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
             ->assertJsonCount(1, 'data')
@@ -230,12 +263,14 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listFiltersOnProductGroup(): void
     {
-        $extensionProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
-        $hostingProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->hosting()->createOne())
-            ->createOne(['name' => 'Hosting Brons', 'slug' => 'hosting_brons']);
+        $extensionProduct = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
+        $hostingProduct = new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne())->createOne([
+            'name' => 'Hosting Brons',
+            'slug' => 'hosting_brons',
+        ]);
 
         $extensionCustomer = new CustomerFactory()->createOne();
         $extensionCustomer->migratedCustomers()->attach(new MigratedCustomersFactory()->createOne());
@@ -262,9 +297,12 @@ class MigrationStateControllerTest extends IntegrationTestCase
         $hosting->migratedSubscriptions()->attach(new MigratedSubscriptionsFactory()->createOne());
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query([
-                'product_group' => ProductGroupType::HOSTING->value,
-            ]))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?'
+                    . http_build_query([
+                        'product_group' => ProductGroupType::HOSTING->value,
+                    ]),
+            )
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
             ->assertJsonCount(1, 'data')
@@ -274,14 +312,17 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listFiltersOnBusinessUnit(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
 
         $argewebCustomer = new CustomerFactory()->createOne();
-        $argewebCustomer->migratedCustomers()->attach(
-            new MigratedCustomersFactory()->createOne(['reference_name' => 'argeweb']),
-        );
+        $argewebCustomer
+            ->migratedCustomers()
+            ->attach(
+                new MigratedCustomersFactory()->createOne(['reference_name' => 'argeweb']),
+            );
 
         $argeweb = new SubscriptionFactory()
             ->for($product)
@@ -293,9 +334,11 @@ class MigrationStateControllerTest extends IntegrationTestCase
         $argeweb->migratedSubscriptions()->attach(new MigratedSubscriptionsFactory()->createOne());
 
         $vevidaCustomer = new CustomerFactory()->createOne();
-        $vevidaCustomer->migratedCustomers()->attach(
-            new MigratedCustomersFactory()->createOne(['reference_name' => 'vevida']),
-        );
+        $vevidaCustomer
+            ->migratedCustomers()
+            ->attach(
+                new MigratedCustomersFactory()->createOne(['reference_name' => 'vevida']),
+            );
 
         $vevida = new SubscriptionFactory()
             ->for($product)
@@ -307,7 +350,10 @@ class MigrationStateControllerTest extends IntegrationTestCase
         $vevida->migratedSubscriptions()->attach(new MigratedSubscriptionsFactory()->createOne());
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query(['business_unit' => 'argeweb']))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?'
+                    . http_build_query(['business_unit' => 'argeweb']),
+            )
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
             ->assertJsonCount(1, 'data')
@@ -317,9 +363,10 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listIgnoresFiltersThatWereClearedToTheirEmptyValue(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
 
         foreach (['migrated-extension.nl', 'migrated-hosting.nl'] as $domain) {
             $customer = new CustomerFactory()->createOne();
@@ -336,11 +383,14 @@ class MigrationStateControllerTest extends IntegrationTestCase
         }
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query([
-                'product_group' => '',
-                'business_unit' => '',
-                'status' => '',
-            ]))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?'
+                    . http_build_query([
+                        'product_group' => '',
+                        'business_unit' => '',
+                        'status' => '',
+                    ]),
+            )
             ->assertOk()
             ->assertJsonPath('meta.total', 2);
     }
@@ -348,9 +398,10 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listFiltersOnTechnicallyFailedStatus(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
 
         $okCustomer = new CustomerFactory()->createOne();
         $okCustomer->migratedCustomers()->attach(new MigratedCustomersFactory()->createOne());
@@ -377,7 +428,9 @@ class MigrationStateControllerTest extends IntegrationTestCase
         $failed->migratedSubscriptions()->attach(new MigratedSubscriptionsFactory()->createOne());
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query(['status' => 'failed']))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?' . http_build_query(['status' => 'failed']),
+            )
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
             ->assertJsonCount(1, 'data')
@@ -387,14 +440,17 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listFiltersOnMigrationNotSuccessfulStatus(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
 
         $unsuccessfulCustomer = new CustomerFactory()->createOne();
-        $unsuccessfulCustomer->migratedCustomers()->attach(
-            new MigratedCustomersFactory()->createOne(['successful' => false]),
-        );
+        $unsuccessfulCustomer
+            ->migratedCustomers()
+            ->attach(
+                new MigratedCustomersFactory()->createOne(['successful' => false]),
+            );
 
         $unsuccessful = new SubscriptionFactory()
             ->for($product)
@@ -406,9 +462,11 @@ class MigrationStateControllerTest extends IntegrationTestCase
         $unsuccessful->migratedSubscriptions()->attach(new MigratedSubscriptionsFactory()->createOne());
 
         $successfulCustomer = new CustomerFactory()->createOne();
-        $successfulCustomer->migratedCustomers()->attach(
-            new MigratedCustomersFactory()->createOne(['successful' => true]),
-        );
+        $successfulCustomer
+            ->migratedCustomers()
+            ->attach(
+                new MigratedCustomersFactory()->createOne(['successful' => true]),
+            );
 
         $successful = new SubscriptionFactory()
             ->for($product)
@@ -420,9 +478,12 @@ class MigrationStateControllerTest extends IntegrationTestCase
         $successful->migratedSubscriptions()->attach(new MigratedSubscriptionsFactory()->createOne());
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query([
-                'status' => 'migration-not-successful',
-            ]))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?'
+                    . http_build_query([
+                        'status' => 'migration-not-successful',
+                    ]),
+            )
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
             ->assertJsonCount(1, 'data')
@@ -432,17 +493,25 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listDoesNotDuplicateRowsWhenASubscriptionHasSeveralMigrationRecords(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
 
         $customer = new CustomerFactory()->createOne();
-        $customer->migratedCustomers()->attach(
-            new MigratedCustomersFactory()->createOne(['reference_name' => 'argeweb', 'group_type' => 'batch-one']),
-        );
-        $customer->migratedCustomers()->attach(
-            new MigratedCustomersFactory()->createOne(['reference_name' => 'argeweb', 'group_type' => 'batch-three']),
-        );
+        $customer
+            ->migratedCustomers()
+            ->attach(
+                new MigratedCustomersFactory()->createOne(['reference_name' => 'argeweb', 'group_type' => 'batch-one']),
+            );
+        $customer
+            ->migratedCustomers()
+            ->attach(
+                new MigratedCustomersFactory()->createOne([
+                    'reference_name' => 'argeweb',
+                    'group_type' => 'batch-three',
+                ]),
+            );
 
         $subscription = new SubscriptionFactory()
             ->for($product)
@@ -451,15 +520,22 @@ class MigrationStateControllerTest extends IntegrationTestCase
             ->technicalStatusOk()
             ->forDomain('migrated-extension.nl')
             ->createOne();
-        $subscription->migratedSubscriptions()->attach(
-            new MigratedSubscriptionsFactory()->createOne(['reference_subscription_id' => 'first-reference']),
-        );
-        $subscription->migratedSubscriptions()->attach(
-            new MigratedSubscriptionsFactory()->createOne(['reference_subscription_id' => 'second-reference']),
-        );
+        $subscription
+            ->migratedSubscriptions()
+            ->attach(
+                new MigratedSubscriptionsFactory()->createOne(['reference_subscription_id' => 'first-reference']),
+            );
+        $subscription
+            ->migratedSubscriptions()
+            ->attach(
+                new MigratedSubscriptionsFactory()->createOne(['reference_subscription_id' => 'second-reference']),
+            );
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query(['business_unit' => 'argeweb']))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?'
+                    . http_build_query(['business_unit' => 'argeweb']),
+            )
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
             ->assertJsonCount(1, 'data')
@@ -469,14 +545,17 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listRestrictsThePayloadToTheRequestedFields(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
 
         $customer = new CustomerFactory()->createOne();
-        $customer->migratedCustomers()->attach(
-            new MigratedCustomersFactory()->createOne(['reference_name' => 'argeweb']),
-        );
+        $customer
+            ->migratedCustomers()
+            ->attach(
+                new MigratedCustomersFactory()->createOne(['reference_name' => 'argeweb']),
+            );
 
         $subscription = new SubscriptionFactory()
             ->for($product)
@@ -488,10 +567,13 @@ class MigrationStateControllerTest extends IntegrationTestCase
         $subscription->migratedSubscriptions()->attach(new MigratedSubscriptionsFactory()->createOne());
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query([
-                'fields' => ['domain', 'business_unit'],
-                'orderBy' => ['domain_asc'],
-            ]))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?'
+                    . http_build_query([
+                        'fields' => ['domain', 'business_unit'],
+                        'orderBy' => ['domain_asc'],
+                    ]),
+            )
             ->assertOk()
             ->assertJsonCount(4, 'data.0')
             ->assertJsonStructure(['data' => [['id', 'uuid', 'domain', 'business_unit']]])
@@ -502,9 +584,10 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listSortsOnASubscriptionColumnWhileTheProductsTableIsJoined(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
 
         foreach (['migrated-extension.nl', 'migrated-hosting.nl'] as $domain) {
             $customer = new CustomerFactory()->createOne();
@@ -521,10 +604,13 @@ class MigrationStateControllerTest extends IntegrationTestCase
         }
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query([
-                'search' => 'migrated',
-                'orderBy' => ['updated_at_desc', 'domain_asc'],
-            ]))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?'
+                    . http_build_query([
+                        'search' => 'migrated',
+                        'orderBy' => ['updated_at_desc', 'domain_asc'],
+                    ]),
+            )
             ->assertOk()
             ->assertJsonPath('meta.total', 2);
     }
@@ -532,9 +618,10 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listSortsOnTheIdSharedWithTheJoinedProductsTable(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
 
         $firstCustomer = new CustomerFactory()->createOne();
         $firstCustomer->migratedCustomers()->attach(new MigratedCustomersFactory()->createOne());
@@ -561,10 +648,13 @@ class MigrationStateControllerTest extends IntegrationTestCase
         $second->migratedSubscriptions()->attach(new MigratedSubscriptionsFactory()->createOne());
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query([
-                'search' => 'migrated',
-                'orderBy' => ['id_desc'],
-            ]))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?'
+                    . http_build_query([
+                        'search' => 'migrated',
+                        'orderBy' => ['id_desc'],
+                    ]),
+            )
             ->assertOk()
             ->assertJsonPath('meta.total', 2)
             ->assertJsonPath('data.0.id', $second->id)
@@ -574,9 +664,10 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function listKeepsTheDomainColumnWhenTheColumnPickerAsksForIt(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
 
         $customer = new CustomerFactory()->createOne();
         $customer->migratedCustomers()->attach(new MigratedCustomersFactory()->createOne());
@@ -591,10 +682,20 @@ class MigrationStateControllerTest extends IntegrationTestCase
         $subscription->migratedSubscriptions()->attach(new MigratedSubscriptionsFactory()->createOne());
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.migration-state.list') . '?' . http_build_query([
-                'fields' => ['domain', 'business_unit', 'batch_group', 'product', 'provider', 'technical_status'],
-                'orderBy' => ['id_desc'],
-            ]))
+            ->getJson(
+                $this->generateRoute('admin.migration-state.list') . '?'
+                    . http_build_query([
+                        'fields' => [
+                            'domain',
+                            'business_unit',
+                            'batch_group',
+                            'product',
+                            'provider',
+                            'technical_status',
+                        ],
+                        'orderBy' => ['id_desc'],
+                    ]),
+            )
             ->assertOk()
             ->assertJsonPath('data.0.domain', 'migrated-hosting.nl')
             ->assertJsonPath('data.0.technical_status', TechnicalStatus::OK->value);
@@ -603,9 +704,10 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function showReturnsTheMigrationStateOfASubscriptionThatCameOutOfAMigration(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
 
         $customer = new CustomerFactory()->createOne();
         $customer->migratedCustomers()->attach(new MigratedCustomersFactory()->createOne());
@@ -629,9 +731,10 @@ class MigrationStateControllerTest extends IntegrationTestCase
     #[Test]
     public function showIsNotFoundForASubscriptionThatDidNotComeOutOfAMigration(): void
     {
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension()->createOne())
-            ->createOne(['name' => 'nl-domeinnaam', 'slug' => 'extension_nl']);
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne([
+            'name' => 'nl-domeinnaam',
+            'slug' => 'extension_nl',
+        ]);
 
         $subscription = new SubscriptionFactory()
             ->for($product)

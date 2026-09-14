@@ -36,20 +36,14 @@ class RetentionOfferActionEligibilityServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->hostingProductGroup = ProductGroupFactory::new()
-            ->hosting()
-            ->makeOne();
-        $this->hostingProduct = ProductFactory::new()
-            ->hostingGold($this->hostingProductGroup)
-            ->makeOne();
+        $this->hostingProductGroup = ProductGroupFactory::new()->hosting()->makeOne();
+        $this->hostingProduct = ProductFactory::new()->hostingGold($this->hostingProductGroup)->makeOne();
         $this->hostingProduct->setRelation(
             'productGroup',
             $this->hostingProductGroup,
         );
 
-        $this->subscription = SubscriptionFactory::new()
-            ->administrativeStatusActive()
-            ->makeOne();
+        $this->subscription = SubscriptionFactory::new()->administrativeStatusActive()->makeOne();
         $this->subscription->setRelation(
             'product',
             $this->hostingProduct,
@@ -65,19 +59,14 @@ class RetentionOfferActionEligibilityServiceTest extends TestCase
     public function acceptsDmOptionOneForSupportedDomainProduct(
         string $productSlug,
     ): void {
-        $productGroup = ProductGroupFactory::new()
-            ->extension()
-            ->makeOne();
+        $productGroup = ProductGroupFactory::new()->extension()->makeOne();
 
-        $domainProduct = ProductFactory::new()
-            ->for($productGroup)
-            ->makeOne(['slug' => $productSlug]);
+        $domainProduct = ProductFactory::new()->for($productGroup)->makeOne(['slug' => $productSlug]);
 
         $domainProduct->setRelation('productGroup', $productGroup);
         $this->subscription->setRelation('product', $domainProduct);
 
-        $result = $this->actionEligibilityService
-            ->determineDmOptionOneEligibility($this->subscription);
+        $result = $this->actionEligibilityService->determineDmOptionOneEligibility($this->subscription);
 
         self::assertSame(
             RetentionOfferEligibilityCode::ELIGIBLE,
@@ -95,13 +84,9 @@ class RetentionOfferActionEligibilityServiceTest extends TestCase
     #[Test]
     public function rejectsDmOptionOneForUnsupportedDomainProduct(): void
     {
-        $productGroup = ProductGroupFactory::new()
-            ->extension()
-            ->makeOne();
+        $productGroup = ProductGroupFactory::new()->extension()->makeOne();
 
-        $unsupportedDomainProduct = ProductFactory::new()
-            ->for($productGroup)
-            ->makeOne(['slug' => 'extension_net']);
+        $unsupportedDomainProduct = ProductFactory::new()->for($productGroup)->makeOne(['slug' => 'extension_net']);
 
         $unsupportedDomainProduct->setRelation(
             'productGroup',
@@ -113,8 +98,7 @@ class RetentionOfferActionEligibilityServiceTest extends TestCase
             $unsupportedDomainProduct,
         );
 
-        $result = $this->actionEligibilityService
-            ->determineDmOptionOneEligibility($this->subscription);
+        $result = $this->actionEligibilityService->determineDmOptionOneEligibility($this->subscription);
 
         self::assertSame(
             RetentionOfferEligibilityCode::INELIGIBLE_PRODUCT,
@@ -125,8 +109,7 @@ class RetentionOfferActionEligibilityServiceTest extends TestCase
     #[Test]
     public function rejectsDmOptionOneForHostingProduct(): void
     {
-        $result = $this->actionEligibilityService
-            ->determineDmOptionOneEligibility($this->subscription);
+        $result = $this->actionEligibilityService->determineDmOptionOneEligibility($this->subscription);
 
         self::assertSame(
             RetentionOfferEligibilityCode::INELIGIBLE_PRODUCT,
@@ -134,16 +117,16 @@ class RetentionOfferActionEligibilityServiceTest extends TestCase
         );
     }
 
+    #[DataProvider('downgradeActionProvider')]
     #[Test]
-    public function rejectsDowngradeWithoutTargetProduct(): void
-    {
-        $result = $this->actionEligibilityService
-            ->determineDgOptionOneAEligibility(
-                subscription: $this->subscription,
-                contractPeriod: 12,
-                billingPeriod: 12,
-                targetProduct: null,
-            );
+    public function rejectsDowngradeWithoutTargetProduct(
+        SelectedAction $selectedAction,
+    ): void {
+        $result = $this->actionEligibilityService->determineDowngradeEligibility(
+            subscription: $this->subscription,
+            selectedAction: $selectedAction,
+            targetProduct: null,
+        );
 
         self::assertSame(
             RetentionOfferEligibilityCode::INELIGIBLE_PRODUCT,
@@ -154,20 +137,18 @@ class RetentionOfferActionEligibilityServiceTest extends TestCase
     #[DataProvider('configuredDowngradeProvider')]
     #[Test]
     public function determinesConfiguredDowngradeEligibility(
+        SelectedAction $selectedAction,
         bool $changeAllowed,
         RetentionOfferEligibilityCode $expectedCode,
     ): void {
-        $this->subscription->billing_period = 1;
-
-        $targetProduct = ProductFactory::new()
-            ->hostingBrons($this->hostingProductGroup)
-            ->makeOne();
+        $targetProduct = ProductFactory::new()->hostingBrons($this->hostingProductGroup)->makeOne();
 
         $productAllowedChangeRepository = self::createMock(
             ProductAllowedChangeRepository::class,
         );
 
-        $productAllowedChangeRepository->expects(self::once())
+        $productAllowedChangeRepository
+            ->expects(self::once())
             ->method('isProductChangeAllowed')
             ->with(
                 ProductChangeType::DOWNGRADE,
@@ -180,265 +161,54 @@ class RetentionOfferActionEligibilityServiceTest extends TestCase
             $productAllowedChangeRepository,
         );
 
-        $result = $service->determineDgOptionOneAEligibility(
+        $result = $service->determineDowngradeEligibility(
             subscription: $this->subscription,
-            contractPeriod: 12,
-            billingPeriod: 1,
+            selectedAction: $selectedAction,
             targetProduct: $targetProduct,
         );
 
         self::assertSame($expectedCode, $result->code);
     }
 
-    /** @return iterable<string, array{bool, RetentionOfferEligibilityCode}> */
+    /** @return iterable<string, array{SelectedAction}> */
+    public static function downgradeActionProvider(): iterable
+    {
+        yield 'DG Option 1A' => [SelectedAction::DG_OPTION_1A];
+        yield 'DG Option 1D' => [SelectedAction::DG_OPTION_1D];
+    }
+
+    /** @return iterable<string, array{SelectedAction, bool, RetentionOfferEligibilityCode}> */
     public static function configuredDowngradeProvider(): iterable
     {
-        yield 'configured' => [
+        yield 'DG Option 1A configured' => [
+            SelectedAction::DG_OPTION_1A,
             true,
             RetentionOfferEligibilityCode::ELIGIBLE,
         ];
-        yield 'not configured' => [
+        yield 'DG Option 1A not configured' => [
+            SelectedAction::DG_OPTION_1A,
+            false,
+            RetentionOfferEligibilityCode::INELIGIBLE_PRODUCT,
+        ];
+        yield 'DG Option 1D configured' => [
+            SelectedAction::DG_OPTION_1D,
+            true,
+            RetentionOfferEligibilityCode::ELIGIBLE,
+        ];
+        yield 'DG Option 1D not configured' => [
+            SelectedAction::DG_OPTION_1D,
             false,
             RetentionOfferEligibilityCode::INELIGIBLE_PRODUCT,
         ];
     }
 
     #[Test]
-    public function rejectsDgOptionOneAContractPeriodOtherThanTwelveMonths(): void
-    {
-        $targetProduct = ProductFactory::new()
-            ->hostingBrons($this->hostingProductGroup)
-            ->makeOne();
-
-        $result = $this->actionEligibilityService
-            ->determineDgOptionOneAEligibility(
-                subscription: $this->subscription,
-                contractPeriod: 24,
-                billingPeriod: 12,
-                targetProduct: $targetProduct,
-            );
-
-        self::assertSame(
-            RetentionOfferEligibilityCode::INVALID_CONTRACT_PERIOD,
-            $result->code,
-        );
-    }
-
-    #[Test]
-    public function rejectsDgOptionOneAWhenBillingPeriodChanges(): void
-    {
-        $this->subscription->billing_period = 1;
-
-        $targetProduct = ProductFactory::new()
-            ->hostingBrons($this->hostingProductGroup)
-            ->makeOne();
-
-        $result = $this->actionEligibilityService
-            ->determineDgOptionOneAEligibility(
-                subscription: $this->subscription,
-                contractPeriod: 12,
-                billingPeriod: 12,
-                targetProduct: $targetProduct,
-            );
-
-        self::assertSame(
-            RetentionOfferEligibilityCode::INVALID_BILLING_PERIOD,
-            $result->code,
-        );
-    }
-
-    #[Test]
-    public function rejectsDgOptionOneAWhenCurrentBillingExceedsOneYearContract(): void
-    {
-        $this->subscription->billing_period = 24;
-
-        $targetProduct = ProductFactory::new()
-            ->hostingBrons($this->hostingProductGroup)
-            ->makeOne();
-
-        $result = $this->actionEligibilityService
-            ->determineDgOptionOneAEligibility(
-                subscription: $this->subscription,
-                contractPeriod: 12,
-                billingPeriod: 24,
-                targetProduct: $targetProduct,
-            );
-
-        self::assertSame(
-            RetentionOfferEligibilityCode::INVALID_BILLING_PERIOD,
-            $result->code,
-        );
-    }
-
-    #[DataProvider('supportedDgOptionOneDContractPeriodProvider')]
-    #[Test]
-    public function acceptsSupportedDgOptionOneDContractPeriod(
-        int $contractPeriod,
-    ): void {
-        $targetProduct = ProductFactory::new()
-            ->hostingBrons($this->hostingProductGroup)
-            ->makeOne();
-
-        $productAllowedChangeRepository = self::createMock(
-            ProductAllowedChangeRepository::class,
-        );
-
-        $productAllowedChangeRepository->expects(self::once())
-            ->method('isProductChangeAllowed')
-            ->willReturn(true);
-
-        $service = new RetentionOfferActionEligibilityService(
-            $productAllowedChangeRepository,
-        );
-
-        $result = $service->determineDgOptionOneDEligibility(
-            subscription: $this->subscription,
-            contractPeriod: $contractPeriod,
-            billingPeriod: $contractPeriod,
-            targetProduct: $targetProduct,
-        );
-
-        self::assertSame(
-            RetentionOfferEligibilityCode::ELIGIBLE,
-            $result->code,
-        );
-    }
-
-    /** @return iterable<string, array{positive-int}> */
-    public static function supportedDgOptionOneDContractPeriodProvider(): iterable
-    {
-        yield '24 months' => [24];
-        yield '36 months' => [36];
-    }
-
-    #[Test]
-    public function rejectsUnsupportedDgOptionOneDContractPeriod(): void
-    {
-        $targetProduct = ProductFactory::new()
-            ->hostingBrons($this->hostingProductGroup)
-            ->makeOne();
-
-        $result = $this->actionEligibilityService
-            ->determineDgOptionOneDEligibility(
-                subscription: $this->subscription,
-                contractPeriod: 12,
-                billingPeriod: 12,
-                targetProduct: $targetProduct,
-            );
-
-        self::assertSame(
-            RetentionOfferEligibilityCode::INVALID_CONTRACT_PERIOD,
-            $result->code,
-        );
-    }
-
-    #[Test]
-    public function rejectsDgOptionOneDWithSplitBillingPeriod(): void
-    {
-        $targetProduct = ProductFactory::new()
-            ->hostingBrons($this->hostingProductGroup)
-            ->makeOne();
-
-        $result = $this->actionEligibilityService
-            ->determineDgOptionOneDEligibility(
-                subscription: $this->subscription,
-                contractPeriod: 24,
-                billingPeriod: 12,
-                targetProduct: $targetProduct,
-            );
-
-        self::assertSame(
-            RetentionOfferEligibilityCode::INVALID_BILLING_PERIOD,
-            $result->code,
-        );
-    }
-
-    #[DataProvider('supportedTkOptionOnePeriodProvider')]
-    #[Test]
-    public function acceptsTkOptionOneForSupportedHostingPeriod(
-        int $period,
-    ): void {
-        $this->subscription->contract_period = $period;
-        $this->subscription->billing_period = $period;
-
-        $result = $this->actionEligibilityService
-            ->determineTkOptionOneEligibility($this->subscription);
-
-        self::assertSame(
-            RetentionOfferEligibilityCode::ELIGIBLE,
-            $result->code,
-        );
-    }
-
-    /** @return iterable<string, array{positive-int}> */
-    public static function supportedTkOptionOnePeriodProvider(): iterable
-    {
-        yield '12 months' => [12];
-        yield '24 months' => [24];
-        yield '36 months' => [36];
-    }
-
-    #[Test]
-    public function rejectsTkOptionOneWithSplitBillingPeriod(): void
-    {
-        $this->subscription->contract_period = 12;
-        $this->subscription->billing_period = 6;
-
-        $result = $this->actionEligibilityService
-            ->determineTkOptionOneEligibility($this->subscription);
-
-        self::assertSame(
-            RetentionOfferEligibilityCode::INVALID_BILLING_PERIOD,
-            $result->code,
-        );
-    }
-
-    #[Test]
-    public function rejectsTkOptionOneWithUnsupportedPeriod(): void
-    {
-        $this->subscription->contract_period = 6;
-        $this->subscription->billing_period = 6;
-
-        $result = $this->actionEligibilityService
-            ->determineTkOptionOneEligibility($this->subscription);
-
-        self::assertSame(
-            RetentionOfferEligibilityCode::INVALID_BILLING_PERIOD,
-            $result->code,
-        );
-    }
-
-    #[Test]
-    public function rejectsTkOptionOneForDomainProduct(): void
-    {
-        $productGroup = ProductGroupFactory::new()
-            ->extension()
-            ->makeOne();
-
-        $domainProduct = ProductFactory::new()
-            ->for($productGroup)
-            ->makeOne();
-
-        $domainProduct->setRelation('productGroup', $productGroup);
-        $this->subscription->setRelation('product', $domainProduct);
-
-        $result = $this->actionEligibilityService
-            ->determineTkOptionOneEligibility($this->subscription);
-
-        self::assertSame(
-            RetentionOfferEligibilityCode::INELIGIBLE_PRODUCT,
-            $result->code,
-        );
-    }
-
-    #[Test]
     public function acceptsHostingEligibilityForHostingProduct(): void
     {
-        $result = $this->actionEligibilityService
-            ->determineHostingEligibility(
-                subscription: $this->subscription,
-                selectedAction: SelectedAction::TK_OPTION_3,
-            );
+        $result = $this->actionEligibilityService->determineHostingEligibility(
+            subscription: $this->subscription,
+            selectedAction: SelectedAction::TK_OPTION_3,
+        );
 
         self::assertSame(
             RetentionOfferEligibilityCode::ELIGIBLE,
@@ -449,22 +219,17 @@ class RetentionOfferActionEligibilityServiceTest extends TestCase
     #[Test]
     public function rejectsHostingEligibilityForDomainProduct(): void
     {
-        $productGroup = ProductGroupFactory::new()
-            ->extension()
-            ->makeOne();
+        $productGroup = ProductGroupFactory::new()->extension()->makeOne();
 
-        $domainProduct = ProductFactory::new()
-            ->for($productGroup)
-            ->makeOne();
+        $domainProduct = ProductFactory::new()->for($productGroup)->makeOne();
 
         $domainProduct->setRelation('productGroup', $productGroup);
         $this->subscription->setRelation('product', $domainProduct);
 
-        $result = $this->actionEligibilityService
-            ->determineHostingEligibility(
-                subscription: $this->subscription,
-                selectedAction: SelectedAction::TK_OPTION_3,
-            );
+        $result = $this->actionEligibilityService->determineHostingEligibility(
+            subscription: $this->subscription,
+            selectedAction: SelectedAction::TK_OPTION_3,
+        );
 
         self::assertSame(
             RetentionOfferEligibilityCode::INELIGIBLE_PRODUCT,
@@ -475,22 +240,17 @@ class RetentionOfferActionEligibilityServiceTest extends TestCase
     #[Test]
     public function acceptsDomainOrHostingEligibilityForDomainProduct(): void
     {
-        $productGroup = ProductGroupFactory::new()
-            ->extension()
-            ->makeOne();
+        $productGroup = ProductGroupFactory::new()->extension()->makeOne();
 
-        $domainProduct = ProductFactory::new()
-            ->for($productGroup)
-            ->makeOne();
+        $domainProduct = ProductFactory::new()->for($productGroup)->makeOne();
 
         $domainProduct->setRelation('productGroup', $productGroup);
         $this->subscription->setRelation('product', $domainProduct);
 
-        $result = $this->actionEligibilityService
-            ->determineDomainOrHostingEligibility(
-                subscription: $this->subscription,
-                selectedAction: SelectedAction::TK_OPTION_5,
-            );
+        $result = $this->actionEligibilityService->determineDomainOrHostingEligibility(
+            subscription: $this->subscription,
+            selectedAction: SelectedAction::TK_OPTION_5,
+        );
 
         self::assertSame(
             RetentionOfferEligibilityCode::ELIGIBLE,
@@ -501,11 +261,10 @@ class RetentionOfferActionEligibilityServiceTest extends TestCase
     #[Test]
     public function acceptsDomainOrHostingEligibilityForHostingProduct(): void
     {
-        $result = $this->actionEligibilityService
-            ->determineDomainOrHostingEligibility(
-                subscription: $this->subscription,
-                selectedAction: SelectedAction::TK_OPTION_5,
-            );
+        $result = $this->actionEligibilityService->determineDomainOrHostingEligibility(
+            subscription: $this->subscription,
+            selectedAction: SelectedAction::TK_OPTION_5,
+        );
 
         self::assertSame(
             RetentionOfferEligibilityCode::ELIGIBLE,
@@ -516,22 +275,17 @@ class RetentionOfferActionEligibilityServiceTest extends TestCase
     #[Test]
     public function rejectsDomainOrHostingEligibilityForUnsupportedProduct(): void
     {
-        $productGroup = ProductGroupFactory::new()
-            ->other()
-            ->makeOne();
+        $productGroup = ProductGroupFactory::new()->other()->makeOne();
 
-        $unsupportedProduct = ProductFactory::new()
-            ->for($productGroup)
-            ->makeOne();
+        $unsupportedProduct = ProductFactory::new()->for($productGroup)->makeOne();
 
         $unsupportedProduct->setRelation('productGroup', $productGroup);
         $this->subscription->setRelation('product', $unsupportedProduct);
 
-        $result = $this->actionEligibilityService
-            ->determineDomainOrHostingEligibility(
-                subscription: $this->subscription,
-                selectedAction: SelectedAction::TK_OPTION_5,
-            );
+        $result = $this->actionEligibilityService->determineDomainOrHostingEligibility(
+            subscription: $this->subscription,
+            selectedAction: SelectedAction::TK_OPTION_5,
+        );
 
         self::assertSame(
             RetentionOfferEligibilityCode::INELIGIBLE_PRODUCT,

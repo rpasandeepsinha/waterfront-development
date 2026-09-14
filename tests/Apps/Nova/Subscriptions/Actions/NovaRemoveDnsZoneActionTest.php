@@ -32,14 +32,14 @@ class NovaRemoveDnsZoneActionTest extends IntegrationTestCase
         $mockDnsService = self::createMock(DnsService::class);
 
         $domainSubscription = new SubscriptionFactory()
-            ->for((new CustomerFactory()))
+            ->for(new CustomerFactory())
             ->for(new ProductFactory()->for(new ProductGroupFactory()->extension()))
             ->createOne(
                 [
                     'administrative_status' => AdministrativeStatus::ACTIVE->value,
                     'technical_status' => TechnicalStatus::OK->value,
                     'domain' => self::DOMAIN,
-                ]
+                ],
             );
 
         new DomainDeploymentFactory()
@@ -48,18 +48,16 @@ class NovaRemoveDnsZoneActionTest extends IntegrationTestCase
             ->createOne();
         $action = new NovaRemoveDnsZoneAction(
             translator: self::createStub(TranslatorInterface::class),
-            dnsService: $mockDnsService
+            dnsService: $mockDnsService,
         );
 
-        $mockDnsService->expects(self::once())
-            ->method('deleteZone')
-            ->with(self::DOMAIN);
+        $mockDnsService->expects(self::once())->method('deleteZone')->with(self::DOMAIN);
 
         $subscriptions = new Collection([$domainSubscription]);
 
         $action->handle(
             new ActionFields(new Collection(), new Collection()),
-            $subscriptions
+            $subscriptions,
         );
     }
 
@@ -69,23 +67,22 @@ class NovaRemoveDnsZoneActionTest extends IntegrationTestCase
         $mockDnsService = self::createMock(DnsService::class);
 
         $domainSubscription = new SubscriptionFactory()
-            ->for((new CustomerFactory()))
+            ->for(new CustomerFactory())
             ->for(new ProductFactory()->for(new ProductGroupFactory()->hosting()))
             ->createOne(
                 [
                     'administrative_status' => AdministrativeStatus::ACTIVE->value,
                     'technical_status' => TechnicalStatus::OK->value,
                     'domain' => self::DOMAIN,
-                ]
+                ],
             );
 
         $action = new NovaRemoveDnsZoneAction(
             translator: self::createStub(TranslatorInterface::class),
-            dnsService: $mockDnsService
+            dnsService: $mockDnsService,
         );
 
-        $mockDnsService->expects(self::never())
-            ->method('deleteZone');
+        $mockDnsService->expects(self::never())->method('deleteZone');
 
         $subscriptions = new Collection([$domainSubscription]);
 
@@ -94,7 +91,7 @@ class NovaRemoveDnsZoneActionTest extends IntegrationTestCase
 
         $action->handle(
             new ActionFields(new Collection(), new Collection()),
-            $subscriptions
+            $subscriptions,
         );
     }
 
@@ -104,30 +101,28 @@ class NovaRemoveDnsZoneActionTest extends IntegrationTestCase
         $mockDnsService = self::createMock(DnsService::class);
 
         $domainSubscription = new SubscriptionFactory()
-            ->for((new CustomerFactory()))
+            ->for(new CustomerFactory())
             ->for(new ProductFactory()->for(new ProductGroupFactory()->dns())->premiumDns())
             ->createOne(
                 [
                     'administrative_status' => AdministrativeStatus::ACTIVE->value,
                     'technical_status' => TechnicalStatus::OK->value,
                     'domain' => self::DOMAIN,
-                ]
+                ],
             );
 
         $action = new NovaRemoveDnsZoneAction(
             translator: self::createStub(TranslatorInterface::class),
-            dnsService: $mockDnsService
+            dnsService: $mockDnsService,
         );
 
-        $mockDnsService->expects(self::once())
-            ->method('deleteZone')
-            ->with(self::DOMAIN);
+        $mockDnsService->expects(self::once())->method('deleteZone')->with(self::DOMAIN);
 
         $subscriptions = new Collection([$domainSubscription]);
 
         $action->handle(
             new ActionFields(new Collection(), new Collection()),
-            $subscriptions
+            $subscriptions,
         );
     }
 }

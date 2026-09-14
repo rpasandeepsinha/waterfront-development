@@ -13,44 +13,58 @@ class NotificationHelper
 {
     public function isCertificateRequestNotification(Notification $notification): bool
     {
-        return $notification->notificationType === NotificationType::SSLCertificateNotification->value
-            && $notification->eventType === EventType::RequestCertificateEvent->value;
+        return (
+            $notification->notificationType === NotificationType::SSLCertificateNotification->value
+            && $notification->eventType === EventType::RequestCertificateEvent->value
+        );
     }
 
     public function isCreateDomainNotification(Notification $notification): bool
     {
-        return $notification->notificationType === NotificationType::CreateDomainNotification->value
-            && $notification->eventType === EventType::CreateDomainEvent->value;
+        return (
+            $notification->notificationType === NotificationType::CreateDomainNotification->value
+            && $notification->eventType === EventType::CreateDomainEvent->value
+        );
     }
 
     public function isDeleteDomainNotification(Notification $notification): bool
     {
-        return $notification->notificationType === NotificationType::DeleteDomainNotification->value
-            && $notification->eventType === EventType::DeleteDomainEvent->value;
+        return (
+            $notification->notificationType === NotificationType::DeleteDomainNotification->value
+            && $notification->eventType === EventType::DeleteDomainEvent->value
+        );
     }
 
     public function isRenewDomainNotification(Notification $notification): bool
     {
-        return $notification->notificationType === NotificationType::RenewDomainNotification->value
-            && $notification->eventType === EventType::RenewDomainEvent->value;
+        return (
+            $notification->notificationType === NotificationType::RenewDomainNotification->value
+            && $notification->eventType === EventType::RenewDomainEvent->value
+        );
     }
 
     public function isUpdateDomainNotification(Notification $notification): bool
     {
-        return $notification->notificationType === NotificationType::UpdateDomainNotification->value
-            && $notification->eventType === EventType::UpdateDomainEvent->value;
+        return (
+            $notification->notificationType === NotificationType::UpdateDomainNotification->value
+            && $notification->eventType === EventType::UpdateDomainEvent->value
+        );
     }
 
     public function isTransferredDomainNotification(Notification $notification): bool
     {
-        return $notification->notificationType === NotificationType::TransferDomainNotification->value
-            && $notification->eventType === EventType::TransferDomainEvent->value;
+        return (
+            $notification->notificationType === NotificationType::TransferDomainNotification->value
+            && $notification->eventType === EventType::TransferDomainEvent->value
+        );
     }
 
     public function isValidateContactNotification(Notification $notification): bool
     {
-        return $notification->notificationType === NotificationType::NOTIFICATION->value
-            && $notification->eventType === EventType::VALIDATE_CONTACT_EVENT->value;
+        return (
+            $notification->notificationType === NotificationType::NOTIFICATION->value
+            && $notification->eventType === EventType::VALIDATE_CONTACT_EVENT->value
+        );
     }
 
     public function extractDomainName(Notification $notification): ?string
@@ -63,6 +77,6 @@ class NotificationHelper
         $payload = $notification->payload ?? null;
         $domainNameFromPayload = is_array($payload) ? Arr::get($payload, 'domainName') : null;
 
-        return (is_string($domainNameFromPayload) && $domainNameFromPayload !== '') ? $domainNameFromPayload : null;
+        return is_string($domainNameFromPayload) && $domainNameFromPayload !== '' ? $domainNameFromPayload : null;
     }
 }

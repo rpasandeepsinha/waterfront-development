@@ -71,13 +71,24 @@ class Microsoft365TerminationListenerTest extends IntegrationTestCase
     #[Test]
     public function microsoft365TerminationListenerTerminateOrder(): void
     {
-        new SubscriptionFactory()->count(3)->for($this->customer)->for($this->product)->parentSubscription($this->subscription)->createOne([
-            'administrative_status' => AdministrativeStatus::ARCHIVED->value,
-        ]);
+        new SubscriptionFactory()
+            ->count(3)
+            ->for($this->customer)
+            ->for($this->product)
+            ->parentSubscription($this->subscription)
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::ARCHIVED->value,
+            ]);
 
         $microsoftSubscriptionService = self::createMock(Microsoft365Service::class);
-        $microsoftSubscriptionService->expects(self::once())->method('terminateOrder')
-            ->with(self::callback(fn (Microsoft365Deployment $microsoft365Deployment) => $microsoft365Deployment->id === $this->microsoft365Deployment->id));
+        $microsoftSubscriptionService
+            ->expects(self::once())
+            ->method('terminateOrder')
+            ->with(self::callback(
+                fn (Microsoft365Deployment $microsoft365Deployment) => (
+                    $microsoft365Deployment->id === $this->microsoft365Deployment->id
+                ),
+            ));
 
         $event = new TerminateMicrosoft365($this->subscription);
 
@@ -97,18 +108,30 @@ class Microsoft365TerminationListenerTest extends IntegrationTestCase
     #[Test]
     public function microsoft365TerminationListenerModifyOrder(): void
     {
-        new SubscriptionFactory()->for($this->customer)->for($this->product)->parentSubscription($this->subscription)->state([
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-        ])->createMany(2);
+        new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->parentSubscription($this->subscription)
+            ->state([
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+            ])
+            ->createMany(2);
 
-        new SubscriptionFactory()->for($this->customer)->for($this->product)->parentSubscription($this->subscription)->state([
-            'administrative_status' => AdministrativeStatus::EXPIRED->value,
-            'end_date' => new CarbonImmutable(),
-            'termination_date' => new CarbonImmutable(),
-        ])->createMany(2);
+        new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->parentSubscription($this->subscription)
+            ->state([
+                'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                'end_date' => new CarbonImmutable(),
+                'termination_date' => new CarbonImmutable(),
+            ])
+            ->createMany(2);
 
         $microsoftSubscriptionService = self::createMock(Microsoft365Service::class);
-        $microsoftSubscriptionService->expects(self::once())->method('modifyOrder')
+        $microsoftSubscriptionService
+            ->expects(self::once())
+            ->method('modifyOrder')
             ->with($this->microsoft365Deployment->kpn_order_id, -2);
 
         $event = new TerminateMicrosoft365($this->subscription);
@@ -125,9 +148,15 @@ class Microsoft365TerminationListenerTest extends IntegrationTestCase
 
         self::assertSame(AdministrativeStatus::ACTIVE->value, $this->subscription->administrative_status);
 
-        $active_children_count = Subscription::where('administrative_status', AdministrativeStatus::ACTIVE->value)->where('parent_subscription_id', $this->subscription->id)->count();
-        $canceled_children_count = Subscription::where('administrative_status', AdministrativeStatus::CANCELED->value)->where('parent_subscription_id', $this->subscription->id)->count();
-        $archiving_children_count = Subscription::where('administrative_status', AdministrativeStatus::ARCHIVING->value)->where('parent_subscription_id', $this->subscription->id)->count();
+        $active_children_count = Subscription::where('administrative_status', AdministrativeStatus::ACTIVE->value)
+            ->where('parent_subscription_id', $this->subscription->id)
+            ->count();
+        $canceled_children_count = Subscription::where('administrative_status', AdministrativeStatus::CANCELED->value)
+            ->where('parent_subscription_id', $this->subscription->id)
+            ->count();
+        $archiving_children_count = Subscription::where('administrative_status', AdministrativeStatus::ARCHIVING->value)
+            ->where('parent_subscription_id', $this->subscription->id)
+            ->count();
 
         self::assertSame(2, $active_children_count);
         self::assertSame(0, $canceled_children_count);
@@ -137,18 +166,30 @@ class Microsoft365TerminationListenerTest extends IntegrationTestCase
     #[Test]
     public function microsoft365TerminationListenerModifyOrderWithUnevenAmount(): void
     {
-        new SubscriptionFactory()->for($this->customer)->for($this->product)->parentSubscription($this->subscription)->state([
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-        ])->createMany(2);
+        new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->parentSubscription($this->subscription)
+            ->state([
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+            ])
+            ->createMany(2);
 
-        new SubscriptionFactory()->for($this->customer)->for($this->product)->parentSubscription($this->subscription)->state([
-            'administrative_status' => AdministrativeStatus::EXPIRED->value,
-            'end_date' => new CarbonImmutable(),
-            'termination_date' => new CarbonImmutable(),
-        ])->createMany(3);
+        new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->parentSubscription($this->subscription)
+            ->state([
+                'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                'end_date' => new CarbonImmutable(),
+                'termination_date' => new CarbonImmutable(),
+            ])
+            ->createMany(3);
 
         $microsoftSubscriptionService = self::createMock(Microsoft365Service::class);
-        $microsoftSubscriptionService->expects(self::once())->method('modifyOrder')
+        $microsoftSubscriptionService
+            ->expects(self::once())
+            ->method('modifyOrder')
             ->with($this->microsoft365Deployment->kpn_order_id, -3);
 
         $event = new TerminateMicrosoft365($this->subscription);
@@ -165,9 +206,15 @@ class Microsoft365TerminationListenerTest extends IntegrationTestCase
 
         self::assertSame(AdministrativeStatus::ACTIVE->value, $this->subscription->administrative_status);
 
-        $active_children_count = Subscription::where('administrative_status', AdministrativeStatus::ACTIVE->value)->where('parent_subscription_id', $this->subscription->id)->count();
-        $canceled_children_count = Subscription::where('administrative_status', AdministrativeStatus::CANCELED->value)->where('parent_subscription_id', $this->subscription->id)->count();
-        $archiving_children_count = Subscription::where('administrative_status', AdministrativeStatus::ARCHIVING->value)->where('parent_subscription_id', $this->subscription->id)->count();
+        $active_children_count = Subscription::where('administrative_status', AdministrativeStatus::ACTIVE->value)
+            ->where('parent_subscription_id', $this->subscription->id)
+            ->count();
+        $canceled_children_count = Subscription::where('administrative_status', AdministrativeStatus::CANCELED->value)
+            ->where('parent_subscription_id', $this->subscription->id)
+            ->count();
+        $archiving_children_count = Subscription::where('administrative_status', AdministrativeStatus::ARCHIVING->value)
+            ->where('parent_subscription_id', $this->subscription->id)
+            ->count();
 
         self::assertSame(2, $active_children_count);
         self::assertSame(0, $canceled_children_count);
@@ -177,9 +224,14 @@ class Microsoft365TerminationListenerTest extends IntegrationTestCase
     #[Test]
     public function microsoft365TerminationListenerOnlyActiveSeats(): void
     {
-        new SubscriptionFactory()->count(2)->for($this->customer)->for($this->product)->parentSubscription($this->subscription)->createOne([
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-        ]);
+        new SubscriptionFactory()
+            ->count(2)
+            ->for($this->customer)
+            ->for($this->product)
+            ->parentSubscription($this->subscription)
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+            ]);
 
         $microsoftSubscriptionService = self::createMock(Microsoft365Service::class);
         $microsoftSubscriptionService->expects(self::never())->method('terminateOrder');
@@ -206,14 +258,24 @@ class Microsoft365TerminationListenerTest extends IntegrationTestCase
         $this->microsoft365Deployment->kpn_start_date = CarbonImmutable::now()->subDays(2)->subYear();
         $this->microsoft365Deployment->save();
 
-        new SubscriptionFactory()->for($this->customer)->for($this->product)->parentSubscription($this->subscription)->state([
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-        ])->createMany(2);
+        new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->parentSubscription($this->subscription)
+            ->state([
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+            ])
+            ->createMany(2);
 
-        new SubscriptionFactory()->for($this->customer)->for($this->product)->parentSubscription($this->subscription)->state([
-            'administrative_status' => AdministrativeStatus::CANCELED->value,
-            'end_date' => new CarbonImmutable(),
-        ])->createMany(3);
+        new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->parentSubscription($this->subscription)
+            ->state([
+                'administrative_status' => AdministrativeStatus::CANCELED->value,
+                'end_date' => new CarbonImmutable(),
+            ])
+            ->createMany(3);
 
         $microsoftSubscriptionService = self::createMock(Microsoft365Service::class);
         $microsoftSubscriptionService->expects(self::never())->method('modifyOrder');
@@ -232,9 +294,15 @@ class Microsoft365TerminationListenerTest extends IntegrationTestCase
 
         self::assertSame(AdministrativeStatus::ACTIVE->value, $this->subscription->administrative_status);
 
-        $active_children_count = Subscription::where('administrative_status', AdministrativeStatus::ACTIVE->value)->where('parent_subscription_id', $this->subscription->id)->count();
-        $canceled_children_count = Subscription::where('administrative_status', AdministrativeStatus::CANCELED->value)->where('parent_subscription_id', $this->subscription->id)->count();
-        $archiving_children_count = Subscription::where('administrative_status', AdministrativeStatus::ARCHIVING->value)->where('parent_subscription_id', $this->subscription->id)->count();
+        $active_children_count = Subscription::where('administrative_status', AdministrativeStatus::ACTIVE->value)
+            ->where('parent_subscription_id', $this->subscription->id)
+            ->count();
+        $canceled_children_count = Subscription::where('administrative_status', AdministrativeStatus::CANCELED->value)
+            ->where('parent_subscription_id', $this->subscription->id)
+            ->count();
+        $archiving_children_count = Subscription::where('administrative_status', AdministrativeStatus::ARCHIVING->value)
+            ->where('parent_subscription_id', $this->subscription->id)
+            ->count();
 
         self::assertSame(2, $active_children_count);
         self::assertSame(3, $canceled_children_count);

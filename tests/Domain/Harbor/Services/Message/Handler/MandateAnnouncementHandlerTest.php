@@ -19,10 +19,9 @@ class MandateAnnouncementHandlerTest extends IntegrationTestCase
     #[Test]
     public function mandateCreated(): void
     {
-        $customer = CustomerFactory::new()
-            ->createOne([
-                'has_direct_debit' => false,
-            ]);
+        $customer = CustomerFactory::new()->createOne([
+            'has_direct_debit' => false,
+        ]);
 
         new MandateAnnouncementHandler(
             self::resolve(LoggerInterface::class),
@@ -33,16 +32,15 @@ class MandateAnnouncementHandlerTest extends IntegrationTestCase
             true,
         ));
 
-        self::assertTrue(($customer->refresh())->has_direct_debit);
+        self::assertTrue($customer->refresh()->has_direct_debit);
     }
 
     #[Test]
     public function mandateRevoked(): void
     {
-        $customer = CustomerFactory::new()
-            ->createOne([
-                'has_direct_debit' => true,
-            ]);
+        $customer = CustomerFactory::new()->createOne([
+            'has_direct_debit' => true,
+        ]);
 
         new MandateAnnouncementHandler(
             self::resolve(LoggerInterface::class),
@@ -53,6 +51,6 @@ class MandateAnnouncementHandlerTest extends IntegrationTestCase
             false,
         ));
 
-        self::assertFalse(($customer->refresh())->has_direct_debit);
+        self::assertFalse($customer->refresh()->has_direct_debit);
     }
 }

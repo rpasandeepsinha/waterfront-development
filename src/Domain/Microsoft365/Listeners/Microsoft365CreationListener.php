@@ -15,7 +15,7 @@ class Microsoft365CreationListener implements ShouldQueue
     public string $queue = QueueName::MICROSOFT365->value;
 
     public function __construct(
-        private readonly Microsoft365SubscriptionService $microsoft365Service
+        private readonly Microsoft365SubscriptionService $microsoft365Service,
     ) {
     }
 
@@ -24,7 +24,7 @@ class Microsoft365CreationListener implements ShouldQueue
         $this->microsoft365Service->create(
             new Collection($event->subscriptions),
             null,
-            null
+            null,
         );
     }
 }

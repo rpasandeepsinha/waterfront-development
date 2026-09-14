@@ -45,7 +45,7 @@ class TransferDomainNotificationHandler
     {
         if (! $this->notificationHelper->isTransferredDomainNotification($notification)) {
             throw new InvalidArgumentException(
-                'Cannot handle notification because it is not a domain request notification.'
+                'Cannot handle notification because it is not a domain request notification.',
             );
         }
 
@@ -63,7 +63,10 @@ class TransferDomainNotificationHandler
 
         $transferStatus = $this->rtrService->transferInfo($domainName, (string) $notification->process);
 
-        $responseLog = $this->rtrResponseLogPersister->logApiResponse(json_encode($transferStatus, JSON_THROW_ON_ERROR));
+        $responseLog = $this->rtrResponseLogPersister->logApiResponse(json_encode(
+            $transferStatus,
+            JSON_THROW_ON_ERROR,
+        ));
 
         try {
             $this->domainProviderHistory->saveHistory(
@@ -71,13 +74,14 @@ class TransferDomainNotificationHandler
                 ProviderSlug::REALTIME_REGISTER,
                 $domainName,
                 $transferStatus->status,
-                $notification->message
+                $notification->message,
             );
         } catch (ModelNotFoundException $exception) {
             $this->logger->warning('Unable to find domain subscription for domain {domain.name}', [
                 LoggingContextKeys::EXCEPTION => $exception,
                 LoggingContextKeys::DOMAIN_NAME => $domainName,
             ]);
+
             return;
         }
 
@@ -86,7 +90,10 @@ class TransferDomainNotificationHandler
             && $transferStatus->status === TransferStatus::COMPLETED->value
         ) {
             $this->subscriptionTerminateService->endTransferredSubscription($domainName);
-        } elseif ($transferType === TransferTypeType::IN->value || $transferType === TransferTypeType::IN_INTERNAL->value) {
+        } elseif (
+            $transferType === TransferTypeType::IN->value
+            || $transferType === TransferTypeType::IN_INTERNAL->value
+        ) {
             $status = $this->parseRtrTransferStatusToWfStatusAction->execute($transferStatus->status);
             $this->subscriptionService->updateSubscriptionStatus($domainName, $status, $notification->message);
         }

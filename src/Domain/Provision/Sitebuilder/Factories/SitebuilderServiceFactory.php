@@ -18,7 +18,7 @@ class SitebuilderServiceFactory implements ProvisionServiceFactoryInterface
 {
     public function __construct(
         private readonly BasekitValidator $basekitValidator,
-        private readonly BasekitProvisionService $basekitProvisionService
+        private readonly BasekitProvisionService $basekitProvisionService,
     ) {
     }
 
@@ -30,7 +30,7 @@ class SitebuilderServiceFactory implements ProvisionServiceFactoryInterface
     {
         return match ($provider) {
             ProvisionProvider::BASEKIT => $this->basekitValidator->getValidatorByRequest($provisionRequest),
-            default => throw new UnknownSitebuilderProviderException($provider)
+            default => throw new UnknownSitebuilderProviderException($provider),
         };
     }
 
@@ -41,7 +41,7 @@ class SitebuilderServiceFactory implements ProvisionServiceFactoryInterface
     {
         return match ($provider) {
             ProvisionProvider::BASEKIT => $this->basekitProvisionService,
-            default => throw new UnknownSitebuilderProviderException($provider)
+            default => throw new UnknownSitebuilderProviderException($provider),
         };
     }
 }

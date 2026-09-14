@@ -39,7 +39,7 @@ class MicrosoftOnlineSerializer extends Serializer
             new ObjectNormalizer(
                 classMetadataFactory: $classMetadataFactory,
                 nameConverter: $metadataAwareNameConverter,
-                propertyTypeExtractor: $extractor
+                propertyTypeExtractor: $extractor,
             ),
         ];
 

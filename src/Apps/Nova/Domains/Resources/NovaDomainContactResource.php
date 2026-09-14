@@ -62,21 +62,34 @@ class NovaDomainContactResource extends Resource
                         }
 
                         return $externalContact . " ({$provider->slug->value})";
-                    }, ', ')
+                    }, ', '),
             )->exceptOnForms(),
             Text::make(self::translate('domain-contact.attributes.first_name'), 'first_name')->onlyOnDetail(),
             Text::make(self::translate('domain-contact.attributes.last_name'), 'last_name')->onlyOnDetail(),
-            Text::make(self::translate('domain-contact.attributes.phone_country_code'), 'phone_country_code')->onlyOnDetail(),
+            Text::make(
+                self::translate('domain-contact.attributes.phone_country_code'),
+                'phone_country_code',
+            )->onlyOnDetail(),
             Text::make(self::translate('domain-contact.attributes.phone_area_code'), 'phone_area_code')->onlyOnDetail(),
-            Text::make(self::translate('domain-contact.attributes.phone_subscriber_number'), 'phone_subscriber_number')->onlyOnDetail(),
+            Text::make(
+                self::translate('domain-contact.attributes.phone_subscriber_number'),
+                'phone_subscriber_number',
+            )->onlyOnDetail(),
             Text::make(self::translate('domain-contact.attributes.street_name'), 'street_name')->onlyOnDetail(),
             Text::make(self::translate('domain-contact.attributes.street_number'), 'street_number')->onlyOnDetail(),
             Text::make(self::translate('domain-contact.attributes.zip_code'), 'zip_code')->onlyOnDetail(),
             Text::make(self::translate('domain-contact.attributes.city'), 'city')->onlyOnDetail(),
             Text::make(self::translate('domain-contact.attributes.country_code'), 'country_code')->onlyOnDetail(),
             Text::make(self::translate('domain-contact.attributes.organization'), 'organization')->onlyOnDetail(),
-            NovaBoolField::make(self::translate('domain-contact.attributes.default_owner'), 'default_owner')->onlyOnDetail(),
-            BelongsTo::make(self::translate('user.relations.customer'), 'customer', NovaCustomerResource::class)->onlyOnDetail(),
+            NovaBoolField::make(
+                self::translate('domain-contact.attributes.default_owner'),
+                'default_owner',
+            )->onlyOnDetail(),
+            BelongsTo::make(
+                self::translate('user.relations.customer'),
+                'customer',
+                NovaCustomerResource::class,
+            )->onlyOnDetail(),
         ];
     }
 

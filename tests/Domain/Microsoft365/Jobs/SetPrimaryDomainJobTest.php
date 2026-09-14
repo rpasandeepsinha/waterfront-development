@@ -55,7 +55,12 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
         $product = new ProductFactory()->for(new ProductGroupFactory()->hosting())->createOne();
 
         new Microsoft365DeploymentFactory()
-            ->for(new SubscriptionFactory()->for($customer)->for($product)->createOne())
+            ->for(
+                new SubscriptionFactory()
+                    ->for($customer)
+                    ->for($product)
+                    ->createOne(),
+            )
             ->for($this->microsoft365CustomerInfo)
             ->createOne();
 
@@ -74,8 +79,8 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
             ->dispatch(
                 new SetPrimaryDomainJob(
                     self::DOMAIN,
-                    $this->microsoft365CustomerInfo
-                )
+                    $this->microsoft365CustomerInfo,
+                ),
             );
 
         Queue::assertPushedOn(QueueName::MICROSOFT365->value, SetPrimaryDomainJob::class);
@@ -90,8 +95,8 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
             ->dispatch(
                 new SetPrimaryDomainJob(
                     self::DOMAIN,
-                    $this->microsoft365CustomerInfo
-                )
+                    $this->microsoft365CustomerInfo,
+                ),
             );
 
         Bus::assertNotDispatchedSync(SetPrimaryDomainJob::class);
@@ -103,7 +108,8 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
         $testExceptionMessage = 'A test exception that has occurred';
         $testThrowable = new Exception($testExceptionMessage);
 
-        $this->mockLogger->expects(self::once())
+        $this->mockLogger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Error SetPrimaryDomainJob for domain {domain.name} job definitely failed after {queue.attempt} attempts',
@@ -114,7 +120,7 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
                     LoggingContextKeys::META => [
                         'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
                     ],
-                ]
+                ],
             );
 
         $this->app->bind(LoggerInterface::class, fn () => $this->mockLogger);
@@ -123,37 +129,41 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
 
         $job->failed($testThrowable);
 
-        self::assertSame(PrimaryDomainStatus::VERIFICATION_FAILED, $this->microsoft365CustomerInfo->refresh()->primary_domain_status);
+        self::assertSame(
+            PrimaryDomainStatus::VERIFICATION_FAILED,
+            $this->microsoft365CustomerInfo->refresh()->primary_domain_status,
+        );
     }
 
     #[Test]
     public function domainVerificationRecordsCannotBeRetrieved(): void
     {
-        $this->mockLogger->expects(self::exactly(2))
+        $this->mockLogger
+            ->expects(self::exactly(2))
             ->method('debug')
             ->with(
                 ...self::withConsecutive(
                     [
-                    'Starting SetPrimaryDomainJob for domain [{domain.name}], attempt {queue.attempt}/7',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                        LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                        LoggingContextKeys::META => [
-                            'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                        'Starting SetPrimaryDomainJob for domain [{domain.name}], attempt {queue.attempt}/7',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                            LoggingContextKeys::QUEUE_ATTEMPT => 1,
+                            LoggingContextKeys::META => [
+                                'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                            ],
                         ],
                     ],
-                ],
                     [
-                    'Verification records could not be retrieved for domain [{domain.name}]',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                        LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                        LoggingContextKeys::META => [
-                            'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                        'Verification records could not be retrieved for domain [{domain.name}]',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                            LoggingContextKeys::QUEUE_ATTEMPT => 1,
+                            LoggingContextKeys::META => [
+                                'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                            ],
                         ],
                     ],
-                ],
-                )
+                ),
             );
 
         $this->mockMicrosoft365Service
@@ -176,57 +186,61 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
             $this->mockMailer,
         );
 
-        self::assertSame(PrimaryDomainStatus::VERIFICATION_PENDING, $this->microsoft365CustomerInfo->refresh()->primary_domain_status);
+        self::assertSame(
+            PrimaryDomainStatus::VERIFICATION_PENDING,
+            $this->microsoft365CustomerInfo->refresh()->primary_domain_status,
+        );
     }
 
     #[Test]
     public function createDomainButVerifyDomainFails(): void
     {
-        $this->mockLogger->expects(self::exactly(4))
+        $this->mockLogger
+            ->expects(self::exactly(4))
             ->method('debug')
             ->with(
                 ...self::withConsecutive(
                     [
-                    'Starting SetPrimaryDomainJob for domain [{domain.name}], attempt {queue.attempt}/7',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                        LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                        LoggingContextKeys::META => [
-                            'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                        'Starting SetPrimaryDomainJob for domain [{domain.name}], attempt {queue.attempt}/7',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                            LoggingContextKeys::QUEUE_ATTEMPT => 1,
+                            LoggingContextKeys::META => [
+                                'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                            ],
                         ],
                     ],
-                ],
                     [
-                    'Creating domain [{domain.name}] in Microsoft',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                        LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                        LoggingContextKeys::META => [
-                            'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                        'Creating domain [{domain.name}] in Microsoft',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                            LoggingContextKeys::QUEUE_ATTEMPT => 1,
+                            LoggingContextKeys::META => [
+                                'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                            ],
                         ],
                     ],
-                ],
                     [
-                    '[{domain.name}] has successfully been created in Microsoft',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                        LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                        LoggingContextKeys::META => [
-                            'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                        '[{domain.name}] has successfully been created in Microsoft',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                            LoggingContextKeys::QUEUE_ATTEMPT => 1,
+                            LoggingContextKeys::META => [
+                                'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                            ],
                         ],
                     ],
-                ],
                     [
-                    'Verification did not change the verify status or domain does not exist [{domain.name}]',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                        LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                        LoggingContextKeys::META => [
-                            'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                        'Verification did not change the verify status or domain does not exist [{domain.name}]',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                            LoggingContextKeys::QUEUE_ATTEMPT => 1,
+                            LoggingContextKeys::META => [
+                                'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                            ],
                         ],
                     ],
-                ]
-                )
+                ),
             );
 
         $this->mockMicrosoft365Service
@@ -261,37 +275,41 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
             $this->mockMailer,
         );
 
-        self::assertSame(PrimaryDomainStatus::VERIFICATION_PENDING, $this->microsoft365CustomerInfo->refresh()->primary_domain_status);
+        self::assertSame(
+            PrimaryDomainStatus::VERIFICATION_PENDING,
+            $this->microsoft365CustomerInfo->refresh()->primary_domain_status,
+        );
     }
 
     #[Test]
     public function promotionOfVerifiedDomainFails(): void
     {
-        $this->mockLogger->expects(self::exactly(2))
+        $this->mockLogger
+            ->expects(self::exactly(2))
             ->method('debug')
             ->with(
                 ...self::withConsecutive(
                     [
-                    'Starting SetPrimaryDomainJob for domain [{domain.name}], attempt {queue.attempt}/7',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                        LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                        LoggingContextKeys::META => [
-                            'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                        'Starting SetPrimaryDomainJob for domain [{domain.name}], attempt {queue.attempt}/7',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                            LoggingContextKeys::QUEUE_ATTEMPT => 1,
+                            LoggingContextKeys::META => [
+                                'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                            ],
                         ],
                     ],
-                ],
                     [
-                    'Promotion did not change the domain to a default root domain [{domain.name}]',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                        LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                        LoggingContextKeys::META => [
-                            'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                        'Promotion did not change the domain to a default root domain [{domain.name}]',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                            LoggingContextKeys::QUEUE_ATTEMPT => 1,
+                            LoggingContextKeys::META => [
+                                'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                            ],
                         ],
                     ],
-                ],
-                )
+                ),
             );
 
         $this->mockMicrosoft365Service
@@ -326,37 +344,41 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
             $this->mockMailer,
         );
 
-        self::assertSame(PrimaryDomainStatus::VERIFIED, $this->microsoft365CustomerInfo->refresh()->primary_domain_status);
+        self::assertSame(
+            PrimaryDomainStatus::VERIFIED,
+            $this->microsoft365CustomerInfo->refresh()->primary_domain_status,
+        );
     }
 
     #[Test]
     public function setDomainAsDefaultDomainFails(): void
     {
-        $this->mockLogger->expects(self::exactly(2))
+        $this->mockLogger
+            ->expects(self::exactly(2))
             ->method('debug')
             ->with(
                 ...self::withConsecutive(
                     [
-                    'Starting SetPrimaryDomainJob for domain [{domain.name}], attempt {queue.attempt}/7',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                        LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                        LoggingContextKeys::META => [
-                            'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                        'Starting SetPrimaryDomainJob for domain [{domain.name}], attempt {queue.attempt}/7',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                            LoggingContextKeys::QUEUE_ATTEMPT => 1,
+                            LoggingContextKeys::META => [
+                                'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                            ],
                         ],
                     ],
-                ],
                     [
-                    'Failed to set domain [{domain.name}] as default domain',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                        LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                        LoggingContextKeys::META => [
-                            'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                        'Failed to set domain [{domain.name}] as default domain',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                            LoggingContextKeys::QUEUE_ATTEMPT => 1,
+                            LoggingContextKeys::META => [
+                                'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                            ],
                         ],
                     ],
-                ],
-                )
+                ),
             );
 
         $this->mockMicrosoft365Service
@@ -397,37 +419,41 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
             $this->mockMailer,
         );
 
-        self::assertSame(PrimaryDomainStatus::VERIFIED, $this->microsoft365CustomerInfo->refresh()->primary_domain_status);
+        self::assertSame(
+            PrimaryDomainStatus::VERIFIED,
+            $this->microsoft365CustomerInfo->refresh()->primary_domain_status,
+        );
     }
 
     #[Test]
     public function settingMxRecordsForPromotedDomainFails(): void
     {
-        $this->mockLogger->expects(self::exactly(2))
+        $this->mockLogger
+            ->expects(self::exactly(2))
             ->method('debug')
             ->with(
                 ...self::withConsecutive(
                     [
-                    'Starting SetPrimaryDomainJob for domain [{domain.name}], attempt {queue.attempt}/7',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                        LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                        LoggingContextKeys::META => [
-                            'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                        'Starting SetPrimaryDomainJob for domain [{domain.name}], attempt {queue.attempt}/7',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                            LoggingContextKeys::QUEUE_ATTEMPT => 1,
+                            LoggingContextKeys::META => [
+                                'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                            ],
                         ],
                     ],
-                ],
                     [
-                    'Verification records could not be retrieved for domain [{domain.name}]',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                        LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                        LoggingContextKeys::META => [
-                            'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                        'Verification records could not be retrieved for domain [{domain.name}]',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                            LoggingContextKeys::QUEUE_ATTEMPT => 1,
+                            LoggingContextKeys::META => [
+                                'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
+                            ],
                         ],
                     ],
-                ],
-                )
+                ),
             );
 
         $this->mockMicrosoft365Service
@@ -474,13 +500,17 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
             $this->mockMailer,
         );
 
-        self::assertSame(PrimaryDomainStatus::VERIFIED, $this->microsoft365CustomerInfo->refresh()->primary_domain_status);
+        self::assertSame(
+            PrimaryDomainStatus::VERIFIED,
+            $this->microsoft365CustomerInfo->refresh()->primary_domain_status,
+        );
     }
 
     #[Test]
     public function handleSuccessWithPrimaryDomainSet(): void
     {
-        $this->mockLogger->expects(self::once())
+        $this->mockLogger
+            ->expects(self::once())
             ->method('debug')
             ->with(
                 'Starting SetPrimaryDomainJob for domain [{domain.name}], attempt {queue.attempt}/7',
@@ -490,7 +520,7 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
                     LoggingContextKeys::META => [
                         'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
                     ],
-                ]
+                ],
             );
 
         $this->mockMicrosoft365Service
@@ -529,16 +559,21 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
             ->with(self::DOMAIN)
             ->willReturn(true);
 
-        $this->mockMailer->expects(self::once())
+        $this->mockMailer
+            ->expects(self::once())
             ->method('send')
             ->with(
                 self::callback(
-                    fn (array $recipients): bool => count($recipients) === 1
+                    fn (array $recipients): bool => (
+                        count($recipients) === 1
                         && $recipients[0]->getEmail() === $this->microsoft365CustomerInfo->customer->email
+                    ),
                 ),
                 self::callback(
-                    fn (MailTemplateInterface $template): bool => $template::class === Microsoft365PrimaryDomainUpdated::class
-                )
+                    fn (MailTemplateInterface $template): bool => (
+                        $template::class === Microsoft365PrimaryDomainUpdated::class
+                    ),
+                ),
             );
 
         $job = new SetPrimaryDomainJob(self::DOMAIN, $this->microsoft365CustomerInfo);
@@ -549,7 +584,10 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
             $this->mockMailer,
         );
 
-        self::assertSame(PrimaryDomainStatus::ACTIVE, $this->microsoft365CustomerInfo->refresh()->primary_domain_status);
+        self::assertSame(
+            PrimaryDomainStatus::ACTIVE,
+            $this->microsoft365CustomerInfo->refresh()->primary_domain_status,
+        );
         self::assertSame(self::DOMAIN, $this->microsoft365CustomerInfo->refresh()->primary_domain);
     }
 
@@ -614,7 +652,10 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
         );
 
         self::assertSame($resolvedTenantId, $this->microsoft365CustomerInfo->refresh()->tenant_id);
-        self::assertSame(PrimaryDomainStatus::ACTIVE, $this->microsoft365CustomerInfo->refresh()->primary_domain_status);
+        self::assertSame(
+            PrimaryDomainStatus::ACTIVE,
+            $this->microsoft365CustomerInfo->refresh()->primary_domain_status,
+        );
     }
 
     #[Test]
@@ -626,7 +667,8 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
         $this->microsoft365CustomerInfo->tenant_name = $tenantName;
         $this->microsoft365CustomerInfo->save();
 
-        $this->mockLogger->expects(self::once())
+        $this->mockLogger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 'Could not resolve tenant id for domain [{domain.name}], retrying',
@@ -636,7 +678,7 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
                     LoggingContextKeys::META => [
                         'Microsoft365CustomerInfoId' => $this->microsoft365CustomerInfo->id,
                     ],
-                ]
+                ],
             );
 
         $this->mockMicrosoft365Service
@@ -645,9 +687,7 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
             ->with($tenantName)
             ->willReturn(null);
 
-        $this->mockMicrosoft365Service
-            ->expects(self::never())
-            ->method('checkIfDomainExistsInMicrosoftAccount');
+        $this->mockMicrosoft365Service->expects(self::never())->method('checkIfDomainExistsInMicrosoftAccount');
 
         $job = new SetPrimaryDomainJob(self::DOMAIN, $this->microsoft365CustomerInfo);
 
@@ -663,16 +703,17 @@ class SetPrimaryDomainJobTest extends IntegrationTestCase
     #[Test]
     public function setPrimaryDomainFailsToAddDomain(): void
     {
-        $this->mockMicrosoft365Service->expects(self::once())
+        $this->mockMicrosoft365Service
+            ->expects(self::once())
             ->method('checkIfDomainExistsInMicrosoftAccount')
             ->willReturn(false);
 
-        $this->mockMicrosoft365Service->expects(self::once())
+        $this->mockMicrosoft365Service
+            ->expects(self::once())
             ->method('createDomainInMicrosoftAccount')
             ->willReturn(false);
 
-        $this->mockMicrosoft365Service->expects(self::never())
-            ->method('setVerificationDnsRecordsForPrimaryDomain');
+        $this->mockMicrosoft365Service->expects(self::never())->method('setVerificationDnsRecordsForPrimaryDomain');
 
         $job = new SetPrimaryDomainJob(self::DOMAIN, $this->microsoft365CustomerInfo);
 

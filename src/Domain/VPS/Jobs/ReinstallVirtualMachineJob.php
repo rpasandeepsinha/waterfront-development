@@ -47,7 +47,7 @@ class ReinstallVirtualMachineJob extends CloudstackAsyncJob
         $dispatcher->dispatch(new WaitForVirtualMachineStoppedSetCredentialsJob(
             $this->deployment,
             $this->cloudstackJob,
-            $jobResponse
+            $jobResponse,
         ));
     }
 

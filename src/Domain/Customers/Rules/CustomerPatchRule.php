@@ -27,14 +27,20 @@ class CustomerPatchRule
     public function getRules(string $countryCode): array
     {
         return [
-            'first_name'    => ['required', 'min:2, max:80', new FilterSpecialChars()],
-            'last_name'     => ['required', 'min:2, max:80', new FilterSpecialChars()],
-            'gender'        => ['sometimes', 'min:1', 'max:1'],
-            'organization'  => ['nullable', 'min:2, max:191', new FilterSpecialChars('.&')],
-            'department'    => ['nullable', 'min:2, max:191', new FilterSpecialChars('.&')],
-            'coc_number'    => ['sometimes', 'nullable', 'min:2, max:32', new FilterSpecialChars()],
-            'vat_number'    => ['sometimes', 'nullable', 'string', new VatCode($this->vat, $countryCode, $this->logger, $this->cache), new FilterSpecialChars()],
-            'phone_number'  => ['required', (new Phone())],
+            'first_name' => ['required', 'min:2, max:80', new FilterSpecialChars()],
+            'last_name' => ['required', 'min:2, max:80', new FilterSpecialChars()],
+            'gender' => ['sometimes', 'min:1', 'max:1'],
+            'organization' => ['nullable', 'min:2, max:191', new FilterSpecialChars('.&')],
+            'department' => ['nullable', 'min:2, max:191', new FilterSpecialChars('.&')],
+            'coc_number' => ['sometimes', 'nullable', 'min:2, max:32', new FilterSpecialChars()],
+            'vat_number' => [
+                'sometimes',
+                'nullable',
+                'string',
+                new VatCode($this->vat, $countryCode, $this->logger, $this->cache),
+                new FilterSpecialChars(),
+            ],
+            'phone_number' => ['required', new Phone()],
             'purchase_reference' => ['nullable', 'string', new FilterSpecialChars(characters: '<>$%;~{}')],
         ];
     }
@@ -56,6 +62,9 @@ class CustomerPatchRule
      */
     public function withAddressRules(string $countryCode, array $additionalRules = []): array
     {
-        return array_merge($this->withAdditionalRules($countryCode, $this->customerAddressRule->getRules()), $additionalRules);
+        return array_merge(
+            $this->withAdditionalRules($countryCode, $this->customerAddressRule->getRules()),
+            $additionalRules,
+        );
     }
 }

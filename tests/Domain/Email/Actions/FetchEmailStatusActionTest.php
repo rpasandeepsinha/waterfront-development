@@ -24,12 +24,15 @@ class FetchEmailStatusActionTest extends IntegrationTestCase
     #[Test]
     public function fetchEmailStatusSuccess(): void
     {
-        $emailHistory = new EmailHistoryFactory()->withTemplate()->createOne([
-            'hubspot_status' => EmailSendStatus::PROCESSING->value,
-        ]);
+        $emailHistory = new EmailHistoryFactory()
+            ->withTemplate()
+            ->createOne([
+                'hubspot_status' => EmailSendStatus::PROCESSING->value,
+            ]);
 
         $emailClient = self::createMock(EmailClient::class);
-        $emailClient->expects(self::once())
+        $emailClient
+            ->expects(self::once())
             ->method('getEmailStatus')
             ->with($emailHistory->hubspot_id)
             ->willReturn(new HubspotSendEmailResponse(
@@ -57,7 +60,8 @@ class FetchEmailStatusActionTest extends IntegrationTestCase
         $emailHistory = new EmailHistoryFactory()->createOne();
 
         $emailClient = self::createMock(EmailClient::class);
-        $emailClient->expects(self::once())
+        $emailClient
+            ->expects(self::once())
             ->method('getEmailStatus')
             ->with($emailHistory->hubspot_id)
             ->willThrowException(new HubspotUnexpectedResponseException());

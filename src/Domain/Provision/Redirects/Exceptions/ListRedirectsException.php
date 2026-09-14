@@ -15,7 +15,10 @@ class ListRedirectsException extends RedirectException
         ?Throwable $previous = null,
     ) {
         parent::__construct(
-            message: $message ?? sprintf('List redirects could not be generated for context_uuid %s', $contextUuid->toString()),
+            message: $message ?? sprintf(
+                'List redirects could not be generated for context_uuid %s',
+                $contextUuid->toString(),
+            ),
             previous: $previous,
         );
     }

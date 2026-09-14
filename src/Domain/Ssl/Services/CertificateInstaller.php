@@ -58,8 +58,8 @@ class CertificateInstaller
         $this->logger->debug(
             sprintf(
                 'Installing certificate for SSL deployment #%d',
-                $sslDeployment->id
-            )
+                $sslDeployment->id,
+            ),
         );
 
         // Ensure we have the latest certificate in the cloud before fetching the parameters
@@ -72,7 +72,7 @@ class CertificateInstaller
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SSL,
                     LoggingContextKeys::PROVISIONING_ID => $sslDeployment->id,
-                ]
+                ],
             );
         }
 
@@ -90,8 +90,8 @@ class CertificateInstaller
                 sprintf(
                     'Certificate for SSL deployment #%d installed on hosting: %s',
                     $sslDeployment->id,
-                    $parameters->getName()
-                )
+                    $parameters->getName(),
+                ),
             );
         }
 
@@ -113,7 +113,10 @@ class CertificateInstaller
             Assert::notNull($domain, 'Provided subscription has no domain');
 
             /** @var ProductSpec $productSpec */
-            $productSpec = $sslDeployment->subscription->product->productSpecs()
+            $productSpec = $sslDeployment
+                ->subscription
+                ->product
+                ->productSpecs()
                 ->where('name', 'ssl.product_id')
                 ->firstOrFail();
 
@@ -132,12 +135,12 @@ class CertificateInstaller
                     'pvt' => $this->csrManager->getPrivateKey($sslDomain),
                     'cert' => $certificate,
                     'ca' => $ca,
-                ]
+                ],
             );
         } catch (Exception $exception) {
             throw InstallCertificateException::couldNotPrepareInstallParameters(
                 $sslDeployment->id,
-                $exception
+                $exception,
             );
         }
     }
@@ -182,15 +185,17 @@ class CertificateInstaller
     private function getHostingSubscription(SslDeployment $sslDeployment): ?HostingDeployment
     {
         try {
-            $hostingDeployment = $this->sslDeploymentRepository->getRelatedHostingSubscriptionForSslDeployment($sslDeployment);
+            $hostingDeployment =
+                $this->sslDeploymentRepository->getRelatedHostingSubscriptionForSslDeployment($sslDeployment);
 
             if ($hostingDeployment === null) {
                 $this->logger->debug(
                     sprintf(
                         'Certificate will not be installed, no related hosting deployment found for SSL deployment #%d',
-                        $sslDeployment->id
-                    )
+                        $sslDeployment->id,
+                    ),
                 );
+
                 return null;
             }
 
@@ -198,15 +203,15 @@ class CertificateInstaller
                 sprintf(
                     'Certificate will be installed on hosting deployment #%d for SSL deployment #%d',
                     $hostingDeployment->id,
-                    $sslDeployment->id
-                )
+                    $sslDeployment->id,
+                ),
             );
 
             return $hostingDeployment;
         } catch (ModelNotFoundException $exception) {
             throw InstallCertificateException::couldNotFindHostingSubscriptionForCertificate(
                 $sslDeployment->id,
-                $exception
+                $exception,
             );
         }
     }
@@ -218,15 +223,17 @@ class CertificateInstaller
     private function installCertificateOnHosting(
         HostingDeployment $hostingDeployment,
         InstallParameters $installParameters,
-        SslDeployment $sslDeployment
+        SslDeployment $sslDeployment,
     ): void {
         if ($hostingDeployment->isDefaultHostingSubscription()) {
             $this->installCertificateOnDefaultHosting($sslDeployment, $hostingDeployment, $installParameters);
+
             return;
         }
 
         if ($hostingDeployment->subscription->product->isSitebuilderProduct()) {
             $this->installCertificateOnSitebuilderHosting($sslDeployment, $hostingDeployment);
+
             return;
         }
 
@@ -238,8 +245,8 @@ class CertificateInstaller
         $this->logger->warning(
             sprintf(
                 'Unknown hosting type to install the certificate on for SSL deployment #%s.',
-                $sslDeployment->id
-            )
+                $sslDeployment->id,
+            ),
         );
     }
 
@@ -256,23 +263,21 @@ class CertificateInstaller
             'Trying to install a SSL certificate on a default hosting deployment',
             [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $hostingDeployment->subscription_uuid,
-            ]
+            ],
         );
 
         $providerSlug = $this->hostingService->getProviderSlug($hostingDeployment->subscription);
         $providerSlug = ProviderSlug::from($providerSlug ?? '');
 
-        $result = $this->hostingServiceFactory
-            ->driver($providerSlug)
-            ->installCertificate(
-                subscriptionUuid: $hostingDeployment->subscription_uuid,
-                data: $installParameters->toArray()
-            );
+        $result = $this->hostingServiceFactory->driver($providerSlug)->installCertificate(
+            subscriptionUuid: $hostingDeployment->subscription_uuid,
+            data: $installParameters->toArray(),
+        );
 
         if (strtolower($result) !== HostingResult::STATUS_OK) {
             throw InstallCertificateException::couldNotInstallCertificateOnHosting(
                 $sslDeployment->id,
-                json_encode($result, JSON_THROW_ON_ERROR)
+                json_encode($result, JSON_THROW_ON_ERROR),
             );
         }
     }
@@ -295,20 +300,18 @@ class CertificateInstaller
                     'sslDeployment' => $sslDeployment->id,
                     'basekitServer' => $basekitServer->id,
                 ],
-            ]
+            ],
         );
 
-        $result = $this->sitebuilderServiceFactory
-            ->driver($this->sitebuilderService->getProviderSlug($hostingDeployment->subscription))
-            ->setupSsl(
-                sslDeployment: $sslDeployment,
-                server: $basekitServer
-            );
+        $result = $this->sitebuilderServiceFactory->driver($this->sitebuilderService->getProviderSlug($hostingDeployment->subscription))->setupSsl(
+            sslDeployment: $sslDeployment,
+            server: $basekitServer,
+        );
 
         if ($result->getStatus() !== HostingResult::STATUS_OK) {
             throw InstallCertificateException::couldNotInstallCertificateOnHosting(
                 $sslDeployment->id,
-                (string) $result->getErrorMessage()
+                (string) $result->getErrorMessage(),
             );
         }
     }

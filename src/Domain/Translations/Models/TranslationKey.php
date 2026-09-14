@@ -38,6 +38,8 @@ class TranslationKey extends Model
      */
     public function getTranslations(): Collection
     {
-        return $this->translationStrings->mapWithKeys(fn (TranslationString $translationString) => [$translationString->language->locale => $translationString->translated_string]);
+        return $this->translationStrings->mapWithKeys(fn (TranslationString $translationString) => [
+            $translationString->language->locale => $translationString->translated_string,
+        ]);
     }
 }

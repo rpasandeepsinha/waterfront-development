@@ -36,7 +36,7 @@ use Waterfront\Support\Enums\LoggingContextKeys;
 class SummarizeAuditLogAction
 {
     public function __construct(
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -50,7 +50,7 @@ class SummarizeAuditLogAction
 
         $params = array_merge($params, [
             'actor' => $this->translator->translate(
-                sprintf('audit-log-summary.actor.%s', $identity?->getIdentityType() ?? 'system')
+                sprintf('audit-log-summary.actor.%s', $identity?->getIdentityType() ?? 'system'),
             ),
         ]);
 
@@ -114,6 +114,7 @@ class SummarizeAuditLogAction
                         'auditable_type' => $audit->auditable_type,
                     ],
                 ]);
+
                 return new AuditLogUnknownParameters();
         }
     }
@@ -161,6 +162,7 @@ class SummarizeAuditLogAction
                 // Just return the lowercase classname by default
                 $exploded = explode('\\', $audit->auditable_type);
                 $last = end($exploded);
+
                 return strtolower($last);
         }
     }

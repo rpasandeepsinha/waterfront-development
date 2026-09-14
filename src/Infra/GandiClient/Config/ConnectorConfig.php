@@ -20,9 +20,17 @@ readonly class ConnectorConfig
         public bool $httpErrors = false,
     ) {
         Assert::stringNotEmpty($this->baseUrl, message: 'The baseURL can\'t be empty');
-        Assert::regex($this->baseUrl, pattern: '/^http(s)?:\/\//', message: 'The baseURL must start with http:// or https://');
+        Assert::regex(
+            $this->baseUrl,
+            pattern: '/^http(s)?:\/\//',
+            message: 'The baseURL must start with http:// or https://',
+        );
 
         Assert::stringNotEmpty($this->authToken, message: 'The authToken is required and can not set as empty');
-        Assert::regex($this->authToken, pattern: '/^[a-z0-9]{40}$/', message: 'The authToken syntax is not valid. only letters, digits with a lenght off 40 chars is allowed');
+        Assert::regex(
+            $this->authToken,
+            pattern: '/^[a-z0-9]{40}$/',
+            message: 'The authToken syntax is not valid. only letters, digits with a lenght off 40 chars is allowed',
+        );
     }
 }

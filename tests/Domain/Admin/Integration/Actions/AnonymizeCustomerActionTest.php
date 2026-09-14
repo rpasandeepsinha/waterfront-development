@@ -114,20 +114,26 @@ class AnonymizeCustomerActionTest extends IntegrationTestCase
         CarbonImmutable::setTestNow();
 
         $this->anonymizeIdentitiesForCustomerAction = self::createMock(
-            AnonymizeIdentitiesForCustomerAction::class
+            AnonymizeIdentitiesForCustomerAction::class,
         );
 
         $getIdentitiesForCustomerNumberAction = self::createMock(
-            GetIdentitiesForCustomerNumberAction::class
+            GetIdentitiesForCustomerNumberAction::class,
         );
         $this->app->bind(GetIdentitiesForCustomerNumberAction::class, fn () => $getIdentitiesForCustomerNumberAction);
 
         $this->removeCustomerNumberFromIdentityAction = self::createMock(
-            RemoveCustomerNumberFromIdentityAction::class
+            RemoveCustomerNumberFromIdentityAction::class,
         );
-        $this->app->bind(RemoveCustomerNumberFromIdentityAction::class, fn () => $this->removeCustomerNumberFromIdentityAction);
+        $this->app->bind(
+            RemoveCustomerNumberFromIdentityAction::class,
+            fn () => $this->removeCustomerNumberFromIdentityAction,
+        );
 
-        $this->app->bind(AnonymizeIdentitiesForCustomerAction::class, fn () => $this->anonymizeIdentitiesForCustomerAction);
+        $this->app->bind(
+            AnonymizeIdentitiesForCustomerAction::class,
+            fn () => $this->anonymizeIdentitiesForCustomerAction,
+        );
 
         $this->anonymizeCustomerAction = self::resolve(AnonymizeCustomerAction::class);
     }
@@ -188,7 +194,10 @@ class AnonymizeCustomerActionTest extends IntegrationTestCase
         $customer = new CustomerFactory()->withAddress()->createOne();
         $order = new OrderFactory()->for($customer)->createOne();
         new OrderLineItemFactory()->for($order)->createOne();
-        new PaymentFactory()->for($customer)->for($order)->createOne();
+        new PaymentFactory()
+            ->for($customer)
+            ->for($order)
+            ->createOne();
 
         $this->anonymizeIdentitiesForCustomerAction->expects(self::once())->method('execute');
 
@@ -205,7 +214,10 @@ class AnonymizeCustomerActionTest extends IntegrationTestCase
         new OrderLineItemFactory()->for($order)->createOne([
             'subscription_uuid' => null,
         ]);
-        new PaymentFactory()->for($this->customer)->for($order)->createOne();
+        new PaymentFactory()
+            ->for($this->customer)
+            ->for($order)
+            ->createOne();
 
         $this->expectException(AnonymizeCustomerException::class);
 
@@ -224,9 +236,12 @@ class AnonymizeCustomerActionTest extends IntegrationTestCase
         new OrderLineItemFactory()->for($order)->createOne([
             'subscription_uuid' => null,
         ]);
-        new PaymentFactory()->for($customer)->for($order)->createOne([
-            'status' => PaymentStatus::EXPIRED,
-        ]);
+        new PaymentFactory()
+            ->for($customer)
+            ->for($order)
+            ->createOne([
+                'status' => PaymentStatus::EXPIRED,
+            ]);
 
         $this->anonymizeIdentitiesForCustomerAction->expects(self::once())->method('execute');
 
@@ -274,23 +289,23 @@ class AnonymizeCustomerActionTest extends IntegrationTestCase
 
         self::assertSame(
             'anonymized-street',
-            $address->street_name
+            $address->street_name,
         );
         self::assertSame(
             '1',
-            $address->street_number
+            $address->street_number,
         );
         self::assertSame(
             '1234AB',
-            $address->zip_code
+            $address->zip_code,
         );
         self::assertSame(
             'anonymized-city',
-            $address->city
+            $address->city,
         );
         self::assertSame(
             'NL',
-            $address->country_code
+            $address->country_code,
         );
     }
 
@@ -312,7 +327,7 @@ class AnonymizeCustomerActionTest extends IntegrationTestCase
             'first_name' => "anonymized-first_name-{$this->customer->customer_number}",
             'last_name' => "anonymized-last_name-{$this->customer->customer_number}",
             'email' => "anonymized.customer.{$this->customer->customer_number}@sandwave.io",
-            'organization' =>  'anonymized-organisation',
+            'organization' => 'anonymized-organisation',
             'department' => 'anonymized-department',
             'phone_country_code' => '31',
             'phone_area_code' => '6',
@@ -333,7 +348,10 @@ class AnonymizeCustomerActionTest extends IntegrationTestCase
 
         $this->removeCustomerNumberFromIdentityAction->expects(self::never())->method('execute');
 
-        $this->anonymizeIdentitiesForCustomerAction->expects(self::once())->method('execute')->willThrowException(new ResourceNotFoundException());
+        $this->anonymizeIdentitiesForCustomerAction
+            ->expects(self::once())
+            ->method('execute')
+            ->willThrowException(new ResourceNotFoundException());
 
         $this->anonymizeCustomerAction->execute($this->customer);
 
@@ -342,7 +360,7 @@ class AnonymizeCustomerActionTest extends IntegrationTestCase
             'first_name' => "anonymized-first_name-{$this->customer->customer_number}",
             'last_name' => "anonymized-last_name-{$this->customer->customer_number}",
             'email' => "anonymized.customer.{$this->customer->customer_number}@sandwave.io",
-            'organization' =>  'anonymized-organisation',
+            'organization' => 'anonymized-organisation',
             'department' => 'anonymized-department',
             'phone_country_code' => '31',
             'phone_area_code' => '6',
@@ -373,7 +391,7 @@ class AnonymizeCustomerActionTest extends IntegrationTestCase
             'first_name' => "anonymized-first_name-{$this->customer->customer_number}",
             'last_name' => "anonymized-last_name-{$this->customer->customer_number}",
             'email' => "anonymized.customer.{$this->customer->customer_number}@sandwave.io",
-            'organization' =>  'anonymized-organisation',
+            'organization' => 'anonymized-organisation',
             'department' => 'anonymized-department',
             'phone_country_code' => '31',
             'phone_area_code' => '6',

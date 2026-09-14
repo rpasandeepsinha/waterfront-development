@@ -45,7 +45,7 @@ abstract class NovaImportHostingServersAction extends Action
                     'nova-action.import_hosting_server_help',
                     [
                         'url' => 'https://yh-jira.atlassian.net/wiki/spaces/DEV/pages/1411940384/Hosting+server+bulk+import',
-                    ]
+                    ],
                 ))
                 ->store(fn (): bool => false),
         ];
@@ -68,8 +68,8 @@ abstract class NovaImportHostingServersAction extends Action
                 'nova-action.success.import_hosting_servers_successfully',
                 [
                     'imported_count' => (string) count($servers),
-                ]
-            )
+                ],
+            ),
         );
     }
 
@@ -95,28 +95,30 @@ abstract class NovaImportHostingServersAction extends Action
             // "acceptedTypes" is only frontend validation, so we need to validate this here too
             $validator->errors()->add(
                 'csv_upload',
-                $this->translator->translate('nova-action.error.import_hosting_server_not_csv')
+                $this->translator->translate('nova-action.error.import_hosting_server_not_csv'),
             );
         }
 
         try {
             $serverData = $this->csvParser->parseCsvWithHeaders(
-                $file->getContent()
+                $file->getContent(),
             );
         } catch (ValueError) {
-            $validator->errors()
-                ->add('csv_upload', $this->translator->translate('nova-action.error.number_of_columns_does_not_match'));
+            $validator->errors()->add(
+                'csv_upload',
+                $this->translator->translate('nova-action.error.number_of_columns_does_not_match'),
+            );
+
             return;
         }
 
         $csvValidator = ValidatorFacade::make(
             $serverData,
-            $this->validationRules
+            $this->validationRules,
         );
 
         if ($csvValidator->fails()) {
-            $validator->errors()
-                ->add('csv_upload', $this->buildValidationErrorString($csvValidator->messages()));
+            $validator->errors()->add('csv_upload', $this->buildValidationErrorString($csvValidator->messages()));
         }
     }
 
@@ -159,12 +161,13 @@ abstract class NovaImportHostingServersAction extends Action
 
         if (count($validationErrors) > $maxToDisplay) {
             // Display message that there are more validation errors.
-            $messageString .= '<br/>' . $this->translator->translate(
+            $messageString .= '<br/>'
+            . $this->translator->translate(
                 'nova-action.error.import_hosting_servers_more_errors',
                 [
                     'error_count' => (string) count($validationErrors),
                     'max_to_display' => (string) $maxToDisplay,
-                ]
+                ],
             );
         }
 

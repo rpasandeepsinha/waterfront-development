@@ -40,8 +40,16 @@ class DomainContactLinkTest extends IntegrationTestCase
         $rtrService = self::resolve(RtrService::class);
 
         $sdk = MockedClientFactory::makeSdkWithMultipleReponses([
-            new Response(200, [], (string) json_encode($this->app->path() . '/../Modules/RtrClient/Tests/data/contact_valid.php')),
-            new Response(200, [], (string) json_encode($this->app->path() . '/../Modules/RtrClient/Tests/data/domain_details_valid.php')),
+            new Response(
+                200,
+                [],
+                (string) json_encode($this->app->path() . '/../Modules/RtrClient/Tests/data/contact_valid.php'),
+            ),
+            new Response(
+                200,
+                [],
+                (string) json_encode($this->app->path() . '/../Modules/RtrClient/Tests/data/domain_details_valid.php'),
+            ),
         ]);
         $rtrService->setClient($sdk);
 
@@ -52,7 +60,7 @@ class DomainContactLinkTest extends IntegrationTestCase
     #[Test]
     public function link(
         ProviderSlug $driverSlug,
-        ?string $externalHandle = null
+        ?string $externalHandle = null,
     ): void {
         $provider = ProviderFactory::new()->createOne([
             'type' => ProviderType::DOMAIN,
@@ -96,8 +104,9 @@ class DomainContactLinkTest extends IntegrationTestCase
             $contact->providers()->attach($provider, ['external_contact' => $externalHandle]);
         }
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-contact.contacts.link', [
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-contact.contacts.link', [
                     'contact' => $contact->id,
                     'domains' => [
                         [
@@ -108,10 +117,14 @@ class DomainContactLinkTest extends IntegrationTestCase
                             'domain' => 'domain1.com',
                             'type' => 'owner',
                         ],
-                    ], ])
-        )
+                    ],
+                ]),
+            )
             ->assertOk()
-            ->assertExactJson(['message' => self::resolve(TranslatorInterface::class)->translate('domain-contact.domain-contacts-link-success')]);
+            ->assertExactJson([
+                'message' => self::resolve(TranslatorInterface::class)
+                    ->translate('domain-contact.domain-contacts-link-success'),
+            ]);
 
         self::assertInstanceOf(DomainDeployment::class, $subscription->domainDeployment);
 
@@ -138,29 +151,32 @@ class DomainContactLinkTest extends IntegrationTestCase
     #[Test]
     public function linkWrongDomain(
         ProviderSlug $driverSlug,
-        ?string $externalHandle = null
+        ?string $externalHandle = null,
     ): void {
         $contact = new DomainContactFactory()->createOne([
             'customer_id' => $this->customer->id,
         ]);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-contact.contacts.link', [
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-contact.contacts.link', [
                     'contact' => $contact->id,
                     'domains' => [
                         [
                             'domain' => 'error.com',
                             'type' => 'owner',
                         ],
-                    ], ])
-        )->assertForbidden();
+                    ],
+                ]),
+            )
+            ->assertForbidden();
     }
 
     #[DataProvider('linkProvider')]
     #[Test]
     public function linkCanceledDomain(
         ProviderSlug $driverSlug,
-        ?string $externalHandle = null
+        ?string $externalHandle = null,
     ): void {
         $provider = ProviderFactory::new()->createOne([
             'type' => ProviderType::DOMAIN,
@@ -195,8 +211,9 @@ class DomainContactLinkTest extends IntegrationTestCase
             $contact->providers()->attach($provider, ['external_contact' => $externalHandle]);
         }
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-contact.contacts.link', [
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-contact.contacts.link', [
                     'contact' => $contact->id,
                     'domains' => [
                         [
@@ -204,8 +221,9 @@ class DomainContactLinkTest extends IntegrationTestCase
                             'type' => 'owner',
                         ],
                     ],
-                ])
-        )->assertForbidden();
+                ]),
+            )
+            ->assertForbidden();
     }
 
     /**
@@ -213,18 +231,9 @@ class DomainContactLinkTest extends IntegrationTestCase
      */
     public static function linkProvider(): array
     {
-        // TODO RTR update needs DomainContactCollection but currently the package wants a ContactCollection
-        // see: vendor/sandwave-io/realtimeregister-php/src/Api/DomainsApi.php
-        // https://github.com/sandwave-io/realtimeregister-php/issues/39
         return [
-            [
-                ProviderSlug::OPEN_PROVIDER,
-                null,
-            ],
-            [
-                ProviderSlug::OPEN_PROVIDER,
-                'EXTERNAL_HANDLE',
-            ],
+            [ProviderSlug::OPEN_PROVIDER, null],
+            [ProviderSlug::OPEN_PROVIDER, 'EXTERNAL_HANDLE'],
         ];
     }
 }

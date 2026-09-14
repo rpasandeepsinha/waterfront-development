@@ -14,7 +14,7 @@ readonly class MigratableBulkSubscriptionState implements MigrationTypeADFPayloa
     public function __construct(
         public MigrationStep $migrationStep,
         public string $referenceName,
-        public int|null $waterfrontCustomerId,
+        public ?int $waterfrontCustomerId,
         public array $subscriptions,
     ) {
     }

@@ -30,8 +30,7 @@ class PuzzelCallbackTimeslotRepositoryTest extends IntegrationTestCase
     {
         CarbonImmutable::setTestNow(new CarbonImmutable('2025-12-05 09:00:00'));
 
-        $timeslot = PuzzelCallbackTimeslotFactory::new()
-            ->createOne(['capacity' => 3]);
+        $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne(['capacity' => 3]);
 
         self::assertTrue($this->repository->hasAvailableCapacity($timeslot));
     }
@@ -43,16 +42,12 @@ class PuzzelCallbackTimeslotRepositoryTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $timeslot = PuzzelCallbackTimeslotFactory::new()
-            ->createOne(['capacity' => 3]);
+        $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne(['capacity' => 3]);
 
-        PuzzelCallbackRequestFactory::new()
-            ->for($customer, 'customer')
-            ->for($timeslot, 'timeslot')
-            ->createOne([
-                'puzzel_callback_timeslot_id' => $timeslot->id,
-                'desired_callback_time' => CarbonImmutable::now()->addHour(),
-            ]);
+        PuzzelCallbackRequestFactory::new()->for($customer, 'customer')->for($timeslot, 'timeslot')->createOne([
+            'puzzel_callback_timeslot_id' => $timeslot->id,
+            'desired_callback_time' => CarbonImmutable::now()->addHour(),
+        ]);
 
         self::assertTrue($this->repository->hasAvailableCapacity($timeslot));
     }
@@ -64,16 +59,12 @@ class PuzzelCallbackTimeslotRepositoryTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $timeslot = PuzzelCallbackTimeslotFactory::new()
-            ->createOne(['capacity' => 1]);
+        $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne(['capacity' => 1]);
 
-        PuzzelCallbackRequestFactory::new()
-            ->for($customer, 'customer')
-            ->for($timeslot, 'timeslot')
-            ->createOne([
-                'puzzel_callback_timeslot_id' => $timeslot->id,
-                'desired_callback_time' => CarbonImmutable::now()->addHour(),
-            ]);
+        PuzzelCallbackRequestFactory::new()->for($customer, 'customer')->for($timeslot, 'timeslot')->createOne([
+            'puzzel_callback_timeslot_id' => $timeslot->id,
+            'desired_callback_time' => CarbonImmutable::now()->addHour(),
+        ]);
 
         self::assertFalse($this->repository->hasAvailableCapacity($timeslot));
     }
@@ -83,8 +74,7 @@ class PuzzelCallbackTimeslotRepositoryTest extends IntegrationTestCase
     {
         CarbonImmutable::setTestNow(new CarbonImmutable('2025-12-05 09:00:00'));
 
-        $timeslot = PuzzelCallbackTimeslotFactory::new()
-            ->createOne(['capacity' => 0]);
+        $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne(['capacity' => 0]);
 
         self::assertFalse($this->repository->hasAvailableCapacity($timeslot));
     }
@@ -96,16 +86,12 @@ class PuzzelCallbackTimeslotRepositoryTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $timeslot = PuzzelCallbackTimeslotFactory::new()
-            ->createOne(['capacity' => 1]);
+        $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne(['capacity' => 1]);
 
-        PuzzelCallbackRequestFactory::new()
-            ->for($customer, 'customer')
-            ->for($timeslot, 'timeslot')
-            ->createOne([
-                'puzzel_callback_timeslot_id' => $timeslot->id,
-                'desired_callback_time' => CarbonImmutable::now()->subHour(),
-            ]);
+        PuzzelCallbackRequestFactory::new()->for($customer, 'customer')->for($timeslot, 'timeslot')->createOne([
+            'puzzel_callback_timeslot_id' => $timeslot->id,
+            'desired_callback_time' => CarbonImmutable::now()->subHour(),
+        ]);
 
         self::assertTrue($this->repository->hasAvailableCapacity($timeslot));
     }
@@ -117,8 +103,7 @@ class PuzzelCallbackTimeslotRepositoryTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $timeslot = PuzzelCallbackTimeslotFactory::new()
-            ->createOne(['capacity' => 2]);
+        $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne(['capacity' => 2]);
 
         PuzzelCallbackRequestFactory::new()
             ->for($customer, 'customer')
@@ -140,16 +125,12 @@ class PuzzelCallbackTimeslotRepositoryTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $timeslot = PuzzelCallbackTimeslotFactory::new()
-            ->createOne(['capacity' => 1]);
+        $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne(['capacity' => 1]);
 
-        PuzzelCallbackRequestFactory::new()
-            ->for($customer, 'customer')
-            ->for($timeslot, 'timeslot')
-            ->createOne([
-                'puzzel_callback_timeslot_id' => $timeslot->id,
-                'desired_callback_time' => CarbonImmutable::now(),
-            ]);
+        PuzzelCallbackRequestFactory::new()->for($customer, 'customer')->for($timeslot, 'timeslot')->createOne([
+            'puzzel_callback_timeslot_id' => $timeslot->id,
+            'desired_callback_time' => CarbonImmutable::now(),
+        ]);
 
         self::assertFalse($this->repository->hasAvailableCapacity($timeslot));
     }
@@ -161,24 +142,17 @@ class PuzzelCallbackTimeslotRepositoryTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $timeslot = PuzzelCallbackTimeslotFactory::new()
-            ->createOne(['capacity' => 2]);
+        $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne(['capacity' => 2]);
 
-        PuzzelCallbackRequestFactory::new()
-            ->for($customer, 'customer')
-            ->for($timeslot, 'timeslot')
-            ->createOne([
-                'puzzel_callback_timeslot_id' => $timeslot->id,
-                'desired_callback_time' => CarbonImmutable::now()->subHours(2),
-            ]);
+        PuzzelCallbackRequestFactory::new()->for($customer, 'customer')->for($timeslot, 'timeslot')->createOne([
+            'puzzel_callback_timeslot_id' => $timeslot->id,
+            'desired_callback_time' => CarbonImmutable::now()->subHours(2),
+        ]);
 
-        PuzzelCallbackRequestFactory::new()
-            ->for($customer, 'customer')
-            ->for($timeslot, 'timeslot')
-            ->createOne([
-                'puzzel_callback_timeslot_id' => $timeslot->id,
-                'desired_callback_time' => CarbonImmutable::now()->addHour(),
-            ]);
+        PuzzelCallbackRequestFactory::new()->for($customer, 'customer')->for($timeslot, 'timeslot')->createOne([
+            'puzzel_callback_timeslot_id' => $timeslot->id,
+            'desired_callback_time' => CarbonImmutable::now()->addHour(),
+        ]);
 
         self::assertTrue($this->repository->hasAvailableCapacity($timeslot));
     }
@@ -190,24 +164,17 @@ class PuzzelCallbackTimeslotRepositoryTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $timeslot = PuzzelCallbackTimeslotFactory::new()
-            ->createOne(['capacity' => 1]);
+        $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne(['capacity' => 1]);
 
-        PuzzelCallbackRequestFactory::new()
-            ->for($customer, 'customer')
-            ->for($timeslot, 'timeslot')
-            ->createOne([
-                'puzzel_callback_timeslot_id' => $timeslot->id,
-                'desired_callback_time' => CarbonImmutable::now()->subHours(2),
-            ]);
+        PuzzelCallbackRequestFactory::new()->for($customer, 'customer')->for($timeslot, 'timeslot')->createOne([
+            'puzzel_callback_timeslot_id' => $timeslot->id,
+            'desired_callback_time' => CarbonImmutable::now()->subHours(2),
+        ]);
 
-        PuzzelCallbackRequestFactory::new()
-            ->for($customer, 'customer')
-            ->for($timeslot, 'timeslot')
-            ->createOne([
-                'puzzel_callback_timeslot_id' => $timeslot->id,
-                'desired_callback_time' => CarbonImmutable::now()->addHour(),
-            ]);
+        PuzzelCallbackRequestFactory::new()->for($customer, 'customer')->for($timeslot, 'timeslot')->createOne([
+            'puzzel_callback_timeslot_id' => $timeslot->id,
+            'desired_callback_time' => CarbonImmutable::now()->addHour(),
+        ]);
 
         self::assertFalse($this->repository->hasAvailableCapacity($timeslot));
     }
@@ -219,8 +186,7 @@ class PuzzelCallbackTimeslotRepositoryTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $timeslot = PuzzelCallbackTimeslotFactory::new()
-            ->createOne(['capacity' => 5]);
+        $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne(['capacity' => 5]);
 
         PuzzelCallbackRequestFactory::new()
             ->for($customer, 'customer')
@@ -242,8 +208,7 @@ class PuzzelCallbackTimeslotRepositoryTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $timeslot = PuzzelCallbackTimeslotFactory::new()
-            ->createOne(['capacity' => 5]);
+        $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne(['capacity' => 5]);
 
         PuzzelCallbackRequestFactory::new()
             ->for($customer, 'customer')
@@ -265,19 +230,14 @@ class PuzzelCallbackTimeslotRepositoryTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $timeslot = PuzzelCallbackTimeslotFactory::new()
-            ->createOne(['capacity' => 1]);
+        $timeslot = PuzzelCallbackTimeslotFactory::new()->createOne(['capacity' => 1]);
 
-        $otherTimeslot = PuzzelCallbackTimeslotFactory::new()
-            ->createOne(['capacity' => 1]);
+        $otherTimeslot = PuzzelCallbackTimeslotFactory::new()->createOne(['capacity' => 1]);
 
-        PuzzelCallbackRequestFactory::new()
-            ->for($customer, 'customer')
-            ->for($otherTimeslot, 'timeslot')
-            ->createOne([
-                'puzzel_callback_timeslot_id' => $otherTimeslot->id,
-                'desired_callback_time' => CarbonImmutable::now()->addHour(),
-            ]);
+        PuzzelCallbackRequestFactory::new()->for($customer, 'customer')->for($otherTimeslot, 'timeslot')->createOne([
+            'puzzel_callback_timeslot_id' => $otherTimeslot->id,
+            'desired_callback_time' => CarbonImmutable::now()->addHour(),
+        ]);
 
         self::assertTrue($this->repository->hasAvailableCapacity($timeslot));
     }

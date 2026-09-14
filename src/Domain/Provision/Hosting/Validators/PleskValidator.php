@@ -13,8 +13,9 @@ use Waterfront\Domain\Provision\Interfaces\ProvisionRequestInterface;
 
 class PleskValidator implements HostingRequestValidatorInterface
 {
-    public function __construct(private readonly Factory $validatorFactory)
-    {
+    public function __construct(
+        private readonly Factory $validatorFactory,
+    ) {
     }
 
     public function getCreateRequestValidator(HostingCreateRequest $createRequest): ValidatorContract
@@ -34,7 +35,7 @@ class PleskValidator implements HostingRequestValidatorInterface
     {
         return match ($provisionRequest::class) {
             HostingCreateRequest::class => $this->getCreateRequestValidator($provisionRequest),
-            default => throw new UnknownHostingRequestException($provisionRequest)
+            default => throw new UnknownHostingRequestException($provisionRequest),
         };
     }
 }

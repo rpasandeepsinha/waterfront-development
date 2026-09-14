@@ -40,16 +40,24 @@ class WpSsoTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
 
-        $subscription = new SubscriptionFactory()->for(
-            new ProductFactory()->for(
-                new ProductGroupFactory()->hosting()
-            )->createOne()
-        )->for($this->customer)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for(
+                new ProductFactory()->for(
+                    new ProductGroupFactory()->hosting(),
+                )->createOne(),
+            )
+            ->for($this->customer)
+            ->createOne();
 
         $this->hostingDeployment = new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
             'server_id' => new ServerFactory()->directadmin(),
-            'provider_id' => ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]),
+            'provider_id' => ProviderFactory::new()->createOne([
+                'type' => ProviderType::HOSTING,
+                'slug' => ProviderSlug::DIRECTADMIN,
+                'enabled' => true,
+                'default' => true,
+            ]),
             'wp_installation_id' => 1,
         ]);
     }
@@ -60,23 +68,24 @@ class WpSsoTest extends IntegrationTestCase
         $wpToolkitService = self::createStub(WpToolkitService::class);
         $wpCredentials = new WpLogin(new WpCredentials('test', 'aaaa'), 'test.com');
 
-        $wpToolkitService->method('instantiateClient')
-            ->willReturn($wpToolkitService);
+        $wpToolkitService->method('instantiateClient')->willReturn($wpToolkitService);
 
-        $wpToolkitService->method('getWpLogin')
-            ->willReturn($wpCredentials);
+        $wpToolkitService->method('getWpLogin')->willReturn($wpCredentials);
         $this->app->bind(WpToolkitService::class, fn () => $wpToolkitService);
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute(
-                'partners.hosting.wp-toolkit-sso',
-                $this->hostingDeployment->subscription_uuid
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute(
+                    'partners.hosting.wp-toolkit-sso',
+                    $this->hostingDeployment->subscription_uuid,
+                ),
             )
-        )->assertOk()->assertJson([
-            'loginUrl' => $wpCredentials->loginUrl,
-            'username' => $wpCredentials->credentials->login,
-            'password' => $wpCredentials->credentials->password,
-        ]);
+            ->assertOk()
+            ->assertJson([
+                'loginUrl' => $wpCredentials->loginUrl,
+                'username' => $wpCredentials->credentials->login,
+                'password' => $wpCredentials->credentials->password,
+            ]);
     }
 
     #[Test]
@@ -85,12 +94,14 @@ class WpSsoTest extends IntegrationTestCase
         $this->hostingDeployment->wp_installation_id = null;
         $this->hostingDeployment->save();
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute(
-                'partners.hosting.wp-toolkit-sso',
-                $this->hostingDeployment->subscription_uuid
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute(
+                    'partners.hosting.wp-toolkit-sso',
+                    $this->hostingDeployment->subscription_uuid,
+                ),
             )
-        )->assertForbidden();
+            ->assertForbidden();
     }
 
     #[Test]
@@ -99,14 +110,14 @@ class WpSsoTest extends IntegrationTestCase
         $wpToolkitService = self::createStub(WpToolkitService::class);
         $exception = new LogicException('dummy message');
 
-        $wpToolkitService->method('instantiateClient')
-            ->willReturn($wpToolkitService);
+        $wpToolkitService->method('instantiateClient')->willReturn($wpToolkitService);
 
         $wpToolkitService->method('getWpLogin')->willThrowException($exception);
         $this->app->bind(WpToolkitService::class, fn () => $wpToolkitService);
 
         $mockLogger = self::createMock(LoggerInterface::class);
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Wordpress SSO error',
@@ -114,15 +125,17 @@ class WpSsoTest extends IntegrationTestCase
                     LoggingContextKeys::SUBSCRIPTION_ID => $this->hostingDeployment->subscription->id,
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING,
-                ]
+                ],
             );
         $this->app->bind(LoggerInterface::class, fn () => $mockLogger);
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute(
-                'partners.hosting.wp-toolkit-sso',
-                $this->hostingDeployment->subscription_uuid
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute(
+                    'partners.hosting.wp-toolkit-sso',
+                    $this->hostingDeployment->subscription_uuid,
+                ),
             )
-        )->assertInternalServerError();
+            ->assertInternalServerError();
     }
 }

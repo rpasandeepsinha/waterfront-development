@@ -76,73 +76,114 @@ class OrderTest extends IntegrationTestCase
             ->enable(ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)
             ->for($dnsProduct)
             ->create();
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne(['price' => 0]);
-        new ProductPriceComponentFactory()->for($dnsProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 0]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
+        new ProductPriceComponentFactory()->for($dnsProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 0,
+        ]);
 
-        $extensionGroup = new ProductGroupFactory()->extension()->createOne(['name' => 'extension']);
+        $extensionGroup = new ProductGroupFactory()
+            ->extension()
+            ->createOne(['name' => 'extension']);
         $extensionProduct = new ProductFactory()->for($extensionGroup)->createOne([
             'slug' => 'extension_com',
             'name' => '.com',
         ]);
-        new ProductPriceComponentFactory()->for($extensionProduct)->registration()->createOne(['price' => 120]);
-        new ProductPriceComponentFactory()->for($extensionProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($extensionProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($extensionProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
 
-        $hostingGroup = new ProductGroupFactory()->hosting()->createOne(['name' => 'hosting']);
+        $hostingGroup = new ProductGroupFactory()
+            ->hosting()
+            ->createOne(['name' => 'hosting']);
         $hostingProduct = new ProductFactory()->for($hostingGroup)->createOne([
             'slug' => 'hosting_premium',
             'name' => 'premium',
         ]);
-        new ProductPriceComponentFactory()->for($hostingProduct)->registration()->createOne(['price' => 120]);
-        new ProductPriceComponentFactory()->for($extensionProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($extensionProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
 
         $sslGroup = new ProductGroupFactory()->ssl()->createOne(['name' => 'ssl']);
         $sslProduct = new ProductFactory()->for($sslGroup)->createOne([
             'slug' => 'ssl_single_domain',
             'name' => 'Single Domain',
         ]);
-        new ProductPriceComponentFactory()->for($sslProduct)->registration()->createOne(['price' => 120]);
-        new ProductPriceComponentFactory()->for($sslProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($sslProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($sslProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
 
         new ServerFactory()->createOne();
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
-        ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
-        ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
     }
 
     #[DataProvider('customerProvider')]
     #[Test]
-    public function order(string|null $organization): void
+    public function order(?string $organization): void
     {
         $mockDnsService = self::createStub(DnsService::class);
         $dnsZone = new DnsZone(new Fqdn('test.com'));
         $dnsZone->kind = PowerDnsZoneKind::MASTER->value;
         $this->app->bind(DnsService::class, fn (): DnsService => $mockDnsService);
-        $mockDnsService->method('hasDnsZone')
-            ->willReturn(true);
+        $mockDnsService->method('hasDnsZone')->willReturn(true);
 
-        $mockDnsService->method('getDnsZone')
-            ->willReturn($dnsZone);
+        $mockDnsService->method('getDnsZone')->willReturn($dnsZone);
 
-        $mockDnsService->method('applyDiffToZone')
-            ->willReturn($dnsZone);
+        $mockDnsService->method('applyDiffToZone')->willReturn($dnsZone);
 
         $mockDnsMigrationService = self::mock(DnsMigrationService::class);
         $this->app->bind(DnsMigrationService::class, fn (): DnsMigrationService => $mockDnsMigrationService);
-        $mockDnsMigrationService->shouldReceive('changeToMasterAndEmptyMasters')
-            ->andReturn();
+        $mockDnsMigrationService->shouldReceive('changeToMasterAndEmptyMasters')->andReturn();
 
         $mockDisablePresignedAction = self::mock(DisableZonePresigningAction::class);
-        $this->app->bind(DisableZonePresigningAction::class, fn (): DisableZonePresigningAction => $mockDisablePresignedAction);
-        $mockDisablePresignedAction->shouldReceive('disable')
-            ->andReturn();
+        $this->app->bind(
+            DisableZonePresigningAction::class,
+            fn (): DisableZonePresigningAction => $mockDisablePresignedAction,
+        );
+        $mockDisablePresignedAction->shouldReceive('disable')->andReturn();
 
         $mockDomainService = self::mock(DomainService::class);
         $this->app->bind(DomainService::class, fn (): DomainService => $mockDomainService);
 
-        $mockDomainService->shouldReceive('minimalRegister')
-            ->andReturn(new RegistrationResult(DomainStatus::ACTIVE));
+        $mockDomainService->shouldReceive('minimalRegister')->andReturn(new RegistrationResult(DomainStatus::ACTIVE));
 
-        $mockDomainService->shouldReceive('registrationRequiresDnsBeforeSubmission')
+        $mockDomainService
+            ->shouldReceive('registrationRequiresDnsBeforeSubmission')
             ->with('test.com')
             ->andReturnFalse();
 
@@ -156,7 +197,12 @@ class OrderTest extends IntegrationTestCase
         ]);
 
         /** @var string[] $payload */
-        $payload = json_decode((string) file_get_contents(__DIR__ . '/data/order_payload.json'), true, 512, JSON_THROW_ON_ERROR);
+        $payload = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/order_payload.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
         $nonIntegratedServicesServers = Server::query()->where('type', '!=', ServerType::PLESK)->get();
 
@@ -164,38 +210,47 @@ class OrderTest extends IntegrationTestCase
             $model->delete();
         });
 
-        $customer = new CustomerFactory()->withAddress()->createOne(['organization' => $organization]);
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne(['organization' => $organization]);
 
-        $response = $this
-            ->actingAsCustomer($customer)
-            ->postJson($this->generateRoute('partners.order.order'), $payload)->assertOk();
+        $response = $this->actingAsCustomer($customer)
+            ->postJson($this->generateRoute('partners.order.order'), $payload)
+            ->assertOk();
 
         $order = Order::query()->firstOrFail();
         $domainSubscription = Subscription::whereProductName('.com')->firstOrFail();
         self::assertSame(DomainStatus::ACTIVE->value, $domainSubscription->technical_status);
 
-        $dnsSubscription = Subscription::query()->whereProductGroupType(ProductGroupType::DNS)->where('domain', $domainSubscription->domain)->firstOrFail();
+        $dnsSubscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::DNS)
+            ->where('domain', $domainSubscription->domain)
+            ->firstOrFail();
         self::assertSame(AdministrativeStatus::ACTIVE->value, $dnsSubscription->administrative_status);
 
         $hostingSubscription = Subscription::whereProductName('premium')->firstOrFail();
         self::assertSame(TechnicalStatus::OK->value, $hostingSubscription->technical_status);
         self::assertTrue(Subscription::whereProductName('Single Domain')->exists());
 
-        $sslSub = Subscription::query()->whereProductGroupType(ProductGroupType::SSL)
-                ->where('domain', 'test.com')
-                ->first();
+        $sslSub = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::SSL)
+            ->where('domain', 'test.com')
+            ->first();
         self::assertInstanceOf(Subscription::class, $sslSub);
 
         $sslDeployment = $sslSub->sslDeployment;
         self::assertInstanceOf(SslDeployment::class, $sslDeployment);
 
         self::assertTrue($order->is_invoiced);
-        self::assertFalse($sslDeployment->custom_csr, 'Custom csr was not provided in payload but ssl deployment says otherwise!');
+        self::assertFalse(
+            $sslDeployment->custom_csr,
+            'Custom csr was not provided in payload but ssl deployment says otherwise!',
+        );
 
         $response->assertJson([
-            'transactionId'    => $order->uuid,
-            'status'           => 'ok',
-            'checkout_url'     => null,
+            'transactionId' => $order->uuid,
+            'status' => 'ok',
+            'checkout_url' => null,
         ]);
     }
 
@@ -206,7 +261,8 @@ class OrderTest extends IntegrationTestCase
         $storeRequest = new CartOrderRequest();
 
         $serializedMock = self::createMock(Serializer::class);
-        $serializedMock->expects(self::once())
+        $serializedMock
+            ->expects(self::once())
             ->method('denormalize')
             ->willReturn(new CartOrder(
                 'ideal',
@@ -225,20 +281,16 @@ class OrderTest extends IntegrationTestCase
                     null,
                     null,
                 ),
-                vouchers: null
+                vouchers: null,
             ));
 
         $order = new OrderFactory()->for($customer)->createOne();
         new OrderLineItemFactory()->for($order)->createOne();
         $cartSerializerFactory = self::createMock(CartSerializerFactory::class);
-        $cartSerializerFactory->expects(self::once())
-            ->method('get')
-            ->willReturn($serializedMock);
+        $cartSerializerFactory->expects(self::once())->method('get')->willReturn($serializedMock);
 
         $orderService = self::createMock(OrderService::class);
-        $orderService->expects(self::once())
-            ->method('processCartToOrder')
-            ->willReturn($order);
+        $orderService->expects(self::once())->method('processCartToOrder')->willReturn($order);
 
         $identitySchema = new KratosIdentity(
             Uuid::uuid4(),
@@ -263,8 +315,7 @@ class OrderTest extends IntegrationTestCase
             true,
         );
 
-        $authenticationManager->method('getAuthenticatedCustomer')
-            ->willReturn($authenticatedCustomer);
+        $authenticationManager->method('getAuthenticatedCustomer')->willReturn($authenticatedCustomer);
 
         $orderController = new OrderController(
             self::createStub(CustomerSharedPaymentService::class),
@@ -275,15 +326,18 @@ class OrderTest extends IntegrationTestCase
             self::createStub(CartService::class),
             self::createStub(ValidationService::class),
             self::createStub(CalculatePriceService::class),
-            self::createStub(AdministrationFeesManager::class)
+            self::createStub(AdministrationFeesManager::class),
         );
         $orderController->order($storeRequest);
 
         self::assertSame($identitySchema->id->toString(), $order->ordered_by_uuid?->toString());
-        self::assertSame(json_encode([
-            'email' => $identitySchema->traits?->email,
-            'schemaId' => 'customer',
-        ], JSON_THROW_ON_ERROR), $order->ordered_by_metadata);
+        self::assertSame(
+            json_encode([
+                'email' => $identitySchema->traits?->email,
+                'schemaId' => 'customer',
+            ], JSON_THROW_ON_ERROR),
+            $order->ordered_by_metadata,
+        );
     }
 
     #[Test]
@@ -298,7 +352,8 @@ class OrderTest extends IntegrationTestCase
         ]);
 
         $serializedMock = self::createMock(Serializer::class);
-        $serializedMock->expects(self::once())
+        $serializedMock
+            ->expects(self::once())
             ->method('denormalize')
             ->willReturn(new CartOrder(
                 paymentMethod: $orderPaymentMethod,
@@ -323,14 +378,10 @@ class OrderTest extends IntegrationTestCase
         $order = new OrderFactory()->for($customer)->createOne();
         new OrderLineItemFactory()->for($order)->createOne();
         $cartSerializerFactory = self::createMock(CartSerializerFactory::class);
-        $cartSerializerFactory->expects(self::once())
-            ->method('get')
-            ->willReturn($serializedMock);
+        $cartSerializerFactory->expects(self::once())->method('get')->willReturn($serializedMock);
 
         $orderService = self::createMock(OrderService::class);
-        $orderService->expects(self::once())
-            ->method('processCartToOrder')
-            ->willReturn($order);
+        $orderService->expects(self::once())->method('processCartToOrder')->willReturn($order);
 
         $identitySchema = new KratosIdentity(
             Uuid::uuid4(),
@@ -355,15 +406,14 @@ class OrderTest extends IntegrationTestCase
             true,
         );
 
-        $authenticationManager->method('getAuthenticatedCustomer')
-            ->willReturn($authenticatedCustomer);
+        $authenticationManager->method('getAuthenticatedCustomer')->willReturn($authenticatedCustomer);
 
         $subscriptionService = self::createMock(SubscriptionService::class);
-        $subscriptionService->expects(self::once())
-            ->method('dispatchProcessOrderJob');
+        $subscriptionService->expects(self::once())->method('dispatchProcessOrderJob');
 
         $paymentService = self::createMock(CustomerSharedPaymentService::class);
-        $paymentService->expects(self::once())
+        $paymentService
+            ->expects(self::once())
             ->method('requiresDirectPayment')
             ->with($customer, $order, $orderPaymentMethod)
             ->willReturn(false);
@@ -377,7 +427,7 @@ class OrderTest extends IntegrationTestCase
             self::createStub(CartService::class),
             self::createStub(ValidationService::class),
             self::createStub(CalculatePriceService::class),
-            self::createStub(AdministrationFeesManager::class)
+            self::createStub(AdministrationFeesManager::class),
         );
         $orderController->order($storeRequest);
     }

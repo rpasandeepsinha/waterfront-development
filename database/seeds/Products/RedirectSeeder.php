@@ -87,8 +87,8 @@ class RedirectSeeder extends Seeder
 
         ProductSpec::insert([
             [
-                'name'       => ProductSpecName::USES_LEGACY_REDIRECT_DATABASE,
-                'value'      => true,
+                'name' => ProductSpecName::USES_LEGACY_REDIRECT_DATABASE,
+                'value' => true,
                 'product_id' => $product->id,
             ],
         ]);

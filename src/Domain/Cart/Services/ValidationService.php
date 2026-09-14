@@ -22,29 +22,49 @@ class ValidationService
     /**
      * @throws ValidationException
      */
-    public function validateOrderTotalPrice(Customer $customer, TotalCollectionPrice $calculatedTotalOrderPrice, bool $orderedByEmployee, int $administrationFees): void
-    {
-        if (! $this->doesCalculatedPriceExceedCustomerCreditAmount($customer, $calculatedTotalOrderPrice, $orderedByEmployee, $administrationFees)) {
-            throw ValidationException::withMessages(['total_price' => 'Customer has not enough disposable credit available.']);
+    public function validateOrderTotalPrice(
+        Customer $customer,
+        TotalCollectionPrice $calculatedTotalOrderPrice,
+        bool $orderedByEmployee,
+        int $administrationFees,
+    ): void {
+        if (! $this->doesCalculatedPriceExceedCustomerCreditAmount(
+            $customer,
+            $calculatedTotalOrderPrice,
+            $orderedByEmployee,
+            $administrationFees,
+        )) {
+            throw ValidationException::withMessages([
+                'total_price' => 'Customer has not enough disposable credit available.',
+            ]);
         }
     }
 
-    private function doesCalculatedPriceExceedCustomerCreditAmount(Customer $customer, TotalCollectionPrice $calculatedTotalOrderPrice, bool $orderedByEmployee, int $administrationFees): bool
-    {
+    private function doesCalculatedPriceExceedCustomerCreditAmount(
+        Customer $customer,
+        TotalCollectionPrice $calculatedTotalOrderPrice,
+        bool $orderedByEmployee,
+        int $administrationFees,
+    ): bool {
         if ($customer->payment_type === PaymentType::CREDIT || $orderedByEmployee) {
             return true;
         }
 
         $disposableAmount = $this->creditLimitService->getDisposableAmount($customer);
 
-        if (! $this->creditLimitService->isOrderAmountAllowed($customer, $calculatedTotalOrderPrice->totalExclVatPrice + $administrationFees)) {
+        if (! $this->creditLimitService->isOrderAmountAllowed(
+            $customer,
+            $calculatedTotalOrderPrice->totalExclVatPrice + $administrationFees,
+        )) {
             $this->logger->notice(sprintf(
                 'Customer tried to order but has not enough credit left. Disposable amount:%s TotalPrice:%s',
                 $disposableAmount,
                 $calculatedTotalOrderPrice->totalExclVatPrice,
             ));
+
             return false;
         }
+
         return true;
     }
 }

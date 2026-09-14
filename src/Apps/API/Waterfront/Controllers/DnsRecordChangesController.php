@@ -34,8 +34,10 @@ class DnsRecordChangesController
 
         $dnsSubscription = $this->subscriptionRepository->getActiveDnsSubscription((string) $subscription->domain);
 
-        $visibleLogsProductSpec = $this->productSpecRepository
-            ->findBySpecification($dnsSubscription->product, ProductSpecName::DNS_VISIBLE_LOG_LINES->value);
+        $visibleLogsProductSpec = $this->productSpecRepository->findBySpecification(
+            $dnsSubscription->product,
+            ProductSpecName::DNS_VISIBLE_LOG_LINES->value,
+        );
         $visibleLogs = (int) $visibleLogsProductSpec?->value;
 
         $logs = $this->dnsRecordChangeRepository->getBySubscription($dnsSubscription, $visibleLogs);

@@ -43,8 +43,11 @@ class CustomerSharedPaymentService
      *
      * @throws PaymentException
      */
-    public function createPayment(Customer $customer, PaymentParameters $parameters, ?bool $createDirectDebitMandate = null): Payment
-    {
+    public function createPayment(
+        Customer $customer,
+        PaymentParameters $parameters,
+        ?bool $createDirectDebitMandate = null,
+    ): Payment {
         try {
             $this->logger->info(
                 self::class . '::createPayment - Creating payment',
@@ -54,7 +57,7 @@ class CustomerSharedPaymentService
                     LoggingContextKeys::META => [
                         'parameters' => $parameters->toArray(),
                     ],
-                ]
+                ],
             );
 
             return $this->payments->createPayment($customer, $parameters, $createDirectDebitMandate);
@@ -98,7 +101,7 @@ class CustomerSharedPaymentService
      */
     public function checkoutUrlForCart(
         Order $order,
-        string|null $paymentMethod = null,
+        ?string $paymentMethod = null,
         ?bool $createDirectDebitMandate = null,
     ): ?string {
         $totalPrice = $order->total_price;
@@ -165,7 +168,9 @@ class CustomerSharedPaymentService
                 return false;
             }
 
-            if ($this->authenticationManager->getAuthenticatedSubject()->identitySchema->schemaId !== SchemaId::EMPLOYEE) {
+            if (
+                $this->authenticationManager->getAuthenticatedSubject()->identitySchema->schemaId !== SchemaId::EMPLOYEE
+            ) {
                 throw new AuthorizationException('You are not authorized to order on credit');
             }
 
@@ -173,21 +178,6 @@ class CustomerSharedPaymentService
         }
 
         return true;
-    }
-
-    public function getWebhookUrl(): string
-    {
-        $clientId = $this->configuration->getAsString('app.storefront.webhook_hydra_client_id');
-        $clientSecret = $this->configuration->getAsString('app.storefront.webhook_hydra_client_secret');
-        $baseUrl = $this->configuration->getAsString('app.url_webhook');
-
-        $route = $this->router->route('storefront.payment.webhook');
-        if (str_starts_with($route, 'http')) {
-            $route = parse_url($route, PHP_URL_PATH);
-        }
-        assert(is_string($route));
-
-        return $baseUrl . '/' . ltrim($route, '/') . '?auth=' . base64_encode($clientId . ':' . $clientSecret);
     }
 
     public function getRedirectUrl(): string
@@ -200,22 +190,34 @@ class CustomerSharedPaymentService
         return sprintf('%s/thank-you', $this->getShopUrl());
     }
 
+    private function getWebhookUrl(): string
+    {
+        $clientId = $this->configuration->getAsString('app.storefront.webhook_hydra_client_id');
+        $clientSecret = $this->configuration->getAsString('app.storefront.webhook_hydra_client_secret');
+        $baseUrl = $this->configuration->getAsString('app.url_webhook');
+
+        $route = $this->router->route('storefront.payment.webhook');
+        if (str_starts_with($route, 'http')) {
+            $route = parse_url($route, PHP_URL_PATH);
+        }
+
+        assert(is_string($route));
+
+        return $baseUrl . '/' . ltrim($route, '/') . '?auth=' . base64_encode($clientId . ':' . $clientSecret);
+    }
+
     private function getShopUrl(): string
     {
         return match ($this->environment) {
-            Environment::PROD =>
-                match ($this->tenant) {
-                    Tenant::VERSIO => 'https://shop.mijn.versio.nl',
-                    Tenant::YOURHOSTING => 'https://shop.account.yourhosting.nl',
-                },
-            Environment::UAT =>
-                match ($this->tenant) {
-                    Tenant::VERSIO => 'https://shop.versio.sandwave.review',
-                    Tenant::YOURHOSTING => 'https://shop.yourhosting.sandwave.review',
-                },
-            Environment::SIT,
-            Environment::DEV,
-            Environment::TST => 'https://atlantis.sandwaveio.dev'
+            Environment::PROD => match ($this->tenant) {
+                Tenant::VERSIO => 'https://shop.mijn.versio.nl',
+                Tenant::YOURHOSTING => 'https://shop.account.yourhosting.nl',
+            },
+            Environment::UAT => match ($this->tenant) {
+                Tenant::VERSIO => 'https://shop.versio.sandwave.review',
+                Tenant::YOURHOSTING => 'https://shop.yourhosting.sandwave.review',
+            },
+            Environment::SIT, Environment::DEV, Environment::TST => 'https://atlantis.sandwaveio.dev',
         };
     }
 

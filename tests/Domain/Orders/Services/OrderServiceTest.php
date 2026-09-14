@@ -74,21 +74,25 @@ class OrderServiceTest extends IntegrationTestCase
     public function processCartToOrder(): void
     {
         $vpsGroup = new ProductGroupFactory()->vps()->createOne();
-        $product = new ProductFactory()->for($vpsGroup)
-            ->createOne(['slug' => 'vps-32-red']);
-        new ProductPriceComponentFactory()->for($product)->registration()->state([
-            'contract_period' => 12,
-            'billing_period' => 12,
-            'price' => 10,
-        ]);
+        $product = new ProductFactory()->for($vpsGroup)->createOne(['slug' => 'vps-32-red']);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->state([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 10,
+            ]);
 
-        $product = new ProductFactory()->for($vpsGroup)
-            ->createOne(['slug' => 'ubuntu-lts-20.04']);
-        new ProductPriceComponentFactory()->for($product)->registration()->state([
-            'contract_period' => 1,
-            'billing_period' => 1,
-            'price' => 10,
-        ]);
+        $product = new ProductFactory()->for($vpsGroup)->createOne(['slug' => 'ubuntu-lts-20.04']);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->state([
+                'contract_period' => 1,
+                'billing_period' => 1,
+                'price' => 10,
+            ]);
 
         $serializer = new CartSerializerFactory()->get();
         $cartJson = (string) file_get_contents(__DIR__ . '/data/vps-child-cart.json');
@@ -102,8 +106,27 @@ class OrderServiceTest extends IntegrationTestCase
             billingPeriod: 1,
             contractPeriod: 1,
             regularPrice: new RegularPrice(priceInclVat: 0, priceExclVat: 0),
-            appliedPrice: new AppliedPrice(priceInclVat: 0, priceExclVat: 0, priceType: UsedProductPriceType::REGULAR_PRICE, actionPeriod: null, actionPeriodPrice: null, voucher: null, priceExplanation: null),
-            price: new Price(ProductPriceType::REGISTRATION, 12, 1, 'uuid', 0, 12, true, true, appliedPriceComponents: [new RegistrationPriceComponent(10)], calculatedPrice: 0),
+            appliedPrice: new AppliedPrice(
+                priceInclVat: 0,
+                priceExclVat: 0,
+                priceType: UsedProductPriceType::REGULAR_PRICE,
+                actionPeriod: null,
+                actionPeriodPrice: null,
+                voucher: null,
+                priceExplanation: null,
+            ),
+            price: new Price(
+                ProductPriceType::REGISTRATION,
+                12,
+                1,
+                'uuid',
+                0,
+                12,
+                true,
+                true,
+                appliedPriceComponents: [new RegistrationPriceComponent(10)],
+                calculatedPrice: 0,
+            ),
         );
         $cartItem2 = new ProductWithCalculatedPrice(
             uuid: Uuid::fromString('fda0da0b-4678-4716-ae8b-b30c62139137'),
@@ -113,11 +136,35 @@ class OrderServiceTest extends IntegrationTestCase
             billingPeriod: 1,
             contractPeriod: 1,
             regularPrice: new RegularPrice(priceInclVat: 0, priceExclVat: 0),
-            appliedPrice: new AppliedPrice(priceInclVat: 0, priceExclVat: 0, priceType: UsedProductPriceType::REGULAR_PRICE, actionPeriod: null, actionPeriodPrice: null, voucher: null, priceExplanation: null),
-            price: new Price(ProductPriceType::REGISTRATION, 12, 1, 'uuid', 0, 12, true, true, appliedPriceComponents: [new RegistrationPriceComponent(10)], calculatedPrice: 0),
+            appliedPrice: new AppliedPrice(
+                priceInclVat: 0,
+                priceExclVat: 0,
+                priceType: UsedProductPriceType::REGULAR_PRICE,
+                actionPeriod: null,
+                actionPeriodPrice: null,
+                voucher: null,
+                priceExplanation: null,
+            ),
+            price: new Price(
+                ProductPriceType::REGISTRATION,
+                12,
+                1,
+                'uuid',
+                0,
+                12,
+                true,
+                true,
+                appliedPriceComponents: [new RegistrationPriceComponent(10)],
+                calculatedPrice: 0,
+            ),
         );
 
-        $order = $service->processCartToOrder($cartOrder, new TotalCollectionPrice(new Collection([$cartItem1, $cartItem2]), [], 0, 0), 5, $this->customer);
+        $order = $service->processCartToOrder(
+            $cartOrder,
+            new TotalCollectionPrice(new Collection([$cartItem1, $cartItem2]), [], 0, 0),
+            5,
+            $this->customer,
+        );
 
         self::assertModelExists($order);
     }
@@ -125,14 +172,16 @@ class OrderServiceTest extends IntegrationTestCase
     #[Test]
     public function redirectProcessCartToOrder(): void
     {
-        $product = new ProductFactory()->redirect()
-            ->createOne();
+        $product = new ProductFactory()->redirect()->createOne();
 
-        new ProductPriceComponentFactory()->for($product)->registration()->state([
-            'contract_period' => 12,
-            'billing_period' => 12,
-            'price' => 10,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->state([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 10,
+            ]);
 
         $serializer = new CartSerializerFactory()->get();
         $cartJson = (string) file_get_contents(__DIR__ . '/data/cart-with-redirect.json');
@@ -146,11 +195,35 @@ class OrderServiceTest extends IntegrationTestCase
             billingPeriod: 1,
             contractPeriod: 1,
             regularPrice: new RegularPrice(priceInclVat: 0, priceExclVat: 0),
-            appliedPrice: new AppliedPrice(priceInclVat: 0, priceExclVat: 0, priceType: UsedProductPriceType::REGULAR_PRICE, actionPeriod: null, actionPeriodPrice: null, voucher: null, priceExplanation: null),
-            price: new Price(ProductPriceType::REGISTRATION, 12, 1, 'uuid', 0, 12, true, true, appliedPriceComponents: [new RegistrationPriceComponent(10)], calculatedPrice: 0),
+            appliedPrice: new AppliedPrice(
+                priceInclVat: 0,
+                priceExclVat: 0,
+                priceType: UsedProductPriceType::REGULAR_PRICE,
+                actionPeriod: null,
+                actionPeriodPrice: null,
+                voucher: null,
+                priceExplanation: null,
+            ),
+            price: new Price(
+                ProductPriceType::REGISTRATION,
+                12,
+                1,
+                'uuid',
+                0,
+                12,
+                true,
+                true,
+                appliedPriceComponents: [new RegistrationPriceComponent(10)],
+                calculatedPrice: 0,
+            ),
         );
 
-        $order = $service->processCartToOrder($cartOrder, new TotalCollectionPrice(new Collection([$cartItem]), [], 0, 0), 5, $this->customer);
+        $order = $service->processCartToOrder(
+            $cartOrder,
+            new TotalCollectionPrice(new Collection([$cartItem]), [], 0, 0),
+            5,
+            $this->customer,
+        );
 
         self::assertModelExists($order);
     }
@@ -159,7 +232,9 @@ class OrderServiceTest extends IntegrationTestCase
     public function redirectShouldHaveDomainInProcessCartToOrder(): void
     {
         self::expectException(MissingConstructorArgumentsException::class);
-        self::expectExceptionMessageIs('Cannot create an instance of "Waterfront\Domain\Orders\DTO\CartOrderLines\RedirectLineItem" from serialized data because its constructor requires the following parameters to be present : "$domain".');
+        self::expectExceptionMessageIs(
+            'Cannot create an instance of "Waterfront\Domain\Orders\DTO\CartOrderLines\RedirectLineItem" from serialized data because its constructor requires the following parameters to be present : "$domain".',
+        );
 
         new ProductFactory()->redirect()->createOne();
 
@@ -167,7 +242,12 @@ class OrderServiceTest extends IntegrationTestCase
         $cartJson = (string) file_get_contents(__DIR__ . '/data/cart-with-redirect-no-domain.json');
         $cartOrder = $serializer->deserialize($cartJson, CartOrder::class, 'json');
         $service = $this->resolve(OrderService::class);
-        $service->processCartToOrder($cartOrder, new TotalCollectionPrice(new Collection(), [], 0, 0), 5, $this->customer);
+        $service->processCartToOrder(
+            $cartOrder,
+            new TotalCollectionPrice(new Collection(), [], 0, 0),
+            5,
+            $this->customer,
+        );
     }
 
     #[Test]
@@ -179,7 +259,12 @@ class OrderServiceTest extends IntegrationTestCase
 
         $service = $this->resolve(OrderService::class);
 
-        $service->processCartToOrder($cartOrder, new TotalCollectionPrice(new Collection(), [], 0, 0), 5, $this->customer);
+        $service->processCartToOrder(
+            $cartOrder,
+            new TotalCollectionPrice(new Collection(), [], 0, 0),
+            5,
+            $this->customer,
+        );
 
         self::assertDatabaseEmpty(VoucherClaim::class);
     }
@@ -191,22 +276,26 @@ class OrderServiceTest extends IntegrationTestCase
 
         $productGroup = new ProductGroupFactory()->vps()->createOne();
 
-        $product = new ProductFactory()->for($productGroup)
-            ->createOne(['slug' => ProductGroupType::VPS]);
+        $product = new ProductFactory()->for($productGroup)->createOne(['slug' => ProductGroupType::VPS]);
 
-        new ProductPriceComponentFactory()->for($product)->registration()->state([
-            'contract_period' => 12,
-            'billing_period' => 12,
-            'price' => 10,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->state([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 10,
+            ]);
 
-        $product = new ProductFactory()->for($productGroup)
-            ->createOne(['slug' => 'vps-32-red']);
-        new ProductPriceComponentFactory()->for($product)->registration()->state([
-            'contract_period' => 12,
-            'billing_period' => 12,
-            'price' => 10,
-        ]);
+        $product = new ProductFactory()->for($productGroup)->createOne(['slug' => 'vps-32-red']);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->state([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 10,
+            ]);
 
         $serializer = new CartSerializerFactory()->get();
         $cartJson = (string) file_get_contents(__DIR__ . '/data/cart-with-voucher.json');
@@ -222,7 +311,18 @@ class OrderServiceTest extends IntegrationTestCase
             12,
             new RegularPrice(0, 0),
             new AppliedPrice(0, 0, UsedProductPriceType::VOUCHER_PRICE, null, null, $cartVoucher, null),
-            new Price(ProductPriceType::REGISTRATION, 12, 1, 'uuid', 0, 12, true, true, appliedPriceComponents: [new RegistrationPriceComponent(10)], calculatedPrice: 0),
+            new Price(
+                ProductPriceType::REGISTRATION,
+                12,
+                1,
+                'uuid',
+                0,
+                12,
+                true,
+                true,
+                appliedPriceComponents: [new RegistrationPriceComponent(10)],
+                calculatedPrice: 0,
+            ),
         );
         $totalPriceCollection = new TotalCollectionPrice(new Collection([$productWithCalculatedPrice]), [], 0, 0);
 
@@ -235,7 +335,7 @@ class OrderServiceTest extends IntegrationTestCase
             [
                 'order_line_item_id' => $orderLineItem->id,
                 'voucher_id' => $voucher->id,
-            ]
+            ],
         );
     }
 
@@ -294,20 +394,35 @@ class OrderServiceTest extends IntegrationTestCase
     public function processCartToOrderWithMultiYearPricing(): void
     {
         $extensionGroup = new ProductGroupFactory()->extension()->createOne();
-        $product = new ProductFactory()->for($extensionGroup)
-            ->createOne(['slug' => 'extension_com']);
-        new ProductPriceComponentFactory()->registration()->for($product)->createOne([
+        $product = new ProductFactory()->for($extensionGroup)->createOne(['slug' => 'extension_com']);
+        new ProductPriceComponentFactory()
+            ->registration()
+            ->for($product)
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 800,
+            ]);
+        new ProductPriceComponentFactory()->for($product)->createOne([
+            'type' => PriceComponentType::PROMOTION,
             'contract_period' => 12,
             'billing_period' => 12,
-            'price' => 800,
+            'price' => 700,
         ]);
-        new ProductPriceComponentFactory()->for($product)->createOne(['type' => PriceComponentType::PROMOTION, 'contract_period' => 12, 'billing_period' => 12, 'price' => 700]);
-        new ProductPriceComponentFactory()->registration()->for($product)->createOne([
+        new ProductPriceComponentFactory()
+            ->registration()
+            ->for($product)
+            ->createOne([
+                'contract_period' => 36,
+                'billing_period' => 36,
+                'price' => 500,
+            ]);
+        new ProductPriceComponentFactory()->for($product)->createOne([
+            'type' => PriceComponentType::PROMOTION,
             'contract_period' => 36,
             'billing_period' => 36,
-            'price' => 500,
+            'price' => 400,
         ]);
-        new ProductPriceComponentFactory()->for($product)->createOne(['type' => PriceComponentType::PROMOTION, 'contract_period' => 36, 'billing_period' => 36, 'price' => 400]);
 
         $serializer = new CartSerializerFactory()->get();
         $cartJson = (string) file_get_contents(__DIR__ . '/data/cart-with-multi-year-domain.json');
@@ -338,20 +453,35 @@ class OrderServiceTest extends IntegrationTestCase
     public function processCartToOrderWithExperimentType(): void
     {
         $extensionGroup = new ProductGroupFactory()->extension()->createOne();
-        $product = new ProductFactory()->for($extensionGroup)
-            ->createOne(['slug' => 'extension_com']);
-        new ProductPriceComponentFactory()->registration()->for($product)->createOne([
+        $product = new ProductFactory()->for($extensionGroup)->createOne(['slug' => 'extension_com']);
+        new ProductPriceComponentFactory()
+            ->registration()
+            ->for($product)
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 800,
+            ]);
+        new ProductPriceComponentFactory()->for($product)->createOne([
+            'type' => PriceComponentType::PROMOTION,
             'contract_period' => 12,
             'billing_period' => 12,
-            'price' => 800,
+            'price' => 700,
         ]);
-        new ProductPriceComponentFactory()->for($product)->createOne(['type' => PriceComponentType::PROMOTION, 'contract_period' => 12, 'billing_period' => 12, 'price' => 700]);
-        new ProductPriceComponentFactory()->registration()->for($product)->createOne([
+        new ProductPriceComponentFactory()
+            ->registration()
+            ->for($product)
+            ->createOne([
+                'contract_period' => 36,
+                'billing_period' => 36,
+                'price' => 500,
+            ]);
+        new ProductPriceComponentFactory()->for($product)->createOne([
+            'type' => PriceComponentType::PROMOTION,
             'contract_period' => 36,
             'billing_period' => 36,
-            'price' => 500,
+            'price' => 400,
         ]);
-        new ProductPriceComponentFactory()->for($product)->createOne(['type' => PriceComponentType::PROMOTION, 'contract_period' => 36, 'billing_period' => 36, 'price' => 400]);
 
         $serializer = new CartSerializerFactory()->get();
         $cartJson = (string) file_get_contents(__DIR__ . '/data/cart-with-experiment-type.json');
@@ -386,7 +516,10 @@ class OrderServiceTest extends IntegrationTestCase
         $basicProduct = new ProductFactory()->for($productGroup)->createOne(['slug' => 'basic']);
         $grootProduct = new ProductFactory()->for($productGroup)->createOne(['slug' => 'groot']);
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($basicProduct)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($basicProduct)
+            ->createOne();
 
         $order = new OrderFactory()->createOne([
             'customer_id' => $this->customer->id,
@@ -416,7 +549,10 @@ class OrderServiceTest extends IntegrationTestCase
         $basicProduct = new ProductFactory()->for($hostingGroup)->createOne(['slug' => 'basic']);
         $grootProduct = new ProductFactory()->for($hostingGroup)->createOne(['slug' => 'groot']);
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($basicProduct)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($basicProduct)
+            ->createOne();
 
         $order = new OrderFactory()->createOne([
             'customer_id' => $this->customer->id,
@@ -430,12 +566,14 @@ class OrderServiceTest extends IntegrationTestCase
             'subscription_uuid' => $subscription->uuid,
         ]);
 
-        new OrderLineItemFactory()->parentOrderLineItem($parent)->createOne([
-            'order_id' => $order->id,
-            'status' => OrderLineItemStatus::REGISTRATION,
-            'product_uuid' => $addonProduct->uuid,
-            'product_name' => $addonProduct->name,
-        ]);
+        new OrderLineItemFactory()
+            ->parentOrderLineItem($parent)
+            ->createOne([
+                'order_id' => $order->id,
+                'status' => OrderLineItemStatus::REGISTRATION,
+                'product_uuid' => $addonProduct->uuid,
+                'product_name' => $addonProduct->name,
+            ]);
 
         $orderService = self::resolve(OrderService::class);
 
@@ -453,14 +591,22 @@ class OrderServiceTest extends IntegrationTestCase
         $basicProduct = new ProductFactory()->for($hostingGroup)->createOne(['slug' => 'basic']);
         $grootProduct = new ProductFactory()->for($hostingGroup)->createOne(['slug' => 'groot']);
 
-        new ProductPriceComponentFactory()->prolongation()->for($grootProduct)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($grootProduct)
+            ->createOne();
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($basicProduct)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($basicProduct)
+            ->createOne();
 
-        new ProductAllowedChangeFactory()->upgradeChange()->createOne([
-            'from_product_id' => $basicProduct->id,
-            'to_product_id' => $grootProduct->id,
-        ]);
+        new ProductAllowedChangeFactory()
+            ->upgradeChange()
+            ->createOne([
+                'from_product_id' => $basicProduct->id,
+                'to_product_id' => $grootProduct->id,
+            ]);
 
         $order = new OrderFactory()->createOne([
             'customer_id' => $this->customer->id,
@@ -474,16 +620,19 @@ class OrderServiceTest extends IntegrationTestCase
             'subscription_uuid' => $subscription->uuid,
         ]);
 
-        new OrderLineItemFactory()->parentOrderLineItem($parent)->createOne([
-            'order_id' => $order->id,
-            'status' => OrderLineItemStatus::REGISTRATION,
-            'product_uuid' => $addonProduct->uuid,
-            'product_name' => $addonProduct->name,
-            'subscription_uuid' => null,
-        ]);
+        new OrderLineItemFactory()
+            ->parentOrderLineItem($parent)
+            ->createOne([
+                'order_id' => $order->id,
+                'status' => OrderLineItemStatus::REGISTRATION,
+                'product_uuid' => $addonProduct->uuid,
+                'product_name' => $addonProduct->name,
+                'subscription_uuid' => null,
+            ]);
 
         $jobDispatcher = self::createMock(Dispatcher::class);
-        $jobDispatcher->expects(self::once())
+        $jobDispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(ChangeProvisioningJob::class));
 
@@ -529,19 +678,25 @@ class OrderServiceTest extends IntegrationTestCase
         $domainSubscription = DomainSubscriptionDataProvider::subscription();
         $order = new OrderFactory()->for(new CustomerFactory()->createOne())->createOne();
 
-        new ProductPriceComponentFactory()->for($domainSubscription->product)->prolongation()->createOne([
-            'billing_period' => 24,
-            'contract_period' => 24,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($domainSubscription->product)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 24,
+                'contract_period' => 24,
+            ]);
 
-        $lineItem = new OrderLineItemFactory()->for($order)->for($domainSubscription->product)->createOne([
-            'status' => OrderLineItemStatus::PROLONGATION->value,
-            'domain' => $domainSubscription->domain,
-            'subscription_uuid' => $domainSubscription->uuid,
-            'billing_period' => 24,
-            'contract_period' => 24,
-            'processed_at' => null,
-        ]);
+        $lineItem = new OrderLineItemFactory()
+            ->for($order)
+            ->for($domainSubscription->product)
+            ->createOne([
+                'status' => OrderLineItemStatus::PROLONGATION->value,
+                'domain' => $domainSubscription->domain,
+                'subscription_uuid' => $domainSubscription->uuid,
+                'billing_period' => 24,
+                'contract_period' => 24,
+                'processed_at' => null,
+            ]);
 
         $dataSub = Subscription::where('id', $domainSubscription->id)->first();
         self::assertInstanceOf(Subscription::class, $dataSub);
@@ -579,14 +734,22 @@ class OrderServiceTest extends IntegrationTestCase
         $basicProduct = new ProductFactory()->for($hostingGroup)->createOne(['slug' => 'basic']);
         $grootProduct = new ProductFactory()->for($hostingGroup)->createOne(['slug' => 'groot']);
 
-        $hostingSubscription = new SubscriptionFactory()->for($this->customer)->for($grootProduct)->createOne();
+        $hostingSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($grootProduct)
+            ->createOne();
 
-        new ProductAllowedChangeFactory()->downgradeChange()->createOne([
-            'from_product_id' => $grootProduct->id,
-            'to_product_id' => $basicProduct->id,
-        ]);
+        new ProductAllowedChangeFactory()
+            ->downgradeChange()
+            ->createOne([
+                'from_product_id' => $grootProduct->id,
+                'to_product_id' => $basicProduct->id,
+            ]);
 
-        new ProductPriceComponentFactory()->for($basicProduct)->prolongation()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($basicProduct)
+            ->prolongation()
+            ->createOne();
 
         $order = new OrderFactory()->createOne([
             'customer_id' => $this->customer->id,
@@ -628,14 +791,22 @@ class OrderServiceTest extends IntegrationTestCase
         $basicProduct = new ProductFactory()->for($hostingGroup)->createOne(['slug' => 'basic-custom-price']);
         $grootProduct = new ProductFactory()->for($hostingGroup)->createOne(['slug' => 'groot-custom-price']);
 
-        new ProductPriceComponentFactory()->prolongation()->for($grootProduct)->createOne(['price' => 1000]);
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($grootProduct)
+            ->createOne(['price' => 1000]);
 
-        $subscription = new SubscriptionFactory()->for($customer)->for($basicProduct)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($basicProduct)
+            ->createOne();
 
-        new ProductAllowedChangeFactory()->upgradeChange()->createOne([
-            'from_product_id' => $basicProduct->id,
-            'to_product_id' => $grootProduct->id,
-        ]);
+        new ProductAllowedChangeFactory()
+            ->upgradeChange()
+            ->createOne([
+                'from_product_id' => $basicProduct->id,
+                'to_product_id' => $grootProduct->id,
+            ]);
 
         $order = new OrderFactory()->createOne(['customer_id' => $customer->id]);
 
@@ -648,21 +819,22 @@ class OrderServiceTest extends IntegrationTestCase
             'should_invoice' => false,
         ]);
 
-        self::resolve(PricePersistService::class)->persistOrderLineItemPrice(
-            $orderLine,
-            new Price(
-                type: ProductPriceType::REGISTRATION,
-                billingPeriod: $orderLine->billing_period,
-                productId: $grootProduct->id,
-                productGroupUuid: $hostingGroup->uuid,
-                regularPrice: 0,
-                contractPeriod: $orderLine->contract_period,
-                orderable: true,
-                is_default: true,
-                appliedPriceComponents: [new CustomIndefinitePriceComponent(0)],
-                calculatedPrice: 0,
-            )
-        );
+        self::resolve(PricePersistService::class)
+            ->persistOrderLineItemPrice(
+                $orderLine,
+                new Price(
+                    type: ProductPriceType::REGISTRATION,
+                    billingPeriod: $orderLine->billing_period,
+                    productId: $grootProduct->id,
+                    productGroupUuid: $hostingGroup->uuid,
+                    regularPrice: 0,
+                    contractPeriod: $orderLine->contract_period,
+                    orderable: true,
+                    is_default: true,
+                    appliedPriceComponents: [new CustomIndefinitePriceComponent(0)],
+                    calculatedPrice: 0,
+                ),
+            );
 
         self::resolve(OrderService::class)->processMutations($order);
 
@@ -692,24 +864,34 @@ class OrderServiceTest extends IntegrationTestCase
         $basicProduct = new ProductFactory()->for($hostingGroup)->createOne(['slug' => 'basic-regular-price']);
         $grootProduct = new ProductFactory()->for($hostingGroup)->createOne(['slug' => 'groot-regular-price']);
 
-        new ProductPriceComponentFactory()->prolongation()->for($grootProduct)->createOne(['price' => 1000]);
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($grootProduct)
+            ->createOne(['price' => 1000]);
 
-        $subscription = new SubscriptionFactory()->for($customer)->for($basicProduct)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($basicProduct)
+            ->createOne();
 
-        new ProductAllowedChangeFactory()->upgradeChange()->createOne([
-            'from_product_id' => $basicProduct->id,
-            'to_product_id' => $grootProduct->id,
-        ]);
+        new ProductAllowedChangeFactory()
+            ->upgradeChange()
+            ->createOne([
+                'from_product_id' => $basicProduct->id,
+                'to_product_id' => $grootProduct->id,
+            ]);
 
         $order = new OrderFactory()->createOne(['customer_id' => $customer->id]);
 
-        $orderLine = new OrderLineItemFactory()->withPrice()->createOne([
-            'order_id' => $order->id,
-            'status' => OrderLineItemStatus::REGISTRATION,
-            'product_uuid' => $grootProduct->uuid,
-            'product_name' => $grootProduct->name,
-            'subscription_uuid' => $subscription->uuid,
-        ]);
+        $orderLine = new OrderLineItemFactory()
+            ->withPrice()
+            ->createOne([
+                'order_id' => $order->id,
+                'status' => OrderLineItemStatus::REGISTRATION,
+                'product_uuid' => $grootProduct->uuid,
+                'product_name' => $grootProduct->name,
+                'subscription_uuid' => $subscription->uuid,
+            ]);
 
         self::resolve(OrderService::class)->processMutations($order);
 

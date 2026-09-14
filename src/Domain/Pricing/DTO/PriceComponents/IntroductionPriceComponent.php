@@ -26,10 +26,18 @@ class IntroductionPriceComponent extends PriceComponent
         public ?int $firstMonthsDiscountPeriod,
         public ?int $appliedOrder = null,
     ) {
-        assert($percentageDiscount === null || ($percentageDiscount >= 0.0 && $percentageDiscount <= 100.0));
+        assert($percentageDiscount === null || $percentageDiscount >= 0.0 && $percentageDiscount <= 100.0);
         assert($fixedDiscount !== null || $percentageDiscount !== null || $fixedPrice !== null);
-        assert(($remainingUses === null && $maxUsesPerCustomer === null) || ($remainingUses !== null && $maxUsesPerCustomer !== null));
+        assert($remainingUses === null && $maxUsesPerCustomer === null
+        || $remainingUses !== null && $maxUsesPerCustomer !== null);
 
-        parent::__construct(PriceComponentType::INTRODUCTION, $fixedDiscount, $percentageDiscount, $fixedPrice, $newPrice, $appliedOrder);
+        parent::__construct(
+            PriceComponentType::INTRODUCTION,
+            $fixedDiscount,
+            $percentageDiscount,
+            $fixedPrice,
+            $newPrice,
+            $appliedOrder,
+        );
     }
 }

@@ -36,11 +36,17 @@ class PaytWebhookSignatureValidatorTest extends TestCase
     public static function signatureDataProvider(): array
     {
         return [
-            'valid signature'               => ['signature' => self::VALID_SIGNATURE, 'expectedResult' => true],
-            'invalid signature'             => ['signature' => 'invalid-signature', 'expectedResult' => false],
-            'empty signature'               => ['signature' => '', 'expectedResult' => false],
-            'signature for different body'  => ['signature' => self::SIGNATURE_FOR_DIFFERENT_BODY, 'expectedResult' => false],
-            'signature for different secret' => ['signature' => self::SIGNATURE_FOR_DIFFERENT_SECRET, 'expectedResult' => false],
+            'valid signature' => ['signature' => self::VALID_SIGNATURE, 'expectedResult' => true],
+            'invalid signature' => ['signature' => 'invalid-signature', 'expectedResult' => false],
+            'empty signature' => ['signature' => '', 'expectedResult' => false],
+            'signature for different body' => [
+                'signature' => self::SIGNATURE_FOR_DIFFERENT_BODY,
+                'expectedResult' => false,
+            ],
+            'signature for different secret' => [
+                'signature' => self::SIGNATURE_FOR_DIFFERENT_SECRET,
+                'expectedResult' => false,
+            ],
         ];
     }
 }

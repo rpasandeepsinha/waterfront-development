@@ -52,7 +52,9 @@ class SslDeploymentController
 
         $sslDeployment = $subscription->sslDeployment;
         if ($sslDeployment === null) {
-            return new JsonResponse(['message' => 'The deployment could not be found'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new JsonResponse([
+                'message' => 'The deployment could not be found',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return $this->sslDeploymentResource->toJson($sslDeployment);
@@ -83,11 +85,11 @@ class SslDeploymentController
                     'Could not download the %s certificate for SSL deployment #%d: %s',
                     $certificateType,
                     $sslDeployment->id,
-                    $exception->getMessage()
+                    $exception->getMessage(),
                 ),
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
             throw new NotFoundHttpException();
         }
@@ -105,7 +107,10 @@ class SslDeploymentController
         try {
             $this->updateSslRequestStatusAction->execute($sslDeployment);
         } catch (SslRequestStatusException $exception) {
-            return new JsonResponse(['message' => $exception->getMessage(),  'errors' => []], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new JsonResponse([
+                'message' => $exception->getMessage(),
+                'errors' => [],
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new JsonResponse(['message' => 'SSL request status updated successfully']);
@@ -117,7 +122,10 @@ class SslDeploymentController
     public function syncCertificateFromRtr(SslDeployment $sslDeployment): JsonResponse
     {
         if ($sslDeployment->provider->slug !== ProviderSlug::REALTIME_REGISTER) {
-            return new JsonResponse(['message' => 'Deployment is not RTR provider', 'errors' => []], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return new JsonResponse([
+                'message' => 'Deployment is not RTR provider',
+                'errors' => [],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         try {
@@ -130,7 +138,7 @@ class SslDeploymentController
                 [
                     LoggingContextKeys::SUBSCRIPTION_ID => $sslDeployment->subscription->id,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
             throw $exception;
         }
@@ -166,7 +174,10 @@ class SslDeploymentController
         }
 
         if ($provider->type !== ProviderType::SSL) {
-            return new JsonResponse(['message' => 'Provider is not an SSL provider', 'errors' => []], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return new JsonResponse([
+                'message' => 'Provider is not an SSL provider',
+                'errors' => [],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $sslDeployment->provider_id = $provider->id;

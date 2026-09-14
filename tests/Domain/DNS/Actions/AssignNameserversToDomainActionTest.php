@@ -94,7 +94,7 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
                 new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne(),
                 [
                     'domain' => $testDomain,
-                ]
+                ],
             )
             ->for(DomainProviderBusinessUnitFactory::new()->argeweb(), 'businessUnit')
             ->withRtrProvider()
@@ -104,67 +104,63 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
             ->administrativeStatusActive()
             ->technicalStatus(TechnicalStatus::FAILED->value)
             ->forDomain($testDomain)
-            ->for((new CustomerFactory()))
-            ->for(new ProductFactory()
-                ->premiumDns()
-                ->has(
-                    new ProductSpecFactory()->state([
-                        'name' => ProductSpecName::DNS_IS_PREMIUM->value,
-                        'value' => true,
-                    ])
-                ))
+            ->for(new CustomerFactory())
+            ->for(new ProductFactory()->premiumDns()->has(
+                new ProductSpecFactory()->state([
+                    'name' => ProductSpecName::DNS_IS_PREMIUM->value,
+                    'value' => true,
+                ]),
+            ))
             ->state([
                 'parent_subscription_id' => $domainDeployment->subscription->id,
             ])
             ->createOne();
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withVanityNameserver()
-            ->for($dnsSubscription)
-            ->createOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withVanityNameserver()->for($dnsSubscription)->createOne();
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->willReturn($dnsDeployment);
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('isNameserversAlreadyAssigned')
             ->willReturn(false);
 
-        $this->mockNameserverAssignerFactory->expects(self::once())
+        $this->mockNameserverAssignerFactory
+            ->expects(self::once())
             ->method('createAssigner')
             ->with($dnsDeployment->nameserver_type)
             ->willReturn($this->mockNameserverAssigner);
 
-        $this->mockNameserverAssigner->expects(self::once())
+        $this->mockNameserverAssigner
+            ->expects(self::once())
             ->method('assign')
             ->with($dnsDeployment)
             ->willReturn($testNameservers);
 
-        $this->mockDnsProductSpecRepository->expects(self::once())
-            ->method('isPremiumDns')
-            ->willReturn(true);
+        $this->mockDnsProductSpecRepository->expects(self::once())->method('isPremiumDns')->willReturn(true);
 
-        $this->mockPowerDnsNameserverSynchronizer->expects(self::never())
-            ->method('synchronize');
+        $this->mockPowerDnsNameserverSynchronizer->expects(self::never())->method('synchronize');
 
-        $this->mockDnsService->expects(self::once())
-            ->method('enablePremiumDns')
-            ->with($testDomain);
+        $this->mockDnsService->expects(self::once())->method('enablePremiumDns')->with($testDomain);
 
-        $this->mockDomainServiceFactory->expects(self::once())
+        $this->mockDomainServiceFactory
+            ->expects(self::once())
             ->method('driver')
             ->with(
                 $domainDeployment->provider->slug,
-                $domainDeployment->businessUnit
+                $domainDeployment->businessUnit,
             )
             ->willReturn($this->mockDomainDriver);
 
-        $this->mockDomainDriver->expects(self::once())
+        $this->mockDomainDriver
+            ->expects(self::once())
             ->method('updateNameServers')
             ->with(
                 $testDomain,
-                self::callback(fn (array $nameservers) => $this->checkUniqueNameserver($nameservers))
+                self::callback(fn (array $nameservers) => $this->checkUniqueNameserver($nameservers)),
             );
 
         $assignAction = new AssignNameserversToDomainAction(
@@ -174,7 +170,7 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
             dnsProductSpecRepository: $this->mockDnsProductSpecRepository,
             dnsDeploymentRepository: $this->mockDnsDeploymentRepository,
             nameserverAssignerFactory: $this->mockNameserverAssignerFactory,
-            logger: $this->mockLoggerInterface
+            logger: $this->mockLoggerInterface,
         );
 
         $assignAction->assign($domainDeployment);
@@ -198,7 +194,7 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
                 new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne(),
                 [
                     'domain' => $testDomain,
-                ]
+                ],
             )
             ->withRtrProvider()
             ->createOne();
@@ -207,63 +203,59 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
             ->administrativeStatusActive()
             ->technicalStatus(TechnicalStatus::FAILED->value)
             ->forDomain($testDomain)
-            ->for((new CustomerFactory()))
-            ->for(new ProductFactory()
-                ->premiumDns()
-                ->has(
-                    new ProductSpecFactory()->state([
-                        'name' => ProductSpecName::DNS_IS_PREMIUM->value,
-                        'value' => true,
-                    ])
-                ))
+            ->for(new CustomerFactory())
+            ->for(new ProductFactory()->premiumDns()->has(
+                new ProductSpecFactory()->state([
+                    'name' => ProductSpecName::DNS_IS_PREMIUM->value,
+                    'value' => true,
+                ]),
+            ))
             ->state([
                 'parent_subscription_id' => $domainDeployment->subscription->id,
             ])
             ->createOne();
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->withVanityNameserver()
-            ->for($dnsSubscription)
-            ->createOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->withVanityNameserver()->for($dnsSubscription)->createOne();
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->willReturn($dnsDeployment);
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('isNameserversAlreadyAssigned')
             ->willReturn(false);
 
-        $this->mockNameserverAssignerFactory->expects(self::once())
+        $this->mockNameserverAssignerFactory
+            ->expects(self::once())
             ->method('createAssigner')
             ->with($dnsDeployment->nameserver_type)
             ->willReturn($this->mockNameserverAssigner);
 
-        $this->mockNameserverAssigner->expects(self::once())
+        $this->mockNameserverAssigner
+            ->expects(self::once())
             ->method('assign')
             ->with($dnsDeployment)
             ->willReturn($testNameservers);
 
-        $this->mockDnsProductSpecRepository->expects(self::once())
-            ->method('isPremiumDns')
-            ->willReturn(true);
+        $this->mockDnsProductSpecRepository->expects(self::once())->method('isPremiumDns')->willReturn(true);
 
-        $this->mockPowerDnsNameserverSynchronizer->expects(self::never())
-            ->method('synchronize');
+        $this->mockPowerDnsNameserverSynchronizer->expects(self::never())->method('synchronize');
 
-        $this->mockDnsService->expects(self::once())
-            ->method('enablePremiumDns')
-            ->with($testDomain);
+        $this->mockDnsService->expects(self::once())->method('enablePremiumDns')->with($testDomain);
 
-        $this->mockDomainServiceFactory->expects(self::once())
+        $this->mockDomainServiceFactory
+            ->expects(self::once())
             ->method('driver')
             ->with(
                 $domainDeployment->provider->slug,
-                null // No business unit in this test
+                null, // No business unit in this test
             )
             ->willReturn($this->mockDomainDriver);
 
-        $this->mockDomainDriver->expects(self::once())
+        $this->mockDomainDriver
+            ->expects(self::once())
             ->method('updateNameServers')
             ->with($testDomain, $testNameservers);
 
@@ -274,7 +266,7 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
             dnsProductSpecRepository: $this->mockDnsProductSpecRepository,
             dnsDeploymentRepository: $this->mockDnsDeploymentRepository,
             nameserverAssignerFactory: $this->mockNameserverAssignerFactory,
-            logger: $this->mockLoggerInterface
+            logger: $this->mockLoggerInterface,
         );
 
         $assignAction->assign($domainDeployment);
@@ -301,7 +293,7 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
                 new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne(),
                 [
                     'domain' => $testDomain,
-                ]
+                ],
             )
             ->withRtrProvider()
             ->createOne();
@@ -309,62 +301,60 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
         $dnsSubscription = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->forDomain($testDomain)
-            ->for((new CustomerFactory()))
+            ->for(new CustomerFactory())
             ->for(
-                new ProductFactory()
-                    ->for(new ProductGroupFactory()->dns())
-                    ->freeDns()
+                new ProductFactory()->for(new ProductGroupFactory()->dns())->freeDns(),
             )
             ->createOne();
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->for($dnsSubscription)
-            ->withInternalNameserver()
-            ->createOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->for($dnsSubscription)->withInternalNameserver()->createOne();
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->willReturn($dnsDeployment);
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('isNameserversAlreadyAssigned')
             ->willReturn(false);
 
-        $this->mockNameserverAssignerFactory->expects(self::once())
+        $this->mockNameserverAssignerFactory
+            ->expects(self::once())
             ->method('createAssigner')
             ->with($dnsDeployment->nameserver_type)
             ->willReturn($this->mockNameserverAssigner);
 
-        $this->mockNameserverAssigner->expects(self::once())
+        $this->mockNameserverAssigner
+            ->expects(self::once())
             ->method('assign')
             ->with($dnsDeployment)
             ->willReturn($testNameservers);
 
-        $this->mockDnsProductSpecRepository->expects(self::once())
-            ->method('isPremiumDns')
-            ->willReturn(false);
+        $this->mockDnsProductSpecRepository->expects(self::once())->method('isPremiumDns')->willReturn(false);
 
-        $this->mockPowerDnsNameserverSynchronizer->expects(self::once())
+        $this->mockPowerDnsNameserverSynchronizer
+            ->expects(self::once())
             ->method('synchronize')
             ->with(
                 $testDomain,
                 self::callback(fn (array $nameservers) => $this->checkUniqueNameserver($nameservers)),
-                false
+                false,
             );
 
-        $this->mockDnsService->expects(self::never())
-            ->method('enablePremiumDns')
-            ->with($testDomain);
+        $this->mockDnsService->expects(self::never())->method('enablePremiumDns')->with($testDomain);
 
-        $this->mockDomainServiceFactory->expects(self::once())
+        $this->mockDomainServiceFactory
+            ->expects(self::once())
             ->method('driver')
             ->with(
                 $domainDeployment->provider->slug,
-                null // No business unit for free DNS
+                null, // No business unit for free DNS
             )
             ->willReturn($this->mockDomainDriver);
 
-        $this->mockDomainDriver->expects(self::once())
+        $this->mockDomainDriver
+            ->expects(self::once())
             ->method('updateNameServers')
             ->with(
                 $testDomain,
@@ -378,7 +368,7 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
             dnsProductSpecRepository: $this->mockDnsProductSpecRepository,
             dnsDeploymentRepository: $this->mockDnsDeploymentRepository,
             nameserverAssignerFactory: $this->mockNameserverAssignerFactory,
-            logger: $this->mockLoggerInterface
+            logger: $this->mockLoggerInterface,
         );
 
         $assignAction->assign($domainDeployment);
@@ -390,26 +380,22 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
         $domainDeployment = new DomainDeploymentFactory()
             ->withSubscription(
                 new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne(),
-                ['domain' => 'sandwave.io']
+                ['domain' => 'sandwave.io'],
             )
             ->withRtrProvider()
             ->createOne();
 
         $dnsSubscription = new SubscriptionFactory()
-           ->administrativeStatusActive()
-           ->forDomain('sandwave.io')
-           ->for((new CustomerFactory()))
-           ->for(
-               new ProductFactory()
-                   ->for(new ProductGroupFactory()->dns())
-                   ->freeDns()
-           )
-           ->parentSubscription($domainDeployment->subscription)
-           ->createOne();
-
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->for($dnsSubscription)
+            ->administrativeStatusActive()
+            ->forDomain('sandwave.io')
+            ->for(new CustomerFactory())
+            ->for(
+                new ProductFactory()->for(new ProductGroupFactory()->dns())->freeDns(),
+            )
+            ->parentSubscription($domainDeployment->subscription)
             ->createOne();
+
+        $dnsDeployment = DnsDeploymentFactory::new()->for($dnsSubscription)->createOne();
 
         $rtrSdk = MockedClientFactory::makeSdk(
             200,
@@ -427,72 +413,75 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
                 self::assertCount(3, $nsRecords);
                 self::assertSame($nameservers[0], $nsRecords[0]);
                 self::assertSame($nameservers[1], $nsRecords[1]);
-            }
+            },
         );
 
-        $pdnsMock = $this->makePdnsWithMultipleResponses([
-            // get DNS zone
-            new Response(
-                200,
-                [],
-                $this->getMockedZoneResponseBody('sandwave.io')
-            ),
-            new Response(
-                204
-            ),
-        ], static function (RequestInterface $request) use ($dnsDeployment): void {
-            if ($request->getMethod() !== 'PATCH') {
-                return;
-            }
+        $pdnsMock = $this->makePdnsWithMultipleResponses(
+            [
+                // get DNS zone
+                new Response(
+                    200,
+                    [],
+                    $this->getMockedZoneResponseBody('sandwave.io'),
+                ),
+                new Response(
+                    204,
+                ),
+            ],
+            static function (RequestInterface $request) use ($dnsDeployment): void {
+                if ($request->getMethod() !== 'PATCH') {
+                    return;
+                }
 
-            $dnsDeployment->refresh();
-            /** @var array<int,string> $nameservers */
-            $nameservers = $dnsDeployment->dnsNameservers->pluck('nameserver')->toArray();
+                $dnsDeployment->refresh();
+                /** @var array<int,string> $nameservers */
+                $nameservers = $dnsDeployment->dnsNameservers->pluck('nameserver')->toArray();
 
-            /** @var stdClass $data */
-            $data = json_decode($request->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR);
+                /** @var stdClass $data */
+                $data = json_decode($request->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR);
 
-            /** @var array<stdClass> $rrSets */
-            $rrSets = $data->rrsets;
+                /** @var array<stdClass> $rrSets */
+                $rrSets = $data->rrsets;
 
-            /** @var stdClass $recordSet */
-            $recordSet = $rrSets[0];
+                /** @var stdClass $recordSet */
+                $recordSet = $rrSets[0];
 
-            self::assertCount(2, $rrSets);
+                self::assertCount(2, $rrSets);
 
-            if ($recordSet->type === 'SOA') {
-                self::assertSame('sandwave.io.', $recordSet->name);
-                self::assertSame(3600, $recordSet->ttl);
-                self::assertSame('SOA', $recordSet->type);
-                self::assertSame('REPLACE', $recordSet->changetype);
-                /** @var array<stdClass> $records */
-                $records = $recordSet->records;
-                self::assertCount(1, $records);
-                $soaRecord = $records[0];
+                if ($recordSet->type === 'SOA') {
+                    self::assertSame('sandwave.io.', $recordSet->name);
+                    self::assertSame(3600, $recordSet->ttl);
+                    self::assertSame('SOA', $recordSet->type);
+                    self::assertSame('REPLACE', $recordSet->changetype);
+                    /** @var array<stdClass> $records */
+                    $records = $recordSet->records;
+                    self::assertCount(1, $records);
+                    $soaRecord = $records[0];
 
-                self::assertSame(
-                    sprintf('%s. hostmaster.sandwave.io. 2022050502 10800 3600 604800 3600', $nameservers[0]),
-                    $soaRecord->content
-                );
-                self::assertFalse($soaRecord->disabled);
-            }
+                    self::assertSame(
+                        sprintf('%s. hostmaster.sandwave.io. 2022050502 10800 3600 604800 3600', $nameservers[0]),
+                        $soaRecord->content,
+                    );
+                    self::assertFalse($soaRecord->disabled);
+                }
 
-            if ($recordSet->type === 'NS') {
-                self::assertSame('sandwave.io.', $recordSet->name);
-                self::assertSame(3600, $recordSet->ttl);
-                self::assertSame('NS', $recordSet->type);
-                self::assertSame('REPLACE', $recordSet->changetype);
-                /** @var array<stdClass> $records */
-                $records = $recordSet->records;
-                self::assertCount(3, $records);
-                self::assertSame(sprintf('%s.', $nameservers[0]), $records[0]->content);
-                self::assertFalse($records[0]->disabled);
-                self::assertSame(sprintf('%s.', $nameservers[1]), $records[1]->content);
-                self::assertFalse($records[1]->disabled);
-                self::assertSame(sprintf('%s.', $nameservers[2]), $records[2]->content);
-                self::assertFalse($records[2]->disabled);
-            }
-        });
+                if ($recordSet->type === 'NS') {
+                    self::assertSame('sandwave.io.', $recordSet->name);
+                    self::assertSame(3600, $recordSet->ttl);
+                    self::assertSame('NS', $recordSet->type);
+                    self::assertSame('REPLACE', $recordSet->changetype);
+                    /** @var array<stdClass> $records */
+                    $records = $recordSet->records;
+                    self::assertCount(3, $records);
+                    self::assertSame(sprintf('%s.', $nameservers[0]), $records[0]->content);
+                    self::assertFalse($records[0]->disabled);
+                    self::assertSame(sprintf('%s.', $nameservers[1]), $records[1]->content);
+                    self::assertFalse($records[1]->disabled);
+                    self::assertSame(sprintf('%s.', $nameservers[2]), $records[2]->content);
+                    self::assertFalse($records[2]->disabled);
+                }
+            },
+        );
 
         $this->pdns($pdnsMock);
         $this->app->bind(RealtimeRegister::class, static fn () => $rtrSdk);
@@ -515,7 +504,7 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
         $domainDeployment = new DomainDeploymentFactory()
             ->withSubscription(
                 new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne(),
-                ['domain' => $testDomain]
+                ['domain' => $testDomain],
             )
             ->withRtrProvider()
             ->createOne();
@@ -523,48 +512,43 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
         $dnsSubscription = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->forDomain($testDomain)
-            ->for((new CustomerFactory()))
+            ->for(new CustomerFactory())
             ->for(
-                new ProductFactory()
-                    ->for(new ProductGroupFactory()->dns())
-                    ->freeDns()
+                new ProductFactory()->for(new ProductGroupFactory()->dns())->freeDns(),
             )
             ->createOne();
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->for($dnsSubscription)
-            ->withInternalNameserver()
-            ->createOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->for($dnsSubscription)->withInternalNameserver()->createOne();
 
-        $this->mockNameserverAssignerFactory->expects(self::once())
+        $this->mockNameserverAssignerFactory
+            ->expects(self::once())
             ->method('createAssigner')
             ->with($dnsDeployment->nameserver_type)
             ->willReturn($this->mockNameserverAssigner);
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->willReturn($dnsDeployment);
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('isNameserversAlreadyAssigned')
             ->willReturn(false);
 
-        $this->mockNameserverAssigner->expects(self::once())
+        $this->mockNameserverAssigner
+            ->expects(self::once())
             ->method('assign')
             ->with($dnsDeployment)
             ->willReturn($testNameservers);
 
-        $this->mockDnsProductSpecRepository->expects(self::never())
-            ->method('isPremiumDns');
+        $this->mockDnsProductSpecRepository->expects(self::never())->method('isPremiumDns');
 
-        $this->mockDnsService->expects(self::never())
-            ->method('enablePremiumDns');
+        $this->mockDnsService->expects(self::never())->method('enablePremiumDns');
 
-        $this->mockPowerDnsNameserverSynchronizer->expects(self::never())
-        ->method('synchronize');
+        $this->mockPowerDnsNameserverSynchronizer->expects(self::never())->method('synchronize');
 
-        $this->mockDomainServiceFactory->expects(self::never())
-        ->method('driver');
+        $this->mockDomainServiceFactory->expects(self::never())->method('driver');
 
         $action = new AssignNameserversToDomainAction(
             domainServiceFactory: $this->mockDomainServiceFactory,
@@ -573,7 +557,7 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
             dnsProductSpecRepository: $this->mockDnsProductSpecRepository,
             dnsDeploymentRepository: $this->mockDnsDeploymentRepository,
             nameserverAssignerFactory: $this->mockNameserverAssignerFactory,
-            logger: $this->mockLoggerInterface
+            logger: $this->mockLoggerInterface,
         );
 
         $action->assign($domainDeployment, false);
@@ -594,7 +578,7 @@ class AssignNameserversToDomainActionTest extends IntegrationTestCase
         self::assertSame(
             $uniqueHostnames,
             $hostnames,
-            'Nameservers should not contain duplicates'
+            'Nameservers should not contain duplicates',
         );
 
         return true;

@@ -74,21 +74,17 @@ class ScheduledSupportCallServiceTest extends IntegrationTestCase
         $date = new CarbonImmutable('2025-12-05 00:00:00');
         $dateKey = $date->format('Y-m-d');
 
-        $slotA = PuzzelCallbackTimeslotFactory::new()
-            ->state([
-                'capacity' => 2,
-                'start_timeslot' => $date->setTime(10, 0),
-                'end_timeslot' => $date->setTime(11, 0),
-            ])
-            ->makeOne();
+        $slotA = PuzzelCallbackTimeslotFactory::new()->state([
+            'capacity' => 2,
+            'start_timeslot' => $date->setTime(10, 0),
+            'end_timeslot' => $date->setTime(11, 0),
+        ])->makeOne();
 
-        $slotB = PuzzelCallbackTimeslotFactory::new()
-            ->state([
-                'capacity' => 1,
-                'start_timeslot' => $date->setTime(12, 0),
-                'end_timeslot' => $date->setTime(13, 0),
-            ])
-            ->makeOne();
+        $slotB = PuzzelCallbackTimeslotFactory::new()->state([
+            'capacity' => 1,
+            'start_timeslot' => $date->setTime(12, 0),
+            'end_timeslot' => $date->setTime(13, 0),
+        ])->makeOne();
 
         $desiredCallbackTime = $date->setTime(10, 30);
 
@@ -133,21 +129,19 @@ class ScheduledSupportCallServiceTest extends IntegrationTestCase
             ->withArgs(function (CarbonImmutable $startDate, CarbonImmutable $endDate): bool {
                 self::assertSame('2025-12-05', $startDate->toDateString());
                 self::assertSame('2025-12-18', $endDate->toDateString());
+
                 return true;
             })
             ->andReturn($usageRows);
 
         $puzzelBlockedDateRepository = self::mock(PuzzelBlockedDateRepository::class);
-        $puzzelBlockedDateRepository
-            ->shouldReceive('getTodayAndFutureDates')
-            ->once()
-            ->andReturn(new Collection());
+        $puzzelBlockedDateRepository->shouldReceive('getTodayAndFutureDates')->once()->andReturn(new Collection());
 
         $scheduledSupportCallService = new ScheduledSupportCallService(
             $puzzelCallbackTimeslotRepository,
             $puzzelCallbackRequestRepository,
             $puzzelBlockedDateRepository,
-            self::resolve(PuzzelClient::class)
+            self::resolve(PuzzelClient::class),
         );
 
         $schedule = $scheduledSupportCallService->getScheduleForCustomer($this->customer);
@@ -173,8 +167,12 @@ class ScheduledSupportCallServiceTest extends IntegrationTestCase
         CarbonImmutable::setTestNow(new CarbonImmutable('2025-12-05 09:00:00'));
 
         $mockPuzzelClient = new OAuthMockClient([
-            RequestVisualQueues::class => MockResponse::make('{"result": [], "code": 0, "id": "550e8400-e29b-41d4-a716-446655440000", "message": "OK"}'),
-            RequestVisualQueue::class => MockResponse::make('{"result": [], "code": 0, "id": "550e8400-e29b-41d4-a716-446655440000", "message": "OK"}'),
+            RequestVisualQueues::class => MockResponse::make(
+                '{"result": [], "code": 0, "id": "550e8400-e29b-41d4-a716-446655440000", "message": "OK"}',
+            ),
+            RequestVisualQueue::class => MockResponse::make(
+                '{"result": [], "code": 0, "id": "550e8400-e29b-41d4-a716-446655440000", "message": "OK"}',
+            ),
         ]);
 
         $this->puzzelConnector->withMockClient($mockPuzzelClient);
@@ -183,21 +181,17 @@ class ScheduledSupportCallServiceTest extends IntegrationTestCase
         $date = new CarbonImmutable('2025-12-05 00:00:00');
         $dateKey = $date->format('Y-m-d');
 
-        $slotPast = PuzzelCallbackTimeslotFactory::new()
-            ->state([
-                'capacity' => 5,
-                'start_timeslot' => $date->setTime(8, 0),
-                'end_timeslot' => $date->setTime(9, 0),
-            ])
-            ->makeOne();
+        $slotPast = PuzzelCallbackTimeslotFactory::new()->state([
+            'capacity' => 5,
+            'start_timeslot' => $date->setTime(8, 0),
+            'end_timeslot' => $date->setTime(9, 0),
+        ])->makeOne();
 
-        $slotFull = PuzzelCallbackTimeslotFactory::new()
-            ->state([
-                'capacity' => 1,
-                'start_timeslot' => $date->setTime(10, 0),
-                'end_timeslot' => $date->setTime(11, 0),
-            ])
-            ->makeOne();
+        $slotFull = PuzzelCallbackTimeslotFactory::new()->state([
+            'capacity' => 1,
+            'start_timeslot' => $date->setTime(10, 0),
+            'end_timeslot' => $date->setTime(11, 0),
+        ])->makeOne();
 
         $usageRows = new Collection([
             new SupportCallTimeslotUsage(
@@ -225,22 +219,16 @@ class ScheduledSupportCallServiceTest extends IntegrationTestCase
             ->withArgs(fn (Customer $customer): bool => $customer->is($this->customer))
             ->andReturn(null);
 
-        $puzzelCallbackRequestRepository
-            ->shouldReceive('usageByDateAndTimeslot')
-            ->once()
-            ->andReturn($usageRows);
+        $puzzelCallbackRequestRepository->shouldReceive('usageByDateAndTimeslot')->once()->andReturn($usageRows);
 
         $puzzelBlockedDateRepository = self::mock(PuzzelBlockedDateRepository::class);
-        $puzzelBlockedDateRepository
-            ->shouldReceive('getTodayAndFutureDates')
-            ->once()
-            ->andReturn(new Collection());
+        $puzzelBlockedDateRepository->shouldReceive('getTodayAndFutureDates')->once()->andReturn(new Collection());
 
         $service = new ScheduledSupportCallService(
             $puzzelCallbackTimeslotRepository,
             $puzzelCallbackRequestRepository,
             $puzzelBlockedDateRepository,
-            self::resolve(PuzzelClient::class)
+            self::resolve(PuzzelClient::class),
         );
 
         $schedule = $service->getScheduleForCustomer($this->customer);
@@ -260,29 +248,27 @@ class ScheduledSupportCallServiceTest extends IntegrationTestCase
         $date = $now->nextWeekday();
         $dateKey = $date->format('Y-m-d');
 
-        $blockedDate = PuzzelBlockedDateFactory::new()
-            ->state([
-                'date' => $date,
-            ])
-            ->makeOne();
+        $blockedDate = PuzzelBlockedDateFactory::new()->state([
+            'date' => $date,
+        ])->makeOne();
 
-        $blockedDate2 = PuzzelBlockedDateFactory::new()
-            ->state([
-                'date' => $date->addDays(2)->nextWeekday(),
-            ])
-            ->makeOne();
+        $blockedDate2 = PuzzelBlockedDateFactory::new()->state([
+            'date' => $date->addDays(2)->nextWeekday(),
+        ])->makeOne();
 
-        $slot = PuzzelCallbackTimeslotFactory::new()
-            ->state([
-                'capacity' => 2,
-                'start_timeslot' => $date->setTime(10, 0),
-                'end_timeslot' => $date->setTime(11, 0),
-            ])
-            ->makeOne();
+        $slot = PuzzelCallbackTimeslotFactory::new()->state([
+            'capacity' => 2,
+            'start_timeslot' => $date->setTime(10, 0),
+            'end_timeslot' => $date->setTime(11, 0),
+        ])->makeOne();
 
         $mockPuzzelClient = new OAuthMockClient([
-            RequestVisualQueues::class => MockResponse::make('{"result": [], "code": 0, "id": "550e8400-e29b-41d4-a716-446655440000", "message": "OK"}'),
-            RequestVisualQueue::class => MockResponse::make('{"result": [], "code": 0, "id": "550e8400-e29b-41d4-a716-446655440000", "message": "OK"}'),
+            RequestVisualQueues::class => MockResponse::make(
+                '{"result": [], "code": 0, "id": "550e8400-e29b-41d4-a716-446655440000", "message": "OK"}',
+            ),
+            RequestVisualQueue::class => MockResponse::make(
+                '{"result": [], "code": 0, "id": "550e8400-e29b-41d4-a716-446655440000", "message": "OK"}',
+            ),
         ]);
 
         $this->puzzelConnector->withMockClient($mockPuzzelClient);
@@ -295,15 +281,9 @@ class ScheduledSupportCallServiceTest extends IntegrationTestCase
             ->andReturn(new Collection([$slot]));
 
         $puzzelCallbackRequestRepository = self::mock(PuzzelCallbackRequestRepository::class);
-        $puzzelCallbackRequestRepository
-            ->shouldReceive('findFirstFutureForCustomer')
-            ->once()
-            ->andReturn(null);
+        $puzzelCallbackRequestRepository->shouldReceive('findFirstFutureForCustomer')->once()->andReturn(null);
 
-        $puzzelCallbackRequestRepository
-            ->shouldReceive('usageByDateAndTimeslot')
-            ->once()
-            ->andReturn(new Collection());
+        $puzzelCallbackRequestRepository->shouldReceive('usageByDateAndTimeslot')->once()->andReturn(new Collection());
 
         $puzzelBlockedDateRepository = self::mock(PuzzelBlockedDateRepository::class);
         $puzzelBlockedDateRepository
@@ -315,7 +295,7 @@ class ScheduledSupportCallServiceTest extends IntegrationTestCase
             $puzzelCallbackTimeslotRepository,
             $puzzelCallbackRequestRepository,
             $puzzelBlockedDateRepository,
-            self::resolve(PuzzelClient::class)
+            self::resolve(PuzzelClient::class),
         );
 
         $schedule = $service->getScheduleForCustomer($this->customer);

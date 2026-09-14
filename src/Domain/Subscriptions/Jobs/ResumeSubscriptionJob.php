@@ -44,12 +44,13 @@ class ResumeSubscriptionJob extends AbstractQueueableJob
         OneTimeServiceCreator $oneTimeServiceCreator,
         OneTimeServiceInvoiceService $invoiceOneTimeServiceAction,
         Dispatcher $jobDispatcher,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ): void {
         try {
             $resumeSubscriptionInGracePeriodAction->execute($this->subscription);
         } catch (UnexpectedValueException $exception) {
             $this->fail($exception);
+
             return;
         }
 
@@ -95,6 +96,7 @@ class ResumeSubscriptionJob extends AbstractQueueableJob
         if (! $quarantaineProduct instanceof Product) {
             throw new LogicException("No quarantaine product found, can't create invoice.");
         }
+
         return $quarantaineProduct;
     }
 
@@ -103,7 +105,10 @@ class ResumeSubscriptionJob extends AbstractQueueableJob
         match ($subscription->product->productGroup->slug) {
             ProductGroupType::EXTENSION => $jobDispatcher->dispatch($this->getDomainRestoreJob($subscription)),
             ProductGroupType::HOSTING => $jobDispatcher->dispatch($this->getUnsuspendHostingJob($subscription)),
-            default => throw new NotImplementedException(sprintf('Products with product group "%s" can not be unsuspended.', $subscription->product->productGroup->slug->value))
+            default => throw new NotImplementedException(sprintf(
+                'Products with product group "%s" can not be unsuspended.',
+                $subscription->product->productGroup->slug->value,
+            )),
         };
     }
 

@@ -32,6 +32,7 @@ class CloudstackSerializerFactory
             new DateTimeNormalizer(),
             new ObjectNormalizer($classMetadataFactory, $metadataAwareNameConverter, null, $extractor),
         ];
+
         return new Serializer($normalizer, $encoder);
     }
 
@@ -40,7 +41,7 @@ class CloudstackSerializerFactory
         $normalizer = [
             new ObjectNormalizer(
                 null,
-                new CamelCaseToSnakeCaseNameConverter()
+                new CamelCaseToSnakeCaseNameConverter(),
             ),
         ];
 

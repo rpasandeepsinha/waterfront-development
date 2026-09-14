@@ -23,8 +23,10 @@ class PremiumDomainService
 {
     private const int DEFAULT_PERIOD = 12;
 
-    public function __construct(private readonly MailerInterface $mailer, private readonly ConfigurationInterface $configuration)
-    {
+    public function __construct(
+        private readonly MailerInterface $mailer,
+        private readonly ConfigurationInterface $configuration,
+    ) {
     }
 
     public function requestPremiumPricePerEmail(string $domainName, string $customerEmailAddress): void
@@ -32,13 +34,13 @@ class PremiumDomainService
         $recipient = new Recipient(
             'Support',
             $this->configuration->getAsString('bu.support_email'),
-            Uuid::fromString($this->configuration->getAsString('auth.console_identity_uuid'))
+            Uuid::fromString($this->configuration->getAsString('auth.console_identity_uuid')),
         );
         $this->mailer->send(
             recipients: [$recipient],
             template: new PremiumDomainPriceRequested(
                 $domainName,
-                $customerEmailAddress
+                $customerEmailAddress,
             ),
         );
     }
@@ -56,14 +58,16 @@ class PremiumDomainService
 
         $price = $checkResult->getPrice();
         if ($price === null || $price <= 0) {
-            throw new InvalidArgumentException('Premium domain must have a positive price before a product can be generated.');
+            throw new InvalidArgumentException(
+                'Premium domain must have a positive price before a product can be generated.',
+            );
         }
 
         if ($this->doesProductExistForPremiumDomain($checkResult->getDomain())) {
             throw new InvalidArgumentException('Premium domain already has a price.');
         }
 
-        $price *= (1 + ($marginPercent / 100));
+        $price *= 1 + ($marginPercent / 100);
         $price = (int) round($price);
         assert($price > 0);
         $productGroup = ProductGroup::where('slug', ProductGroupType::EXTENSION)->firstOrFail();
@@ -99,6 +103,7 @@ class PremiumDomainService
     public function doesProductExistForPremiumDomain(string $domain): bool
     {
         $slug = $this->getPremiumDomainProductSlug($domain);
+
         return Product::where('slug', $slug)->exists();
     }
 
@@ -109,6 +114,7 @@ class PremiumDomainService
         }
 
         [$domain, $tld] = explode('.', $domainName, 2);
+
         return sprintf('extension_premium_%s', $domain . '_' . $tld);
     }
 
@@ -120,6 +126,7 @@ class PremiumDomainService
     public function getPremiumDomainRtrProduct(string $domainName): string
     {
         [, $tld] = explode('.', $domainName, 2);
+
         return sprintf('domain_%s_premium', $tld);
     }
 }

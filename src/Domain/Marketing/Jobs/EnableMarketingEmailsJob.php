@@ -30,8 +30,9 @@ class EnableMarketingEmailsJob extends AbstractQueueableJob
      */
     public int $backoff = 3;
 
-    public function __construct(private readonly Customer $customer)
-    {
+    public function __construct(
+        private readonly Customer $customer,
+    ) {
         parent::__construct();
     }
 
@@ -45,9 +46,13 @@ class EnableMarketingEmailsJob extends AbstractQueueableJob
     ): void {
         // This mechanism of delaying the job is to prevent race conditions. The hubspot API has a slight delay on create actions.
         if ($hubspotEventRepository->wasRecentlyCreatedCustomer($this->customer)) {
-            $logger->debug(sprintf('Customer: %s was recently created, cant upsert customer yet.', $this->customer->id));
+            $logger->debug(sprintf(
+                'Customer: %s was recently created, cant upsert customer yet.',
+                $this->customer->id,
+            ));
 
             $this->release(self::CREATE_DELAY);
+
             return;
         }
 
@@ -56,10 +61,17 @@ class EnableMarketingEmailsJob extends AbstractQueueableJob
         try {
             $contact = $hubspotContactsClient->findBySandwaveUuid($this->customer->uuid);
             if ($contact === null) {
-                throw new CrmException(sprintf('Cannot enable marketing emails for customer (%s), contact not in hubspot.', $this->customer->uuid));
+                throw new CrmException(sprintf(
+                    'Cannot enable marketing emails for customer (%s), contact not in hubspot.',
+                    $this->customer->uuid,
+                ));
             }
+
             if (filter_var($contact->isAnonymized, FILTER_VALIDATE_BOOLEAN)) {
-                throw new CrmException(sprintf('Cannot enable marketing emails for customer (%s), hubspot contact is anonymized.', $this->customer->uuid));
+                throw new CrmException(sprintf(
+                    'Cannot enable marketing emails for customer (%s), hubspot contact is anonymized.',
+                    $this->customer->uuid,
+                ));
             }
 
             if (! filter_var($contact->marketingOptIn, FILTER_VALIDATE_BOOLEAN)) {
@@ -75,7 +87,10 @@ class EnableMarketingEmailsJob extends AbstractQueueableJob
 
             $this->release(self::RATE_LIMIT_DELAY);
         } catch (HubspotClientException $exception) {
-            $hubspotEventRepository->markEventAsFailed($event, sprintf('Communication with hubspot failed: %s', $exception->getMessage()));
+            $hubspotEventRepository->markEventAsFailed($event, sprintf(
+                'Communication with hubspot failed: %s',
+                $exception->getMessage(),
+            ));
         } catch (CrmException $exception) {
             $hubspotEventRepository->markEventAsFailed($event, sprintf('CRM Error: %s', $exception->getMessage()));
         } catch (Exception $exception) {

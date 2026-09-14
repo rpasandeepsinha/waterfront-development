@@ -35,7 +35,10 @@ class Microsoft365GatherMicrosoftDataTest extends IntegrationTestCase
             'product_group_id' => $group->id,
         ]);
 
-        new ProductPriceComponentFactory()->prolongation()->for($parentProduct)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($parentProduct)
+            ->createOne();
 
         new ProductFactory()->createOne([
             'slug' => 'microsoft-business-standard',
@@ -77,10 +80,9 @@ class Microsoft365GatherMicrosoftDataTest extends IntegrationTestCase
             'cancel_date' => new CarbonImmutable()->subDay(),
         ])->createMany(2);
 
-        $response = $this->actingAsCustomer($customer)
-            ->getJson(
-                $this->generateRoute('partners.microsoft365.microsoft-information')
-            );
+        $response = $this->actingAsCustomer($customer)->getJson(
+            $this->generateRoute('partners.microsoft365.microsoft-information'),
+        );
         $response->assertOk();
 
         /** @var object{data: object{tenant_name: string, tenant_id: string, primary_domain: string, primary_domain_status: string, deployments: array<int, object>, available_actions: string[]}} $data */
@@ -99,8 +101,14 @@ class Microsoft365GatherMicrosoftDataTest extends IntegrationTestCase
         self::assertSame($microsoftDeployment->subscription->uuid, $deployment->subscription_uuid);
         self::assertSame($microsoftDeployment->subscription->administrative_status, $deployment->administrative_status);
         self::assertSame($microsoftDeployment->subscription->technical_status, $deployment->technical_status);
-        self::assertSame($microsoftDeployment->subscription->start_date->format(DateTimeInterface::ATOM), $deployment->start_date);
-        self::assertSame($microsoftDeployment->subscription->end_date->format(DateTimeInterface::ATOM), $deployment->end_date);
+        self::assertSame(
+            $microsoftDeployment->subscription->start_date->format(DateTimeInterface::ATOM),
+            $deployment->start_date,
+        );
+        self::assertSame(
+            $microsoftDeployment->subscription->end_date->format(DateTimeInterface::ATOM),
+            $deployment->end_date,
+        );
         self::assertSame($microsoftDeployment->subscription->contract_period, $deployment->period);
         self::assertSame(4, $deployment->seat_count);
         self::assertSame(2, $deployment->canceled_seat_count);

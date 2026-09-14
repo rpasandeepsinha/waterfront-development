@@ -27,7 +27,7 @@ class ValidationJobTest extends IntegrationTestCase
     {
         Http::fake();
 
-        $exceptionMessage  = 'Something went completely wrong. Sorry :(';
+        $exceptionMessage = 'Something went completely wrong. Sorry :(';
         $customerReference = 'reference';
         $configuration = self::resolve(ConfigurationInterface::class);
 
@@ -39,10 +39,10 @@ class ValidationJobTest extends IntegrationTestCase
             'data' => [
                 'reference' => $customerReference,
                 'results' => [
-                    'message'   => 'Uncaught exception occurred in the validation pipelines. Please contact Ferry development',
+                    'message' => 'Uncaught exception occurred in the validation pipelines. Please contact Ferry development',
                     'exception' => $exceptionMessage,
                 ],
-                'timeline'  => [],
+                'timeline' => [],
             ],
         ];
 
@@ -55,15 +55,17 @@ class ValidationJobTest extends IntegrationTestCase
 
         Http::shouldReceive('withHeaders')->once()->andReturnSelf();
 
-        Http::shouldReceive('post')->with($expectedUrl, $webhookPayload)->andReturn(new LaravelResponse(new Response()));
+        Http::shouldReceive('post')
+            ->with($expectedUrl, $webhookPayload)
+            ->andReturn(new LaravelResponse(new Response()));
 
-        $customer = include(__DIR__ . '/../Pipes/data/customer_bad_data.php');
-        $subscriptions = include(__DIR__ . '/../Pipes/data/subscriptions_correct.php');
+        $customer = include __DIR__ . '/../Pipes/data/customer_bad_data.php';
+        $subscriptions = include __DIR__ . '/../Pipes/data/subscriptions_correct.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: $customerReference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $dispatcher = self::resolve(Dispatcher::class);

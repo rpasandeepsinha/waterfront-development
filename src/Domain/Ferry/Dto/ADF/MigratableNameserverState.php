@@ -14,9 +14,9 @@ readonly class MigratableNameserverState implements MigrationTypeADFPayload
     public function __construct(
         public MigrationStep $migrationStep,
         public string $referenceName,
-        public string|null $domain,
+        public ?string $domain,
         public string $migrationSubscriptionReferenceId,
-        public array $nameservers
+        public array $nameservers,
     ) {
     }
 

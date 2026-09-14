@@ -40,21 +40,16 @@ class MailForwardsListTest extends IntegrationTestCase
         $domain = 'example.com';
         $this->customer = CustomerFactory::new()->createOne();
 
-        $server = ServerFactory::new()
-            ->createOne([
-                'type' => ServerType::DIRECTADMIN_MAIL,
-            ]);
+        $server = ServerFactory::new()->createOne([
+            'type' => ServerType::DIRECTADMIN_MAIL,
+        ]);
 
-        $product = ProductFactory::new()
-            ->emailStart()
-            ->createOne();
+        $product = ProductFactory::new()->emailStart()->createOne();
 
-        new ProductSpecFactory()
-            ->for($product)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
-                'value' => '1',
-            ]);
+        new ProductSpecFactory()->for($product)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '1',
+        ]);
 
         $subscription = SubscriptionFactory::new()
             ->for($product)
@@ -62,11 +57,10 @@ class MailForwardsListTest extends IntegrationTestCase
             ->forDomain($domain)
             ->createOne();
 
-        $mailProvider = ProviderFactory::new()
-            ->createOne([
-                'type' => ProviderType::MAILONLY,
-                'slug' => ProviderSlug::DIRECTADMIN,
-            ]);
+        $mailProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::MAILONLY,
+            'slug' => ProviderSlug::DIRECTADMIN,
+        ]);
 
         /** @var HostingDeployment $hostingDeploymentForMail */
         $hostingDeploymentForMail = HostingDeploymentFactory::new()
@@ -92,7 +86,8 @@ class MailForwardsListTest extends IntegrationTestCase
     #[Test]
     public function listForwards(): void
     {
-        $this->mailOnlyService->method('getEmailForwardsFromDeployment')
+        $this->mailOnlyService
+            ->method('getEmailForwardsFromDeployment')
             ->willReturn([
                 new DirectAdminEmailForward(
                     source: 'source1',
@@ -109,10 +104,11 @@ class MailForwardsListTest extends IntegrationTestCase
                 ),
             ]);
 
-        $responseArray = $this->actingAsCustomer($this->customer)
-            ->getJson(
-                $this->generateRoute('partners.mail.forwards', ['hostingDeployment' => $this->hostingDeploymentForMail->subscription_uuid])
-            );
+        $responseArray = $this->actingAsCustomer($this->customer)->getJson(
+            $this->generateRoute('partners.mail.forwards', [
+                'hostingDeployment' => $this->hostingDeploymentForMail->subscription_uuid,
+            ]),
+        );
 
         $responseArray->assertExactJson(
             [
@@ -129,7 +125,7 @@ class MailForwardsListTest extends IntegrationTestCase
                         'destination3@mail.test',
                     ],
                 ],
-            ]
+            ],
         );
     }
 }

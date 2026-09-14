@@ -59,17 +59,26 @@ class CertificateService
         } catch (FileNotFoundException $e) {
             Log::info("Unable to fetch CSR from filesystem attempting to gather from Provider from domain: $domain");
 
-            $subscription = Subscription::query()->whereProductGroupType(ProductGroupType::SSL)
+            $subscription = Subscription::query()
+                ->whereProductGroupType(ProductGroupType::SSL)
                 ->where('domain', $domain)
                 ->firstOrFail();
 
             $sslDeployment = $subscription->sslDeployment;
             if ($sslDeployment === null) {
-                throw new RuntimeException("prepareCertificateInstallParameters:: Unable to find ssl deployment for domain: $domain", 0, $e);
+                throw new RuntimeException(
+                    "prepareCertificateInstallParameters:: Unable to find ssl deployment for domain: $domain",
+                    0,
+                    $e,
+                );
             }
 
-            if (! $csr = $sslDeployment->custom_csr) {
-                throw new RuntimeException("prepareCertificateInstallParameters:: Unable to find csr for domain: $domain", 0, $e);
+            if (! ($csr = $sslDeployment->custom_csr)) {
+                throw new RuntimeException(
+                    "prepareCertificateInstallParameters:: Unable to find csr for domain: $domain",
+                    0,
+                    $e,
+                );
             }
         }
 
@@ -81,7 +90,7 @@ class CertificateService
                 'pvt' => $this->csrManager->getPrivateKey($domain),
                 'cert' => $this->certificateManager->getMainCertificate($domain),
                 'ca' => $this->certificateManager->getIntermediateCertificate($domain),
-            ]
+            ],
         );
     }
 
@@ -94,6 +103,7 @@ class CertificateService
             $date = $this->fetchExpireDateFromHost($sslDeployment);
             $sslDeployment->expire_date = $date;
             $sslDeployment->save();
+
             return;
         }
 
@@ -116,7 +126,10 @@ class CertificateService
      */
     private function fetchExpireDateFromRtr(SslDeployment $sslDeployment): CarbonImmutable
     {
-        Assert::notNull($sslDeployment->certificate_id, 'RTR certificate_id must be set before fetching expire date from RTR.');
+        Assert::notNull(
+            $sslDeployment->certificate_id,
+            'RTR certificate_id must be set before fetching expire date from RTR.',
+        );
 
         try {
             $certificate = $this->realtimeRegister->certificates->getCertificate($sslDeployment->certificate_id);
@@ -133,7 +146,7 @@ class CertificateService
                     LoggingContextKeys::PROVISIONING_PROVIDER => $sslDeployment->provider->slug,
                     LoggingContextKeys::PROVISIONING_ID => $sslDeployment->id,
                     LoggingContextKeys::DOMAIN_NAME => $sslDeployment->subscription->domain,
-                ]
+                ],
             );
 
             return $this->fetchExpireDateFromHost($sslDeployment);
@@ -152,7 +165,7 @@ class CertificateService
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SSL,
                     LoggingContextKeys::PROVISIONING_PROVIDER => $sslDeployment->provider->slug,
                     LoggingContextKeys::PROVISIONING_ID => $sslDeployment->id,
-                ]
+                ],
             );
 
             throw new RuntimeException('Failed to fetch ssl expire date because domain is null.');
@@ -167,7 +180,7 @@ class CertificateService
                     $sslDeployment->subscription->domain,
                 ),
                 $exception->getCode(),
-                $exception
+                $exception,
             );
         }
 
@@ -183,14 +196,14 @@ class CertificateService
                     LoggingContextKeys::PROVISIONING_ID => $sslDeployment->id,
                     LoggingContextKeys::PRODUCT_SLUG => $sslDeployment->subscription->product->slug,
                     LoggingContextKeys::DOMAIN_NAME => $sslDeployment->subscription->domain,
-                ]
+                ],
             );
 
             throw new RuntimeException(
                 sprintf(
                     'Failed to fetch ssl expire date from host for domain: %s.',
                     $sslDeployment->subscription->domain,
-                )
+                ),
             );
         }
 
@@ -214,6 +227,7 @@ class CertificateService
 
         if ($domain === null || $processId === null) {
             $this->logger->warning('RTR certificate_id backfill skipped: missing domain or request_id', $context);
+
             return null;
         }
 
@@ -229,7 +243,11 @@ class CertificateService
             )[0];
 
             if ($certificate === null) {
-                $this->logger->warning('RTR certificate_id backfill: no ACTIVE certificate found for request', $context);
+                $this->logger->warning(
+                    'RTR certificate_id backfill: no ACTIVE certificate found for request',
+                    $context,
+                );
+
                 return null;
             }
 
@@ -242,7 +260,7 @@ class CertificateService
 
                 $this->logger->warning(
                     'RTR certificate_id backfill: domain mismatch',
-                    array_merge($context, [LoggingContextKeys::META => $meta])
+                    array_merge($context, [LoggingContextKeys::META => $meta]),
                 );
 
                 return null;
@@ -250,7 +268,7 @@ class CertificateService
 
             $updated = $this->sslDeploymentRepository->backfillCertificateId(
                 sslDeploymentId: $sslDeployment->id,
-                certificateId: $certificate->id
+                certificateId: $certificate->id,
             );
 
             if ($updated) {
@@ -261,7 +279,7 @@ class CertificateService
 
                 $this->logger->info(
                     'RTR certificate_id backfilled',
-                    array_merge($context, [LoggingContextKeys::META => $meta])
+                    array_merge($context, [LoggingContextKeys::META => $meta]),
                 );
             }
 
@@ -269,7 +287,7 @@ class CertificateService
         } catch (RealtimeRegisterClientException $exception) {
             $this->logger->warning(
                 'RTR certificate_id backfill failed: RTR client exception',
-                $context + [LoggingContextKeys::EXCEPTION => $exception]
+                $context + [LoggingContextKeys::EXCEPTION => $exception],
             );
 
             return null;

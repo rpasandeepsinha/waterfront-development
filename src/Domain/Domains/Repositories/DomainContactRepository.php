@@ -25,19 +25,19 @@ class DomainContactRepository
         ?bool $defaultOwner = null,
     ): DomainContact {
         $attributes = [
-            'email'                   => $email,
-            'first_name'              => $firstName,
-            'last_name'               => $lastName,
-            'phone_country_code'      => $phoneCountryCode,
-            'phone_area_code'         => $areaCode,
+            'email' => $email,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'phone_country_code' => $phoneCountryCode,
+            'phone_area_code' => $areaCode,
             'phone_subscriber_number' => $subscriberNumber,
-            'organization'            => $organization,
-            'street_name'             => $streetName,
-            'street_number'           => $streetNumber,
-            'zip_code'                => $zipCode,
-            'city'                    => $city,
-            'country_code'            => $countryCode,
-            'customer_id'             => $customerId,
+            'organization' => $organization,
+            'street_name' => $streetName,
+            'street_number' => $streetNumber,
+            'zip_code' => $zipCode,
+            'city' => $city,
+            'country_code' => $countryCode,
+            'customer_id' => $customerId,
         ];
 
         // Demote existing default owner(s) so the new contact can claim it

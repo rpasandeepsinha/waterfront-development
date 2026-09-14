@@ -18,12 +18,12 @@ class MicrosoftOnlineConnector extends AbstractConnector
     public function __construct(
         private readonly ConnectorConfig $microsoftOnlineConfig,
         protected LoggerInterface $logger,
-        protected MaskerInterface $logMasker
+        protected MaskerInterface $logMasker,
     ) {
         parent::__construct(
             logger: $this->logger,
             logMasker: $this->logMasker,
-            retryConfig: $this->microsoftOnlineConfig->retryConfig
+            retryConfig: $this->microsoftOnlineConfig->retryConfig,
         );
     }
 

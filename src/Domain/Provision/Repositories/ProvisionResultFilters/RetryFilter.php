@@ -30,9 +30,7 @@ class RetryFilter
 
         $resultQuery->whereHas('provisioningRequest', function (Builder $requestQuery): void {
             if ($this->onlyRetryRequests) {
-                $requestQuery
-                    ->whereNotNull('retry_of_request_id')
-                    ->whereNotNull('requested_by_uuid');
+                $requestQuery->whereNotNull('retry_of_request_id')->whereNotNull('requested_by_uuid');
             }
 
             if ($this->retryRequester !== null) {

@@ -30,11 +30,14 @@ class CancelSubscriptionsTest extends IntegrationTestCase
 
         $group = new ProductGroupFactory()->extension()->createOne();
         $product = new ProductFactory()->for($group)->createOne();
-        $this->subscription = new SubscriptionFactory()->withCustomer()->for($product)->createOne([
-            'domain' => self::DOMAIN,
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-            'technical_status' => TechnicalStatus::OK->value,
-        ]);
+        $this->subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->createOne([
+                'domain' => self::DOMAIN,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                'technical_status' => TechnicalStatus::OK->value,
+            ]);
     }
 
     #[Test]

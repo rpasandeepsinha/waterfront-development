@@ -49,7 +49,7 @@ class SslDeploymentResource
      */
     public function toJson(SslDeployment $sslDeployment): string
     {
-        return json_encode($this->toArray($sslDeployment), flags:JSON_THROW_ON_ERROR);
+        return json_encode($this->toArray($sslDeployment), flags: JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -80,7 +80,10 @@ class SslDeploymentResource
         $resource = [];
 
         // don't retrieve cname when the ssl technical status is ok, at this point the certificate is correctly provisioned
-        if ($sslDeployment->subscription->domain === null || $sslDeployment->subscription->technical_status === TechnicalStatus::OK->value) {
+        if (
+            $sslDeployment->subscription->domain === null
+            || $sslDeployment->subscription->technical_status === TechnicalStatus::OK->value
+        ) {
             return $resource;
         }
 

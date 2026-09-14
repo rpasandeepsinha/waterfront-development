@@ -34,15 +34,19 @@ class RequestDirectDebitMandateJob extends AbstractQueueableJob
 
         if ($exception === null) {
             $logger->critical('Failed to request direct debit for customer.', [
-                    LoggingContextKeys::CUSTOMER_ID  => $this->customer->id,
+                LoggingContextKeys::CUSTOMER_ID => $this->customer->id,
             ]);
+
             return;
         }
 
         $logger->critical(
-            sprintf('Failed to request direct debit for customer. Job failed with exception message: %s', $exception->getMessage()),
+            sprintf(
+                'Failed to request direct debit for customer. Job failed with exception message: %s',
+                $exception->getMessage(),
+            ),
             [
-                LoggingContextKeys::CUSTOMER_ID  => $this->customer->id,
+                LoggingContextKeys::CUSTOMER_ID => $this->customer->id,
                 LoggingContextKeys::EXCEPTION => $exception,
             ],
         );
@@ -50,15 +54,21 @@ class RequestDirectDebitMandateJob extends AbstractQueueableJob
 
     public function handle(
         CreateDirectDebitMandateAction $createDirectDebitMandateAction,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ): void {
         try {
-            $createDirectDebitMandateAction->execute($this->customer, $this->accountName, $this->accountNumber, $this->signDate, $this->bic);
+            $createDirectDebitMandateAction->execute(
+                $this->customer,
+                $this->accountName,
+                $this->accountNumber,
+                $this->signDate,
+                $this->bic,
+            );
         } catch (Throwable $exception) {
             $logger->critical(
                 sprintf('Error setting up direct debit mandate: %s', $exception->getMessage()),
                 [
-                    LoggingContextKeys::CUSTOMER_ID  => $this->customer->id,
+                    LoggingContextKeys::CUSTOMER_ID => $this->customer->id,
                     LoggingContextKeys::EXCEPTION => $exception,
                 ],
             );

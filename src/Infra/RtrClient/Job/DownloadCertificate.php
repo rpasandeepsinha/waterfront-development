@@ -40,7 +40,7 @@ class DownloadCertificate extends AbstractQueueableJob
     public function handle(
         CertificateDownloader $certificateDownloader,
         Dispatcher $eventDispatcher,
-        MailerInterface $mailer
+        MailerInterface $mailer,
     ): void {
         try {
             $certificateDownloader->downloadForSslDeployment($this->sslDeployment);
@@ -62,7 +62,7 @@ class DownloadCertificate extends AbstractQueueableJob
 
         if ($this->autoDispatchInstallCertificate) {
             $eventDispatcher->dispatch(
-                new InstallCertificate($this->sslDeployment)
+                new InstallCertificate($this->sslDeployment),
             );
         } else {
             $subscription = $this->sslDeployment->subscription;
@@ -72,8 +72,8 @@ class DownloadCertificate extends AbstractQueueableJob
                 [$subscription->customer],
                 new SslRenewalSucces(
                     domain: $subscription->domain,
-                    expirydate: $expiryDate->format('d-m-Y')
-                )
+                    expirydate: $expiryDate->format('d-m-Y'),
+                ),
             );
         }
     }
@@ -110,6 +110,7 @@ class DownloadCertificate extends AbstractQueueableJob
         Assert::isInstanceOf($sslCert, SslCertificate::class);
 
         $expiresAt = $sslCert->expirationDate();
+
         return $expiresAt->toImmutable();
     }
 }

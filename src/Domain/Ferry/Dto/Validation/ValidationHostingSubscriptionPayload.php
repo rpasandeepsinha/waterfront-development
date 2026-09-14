@@ -21,8 +21,8 @@ readonly class ValidationHostingSubscriptionPayload
         public string $driver,
         public string $hostname,
         public array $serverData,
-        public string|null $domain = null,
-        public string|null $extension = null,
+        public ?string $domain = null,
+        public ?string $extension = null,
     ) {
     }
 }

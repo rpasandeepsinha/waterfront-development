@@ -31,36 +31,36 @@ class RedirectFromUrlRuleTest extends TestCase
     {
         return [
             // Bare domains
-            [true, 'versio.com'],
-            [true, 'VERSIO.COM'],
-            [true, 'mkyong-info.com'],
-            [true, 'versio.co.uk'],
-            [true, 'versio.com.au'],
-            [true, 'a-1234567890-1234567890-1234567890-1234567890-1234567890-1234-z.eu.us'],
+            [true,  'versio.com'],
+            [true,  'VERSIO.COM'],
+            [true,  'mkyong-info.com'],
+            [true,  'versio.co.uk'],
+            [true,  'versio.com.au'],
+            [true,  'a-1234567890-1234567890-1234567890-1234567890-1234567890-1234-z.eu.us'],
 
             // Subdomains
-            [true, 'sub.versio.com'],
-            [true, 'www.versio.com'],
-            [true, 'shop.sub.versio.com'],
-            [true, 'sub.versio.co.uk'],
+            [true,  'sub.versio.com'],
+            [true,  'www.versio.com'],
+            [true,  'shop.sub.versio.com'],
+            [true,  'sub.versio.co.uk'],
 
             // With path (no scheme)
-            [true, 'versio.com/old-page'],
-            [true, 'versio.com/old-page/'],
-            [true, 'sub.versio.com/old-page'],
-            [true, 'versio.com/products*'],
-            [true, 'versio.com/bands/%*/*'],
-            [true, 'versio.com/old%20page'],
+            [true,  'versio.com/old-page'],
+            [true,  'versio.com/old-page/'],
+            [true,  'sub.versio.com/old-page'],
+            [true,  'versio.com/products*'],
+            [true,  'versio.com/bands/%*/*'],
+            [true,  'versio.com/old%20page'],
 
             // With query parameters (no scheme)
-            [true, 'versio.com?ref=yh'],
-            [true, 'versio.com/old-page?ref=yh'],
-            [true, 'versio.com?ref=yh&source=newsletter'],
-            [true, 'versio.com?x=1&x=2'],
-            [true, 'versio.com?x[]=1&x[]=2'],
-            [true, 'versio.com?x[0]=1&x[1]=2'],
-            [true, 'versio.com?ref=your%20hosting'],
-            [true, 'versio.com?flag'],
+            [true,  'versio.com?ref=yh'],
+            [true,  'versio.com/old-page?ref=yh'],
+            [true,  'versio.com?ref=yh&source=newsletter'],
+            [true,  'versio.com?x=1&x=2'],
+            [true,  'versio.com?x[]=1&x[]=2'],
+            [true,  'versio.com?x[0]=1&x[1]=2'],
+            [true,  'versio.com?ref=your%20hosting'],
+            [true,  'versio.com?flag'],
 
             // Invalid — schemes not allowed
             [false, 'https://versio.com'],

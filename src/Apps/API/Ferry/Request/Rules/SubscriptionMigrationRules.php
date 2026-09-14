@@ -30,7 +30,7 @@ class SubscriptionMigrationRules
      */
     public function getRules(
         Customer $customer,
-        bool $pipelineRun = false
+        bool $pipelineRun = false,
     ): array {
         return MigrationValidationLibrary::subscriptionRules(
             $this->domainNameRule,

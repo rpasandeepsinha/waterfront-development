@@ -43,8 +43,8 @@ class TechnicalDomainMigrationJob extends MigrationJob implements ShouldQueue
 
     public function __construct(
         public Subscription $subscription,
-        protected string|null $failedTechnicalStatus,
-        protected DomainMigrationPayload|null $payload,
+        protected ?string $failedTechnicalStatus,
+        protected ?DomainMigrationPayload $payload,
         protected MigrationSource $source = MigrationSource::AZURE_DATA_FACTORY,
     ) {
         parent::__construct($this->subscription, $this->failedTechnicalStatus, $source);
@@ -72,8 +72,8 @@ class TechnicalDomainMigrationJob extends MigrationJob implements ShouldQueue
             $domain,
             sprintf(
                 'For domain migrations the domain value must be a string. Subscription ID:{%d}',
-                $this->subscription->id
-            )
+                $this->subscription->id,
+            ),
         );
 
         if ($this->subscription->domainDeployment === null) {
@@ -90,16 +90,17 @@ class TechnicalDomainMigrationJob extends MigrationJob implements ShouldQueue
             );
         }
 
-        $mappedDomain = $this->domainMapper->mapSubscriptionWithRemoteResult($this->subscription, $this->migratedCustomer, $driver);
+        $mappedDomain = $this->domainMapper->mapSubscriptionWithRemoteResult(
+            $this->subscription,
+            $this->migratedCustomer,
+            $driver,
+        );
 
         /** @var DomainDeployment $domainDeployment */
         $domainDeployment = $mappedDomain->subscription->domainDeployment;
 
         /** @var Provider $domainProvider */
-        $domainProvider = Provider::query()
-            ->where('slug', $driver)
-            ->where('type', ProviderType::DOMAIN)
-            ->firstOrFail();
+        $domainProvider = Provider::query()->where('slug', $driver)->where('type', ProviderType::DOMAIN)->firstOrFail();
 
         $defaultOwnerDomainContact = $this->domainAndSslMigrationService->createMigratedDomainContact(
             migratedCustomer: $this->migratedCustomer,
@@ -113,7 +114,7 @@ class TechnicalDomainMigrationJob extends MigrationJob implements ShouldQueue
 
         $this->domainAndSslMigrationService->attachProviderToDeployment(
             $domainProvider,
-            $domainDeployment
+            $domainDeployment,
         );
 
         if ($this->payload !== null) {
@@ -134,7 +135,8 @@ class TechnicalDomainMigrationJob extends MigrationJob implements ShouldQueue
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                     LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                     LoggingContextKeys::DOMAIN_NAME => $this->subscription->domain,
-                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
+                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                        $this->migratedCustomer->reference_customer_number,
                     LoggingContextKeys::PROVISIONING_PROVIDER => $driver->value,
                 ],
             );
@@ -153,7 +155,8 @@ class TechnicalDomainMigrationJob extends MigrationJob implements ShouldQueue
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                     LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                     LoggingContextKeys::DOMAIN_NAME => $this->subscription->domain,
-                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
+                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                        $this->migratedCustomer->reference_customer_number,
                 ],
             );
 
@@ -161,7 +164,9 @@ class TechnicalDomainMigrationJob extends MigrationJob implements ShouldQueue
         }
 
         /** @var Provider $placeHolderProvider */
-        $placeHolderProvider = Provider::where('type', ProviderType::DOMAIN)->where('slug', ProviderSlug::PLACEHOLDER)->first();
+        $placeHolderProvider = Provider::where('type', ProviderType::DOMAIN)
+            ->where('slug', ProviderSlug::PLACEHOLDER)
+            ->first();
 
         $domainDeployment->provider_id = $placeHolderProvider->id;
         $domainDeployment->domain_business_unit_id = null;

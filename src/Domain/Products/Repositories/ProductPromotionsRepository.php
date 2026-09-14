@@ -16,9 +16,11 @@ class ProductPromotionsRepository
         $date = CarbonImmutable::now();
 
         /** @var Collection<int,ProductPromotion> $productPromotions */
-        $productPromotions = ProductPromotion::query()->where('start_date', '<=', $date)
+        $productPromotions = ProductPromotion::query()
+            ->where('start_date', '<=', $date)
             ->where('end_date', '>=', $date)
             ->get();
+
         return $productPromotions;
     }
 }

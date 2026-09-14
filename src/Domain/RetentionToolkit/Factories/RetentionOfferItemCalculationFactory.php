@@ -11,6 +11,7 @@ use Waterfront\Domain\RetentionToolkit\DTO\RetentionOfferPriceDTO;
 use Waterfront\Domain\RetentionToolkit\Enums\ExecutionDate;
 use Waterfront\Domain\RetentionToolkit\Enums\RetentionOfferCalculationStatus;
 use Waterfront\Domain\Subscriptions\Models\Subscription;
+use Webmozart\Assert\Assert;
 
 class RetentionOfferItemCalculationFactory
 {
@@ -100,10 +101,10 @@ class RetentionOfferItemCalculationFactory
         int $creditTotal,
         bool $replacesFutureInvoice,
     ): RetentionOfferItemCalculationDTO {
+        Assert::notNull($item->contractPeriod);
+
         $subscription = $item->subscription;
-        $requiresNewInvoice =
-            $item->executionDate === ExecutionDate::IMMEDIATE
-            || $replacesFutureInvoice;
+        $requiresNewInvoice = $item->executionDate === ExecutionDate::IMMEDIATE || $replacesFutureInvoice;
 
         return new RetentionOfferItemCalculationDTO(
             subscription: $subscription,

@@ -36,7 +36,7 @@ class DomainCheckTest extends IntegrationTestCase
         $request = new DomainCheckRequest(
             new Client(),
             new Connection('https://test.nl/', 'test-user', 'password'),
-            'example.org'
+            'example.org',
         );
 
         $requestXml = file_get_contents(__DIR__ . '/data/openprovider_check_request.xml');
@@ -50,7 +50,7 @@ class DomainCheckTest extends IntegrationTestCase
         $response = new Response(
             200,
             ['Content-Type' => 'text/xml'],
-            (string) file_get_contents(__DIR__ . '/data/openprovider_check_response.xml')
+            (string) file_get_contents(__DIR__ . '/data/openprovider_check_response.xml'),
         );
 
         $domainCheckResponse = new DomainCheckResponse($response, 'sandwave.test');

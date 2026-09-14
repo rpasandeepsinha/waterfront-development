@@ -19,8 +19,11 @@ use Waterfront\Infra\Configuration\ConfigurationInterface;
 #[Description('Consume and handle messages sent from Harbor')]
 class Consume extends Command
 {
-    public function handle(CommunicatesWithHarbor $harbor, ConfigurationInterface $configuration, LoggerInterface $logger): void
-    {
+    public function handle(
+        CommunicatesWithHarbor $harbor,
+        ConfigurationInterface $configuration,
+        LoggerInterface $logger,
+    ): void {
         $logMessage = 'Setting up connection and channel';
         $this->info($logMessage);
         $logger->debug($logMessage);
@@ -60,14 +63,18 @@ class Consume extends Command
         }
     }
 
-    private function setupChannel(AMQPChannel $channel, ConfigurationInterface $configuration, CommunicatesWithHarbor $harbor, LoggerInterface $logger): void
-    {
+    private function setupChannel(
+        AMQPChannel $channel,
+        ConfigurationInterface $configuration,
+        CommunicatesWithHarbor $harbor,
+        LoggerInterface $logger,
+    ): void {
         $channel->queue_declare(
             queue: $configuration->getAsString('harbor.queue_outgoing'),
             passive: false,
             durable: true,
             exclusive: false,
-            auto_delete: false
+            auto_delete: false,
         );
 
         $channel->exchange_declare(
@@ -75,12 +82,12 @@ class Consume extends Command
             type: AMQPExchangeType::DIRECT,
             passive: false,
             durable: true,
-            auto_delete: false
+            auto_delete: false,
         );
 
         $channel->queue_bind(
             queue: $configuration->getAsString('harbor.queue_outgoing'),
-            exchange: $configuration->getAsString('harbor.exchange')
+            exchange: $configuration->getAsString('harbor.exchange'),
         );
 
         $channel->basic_consume(
@@ -93,13 +100,13 @@ class Consume extends Command
             callback: function (AMQPMessage $message) use ($harbor, $logger): void {
                 $logMessage = sprintf(
                     'Received Harbor message: %s',
-                    substr($message->getBody(), 0, 400)
+                    substr($message->getBody(), 0, 400),
                 );
                 $this->info($logMessage);
                 $logger->info($logMessage);
 
                 $harbor->receiveMessage($message);
-            }
+            },
         );
     }
 }

@@ -8,7 +8,7 @@ readonly class Parameter
 {
     private function __construct(
         private string $key,
-        private string|int $value
+        private string|int $value,
     ) {
     }
 

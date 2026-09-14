@@ -26,7 +26,8 @@ class SetBusinessUnitOnDomainDeploymentsJobTest extends IntegrationTestCase
         $subscriptions = SubscriptionFactory::new()
             ->for(ProductFactory::new()->nlDomain())
             ->withCustomer()
-            ->createMany(3)->pluck('uuid');
+            ->createMany(3)
+            ->pluck('uuid');
 
         $domainDeployments = DomainDeploymentFactory::new()
             ->for(ProviderFactory::new()->domainOpenProvider())
@@ -36,7 +37,7 @@ class SetBusinessUnitOnDomainDeploymentsJobTest extends IntegrationTestCase
                         'subscription_uuid' => $subscriptions->get($sequence->index),
                         'domain_business_unit_id' => null,
                     ],
-                )
+                ),
             )
             ->createMany(3);
 
@@ -52,10 +53,11 @@ class SetBusinessUnitOnDomainDeploymentsJobTest extends IntegrationTestCase
             ->with(
                 sprintf('Updating Business Unit to id %d on Domain Deployments', $businessUnit->id),
                 self::callback(
-                    fn (array $context) =>
+                    fn (array $context) => (
                         $context['meta']['domain_deployment_ids'] === $domainDeploymentIds
                         && $context['meta']['business_unit_id'] === $businessUnit->id
-                )
+                    ),
+                ),
             );
 
         $job = new SetBusinessUnitOnDomainDeploymentsJob($businessUnit->id, $domainDeploymentIds);
@@ -64,8 +66,8 @@ class SetBusinessUnitOnDomainDeploymentsJobTest extends IntegrationTestCase
         $domainDeployments->each(
             fn (DomainDeployment $domainDeployment) => self::assertSame(
                 $businessUnit->id,
-                $domainDeployment->refresh()->domain_business_unit_id
-            )
+                $domainDeployment->refresh()->domain_business_unit_id,
+            ),
         );
     }
 }

@@ -24,10 +24,11 @@ class TemplateResource extends Resource
     public function toArray($request): array
     {
         return [
-            'id'   => $this->resource->id,
+            'id' => $this->resource->id,
             'name' => $this->resource->name,
             'records' => DnsRecordResource::collection($this->resource->records),
-            'domains' => $this->resource->domainDeployments
+            'domains' => $this->resource
+                ->domainDeployments
                 ->map(fn (DomainDeployment $domainDeployment) => $domainDeployment->subscription)
                 ->map(fn (Subscription $subscription) => $subscription->domain)
                 ->toArray(),

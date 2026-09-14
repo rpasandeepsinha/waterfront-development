@@ -51,16 +51,12 @@ class TechnicalRedirectMigrationJobTest extends IntegrationTestCase
 
         $customer = CustomerFactory::new()->createOne();
 
-        $hostingProductGroup = ProductGroupFactory::new()
-            ->hosting()
-            ->createOne();
+        $hostingProductGroup = ProductGroupFactory::new()->hosting()->createOne();
 
-        $redirectProduct = ProductFactory::new()
-            ->for($hostingProductGroup)
-            ->createOne([
-                'name' => ProductType::FREE_REDIRECT->value,
-                'slug' => ProductType::FREE_REDIRECT->value,
-            ]);
+        $redirectProduct = ProductFactory::new()->for($hostingProductGroup)->createOne([
+            'name' => ProductType::FREE_REDIRECT->value,
+            'slug' => ProductType::FREE_REDIRECT->value,
+        ]);
 
         $this->redirectSubscription = SubscriptionFactory::new()
             ->for($customer)
@@ -103,39 +99,36 @@ class TechnicalRedirectMigrationJobTest extends IntegrationTestCase
                 ],
             ];
 
-            $redirectService->expects(self::once())
-                ->method('listRedirects')
-                ->willReturn($redirects);
+            $redirectService->expects(self::once())->method('listRedirects')->willReturn($redirects);
         } else {
-            $redirectService->expects(self::once())
-                ->method('listRedirects')
-                ->willReturn([]);
+            $redirectService->expects(self::once())->method('listRedirects')->willReturn([]);
 
-            $redirectService->expects(self::once())
+            $redirectService
+                ->expects(self::once())
                 ->method('createRedirect')
                 ->willReturn(
                     new RedirectResult(
                         provisionData: self::createStub(CreateRedirectRequest::class),
-                        provisionStatus: ProvisionStatus::SUCCESS
-                    )
+                        provisionStatus: ProvisionStatus::SUCCESS,
+                    ),
                 );
         }
 
         $this->app->bind(
             RedirectService::class,
-            fn (): RedirectService => $redirectService
+            fn (): RedirectService => $redirectService,
         );
 
         $payload = new RedirectTechnicalPayload(
             source: $source,
             destination: 'test.com',
-            type: RedirectType::TEMPORARY->value
+            type: RedirectType::TEMPORARY->value,
         );
 
         $job = new TechnicalRedirectMigrationJob(
             $this->redirectSubscription->refresh(),
             TechnicalStatus::ERROR->value,
-            $payload
+            $payload,
         );
 
         $adfService = self::resolve(AdfPayloadService::class);
@@ -166,17 +159,17 @@ class TechnicalRedirectMigrationJobTest extends IntegrationTestCase
                 new Response(
                     200,
                     [],
-                    self::getStaticMockedZoneResponseBody(self::TEST_DOMAIN)
+                    self::getStaticMockedZoneResponseBody(self::TEST_DOMAIN),
                 ),
                 new Response(
                     200,
                     [],
-                    self::getStaticMockedZoneResponseBody(self::TEST_DOMAIN)
+                    self::getStaticMockedZoneResponseBody(self::TEST_DOMAIN),
                 ),
                 new Response(
                     200,
                     [],
-                    self::getStaticMockedZoneResponseBody(self::TEST_DOMAIN)
+                    self::getStaticMockedZoneResponseBody(self::TEST_DOMAIN),
                 ),
             ],
             'redirectAlreadyExists' => true,

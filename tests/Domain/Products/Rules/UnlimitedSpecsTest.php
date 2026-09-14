@@ -47,9 +47,9 @@ class UnlimitedSpecsTest extends IntegrationTestCase
 
         $validValue = '-1';
         Config::set('product-specs.hosting.limits.disk_space', [
-            'type'         => 'integer',
+            'type' => 'integer',
             'show-in-form' => true,
-            'default'      => null,
+            'default' => null,
         ]);
         $request = self::resolve(NovaRequest::class);
         $request->name = 'hosting.limits.disk_space';
@@ -64,9 +64,9 @@ class UnlimitedSpecsTest extends IntegrationTestCase
 
         $validValue = '-1';
         Config::set('product-specs.hosting.limits.disk_space', [
-            'type'         => 'bytes',
+            'type' => 'bytes',
             'show-in-form' => true,
-            'default'      => null,
+            'default' => null,
         ]);
         $request = self::resolve(NovaRequest::class);
         $request->name = 'hosting.limits.disk_space';
@@ -79,9 +79,9 @@ class UnlimitedSpecsTest extends IntegrationTestCase
     {
         $validValue = '-1';
         Config::set('product-specs.hosting.limits.disk_space', [
-            'type'         => 'unknown',
+            'type' => 'unknown',
             'show-in-form' => true,
-            'default'      => null,
+            'default' => null,
         ]);
         $request = self::resolve(NovaRequest::class);
         $request->name = 'hosting.limits.disk_space';

@@ -13,6 +13,5 @@ enum ProviderSlug: string
     case REALTIME_REGISTER = 'realtime_register';
     case PLACEHOLDER = 'placeholder';
     case OPEN_PROVIDER = 'openprovider';
-    case OPEN_SRS = 'opensrs';
     case XOLPHIN = 'xolphin';
 }

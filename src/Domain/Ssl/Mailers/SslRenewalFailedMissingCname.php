@@ -12,7 +12,7 @@ readonly class SslRenewalFailedMissingCname implements MailTemplateInterface
         public string $domain,
         public string $cnameName,
         public string $cnameValue,
-        public string $expirydate
+        public string $expirydate,
     ) {
     }
 

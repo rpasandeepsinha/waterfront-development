@@ -38,9 +38,9 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
 
         $data = [
             'new' => [
-                'name'     => 'google.com',
-                'content'  => 'unknown data format',
-                'ttl'      => '600',
+                'name' => 'google.com',
+                'content' => 'unknown data format',
+                'ttl' => '600',
                 'disabled' => true,
             ],
         ];
@@ -48,7 +48,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
         try {
             new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
         } catch (ValidationException $exception) {
-            self::assertSame(['new.type' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]], $exception->errors());
+            self::assertSame(
+                ['new.type' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]],
+                $exception->errors(),
+            );
             throw $exception;
         }
     }
@@ -61,10 +64,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'unknown',
-                'name'     => 'google.com',
-                'content'  => 'unknown data format',
-                'ttl'      => '600',
+                'type' => 'unknown',
+                'name' => 'google.com',
+                'content' => 'unknown data format',
+                'ttl' => '600',
                 'disabled' => true,
             ],
         ];
@@ -72,7 +75,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.type' => [self::resolve(TranslatorInterface::class)->translate('validation.regex')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.type' => [self::resolve(TranslatorInterface::class)->translate('validation.regex')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     /**
@@ -83,9 +89,9 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'UNKNOWN',
-                'content'  => 'unknown data format',
-                'ttl'      => '600',
+                'type' => 'UNKNOWN',
+                'content' => 'unknown data format',
+                'ttl' => '600',
                 'disabled' => true,
             ],
         ];
@@ -93,7 +99,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.name' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.name' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     /**
@@ -104,10 +113,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'UNKNOWN',
-                'name'     => 1,
-                'content'  => 'unknown data format',
-                'ttl'      => '600',
+                'type' => 'UNKNOWN',
+                'name' => 1,
+                'content' => 'unknown data format',
+                'ttl' => '600',
                 'disabled' => true,
             ],
         ];
@@ -115,7 +124,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.name' => [self::resolve(TranslatorInterface::class)->translate('validation.string')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.name' => [self::resolve(TranslatorInterface::class)->translate('validation.string')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     /**
@@ -126,9 +138,9 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'UNKNOWN',
-                'name'     => 'google.com',
-                'ttl'      => '600',
+                'type' => 'UNKNOWN',
+                'name' => 'google.com',
+                'ttl' => '600',
                 'disabled' => true,
             ],
         ];
@@ -136,7 +148,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     /**
@@ -147,10 +162,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'UNKNOWN',
-                'name'     => 'google.com',
-                'content'  => 1,
-                'ttl'      => '600',
+                'type' => 'UNKNOWN',
+                'name' => 'google.com',
+                'content' => 1,
+                'ttl' => '600',
                 'disabled' => true,
             ],
         ];
@@ -158,7 +173,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.string')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.string')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     /**
@@ -169,9 +187,9 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'UNKNOWN',
-                'name'     => 'google.com',
-                'content'  => 'unknown data format',
+                'type' => 'UNKNOWN',
+                'name' => 'google.com',
+                'content' => 'unknown data format',
                 'disabled' => true,
             ],
         ];
@@ -179,7 +197,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.ttl' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.ttl' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     /**
@@ -190,10 +211,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'UNKNOWN',
-                'name'     => 'google.com',
-                'content'  => 'unknown data format',
-                'ttl'      => 'text',
+                'type' => 'UNKNOWN',
+                'name' => 'google.com',
+                'content' => 'unknown data format',
+                'ttl' => 'text',
                 'disabled' => true,
             ],
         ];
@@ -201,7 +222,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.ttl' => [self::resolve(TranslatorInterface::class)->translate('validation.integer')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.ttl' => [self::resolve(TranslatorInterface::class)->translate('validation.integer')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     /**
@@ -212,10 +236,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'UNKNOWN',
-                'name'     => 'google.com',
-                'content'  => 'unknown data format',
-                'ttl'      => '-1',
+                'type' => 'UNKNOWN',
+                'name' => 'google.com',
+                'content' => 'unknown data format',
+                'ttl' => '-1',
                 'disabled' => true,
             ],
         ];
@@ -224,8 +248,9 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
 
         self::assertTrue($validator->fails());
         self::assertSame(
-            ['new.ttl' => [self::resolve(TranslatorInterface::class)->translate('validation.between.numeric', ['min' => 0, 'max' => 2_147_483_647])]],
-            $validator->errors()->toArray()
+            ['new.ttl' => [self::resolve(TranslatorInterface::class)
+                ->translate('validation.between.numeric', ['min' => 0, 'max' => 2_147_483_647])]],
+            $validator->errors()->toArray(),
         );
     }
 
@@ -237,10 +262,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'    => 'UNKNOWN',
-                'name'    => 'google.com',
+                'type' => 'UNKNOWN',
+                'name' => 'google.com',
                 'content' => 'unknown data format',
-                'ttl'     => '600',
+                'ttl' => '600',
             ],
         ];
 
@@ -257,10 +282,10 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'UNKNOWN',
-                'name'     => 'google.com',
-                'content'  => 'unknown data format',
-                'ttl'      => '600',
+                'type' => 'UNKNOWN',
+                'name' => 'google.com',
+                'content' => 'unknown data format',
+                'ttl' => '600',
                 'disabled' => 'true',
             ],
         ];
@@ -268,6 +293,9 @@ class UpdateDefaultRecordValidationTest extends IntegrationTestCase
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.disabled' => [self::resolve(TranslatorInterface::class)->translate('validation.boolean')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.disabled' => [self::resolve(TranslatorInterface::class)->translate('validation.boolean')]],
+            $validator->errors()->toArray(),
+        );
     }
 }

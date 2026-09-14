@@ -33,6 +33,7 @@ class RouteAttributes
         if ($controller === null) {
             return [];
         }
+
         /** @var class-string $controller */
         $action = $currentRoute->getActionMethod();
 

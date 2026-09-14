@@ -16,8 +16,10 @@ use Waterfront\Support\Enums\Environment;
 
 class RequestHelper
 {
-    public function __construct(private readonly ConfigurationInterface $configuration, private readonly Environment $environment)
-    {
+    public function __construct(
+        private readonly ConfigurationInterface $configuration,
+        private readonly Environment $environment,
+    ) {
     }
 
     /**
@@ -39,7 +41,7 @@ class RequestHelper
                     self::class,
                     '',
                     $response->body(),
-                )
+                ),
             );
         }
 
@@ -61,7 +63,7 @@ class RequestHelper
         return Http::withHeaders($headers)->withOptions(
             [
                 'verify' => $this->environment !== Environment::DEV && $this->environment !== Environment::TST,
-            ]
+            ],
         );
     }
 
@@ -89,7 +91,7 @@ class RequestHelper
                     'Error in request %s: %s',
                     $endpoint,
                     $response->body(),
-                )
+                ),
             );
         }
 

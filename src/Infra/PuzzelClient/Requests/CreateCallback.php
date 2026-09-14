@@ -27,7 +27,7 @@ class CreateCallback extends Request implements HasBody
 
     public function __construct(
         private readonly ConnectorConfig $connectorConfig,
-        private readonly Callback $callback
+        private readonly Callback $callback,
     ) {
     }
 
@@ -59,20 +59,20 @@ class CreateCallback extends Request implements HasBody
         $zeroCountryCodePhone = sprintf('%s%s', '00', ltrim($e164Phone, '+'));
 
         return [
-            'customerKey'            => $this->connectorConfig->tenantId,
-            'accessPoint'            => $this->connectorConfig->accessPoint->number,
-            'countryCode'            => $this->connectorConfig->accessPoint->countryCode,
-            'queueKey'               => $this->connectorConfig->callbackQueue,
-            'ciqType'                => CiqType::CALL_AGENT_FIRST->value,
-            'maxAttempts'            => self::MAX_ATTEMPTS,
+            'customerKey' => $this->connectorConfig->tenantId,
+            'accessPoint' => $this->connectorConfig->accessPoint->number,
+            'countryCode' => $this->connectorConfig->accessPoint->countryCode,
+            'queueKey' => $this->connectorConfig->callbackQueue,
+            'ciqType' => CiqType::CALL_AGENT_FIRST->value,
+            'maxAttempts' => self::MAX_ATTEMPTS,
             'secondsBetweenAttempts' => self::SECONDS_BETWEEN_ATTEMPTS,
-            'redirectOK'             => self::REDIRECT_OK,
-            'redirectError'          => self::REDIRECT_ERROR,
-            'redirectFull'           => self::REDIRECT_FULL,
-            'requestDescription'     => $this->callback->description,
-            'requestCategory'        => $this->callback->category,
-            'callbackNumber'         => $zeroCountryCodePhone,
-            'scheduledDateTime'      => $this->callback->scheduledDateTime->format(self::PUZZEL_ISO8601_NO_TIMEZONE_FORMAT),
+            'redirectOK' => self::REDIRECT_OK,
+            'redirectError' => self::REDIRECT_ERROR,
+            'redirectFull' => self::REDIRECT_FULL,
+            'requestDescription' => $this->callback->description,
+            'requestCategory' => $this->callback->category,
+            'callbackNumber' => $zeroCountryCodePhone,
+            'scheduledDateTime' => $this->callback->scheduledDateTime->format(self::PUZZEL_ISO8601_NO_TIMEZONE_FORMAT),
         ];
     }
 }

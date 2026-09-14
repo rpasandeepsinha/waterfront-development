@@ -13,7 +13,7 @@ use Waterfront\Infra\Translation\TranslatorInterface;
 class NovaServerOwnerFilter extends Filter
 {
     public function __construct(
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -32,10 +32,6 @@ class NovaServerOwnerFilter extends Filter
      */
     public function options(NovaRequest $request): array
     {
-        return Server::query()
-            ->whereNotNull('owner')
-            ->distinct()
-            ->pluck('owner')
-            ->toArray();
+        return Server::query()->whereNotNull('owner')->distinct()->pluck('owner')->toArray();
     }
 }

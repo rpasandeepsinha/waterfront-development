@@ -53,7 +53,7 @@ class TranslationsToDatabaseTest extends IntegrationTestCase
                 'coast' => 'coast-test.json',
                 'compass' => 'compass-test.json',
                 'waterfront-backend' => 'waterfront-backend-test.json',
-            ]
+            ],
         );
 
         $firstString->refresh();

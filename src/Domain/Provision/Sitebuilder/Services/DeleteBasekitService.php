@@ -42,7 +42,7 @@ class DeleteBasekitService
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
                 exception: new DeploymentNotFoundException(
-                    sprintf('No sitebuilder deployment found for the given tag [%s].', $provisionData->tagUuid)
+                    sprintf('No sitebuilder deployment found for the given tag [%s].', $provisionData->tagUuid),
                 ),
             );
         }
@@ -54,14 +54,14 @@ class DeleteBasekitService
             LogContextBuilder::for($provisionData)
                 ->with(LoggingContextKeys::DOMAIN_NAME, $sitebuilderDeployment->domain)
                 ->withMeta(['site_ref' => $sitebuilderDeployment->basekitDeployment?->site_ref])
-                ->build()
+                ->build(),
         );
 
         if ($siteRef === null) {
             return new SitebuilderResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: new BasekitSiteRefNotFoundException($sitebuilderDeployment->uuid)
+                exception: new BasekitSiteRefNotFoundException($sitebuilderDeployment->uuid),
             );
         }
 
@@ -73,13 +73,13 @@ class DeleteBasekitService
                 LogContextBuilder::for($provisionData)
                     ->withException($exception)
                     ->with(LoggingContextKeys::DOMAIN_NAME, $sitebuilderDeployment->domain)
-                    ->build()
+                    ->build(),
             );
 
             return new SitebuilderResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
 
@@ -91,7 +91,7 @@ class DeleteBasekitService
                 LogContextBuilder::for($provisionData)
                     ->withException($exception)
                     ->with(LoggingContextKeys::DOMAIN_NAME, $sitebuilderDeployment->domain)
-                    ->build()
+                    ->build(),
             );
         }
 
@@ -109,7 +109,7 @@ class DeleteBasekitService
             return new SitebuilderResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: new BasekitUserRefNotFoundForContextException($provisionData->context)
+                exception: new BasekitUserRefNotFoundForContextException($provisionData->context),
             );
         }
 
@@ -118,10 +118,9 @@ class DeleteBasekitService
         } catch (BaseKitRequestException $exception) {
             $this->logger->warning(
                 'Failed to delete basekit user.',
-                LogContextBuilder::for($provisionData)
-                    ->withMeta(['user_ref' => $basekitContext->user_ref])
-                    ->build()
+                LogContextBuilder::for($provisionData)->withMeta(['user_ref' => $basekitContext->user_ref])->build(),
             );
+
             return new SitebuilderResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
@@ -129,8 +128,8 @@ class DeleteBasekitService
             );
         }
 
-        $sitebuilderDeployments = $this->sitebuilderDeploymentRepository
-            ->getSitebuilderDeploymentsByContext($basekitContext);
+        $sitebuilderDeployments =
+            $this->sitebuilderDeploymentRepository->getSitebuilderDeploymentsByContext($basekitContext);
 
         foreach ($sitebuilderDeployments as $sitebuilderDeployment) {
             try {
@@ -140,7 +139,7 @@ class DeleteBasekitService
                         ->with(LoggingContextKeys::DOMAIN_NAME, $sitebuilderDeployment->domain)
                         ->with(LoggingContextKeys::PROVISIONING_ID, $sitebuilderDeployment->id)
                         ->withMeta(['user_ref' => $basekitContext->user_ref])
-                        ->build()
+                        ->build(),
                 );
 
                 $this->sitebuilderDeploymentRepository->deleteSitebuilderAndChildren($sitebuilderDeployment);
@@ -151,7 +150,7 @@ class DeleteBasekitService
                         ->with(LoggingContextKeys::DOMAIN_NAME, $sitebuilderDeployment->domain)
                         ->with(LoggingContextKeys::PROVISIONING_ID, $sitebuilderDeployment->id)
                         ->withMeta(['user_ref' => $basekitContext->user_ref])
-                        ->build()
+                        ->build(),
                 );
             }
         }
@@ -168,19 +167,19 @@ class DeleteBasekitService
     {
         $this->logger->debug(
             'Rolling back Basekit sitebuilder deployment from migration',
-            LogContextBuilder::for($request)->build()
+            LogContextBuilder::for($request)->build(),
         );
 
         $basekitContext = $this->baseKitContextRepository->findByContext($request->context);
         if ($basekitContext === null) {
             $this->logger->warning(
                 'No Basekit context found for given context, nothing to remove',
-                LogContextBuilder::for($request)->build()
+                LogContextBuilder::for($request)->build(),
             );
 
             return new SitebuilderResult(
                 provisionData: $request,
-                provisionStatus: ProvisionStatus::FAILED
+                provisionStatus: ProvisionStatus::FAILED,
             );
         }
 
@@ -192,12 +191,12 @@ class DeleteBasekitService
                 LogContextBuilder::for($request)
                     ->with(LoggingContextKeys::PROVISIONING_CONTEXT, $basekitContext->context_uuid)
                     ->withMeta(['tag' => $request->tagUuid])
-                    ->build()
+                    ->build(),
             );
 
             return new SitebuilderResult(
                 provisionData: $request,
-                provisionStatus: ProvisionStatus::FAILED
+                provisionStatus: ProvisionStatus::FAILED,
             );
         }
 
@@ -211,21 +210,19 @@ class DeleteBasekitService
         } catch (Exception $exception) { // @phpstan-ignore thecodingmachine.exceptionMustBeRethrown
             $this->logger->warning(
                 'Rollback failed: Basekit deployment not found for sitebuilder deployment',
-                LogContextBuilder::for($request)
-                    ->withException($exception)
-                    ->build()
+                LogContextBuilder::for($request)->withException($exception)->build(),
             );
 
             return new SitebuilderResult(
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
 
         return new SitebuilderResult(
             provisionData: $request,
-            provisionStatus: ProvisionStatus::SUCCESS
+            provisionStatus: ProvisionStatus::SUCCESS,
         );
     }
 }

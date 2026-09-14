@@ -12,6 +12,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Ramsey\Uuid\Uuid;
 use RuntimeException;
 use Tests\Factories\CustomerFactory;
+use Tests\Factories\InvoiceFactory;
 use Tests\Factories\OneTimeServiceFactory;
 use Tests\Factories\ProductFactory;
 use Tests\Factories\ProductGroupFactory;
@@ -27,6 +28,7 @@ use Waterfront\Domain\OneTimeServices\Models\OneTimeService;
 use Waterfront\Domain\OneTimeServices\Services\OneTimeServiceInvoiceService;
 use Waterfront\Domain\Products\Models\Product;
 use Waterfront\Domain\Subscriptions\Models\Subscription;
+use Waterfront\Infra\Translation\TranslatorInterface;
 
 #[CoversClass(OneTimeServiceController::class)]
 class OneTimeServiceControllerTest extends IntegrationTestCase
@@ -51,22 +53,21 @@ class OneTimeServiceControllerTest extends IntegrationTestCase
         $this->customer = new CustomerFactory()
             ->withAddress()
             ->createOne([
-                'vat_rate'         => 21.0,
-                'icp'              => false,
+                'vat_rate' => 21.0,
+                'icp' => false,
                 'has_direct_debit' => true,
             ]);
 
-        $subscriptionProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension())
-            ->createOne();
+        $subscriptionProduct = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne();
 
         $this->subscription = new SubscriptionFactory()
             ->for($this->customer)
-            ->for($subscriptionProduct)->createOne();
-
-        $this->oneTimeServiceProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->oneTimeService())
+            ->for($subscriptionProduct)
             ->createOne();
+
+        $this->oneTimeServiceProduct = new ProductFactory()->for(
+            new ProductGroupFactory()->oneTimeService(),
+        )->createOne();
 
         new ProductPriceComponentFactory()
             ->oneTimeService()
@@ -84,7 +85,9 @@ class OneTimeServiceControllerTest extends IntegrationTestCase
     public function showSuccess(): void
     {
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.one-time-services.show', ['oneTimeService' => $this->oneTimeService->uuid]))
+            ->getJson($this->generateRoute('admin.one-time-services.show', [
+                'oneTimeService' => $this->oneTimeService->uuid,
+            ]))
             ->assertOk()
             ->assertJsonPath('uuid', $this->oneTimeService->uuid->toString());
     }
@@ -93,8 +96,69 @@ class OneTimeServiceControllerTest extends IntegrationTestCase
     public function showReturnsNotFoundForUnknownUuid(): void
     {
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.one-time-services.show', ['oneTimeService' => Uuid::uuid4()->toString()]))
+            ->getJson($this->generateRoute('admin.one-time-services.show', [
+                'oneTimeService' => Uuid::uuid4()->toString(),
+            ]))
             ->assertNotFound();
+    }
+
+    #[Test]
+    public function invoiceCreatesInvoicesAndQueuesThemToHarbor(): void
+    {
+        $messageService = self::createMock(MessageService::class);
+        $messageService->expects(self::once())->method('queue');
+        $this->app->bind(MessageService::class, fn (): MessageService => $messageService);
+
+        $this->actingAsEmployee()
+            ->postJson($this->invoiceRoute())
+            ->assertOk()
+            ->assertJsonPath('data.uuid', $this->oneTimeService->uuid->toString())
+            ->assertJsonPath('data.invoiced', true);
+
+        $invoices = $this->oneTimeService->invoices()->get();
+
+        self::assertCount(1, $invoices);
+        self::assertSame(2500, $invoices->sole()->gross_price);
+        self::assertSame(2500, $invoices->sole()->net_price);
+        self::assertSame($this->subscription->id, $invoices->sole()->subscription_id);
+    }
+
+    #[Test]
+    public function invoiceRejectsAnAlreadyInvoicedOneTimeService(): void
+    {
+        $messageService = self::createMock(MessageService::class);
+        $messageService->expects(self::never())->method('queue');
+        $this->app->bind(MessageService::class, fn (): MessageService => $messageService);
+
+        $existingInvoice = new InvoiceFactory()
+            ->for($this->customer)
+            ->for($this->subscription)
+            ->for($this->oneTimeServiceProduct)
+            ->createOne();
+        $this->oneTimeService->invoices()->attach($existingInvoice);
+
+        $this->actingAsEmployee()
+            ->postJson($this->invoiceRoute())
+            ->assertUnprocessable()
+            ->assertJsonFragment([
+                'message' => self::resolve(TranslatorInterface::class)
+                    ->translate('one_time_service.invoice.already_invoiced'),
+            ]);
+
+        self::assertCount(1, $this->oneTimeService->invoices()->get());
+        self::assertCount(1, Invoice::all());
+    }
+
+    #[Test]
+    public function invoiceReturnsNotFoundForUnknownUuid(): void
+    {
+        $this->actingAsEmployee()
+            ->postJson($this->generateRoute('admin.one-time-services.invoice', [
+                'oneTimeService' => Uuid::uuid4()->toString(),
+            ]))
+            ->assertNotFound();
+
+        self::assertCount(0, Invoice::all());
     }
 
     #[Test]
@@ -108,7 +172,8 @@ class OneTimeServiceControllerTest extends IntegrationTestCase
 
         $created = $this->createdOneTimeService();
 
-        $response->assertJsonPath('data.uuid', $created->uuid->toString())
+        $response
+            ->assertJsonPath('data.uuid', $created->uuid->toString())
             ->assertJsonPath('data.invoiced', false)
             ->assertJsonPath('data.amount', 2)
             ->assertJsonPath('data.discount_percentage', 10)
@@ -124,7 +189,7 @@ class OneTimeServiceControllerTest extends IntegrationTestCase
 
         self::assertDatabaseHas('notes', [
             'subscription_id' => $this->subscription->id,
-            'note'            => sprintf(
+            'note' => sprintf(
                 'One-time service created for %s x2 with 10%% discount: %s',
                 $this->oneTimeServiceProduct->name,
                 $expectedComment,
@@ -141,7 +206,7 @@ class OneTimeServiceControllerTest extends IntegrationTestCase
 
         self::assertDatabaseHas('notes', [
             'subscription_id' => $this->subscription->id,
-            'note'            => sprintf(
+            'note' => sprintf(
                 'One-time service created for %s x2 with 10%% discount: ',
                 $this->oneTimeServiceProduct->name,
             ),
@@ -176,8 +241,7 @@ class OneTimeServiceControllerTest extends IntegrationTestCase
     public function storeLeavesTheOneTimeServiceUninvoicedWhenInvoicingFails(): void
     {
         $invoiceService = self::createStub(OneTimeServiceInvoiceService::class);
-        $invoiceService->method('createFromCollection')
-            ->willThrowException(new RuntimeException('Harbor is down'));
+        $invoiceService->method('createFromCollection')->willThrowException(new RuntimeException('Harbor is down'));
         $this->app->bind(OneTimeServiceInvoiceService::class, fn (): OneTimeServiceInvoiceService => $invoiceService);
 
         $this->actingAsEmployee()
@@ -225,32 +289,32 @@ class OneTimeServiceControllerTest extends IntegrationTestCase
     public static function invalidPayloads(): iterable
     {
         yield 'amount below one' => [
-            'overrides'            => ['amount' => 0],
+            'overrides' => ['amount' => 0],
             'expectedInvalidField' => 'amount',
         ];
 
         yield 'negative discount percentage' => [
-            'overrides'            => ['discount_percentage' => -1],
+            'overrides' => ['discount_percentage' => -1],
             'expectedInvalidField' => 'discount_percentage',
         ];
 
         yield 'discount percentage above hundred' => [
-            'overrides'            => ['discount_percentage' => 101],
+            'overrides' => ['discount_percentage' => 101],
             'expectedInvalidField' => 'discount_percentage',
         ];
 
         yield 'execution date in the past' => [
-            'overrides'            => ['execution_date' => '2026-08-19'],
+            'overrides' => ['execution_date' => '2026-08-19'],
             'expectedInvalidField' => 'execution_date',
         ];
 
         yield 'unknown status' => [
-            'overrides'            => ['status' => 'cancelled'],
+            'overrides' => ['status' => 'cancelled'],
             'expectedInvalidField' => 'status',
         ];
 
         yield 'unknown product' => [
-            'overrides'            => ['product_uuid' => '00000000-0000-4000-8000-000000000000'],
+            'overrides' => ['product_uuid' => '00000000-0000-4000-8000-000000000000'],
             'expectedInvalidField' => 'product_uuid',
         ];
     }
@@ -280,7 +344,9 @@ class OneTimeServiceControllerTest extends IntegrationTestCase
             ->assertJsonPath('data.0.price', 2250)
             ->assertJsonPath(
                 'data.0.title',
-                fn (mixed $title): bool => is_string($title) && str_contains($title, $this->oneTimeServiceProduct->name)
+                fn (mixed $title): bool => (
+                    is_string($title) && str_contains($title, $this->oneTimeServiceProduct->name)
+                ),
             );
 
         self::assertCount(1, OneTimeService::all());
@@ -304,13 +370,13 @@ class OneTimeServiceControllerTest extends IntegrationTestCase
     private function payload(array $overrides = []): array
     {
         return [
-            'product_uuid'        => $this->oneTimeServiceProduct->uuid,
-            'amount'              => 2,
+            'product_uuid' => $this->oneTimeServiceProduct->uuid,
+            'amount' => 2,
             'discount_percentage' => 10,
-            'execution_date'      => '2026-08-21',
-            'status'              => OneTimeServiceStatus::OPEN->value,
-            'invoice_now'         => false,
-            'comment'             => null,
+            'execution_date' => '2026-08-21',
+            'status' => OneTimeServiceStatus::OPEN->value,
+            'invoice_now' => false,
+            'comment' => null,
             ...$overrides,
         ];
     }
@@ -320,6 +386,14 @@ class OneTimeServiceControllerTest extends IntegrationTestCase
         return $this->generateRoute(
             'admin.subscriptions.subscription.one-time-services.store',
             ['subscription' => ($subscription ?? $this->subscription)->id],
+        );
+    }
+
+    private function invoiceRoute(): string
+    {
+        return $this->generateRoute(
+            'admin.one-time-services.invoice',
+            ['oneTimeService' => $this->oneTimeService->uuid],
         );
     }
 

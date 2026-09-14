@@ -37,13 +37,13 @@ class SitebuilderProvisionService extends AbstractProvisionService implements Pr
         try {
             $validator = $this->sitebuilderServiceFactory->getValidator(
                 provider: $this->getProviderForRequest($provisionData),
-                provisionRequest: $provisionData
+                provisionRequest: $provisionData,
             );
 
             if ($validator->fails()) {
                 return $this->createFailedValidationResult($provisionData, $validator);
             }
-        } catch (UnknownSitebuilderProviderException | UnknownSitebuilderRequestException $providerException) {
+        } catch (UnknownSitebuilderProviderException|UnknownSitebuilderRequestException $providerException) {
             return new SitebuilderResult($provisionData, ProvisionStatus::FAILED, $providerException);
         }
 
@@ -54,15 +54,15 @@ class SitebuilderProvisionService extends AbstractProvisionService implements Pr
     {
         try {
             $sitebuilderService = $this->sitebuilderServiceFactory->getProviderService(
-                provider: $this->getProviderForRequest($provisionData)
+                provider: $this->getProviderForRequest($provisionData),
             );
         } catch (UnknownSitebuilderProviderException $providerException) {
             return new SitebuilderResult($provisionData, ProvisionStatus::FAILED, $providerException);
         }
 
         /*
-            First we check generic sitebuilder requests and return null by default if none of the generic requests match
-        */
+         * First we check generic sitebuilder requests and return null by default if none of the generic requests match
+         */
         $result = match ($provisionData::class) {
             TerminateSitebuilderContextRequest::class => $sitebuilderService->terminateByContext($provisionData),
             CreateSitebuilderRequest::class => $sitebuilderService->create($provisionData),
@@ -70,7 +70,7 @@ class SitebuilderProvisionService extends AbstractProvisionService implements Pr
             AddSslSitebuilderRequest::class => $sitebuilderService->addSsl($provisionData),
             TerminateSitebuilderRequest::class => $sitebuilderService->terminateSitebuilder($provisionData),
             UpdateSitebuilderRequest::class => $sitebuilderService->update($provisionData),
-            default => null
+            default => null,
         };
 
         if ($result !== null) {
@@ -78,15 +78,19 @@ class SitebuilderProvisionService extends AbstractProvisionService implements Pr
         }
 
         /*
-            From here we check for provider specific requests that are not available on the inteface
-        */
+         * From here we check for provider specific requests that are not available on the inteface
+         */
         if ($sitebuilderService instanceof BasekitProvisionService) {
             $result = match ($provisionData::class) {
-                CreateBasekitDeploymentsFromMigrationRequest::class => $sitebuilderService->createFromMigration($provisionData),
-                RollbackBasekitDeploymentsFromMigrationRequest::class => $sitebuilderService->rollbackFromMigration($provisionData),
+                CreateBasekitDeploymentsFromMigrationRequest::class => $sitebuilderService->createFromMigration(
+                    $provisionData,
+                ),
+                RollbackBasekitDeploymentsFromMigrationRequest::class => $sitebuilderService->rollbackFromMigration(
+                    $provisionData,
+                ),
                 GetBasekitSiteByRefRequest::class => $sitebuilderService->getBasekitSiteByRef($provisionData),
                 GetBasekitUserByRefRequest::class => $sitebuilderService->getBasekitUserByRef($provisionData),
-                default => null
+                default => null,
             };
 
             if ($result instanceof ProvisionResultInterface) {
@@ -97,7 +101,7 @@ class SitebuilderProvisionService extends AbstractProvisionService implements Pr
         return new SitebuilderResult(
             provisionData: $provisionData,
             provisionStatus: ProvisionStatus::FAILED,
-            exception: new UnknownSitebuilderRequestException($provisionData)
+            exception: new UnknownSitebuilderRequestException($provisionData),
         );
     }
 

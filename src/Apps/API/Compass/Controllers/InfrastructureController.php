@@ -72,8 +72,7 @@ class InfrastructureController
         $servers->appends('pageSize', (string) $pageSize);
 
         return HostingServerResource::collection($servers)->additional([
-            'meta' =>
-                ['totalServers' => $servers->total()],
+            'meta' => ['totalServers' => $servers->total()],
         ]);
     }
 
@@ -84,8 +83,7 @@ class InfrastructureController
         $nameservers->appends('pageSize', (string) $pageSize);
 
         return NameserverResource::collection($nameservers)->additional([
-            'meta' =>
-                ['totalServers' => $nameservers->total()],
+            'meta' => ['totalServers' => $nameservers->total()],
         ]);
     }
 
@@ -96,8 +94,7 @@ class InfrastructureController
         $dnsTemplates->appends('pageSize', (string) $pageSize);
 
         return DnsTemplateResource::collection($dnsTemplates)->additional([
-            'meta' =>
-                ['totalServers' => $dnsTemplates->total()],
+            'meta' => ['totalServers' => $dnsTemplates->total()],
         ]);
     }
 
@@ -119,7 +116,7 @@ class InfrastructureController
         return new JsonResponse([
             'message' => $this->translator->translate(
                 'nova-action.success.import_hosting_servers_successfully',
-                ['imported_count' => (string) $importedCount]
+                ['imported_count' => (string) $importedCount],
             ),
             'errors' => [],
         ]);
@@ -133,21 +130,21 @@ class InfrastructureController
                 identifier: $request->identifier,
                 ipAddress: $request->ipaddress ?? '127.0.0.1',
                 domain: $request->domain,
-            )
+            ),
         )->toJson();
     }
 
     public function listServerPackages(Server $server): string
     {
         return ServerPackagesResource::make(
-            $this->fetchServerPackagesAction->listPackages($server)
+            $this->fetchServerPackagesAction->listPackages($server),
         )->toJson();
     }
 
     public function showServerPackage(ShowServerPackageRequest $request, Server $server): string
     {
         return ServerPackageResource::make(
-            $this->fetchServerPackagesAction->fetchPackage($server, $request->name)
+            $this->fetchServerPackagesAction->fetchPackage($server, $request->name),
         )->toJson();
     }
 
@@ -156,9 +153,7 @@ class InfrastructureController
     {
         $pageSize = is_numeric($request->input('pageSize')) ? (int) $request->input('pageSize') : 100;
 
-        $legacyRedirectingServers = LegacyRedirectingServer::query()
-            ->orderBy('hostname')
-            ->paginate($pageSize);
+        $legacyRedirectingServers = LegacyRedirectingServer::query()->orderBy('hostname')->paginate($pageSize);
         $legacyRedirectingServers->appends('pageSize', (string) $pageSize);
 
         return LegacyRedirectingServerResource::collection($legacyRedirectingServers)->additional([
@@ -181,7 +176,7 @@ class InfrastructureController
                 ipv4: $request->ipv4,
                 ipv6: $request->ipv6,
                 originalBusinessUnit: $request->originalBusinessUnit,
-            )
+            ),
         );
 
         return new JsonResponse(['id' => $legacyRedirectingServer->id], Response::HTTP_CREATED);
@@ -199,7 +194,7 @@ class InfrastructureController
                 ipv4: $request->ipv4,
                 ipv6: $request->ipv6,
                 originalBusinessUnit: $request->originalBusinessUnit,
-            )
+            ),
         );
 
         return new Response(null, Response::HTTP_NO_CONTENT);

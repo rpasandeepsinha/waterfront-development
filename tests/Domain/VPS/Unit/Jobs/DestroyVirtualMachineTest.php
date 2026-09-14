@@ -80,10 +80,11 @@ class DestroyVirtualMachineTest extends IntegrationTestCase
 
         Queue::assertNothingPushed();
 
-        self::resolve(Dispatcher::class)->dispatch(new DestroyVirtualMachineJob(
-            (new VirtualMachineDeployment()),
-            (new CloudstackJob()),
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DestroyVirtualMachineJob(
+                new VirtualMachineDeployment(),
+                new CloudstackJob(),
+            ));
 
         Queue::assertPushedOn(QueueName::CLOUDSTACK->value, DestroyVirtualMachineJob::class);
     }
@@ -93,10 +94,11 @@ class DestroyVirtualMachineTest extends IntegrationTestCase
     {
         Bus::fake();
 
-        self::resolve(Dispatcher::class)->dispatch(new DestroyVirtualMachineJob(
-            (new VirtualMachineDeployment()),
-            (new CloudstackJob()),
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DestroyVirtualMachineJob(
+                new VirtualMachineDeployment(),
+                new CloudstackJob(),
+            ));
 
         Bus::assertNotDispatchedSync(DestroyVirtualMachineJob::class);
     }
@@ -116,7 +118,9 @@ class DestroyVirtualMachineTest extends IntegrationTestCase
 
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())->method('execute')
+        $baseClientMock
+            ->expects(self::once())
+            ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
             ->willReturn($cloudStackPendingJob);
         $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
@@ -131,10 +135,11 @@ class DestroyVirtualMachineTest extends IntegrationTestCase
 
         self::assertNull($this->vmDeployment->subscription->technical_status);
 
-        self::resolve(Dispatcher::class)->dispatch(new DestroyVirtualMachineJob(
-            $this->vmDeployment,
-            $this->cloudstackJob,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DestroyVirtualMachineJob(
+                $this->vmDeployment,
+                $this->cloudstackJob,
+            ));
 
         $this->vmDeployment->refresh();
 
@@ -154,7 +159,9 @@ class DestroyVirtualMachineTest extends IntegrationTestCase
         $clientFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())->method('execute')
+        $baseClientMock
+            ->expects(self::once())
+            ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
             ->willReturn($cloudStackFailedJob);
         $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
@@ -169,10 +176,11 @@ class DestroyVirtualMachineTest extends IntegrationTestCase
 
         self::assertNull($this->vmDeployment->subscription->technical_status);
 
-        self::resolve(Dispatcher::class)->dispatch(new DestroyVirtualMachineJob(
-            $this->vmDeployment,
-            $this->cloudstackJob,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DestroyVirtualMachineJob(
+                $this->vmDeployment,
+                $this->cloudstackJob,
+            ));
 
         $this->vmDeployment->refresh();
 
@@ -195,7 +203,9 @@ class DestroyVirtualMachineTest extends IntegrationTestCase
         $clientFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())->method('execute')
+        $baseClientMock
+            ->expects(self::once())
+            ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
             ->willReturn($cloudStackFinishedJob);
         $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
@@ -210,10 +220,11 @@ class DestroyVirtualMachineTest extends IntegrationTestCase
 
         self::assertNull($subscription->technical_status);
 
-        self::resolve(Dispatcher::class)->dispatch(new DestroyVirtualMachineJob(
-            $this->vmDeployment,
-            $this->cloudstackJob,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DestroyVirtualMachineJob(
+                $this->vmDeployment,
+                $this->cloudstackJob,
+            ));
 
         $subscription->refresh();
 

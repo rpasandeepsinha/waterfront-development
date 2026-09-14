@@ -8,12 +8,11 @@ use Illuminate\Support\Env;
 $application = Application::getInstance();
 
 return [
-
     'paths' => [
         $application->resourcePath('views'),
     ],
     'compiled' => Env::get(
         'VIEW_COMPILED_PATH',
-        realpath($application->storagePath('framework/views'))
+        realpath($application->storagePath('framework/views')),
     ),
 ];

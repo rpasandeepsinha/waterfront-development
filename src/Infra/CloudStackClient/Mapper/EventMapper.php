@@ -24,14 +24,14 @@ class EventMapper implements Mapper
         assert(is_string($data['created']));
 
         return new Event(
-            id:          $data['id'],
-            account:     $data['account'],
-            domainId:    $data['domainid'],
-            type:        $data['type'],
+            id: $data['id'],
+            account: $data['account'],
+            domainId: $data['domainid'],
+            type: $data['type'],
             description: $data['description'],
-            state:       $data['state'],
-            level:       $data['level'],
-            created:     new DateTimeImmutable($data['created']),
+            state: $data['state'],
+            level: $data['level'],
+            created: new DateTimeImmutable($data['created']),
         );
     }
 }

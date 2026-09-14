@@ -37,21 +37,32 @@ class AddonAndUpgradeOrderTest extends IntegrationTestCase
         $product = new ProductFactory()->for($productGroup)->createOne(['slug' => 'basic']);
         $upgradeProduct = new ProductFactory()->for($productGroup)->createOne(['slug' => 'groot']);
 
-        new ProductAllowedChangeFactory()->upgradeChange()
+        new ProductAllowedChangeFactory()
+            ->upgradeChange()
             ->create(['from_product_id' => $product->id, 'to_product_id' => $upgradeProduct->id, 'display_order' => 1]);
 
-        new ProductAddonCouplingFactory()
-            ->createOne(['parent_product_id' => $product->id, 'addon_product_id' => $addonProduct->id]);
+        new ProductAddonCouplingFactory()->createOne([
+            'parent_product_id' => $product->id,
+            'addon_product_id' => $addonProduct->id,
+        ]);
 
-        new ProductPriceComponentFactory()->for($product)->registration()
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 1000]);
 
-        new ProductPriceComponentFactory()->for($addonProduct)->registration()
+        new ProductPriceComponentFactory()
+            ->for($addonProduct)
+            ->registration()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 1000]);
-        new ProductPriceComponentFactory()->for($addonProduct)->prolongation()
+        new ProductPriceComponentFactory()
+            ->for($addonProduct)
+            ->prolongation()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 2580]);
 
-        new ProductPriceComponentFactory()->for($upgradeProduct)->prolongation()
+        new ProductPriceComponentFactory()
+            ->for($upgradeProduct)
+            ->prolongation()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 2580]);
 
         new TemplateFactory()->createOne(['slug' => MailSubscriptionCreated::getTemplateSlug()]);
@@ -60,15 +71,18 @@ class AddonAndUpgradeOrderTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne(['payment_type' => 'direct', 'has_direct_debit' => true]);
 
-        $subscription = new SubscriptionFactory()->for($customer)->for($product)->createOne([
-            'uuid' => '24ab093c-d742-4637-b3f4-fc4c4823e70f',
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'start_date' => $startDate,
-            'next_billing_date' => $nextBillingDate,
-            'gross_price' => 1000,
-            'net_price' => 1000,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($product)
+            ->createOne([
+                'uuid' => '24ab093c-d742-4637-b3f4-fc4c4823e70f',
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'start_date' => $startDate,
+                'next_billing_date' => $nextBillingDate,
+                'gross_price' => 1000,
+                'net_price' => 1000,
+            ]);
         $dispatcherMock = self::createStub(Dispatcher::class);
         $this->app->bind(Dispatcher::class, fn () => $dispatcherMock);
 
@@ -77,10 +91,13 @@ class AddonAndUpgradeOrderTest extends IntegrationTestCase
 
         self::assertCount(0, OrderLineItem::all());
 
-        $this->withoutExceptionHandling()->actingAsCustomer($customer)->postJson(
-            $this->generateRoute('partners.order.order'),
-            $orderPayload
-        )->assertOk();
+        $this->withoutExceptionHandling()
+            ->actingAsCustomer($customer)
+            ->postJson(
+                $this->generateRoute('partners.order.order'),
+                $orderPayload,
+            )
+            ->assertOk();
 
         self::assertCount(2, OrderLineItem::all());
 

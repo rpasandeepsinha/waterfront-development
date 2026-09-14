@@ -24,6 +24,9 @@ class Microsoft365KpnProductRepository
      */
     private function getByProductAndPeriod(Product $product, int $contractPeriod): Microsoft365KpnProduct
     {
-        return Microsoft365KpnProduct::where(['product_id' => $product->id, 'contract_period' => $contractPeriod])->firstOrFail();
+        return Microsoft365KpnProduct::where([
+            'product_id' => $product->id,
+            'contract_period' => $contractPeriod,
+        ])->firstOrFail();
     }
 }

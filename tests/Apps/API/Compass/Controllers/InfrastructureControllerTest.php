@@ -21,24 +21,20 @@ class InfrastructureControllerTest extends IntegrationTestCase
     #[Test]
     public function storeHostingServerCreatesTheServer(): void
     {
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.infrastructure.servers.hosting.store'), [
-                'type' => ServerType::SITEBUILDER->value,
-                'hostname' => 'new-sitebuilder.nl',
-                'port' => 8443,
-                'name' => 'New sitebuilder',
-                'owner' => 'yourhosting',
-                'ipv4' => '1.2.3.4',
-                'ipv6' => '::1',
-                'username' => 'admin',
-                'password' => 'secret-password',
-                'use_ssl' => true,
-                'allow_new_websites' => false,
-                'maximum_websites' => 500,
-            ])
-            ->assertCreated()
-            ->assertJsonPath('hostname', 'new-sitebuilder.nl')
-            ->assertJsonMissingPath('password');
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.infrastructure.servers.hosting.store'), [
+            'type' => ServerType::SITEBUILDER->value,
+            'hostname' => 'new-sitebuilder.nl',
+            'port' => 8443,
+            'name' => 'New sitebuilder',
+            'owner' => 'yourhosting',
+            'ipv4' => '1.2.3.4',
+            'ipv6' => '::1',
+            'username' => 'admin',
+            'password' => 'secret-password',
+            'use_ssl' => true,
+            'allow_new_websites' => false,
+            'maximum_websites' => 500,
+        ])->assertCreated()->assertJsonPath('hostname', 'new-sitebuilder.nl')->assertJsonMissingPath('password');
 
         $server = Server::where('hostname', 'new-sitebuilder.nl')->firstOrFail();
         self::assertSame(ServerType::SITEBUILDER, $server->type);
@@ -52,30 +48,26 @@ class InfrastructureControllerTest extends IntegrationTestCase
     #[Test]
     public function storeHostingServerRejectsADuplicateHostname(): void
     {
-        new ServerFactory()->sitebuilder()->createOne(['hostname' => 'taken.nl']);
+        new ServerFactory()
+            ->sitebuilder()
+            ->createOne(['hostname' => 'taken.nl']);
 
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.infrastructure.servers.hosting.store'), [
-                'type' => ServerType::SITEBUILDER->value,
-                'hostname' => 'taken.nl',
-                'port' => 8443,
-                'use_ssl' => true,
-                'allow_new_websites' => true,
-            ])
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors('hostname');
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.infrastructure.servers.hosting.store'), [
+            'type' => ServerType::SITEBUILDER->value,
+            'hostname' => 'taken.nl',
+            'port' => 8443,
+            'use_ssl' => true,
+            'allow_new_websites' => true,
+        ])->assertUnprocessable()->assertJsonValidationErrors('hostname');
     }
 
     #[Test]
     public function storeHostingServerRejectsAPayloadMissingTheNonNullableFields(): void
     {
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.infrastructure.servers.hosting.store'), [
-                'type' => ServerType::SITEBUILDER->value,
-                'hostname' => 'incomplete.nl',
-            ])
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['port', 'use_ssl', 'allow_new_websites']);
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.infrastructure.servers.hosting.store'), [
+            'type' => ServerType::SITEBUILDER->value,
+            'hostname' => 'incomplete.nl',
+        ])->assertUnprocessable()->assertJsonValidationErrors(['port', 'use_ssl', 'allow_new_websites']);
     }
 
     #[Test]
@@ -83,17 +75,14 @@ class InfrastructureControllerTest extends IntegrationTestCase
     {
         $this->mockHostingDriver(serverIsValid: false);
 
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.infrastructure.servers.hosting.store'), [
-                'type' => ServerType::PLESK->value,
-                'hostname' => 'unreachable.nl',
-                'port' => 8443,
-                'use_ssl' => true,
-                'allow_new_websites' => true,
-                'secret_key' => 'secret-key',
-            ])
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors('type');
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.infrastructure.servers.hosting.store'), [
+            'type' => ServerType::PLESK->value,
+            'hostname' => 'unreachable.nl',
+            'port' => 8443,
+            'use_ssl' => true,
+            'allow_new_websites' => true,
+            'secret_key' => 'secret-key',
+        ])->assertUnprocessable()->assertJsonValidationErrors('type');
 
         self::assertNull(Server::where('hostname', 'unreachable.nl')->first());
     }
@@ -101,7 +90,9 @@ class InfrastructureControllerTest extends IntegrationTestCase
     #[Test]
     public function updateHostingServerOverwritesTheSubmittedAttributes(): void
     {
-        $server = new ServerFactory()->sitebuilder()->createOne(['hostname' => 'existing.nl']);
+        $server = new ServerFactory()
+            ->sitebuilder()
+            ->createOne(['hostname' => 'existing.nl']);
 
         $this->actingAsEmployee()
             ->putJson($this->generateRoute('admin.infrastructure.servers.hosting.update', ['server' => $server->id]), [
@@ -124,10 +115,12 @@ class InfrastructureControllerTest extends IntegrationTestCase
     #[Test]
     public function updateHostingServerKeepsStoredCredentialsWhenTheyAreSubmittedEmpty(): void
     {
-        $server = new ServerFactory()->sitebuilder()->createOne([
-            'hostname' => 'keep-credentials.nl',
-            'password' => 'stored-password',
-        ]);
+        $server = new ServerFactory()
+            ->sitebuilder()
+            ->createOne([
+                'hostname' => 'keep-credentials.nl',
+                'password' => 'stored-password',
+            ]);
 
         $this->actingAsEmployee()
             ->putJson($this->generateRoute('admin.infrastructure.servers.hosting.update', ['server' => $server->id]), [

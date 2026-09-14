@@ -37,8 +37,9 @@ class DisableZonePresigningAction
         foreach ($originalRecords as $record) {
             if (in_array($record->getType(), ['RRSIG', 'DNSKEY', 'SOA'], true)) {
                 foreach ($records as $savedRecord) {
-                    if ($savedRecord->getName() === $record->getName() &&
-                        $savedRecord->getType() === $record->getType()
+                    if (
+                        $savedRecord->getName() === $record->getName()
+                        && $savedRecord->getType() === $record->getType()
                     ) {
                         continue 2;
                     }

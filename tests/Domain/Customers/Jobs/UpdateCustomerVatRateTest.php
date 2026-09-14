@@ -50,18 +50,18 @@ class UpdateCustomerVatRateTest extends IntegrationTestCase
 
         self::assertDatabaseMissing(CustomerVatError::class, [
             'status_code' => $statusCode,
-            'message'     => $errorMessage,
+            'message' => $errorMessage,
         ]);
 
         $job->handle(
-            self::resolve(CustomerVatService::class)
+            self::resolve(CustomerVatService::class),
         );
 
         self::assertSame(21.0, Cache::get('vat.rate.NL'));
 
         self::assertDatabaseMissing(CustomerVatError::class, [
             'status_code' => $statusCode,
-            'message'     => $errorMessage,
+            'message' => $errorMessage,
         ]);
 
         $this->customer->refresh();

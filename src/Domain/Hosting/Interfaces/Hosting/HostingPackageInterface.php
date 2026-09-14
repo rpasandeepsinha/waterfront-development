@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Waterfront\Domain\Hosting\Interfaces\Hosting;
 
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\ChangeHostingPackageStatus\Parameters as ChangeHostingPackageStatusParameters;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\ChangeHostingPackageStatus\Parameters as ChangeHostingPackageStatusParameters
+;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\DeleteWebsite\Parameters as WebsiteDeleteParameters;
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailForwardingCreate\Parameters as EmailForwardingCreateParameters;
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailGetAccountSettings\Parameters as EmailGetAccountSettingsParameters;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailForwardingCreate\Parameters as EmailForwardingCreateParameters
+;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailGetAccountSettings\Parameters as EmailGetAccountSettingsParameters
+;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailSetCatchAll\Parameters as EmailSetCatchAllParameters;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Parameters;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Parameters as HostingParameters;
@@ -24,7 +27,11 @@ interface HostingPackageInterface extends ClientInterface
 {
     public function createHosting(Parameters $parameters): Result;
 
-    public function createEmailAccount(string $domain, string $emailAccount, string $password): EmailAccountCreateResponse;
+    public function createEmailAccount(
+        string $domain,
+        string $emailAccount,
+        string $password,
+    ): EmailAccountCreateResponse;
 
     public function deleteEmailAccount(string $domain, string $emailAccount): EmailAccountDeleteResponse;
 
@@ -62,7 +69,11 @@ interface HostingPackageInterface extends ClientInterface
 
     public function setEmailCatchAll(EmailSetCatchAllParameters $parameters): Result;
 
-    public function changeServicePlanSwitchBetweenHostingType(HostingParameters $hostingParameters, string $domain, string $servicePlanGuuid): Result;
+    public function changeServicePlanSwitchBetweenHostingType(
+        HostingParameters $hostingParameters,
+        string $domain,
+        string $servicePlanGuuid,
+    ): Result;
 
     public function isServicePlanChangeable(string $domain, string $servicePlanGuuid): bool;
 
@@ -84,5 +95,9 @@ interface HostingPackageInterface extends ClientInterface
 
     public function removeSite(string $domain): RemoveSiteResult;
 
-    public function resetEmailPassword(string $domain, string $emailAccount, string $password): EmailPasswordResetResponse;
+    public function resetEmailPassword(
+        string $domain,
+        string $emailAccount,
+        string $password,
+    ): EmailPasswordResetResponse;
 }

@@ -11,8 +11,9 @@ use Waterfront\Domain\Payments\Helpers\Format;
 class SpecificationMap
 {
     /** @param array<string,string> $specifications */
-    public function __construct(private readonly array $specifications)
-    {
+    public function __construct(
+        private readonly array $specifications,
+    ) {
     }
 
     /**
@@ -23,6 +24,7 @@ class SpecificationMap
     public function getValue(string $key): string|int|bool|float|null
     {
         $value = $this->specifications[$key] ?? null;
+
         return match ($this->getDataType($key)) {
             'boolean' => (bool) $value,
             'string' => (string) $value,
@@ -41,12 +43,14 @@ class SpecificationMap
     public function toArray(): array
     {
         /** @var array<string,string|int|bool|float|null> $specifications */
-        $specifications = new Collection($this->specifications)->mapWithKeys(fn ($value, $key) => [$key => $this->getValue($key)])->toArray();
+        $specifications = new Collection($this->specifications)
+            ->mapWithKeys(fn ($value, $key) => [$key => $this->getValue($key)])
+            ->toArray();
 
         return $specifications;
     }
 
-    private function getDataType(string $key): string|null
+    private function getDataType(string $key): ?string
     {
         $config = Config::get("product-specs.{$key}.type");
         assert(is_string($config) || is_null($config));

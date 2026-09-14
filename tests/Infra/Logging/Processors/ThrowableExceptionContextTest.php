@@ -32,7 +32,7 @@ class ThrowableExceptionContextTest extends TestCase
             context: [
                 LoggingContextKeys::EXCEPTION => $exception,
             ],
-            extra: []
+            extra: [],
         );
 
         $processor = new ThrowableExceptionContext();

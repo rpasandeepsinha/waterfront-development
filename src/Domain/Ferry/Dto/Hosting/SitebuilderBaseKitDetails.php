@@ -10,7 +10,7 @@ readonly class SitebuilderBaseKitDetails implements HostingDetailsInterface
 {
     public function __construct(
         public int $basekitUserRef,
-        public int $basekitSiteRef
+        public int $basekitSiteRef,
     ) {
     }
 

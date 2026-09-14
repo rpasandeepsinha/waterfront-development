@@ -87,28 +87,29 @@ class AppServiceProvider extends BaseProvider
 
         //Morphmap required for morph relations.
         /** @var array<string, class-string<Model>> $morphMap */
-        $morphMap = [
-            // Customer related
-            Customer::class => Customer::class,
-            CustomerAddress::class => CustomerAddress::class,
-            CustomerContact::class => CustomerContact::class,
+        $morphMap =
+            [
+                // Customer related
+                Customer::class => Customer::class,
+                CustomerAddress::class => CustomerAddress::class,
+                CustomerContact::class => CustomerContact::class,
 
-            // 'Parent' Subscription related
-            Subscription::class                => Subscription::class,
+                // 'Parent' Subscription related
+                Subscription::class => Subscription::class,
 
-            //'Child' subscription related
-            DomainDeployment::class          => DomainDeployment::class,
-            HostingDeployment::class         => HostingDeployment::class,
-            ResellerHostingDeployment::class => ResellerHostingDeployment::class,
-            SslDeployment::class             => SslDeployment::class,
-            Microsoft365Deployment::class    => Microsoft365Deployment::class,
-            ManagerDomainDeployment::class   => ManagerDomainDeployment::class,
-            VirtualMachineDeployment::class  => VirtualMachineDeployment::class,
-            VolumeDeployment::class          => VolumeDeployment::class,
+                //'Child' subscription related
+                DomainDeployment::class => DomainDeployment::class,
+                HostingDeployment::class => HostingDeployment::class,
+                ResellerHostingDeployment::class => ResellerHostingDeployment::class,
+                SslDeployment::class => SslDeployment::class,
+                Microsoft365Deployment::class => Microsoft365Deployment::class,
+                ManagerDomainDeployment::class => ManagerDomainDeployment::class,
+                VirtualMachineDeployment::class => VirtualMachineDeployment::class,
+                VolumeDeployment::class => VolumeDeployment::class,
 
-            //Product related
-            ProductPromotion::class => ProductPromotion::class,
-        ] + $this->getOldMorphMapArray();
+                //Product related
+                ProductPromotion::class => ProductPromotion::class,
+            ] + $this->getOldMorphMapArray();
         Relation::morphMap($morphMap);
     }
 
@@ -126,7 +127,10 @@ class AppServiceProvider extends BaseProvider
 
         $configuration = $this->resolve(ConfigurationInterface::class);
 
-        $this->app->singleton(PublicSuffixList::class, fn () => new PublicSuffixList($configuration, ! $this->app->runningUnitTests()));
+        $this->app->singleton(
+            PublicSuffixList::class,
+            fn () => new PublicSuffixList($configuration, ! $this->app->runningUnitTests()),
+        );
 
         CarbonImmutable::setLocale($configuration->getAsString('app.locale'));
 
@@ -137,12 +141,12 @@ class AppServiceProvider extends BaseProvider
                 $logger->debug(
                     $query->sql,
                     [
-                    LoggingContextKeys::META => [
-                        'connection' => $query->connectionName,
-                        'bindings' => $query->bindings,
-                        'time' => $query->time,
+                        LoggingContextKeys::META => [
+                            'connection' => $query->connectionName,
+                            'bindings' => $query->bindings,
+                            'time' => $query->time,
+                        ],
                     ],
-                ]
                 );
             });
         }
@@ -157,7 +161,7 @@ class AppServiceProvider extends BaseProvider
             $this->resolve(AuthManager::class),
             $this->resolve(IdentitySchemaConverter::class),
             $this->resolve(CustomerRepository::class),
-            $configuration->getAsString('auth.console_identity_uuid')
+            $configuration->getAsString('auth.console_identity_uuid'),
         ));
 
         $environment = Environment::from($configuration->getAsString('app.tenant_env'));
@@ -189,7 +193,7 @@ class AppServiceProvider extends BaseProvider
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/config.php',
-            'customershared'
+            'customershared',
         );
 
         $defaultTaxRate = $configuration->getAsInteger('customershared.default_tax_rate');

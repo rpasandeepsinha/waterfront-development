@@ -35,6 +35,7 @@ class ChangePassword extends DirectAdminCommand
     public function setPasswd(string $passwd): ChangePassword
     {
         $this->password = $passwd;
+
         return $this;
     }
 
@@ -46,6 +47,7 @@ class ChangePassword extends DirectAdminCommand
     public function setDomain(string $domain): ChangePassword
     {
         $this->domain = $domain;
+
         return $this;
     }
 
@@ -57,6 +59,7 @@ class ChangePassword extends DirectAdminCommand
     public function setUsername(string $username): ChangePassword
     {
         $this->username = $username;
+
         return $this;
     }
 
@@ -72,9 +75,9 @@ class ChangePassword extends DirectAdminCommand
     {
         $params = [
             'action' => 'modify',
-            'type'   => 'ftp',
+            'type' => 'ftp',
             'domain' => $this->getDomain(),
-            'user'   => $this->getUsername(),
+            'user' => $this->getUsername(),
             'passwd' => $this->getPasswd(),
             'passwd2' => $this->getPasswd(),
         ];

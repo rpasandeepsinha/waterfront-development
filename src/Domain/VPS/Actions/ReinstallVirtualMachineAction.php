@@ -47,7 +47,7 @@ class ReinstallVirtualMachineAction
                 $subscription,
                 $newProduct,
                 invoiceTheChange: false,
-                sendMail: false
+                sendMail: false,
             );
         } catch (SubscriptionChangeException $exception) {
             $this->logger->error(
@@ -59,9 +59,13 @@ class ReinstallVirtualMachineAction
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::PRODUCT_UUID => $newOsUuid,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
-            throw new InvalidArgumentException('administrative change failed when reinstalling the VM', $exception->getCode(), $exception);
+            throw new InvalidArgumentException(
+                'administrative change failed when reinstalling the VM',
+                $exception->getCode(),
+                $exception,
+            );
         }
 
         return $this->vmService->reinstall($deployment, $newProduct, $sshKeyUuid);

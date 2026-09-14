@@ -48,8 +48,7 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
     ) {
         $this->confirmText('');
         $this->canSee(
-            fn (NovaRequest $request): bool =>
-                $this->onlyForSingleCustomer($request)
+            fn (NovaRequest $request): bool => $this->onlyForSingleCustomer($request),
         );
         $this->modalSize = '4xl';
     }
@@ -78,30 +77,28 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
         $reasonOptions = [];
 
         foreach (SubscriptionCancelReason::cases() as $reason) {
-            $reasonOptions[$reason->value] = $this->translator->translate('cancel_subscriptions.reason.' . strtolower($reason->name));
+            $reasonOptions[$reason->value] = $this->translator->translate(
+                'cancel_subscriptions.reason.' . strtolower($reason->name),
+            );
         }
 
         return [
             $this->generateOverviewOfSelectedSubscriptions($allAffectedSubscriptions, $this->translator),
 
-            Heading::make("<h3 class=\"text-xl\">{$cancelCreditOptionsTitle}</h3><hr />")
-                ->asHtml(),
+            Heading::make("<h3 class=\"text-xl\">{$cancelCreditOptionsTitle}</h3><hr />")->asHtml(),
 
-            Select::make($this->translator->translate('nova-action.cancel_subscriptions.reason'), 'reason')
-                ->options(
-                    $reasonOptions
-                ),
+            Select::make($this->translator->translate('nova-action.cancel_subscriptions.reason'), 'reason')->options(
+                $reasonOptions,
+            ),
             Text::make($this->translator->translate('nova-action.cancel_subscriptions.reason_other'), 'reason_other')
                 ->hide()
                 ->dependsOn(
                     'reason',
                     static function (Text $field, NovaRequest $request, FormData $formData) {
                         if ($formData->get('reason') === SubscriptionCancelReason::REASON_OTHER->value) {
-                            $field
-                                ->show()
-                                ->rules('required');
+                            $field->show()->rules('required');
                         }
-                    }
+                    },
                 ),
 
             Select::make($this->translator->translate('nova-action.cancel_subscriptions.type'), 'type')
@@ -112,16 +109,26 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
                         if ($formData->get('reason') === null) {
                             return;
                         }
+
                         $options = [
-                            SubscriptionCancelType::CANCEL_END_DATE->value => $this->translator->translate('cancel_subscriptions.cancel_type.' . strtolower(SubscriptionCancelType::CANCEL_END_DATE->name)),
-                            SubscriptionCancelType::CANCEL_OTHER->value => $this->translator->translate('cancel_subscriptions.cancel_type.' . strtolower(SubscriptionCancelType::CANCEL_OTHER->name)),
+                            SubscriptionCancelType::CANCEL_END_DATE->value => $this->translator->translate(
+                                'cancel_subscriptions.cancel_type.'
+                                    . strtolower(SubscriptionCancelType::CANCEL_END_DATE->name),
+                            ),
+                            SubscriptionCancelType::CANCEL_OTHER->value => $this->translator->translate(
+                                'cancel_subscriptions.cancel_type.'
+                                    . strtolower(SubscriptionCancelType::CANCEL_OTHER->name),
+                            ),
                         ];
 
                         $field->options($options)->show();
-                    }
+                    },
                 ),
 
-            Date::make($this->translator->translate('nova-action.cancel_subscriptions.type_other_date'), 'type_other_date')
+            Date::make(
+                $this->translator->translate('nova-action.cancel_subscriptions.type_other_date'),
+                'type_other_date',
+            )
                 ->default(CarbonImmutable::today()->format(DateTimeFormat::DATE))
                 ->min(CarbonImmutable::now()->subYear())
                 ->max($maxEndDate)
@@ -134,11 +141,12 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
                                 ->show()
                                 ->rules('required')
                                 ->setValue(
-                                    $formData->get('type_other_date')
-                                        ?? CarbonImmutable::today()->format(DateTimeFormat::DATE)
+                                    $formData->get(
+                                        'type_other_date',
+                                    ) ?? CarbonImmutable::today()->format(DateTimeFormat::DATE),
                                 );
                         }
-                    }
+                    },
                 ),
 
             NovaBoolField::make($this->translator->translate('nova-action.cancel_subscriptions.credit'), 'credit')
@@ -146,17 +154,21 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
                 ->dependsOn(
                     ['type', 'reason'],
                     static function (NovaBoolField $field, NovaRequest $request, FormData $formData): void {
-                        if ($formData->get('reason') === SubscriptionCancelReason::REASON_DOMAIN_TRANSFERRED_AWAY->value) {
+                        if (
+                            $formData->get('reason') === SubscriptionCancelReason::REASON_DOMAIN_TRANSFERRED_AWAY->value
+                        ) {
                             return;
                         }
 
                         $type = $formData->get('type');
-                        if (in_array($type, [
-                            SubscriptionCancelType::CANCEL_OTHER->value,
-                        ], true)) {
-                            $field
-                                ->show()
-                                ->rules('required');
+                        if (in_array(
+                            $type,
+                            [
+                                SubscriptionCancelType::CANCEL_OTHER->value,
+                            ],
+                            true,
+                        )) {
+                            $field->show()->rules('required');
                         }
 
                         if ($formData->get('reason') === null) {
@@ -168,7 +180,7 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
                             $enum = SubscriptionCancelReason::from($reasonValue);
                             $field->setValue($enum->enforcesToCreditFully());
                         }
-                    }
+                    },
                 ),
 
             $this->allRelatedInvoicesField($allAffectedSubscriptions),
@@ -186,7 +198,7 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
     {
         if (! $this->subscriptionsAreForSingleCustomer($models)) {
             return self::danger(
-                $this->translator->translate('nova-action.cancel_subscriptions.failure_multi_customers')
+                $this->translator->translate('nova-action.cancel_subscriptions.failure_multi_customers'),
             );
         }
 
@@ -200,12 +212,14 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
                         fn (Subscription $subscription): int => $subscription->id,
                         $nonCancellable,
                     ))],
-                )
+                ),
             );
         }
 
         if (! $this->childSubscriptionsCanBeCancelled($models)) {
-            return self::danger($this->translator->translate('nova-action.cancel_subscriptions.failure_cancel_with_parent'));
+            return self::danger($this->translator->translate(
+                'nova-action.cancel_subscriptions.failure_cancel_with_parent',
+            ));
         }
 
         $allAffectedSubscriptions = $this->getAllAffectedSubscriptionsFromSelection($models);
@@ -220,15 +234,14 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
             if ($cancellation->shouldCreditRelatedInvoices()) {
                 $this->creditSubscriptionService->creditSubscriptions($cancellation);
             }
+
             $this->cancelCreditSubscriptionsAction->execute($cancellation);
-        } catch (
-            InvalidArgumentException | CreditSubscriptionsException | CancelCreditSubscriptionsException $exception
-        ) {
+        } catch (InvalidArgumentException|CreditSubscriptionsException|CancelCreditSubscriptionsException $exception) {
             $this->logger->critical(
                 'Nova action for cancel and credit failed with exception',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return self::danger('Action failed: ' . $exception->getMessage());
@@ -261,20 +274,21 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
         foreach ($selectedResources as $subscription) {
             $subscriptions->add($subscription);
 
-            foreach ($this->subscriptionRepository->getDependentSubscriptions($subscription) as $dependentSubscription) {
+            foreach ($this->subscriptionRepository->getDependentSubscriptions(
+                $subscription,
+            ) as $dependentSubscription) {
                 if (
                     $dependentSubscription->administrative_status === AdministrativeStatus::ARCHIVED->value
                     || $dependentSubscription->administrative_status === AdministrativeStatus::ARCHIVING->value
                 ) {
                     continue;
                 }
+
                 $subscriptions->add($dependentSubscription);
             }
         }
 
-        return $subscriptions
-            ->filter()
-            ->unique(fn (Subscription $subscription): int => $subscription->id);
+        return $subscriptions->filter()->unique(fn (Subscription $subscription): int => $subscription->id);
     }
 
     /**
@@ -283,9 +297,11 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
     private function getMaxSelectableEndDateFromSubscriptions(Collection $subscriptions): CarbonImmutable
     {
         return $subscriptions->reduce(
-            fn (CarbonImmutable $maxEndDate, Subscription $subscription): CarbonImmutable
-            => $subscription->end_date > $maxEndDate ? $subscription->end_date : $maxEndDate,
-            CarbonImmutable::now()
+            fn (CarbonImmutable $maxEndDate, Subscription $subscription): CarbonImmutable => $subscription->end_date
+                > $maxEndDate
+                    ? $subscription->end_date
+                    : $maxEndDate,
+            CarbonImmutable::now(),
         );
     }
 
@@ -301,6 +317,7 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
 
         $date = CarbonImmutable::createFromFormat(DateTimeFormat::DATE, $inputDateString);
         Assert::isInstanceOf($date, CarbonImmutable::class, 'Couldn\'t load the date from the input form.');
+
         return $date;
     }
 
@@ -310,7 +327,7 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
      */
     private function getCancellationDtoFromInput(
         Collection $subscriptions,
-        FormData|ActionFields $data
+        FormData|ActionFields $data,
     ): Cancellation {
         $cancelReasonString = (string) $data->string('reason');
         Assert::stringNotEmpty($cancelReasonString);
@@ -334,7 +351,7 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
             $cancelReasonOther,
             $cancelType,
             $cancelTypeOtherDate,
-            $credit
+            $credit,
         );
     }
 
@@ -348,10 +365,12 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
             ->asHtml()
             ->dependsOn(
                 ['reason', 'type', 'type_other_date'],
-                fn (Heading $field, NovaRequest $request, FormData $formData)
-                        => $this->updateOverviewOfRelatedInvoices($field, $formData, $allAffectedSubscriptions)
-            )
-        ;
+                fn (Heading $field, NovaRequest $request, FormData $formData) => $this->updateOverviewOfRelatedInvoices(
+                    $field,
+                    $formData,
+                    $allAffectedSubscriptions,
+                ),
+            );
     }
 
     /**
@@ -361,25 +380,27 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
     private function updateOverviewOfRelatedInvoices(
         Heading $field,
         FormData $formData,
-        Collection $allAffectedSubscriptions
+        Collection $allAffectedSubscriptions,
     ): void {
         if ($formData->get('reason') === SubscriptionCancelReason::REASON_DOMAIN_TRANSFERRED_AWAY->value) {
             return;
         }
 
         $cancelType = SubscriptionCancelType::tryFrom((string) $formData->string('type'));
-        if (
-            $cancelType === null
-            || $cancelType === SubscriptionCancelType::CANCEL_END_DATE
-        ) {
+        if ($cancelType === null || $cancelType === SubscriptionCancelType::CANCEL_END_DATE) {
             $field->hide();
+
             return;
         }
 
         $cancellation = $this->getCancellationDtoFromInput($allAffectedSubscriptions, $formData);
 
         $field->withMeta([
-            'value' => $this->generateOverviewOfRelatedInvoicesAsHtml($cancellation, $this->invoiceRepository, $this->translator),
+            'value' => $this->generateOverviewOfRelatedInvoicesAsHtml(
+                $cancellation,
+                $this->invoiceRepository,
+                $this->translator,
+            ),
         ]);
         $field->show();
     }
@@ -389,9 +410,11 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
      */
     private function subscriptionsAreForSingleCustomer(Collection $subscriptions): bool
     {
-        $customerNumbers = $subscriptions->unique(
-            fn (Subscription $subscription) => $subscription->customer_id
-        )->pluck('customer_id');
+        $customerNumbers = $subscriptions
+            ->unique(
+                fn (Subscription $subscription) => $subscription->customer_id,
+            )
+            ->pluck('customer_id');
 
         return $customerNumbers->count() === 1;
     }
@@ -429,7 +452,7 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
 
             $allowCancelAsChild = $this->productSpecRepository->booleanSpecificationIsTrue(
                 product: $subscription->product,
-                specName: ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD
+                specName: ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD,
             );
 
             if (! $allowCancelAsChild) {
@@ -451,18 +474,23 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
             ->asHtml()
             ->dependsOn(
                 ['reason', 'type', 'type_other_date', 'credit'],
-                fn (Heading $field, NovaRequest $request, FormData $formData)
-                    => $this->updateCreditInvoicesOverview($field, $formData, $allAffectedSubscriptions)
-            )
-        ;
+                fn (Heading $field, NovaRequest $request, FormData $formData) => $this->updateCreditInvoicesOverview(
+                    $field,
+                    $formData,
+                    $allAffectedSubscriptions,
+                ),
+            );
     }
 
     /**
      * @param Collection<int, Subscription> $allAffectedSubscriptions
      * @param FormData<string, string>      $formData
      */
-    private function updateCreditInvoicesOverview(Heading $field, FormData $formData, Collection $allAffectedSubscriptions): void
-    {
+    private function updateCreditInvoicesOverview(
+        Heading $field,
+        FormData $formData,
+        Collection $allAffectedSubscriptions,
+    ): void {
         $cancelType = SubscriptionCancelType::tryFrom((string) $formData->string('type'));
         if ($cancelType === null) {
             return;
@@ -475,9 +503,13 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
 
         if (! $cancelReason->allowedToCredit() || ! $cancelType->allowedToCredit()) {
             $field->withMeta([
-                'value' => '<i>' . $this->translator->translate('nova-action.cancel_subscriptions.type.end_date.no_credit') . '</i>',
+                'value' =>
+                    '<i>'
+                        . $this->translator->translate('nova-action.cancel_subscriptions.type.end_date.no_credit')
+                        . '</i>',
             ]);
             $field->show();
+
             return;
         }
 
@@ -485,11 +517,16 @@ class NovaCancelAndCreditSubscriptionsAction extends NovaSubscriptionAction
 
         if (! $cancellation->shouldCreditRelatedInvoices()) {
             $field->hide();
+
             return;
         }
 
         $field->withMeta([
-            'value' => $this->generateOverviewOfCreditInvoicesAsHtml($cancellation, $this->creditSubscriptionService, $this->translator),
+            'value' => $this->generateOverviewOfCreditInvoicesAsHtml(
+                $cancellation,
+                $this->creditSubscriptionService,
+                $this->translator,
+            ),
         ]);
         $field->show();
     }

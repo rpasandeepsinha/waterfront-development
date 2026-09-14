@@ -32,17 +32,24 @@ class MigrationJobEventListenerTest extends IntegrationTestCase
         $subscription->customer->migratedCustomers()->attach($migratedCustomer);
 
         $service = self::createMock(ManualTechnicalMigrationsService::class);
-        $service->expects(self::once())
+        $service
+            ->expects(self::once())
             ->method('fireNextStep')
             ->with(self::callback(function (Subscription $givenSubscription) use ($subscription) {
                 self::assertSame($givenSubscription->id, $subscription->id);
+
                 return true;
             }));
 
         $this->app->bind(ManualTechnicalMigrationsService::class, fn () => $service);
 
         // We extended TechnicalDomainMigrationJob to disable the runMigration methode
-        $extendedTechnicalDomainMigrationJob = new ExtendedTechnicalDomainMigrationJob($subscription, 'some-status', null, MigrationSource::MANUAL_MIGRATION);
+        $extendedTechnicalDomainMigrationJob = new ExtendedTechnicalDomainMigrationJob(
+            $subscription,
+            'some-status',
+            null,
+            MigrationSource::MANUAL_MIGRATION,
+        );
 
         self::resolve(Dispatcher::class)->dispatch($extendedTechnicalDomainMigrationJob);
     }

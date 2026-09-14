@@ -30,10 +30,11 @@ class HostingServiceFactoryTest extends TestCase
             pleskService: $this->createStub(PleskProvisionService::class),
             directadminService: $this->createStub(DirectAdminProvisionService::class),
             directAdminValidator: $mockDirectAdminValidator,
-            pleskValidator: $this->createStub(PleskValidator::class)
+            pleskValidator: $this->createStub(PleskValidator::class),
         );
 
-        $mockDirectAdminValidator->expects(self::once())
+        $mockDirectAdminValidator
+            ->expects(self::once())
             ->method('getValidatorByRequest')
             ->with($mockRequest)
             ->willReturn($this->createStub(ValidatorContract::class));
@@ -51,10 +52,11 @@ class HostingServiceFactoryTest extends TestCase
             pleskService: $this->createStub(PleskProvisionService::class),
             directadminService: $this->createStub(DirectAdminProvisionService::class),
             directAdminValidator: $this->createStub(DirectAdminValidator::class),
-            pleskValidator: $mockPleskValidator
+            pleskValidator: $mockPleskValidator,
         );
 
-        $mockPleskValidator->expects(self::once())
+        $mockPleskValidator
+            ->expects(self::once())
             ->method('getValidatorByRequest')
             ->with($mockRequest)
             ->willReturn($this->createStub(ValidatorContract::class));
@@ -69,7 +71,7 @@ class HostingServiceFactoryTest extends TestCase
             pleskService: $this->createStub(PleskProvisionService::class),
             directadminService: $this->createStub(DirectAdminProvisionService::class),
             directAdminValidator: $this->createStub(DirectAdminValidator::class),
-            pleskValidator: $this->createStub(PleskValidator::class)
+            pleskValidator: $this->createStub(PleskValidator::class),
         );
 
         self::expectException(UnknownHostingProviderException::class);
@@ -88,7 +90,7 @@ class HostingServiceFactoryTest extends TestCase
             pleskService: $mockPleskService,
             directadminService: $mockDirectAdminService,
             directAdminValidator: $this->createStub(DirectAdminValidator::class),
-            pleskValidator: $this->createStub(PleskValidator::class)
+            pleskValidator: $this->createStub(PleskValidator::class),
         );
 
         self::assertSame($mockPleskService, $serviceFactory->getProviderService(ProvisionProvider::PLESK));
@@ -102,7 +104,7 @@ class HostingServiceFactoryTest extends TestCase
             pleskService: $this->createStub(PleskProvisionService::class),
             directadminService: $this->createStub(DirectAdminProvisionService::class),
             directAdminValidator: $this->createStub(DirectAdminValidator::class),
-            pleskValidator: $this->createStub(PleskValidator::class)
+            pleskValidator: $this->createStub(PleskValidator::class),
         );
 
         self::expectException(UnknownHostingProviderException::class);

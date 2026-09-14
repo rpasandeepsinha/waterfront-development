@@ -30,7 +30,7 @@ class ChangeBackupAction
 
     public function execute(
         Subscription $subscription,
-        SubscriptionChange $subscriptionChange
+        SubscriptionChange $subscriptionChange,
     ): SubscriptionChangeResult {
         $this->logger->info(
             sprintf(
@@ -45,7 +45,7 @@ class ChangeBackupAction
                     'to_product_slug' => $subscriptionChange->toProduct->slug,
                     'subscription_change_id' => $subscriptionChange->id,
                 ],
-            ]
+            ],
         );
 
         $updateBackupRequest = new UpdateBackupRequest(
@@ -83,7 +83,7 @@ class ChangeBackupAction
                         'from_product_slug' => $subscriptionChange->fromProduct->slug,
                         'to_product_slug' => $subscriptionChange->toProduct->slug,
                     ],
-                ]
+                ],
             );
 
             $subscription->technical_status = TechnicalStatus::ERROR->value;
@@ -106,7 +106,7 @@ class ChangeBackupAction
         $subscriptionChange->save();
 
         return new SubscriptionChangeResult(
-            status: SubscriptionChangeResult::STATUS_OK
+            status: SubscriptionChangeResult::STATUS_OK,
         );
     }
 }

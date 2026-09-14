@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Domain\Provision\DomainNames\Coupling\Integration;
 
 use Illuminate\Support\Str;
-use Mockery;  // @phpstan-ignore-line disallowed.namespace
+use Mockery; // @phpstan-ignore-line disallowed.namespace
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Ramsey\Uuid\UuidInterface;
@@ -72,9 +72,15 @@ class DomainNameCoupleIntegrationTest extends IntegrationTestCase
          */
         $coupleServiceMock = Mockery::mock(HostingProvisionService::class, DomainNameCoupleInterface::class);
 
-        $coupleServiceMock->shouldReceive('coupleToDomainName')
+        $coupleServiceMock
+            ->shouldReceive('coupleToDomainName')
             ->once()
-            ->withArgs(fn (DomainNameCoupleRequest $request) => $request->domain === $domain && $request->requestUuid->toString() === $redirectDeployment->request->uuid->toString())
+            ->withArgs(
+                fn (DomainNameCoupleRequest $request) => (
+                    $request->domain === $domain
+                    && $request->requestUuid->toString() === $redirectDeployment->request->uuid->toString()
+                ),
+            )
             ->andReturn($mockResult);
 
         $this->app->bind(HostingProvisionService::class, fn () => $coupleServiceMock);
@@ -111,13 +117,11 @@ class DomainNameCoupleIntegrationTest extends IntegrationTestCase
         $coupleType = ProvisionType::REDIRECT;
         $this->allowCouplingToRedirect();
 
-        $domainNameCoupleDeployment = DomainNameCoupleDeploymentFactory::new()
-            ->redirectCoupling()
-            ->createOne([
-                'domain' => $domain,
-                'couple_type' => $coupleType->value,
-                'deployment_uuid' => $redirectDeployment->uuid->toString(),
-            ]);
+        $domainNameCoupleDeployment = DomainNameCoupleDeploymentFactory::new()->redirectCoupling()->createOne([
+            'domain' => $domain,
+            'couple_type' => $coupleType->value,
+            'deployment_uuid' => $redirectDeployment->uuid->toString(),
+        ]);
 
         $mockResult = self::mock(ProvisionResult::class);
         $mockResult->provisionStatus = ProvisionStatus::SUCCESS;
@@ -133,9 +137,15 @@ class DomainNameCoupleIntegrationTest extends IntegrationTestCase
          */
         $coupleServiceMock = Mockery::mock(HostingProvisionService::class, DomainNameCoupleInterface::class);
 
-        $coupleServiceMock->shouldReceive('decoupleDomainName')
+        $coupleServiceMock
+            ->shouldReceive('decoupleDomainName')
             ->once()
-            ->withArgs(fn (DomainNameDecoupleRequest $request) => $request->domain === $domain && $request->requestUuid->toString() === $redirectDeployment->request->uuid->toString())
+            ->withArgs(
+                fn (DomainNameDecoupleRequest $request) => (
+                    $request->domain === $domain
+                    && $request->requestUuid->toString() === $redirectDeployment->request->uuid->toString()
+                ),
+            )
             ->andReturn($mockResult);
 
         $this->app->bind(HostingProvisionService::class, fn () => $coupleServiceMock);
@@ -173,10 +183,7 @@ class DomainNameCoupleIntegrationTest extends IntegrationTestCase
     private function allowCouplingToRedirect(): void
     {
         $mockDomainNameCoupleRule = self::mock(DomainNameCoupleAllowedRule::class);
-        $mockDomainNameCoupleRule
-            ->shouldReceive('validate')
-            ->once()
-            ->andReturnNull();
+        $mockDomainNameCoupleRule->shouldReceive('validate')->once()->andReturnNull();
 
         $this->app->bind(DomainNameCoupleAllowedRule::class, fn () => $mockDomainNameCoupleRule);
     }

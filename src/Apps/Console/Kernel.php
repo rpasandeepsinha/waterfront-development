@@ -117,78 +117,49 @@ class Kernel extends ConsoleKernel
             return;
         }
 
-        $schedule->command(RenewSubscriptions::class)
-            ->dailyAt('00:00')
-            ->runInBackground()
-            ->sentryMonitor();
+        $schedule->command(RenewSubscriptions::class)->dailyAt('00:00')->runInBackground()->sentryMonitor();
 
-        $schedule->command(CreateSubscriptionInvoices::class)
-            ->dailyAt('00:30')
-            ->runInBackground()
-            ->sentryMonitor();
+        $schedule->command(CreateSubscriptionInvoices::class)->dailyAt('00:30')->runInBackground()->sentryMonitor();
 
-        $schedule->command(AdministrativelyExpireSubscriptions::class)
+        $schedule
+            ->command(AdministrativelyExpireSubscriptions::class)
             ->dailyAt('01:00')
             ->runInBackground()
             ->sentryMonitor();
 
-        $schedule->command(TerminateSubscriptions::class)
-            ->dailyAt('01:30')
-            ->runInBackground()
-            ->sentryMonitor();
+        $schedule->command(TerminateSubscriptions::class)->dailyAt('01:30')->runInBackground()->sentryMonitor();
 
-        $schedule->command(ProcessTechnicalMutations::class)
-            ->dailyAt('02:15')
-            ->runInBackground()
-            ->sentryMonitor();
+        $schedule->command(ProcessTechnicalMutations::class)->dailyAt('02:15')->runInBackground()->sentryMonitor();
 
-        $schedule->command(DisableDomainAutoRenewal::class)
-            ->dailyAt('02:30')
-            ->runInBackground()
-            ->sentryMonitor();
+        $schedule->command(DisableDomainAutoRenewal::class)->dailyAt('02:30')->runInBackground()->sentryMonitor();
 
-        $schedule->command(Microsoft365SyncWatcher::class)
-            ->dailyAt('03:30')
-            ->runInBackground()
-            ->sentryMonitor();
+        $schedule->command(Microsoft365SyncWatcher::class)->dailyAt('03:30')->runInBackground()->sentryMonitor();
 
-        $schedule->command(CleanEmailHistoryPayloadData::class)
+        $schedule
+            ->command(CleanEmailHistoryPayloadData::class)
             ->dailyAt('4:00')
             ->runInBackground()
             ->withoutOverlapping();
 
-        $schedule->command(ReissueExpiringSslCertificates::class)
-            ->dailyAt('04:30')
-            ->runInBackground()
-            ->sentryMonitor();
+        $schedule->command(ReissueExpiringSslCertificates::class)->dailyAt('04:30')->runInBackground()->sentryMonitor();
 
-        $schedule->command(SendManualTerminationReminder::class)
-            ->dailyAt('05:00')
-            ->runInBackground()
-            ->sentryMonitor();
+        $schedule->command(SendManualTerminationReminder::class)->dailyAt('05:00')->runInBackground()->sentryMonitor();
 
-        $schedule->command(DispatchInvoicesToHarbor::class)
-            ->dailyAt('06:00')
-            ->runInBackground()
-            ->sentryMonitor();
+        $schedule->command(DispatchInvoicesToHarbor::class)->dailyAt('06:00')->runInBackground()->sentryMonitor();
 
-        $schedule->command(ReportInvoiceablesInProgress::class)
-            ->dailyAt('06:30')
-            ->runInBackground()
-            ->sentryMonitor();
+        $schedule->command(ReportInvoiceablesInProgress::class)->dailyAt('06:30')->runInBackground()->sentryMonitor();
 
-        $schedule->command('horizon:snapshot')
-            ->everyFiveMinutes()
-            ->runInBackground()
-            ->sentryMonitor();
+        $schedule->command('horizon:snapshot')->everyFiveMinutes()->runInBackground()->sentryMonitor();
 
-        $schedule->command(Consume::class)
+        $schedule
+            ->command(Consume::class)
             ->everyMinute()
             ->sentryMonitor()
             ->withoutOverlapping()
             ->when(fn (): bool => (bool) Config::get('harbor.enabled'));
 
-        $schedule->command(PollNotifications::class)
+        $schedule
+            ->command(PollNotifications::class)
             ->everyMinute()
             ->withoutOverlapping()
             ->runInBackground()
@@ -200,21 +171,21 @@ class Kernel extends ConsoleKernel
                 if ($apiKey === '' || $apiURL === '') {
                     return false;
                 }
+
                 return true;
             });
 
-        $schedule->command(UpdateTranslationsS3::class)
+        $schedule
+            ->command(UpdateTranslationsS3::class)
             ->daily()
             ->withoutOverlapping()
             ->runInBackground()
             ->sentryMonitor();
 
-        $schedule->command(UpdateProductsS3::class)
-            ->everyThirtyMinutes()
-            ->runInBackground()
-            ->sentryMonitor();
+        $schedule->command(UpdateProductsS3::class)->everyThirtyMinutes()->runInBackground()->sentryMonitor();
 
-        $schedule->command(HubspotBatchSyncSubscriptions::class)
+        $schedule
+            ->command(HubspotBatchSyncSubscriptions::class)
             ->everyTenMinutes()
             ->between('5:00', '22:00')
             ->withoutOverlapping()
@@ -222,24 +193,25 @@ class Kernel extends ConsoleKernel
             ->sentryMonitor()
             ->when(fn (): bool => $this->hasValidHubSpotConfig());
 
-        $schedule->command(HubspotBatchSyncSubscriptions::class)
+        $schedule
+            ->command(HubspotBatchSyncSubscriptions::class)
             ->daily()
             ->at('23:00')
             ->withoutOverlapping()
             ->runInBackground()
             ->sentryMonitor();
 
-        $schedule->command('cache:prune-stale-tags')
-            ->hourly()
-            ->sentryMonitor();
+        $schedule->command('cache:prune-stale-tags')->hourly()->sentryMonitor();
 
-        $schedule->command('model:prune', [
-            '--model' => [CloudstackJob::class, Microsoft365SyncLog::class],
-        ])
+        $schedule
+            ->command('model:prune', [
+                '--model' => [CloudstackJob::class, Microsoft365SyncLog::class],
+            ])
             ->sentryMonitor()
             ->daily();
 
-        $schedule->command(SendDcvReminderEmails::class)
+        $schedule
+            ->command(SendDcvReminderEmails::class)
             ->dailyAt('06:00')
             ->withoutOverlapping()
             ->runInBackground()

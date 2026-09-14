@@ -36,23 +36,25 @@ class SshKeyTest extends IntegrationTestCase
     #[Test]
     public function indexEndpointEmptyResult(): void
     {
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute('partners.cloudstack.ssh-key.index')
-        )->assertOk()
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute('partners.cloudstack.ssh-key.index'),
+            )
+            ->assertOk()
             ->assertJsonStructure(['data']);
     }
 
     #[Test]
     public function indexEndpoint(): void
     {
-        new SshKeyFactory()
-             ->for($this->customer)
-             ->createMany(3);
+        new SshKeyFactory()->for($this->customer)->createMany(3);
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute('partners.cloudstack.ssh-key.index')
-        )->assertOk()
-             ->assertJsonStructure(['data']);
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute('partners.cloudstack.ssh-key.index'),
+            )
+            ->assertOk()
+            ->assertJsonStructure(['data']);
     }
 
     #[Test]
@@ -64,17 +66,19 @@ class SshKeyTest extends IntegrationTestCase
         $keyName = 'test-key_for 1908';
         $sshKeyString = $sshKey->toString('OpenSSH');
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.cloudstack.ssh-key.create', [
-                'key_name' => $keyName,
-                'ssh_key' => $sshKeyString,
-            ])
-        )->assertStatus(Response::HTTP_CREATED)
-        ->assertJsonStructure([
-            'uuid',
-            'key_name',
-            'fingerprint',
-        ]);
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.cloudstack.ssh-key.create', [
+                    'key_name' => $keyName,
+                    'ssh_key' => $sshKeyString,
+                ]),
+            )
+            ->assertStatus(Response::HTTP_CREATED)
+            ->assertJsonStructure([
+                'uuid',
+                'key_name',
+                'fingerprint',
+            ]);
 
         $this->assertDatabaseHas('cloudstack_vm_ssh_keys', [
             'key_name' => $keyName,
@@ -93,12 +97,14 @@ class SshKeyTest extends IntegrationTestCase
         $md5 = '56:e3:6e:71:7e:ef:f2:4f:e0:e6:d9:38:2f:eb:a4:c2';
         $sshKeyString = sprintf('%s %s %s', $format, $key, $comment);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.cloudstack.ssh-key.create', [
-                'key_name' => $keyName,
-                'ssh_key' => $sshKeyString,
-            ])
-        )->assertStatus(Response::HTTP_CREATED)
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.cloudstack.ssh-key.create', [
+                    'key_name' => $keyName,
+                    'ssh_key' => $sshKeyString,
+                ]),
+            )
+            ->assertStatus(Response::HTTP_CREATED)
             ->assertJsonStructure([
                 'uuid',
                 'key_name',
@@ -115,37 +121,37 @@ class SshKeyTest extends IntegrationTestCase
     #[Test]
     public function createEndpointWithDuplicateKey(): void
     {
-        $alreadyStoredKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $alreadyStoredKey = new SshKeyFactory()->for($this->customer)->createOne();
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.cloudstack.ssh-key.create', [
-                'key_name' => 'new-name',
-                'ssh_key' => $alreadyStoredKey->public_key,
-            ])
-        )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.cloudstack.ssh-key.create', [
+                    'key_name' => 'new-name',
+                    'ssh_key' => $alreadyStoredKey->public_key,
+                ]),
+            )
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonStructure(['message']);
     }
 
     #[Test]
     public function createEndpointWithInvalidKey(): void
     {
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.cloudstack.ssh-key.create', [
-                'key_name' => 'test-key',
-                'ssh_key' => 'invalid key',
-            ])
-        )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.cloudstack.ssh-key.create', [
+                    'key_name' => 'test-key',
+                    'ssh_key' => 'invalid key',
+                ]),
+            )
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonStructure(['message']);
     }
 
     #[Test]
     public function deleteEndpointSuccess(): void
     {
-        $sshKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $sshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
         $environment = new CloudstackEnvironmentFactory()->createOne();
 
@@ -156,9 +162,7 @@ class SshKeyTest extends IntegrationTestCase
 
         $vmDeployment = new CloudstackVirtualMachineDeploymentFactory()
             ->for(
-                SubscriptionFactory::new()
-                    ->for($this->customer)
-                    ->for(new ProductFactory()->vps())
+                SubscriptionFactory::new()->for($this->customer)->for(new ProductFactory()->vps()),
             )
             ->for($managerDomain)
             ->createOne();
@@ -167,33 +171,32 @@ class SshKeyTest extends IntegrationTestCase
         $sshKey->virtualMachineDeployments()->save($vmDeployment);
 
         $deleteSshKeyActionMock = self::createMock(DeleteSshKeyAction::class);
-        $deleteSshKeyActionMock->expects(self::once())
+        $deleteSshKeyActionMock
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 self::assertCallbackIsModel($sshKey),
-                $this->customer
+                $this->customer,
             )
             ->willReturn(true);
 
-        $this->app->bind(DeleteSshKeyAction::class, fn (): DeleteSshKeyAction =>  $deleteSshKeyActionMock);
+        $this->app->bind(DeleteSshKeyAction::class, fn (): DeleteSshKeyAction => $deleteSshKeyActionMock);
 
-        $this->actingAsCustomer($this->customer)->deleteJson(
-            $this->generateRoute('partners.cloudstack.ssh-key.destroy', ['sshKey' => $sshKey->uuid])
-        )->assertStatus(Response::HTTP_NO_CONTENT);
+        $this->actingAsCustomer($this->customer)
+            ->deleteJson(
+                $this->generateRoute('partners.cloudstack.ssh-key.destroy', ['sshKey' => $sshKey->uuid]),
+            )
+            ->assertStatus(Response::HTTP_NO_CONTENT);
     }
 
     #[Test]
     public function deleteEndpointFailedKeyNotDeletable(): void
     {
-        $sshKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $sshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
         $environment = new CloudstackEnvironmentFactory()->createOne();
 
-        $vpsSubscription = new SubscriptionFactory()
-            ->for($this->customer)
-            ->for(new ProductFactory()->vps());
+        $vpsSubscription = new SubscriptionFactory()->for($this->customer)->for(new ProductFactory()->vps());
 
         $managerDomain = new CloudstackManagerDomainDeploymentFactory()
             ->for($this->customer)
@@ -208,23 +211,21 @@ class SshKeyTest extends IntegrationTestCase
         $sshKey->managerDomains()->save($managerDomain);
         $sshKey->virtualMachineDeployments()->save($vmDeployment);
 
-        $this->actingAsCustomer($this->customer)->deleteJson(
-            $this->generateRoute('partners.cloudstack.ssh-key.destroy', ['sshKey' => $sshKey->uuid])
-        )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $this->actingAsCustomer($this->customer)
+            ->deleteJson(
+                $this->generateRoute('partners.cloudstack.ssh-key.destroy', ['sshKey' => $sshKey->uuid]),
+            )
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     #[Test]
     public function deleteEndpointFailed(): void
     {
-        $sshKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $sshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
         $environment = new CloudstackEnvironmentFactory()->createOne();
 
-        $vpsSubscription = new SubscriptionFactory()
-            ->for($this->customer)
-            ->for(new ProductFactory()->vps());
+        $vpsSubscription = new SubscriptionFactory()->for($this->customer)->for(new ProductFactory()->vps());
 
         $managerDomain = new CloudstackManagerDomainDeploymentFactory()
             ->for($this->customer)
@@ -240,23 +241,27 @@ class SshKeyTest extends IntegrationTestCase
         $sshKey->virtualMachineDeployments()->save($vmDeployment);
 
         $deleteSshKeyActionMock = self::createMock(DeleteSshKeyAction::class);
-        $deleteSshKeyActionMock->expects(self::once())
-            ->method('execute')
-            ->willReturn(false);
+        $deleteSshKeyActionMock->expects(self::once())->method('execute')->willReturn(false);
 
-        $this->app->bind(DeleteSshKeyAction::class, fn (): DeleteSshKeyAction =>  $deleteSshKeyActionMock);
+        $this->app->bind(DeleteSshKeyAction::class, fn (): DeleteSshKeyAction => $deleteSshKeyActionMock);
 
-        $this->actingAsCustomer($this->customer)->deleteJson(
-            $this->generateRoute('partners.cloudstack.ssh-key.destroy', ['sshKey' => $sshKey->uuid])
-        )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $this->actingAsCustomer($this->customer)
+            ->deleteJson(
+                $this->generateRoute('partners.cloudstack.ssh-key.destroy', ['sshKey' => $sshKey->uuid]),
+            )
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     #[Test]
     public function deleteEndpointKeyNotFound(): void
     {
-        $this->actingAsCustomer($this->customer)->deleteJson(
-            $this->generateRoute('partners.cloudstack.ssh-key.destroy', ['sshKey' => 'c45e24ea-1019-44ab-93b1-a3e96e4e7752'])
-        )->assertNotFound()
+        $this->actingAsCustomer($this->customer)
+            ->deleteJson(
+                $this->generateRoute('partners.cloudstack.ssh-key.destroy', [
+                    'sshKey' => 'c45e24ea-1019-44ab-93b1-a3e96e4e7752',
+                ]),
+            )
+            ->assertNotFound()
             ->assertJsonStructure(['message']);
     }
 }

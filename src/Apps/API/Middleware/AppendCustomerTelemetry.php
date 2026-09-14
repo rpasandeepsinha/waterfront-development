@@ -10,17 +10,16 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
-
-use function Sentry\configureScope as configureSentryScope;
-
 use Sentry\State\Scope;
 use Waterfront\Infra\Authentication\AuthenticationManager;
 use Waterfront\Support\Enums\LoggingContextKeys;
+use function Sentry\configureScope as configureSentryScope;
 
 class AppendCustomerTelemetry
 {
-    public function __construct(private readonly AuthenticationManager $authenticationManager)
-    {
+    public function __construct(
+        private readonly AuthenticationManager $authenticationManager,
+    ) {
     }
 
     /** @param Closure(Request): (Response|RedirectResponse) $next */

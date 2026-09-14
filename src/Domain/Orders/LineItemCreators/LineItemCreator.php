@@ -7,6 +7,7 @@ namespace Waterfront\Domain\Orders\LineItemCreators;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+use Waterfront\Domain\Orders\DTO\CartOrderLines\ExtensionLineItem;
 use Waterfront\Domain\Orders\DTO\CartOrderLines\LineItem;
 use Waterfront\Domain\Orders\Enums\OrderLineItemStatus;
 use Waterfront\Domain\Orders\Models\Order;
@@ -47,19 +48,24 @@ class LineItemCreator
             throw new ProductNotFoundException(
                 sprintf('Could not find product with slug %s', $cartOrderItem->slug),
                 $e->getCode(),
-                $e
+                $e,
             );
         }
 
         $orderLineItem->product()->associate($product);
 
-        $orderLineItem->status = $cartOrderItem->status === null ? OrderLineItemStatus::REGISTRATION : OrderLineItemStatus::from($cartOrderItem->status->value);
+        $orderLineItem->status = $cartOrderItem->status === null
+            ? OrderLineItemStatus::REGISTRATION
+            : OrderLineItemStatus::from($cartOrderItem->status->value);
         $orderLineItem->product_name = $product->name;
         $orderLineItem->domain = $cartOrderItem->domain ?? null;
 
         // When there's no domain supplied for an addon, take the one from the parent subscription.
         if ($cartOrderItem->parentSubscriptionUuid !== null && $cartOrderItem->domain === null) {
-            $orderLineItem->domain = Subscription::where('uuid', $cartOrderItem->parentSubscriptionUuid)->firstOrFail()->domain;
+            $orderLineItem->domain = Subscription::where(
+                'uuid',
+                $cartOrderItem->parentSubscriptionUuid,
+            )->firstOrFail()->domain;
         }
 
         $orderLineItem->gross_price = $price->regularPrice;
@@ -67,7 +73,9 @@ class LineItemCreator
         $orderLineItem->contract_period = $cartOrderItem->contractPeriod;
         $orderLineItem->net_price = $price->calculatedPrice;
         $orderLineItem->meta_data = $this->getMetaData($cartOrderItem, $product->productGroup->slug);
-        $orderLineItem->experiment_slug = $cartOrderItem->experimentSlug;
+        $orderLineItem->experiment_slug = $cartOrderItem instanceof ExtensionLineItem
+            ? $cartOrderItem->experimentSlug
+            : null;
         $orderLineItem->should_invoice = $this->shouldInvoice($cartOrderItem);
         $orderLineItem->save();
 
@@ -86,15 +94,14 @@ class LineItemCreator
      */
     private function getMetaData(LineItem $cartOrderItem, ProductGroupType $productGroupType): ?string
     {
-        $data = $this->cartSerializerFactory->get()
-            ->normalize(
-                $cartOrderItem,
-                null,
-                [
-                    'groups' => 'meta_data',
-                    AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true,
-                ]
-            );
+        $data = $this->cartSerializerFactory->get()->normalize(
+            $cartOrderItem,
+            null,
+            [
+                'groups' => 'meta_data',
+                AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true,
+            ],
+        );
 
         assert(is_array($data));
 

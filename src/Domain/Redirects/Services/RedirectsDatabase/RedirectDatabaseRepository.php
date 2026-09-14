@@ -45,6 +45,7 @@ class RedirectDatabaseRepository extends Model implements RedirectsRepositoryInt
             ->get()
             ->map(fn (self $model): Redirect => $model->toDomainObject())
             ->toArray();
+
         return $redirects;
     }
 
@@ -56,11 +57,14 @@ class RedirectDatabaseRepository extends Model implements RedirectsRepositoryInt
         $model = self::create([
             'klantid' => $customerId,
             'domein' => $domainBody,
-            'extensie' =>  $extension,
-            'domainname' => $subDomain === '' ? "{$domainBody}.{$extension}" : "{$subDomain}.{$domainBody}.{$extension}",
+            'extensie' => $extension,
+            'domainname' => $subDomain === ''
+                ? "{$domainBody}.{$extension}"
+                : "{$subDomain}.{$domainBody}.{$extension}",
             'destination' => $destination,
             'type' => $type,
         ]);
+
         return $model->toDomainObject();
     }
 
@@ -71,7 +75,7 @@ class RedirectDatabaseRepository extends Model implements RedirectsRepositoryInt
         if ($model !== null) {
             $model->fill([
                 'destination' => $destination,
-                'type'        => $type,
+                'type' => $type,
             ])->save();
 
             return $model->toDomainObject();
@@ -103,22 +107,30 @@ class RedirectDatabaseRepository extends Model implements RedirectsRepositoryInt
         return is_null($this->findBySource($customerId, $source));
     }
 
-    public function findBySourceForMigrations(string $source): RedirectDatabaseRepository|null
+    public function findBySourceForMigrations(string $source): ?RedirectDatabaseRepository
     {
         [$subDomain, $domainBody, $extension] = Redirect::parseHost($source);
+
         return self::where('domein', $domainBody)
             ->where('extensie', $extension)
-            ->where('domainname', $subDomain === '' ? "{$domainBody}.{$extension}" : "{$subDomain}.{$domainBody}.{$extension}")
+            ->where(
+                'domainname',
+                $subDomain === '' ? "{$domainBody}.{$extension}" : "{$subDomain}.{$domainBody}.{$extension}",
+            )
             ->first();
     }
 
     private function findBySource(int $customerId, string $source): ?RedirectDatabaseRepository
     {
         [$subDomain, $domainBody, $extension] = Redirect::parseHost($source);
+
         return self::where('klantid', $customerId)
             ->where('domein', $domainBody)
             ->where('extensie', $extension)
-            ->where('domainname', $subDomain === '' ? "{$domainBody}.{$extension}" : "{$subDomain}.{$domainBody}.{$extension}")
+            ->where(
+                'domainname',
+                $subDomain === '' ? "{$domainBody}.{$extension}" : "{$subDomain}.{$domainBody}.{$extension}",
+            )
             ->first();
     }
 }

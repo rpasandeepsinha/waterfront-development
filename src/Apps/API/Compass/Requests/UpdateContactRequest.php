@@ -24,10 +24,10 @@ class UpdateContactRequest extends FormRequest
     {
         return [
             'first_name' => ['required', 'string'],
-            'last_name'  => ['required', 'string'],
-            'company'    => ['nullable', 'string'],
-            'email'      => ['required', 'email:rfc,dns'],
-            'type'       => ['required', Rule::enum(CustomerContactType::class)],
+            'last_name' => ['required', 'string'],
+            'company' => ['nullable', 'string'],
+            'email' => ['required', 'email:rfc,dns'],
+            'type' => ['required', Rule::enum(CustomerContactType::class)],
         ];
     }
 }

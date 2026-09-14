@@ -16,22 +16,19 @@ class PuzzelCallbackTimeslotRepository
      */
     public function all(): Collection
     {
-        return PuzzelCallbackTimeslot::query()
-            ->orderBy('start_timeslot')
-            ->get();
+        return PuzzelCallbackTimeslot::query()->orderBy('start_timeslot')->get();
     }
 
     public function getByUuid(UuidInterface $uuid): ?PuzzelCallbackTimeslot
     {
-        return PuzzelCallbackTimeslot::query()
-            ->where('uuid', $uuid)
-            ->first();
+        return PuzzelCallbackTimeslot::query()->where('uuid', $uuid)->first();
     }
 
     public function hasAvailableCapacity(PuzzelCallbackTimeslot $timeslot): bool
     {
-        return $timeslot->requests()
-                ->where('desired_callback_time', '>=', CarbonImmutable::now())
-                ->count() < $timeslot->capacity;
+        return (
+            $timeslot->requests()->where('desired_callback_time', '>=', CarbonImmutable::now())->count()
+            < $timeslot->capacity
+        );
     }
 }

@@ -104,11 +104,15 @@ class AcronisTenantClient
     public function getPricingSettings(string $tenantId): TenantPricingSettings
     {
         $response = $this->connector->send(
-            new GetTenantPricingSettingsRequest($tenantId)
+            new GetTenantPricingSettingsRequest($tenantId),
         );
 
         try {
-            $tenantPricingSettings = AcronisSerializer::get()->deserialize($response->body(), TenantPricingSettings::class, 'json');
+            $tenantPricingSettings = AcronisSerializer::get()->deserialize(
+                $response->body(),
+                TenantPricingSettings::class,
+                'json',
+            );
         } catch (RuntimeException $exception) {
             throw new AcronisSerializerException(TenantPricingSettings::class, $response->body(), $exception);
         }
@@ -126,11 +130,15 @@ class AcronisTenantClient
     {
         $response = $this->connector->send(new PutTenantPricingSettingsRequest(
             tenantId: $tenantId,
-            payload: $payload
+            payload: $payload,
         ));
 
         try {
-            $tenantPricingSettings = AcronisSerializer::get()->deserialize($response->body(), TenantPricingSettings::class, 'json');
+            $tenantPricingSettings = AcronisSerializer::get()->deserialize(
+                $response->body(),
+                TenantPricingSettings::class,
+                'json',
+            );
         } catch (RuntimeException $exception) {
             throw new AcronisSerializerException(TenantPricingSettings::class, $response->body(), $exception);
         }
@@ -156,8 +164,11 @@ class AcronisTenantClient
      * @throws FatalRequestException
      * @throws RequestException
      */
-    public function getTenantUsages(string $tenantId, ?string $usageNames = null, ?string $editions = null): TenantUsages
-    {
+    public function getTenantUsages(
+        string $tenantId,
+        ?string $usageNames = null,
+        ?string $editions = null,
+    ): TenantUsages {
         $response = $this->connector->send(new GetTenantUsagesRequest(
             tenantId: $tenantId,
             usageNames: $usageNames,

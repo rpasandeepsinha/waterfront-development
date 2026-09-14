@@ -28,6 +28,7 @@ class DetermineExpirationPathForSubscriptionAction
             }
 
             $this->gracefullyExpireSubscriptionAction->execute($subscription);
+
             return;
         }
 
@@ -45,6 +46,9 @@ class DetermineExpirationPathForSubscriptionAction
 
     private function shouldBeExpired(Subscription $subscription): bool
     {
-        return $subscription->administrative_status === AdministrativeStatus::CANCELED->value && $subscription->end_date <= new CarbonImmutable();
+        return (
+            $subscription->administrative_status === AdministrativeStatus::CANCELED->value
+            && $subscription->end_date <= new CarbonImmutable()
+        );
     }
 }

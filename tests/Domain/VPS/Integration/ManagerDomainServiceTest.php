@@ -101,25 +101,25 @@ class ManagerDomainServiceTest extends IntegrationTestCase
                         'name' => 'cs12345678',
                     ],
                     type: 'listDomainChildren',
-                    mapper: new DomainMapper()
-                )
+                    mapper: new DomainMapper(),
+                ),
             );
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('createAccount')
             ->willReturn(new Account('123', '123', '123'));
 
         $domainId = '1234321';
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('createDomain')
             ->willReturn(new Domain($domainId, '123', '123'));
 
         $adminClientFactory = $this->createStub(AdminClientFactoryInterface::class);
 
-        $adminClientFactory
-            ->method('create')
-            ->willReturn($clientMock);
+        $adminClientFactory->method('create')->willReturn($clientMock);
 
         $this->instance(AdminClientFactoryInterface::class, $adminClientFactory);
 
@@ -173,27 +173,27 @@ class ManagerDomainServiceTest extends IntegrationTestCase
                         'name' => 'cs12345678',
                     ],
                     type: 'listDomainChildren',
-                    mapper: new DomainMapper()
-                )
+                    mapper: new DomainMapper(),
+                ),
             );
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('createAccount')
             ->willThrowException(new ClientException(
-                'Cloudstack mock error'
+                'Cloudstack mock error',
             ));
 
         $domainId = '1234321';
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('createDomain')
             ->willReturn(new Domain($domainId, '123', '123'));
 
         $adminClientFactory = $this->createStub(AdminClientFactoryInterface::class);
 
-        $adminClientFactory
-            ->method('create')
-            ->willReturn($clientMock);
+        $adminClientFactory->method('create')->willReturn($clientMock);
 
         $this->instance(AdminClientFactoryInterface::class, $adminClientFactory);
 
@@ -254,11 +254,12 @@ class ManagerDomainServiceTest extends IntegrationTestCase
                         'name' => 'cs12345678',
                     ],
                     type: 'listDomainChildren',
-                    mapper: new DomainMapper()
-                )
+                    mapper: new DomainMapper(),
+                ),
             );
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('createAccount')
             ->with(
                 $domainId,
@@ -267,19 +268,18 @@ class ManagerDomainServiceTest extends IntegrationTestCase
                 $this->customer->last_name,
                 $this->customer->email,
                 self::anything(), // Generated password
-                $this->environment->default_role_id
+                $this->environment->default_role_id,
             )
             ->willReturn(new Account('123', '123', '123'));
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('createDomain')
             ->willReturn(new Domain($domainId, '123', '123'));
 
         $adminClientFactory = $this->createStub(AdminClientFactoryInterface::class);
 
-        $adminClientFactory
-            ->method('create')
-            ->willReturn($clientMock);
+        $adminClientFactory->method('create')->willReturn($clientMock);
 
         $this->instance(AdminClientFactoryInterface::class, $adminClientFactory);
 
@@ -319,24 +319,28 @@ class ManagerDomainServiceTest extends IntegrationTestCase
         self::assertNotNull($managerDomainDeployment->domain_id);
 
         $clientMock = self::createMock(CloudStackClient::class);
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('deleteDomain')
             ->with($managerDomainDeployment->domain_id, true)
             ->willReturn(new AsynchronousCloudstackResponse(jobId: (string) $jobId));
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('listAccounts')
             ->with($managerDomainDeployment->domain_id, $managerDomainDeployment->account)
-            ->willReturn(new ArrayIterator([new Account('123', $managerDomainDeployment->domain_name, $managerDomainDeployment->domain_id)]));
+            ->willReturn(new ArrayIterator([new Account(
+                '123',
+                $managerDomainDeployment->domain_name,
+                $managerDomainDeployment->domain_id,
+            )]));
 
         $clientAdminFactoryMock = self::createMock(AdminClientFactoryInterface::class);
-        $clientAdminFactoryMock
-            ->expects(self::once())
-            ->method('create')
-            ->willReturn($clientMock);
+        $clientAdminFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
 
         $clientFactoryMock = self::createMock(ClientFactoryInterface::class);
-        $clientFactoryMock->expects(self::once())
+        $clientFactoryMock
+            ->expects(self::once())
             ->method('create')
             ->with($managerDomainDeployment)
             ->willReturn($clientMock);
@@ -347,10 +351,11 @@ class ManagerDomainServiceTest extends IntegrationTestCase
             self::resolve(DefaultGenerator::class),
             CloudstackSerializerFactory::get(),
             $dispatcherMock,
-            $mockLogger
+            $mockLogger,
         );
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with(sprintf(
                 'Cloudstack deleting domain [%s] with job ID [%s]',
@@ -358,7 +363,8 @@ class ManagerDomainServiceTest extends IntegrationTestCase
                 $jobId,
             ));
 
-        $dispatcherMock->expects(self::once())
+        $dispatcherMock
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::callback(fn ($job) => $job instanceof DeleteDomainJob));
 
@@ -384,16 +390,14 @@ class ManagerDomainServiceTest extends IntegrationTestCase
             ->createOne();
 
         $clientMock = self::createMock(CloudStackClient::class);
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('listAccounts')
             ->with($managerDomainDeployment->domain_id, $managerDomainDeployment->account)
             ->willReturn(new ArrayIterator([]));
 
         $clientAdminFactoryMock = self::createMock(AdminClientFactoryInterface::class);
-        $clientAdminFactoryMock
-            ->expects(self::once())
-            ->method('create')
-            ->willReturn($clientMock);
+        $clientAdminFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
 
         $managerDomainService = new ManagerDomainService(
             $clientAdminFactoryMock,
@@ -401,10 +405,11 @@ class ManagerDomainServiceTest extends IntegrationTestCase
             self::resolve(DefaultGenerator::class),
             CloudstackSerializerFactory::get(),
             $dispatcherMock,
-            $mockLogger
+            $mockLogger,
         );
 
-        $dispatcherMock->expects(self::never())
+        $dispatcherMock
+            ->expects(self::never())
             ->method('dispatch')
             ->with(self::callback(fn ($job) => $job instanceof DeleteDomainJob));
 
@@ -433,24 +438,28 @@ class ManagerDomainServiceTest extends IntegrationTestCase
         self::assertNotNull($managerDomainDeployment->domain_id);
 
         $clientMock = self::createMock(CloudStackClient::class);
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('deleteDomain')
             ->with($managerDomainDeployment->domain_id, true)
             ->willThrowException($exception);
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('listAccounts')
             ->with($managerDomainDeployment->domain_id, $managerDomainDeployment->account)
-            ->willReturn(new ArrayIterator([new Account('123', $managerDomainDeployment->domain_name, $managerDomainDeployment->domain_id)]));
+            ->willReturn(new ArrayIterator([new Account(
+                '123',
+                $managerDomainDeployment->domain_name,
+                $managerDomainDeployment->domain_id,
+            )]));
 
         $clientAdminFactoryMock = self::createMock(AdminClientFactoryInterface::class);
-        $clientAdminFactoryMock
-            ->expects(self::once())
-            ->method('create')
-            ->willReturn($clientMock);
+        $clientAdminFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
 
         $clientFactoryMock = self::createMock(ClientFactoryInterface::class);
-        $clientFactoryMock->expects(self::once())
+        $clientFactoryMock
+            ->expects(self::once())
             ->method('create')
             ->with($managerDomainDeployment)
             ->willReturn($clientMock);
@@ -461,10 +470,11 @@ class ManagerDomainServiceTest extends IntegrationTestCase
             self::resolve(DefaultGenerator::class),
             CloudstackSerializerFactory::get(),
             $dispatcherMock,
-            $mockLogger
+            $mockLogger,
         );
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Something went wrong while trying to delete domain at Cloudstack',
@@ -472,7 +482,7 @@ class ManagerDomainServiceTest extends IntegrationTestCase
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
         $serviceDeleteDomain = $managerDomainService->deleteDomain($managerDomainDeployment);

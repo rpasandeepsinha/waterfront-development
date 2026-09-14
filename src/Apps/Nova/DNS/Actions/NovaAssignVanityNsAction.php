@@ -28,9 +28,10 @@ class NovaAssignVanityNsAction extends NovaSubscriptionAction
         private readonly EventSubscriptionDataBuilder $dataBuilder,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool =>
-            $this->onlyForSingleSubscription($request)
+            fn (NovaRequest $request): bool => (
+                $this->onlyForSingleSubscription($request)
                 && $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::DNS)
+            ),
         );
 
         $defaultConfirmText = $this->confirmText;

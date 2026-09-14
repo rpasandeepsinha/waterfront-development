@@ -58,14 +58,14 @@ class NovaVerifyAcronisProviderActionTest extends IntegrationTestCase
                     name: 'name',
                     type: 'type',
                     usages: ['usage', 'array'],
-                    apiBaseUrl: 'url'
+                    apiBaseUrl: 'url',
                 ),
             ]));
 
         $action = new NovaVerifyAcronisProviderAction(
             translator: self::resolve(TranslatorInterface::class),
             logger: $this->logger,
-            backupService: $this->backupService
+            backupService: $this->backupService,
         );
 
         $result = $action->handle(
@@ -100,7 +100,7 @@ class NovaVerifyAcronisProviderActionTest extends IntegrationTestCase
         $action = new NovaVerifyAcronisProviderAction(
             translator: self::resolve(TranslatorInterface::class),
             logger: $this->logger,
-            backupService: $this->backupService
+            backupService: $this->backupService,
         );
 
         $result = $action->handle(

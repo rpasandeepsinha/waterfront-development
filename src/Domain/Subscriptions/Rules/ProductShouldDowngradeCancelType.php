@@ -18,6 +18,7 @@ class ProductShouldDowngradeCancelType implements ValidationRule, DataAwareRule
     {
         if (! is_string($value)) {
             $fail(':attribute should be a valid SubscriptionChangeType');
+
             return;
         }
 
@@ -26,6 +27,7 @@ class ProductShouldDowngradeCancelType implements ValidationRule, DataAwareRule
 
         if (count($matches) === 0) {
             $fail('Could not retrieve cancel_type array key from :attribute');
+
             return;
         }
 
@@ -34,6 +36,7 @@ class ProductShouldDowngradeCancelType implements ValidationRule, DataAwareRule
 
         if ($cancelType === null) {
             $fail(':attribute should be a valid SubscriptionChangeType');
+
             return;
         }
 
@@ -53,6 +56,7 @@ class ProductShouldDowngradeCancelType implements ValidationRule, DataAwareRule
         $subscription = Subscription::where('uuid', $subscriptionUuid)->with('product.productSpecs')->first();
         if ($subscription === null) {
             $fail('Invalid subscription uuid in request data.');
+
             return;
         }
 
@@ -60,9 +64,7 @@ class ProductShouldDowngradeCancelType implements ValidationRule, DataAwareRule
             return;
         }
 
-        $spec = $subscription->product
-            ->productSpecs
-            ->where('name', 'product.downgrade_when_cancelled')->first();
+        $spec = $subscription->product->productSpecs->where('name', 'product.downgrade_when_cancelled')->first();
 
         if (
             $spec !== null
@@ -73,8 +75,8 @@ class ProductShouldDowngradeCancelType implements ValidationRule, DataAwareRule
             $fail(
                 sprintf(
                     "Can't cancel subscription with uuid [%s] that should downgrade or be cancelled at end date",
-                    $subscriptionUuid
-                )
+                    $subscriptionUuid,
+                ),
             );
         }
     }

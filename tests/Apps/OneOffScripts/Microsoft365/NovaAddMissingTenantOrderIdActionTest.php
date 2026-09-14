@@ -62,7 +62,10 @@ class NovaAddMissingTenantOrderIdActionTest extends IntegrationTestCase
         $responseData = $actionResponse->jsonSerialize();
         self::assertArrayHasKey('message', $responseData);
         self::assertInstanceOf(NovaMessage::class, $responseData['message']);
-        self::assertSame('No active Microsoft365 customer infos found with missing tenant order id.', (string) $responseData['message']);
+        self::assertSame(
+            'No active Microsoft365 customer infos found with missing tenant order id.',
+            (string) $responseData['message'],
+        );
 
         Queue::assertNothingPushed();
     }
@@ -74,34 +77,26 @@ class NovaAddMissingTenantOrderIdActionTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        new Microsoft365CustomerInfoFactory()
-            ->for($customer)
-            ->createOne([
-                'technical_status' => Microsoft365ProcessStatus::ACTIVE,
-                'tenant_order_id' => null,
-                'kpn_customer_id' => 'CID123456',
-            ]);
+        new Microsoft365CustomerInfoFactory()->for($customer)->createOne([
+            'technical_status' => Microsoft365ProcessStatus::ACTIVE,
+            'tenant_order_id' => null,
+            'kpn_customer_id' => 'CID123456',
+        ]);
 
-        new Microsoft365CustomerInfoFactory()
-            ->for($customer)
-            ->createOne([
-                'technical_status' => Microsoft365ProcessStatus::ACTIVE,
-                'tenant_order_id' => null,
-                'kpn_customer_id' => 'CID789012',
-            ]);
+        new Microsoft365CustomerInfoFactory()->for($customer)->createOne([
+            'technical_status' => Microsoft365ProcessStatus::ACTIVE,
+            'tenant_order_id' => null,
+            'kpn_customer_id' => 'CID789012',
+        ]);
 
         // Should NOT be dispatched: has tenant_order_id
-        new Microsoft365CustomerInfoFactory()
-            ->for($customer)
-            ->createOne([
-                'technical_status' => Microsoft365ProcessStatus::ACTIVE,
-                'tenant_order_id' => 12345678,
-                'kpn_customer_id' => 'CID345678',
-            ]);
+        new Microsoft365CustomerInfoFactory()->for($customer)->createOne([
+            'technical_status' => Microsoft365ProcessStatus::ACTIVE,
+            'tenant_order_id' => 12345678,
+            'kpn_customer_id' => 'CID345678',
+        ]);
 
-        $this->logger
-            ->expects(self::once())
-            ->method('debug');
+        $this->logger->expects(self::once())->method('debug');
 
         $action = new NovaAddMissingTenantOrderIdAction(
             jobDispatcher: self::resolve(Dispatcher::class),
@@ -115,7 +110,10 @@ class NovaAddMissingTenantOrderIdActionTest extends IntegrationTestCase
 
         $responseData = $actionResponse->jsonSerialize();
         self::assertInstanceOf(NovaMessage::class, $responseData['message']);
-        self::assertSame('Found 2 customer infos with missing tenant order id. Updating will be done async.', (string) $responseData['message']);
+        self::assertSame(
+            'Found 2 customer infos with missing tenant order id. Updating will be done async.',
+            (string) $responseData['message'],
+        );
 
         Queue::assertPushed(AddMissingTenantOrderIdJob::class, 2);
     }
@@ -127,13 +125,11 @@ class NovaAddMissingTenantOrderIdActionTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        new Microsoft365CustomerInfoFactory()
-            ->for($customer)
-            ->createOne([
-                'technical_status' => Microsoft365ProcessStatus::ACTIVE,
-                'tenant_order_id' => null,
-                'kpn_customer_id' => 'CID123456',
-            ]);
+        new Microsoft365CustomerInfoFactory()->for($customer)->createOne([
+            'technical_status' => Microsoft365ProcessStatus::ACTIVE,
+            'tenant_order_id' => null,
+            'kpn_customer_id' => 'CID123456',
+        ]);
 
         $this->logger
             ->expects(self::once())
@@ -158,7 +154,10 @@ class NovaAddMissingTenantOrderIdActionTest extends IntegrationTestCase
 
         $responseData = $actionResponse->jsonSerialize();
         self::assertInstanceOf(NovaMessage::class, $responseData['message']);
-        self::assertSame('Dry run found 1 customer infos with missing tenant order id.', (string) $responseData['message']);
+        self::assertSame(
+            'Dry run found 1 customer infos with missing tenant order id.',
+            (string) $responseData['message'],
+        );
 
         Queue::assertNothingPushed();
     }
@@ -170,17 +169,13 @@ class NovaAddMissingTenantOrderIdActionTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        new Microsoft365CustomerInfoFactory()
-            ->for($customer)
-            ->createOne([
-                'technical_status' => Microsoft365ProcessStatus::ACTIVE,
-                'tenant_order_id' => null,
-                'kpn_customer_id' => null,
-            ]);
+        new Microsoft365CustomerInfoFactory()->for($customer)->createOne([
+            'technical_status' => Microsoft365ProcessStatus::ACTIVE,
+            'tenant_order_id' => null,
+            'kpn_customer_id' => null,
+        ]);
 
-        $this->logger
-            ->expects(self::once())
-            ->method('debug');
+        $this->logger->expects(self::once())->method('debug');
 
         $action = new NovaAddMissingTenantOrderIdAction(
             jobDispatcher: self::resolve(Dispatcher::class),
@@ -194,7 +189,10 @@ class NovaAddMissingTenantOrderIdActionTest extends IntegrationTestCase
 
         $responseData = $actionResponse->jsonSerialize();
         self::assertInstanceOf(NovaMessage::class, $responseData['message']);
-        self::assertSame('No active Microsoft365 customer infos found with missing tenant order id.', (string) $responseData['message']);
+        self::assertSame(
+            'No active Microsoft365 customer infos found with missing tenant order id.',
+            (string) $responseData['message'],
+        );
 
         Queue::assertNothingPushed();
     }
@@ -207,18 +205,14 @@ class NovaAddMissingTenantOrderIdActionTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
 
         for ($i = 0; $i < 5; $i++) {
-            new Microsoft365CustomerInfoFactory()
-                ->for($customer)
-                ->createOne([
-                    'technical_status' => Microsoft365ProcessStatus::ACTIVE,
-                    'tenant_order_id' => null,
-                    'kpn_customer_id' => 'CID' . ($i + 1),
-                ]);
+            new Microsoft365CustomerInfoFactory()->for($customer)->createOne([
+                'technical_status' => Microsoft365ProcessStatus::ACTIVE,
+                'tenant_order_id' => null,
+                'kpn_customer_id' => 'CID' . ($i + 1),
+            ]);
         }
 
-        $this->logger
-            ->expects(self::once())
-            ->method('debug');
+        $this->logger->expects(self::once())->method('debug');
 
         $action = new NovaAddMissingTenantOrderIdAction(
             jobDispatcher: self::resolve(Dispatcher::class),
@@ -232,7 +226,10 @@ class NovaAddMissingTenantOrderIdActionTest extends IntegrationTestCase
 
         $responseData = $actionResponse->jsonSerialize();
         self::assertInstanceOf(NovaMessage::class, $responseData['message']);
-        self::assertSame('Found 2 customer infos with missing tenant order id. Updating will be done async.', (string) $responseData['message']);
+        self::assertSame(
+            'Found 2 customer infos with missing tenant order id. Updating will be done async.',
+            (string) $responseData['message'],
+        );
 
         Queue::assertPushed(AddMissingTenantOrderIdJob::class, 2);
     }

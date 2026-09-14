@@ -22,9 +22,7 @@ class BillOrderJobTest extends IntegrationTestCase
         $order = new OrderFactory()->for(new CustomerFactory())->createOne();
         $billOrderJob = new BillOrderJob($order);
         $orderBiller = self::createMock(OrderBiller::class);
-        $orderBiller->expects(self::once())
-            ->method('bill')
-            ->with($order);
+        $orderBiller->expects(self::once())->method('bill')->with($order);
         $logger = self::resolve(LoggerInterface::class);
 
         $billOrderJob->handle(

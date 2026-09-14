@@ -13,7 +13,7 @@ class DeleteRedirectRequest extends RedirectProvisionRequest
 
     public function __construct(
         public string $domainName,
-        public protected(set) UuidInterface $context
+        public protected(set) UuidInterface $context,
     ) {
         $this->tag = $this->context;
     }

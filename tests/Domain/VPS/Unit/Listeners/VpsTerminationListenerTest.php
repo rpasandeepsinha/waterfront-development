@@ -67,13 +67,10 @@ class VpsTerminationListenerTest extends IntegrationTestCase
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_ID => $this->vmDeployment->id,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                ]
+                ],
             );
 
-        $virtualMachineService->shouldReceive('destroy')
-            ->once()
-            ->with($this->vmDeployment)
-            ->andReturnTrue();
+        $virtualMachineService->shouldReceive('destroy')->once()->with($this->vmDeployment)->andReturnTrue();
 
         self::assertNull($subscription->technical_status);
 
@@ -99,13 +96,10 @@ class VpsTerminationListenerTest extends IntegrationTestCase
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_ID => $this->vmDeployment->id,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                ]
+                ],
             );
 
-        $virtualMachineService->shouldReceive('destroy')
-            ->once()
-            ->with($this->vmDeployment)
-            ->andReturnFalse();
+        $virtualMachineService->shouldReceive('destroy')->once()->with($this->vmDeployment)->andReturnFalse();
 
         self::assertNull($subscription->technical_status);
 

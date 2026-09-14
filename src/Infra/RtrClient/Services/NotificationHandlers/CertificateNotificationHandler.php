@@ -57,13 +57,13 @@ class CertificateNotificationHandler
         $this->logger->info(
             sprintf(
                 'Handling RTR notification #%d for SSL certificate request event.',
-                $notification->id
+                $notification->id,
             ),
             [
                 LoggingContextKeys::META => [
                     'notification' => json_encode($notification->toArray()),
                 ],
-            ]
+            ],
         );
 
         $certificateId = $this->extractCertificateId($notification);
@@ -79,8 +79,9 @@ class CertificateNotificationHandler
             $this->handleCertificateReady(
                 sslDeployment: $sslDeployment,
                 rtrMessage: $notification->message,
-                certificateId: $certificateId
+                certificateId: $certificateId,
             );
+
             return;
         }
 
@@ -90,7 +91,7 @@ class CertificateNotificationHandler
         // If it is not ready yet, fetch the current process info containing validation state and notes.
         $this->handleCertificateNotReady(
             sslDeployment: $sslDeployment,
-            notification: $notification
+            notification: $notification,
         );
     }
 
@@ -101,7 +102,7 @@ class CertificateNotificationHandler
         }
 
         throw new InvalidArgumentException(
-            'Cannot handle notification because it is not a certificate request notification.'
+            'Cannot handle notification because it is not a certificate request notification.',
         );
     }
 
@@ -125,8 +126,7 @@ class CertificateNotificationHandler
 
     private function isCertificateReady(string $message, ?int $certificateId): bool
     {
-        return strtolower($message) === 'certificate request completed'
-            && is_int($certificateId);
+        return strtolower($message) === 'certificate request completed' && is_int($certificateId);
     }
 
     private function resolveCertificateReadyDeployment(Notification $notification, int $certificateId): ?SslDeployment
@@ -155,15 +155,18 @@ class CertificateNotificationHandler
         }
 
         try {
-            $certificate = $this->realtimeRegister->certificates->listCertificates(
-                limit: 1,
-                offset: 0,
-                parameters: [
-                    'process' => $processId,
-                    'status' => StatusEnum::STATUS_ACTIVE,
-                    'order' => '-startDate',
-                ],
-            )->offsetGet(0);
+            $certificate = $this->realtimeRegister
+                ->certificates
+                ->listCertificates(
+                    limit: 1,
+                    offset: 0,
+                    parameters: [
+                        'process' => $processId,
+                        'status' => StatusEnum::STATUS_ACTIVE,
+                        'order' => '-startDate',
+                    ],
+                )
+                ->offsetGet(0);
         } catch (RealtimeRegisterClientException $exception) {
             $this->logger->warning('RTR certificate lookup failed', [
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SSL,
@@ -188,6 +191,7 @@ class CertificateNotificationHandler
                     'certificate_id' => $certificateId,
                 ],
             ]);
+
             return null;
         }
 
@@ -206,6 +210,7 @@ class CertificateNotificationHandler
                     'certificate_id' => $certificateId,
                 ],
             ]);
+
             return null;
         }
 
@@ -236,7 +241,7 @@ class CertificateNotificationHandler
     private function handleCertificateReady(
         SslDeployment $sslDeployment,
         string $rtrMessage,
-        int $certificateId
+        int $certificateId,
     ): void {
         $payload = [
             'certificate_status' => self::STATUS_MESSAGE_CERTIFICATE_READY,
@@ -247,15 +252,15 @@ class CertificateNotificationHandler
             sslDeployment: $sslDeployment,
             payload: $payload,
             technicalStatus: TechnicalStatus::OK->value,
-            certificateId: $certificateId
+            certificateId: $certificateId,
         );
 
         $this->logger->info(
             sprintf(
                 'Certificate for SSL deployment #%d ready to be downloaded: #%d',
                 $sslDeployment->id,
-                $certificateId
-            )
+                $certificateId,
+            ),
         );
 
         $this->dispatcher->dispatch(new DownloadCertificate($sslDeployment));
@@ -267,13 +272,13 @@ class CertificateNotificationHandler
      */
     private function handleCertificateNotReady(
         SslDeployment $sslDeployment,
-        Notification $notification
+        Notification $notification,
     ): void {
         $this->logger->info(
             sprintf(
                 'SSL request still pending for SSL deployment #%s',
-                $sslDeployment->id
-            )
+                $sslDeployment->id,
+            ),
         );
 
         $processId = $notification->process;
@@ -289,14 +294,15 @@ class CertificateNotificationHandler
             $this->handleInactiveProcess(
                 sslDeployment: $sslDeployment,
                 processStatus: $processStatus,
-                processData: $processData
+                processData: $processData,
             );
+
             return;
         }
 
         $this->handleActiveProcess(
             sslDeployment: $sslDeployment,
-            processId: $processId
+            processId: $processId,
         );
     }
 
@@ -317,8 +323,9 @@ class CertificateNotificationHandler
             $this->updateSslDeployment(
                 sslDeployment: $sslDeployment,
                 payload: $payload,
-                technicalStatus: TechnicalStatus::OK->value
+                technicalStatus: TechnicalStatus::OK->value,
             );
+
             return;
         }
 
@@ -330,7 +337,7 @@ class CertificateNotificationHandler
         $this->updateSslDeployment(
             sslDeployment: $sslDeployment,
             payload: $payload,
-            technicalStatus: TechnicalStatus::FAILED->value
+            technicalStatus: TechnicalStatus::FAILED->value,
         );
     }
 
@@ -351,7 +358,7 @@ class CertificateNotificationHandler
         $this->updateSslDeployment(
             sslDeployment: $sslDeployment,
             payload: $payload,
-            technicalStatus: $requiresAttention ? TechnicalStatus::ERROR->value : TechnicalStatus::OK->value
+            technicalStatus: $requiresAttention ? TechnicalStatus::ERROR->value : TechnicalStatus::OK->value,
         );
     }
 

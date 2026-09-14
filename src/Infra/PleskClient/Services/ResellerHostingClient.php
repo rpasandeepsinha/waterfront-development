@@ -10,8 +10,10 @@ use Waterfront\Domain\ResellerHosting\Parameters\ResellerHostingParameters;
 use Waterfront\Infra\PleskClient\Exceptions\PleskClientException;
 use Waterfront\Infra\PleskClient\Messages\ResellerHostingCreate\Request as ResellerHostingCreateRequest;
 use Waterfront\Infra\PleskClient\Messages\ResellerHostingCreate\Response as ResellerHostingCreateResponse;
-use Waterfront\Infra\PleskClient\Messages\ResellerHostingGetAllowedLimits\Request as ResellerHostingGetAllowedLimitsRequest;
-use Waterfront\Infra\PleskClient\Messages\ResellerHostingGetAllowedLimits\Response as ResellerHostingGetAllowedLimitsResponse;
+use Waterfront\Infra\PleskClient\Messages\ResellerHostingGetAllowedLimits\Request as ResellerHostingGetAllowedLimitsRequest
+;
+use Waterfront\Infra\PleskClient\Messages\ResellerHostingGetAllowedLimits\Response as ResellerHostingGetAllowedLimitsResponse
+;
 use Waterfront\Infra\PleskClient\Messages\ResellerHostingSetSpecs\Request as ResellerHostingSetSpecsRequest;
 use Waterfront\Infra\PleskClient\Messages\ResellerHostingSetSpecs\Response as ResellerHostingSetSpecsResponse;
 use Waterfront\Infra\PleskClient\PleskClient;

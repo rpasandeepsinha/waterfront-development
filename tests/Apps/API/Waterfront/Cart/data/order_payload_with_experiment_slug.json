@@ -1,0 +1,34 @@
+{
+    "customer_id": null,
+    "vouchers": [],
+    "subscriptions": {
+        "extension": [
+            {
+                "uuid": "69ca8097-1d95-4d20-8a21-4c99b221f25c",
+                "domain": "test.nl",
+                "slug": "extension_nl",
+                "status": "registration",
+                "experimentSlug": "pricing-ladder",
+                "price": 96,
+                "gross_price": 120,
+                "billing_period": 12,
+                "contract_period": 12,
+                "children": {
+                    "dns": [
+                        {
+                            "uuid": "af6a4c00-e4ab-4370-a8f9-1cf927396176",
+                            "status": "registration",
+                            "domain": "test.nl",
+                            "billing_period": 12,
+                            "contract_period": 12,
+                            "price": 0,
+                            "gross_price": 0,
+                            "slug": "free-dns"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "payment_method": "ideal"
+}

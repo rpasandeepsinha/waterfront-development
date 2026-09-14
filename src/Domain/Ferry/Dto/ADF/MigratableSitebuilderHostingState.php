@@ -11,14 +11,14 @@ readonly class MigratableSitebuilderHostingState implements MigrationTypeADFPayl
     public function __construct(
         public MigrationStep $migrationStep,
         public string $referenceName,
-        public string|null $domain,
+        public ?string $domain,
         public string $migrationSubscriptionReferenceId,
-        public string|null $sitebuilderHostname,
-        public string|null $mailOnlyHostname,
-        public string|null $mailOnlyUsername,
-        public int|null $basekitUserRef,
-        public int|null $basekitSiteRef,
-        public string $driver
+        public ?string $sitebuilderHostname,
+        public ?string $mailOnlyHostname,
+        public ?string $mailOnlyUsername,
+        public ?int $basekitUserRef,
+        public ?int $basekitSiteRef,
+        public string $driver,
     ) {
     }
 

@@ -31,14 +31,14 @@ class ProvisioningResultFactory extends Factory
     public function success(): self
     {
         return $this->state([
-           'status' => ProvisionStatus::SUCCESS,
+            'status' => ProvisionStatus::SUCCESS,
         ]);
     }
 
     public function failed(): self
     {
         return $this->state([
-           'status' => ProvisionStatus::FAILED,
+            'status' => ProvisionStatus::FAILED,
         ]);
     }
 
@@ -52,35 +52,35 @@ class ProvisioningResultFactory extends Factory
     public function retrying(): self
     {
         return $this->state([
-           'status' => ProvisionStatus::RETRYING,
+            'status' => ProvisionStatus::RETRYING,
         ]);
     }
 
     public function deleted(): self
     {
         return $this->state([
-           'status' => ProvisionStatus::DELETED,
+            'status' => ProvisionStatus::DELETED,
         ]);
     }
 
     public function deleting(): self
     {
         return $this->state([
-           'status' => ProvisionStatus::DELETING,
+            'status' => ProvisionStatus::DELETING,
         ]);
     }
 
     public function deletion_failed(): self
     {
         return $this->state([
-           'status' => ProvisionStatus::DELETION_FAILED,
+            'status' => ProvisionStatus::DELETION_FAILED,
         ]);
     }
 
     public function pending(): self
     {
         return $this->state([
-           'status' => ProvisionStatus::PENDING,
+            'status' => ProvisionStatus::PENDING,
         ]);
     }
 }

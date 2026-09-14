@@ -23,12 +23,14 @@ class RequestDirectDebitTest extends IntegrationTestCase
     {
         parent::setUp();
         Queue::fake();
-        $this->customer = new CustomerFactory()->withAddress()->createOne([
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'created_at' => CarbonImmutable::now()->subDays(16),
-            'has_direct_debit' => false,
-        ]);
+        $this->customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne([
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'created_at' => CarbonImmutable::now()->subDays(16),
+                'has_direct_debit' => false,
+            ]);
     }
 
     #[Test]
@@ -40,11 +42,10 @@ class RequestDirectDebitTest extends IntegrationTestCase
             'consent' => 'true',
         ];
 
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.customers.direct-debit.enable'),
-                $payload
+                $payload,
             )
             ->assertOk();
 
@@ -64,11 +65,10 @@ class RequestDirectDebitTest extends IntegrationTestCase
             'consent' => 'true',
         ];
 
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.customers.direct-debit.enable'),
-                $payload
+                $payload,
             )
             ->assertUnprocessable();
 
@@ -88,11 +88,10 @@ class RequestDirectDebitTest extends IntegrationTestCase
             'consent' => 'true',
         ];
 
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.customers.direct-debit.enable'),
-                $payload
+                $payload,
             )
             ->assertUnprocessable();
 
@@ -112,11 +111,10 @@ class RequestDirectDebitTest extends IntegrationTestCase
             'consent' => 'true',
         ];
 
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.customers.direct-debit.enable'),
-                $payload
+                $payload,
             )
             ->assertUnprocessable();
 

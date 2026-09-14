@@ -2,8 +2,7 @@
 
 declare(strict_types=1);
 
-return
-    '-----BEGIN PRIVATE KEY-----
+return '-----BEGIN PRIVATE KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDaoG3WNThVNiza
 ULQ4VyUQf99eengQ2F/cXAG6R58W3KCrihB1nBSxFNLHJlzQoydUQEJXyzdfTbho
 hjL4cp689D8UTu45WvNei7CyiyDoBBVsVzuyBaneBxM+33kIbfCvvhxmROXS7/sg

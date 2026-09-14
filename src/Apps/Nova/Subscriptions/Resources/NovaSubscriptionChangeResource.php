@@ -42,32 +42,38 @@ class NovaSubscriptionChangeResource extends Resource
             BelongsTo::make(
                 self::translate('subscription.attributes.domain'),
                 'subscription',
-                NovaSubscriptionResource::class
+                NovaSubscriptionResource::class,
             )->searchable(),
             BelongsTo::make(
                 self::translate('upgrades-hosting.attributes.from_product'),
                 'fromProduct',
-                NovaProductResource::class
-            )->sortable()->searchable(),
+                NovaProductResource::class,
+            )
+                ->sortable()
+                ->searchable(),
             BelongsTo::make(
                 self::translate('upgrades-hosting.attributes.to_product'),
                 'toProduct',
-                NovaProductResource::class
-            )->sortable()->searchable(),
+                NovaProductResource::class,
+            )
+                ->sortable()
+                ->searchable(),
             NovaSubscriptionChangeTypeSelectField::makeForEditing(),
             Text::make(
                 self::translate('subscription-change.attributes.type'),
-                'type'
+                'type',
             )->exceptOnForms(),
             NovaSubscriptionChangeStatusSelectField::makeForEditing(),
             Text::make(
                 self::translate('subscription-change.attributes.status'),
-                'status'
-            )->sortable()->exceptOnForms(),
+                'status',
+            )
+                ->sortable()
+                ->exceptOnForms(),
 
             Date::make(self::translate('subscription-change.attributes.requested_at'), 'requested_at')
-            ->required()
-            ->rules('required'),
+                ->required()
+                ->rules('required'),
             Date::make(self::translate('subscription-change.attributes.completed_at'), 'completed_at'),
         ];
     }

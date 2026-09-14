@@ -50,7 +50,7 @@ class TransferParameters
      */
     public static function create(array $data): TransferParameters
     {
-        $data = array_filter($data);
+        $data = array_filter($data, fn (mixed $value): bool => (bool) $value);
 
         self::validateRequiredFields($data);
 
@@ -93,6 +93,7 @@ class TransferParameters
         if ($period < 1 || $period > 10) {
             throw new InvalidArgumentException('Period is invalid.');
         }
+
         $this->period = $period;
     }
 

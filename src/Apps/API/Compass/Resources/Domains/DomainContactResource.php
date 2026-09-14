@@ -17,7 +17,12 @@ class DomainContactResource extends JsonResource
             'id' => $this->resource->id,
             'name' => sprintf('%s %s', $this->resource->first_name, $this->resource->last_name),
             'email' => $this->resource->email,
-            'phone' => sprintf('%s %s %s', $this->resource->phone_country_code, $this->resource->phone_area_code, $this->resource->phone_subscriber_number),
+            'phone' => sprintf(
+                '%s %s %s',
+                $this->resource->phone_country_code,
+                $this->resource->phone_area_code,
+                $this->resource->phone_subscriber_number,
+            ),
             'street' => sprintf('%s %s', $this->resource->street_name, $this->resource->street_number),
             'city' => $this->resource->city,
             'zip_code' => $this->resource->zip_code,

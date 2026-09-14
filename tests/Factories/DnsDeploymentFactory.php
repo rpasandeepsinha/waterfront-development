@@ -32,37 +32,30 @@ class DnsDeploymentFactory extends Factory
 
     public function withExternalNameserver(): DnsDeploymentFactory
     {
-        return $this
-            ->has(
-                (new DnsExternalNameserverFactory()),
-                'externalNameservers'
-            )
-            ->state(fn () => [
-                'nameserver_type' => NameserverType::EXTERNAL,
+        return $this->has(
+            new DnsExternalNameserverFactory(),
+            'externalNameservers',
+        )->state(fn () => [
+            'nameserver_type' => NameserverType::EXTERNAL,
         ]);
     }
 
     public function withInternalNameserver(): DnsDeploymentFactory
     {
-        return $this
-            ->has(
-                new DnsNameserverFactory()
-                    ->for((new DnsRegionFactory())),
-                'dnsNameservers'
-            )
-            ->state(fn () => [
-                'nameserver_type' => NameserverType::INTERNAL,
-            ]);
+        return $this->has(
+            new DnsNameserverFactory()->for(new DnsRegionFactory()),
+            'dnsNameservers',
+        )->state(fn () => [
+            'nameserver_type' => NameserverType::INTERNAL,
+        ]);
     }
 
     public function withVanityNameserver(): DnsDeploymentFactory
     {
-        return $this
-            ->has(
-                (new DnsVanityNameserverFactory()),
-                'vanityNameservers'
-            )
-            ->state(fn () => [
+        return $this->has(
+            new DnsVanityNameserverFactory(),
+            'vanityNameservers',
+        )->state(fn () => [
             'nameserver_type' => NameserverType::VANITY,
         ]);
     }

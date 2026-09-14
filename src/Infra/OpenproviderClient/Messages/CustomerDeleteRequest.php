@@ -11,8 +11,11 @@ class CustomerDeleteRequest extends BaseRequest
 {
     private string $endpoint = 'deleteCustomerRequest';
 
-    public function __construct(Client $client, OpenProviderConnectionInterface $connection, private readonly string $handle)
-    {
+    public function __construct(
+        Client $client,
+        OpenProviderConnectionInterface $connection,
+        private readonly string $handle,
+    ) {
         parent::__construct($client, $connection);
     }
 

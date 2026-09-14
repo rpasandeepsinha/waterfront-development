@@ -13,7 +13,7 @@ class DnsVanityTldCountMismatchException extends Exception
         parent::__construct(sprintf(
             'There are %d vanitytlds required - %d given',
             $tldsRequired,
-            $tldsGiven
+            $tldsGiven,
         ));
     }
 }

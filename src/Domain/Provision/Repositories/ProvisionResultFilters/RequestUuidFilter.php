@@ -11,7 +11,7 @@ use Waterfront\Domain\Provision\Models\ProvisioningResult;
 class RequestUuidFilter
 {
     public function __construct(
-        private readonly ?UuidInterface $uuid
+        private readonly ?UuidInterface $uuid,
     ) {
     }
 

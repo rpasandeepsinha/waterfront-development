@@ -21,7 +21,7 @@ class BasekitSiteResult extends SitebuilderResult
         public ?int $siteRef = null,
         public ?string $domain = null,
         ?Throwable $exception = null,
-        ?ValidationResult $validationResult = null
+        ?ValidationResult $validationResult = null,
     ) {
         parent::__construct($provisionData, $provisionStatus, $exception, $validationResult);
     }

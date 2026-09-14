@@ -89,6 +89,7 @@ class SslProduct
     {
         $res = new self();
         $res->productId = is_numeric($value) ? (int) $value : $value;
+
         return $res;
     }
 

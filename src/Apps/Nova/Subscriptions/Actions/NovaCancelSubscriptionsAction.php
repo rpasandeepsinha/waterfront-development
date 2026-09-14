@@ -38,7 +38,7 @@ class NovaCancelSubscriptionsAction extends NovaSubscriptionAction
         private readonly CancellationService $cancellationService,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool => $this->onlyForSingleCustomer($request)
+            fn (NovaRequest $request): bool => $this->onlyForSingleCustomer($request),
         );
     }
 
@@ -69,7 +69,8 @@ class NovaCancelSubscriptionsAction extends NovaSubscriptionAction
                 continue;
             }
 
-            $parentExistsInModels = $models->where('id', $subscription->parent_subscription_id)->first() instanceof Subscription;
+            $parentExistsInModels = $models->where('id', $subscription->parent_subscription_id)->first()
+            instanceof Subscription;
 
             try {
                 if ($this->dnsProductSpecRepository->isPremiumDns($subscription->product) && ! $parentExistsInModels) {
@@ -78,11 +79,13 @@ class NovaCancelSubscriptionsAction extends NovaSubscriptionAction
                     $this->changeService->change(
                         changeType: ProductChangeType::DOWNGRADE,
                         subscription: $subscription,
-                        newProduct: $downgradeProduct
+                        newProduct: $downgradeProduct,
                     );
                     continue;
                 }
-            } catch (PdnsResponseException|GuzzleException|SubscriptionChangeException|DnsChangeException|JsonException|DowngradeCancelException $e) {
+            } catch (
+                PdnsResponseException|GuzzleException|SubscriptionChangeException|DnsChangeException|JsonException|DowngradeCancelException $e
+            ) {
                 $failedCancellations[] = $subscription->uuid;
 
                 $this->logger->warning(
@@ -90,7 +93,7 @@ class NovaCancelSubscriptionsAction extends NovaSubscriptionAction
                     [
                         LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                         LoggingContextKeys::EXCEPTION => $e,
-                    ]
+                    ],
                 );
                 continue;
             }
@@ -99,7 +102,7 @@ class NovaCancelSubscriptionsAction extends NovaSubscriptionAction
                 subscription: $subscription,
                 cancelType: SubscriptionCancelType::CANCEL_END_DATE,
                 cancelReason: SubscriptionCancelReason::REASON_CANCELLATION,
-                sendMail: false
+                sendMail: false,
             );
         }
 
@@ -107,8 +110,8 @@ class NovaCancelSubscriptionsAction extends NovaSubscriptionAction
             return self::danger(
                 $this->translator->translate(
                     'nova-action.cancel_subscriptions.failure',
-                    ['subscriptions' => $this->formatFailedCancellations($failedCancellations)]
-                )
+                    ['subscriptions' => $this->formatFailedCancellations($failedCancellations)],
+                ),
             );
         }
 

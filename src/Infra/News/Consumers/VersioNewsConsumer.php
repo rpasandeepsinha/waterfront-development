@@ -23,7 +23,7 @@ class VersioNewsConsumer implements NewsConsumer
     public function __construct(
         private readonly NewsRepository $newsRepository,
         private readonly string $newsApiUrl,
-        private readonly ConfigurationInterface $configuration
+        private readonly ConfigurationInterface $configuration,
     ) {
     }
 
@@ -41,6 +41,7 @@ class VersioNewsConsumer implements NewsConsumer
         if (! $response->ok()) {
             $status = $response->status();
             Log::warning("Unable to consume news. Response failed with code [{$status}]");
+
             return;
         }
 

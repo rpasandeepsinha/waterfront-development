@@ -12,8 +12,9 @@ use Waterfront\Domain\Servers\Models\Server;
 
 class GenericHostingModelConverter
 {
-    public function __construct(private readonly HostingDeploymentService $hostingDeploymentService)
-    {
+    public function __construct(
+        private readonly HostingDeploymentService $hostingDeploymentService,
+    ) {
     }
 
     /**
@@ -40,6 +41,7 @@ class GenericHostingModelConverter
         if ($hostingDeployment->subscription->product->isMailOnlyServer()) {
             return $hostingDeployment->mailOnlyServer;
         }
+
         if ($hostingDeployment->subscription->product->isSitebuilderProduct()) {
             return $hostingDeployment->basekitServer;
         }

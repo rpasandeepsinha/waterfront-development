@@ -142,11 +142,11 @@ class Customer extends Model implements AuditableContract, IsMailable, Authentic
     ];
 
     protected $attributes = [
-        'credit_limit'     => Customer::CREDIT_LIMIT,
-        'is_verified'     => false,
+        'credit_limit' => Customer::CREDIT_LIMIT,
+        'is_verified' => false,
         'has_direct_debit' => false,
         'is_abuse' => false,
-        'payment_type'     => PaymentType::DIRECT,
+        'payment_type' => PaymentType::DIRECT,
         'locale' => Customer::DEFAULT_LOCALE,
         'gender' => 'X',
     ];
@@ -165,7 +165,7 @@ class Customer extends Model implements AuditableContract, IsMailable, Authentic
 
                 // Enforce that we will not send our own customer number to the DB
                 unset($model->customer_number);
-            }
+            },
         );
 
         Customer::created(
@@ -181,14 +181,15 @@ class Customer extends Model implements AuditableContract, IsMailable, Authentic
                 $freshCustomer = $model->fresh();
 
                 $model->customer_number = $freshCustomer->customer_number;
-            }
+            },
         );
     }
 
-    public function setVatNumberAttribute(null|string $vatNumber): void
+    public function setVatNumberAttribute(?string $vatNumber): void
     {
         if ($vatNumber === null) {
             $this->attributes['vat_number'] = $vatNumber;
+
             return;
         }
 
@@ -215,26 +216,25 @@ class Customer extends Model implements AuditableContract, IsMailable, Authentic
      */
     public function paidOrExtensionSubscriptions(): HasMany
     {
-        return $this->hasMany(Subscription::class)
-            ->where(
-                function (Builder|HasMany $filter) {
-                    $filter->where(function (Builder|HasMany $priceQuery) {
-                        $priceQuery
-                            ->where('gross_price', '!=', 0);
-                    })
-                    ->orWhereHas(
-                        'product.productGroup',
-                        fn (Builder $productGroupQuery): Builder => $productGroupQuery->where('slug', ProductGroupType::EXTENSION)
-                    );
-                }
-            );
+        return $this->hasMany(Subscription::class)->where(
+            function (Builder|HasMany $filter) {
+                $filter->where(function (Builder|HasMany $priceQuery) {
+                    $priceQuery->where('gross_price', '!=', 0);
+                })->orWhereHas(
+                    'product.productGroup',
+                    fn (Builder $productGroupQuery): Builder => $productGroupQuery->where(
+                        'slug',
+                        ProductGroupType::EXTENSION,
+                    ),
+                );
+            },
+        );
     }
 
     /** @return HasMany<Subscription, $this> */
     public function activeSubscriptions(): HasMany
     {
-        return $this->hasMany(Subscription::class)
-            ->where('administrative_status', AdministrativeStatus::ACTIVE->value);
+        return $this->hasMany(Subscription::class)->where('administrative_status', AdministrativeStatus::ACTIVE->value);
     }
 
     /** @return HasOne<CustomerAddress, $this> */
@@ -268,7 +268,7 @@ class Customer extends Model implements AuditableContract, IsMailable, Authentic
             'customer_id',
             'id',
             'id',
-            'product_discount_id'
+            'product_discount_id',
         );
     }
 
@@ -287,8 +287,7 @@ class Customer extends Model implements AuditableContract, IsMailable, Authentic
     /** @return HasOne<CustomerContact, $this> */
     public function financialContact(): HasOne
     {
-        return $this->hasOne(CustomerContact::class)
-            ->where('type', CustomerContactType::FINANCIAL->value);
+        return $this->hasOne(CustomerContact::class)->where('type', CustomerContactType::FINANCIAL->value);
     }
 
     /** @return HasMany<DomainContact, $this> */

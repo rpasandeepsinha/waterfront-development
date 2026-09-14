@@ -39,7 +39,9 @@ class NovaCustomerWalletDownloadOverviewCsvAction extends Action
 
     public function handle(ActionFields $fields): ActionResponse|static
     {
-        $refDate = $fields->ref_date ? CarbonImmutable::createFromFormat(DateTimeFormat::DATE, $fields->ref_date) : CarbonImmutable::now();
+        $refDate = $fields->ref_date
+            ? CarbonImmutable::createFromFormat(DateTimeFormat::DATE, $fields->ref_date)
+            : CarbonImmutable::now();
         assert($refDate instanceof DateTimeInterface);
         $refDate = $refDate->startOfDay();
 
@@ -55,10 +57,11 @@ class NovaCustomerWalletDownloadOverviewCsvAction extends Action
                 'downloaded_at',
             ],
             array_map(static function (CustomerWallet $wallet) use ($refDate): array {
-                $isRequestedAtBeforeRefDate = $wallet->refund_requested_at !== null
-                    && $wallet->refund_requested_at <= $refDate;
-                $isDownloadedAtBeforeRefDate = $wallet->csv_downloaded_at !== null
-                    && $wallet->csv_downloaded_at <= $refDate;
+                $isRequestedAtBeforeRefDate =
+                    $wallet->refund_requested_at !== null && $wallet->refund_requested_at <= $refDate;
+                $isDownloadedAtBeforeRefDate =
+                    $wallet->csv_downloaded_at !== null && $wallet->csv_downloaded_at <= $refDate;
+
                 return [
                     $wallet->customer->customer_number,
                     $isRequestedAtBeforeRefDate ? $wallet->bank_account_name : '',
@@ -83,7 +86,10 @@ class NovaCustomerWalletDownloadOverviewCsvAction extends Action
     public function fields(NovaRequest $request): array
     {
         return [
-            Date::make($this->translator->translate('nova-action.customer.wallet.download_overview_csv.ref_date'), 'ref_date')
+            Date::make(
+                $this->translator->translate('nova-action.customer.wallet.download_overview_csv.ref_date'),
+                'ref_date',
+            )
                 ->default(fn (): DateTimeImmutable => CarbonImmutable::now())
                 ->help($this->translator->translate('nova-action.customer.wallet.download_overview_csv.ref_date.help')),
         ];
@@ -96,9 +102,7 @@ class NovaCustomerWalletDownloadOverviewCsvAction extends Action
         $csvFileName = sprintf('customer-wallet-overview-ref-date-%s.csv', $refDate->format(DateTimeFormat::FILENAME));
 
         // Store the csv in the private export directory so that we can hand it over for downloading.
-        $this->filesystemManager
-            ->disk('private')
-            ->put('exports/' . $csvFileName, $csvContent);
+        $this->filesystemManager->disk('private')->put('exports/' . $csvFileName, $csvContent);
 
         return $csvFileName;
     }

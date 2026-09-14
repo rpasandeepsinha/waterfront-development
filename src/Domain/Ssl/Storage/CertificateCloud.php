@@ -20,13 +20,11 @@ class CertificateCloud
         $this->filesystem->put($path, $certificate);
     }
 
-    public function getCertificate(string $domain, string $type): string|null
+    public function getCertificate(string $domain, string $type): ?string
     {
         $path = $this->getCertificatePath($domain, $type);
 
-        return $this->filesystem->exists($path)
-            ? $this->filesystem->get($path)
-            : null;
+        return $this->filesystem->exists($path) ? $this->filesystem->get($path) : null;
     }
 
     private function getCertificatePath(string $domain, string $type): string
@@ -34,7 +32,7 @@ class CertificateCloud
         return sprintf(
             '%s/%s.crt',
             $domain,
-            $type
+            $type,
         );
     }
 }

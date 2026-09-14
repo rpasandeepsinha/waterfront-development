@@ -35,9 +35,7 @@ class MigratedSubscriptionRepository
             ];
         }
 
-        return Subscription::query()
-            ->has('migratedSubscriptions')
-            ->with($relations);
+        return Subscription::query()->has('migratedSubscriptions')->with($relations);
     }
 
     /**

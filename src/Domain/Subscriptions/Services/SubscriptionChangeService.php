@@ -76,7 +76,7 @@ readonly class SubscriptionChangeService
 
         $downgradeWhenCancelledSpec = $this->productSpecRepository->findBySpecification(
             $subscription->product,
-            ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED->value
+            ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED->value,
         );
 
         if (! $downgradeWhenCancelledSpec instanceof ProductSpec) {
@@ -126,13 +126,14 @@ readonly class SubscriptionChangeService
                 ProductGroupType::ONE_TIME_SERVICE,
                 ProductGroupType::VOLUME_DISCOUNT,
                 ProductGroupType::BACKUP,
-                ProductGroupType::ADD_ON => null
+                ProductGroupType::ADD_ON,
+                    => null,
             };
 
             $this->change(
                 changeType: ProductChangeType::DOWNGRADE,
                 subscription: $subscription,
-                newProduct: $downgradeProduct
+                newProduct: $downgradeProduct,
             );
         } catch (DowngradeCancelException $e) {
             $this->logger->error('Downgrading subscription instead of terminating contains an error and is therefore not executed', [
@@ -154,7 +155,7 @@ readonly class SubscriptionChangeService
         $newProductPrice = $this->getNewProductPrice(
             changeType: ProductChangeType::UPGRADE,
             subscription: $subscription,
-            newProduct: $newProduct
+            newProduct: $newProduct,
         );
 
         if ($priceComponent !== null) {
@@ -184,12 +185,12 @@ readonly class SubscriptionChangeService
         Subscription $subscription,
         Product $newProduct,
         bool $invoiceTheChange = true,
-        bool $sendMail = true
+        bool $sendMail = true,
     ): SubscriptionChange {
         $newProductPrice = $this->getNewProductPrice(
             changeType: $changeType,
             subscription: $subscription,
-            newProduct: $newProduct
+            newProduct: $newProduct,
         );
 
         $currentSubscriptions = [$subscription];
@@ -223,7 +224,7 @@ readonly class SubscriptionChangeService
             $charge = $this->charge(
                 changeType: $changeType,
                 subscriptions: $currentSubscriptions,
-                newProductPrice: $newProductPrice
+                newProductPrice: $newProductPrice,
             );
         }
 
@@ -249,8 +250,8 @@ readonly class SubscriptionChangeService
                 new SubscriptionChangedEvent(
                     subscription: $subscription,
                     charge: $charge,
-                    changeType: $changeType
-                )
+                    changeType: $changeType,
+                ),
             );
         }
 
@@ -299,12 +300,17 @@ readonly class SubscriptionChangeService
             // We don't credit on an upgrade.
             ProductChangeType::UPGRADE => array_reduce(
                 $subscriptions,
-                fn ($remaining, Subscription $subscription) => $remaining + $this->priceService->calculateProRate($subscription->net_price, $newProductPrice->calculatedPrice, $subscription->next_billing_date, $subscription->billing_period),
-                0
+                fn ($remaining, Subscription $subscription) => $remaining
+                + $this->priceService->calculateProRate(
+                    $subscription->net_price,
+                    $newProductPrice->calculatedPrice,
+                    $subscription->next_billing_date,
+                    $subscription->billing_period,
+                ),
+                0,
             ),
             // We don't refund on a downgrade.
-            ProductChangeType::DOWNGRADE,
-            ProductChangeType::REINSTALL => 0,
+            ProductChangeType::DOWNGRADE, ProductChangeType::REINSTALL => 0,
         };
     }
 
@@ -326,7 +332,7 @@ readonly class SubscriptionChangeService
                 $newProductPrice = $this->getNewProductPrice(
                     changeType: $changeType,
                     subscription: $subscription,
-                    newProduct: $potentialChangeProduct
+                    newProduct: $potentialChangeProduct,
                 );
 
                 $validatedChanges->push(
@@ -334,9 +340,9 @@ readonly class SubscriptionChangeService
                         'product' => $potentialChangeProduct->toArray(),
                         'full_charge' => $newProductPrice->calculatedPrice,
                         'charge' => $this->charge($changeType, [$subscription], $newProductPrice),
-                    ]
+                    ],
                 );
-            } catch (SubscriptionChangeException | ModelNotFoundException $exception) {
+            } catch (SubscriptionChangeException|ModelNotFoundException $exception) {
                 $this->logger->warning(
                     sprintf(
                         'Product with UUID "%s" was filtered out from upgrade list for subscription with UUID "%s".',
@@ -348,7 +354,7 @@ readonly class SubscriptionChangeService
                         LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                         LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                         LoggingContextKeys::EXCEPTION => $exception,
-                    ]
+                    ],
                 );
                 continue;
             }
@@ -360,25 +366,34 @@ readonly class SubscriptionChangeService
     /**
      * @throws SubscriptionChangeException
      */
-    public function getNewProductPrice(ProductChangeType $changeType, Subscription $subscription, Product $newProduct): Price
-    {
+    public function getNewProductPrice(
+        ProductChangeType $changeType,
+        Subscription $subscription,
+        Product $newProduct,
+    ): Price {
         $potentialProducts = match ($changeType) {
             ProductChangeType::UPGRADE => $this->allowedChangeRepository->getPotentialUpgrades($subscription->product),
-            ProductChangeType::DOWNGRADE => $this->allowedChangeRepository->getPotentialDowngrades($subscription->product),
-            ProductChangeType::REINSTALL => $this->allowedChangeRepository->getPotentialReinstalls($subscription->product),
+            ProductChangeType::DOWNGRADE
+                => $this->allowedChangeRepository->getPotentialDowngrades($subscription->product),
+            ProductChangeType::REINSTALL
+                => $this->allowedChangeRepository->getPotentialReinstalls($subscription->product),
         };
 
         if ($potentialProducts->where('uuid', $newProduct->uuid)->isEmpty()) {
             throw SubscriptionChangeException::noPotentialProducts(
                 subscriptionUuid: $subscription->uuid,
-                productName: $newProduct->name
+                productName: $newProduct->name,
             );
         }
 
         try {
             $priceRequest = new PriceRequest([new ProlongationPriceRequest($newProduct)], $subscription->customer);
             $priceList = $this->priceResolver->getPriceList($priceRequest);
-            $newProductPrice = $priceList->getProductPrice($newProduct->slug, $subscription->contract_period, $subscription->billing_period);
+            $newProductPrice = $priceList->getProductPrice(
+                $newProduct->slug,
+                $subscription->contract_period,
+                $subscription->billing_period,
+            );
         } catch (ItemNotFoundException) {
             throw SubscriptionChangeException::noProlongationProductPrice(
                 productName: $newProduct->name,
@@ -397,7 +412,7 @@ readonly class SubscriptionChangeService
     {
         $productSpec = $this->productSpecRepository->findBySpecification(
             product: $subscription->product,
-            specification: ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED->value
+            specification: ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED->value,
         );
 
         if (! $productSpec instanceof ProductSpec) {
@@ -405,7 +420,7 @@ readonly class SubscriptionChangeService
                 'Downgrade not possible for product "%s" with %d due to the absence of the correct product spec %s',
                 $subscription->product->slug,
                 $subscription->product->id,
-                ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED->value
+                ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED->value,
             ));
         }
 
@@ -416,7 +431,7 @@ readonly class SubscriptionChangeService
         if (! $this->allowedChangeRepository->isProductChangeAllowed(
             changeType: ProductChangeType::DOWNGRADE,
             fromProduct: $subscription->product,
-            toProduct: $product
+            toProduct: $product,
         )) {
             throw new DowngradeCancelException(sprintf(
                 'Downgrade not possible for product "%s": target product "%s" is not a downgrade possibility',
@@ -432,7 +447,7 @@ readonly class SubscriptionChangeService
         Subscription $subscription,
         Product $newProduct,
         ProductChangeType $changeType,
-        SubscriptionChangeStatus $status
+        SubscriptionChangeStatus $status,
     ): void {
         $change = new SubscriptionChange();
         $change->uuid = Uuid::uuid4();

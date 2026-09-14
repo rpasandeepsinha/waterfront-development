@@ -21,12 +21,12 @@ class CustomerAddressResource extends Resource
     public function toArray($request): array
     {
         return [
-            'street_name'   => $this->street_name,
+            'street_name' => $this->street_name,
             'street_number' => $this->street_number,
             'street_number_addition' => $this->street_number_addition,
-            'zip_code'      => $this->zip_code,
-            'city'          => $this->city,
-            'country_code'  => $this->country_code,
+            'zip_code' => $this->zip_code,
+            'city' => $this->city,
+            'country_code' => $this->country_code,
         ];
     }
 }

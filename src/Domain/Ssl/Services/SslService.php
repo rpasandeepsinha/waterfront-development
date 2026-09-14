@@ -50,13 +50,13 @@ class SslService implements SslDriverInterface
         int $period,
         array $customerData,
         SslDeployment $sslDeployment,
-        ?string $csr = null
+        ?string $csr = null,
     ): Result {
         Log::info(
             self::class . '::create - Create new ssl',
             [
                 LoggingContextKeys::PROVISIONING_ID => $sslDeployment->id,
-            ]
+            ],
         );
 
         $domain = $sslDeployment->subscription->domain;
@@ -77,7 +77,7 @@ class SslService implements SslDriverInterface
             $sslDomain,
             $customerData,
             $sslDeployment->subscription->uuid,
-            $csr
+            $csr,
         );
     }
 
@@ -85,7 +85,7 @@ class SslService implements SslDriverInterface
     {
         if ($sslDeployment->certificate_id === null) {
             throw new LogicException(
-                "SSL deployment with id {$sslDeployment->id} has no certificate ID, so the SSL cannot be retrieved."
+                "SSL deployment with id {$sslDeployment->id} has no certificate ID, so the SSL cannot be retrieved.",
             );
         }
 
@@ -100,7 +100,7 @@ class SslService implements SslDriverInterface
     public function reissue(
         array $customerData,
         SslDeployment $sslDeployment,
-        string $csr
+        string $csr,
     ): Result {
         $domain = $sslDeployment->subscription->domain;
         Assert::notNull($domain, 'Provided subscription has no domain');
@@ -110,7 +110,7 @@ class SslService implements SslDriverInterface
             [
                 LoggingContextKeys::PROVISIONING_ID => $sslDeployment->id,
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-            ]
+            ],
         );
 
         /** @var int $certificateId */
@@ -118,12 +118,12 @@ class SslService implements SslDriverInterface
 
         $parameters = Parameters::create(
             [
-                'domain'                => $domain,
-                'customer'              => $customerData,
-                'productId'             => 31,
-                'period'                => $sslDeployment->subscription->contract_period,
-                'csr'                   => $csr,
-            ]
+                'domain' => $domain,
+                'customer' => $customerData,
+                'productId' => 31,
+                'period' => $sslDeployment->subscription->contract_period,
+                'csr' => $csr,
+            ],
         );
 
         $result = $this->openproviderClientFactory->create()->reissueSsl($certificateId, $parameters);
@@ -153,7 +153,7 @@ class SslService implements SslDriverInterface
             [
                 LoggingContextKeys::PROVISIONING_ID => $sslDeployment->id,
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-            ]
+            ],
         );
 
         try {
@@ -161,7 +161,7 @@ class SslService implements SslDriverInterface
 
             if ($certificateId === null) {
                 throw new LogicException(
-                    "SSL deployment with id {$sslDeployment->id} has no certificate ID, so the SSL cannot be retrieved."
+                    "SSL deployment with id {$sslDeployment->id} has no certificate ID, so the SSL cannot be retrieved.",
                 );
             }
 
@@ -180,7 +180,7 @@ class SslService implements SslDriverInterface
             throw new RuntimeException(
                 'Failed to renew SSL deployment: ' . $exception->getMessage(),
                 $exception->getCode(),
-                $exception
+                $exception,
             );
         }
     }
@@ -193,13 +193,18 @@ class SslService implements SslDriverInterface
         if ($domain === 'test.com') {
             return true;
         }
+
         try {
             $status = $this->certificateService->check($domain, $period);
         } catch (Throwable $exception) {
             Log::error(
-                self::class . '::check - status code: ' . $exception->getCode()
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString()
+                self::class
+                    . '::check - status code: '
+                    . $exception->getCode()
+                    . ', message: '
+                    . $exception->getMessage()
+                    . ', trace: '
+                    . $exception->getTraceAsString(),
             );
 
             throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);
@@ -212,7 +217,7 @@ class SslService implements SslDriverInterface
                 LoggingContextKeys::META => [
                     'status' => $status,
                 ],
-            ]
+            ],
         );
 
         return $status;
@@ -221,8 +226,12 @@ class SslService implements SslDriverInterface
     /**
      * @inheritDoc
      */
-    public function prepareCertificateInstallParameters(int $certificateId, string $domain, array $certificates, bool $alreadySaved = false): array
-    {
+    public function prepareCertificateInstallParameters(
+        int $certificateId,
+        string $domain,
+        array $certificates,
+        bool $alreadySaved = false,
+    ): array {
         $sslDeployment = SslDeployment::where('certificate_id', $certificateId)->firstOrFail();
 
         if (! $alreadySaved) {
@@ -233,7 +242,7 @@ class SslService implements SslDriverInterface
 
         return [
             'subscriptionUuid' => $sslDeployment->subscription_uuid,
-            'parameters'       => $parameters->toArray(),
+            'parameters' => $parameters->toArray(),
         ];
     }
 
@@ -273,8 +282,10 @@ class SslService implements SslDriverInterface
     {
         $csrTrimmed = trim($csr);
 
-        if (! Str::startsWith($csrTrimmed, '-----BEGIN CERTIFICATE REQUEST-----') ||
-            ! Str::endsWith($csrTrimmed, '-----END CERTIFICATE REQUEST-----')) {
+        if (
+            ! Str::startsWith($csrTrimmed, '-----BEGIN CERTIFICATE REQUEST-----')
+            || ! Str::endsWith($csrTrimmed, '-----END CERTIFICATE REQUEST-----')
+        ) {
             return false;
         }
 
@@ -296,6 +307,7 @@ class SslService implements SslDriverInterface
         if ($this->compareTwoDomains($csrDomain, $domain)) {
             return $csrArray;
         }
+
         return false;
     }
 
@@ -316,11 +328,7 @@ class SslService implements SslDriverInterface
 
     public function resolveCsrDomain(string $commonName): string
     {
-        return $this->publicSuffixRules
-            ->getRules()
-            ->resolve($commonName)
-            ->registrableDomain()
-            ->toString();
+        return $this->publicSuffixRules->getRules()->resolve($commonName)->registrableDomain()->toString();
     }
 
     public function compareTwoDomains(string $one, string $two): bool

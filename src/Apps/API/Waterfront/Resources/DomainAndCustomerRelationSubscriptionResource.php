@@ -33,6 +33,7 @@ readonly class DomainAndCustomerRelationSubscriptionResource
         foreach ($subscriptions as $subscription) {
             $subscriptionArray[] = $this->subscriptionToArray($subscription);
         }
+
         return $subscriptionArray;
     }
 
@@ -47,7 +48,8 @@ readonly class DomainAndCustomerRelationSubscriptionResource
         foreach ($subscriptions as $subscription) {
             $subscriptionArray[] = $this->subscriptionToArray($subscription);
         }
-        return json_encode($subscriptionArray, flags:JSON_THROW_ON_ERROR);
+
+        return json_encode($subscriptionArray, flags: JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -58,20 +60,20 @@ readonly class DomainAndCustomerRelationSubscriptionResource
         $subscription->loadMissing(['product', 'product.productGroup']);
 
         return [
-            'id'                    => $subscription->id,
-            'uuid'                  => $subscription->uuid,
-            'product'               => $this->productPresenter->toArray($subscription->product),
-            'domain'                => $subscription->domain,
-            'net_price'             => $subscription->net_price,
-            'billing_period'        => $subscription->billing_period,
-            'contract_period'       => $subscription->contract_period,
-            'start_date'            => $subscription->start_date->toW3cString(),
-            'end_date'              => $subscription->end_date->toW3cString(),
+            'id' => $subscription->id,
+            'uuid' => $subscription->uuid,
+            'product' => $this->productPresenter->toArray($subscription->product),
+            'domain' => $subscription->domain,
+            'net_price' => $subscription->net_price,
+            'billing_period' => $subscription->billing_period,
+            'contract_period' => $subscription->contract_period,
+            'start_date' => $subscription->start_date->toW3cString(),
+            'end_date' => $subscription->end_date->toW3cString(),
             'administrative_status' => $subscription->administrative_status,
-            'status'                => DetermineSubscriptionActiveStatusHelper::resolve($subscription),
-            'technical_status'      => $subscription->technical_status,
-            'available_actions'     => $this->subscriptionPolicy->getAvailableActions($subscription),
-            'children'              => $this->subscriptionPresenter->collectionToArray($subscription->children),
+            'status' => DetermineSubscriptionActiveStatusHelper::resolve($subscription),
+            'technical_status' => $subscription->technical_status,
+            'available_actions' => $this->subscriptionPolicy->getAvailableActions($subscription),
+            'children' => $this->subscriptionPresenter->collectionToArray($subscription->children),
             'next_invoice' => [
                 'date' => $subscription->next_billing_date->format(DateTimeFormat::DATE),
                 'price' => $this->getNextInvoicePriceAction->execute($subscription)->netPrice,

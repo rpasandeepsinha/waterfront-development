@@ -60,21 +60,19 @@ class DnsProvisionedListenerTest extends TestCase
     {
         parent::setUp();
 
-        $this->dnsDeployment = new DnsDeploymentFactory()
-            ->for(
-                new SubscriptionFactory()->withCustomer()->for(
-                    new ProductFactory()
-                        ->for(new ProductGroupFactory()->dns())
-                        ->premiumDns()
-                        ->has(
-                            new ProductSpecFactory()->state([
-                                'name' => ProductSpecName::DNS_IS_PREMIUM->value,
-                                'value' => true,
-                            ])
-                        )
-                )
-            )
-            ->makeOne();
+        $this->dnsDeployment = new DnsDeploymentFactory()->for(
+            new SubscriptionFactory()->withCustomer()->for(
+                new ProductFactory()
+                    ->for(new ProductGroupFactory()->dns())
+                    ->premiumDns()
+                    ->has(
+                        new ProductSpecFactory()->state([
+                            'name' => ProductSpecName::DNS_IS_PREMIUM->value,
+                            'value' => true,
+                        ]),
+                    ),
+            ),
+        )->makeOne();
 
         $this->mockLogger = self::createMock(LoggerInterface::class);
         $this->mockDnsDeploymentRepository = self::createMock(DnsDeploymentRepository::class);
@@ -94,13 +92,16 @@ class DnsProvisionedListenerTest extends TestCase
     {
         $domainDeployment = new DomainDeploymentFactory()
             ->for(
-                new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->nlDomain())
-                    ->state(['domain' => self::DOMAIN])
+                new SubscriptionFactory()
+                    ->withCustomer()
+                    ->for(new ProductFactory()->nlDomain())
+                    ->state(['domain' => self::DOMAIN]),
             )
             ->for($this->provider)
             ->makeOne();
 
-        $this->mockLogger->expects(self::exactly(2))
+        $this->mockLogger
+            ->expects(self::exactly(2))
             ->method('info')
             ->with(...self::withConsecutive(
                 [
@@ -116,16 +117,16 @@ class DnsProvisionedListenerTest extends TestCase
                         LoggingContextKeys::SUBSCRIPTION_UUID => $domainDeployment->subscription_uuid,
                         LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
                     ],
-                ]
+                ],
             ));
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDomainDeployment')
             ->with($this->dnsDeployment)
             ->willReturn($domainDeployment);
 
-        $this->mockLogger->expects(self::never())
-            ->method('warning');
+        $this->mockLogger->expects(self::never())->method('warning');
 
         $this->mockDomainService
             ->expects(self::once())
@@ -133,7 +134,8 @@ class DnsProvisionedListenerTest extends TestCase
             ->with(self::DOMAIN, $domainDeployment->provider->slug)
             ->willReturn($this->domainDetails);
 
-        $this->mockDispatcher->expects(self::once())
+        $this->mockDispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(UpdateDomainNameRegistrationJob::class));
 
@@ -152,13 +154,16 @@ class DnsProvisionedListenerTest extends TestCase
     {
         $domainDeployment = new DomainDeploymentFactory()
             ->for(
-                new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->nlDomain())
-                    ->state(['domain' => self::DOMAIN])
+                new SubscriptionFactory()
+                    ->withCustomer()
+                    ->for(new ProductFactory()->nlDomain())
+                    ->state(['domain' => self::DOMAIN]),
             )
             ->for($this->provider)
             ->makeOne();
 
-        $this->mockLogger->expects(self::exactly(2))
+        $this->mockLogger
+            ->expects(self::exactly(2))
             ->method('info')
             ->with(...self::withConsecutive(
                 [
@@ -174,16 +179,16 @@ class DnsProvisionedListenerTest extends TestCase
                         LoggingContextKeys::SUBSCRIPTION_UUID => $domainDeployment->subscription_uuid,
                         LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
                     ],
-                ]
+                ],
             ));
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDomainDeployment')
             ->with($this->dnsDeployment)
             ->willReturn($domainDeployment);
 
-        $this->mockLogger->expects(self::never())
-            ->method('warning');
+        $this->mockLogger->expects(self::never())->method('warning');
 
         $this->mockDomainService
             ->expects(self::once())
@@ -197,7 +202,8 @@ class DnsProvisionedListenerTest extends TestCase
             ->with(self::DOMAIN, $domainDeployment->provider->slug)
             ->willThrowException(new FetchDomainException());
 
-        $this->mockDispatcher->expects(self::once())
+        $this->mockDispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(RegisterDomainNameJob::class));
 
@@ -216,13 +222,17 @@ class DnsProvisionedListenerTest extends TestCase
     {
         $domainDeployment = new DomainDeploymentFactory()
             ->for(
-                new SubscriptionFactory()->technicalStatusPending()->withCustomer()->for(new ProductFactory()->nlDomain())
-                    ->state(['domain' => self::DOMAIN])
+                new SubscriptionFactory()
+                    ->technicalStatusPending()
+                    ->withCustomer()
+                    ->for(new ProductFactory()->nlDomain())
+                    ->state(['domain' => self::DOMAIN]),
             )
             ->for($this->provider)
             ->makeOne();
 
-        $this->mockLogger->expects(self::exactly(2))
+        $this->mockLogger
+            ->expects(self::exactly(2))
             ->method('info')
             ->with(...self::withConsecutive(
                 [
@@ -238,16 +248,16 @@ class DnsProvisionedListenerTest extends TestCase
                         LoggingContextKeys::SUBSCRIPTION_UUID => $domainDeployment->subscription_uuid,
                         LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
                     ],
-                ]
+                ],
             ));
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDomainDeployment')
             ->with($this->dnsDeployment)
             ->willReturn($domainDeployment);
 
-        $this->mockLogger->expects(self::never())
-            ->method('warning');
+        $this->mockLogger->expects(self::never())->method('warning');
 
         $this->mockDomainService
             ->expects(self::once())
@@ -261,7 +271,8 @@ class DnsProvisionedListenerTest extends TestCase
             ->with(self::DOMAIN, $domainDeployment->provider->slug)
             ->willThrowException(new FetchDomainException());
 
-        $this->mockDispatcher->expects(self::once())
+        $this->mockDispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(RegisterDomainNameJob::class));
 
@@ -278,52 +289,48 @@ class DnsProvisionedListenerTest extends TestCase
     #[Test]
     public function withFailedDomainSubscriptionCheckShouldNotDispatchJob(): void
     {
-        $domainDeployment = new DomainDeploymentFactory()
-            ->for(
-                new SubscriptionFactory()
-                    ->withCustomer()
-                    ->technicalStatus(TechnicalStatus::FAILED->value)
-                    ->for(new ProductFactory()->nlDomain())
-            )
-            ->makeOne();
+        $domainDeployment = new DomainDeploymentFactory()->for(
+            new SubscriptionFactory()
+                ->withCustomer()
+                ->technicalStatus(TechnicalStatus::FAILED->value)
+                ->for(new ProductFactory()->nlDomain()),
+        )->makeOne();
 
-        $this->mockLogger->expects(self::exactly(2))
+        $this->mockLogger
+            ->expects(self::exactly(2))
             ->method('info')
             ->with(
                 ...self::withConsecutive(
                     [
-                    'DNS deployment provisioned for [{subscription.uuid}]',
-                    [
-                        LoggingContextKeys::SUBSCRIPTION_UUID => $this->dnsDeployment->subscription_uuid,
-                        LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
+                        'DNS deployment provisioned for [{subscription.uuid}]',
+                        [
+                            LoggingContextKeys::SUBSCRIPTION_UUID => $this->dnsDeployment->subscription_uuid,
+                            LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
+                        ],
                     ],
-                ],
                     [
-                    'Domain registration failed, not trying to register or update domain',
-                    [
-                        LoggingContextKeys::SUBSCRIPTION_UUID => $domainDeployment->subscription->uuid,
-                        LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
+                        'Domain registration failed, not trying to register or update domain',
+                        [
+                            LoggingContextKeys::SUBSCRIPTION_UUID => $domainDeployment->subscription->uuid,
+                            LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
+                        ],
                     ],
-                ]
-                )
+                ),
             );
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDomainDeployment')
             ->with($this->dnsDeployment)
             ->willReturn($domainDeployment);
 
-        $this->mockLogger->expects(self::never())
-            ->method('warning');
+        $this->mockLogger->expects(self::never())->method('warning');
 
-        $this->mockDispatcher->expects(self::never())
-            ->method('dispatch');
+        $this->mockDispatcher->expects(self::never())->method('dispatch');
 
-        $this->mockDomainService->expects(self::never())
-            ->method('registrationRequiresDnsBeforeSubmission');
+        $this->mockDomainService->expects(self::never())->method('registrationRequiresDnsBeforeSubmission');
 
-        $this->mockDomainService->expects(self::never())
-            ->method('fetchDomain');
+        $this->mockDomainService->expects(self::never())->method('fetchDomain');
 
         $listener = new DnsProvisionedListener(
             $this->mockDnsDeploymentRepository,
@@ -338,39 +345,39 @@ class DnsProvisionedListenerTest extends TestCase
     #[Test]
     public function withoutDomainDeploymentShouldNotDispatchJobs(): void
     {
-        $this->mockLogger->expects(self::once())
+        $this->mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'DNS deployment provisioned for [{subscription.uuid}]',
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->dnsDeployment->subscription_uuid,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
-                ]
+                ],
             );
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDomainDeployment')
             ->with($this->dnsDeployment)
             ->willReturn(null);
 
-        $this->mockLogger->expects(self::once())
+        $this->mockLogger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 'DnsProvisioned without domain parent subscription or product',
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->dnsDeployment->subscription_uuid,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
-                ]
+                ],
             );
 
-        $this->mockDispatcher->expects(self::never())
-            ->method('dispatch');
+        $this->mockDispatcher->expects(self::never())->method('dispatch');
 
-        $this->mockDomainService->expects(self::never())
-            ->method('registrationRequiresDnsBeforeSubmission');
+        $this->mockDomainService->expects(self::never())->method('registrationRequiresDnsBeforeSubmission');
 
-        $this->mockDomainService->expects(self::never())
-            ->method('fetchDomain');
+        $this->mockDomainService->expects(self::never())->method('fetchDomain');
 
         $listener = new DnsProvisionedListener(
             $this->mockDnsDeploymentRepository,
@@ -387,13 +394,17 @@ class DnsProvisionedListenerTest extends TestCase
     {
         $domainDeployment = new DomainDeploymentFactory()
             ->for(
-                new SubscriptionFactory()->technicalStatusPending()->withCustomer()->for(new ProductFactory()->nlDomain())
-                    ->state(['domain' => self::DOMAIN])
+                new SubscriptionFactory()
+                    ->technicalStatusPending()
+                    ->withCustomer()
+                    ->for(new ProductFactory()->nlDomain())
+                    ->state(['domain' => self::DOMAIN]),
             )
             ->for($this->provider)
             ->makeOne();
 
-        $this->mockLogger->expects(self::exactly(2))
+        $this->mockLogger
+            ->expects(self::exactly(2))
             ->method('info')
             ->with(...self::withConsecutive(
                 [
@@ -413,16 +424,16 @@ class DnsProvisionedListenerTest extends TestCase
                             'last_result_received' => $domainDeployment->last_result_received,
                         ],
                     ],
-                ]
+                ],
             ));
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDomainDeployment')
             ->with($this->dnsDeployment)
             ->willReturn($domainDeployment);
 
-        $this->mockLogger->expects(self::never())
-            ->method('warning');
+        $this->mockLogger->expects(self::never())->method('warning');
 
         $this->mockDomainService
             ->expects(self::once())
@@ -436,8 +447,7 @@ class DnsProvisionedListenerTest extends TestCase
             ->with(self::DOMAIN, $domainDeployment->provider->slug)
             ->willThrowException(new FetchDomainException());
 
-        $this->mockDispatcher->expects(self::never())
-            ->method('dispatch');
+        $this->mockDispatcher->expects(self::never())->method('dispatch');
 
         $listener = new DnsProvisionedListener(
             $this->mockDnsDeploymentRepository,
@@ -454,14 +464,18 @@ class DnsProvisionedListenerTest extends TestCase
     {
         $domainDeployment = new DomainDeploymentFactory()
             ->for(
-                new SubscriptionFactory()->technicalStatus(TechnicalStatus::PENDING->value)->withCustomer()->for(new ProductFactory()->nlDomain())
-                    ->state(['domain' => self::DOMAIN])
+                new SubscriptionFactory()
+                    ->technicalStatus(TechnicalStatus::PENDING->value)
+                    ->withCustomer()
+                    ->for(new ProductFactory()->nlDomain())
+                    ->state(['domain' => self::DOMAIN]),
             )
             ->for($this->provider)
             ->withRtrDomainStatus(RtrDomainStatus::PENDING_VALIDATION)
             ->makeOne();
 
-        $this->mockLogger->expects(self::exactly(2))
+        $this->mockLogger
+            ->expects(self::exactly(2))
             ->method('info')
             ->with(...self::withConsecutive(
                 [
@@ -478,16 +492,16 @@ class DnsProvisionedListenerTest extends TestCase
                         LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
                         LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
                     ],
-                ]
+                ],
             ));
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDomainDeployment')
             ->with($this->dnsDeployment)
             ->willReturn($domainDeployment);
 
-        $this->mockLogger->expects(self::never())
-            ->method('warning');
+        $this->mockLogger->expects(self::never())->method('warning');
 
         $this->mockDomainService
             ->expects(self::once())
@@ -495,8 +509,7 @@ class DnsProvisionedListenerTest extends TestCase
             ->with(self::DOMAIN, $domainDeployment->provider->slug)
             ->willThrowException(new FetchDomainException());
 
-        $this->mockDispatcher->expects(self::never())
-            ->method('dispatch');
+        $this->mockDispatcher->expects(self::never())->method('dispatch');
 
         $listener = new DnsProvisionedListener(
             $this->mockDnsDeploymentRepository,
@@ -513,14 +526,18 @@ class DnsProvisionedListenerTest extends TestCase
     {
         $domainDeployment = new DomainDeploymentFactory()
             ->for(
-                new SubscriptionFactory()->technicalStatus(TechnicalStatus::PENDING->value)->withCustomer()->for(new ProductFactory()->nlDomain())
-                    ->state(['domain' => self::DOMAIN])
+                new SubscriptionFactory()
+                    ->technicalStatus(TechnicalStatus::PENDING->value)
+                    ->withCustomer()
+                    ->for(new ProductFactory()->nlDomain())
+                    ->state(['domain' => self::DOMAIN]),
             )
             ->for($this->provider)
             ->withRtrDomainStatus(RtrDomainStatus::PENDING_VALIDATION)
             ->makeOne();
 
-        $this->mockLogger->expects(self::exactly(2))
+        $this->mockLogger
+            ->expects(self::exactly(2))
             ->method('info')
             ->with(...self::withConsecutive(
                 [
@@ -536,16 +553,16 @@ class DnsProvisionedListenerTest extends TestCase
                         LoggingContextKeys::SUBSCRIPTION_UUID => $domainDeployment->subscription_uuid,
                         LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
                     ],
-                ]
+                ],
             ));
 
-        $this->mockDnsDeploymentRepository->expects(self::once())
+        $this->mockDnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDomainDeployment')
             ->with($this->dnsDeployment)
             ->willReturn($domainDeployment);
 
-        $this->mockLogger->expects(self::never())
-            ->method('warning');
+        $this->mockLogger->expects(self::never())->method('warning');
 
         $this->mockDomainService
             ->expects(self::once())
@@ -553,7 +570,8 @@ class DnsProvisionedListenerTest extends TestCase
             ->with(self::DOMAIN, $domainDeployment->provider->slug)
             ->willReturn($this->domainDetails);
 
-        $this->mockDispatcher->expects(self::once())
+        $this->mockDispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(UpdateDomainNameRegistrationJob::class));
 

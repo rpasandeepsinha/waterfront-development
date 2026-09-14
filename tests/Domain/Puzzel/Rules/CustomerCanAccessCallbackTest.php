@@ -28,7 +28,8 @@ class CustomerCanAccessCallbackTest extends IntegrationTestCase
         $fail = false;
 
         $mockAuth = self::createMock(AuthenticationManager::class);
-        $mockAuth->expects($this->once())
+        $mockAuth
+            ->expects($this->once())
             ->method('getAuthenticatedSubject')
             ->willReturn(new AuthenticatedCustomer(
                 customer: $customer,
@@ -37,22 +38,21 @@ class CustomerCanAccessCallbackTest extends IntegrationTestCase
             ));
 
         $mockTranslator = self::createMock(WaterfrontTranslator::class);
-        $mockTranslator->expects($this->once())
+        $mockTranslator
+            ->expects($this->once())
             ->method('translate')
             ->with('validation.puzzel-no-callback-access')
             ->willReturn('validation.puzzel-no-callback-access');
 
         $mockCallbackRepo = self::createMock(ServicePlanChecker::class);
-        $mockCallbackRepo->expects($this->once())
-            ->method('hasAccessToServicePlan')
-            ->with($customer)
-            ->willReturn(false);
+        $mockCallbackRepo->expects($this->once())->method('hasAccessToServicePlan')->with($customer)->willReturn(false);
 
         $rule = new CustomerCanAccessCallback($mockTranslator, $mockAuth, $mockCallbackRepo);
 
         $rule->validate('attribute', 123, function (string $message, ?string $attribute = null) use (&$fail) {
             self::assertSame('validation.puzzel-no-callback-access', $message);
             $fail = true;
+
             return new PotentiallyTranslatedString('fail', $this->app->make(Translator::class));
         });
 

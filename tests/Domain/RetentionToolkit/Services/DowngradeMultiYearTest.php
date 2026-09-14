@@ -53,13 +53,9 @@ class DowngradeMultiYearTest extends IntegrationTestCase
 
         CarbonImmutable::setTestNow(self::NOW);
 
-        $this->customer = new CustomerFactory()
-            ->withAddress()
-            ->createOne();
+        $this->customer = new CustomerFactory()->withAddress()->createOne();
 
-        $productGroup = new ProductGroupFactory()
-            ->hosting()
-            ->createOne();
+        $productGroup = new ProductGroupFactory()->hosting()->createOne();
 
         $this->targetProduct = new ProductFactory()
             ->hostingBrons($productGroup)
@@ -121,14 +117,13 @@ class DowngradeMultiYearTest extends IntegrationTestCase
     #[Test]
     public function calculateBusiness(): void
     {
-        $results = self::resolve(RetentionToolkitService::class)
-            ->calculate($this->getRetentionOfferRequestDto());
+        $results = self::resolve(RetentionToolkitService::class)->calculate($this->getRetentionOfferRequestDto());
 
         self::assertCount(1, $results);
         $result = $results[0];
         self::assertSame(
             RetentionOfferCalculationStatus::CALCULATED,
-            $result->status
+            $result->status,
         );
         self::assertSame(0, $result->creditTotal);
         self::assertNotNull($result->price);
@@ -159,7 +154,7 @@ class DowngradeMultiYearTest extends IntegrationTestCase
         $result = $results[0];
         self::assertSame(
             RetentionOfferCalculationStatus::CALCULATED,
-            $result->status
+            $result->status,
         );
         self::assertSame(220, $result->creditTotal);
         self::assertNotNull($result->price);
@@ -188,16 +183,17 @@ class DowngradeMultiYearTest extends IntegrationTestCase
             fn (): HarborApi => self::createStub(HarborApi::class),
         );
 
-        $results = self::resolve(RetentionToolkitService::class)->apply(
-            request: $this->getRetentionOfferRequestDto(CustomerType::CONSUMER),
-            createdByMetadata: new IdentityMetadataDTO(Uuid::uuid4(), 'employee@yourhosting.nl'),
-        );
+        $results = self::resolve(RetentionToolkitService::class)
+            ->apply(
+                request: $this->getRetentionOfferRequestDto(CustomerType::CONSUMER),
+                createdByMetadata: new IdentityMetadataDTO(Uuid::uuid4(), 'employee@yourhosting.nl'),
+            );
 
         self::assertCount(1, $results);
         $result = $results[0];
         self::assertSame(
             RetentionOfferCalculationStatus::CALCULATED,
-            $result->status
+            $result->status,
         );
         self::assertSame(220, $result->creditTotal);
         self::assertNotNull($result->price);
@@ -269,7 +265,9 @@ class DowngradeMultiYearTest extends IntegrationTestCase
                 new RetentionOfferItemDTO(
                     subscription: $this->subscription,
                     selectedAction: SelectedAction::DG_OPTION_1D,
-                    executionDate: $customerType === CustomerType::BUSINESS ? ExecutionDate::CONTRACT_END : ExecutionDate::IMMEDIATE,
+                    executionDate: $customerType === CustomerType::BUSINESS
+                        ? ExecutionDate::CONTRACT_END
+                        : ExecutionDate::IMMEDIATE,
                     contractPeriod: 24,
                     billingPeriod: 24,
                     targetProduct: $this->targetProduct,

@@ -33,13 +33,13 @@ class SslCreateRequest extends BaseRequest
         $message = parent::getMessage();
 
         $message[$this->endpoint] = [
-            'productId'               => $this->parameters->getProductId(),
-            'period'                  => $this->parameters->getPeriod(),
-            'csr'                     => $this->parameters->getCsr(),
-            'softwareId'              => $this->parameters->getSoftwareId(),
-            'organizationHandle'      => $this->handles->getOwnerHandle(),
-            'technicalHandle'         => $this->handles->getTechHandle(),
-            'approverEmail'           => $this->parameters->getApproverEmail(),
+            'productId' => $this->parameters->getProductId(),
+            'period' => $this->parameters->getPeriod(),
+            'csr' => $this->parameters->getCsr(),
+            'softwareId' => $this->parameters->getSoftwareId(),
+            'organizationHandle' => $this->handles->getOwnerHandle(),
+            'technicalHandle' => $this->handles->getTechHandle(),
+            'approverEmail' => $this->parameters->getApproverEmail(),
             'domainValidationMethods' => ['array' => ['item' => $this->parameters->getDomainValidationMethods()]],
         ];
 

@@ -14,7 +14,7 @@ class AddonIsCorrectlyAttached extends AbstractValidator
 {
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private readonly ProductAddonCouplingRepository $productAddonCouplingRepository
+        private readonly ProductAddonCouplingRepository $productAddonCouplingRepository,
     ) {
     }
 
@@ -24,17 +24,25 @@ class AddonIsCorrectlyAttached extends AbstractValidator
             return false;
         }
 
-        $addonProducts = array_filter($value, fn ($product) => is_array($product) && array_key_exists('parent_subscription_uuid', $product));
+        $addonProducts = array_filter(
+            $value,
+            fn ($product) => is_array($product) && array_key_exists('parent_subscription_uuid', $product),
+        );
         $existingSubscriptions = array_column($addonProducts, 'parent_subscription_uuid');
         $existingSubscriptions = Subscription::whereIn('uuid', $existingSubscriptions)->with('product')->get();
         $orderedProducts = array_unique(array_column($addonProducts, 'slug'));
         $orderedProducts = Product::whereIn('slug', $orderedProducts)->get();
 
         return array_all($addonProducts, function ($addonProduct) use ($existingSubscriptions, $orderedProducts) {
-            $existingSubscription = $existingSubscriptions->where('uuid', $addonProduct['parent_subscription_uuid'])->firstOrFail();
+            $existingSubscription = $existingSubscriptions
+                ->where('uuid', $addonProduct['parent_subscription_uuid'])
+                ->firstOrFail();
             $orderedProduct = $orderedProducts->where('slug', $addonProduct['slug'])->firstOrFail();
 
-            return $this->productAddonCouplingRepository->existsForParentIdAndAddonId($existingSubscription->product->id, $orderedProduct->id);
+            return $this->productAddonCouplingRepository->existsForParentIdAndAddonId(
+                $existingSubscription->product->id,
+                $orderedProduct->id,
+            );
         });
     }
 

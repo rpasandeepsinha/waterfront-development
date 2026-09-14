@@ -31,34 +31,34 @@ class RedirectDestinationUrlRuleTest extends TestCase
     {
         return [
             // Bare domains
-            [true, 'versio.com'],
-            [true, 'VERSIO.COM'],
-            [true, 'sub.versio.com'],
-            [true, 'shop.sub.versio.com'],
-            [true, 'versio.co.uk'],
-            [true, 'versio.com.au'],
-            [true, 'mkyong-info.com'],
+            [true,  'versio.com'],
+            [true,  'VERSIO.COM'],
+            [true,  'sub.versio.com'],
+            [true,  'shop.sub.versio.com'],
+            [true,  'versio.co.uk'],
+            [true,  'versio.com.au'],
+            [true,  'mkyong-info.com'],
 
             // With http/https scheme
-            [true, 'http://versio.com'],
-            [true, 'https://versio.com'],
-            [true, 'https://sub.versio.com'],
-            [true, 'https://versio.com/'],
+            [true,  'http://versio.com'],
+            [true,  'https://versio.com'],
+            [true,  'https://sub.versio.com'],
+            [true,  'https://versio.com/'],
 
             // With path (no scheme)
-            [true, 'versio.com/old-page'],
-            [true, 'versio.com/old-page/'],
+            [true,  'versio.com/old-page'],
+            [true,  'versio.com/old-page/'],
 
             // With path and scheme
-            [true, 'https://versio.com/landing'],
-            [true, 'https://versio.com/landing/page'],
+            [true,  'https://versio.com/landing'],
+            [true,  'https://versio.com/landing/page'],
 
             // With query parameters (no scheme)
-            [true, 'versio.com?ref=yh'],
+            [true,  'versio.com?ref=yh'],
 
             // With path and query parameters
-            [true, 'versio.com/promo?ref=yh'],
-            [true, 'https://versio.com/landing?utm_source=newsletter&utm_medium=email'],
+            [true,  'versio.com/promo?ref=yh'],
+            [true,  'https://versio.com/landing?utm_source=newsletter&utm_medium=email'],
 
             // Invalid — no valid TLD
             [false, 'mkyong'],

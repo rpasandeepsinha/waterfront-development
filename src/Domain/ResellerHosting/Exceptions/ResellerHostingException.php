@@ -13,15 +13,15 @@ class ResellerHostingException extends Exception
         return new ResellerHostingException(
             sprintf(
                 'There where no packages found for the user with id : %d.',
-                $userId
-            )
+                $userId,
+            ),
         );
     }
 
     public static function noDirectadminCompatibleServerFound(): self
     {
         return new ResellerHostingException(
-            'No compatible server was found to deploy reseller hosting packages in directadmin!'
+            'No compatible server was found to deploy reseller hosting packages in directadmin!',
         );
     }
 
@@ -30,8 +30,8 @@ class ResellerHostingException extends Exception
         return new ResellerHostingException(
             sprintf(
                 'Directadmin username was not found for subscription with uuid: %s',
-                $uuid
-            )
+                $uuid,
+            ),
         );
     }
 
@@ -40,8 +40,8 @@ class ResellerHostingException extends Exception
         return new ResellerHostingException(
             sprintf(
                 'There was no driver found for the provided slug in the reseller hosting deployment given slug: %s',
-                $slug
-            )
+                $slug,
+            ),
         );
     }
 
@@ -53,7 +53,7 @@ class ResellerHostingException extends Exception
                 $username,
                 $command,
             ),
-            1
+            1,
         );
     }
 
@@ -62,7 +62,7 @@ class ResellerHostingException extends Exception
         return new ResellerHostingException(
             sprintf(
                 'No username found in the database for reseller hosting deployment uuid: {%s}',
-                $uuid
+                $uuid,
             ),
         );
     }
@@ -85,7 +85,7 @@ class ResellerHostingException extends Exception
             sprintf(
                 'There was not a compatible server provided for the driver %s',
                 $driver,
-            )
+            ),
         );
     }
 
@@ -94,8 +94,8 @@ class ResellerHostingException extends Exception
         return new ResellerHostingException(
             sprintf(
                 'There was no subscription found for the provided domain: %s',
-                $domain
-            )
+                $domain,
+            ),
         );
     }
 }

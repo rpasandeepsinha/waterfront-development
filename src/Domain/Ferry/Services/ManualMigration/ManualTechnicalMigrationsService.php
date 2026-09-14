@@ -59,8 +59,11 @@ class ManualTechnicalMigrationsService
         }
     }
 
-    public function setStepStatus(Subscription $subscription, MigrationStep $migrationStep, MigrationSubscriptionStatus $status): void
-    {
+    public function setStepStatus(
+        Subscription $subscription,
+        MigrationStep $migrationStep,
+        MigrationSubscriptionStatus $status,
+    ): void {
         $currentStep = $this->repository->findStepBySubscription($subscription, $migrationStep);
 
         if ($currentStep === null) {
@@ -108,39 +111,47 @@ class ManualTechnicalMigrationsService
                 new NameserverMigrationJob(
                     $subscription,
                     DomainStatus::FAILED->value,
-                    MigrationSource::MANUAL_MIGRATION
-                )
+                    MigrationSource::MANUAL_MIGRATION,
+                ),
             ),
             MigrationStep::DOMAIN_MIGRATION => $this->jobDispatcher->dispatch(
                 new TechnicalDomainMigrationJob(
                     $subscription,
                     DomainStatus::FAILED->value,
                     null,
-                    MigrationSource::MANUAL_MIGRATION
-                )
+                    MigrationSource::MANUAL_MIGRATION,
+                ),
             ),
             MigrationStep::ENABLE_DNSSEC => $this->jobDispatcher->dispatch(
                 new EnableDnsSecMigrationJob(
                     $subscription,
                     DomainStatus::FAILED->value,
-                    MigrationSource::MANUAL_MIGRATION
-                )
+                    MigrationSource::MANUAL_MIGRATION,
+                ),
             ),
             MigrationStep::CONFIGURE_DNS => $this->jobDispatcher->dispatch(
                 new ConfigureDnsMigrationJob(
                     $subscription,
                     DomainStatus::FAILED->value,
-                    MigrationSource::MANUAL_MIGRATION
-                )
+                    MigrationSource::MANUAL_MIGRATION,
+                ),
             ),
-            MigrationStep::CONFIGURE_DNS_DEFAULT_ZONE => $this->jobDispatcher->dispatch(new ConfigureDnsDefaultZone($subscription)),
-            MigrationStep::CONFIGURE_DNS_EMPTY_ZONE => $this->jobDispatcher->dispatch(new ConfigureDnsEmptyZone($subscription)),
-            MigrationStep::CONFIGURE_DNS_ZONE_PROMOTION => $this->jobDispatcher->dispatch(new ConfigureDnsZonePromotion($subscription)),
-            MigrationStep::NAMESERVER_SET_CURRENT => $this->jobDispatcher->dispatch(new NameserverSetCurrent($subscription)),
-            MigrationStep::NAMESERVER_SET_DEFAULT => $this->jobDispatcher->dispatch(new NameserverSetDefault($subscription)),
-
+            MigrationStep::CONFIGURE_DNS_DEFAULT_ZONE => $this->jobDispatcher->dispatch(
+                new ConfigureDnsDefaultZone($subscription),
+            ),
+            MigrationStep::CONFIGURE_DNS_EMPTY_ZONE => $this->jobDispatcher->dispatch(
+                new ConfigureDnsEmptyZone($subscription),
+            ),
+            MigrationStep::CONFIGURE_DNS_ZONE_PROMOTION => $this->jobDispatcher->dispatch(
+                new ConfigureDnsZonePromotion($subscription),
+            ),
+            MigrationStep::NAMESERVER_SET_CURRENT => $this->jobDispatcher->dispatch(
+                new NameserverSetCurrent($subscription),
+            ),
+            MigrationStep::NAMESERVER_SET_DEFAULT => $this->jobDispatcher->dispatch(
+                new NameserverSetDefault($subscription),
+            ),
             MigrationStep::HOSTING_MIGRATION => $this->dispatchHostingMigration($subscription, $payload),
-
             MigrationStep::SITEBUILDER_MIGRATION,
             MigrationStep::MAIL_ONLY_MIGRATION,
             MigrationStep::REDIRECT_MIGRATION,
@@ -148,7 +159,8 @@ class ManualTechnicalMigrationsService
             MigrationStep::CUSTOMER,
             MigrationStep::RESELLER_HOSTING_MIGRATION,
             MigrationStep::BACKUP_MIGRATION,
-            MigrationStep::SUBSCRIPTION => throw new UnexpectedValueException('To be implemented'),
+            MigrationStep::SUBSCRIPTION,
+                => throw new UnexpectedValueException('To be implemented'),
         };
     }
 
@@ -172,7 +184,7 @@ class ManualTechnicalMigrationsService
             $data['reference_subscription_id'],
             $data['driver'],
             $data['hostname'],
-            HostingMigrationPayload::resolveTechnicalDetails($serverData, $data['driver'])
+            HostingMigrationPayload::resolveTechnicalDetails($serverData, $data['driver']),
         );
         $this->jobDispatcher->dispatch(
             new TechnicalHostingMigrationJob(
@@ -180,7 +192,7 @@ class ManualTechnicalMigrationsService
                 TechnicalStatus::FAILED->value,
                 $jobPayload,
                 migrationSource: MigrationSource::MANUAL_MIGRATION,
-            )
+            ),
         );
     }
 }

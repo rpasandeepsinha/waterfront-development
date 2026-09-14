@@ -18,7 +18,7 @@ use Waterfront\Infra\MicrosoftOnlineClient\MicrosoftOnlineClient;
 class MicrosoftOnlineService implements Microsoft365ProvisionServiceInterface
 {
     public function __construct(
-        private readonly MicrosoftOnlineClient $microsoftOnlineClient
+        private readonly MicrosoftOnlineClient $microsoftOnlineClient,
     ) {
     }
 
@@ -36,13 +36,13 @@ class MicrosoftOnlineService implements Microsoft365ProvisionServiceInterface
             return new TenantIdResult(
                 provisionData: $tenantIdRequest,
                 provisionStatus: ProvisionStatus::SUCCESS,
-                tenantId: $tenantId
+                tenantId: $tenantId,
             );
         } catch (TenantNotFoundException|SaloonException $e) {
             return new TenantIdResult(
                 provisionData: $tenantIdRequest,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $e
+                exception: $e,
             );
         }
     }
@@ -57,13 +57,13 @@ class MicrosoftOnlineService implements Microsoft365ProvisionServiceInterface
             return new TenantAuthorizationUrlResult(
                 provisionData: $tenantIdRequest,
                 provisionStatus: ProvisionStatus::SUCCESS,
-                authorizationUrl: $tenantOpenId->authorizationEndpoint
+                authorizationUrl: $tenantOpenId->authorizationEndpoint,
             );
         } catch (TenantNotFoundException|SaloonException $e) {
             return new TenantAuthorizationUrlResult(
                 provisionData: $tenantIdRequest,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $e
+                exception: $e,
             );
         }
     }

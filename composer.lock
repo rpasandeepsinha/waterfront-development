@@ -8282,16 +8282,16 @@
         },
         {
             "name": "sandwave-io/lighthouse-auth-base",
-            "version": "1.25.9",
+            "version": "1.25.12",
             "source": {
                 "type": "git",
                 "url": "git@git.sandwave.io:sandwave/packages/lighthouse-identity-information.git",
-                "reference": "80f31238650a79e0101cd4e88942ce7be2dc8d45"
+                "reference": "261467f5aeb16c0e50634cdd14f4b5fd7231b8cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://git.sandwave.io/api/v4/projects/146/packages/composer/archives/sandwave-io/lighthouse-auth-base.zip?sha=80f31238650a79e0101cd4e88942ce7be2dc8d45",
-                "reference": "80f31238650a79e0101cd4e88942ce7be2dc8d45",
+                "url": "https://git.sandwave.io/api/v4/projects/146/packages/composer/archives/sandwave-io/lighthouse-auth-base.zip?sha=261467f5aeb16c0e50634cdd14f4b5fd7231b8cb",
+                "reference": "261467f5aeb16c0e50634cdd14f4b5fd7231b8cb",
                 "shasum": ""
             },
             "require": {

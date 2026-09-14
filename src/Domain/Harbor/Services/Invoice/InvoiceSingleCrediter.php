@@ -41,7 +41,7 @@ class InvoiceSingleCrediter
 
         $invoiceLineMessages['newInvoiceLineMessage'] = $this->messageBuilder->build(
             $newInvoiceLine->customer,
-            [$newInvoiceLine]
+            [$newInvoiceLine],
         );
 
         $creditInvoiceLineResult = $this->invoiceCrediter->credit(new InvoiceToCredit(
@@ -70,7 +70,7 @@ class InvoiceSingleCrediter
             [$creditInvoiceLine],
             [
                 $creditInvoiceLineConfig,
-            ]
+            ],
         );
 
         return $invoiceLineMessages;

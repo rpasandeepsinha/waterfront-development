@@ -15,8 +15,9 @@ use Waterfront\Infra\DirectAdminJsonClient\DTO\DirectAdminServer as DirectAdminS
 
 class DirectAdminGetSsoUrlAction
 {
-    public function __construct(private readonly DirectAdminClient $directAdmin)
-    {
+    public function __construct(
+        private readonly DirectAdminClient $directAdmin,
+    ) {
     }
 
     /**
@@ -34,7 +35,7 @@ class DirectAdminGetSsoUrlAction
                 sprintf(
                     'Trying to generate SSO url from Server without password or login key, Server [%s] ',
                     $server->getDomain(),
-                )
+                ),
             );
         }
 

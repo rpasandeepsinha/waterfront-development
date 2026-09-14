@@ -70,7 +70,7 @@ class Transfer extends Model
     public function subscriptions(): BelongsToMany
     {
         return $this->belongsToMany(
-            Subscription::class
+            Subscription::class,
         )->withPivot(['executed_at', 'failed_at', 'reason_failed']);
     }
 
@@ -100,11 +100,15 @@ class Transfer extends Model
 
     public function isOpen(): bool
     {
-        return in_array($this->getStatus(), [
-            TransferStatus::STARTED,
-            TransferStatus::ACCEPTED,
-            TransferStatus::REQUESTED,
-        ], true);
+        return in_array(
+            $this->getStatus(),
+            [
+                TransferStatus::STARTED,
+                TransferStatus::ACCEPTED,
+                TransferStatus::REQUESTED,
+            ],
+            true,
+        );
     }
 
     public function complete(): bool
@@ -114,6 +118,7 @@ class Transfer extends Model
         if ($status === TransferStatus::STARTED) {
             $this->attributes['completed_at'] = CarbonImmutable::now();
             $this->save();
+
             return true;
         }
 
@@ -125,6 +130,7 @@ class Transfer extends Model
         if ($this->getStatus() === TransferStatus::REQUESTED) {
             $this->attributes['accepted_at'] = CarbonImmutable::now();
             $this->save();
+
             return true;
         }
 
@@ -136,6 +142,7 @@ class Transfer extends Model
         if ($this->getStatus() === TransferStatus::REQUESTED) {
             $this->attributes['rejected_at'] = CarbonImmutable::now();
             $this->save();
+
             return true;
         }
 
@@ -147,6 +154,7 @@ class Transfer extends Model
         if ($this->getStatus() === TransferStatus::REQUESTED) {
             $this->attributes['canceled_at'] = CarbonImmutable::now();
             $this->save();
+
             return true;
         }
 
@@ -158,18 +166,11 @@ class Transfer extends Model
         if ($this->getStatus() === TransferStatus::ACCEPTED) {
             $this->attributes['started_at'] = CarbonImmutable::now();
             $this->save();
+
             return true;
         }
 
         return false;
-    }
-
-    public function setFinished(): void
-    {
-        $this->attributes['accepted_at'] = CarbonImmutable::now();
-        $this->attributes['started_at'] = CarbonImmutable::now();
-        $this->attributes['completed_at'] = CarbonImmutable::now();
-        $this->save();
     }
 
     public static function boot(): void
@@ -226,8 +227,6 @@ class Transfer extends Model
 
     private function isFailed(): bool
     {
-        return $this->subscriptions()
-            ->wherePivotNotNull('failed_at')
-            ->exists() && $this->isCompleted();
+        return $this->subscriptions()->wherePivotNotNull('failed_at')->exists() && $this->isCompleted();
     }
 }

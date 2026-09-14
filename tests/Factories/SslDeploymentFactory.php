@@ -27,7 +27,11 @@ class SslDeploymentFactory extends Factory
         $result = Result::create([
             'status' => Arr::random(['error', 'ok']),
             'certificateId' => random_int(1, 10000),
-            'certificateStatus' => Arr::random([DomainStatus::REQUESTED->value, DomainStatus::ACTIVE->value, DomainStatus::FAILED->value]),
+            'certificateStatus' => Arr::random([
+                DomainStatus::REQUESTED->value,
+                DomainStatus::ACTIVE->value,
+                DomainStatus::FAILED->value,
+            ]),
             'requestId' => random_int(1, 10000),
             'csr' => 'csr',
         ]);

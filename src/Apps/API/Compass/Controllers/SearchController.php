@@ -35,7 +35,7 @@ class SearchController
         $customerCollection = Customer::search($request->searchterm)->get();
 
         return SearchCustomerResource::collection(
-            $customerCollection
+            $customerCollection,
         )->toJson();
     }
 
@@ -44,11 +44,13 @@ class SearchController
      */
     public function domainSearch(SearchTermRequest $request): string
     {
-        $subscriptionCollection = Subscription::query()->whereProductGroupType(ProductGroupType::EXTENSION)
-            ->whereLikeDomain($request->searchterm)->get();
+        $subscriptionCollection = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::EXTENSION)
+            ->whereLikeDomain($request->searchterm)
+            ->get();
 
         return SearchDomainResource::collection(
-            $subscriptionCollection
+            $subscriptionCollection,
         )->toJson();
     }
 
@@ -57,7 +59,7 @@ class SearchController
         $products = $this->productRepository->productSearchBasedOnNameOrSlug($request->searchterm);
 
         return SearchProductResource::collection(
-            $products
+            $products,
         )->toJson();
     }
 

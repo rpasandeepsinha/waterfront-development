@@ -44,13 +44,14 @@ class NovaProvisioningHostingDeploymentResource extends Resource
     public function fields(NovaRequest $request): array
     {
         return [
-            ID::make()
-                ->onlyOnDetail(),
-            Text::make(self::translate('subscription.attributes.domain'), 'domain')
-                ->copyable(),
+            ID::make()->onlyOnDetail(),
+            Text::make(self::translate('subscription.attributes.domain'), 'domain')->copyable(),
             BelongsTo::make(self::translate('server.singular'), 'server', NovaServerResource::class),
-            HasOne::make(self::translate('provisioning-request.singular'), 'request', NovaProvisionRequestResource::class)
-                ->onlyOnDetail(),
+            HasOne::make(
+                self::translate('provisioning-request.singular'),
+                'request',
+                NovaProvisionRequestResource::class,
+            )->onlyOnDetail(),
             Text::make(self::translate('plesk-hosting.username'), 'pleskDeployment')
                 ->onlyOnDetail()
                 ->copyable()

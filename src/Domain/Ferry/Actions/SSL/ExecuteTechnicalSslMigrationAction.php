@@ -12,8 +12,9 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class ExecuteTechnicalSslMigrationAction
 {
-    public function __construct(private readonly Dispatcher $jobDispatcher)
-    {
+    public function __construct(
+        private readonly Dispatcher $jobDispatcher,
+    ) {
     }
 
     /**
@@ -27,7 +28,7 @@ class ExecuteTechnicalSslMigrationAction
 
             $this->jobDispatcher->dispatch(new TechnicalSslMigrationJob(
                 subscription: $subscription,
-                failedTechnicalStatus: TechnicalStatus::FAILED->value
+                failedTechnicalStatus: TechnicalStatus::FAILED->value,
             ));
         }
     }

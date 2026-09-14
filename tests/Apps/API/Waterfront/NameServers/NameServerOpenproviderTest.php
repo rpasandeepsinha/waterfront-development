@@ -54,7 +54,10 @@ class NameServerOpenproviderTest extends IntegrationTestCase
             ->for($this->customer)
             ->createOne();
 
-        new DomainDeploymentFactory()->for($provider)->for($this->subscription)->createOne();
+        new DomainDeploymentFactory()
+            ->for($provider)
+            ->for($this->subscription)
+            ->createOne();
 
         $domain = $this->subscription->domain;
         assert(is_string($domain));
@@ -71,71 +74,75 @@ class NameServerOpenproviderTest extends IntegrationTestCase
     #[Test]
     public function show(): void
     {
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute('partners.nameservers.show', $this->subscription->uuid)
-        )->assertExactJson([
-            'data' => [
-                'isDefaultNameservers' => false,
-                'nameservers'     => [
-                    [
-                        'id'    => '312592',
-                        'seqNr' => '0',
-                        'name'  => 'ns1.customserver.nl',
-                        'ip'    => '52.57.114.204',
-                        'ip6'   => '2a05:d014:0f80:6e00:bde7:af96:9434:75d5',
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute('partners.nameservers.show', $this->subscription->uuid),
+            )
+            ->assertExactJson([
+                'data' => [
+                    'isDefaultNameservers' => false,
+                    'nameservers' => [
+                        [
+                            'id' => '312592',
+                            'seqNr' => '0',
+                            'name' => 'ns1.customserver.nl',
+                            'ip' => '52.57.114.204',
+                            'ip6' => '2a05:d014:0f80:6e00:bde7:af96:9434:75d5',
+                        ],
+                        [
+                            'id' => '312595',
+                            'seqNr' => '1',
+                            'name' => 'ns2.customserver.be',
+                            'ip' => '52.214.115.96',
+                            'ip6' => '2a05:d018:061d:bd00:21bc:c938:d548:dab1',
+                        ],
+                        [
+                            'id' => '312598',
+                            'seqNr' => '2',
+                            'name' => 'ns3.customserver.eu',
+                            'ip' => '52.56.134.244',
+                            'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
+                        ],
+                        [
+                            'id' => '312598',
+                            'seqNr' => '3',
+                            'name' => 'ns4.customserver.eu',
+                            'ip' => '52.56.134.244',
+                            'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
+                        ],
+                        [
+                            'id' => '312598',
+                            'seqNr' => '4',
+                            'name' => 'ns5.customserver.eu',
+                            'ip' => '52.56.134.244',
+                            'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
+                        ],
+                        [
+                            'id' => '312598',
+                            'seqNr' => '5',
+                            'name' => 'ns6.customserver.eu',
+                            'ip' => '52.56.134.244',
+                            'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
+                        ],
                     ],
-                    [
-                        'id'    => '312595',
-                        'seqNr' => '1',
-                        'name'  => 'ns2.customserver.be',
-                        'ip'    => '52.214.115.96',
-                        'ip6'   => '2a05:d018:061d:bd00:21bc:c938:d548:dab1',
-                    ],
-                    [
-                        'id'    => '312598',
-                        'seqNr' => '2',
-                        'name'  => 'ns3.customserver.eu',
-                        'ip'    => '52.56.134.244',
-                        'ip6'   => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
-                    ],
-                    [
-                        'id'    => '312598',
-                        'seqNr' => '3',
-                        'name'  => 'ns4.customserver.eu',
-                        'ip'    => '52.56.134.244',
-                        'ip6'   => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
-                    ],
-                    [
-                        'id'    => '312598',
-                        'seqNr' => '4',
-                        'name'  => 'ns5.customserver.eu',
-                        'ip'    => '52.56.134.244',
-                        'ip6'   => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
-                    ],
-                    [
-                        'id'    => '312598',
-                        'seqNr' => '5',
-                        'name'  => 'ns6.customserver.eu',
-                        'ip'    => '52.56.134.244',
-                        'ip6'   => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
-                    ],
+                    'nameservergroup' => 'externaltemplate',
                 ],
-                'nameservergroup' => 'externaltemplate',
-            ],
-        ]);
+            ]);
     }
 
     #[Test]
     public function update(): void
     {
-        $this->actingAsCustomer($this->customer)->putJson(
-            $this->generateRoute('partners.nameservers.update', $this->subscription->uuid),
-            [
-                'nameServers' => [
-                    ['name' => 'newnameserver1.nl', 'ip' => '127.0.0.1', 'ip6' => '::1'],
-                    ['name' => 'newnameserver2.nl', 'ip' => '127.0.0.2', 'ip6' => '::2'],
+        $this->actingAsCustomer($this->customer)
+            ->putJson(
+                $this->generateRoute('partners.nameservers.update', $this->subscription->uuid),
+                [
+                    'nameServers' => [
+                        ['name' => 'newnameserver1.nl', 'ip' => '127.0.0.1', 'ip6' => '::1'],
+                        ['name' => 'newnameserver2.nl', 'ip' => '127.0.0.2', 'ip6' => '::2'],
+                    ],
                 ],
-            ],
-        )->assertOk();
+            )
+            ->assertOk();
     }
 }

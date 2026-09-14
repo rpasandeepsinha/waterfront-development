@@ -20,7 +20,7 @@ class CertificateDownloader
     public function __construct(
         private readonly RealtimeRegister $realtimeRegister,
         private readonly CertificateManager $certificateManager,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -33,13 +33,13 @@ class CertificateDownloader
             sprintf(
                 'Downloading SSL RTR certificates #%d for SSL deployment #%d',
                 $sslDeployment->certificate_id,
-                $sslDeployment->id
-            )
+                $sslDeployment->id,
+            ),
         );
 
         if ($sslDeployment->certificate_id === null) {
             throw DownloadCertificateException::certificateIdNotSet(
-                $sslDeployment->id
+                $sslDeployment->id,
             );
         }
 
@@ -51,8 +51,8 @@ class CertificateDownloader
         $this->logger->info(
             sprintf(
                 'Downloaded and stored all certificate files for SSL deployment #%d',
-                $sslDeployment->id
-            )
+                $sslDeployment->id,
+            ),
         );
     }
 
@@ -63,7 +63,10 @@ class CertificateDownloader
     {
         try {
             assert($sslDeployment->certificate_id !== null);
-            $encodedData = $this->realtimeRegister->certificates->downloadCertificate($sslDeployment->certificate_id, $format);
+            $encodedData = $this->realtimeRegister->certificates->downloadCertificate(
+                $sslDeployment->certificate_id,
+                $format,
+            );
             $decodedData = base64_decode($encodedData, true);
             assert($decodedData !== false);
 
@@ -71,8 +74,8 @@ class CertificateDownloader
                 sprintf(
                     'Downloaded the certificate (%s) for SSL deployment #%d',
                     $format,
-                    $sslDeployment->id
-                )
+                    $sslDeployment->id,
+                ),
             );
 
             return $decodedData;
@@ -82,18 +85,18 @@ class CertificateDownloader
                     'Could not download RTR certificates #%s for SSL deployment #%s: %s',
                     $sslDeployment->certificate_id,
                     $sslDeployment->id,
-                    $exception->getMessage()
+                    $exception->getMessage(),
                 ),
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             throw DownloadCertificateException::couldNotDownloadCertificate(
                 $sslDeployment->id,
                 $sslDeployment->certificate_id,
                 $format,
-                $exception
+                $exception,
             );
         }
     }
@@ -105,39 +108,46 @@ class CertificateDownloader
     {
         try {
             $beginCertString = '-----BEGIN CERTIFICATE-----';
-            $caBundleCerts = array_values(array_filter(explode($beginCertString, $caBundle)));
-            Assert::greaterThanEq(count($caBundleCerts), 2, 'Unable to extract the intermediate and root certificate from the downloaded CA bundle.');
+            $caBundleCerts = array_values(array_filter(
+                explode($beginCertString, $caBundle),
+                fn (string $certificate): bool => $certificate !== '',
+            ));
+            Assert::greaterThanEq(
+                count($caBundleCerts),
+                2,
+                'Unable to extract the intermediate and root certificate from the downloaded CA bundle.',
+            );
 
             $domain = $sslDeployment->subscription->domain;
             Assert::notNull($domain, 'Provided subscription has no domain');
 
             $this->certificateManager->saveMainCertificate(
                 $domain,
-                trim($cert)
+                trim($cert),
             );
             $this->certificateManager->saveIntermediateCertificate(
                 $domain,
-                trim($beginCertString . $caBundleCerts[0])
+                trim($beginCertString . $caBundleCerts[0]),
             );
             $this->certificateManager->saveRootCertificate(
                 $domain,
-                trim($beginCertString . $caBundleCerts[1])
+                trim($beginCertString . $caBundleCerts[1]),
             );
         } catch (Throwable $exception) {
             $this->logger->error(
                 sprintf(
                     'Could not store certificate for SSL deployment #%s: %s',
                     $sslDeployment->id,
-                    $exception->getMessage()
+                    $exception->getMessage(),
                 ),
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             throw DownloadCertificateException::couldNotStoreCertificate(
                 $sslDeployment->id,
-                $exception
+                $exception,
             );
         }
     }

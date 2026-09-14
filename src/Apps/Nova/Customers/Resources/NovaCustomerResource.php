@@ -38,7 +38,6 @@ use Waterfront\Apps\Nova\Customers\Rules\VatNovaCode;
 use Waterfront\Apps\Nova\General\Resources\NovaNotesResource;
 use Waterfront\Apps\Nova\General\Resources\Resource;
 use Waterfront\Apps\Nova\General\Traits\UseClassNameForFilteringTrait;
-use Waterfront\Apps\Nova\Invoices\Resources\NovaInvoiceResource;
 use Waterfront\Apps\Nova\Microsoft365\Actions\NovaMicrosoft365CustomTenantAction;
 use Waterfront\Apps\Nova\Microsoft365\Resources\NovaMicrosoft365CustomerResource;
 use Waterfront\Apps\Nova\Migrations\Resources\NovaMigratedCustomerResource;
@@ -80,7 +79,15 @@ class NovaCustomerResource extends Resource
     ];
 
     /** @var array<mixed> */
-    public static $with = ['address', 'customerContacts', 'microsoft365CustomerInfo', 'notes', 'subscriptions', 'mollieCustomer', 'migratedCustomers'];
+    public static $with = [
+        'address',
+        'customerContacts',
+        'microsoft365CustomerInfo',
+        'notes',
+        'subscriptions',
+        'mollieCustomer',
+        'migratedCustomers',
+    ];
 
     public static function getTranslationKey(): string
     {
@@ -109,24 +116,24 @@ class NovaCustomerResource extends Resource
                     HasMany::make(
                         self::translate('customer.contact.plural'),
                         'customerContacts',
-                        NovaCustomerContactResource::class
+                        NovaCustomerContactResource::class,
                     )->canSee(fn (): bool => $this->resource->customerContacts->isNotEmpty()),
                     HasMany::make(
                         self::translate('nova-resource-labels.migration'),
                         'migratedCustomers',
-                        NovaMigratedCustomerResource::class
+                        NovaMigratedCustomerResource::class,
                     )->sortable(),
                     HasMany::make(
                         self::translate('nova-resource-labels.microsoft365'),
                         'microsoft365CustomerInfo',
-                        NovaMicrosoft365CustomerResource::class
+                        NovaMicrosoft365CustomerResource::class,
                     )->sortable(),
                     HasMany::make(
                         self::translate('nova-resource-labels.customer.relation.note'),
                         'notes',
-                        NovaNotesResource::class
+                        NovaNotesResource::class,
                     ),
-                ]
+                ],
             )->withToolbar(),
 
             Tab::group(self::translate('customer.subscriptions'), [
@@ -134,17 +141,17 @@ class NovaCustomerResource extends Resource
                 HasMany::make(
                     self::translate('subscription.plural'),
                     'paidOrExtensionSubscriptions',
-                    NovaSubscriptionResource::class
+                    NovaSubscriptionResource::class,
                 ),
                 HasMany::make(
                     self::translate('subscription.expired'),
                     'subscriptions',
-                    NovaExpiredSubscriptionResource::class
+                    NovaExpiredSubscriptionResource::class,
                 ),
                 HasMany::make(
                     self::translate('nova-resource-labels.free-subscriptions'),
                     'subscriptions',
-                    NovaFreeSubscriptionResource::class
+                    NovaFreeSubscriptionResource::class,
                 ),
             ]),
 
@@ -156,35 +163,32 @@ class NovaCustomerResource extends Resource
                 HasOne::make(
                     self::translate('nova-resource-labels.mollie_customer'),
                     'mollieCustomer',
-                    NovaMollieCustomerResource::class
+                    NovaMollieCustomerResource::class,
                 )->onlyOnDetail(),
                 BelongsToMany::make(
                     self::translate('customer.relations.product_groups'),
                     'productGroups',
-                    NovaProductGroupResource::class
-                )->fields(
-                    fn (): array => [
-                        Number::make(self::translate('customer.discount'), 'discount')
-                            ->min(0)
-                            ->max(100)
-                            ->step(0.01)
-                            ->help(self::translate('customer.info.discount')),
-                    ]
-                )->singularLabel(self::translate('product-group.singular')),
+                    NovaProductGroupResource::class,
+                )
+                    ->fields(
+                        fn (): array => [
+                            Number::make(self::translate('customer.discount'), 'discount')
+                                ->min(0)
+                                ->max(100)
+                                ->step(0.01)
+                                ->help(self::translate('customer.info.discount')),
+                        ],
+                    )
+                    ->singularLabel(self::translate('product-group.singular')),
                 HasMany::make(
                     self::translate('nova-resource-labels.orders'),
                     'orders',
-                    NovaOrderResource::class
+                    NovaOrderResource::class,
                 ),
                 HasMany::make(
                     self::translate('nova-resource-labels.one-time-service.plural'),
                     'oneTimeServices',
                     NovaOneTimeServiceResource::class,
-                ),
-                HasMany::make(
-                    self::translate('nova-resource-labels.invoices'),
-                    'invoices',
-                    NovaInvoiceResource::class
                 ),
             ]),
 
@@ -193,12 +197,12 @@ class NovaCustomerResource extends Resource
                 HasMany::make(
                     self::translate('transfer.incoming'),
                     'toCustomerTransfers',
-                    NovaTransferResource::class
+                    NovaTransferResource::class,
                 ),
                 HasMany::make(
                     self::translate('transfer.outgoing'),
                     'fromCustomerTransfers',
-                    NovaTransferResource::class
+                    NovaTransferResource::class,
                 ),
             ]),
         ];
@@ -216,12 +220,12 @@ class NovaCustomerResource extends Resource
             resolve(NovaOpenCustomerInCompassAction::class),
             resolve(NovaMicrosoft365CustomTenantAction::class),
             resolve(NovaMarkCustomerAsAbuseAction::class),
-            (resolve(NovaAnonymizeCustomerAction::class))
+            resolve(NovaAnonymizeCustomerAction::class)
                 ->onlyOnDetail()
                 ->confirmButtonText(self::translate('nova-action.anonymize-customer.confirmbutton')),
-            (resolve(NovaFindMollieCustomerAction::class)),
-            (resolve(NovaCreateDirectDebitMandateAction::class))->onlyOnDetail(),
-            (resolve(NovaAddVolumeDiscountAction::class))->onlyOnDetail(),
+            resolve(NovaFindMollieCustomerAction::class),
+            resolve(NovaCreateDirectDebitMandateAction::class)->onlyOnDetail(),
+            resolve(NovaAddVolumeDiscountAction::class)->onlyOnDetail(),
         ];
     }
 
@@ -260,7 +264,11 @@ class NovaCustomerResource extends Resource
      */
     private function customerFields(): array
     {
-        $paymentTypeCases = array_map(fn (PaymentType $paymentType): string => $paymentType->value, PaymentType::cases());
+        $paymentTypeCases = array_map(
+            fn (PaymentType $paymentType): string => $paymentType->value,
+            PaymentType::cases(),
+        );
+
         return [
             Number::make(self::translate('customer.attributes.customer_number'), 'customer_number')
                 ->required()
@@ -281,15 +289,18 @@ class NovaCustomerResource extends Resource
                 ->copyable()
                 ->required()
                 ->rules('required', 'email'),
-            Text::make(self::translate('customer.attributes.organization'), 'organization')->sortable()->hideFromDetail(),
+            Text::make(self::translate('customer.attributes.organization'), 'organization')
+                ->sortable()
+                ->hideFromDetail(),
             Text::make(self::translate('customer.attributes.department'), 'department')->sortable()->onlyOnForms(),
             Text::make(
                 self::translate('customer.attributes.organization-department'),
                 function () {
                     $organization = $this->resource->organization ?? '';
                     $department = $this->resource->department ?? '';
+
                     return $organization . ' - ' . $department;
-                }
+                },
             )->onlyOnDetail(),
             NovaBoolField::make(
                 self::translate('customer.attributes.is_abuse'),
@@ -297,19 +308,22 @@ class NovaCustomerResource extends Resource
             )->onlyOnDetail(),
             NovaBoolField::make(
                 self::translate('customer.attributes.migrated_customer'),
-                fn (): bool => $this->resource->migratedCustomers()->exists()
+                fn (): bool => $this->resource->migratedCustomers()->exists(),
             )->exceptOnForms(),
             NovaBoolField::make(self::translate('customer.is-microsoft365-customer'))
                 ->exceptOnForms()
                 ->resolveUsing(fn () => $this->resource->microsoft365CustomerInfo()->exists())
                 ->hideFromDetail(fn () => ! $this->resource->microsoft365CustomerInfo()->exists()),
-            Select::make(self::translate('customer.attributes.gender'), 'gender')->options(
-                [
-                    Gender::MALE->value => self::translate('customer.attributes.gender.male'),
-                    Gender::FEMALE->value => self::translate('customer.attributes.gender.female'),
-                    Gender::NEUTRAL->value => self::translate('customer.attributes.gender.undisclosed'),
-                ]
-            )->required()->onlyOnForms(),
+            Select::make(self::translate('customer.attributes.gender'), 'gender')
+                ->options(
+                    [
+                        Gender::MALE->value => self::translate('customer.attributes.gender.male'),
+                        Gender::FEMALE->value => self::translate('customer.attributes.gender.female'),
+                        Gender::NEUTRAL->value => self::translate('customer.attributes.gender.undisclosed'),
+                    ],
+                )
+                ->required()
+                ->onlyOnForms(),
             Text::make(self::translate('customer.attributes.first_name'), 'first_name')
                 ->required()
                 ->rules('required')
@@ -362,32 +376,33 @@ class NovaCustomerResource extends Resource
             Text::make(self::translate('customer.attributes.vat_number'), 'vat_number')
                 ->rules('nullable', 'string', new VatNovaCode(intval($customerNumberString)))
                 ->hideFromIndex(),
-            Number::make(self::translate('customer.attributes.vat_rate'), 'vat_rate')
-                ->exceptOnForms()
-                ->onlyOnDetail(),
-            NovaBoolField::make(self::translate('customer.attributes.icp'), 'icp')
-                ->hideFromIndex(),
-            Text::make(self::translate('customer.attributes.purchase_reference'), 'purchase_reference')
-                ->hideFromIndex(),
+            Number::make(self::translate('customer.attributes.vat_rate'), 'vat_rate')->exceptOnForms()->onlyOnDetail(),
+            NovaBoolField::make(self::translate('customer.attributes.icp'), 'icp')->hideFromIndex(),
+            Text::make(
+                self::translate('customer.attributes.purchase_reference'),
+                'purchase_reference',
+            )->hideFromIndex(),
 
             Text::make(self::translate('customer.attributes.invoice_history_url'), 'invoice_history_url')
                 ->rules('nullable', 'url', 'max:2000')
                 ->onlyOnForms(),
-            URL::make(self::translate('customer.attributes.invoice_history_url'), 'invoice_history_url')
-                ->onlyOnDetail(),
+            URL::make(
+                self::translate('customer.attributes.invoice_history_url'),
+                'invoice_history_url',
+            )->onlyOnDetail(),
 
             Text::make(self::translate('customer.attributes.admin_url'), 'admin_url')
                 ->rules('nullable', 'url')
                 ->onlyOnForms(),
-            URL::make(self::translate('customer.attributes.admin_url'), 'admin_url')
-                ->onlyOnDetail(),
+            URL::make(self::translate('customer.attributes.admin_url'), 'admin_url')->onlyOnDetail(),
 
             Select::make(self::translate('customer.attributes.terms_of_payment'), 'terms_of_payment')
                 ->rules('required', 'integer')
                 ->options([
                     $paymentTermDefault => (string) $paymentTermDefault,
                     $paymentTermExtended => (string) $paymentTermExtended,
-                ])->hideFromIndex(),
+                ])
+                ->hideFromIndex(),
             Currency::make(self::translate('customer.attributes.credit_limit'), 'credit_limit')
                 ->required()
                 ->rules('required')
@@ -395,17 +410,19 @@ class NovaCustomerResource extends Resource
                 ->step('0.01')
                 ->asMinorUnits()
                 ->hideFromIndex(),
-            NovaBoolField::make(self::translate('customer.attributes.has_direct_debit'), 'has_direct_debit')
-                ->onlyOnDetail(),
+            NovaBoolField::make(
+                self::translate('customer.attributes.has_direct_debit'),
+                'has_direct_debit',
+            )->onlyOnDetail(),
             BelongsTo::make(
                 self::translate('customer.relations.product_discounts'),
                 'productDiscount',
-                NovaProductDiscountResource::class
+                NovaProductDiscountResource::class,
             )->onlyOnDetail(),
             HasMany::make(
                 self::translate('customer.address.singular'),
                 'address',
-                NovaCustomerAddressResource::class
+                NovaCustomerAddressResource::class,
             ),
         ];
     }

@@ -11,8 +11,9 @@ use Waterfront\Infra\DirectAdminClient\Connection\DirectAdminServer;
 
 class DirectAdminUnsuspendHostingAction
 {
-    public function __construct(private readonly BehavesAsDirectAdmin $directAdmin)
-    {
+    public function __construct(
+        private readonly BehavesAsDirectAdmin $directAdmin,
+    ) {
     }
 
     /**
@@ -23,7 +24,7 @@ class DirectAdminUnsuspendHostingAction
         if ($hostingDeployment->directadmin_customer_username === null) {
             throw new InvalidArgumentException(sprintf(
                 'Unsuspending of subscription failed, no directadmin username was set for subscription uuid: %s',
-                $hostingDeployment->subscription->uuid
+                $hostingDeployment->subscription->uuid,
             ));
         }
 

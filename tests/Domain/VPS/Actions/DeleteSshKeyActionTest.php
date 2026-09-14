@@ -52,7 +52,7 @@ class DeleteSshKeyActionTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->customer =  new CustomerFactory()->createOne();
+        $this->customer = new CustomerFactory()->createOne();
 
         $this->loggerMock = $this->createMock(LoggerInterface::class);
         $this->cloudstackServiceMock = $this->createMock(CloudstackService::class);
@@ -61,14 +61,15 @@ class DeleteSshKeyActionTest extends IntegrationTestCase
         $this->deleteSshKeyAction = new DeleteSshKeyAction(
             logger: $this->loggerMock,
             cloudstackService: $this->cloudstackServiceMock,
-            sshKeyRepository: $sshKeyRepositoryMock
+            sshKeyRepository: $sshKeyRepositoryMock,
         );
 
-        $subscription  = new SubscriptionFactory()
+        $subscription = new SubscriptionFactory()
             ->for($this->customer)
             ->for(
-                new ProductFactory()->vps()
-            )->createOne();
+                new ProductFactory()->vps(),
+            )
+            ->createOne();
 
         $environment = new CloudstackEnvironmentFactory()->createOne();
         $this->managerDomainDeployment = new CloudstackManagerDomainDeploymentFactory()
@@ -76,9 +77,7 @@ class DeleteSshKeyActionTest extends IntegrationTestCase
             ->for($environment)
             ->createOne();
 
-        $this->sshKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $this->sshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
         $this->virtualMachineDeployment = new CloudstackVirtualMachineDeploymentFactory()
             ->for($subscription)
@@ -93,7 +92,7 @@ class DeleteSshKeyActionTest extends IntegrationTestCase
 
         $cloudstackResponse = new DeleteSshKeyPairResponse(
             success: true,
-            displaytext: 'Successfully deleted the SSH key.'
+            displaytext: 'Successfully deleted the SSH key.',
         );
 
         $this->cloudstackServiceMock
@@ -101,11 +100,12 @@ class DeleteSshKeyActionTest extends IntegrationTestCase
             ->method('deleteSshKeyPair')
             ->with(
                 self::assertCallbackIsModel($this->managerDomainDeployment),
-                $this->sshKey->cloudstack_ssh_name
+                $this->sshKey->cloudstack_ssh_name,
             )
-        ->willReturn($cloudstackResponse);
+            ->willReturn($cloudstackResponse);
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('info')
             ->with('SSH key deleted successfully in CloudStack.', [
                 LoggingContextKeys::CUSTOMER_ID => $this->managerDomainDeployment->customer_id,
@@ -126,12 +126,12 @@ class DeleteSshKeyActionTest extends IntegrationTestCase
 
         $this->assertDatabaseMissing(
             'cloudstack_managerdomain_cloudstack_vm_ssh_keys',
-            ['ssh_key_id' => $this->sshKey->id]
+            ['ssh_key_id' => $this->sshKey->id],
         );
 
         $this->assertDatabaseMissing(
             'cloudstack_vm_deployment_ssh_key',
-            ['ssh_key_id' => $this->sshKey->id]
+            ['ssh_key_id' => $this->sshKey->id],
         );
     }
 
@@ -141,7 +141,8 @@ class DeleteSshKeyActionTest extends IntegrationTestCase
         $this->managerDomainDeployment->sshKeys()->save($this->sshKey);
         $this->virtualMachineDeployment->sshKeys()->save($this->sshKey);
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('debug')
             ->with(
                 'SSH key is not deletable',
@@ -153,7 +154,7 @@ class DeleteSshKeyActionTest extends IntegrationTestCase
                         'fingerprint' => $this->sshKey->fingerprint,
                         'ssh_key_name' => $this->sshKey->cloudstack_ssh_name,
                     ],
-                ]
+                ],
             );
 
         $this->expectException(SshKeyNotDeletableException::class);
@@ -167,7 +168,7 @@ class DeleteSshKeyActionTest extends IntegrationTestCase
 
         $cloudstackResponse = new DeleteSshKeyPairResponse(
             success: false,
-            displaytext: 'Error message from cloudstack.'
+            displaytext: 'Error message from cloudstack.',
         );
 
         $this->cloudstackServiceMock
@@ -175,20 +176,21 @@ class DeleteSshKeyActionTest extends IntegrationTestCase
             ->method('deleteSshKeyPair')
             ->with(
                 self::assertCallbackIsModel($this->managerDomainDeployment),
-                $this->sshKey->cloudstack_ssh_name
+                $this->sshKey->cloudstack_ssh_name,
             )
             ->willReturn($cloudstackResponse);
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with('SSH key could not be deleted due to an error in cloudstack', [
-                LoggingContextKeys::CUSTOMER_ID =>  $this->managerDomainDeployment->customer_id,
+                LoggingContextKeys::CUSTOMER_ID => $this->managerDomainDeployment->customer_id,
                 LoggingContextKeys::META => [
                     'cloudstack_error_message' => $cloudstackResponse->displaytext,
                     'key_name' => $this->sshKey->key_name,
                     'fingerprint' => $this->sshKey->fingerprint,
                     'ssh_key_name' => $this->sshKey->cloudstack_ssh_name,
-                    'manager_domain_deployment_id' =>  $this->managerDomainDeployment->id,
+                    'manager_domain_deployment_id' => $this->managerDomainDeployment->id,
                 ],
             ]);
 
@@ -211,11 +213,12 @@ class DeleteSshKeyActionTest extends IntegrationTestCase
             ->method('deleteSshKeyPair')
             ->with(
                 self::assertCallbackIsModel($this->managerDomainDeployment),
-                $this->sshKey->cloudstack_ssh_name
+                $this->sshKey->cloudstack_ssh_name,
             )
             ->willThrowException($cloudstackException);
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with('Cloudstack responded with a client error: SSH key is not deleted', [
                 LoggingContextKeys::CUSTOMER_ID => $this->managerDomainDeployment->customer_id,

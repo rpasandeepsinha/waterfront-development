@@ -31,15 +31,16 @@ class ProductTransferRepository
     /**
      * @return LengthAwarePaginator<int, Transfer>
      */
-    public function findByTransferTypeAndCustomerPaginated(Customer $customer, ?TransferType $transferType, int $pageSize = 15): LengthAwarePaginator
-    {
-        $query = Transfer::query()
-            ->with(['subscriptions.product', 'toCustomer', 'fromCustomer']);
+    public function findByTransferTypeAndCustomerPaginated(
+        Customer $customer,
+        ?TransferType $transferType,
+        int $pageSize = 15,
+    ): LengthAwarePaginator {
+        $query = Transfer::query()->with(['subscriptions.product', 'toCustomer', 'fromCustomer']);
 
         if ($transferType === null) {
             $query->where(function ($q) use ($customer) {
-                $q->where('from_customer_id', $customer->id)
-                    ->orWhere('to_customer_id', $customer->id);
+                $q->where('from_customer_id', $customer->id)->orWhere('to_customer_id', $customer->id);
             });
         } elseif ($transferType === TransferType::INCOMING) {
             $query->where('to_customer_id', $customer->id);

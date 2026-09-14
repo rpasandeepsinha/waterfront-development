@@ -59,12 +59,19 @@ class NovaTranslationKeyResource extends Resource
      */
     public function fields(NovaRequest $request): array
     {
-        $translationPlatformCases = array_map(fn (TranslationPlatforms $translationPlatform): string => $translationPlatform->value, TranslationPlatforms::cases());
+        $translationPlatformCases = array_map(
+            fn (TranslationPlatforms $translationPlatform): string => $translationPlatform->value,
+            TranslationPlatforms::cases(),
+        );
+
         return [
-            Text::make(self::translate(self::getTranslationKey() . '.attributes.key'), 'key')->sortable()
+            Text::make(self::translate(self::getTranslationKey() . '.attributes.key'), 'key')
+                ->sortable()
                 ->creationRules([
-                    Rule::unique('translation_keys')->where(fn ($query) => $query->where('key', $request->key)
-                        ->where('source', $request->source)),
+                    Rule::unique('translation_keys')->where(fn ($query) => $query->where('key', $request->key)->where(
+                        'source',
+                        $request->source,
+                    )),
                 ]),
             Select::make(self::translate(self::getTranslationKey() . '.attributes.source'), 'source')
                 ->options(array_combine($translationPlatformCases, $translationPlatformCases))
@@ -72,7 +79,7 @@ class NovaTranslationKeyResource extends Resource
             HasMany::make(
                 self::translate('translationKeys.translationStrings'),
                 'translationStrings',
-                NovaTranslationStringResource::class
+                NovaTranslationStringResource::class,
             )->onlyOnDetail(),
         ];
     }
@@ -85,7 +92,11 @@ class NovaTranslationKeyResource extends Resource
         return [
             new HtmlCard()
                 ->width('full')
-                ->html('<p class="text-80 font-light mt-2">' . self::translate('language.nova_info.translationkey_overview') . '</p>'),
+                ->html(
+                    '<p class="text-80 font-light mt-2">'
+                    . self::translate('language.nova_info.translationkey_overview')
+                    . '</p>',
+                ),
         ];
     }
 

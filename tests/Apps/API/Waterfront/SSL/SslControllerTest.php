@@ -66,15 +66,14 @@ class SslControllerTest extends IntegrationTestCase
     public function getDeploymentNoDnsCname(): void
     {
         $rtrMock = self::mock(RtrSslService::class);
-        $rtrMock->shouldReceive('getSslCnameRecord')
-            ->andReturn(null);
+        $rtrMock->shouldReceive('getSslCnameRecord')->andReturn(null);
         $this->app->bind(RtrSslService::class, fn () => $rtrMock);
 
         $this->actingAsCustomer($this->customer)
             ->getJson(
                 $this->generateRoute(
                     'partners.ssl.deployment',
-                    $this->sslDeployment->subscription_uuid
+                    $this->sslDeployment->subscription_uuid,
                 ),
             )
             ->assertSuccessful()
@@ -82,11 +81,12 @@ class SslControllerTest extends IntegrationTestCase
                 'administrative_subscription_uuid' => $this->sslDeployment->subscription->uuid,
                 'domain' => $this->sslDeployment->subscription->domain,
                 'provider' => $this->sslDeployment->provider->slug,
-            ])->assertJsonMissingExact([
-                    'dnsType' => 'CNAME',
-                    'dnsRecord' => '_c7fbc2039e400c8ef74129ec7db1842c',
-                    'dnsContent' => 'c9c863405fe7675a3988b97664ea6baf.442019e4e52fa335f406f7c5f26cf14f.sectigo.com.',
-                ]);
+            ])
+            ->assertJsonMissingExact([
+                'dnsType' => 'CNAME',
+                'dnsRecord' => '_c7fbc2039e400c8ef74129ec7db1842c',
+                'dnsContent' => 'c9c863405fe7675a3988b97664ea6baf.442019e4e52fa335f406f7c5f26cf14f.sectigo.com.',
+            ]);
     }
 
     #[Test]
@@ -101,15 +101,14 @@ class SslControllerTest extends IntegrationTestCase
         );
 
         $rtrMock = self::mock(RtrSslService::class);
-        $rtrMock->shouldReceive('getSslCnameRecord')
-            ->andReturn($dcvDetails);
+        $rtrMock->shouldReceive('getSslCnameRecord')->andReturn($dcvDetails);
         $this->app->bind(RtrSslService::class, fn () => $rtrMock);
 
         $this->actingAsCustomer($this->customer)
             ->getJson(
                 $this->generateRoute(
                     'partners.ssl.deployment',
-                    $this->sslDeployment->subscription_uuid
+                    $this->sslDeployment->subscription_uuid,
                 ),
             )
             ->assertSuccessful()
@@ -127,9 +126,7 @@ class SslControllerTest extends IntegrationTestCase
     public function getDeploymentWithDnsCnameExternalNameservers(): void
     {
         Assert::notNull($this->sslDeployment->subscription->domain);
-        $domainContact = new DomainContactFactory()
-            ->for($this->customer)
-            ->createOne();
+        $domainContact = new DomainContactFactory()->for($this->customer)->createOne();
 
         $subscription = new SubscriptionFactory()
             ->for($this->customer)
@@ -137,12 +134,10 @@ class SslControllerTest extends IntegrationTestCase
             ->forDomain($this->sslDeployment->subscription->domain)
             ->createOne();
 
-        new DomainDeploymentFactory()
-            ->for($this->rtrProvider)
-            ->createOne([
-                'subscription_uuid' => $subscription->uuid,
-                'contact_owner_id' => $domainContact->id,
-            ]);
+        new DomainDeploymentFactory()->for($this->rtrProvider)->createOne([
+            'subscription_uuid' => $subscription->uuid,
+            'contact_owner_id' => $domainContact->id,
+        ]);
 
         $dnsProductGroup = ProductGroupFactory::new()->dns()->createOne();
         $dnsProduct = ProductFactory::new()->for($dnsProductGroup)->createOne();
@@ -168,15 +163,14 @@ class SslControllerTest extends IntegrationTestCase
         );
 
         $rtrMock = self::mock(RtrSslService::class);
-        $rtrMock->shouldReceive('getSslCnameRecord')
-            ->andReturn($dcvDetails);
+        $rtrMock->shouldReceive('getSslCnameRecord')->andReturn($dcvDetails);
         $this->app->bind(RtrSslService::class, fn () => $rtrMock);
 
         $this->actingAsCustomer($this->customer)
             ->getJson(
                 $this->generateRoute(
                     'partners.ssl.deployment',
-                    $this->sslDeployment->subscription_uuid
+                    $this->sslDeployment->subscription_uuid,
                 ),
             )
             ->assertSuccessful()
@@ -197,7 +191,8 @@ class SslControllerTest extends IntegrationTestCase
         $resultOk->shouldReceive('getStatus')->andReturn(Result::STATUS_OK);
 
         $sharedSslServiceMock = self::mock(CustomerSharedSslService::class);
-        $sharedSslServiceMock->shouldReceive('resendDcv')
+        $sharedSslServiceMock
+            ->shouldReceive('resendDcv')
             ->once()
             ->withArgs(fn ($deployment) => $deployment->is($this->sslDeployment))
             ->andReturn($resultOk);
@@ -208,8 +203,8 @@ class SslControllerTest extends IntegrationTestCase
             ->postJson(
                 $this->generateRoute(
                     'partners.ssl.retry-dcv',
-                    $this->sslDeployment->subscription_uuid
-                )
+                    $this->sslDeployment->subscription_uuid,
+                ),
             )
             ->assertOk()
             ->assertJson([
@@ -225,7 +220,8 @@ class SslControllerTest extends IntegrationTestCase
         $resultError->shouldReceive('getErrorCode')->andReturn(412);
 
         $sharedSslServiceMock = self::mock(CustomerSharedSslService::class);
-        $sharedSslServiceMock->shouldReceive('resendDcv')
+        $sharedSslServiceMock
+            ->shouldReceive('resendDcv')
             ->once()
             ->withArgs(fn ($deployment) => $deployment->is($this->sslDeployment))
             ->andReturn($resultError);
@@ -236,8 +232,8 @@ class SslControllerTest extends IntegrationTestCase
             ->postJson(
                 $this->generateRoute(
                     'partners.ssl.retry-dcv',
-                    $this->sslDeployment->subscription_uuid
-                )
+                    $this->sslDeployment->subscription_uuid,
+                ),
             )
             ->assertStatus(412)
             ->assertJson([

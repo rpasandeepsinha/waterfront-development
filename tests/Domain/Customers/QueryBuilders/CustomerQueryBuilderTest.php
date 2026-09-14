@@ -73,8 +73,12 @@ class CustomerQueryBuilderTest extends IntegrationTestCase
 
     #[DataProvider('provideSearchTerms')]
     #[Test]
-    public function findsCustomersMatchingAllTerms(string $firstName, string $lastName, string $search, bool $finds): void
-    {
+    public function findsCustomersMatchingAllTerms(
+        string $firstName,
+        string $lastName,
+        string $search,
+        bool $finds,
+    ): void {
         new CustomerFactory()->createOne([
             'first_name' => $firstName,
             'last_name' => $lastName,

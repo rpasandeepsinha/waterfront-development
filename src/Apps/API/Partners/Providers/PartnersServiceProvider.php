@@ -30,7 +30,7 @@ class PartnersServiceProvider extends ServiceProvider
 
         $modulePaths = array_map(
             fn (string $path): string => $path . '/modules/partners',
-            array_filter($viewPaths, 'is_string')
+            array_filter($viewPaths, 'is_string'),
         );
 
         $this->loadViewsFrom(array_merge($modulePaths, [$sourcePath]), 'partners');

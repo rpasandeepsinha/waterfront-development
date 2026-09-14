@@ -49,7 +49,8 @@ class MailController
         /**
          * @var Subscription|null $subscription
          */
-        $subscription = Subscription::query()->whereProductGroupType(ProductGroupType::HOSTING)
+        $subscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::HOSTING)
             ->where('domain', $domain)
             ->whereOneOfProductSpecNamesAndValueIsTrue([
                 ProductSpecName::HOSTING_LEGACY_MAIL_ONLY,
@@ -86,7 +87,8 @@ class MailController
         /**
          * @var Subscription|null $subscription
          */
-        $subscription = Subscription::query()->whereProductGroupType(ProductGroupType::HOSTING)
+        $subscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::HOSTING)
             ->where('domain', $domain)
             ->whereOneOfProductSpecNamesAndValueIsTrue([
                 ProductSpecName::HOSTING_LEGACY_MAIL_ONLY,
@@ -112,6 +114,7 @@ class MailController
             ]);
         } catch (Exception $exception) {
             $this->logger->info($exception->getMessage(), [LoggingContextKeys::EXCEPTION => $exception]);
+
             return new JsonResponse([
                 'message' => $this->translator->translate('mail-providers.errors.users-error'),
                 'errors' => [],
@@ -130,7 +133,8 @@ class MailController
         /**
          * @var Subscription|null $subscription
          */
-        $subscription = Subscription::query()->whereProductGroupType(ProductGroupType::HOSTING)
+        $subscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::HOSTING)
             ->where('domain', $domain)
             ->whereOneOfProductSpecNamesAndValueIsTrue([
                 ProductSpecName::HOSTING_LEGACY_MAIL_ONLY,
@@ -146,12 +150,12 @@ class MailController
 
         try {
             $username = strval($request->string('username'));
-            $password  = strval($request->string('password'));
+            $password = strval($request->string('password'));
 
             $status = $this->mailOnlyService->createUser(
                 $subscription,
                 $username,
-                $password
+                $password,
             );
 
             return new JsonResponse([
@@ -173,7 +177,7 @@ class MailController
                     LoggingContextKeys::META => [
                         'mail-account' => $username,
                     ],
-                ]
+                ],
             );
 
             return new JsonResponse([
@@ -195,7 +199,8 @@ class MailController
         /**
          * @var Subscription|null $subscription
          */
-        $subscription = Subscription::query()->whereProductGroupType(ProductGroupType::HOSTING)
+        $subscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::HOSTING)
             ->where('domain', $domain)
             ->whereOneOfProductSpecNamesAndValueIsTrue([
                 ProductSpecName::HOSTING_LEGACY_MAIL_ONLY,
@@ -217,7 +222,7 @@ class MailController
                 ], Response::HTTP_NOT_FOUND);
             }
 
-            $password  = strval($request->string('password'));
+            $password = strval($request->string('password'));
 
             $status = $this->mailOnlyService->resetPassword($subscription, $username, $password);
 
@@ -255,7 +260,7 @@ class MailController
 
         $this->subscriptionPolicy->assertCanManageHosting($subscription);
 
-        if ((! $subscription->product->isMailOnlyServer() && ! $subscription->product->isSitebuilderProduct())) {
+        if (! $subscription->product->isMailOnlyServer() && ! $subscription->product->isSitebuilderProduct()) {
             return new JsonResponse([
                 'message' => $this->translator->translate('mail-providers.domain-does-not-exist'),
                 'errors' => [],
@@ -287,7 +292,8 @@ class MailController
         /**
          * @var Subscription|null $subscription
          */
-        $subscription = Subscription::query()->whereProductGroupType(ProductGroupType::HOSTING)
+        $subscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::HOSTING)
             ->where('domain', $domain)
             ->whereOneOfProductSpecNamesAndValueIsTrue([
                 ProductSpecName::HOSTING_LEGACY_MAIL_ONLY,
@@ -326,6 +332,7 @@ class MailController
                     'mail-account' => $username,
                 ],
             ]);
+
             return new JsonResponse([
                 'message' => $this->translator->translate('mail-providers.errors.delete-user-error'),
                 'errors' => [],
@@ -366,6 +373,7 @@ class MailController
             return new JsonResponse(data: $forwards);
         } catch (EmailForwardException $exception) {
             $this->logger->error($exception->getMessage(), [LoggingContextKeys::EXCEPTION => $exception]);
+
             return new JsonResponse([
                 'message' => $this->translator->translate('mail-providers.errors.forwards-error'),
                 'errors' => [],
@@ -413,6 +421,7 @@ class MailController
                 ],
                 LoggingContextKeys::EXCEPTION => $exception,
             ]);
+
             return new JsonResponse([
                 'message' => $this->translator->translate('mail-providers.errors.create-forward-error'),
                 'errors' => [],
@@ -444,9 +453,11 @@ class MailController
                 $hostingDeployment,
                 $source,
             );
+
             return new JsonResponse(status: Response::HTTP_NO_CONTENT);
         } catch (EmailForwardException $exception) {
             $this->logger->error($exception->getMessage(), [LoggingContextKeys::EXCEPTION => $exception]);
+
             return new JsonResponse([
                 'message' => $this->translator->translate('mail-providers.errors.delete-forward-error'),
                 'errors' => [],

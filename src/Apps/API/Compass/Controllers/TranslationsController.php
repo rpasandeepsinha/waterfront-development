@@ -17,7 +17,7 @@ use Waterfront\Domain\Translations\Services\TranslationService;
 class TranslationsController
 {
     public function __construct(
-        private readonly TranslationService $translationService
+        private readonly TranslationService $translationService,
     ) {
     }
 
@@ -30,9 +30,7 @@ class TranslationsController
 
     public function list(string $source): ResourceCollection
     {
-        $keys = TranslationKey::where('source', $source)
-            ->with(['translationStrings.language'])
-            ->get();
+        $keys = TranslationKey::where('source', $source)->with(['translationStrings.language'])->get();
 
         $translations = [];
         foreach ($keys as $key) {

@@ -24,7 +24,7 @@ class DnsSecEnablePipe extends ValidationPipe
     public function __construct(
         private readonly DnsService $dnsService,
         private readonly DomainServiceFactory $domainServiceFactory,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -40,7 +40,7 @@ class DnsSecEnablePipe extends ValidationPipe
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Start'
+            message: 'Start',
         );
 
         /** @var array<array<string, string|int>> $extensions */
@@ -59,16 +59,18 @@ class DnsSecEnablePipe extends ValidationPipe
             } catch (DnsZoneNotFoundException) {
                 $message = sprintf(
                     'Zone %s does not exist',
-                    $domain
+                    $domain,
                 );
 
                 $this->addValidationResult(
                     $payload,
                     MigrationValidation::DNSSEC_TLD_ZONE_DOES_NOT_EXIST,
-                    $message
+                    $message,
                 );
 
-                $this->logger->debug($message, [LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference]);
+                $this->logger->debug($message, [
+                    LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
+                ]);
                 continue;
             } catch (Throwable $exception) { // @phpstan-ignore-line
                 $message = sprintf(
@@ -84,13 +86,13 @@ class DnsSecEnablePipe extends ValidationPipe
                         LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                         LoggingContextKeys::DOMAIN_NAME => $domain,
                         LoggingContextKeys::EXCEPTION => $exception,
-                    ]
+                    ],
                 );
 
                 $this->addValidationResult(
                     $payload,
                     MigrationValidation::DNSSEC_ZONE_UNEXPECTED_EXCEPTION,
-                    $message
+                    $message,
                 );
                 continue;
             }
@@ -99,13 +101,13 @@ class DnsSecEnablePipe extends ValidationPipe
                 $message = sprintf(
                     'DNS zone %s is type %s',
                     $domain,
-                    $zone->kind
+                    $zone->kind,
                 );
 
                 $this->addValidationResult(
                     $payload,
                     MigrationValidation::DNSSEC_ZONE_NOT_MASTER,
-                    $message
+                    $message,
                 );
 
                 $this->logger->debug($message, [
@@ -117,10 +119,10 @@ class DnsSecEnablePipe extends ValidationPipe
             }
 
             /** @var string $stringedDriver */
-            $stringedDriver =  Arr::get(
+            $stringedDriver = Arr::get(
                 $extension,
                 'driver',
-                ProviderSlug::REALTIME_REGISTER->value
+                ProviderSlug::REALTIME_REGISTER->value,
             );
 
             try {
@@ -146,7 +148,7 @@ class DnsSecEnablePipe extends ValidationPipe
                     $this->addValidationResult(
                         $payload,
                         MigrationValidation::DNSSEC_TLD_NOT_SUPPORTED,
-                        $message
+                        $message,
                     );
 
                     $this->logger->debug($message, [
@@ -159,13 +161,13 @@ class DnsSecEnablePipe extends ValidationPipe
                     "Couldn't check if DNSSEC was supported for %s from backend %s, exception: %s",
                     $domain,
                     $stringedDriver,
-                    $exception->getMessage()
+                    $exception->getMessage(),
                 );
 
                 $this->addValidationResult(
                     $payload,
                     MigrationValidation::DNSSEC_PIPE_FAILED,
-                    $message
+                    $message,
                 );
 
                 $this->logger->debug($message, [
@@ -177,7 +179,7 @@ class DnsSecEnablePipe extends ValidationPipe
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Finish'
+            message: 'Finish',
         );
 
         return $this->finishPipe(MigrationValidation::DNSSEC_PIPE_PASSED, $payload, $this->logger, $next);

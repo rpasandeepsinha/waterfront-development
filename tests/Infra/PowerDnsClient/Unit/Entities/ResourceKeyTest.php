@@ -22,7 +22,10 @@ class ResourceKeyTest extends TestCase
         $keySet = PowerDnsSecKeySet::fromString($response);
         $key = $keySet->findByType('csk');
 
-        self::assertSame('257 3 13 dEJhSgzfbrGERzigtB/Zua78N1z6q+1p7AQ0e0l0r0TD3ZTiKJB+iDOMdngKxh5anXtnu5Kled4kjupx3uqYJg==', $key->getDnsKey());
+        self::assertSame(
+            '257 3 13 dEJhSgzfbrGERzigtB/Zua78N1z6q+1p7AQ0e0l0r0TD3ZTiKJB+iDOMdngKxh5anXtnu5Kled4kjupx3uqYJg==',
+            $key->getDnsKey(),
+        );
     }
 
     #[Test]
@@ -42,7 +45,10 @@ class ResourceKeyTest extends TestCase
         $keySet = PowerDnsSecKeySet::fromString($response);
         $key = $keySet->findByType('csk', 'RSASHA256');
 
-        self::assertSame('257 3 8 AwEAAct8h9u4jebS7xSbkmXWtIYMIjdZ8W/8UpUqrrLKd/Qd+ty0idXTlbfEWZ7e2Lop7RFQ3CkOaX3LMcSn8PRNEw5i5ThanQpYSZxpoTRKnDboVPa5Kl93RRdgcpuzaZADs6rHL14l+shruJkEBjS4xTI3cW6Z8GFuondMPW1I91kt', $key->getDnsKey());
+        self::assertSame(
+            '257 3 8 AwEAAct8h9u4jebS7xSbkmXWtIYMIjdZ8W/8UpUqrrLKd/Qd+ty0idXTlbfEWZ7e2Lop7RFQ3CkOaX3LMcSn8PRNEw5i5ThanQpYSZxpoTRKnDboVPa5Kl93RRdgcpuzaZADs6rHL14l+shruJkEBjS4xTI3cW6Z8GFuondMPW1I91kt',
+            $key->getDnsKey(),
+        );
     }
 
     #[Test]

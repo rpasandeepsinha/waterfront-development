@@ -16,38 +16,38 @@ $vanityTlds = [
 ];
 
 return [
-    'domainName'      => 'example.nl',
-    'registry'        => 'sidn',
-    'customer'        => 'johndoe',
-    'registrant'      => 'johndoe',
-    'privacyProtect'  => true,
-    'status'          => ['PENDING_RENEW'],
-    'authcode'        => '294759302',
-    'languageCode'    => 'nl',
-    'autoRenew'       => true,
+    'domainName' => 'example.nl',
+    'registry' => 'sidn',
+    'customer' => 'johndoe',
+    'registrant' => 'johndoe',
+    'privacyProtect' => true,
+    'status' => ['PENDING_RENEW'],
+    'authcode' => '294759302',
+    'languageCode' => 'nl',
+    'autoRenew' => true,
     'autoRenewPeriod' => 12,
-    'ns'              => [
+    'ns' => [
         sprintf('ns1.%s', $vanityTlds[0]),
         sprintf('ns2.%s', $vanityTlds[1]),
         sprintf('ns3.%s', $vanityTlds[2]),
     ],
-    'childHosts'      => [
+    'childHosts' => [
         'example.com',
     ],
-    'createdDate'     => '2020-08-30 01:02:03',
-    'updatedDate'     => '2020-08-30 01:02:03',
-    'expiryDate'      => '2020-11-30 01:02:03',
-    'premium'         => false,
-    'zone'            => include __DIR__ . '/zone_valid.php',
-    'contacts'        => [
+    'createdDate' => '2020-08-30 01:02:03',
+    'updatedDate' => '2020-08-30 01:02:03',
+    'expiryDate' => '2020-11-30 01:02:03',
+    'premium' => false,
+    'zone' => include __DIR__ . '/zone_valid.php',
+    'contacts' => [
         $adminContact,
         $techContact,
     ],
-    'keyData'         => [
+    'keyData' => [
         include __DIR__ . '/key_data_valid.php',
         include __DIR__ . '/key_data_valid_2.php',
     ],
-    'ds_data'         => [
+    'ds_data' => [
         include __DIR__ . '/ds_data_valid.php',
         include __DIR__ . '/ds_data_valid.php',
     ],

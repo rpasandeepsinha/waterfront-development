@@ -53,14 +53,14 @@ class DeploymentController
     public function updateDeployment(Request $request, HostingDeployment $hostingDeployment): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'username'                      => ['sometimes', 'nullable', 'string'],
-            'plesk_customer_id'             => ['sometimes', 'nullable', 'integer'],
-            'provider'                      => ['required', 'string', 'exists:providers,slug'],
-            'server_id'                     => ['required', 'integer', 'exists:hosting_servers,id'],
-            'basekit_user_ref'              => ['sometimes', 'nullable', 'required_if:provider,basekit', 'integer'],
-            'basekit_site_ref'              => ['sometimes', 'nullable', 'required_if:provider,basekit', 'integer'],
-            'mail_provider'                 => ['sometimes', 'nullable', 'string', 'exists:providers,slug'],
-            'mail_server_id'                => ['sometimes', 'nullable', 'integer', 'exists:hosting_servers,id'],
+            'username' => ['sometimes', 'nullable', 'string'],
+            'plesk_customer_id' => ['sometimes', 'nullable', 'integer'],
+            'provider' => ['required', 'string', 'exists:providers,slug'],
+            'server_id' => ['required', 'integer', 'exists:hosting_servers,id'],
+            'basekit_user_ref' => ['sometimes', 'nullable', 'required_if:provider,basekit', 'integer'],
+            'basekit_site_ref' => ['sometimes', 'nullable', 'required_if:provider,basekit', 'integer'],
+            'mail_provider' => ['sometimes', 'nullable', 'string', 'exists:providers,slug'],
+            'mail_server_id' => ['sometimes', 'nullable', 'integer', 'exists:hosting_servers,id'],
         ]);
 
         if ($validator->fails()) {
@@ -68,12 +68,16 @@ class DeploymentController
         }
 
         $username = $request->input('username') !== null ? $request->string('username')->toString() : null;
-        $pleskCustomerId = $request->input('plesk_customer_id') !== null ? $request->integer('plesk_customer_id') : null;
+        $pleskCustomerId = $request->input('plesk_customer_id') !== null
+            ? $request->integer('plesk_customer_id')
+            : null;
         $providerSlug = $request->string('provider')->toString();
         $serverId = $request->integer('server_id');
         $basekitUserRef = $request->input('basekit_user_ref') !== null ? $request->integer('basekit_user_ref') : null;
         $basekitSiteRef = $request->input('basekit_site_ref') !== null ? $request->integer('basekit_site_ref') : null;
-        $mailProvider = $request->input('mail_provider') !== null ? $request->string('mail_provider')->toString() : null;
+        $mailProvider = $request->input('mail_provider') !== null
+            ? $request->string('mail_provider')->toString()
+            : null;
         $mailServerId = $request->input('mail_server_id') !== null ? $request->integer('mail_server_id') : null;
 
         $dto = new UpdateHostingDeploymentDto(
@@ -95,7 +99,11 @@ class DeploymentController
 
     public function FailedProvisioningResults(Request $request): AnonymousResourceCollection
     {
-        $filters = new ProvisioningResultQueryFilters(null, null, [ProvisionStatus::FAILED, ProvisionStatus::DELETION_FAILED, ProvisionStatus::VALIDATION_ERROR]);
+        $filters = new ProvisioningResultQueryFilters(
+            null,
+            null,
+            [ProvisionStatus::FAILED, ProvisionStatus::DELETION_FAILED, ProvisionStatus::VALIDATION_ERROR],
+        );
 
         $results = $this->provisionGateway->fetch($filters, null);
 
@@ -111,7 +119,7 @@ class DeploymentController
             $results->count(),
             $pageSize,
             $currentPage,
-            []
+            [],
         );
 
         return ProvisionGroupedRequestResource::collection($collection)->additional([
@@ -143,7 +151,7 @@ class DeploymentController
             $subscription->domainDeployment,
             $enableDnssec,
             $privateWhois,
-            $transferSecret
+            $transferSecret,
         );
 
         return new Response(status: Response::HTTP_NO_CONTENT);
@@ -165,7 +173,7 @@ class DeploymentController
             $hostingDeployment->mailProvider !== null => $hostingDeployment->mailProvider,
             $hostingDeployment->provider !== null => $hostingDeployment->provider,
             $hostingDeployment->sitebuilderProvider !== null => $hostingDeployment->sitebuilderProvider,
-            default => null
+            default => null,
         };
 
         if ($provider === null) {
@@ -190,7 +198,7 @@ class DeploymentController
                 $url = $this->hostingService->getSsoUrl(
                     $hostingDeployment,
                     $ipAddress,
-                    $provider->type === ProviderType::MAILONLY
+                    $provider->type === ProviderType::MAILONLY,
                 );
             } catch (SsoResolveException|NotImplementedException) {
                 return new JsonResponse([

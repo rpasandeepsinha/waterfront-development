@@ -102,20 +102,17 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
         $successResponse->setSucceeded(true);
 
         $mockDaApi = self::createMock(DirectAdminApi::class);
-        $mockDaApi->expects(self::once())
+        $mockDaApi
+            ->expects(self::once())
             ->method('call')
             ->with(self::isInstanceOf(ShowResellerIPs::class))
             ->willReturn($successResponse);
 
         $mockDa = self::createMock(BehavesAsDirectAdmin::class);
-        $mockDa->expects(self::once())
-            ->method('useServer')
-            ->with($daServer)
-            ->willReturn($mockDaApi);
+        $mockDa->expects(self::once())->method('useServer')->with($daServer)->willReturn($mockDaApi);
 
         $mockLogger = self::createMock(LoggerInterface::class);
-        $mockLogger->expects(self::never())
-            ->method('notice');
+        $mockLogger->expects(self::never())->method('notice');
 
         $this->app->bind(DirectAdminApi::class, fn () => $mockDaApi);
         $this->app->bind(BehavesAsDirectAdmin::class, fn () => $mockDa);
@@ -135,23 +132,20 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
 
         $thrownException = new DirectAdminCommandException();
         $mockDaApi = self::createMock(DirectAdminApi::class);
-        $mockDaApi->expects(self::once())
+        $mockDaApi
+            ->expects(self::once())
             ->method('call')
             ->with(self::isInstanceOf(ShowResellerIPs::class))
             ->willThrowException($thrownException);
 
         $mockDa = self::createMock(BehavesAsDirectAdmin::class);
-        $mockDa->expects(self::once())
-            ->method('useServer')
-            ->with($daServer)
-            ->willReturn($mockDaApi);
+        $mockDa->expects(self::once())->method('useServer')->with($daServer)->willReturn($mockDaApi);
 
-        $mockDaApi->expects(self::once())
-            ->method('getConnection')
-            ->willReturn(new Connection($daServer));
+        $mockDaApi->expects(self::once())->method('getConnection')->willReturn(new Connection($daServer));
 
         $mockLogger = self::createMock(LoggerInterface::class);
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('notice')
             ->with(
                 'Validation of hosting server failed with server: {server.connection}',
@@ -160,7 +154,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
                     LoggingContextKeys::META => [
                         'server.connection' => '[Host: single-server.nl:2222 User:username123 Auth type: login-key SSL: Yes]',
                     ],
-                ]
+                ],
             );
 
         $this->app->bind(DirectAdminApi::class, fn () => $mockDaApi);
@@ -198,7 +192,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
             $specs,
             $this->server,
             $forwardingUrl,
-            $domain
+            $domain,
         );
 
         self::assertSame(Result::STATUS_OK, $result['result']);
@@ -231,7 +225,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
             $specs,
             $server,
             $forwardingUrl,
-            $domain
+            $domain,
         );
 
         self::assertSame(Result::STATUS_OK, $result['result']);
@@ -261,13 +255,21 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
         $specs = $this->generateParameters($this->server, $removedUsername)->getSpecs();
         $forwardingUrl = null;
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($product_brons)->createOne([
-            'domain' => $domain,
-            'contract_period' => 12,
-            'technical_status' => DomainStatus::ACTIVE->value,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product_brons)
+            ->createOne([
+                'domain' => $domain,
+                'contract_period' => 12,
+                'technical_status' => DomainStatus::ACTIVE->value,
+            ]);
 
-        $provider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => false]);
+        $provider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => false,
+        ]);
 
         $hostingDeployment = new HostingDeploymentFactory()->createOne(
             [
@@ -277,7 +279,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
                 'server_id' => $this->server->id,
                 'directadmin_customer_username' => $removedUsername,
                 'provider_id' => $provider->id,
-            ]
+            ],
         );
 
         $result = $this->hostingService->create(
@@ -289,7 +291,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
             $specs,
             $this->server,
             $forwardingUrl,
-            $domain
+            $domain,
         );
 
         $hostingDeployment->refresh();
@@ -377,8 +379,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
 
         $parentSubscription = $hostingDeployment->subscription;
         $mailDriver = self::createMock(Mailer::class);
-        $mailDriver->expects(self::never())
-            ->method('send');
+        $mailDriver->expects(self::never())->method('send');
 
         $successCommand = new UploadSsl();
         $successCommand->setSucceeded(true);
@@ -402,11 +403,13 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
         $this->app->bind(BehavesAsDirectAdmin::class, fn () => $directAdminMock);
         $this->hostingService = self::resolve(DirectAdminHostingService::class);
 
-        $directAdminMock->expects(self::exactly($expectsInstall ? 3 : 2))
+        $directAdminMock
+            ->expects(self::exactly($expectsInstall ? 3 : 2))
             ->method('useServer')
             ->willReturn($directAdminApiMock);
 
-        $directAdminApiMock->expects(self::exactly($expectsInstall ? 1 : 0))
+        $directAdminApiMock
+            ->expects(self::exactly($expectsInstall ? 1 : 0))
             ->method('loginAs')
             ->with($hostingDeployment->directadmin_customer_username)
             ->willReturn($directAdminApiMock);
@@ -419,7 +422,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
                     [self::isInstanceOf(ShowUserStats::class)],
                     [self::isInstanceOf(ModifyUser::class)],
                     [self::isInstanceOf(ModifyDomain::class)],
-                )
+                ),
             )
             ->willReturnOnConsecutiveCalls($successShowUserStats, $successEnableSslForUser, $successEnableSslForDomain);
 
@@ -428,10 +431,18 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
             ->method('sslCerificate')
             ->with(
                 ...self::withConsecutive(
-                    [self::isInstanceOf(DisableLetsEncryptAutoRenew::class), $hostingDeployment->directadmin_customer_username, $server],
+                    [
+                        self::isInstanceOf(DisableLetsEncryptAutoRenew::class),
+                        $hostingDeployment->directadmin_customer_username,
+                        $server,
+                    ],
                     [self::isInstanceOf(UploadSsl::class), $hostingDeployment->directadmin_customer_username, $server],
-                    [self::isInstanceOf(UploadCaCrt::class), $hostingDeployment->directadmin_customer_username, $server],
-                )
+                    [
+                        self::isInstanceOf(UploadCaCrt::class),
+                        $hostingDeployment->directadmin_customer_username,
+                        $server,
+                    ],
+                ),
             )
             ->willReturn($successCommand);
 
@@ -439,11 +450,11 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
             $parentSubscription->uuid,
             [
                 'domain' => $certificateDomain,
-                'csr'    => $csrString,
-                'pvt'    => $privateKeyString,
-                'cert'   => $certString,
-                'ca'     => $caString,
-            ]
+                'csr' => $csrString,
+                'pvt' => $privateKeyString,
+                'cert' => $certString,
+                'ca' => $caString,
+            ],
         );
 
         self::assertSame($response, $expectedResult);
@@ -457,7 +468,10 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
 
         $result = $this->hostingService->terminate($domain, $hostingDeployment->subscription_uuid);
 
-        $hostingDeployment = HostingDeployment::where('subscription_uuid', $hostingDeployment->subscription_uuid)->first();
+        $hostingDeployment = HostingDeployment::where(
+            'subscription_uuid',
+            $hostingDeployment->subscription_uuid,
+        )->first();
 
         self::assertTrue($result);
         self::assertNull($hostingDeployment);
@@ -523,15 +537,17 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
             'name' => 'hosting directadmin',
             'slug' => 'hosting_directadmin',
         ]);
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain'             => 'test.com',
-            'product_uuid'       => $product->uuid,
-            'customer_id'        => $customer->id,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => 'test.com',
+                'product_uuid' => $product->uuid,
+                'customer_id' => $customer->id,
+            ]);
         $hostingDeployment = new HostingDeploymentFactory()->createOne([
             'directadmin_customer_username' => 'goodtest',
-            'subscription_uuid'             => $subscription->uuid,
-            'server_id'                     => $this->server->id,
+            'subscription_uuid' => $subscription->uuid,
+            'server_id' => $this->server->id,
         ]);
 
         $user = $hostingDeployment->directadmin_customer_username;
@@ -568,15 +584,17 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
             'name' => 'hosting directadmin',
             'slug' => 'hosting_directadmin',
         ]);
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain'             => 'test.com',
-            'product_uuid'       => $product->uuid,
-            'customer_id'        => $customer->id,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => 'test.com',
+                'product_uuid' => $product->uuid,
+                'customer_id' => $customer->id,
+            ]);
         $hostingDeployment = new HostingDeploymentFactory()->createOne([
             'directadmin_customer_username' => 'goodtest',
-            'subscription_uuid'             => $subscription->uuid,
-            'server_id'                     => $this->server->id,
+            'subscription_uuid' => $subscription->uuid,
+            'server_id' => $this->server->id,
         ]);
 
         $user = $hostingDeployment->directadmin_customer_username;
@@ -605,15 +623,17 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
             'name' => 'hosting directadmin',
             'slug' => 'hosting_directadmin',
         ]);
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain'             => 'test.com',
-            'product_uuid'       => $product->uuid,
-            'customer_id'        => $customer->id,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => 'test.com',
+                'product_uuid' => $product->uuid,
+                'customer_id' => $customer->id,
+            ]);
         $hostingDeployment = new HostingDeploymentFactory()->createOne([
             'directadmin_customer_username' => 'goodtest',
-            'subscription_uuid'             => $subscription->uuid,
-            'server_id'                     => $this->server->id,
+            'subscription_uuid' => $subscription->uuid,
+            'server_id' => $this->server->id,
         ]);
 
         $user = $hostingDeployment->directadmin_customer_username;
@@ -638,7 +658,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
         $result = $this->hostingService->changeServicePlan(
             $hostingDeployment,
             $hostingDeployment->subscription->product,
-            $newProduct
+            $newProduct,
         );
 
         self::assertSame('ok', $result->getStatus());
@@ -647,8 +667,13 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
     /** @return iterable<string, array<int, string|bool>> */
     public static function provideNameserverPayloads(): iterable
     {
-        yield 'Namserver ipv4 is the same as hosting server hostname' => ['34.44.33.44', '::1',  true, '34.44.33.44'];
-        yield 'Namserver ipv4 is NOT the same as hosting server hostname' => ['34.44.33.44', '::1', false, '34.44.33.45'];
+        yield 'Namserver ipv4 is the same as hosting server hostname' => ['34.44.33.44', '::1', true, '34.44.33.44'];
+        yield 'Namserver ipv4 is NOT the same as hosting server hostname' => [
+            '34.44.33.44',
+            '::1',
+            false,
+            '34.44.33.45',
+        ];
         yield 'Namserver ipv6 is the same as hosting server hostname' => ['34.44.33.44', '::1', true, '::1'];
         yield 'Namserver ipv6 is NOT the same as hosting server hostname' => ['34.44.33.44', '::1', false, '::2'];
     }
@@ -657,7 +682,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
     #[Test]
     public function isUsingHostingServerAsNameserver(
         string $ipv4HostingServer,
-        string|null $ipv6HostingServer,
+        ?string $ipv6HostingServer,
         bool $expectedResult,
         string $nameserverIpAddress,
     ): void {
@@ -804,7 +829,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
                 'sysinfo' => 'OFF',
                 'vdomains' => '5',
             ],
-            $result
+            $result,
         );
     }
 
@@ -845,8 +870,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
 
         $this->app->bind(function () use ($expectedUsername): DirectadminUsernameBroker {
             $mock = self::createStub(DirectadminUsernameBroker::class);
-            $mock->method('generateUsername')
-                ->willReturn($expectedUsername);
+            $mock->method('generateUsername')->willReturn($expectedUsername);
 
             return $mock;
         });
@@ -867,22 +891,21 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
         ]);
         $product = new ProductFactory()->for($productGroup)->createOne();
         $subscription = new SubscriptionFactory()->for($product)->createOne([
-            'customer_id'        => $customer->id,
-            'domain'             => 'testdomein.nl',
-            'contract_period'    => '12',
-            'gross_price'        => 121,
-            'net_price'          => 100,
+            'customer_id' => $customer->id,
+            'domain' => 'testdomein.nl',
+            'contract_period' => '12',
+            'gross_price' => 121,
+            'net_price' => 100,
         ]);
 
         new HostingDeploymentFactory()->createOne([
-            'subscription_uuid'             => $subscription->uuid,
+            'subscription_uuid' => $subscription->uuid,
             'directadmin_customer_username' => $username,
         ]);
 
         $this->app->bind(function () use ($expectedUsername): DirectadminUsernameBroker {
             $mock = self::createStub(DirectadminUsernameBroker::class);
-            $mock->method('generateUsername')
-                ->willReturn($expectedUsername);
+            $mock->method('generateUsername')->willReturn($expectedUsername);
 
             return $mock;
         });
@@ -898,26 +921,21 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
         $hostingDeployment = $this->seedSubscriptions('example.com', $this->server);
 
         $directAdminApi = $this->createMock(DirectAdminApiInterface::class);
-        $directAdminApi
-            ->method('loginAs')
-            ->willReturnSelf();
+        $directAdminApi->method('loginAs')->willReturnSelf();
         $directAdminApi
             ->expects(self::once())
             ->method('call')
             ->with($this->isInstanceOf(ShowAllUserDomains::class))
-            ->willReturnCallback(fn (ShowAllUserDomains $cmd) =>
+            ->willReturnCallback(fn (ShowAllUserDomains $cmd) => (
                 // inject our fake payload
                 $cmd->responseReceived([
-                'foo.com',
-                'bar.example.com',
-            ]));
+                    'foo.com',
+                    'bar.example.com',
+                ])
+            ));
 
         $mockDa = $this->createMock(BehavesAsDirectAdmin::class);
-        $mockDa
-            ->expects(self::once())
-            ->method('useServer')
-            ->with($this->server)
-            ->willReturn($directAdminApi);
+        $mockDa->expects(self::once())->method('useServer')->with($this->server)->willReturn($directAdminApi);
         $this->app->bind(BehavesAsDirectAdmin::class, fn () => $mockDa);
 
         $svc = self::resolve(DirectAdminHostingService::class);
@@ -925,7 +943,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
 
         self::assertSame(
             ['foo.com', 'bar.example.com'],
-            $domains
+            $domains,
         );
     }
 
@@ -933,20 +951,18 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
     public function getCustomerDomainsForDkimForMailOnlyHosting(): void
     {
         $mailServer = new ServerFactory()->createOne([
-            'type'     => ServerType::DIRECTADMIN,
+            'type' => ServerType::DIRECTADMIN,
             'hostname' => 'mail-only.test',
-            'ipv4'     => '5.6.7.8',
-            'ipv6'     => null,
+            'ipv4' => '5.6.7.8',
+            'ipv6' => null,
         ]);
 
         $subscription = HostingSubscriptionDataProvider::administrativeSubscription();
 
-        new ProductSpecFactory()
-            ->for($subscription->product)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
-                'value' => '1',
-            ]);
+        new ProductSpecFactory()->for($subscription->product)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '1',
+        ]);
 
         $hostingDeployment = new HostingDeployment();
         $hostingDeployment->directadmin_customer_username = 'mailuser123';
@@ -956,9 +972,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
         $hostingDeployment->save();
 
         $directAdminApi = $this->createMock(DirectAdminApiInterface::class);
-        $directAdminApi
-            ->method('loginAs')
-            ->willReturnSelf();
+        $directAdminApi->method('loginAs')->willReturnSelf();
         $directAdminApi
             ->expects(self::once())
             ->method('call')
@@ -969,11 +983,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
             ]));
 
         $mockDa = $this->createMock(BehavesAsDirectAdmin::class);
-        $mockDa
-            ->expects(self::once())
-            ->method('useServer')
-            ->with($mailServer)
-            ->willReturn($directAdminApi);
+        $mockDa->expects(self::once())->method('useServer')->with($mailServer)->willReturn($directAdminApi);
         $this->app->bind(BehavesAsDirectAdmin::class, fn () => $mockDa);
 
         $svc = self::resolve(DirectAdminHostingService::class);
@@ -981,7 +991,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
 
         self::assertSame(
             ['only-mail.test', 'bounce.only-mail.test'],
-            $domains
+            $domains,
         );
     }
 
@@ -992,9 +1002,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
         $domain = 'example.com';
 
         $directAdminApi = $this->createMock(DirectAdminApiInterface::class);
-        $directAdminApi
-            ->method('loginAs')
-            ->willReturnSelf();
+        $directAdminApi->method('loginAs')->willReturnSelf();
         $directAdminApi
             ->expects(self::once())
             ->method('call')
@@ -1003,15 +1011,12 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
                 $ref = new ReflectionClass($cmd);
                 $prop = $ref->getProperty('dkimEnabled');
                 $prop->setValue($cmd, true);
+
                 return $cmd;
             });
 
         $mockDa = $this->createMock(BehavesAsDirectAdmin::class);
-        $mockDa
-            ->expects(self::once())
-            ->method('useServer')
-            ->with($this->server)
-            ->willReturn($directAdminApi);
+        $mockDa->expects(self::once())->method('useServer')->with($this->server)->willReturn($directAdminApi);
         $this->app->bind(BehavesAsDirectAdmin::class, fn () => $mockDa);
 
         $svc = self::resolve(DirectAdminHostingService::class);
@@ -1022,20 +1027,18 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
     public function isDkimEnabledForMailOnlyHosting(): void
     {
         $mailServer = new ServerFactory()->createOne([
-            'type'     => ServerType::DIRECTADMIN,
+            'type' => ServerType::DIRECTADMIN,
             'hostname' => 'mail-only.test',
-            'ipv4'     => '5.6.7.8',
-            'ipv6'     => null,
+            'ipv4' => '5.6.7.8',
+            'ipv6' => null,
         ]);
 
         $subscription = HostingSubscriptionDataProvider::administrativeSubscription();
 
-        new ProductSpecFactory()
-            ->for($subscription->product)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
-                'value' => '1',
-            ]);
+        new ProductSpecFactory()->for($subscription->product)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '1',
+        ]);
 
         $hostingDeployment = new HostingDeployment();
         $hostingDeployment->directadmin_customer_username = 'mailuser123';
@@ -1047,24 +1050,19 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
         $domain = 'mail-only.test';
 
         $directAdminApi = $this->createStub(DirectAdminApiInterface::class);
-        $directAdminApi
-            ->method('loginAs')
-            ->willReturnSelf();
+        $directAdminApi->method('loginAs')->willReturnSelf();
         $directAdminApi
             ->method('call')
             ->willReturnCallback(function (GetEmail $cmd) {
                 $ref = new ReflectionClass($cmd);
                 $prop = $ref->getProperty('dkimEnabled');
                 $prop->setValue($cmd, true);
+
                 return $cmd;
             });
 
         $mockDa = $this->createMock(BehavesAsDirectAdmin::class);
-        $mockDa
-            ->expects(self::once())
-            ->method('useServer')
-            ->with($mailServer)
-            ->willReturn($directAdminApi);
+        $mockDa->expects(self::once())->method('useServer')->with($mailServer)->willReturn($directAdminApi);
         $this->app->bind(BehavesAsDirectAdmin::class, fn () => $mockDa);
 
         $svc = self::resolve(DirectAdminHostingService::class);
@@ -1088,20 +1086,16 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
             ->expects(self::once())
             ->method('call')
             ->with(self::callback(function (EnableDisableDKIM $cmd) use ($domain, $enable) {
-                $r  = new ReflectionClass($cmd);
+                $r = new ReflectionClass($cmd);
                 $pd = $r->getProperty('domain');
                 $pk = $r->getProperty('dkim');
-                return $pd->getValue($cmd) === $domain
-                    && $pk->getValue($cmd) === $enable;
+
+                return $pd->getValue($cmd) === $domain && $pk->getValue($cmd) === $enable;
             }))
             ->willReturnArgument(0);
 
         $mockDa = $this->createMock(BehavesAsDirectAdmin::class);
-        $mockDa
-            ->expects(self::once())
-            ->method('useServer')
-            ->with($this->server)
-            ->willReturn($directAdminApi);
+        $mockDa->expects(self::once())->method('useServer')->with($this->server)->willReturn($directAdminApi);
         $this->app->bind(BehavesAsDirectAdmin::class, fn () => $mockDa);
 
         $svc = self::resolve(DirectAdminHostingService::class);
@@ -1112,20 +1106,18 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
     public function setDkimForMailOnlyHosting(): void
     {
         $mailServer = new ServerFactory()->createOne([
-            'type'     => ServerType::DIRECTADMIN,
+            'type' => ServerType::DIRECTADMIN,
             'hostname' => 'mail-only.test',
-            'ipv4'     => '5.6.7.8',
-            'ipv6'     => null,
+            'ipv4' => '5.6.7.8',
+            'ipv6' => null,
         ]);
 
         $subscription = HostingSubscriptionDataProvider::administrativeSubscription();
 
-        new ProductSpecFactory()
-            ->for($subscription->product)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
-                'value' => '1',
-            ]);
+        new ProductSpecFactory()->for($subscription->product)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '1',
+        ]);
 
         $hostingDeployment = new HostingDeployment();
         $hostingDeployment->directadmin_customer_username = 'mailuser123';
@@ -1138,29 +1130,21 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
         $enable = false;
 
         $directAdminApi = $this->createMock(DirectAdminApiInterface::class);
-        $directAdminApi
-            ->expects(self::once())
-            ->method('loginAs')
-            ->with('mailuser123')
-            ->willReturnSelf();
+        $directAdminApi->expects(self::once())->method('loginAs')->with('mailuser123')->willReturnSelf();
         $directAdminApi
             ->expects(self::once())
             ->method('call')
             ->with(self::callback(function (EnableDisableDKIM $cmd) use ($domain, $enable) {
-                $r  = new ReflectionClass($cmd);
+                $r = new ReflectionClass($cmd);
                 $pd = $r->getProperty('domain');
                 $pk = $r->getProperty('dkim');
-                return $pd->getValue($cmd) === $domain
-                    && $pk->getValue($cmd) === $enable;
+
+                return $pd->getValue($cmd) === $domain && $pk->getValue($cmd) === $enable;
             }))
             ->willReturnArgument(0);
 
         $mockDa = $this->createMock(BehavesAsDirectAdmin::class);
-        $mockDa
-            ->expects(self::once())
-            ->method('useServer')
-            ->with($mailServer)
-            ->willReturn($directAdminApi);
+        $mockDa->expects(self::once())->method('useServer')->with($mailServer)->willReturn($directAdminApi);
         $this->app->bind(BehavesAsDirectAdmin::class, fn () => $mockDa);
 
         $svc = self::resolve(DirectAdminHostingService::class);
@@ -1174,8 +1158,8 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
         $hostingDeployment = $this->seedSubscriptions($domain, $this->server);
 
         $fakeRecord = [
-            'type'  => 'TXT',
-            'name'  => 'default._domainkey',
+            'type' => 'TXT',
+            'name' => 'default._domainkey',
             'value' => 'v=DKIM1; k=rsa; p=ABCDEFG12345',
         ];
 
@@ -1184,18 +1168,15 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
             ->expects(self::once())
             ->method('call')
             ->with(self::callback(function (FetchDkimRecord $cmd) use ($domain) {
-                $r  = new ReflectionClass($cmd);
+                $r = new ReflectionClass($cmd);
                 $pd = $r->getProperty('domain');
+
                 return $pd->getValue($cmd) === $domain;
             }))
             ->willReturnCallback(fn (FetchDkimRecord $cmd) => $cmd->responseReceived(['records' => [$fakeRecord]]));
 
         $mockDa = $this->createMock(BehavesAsDirectAdmin::class);
-        $mockDa
-            ->expects(self::once())
-            ->method('useServer')
-            ->with($this->server)
-            ->willReturn($directAdminApi);
+        $mockDa->expects(self::once())->method('useServer')->with($this->server)->willReturn($directAdminApi);
 
         $this->app->bind(BehavesAsDirectAdmin::class, fn () => $mockDa);
 
@@ -1213,20 +1194,18 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
     {
         $domain = 'mail-only.test';
         $mailServer = new ServerFactory()->createOne([
-            'type'     => ServerType::DIRECTADMIN,
+            'type' => ServerType::DIRECTADMIN,
             'hostname' => $domain,
-            'ipv4'     => '5.6.7.8',
-            'ipv6'     => null,
+            'ipv4' => '5.6.7.8',
+            'ipv6' => null,
         ]);
 
         $subscription = HostingSubscriptionDataProvider::administrativeSubscription();
 
-        new ProductSpecFactory()
-            ->for($subscription->product)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
-                'value' => '1',
-            ]);
+        new ProductSpecFactory()->for($subscription->product)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '1',
+        ]);
 
         $hostingDeployment = new HostingDeployment();
         $hostingDeployment->directadmin_customer_username = 'mailuser123';
@@ -1236,8 +1215,8 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
         $hostingDeployment->save();
 
         $fakeRecord = [
-            'type'  => 'TXT',
-            'name'  => '_domainkey.mail-only.test',
+            'type' => 'TXT',
+            'name' => '_domainkey.mail-only.test',
             'value' => 'v=DKIM1; k=rsa; p=XYZ987',
         ];
 
@@ -1246,18 +1225,15 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
             ->expects(self::once())
             ->method('call')
             ->with(self::callback(function (FetchDkimRecord $cmd) use ($domain) {
-                $r  = new ReflectionClass($cmd);
+                $r = new ReflectionClass($cmd);
                 $pd = $r->getProperty('domain');
+
                 return $pd->getValue($cmd) === $domain;
             }))
             ->willReturnCallback(fn (FetchDkimRecord $cmd) => $cmd->responseReceived(['records' => [$fakeRecord]]));
 
         $mockDa = $this->createMock(BehavesAsDirectAdmin::class);
-        $mockDa
-            ->expects(self::once())
-            ->method('useServer')
-            ->with($mailServer)
-            ->willReturn($directAdminApi);
+        $mockDa->expects(self::once())->method('useServer')->with($mailServer)->willReturn($directAdminApi);
         $this->app->bind(BehavesAsDirectAdmin::class, fn () => $mockDa);
 
         $svc = self::resolve(DirectAdminHostingService::class);
@@ -1278,11 +1254,14 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
             'name' => 'brons',
             'slug' => 'hosting_brons',
         ]);
-        $parentSubscription = new SubscriptionFactory()->withCustomer()->for($product_brons)->createOne([
-            'domain' => $domain,
-            'contract_period' => 12,
-            'technical_status' => DomainStatus::ACTIVE->value,
-        ]);
+        $parentSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product_brons)
+            ->createOne([
+                'domain' => $domain,
+                'contract_period' => 12,
+                'technical_status' => DomainStatus::ACTIVE->value,
+            ]);
         if (! Server::where('type', ServerType::DIRECTADMIN)->exists()) {
             $server = Server::create([
                 'type' => ServerType::DIRECTADMIN,
@@ -1295,8 +1274,14 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
                 'secret_key' => '',
             ]);
         }
+
         if (! HostingDeployment::where('subscription_uuid', $parentSubscription->uuid)->exists()) {
-            $provider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => false]);
+            $provider = new ProviderFactory()->createOne([
+                'type' => ProviderType::HOSTING,
+                'slug' => ProviderSlug::DIRECTADMIN,
+                'enabled' => true,
+                'default' => false,
+            ]);
 
             new HostingDeploymentFactory()->createOne(
                 [
@@ -1306,9 +1291,10 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
                     'server_id' => $server->id,
                     'directadmin_customer_username' => Str::random(20),
                     'provider_id' => $provider->id,
-                ]
+                ],
             );
         }
+
         $hostingDeployment = HostingDeployment::where('subscription_uuid', $parentSubscription->uuid)->first();
         self::assertInstanceOf(HostingDeployment::class, $hostingDeployment);
         $hostingDeployment->subscription()->associate($parentSubscription);
@@ -1329,11 +1315,14 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
             'slug' => 'hosting_brons',
         ]);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($product_brons)->createOne([
-            'domain' => $domain,
-            'contract_period' => 12,
-            'technical_status' => DomainStatus::ACTIVE->value,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product_brons)
+            ->createOne([
+                'domain' => $domain,
+                'contract_period' => 12,
+                'technical_status' => DomainStatus::ACTIVE->value,
+            ]);
 
         if (! Server::where('type', ServerType::DIRECTADMIN)->exists()) {
             Server::create([
@@ -1349,7 +1338,12 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
         }
 
         if (! HostingDeployment::where('subscription_uuid', $subscription->uuid)->exists()) {
-            $provider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => false]);
+            $provider = new ProviderFactory()->createOne([
+                'type' => ProviderType::HOSTING,
+                'slug' => ProviderSlug::DIRECTADMIN,
+                'enabled' => true,
+                'default' => false,
+            ]);
 
             $server = Server::where('type', ServerType::DIRECTADMIN)->firstOrFail();
 
@@ -1361,7 +1355,7 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
                     'server_id' => $server->id,
                     'directadmin_customer_username' => Str::random(20),
                     'provider_id' => $provider->id,
-                ]
+                ],
             );
         }
 
@@ -1376,29 +1370,29 @@ class DirectAdminHostingServiceTest extends IntegrationTestCase
         // Setup data to use to create customer and package
         return Parameters::create(
             [
-                'contactPersonName'     => 'Naam',
-                'emailAddress'          => 'naam@email.com',
-                'domain'                => $server->hostname,
-                'ipv4Address'           => $server->ipv4,
-                'ipv6Address'           => $server->ipv6,
-                'username'              => $user ?? 'naamUsername',
-                'password'              => Str::random(),
-                'specs'                 => [
+                'contactPersonName' => 'Naam',
+                'emailAddress' => 'naam@email.com',
+                'domain' => $server->hostname,
+                'ipv4Address' => $server->ipv4,
+                'ipv6Address' => $server->ipv6,
+                'username' => $user ?? 'naamUsername',
+                'password' => Str::random(),
+                'specs' => [
                     0 => [
                         'product_id' => Product::where('name', 'brons')->firstOrFail()->id,
-                        'name'       => 'hosting.limits.max_traffic',
-                        'value'      => 'unlimmited',
+                        'name' => 'hosting.limits.max_traffic',
+                        'value' => 'unlimmited',
                     ],
                 ],
-                'phpVersion'            => $server->php_version,
-                'forwardingUrl'         => 'url.com',
-                'directAdminUserName'   => $user ?? 'username',
-                'enableDns'             => 'OFF',
-                'enableSsh'             => 'OFF',
-                'enableSsl'             => 'OFF',
-                'notify'                => 'yes',
-                'package'               => $package,
-            ]
+                'phpVersion' => $server->php_version,
+                'forwardingUrl' => 'url.com',
+                'directAdminUserName' => $user ?? 'username',
+                'enableDns' => 'OFF',
+                'enableSsh' => 'OFF',
+                'enableSsl' => 'OFF',
+                'notify' => 'yes',
+                'package' => $package,
+            ],
         );
     }
 }

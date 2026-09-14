@@ -13,8 +13,9 @@ class Request
     /** @var string */
     private $endpoint = 'api/domain/remove/domain/{domain}';
 
-    public function __construct(private readonly HttpClient $httpClient)
-    {
+    public function __construct(
+        private readonly HttpClient $httpClient,
+    ) {
     }
 
     /**

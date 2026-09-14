@@ -170,7 +170,7 @@ class AcronisProvisionServiceTest extends TestCase
             '%s/idp/external-login#ott=%s&targetURI=%s',
             self::ENDPOINT,
             rawurlencode($ottValue),
-            self::SSO_ENDPOINT
+            self::SSO_ENDPOINT,
         );
 
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
@@ -226,9 +226,7 @@ class AcronisProvisionServiceTest extends TestCase
             ->andReturn(null);
 
         $acronisClientFactory = self::createMock(AcronisClientFactory::class);
-        $acronisClientFactory
-            ->expects(self::never())
-            ->method('createFromDeployment');
+        $acronisClientFactory->expects(self::never())->method('createFromDeployment');
 
         $service = new AcronisProvisionService(
             backupDeploymentRepository: $this->mockBackupDeploymentRepository,
@@ -279,15 +277,17 @@ class AcronisProvisionServiceTest extends TestCase
                 [
                     $firstTenantFromApi,
                     $afterUpdateTenant,
-                ]
+                ],
             );
 
-        $this->mockAcronisTenantClient->expects('update')
+        $this->mockAcronisTenantClient
+            ->expects('update')
             ->once()
             ->withArgs(
-                fn (string $receivedTenantUuid, Tenant $receivedTenant) =>
+                fn (string $receivedTenantUuid, Tenant $receivedTenant) => (
                     $receivedTenantUuid === self::TENANT_UUID
                     && $receivedTenant->enabled === false
+                ),
             )
             ->andReturn($afterUpdateTenant);
 
@@ -297,10 +297,7 @@ class AcronisProvisionServiceTest extends TestCase
             ->with(self::TENANT_UUID, $tenantVersion + 1);
 
         $acronisClientFactory = self::createMock(AcronisClientFactory::class);
-        $acronisClientFactory
-            ->expects(self::once())
-            ->method('createFromDeployment')
-            ->willReturn($this->acronisClient);
+        $acronisClientFactory->expects(self::once())->method('createFromDeployment')->willReturn($this->acronisClient);
 
         $logger = self::createMock(LoggerInterface::class);
         $logger->expects(self::never())->method('warning');
@@ -365,15 +362,17 @@ class AcronisProvisionServiceTest extends TestCase
                 [
                     $firstTenantFromApi,
                     $afterUpdateTenant,
-                ]
+                ],
             );
 
-        $this->mockAcronisTenantClient->expects('update')
+        $this->mockAcronisTenantClient
+            ->expects('update')
             ->once()
             ->withArgs(
-                fn (string $receivedTenantUuid, Tenant $receivedTenant) =>
-                $receivedTenantUuid === self::TENANT_UUID
-                && $receivedTenant->enabled === false
+                fn (string $receivedTenantUuid, Tenant $receivedTenant) => (
+                    $receivedTenantUuid === self::TENANT_UUID
+                    && $receivedTenant->enabled === false
+                ),
             )
             ->andReturn($afterUpdateTenant);
 
@@ -391,10 +390,7 @@ class AcronisProvisionServiceTest extends TestCase
             genericClient: self::createStub(AcronisGenericClient::class),
         );
 
-        $this->acronisClientFactory
-            ->expects(self::once())
-            ->method('createFromDeployment')
-            ->willReturn($client);
+        $this->acronisClientFactory->expects(self::once())->method('createFromDeployment')->willReturn($client);
 
         $logger = self::createMock(LoggerInterface::class);
         $logger->expects(self::once())->method('warning');
@@ -442,9 +438,7 @@ class AcronisProvisionServiceTest extends TestCase
             ->withArgs(fn (UuidInterface $receivedTag) => $receivedTag->toString() === self::TAG)
             ->andReturn($this->backupDeployment);
 
-        $this->mockAcronisUserClient
-            ->expects(self::never())
-            ->method('updatePassword');
+        $this->mockAcronisUserClient->expects(self::never())->method('updatePassword');
 
         $this->mockAcronisOfferingItemsClient
             ->expects(self::once())
@@ -466,15 +460,12 @@ class AcronisProvisionServiceTest extends TestCase
                     self::assertSame(0, $item->quota->overage);
 
                     return true;
-                })
+                }),
             )
             ->willReturn($offeringItems);
 
         $acronisClientFactory = self::createMock(AcronisClientFactory::class);
-        $acronisClientFactory
-            ->expects(self::once())
-            ->method('createFromDeployment')
-            ->willReturn($this->acronisClient);
+        $acronisClientFactory->expects(self::once())->method('createFromDeployment')->willReturn($this->acronisClient);
 
         $service = new AcronisProvisionService(
             backupDeploymentRepository: $this->mockBackupDeploymentRepository,
@@ -488,7 +479,7 @@ class AcronisProvisionServiceTest extends TestCase
             new UpdateBackupRequest(
                 tagUuid: Uuid::fromString(self::TAG),
                 mobileDevices: 3,
-            )
+            ),
         );
 
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
@@ -522,9 +513,7 @@ class AcronisProvisionServiceTest extends TestCase
         );
         $offeringItems = new OfferingItems(checkUsage: true, offeringItems: null, items: [$item]);
 
-        $this->mockAcronisUserClient
-            ->expects(self::never())
-            ->method('updatePassword');
+        $this->mockAcronisUserClient->expects(self::never())->method('updatePassword');
 
         $this->mockAcronisOfferingItemsClient
             ->expects(self::once())
@@ -546,7 +535,7 @@ class AcronisProvisionServiceTest extends TestCase
                     self::assertSame(0, $item->quota->overage);
 
                     return true;
-                })
+                }),
             )
             ->willReturn($offeringItems);
 
@@ -566,8 +555,8 @@ class AcronisProvisionServiceTest extends TestCase
         $result = $service->updateBackup(
             new UpdateBackupRequest(
                 tagUuid: Uuid::fromString(self::TAG),
-                mobileDevices: $mobileDevicesAmount
-            )
+                mobileDevices: $mobileDevicesAmount,
+            ),
         );
 
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
@@ -591,13 +580,9 @@ class AcronisProvisionServiceTest extends TestCase
             ->with(self::USER_UUID, $password)
             ->willReturn(true);
 
-        $this->mockAcronisOfferingItemsClient
-            ->expects(self::never())
-            ->method('get');
+        $this->mockAcronisOfferingItemsClient->expects(self::never())->method('get');
 
-        $this->mockAcronisOfferingItemsClient
-            ->expects(self::never())
-            ->method('update');
+        $this->mockAcronisOfferingItemsClient->expects(self::never())->method('update');
 
         $this->acronisClientFactory
             ->expects(self::once())
@@ -615,8 +600,8 @@ class AcronisProvisionServiceTest extends TestCase
         $result = $service->updateBackup(
             new UpdateBackupRequest(
                 tagUuid: Uuid::fromString(self::TAG),
-                password: $password
-            )
+                password: $password,
+            ),
         );
 
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
@@ -660,14 +645,15 @@ class AcronisProvisionServiceTest extends TestCase
         $request = new UpdateBackupRequest(
             tagUuid: Uuid::fromString(self::TAG),
             password: $password,
-            mobileDevices: $mobileDevicesAmount
+            mobileDevices: $mobileDevicesAmount,
         );
 
         $request->requestId = 1234;
 
-        $result = $service->updateBackup(
-            $request
-        );
+        $result =
+            $service->updateBackup(
+                $request,
+            );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertSame($expectedException, $result->exception);
@@ -677,9 +663,7 @@ class AcronisProvisionServiceTest extends TestCase
     #[Test]
     public function updateBackupDeploymentNotFound(): void
     {
-        $this->acronisClientFactory
-            ->expects(self::never())
-            ->method('createFromDeployment');
+        $this->acronisClientFactory->expects(self::never())->method('createFromDeployment');
 
         $this->mockBackupDeploymentRepository
             ->expects('findByTag')
@@ -699,8 +683,8 @@ class AcronisProvisionServiceTest extends TestCase
             new UpdateBackupRequest(
                 tagUuid: Uuid::fromString(self::TAG),
                 password: 'password',
-                mobileDevices: 3
-            )
+                mobileDevices: 3,
+            ),
         );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
@@ -732,7 +716,7 @@ class AcronisProvisionServiceTest extends TestCase
                     version: $tenantVersion,
                     email: 'test@yourhosting.nl',
                     enabled: true,
-                )
+                ),
             );
 
         $this->mockAcronisTenantClient
@@ -748,16 +732,13 @@ class AcronisProvisionServiceTest extends TestCase
                     self::assertFalse($payload->enabled);
 
                     return true;
-                })
+                }),
             );
 
         $logger = self::createMock(LoggerInterface::class);
         $logger->expects(self::never())->method('warning');
 
-        $this->acronisClientFactory
-            ->expects(self::once())
-            ->method('create')
-            ->willReturn($this->acronisClient);
+        $this->acronisClientFactory->expects(self::once())->method('create')->willReturn($this->acronisClient);
 
         $service = new AcronisProvisionService(
             backupDeploymentRepository: $this->mockBackupDeploymentRepository,
@@ -770,9 +751,10 @@ class AcronisProvisionServiceTest extends TestCase
         $request = new SetBackupSuspensionStateRequest(tagUuid: Uuid::fromString(self::TAG), enable: false);
         $request->requestId = 1234;
 
-        $result = $service->setBackupSuspensionState(
-            $request
-        );
+        $result =
+            $service->setBackupSuspensionState(
+                $request,
+            );
 
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
         self::assertNull($result->exception);
@@ -798,7 +780,7 @@ class AcronisProvisionServiceTest extends TestCase
         );
 
         $result = $service->setBackupSuspensionState(
-            new SetBackupSuspensionStateRequest(tagUuid: Uuid::fromString(self::TAG), enable: true)
+            new SetBackupSuspensionStateRequest(tagUuid: Uuid::fromString(self::TAG), enable: true),
         );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
@@ -820,20 +802,11 @@ class AcronisProvisionServiceTest extends TestCase
 
         $expectedException = new SaloonException('Something went wrong');
 
-        $this->mockAcronisTenantClient
-            ->expects('get')
-            ->once()
-            ->with(self::TENANT_UUID)
-            ->andThrow($expectedException);
+        $this->mockAcronisTenantClient->expects('get')->once()->with(self::TENANT_UUID)->andThrow($expectedException);
 
-        $this->mockAcronisTenantClient
-            ->expects('update')
-            ->never();
+        $this->mockAcronisTenantClient->expects('update')->never();
 
-        $this->acronisClientFactory
-            ->expects(self::once())
-            ->method('create')
-            ->willReturn($this->acronisClient);
+        $this->acronisClientFactory->expects(self::once())->method('create')->willReturn($this->acronisClient);
 
         $logger = self::createMock(LoggerInterface::class);
         $logger->expects(self::once())->method('warning');
@@ -849,9 +822,10 @@ class AcronisProvisionServiceTest extends TestCase
         $request = new SetBackupSuspensionStateRequest(tagUuid: Uuid::fromString(self::TAG), enable: true);
         $request->requestId = 1234;
 
-        $result = $service->setBackupSuspensionState(
-            $request
-        );
+        $result =
+            $service->setBackupSuspensionState(
+                $request,
+            );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertSame($expectedException, $result->exception);
@@ -880,19 +854,13 @@ class AcronisProvisionServiceTest extends TestCase
                     version: $tenantVersion,
                     email: 'test@yourhosting.nl',
                     enabled: true,
-                )
+                ),
             );
 
-        $this->mockAcronisTenantClient
-            ->expects('update')
-            ->once()
-            ->andThrow($expectedException);
+        $this->mockAcronisTenantClient->expects('update')->once()->andThrow($expectedException);
 
         $acronisClientFactory = self::createMock(AcronisClientFactory::class);
-        $acronisClientFactory
-            ->expects(self::once())
-            ->method('create')
-            ->willReturn($this->acronisClient);
+        $acronisClientFactory->expects(self::once())->method('create')->willReturn($this->acronisClient);
 
         $logger = self::createMock(LoggerInterface::class);
         $logger->expects(self::once())->method('warning');
@@ -908,9 +876,10 @@ class AcronisProvisionServiceTest extends TestCase
         $request = new SetBackupSuspensionStateRequest(tagUuid: Uuid::fromString(self::TAG), enable: false);
         $request->requestId = 1234;
 
-        $result = $service->setBackupSuspensionState(
-            $request
-        );
+        $result =
+            $service->setBackupSuspensionState(
+                $request,
+            );
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertSame($expectedException, $result->exception);
@@ -951,11 +920,7 @@ class AcronisProvisionServiceTest extends TestCase
         );
 
         $createService = self::createMock(CreateAcronisProvisionService::class);
-        $createService
-            ->expects(self::once())
-            ->method('createTenant')
-            ->with($createRequest)
-            ->willReturn($tenant);
+        $createService->expects(self::once())->method('createTenant')->with($createRequest)->willReturn($tenant);
 
         $createService
             ->expects(self::once())
@@ -963,26 +928,13 @@ class AcronisProvisionServiceTest extends TestCase
             ->with($tenantId, $createRequest)
             ->willReturn($user);
 
-        $createService
-            ->expects(self::once())
-            ->method('setPassword')
-            ->with($userId, $password)
-            ->willReturn($password);
+        $createService->expects(self::once())->method('setPassword')->with($userId, $password)->willReturn($password);
 
-        $createService
-            ->expects(self::once())
-            ->method('updateAccessPolicies')
-            ->with($userId, $tenantId, $createRequest);
+        $createService->expects(self::once())->method('updateAccessPolicies')->with($userId, $tenantId, $createRequest);
 
-        $createService
-            ->expects(self::once())
-            ->method('updatePricingToProduction')
-            ->with($tenantId);
+        $createService->expects(self::once())->method('updatePricingToProduction')->with($tenantId);
 
-        $createService
-            ->expects(self::once())
-            ->method('storeDeployments')
-            ->with($requestId, $tenantId, $userId);
+        $createService->expects(self::once())->method('storeDeployments')->with($requestId, $tenantId, $userId);
 
         $acronisClient = new AcronisClient(
             tenantId: Uuid::uuid4(),
@@ -992,20 +944,19 @@ class AcronisProvisionServiceTest extends TestCase
             genericClient: self::createStub(AcronisGenericClient::class),
         );
 
-        $offeringItemClient->expects(self::once())
+        $offeringItemClient
+            ->expects(self::once())
             ->method('get')
             ->willReturn(
                 new OfferingItems(
                     checkUsage: null,
                     offeringItems: null,
                     items: [],
-                )
+                ),
             );
 
         $clientFactory = self::createMock(AcronisClientFactory::class);
-        $clientFactory->expects(self::once())
-            ->method('getDefault')
-            ->willReturn($acronisClient);
+        $clientFactory->expects(self::once())->method('getDefault')->willReturn($acronisClient);
 
         $service = new AcronisProvisionService(
             backupDeploymentRepository: $this->mockBackupDeploymentRepository,
@@ -1061,11 +1012,7 @@ class AcronisProvisionServiceTest extends TestCase
         );
 
         $createService = self::createMock(CreateAcronisProvisionService::class);
-        $createService
-            ->expects(self::once())
-            ->method('createTenant')
-            ->with($createRequest)
-            ->willReturn($tenant);
+        $createService->expects(self::once())->method('createTenant')->with($createRequest)->willReturn($tenant);
 
         $createService
             ->expects(self::once())
@@ -1081,35 +1028,25 @@ class AcronisProvisionServiceTest extends TestCase
             ->with($userId, $password)
             ->willThrowException($passwordException);
 
-        $logger->expects('warning')
-            ->with(
-                sprintf('Could not set password for user %s', $user->id),
-                [
-                    LoggingContextKeys::PROVISIONING_REQUEST_ID => self::TAG,
-                    LoggingContextKeys::PROVISIONING_TYPE       => ProvisionType::BACKUP,
-                    LoggingContextKeys::PROVISIONING_PROVIDER   => ProvisionProvider::ACRONIS,
-                    LoggingContextKeys::EXCEPTION               => $passwordException,
-                    LoggingContextKeys::META                    => [
-                        'tenant_id' => $tenant->id,
-                        'user'      => $user->id,
-                    ],
-                ]
-            );
+        $logger->expects('warning')->with(
+            sprintf('Could not set password for user %s', $user->id),
+            [
+                LoggingContextKeys::PROVISIONING_REQUEST_ID => self::TAG,
+                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
+                LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
+                LoggingContextKeys::EXCEPTION => $passwordException,
+                LoggingContextKeys::META => [
+                    'tenant_id' => $tenant->id,
+                    'user' => $user->id,
+                ],
+            ],
+        );
 
-        $createService
-            ->expects(self::once())
-            ->method('updateAccessPolicies')
-            ->with($userId, $tenantId, $createRequest);
+        $createService->expects(self::once())->method('updateAccessPolicies')->with($userId, $tenantId, $createRequest);
 
-        $createService
-            ->expects(self::once())
-            ->method('updatePricingToProduction')
-            ->with($tenantId);
+        $createService->expects(self::once())->method('updatePricingToProduction')->with($tenantId);
 
-        $createService
-            ->expects(self::once())
-            ->method('storeDeployments')
-            ->with($requestId, $tenantId, $userId);
+        $createService->expects(self::once())->method('storeDeployments')->with($requestId, $tenantId, $userId);
 
         $acronisClient = new AcronisClient(
             tenantId: Uuid::uuid4(),
@@ -1119,20 +1056,19 @@ class AcronisProvisionServiceTest extends TestCase
             genericClient: self::createStub(AcronisGenericClient::class),
         );
 
-        $offeringItemClient->expects(self::once())
+        $offeringItemClient
+            ->expects(self::once())
             ->method('get')
             ->willReturn(
                 new OfferingItems(
                     checkUsage: null,
                     offeringItems: null,
                     items: [],
-                )
+                ),
             );
 
         $clientFactory = self::createMock(AcronisClientFactory::class);
-        $clientFactory->expects(self::once())
-            ->method('getDefault')
-            ->willReturn($acronisClient);
+        $clientFactory->expects(self::once())->method('getDefault')->willReturn($acronisClient);
 
         $service = new AcronisProvisionService(
             backupDeploymentRepository: $this->mockBackupDeploymentRepository,
@@ -1249,9 +1185,7 @@ class AcronisProvisionServiceTest extends TestCase
             ->withArgs(fn (UuidInterface $receivedTag) => $receivedTag->toString() === self::TAG)
             ->andReturn(null);
 
-        $this->acronisClientFactory
-            ->expects(self::never())
-            ->method('createFromDeployment');
+        $this->acronisClientFactory->expects(self::never())->method('createFromDeployment');
 
         $service = new AcronisProvisionService(
             backupDeploymentRepository: $this->mockBackupDeploymentRepository,
@@ -1337,7 +1271,7 @@ class AcronisProvisionServiceTest extends TestCase
                     self::assertSame($newStorageBytes, $localItem->quota->value);
 
                     return true;
-                })
+                }),
             )
             ->willReturn($returnedOfferingItems);
 

@@ -14,8 +14,9 @@ use Waterfront\Domain\Provision\Microsoft365\Requests\Microsoft365TenantIdReques
 
 class MicrosoftOnlineValidator implements Microsoft365RequestValidatorInterface
 {
-    public function __construct(private readonly Factory $validatorFactory)
-    {
+    public function __construct(
+        private readonly Factory $validatorFactory,
+    ) {
     }
 
     /**
@@ -26,7 +27,7 @@ class MicrosoftOnlineValidator implements Microsoft365RequestValidatorInterface
         return match ($provisionRequest::class) {
             Microsoft365TenantIdRequest::class => $this->getTenantIdRequestValidator($provisionRequest),
             Microsoft365AuthorizationUrlRequest::class => $this->getAuthorizationUrlRequestValidator($provisionRequest),
-            default => throw new UnknownMicrosoft365RequestException($provisionRequest)
+            default => throw new UnknownMicrosoft365RequestException($provisionRequest),
         };
     }
 

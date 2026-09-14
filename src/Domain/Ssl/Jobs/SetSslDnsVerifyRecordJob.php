@@ -40,7 +40,7 @@ class SetSslDnsVerifyRecordJob extends AbstractQueueableJob
                 'Set SSL DNS verify record: subscription has no domain; skipping',
                 [
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
-                ]
+                ],
             );
 
             return;
@@ -57,7 +57,7 @@ class SetSslDnsVerifyRecordJob extends AbstractQueueableJob
             [
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-            ]
+            ],
         );
     }
 
@@ -69,9 +69,7 @@ class SetSslDnsVerifyRecordJob extends AbstractQueueableJob
     private function isWildcard(Subscription $subscription): bool
     {
         /** @var ProductSpec $productSpec */
-        $productSpec = $subscription->product->productSpecs()
-            ->where('name', 'ssl.product_id')
-            ->firstOrFail();
+        $productSpec = $subscription->product->productSpecs()->where('name', 'ssl.product_id')->firstOrFail();
 
         return SslProduct::fromNative($productSpec->value)->isWildcardSsl();
     }

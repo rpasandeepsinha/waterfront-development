@@ -21,7 +21,7 @@ class BasekitFactory implements BasekitFactoryInterface
         if (is_null($username) || is_null($password)) {
             throw new SitebuilderException(sprintf(
                 'Credentials to from server with id: %s, have not been set.',
-                $server->id
+                $server->id,
             ));
         }
 

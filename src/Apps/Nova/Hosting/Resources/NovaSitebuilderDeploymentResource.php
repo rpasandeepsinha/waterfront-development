@@ -43,10 +43,12 @@ class NovaSitebuilderDeploymentResource extends Resource
     public function fields(NovaRequest $request): array
     {
         return [
-            ID::make()
-                ->onlyOnDetail(),
-            HasOne::make(self::translate('provisioning-request.singular'), 'request', NovaProvisionRequestResource::class)
-                ->onlyOnDetail(),
+            ID::make()->onlyOnDetail(),
+            HasOne::make(
+                self::translate('provisioning-request.singular'),
+                'request',
+                NovaProvisionRequestResource::class,
+            )->onlyOnDetail(),
             Text::make(self::translate('basekit-sitebuilder.site-ref'), 'basekitDeployment')
                 ->onlyOnDetail()
                 ->copyable()

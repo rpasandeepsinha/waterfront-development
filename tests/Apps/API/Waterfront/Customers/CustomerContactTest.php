@@ -36,8 +36,7 @@ class CustomerContactTest extends IntegrationTestCase
     public function index(string $type): void
     {
         $newEmail = 'email@change.nl';
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.customers.contacts.store', $this->customer->uuid),
                 [
@@ -48,11 +47,11 @@ class CustomerContactTest extends IntegrationTestCase
             ->assertOk()
             ->assertJson(
                 [
-                        'type' => $type,
-                        'email' => 'email@change.nl',
-                        'first_name' => $this->customer->first_name,
-                        'last_name' => $this->customer->last_name,
-                    ],
+                    'type' => $type,
+                    'email' => 'email@change.nl',
+                    'first_name' => $this->customer->first_name,
+                    'last_name' => $this->customer->last_name,
+                ],
             );
 
         self::assertDatabaseHas(
@@ -72,10 +71,9 @@ class CustomerContactTest extends IntegrationTestCase
 
         self::assertInstanceOf(CustomerContact::class, $customerContact);
 
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->getJson(
-                $this->generateRoute('partners.customers.contacts.index', $this->customer->uuid)
+                $this->generateRoute('partners.customers.contacts.index', $this->customer->uuid),
             )
             ->assertOk()
             ->assertExactJson([
@@ -109,28 +107,30 @@ class CustomerContactTest extends IntegrationTestCase
 
         $this->actingAsCustomer($forbiddenCustomer)
             ->getJson(
-                $this->generateRoute('partners.customers.contacts.index', $this->customer->uuid)
-            )->assertForbidden();
+                $this->generateRoute('partners.customers.contacts.index', $this->customer->uuid),
+            )
+            ->assertForbidden();
     }
 
     #[DataProvider('customerContactProvider')]
     #[Test]
     public function contactStore(string $type): void
     {
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.customers.contacts.store', $this->customer->uuid),
                 [
                     'email' => 'email@change.nl',
                     'type' => $type,
                 ],
-            )->assertOk()->assertJson([
-                        'type' => $type,
-                        'email' => 'email@change.nl',
-                        'first_name' => $this->customer->first_name,
-                        'last_name' => $this->customer->last_name,
-                ]);
+            )
+            ->assertOk()
+            ->assertJson([
+                'type' => $type,
+                'email' => 'email@change.nl',
+                'first_name' => $this->customer->first_name,
+                'last_name' => $this->customer->last_name,
+            ]);
 
         self::assertDatabaseHas(
             'customer_contacts',
@@ -145,15 +145,15 @@ class CustomerContactTest extends IntegrationTestCase
     #[Test]
     public function contactStoreInvalidEmailWithAmpersand(): void
     {
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.customers.contacts.store', $this->customer->uuid),
                 [
                     'email' => 'e&mail@change.nl',
                     'type' => CustomerContactType::FINANCIAL->value,
                 ],
-            )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+            )
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     #[DataProvider('customerContactProvider')]
@@ -173,12 +173,13 @@ class CustomerContactTest extends IntegrationTestCase
                     [
                         $this->customer->uuid,
                         $customerContact->uuid,
-                    ]
+                    ],
                 ),
                 [
                     'email' => 'this.was@updated.nl',
                 ],
-            )->assertNoContent();
+            )
+            ->assertNoContent();
 
         self::assertDatabaseHas(
             'customer_contacts',
@@ -199,20 +200,20 @@ class CustomerContactTest extends IntegrationTestCase
             'type' => CustomerContactType::FINANCIAL->value,
         ]);
 
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->patchJson(
                 $this->generateRoute(
                     'partners.customers.contacts.update',
                     [
                         $this->customer->uuid,
                         $customerContact->uuid,
-                    ]
+                    ],
                 ),
                 [
                     'email' => 'I&nvalid@email.nl',
                 ],
-            )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+            )
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     #[DataProvider('customerContactProvider')]
@@ -227,17 +228,17 @@ class CustomerContactTest extends IntegrationTestCase
 
         $customerContact->refresh();
 
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->deleteJson(
                 $this->generateRoute(
                     'partners.customers.contacts.destroy',
                     [
                         $this->customer->uuid,
                         $customerContact->uuid,
-                    ]
-                )
-            )->assertNoContent();
+                    ],
+                ),
+            )
+            ->assertNoContent();
 
         self::assertDatabaseMissing(
             'customer_contacts',
@@ -273,9 +274,10 @@ class CustomerContactTest extends IntegrationTestCase
                     [
                         $this->customer->uuid,
                         $customerContact->uuid,
-                    ]
-                )
-            )->assertForbidden();
+                    ],
+                ),
+            )
+            ->assertForbidden();
 
         self::assertDatabaseHas(
             'customer_contacts',

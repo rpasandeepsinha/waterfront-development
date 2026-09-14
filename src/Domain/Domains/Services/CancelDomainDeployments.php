@@ -17,7 +17,7 @@ readonly class CancelDomainDeployments
 
     public function __construct(
         private Dispatcher $jobDispatcher,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -46,16 +46,16 @@ readonly class CancelDomainDeployments
                     sprintf(
                         self::TOO_MANY_COLUMNS_ERROR,
                         $rowNumber,
-                        count($domainData)
-                    )
+                        count($domainData),
+                    ),
                 );
 
                 throw new RuntimeException(
                     sprintf(
                         self::TOO_MANY_COLUMNS_ERROR,
                         $rowNumber,
-                        count($domainData)
-                    )
+                        count($domainData),
+                    ),
                 );
             }
 
@@ -64,8 +64,8 @@ readonly class CancelDomainDeployments
                 $this->logger->info(
                     sprintf(
                         self::DRY_RUN_MSG,
-                        $domainName
-                    )
+                        $domainName,
+                    ),
                 );
                 continue;
             }
@@ -73,11 +73,11 @@ readonly class CancelDomainDeployments
             $this->logger->info(
                 sprintf(
                     self::DISPATCH_JOB_MSG,
-                    $domainName
-                )
+                    $domainName,
+                ),
             );
             $this->jobDispatcher->dispatch(
-                new CancelDomainSubscriptionJob($domainName)
+                new CancelDomainSubscriptionJob($domainName),
             );
         }
     }

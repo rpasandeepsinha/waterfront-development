@@ -19,8 +19,9 @@ use Waterfront\Domain\Products\Models\ProductSpec;
 
 class OneTimeServiceSeeder extends Seeder
 {
-    public function __construct(private readonly ReferenceRepository $referenceRepository)
-    {
+    public function __construct(
+        private readonly ReferenceRepository $referenceRepository,
+    ) {
     }
 
     public function run(): void

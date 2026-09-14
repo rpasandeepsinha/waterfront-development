@@ -48,7 +48,7 @@ class DeleteBasekitServiceTest extends TestCase
             logger: self::createStub(LoggerInterface::class),
             baseKitContextRepository: $this->baseKitContextRepository,
             sitebuilderDeploymentRepository: $this->sitebuilderDeploymentRepository,
-            basekitClient: $mockBasekitClient
+            basekitClient: $mockBasekitClient,
         );
     }
 
@@ -59,7 +59,7 @@ class DeleteBasekitServiceTest extends TestCase
 
         $request = new RollbackBasekitDeploymentsFromMigrationRequest(
             context: $uuid,
-            tagUuid: $uuid
+            tagUuid: $uuid,
         );
         $request->requestId = 1234;
 
@@ -113,7 +113,7 @@ class DeleteBasekitServiceTest extends TestCase
 
         $request = new RollbackBasekitDeploymentsFromMigrationRequest(
             context: $uuid,
-            tagUuid: $uuid
+            tagUuid: $uuid,
         );
         $request->requestId = 999;
 
@@ -123,9 +123,7 @@ class DeleteBasekitServiceTest extends TestCase
             ->with($request->context)
             ->willReturn(null);
 
-        $this->sitebuilderDeploymentRepository
-            ->expects($this->never())
-            ->method('findByTag');
+        $this->sitebuilderDeploymentRepository->expects($this->never())->method('findByTag');
 
         $result = $this->deleteBasekitService->rollbackFromMigration($request);
 
@@ -140,7 +138,7 @@ class DeleteBasekitServiceTest extends TestCase
 
         $request = new RollbackBasekitDeploymentsFromMigrationRequest(
             context: $uuid,
-            tagUuid: $uuid
+            tagUuid: $uuid,
         );
         $request->requestId = 1001;
 
@@ -160,9 +158,7 @@ class DeleteBasekitServiceTest extends TestCase
             ->with($request->tagUuid)
             ->willReturn(null);
 
-        $this->sitebuilderDeploymentRepository
-            ->expects($this->never())
-            ->method('deleteSitebuilderAndChildren');
+        $this->sitebuilderDeploymentRepository->expects($this->never())->method('deleteSitebuilderAndChildren');
 
         $result = $this->deleteBasekitService->rollbackFromMigration($request);
 
@@ -177,7 +173,7 @@ class DeleteBasekitServiceTest extends TestCase
 
         $request = new RollbackBasekitDeploymentsFromMigrationRequest(
             context: $uuid,
-            tagUuid: $uuid
+            tagUuid: $uuid,
         );
         $request->requestId = 2002;
 
@@ -206,13 +202,9 @@ class DeleteBasekitServiceTest extends TestCase
             ->with($sitebuilderDeployment)
             ->willThrowException(new RuntimeException('DB error'));
 
-        $this->sitebuilderDeploymentRepository
-            ->expects($this->never())
-            ->method('getSitebuilderDeploymentsByContext');
+        $this->sitebuilderDeploymentRepository->expects($this->never())->method('getSitebuilderDeploymentsByContext');
 
-        $this->baseKitContextRepository
-            ->expects($this->never())
-            ->method('delete');
+        $this->baseKitContextRepository->expects($this->never())->method('delete');
 
         $result = $this->deleteBasekitService->rollbackFromMigration($request);
 

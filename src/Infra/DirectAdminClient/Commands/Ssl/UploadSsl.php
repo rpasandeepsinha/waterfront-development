@@ -40,12 +40,14 @@ class UploadSsl extends DirectAdminCommand
     public function setDomain(string $domain): static
     {
         $this->domain = $domain;
+
         return $this;
     }
 
     public function setCert(string $cert): static
     {
         $this->cert = $cert;
+
         return $this;
     }
 
@@ -57,6 +59,7 @@ class UploadSsl extends DirectAdminCommand
     public function setKey(string $key): static
     {
         $this->key = $key;
+
         return $this;
     }
 

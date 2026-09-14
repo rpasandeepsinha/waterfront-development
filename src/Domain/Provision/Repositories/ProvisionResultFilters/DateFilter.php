@@ -29,6 +29,7 @@ class DateFilter
 
         if ($this->fromDate !== null && $this->toDate !== null) {
             $resultQuery->whereBetween('created_at', [$this->fromDate, $this->toDate]);
+
             return $next($resultQuery);
         }
 

@@ -75,8 +75,14 @@ class BaseKitService implements SitebuilderDriverInterface
 
         $result = new Result();
         $sitebuilderProvider = $this->providerRepository->getEnabledDefaultByType(ProviderType::SITEBUILDER);
-        $basekitBrandReference = $this->providerRepository->getSettingByKey($sitebuilderProvider, ProviderSettingKey::BRANDREFERENCE);
-        $basekitPackageReference = $this->providerRepository->getSettingByKey($sitebuilderProvider, ProviderSettingKey::PACKAGEREFERENCE);
+        $basekitBrandReference = $this->providerRepository->getSettingByKey(
+            $sitebuilderProvider,
+            ProviderSettingKey::BRANDREFERENCE,
+        );
+        $basekitPackageReference = $this->providerRepository->getSettingByKey(
+            $sitebuilderProvider,
+            ProviderSettingKey::PACKAGEREFERENCE,
+        );
 
         $userRef = $this->createUser($customer, (int) $basekitBrandReference->value, $domain, $server);
         $this->addUserPackage($userRef, (int) $basekitPackageReference->value, $subscription->contract_period, $server);
@@ -89,11 +95,17 @@ class BaseKitService implements SitebuilderDriverInterface
         $ipv6HostMail = $mailOnlyServer->getIpv6();
         if ($ipv4Host === null) {
             throw new SitebuilderException(
-                'Feature was not configured correctly. Make sure the BASEKIT_HOST_IPV4 value is configured.'
+                'Feature was not configured correctly. Make sure the BASEKIT_HOST_IPV4 value is configured.',
             );
         }
 
-        $changes = $this->dnsZoneService->getExternalHostingDnsRecords($domain, $ipv4Host, $ipv6Host, $ipv4HostMail, $ipv6HostMail);
+        $changes = $this->dnsZoneService->getExternalHostingDnsRecords(
+            $domain,
+            $ipv4Host,
+            $ipv6Host,
+            $ipv4HostMail,
+            $ipv6HostMail,
+        );
 
         $this->eventDispatcher->dispatch(new UpdateDns($domain, $changes));
 
@@ -116,8 +128,8 @@ class BaseKitService implements SitebuilderDriverInterface
                 sprintf(
                     'Hosting subscription %s (hosting deployment: %d) has no site ref',
                     $hostingDeployment->subscription->domain,
-                    $hostingDeployment->id
-                )
+                    $hostingDeployment->id,
+                ),
             );
         }
 
@@ -142,7 +154,7 @@ class BaseKitService implements SitebuilderDriverInterface
 
         return new BaseKitSite(
             id: $baseKitSite->ref,
-            domain: $baseKitSite->primaryDomain->domainName
+            domain: $baseKitSite->primaryDomain->domainName,
         );
     }
 
@@ -165,8 +177,8 @@ class BaseKitService implements SitebuilderDriverInterface
                 sprintf(
                     'Hosting subscription %s (%d) has no site ref',
                     $hostingDeployment->subscription->domain,
-                    $hostingDeployment->id
-                )
+                    $hostingDeployment->id,
+                ),
             );
         }
 
@@ -194,19 +206,22 @@ class BaseKitService implements SitebuilderDriverInterface
             throw new DomainNotFoundException(
                 sprintf(
                     'Failed to fetch domain for SSL Subscription {%s} ',
-                    $sslDeployment->id
-                )
+                    $sslDeployment->id,
+                ),
             );
         }
 
-        $siteBuilderSubscription = $this->subscriptionRepository->getSubscriptionByDomainAndGroup($domain, ProductGroupType::HOSTING);
+        $siteBuilderSubscription = $this->subscriptionRepository->getSubscriptionByDomainAndGroup(
+            $domain,
+            ProductGroupType::HOSTING,
+        );
 
         if (! $siteBuilderSubscription->product->isSitebuilderProduct()) {
             throw new Exception(
                 sprintf(
                     'Failed to fetch sitebuilder subscription for domain {%s} ',
-                    $domain
-                )
+                    $domain,
+                ),
             );
         }
 
@@ -216,8 +231,8 @@ class BaseKitService implements SitebuilderDriverInterface
             throw new RuntimeException(
                 sprintf(
                     'Failed to fetch root certificate for {%s} ',
-                    $domain
-                )
+                    $domain,
+                ),
             );
         }
 
@@ -227,8 +242,8 @@ class BaseKitService implements SitebuilderDriverInterface
             throw new RuntimeException(
                 sprintf(
                     'Failed to fetch main certificate for {%s} ',
-                    $domain
-                )
+                    $domain,
+                ),
             );
         }
 
@@ -254,7 +269,7 @@ class BaseKitService implements SitebuilderDriverInterface
             $errorMessage = sprintf(
                 'Failed to setup SSL for {%s}. Api returned {%s}',
                 $domain,
-                $sitebuilderException->getMessage()
+                $sitebuilderException->getMessage(),
             );
 
             $result->setStatus($result::STATUS_ERROR);
@@ -271,9 +286,10 @@ class BaseKitService implements SitebuilderDriverInterface
                         'ssl_subscription_uuid' => $sslSubscription->uuid,
                         'sitebuilder_subscription_uuid' => $siteBuilderSubscription->uuid,
                     ],
-                ]
+                ],
             );
         }
+
         return $result;
     }
 
@@ -299,7 +315,7 @@ class BaseKitService implements SitebuilderDriverInterface
                         'basekit_user_ref' => $basekitUserRef,
                         'basekit_site_ref' => $basekitSiteRef,
                     ],
-                ]
+                ],
             );
             throw new SitebuilderException($exception->getMessage(), $exception->getCode(), $exception);
         }
@@ -328,7 +344,7 @@ class BaseKitService implements SitebuilderDriverInterface
                 sprintf(
                     'Error: %s , For customer number: %s',
                     $exception->getMessage(),
-                    $customer->customer_number
+                    $customer->customer_number,
                 ),
                 [
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::BASEKIT,
@@ -340,7 +356,7 @@ class BaseKitService implements SitebuilderDriverInterface
                     LoggingContextKeys::META => [
                         'basekit_brandref' => $brandRef,
                     ],
-                ]
+                ],
             );
             throw new SitebuilderException($exception->getMessage(), $exception->getCode(), $exception);
         }
@@ -359,7 +375,7 @@ class BaseKitService implements SitebuilderDriverInterface
                     'Error: %s, for UserRef: %s and packageRef: %s.',
                     $exception->getMessage(),
                     $userRef,
-                    $packageRef
+                    $packageRef,
                 ),
                 [
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::BASEKIT,
@@ -369,7 +385,7 @@ class BaseKitService implements SitebuilderDriverInterface
                         'basekit_user_ref' => $userRef,
                         'basekit_package_ref' => $packageRef,
                     ],
-                ]
+                ],
             );
             throw new SitebuilderException($exception->getMessage(), $exception->getCode(), $exception);
         }
@@ -382,7 +398,7 @@ class BaseKitService implements SitebuilderDriverInterface
             $site = $basekitClient->sitesApi->create(
                 $userRef,
                 $brandRef,
-                $domain
+                $domain,
             );
         } catch (BaseKitClientException $exception) {
             $this->logger->error(
@@ -390,7 +406,7 @@ class BaseKitService implements SitebuilderDriverInterface
                     'Error: %s, for domain: %s with userRef: %s.',
                     $exception->getMessage(),
                     $domain,
-                    $userRef
+                    $userRef,
                 ),
                 [
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::BASEKIT,
@@ -401,7 +417,7 @@ class BaseKitService implements SitebuilderDriverInterface
                         'basekit_user_ref' => $userRef,
                         'basekit_brand_ref' => $brandRef,
                     ],
-                ]
+                ],
             );
             throw new SitebuilderException($exception->getMessage(), $exception->getCode(), $exception);
         }
@@ -413,12 +429,16 @@ class BaseKitService implements SitebuilderDriverInterface
     {
         $this->mailer->send(
             [$subscription->customer],
-            new MailSitebuilderActivation($subscription->domain ?? '')
+            new MailSitebuilderActivation($subscription->domain ?? ''),
         );
     }
 
-    private function addSslUsingGateway(UuidInterface $tag, Subscription $sslSubscription, string $privateKey, string $mainCertificate): Result
-    {
+    private function addSslUsingGateway(
+        UuidInterface $tag,
+        Subscription $sslSubscription,
+        string $privateKey,
+        string $mainCertificate,
+    ): Result {
         $result = new Result();
 
         $request = new AddSslSitebuilderRequest(
@@ -437,7 +457,7 @@ class BaseKitService implements SitebuilderDriverInterface
                     LoggingContextKeys::SUBSCRIPTION_UUID => $tag->toString(),
                     LoggingContextKeys::DOMAIN_NAME => $sslSubscription->domain,
                     LoggingContextKeys::EXCEPTION => $provisionResult->exception,
-                ]
+                ],
             );
 
             $sslSubscription->technical_status = TechnicalStatus::FAILED->value;
@@ -446,7 +466,7 @@ class BaseKitService implements SitebuilderDriverInterface
             $errorMessage = sprintf(
                 'Failed to setup SSL for {%s}. Api returned {%s}',
                 $sslSubscription->domain,
-                $provisionResult->exception?->getMessage() ?? ''
+                $provisionResult->exception?->getMessage() ?? '',
             );
 
             $result->setStatus($result::STATUS_ERROR);
@@ -466,6 +486,7 @@ class BaseKitService implements SitebuilderDriverInterface
         $sslSubscription->save();
 
         $result->setStatus($result::STATUS_OK);
+
         return $result;
     }
 }

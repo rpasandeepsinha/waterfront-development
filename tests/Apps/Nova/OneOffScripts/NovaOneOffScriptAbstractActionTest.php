@@ -20,7 +20,7 @@ class NovaOneOffScriptAbstractActionTest extends IntegrationTestCase
         self::assertSame(0, OneOffScript::query()->count());
 
         // Now initiate an action 'test-foo-bar' which extends the abstract
-        $novaOneOffAction = new class () extends NovaOneOffScriptAbstractAction {
+        $novaOneOffAction = new class() extends NovaOneOffScriptAbstractAction {
             protected function getOneOffScriptSlug(): string
             {
                 return 'test-foo-bar';

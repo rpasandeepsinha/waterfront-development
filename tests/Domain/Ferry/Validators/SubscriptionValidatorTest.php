@@ -47,7 +47,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
         ProviderSlug $domainProviderSlug,
         bool $domainSubscriptionExists,
         array $statuses,
-        NotEligibleForMigrationException|null $expectedException,
+        ?NotEligibleForMigrationException $expectedException,
     ): void {
         $productGroup = ProductGroupFactory::new()->createOne([
             'slug' => $productGroupType,
@@ -56,10 +56,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'slug' => self::DUMMY_PRODUCT_SLUG,
         ]);
 
-        $subscription = SubscriptionFactory::new()
-            ->withCustomer()
-            ->for($product)
-            ->createOne($statuses);
+        $subscription = SubscriptionFactory::new()->withCustomer()->for($product)->createOne($statuses);
 
         if ($domainSubscriptionExists) {
             DomainDeploymentFactory::new()->createOne([
@@ -85,8 +82,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
      */
     public static function domainSubscriptionPropertiesProvider(): iterable
     {
-        yield 'valid subscription' =>
-        [
+        yield 'valid subscription' => [
             'productGroupType' => ProductGroupType::EXTENSION,
             'domainProviderSlug' => ProviderSlug::PLACEHOLDER,
             'domainSubscriptionExists' => true,
@@ -97,8 +93,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => null,
         ];
 
-        yield 'valid subscription CANCELLED' =>
-        [
+        yield 'valid subscription CANCELLED' => [
             'productGroupType' => ProductGroupType::EXTENSION,
             'domainProviderSlug' => ProviderSlug::PLACEHOLDER,
             'domainSubscriptionExists' => true,
@@ -109,8 +104,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => null,
         ];
 
-        yield 'no domain subscription present' =>
-        [
+        yield 'no domain subscription present' => [
             'productGroupType' => ProductGroupType::EXTENSION,
             'domainProviderSlug' => ProviderSlug::PLACEHOLDER,
             'domainSubscriptionExists' => false,
@@ -121,8 +115,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => NotEligibleForMigrationException::missingDomainSubscription(),
         ];
 
-        yield 'wrong product group' =>
-        [
+        yield 'wrong product group' => [
             'productGroupType' => ProductGroupType::SSL,
             'domainProviderSlug' => ProviderSlug::PLACEHOLDER,
             'domainSubscriptionExists' => true,
@@ -133,8 +126,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => NotEligibleForMigrationException::incorrectProduct(self::DUMMY_PRODUCT_SLUG),
         ];
 
-        yield 'wrong administrative status' =>
-        [
+        yield 'wrong administrative status' => [
             'productGroupType' => ProductGroupType::EXTENSION,
             'domainProviderSlug' => ProviderSlug::PLACEHOLDER,
             'domainSubscriptionExists' => true,
@@ -145,8 +137,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::SUSPENDED->value),
         ];
 
-        yield 'wrong technical status' =>
-        [
+        yield 'wrong technical status' => [
             'productGroupType' => ProductGroupType::EXTENSION,
             'domainProviderSlug' => ProviderSlug::PLACEHOLDER,
             'domainSubscriptionExists' => true,
@@ -157,8 +148,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => NotEligibleForMigrationException::technicalStatusIncorrect(DomainStatus::DELETED->value),
         ];
 
-        yield 'wrong domain provider' =>
-        [
+        yield 'wrong domain provider' => [
             'productGroupType' => ProductGroupType::EXTENSION,
             'domainProviderSlug' => ProviderSlug::REALTIME_REGISTER,
             'domainSubscriptionExists' => true,
@@ -179,7 +169,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
         ProductGroupType $productGroupType,
         bool $domainSubscriptionExists,
         array $statuses,
-        NotEligibleForMigrationException|null $expectedException,
+        ?NotEligibleForMigrationException $expectedException,
     ): void {
         $productGroup = ProductGroupFactory::new()->createOne([
             'slug' => $productGroupType,
@@ -188,10 +178,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'slug' => self::DUMMY_PRODUCT_SLUG,
         ]);
 
-        $subscription = SubscriptionFactory::new()
-            ->withCustomer()
-            ->for($product)
-            ->createOne($statuses);
+        $subscription = SubscriptionFactory::new()->withCustomer()->for($product)->createOne($statuses);
 
         if ($domainSubscriptionExists) {
             DomainDeploymentFactory::new()->withRtrProvider()->createOne([
@@ -213,8 +200,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
      */
     public static function dnsSubscriptionPropertiesProvider(): iterable
     {
-        yield 'domain product group: valid subscription' =>
-        [
+        yield 'domain product group: valid subscription' => [
             'productGroupType' => ProductGroupType::EXTENSION,
             'domainSubscriptionExists' => true,
             'statuses' => [
@@ -224,8 +210,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => null,
         ];
 
-        yield 'domain product group: missing domain subscription' =>
-        [
+        yield 'domain product group: missing domain subscription' => [
             'productGroupType' => ProductGroupType::EXTENSION,
             'domainSubscriptionExists' => false,
             'statuses' => [
@@ -235,8 +220,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => NotEligibleForMigrationException::missingDomainSubscription(),
         ];
 
-        yield 'domain product group: wrong administrative status' =>
-        [
+        yield 'domain product group: wrong administrative status' => [
             'productGroupType' => ProductGroupType::EXTENSION,
             'domainSubscriptionExists' => true,
             'statuses' => [
@@ -246,8 +230,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::SUSPENDED->value),
         ];
 
-        yield 'domain product group: wrong technical status' =>
-        [
+        yield 'domain product group: wrong technical status' => [
             'productGroupType' => ProductGroupType::EXTENSION,
             'domainSubscriptionExists' => true,
             'statuses' => [
@@ -257,8 +240,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => NotEligibleForMigrationException::technicalStatusIncorrect(DomainStatus::DELETED->value),
         ];
 
-        yield 'DNS product group: valid subscription' =>
-        [
+        yield 'DNS product group: valid subscription' => [
             'productGroupType' => ProductGroupType::DNS,
             'domainSubscriptionExists' => true,
             'statuses' => [
@@ -268,8 +250,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => null,
         ];
 
-        yield 'DNS product group: wrong administrative status' =>
-        [
+        yield 'DNS product group: wrong administrative status' => [
             'productGroupType' => ProductGroupType::DNS,
             'domainSubscriptionExists' => true,
             'statuses' => [
@@ -279,8 +260,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::SUSPENDED->value),
         ];
 
-        yield 'DNS product group: wrong technical status' =>
-        [
+        yield 'DNS product group: wrong technical status' => [
             'productGroupType' => ProductGroupType::DNS,
             'domainSubscriptionExists' => true,
             'statuses' => [
@@ -300,7 +280,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
         ProductGroupType $productGroupType,
         bool $domainSubscriptionExists,
         array $statuses,
-        NotEligibleForMigrationException|null $expectedException,
+        ?NotEligibleForMigrationException $expectedException,
     ): void {
         $productGroup = ProductGroupFactory::new()->createOne([
             'slug' => $productGroupType,
@@ -309,10 +289,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'slug' => self::DUMMY_PRODUCT_SLUG,
         ]);
 
-        $subscription = SubscriptionFactory::new()
-            ->withCustomer()
-            ->for($product)
-            ->createOne($statuses);
+        $subscription = SubscriptionFactory::new()->withCustomer()->for($product)->createOne($statuses);
 
         if ($domainSubscriptionExists) {
             DomainDeploymentFactory::new()->withRtrProvider()->createOne([
@@ -334,8 +311,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
      */
     public static function nameserverSubscriptionPropertiesProvider(): iterable
     {
-        yield 'valid subscription' =>
-        [
+        yield 'valid subscription' => [
             'productGroupType' => ProductGroupType::EXTENSION,
             'domainSubscriptionExists' => true,
             'statuses' => [
@@ -345,8 +321,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => null,
         ];
 
-        yield 'missing domain subscription' =>
-        [
+        yield 'missing domain subscription' => [
             'productGroupType' => ProductGroupType::EXTENSION,
             'domainSubscriptionExists' => false,
             'statuses' => [
@@ -356,8 +331,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => NotEligibleForMigrationException::missingDomainSubscription(),
         ];
 
-        yield 'wrong product group' =>
-        [
+        yield 'wrong product group' => [
             'productGroupType' => ProductGroupType::SSL,
             'domainSubscriptionExists' => true,
             'statuses' => [
@@ -367,8 +341,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => NotEligibleForMigrationException::incorrectProduct(self::DUMMY_PRODUCT_SLUG),
         ];
 
-        yield 'wrong administrative status' =>
-        [
+        yield 'wrong administrative status' => [
             'productGroupType' => ProductGroupType::EXTENSION,
             'domainSubscriptionExists' => true,
             'statuses' => [
@@ -378,8 +351,7 @@ class SubscriptionValidatorTest extends IntegrationTestCase
             'expectedException' => NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::SUSPENDED->value),
         ];
 
-        yield 'wrong technical status' =>
-        [
+        yield 'wrong technical status' => [
             'productGroupType' => ProductGroupType::EXTENSION,
             'domainSubscriptionExists' => true,
             'statuses' => [

@@ -41,7 +41,7 @@ class RtrIdnLanguageCodeResolverTest extends TestCase
     public static function resolveDataProvider(): array
     {
         $comTldInfoJsonContents = file_get_contents(
-            __DIR__ . '/../../../Apps/API/Waterfront/Orders/data/rtr-tld-metadata-com.json'
+            __DIR__ . '/../../../Apps/API/Waterfront/Orders/data/rtr-tld-metadata-com.json',
         );
         self::assertIsString($comTldInfoJsonContents);
 
@@ -51,7 +51,7 @@ class RtrIdnLanguageCodeResolverTest extends TestCase
         $comTldInfo = TLDInfo::fromArray($comTldInfoData);
 
         $deTldInfoJsonContents = file_get_contents(
-            __DIR__ . '/../../../Domain/Domains/Integration/response/rtr-tld-metadata-de.json'
+            __DIR__ . '/../../../Domain/Domains/Integration/response/rtr-tld-metadata-de.json',
         );
         self::assertIsString($deTldInfoJsonContents);
 

@@ -19,7 +19,7 @@ class GandiClientServiceProvider extends BaseProvider
         ], 'config');
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/config.php',
-            'gandiclient'
+            'gandiclient',
         );
     }
 

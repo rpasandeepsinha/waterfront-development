@@ -39,18 +39,19 @@ class NovaCaddyRedirectDeploymentResource extends Resource
     public function fields(NovaRequest $request): array
     {
         return [
-            ID::make()
-                ->onlyOnDetail(),
-            Text::make('UUID', 'uuid')
-                ->copyable()
-                ->readonly(),
-            Text::make(self::translate('caddy-redirect-deployment.server'), 'server')
-                ->copyable()
-                ->readonly(),
-            BelongsTo::make(self::translate('redirect-deployment.singular'), 'redirectDeployment', NovaRedirectDeploymentResource::class)
+            ID::make()->onlyOnDetail(),
+            Text::make('UUID', 'uuid')->copyable()->readonly(),
+            Text::make(self::translate('caddy-redirect-deployment.server'), 'server')->copyable()->readonly(),
+            BelongsTo::make(
+                self::translate('redirect-deployment.singular'),
+                'redirectDeployment',
+                NovaRedirectDeploymentResource::class,
+            )
                 ->readonly()
-                // @phpstan-ignore-next-line argument.type Comes from Laravel Nova
-                ->displayUsing(fn (NovaRedirectDeploymentResource $resource) => $resource->source . ' → ' . $resource->destination),
+                ->displayUsing(
+                    // @phpstan-ignore-next-line argument.type Comes from Laravel Nova
+                    fn (NovaRedirectDeploymentResource $resource) => $resource->source . ' → ' . $resource->destination,
+                ),
         ];
     }
 }

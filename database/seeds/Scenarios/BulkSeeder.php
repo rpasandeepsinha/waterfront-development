@@ -85,9 +85,13 @@ class BulkSeeder extends Seeder
 
         $this->dnsProduct = Product::where('slug', 'free-dns')->firstOrFail();
 
-        $domainPlaceholderProvider = Provider::where('slug', ProviderSlug::PLACEHOLDER)->where('type', ProviderType::DOMAIN)->firstOrFail();
+        $domainPlaceholderProvider = Provider::where('slug', ProviderSlug::PLACEHOLDER)
+            ->where('type', ProviderType::DOMAIN)
+            ->firstOrFail();
 
-        $hostingPlaceholderProvider = Provider::where('slug', ProviderSlug::PLACEHOLDER)->where('type', ProviderType::HOSTING)->firstOrFail();
+        $hostingPlaceholderProvider = Provider::where('slug', ProviderSlug::PLACEHOLDER)
+            ->where('type', ProviderType::HOSTING)
+            ->firstOrFail();
 
         $this->domainPlaceholderProviderId = $domainPlaceholderProvider->id;
         $this->hostingPlaceholderProviderId = $hostingPlaceholderProvider->id;
@@ -137,27 +141,27 @@ class BulkSeeder extends Seeder
 
         for ($i = 1; $i <= $customerAmount; $i++) {
             $customersToCreate[] = [
-                'uuid'                         => Uuid::uuid4(),
-                'customer_number'              => $customerNumber,
-                'organization'                 => null,
-                'department'                   => null,
-                'first_name'                   => 'Firstname-' . $customerNumber,
-                'last_name'                    => 'Lastname-' . $customerNumber,
-                'gender'                       => '',
-                'invoice_history_url'          => null,
-                'admin_url'                    => null,
-                'phone_country_code'           => 31,
-                'phone_area_code'              => 6,
-                'phone_subscriber_number'      => 87281426,
-                'email'                        => $customerNumber . '@sandwave.io',
-                'locale'                       => Locale::DUTCH->value,
-                'terms_of_payment'             => 14,
-                'payment_type'                 => PaymentType::CREDIT,
-                'terms_accepted'               => true,
-                'created_at'                   => $this->createdUpdatedDatetime,
-                'updated_at'                   => $this->createdUpdatedDatetime,
-                'anonymized_at'                => null,
-                'customer_since'               => Arr::random(['2015-03-16', '2020-05-04', '2025-06-14']),
+                'uuid' => Uuid::uuid4(),
+                'customer_number' => $customerNumber,
+                'organization' => null,
+                'department' => null,
+                'first_name' => 'Firstname-' . $customerNumber,
+                'last_name' => 'Lastname-' . $customerNumber,
+                'gender' => '',
+                'invoice_history_url' => null,
+                'admin_url' => null,
+                'phone_country_code' => 31,
+                'phone_area_code' => 6,
+                'phone_subscriber_number' => 87281426,
+                'email' => $customerNumber . '@sandwave.io',
+                'locale' => Locale::DUTCH->value,
+                'terms_of_payment' => 14,
+                'payment_type' => PaymentType::CREDIT,
+                'terms_accepted' => true,
+                'created_at' => $this->createdUpdatedDatetime,
+                'updated_at' => $this->createdUpdatedDatetime,
+                'anonymized_at' => null,
+                'customer_since' => Arr::random(['2015-03-16', '2020-05-04', '2025-06-14']),
             ];
 
             $customerNumber++;
@@ -169,11 +173,7 @@ class BulkSeeder extends Seeder
             Customer::insert($customersInsertData);
 
             /** @var array<int> $customerIds */
-            $customerIds = DB::table('customers')
-                ->orderBy('id', 'desc')
-                ->limit(1000)
-                ->pluck('id')
-                ->toArray();
+            $customerIds = DB::table('customers')->orderBy('id', 'desc')->limit(1000)->pluck('id')->toArray();
 
             // Since we fetch the latest customer ids descending, we want to insert the lowest customer id first
             natsort($customerIds);
@@ -182,14 +182,14 @@ class BulkSeeder extends Seeder
 
             foreach ($customerIds as $customerId) {
                 $addresses[] = [
-                    'customer_id'         => $customerId,
-                    'street_name'         => 'Teststreet',
-                    'street_number'       => random_int(1, 99),
-                    'zip_code'            => random_int(1000, 9999) . ' AB',
-                    'city'                => 'Testcity',
-                    'country_code'        => 'NL',
-                    'created_at'          => $this->createdUpdatedDatetime,
-                    'updated_at'          => $this->createdUpdatedDatetime,
+                    'customer_id' => $customerId,
+                    'street_name' => 'Teststreet',
+                    'street_number' => random_int(1, 99),
+                    'zip_code' => random_int(1000, 9999) . ' AB',
+                    'city' => 'Testcity',
+                    'country_code' => 'NL',
+                    'created_at' => $this->createdUpdatedDatetime,
+                    'updated_at' => $this->createdUpdatedDatetime,
                 ];
             }
 
@@ -241,9 +241,15 @@ class BulkSeeder extends Seeder
     private function makeDefinitions(): array
     {
         $subscriptionsForCustomerTotal = $this->configuration->getAsInteger('bulk-seeder.customer_amount');
-        $subscriptionsForCustomer100 = $this->configuration->getAsInteger('bulk-seeder.customers_for_100_subscriptions');
-        $subscriptionsForCustomer1000 = $this->configuration->getAsInteger('bulk-seeder.customers_for_1000_subscriptions');
-        $subscriptionsForCustomer10000 = $this->configuration->getAsInteger('bulk-seeder.customers_for_10000_subscriptions');
+        $subscriptionsForCustomer100 = $this->configuration->getAsInteger(
+            'bulk-seeder.customers_for_100_subscriptions',
+        );
+        $subscriptionsForCustomer1000 = $this->configuration->getAsInteger(
+            'bulk-seeder.customers_for_1000_subscriptions',
+        );
+        $subscriptionsForCustomer10000 = $this->configuration->getAsInteger(
+            'bulk-seeder.customers_for_10000_subscriptions',
+        );
 
         $makeDefinitions = [
             [
@@ -263,7 +269,9 @@ class BulkSeeder extends Seeder
             ],
         ];
 
-        $fillerSubscriptionTotal = $subscriptionsForCustomerTotal - $subscriptionsForCustomer10000 - $subscriptionsForCustomer1000 - $subscriptionsForCustomer100;
+        $fillerSubscriptionTotal =
+            $subscriptionsForCustomerTotal - $subscriptionsForCustomer10000 - $subscriptionsForCustomer1000
+            - $subscriptionsForCustomer100;
 
         if ($fillerSubscriptionTotal <= 0) {
             throw new RuntimeException("Can't have $fillerSubscriptionTotal subscriptions!");
@@ -283,9 +291,14 @@ class BulkSeeder extends Seeder
         $makeDefinitionCount = count($makeDefinitions);
         $totalSubscriptionCount = 0;
         foreach ($makeDefinitions as $makeDefinition) {
-            $totalSubscriptionCount += $makeDefinition['customerAmount'] * ($makeDefinition['domainAmount'] + $makeDefinition['hostingAmount']);
+            $totalSubscriptionCount +=
+                $makeDefinition['customerAmount']
+                * ($makeDefinition['domainAmount'] + $makeDefinition['hostingAmount']);
         }
-        $this->output->writeln("generating and inserting $totalSubscriptionCount subscriptions in $makeDefinitionCount iterations");
+
+        $this->output->writeln(
+            "generating and inserting $totalSubscriptionCount subscriptions in $makeDefinitionCount iterations",
+        );
 
         return $makeDefinitions;
     }
@@ -301,7 +314,9 @@ class BulkSeeder extends Seeder
         foreach ($makeDefinitions as $definition) {
             $payload = json_encode($definition);
 
-            $this->output->writeln("$currentDefinition / $totalDefinitions - starting definition making for payload: $payload");
+            $this->output->writeln(
+                "$currentDefinition / $totalDefinitions - starting definition making for payload: $payload",
+            );
 
             if ($definition['customerAmount'] === 0) {
                 continue;
@@ -310,29 +325,44 @@ class BulkSeeder extends Seeder
             $totalSubscriptionsToMakeDefinition = $this->expandCustomerDataAndSeedSubscriptions(
                 $definition['customerAmount'],
                 $definition['domainAmount'],
-                $definition['hostingAmount']
+                $definition['hostingAmount'],
             );
 
             // Base subscriptions
             $baseCount = count($totalSubscriptionsToMakeDefinition['baseSubscriptions']);
-            $this->output->writeln("$currentDefinition / $totalDefinitions - inserting base subscriptions count: $baseCount");
+            $this->output->writeln(
+                "$currentDefinition / $totalDefinitions - inserting base subscriptions count: $baseCount",
+            );
 
-            foreach (array_chunk($totalSubscriptionsToMakeDefinition['baseSubscriptions'], 1000) as $baseSubscriptionInsertData) {
+            foreach (array_chunk(
+                $totalSubscriptionsToMakeDefinition['baseSubscriptions'],
+                1000,
+            ) as $baseSubscriptionInsertData) {
                 DB::table('subscriptions')->insert($baseSubscriptionInsertData);
             }
 
             // Deployments
             $domainCount = count($totalSubscriptionsToMakeDefinition['domainDeployments']);
-            $this->output->writeln("$currentDefinition / $totalDefinitions - inserting domain deployments count: $domainCount");
+            $this->output->writeln(
+                "$currentDefinition / $totalDefinitions - inserting domain deployments count: $domainCount",
+            );
 
-            foreach (array_chunk($totalSubscriptionsToMakeDefinition['domainDeployments'], 1000) as $domainDeploymentInsertData) {
+            foreach (array_chunk(
+                $totalSubscriptionsToMakeDefinition['domainDeployments'],
+                1000,
+            ) as $domainDeploymentInsertData) {
                 DB::table('domain_deployments')->insert($domainDeploymentInsertData);
             }
 
             $hostingCount = count($totalSubscriptionsToMakeDefinition['hostingSubscriptions']);
-            $this->output->writeln("$currentDefinition / $totalDefinitions - inserting hosting deployments count: $hostingCount");
+            $this->output->writeln(
+                "$currentDefinition / $totalDefinitions - inserting hosting deployments count: $hostingCount",
+            );
 
-            foreach (array_chunk($totalSubscriptionsToMakeDefinition['hostingSubscriptions'], 1000) as $hostingSubscriptions) {
+            foreach (array_chunk(
+                $totalSubscriptionsToMakeDefinition['hostingSubscriptions'],
+                1000,
+            ) as $hostingSubscriptions) {
                 DB::table('hosting_deployments')->insert($hostingSubscriptions);
             }
 
@@ -364,8 +394,12 @@ class BulkSeeder extends Seeder
         }
 
         // in the past
-        $amountOfYearsInThePast = $this->configuration->getAsInteger('bulk-seeder.amount_of_years_in_the_past_renewables');
-        $amountOfYearsInThePastAmount = $this->configuration->getAsInteger('bulk-seeder.amount_of_years_in_the_past_renewables_amount');
+        $amountOfYearsInThePast = $this->configuration->getAsInteger(
+            'bulk-seeder.amount_of_years_in_the_past_renewables',
+        );
+        $amountOfYearsInThePastAmount = $this->configuration->getAsInteger(
+            'bulk-seeder.amount_of_years_in_the_past_renewables_amount',
+        );
 
         $this->output->writeln("updating $amountOfYearsInThePastAmount subscriptions to be renewable far past...");
 
@@ -390,8 +424,12 @@ class BulkSeeder extends Seeder
 
     private function updateSubscriptionsToInvoiceable(): void
     {
-        $amountOfInvoicableInBetween = $this->configuration->getAsInteger('bulk-seeder.amount_of_subscriptions_to_be_invoiced');
-        $amountOfInvoicableMonthsInThePast = $this->configuration->getAsInteger('bulk-seeder.amount_of_months_in_the_past_invoicing');
+        $amountOfInvoicableInBetween = $this->configuration->getAsInteger(
+            'bulk-seeder.amount_of_subscriptions_to_be_invoiced',
+        );
+        $amountOfInvoicableMonthsInThePast = $this->configuration->getAsInteger(
+            'bulk-seeder.amount_of_months_in_the_past_invoicing',
+        );
 
         $subscriptions = DB::table('subscriptions')
             ->where('end_date', '>', $this->nowDate)
@@ -401,7 +439,11 @@ class BulkSeeder extends Seeder
             ->pluck('id')
             ->toArray();
 
-        $this->output->writeln('updating ' . count($subscriptions) . " subscriptions to be invoicable $amountOfInvoicableMonthsInThePast months in the past...");
+        $this->output->writeln(
+            'updating '
+            . count($subscriptions)
+            . " subscriptions to be invoicable $amountOfInvoicableMonthsInThePast months in the past...",
+        );
 
         $nextBillingDate = CarbonImmutable::now()->subMonths($amountOfInvoicableMonthsInThePast)->toDateString();
 
@@ -448,14 +490,13 @@ class BulkSeeder extends Seeder
      *
      * @return array<string, array<int, array<string, int|DomainStatus|string|null>>>
      */
-    private function expandCustomerDataAndSeedSubscriptions(int $customerLimit, int $domainSubscriptionsPerCustomer, int $hostingSubscriptionsPerCustomer): array
-    {
+    private function expandCustomerDataAndSeedSubscriptions(
+        int $customerLimit,
+        int $domainSubscriptionsPerCustomer,
+        int $hostingSubscriptionsPerCustomer,
+    ): array {
         $customers = DB::select(
-            Customer::query()
-                ->select(['id'])
-                ->whereDoesntHave('subscriptions')
-                ->limit($customerLimit)
-                ->toSql()
+            Customer::query()->select(['id'])->whereDoesntHave('subscriptions')->limit($customerLimit)->toSql(),
         );
 
         // Expand one customer in the batch with a contact + user
@@ -497,7 +538,7 @@ class BulkSeeder extends Seeder
             $this->imitateMerge($subscriptionData['domainDeployments'], $domainDeployments);
 
             // Hosting
-            [$baseSubscriptions,, $hostingSubscriptions] = $this->seedSubscriptionsForCustomer(
+            [$baseSubscriptions, , $hostingSubscriptions] = $this->seedSubscriptionsForCustomer(
                 $hostingSubscriptionsPerCustomer,
                 $customer->id,
                 $basicHostingUuid,
@@ -525,9 +566,13 @@ class BulkSeeder extends Seeder
     /**
      * @return array<int, array<int, array<string, string|DomainStatus|int|null>>>
      */
-    private function seedSubscriptionsForCustomer(int $amount, int $customerId, string $productUuid, ProductGroupType $productGroupSlug): array
-    {
-        $baseSubscriptions    = [];
+    private function seedSubscriptionsForCustomer(
+        int $amount,
+        int $customerId,
+        string $productUuid,
+        ProductGroupType $productGroupSlug,
+    ): array {
+        $baseSubscriptions = [];
         $domainsSubscriptions = [];
         $hostingSubscriptions = [];
 
@@ -540,22 +585,22 @@ class BulkSeeder extends Seeder
 
             // add base subs to array
             $baseSubscription = [
-                'uuid'                  => $subscriptionUuid,
-                'product_uuid'          => $productUuid,
-                'customer_id'           => $customerId,
-                'domain'                => $customerId . '-' . $i . '.nl',
+                'uuid' => $subscriptionUuid,
+                'product_uuid' => $productUuid,
+                'customer_id' => $customerId,
+                'domain' => $customerId . '-' . $i . '.nl',
                 'administrative_status' => AdministrativeStatus::ACTIVE->value,
-                'start_date'            => $startDate,
-                'end_date'              => $endDate,
-                'next_billing_date'     => $nextBillingDate,
-                'billing_period'        => 12,
-                'contract_period'       => 12,
-                'gross_price'           => 100,
-                'net_price'             => 80,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'next_billing_date' => $nextBillingDate,
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'gross_price' => 100,
+                'net_price' => 80,
                 // The end_date & next_billing_date will be set automatically by the SubscriptionObserver.
-                'cancel_date'           => null,
-                'created_at'            => $this->createdUpdatedDatetime,
-                'updated_at'            => $this->createdUpdatedDatetime,
+                'cancel_date' => null,
+                'created_at' => $this->createdUpdatedDatetime,
+                'updated_at' => $this->createdUpdatedDatetime,
             ];
 
             // make tech subs to array
@@ -624,23 +669,23 @@ class BulkSeeder extends Seeder
 
         foreach ($subscriptions as $subscription) {
             $childSubscriptions[] = [
-                'uuid'                  => Uuid::uuid4()->toString(),
-                'product_uuid'          => $productUuid,
-                'customer_id'           => $subscription->customer_id,
-                'domain'                => $subscription->domain,
+                'uuid' => Uuid::uuid4()->toString(),
+                'product_uuid' => $productUuid,
+                'customer_id' => $subscription->customer_id,
+                'domain' => $subscription->domain,
                 'administrative_status' => AdministrativeStatus::ACTIVE->value,
-                'start_date'            => $subscription->start_date,
-                'end_date'              => $subscription->end_date,
-                'next_billing_date'     => $subscription->next_billing_date,
-                'billing_period'        => $subscription->billing_period,
-                'contract_period'       => $subscription->contract_period,
-                'gross_price'           => 0,
-                'net_price'             => 0,
+                'start_date' => $subscription->start_date,
+                'end_date' => $subscription->end_date,
+                'next_billing_date' => $subscription->next_billing_date,
+                'billing_period' => $subscription->billing_period,
+                'contract_period' => $subscription->contract_period,
+                'gross_price' => 0,
+                'net_price' => 0,
                 'parent_subscription_id' => $subscription->id,
                 // The end_date & next_billing_date will be set automatically by the SubscriptionObserver.
-                'cancel_date'           => null,
-                'created_at'            => $this->createdUpdatedDatetime,
-                'updated_at'            => $this->createdUpdatedDatetime,
+                'cancel_date' => null,
+                'created_at' => $this->createdUpdatedDatetime,
+                'updated_at' => $this->createdUpdatedDatetime,
             ];
         }
 
@@ -655,7 +700,9 @@ class BulkSeeder extends Seeder
 
     private function insertFerryMigrationData(): void
     {
-        $amountOfCustomersWithMigratedSubscriptions = $this->configuration->getAsInteger('bulk-seeder.amount_of_customers_with_migrated_subscriptions');
+        $amountOfCustomersWithMigratedSubscriptions = $this->configuration->getAsInteger(
+            'bulk-seeder.amount_of_customers_with_migrated_subscriptions',
+        );
 
         $this->output->writeln("saving ferry data for $amountOfCustomersWithMigratedSubscriptions customers...");
 
@@ -668,19 +715,23 @@ class BulkSeeder extends Seeder
         /** @var Customer $customer */
         foreach ($customers as $customer) {
             /** @var MigratedCustomer $migratedCustomer */
-            $migratedCustomer = $customer->migratedCustomers()->create([
-                'reference_customer_number' => 'reference_customer_number_' . $customer->id,
-                'reference_name' => 'reference_name_' . $customer->id,
-                'group_type' => 'bulk-seeder',
-            ]);
+            $migratedCustomer = $customer
+                ->migratedCustomers()
+                ->create([
+                    'reference_customer_number' => 'reference_customer_number_' . $customer->id,
+                    'reference_name' => 'reference_name_' . $customer->id,
+                    'group_type' => 'bulk-seeder',
+                ]);
 
             /** @var Subscription $subscription */
             foreach ($customer->subscriptions()->cursor() as $subscription) {
                 /** @var MigratedSubscription $migratedSubscription */
-                $migratedSubscription = $subscription->migratedSubscriptions()->create([
-                    'reference_subscription_id' => 'reference_subscription_' . $subscription->id,
-                    'reference_product_id' => 'reference_product_' . uniqid(),
-                ]);
+                $migratedSubscription = $subscription
+                    ->migratedSubscriptions()
+                    ->create([
+                        'reference_subscription_id' => 'reference_subscription_' . $subscription->id,
+                        'reference_product_id' => 'reference_product_' . uniqid(),
+                    ]);
 
                 $migratedCustomer->migratedSubscriptions()->attach($migratedSubscription);
             }

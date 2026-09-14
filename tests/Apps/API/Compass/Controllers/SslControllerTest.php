@@ -39,11 +39,11 @@ class SslControllerTest extends IntegrationTestCase
      * @var array<string, string|array<string, string>>
      */
     private const array DEFAULT_CUSTOMER_DATA = [
-        'name'       => 'Sandwaveio',
+        'name' => 'Sandwaveio',
         'department' => 'Team Aquatic',
-        'address'    => [
-            'city'         => 'Vlissingen',
-            'province'     => 'Zeeland',
+        'address' => [
+            'city' => 'Vlissingen',
+            'province' => 'Zeeland',
             'country_code' => 'NL',
         ],
     ];
@@ -74,16 +74,21 @@ class SslControllerTest extends IntegrationTestCase
                 self::resolve(OpenSslExtensionStrategy::class),
                 new KeyCloud($cryptoKey, $sslDisk),
                 new LocalDisk(
-                    $this->app->storagePath('framework/testing/disks/' . $this->localTestDisk)
-                )
+                    $this->app->storagePath('framework/testing/disks/' . $this->localTestDisk),
+                ),
             );
         });
 
         $this->app->singleton(CertificateManager::class, fn (): CertificateManager => new CertificateManager(
-            new CertificateCloud($sslDisk)
+            new CertificateCloud($sslDisk),
         ));
 
-        $this->sslProvider = ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        $this->sslProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $productGroup = new ProductGroupFactory()->ssl()->createOne();
 
@@ -91,9 +96,12 @@ class SslControllerTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
 
-        $this->subscription = new SubscriptionFactory()->for($this->product)->for($this->customer)->createOne([
-            'domain' => self::DOMAIN,
-        ]);
+        $this->subscription = new SubscriptionFactory()
+            ->for($this->product)
+            ->for($this->customer)
+            ->createOne([
+                'domain' => self::DOMAIN,
+            ]);
 
         new SslDeploymentFactory()->createOne([
             'subscription_uuid' => $this->subscription->uuid,
@@ -101,8 +109,7 @@ class SslControllerTest extends IntegrationTestCase
         ]);
 
         $rtrMock = self::mock(RtrSslService::class);
-        $rtrMock->shouldReceive('getSslCnameRecord')
-            ->andReturn(null);
+        $rtrMock->shouldReceive('getSslCnameRecord')->andReturn(null);
         $this->app->bind(RtrSslService::class, fn () => $rtrMock);
 
         $this->saveMainCertificate();
@@ -114,10 +121,7 @@ class SslControllerTest extends IntegrationTestCase
     #[Test]
     public function adminCanDownloadPrivateKey(): void
     {
-        $response = $this
-            ->actingAsEmployee()
-            ->get($this->downloadRoute('key', $this->subscription->uuid))
-            ->assertOk();
+        $response = $this->actingAsEmployee()->get($this->downloadRoute('key', $this->subscription->uuid))->assertOk();
 
         self::assertStringStartsWith('-----BEGIN PRIVATE KEY-----', strval($response->getContent()));
         self::assertStringEndsWith('-----END PRIVATE KEY-----' . PHP_EOL, strval($response->getContent()));
@@ -128,10 +132,7 @@ class SslControllerTest extends IntegrationTestCase
     #[Test]
     public function adminCanDownloadCertificate(): void
     {
-        $response = $this
-            ->actingAsEmployee()
-            ->get($this->downloadRoute('crt', $this->subscription->uuid))
-            ->assertOk();
+        $response = $this->actingAsEmployee()->get($this->downloadRoute('crt', $this->subscription->uuid))->assertOk();
 
         self::assertStringStartsWith('-----BEGIN CERTIFICATE-----', strval($response->getContent()));
         self::assertStringEndsWith('-----END CERTIFICATE-----', strval($response->getContent()));
@@ -142,10 +143,7 @@ class SslControllerTest extends IntegrationTestCase
     #[Test]
     public function adminCanDownloadRootCertificate(): void
     {
-        $response = $this
-            ->actingAsEmployee()
-            ->get($this->downloadRoute('root', $this->subscription->uuid))
-            ->assertOk();
+        $response = $this->actingAsEmployee()->get($this->downloadRoute('root', $this->subscription->uuid))->assertOk();
 
         self::assertStringStartsWith('-----BEGIN CERTIFICATE-----', strval($response->getContent()));
         self::assertStringEndsWith('-----END CERTIFICATE-----', strval($response->getContent()));
@@ -154,8 +152,7 @@ class SslControllerTest extends IntegrationTestCase
     #[Test]
     public function adminCanDownloadIntermediateCertificate(): void
     {
-        $response = $this
-            ->actingAsEmployee()
+        $response = $this->actingAsEmployee()
             ->get($this->downloadRoute('intermediate', $this->subscription->uuid))
             ->assertOk();
 
@@ -166,32 +163,34 @@ class SslControllerTest extends IntegrationTestCase
     #[Test]
     public function returnsNotFoundWhenSubscriptionHasNoSslDeployment(): void
     {
-        $subscription = new SubscriptionFactory()->for($this->product)->for($this->customer)->createOne([
-            'domain' => 'no-deployment.' . self::DOMAIN,
-            'technical_status' => DomainStatus::ACTIVE->value,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($this->product)
+            ->for($this->customer)
+            ->createOne([
+                'domain' => 'no-deployment.' . self::DOMAIN,
+                'technical_status' => DomainStatus::ACTIVE->value,
+            ]);
 
-        $this->actingAsEmployee()
-            ->get($this->downloadRoute('crt', $subscription->uuid))
-            ->assertNotFound();
+        $this->actingAsEmployee()->get($this->downloadRoute('crt', $subscription->uuid))->assertNotFound();
     }
 
     #[Test]
     public function returnsNotFoundWhenCertificateTypeUnavailable(): void
     {
-        $subscription = new SubscriptionFactory()->for($this->product)->for($this->customer)->createOne([
-            'domain' => 'no-certs.' . self::DOMAIN,
-            'technical_status' => DomainStatus::ACTIVE->value,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($this->product)
+            ->for($this->customer)
+            ->createOne([
+                'domain' => 'no-certs.' . self::DOMAIN,
+                'technical_status' => DomainStatus::ACTIVE->value,
+            ]);
 
         new SslDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
             'provider_id' => $this->sslProvider->id,
         ]);
 
-        $this->actingAsEmployee()
-            ->get($this->downloadRoute('crt', $subscription->uuid))
-            ->assertNotFound();
+        $this->actingAsEmployee()->get($this->downloadRoute('crt', $subscription->uuid))->assertNotFound();
     }
 
     #[Test]
@@ -211,16 +210,13 @@ class SslControllerTest extends IntegrationTestCase
             'provider_id' => $this->sslProvider->id,
         ]);
 
-        $this->actingAsEmployee()
-            ->get($this->downloadRoute('crt', $subscription->uuid))
-            ->assertNotFound();
+        $this->actingAsEmployee()->get($this->downloadRoute('crt', $subscription->uuid))->assertNotFound();
     }
 
     #[Test]
     public function unauthenticatedRequestIsRejected(): void
     {
-        $this->getJson($this->downloadRoute('crt', $this->subscription->uuid))
-            ->assertUnauthorized();
+        $this->getJson($this->downloadRoute('crt', $this->subscription->uuid))->assertUnauthorized();
     }
 
     private function downloadRoute(string $type, string $uuid): string

@@ -12,7 +12,7 @@ class Quota
     public function __construct(
         public ?int $version,
         public ?int $value,
-        public ?int $overage
+        public ?int $overage,
     ) {
     }
 

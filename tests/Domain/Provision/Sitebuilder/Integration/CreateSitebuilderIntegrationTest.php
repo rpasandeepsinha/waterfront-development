@@ -97,7 +97,8 @@ class CreateSitebuilderIntegrationTest extends IntegrationTestCase
 
         $accountHolder = $this->getAccountHolderDto();
         $accountHolder->ref = 234;
-        $this->userApi->expects($this->once())
+        $this->userApi
+            ->expects($this->once())
             ->method('create')
             ->with(
                 self::BRAND_REFERENCE,
@@ -111,20 +112,22 @@ class CreateSitebuilderIntegrationTest extends IntegrationTestCase
             ->willReturn($accountHolder);
 
         $index = 0;
-        $this->packagesApi->expects($this->exactly(count($packages)))
+        $this->packagesApi
+            ->expects($this->exactly(count($packages)))
             ->method('addUserPackage')
             ->with(
                 $accountHolder->ref,
                 self::callback(function ($package) use ($packages, &$index): bool {
                     return $package === $packages[$index++];
                 }),
-                $contractPeriod
+                $contractPeriod,
             );
 
         $siteDto = $this->getSiteDto();
         $siteDto->domains = [new Domain(777, $domain)];
 
-        $this->sitesApi->expects($this->once())
+        $this->sitesApi
+            ->expects($this->once())
             ->method('create')
             ->with($accountHolder->ref, self::BRAND_REFERENCE, $domain)
             ->willReturn($siteDto);
@@ -163,8 +166,8 @@ class CreateSitebuilderIntegrationTest extends IntegrationTestCase
                 $lastname,
                 str_replace(',', ', ', json_encode($packages, JSON_THROW_ON_ERROR)),
                 $firstname,
-                $contractPeriod
-            )
+                $contractPeriod,
+            ),
         );
     }
 
@@ -182,27 +185,28 @@ class CreateSitebuilderIntegrationTest extends IntegrationTestCase
             context: $basekitContext->context_uuid,
         );
 
-        $this->userApi->expects($this->never())
-            ->method('create');
+        $this->userApi->expects($this->never())->method('create');
 
         $accountHolder = $this->getAccountHolderDto();
         $accountHolder->ref = $basekitContext->user_ref;
 
         $index = 0;
-        $this->packagesApi->expects($this->exactly(count($packages)))
+        $this->packagesApi
+            ->expects($this->exactly(count($packages)))
             ->method('addUserPackage')
             ->with(
                 $accountHolder->ref,
                 self::callback(function ($package) use ($packages, &$index): bool {
                     return $package === $packages[$index++];
                 }),
-                $contractPeriod
+                $contractPeriod,
             );
 
         $siteDto = $this->getSiteDto();
         $siteDto->domains = [new Domain(777, $domain)];
 
-        $this->sitesApi->expects($this->once())
+        $this->sitesApi
+            ->expects($this->once())
             ->method('create')
             ->with($accountHolder->ref, self::BRAND_REFERENCE, $domain)
             ->willReturn($siteDto);
@@ -241,8 +245,8 @@ class CreateSitebuilderIntegrationTest extends IntegrationTestCase
                 $lastname,
                 str_replace(',', ', ', json_encode($packages, JSON_THROW_ON_ERROR)),
                 $firstname,
-                $contractPeriod
-            )
+                $contractPeriod,
+            ),
         );
     }
 
@@ -259,15 +263,14 @@ class CreateSitebuilderIntegrationTest extends IntegrationTestCase
             context: $context = Uuid::uuid4(),
         );
 
-        $this->userApi->expects($this->once())
+        $this->userApi
+            ->expects($this->once())
             ->method('create')
             ->willThrowException(new BasekitUserCreateException($context));
 
-        $this->packagesApi->expects($this->never())
-            ->method('addUserPackage');
+        $this->packagesApi->expects($this->never())->method('addUserPackage');
 
-        $this->sitesApi->expects($this->never())
-            ->method('create');
+        $this->sitesApi->expects($this->never())->method('create');
 
         self::assertDatabaseCount(ProvisioningResult::class, 0);
         self::assertDatabaseCount(ProvisioningRequest::class, 0);

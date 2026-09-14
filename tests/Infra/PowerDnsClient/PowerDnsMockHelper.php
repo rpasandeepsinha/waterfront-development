@@ -24,8 +24,11 @@ trait PowerDnsMockHelper
     /**
      * @param array<array<string, mixed>> $customRrsets
      */
-    private function getMockedZoneResponseBodyWithoutRRSIGAndDNSKEYRecords(string $domain, array $customRrsets = [], string $kind = 'Master'): string
-    {
+    private function getMockedZoneResponseBodyWithoutRRSIGAndDNSKEYRecords(
+        string $domain,
+        array $customRrsets = [],
+        string $kind = 'Master',
+    ): string {
         $rrsets = [
             [
                 'comments' => [],
@@ -84,7 +87,8 @@ trait PowerDnsMockHelper
             'nsec3narrow' => false,
             'nsec3param' => '',
             'rrsets' => $rrsets,
-            'serial' => 2_022_050_502, 'slave_tsig_key_ids' => [],
+            'serial' => 2_022_050_502,
+            'slave_tsig_key_ids' => [],
             'soa_edit' => '',
             'soa_edit_api' => 'DEFAULT',
             'url' => "/api/v1/servers/localhost/zones/$domain.",
@@ -94,8 +98,12 @@ trait PowerDnsMockHelper
     /**
      * @param array<array<string, mixed>> $customRrsets
      */
-    private static function getStaticMockedZoneResponseBodyWithoutRRSIGAndDNSKEYRecords(string $domain, array $customRrsets = [], string $kind = 'Master', string $nameserver = 'a.misconfigured.powerdns.server'): string
-    {
+    private static function getStaticMockedZoneResponseBodyWithoutRRSIGAndDNSKEYRecords(
+        string $domain,
+        array $customRrsets = [],
+        string $kind = 'Master',
+        string $nameserver = 'a.misconfigured.powerdns.server',
+    ): string {
         $rrsets = [
             [
                 'comments' => [],
@@ -154,7 +162,8 @@ trait PowerDnsMockHelper
             'nsec3narrow' => false,
             'nsec3param' => '',
             'rrsets' => $rrsets,
-            'serial' => 2_022_050_502, 'slave_tsig_key_ids' => [],
+            'serial' => 2_022_050_502,
+            'slave_tsig_key_ids' => [],
             'soa_edit' => '',
             'soa_edit_api' => 'DEFAULT',
             'url' => "/api/v1/servers/localhost/zones/$domain.",
@@ -220,7 +229,8 @@ trait PowerDnsMockHelper
             'nsec3narrow' => false,
             'nsec3param' => '',
             'rrsets' => $rrsets,
-            'serial' => 2_022_050_502, 'slave_tsig_key_ids' => [],
+            'serial' => 2_022_050_502,
+            'slave_tsig_key_ids' => [],
             'soa_edit' => '',
             'soa_edit_api' => 'DEFAULT',
             'url' => "/api/v1/servers/localhost/zones/$domain.",
@@ -272,7 +282,7 @@ trait PowerDnsMockHelper
         return new PowerDnsClient(
             $this->makeInternalGuzzleClient([new Response($responseCode, [], $responseBody)], $assertClosure),
             self::resolve(PowerDnsZoneToDnsZoneConverter::class),
-            self::resolve(LoggerInterface::class)
+            self::resolve(LoggerInterface::class),
         );
     }
 
@@ -284,15 +294,18 @@ trait PowerDnsMockHelper
         return new PowerDnsClient(
             $this->makeInternalGuzzleClient($responses, $assertClosure),
             self::resolve(PowerDnsZoneToDnsZoneConverter::class),
-            self::resolve(LoggerInterface::class)
+            self::resolve(LoggerInterface::class),
         );
     }
 
     /**
      * @param array<array<string, mixed>> $rrsets
      */
-    private static function getMockedZoneResponseBodyWithRrsets(string $domain, array $rrsets = [], string $kind = 'Master'): string
-    {
+    private static function getMockedZoneResponseBodyWithRrsets(
+        string $domain,
+        array $rrsets = [],
+        string $kind = 'Master',
+    ): string {
         return json_encode([
             'account' => '',
             'api_rectify' => false,
@@ -308,7 +321,8 @@ trait PowerDnsMockHelper
             'nsec3narrow' => false,
             'nsec3param' => '',
             'rrsets' => $rrsets,
-            'serial' => 2_022_050_502, 'slave_tsig_key_ids' => [],
+            'serial' => 2_022_050_502,
+            'slave_tsig_key_ids' => [],
             'soa_edit' => '',
             'soa_edit_api' => 'DEFAULT',
             'url' => "/api/v1/servers/localhost/zones/$domain.",
@@ -318,8 +332,11 @@ trait PowerDnsMockHelper
     /**
      * @param array<array<string, mixed>> $customRrsets
      */
-    private function getMockedZoneResponseBody(string $domain, array $customRrsets = [], string $kind = 'Master'): string
-    {
+    private function getMockedZoneResponseBody(
+        string $domain,
+        array $customRrsets = [],
+        string $kind = 'Master',
+    ): string {
         $rrsets = [
             [
                 'comments' => [],
@@ -410,7 +427,8 @@ trait PowerDnsMockHelper
             'nsec3narrow' => false,
             'nsec3param' => '',
             'rrsets' => $rrsets,
-            'serial' => 2_022_050_502, 'slave_tsig_key_ids' => [],
+            'serial' => 2_022_050_502,
+            'slave_tsig_key_ids' => [],
             'soa_edit' => '',
             'soa_edit_api' => 'DEFAULT',
             'url' => "/api/v1/servers/localhost/zones/$domain.",
@@ -478,7 +496,8 @@ trait PowerDnsMockHelper
             'nsec3narrow' => false,
             'nsec3param' => '',
             'rrsets' => $rrsets,
-            'serial' => 2_022_050_502, 'slave_tsig_key_ids' => [],
+            'serial' => 2_022_050_502,
+            'slave_tsig_key_ids' => [],
             'soa_edit' => '',
             'soa_edit_api' => 'DEFAULT',
             'url' => "/api/v1/servers/localhost/zones/$domain.",
@@ -488,8 +507,12 @@ trait PowerDnsMockHelper
     /**
      * @param array<array<string, mixed>> $customRrsets
      */
-    private static function getStaticMockedZoneResponseBody(string $domain, array $customRrsets = [], string $kind = 'Master', string $nameserver = 'a.misconfigured.powerdns.server'): string
-    {
+    private static function getStaticMockedZoneResponseBody(
+        string $domain,
+        array $customRrsets = [],
+        string $kind = 'Master',
+        string $nameserver = 'a.misconfigured.powerdns.server',
+    ): string {
         $rrsets = [
             [
                 'comments' => [],
@@ -580,7 +603,8 @@ trait PowerDnsMockHelper
             'nsec3narrow' => false,
             'nsec3param' => '',
             'rrsets' => $rrsets,
-            'serial' => 2_022_050_502, 'slave_tsig_key_ids' => [],
+            'serial' => 2_022_050_502,
+            'slave_tsig_key_ids' => [],
             'soa_edit' => '',
             'soa_edit_api' => 'DEFAULT',
             'url' => "/api/v1/servers/localhost/zones/$domain.",
@@ -613,8 +637,12 @@ trait PowerDnsMockHelper
         $handlerStack = HandlerStack::create(new MockHandler($responses));
 
         if ($assertClosure !== null) {
-            $handlerStack->push(fn (callable $handler): Closure => function (RequestInterface $request, $options) use ($handler, $assertClosure) {
+            $handlerStack->push(fn (callable $handler): Closure => function (RequestInterface $request, $options) use (
+                $handler,
+                $assertClosure,
+            ) {
                 $assertClosure($request);
+
                 return $handler($request, $options);
             });
         }
@@ -630,62 +658,67 @@ trait PowerDnsMockHelper
         return new PowerDnsClient(
             $this->makeInternalGuzzleClientWithResponseCallback($responses, $assertClosure),
             self::resolve(PowerDnsZoneToDnsZoneConverter::class),
-            self::resolve(LoggerInterface::class)
+            self::resolve(LoggerInterface::class),
         );
     }
 
     /**
      * @param array<string, callable> $responses
      */
-    private function makeInternalGuzzleClientWithResponseCallback(array $responses, ?callable $assertClosure = null): InternalPowerDnsClient
-    {
+    private function makeInternalGuzzleClientWithResponseCallback(
+        array $responses,
+        ?callable $assertClosure = null,
+    ): InternalPowerDnsClient {
         $handlerStack = HandlerStack::create(new MockHandler());
 
         if ($assertClosure !== null) {
             $handlerStack->push(
-                fn (callable $handler): Closure =>
-                    function (RequestInterface $request, $options) use ($handler, $assertClosure) {
-                        $assertClosure($request);
-                        return $handler($request, $options);
-                    }
+                fn (callable $handler): Closure => function (RequestInterface $request, $options) use (
+                    $handler,
+                    $assertClosure,
+                ) {
+                    $assertClosure($request);
+
+                    return $handler($request, $options);
+                },
             );
         }
 
         $handlerStack->push(
-            fn (callable $handler) =>
-                function (RequestInterface $request, array $options) use ($handler, $responses) {
-                    assert($handler instanceof MockHandler);
-                    $handler->append(new Response()); // trick it into thinking the queue isn't empty
+            fn (callable $handler) => function (RequestInterface $request, array $options) use ($handler, $responses) {
+                assert($handler instanceof MockHandler);
+                $handler->append(new Response()); // trick it into thinking the queue isn't empty
 
-                    $promise = $handler($request, $options);
+                $promise = $handler($request, $options);
 
-                    $uri = $request->getUri()->getHost();
-                    if ($request->getUri()->getPort() !== null) {
-                        $uri .= ':' . $request->getUri()->getPort();
-                    }
-                    $uri .= $request->getUri()->getPath();
-
-                    if (! array_key_exists($uri, $responses)) {
-                        throw new OutOfBoundsException(sprintf(
-                            'URL not found in mocked responses: %s',
-                            $uri
-                        ));
-                    }
-
-                    return $promise->then(
-                        fn (): ResponseInterface => $responses[$uri]($request)
-                    );
+                $uri = $request->getUri()->getHost();
+                if ($request->getUri()->getPort() !== null) {
+                    $uri .= ':' . $request->getUri()->getPort();
                 }
+
+                $uri .= $request->getUri()->getPath();
+
+                if (! array_key_exists($uri, $responses)) {
+                    throw new OutOfBoundsException(sprintf(
+                        'URL not found in mocked responses: %s',
+                        $uri,
+                    ));
+                }
+
+                return $promise->then(
+                    fn (): ResponseInterface => $responses[$uri]($request),
+                );
+            },
         );
 
         $config = self::resolve(ConfigurationInterface::class);
 
         return new InternalPowerDnsClient(
             new Client([
-                'base_uri'    => $config->getAsString('powerdnsclient.connection.api_url'),
+                'base_uri' => $config->getAsString('powerdnsclient.connection.api_url'),
                 'handler' => $handlerStack,
                 'http_errors' => false,
-            ])
+            ]),
         );
     }
 }

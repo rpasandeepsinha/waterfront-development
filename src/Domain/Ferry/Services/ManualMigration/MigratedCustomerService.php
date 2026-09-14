@@ -11,8 +11,10 @@ use Waterfront\Domain\Customers\Models\MigratedCustomer;
 
 class MigratedCustomerService
 {
-    public function validateAndCreateMigratedCustomer(ManualMigrationMigrateRequest $request, Customer $customer): Customer
-    {
+    public function validateAndCreateMigratedCustomer(
+        ManualMigrationMigrateRequest $request,
+        Customer $customer,
+    ): Customer {
         // If the customer has already been migrated for a non-manual migration, we should block the manual migration
         if (! $customer->migratedCustomers->where('group_type', '!=', 'manual_migration')->isEmpty()) {
             throw new InvalidArgumentException('Customer is already migrated in an automated process');

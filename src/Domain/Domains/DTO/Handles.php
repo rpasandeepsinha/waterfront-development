@@ -12,7 +12,7 @@ class Handles implements HandleInterface
         private readonly string $owner,
         private readonly ?string $admin = null,
         private readonly ?string $tech = null,
-        private ?string $billing = null
+        private ?string $billing = null,
     ) {
     }
 
@@ -68,9 +68,9 @@ class Handles implements HandleInterface
     public function toArray(): array
     {
         return [
-            'owner'   => $this->getOwnerHandle(),
-            'admin'   => $this->getAdminHandle(),
-            'tech'    => $this->getTechHandle(),
+            'owner' => $this->getOwnerHandle(),
+            'admin' => $this->getAdminHandle(),
+            'tech' => $this->getTechHandle(),
             'billing' => $this->getBillingHandle(),
         ];
     }

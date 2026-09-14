@@ -33,7 +33,12 @@ class SslServiceFactoryTest extends IntegrationTestCase
         // Just make sure we're not running into a runtime exception
         $this->expectNotToPerformAssertions();
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $this->sslServiceFactory->defaultDriver();
     }
 
@@ -53,7 +58,12 @@ class SslServiceFactoryTest extends IntegrationTestCase
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $this->sslServiceFactory->resolveProviderByProduct($product);
     }

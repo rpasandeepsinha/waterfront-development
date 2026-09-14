@@ -40,9 +40,7 @@ class SslDeploymentControllerTest extends IntegrationTestCase
     public function showSslDeployment(): void
     {
         $certificateRetriever = self::createMock(CertificateRetriever::class);
-        $certificateRetriever->expects(self::once())
-            ->method('getAvailableCertificateTypes')
-            ->willReturn([]);
+        $certificateRetriever->expects(self::once())->method('getAvailableCertificateTypes')->willReturn([]);
         $this->app->bind(CertificateRetriever::class, fn () => $certificateRetriever);
 
         $sslProduct = new ProductFactory()->sslSingleDomain()->createOne();
@@ -76,7 +74,8 @@ class SslDeploymentControllerTest extends IntegrationTestCase
     public function showSslDeploymentCertificateUrlsPointAtAdminDownload(): void
     {
         $certificateRetriever = self::createMock(CertificateRetriever::class);
-        $certificateRetriever->expects(self::once())
+        $certificateRetriever
+            ->expects(self::once())
             ->method('getAvailableCertificateTypes')
             ->willReturn(['Certificate' => 'crt']);
         $this->app->bind(CertificateRetriever::class, fn () => $certificateRetriever);
@@ -183,7 +182,9 @@ class SslDeploymentControllerTest extends IntegrationTestCase
             ->createOne(['subscription_uuid' => $subscription->uuid]);
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.ssl.set-dns-verify-record', ['sslDeployment' => $subscription->uuid]))
+            ->postJson($this->generateRoute('admin.ssl.set-dns-verify-record', [
+                'sslDeployment' => $subscription->uuid,
+            ]))
             ->assertNoContent();
 
         Queue::assertPushed(SetSslDnsVerifyRecordJob::class);
@@ -247,8 +248,7 @@ class SslDeploymentControllerTest extends IntegrationTestCase
     public function downloadCertificateFromRtrSucceeds(): void
     {
         $certificateDownloader = self::createMock(CertificateDownloader::class);
-        $certificateDownloader->expects(self::once())
-            ->method('downloadForSslDeployment');
+        $certificateDownloader->expects(self::once())->method('downloadForSslDeployment');
         $this->app->bind(CertificateDownloader::class, fn () => $certificateDownloader);
 
         $sslProduct = new ProductFactory()->sslSingleDomain()->createOne();
@@ -264,7 +264,9 @@ class SslDeploymentControllerTest extends IntegrationTestCase
             ]);
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.ssl.ssl.sync-certificate-from-rtr', ['sslDeployment' => $deployment->subscription_uuid]))
+            ->postJson($this->generateRoute('admin.ssl.ssl.sync-certificate-from-rtr', [
+                'sslDeployment' => $deployment->subscription_uuid,
+            ]))
             ->assertOk()
             ->assertJson(['message' => 'Certificate downloaded successfully.']);
     }
@@ -275,7 +277,8 @@ class SslDeploymentControllerTest extends IntegrationTestCase
         $thrownException = new Exception('RTR connection failed');
 
         $certificateDownloader = self::createMock(CertificateDownloader::class);
-        $certificateDownloader->expects(self::once())
+        $certificateDownloader
+            ->expects(self::once())
             ->method('downloadForSslDeployment')
             ->willThrowException($thrownException);
         $this->app->bind(CertificateDownloader::class, fn () => $certificateDownloader);
@@ -293,7 +296,9 @@ class SslDeploymentControllerTest extends IntegrationTestCase
             ]);
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.ssl.ssl.sync-certificate-from-rtr', ['sslDeployment' => $deployment->subscription_uuid]))
+            ->postJson($this->generateRoute('admin.ssl.ssl.sync-certificate-from-rtr', [
+                'sslDeployment' => $deployment->subscription_uuid,
+            ]))
             ->assertServerError();
     }
 }

@@ -43,7 +43,7 @@ class UpdateNameservers extends AbstractQueueableJob
 
     public function __construct(
         private readonly string $domain,
-        private readonly bool $useVanityNs
+        private readonly bool $useVanityNs,
     ) {
         parent::__construct();
     }
@@ -66,13 +66,12 @@ class UpdateNameservers extends AbstractQueueableJob
                 LoggingContextKeys::DOMAIN_NAME => $this->domain,
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                 LoggingContextKeys::EXCEPTION => $throwable,
-            ]
+            ],
         );
 
         /** @var SubscriptionRepository $subscriptionRepository */
         $subscriptionRepository = $container->make(SubscriptionRepository::class);
-        $dnsSubscription = $subscriptionRepository
-            ->getNotAdministrativelyEndedOrSuspendedDnsSubscription($this->domain);
+        $dnsSubscription = $subscriptionRepository->getNotAdministrativelyEndedOrSuspendedDnsSubscription($this->domain);
 
         $dnsSubscription->update([
             'technical_status' => TechnicalStatus::FAILED->value,
@@ -107,14 +106,13 @@ class UpdateNameservers extends AbstractQueueableJob
                 LoggingContextKeys::META => [
                     'useVanityNs' => $this->useVanityNs,
                 ],
-            ]
+            ],
         );
 
         $domainDeployment = $domainDeploymentRepository->getActiveDeploymentByDomain($this->domain);
         Assert::notNull($domainDeployment, 'Domain deployment not found for the given domain.');
 
-        $dnsSubscription = $subscriptionRepository
-            ->getNotAdministrativelyEndedOrSuspendedDnsSubscription($this->domain);
+        $dnsSubscription = $subscriptionRepository->getNotAdministrativelyEndedOrSuspendedDnsSubscription($this->domain);
 
         $dnsDeployment = $dnsSubscription->dnsDeployment;
 
@@ -127,9 +125,13 @@ class UpdateNameservers extends AbstractQueueableJob
                 $response = $gandiClient->getDnsRecords($this->domain);
             } catch (NotFoundException) {
                 $this->release($this->getBackoffDelay());
+
                 return;
             } catch (ClientException $exception) {
-                $dnsDeploymentRepository->saveLastPremiumProviderResponse($dnsDeployment, $exception->getResponse()->body());
+                $dnsDeploymentRepository->saveLastPremiumProviderResponse(
+                    $dnsDeployment,
+                    $exception->getResponse()->body(),
+                );
                 throw $exception;
             } catch (Exception $exception) {
                 $dnsDeploymentRepository->saveLastPremiumProviderResponse($dnsDeployment, $exception->getMessage());
@@ -138,7 +140,7 @@ class UpdateNameservers extends AbstractQueueableJob
 
             $dnsDeploymentRepository->saveLastPremiumProviderResponse(
                 $dnsDeployment,
-                json_encode($response, JSON_THROW_ON_ERROR)
+                json_encode($response, JSON_THROW_ON_ERROR),
             );
         }
 
@@ -175,11 +177,10 @@ class UpdateNameservers extends AbstractQueueableJob
     private function updateNameserverForDns(
         array $nameservers,
         UpdateNameserverAndSoaAction $updateNameserverAndSoaAction,
-        DnsService $dnsService
+        DnsService $dnsService,
     ): void {
         // Update nameservers in PowerDNS, enforce the update to bypass legacy NS check.
-        $updateNameserverAndSoaAction
-            ->updateRecords($this->domain, $nameservers, true);
+        $updateNameserverAndSoaAction->updateRecords($this->domain, $nameservers, true);
 
         if ($this->useVanityNs) {
             $dnsService->sendNotify($this->domain);

@@ -31,7 +31,7 @@ class RedirectSourceDomainIsPartOfSubscriptionRuleTest extends IntegrationTestCa
 
         $rule = new RedirectSourceDomainIsPartOfSubscriptionRule(
             $customer,
-            $this->app->make(PublicSuffixList::class)
+            $this->app->make(PublicSuffixList::class),
         );
 
         $validator = self::resolve(Factory::class);
@@ -42,7 +42,10 @@ class RedirectSourceDomainIsPartOfSubscriptionRuleTest extends IntegrationTestCa
         ]);
 
         self::assertFalse($validator->passes());
-        self::assertSame('The source field with value: test-redirect-domain.nl has no representation as a redirect subscription domain: test-redirect-domain.nl', $validator->messages()->get('source')[0]);
+        self::assertSame(
+            'The source field with value: test-redirect-domain.nl has no representation as a redirect subscription domain: test-redirect-domain.nl',
+            $validator->messages()->get('source')[0],
+        );
     }
 
     #[Test]
@@ -65,7 +68,7 @@ class RedirectSourceDomainIsPartOfSubscriptionRuleTest extends IntegrationTestCa
 
         $rule = new RedirectSourceDomainIsPartOfSubscriptionRule(
             $customer,
-            $this->app->make(PublicSuffixList::class)
+            $this->app->make(PublicSuffixList::class),
         );
 
         $validator = self::resolve(Factory::class);

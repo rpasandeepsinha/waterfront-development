@@ -14,8 +14,8 @@ class CloudstackNotFoundException extends Exception
         return new CloudstackNotFoundException(
             sprintf(
                 'The ManagerDomainDeployment with UUID "%s" doesn\'t have an external domain ID.',
-                $subscriptionUuid
-            )
+                $subscriptionUuid,
+            ),
         );
     }
 
@@ -25,8 +25,8 @@ class CloudstackNotFoundException extends Exception
             sprintf(
                 'Could not find compatible environment for OS template UUID "%s" and product ID "%d".',
                 $osProductId,
-                $productId
-            )
+                $productId,
+            ),
         );
     }
 
@@ -35,9 +35,9 @@ class CloudstackNotFoundException extends Exception
         return new CloudstackNotFoundException(
             message: sprintf(
                 'VM with UUID "%s" not found.',
-                $uuid
+                $uuid,
             ),
-            previous: $trace
+            previous: $trace,
         );
     }
 }

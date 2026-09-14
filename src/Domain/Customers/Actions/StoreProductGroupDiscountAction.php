@@ -28,14 +28,14 @@ class StoreProductGroupDiscountAction
                     'product_group_type' => $productGroupDiscount->productGroupType->value,
                     'discount_percentage' => $productGroupDiscount->discountPercentage,
                 ],
-            ]
+            ],
         );
 
-        $productGroup = ProductGroup::query()
-            ->where('slug', $productGroupDiscount->productGroupType)
-            ->firstOrFail();
+        $productGroup = ProductGroup::query()->where('slug', $productGroupDiscount->productGroupType)->firstOrFail();
 
         $customer->productGroups()->detach($productGroup->id); // detach in case it's already attached, or else we get an error
-        $customer->productGroups()->attach($productGroup->id, ['discount' => $productGroupDiscount->discountPercentage]);
+        $customer->productGroups()->attach($productGroup->id, [
+            'discount' => $productGroupDiscount->discountPercentage,
+        ]);
     }
 }

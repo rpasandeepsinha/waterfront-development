@@ -24,7 +24,6 @@ class OneTimeServiceLineItem extends LineItem
             status: null,
             children: null,
             oneTimeServices: null,
-            experimentSlug: null
         );
     }
 }

@@ -28,7 +28,7 @@ class TechnicalDomainMigrationMapper
     public function mapSubscriptionWithRemoteResult(
         Subscription $subscription,
         MigratedCustomer $migratedCustomer,
-        ProviderSlug $driver
+        ProviderSlug $driver,
     ): TechnicalMigrationDomain {
         $domain = $subscription->domain;
         Assert::notNull($domain, 'Provided subscription has no domain');
@@ -47,7 +47,7 @@ class TechnicalDomainMigrationMapper
                         'driver' => $driver,
                         'business_unit_slug' => $subscription->domainDeployment?->businessUnit?->slug,
                     ],
-                ]
+                ],
             );
 
             $previousException = $exception->getPrevious();
@@ -55,6 +55,7 @@ class TechnicalDomainMigrationMapper
             if ($previousException instanceof ForbiddenException) {
                 throw new RemoteDomainForbiddenException($subscription, $driver, $exception);
             }
+
             throw new RemoteDomainNotFoundException($subscription, $driver, $exception);
         }
 

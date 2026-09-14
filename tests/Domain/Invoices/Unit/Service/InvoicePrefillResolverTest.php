@@ -25,9 +25,13 @@ class InvoicePrefillResolverTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
         $productGroup = new ProductGroupFactory()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
-        $subscription = new SubscriptionFactory()->for($product)->for($customer)->createOne(['billing_period' => 12]);
+        $subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->createOne(['billing_period' => 12]);
         $repository = $this->createMock(InvoiceRepository::class);
-        $repository->expects(self::once())
+        $repository
+            ->expects(self::once())
             ->method('getLastDebitInvoiceForSubscription')
             ->with($subscription)
             ->willReturn(null);
@@ -62,12 +66,12 @@ class InvoicePrefillResolverTest extends IntegrationTestCase
             ->for($subscription->product)
             ->createOne(
                 [
-                'period' => 12,
-                'gross_price' => 1200,
-                'net_price' => 992,
-                'start_date' => $startDate,
-                'end_date' => $endDate,
-            ]
+                    'period' => 12,
+                    'gross_price' => 1200,
+                    'net_price' => 992,
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                ],
             );
 
         $repository = $this->createStub(InvoiceRepository::class);
@@ -107,7 +111,7 @@ class InvoicePrefillResolverTest extends IntegrationTestCase
                     'net_price' => 992,
                     'start_date' => $startDate,
                     'end_date' => CarbonImmutable::parse('2025-02-01'),
-                ]
+                ],
             );
 
         $repository = $this->createStub(InvoiceRepository::class);
@@ -144,7 +148,7 @@ class InvoicePrefillResolverTest extends IntegrationTestCase
                     'net_price' => 992,
                     'start_date' => CarbonImmutable::parse('2025-01-01'),
                     'end_date' => CarbonImmutable::parse('2026-01-01'),
-                ]
+                ],
             );
 
         $repository = $this->createStub(InvoiceRepository::class);

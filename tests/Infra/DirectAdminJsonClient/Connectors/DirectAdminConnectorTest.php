@@ -63,7 +63,8 @@ class DirectAdminConnectorTest extends TestCase
             CreateLoginUrl::class => MockResponse::make('{"error": "this-is-error-data"}', 418),
         ]);
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 '[DirectAdminConnector] "{request.method} {request.uri}" {response.code}',
@@ -73,7 +74,7 @@ class DirectAdminConnectorTest extends TestCase
                     LoggingContextKeys::REQUEST_METHOD => 'POST',
                     LoggingContextKeys::RESPONSE_CODE => 418,
                     LoggingContextKeys::RESPONSE_DATA => '{"error":"this-is-error-data"}',
-                ]
+                ],
             );
 
         $this->expectException(ClientException::class);
@@ -89,7 +90,8 @@ class DirectAdminConnectorTest extends TestCase
             CreateLoginUrl::class => MockResponse::make('{"message": "success", "url": "https://ssologin.nl/"}', 200),
         ]);
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 '[DirectAdminConnector] "{request.method} {request.uri}" {response.code}',
@@ -99,7 +101,7 @@ class DirectAdminConnectorTest extends TestCase
                     LoggingContextKeys::REQUEST_METHOD => 'POST',
                     LoggingContextKeys::RESPONSE_CODE => 200,
                     LoggingContextKeys::RESPONSE_DATA => '{"message":"success","url":"[Filtered]"}',
-                ]
+                ],
             );
 
         $this->connector->withMockClient($mockClient);

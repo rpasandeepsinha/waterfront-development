@@ -10,7 +10,7 @@ class MailDowngradeProduct implements MailTemplateInterface
         public readonly string $domainName,
         public readonly string $productName,
         public readonly int $contractPeriod,
-        public readonly int $grossPrice
+        public readonly int $grossPrice,
     ) {
     }
 

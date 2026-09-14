@@ -67,9 +67,11 @@ class NovaResetDnsSecBulkAction extends DestructiveAction
                 ->onQueue(QueueName::DEFAULT);
         }
 
-        $this->logger->debug('NovaResetDnsSecBulkAction reset dnssec completed', [LoggingContextKeys::META => [
-            'domains' => $domainList,
-        ]]);
+        $this->logger->debug('NovaResetDnsSecBulkAction reset dnssec completed', [
+            LoggingContextKeys::META => [
+                'domains' => $domainList,
+            ],
+        ]);
 
         return ActionResponse::message('reset dnssec executed');
     }

@@ -12,7 +12,7 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 class PlaceholderObserver
 {
     public function __construct(
-        private readonly ManualProvisioningService $manualSubscriptionService
+        private readonly ManualProvisioningService $manualSubscriptionService,
     ) {
     }
 
@@ -30,9 +30,11 @@ class PlaceholderObserver
             return;
         }
 
-        if ($subscription->hostingDeployment?->provider?->slug !== ProviderSlug::PLACEHOLDER &&
-            $subscription->sslDeployment?->provider->slug !== ProviderSlug::PLACEHOLDER &&
-            $subscription->domainDeployment?->provider->slug !== ProviderSlug::PLACEHOLDER) {
+        if (
+            $subscription->hostingDeployment?->provider?->slug !== ProviderSlug::PLACEHOLDER
+            && $subscription->sslDeployment?->provider->slug !== ProviderSlug::PLACEHOLDER
+            && $subscription->domainDeployment?->provider->slug !== ProviderSlug::PLACEHOLDER
+        ) {
             return;
         }
 

@@ -28,7 +28,14 @@ class SubscriptionPresenter
      */
     public function toArray(Subscription $subscription): array
     {
-        $subscription->loadMissing(['customer', 'labels', 'mutations.product', 'product', 'transfers', 'hostingDeployment']);
+        $subscription->loadMissing([
+            'customer',
+            'labels',
+            'mutations.product',
+            'product',
+            'transfers',
+            'hostingDeployment',
+        ]);
 
         $labels = [];
         foreach ($subscription->labels as $label) {
@@ -36,24 +43,24 @@ class SubscriptionPresenter
         }
 
         return [
-            'id'                    => $subscription->id,
-            'uuid'                  => $subscription->uuid,
-            'product'               => $this->productPresenter->toArray($subscription->product),
-            'net_price'             => $subscription->net_price,
-            'mutations'             => $subscription->mutations->toArray(),
-            'domain'                => $subscription->domain,
+            'id' => $subscription->id,
+            'uuid' => $subscription->uuid,
+            'product' => $this->productPresenter->toArray($subscription->product),
+            'net_price' => $subscription->net_price,
+            'mutations' => $subscription->mutations->toArray(),
+            'domain' => $subscription->domain,
             'administrative_status' => $subscription->administrative_status,
-            'status'                => DetermineSubscriptionActiveStatusHelper::resolve($subscription),
-            'available_actions'     => $this->subscriptionPolicy->getAvailableActions($subscription),
-            'billing_period'        => $subscription->billing_period,
-            'contract_period'       => $subscription->contract_period,
-            'start_date'            => $subscription->start_date->toW3cString(),
-            'end_date'              => $subscription->end_date->toW3cString(),
-            'in_transfer'           => $this->transferService->hasOpenTransfer($subscription),
-            'children'              => $this->collectionToArray($subscription->children),
-            'has_service_plus'      => $this->subscriptionPolicy->hasServicePlan($subscription),
-            'technical_status'      => $subscription->technical_status,
-            'labels'                => $labels,
+            'status' => DetermineSubscriptionActiveStatusHelper::resolve($subscription),
+            'available_actions' => $this->subscriptionPolicy->getAvailableActions($subscription),
+            'billing_period' => $subscription->billing_period,
+            'contract_period' => $subscription->contract_period,
+            'start_date' => $subscription->start_date->toW3cString(),
+            'end_date' => $subscription->end_date->toW3cString(),
+            'in_transfer' => $this->transferService->hasOpenTransfer($subscription),
+            'children' => $this->collectionToArray($subscription->children),
+            'has_service_plus' => $this->subscriptionPolicy->hasServicePlan($subscription),
+            'technical_status' => $subscription->technical_status,
+            'labels' => $labels,
             'next_invoice' => [
                 'date' => $subscription->next_billing_date->format(DateTimeFormat::DATE),
                 'price' => $this->getNextInvoicePriceAction->execute($subscription)->netPrice,
@@ -66,7 +73,7 @@ class SubscriptionPresenter
      */
     public function toJson(Subscription $subscription): string
     {
-        return json_encode($this->toArray($subscription), flags:JSON_THROW_ON_ERROR);
+        return json_encode($this->toArray($subscription), flags: JSON_THROW_ON_ERROR);
     }
 
     /**

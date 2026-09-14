@@ -58,17 +58,14 @@ class CertificateInstallerTest extends IntegrationTestCase
             ->forDomain($domain)
             ->for(CustomerFactory::new())
             ->for(
-                ProductFactory::new()
-                ->sslSingleDomain()
-                ->has(ProductSpecFactory::new()->state(
-                    ['name' => 'ssl.product_id', 'value' => true]
-                ))
+                ProductFactory::new()->sslSingleDomain()->has(ProductSpecFactory::new()->state(
+                    ['name' => 'ssl.product_id', 'value' => true],
+                )),
             )
             ->has(
-                SslDeploymentFactory::new()
-                ->rtrProvider()
+                SslDeploymentFactory::new()->rtrProvider(),
             )
-        ->createOne();
+            ->createOne();
 
         $hostingSubscription = SubscriptionFactory::new()
             ->forDomain($domain)
@@ -102,85 +99,77 @@ class CertificateInstallerTest extends IntegrationTestCase
             sitebuilderService: self::resolve(SitebuilderService::class),
         );
 
-        $logMock->shouldReceive('debug')
+        $logMock
+            ->shouldReceive('debug')
             ->once()
             ->with(sprintf(
                 'Installing certificate for SSL deployment #%d',
-                $sslDeployment->id
+                $sslDeployment->id,
             ));
 
-        $mockDownloader->expects(self::once())
-            ->method('downloadForSslDeployment')
-            ->with($sslDeployment);
+        $mockDownloader->expects(self::once())->method('downloadForSslDeployment')->with($sslDeployment);
 
-        $mockCsrManager->expects(self::once())
-            ->method('getRawCsr')
-            ->with($domain)
-            ->willReturn($mockCsr);
+        $mockCsrManager->expects(self::once())->method('getRawCsr')->with($domain)->willReturn($mockCsr);
 
-        $mockCertificateManager->expects(self::once())
+        $mockCertificateManager
+            ->expects(self::once())
             ->method('getMainCertificate')
             ->with($domain)
             ->willReturn($mockMainCertificate);
 
-        $mockCertificateManager->expects(self::once())
+        $mockCertificateManager
+            ->expects(self::once())
             ->method('getIntermediateCertificate')
             ->with($domain)
             ->willReturn($mockCa);
 
-        $mockCsrManager->expects(self::once())
-            ->method('getPrivateKey')
-            ->with($domain)
-            ->willReturn($mockPrivateKey);
+        $mockCsrManager->expects(self::once())->method('getPrivateKey')->with($domain)->willReturn($mockPrivateKey);
 
-        $mockRepository->expects(self::once())
+        $mockRepository
+            ->expects(self::once())
             ->method('getRelatedHostingSubscriptionForSslDeployment')
             ->with($sslDeployment)
             ->willReturn($hostingDeployment);
 
-        $logMock->shouldReceive('debug')
+        $logMock
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 sprintf(
                     'Certificate will be installed on hosting deployment #%d for SSL deployment #%d',
                     $hostingDeployment->id,
-                    $sslDeployment->id
-                )
+                    $sslDeployment->id,
+                ),
             );
 
-        $logMock->shouldReceive('debug')
+        $logMock
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 'Trying to install a SSL certificate on a default hosting deployment',
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $hostingDeployment->subscription_uuid,
-                ]
+                ],
             );
 
-        $mockHostingServiceFactory->expects(self::once())
-            ->method('driver')
-            ->willReturn($mockHostingService);
+        $mockHostingServiceFactory->expects(self::once())->method('driver')->willReturn($mockHostingService);
 
-        $mockHostingService->expects(self::once())
-            ->method('installCertificate')
-            ->willReturn(HostingResult::STATUS_OK);
+        $mockHostingService->expects(self::once())->method('installCertificate')->willReturn(HostingResult::STATUS_OK);
 
-        $logMock->shouldReceive('notice')
+        $logMock
+            ->shouldReceive('notice')
             ->once()
             ->with(sprintf(
                 'Certificate for SSL deployment #%d installed on hosting: %s',
                 $sslDeployment->id,
-                $certificateName
+                $certificateName,
             ));
 
-        Artisan::shouldReceive('call')
-            ->with(CheckSsl::class, [
-                'domain' => $domain,
-            ]);
+        Artisan::shouldReceive('call')->with(CheckSsl::class, [
+            'domain' => $domain,
+        ]);
 
-        $mockCsrManager->expects(self::once())
-            ->method('removeLocalDirectory')
-            ->with($domain);
+        $mockCsrManager->expects(self::once())->method('removeLocalDirectory')->with($domain);
 
         $installer->installForSslDeployment($sslDeployment);
     }

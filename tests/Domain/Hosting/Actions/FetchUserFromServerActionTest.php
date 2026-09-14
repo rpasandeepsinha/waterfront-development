@@ -57,21 +57,25 @@ class FetchUserFromServerActionTest extends TestCase
     {
         $server = $this->server(ServerType::DIRECTADMIN);
 
-        $this->hostingService->expects(self::once())
+        $this->hostingService
+            ->expects(self::once())
             ->method('getUserConfigAsAdmin')
             ->with(ProviderSlug::DIRECTADMIN->value, 'user-1', $server)
             ->willReturn(['package' => 'basic']);
 
-        $this->getSsoUrlAction->expects(self::once())
+        $this->getSsoUrlAction
+            ->expects(self::once())
             ->method('execute')
             ->with($server, 'user-1', '10.0.0.1')
             ->willReturn('https://panel.example.com/sso');
 
-        $this->mailManagementService->expects(self::once())
+        $this->mailManagementService
+            ->expects(self::once())
             ->method('getEmailForwards')
             ->willReturn([$this->emailForward('info', ['a@x.nl', 'b@x.nl'])]);
 
-        $this->mailManagementService->expects(self::once())
+        $this->mailManagementService
+            ->expects(self::once())
             ->method('getEmailUsersRaw')
             ->willReturn(['users' => ['admin', 'postmaster']]);
 
@@ -81,7 +85,7 @@ class FetchUserFromServerActionTest extends TestCase
         self::assertSame('https://panel.example.com/sso', $result->ssoUrl);
         self::assertSame(
             [['source' => 'info@example.com', 'destinations' => ['a@x.nl', 'b@x.nl']]],
-            $result->mailForwards
+            $result->mailForwards,
         );
         self::assertSame(['admin', 'postmaster'], $result->mailUsers);
         self::assertSame([], $result->errors);
@@ -92,7 +96,8 @@ class FetchUserFromServerActionTest extends TestCase
     {
         $server = $this->server(ServerType::DIRECTADMIN);
 
-        $this->hostingService->method('getUserConfigAsAdmin')
+        $this->hostingService
+            ->method('getUserConfigAsAdmin')
             ->willThrowException(new RuntimeException('panel unreachable', 503));
 
         $this->logger->expects(self::once())->method('warning');
@@ -131,9 +136,11 @@ class FetchUserFromServerActionTest extends TestCase
     {
         $server = $this->server(ServerType::PLESK);
 
-        $this->hostingService->method('getUserConfigAsAdmin')->willReturn([
-            'response_result' => '<gen_info><password>hunter2</password></gen_info>',
-        ]);
+        $this->hostingService
+            ->method('getUserConfigAsAdmin')
+            ->willReturn([
+                'response_result' => '<gen_info><password>hunter2</password></gen_info>',
+            ]);
         $this->getSsoUrlAction->method('execute')->willReturn('https://plesk.example.com/sso');
 
         $result = $this->action->execute($server, 'user-1', '10.0.0.1', null);
@@ -147,9 +154,11 @@ class FetchUserFromServerActionTest extends TestCase
     {
         $server = $this->server(ServerType::PLESK);
 
-        $this->hostingService->method('getUserConfigAsAdmin')->willReturn([
-            'response_result' => '<password>secret1</password><login>bob</login><password>secret2</password>',
-        ]);
+        $this->hostingService
+            ->method('getUserConfigAsAdmin')
+            ->willReturn([
+                'response_result' => '<password>secret1</password><login>bob</login><password>secret2</password>',
+            ]);
         $this->getSsoUrlAction->method('execute')->willReturn('https://plesk.example.com/sso');
 
         $result = $this->action->execute($server, 'user-1', '10.0.0.1', null);
@@ -165,9 +174,11 @@ class FetchUserFromServerActionTest extends TestCase
     {
         $server = $this->server(ServerType::PLESK);
 
-        $this->hostingService->method('getUserConfigAsAdmin')->willReturn([
-            'response_result' => "<gen_info>\n  <password>\n    hunter2\n  </password>\n</gen_info>",
-        ]);
+        $this->hostingService
+            ->method('getUserConfigAsAdmin')
+            ->willReturn([
+                'response_result' => "<gen_info>\n  <password>\n    hunter2\n  </password>\n</gen_info>",
+            ]);
         $this->getSsoUrlAction->method('execute')->willReturn('https://plesk.example.com/sso');
 
         $result = $this->action->execute($server, 'user-1', '10.0.0.1', null);
@@ -180,12 +191,22 @@ class FetchUserFromServerActionTest extends TestCase
     {
         $server = $this->server(ServerType::PLESK);
 
-        $this->hostingService->method('getUserConfigAsAdmin')->willReturn([
-            'response_body' => ['customer' => ['get' => ['result' => ['data' => ['gen_info' => [
-                'password' => 'hunter2',
-                'name' => 'bob',
-            ]]]]]],
-        ]);
+        $this->hostingService
+            ->method('getUserConfigAsAdmin')
+            ->willReturn([
+                'response_body' => [
+                    'customer' => [
+                        'get' => [
+                            'result' => [
+                                'data' => ['gen_info' => [
+                                    'password' => 'hunter2',
+                                    'name' => 'bob',
+                                ]],
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
         $this->getSsoUrlAction->method('execute')->willReturn('https://plesk.example.com/sso');
 
         $result = $this->action->execute($server, 'user-1', '10.0.0.1', null);

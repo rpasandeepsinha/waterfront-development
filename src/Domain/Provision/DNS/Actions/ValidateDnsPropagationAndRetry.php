@@ -29,7 +29,7 @@ class ValidateDnsPropagationAndRetry
     {
         $this->logger->info(
             'Retrying DNS validation on domain [{domain.name}]',
-            [LoggingContextKeys::DOMAIN_NAME => $domain]
+            [LoggingContextKeys::DOMAIN_NAME => $domain],
         );
 
         $dnsDeployment = $this->dnsDeploymentRepository->getDnsDeploymentFromDomain($domain);
@@ -37,7 +37,7 @@ class ValidateDnsPropagationAndRetry
         if ($dnsDeployment === null) {
             throw new DnsDeploymentNotFoundException(sprintf(
                 'Tried to retry DNS on domain [%s] without DNS deployment',
-                $domain
+                $domain,
             ));
         }
 
@@ -45,7 +45,7 @@ class ValidateDnsPropagationAndRetry
             new ValidateDomainNameserverAndUpdateRegistryJob(
                 $domain,
                 $this->dnsDeploymentRepository->getNameservers($dnsDeployment),
-            )
+            ),
         );
     }
 }

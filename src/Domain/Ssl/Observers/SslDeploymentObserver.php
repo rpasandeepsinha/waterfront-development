@@ -20,8 +20,8 @@ class SslDeploymentObserver
         if ($sslDeployment->isDirty('certificate_id')) {
             $this->dispatcher->dispatch(
                 new UpdateSslExpireDate(
-                    sslDeployment: $sslDeployment
-                )
+                    sslDeployment: $sslDeployment,
+                ),
             );
         }
     }

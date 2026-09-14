@@ -42,8 +42,12 @@ class EventSubscriptionDataBuilder
     ) {
     }
 
-    public function buildDomainDeployment(Subscription $subscription, bool $dnssecEnabled, bool $privateWhoisEnabled, ?string $transferSecret): DomainDeployment
-    {
+    public function buildDomainDeployment(
+        Subscription $subscription,
+        bool $dnssecEnabled,
+        bool $privateWhoisEnabled,
+        ?string $transferSecret,
+    ): DomainDeployment {
         $provider = $this->domainServiceFactory->resolveProviderByProduct($subscription->product);
 
         /** @var DomainDeployment $domainDeployment */
@@ -58,13 +62,16 @@ class EventSubscriptionDataBuilder
         $childDnsSubscription = $this->domainRepository->getDnsChildSubscription($subscription);
 
         if ($childDnsSubscription === null) {
-            $this->logger->warning('Created a DomainDeployment({provisioning.id}) for subscription {subscription.id} where there is no DNS child subscription.', [
-                LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-                LoggingContextKeys::PROVISIONING_ID => $domainDeployment->id,
-                LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
-                LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                LoggingContextKeys::CUSTOMER_ID => $subscription->customer->id,
-            ]);
+            $this->logger->warning(
+                'Created a DomainDeployment({provisioning.id}) for subscription {subscription.id} where there is no DNS child subscription.',
+                [
+                    LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
+                    LoggingContextKeys::PROVISIONING_ID => $domainDeployment->id,
+                    LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
+                    LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
+                    LoggingContextKeys::CUSTOMER_ID => $subscription->customer->id,
+                ],
+            );
         }
 
         return $domainDeployment;
@@ -90,11 +97,10 @@ class EventSubscriptionDataBuilder
             subscriptionUuid: $subscription->uuid,
             nameserverType: $this->dnsProductSpecRepository->isPremiumDns($subscription->product)
                 ? NameserverType::VANITY
-                : NameserverType::INTERNAL
+                : NameserverType::INTERNAL,
         );
 
-        $this->nameserverAssignerFactory->createAssigner($dnsDeployment->nameserver_type)
-            ->assign($dnsDeployment);
+        $this->nameserverAssignerFactory->createAssigner($dnsDeployment->nameserver_type)->assign($dnsDeployment);
     }
 
     public function buildOwnerAssociation(Subscription $subscription, int $contactId): void
@@ -120,20 +126,33 @@ class EventSubscriptionDataBuilder
             return false;
         }
 
-        if (! $subscription->product->productSpecs()
+        if (! $subscription
+            ->product
+            ->productSpecs()
             ->where('name', 'domain.allow_whois_private')
             ->where('value', 'yes')
-            ->exists()
-        ) {
+            ->exists()) {
             return false;
         }
 
-        return $metaData->privateWhois ?? $order->lineItems->filter(fn (OrderLineItem $item): bool => $item->domain === $domain && $item->product?->slug === 'extension_privacy_protection')->isNotEmpty();
+        return (
+            $metaData->privateWhois ?? $order
+                ->lineItems
+                ->filter(
+                    fn (OrderLineItem $item): bool => (
+                        $item->domain === $domain
+                        && $item->product?->slug === 'extension_privacy_protection'
+                    ),
+                )
+                ->isNotEmpty()
+        );
     }
 
     public function buildDnssecEnabled(Subscription $subscription): bool
     {
-        return $subscription->product->productSpecs()
+        return $subscription
+            ->product
+            ->productSpecs()
             ->where('name', ProductSpecName::DOMAIN_DNSSEC_ENABLED)
             ->where('value', 'yes')
             ->exists();
@@ -145,8 +164,7 @@ class EventSubscriptionDataBuilder
             return null;
         }
 
-        $metaData = $this->cartSerializerFactory->get()
-            ->deserialize($metaData, MetaData::class, 'json');
+        $metaData = $this->cartSerializerFactory->get()->deserialize($metaData, MetaData::class, 'json');
 
         assert($metaData instanceof ExtensionMetaData);
 

@@ -6,10 +6,10 @@ return [
     'status' => 404,
     'title' => 'Not Found',
     'detail' => 'The resource with the token "testje" could not be found.',
-   '_links' => [
-    'documentation' => [
-        'href' => 'https://docs.mollie.com/overview/handling-errors',
-        'type' => 'text/html',
+    '_links' => [
+        'documentation' => [
+            'href' => 'https://docs.mollie.com/overview/handling-errors',
+            'type' => 'text/html',
+        ],
     ],
-],
 ];

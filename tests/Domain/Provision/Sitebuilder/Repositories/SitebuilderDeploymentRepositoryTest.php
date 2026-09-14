@@ -30,31 +30,29 @@ class SitebuilderDeploymentRepositoryTest extends IntegrationTestCase
             'user_ref' => $userRef,
         ]);
 
-        $success = SitebuilderDeploymentFactory::new()
-            ->for(
-                ProvisioningRequestFactory::new()
-                    ->sitebuilder()
-                    ->state([
-                        'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-                        'context_uuid' => $contextUuid,
-                        'tag' => $tag,
-                    ])
-                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                'request'
-            )->createOne();
+        $success = SitebuilderDeploymentFactory::new()->for(
+            ProvisioningRequestFactory::new()
+                ->sitebuilder()
+                ->state([
+                    'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+                    'context_uuid' => $contextUuid,
+                    'tag' => $tag,
+                ])
+                ->has(ProvisioningResultFactory::new()->success(), 'result'),
+            'request',
+        )->createOne();
 
-        SitebuilderDeploymentFactory::new()
-            ->for(
-                ProvisioningRequestFactory::new()
-                    ->sitebuilder()
-                    ->state([
-                        'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-                        'context_uuid' => $contextUuid,
-                        'tag' => $tag,
-                    ])
-                    ->has(ProvisioningResultFactory::new()->failed(), 'result'),
-                'request'
-            )->createOne();
+        SitebuilderDeploymentFactory::new()->for(
+            ProvisioningRequestFactory::new()
+                ->sitebuilder()
+                ->state([
+                    'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+                    'context_uuid' => $contextUuid,
+                    'tag' => $tag,
+                ])
+                ->has(ProvisioningResultFactory::new()->failed(), 'result'),
+            'request',
+        )->createOne();
 
         $repository = $this->app->make(SitebuilderDeploymentRepository::class);
         $receivedDeployment = $repository->findByTag($tag);
@@ -75,31 +73,29 @@ class SitebuilderDeploymentRepositoryTest extends IntegrationTestCase
             'user_ref' => $userRef,
         ]);
 
-        SitebuilderDeploymentFactory::new()
-            ->for(
-                ProvisioningRequestFactory::new()
-                    ->sitebuilder()
-                    ->state([
-                        'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-                        'context_uuid' => $contextUuid,
-                        'tag' => $tag,
-                    ])
-                    ->has(ProvisioningResultFactory::new()->validationError(), 'result'),
-                'request'
-            )->createOne();
+        SitebuilderDeploymentFactory::new()->for(
+            ProvisioningRequestFactory::new()
+                ->sitebuilder()
+                ->state([
+                    'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+                    'context_uuid' => $contextUuid,
+                    'tag' => $tag,
+                ])
+                ->has(ProvisioningResultFactory::new()->validationError(), 'result'),
+            'request',
+        )->createOne();
 
-        SitebuilderDeploymentFactory::new()
-            ->for(
-                ProvisioningRequestFactory::new()
-                    ->sitebuilder()
-                    ->state([
-                        'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-                        'context_uuid' => $contextUuid,
-                        'tag' => $tag,
-                    ])
-                    ->has(ProvisioningResultFactory::new()->failed(), 'result'),
-                'request'
-            )->createOne();
+        SitebuilderDeploymentFactory::new()->for(
+            ProvisioningRequestFactory::new()
+                ->sitebuilder()
+                ->state([
+                    'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+                    'context_uuid' => $contextUuid,
+                    'tag' => $tag,
+                ])
+                ->has(ProvisioningResultFactory::new()->failed(), 'result'),
+            'request',
+        )->createOne();
 
         $repository = $this->app->make(SitebuilderDeploymentRepository::class);
         $receivedDeployment = $repository->findByTag($tag);

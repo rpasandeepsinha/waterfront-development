@@ -55,7 +55,11 @@ class NovaProductAllowedChangeResource extends Resource
 
     public function title(): string
     {
-        return sprintf(self::translate('nova.product-allowed-change.title'), $this->resource->fromProduct?->name, $this->resource->toProduct?->name);
+        return sprintf(
+            self::translate('nova.product-allowed-change.title'),
+            $this->resource->fromProduct?->name,
+            $this->resource->toProduct?->name,
+        );
     }
 
     public static function label(): string
@@ -78,16 +82,16 @@ class NovaProductAllowedChangeResource extends Resource
             BelongsTo::make(
                 self::translate('nova-resource-labels.product_changes.attributes.from_product'),
                 'fromProduct',
-                NovaProductResource::class
+                NovaProductResource::class,
             )->sortable(),
             BelongsTo::make(
                 self::translate('nova-resource-labels.product_changes.attributes.to_product'),
                 'toProduct',
-                NovaProductResource::class
+                NovaProductResource::class,
             )->sortable(),
             Select::make(
                 self::translate('nova-resource-labels.product_changes.attributes.change_type'),
-                'change_type'
+                'change_type',
             )
                 ->options([
                     ProductChangeType::UPGRADE->value => ucfirst(ProductChangeType::UPGRADE->value),
@@ -99,13 +103,15 @@ class NovaProductAllowedChangeResource extends Resource
                 ->rules('required'),
             Number::make(
                 self::translate('nova-resource-labels.product_changes.attributes.display_order'),
-                'display_order'
-            )->sortable()
+                'display_order',
+            )
+                ->sortable()
                 ->rules('required'),
             Boolean::class::make(
                 self::translate('nova-resource-labels.product_changes.attributes.is_available_for_customer'),
-                'is_available_for_customer'
-            )->sortable(),
+                'is_available_for_customer',
+            )
+                ->sortable(),
         ];
     }
 
@@ -114,6 +120,7 @@ class NovaProductAllowedChangeResource extends Resource
         if ($request->viaRelationship() && $request->viaResource() === NovaProductResource::class) {
             return '/resources/' . $request->viaResource . '/' . $request->viaResourceId;
         }
+
         return parent::redirectAfterCreate($request, $resource);
     }
 
@@ -122,6 +129,7 @@ class NovaProductAllowedChangeResource extends Resource
         if ($request->viaRelationship() && $request->viaResource() === NovaProductResource::class) {
             return '/resources/' . $request->viaResource . '/' . $request->viaResourceId;
         }
+
         return parent::redirectAfterUpdate($request, $resource);
     }
 
@@ -133,6 +141,7 @@ class NovaProductAllowedChangeResource extends Resource
         if (count($orderings) === 0) {
             $orderings['display_order'] = 'asc';
         }
+
         return parent::applyOrderings($query, $orderings);
     }
 
@@ -159,17 +168,19 @@ class NovaProductAllowedChangeResource extends Resource
             BelongsTo::make(
                 self::translate('nova-resource-labels.product_changes.attributes.to_product'),
                 'toProduct',
-                NovaProductResource::class
+                NovaProductResource::class,
             )->sortable(),
             Number::make(
                 self::translate('nova-resource-labels.product_changes.attributes.display_order'),
-                'display_order'
-            )->sortable()
+                'display_order',
+            )
+                ->sortable()
                 ->rules('required'),
             Boolean::class::make(
                 self::translate('nova-resource-labels.product_changes.attributes.is_available_for_customer'),
-                'is_available_for_customer'
-            )->sortable(),
+                'is_available_for_customer',
+            )
+                ->sortable(),
         ];
     }
 }

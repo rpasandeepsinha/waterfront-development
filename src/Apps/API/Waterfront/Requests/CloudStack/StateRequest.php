@@ -18,7 +18,11 @@ class StateRequest extends FormRequest
         return [
             'state' => [
                 'required',
-                Rule::in([VirtualMachineState::START->value, VirtualMachineState::STOP->value, VirtualMachineState::REBOOT->value]),
+                Rule::in([
+                    VirtualMachineState::START->value,
+                    VirtualMachineState::STOP->value,
+                    VirtualMachineState::REBOOT->value,
+                ]),
             ],
         ];
     }

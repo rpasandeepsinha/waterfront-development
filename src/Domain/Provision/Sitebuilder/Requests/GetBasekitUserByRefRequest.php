@@ -13,7 +13,7 @@ class GetBasekitUserByRefRequest extends SitebuilderProvisionRequestProvision
 
     public function __construct(
         public protected(set) UuidInterface $context,
-        public int $userRef
+        public int $userRef,
     ) {
         $this->tag = $this->context;
     }

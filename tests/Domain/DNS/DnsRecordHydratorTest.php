@@ -40,17 +40,13 @@ class DnsRecordHydratorTest extends TestCase
     {
         $this->expectException(ValidationException::class);
         $translateMessage = 'Dit veld dient een geldig fqdn te zijn.';
-        $this->mockTranslator
-            ->expects('get')
-            ->atLeast()
-            ->twice()
-            ->andReturn($translateMessage);
+        $this->mockTranslator->expects('get')->atLeast()->twice()->andReturn($translateMessage);
 
         $data = [
-            'type'    => 'A',
-            'name'    => 'googlecom',
+            'type' => 'A',
+            'name' => 'googlecom',
             'content' => '127.0.0',
-            'ttl'     => 600,
+            'ttl' => 600,
         ];
 
         $this->hydrator->hydrate($data);
@@ -60,10 +56,10 @@ class DnsRecordHydratorTest extends TestCase
     public function bypassValidation(): void
     {
         $data = [
-            'type'    => 'A',
-            'name'    => 'googlecom',
+            'type' => 'A',
+            'name' => 'googlecom',
             'content' => '127.0.0',
-            'ttl'     => 600,
+            'ttl' => 600,
         ];
 
         $record = $this->hydrator->hydrate($data, false);
@@ -79,10 +75,10 @@ class DnsRecordHydratorTest extends TestCase
     public function hydrateARecord(): void
     {
         $data = [
-            'type'     => 'A',
-            'name'     => 'google.com',
-            'content'  => '127.0.0.1',
-            'ttl'      => 600,
+            'type' => 'A',
+            'name' => 'google.com',
+            'content' => '127.0.0.1',
+            'ttl' => 600,
             'disabled' => true,
         ];
         $record = $this->hydrator->hydrate($data);
@@ -102,10 +98,10 @@ class DnsRecordHydratorTest extends TestCase
         $record = new DefaultRecord('A', 'google.com', '127.0.0.1', 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'A',
-            'name'     => 'google.com',
-            'content'  => '127.0.0.1',
-            'ttl'      => 600,
+            'type' => 'A',
+            'name' => 'google.com',
+            'content' => '127.0.0.1',
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertEqualsCanonicalizing($expected, $data);
@@ -115,10 +111,10 @@ class DnsRecordHydratorTest extends TestCase
     public function hydrateAaaaRecord(): void
     {
         $data = [
-            'type'     => 'AAAA',
-            'name'     => 'google.com',
-            'content'  => '2001:1460:2:0:1c21:1fff:fe00:1aa',
-            'ttl'      => 600,
+            'type' => 'AAAA',
+            'name' => 'google.com',
+            'content' => '2001:1460:2:0:1c21:1fff:fe00:1aa',
+            'ttl' => 600,
             'disabled' => true,
         ];
         $record = $this->hydrator->hydrate($data);
@@ -138,10 +134,10 @@ class DnsRecordHydratorTest extends TestCase
         $record = new DefaultRecord('AAAA', 'google.com', '2001:1460:2:0:1c21:1fff:fe00:1aa', 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'AAAA',
-            'name'     => 'google.com',
-            'content'  => '2001:1460:2:0:1c21:1fff:fe00:1aa',
-            'ttl'      => 600,
+            'type' => 'AAAA',
+            'name' => 'google.com',
+            'content' => '2001:1460:2:0:1c21:1fff:fe00:1aa',
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertEqualsCanonicalizing($expected, $data);
@@ -151,10 +147,10 @@ class DnsRecordHydratorTest extends TestCase
     public function hydrateCnameRecord(): void
     {
         $data = [
-            'type'     => 'CNAME',
-            'name'     => 'google.com',
-            'content'  => 'google.nl',
-            'ttl'      => 600,
+            'type' => 'CNAME',
+            'name' => 'google.com',
+            'content' => 'google.nl',
+            'ttl' => 600,
             'disabled' => true,
         ];
         $record = $this->hydrator->hydrate($data);
@@ -177,19 +173,15 @@ class DnsRecordHydratorTest extends TestCase
          * @see https://yh-jira.atlassian.net/browse/SWD-9847
          */
         $data = [
-            'type'     => 'CNAME',
-            'name'     => 'google.com',
-            'content'  => 'test,google.nl', // comma is invalid
-            'ttl'      => 600,
+            'type' => 'CNAME',
+            'name' => 'google.com',
+            'content' => 'test,google.nl', // comma is invalid
+            'ttl' => 600,
             'disabled' => true,
         ];
 
         $translateMessage = 'Dit veld dient een geldig fqdn te zijn.';
-        $this->mockTranslator
-            ->expects('get')
-            ->atLeast()
-            ->twice()
-            ->andReturn($translateMessage);
+        $this->mockTranslator->expects('get')->atLeast()->twice()->andReturn($translateMessage);
 
         $record = $this->hydrator->hydrate($data, false); // don't validate
 
@@ -214,10 +206,10 @@ class DnsRecordHydratorTest extends TestCase
         $record = new CnameRecord('google.com', 'google.nl', 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'CNAME',
-            'name'     => 'google.com',
-            'content'  => 'google.nl',
-            'ttl'      => 600,
+            'type' => 'CNAME',
+            'name' => 'google.com',
+            'content' => 'google.nl',
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertEqualsCanonicalizing($expected, $data);
@@ -259,10 +251,10 @@ class DnsRecordHydratorTest extends TestCase
     public function hydrateAliasRecord(): void
     {
         $data = [
-            'type'     => 'ALIAS',
-            'name'     => 'google.com',
-            'content'  => 'google.nl',
-            'ttl'      => 600,
+            'type' => 'ALIAS',
+            'name' => 'google.com',
+            'content' => 'google.nl',
+            'ttl' => 600,
             'disabled' => true,
         ];
         $record = $this->hydrator->hydrate($data);
@@ -285,18 +277,14 @@ class DnsRecordHydratorTest extends TestCase
          * @see https://yh-jira.atlassian.net/browse/SWD-9847
          */
         $data = [
-            'type'     => 'ALIAS',
-            'name'     => 'google.com',
-            'content'  => 'test,google.nl', // comma is invalid
-            'ttl'      => 600,
+            'type' => 'ALIAS',
+            'name' => 'google.com',
+            'content' => 'test,google.nl', // comma is invalid
+            'ttl' => 600,
             'disabled' => true,
         ];
         $translateMessage = 'Dit veld dient een geldig fqdn te zijn.';
-        $this->mockTranslator
-            ->expects('get')
-            ->atLeast()
-            ->twice()
-            ->andReturn($translateMessage);
+        $this->mockTranslator->expects('get')->atLeast()->twice()->andReturn($translateMessage);
         $record = $this->hydrator->hydrate($data, false); // don't validate
 
         self::assertInstanceOf(AliasRecord::class, $record);
@@ -320,10 +308,10 @@ class DnsRecordHydratorTest extends TestCase
         $record = new AliasRecord('google.com', 'google.nl', 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'ALIAS',
-            'name'     => 'google.com',
-            'content'  => 'google.nl',
-            'ttl'      => 600,
+            'type' => 'ALIAS',
+            'name' => 'google.com',
+            'content' => 'google.nl',
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertEqualsCanonicalizing($expected, $data);
@@ -333,11 +321,11 @@ class DnsRecordHydratorTest extends TestCase
     public function hydrateMxRecord(): void
     {
         $data = [
-            'type'     => 'MX',
-            'name'     => 'google.com',
-            'content'  => 'mx.spamservice.nl',
+            'type' => 'MX',
+            'name' => 'google.com',
+            'content' => 'mx.spamservice.nl',
             'priority' => 10,
-            'ttl'      => 600,
+            'ttl' => 600,
             'disabled' => true,
         ];
         $record = $this->hydrator->hydrate($data);
@@ -359,10 +347,10 @@ class DnsRecordHydratorTest extends TestCase
         $record = new MxRecord('google.com', 'mx.spamservice.nl', 10, 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'name'     => 'google.com',
-            'content'  => 'mx.spamservice.nl',
-            'type'     => 'MX',
-            'ttl'      => 600,
+            'name' => 'google.com',
+            'content' => 'mx.spamservice.nl',
+            'type' => 'MX',
+            'ttl' => 600,
             'disabled' => true,
             'priority' => 10,
         ];
@@ -390,10 +378,10 @@ class DnsRecordHydratorTest extends TestCase
     public function hydrateSpfRecord(): void
     {
         $data = [
-            'type'     => 'SPF',
-            'name'     => 'google.com',
-            'content'  => 'v=spf1 include:spf.spamservice.nl mx a ~all',
-            'ttl'      => 600,
+            'type' => 'SPF',
+            'name' => 'google.com',
+            'content' => 'v=spf1 include:spf.spamservice.nl mx a ~all',
+            'ttl' => 600,
             'disabled' => true,
         ];
         $record = $this->hydrator->hydrate($data);
@@ -412,10 +400,10 @@ class DnsRecordHydratorTest extends TestCase
         $record = new DefaultRecord('SPF', 'google.com', 'v=spf1 include:spf.spamservice.nl mx a ~all', 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'SPF',
-            'name'     => 'google.com',
-            'content'  => 'v=spf1 include:spf.spamservice.nl mx a ~all',
-            'ttl'      => 600,
+            'type' => 'SPF',
+            'name' => 'google.com',
+            'content' => 'v=spf1 include:spf.spamservice.nl mx a ~all',
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertEqualsCanonicalizing($expected, $data);
@@ -425,13 +413,13 @@ class DnsRecordHydratorTest extends TestCase
     public function hydrateSrvRecord(): void
     {
         $data = [
-            'type'     => 'SRV',
-            'name'     => '_sip._tcp.example.com',
-            'content'  => 'bigbox.example.com',
+            'type' => 'SRV',
+            'name' => '_sip._tcp.example.com',
+            'content' => 'bigbox.example.com',
             'priority' => 10,
-            'weight'   => 10,
-            'port'     => 5000,
-            'ttl'      => 600,
+            'weight' => 10,
+            'port' => 5000,
+            'ttl' => 600,
             'disabled' => true,
         ];
         $record = $this->hydrator->hydrate($data);
@@ -474,14 +462,14 @@ class DnsRecordHydratorTest extends TestCase
         $record = new SrvRecord('_sip._tcp.example.com', 'bigbox.example.com', 10, 10, 5000, 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'name'     => '_sip._tcp.example.com',
-            'content'  => 'bigbox.example.com',
-            'type'     => 'SRV',
-            'ttl'      => 600,
+            'name' => '_sip._tcp.example.com',
+            'content' => 'bigbox.example.com',
+            'type' => 'SRV',
+            'ttl' => 600,
             'disabled' => true,
             'priority' => 10,
-            'weight'   => 10,
-            'port'     => 5000,
+            'weight' => 10,
+            'port' => 5000,
         ];
         self::assertSame($expected, $data);
     }
@@ -490,10 +478,10 @@ class DnsRecordHydratorTest extends TestCase
     public function txtRecord(): void
     {
         $data = [
-            'type'     => 'TXT',
-            'name'     => 'google.com',
-            'content'  => 'random text',
-            'ttl'      => 600,
+            'type' => 'TXT',
+            'name' => 'google.com',
+            'content' => 'random text',
+            'ttl' => 600,
             'disabled' => true,
         ];
         $record = $this->hydrator->hydrate($data);
@@ -528,10 +516,10 @@ class DnsRecordHydratorTest extends TestCase
         $record = new DefaultRecord('TXT', 'google.com', 'random text', 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'TXT',
-            'name'     => 'google.com',
-            'content'  => 'random text',
-            'ttl'      => 600,
+            'type' => 'TXT',
+            'name' => 'google.com',
+            'content' => 'random text',
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertEqualsCanonicalizing($expected, $data);
@@ -557,10 +545,10 @@ class DnsRecordHydratorTest extends TestCase
     public function hydrateUnknownRecordType(): void
     {
         $data = [
-            'type'     => 'UNKNOWN',
-            'name'     => 'google.com',
-            'content'  => 'unknown data format',
-            'ttl'      => 600,
+            'type' => 'UNKNOWN',
+            'name' => 'google.com',
+            'content' => 'unknown data format',
+            'ttl' => 600,
             'disabled' => true,
         ];
         $record = $this->hydrator->hydrate($data);
@@ -580,10 +568,10 @@ class DnsRecordHydratorTest extends TestCase
         $record = new DefaultRecord('UNKNOWN', 'google.com', 'unknown data format', 600, true);
         $data = $this->hydrator->dehydrate($record);
         $expected = [
-            'type'     => 'UNKNOWN',
-            'name'     => 'google.com',
-            'content'  => 'unknown data format',
-            'ttl'      => 600,
+            'type' => 'UNKNOWN',
+            'name' => 'google.com',
+            'content' => 'unknown data format',
+            'ttl' => 600,
             'disabled' => true,
         ];
         self::assertEqualsCanonicalizing($expected, $data);

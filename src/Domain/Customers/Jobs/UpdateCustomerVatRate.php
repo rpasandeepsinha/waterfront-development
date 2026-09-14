@@ -35,7 +35,7 @@ class UpdateCustomerVatRate extends AbstractQueueableJob
             $vatService->updateCustomerVat($customer);
         } catch (VatFetchFailedException|VatNumberValidateFailedException $exception) {
             if ($this->attempts() < $this->tries) {
-                $nextDelay = (int) ($this->attempts() ** 2);
+                $nextDelay = (int) $this->attempts() ** 2;
                 $delayHms = gmdate('H:i:s', $nextDelay);
 
                 Log::critical(

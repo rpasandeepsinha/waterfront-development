@@ -17,7 +17,8 @@ class LinkRequest extends FormRequest
         return [
             'domains' => 'required|array',
             'domains.*.domain' => 'required',
-            'domains.*.type' => 'required', Rule::in(['owner', 'admin', 'tech']),
+            'domains.*.type' => 'required',
+            Rule::in(['owner', 'admin', 'tech']),
         ];
     }
 }

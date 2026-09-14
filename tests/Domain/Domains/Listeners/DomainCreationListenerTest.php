@@ -58,34 +58,41 @@ class DomainCreationListenerTest extends IntegrationTestCase
         $this->app->bind(DnsService::class, fn (): DnsService => self::createMock(DnsService::class));
 
         $customer = new CustomerFactory()->createOne();
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
-        $extensionGroup = new ProductGroupFactory()
-            ->extension()
-            ->createOne();
+        $extensionGroup = new ProductGroupFactory()->extension()->createOne();
 
         $product = new ProductFactory()->createOne([
             'product_group_id' => $extensionGroup->id,
-            'name'             => '.nl',
-            'slug'             => 'extension_nl',
+            'name' => '.nl',
+            'slug' => 'extension_nl',
         ]);
 
-        $this->subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'customer_id'      => $customer->id,
-            'product_uuid'     => $product->uuid,
-            'domain'           => self::DOMAIN,
-            'net_price'        => 70,
-            'gross_price'      => 1333,
-        ]);
+        $this->subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'customer_id' => $customer->id,
+                'product_uuid' => $product->uuid,
+                'domain' => self::DOMAIN,
+                'net_price' => 70,
+                'gross_price' => 1333,
+            ]);
 
         $domainContact = new DomainContactFactory()->createOne([
             'customer_id' => $customer->id,
         ]);
 
-        new DomainDeploymentFactory()->withRtrProvider()->createOne([
-            'subscription_uuid' => $this->subscription->uuid,
-            'contact_owner_id'  => $domainContact->id,
-        ]);
+        new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->createOne([
+                'subscription_uuid' => $this->subscription->uuid,
+                'contact_owner_id' => $domainContact->id,
+            ]);
 
         $dnsServiceMock = $this->mock(DnsService::class);
         $dnsServiceMock->shouldReceive('hasDnsZone')->andReturn(true);
@@ -106,28 +113,30 @@ class DomainCreationListenerTest extends IntegrationTestCase
             mailer: self::createStub(MailerInterface::class),
             logger: $mockLogger,
             rtrErrorParseService: self::resolve(RtrErrorParseService::class),
-            translator: self::resolve(TranslatorInterface::class)
+            translator: self::resolve(TranslatorInterface::class),
         );
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Initializing domain creation for subscription: {subscription.uuid} with domain: {domain.name}',
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
-                    LoggingContextKeys::DOMAIN_NAME       => self::DOMAIN,
-                ]
+                    LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                ],
             );
 
-        $mockDomainService->expects(self::once())
+        $mockDomainService
+            ->expects(self::once())
             ->method('registrationRequiresDnsBeforeSubmission')
             ->with(self::DOMAIN)
             ->willReturn(true);
 
-        $mockDomainService->expects(self::never())
-            ->method('minimalRegister');
+        $mockDomainService->expects(self::never())->method('minimalRegister');
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('debug')
             ->with(
                 'Domain tld [{product.slug}] has zone check enabled. Skipping minimal transfer/registration.',
@@ -136,7 +145,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
                     LoggingContextKeys::PRODUCT_SLUG => $this->subscription->product->slug,
                     LoggingContextKeys::PROVISIONING_TYPE => 'domain.registration',
-                ]
+                ],
             );
 
         $listener->handle(new CreateDomain(
@@ -155,15 +164,16 @@ class DomainCreationListenerTest extends IntegrationTestCase
         $registrationResult->setReason('{"domainName":"test-domain.nl"}');
 
         $mockDomainService = self::createMock(DomainService::class);
-        $mockDomainService->expects(self::once())
+        $mockDomainService
+            ->expects(self::once())
             ->method('registrationRequiresDnsBeforeSubmission')
             ->with(self::DOMAIN)
             ->willReturn(false);
 
-        $mockDomainService->expects(self::never())
-            ->method('creationRequiresPreValidation');
+        $mockDomainService->expects(self::never())->method('creationRequiresPreValidation');
 
-        $mockDomainService->expects(self::once())
+        $mockDomainService
+            ->expects(self::once())
             ->method('minimalRegister')
             ->with($this->subscription->domainDeployment)
             ->willReturn($registrationResult);
@@ -173,7 +183,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
             mailer: self::createStub(MailerInterface::class),
             logger: self::createStub(LoggerInterface::class),
             rtrErrorParseService: self::resolve(RtrErrorParseService::class),
-            translator: self::resolve(TranslatorInterface::class)
+            translator: self::resolve(TranslatorInterface::class),
         );
 
         $listener->handle(new CreateDomain(
@@ -193,12 +203,13 @@ class DomainCreationListenerTest extends IntegrationTestCase
     public function transferDomainFailed(): void
     {
         $transferResult = new TransferResult(DomainStatus::FAILED->value);
-        $transferResult->setReason($failedReason = 'Bad Request: {"message":"Incorrect authorization code","type":"ValidationError"}');
+        $transferResult->setReason(
+            $failedReason = 'Bad Request: {"message":"Incorrect authorization code","type":"ValidationError"}',
+        );
 
         $rtrClientMock = $this->createDomainProviderMock();
 
-        $rtrClientMock->expects(self::once())->method('minimalTransfer')
-            ->willReturn($transferResult);
+        $rtrClientMock->expects(self::once())->method('minimalTransfer')->willReturn($transferResult);
 
         $domainDeployment = $this->subscription->domainDeployment;
 
@@ -217,10 +228,11 @@ class DomainCreationListenerTest extends IntegrationTestCase
             mailer: self::createStub(Mailer::class),
             logger: $logger = self::createMock(LoggerInterface::class),
             rtrErrorParseService: self::resolve(RtrErrorParseService::class),
-            translator: self::resolve(TranslatorInterface::class)
+            translator: self::resolve(TranslatorInterface::class),
         );
 
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 sprintf(
@@ -233,7 +245,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
                     LoggingContextKeys::SUBSCRIPTION_ID => $domainDeployment->subscription->id,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
                     LoggingContextKeys::PROVISIONING_ID => $domainDeployment->id,
-                ]
+                ],
             );
 
         try {
@@ -245,7 +257,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
             self::assertNotNull($domainDeployment->last_result_received);
             self::assertSame(
                 'Bad Request: {"message":"Incorrect authorization code","type":"ValidationError"}',
-                $domainDeployment->last_result
+                $domainDeployment->last_result,
             );
         }
     }
@@ -266,9 +278,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
 
         $rtrClientMock = $this->createDomainProviderMock();
 
-        $rtrClientMock->expects(self::once())
-            ->method('minimalTransfer')
-            ->willReturn($transferResult);
+        $rtrClientMock->expects(self::once())->method('minimalTransfer')->willReturn($transferResult);
 
         $domainDeployment = $this->subscription->domainDeployment;
 
@@ -286,10 +296,11 @@ class DomainCreationListenerTest extends IntegrationTestCase
             mailer: self::createStub(Mailer::class),
             logger: $logger = self::createMock(LoggerInterface::class),
             rtrErrorParseService: self::resolve(RtrErrorParseService::class),
-            translator: self::resolve(TranslatorInterface::class)
+            translator: self::resolve(TranslatorInterface::class),
         );
 
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 sprintf(
@@ -302,7 +313,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
                     LoggingContextKeys::SUBSCRIPTION_ID => $domainDeployment->subscription->id,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
                     LoggingContextKeys::PROVISIONING_ID => $domainDeployment->id,
-                ]
+                ],
             );
 
         $listener->handle($event);
@@ -312,7 +323,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
         self::assertNotNull($domainDeployment->last_result_received);
         self::assertSame(
             $exceptionReason,
-            $domainDeployment->last_result
+            $domainDeployment->last_result,
         );
     }
 
@@ -339,7 +350,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
             mailer: self::resolve(Mailer::class),
             logger: self::resolve(LoggerInterface::class),
             rtrErrorParseService: self::resolve(RtrErrorParseService::class),
-            translator: self::resolve(TranslatorInterface::class)
+            translator: self::resolve(TranslatorInterface::class),
         );
 
         $listener->failed($event, new LogicException());
@@ -364,18 +375,11 @@ class DomainCreationListenerTest extends IntegrationTestCase
 
         $mockDomainProvider = $this->createMock(RtrService::class);
 
-        $mockDomainProvider
-            ->expects(self::once())
-            ->method('minimalRegister')
-            ->willReturn($registrationResult);
+        $mockDomainProvider->expects(self::once())->method('minimalRegister')->willReturn($registrationResult);
 
-        $mockDomainProvider
-            ->method('setHandle')
-            ->willReturnSelf();
+        $mockDomainProvider->method('setHandle')->willReturnSelf();
 
-        $mockDomainProvider
-            ->method('setClient')
-            ->willReturnSelf();
+        $mockDomainProvider->method('setClient')->willReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $mockDomainProvider);
 
@@ -394,10 +398,11 @@ class DomainCreationListenerTest extends IntegrationTestCase
             mailer: self::createStub(Mailer::class),
             logger: $logger = self::createMock(LoggerInterface::class),
             rtrErrorParseService: self::resolve(RtrErrorParseService::class),
-            translator: self::resolve(TranslatorInterface::class)
+            translator: self::resolve(TranslatorInterface::class),
         );
 
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 sprintf(
@@ -410,7 +415,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
                     LoggingContextKeys::SUBSCRIPTION_ID => $domainDeployment->subscription->id,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
                     LoggingContextKeys::PROVISIONING_ID => $domainDeployment->id,
-                ]
+                ],
             );
 
         $listener->handle($event);
@@ -420,7 +425,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
         self::assertNotNull($domainDeployment->last_result_received);
         self::assertSame(
             $exceptionReason,
-            $domainDeployment->last_result
+            $domainDeployment->last_result,
         );
     }
 
@@ -429,13 +434,12 @@ class DomainCreationListenerTest extends IntegrationTestCase
     {
         $transferResult = new TransferResult(DomainStatus::ACTIVE->value);
         $transferResult->setReason(
-            '{"domainName":"test-domain.nl","status":"completed","requestedDate":"2022-12-15T00:00:00Z","expiryDate":"2022-12-15T00:00:00Z","type":"IN"}'
+            '{"domainName":"test-domain.nl","status":"completed","requestedDate":"2022-12-15T00:00:00Z","expiryDate":"2022-12-15T00:00:00Z","type":"IN"}',
         );
 
         $rtrClientMock = $this->createDomainProviderMock();
 
-        $rtrClientMock->expects(self::once())->method('minimalTransfer')
-            ->willReturn($transferResult);
+        $rtrClientMock->expects(self::once())->method('minimalTransfer')->willReturn($transferResult);
 
         $domainDeployment = $this->subscription->domainDeployment;
 
@@ -453,7 +457,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
             mailer: self::createStub(Mailer::class),
             logger: self::resolve(LoggerInterface::class),
             rtrErrorParseService: self::resolve(RtrErrorParseService::class),
-            translator: self::resolve(TranslatorInterface::class)
+            translator: self::resolve(TranslatorInterface::class),
         );
 
         $listener->handle($event);
@@ -464,7 +468,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
         self::assertNotNull($domainDeployment->last_result_received);
         self::assertSame(
             '{"domainName":"test-domain.nl","status":"completed","requestedDate":"2022-12-15T00:00:00Z","expiryDate":"2022-12-15T00:00:00Z","type":"IN"}',
-            $domainDeployment->last_result
+            $domainDeployment->last_result,
         );
     }
 
@@ -476,17 +480,11 @@ class DomainCreationListenerTest extends IntegrationTestCase
 
         $rtrMock = self::createMock(RtrService::class);
 
-        $rtrMock
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrMock->method('setHandle')->willReturnSelf();
 
-        $rtrMock
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrMock->method('setClient')->willReturnSelf();
 
-        $rtrMock->expects(self::once())
-            ->method('minimalRegister')
-            ->willReturn($registrationResult);
+        $rtrMock->expects(self::once())->method('minimalRegister')->willReturn($registrationResult);
 
         $this->app->bind(RtrService::class, fn () => $rtrMock);
 
@@ -507,7 +505,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
             mailer: self::createStub(Mailer::class),
             logger: self::resolve(LoggerInterface::class),
             rtrErrorParseService: self::resolve(RtrErrorParseService::class),
-            translator: self::resolve(TranslatorInterface::class)
+            translator: self::resolve(TranslatorInterface::class),
         );
 
         $listener->handle($event);
@@ -518,7 +516,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
         self::assertNotNull($domainDeployment->last_result_received);
         self::assertSame(
             '{"domainName":"test-domain.nl","expiryDate":"2022-12-15T00:00:00Z"}',
-            $domainDeployment->last_result
+            $domainDeployment->last_result,
         );
     }
 
@@ -532,17 +530,11 @@ class DomainCreationListenerTest extends IntegrationTestCase
 
         $rtrMock = self::createMock(RtrService::class);
 
-        $rtrMock
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrMock->method('setHandle')->willReturnSelf();
 
-        $rtrMock
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrMock->method('setClient')->willReturnSelf();
 
-        $rtrMock->expects(self::once())
-            ->method('minimalRegister')
-            ->willReturn($registrationResult);
+        $rtrMock->expects(self::once())->method('minimalRegister')->willReturn($registrationResult);
 
         $this->app->singleton(RtrService::class, fn () => $rtrMock);
 
@@ -550,7 +542,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
 
         $payment = new PaymentFactory()->createOne([
             'customer_uuid' => $this->subscription->customer->uuid,
-            'status'        => PaymentStatus::PAID,
+            'status' => PaymentStatus::PAID,
         ]);
 
         $order->payments()->save($payment);
@@ -558,9 +550,9 @@ class DomainCreationListenerTest extends IntegrationTestCase
 
         new OrderLineItemFactory()->createOne([
             'subscription_uuid' => $this->subscription->uuid,
-            'order_id'          => $order->id,
-            'domain'            => $this->subscription->domain,
-            'product_uuid'      => $this->subscription->product->uuid,
+            'order_id' => $order->id,
+            'domain' => $this->subscription->domain,
+            'product_uuid' => $this->subscription->product->uuid,
         ]);
         $domainDeployment = $this->subscription->domainDeployment;
         self::assertInstanceOf(DomainDeployment::class, $domainDeployment);
@@ -580,15 +572,16 @@ class DomainCreationListenerTest extends IntegrationTestCase
             mailer: self::createStub(Mailer::class),
             logger: $logger = self::createMock(LoggerInterface::class),
             rtrErrorParseService: self::resolve(RtrErrorParseService::class),
-            translator: self::resolve(TranslatorInterface::class)
+            translator: self::resolve(TranslatorInterface::class),
         );
 
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 sprintf(
                     'Domain registration status: FAI. Reason: %s',
-                    $failedReason
+                    $failedReason,
                 ),
                 [
                     LoggingContextKeys::DOMAIN_NAME => $domainDeployment->subscription->domain,
@@ -596,7 +589,7 @@ class DomainCreationListenerTest extends IntegrationTestCase
                     LoggingContextKeys::SUBSCRIPTION_ID => $domainDeployment->subscription->id,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
                     LoggingContextKeys::PROVISIONING_ID => $domainDeployment->id,
-                ]
+                ],
             );
 
         $listener->handle($event);
@@ -606,13 +599,9 @@ class DomainCreationListenerTest extends IntegrationTestCase
     {
         $mockDomainProvider = $this->createMock(RtrService::class);
 
-        $mockDomainProvider
-            ->method('setHandle')
-            ->willReturnSelf();
+        $mockDomainProvider->method('setHandle')->willReturnSelf();
 
-        $mockDomainProvider
-            ->method('setClient')
-            ->willReturnSelf();
+        $mockDomainProvider->method('setClient')->willReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $mockDomainProvider);
 

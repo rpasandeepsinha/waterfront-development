@@ -88,7 +88,8 @@ class UserClientTest extends TestCase
     public function updateUser(): void
     {
         $mock = self::createMock(CloudStackBaseClient::class);
-        $mock->expects(self::once())
+        $mock
+            ->expects(self::once())
             ->method('execute')
             ->with('updateUser', ['id' => 'baz', 'password' => 'bar'])
             ->willReturn([
@@ -106,10 +107,16 @@ class UserClientTest extends TestCase
     #[Test]
     public function listAllVirtualMachines(): void
     {
-        $listVirtualMachineResponse = json_decode((string) file_get_contents(__DIR__ . '/data/listvirtualmachines.json'), true, 512, JSON_THROW_ON_ERROR);
+        $listVirtualMachineResponse = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/listvirtualmachines.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
         $mock = self::createMock(CloudStackBaseClient::class);
-        $mock->expects(self::once())
+        $mock
+            ->expects(self::once())
             ->method('execute')
             ->with('listVirtualMachines', ['listall' => true])
             ->willReturn($listVirtualMachineResponse);
@@ -127,7 +134,8 @@ class UserClientTest extends TestCase
         $listVirtualMachineResponse = [];
 
         $mock = self::createMock(CloudStackBaseClient::class);
-        $mock->expects(self::once())
+        $mock
+            ->expects(self::once())
             ->method('execute')
             ->with('listVirtualMachines', ['listall' => true])
             ->willReturn($listVirtualMachineResponse);

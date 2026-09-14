@@ -19,7 +19,7 @@ class MicrosoftOnlineClientServiceProvider extends BaseProvider
         ], 'config');
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/config.php',
-            'microsoftonlineclient'
+            'microsoftonlineclient',
         );
     }
 

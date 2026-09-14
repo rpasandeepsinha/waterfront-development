@@ -9,8 +9,9 @@ use Waterfront\Infra\Validation\AbstractValidator;
 
 class TlsaContent extends AbstractValidator
 {
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     protected function passes(string $attribute, mixed $value): bool
@@ -19,7 +20,7 @@ class TlsaContent extends AbstractValidator
         $formatCorrect = (bool) preg_match(
             '/^(?P<usage>0|1|2|3) (?P<selector>0|1) (?P<type>0|1|2) (?P<hash>[^ ]+)$/',
             $value,
-            $parsed
+            $parsed,
         );
 
         if (! $formatCorrect) {

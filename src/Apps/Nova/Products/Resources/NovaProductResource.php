@@ -76,7 +76,8 @@ class NovaProductResource extends Resource
 
         if ($this->resource->exists) {
             $productGroupSlug = $this->resource->productGroup->slug;
-            $isFree = str_starts_with($this->resource->slug, 'free-')
+            $isFree =
+                str_starts_with($this->resource->slug, 'free-')
                 || str_starts_with($this->resource->slug, 'free_')
                 || str_ends_with($this->resource->slug, '-free')
                 || str_ends_with($this->resource->slug, '_free');
@@ -86,16 +87,12 @@ class NovaProductResource extends Resource
             BelongsTo::make(
                 self::translate('product.relations.product_group'),
                 'productGroup',
-                NovaProductGroupResource::class
+                NovaProductGroupResource::class,
             )->sortable(),
 
-            Text::make(self::translate('product.attributes.uuid'), 'uuid')
-                ->onlyOnDetail()
-                ->copyable(),
+            Text::make(self::translate('product.attributes.uuid'), 'uuid')->onlyOnDetail()->copyable(),
 
-            Text::make(self::translate('product.attributes.name'), 'name')
-                ->rules('required')
-                ->sortable(),
+            Text::make(self::translate('product.attributes.name'), 'name')->rules('required')->sortable(),
 
             Text::make(self::translate('product.attributes.slug'), 'slug')
                 ->rules('required', 'alpha_dash')
@@ -106,17 +103,14 @@ class NovaProductResource extends Resource
 
             Textarea::make(self::translate('product.attributes.description'), 'description'),
 
-            NovaBoolField::make(self::translate('product.attributes.orderable'), 'orderable')
-                ->sortable(),
+            NovaBoolField::make(self::translate('product.attributes.orderable'), 'orderable')->sortable(),
 
-            Number::make(self::translate('product.attributes.weight'), 'weight')
-                ->rules('required')
-                ->sortable(),
+            Number::make(self::translate('product.attributes.weight'), 'weight')->rules('required')->sortable(),
 
             HasMany::make(
                 self::translate('product-spec.plural'),
                 'productSpecs',
-                NovaProductSpecResource::class
+                NovaProductSpecResource::class,
             ),
 
             /**
@@ -134,7 +128,7 @@ class NovaProductResource extends Resource
             HasMany::make(
                 ucfirst(self::translate('product.relations.product_allowed_changes.downgrade')),
                 'allowedProductDowngrades',
-                NovaProductAllowedChangeResource::class
+                NovaProductAllowedChangeResource::class,
             ),
 
             /**
@@ -143,15 +137,14 @@ class NovaProductResource extends Resource
             HasMany::make(
                 ucfirst(self::translate('product.relations.product_allowed_changes.reinstall')),
                 'allowedProductReinstalls',
-                NovaProductAllowedChangeResource::class
-            )
-            ->onlyOnDetail(),
+                NovaProductAllowedChangeResource::class,
+            )->onlyOnDetail(),
 
             /** @uses Product::productPromotions() */
             HasMany::make(
                 ucfirst(self::translate('product-promotions.plural')),
                 'productPromotions',
-                NovaProductPromotionsResource::class
+                NovaProductPromotionsResource::class,
             ),
 
             /**
@@ -160,17 +153,19 @@ class NovaProductResource extends Resource
             HasMany::make(
                 'CloudStack environments',
                 'cloudstackEnvironments',
-                NovaCloudStackEnvironmentProductResource::class
+                NovaCloudStackEnvironmentProductResource::class,
             )->canSee(
-                fn (): bool => $productGroupSlug === ProductGroupType::CLOUDSTACK_VIRTUAL_MACHINE
+                fn (): bool => (
+                    $productGroupSlug === ProductGroupType::CLOUDSTACK_VIRTUAL_MACHINE
                     || $productGroupSlug === ProductGroupType::CLOUDSTACK_OS
                     || $productGroupSlug === ProductGroupType::VPS
+                ),
             ),
 
             BelongsToMany::make(
                 self::translate('product-parent.attach'),
                 'parents',
-                NovaProductResource::class
+                NovaProductResource::class,
             )
                 ->onlyOnDetail()
                 ->canSee(fn () => $productGroupSlug === ProductGroupType::ADD_ON),
@@ -181,7 +176,7 @@ class NovaProductResource extends Resource
             HasManyThrough::make(
                 self::translate('microsoft365-kpn-products.plural'),
                 'microsoft365KpnProducts',
-                NovaMicrosoft365KpnProductsResource::class
+                NovaMicrosoft365KpnProductsResource::class,
             )->onlyOnDetail(),
         ];
     }

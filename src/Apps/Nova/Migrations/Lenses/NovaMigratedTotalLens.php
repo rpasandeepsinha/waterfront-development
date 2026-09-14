@@ -25,37 +25,39 @@ class NovaMigratedTotalLens extends Lens
     {
         $batchValue = self::getBatchGroupFilterValue($request);
 
-        return $request->withOrdering($request->withFilters(
-            $query->select([
-                'reference_name' => 'mc_orig.reference_name',
+        return $request->withOrdering(
+            $request->withFilters(
+                $query
+                    ->select([
+                        'reference_name' => 'mc_orig.reference_name',
 
-                'migrated_customers_count' =>
-                    DB::table('migrated_customers', 'mc')
-                        ->selectRaw('count(distinct mc.reference_customer_number)')
-                        ->whereRaw('mc.reference_name = mc_orig.reference_name')
-                        ->when(
-                            $batchValue !== null,
-                            fn ($query) => $query->where('mc.group_type', $batchValue)
-                        ),
+                        'migrated_customers_count' => DB::table('migrated_customers', 'mc')
+                            ->selectRaw('count(distinct mc.reference_customer_number)')
+                            ->whereRaw('mc.reference_name = mc_orig.reference_name')
+                            ->when(
+                                $batchValue !== null,
+                                fn ($query) => $query->where('mc.group_type', $batchValue),
+                            ),
 
-                'migrated_subscriptions_count' =>
-                    DB::table('migrated_customers', 'mc')
-                        ->selectRaw('count(distinct ms.reference_subscription_id)')
-                        ->leftJoin('customer_migrated_customer as cmc', 'cmc.migrated_customer_id', '=', 'mc.id')
-                        ->leftJoin('customers as c', 'cmc.customer_id', '=', 'c.id')
-                        ->leftJoin('subscriptions as s', 'c.id', '=', 's.customer_id')
-                        ->leftJoin('migrated_subscription_subscription as mss', 'mss.subscription_id', '=', 's.id')
-                        ->leftJoin('migrated_subscriptions as ms', 'mss.migrated_subscription_id', '=', 'ms.id')
-                        ->whereRaw('mc.reference_name = mc_orig.reference_name')
-                        ->when(
-                            $batchValue !== null,
-                            fn ($query) => $query->where('mc.group_type', $batchValue)
-                        ),
-            ])
-                ->from('migrated_customers', 'mc_orig')
-                ->groupBy('mc_orig.reference_name')
-                ->orderBy('mc_orig.reference_name')
-        ), fn ($query) => $query->orderBy('mc_orig.reference_name', 'desc'));
+                        'migrated_subscriptions_count' => DB::table('migrated_customers', 'mc')
+                            ->selectRaw('count(distinct ms.reference_subscription_id)')
+                            ->leftJoin('customer_migrated_customer as cmc', 'cmc.migrated_customer_id', '=', 'mc.id')
+                            ->leftJoin('customers as c', 'cmc.customer_id', '=', 'c.id')
+                            ->leftJoin('subscriptions as s', 'c.id', '=', 's.customer_id')
+                            ->leftJoin('migrated_subscription_subscription as mss', 'mss.subscription_id', '=', 's.id')
+                            ->leftJoin('migrated_subscriptions as ms', 'mss.migrated_subscription_id', '=', 'ms.id')
+                            ->whereRaw('mc.reference_name = mc_orig.reference_name')
+                            ->when(
+                                $batchValue !== null,
+                                fn ($query) => $query->where('mc.group_type', $batchValue),
+                            ),
+                    ])
+                    ->from('migrated_customers', 'mc_orig')
+                    ->groupBy('mc_orig.reference_name')
+                    ->orderBy('mc_orig.reference_name'),
+            ),
+            fn ($query) => $query->orderBy('mc_orig.reference_name', 'desc'),
+        );
     }
 
     /**
@@ -118,7 +120,7 @@ class NovaMigratedTotalLens extends Lens
         /** @var string|null $batchValue */
         $batchValue = Arr::get(
             $filters,
-            '0.' . NovaMigrationTotalBatchFilter::class
+            '0.' . NovaMigrationTotalBatchFilter::class,
         );
 
         if ($batchValue === null || $batchValue === '') {

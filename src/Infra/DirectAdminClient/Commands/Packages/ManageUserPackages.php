@@ -184,6 +184,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setCron(string $cron): ManageUserPackages
     {
         $this->cron = $cron;
+
         return $this;
     }
 
@@ -195,6 +196,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setSysinfo(string $sysinfo): ManageUserPackages
     {
         $this->sysinfo = $sysinfo;
+
         return $this;
     }
 
@@ -206,6 +208,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setSkin(string $skin): ManageUserPackages
     {
         $this->skin = $skin;
+
         return $this;
     }
 
@@ -217,6 +220,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setLanguage(string $language): ManageUserPackages
     {
         $this->language = $language;
+
         return $this;
     }
 
@@ -268,6 +272,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setAftp(string $aftp): ManageUserPackages
     {
         $this->aftp = $aftp;
+
         return $this;
     }
 
@@ -279,6 +284,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setCgi(string $cgi): ManageUserPackages
     {
         $this->cgi = $cgi;
+
         return $this;
     }
 
@@ -290,6 +296,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setDnscontrol(string $dnscontrol): ManageUserPackages
     {
         $this->dnscontrol = $dnscontrol;
+
         return $this;
     }
 
@@ -301,6 +308,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setBandwidth(string $bandwidth): ManageUserPackages
     {
         $this->bandwidth = $bandwidth;
+
         return $this;
     }
 
@@ -312,6 +320,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setDomainptr(string $domainptr): ManageUserPackages
     {
         $this->domainptr = $domainptr;
+
         return $this;
     }
 
@@ -323,6 +332,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setFtp(string $ftp): ManageUserPackages
     {
         $this->ftp = $ftp;
+
         return $this;
     }
 
@@ -334,6 +344,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setIps(int $ips): ManageUserPackages
     {
         $this->ips = $ips;
+
         return $this;
     }
 
@@ -345,6 +356,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setMysql(string $mysql): ManageUserPackages
     {
         $this->mysql = $mysql;
+
         return $this;
     }
 
@@ -356,6 +368,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setNemailf(string $nemailf): ManageUserPackages
     {
         $this->nemailf = $nemailf;
+
         return $this;
     }
 
@@ -367,6 +380,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setNemailml(string $nemailml): ManageUserPackages
     {
         $this->nemailml = $nemailml;
+
         return $this;
     }
 
@@ -378,6 +392,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setNemailr(string $nemailr): ManageUserPackages
     {
         $this->nemailr = $nemailr;
+
         return $this;
     }
 
@@ -389,6 +404,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setNemails(string $nemails): ManageUserPackages
     {
         $this->nemails = $nemails;
+
         return $this;
     }
 
@@ -400,6 +416,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setNsubdomains(string $nsubdomains): ManageUserPackages
     {
         $this->nsubdomains = $nsubdomains;
+
         return $this;
     }
 
@@ -411,6 +428,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setQuota(string $quota): ManageUserPackages
     {
         $this->quota = $quota;
+
         return $this;
     }
 
@@ -422,6 +440,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setServerip(string $serverip): ManageUserPackages
     {
         $this->serverip = $serverip;
+
         return $this;
     }
 
@@ -433,6 +452,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setSsh(string $ssh): ManageUserPackages
     {
         $this->ssh = $ssh;
+
         return $this;
     }
 
@@ -444,6 +464,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setUserssh(string $userssh): ManageUserPackages
     {
         $this->userssh = $userssh;
+
         return $this;
     }
 
@@ -455,6 +476,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setSsl(string $ssl): ManageUserPackages
     {
         $this->ssl = $ssl;
+
         return $this;
     }
 
@@ -466,6 +488,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setVdomains(string $vdomains): ManageUserPackages
     {
         $this->vdomains = $vdomains;
+
         return $this;
     }
 
@@ -477,6 +500,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setPackagename(string $packagename): ManageUserPackages
     {
         $this->packagename = $packagename;
+
         return $this;
     }
 
@@ -488,6 +512,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setPhp(string $php): ManageUserPackages
     {
         $this->php = $php;
+
         return $this;
     }
 
@@ -499,6 +524,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setSpam(string $spam): ManageUserPackages
     {
         $this->spam = $spam;
+
         return $this;
     }
 
@@ -510,6 +536,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setCatchall(string $catchall): ManageUserPackages
     {
         $this->catchall = $catchall;
+
         return $this;
     }
 
@@ -521,6 +548,7 @@ class ManageUserPackages extends DirectAdminCommand
     public function setSuspendAtLimit(string $suspend_at_limit): ManageUserPackages
     {
         $this->suspend_at_limit = $suspend_at_limit;
+
         return $this;
     }
 

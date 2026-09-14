@@ -11,7 +11,7 @@ readonly class MigratableBulkCustomerState implements MigrationTypeADFPayload
     public function __construct(
         public MigrationStep $migrationStep,
         public string $referenceName,
-        public int|null $waterfrontCustomerId,
+        public ?int $waterfrontCustomerId,
     ) {
     }
 

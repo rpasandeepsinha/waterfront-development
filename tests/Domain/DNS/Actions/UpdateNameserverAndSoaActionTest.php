@@ -28,8 +28,11 @@ class UpdateNameserverAndSoaActionTest extends IntegrationTestCase
      */
     #[DataProvider('nameserverAndSoaRecords')]
     #[Test]
-    public function zoneWithLegacyRecordsWillBeReplaced(bool $expectUpdate, array $originalNsRecords, ?string $originalSoaRecord = null): void
-    {
+    public function zoneWithLegacyRecordsWillBeReplaced(
+        bool $expectUpdate,
+        array $originalNsRecords,
+        ?string $originalSoaRecord = null,
+    ): void {
         $domainName = 'sandwave.io';
         $nameservers = [
             new Nameserver('ns1.cldin.net'),
@@ -47,16 +50,16 @@ class UpdateNameserverAndSoaActionTest extends IntegrationTestCase
         if ($originalSoaRecord !== null) {
             $dnsZone->addRecord(new DefaultRecord('SOA', $domainName, $originalSoaRecord, 86400));
         }
+
         foreach ($originalNsRecords as $nsRecord) {
             $dnsZone->addRecord(new DefaultRecord('NS', $domainName, $nsRecord, 86400));
         }
 
         $dnsService = self::createMock(DnsService::class);
-        $dnsService->expects(self::once())
-            ->method('getDnsZone')
-            ->willReturn($dnsZone);
+        $dnsService->expects(self::once())->method('getDnsZone')->willReturn($dnsZone);
 
-        $dnsService->expects($expectUpdate ? self::once() : self::never())
+        $dnsService
+            ->expects($expectUpdate ? self::once() : self::never())
             ->method('applyDiffToZone')
             ->with($dnsZone, self::callback(function (DnsZoneDiff $diff) use ($domainName, $originalSoaRecord) {
                 self::assertCount(4, $diff->getChanges());
@@ -65,7 +68,10 @@ class UpdateNameserverAndSoaActionTest extends IntegrationTestCase
                     $soaDiff = new AddedDnsRecord(new DefaultRecord('SOA', $domainName, 'ns1.cldin.net', 86400));
                     self::assertContainsEquals($soaDiff, $diff->getAddedRows());
                 } else {
-                    $soaDiff = new ChangedDnsRecord(new DefaultRecord('SOA', $domainName, $originalSoaRecord, 86400), new DefaultRecord('SOA', $domainName, 'ns1.cldin.net', 86400));
+                    $soaDiff = new ChangedDnsRecord(
+                        new DefaultRecord('SOA', $domainName, $originalSoaRecord, 86400),
+                        new DefaultRecord('SOA', $domainName, 'ns1.cldin.net', 86400),
+                    );
                     self::assertContainsEquals($soaDiff, $diff->getChangedRows());
                 }
 
@@ -73,7 +79,8 @@ class UpdateNameserverAndSoaActionTest extends IntegrationTestCase
             }));
 
         $dnsZoneFactory = self::createMock(DnsZoneFactoryInterface::class);
-        $dnsZoneFactory->expects($expectUpdate ? self::once() : self::never())
+        $dnsZoneFactory
+            ->expects($expectUpdate ? self::once() : self::never())
             ->method('create')
             ->with(
                 $domainName,

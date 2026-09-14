@@ -41,9 +41,12 @@ class GetAllServicesTest extends IntegrationTestCase
             'name' => '.com',
             'slug' => 'com_domain',
         ]);
-        $subscription = new SubscriptionFactory()->for($product)->for($this->customer)->createOne([
-            'domain' => '',
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($this->customer)
+            ->createOne([
+                'domain' => '',
+            ]);
 
         $groupHosting = new ProductGroupFactory()->hosting()->createOne();
 
@@ -52,38 +55,45 @@ class GetAllServicesTest extends IntegrationTestCase
             'slug' => 'hosting_basic',
         ]);
 
-        $productPriceHosting = new ProductPriceComponentFactory()->for($productHosting)->registration()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 120,
-        ]);
-        new ProductPriceComponentFactory()->for($productHosting)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
-
-        new ProductPriceComponentFactory()->for($productHosting)->prolongation()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 120,
-        ]);
-
-        new SubscriptionFactory()->for($productHosting)->for($this->customer)->createOne([
-            'domain' => self::DOMAIN,
-            'gross_price' => $productPriceHosting->price,
-            'net_price' => $productPriceHosting->price,
-            'technical_status' => DomainStatus::ACTIVE->value,
-            'contract_period' => 12,
-            'billing_period' => 12,
-        ]);
-
-        new DomainDeploymentFactory()
-            ->for(new ProviderFactory()
-                ->domainOpenProvider()
-                ->createOne())
+        $productPriceHosting = new ProductPriceComponentFactory()
+            ->for($productHosting)
+            ->registration()
             ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 120,
+            ]);
+        new ProductPriceComponentFactory()->for($productHosting)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
+
+        new ProductPriceComponentFactory()
+            ->for($productHosting)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 120,
+            ]);
+
+        new SubscriptionFactory()
+            ->for($productHosting)
+            ->for($this->customer)
+            ->createOne([
+                'domain' => self::DOMAIN,
+                'gross_price' => $productPriceHosting->price,
+                'net_price' => $productPriceHosting->price,
+                'technical_status' => DomainStatus::ACTIVE->value,
+                'contract_period' => 12,
+                'billing_period' => 12,
+            ]);
+
+        new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne())->createOne([
             'subscription_uuid' => $subscription->uuid,
         ]);
 
-        $response = $this
-            ->actingAsCustomer($this->customer)
+        $response = $this->actingAsCustomer($this->customer)
             ->getJson($this->generateRoute('partners.subscriptions.index'))
             ->assertOk()
             ->assertJson(['data' => [['domain' => self::DOMAIN]]])

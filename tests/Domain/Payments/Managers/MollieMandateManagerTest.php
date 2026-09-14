@@ -49,7 +49,7 @@ class MollieMandateManagerTest extends IntegrationTestCase
         $this->mollieMandateManager = new MollieMandateManager(
             self::resolve(MollieMandateClient::class),
             self::resolve(LoggerInterface::class),
-            $this->mandateReferenceGenerator
+            $this->mandateReferenceGenerator,
         );
 
         $customer = new CustomerFactory()->createOne();
@@ -63,12 +63,11 @@ class MollieMandateManagerTest extends IntegrationTestCase
     public function createDirectDebitMandateExistingAtMollie(): void
     {
         Http::fake([
-            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" =>
-                function (Request $request) {
-                    self::assertSame('GET', $request->method());
+            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" => function (Request $request) {
+                self::assertSame('GET', $request->method());
 
-                    return Http::response(include __DIR__ . '/data/mandates/list_mandates_existing_response.php');
-                },
+                return Http::response(include __DIR__ . '/data/mandates/list_mandates_existing_response.php');
+            },
         ]);
 
         $externalMollieMandate = $this->mollieMandateManager->findOrCreateMandate(
@@ -78,7 +77,7 @@ class MollieMandateManagerTest extends IntegrationTestCase
                 consumerAccount: 'NL18RABO0123459876',
                 signatureDate: '2012-09-05',
                 consumerBic: 'RABONL2U',
-            )
+            ),
         );
 
         $mandates = $this->mollieCustomer->mandates()->get();
@@ -96,12 +95,11 @@ class MollieMandateManagerTest extends IntegrationTestCase
     public function createPaypalMandateExistingAtMollie(): void
     {
         Http::fake([
-            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" =>
-                function (Request $request) {
-                    self::assertSame('GET', $request->method());
+            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" => function (Request $request) {
+                self::assertSame('GET', $request->method());
 
-                    return Http::response(include __DIR__ . '/data/mandates/list_mandates_existing_response.php');
-                },
+                return Http::response(include __DIR__ . '/data/mandates/list_mandates_existing_response.php');
+            },
         ]);
 
         $externalMollieMandate = $this->mollieMandateManager->findOrCreateMandate(
@@ -111,7 +109,7 @@ class MollieMandateManagerTest extends IntegrationTestCase
                 consumerEmail: 'test@test.com',
                 paypalBillingAgreementId: 'asdfasdf',
                 signatureDate: '2023-09-05',
-            )
+            ),
         );
 
         $mandates = $this->mollieCustomer->mandates()->get();
@@ -128,36 +126,32 @@ class MollieMandateManagerTest extends IntegrationTestCase
     #[Test]
     public function createDirectDebitMandateNew(): void
     {
-        $this->mandateReferenceGenerator
-            ->expects(self::once())
-            ->method('generateMandateReference')
-            ->willReturn('C1M1');
+        $this->mandateReferenceGenerator->expects(self::once())->method('generateMandateReference')->willReturn('C1M1');
 
         Http::fake([
-            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" =>
-                function (Request $request) {
-                    if ($request->method() === 'GET') {
-                        return Http::response(include __DIR__ . '/data/mandates/list_mandates_no_mandates_response.php');
-                    }
+            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" => function (Request $request) {
+                if ($request->method() === 'GET') {
+                    return Http::response(include __DIR__ . '/data/mandates/list_mandates_no_mandates_response.php');
+                }
 
-                    if ($request->method() === 'POST') {
-                        self::assertSame(
-                            [
-                                'method' => 'directdebit',
-                                'consumerName' => 'John',
-                                'consumerAccount' => 'NL18RABO0123459876',
-                                'signatureDate' => '2023-09-05',
-                                'consumerBic' => 'RABONL2U',
-                                'mandateReference' => 'C1M1',
-                            ],
-                            $request->data()
-                        );
+                if ($request->method() === 'POST') {
+                    self::assertSame(
+                        [
+                            'method' => 'directdebit',
+                            'consumerName' => 'John',
+                            'consumerAccount' => 'NL18RABO0123459876',
+                            'signatureDate' => '2023-09-05',
+                            'consumerBic' => 'RABONL2U',
+                            'mandateReference' => 'C1M1',
+                        ],
+                        $request->data(),
+                    );
 
-                        return Http::response(include __DIR__ . '/data/mandates/create_mandate_directdebit_response.php');
-                    }
+                    return Http::response(include __DIR__ . '/data/mandates/create_mandate_directdebit_response.php');
+                }
 
-                    self::fail('Unknown request');
-                },
+                self::fail('Unknown request');
+            },
         ]);
 
         $mandates = $this->mollieCustomer->mandates()->get();
@@ -171,7 +165,7 @@ class MollieMandateManagerTest extends IntegrationTestCase
                 consumerAccount: 'NL18RABO0123459876',
                 signatureDate: '2023-09-05',
                 consumerBic: 'RABONL2U',
-            )
+            ),
         );
 
         $mandates = $this->mollieCustomer->mandates()->get();
@@ -189,36 +183,32 @@ class MollieMandateManagerTest extends IntegrationTestCase
     #[Test]
     public function createPaypalMandateNew(): void
     {
-        $this->mandateReferenceGenerator
-            ->expects(self::once())
-            ->method('generateMandateReference')
-            ->willReturn('C1M1');
+        $this->mandateReferenceGenerator->expects(self::once())->method('generateMandateReference')->willReturn('C1M1');
 
         Http::fake([
-            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" =>
-                function (Request $request) {
-                    if ($request->method() === 'GET') {
-                        return Http::response(include __DIR__ . '/data/mandates/list_mandates_no_mandates_response.php');
-                    }
+            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" => function (Request $request) {
+                if ($request->method() === 'GET') {
+                    return Http::response(include __DIR__ . '/data/mandates/list_mandates_no_mandates_response.php');
+                }
 
-                    if ($request->method() === 'POST') {
-                        self::assertSame(
-                            [
-                                'method' => 'paypal',
-                                'consumerName' => 'John',
-                                'consumerEmail' => 'tessdfgs',
-                                'paypalBillingAgreementId' => 'asdfasdf',
-                                'signatureDate' => '2023-09-05',
-                                'mandateReference' => 'C1M1',
-                            ],
-                            $request->data()
-                        );
+                if ($request->method() === 'POST') {
+                    self::assertSame(
+                        [
+                            'method' => 'paypal',
+                            'consumerName' => 'John',
+                            'consumerEmail' => 'tessdfgs',
+                            'paypalBillingAgreementId' => 'asdfasdf',
+                            'signatureDate' => '2023-09-05',
+                            'mandateReference' => 'C1M1',
+                        ],
+                        $request->data(),
+                    );
 
-                        return Http::response(include __DIR__ . '/data/mandates/create_mandate_paypal_response.php');
-                    }
+                    return Http::response(include __DIR__ . '/data/mandates/create_mandate_paypal_response.php');
+                }
 
-                    self::fail('Unknown request');
-                },
+                self::fail('Unknown request');
+            },
         ]);
 
         $mandates = $this->mollieCustomer->mandates()->get();
@@ -232,7 +222,7 @@ class MollieMandateManagerTest extends IntegrationTestCase
                 consumerEmail: 'tessdfgs',
                 paypalBillingAgreementId: 'asdfasdf',
                 signatureDate: '2023-09-05',
-            )
+            ),
         );
 
         $mandates = $this->mollieCustomer->mandates()->get();
@@ -267,7 +257,7 @@ class MollieMandateManagerTest extends IntegrationTestCase
 
         $mollieMandate = $this->mollieMandateManager->getMandate(
             $this->mollieCustomer,
-            $mollieMandateModel
+            $mollieMandateModel,
         );
 
         self::assertSame('mdt_Uq9stfyFwz', $mollieMandate->id);
@@ -285,12 +275,11 @@ class MollieMandateManagerTest extends IntegrationTestCase
     public function listMandates(): void
     {
         Http::fake([
-            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" =>
-                function (Request $request) {
-                    self::assertSame('GET', $request->method());
+            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" => function (Request $request) {
+                self::assertSame('GET', $request->method());
 
-                    return Http::response(include __DIR__ . '/data/mandates/list_mandates_response.php');
-                },
+                return Http::response(include __DIR__ . '/data/mandates/list_mandates_response.php');
+            },
         ]);
 
         $mollieMandates = $this->mollieMandateManager->listMandates($this->mollieCustomer);

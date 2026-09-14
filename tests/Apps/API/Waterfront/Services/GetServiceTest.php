@@ -26,42 +26,54 @@ class GetServiceTest extends IntegrationTestCase
 
         ProviderFactory::new()->domainOpenProvider()->createOne();
 
-        $extensionProduct = new ProductFactory()->nlDomain()->for(new ProductGroupFactory()->extension()->createOne())->createOne();
+        $extensionProduct = new ProductFactory()
+            ->nlDomain()
+            ->for(new ProductGroupFactory()->extension()->createOne())
+            ->createOne();
 
-        new ProductPriceComponentFactory()->for($extensionProduct)->prolongation()->createMany([
-            [
-                'billing_period' => 24,
-                'contract_period' => 24,
-                'price' => 1008,
-            ], [
-                'billing_period' => 12,
-                'contract_period' => 12,
-                'price' => 1008,
-            ],
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($extensionProduct)
+            ->prolongation()
+            ->createMany([
+                [
+                    'billing_period' => 24,
+                    'contract_period' => 24,
+                    'price' => 1008,
+                ],
+                [
+                    'billing_period' => 12,
+                    'contract_period' => 12,
+                    'price' => 1008,
+                ],
+            ]);
 
         $extensionPrice = ProductPriceComponent::where('product_id', $extensionProduct->id)->firstOrFail();
 
-        $subscription = new SubscriptionFactory()->for($extensionProduct)->for($customer)->createOne([
-            'gross_price' => $extensionPrice->price,
-            'net_price' => $extensionPrice->price,
-            'technical_status' => DomainStatus::ACTIVE->value,
-            'contract_period' => 12,
-            'billing_period' => 12,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($extensionProduct)
+            ->for($customer)
+            ->createOne([
+                'gross_price' => $extensionPrice->price,
+                'net_price' => $extensionPrice->price,
+                'technical_status' => DomainStatus::ACTIVE->value,
+                'contract_period' => 12,
+                'billing_period' => 12,
+            ]);
 
-        $response = $this
-            ->actingAsCustomer($customer)
+        $response = $this->actingAsCustomer($customer)
             ->getJson($this->generateRoute('partners.subscriptions.show', ['subscription' => $subscription->uuid]))
             ->assertOk();
 
-        self::assertSame([
-            'view',
-            'cancel',
-            'manageDomain',
-            'canChangeContract',
-            'suspendSubscription',
-            'extendContract',
-        ], $response->json('data.available_actions'));
+        self::assertSame(
+            [
+                'view',
+                'cancel',
+                'manageDomain',
+                'canChangeContract',
+                'suspendSubscription',
+                'extendContract',
+            ],
+            $response->json('data.available_actions'),
+        );
     }
 }

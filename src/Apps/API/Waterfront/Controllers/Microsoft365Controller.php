@@ -63,7 +63,10 @@ class Microsoft365Controller
         $customerInfo = $this->customerInfoRepository->findActiveByCustomer($customer);
         $subscriptionUuid = $request->input('subscription');
         Assert::string($subscriptionUuid);
-        $domainDeployment = $this->domainDeploymentRepository->getActiveDomainDeploymentBySubscriptionUuidAndCustomer($customer, $subscriptionUuid);
+        $domainDeployment = $this->domainDeploymentRepository->getActiveDomainDeploymentBySubscriptionUuidAndCustomer(
+            $customer,
+            $subscriptionUuid,
+        );
 
         if ($customerInfo === null) {
             return new JsonResponse(
@@ -71,17 +74,23 @@ class Microsoft365Controller
                     'message' => $this->translator->translate('microsoft365.validation.customer-info-not-found'),
                     'errors' => [],
                 ],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
 
-        if (! in_array($customerInfo->primary_domain_status, PrimaryDomainStatus::allowedToChangeDomainStatus(), true)) {
+        if (! in_array(
+            $customerInfo->primary_domain_status,
+            PrimaryDomainStatus::allowedToChangeDomainStatus(),
+            true,
+        )) {
             return new JsonResponse(
                 [
-                    'message' => $this->translator->translate('microsoft365.validation.status-not-allowed-to-update-domain'),
+                    'message' => $this->translator->translate(
+                        'microsoft365.validation.status-not-allowed-to-update-domain',
+                    ),
                     'errors' => [],
                 ],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
 
@@ -91,7 +100,7 @@ class Microsoft365Controller
                     'message' => $this->translator->translate('microsoft365.validation.domain-not-found'),
                     'errors' => [],
                 ],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
 
@@ -100,7 +109,7 @@ class Microsoft365Controller
         return new JsonResponse(
             [
                 'message' => $this->translator->translate('microsoft365.primary-domain-coupled-success'),
-            ]
+            ],
         );
     }
 
@@ -121,7 +130,7 @@ class Microsoft365Controller
                     'message' => $this->translator->translate('microsoft365.error.customer-not-ready'),
                     'errors' => [],
                 ],
-                Response::HTTP_SERVICE_UNAVAILABLE
+                Response::HTTP_SERVICE_UNAVAILABLE,
             );
         } catch (MicrosoftCustomerAgreementException) {
             return new JsonResponse(
@@ -129,7 +138,7 @@ class Microsoft365Controller
                     'message' => $this->translator->translate('microsoft365.error.mca-url-retrieval-failed'),
                     'errors' => [],
                 ],
-                Response::HTTP_SERVICE_UNAVAILABLE
+                Response::HTTP_SERVICE_UNAVAILABLE,
             );
         }
 
@@ -156,7 +165,7 @@ class Microsoft365Controller
                     'message' => $this->translator->translate('microsoft365.error.mca-url-retrieval-failed'),
                     'errors' => [],
                 ],
-                Response::HTTP_SERVICE_UNAVAILABLE
+                Response::HTTP_SERVICE_UNAVAILABLE,
             );
         }
 
@@ -170,7 +179,7 @@ class Microsoft365Controller
                         ],
                     ],
                 ],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
 

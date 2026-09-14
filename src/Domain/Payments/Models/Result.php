@@ -34,7 +34,7 @@ class Result
 
     public static function create(array $data): Result
     {
-        $data = array_filter($data);
+        $data = array_filter($data, fn (mixed $value): bool => (bool) $value);
 
         $hydrator = new Hydrator();
 

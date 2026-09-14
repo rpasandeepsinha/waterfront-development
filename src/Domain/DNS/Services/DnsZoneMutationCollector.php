@@ -97,8 +97,8 @@ class DnsZoneMutationCollector
                 $soaRecord->getName(),
                 PowerDnsSoaSerialUpdater::increaseSoaSerial($content),
                 $soaRecord->getTtl() ?? 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
     }
 
@@ -109,7 +109,7 @@ class DnsZoneMutationCollector
             $domain,
             "$nameserver->hostname.",
             3600,
-            disabled: false
+            disabled: false,
         );
     }
 
@@ -122,6 +122,7 @@ class DnsZoneMutationCollector
         }
 
         $content = substr($content, $nameserverWithSpacePos + 1);
+
         return "$nameserver->hostname. $content";
     }
 }

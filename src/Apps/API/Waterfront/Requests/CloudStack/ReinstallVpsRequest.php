@@ -16,7 +16,7 @@ class ReinstallVpsRequest extends FormRequest
     {
         return [
             'os_product_uuid' => ['required', 'uuid', 'exists:products,uuid'],
-            'ssh_key_uuid'    => ['nullable', 'uuid', Rule::exists('cloudstack_vm_ssh_keys', 'uuid')],
+            'ssh_key_uuid' => ['nullable', 'uuid', Rule::exists('cloudstack_vm_ssh_keys', 'uuid')],
         ];
     }
 }

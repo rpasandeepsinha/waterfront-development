@@ -44,7 +44,9 @@ class NovaAnonymizeCustomerAction extends Action
         }
 
         if ($customer->anonymized_at !== null) {
-            return self::danger($this->translator->translate('nova-action.anonymize-customer.error.already-anonymized'));
+            return self::danger($this->translator->translate(
+                'nova-action.anonymize-customer.error.already-anonymized',
+            ));
         }
 
         try {
@@ -64,8 +66,9 @@ class NovaAnonymizeCustomerAction extends Action
     public function fields(NovaRequest $request): array
     {
         return [
-            NovaBoolField::make('Confirm', 'confirm_check')
-                ->help($this->translator->translate('nova-action.anonymize-customer.confirmtext')),
+            NovaBoolField::make('Confirm', 'confirm_check')->help($this->translator->translate(
+                'nova-action.anonymize-customer.confirmtext',
+            )),
         ];
     }
 }

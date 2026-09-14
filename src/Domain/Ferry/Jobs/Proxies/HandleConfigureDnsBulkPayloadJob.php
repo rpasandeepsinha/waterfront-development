@@ -36,8 +36,9 @@ class HandleConfigureDnsBulkPayloadJob extends AbstractQueueableJob
     /**
      * @param array<int, array<mixed>> $configureDnsPayloads
      */
-    public function __construct(private readonly array $configureDnsPayloads)
-    {
+    public function __construct(
+        private readonly array $configureDnsPayloads,
+    ) {
         parent::__construct();
     }
 
@@ -76,13 +77,16 @@ class HandleConfigureDnsBulkPayloadJob extends AbstractQueueableJob
 
             $migratedCustomer = $customer->migratedCustomers->first();
             if (! $migratedCustomer instanceof MigratedCustomer) {
-                $logger->warning('No migrated customer found for existing customer in ferry configure dns bulk migrations proxy job. Was this customer ID part of the migration? Skipping this payload.', [
-                    LoggingContextKeys::QUEUE_JOB_ID => $this->job?->getJobId(),
-                    LoggingContextKeys::CUSTOMER_ID => $waterfrontCustomerId,
-                    LoggingContextKeys::META => [
-                        'array_key' => $key,
+                $logger->warning(
+                    'No migrated customer found for existing customer in ferry configure dns bulk migrations proxy job. Was this customer ID part of the migration? Skipping this payload.',
+                    [
+                        LoggingContextKeys::QUEUE_JOB_ID => $this->job?->getJobId(),
+                        LoggingContextKeys::CUSTOMER_ID => $waterfrontCustomerId,
+                        LoggingContextKeys::META => [
+                            'array_key' => $key,
+                        ],
                     ],
-                ]);
+                );
                 continue;
             }
 
@@ -90,7 +94,7 @@ class HandleConfigureDnsBulkPayloadJob extends AbstractQueueableJob
                 customer: $customer,
                 migratableSubscriptionRepository: $migratableSubscriptionRepository,
                 subscriptionMigrationValidator: $subscriptionMigrationValidator,
-                responseDto: $responseDto
+                responseDto: $responseDto,
             );
 
             if (! $subscriptions->isEmpty()) {
@@ -106,16 +110,18 @@ class HandleConfigureDnsBulkPayloadJob extends AbstractQueueableJob
                     message: AzureDataFactoryMessage::create(
                         $messageType,
                         [
-                            ...$adfPayloadService->fetchTechnicalMigrationBulkCustomerStatePayload(
-                                customer: $customer,
-                                migratedCustomer: $migratedCustomer,
-                                migrationStep: MigrationStep::CONFIGURE_DNS
-                            )->toArray(),
+                            ...$adfPayloadService
+                                ->fetchTechnicalMigrationBulkCustomerStatePayload(
+                                    customer: $customer,
+                                    migratedCustomer: $migratedCustomer,
+                                    migrationStep: MigrationStep::CONFIGURE_DNS,
+                                )
+                                ->toArray(),
                             ...$validationPayload,
-                        ]
+                        ],
                     ),
-                    reference: $migratedCustomer->reference_customer_number
-                )
+                    reference: $migratedCustomer->reference_customer_number,
+                ),
             );
         }
 
@@ -139,22 +145,28 @@ class HandleConfigureDnsBulkPayloadJob extends AbstractQueueableJob
         Customer $customer,
         MigratableSubscriptionRepository $migratableSubscriptionRepository,
         SubscriptionMigrationValidator $subscriptionMigrationValidator,
-        ResponseDto $responseDto
+        ResponseDto $responseDto,
     ): Collection {
-        return $migratableSubscriptionRepository->getSubscriptionsForConfigureDnsMigration($customer)
+        return $migratableSubscriptionRepository
+            ->getSubscriptionsForConfigureDnsMigration($customer)
             ->filter(function ($subscription) use ($customer, $subscriptionMigrationValidator, $responseDto) {
                 try {
                     $subscriptionMigrationValidator->validateEligibleForDomainMigration($subscription);
                 } catch (NotEligibleForMigrationException $e) {
                     $responseDto->addFailure($this->makeFailureDto($e, $customer, $subscription));
+
                     return false;
                 }
+
                 return true;
             });
     }
 
-    private function makeFailureDto(NotEligibleForMigrationException $e, Customer $customer, Subscription $subscription): FailureDto
-    {
+    private function makeFailureDto(
+        NotEligibleForMigrationException $e,
+        Customer $customer,
+        Subscription $subscription,
+    ): FailureDto {
         return FailureDto::create(
             sprintf('Configure DNS migration step not allowed for subscription: %s', $e->getMessage()),
             [
@@ -173,7 +185,13 @@ class HandleConfigureDnsBulkPayloadJob extends AbstractQueueableJob
             'Created jobs to configure DNS zone for every eligible subscription',
             [
                 Parameter::create('customerId', $customer->id),
-                Parameter::create('subscriptionIds', $subscriptions->map(fn ($s) => $s->id)->sort()->join(',')),
+                Parameter::create(
+                    'subscriptionIds',
+                    $subscriptions
+                        ->map(fn ($s) => $s->id)
+                        ->sort()
+                        ->join(','),
+                ),
             ],
         );
     }
@@ -189,8 +207,8 @@ class HandleConfigureDnsBulkPayloadJob extends AbstractQueueableJob
             throw new UnexpectedValueException(
                 sprintf(
                     'Value for %s needs to be a number',
-                    $key
-                )
+                    $key,
+                ),
             );
         }
 

@@ -39,11 +39,14 @@ class CustomerBulkControllerTest extends IntegrationTestCase
 
         $productGroupExtension = ProductGroupFactory::new()->extension()->createOne();
         $domainProduct = ProductFactory::new()->for($productGroupExtension)->createOne(['slug' => 'extension_com']);
-        new ProductPriceComponentFactory()->for($domainProduct)->prolongation()->createOne([
-            'contract_period' => 12,
-            'billing_period' => 12,
-            'price' => 500,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($domainProduct)
+            ->prolongation()
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 500,
+            ]);
     }
 
     #[Test]
@@ -112,18 +115,21 @@ class CustomerBulkControllerTest extends IntegrationTestCase
         $expectedWebhookPayload2 = include __DIR__ . '/data/customer_webhook_2.php';
         $expectedUrl = sprintf('%s/api/ConsumeFerryResponse', $apiUrl);
 
-        Http::shouldReceive('post')
-            ->withArgs(function ($url, $payload) use ($expectedUrl, $expectedWebhookPayload, $expectedWebhookPayload2) {
-                self::assertSame($expectedUrl, $url);
+        Http::shouldReceive('post')->withArgs(function ($url, $payload) use (
+            $expectedUrl,
+            $expectedWebhookPayload,
+            $expectedWebhookPayload2,
+        ) {
+            self::assertSame($expectedUrl, $url);
 
-                if ($payload['data']['reference_name'] === 'testNr01') {
-                    $expectedWebhookPayload['data']['waterfront_customer_id'] = $payload['data']['waterfront_customer_id'];
-                    self::assertSame($expectedWebhookPayload, $payload);
-                } else {
-                    $expectedWebhookPayload2['data']['waterfront_customer_id'] = $payload['data']['waterfront_customer_id'];
-                    self::assertSame($expectedWebhookPayload2, $payload);
-                }
-            });
+            if ($payload['data']['reference_name'] === 'testNr01') {
+                $expectedWebhookPayload['data']['waterfront_customer_id'] = $payload['data']['waterfront_customer_id'];
+                self::assertSame($expectedWebhookPayload, $payload);
+            } else {
+                $expectedWebhookPayload2['data']['waterfront_customer_id'] = $payload['data']['waterfront_customer_id'];
+                self::assertSame($expectedWebhookPayload2, $payload);
+            }
+        });
 
         Http::shouldReceive('withHeaders')->andReturnSelf();
 
@@ -131,15 +137,13 @@ class CustomerBulkControllerTest extends IntegrationTestCase
 
         Queue::fake([CreateDirectDebitMandateJob::class]);
 
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create.bulk'),
-                $postData,
-                [
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create.bulk'),
+            $postData,
+            [
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertStatus(Response::HTTP_MULTI_STATUS);
 
@@ -148,7 +152,9 @@ class CustomerBulkControllerTest extends IntegrationTestCase
         $customer = Customer::where('email', $email)->firstOrFail();
         $customer2 = Customer::where('email', $email2)->firstOrFail();
 
-        Queue::assertPushed(CreateDirectDebitMandateJob::class, function (CreateDirectDebitMandateJob $job) use ($customer): bool {
+        Queue::assertPushed(CreateDirectDebitMandateJob::class, function (CreateDirectDebitMandateJob $job) use (
+            $customer,
+        ): bool {
             self::assertSame($customer->id, $job->customer->id);
             self::assertSame('John Doe', $job->mollieMandateDirectDebitCreateDTO->consumerName);
             self::assertSame('NL18RABO0123459876', $job->mollieMandateDirectDebitCreateDTO->consumerAccount);
@@ -281,15 +287,13 @@ class CustomerBulkControllerTest extends IntegrationTestCase
     #[Test]
     public function thatBulkCreateCorporateCustomerReturnsUnProcessable(): void
     {
-        $response = $this
-            ->actingAsSystem()
-            ->postJson(
-                $this->generateRoute('ferry.customers.create.bulk'),
-                ['something invalid'],
-                [
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem()->postJson(
+            $this->generateRoute('ferry.customers.create.bulk'),
+            ['something invalid'],
+            [
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
         $response->assertStatus(422);
     }

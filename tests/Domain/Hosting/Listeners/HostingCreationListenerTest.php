@@ -48,7 +48,8 @@ class HostingCreationListenerTest extends IntegrationTestCase
         $hostingService = self::mock(HostingService::class);
         $logger = self::mock(LoggerInterface::class);
 
-        $logger->shouldReceive('info')
+        $logger
+            ->shouldReceive('info')
             ->once()
             ->with(
                 'Creating Hosting for subscription {subscription.uuid}',
@@ -62,10 +63,11 @@ class HostingCreationListenerTest extends IntegrationTestCase
                         'hosting.contact_person_name' => $event->contactPersonName,
                         'hosting.contact_email' => $event->contactEmail,
                     ],
-                ]
+                ],
             );
 
-        $hostingService->shouldReceive('create')
+        $hostingService
+            ->shouldReceive('create')
             ->once()
             ->with(
                 $event->subscriptionUuid,
@@ -75,7 +77,7 @@ class HostingCreationListenerTest extends IntegrationTestCase
                 $event->customer,
                 $event->serverId,
                 null,
-                $event->domain
+                $event->domain,
             );
 
         $listener = new HostingCreationListener($hostingService, $logger);

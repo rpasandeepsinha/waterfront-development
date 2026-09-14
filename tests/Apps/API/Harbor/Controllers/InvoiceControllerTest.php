@@ -27,10 +27,9 @@ class InvoiceControllerTest extends IntegrationTestCase
     #[Test]
     public function creditRequestWithoutCorrectHarborApiKeyReturnsHttpForbidden(): void
     {
-        $response = $this
-            ->post(
-                $this->generateRoute('harbor.invoice.credit'),
-                [
+        $response = $this->post(
+            $this->generateRoute('harbor.invoice.credit'),
+            [
                 'invoicesToCredit' => [
                     [
                         'waterfrontInvoiceId' => 1,
@@ -40,17 +39,16 @@ class InvoiceControllerTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            );
+        );
         $response->assertUnauthorized();
     }
 
     #[Test]
     public function creditRequestReturnsHttpFoundResponseWhenNoDataIsGiven(): void
     {
-        $response = $this->actingAsSystem()
-            ->post(
-                $this->generateRoute('harbor.invoice.credit')
-            );
+        $response = $this->actingAsSystem()->post(
+            $this->generateRoute('harbor.invoice.credit'),
+        );
         $response->assertUnprocessable();
 
         $exception = $response->exception;
@@ -70,18 +68,19 @@ class InvoiceControllerTest extends IntegrationTestCase
     #[Test]
     public function creditRequestReturnsHttpFoundResponseWhenIncorrectWaterfrontInvoiceIdTypeIsGiven(): void
     {
-        $response = $this->actingAsSystem()
-            ->post(
-                $this->generateRoute('harbor.invoice.credit'),
-                [ 'invoicesToCredit' => [
-                [
-                    'waterfrontInvoiceId' => true,
-                    'amountToCredit' => 1,
-                    'shouldCreateNewInvoice' => 1,
-                    'creditReason' => null,
+        $response = $this->actingAsSystem()->post(
+            $this->generateRoute('harbor.invoice.credit'),
+            [
+                'invoicesToCredit' => [
+                    [
+                        'waterfrontInvoiceId' => true,
+                        'amountToCredit' => 1,
+                        'shouldCreateNewInvoice' => 1,
+                        'creditReason' => null,
+                    ],
                 ],
-            ] ],
-            );
+            ],
+        );
 
         $response->assertUnprocessable();
         $exception = $response->exception;
@@ -101,18 +100,19 @@ class InvoiceControllerTest extends IntegrationTestCase
     #[Test]
     public function creditRequestReturnsHttpFoundResponseWhenGivenInvoiceIdDoesNotExist(): void
     {
-        $response = $this->actingAsSystem()
-            ->post(
-                $this->generateRoute('harbor.invoice.credit'),
-                [ 'invoicesToCredit' => [
-                [
-                    'waterfrontInvoiceId' => 1,
-                    'amountToCredit' => 1,
-                    'shouldCreateNewInvoice' => false,
-                    'creditReason' => null,
+        $response = $this->actingAsSystem()->post(
+            $this->generateRoute('harbor.invoice.credit'),
+            [
+                'invoicesToCredit' => [
+                    [
+                        'waterfrontInvoiceId' => 1,
+                        'amountToCredit' => 1,
+                        'shouldCreateNewInvoice' => false,
+                        'creditReason' => null,
+                    ],
                 ],
-            ] ],
-            );
+            ],
+        );
 
         $response->assertUnprocessable();
         $exception = $response->exception;
@@ -138,18 +138,19 @@ class InvoiceControllerTest extends IntegrationTestCase
             ->for($product)
             ->createOne();
 
-        $response = $this->actingAsSystem()
-            ->post(
-                $this->generateRoute('harbor.invoice.credit'),
-                [ 'invoicesToCredit' => [
-                [
-                    'waterfrontInvoiceId' => $invoice->id,
-                    'amountToCredit' => 1,
-                    'shouldCreateNewInvoice' => new stdClass(),
-                    'creditReason' => $invoice->credit_reason,
+        $response = $this->actingAsSystem()->post(
+            $this->generateRoute('harbor.invoice.credit'),
+            [
+                'invoicesToCredit' => [
+                    [
+                        'waterfrontInvoiceId' => $invoice->id,
+                        'amountToCredit' => 1,
+                        'shouldCreateNewInvoice' => new stdClass(),
+                        'creditReason' => $invoice->credit_reason,
+                    ],
                 ],
-            ] ],
-            );
+            ],
+        );
 
         $response->assertUnprocessable();
         $exception = $response->exception;
@@ -176,10 +177,12 @@ class InvoiceControllerTest extends IntegrationTestCase
             'name' => $productGroup->slug,
         ]);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'customer_id' => $customer->id,
-            'product_uuid' => $product->uuid,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'customer_id' => $customer->id,
+                'product_uuid' => $product->uuid,
+            ]);
         $invoices = array_map(
             fn (): Invoice => new InvoiceFactory()
                 ->for($customer)
@@ -191,24 +194,23 @@ class InvoiceControllerTest extends IntegrationTestCase
                     'gross_price' => 0,
                     'net_price' => 0,
                 ]),
-            range(0, 2)
+            range(0, 2),
         );
 
-        $response = $this->actingAsSystem()
-            ->post(
-                $this->generateRoute('harbor.invoice.credit'),
-                [
+        $response = $this->actingAsSystem()->post(
+            $this->generateRoute('harbor.invoice.credit'),
+            [
                 'invoicesToCredit' => array_map(
                     fn (Invoice $invoice): array => [
                         'waterfrontInvoiceId' => $invoice->id,
                         'amountToCredit' => 0,
-                        'shouldCreateNewInvoice' => $invoice->id % 2 === 0,
+                        'shouldCreateNewInvoice' => ($invoice->id % 2) === 0,
                         'creditReason' => $invoice->credit_reason,
                     ],
-                    $invoices
+                    $invoices,
                 ),
             ],
-            );
+        );
 
         self::assertNull($response->exception);
     }
@@ -222,10 +224,12 @@ class InvoiceControllerTest extends IntegrationTestCase
             'product_group_id' => $productGroup->id,
             'name' => $productGroup->slug,
         ]);
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'customer_id' => $customer->id,
-            'product_uuid' => $product->uuid,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'customer_id' => $customer->id,
+                'product_uuid' => $product->uuid,
+            ]);
         $invoices = array_map(
             fn (): Invoice => new InvoiceFactory()
                 ->for($customer)
@@ -237,24 +241,23 @@ class InvoiceControllerTest extends IntegrationTestCase
                     'ledger_code' => $productGroup->ledger_code,
                     'credit_reason' => InvoiceLineCreditReason::REASON_OTHER,
                 ]),
-            range(0, 2)
+            range(0, 2),
         );
 
-        $response = $this->actingAsSystem()
-            ->post(
-                $this->generateRoute('harbor.invoice.credit'),
-                [
+        $response = $this->actingAsSystem()->post(
+            $this->generateRoute('harbor.invoice.credit'),
+            [
                 'invoicesToCredit' => array_map(
                     fn (Invoice $invoice): array => [
                         'waterfrontInvoiceId' => $invoice->id,
                         'amountToCredit' => 1,
-                        'shouldCreateNewInvoice' => $invoice->id % 2 === 0,
+                        'shouldCreateNewInvoice' => ($invoice->id % 2) === 0,
                         'creditReason' => $invoice->credit_reason?->value,
                     ],
-                    $invoices
+                    $invoices,
                 ),
             ],
-            );
+        );
 
         self::assertNull($response->exception);
 
@@ -271,10 +274,12 @@ class InvoiceControllerTest extends IntegrationTestCase
             'name' => $productGroup->slug,
         ]);
         $product->delete();
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'customer_id' => $customer->id,
-            'product_uuid' => $product->uuid,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'customer_id' => $customer->id,
+                'product_uuid' => $product->uuid,
+            ]);
         $invoices = array_map(
             fn (): Invoice => new InvoiceFactory()
                 ->for($customer)
@@ -286,24 +291,23 @@ class InvoiceControllerTest extends IntegrationTestCase
                     'ledger_code' => $productGroup->ledger_code,
                     'credit_reason' => InvoiceLineCreditReason::REASON_OTHER,
                 ]),
-            range(0, 2)
+            range(0, 2),
         );
 
-        $response = $this->actingAsSystem()
-            ->post(
-                $this->generateRoute('harbor.invoice.credit'),
-                [
-                    'invoicesToCredit' => array_map(
-                        fn (Invoice $invoice): array => [
-                            'waterfrontInvoiceId' => $invoice->id,
-                            'amountToCredit' => 1,
-                            'shouldCreateNewInvoice' => $invoice->id % 2 === 0,
-                            'creditReason' => $invoice->credit_reason?->value,
-                        ],
-                        $invoices
-                    ),
-                ],
-            );
+        $response = $this->actingAsSystem()->post(
+            $this->generateRoute('harbor.invoice.credit'),
+            [
+                'invoicesToCredit' => array_map(
+                    fn (Invoice $invoice): array => [
+                        'waterfrontInvoiceId' => $invoice->id,
+                        'amountToCredit' => 1,
+                        'shouldCreateNewInvoice' => ($invoice->id % 2) === 0,
+                        'creditReason' => $invoice->credit_reason?->value,
+                    ],
+                    $invoices,
+                ),
+            ],
+        );
 
         self::assertNull($response->exception);
 

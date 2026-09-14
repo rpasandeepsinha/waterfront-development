@@ -46,7 +46,7 @@ class MailOnlyServiceFactory
             default => throw new DriverNotDefinedException(sprintf(
                 'Could not resolve a driver from a hosting server ID: {%d} with hostname: {%s}',
                 $server->id,
-                $server->hostname
+                $server->hostname,
             )),
         };
     }

@@ -50,7 +50,12 @@ class ResellerHostingTest extends IntegrationTestCase
             'name' => 'Reseller Hosting',
         ]);
 
-        $this->hostingProvider = ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        $this->hostingProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
     }
 
     #[Test]
@@ -77,18 +82,24 @@ class ResellerHostingTest extends IntegrationTestCase
             'provider_id' => $this->hostingProvider->id,
         ]);
 
-        $subscriptionCanceled = new SubscriptionFactory()->for($this->customer)->for($resellerProduct)->createOne([
-            'administrative_status' => AdministrativeStatus::CANCELED->value,
-        ]);
+        $subscriptionCanceled = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($resellerProduct)
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::CANCELED->value,
+            ]);
 
         new ResellerHostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscriptionCanceled->uuid,
             'provider_id' => $this->hostingProvider->id,
         ]);
 
-        $subscriptionDeleted = new SubscriptionFactory()->for($this->customer)->for($resellerProduct)->createOne([
-            'administrative_status' => AdministrativeStatus::ARCHIVED->value,
-        ]);
+        $subscriptionDeleted = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($resellerProduct)
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::ARCHIVED->value,
+            ]);
 
         new ResellerHostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscriptionDeleted->uuid,
@@ -107,8 +118,7 @@ class ResellerHostingTest extends IntegrationTestCase
             ->for($theBestProduct)
             ->createOne();
 
-        $response = $this
-            ->actingAsCustomer($this->customer)
+        $response = $this->actingAsCustomer($this->customer)
             ->json('GET', $this->generateRoute('partners.reseller-hosting.index'))
             ->assertOk()
             ->assertJsonFragment([
@@ -125,8 +135,7 @@ class ResellerHostingTest extends IntegrationTestCase
     #[Test]
     public function listPackagesNotFound(): void
     {
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->getJson($this->generateRoute('partners.reseller-hosting.index'))
             ->assertOk()
             ->assertJsonFragment(['data' => []]);
@@ -138,9 +147,7 @@ class ResellerHostingTest extends IntegrationTestCase
         $expectedUrl = 'https://directadmin.sso.testing:1337/login-hash';
 
         $mockClient = self::createMock(DirectAdminClient::class);
-        $mockClient->expects(self::once())
-            ->method('createLoginUrl')
-            ->willReturn($expectedUrl);
+        $mockClient->expects(self::once())->method('createLoginUrl')->willReturn($expectedUrl);
 
         $this->app->bind(DirectAdminClient::class, fn () => $mockClient);
 
@@ -160,8 +167,7 @@ class ResellerHostingTest extends IntegrationTestCase
             'provider_id' => $this->hostingProvider->id,
         ]);
 
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->getJson($this->generateRoute('partners.reseller-hosting.sso', $subscription->uuid))
             ->assertOk()
             ->assertJsonFragment(['url' => $expectedUrl]);
@@ -171,8 +177,7 @@ class ResellerHostingTest extends IntegrationTestCase
     public function showPackage(): void
     {
         $subscription = $this->createSubscription();
-        $response = $this
-            ->actingAsCustomer($this->customer)
+        $response = $this->actingAsCustomer($this->customer)
             ->getJson($this->generateRoute('partners.reseller-hosting.show', $subscription->uuid))
             ->assertOk()
             ->assertJsonFragment([
@@ -196,12 +201,14 @@ class ResellerHostingTest extends IntegrationTestCase
 
         $customer2 = new CustomerFactory()->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'customer_id' => $customer2->id,
-            'product_uuid' => $resellerProduct->uuid,
-            'start_date' => CarbonImmutable::now(),
-            'end_date' => CarbonImmutable::now(),
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'customer_id' => $customer2->id,
+                'product_uuid' => $resellerProduct->uuid,
+                'start_date' => CarbonImmutable::now(),
+                'end_date' => CarbonImmutable::now(),
+            ]);
 
         new ResellerHostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
@@ -213,32 +220,33 @@ class ResellerHostingTest extends IntegrationTestCase
             'slug' => 'hosting_reseller_gold',
         ]);
 
-        $subscriptionGold = new SubscriptionFactory()->for($this->customer)->for($product)->createOne([
-            'start_date' => CarbonImmutable::now(),
-            'end_date' => CarbonImmutable::now(),
-        ]);
+        $subscriptionGold = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($product)
+            ->createOne([
+                'start_date' => CarbonImmutable::now(),
+                'end_date' => CarbonImmutable::now(),
+            ]);
 
         new ResellerHostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscriptionGold->uuid,
             'provider_id' => $this->hostingProvider->id,
         ]);
 
-        $this
-            ->actingAsCustomer($this->customer)
-             ->getJson(
-                 $this->generateRoute('partners.reseller-hosting.show', $subscription->uuid)
-             )
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute('partners.reseller-hosting.show', $subscription->uuid),
+            )
             ->assertForbidden()
             ->assertJsonFragment([
-             'message' => 'This action is unauthorized.',
+                'message' => 'This action is unauthorized.',
             ]);
     }
 
     #[Test]
     public function showPackageInvalidUuid(): void
     {
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->getJson(
                 $this->generateRoute('partners.reseller-hosting.show', 'random2-3014-11ec-a1e8-d2478f8e83d5'),
             )
@@ -266,21 +274,20 @@ class ResellerHostingTest extends IntegrationTestCase
             'provider_id' => $this->hostingProvider->id,
         ]);
 
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->patchJson(
-                $this->generateRoute('partners.reseller-hosting.reset-password', $subscription->uuid)
-            )->assertOk()
+                $this->generateRoute('partners.reseller-hosting.reset-password', $subscription->uuid),
+            )
+            ->assertOk()
             ->assertJsonFragment([
-            'username' => 'DAUserName',
+                'username' => 'DAUserName',
             ]);
     }
 
     #[Test]
     public function resetPasswordSubscriptionNotFound(): void
     {
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->patchJson($this->generateRoute(
                 'partners.reseller-hosting.reset-password',
                 'random-3014-11ec-a1e8-d2478f8e83d5',
@@ -308,11 +315,10 @@ class ResellerHostingTest extends IntegrationTestCase
             'provider_id' => $this->hostingProvider->id,
         ]);
 
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->patchJson($this->generateRoute(
                 'partners.reseller-hosting.reset-password',
-                $subscriptionNoUSer->uuid
+                $subscriptionNoUSer->uuid,
             ))
             ->assertUnprocessable();
     }
@@ -331,16 +337,14 @@ class ResellerHostingTest extends IntegrationTestCase
             'end_date' => CarbonImmutable::now(),
         ]);
 
-        new ResellerHostingDeploymentFactory()
-            ->createOne([
-                'subscription_uuid' => $subscription->uuid,
-                'directadmin_customer_username' => 'DAUserName',
-                'provider_id' => $this->hostingProvider->id,
+        new ResellerHostingDeploymentFactory()->createOne([
+            'subscription_uuid' => $subscription->uuid,
+            'directadmin_customer_username' => 'DAUserName',
+            'provider_id' => $this->hostingProvider->id,
         ]);
 
         $this->actingAsCustomer($this->customer)
             ->getJson($this->generateRoute('partners.reseller-hosting.customers', $subscription->uuid))
-
             ->assertOk()
             ->assertJsonStructure(['customers']);
     }
@@ -378,11 +382,14 @@ class ResellerHostingTest extends IntegrationTestCase
             'slug' => 'reseller-hosting-gold',
         ]);
 
-        $subscriptionGold = new SubscriptionFactory()->for($this->customer)->for($product)->createOne([
-            'technical_status' => TechnicalStatus::OK->value,
-            'start_date' => CarbonImmutable::now(),
-            'end_date' => CarbonImmutable::now(),
-        ]);
+        $subscriptionGold = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($product)
+            ->createOne([
+                'technical_status' => TechnicalStatus::OK->value,
+                'start_date' => CarbonImmutable::now(),
+                'end_date' => CarbonImmutable::now(),
+            ]);
 
         new ResellerHostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscriptionGold->uuid,

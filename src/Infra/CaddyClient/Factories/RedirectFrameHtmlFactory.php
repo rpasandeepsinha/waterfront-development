@@ -15,6 +15,7 @@ class RedirectFrameHtmlFactory
         if (! in_array($scheme, ['http', 'https'], true)) {
             throw new InvalidRedirectSchemeException($scheme);
         }
+
         $escapedUrl = htmlspecialchars($targetUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
         return sprintf(

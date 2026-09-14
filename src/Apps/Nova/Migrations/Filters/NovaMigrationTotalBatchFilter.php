@@ -36,10 +36,7 @@ class NovaMigrationTotalBatchFilter extends Filter
      */
     public function options(NovaRequest $request): array
     {
-        $options = MigratedCustomer::query()
-            ->groupBy('group_type')
-            ->pluck('group_type')
-            ->toArray();
+        $options = MigratedCustomer::query()->groupBy('group_type')->pluck('group_type')->toArray();
         Assert::allString($options);
 
         natcasesort($options);

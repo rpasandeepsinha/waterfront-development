@@ -27,8 +27,8 @@ use Waterfront\Infra\Queue\HarborQueue;
 class MessageBuilderTest extends IntegrationTestCase
 {
     private const array DEBTOR_REQUIRED_CUSTOMER_VALUES = [
-        'locale'          => 'nl-NL',
-        'phone_number'    => '+31 113643281',
+        'locale' => 'nl-NL',
+        'phone_number' => '+31 113643281',
         'customer_number' => 123,
     ];
 
@@ -52,9 +52,18 @@ class MessageBuilderTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
         $product = new ProductFactory()->nlDomain()->createOne();
         $invoices = [
-            new InvoiceFactory()->for($customer)->for($product)->createOne(),
-            new InvoiceFactory()->for($customer)->for($product)->createOne(),
-            new InvoiceFactory()->for($customer)->for($product)->createOne(),
+            new InvoiceFactory()
+                ->for($customer)
+                ->for($product)
+                ->createOne(),
+            new InvoiceFactory()
+                ->for($customer)
+                ->for($product)
+                ->createOne(),
+            new InvoiceFactory()
+                ->for($customer)
+                ->for($product)
+                ->createOne(),
         ];
 
         self::expectException(InvoiceLineToHarborException::class);
@@ -63,7 +72,7 @@ class MessageBuilderTest extends IntegrationTestCase
                 'The Address for customer with name %s and id %s is not set!',
                 $customer->name,
                 $customer->id,
-            )
+            ),
         );
 
         $this->messageService->build($customer, $invoices);
@@ -91,8 +100,13 @@ class MessageBuilderTest extends IntegrationTestCase
     public function buildingWithoutConfigInstancesAssumesCorrectConfig(): void
     {
         $product = new ProductFactory()->nlDomain()->createOne();
-        $customer = new CustomerFactory()->withAddress()->createOne(self::DEBTOR_REQUIRED_CUSTOMER_VALUES);
-        $subscription = new SubscriptionFactory()->for($customer)->for($product)->createOne();
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne(self::DEBTOR_REQUIRED_CUSTOMER_VALUES);
+        $subscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($product)
+            ->createOne();
 
         $invoices = [
             new InvoiceFactory()
@@ -100,7 +114,7 @@ class MessageBuilderTest extends IntegrationTestCase
                 ->for($subscription)
                 ->for($product)
                 ->createOne([
-                    'credit_reason'     => InvoiceLineCreditReason::REASON_OTHER,
+                    'credit_reason' => InvoiceLineCreditReason::REASON_OTHER,
                 ]),
         ];
 
@@ -144,8 +158,13 @@ class MessageBuilderTest extends IntegrationTestCase
     public function buildsCorrectMessageWhenGivenAConfig(): void
     {
         $product = new ProductFactory()->nlDomain()->createOne();
-        $customer = new CustomerFactory()->withAddress()->createOne(self::DEBTOR_REQUIRED_CUSTOMER_VALUES);
-        $subscription = new SubscriptionFactory()->for($customer)->for($product)->createOne();
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne(self::DEBTOR_REQUIRED_CUSTOMER_VALUES);
+        $subscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($product)
+            ->createOne();
 
         $invoices = [
             new InvoiceFactory()
@@ -153,7 +172,7 @@ class MessageBuilderTest extends IntegrationTestCase
                 ->for($subscription)
                 ->for($product)
                 ->createOne([
-                    'credit_reason'     => InvoiceLineCreditReason::REASON_CANCELLATION,
+                    'credit_reason' => InvoiceLineCreditReason::REASON_CANCELLATION,
                 ]),
         ];
 
@@ -199,8 +218,13 @@ class MessageBuilderTest extends IntegrationTestCase
     public function queuesAndMarksInvoicesAsSent(): void
     {
         $product = new ProductFactory()->nlDomain()->createOne();
-        $customer = new CustomerFactory()->withAddress()->createOne(self::DEBTOR_REQUIRED_CUSTOMER_VALUES);
-        $subscription = new SubscriptionFactory()->for($customer)->for($product)->createOne();
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne(self::DEBTOR_REQUIRED_CUSTOMER_VALUES);
+        $subscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($product)
+            ->createOne();
 
         $invoices = [
             new InvoiceFactory()
@@ -208,23 +232,22 @@ class MessageBuilderTest extends IntegrationTestCase
                 ->for($subscription)
                 ->for($product)
                 ->createOne([
-                    'start_date'        => CarbonImmutable::now(),
-                    'end_date'          => CarbonImmutable::now()->addYear(),
-                    'credit_reason'     => InvoiceLineCreditReason::REASON_CANCELLATION,
+                    'start_date' => CarbonImmutable::now(),
+                    'end_date' => CarbonImmutable::now()->addYear(),
+                    'credit_reason' => InvoiceLineCreditReason::REASON_CANCELLATION,
                 ]),
             new InvoiceFactory()
                 ->for($customer)
                 ->for($subscription)
                 ->for($product)
                 ->createOne([
-                    'start_date'        => CarbonImmutable::now(),
-                    'end_date'          => CarbonImmutable::now()->addYear(),
-                    'credit_reason'     => InvoiceLineCreditReason::REASON_CANCELLATION,
+                    'start_date' => CarbonImmutable::now(),
+                    'end_date' => CarbonImmutable::now()->addYear(),
+                    'credit_reason' => InvoiceLineCreditReason::REASON_CANCELLATION,
                 ]),
         ];
 
-        $this->harborQueue->expects(self::once())
-            ->method('publish');
+        $this->harborQueue->expects(self::once())->method('publish');
 
         $this->messageService->queue($customer, $invoices);
 

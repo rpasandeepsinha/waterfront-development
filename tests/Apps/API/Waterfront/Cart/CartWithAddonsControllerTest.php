@@ -38,25 +38,30 @@ class CartWithAddonsControllerTest extends IntegrationTestCase
         $now = CarbonImmutable::create(2023, 2, 10);
 
         $addonGroup = new ProductGroupFactory()->addon()->createOne();
-        $this->addonProduct = new ProductFactory()
-            ->for($addonGroup)
-            ->createOne(['slug' => 'addon']);
+        $this->addonProduct = new ProductFactory()->for($addonGroup)->createOne(['slug' => 'addon']);
 
-        new ProductPriceComponentFactory()->for($this->addonProduct)->registration()
+        new ProductPriceComponentFactory()
+            ->for($this->addonProduct)
+            ->registration()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 1000, 'starts_at' => $now]);
-        new ProductPriceComponentFactory()->for($this->addonProduct)->prolongation()
+        new ProductPriceComponentFactory()
+            ->for($this->addonProduct)
+            ->prolongation()
             ->createOne(['billing_period' => 12, 'contract_period' => 12, 'price' => 2580]);
         $this->hostingGroup = new ProductGroupFactory()->hosting()->createOne();
         $silver = new ProductFactory()->for($this->hostingGroup)->createOne([
             'slug' => 'silver',
         ]);
 
-        new ProductPriceComponentFactory()->for($silver)->registration()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 1000,
-            'starts_at' => $now,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($silver)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 1000,
+                'starts_at' => $now,
+            ]);
 
         $coupling = new ProductAddonCoupling();
         $coupling->parent_product_id = $silver->id;
@@ -70,13 +75,16 @@ class CartWithAddonsControllerTest extends IntegrationTestCase
 
         $this->customer = CustomerFactory::new()->createOne(['has_direct_debit' => true]);
 
-        new SubscriptionFactory()->for($silver)->for($this->customer)->createOne([
-            'uuid' => '23e59c49-16bd-410e-85d6-5c2b6bf3400a',
-            'start_date' => $startDate,
-            'billing_period' => 12,
-            'next_billing_date' => $nextBillingDate,
-            'net_price' => 1000,
-        ]);
+        new SubscriptionFactory()
+            ->for($silver)
+            ->for($this->customer)
+            ->createOne([
+                'uuid' => '23e59c49-16bd-410e-85d6-5c2b6bf3400a',
+                'start_date' => $startDate,
+                'billing_period' => 12,
+                'next_billing_date' => $nextBillingDate,
+                'net_price' => 1000,
+            ]);
     }
 
     #[Test]
@@ -84,14 +92,14 @@ class CartWithAddonsControllerTest extends IntegrationTestCase
     {
         $json = (string) file_get_contents(__DIR__ . '/data/cart_payload_with_addon_without_vouchers.json');
 
-        $payload =  json_decode($json, true);
+        $payload = json_decode($json, true);
 
         self::assertIsArray($payload);
         $this->actingAsCustomer($this->customer)
             ->postJson($this->generateRoute('partners.cart.calculate'), $payload)
             ->assertOk()
             ->assertJsonFragment(
-                ['productSlug' => $this->addonProduct->slug, 'priceExclVat' => 888]
+                ['productSlug' => $this->addonProduct->slug, 'priceExclVat' => 888],
             )
             ->assertJsonFragment(['vouchers' => []]);
 
@@ -102,32 +110,46 @@ class CartWithAddonsControllerTest extends IntegrationTestCase
     #[Test]
     public function shouldProcessCartWithAddonAndNormalProductAndCalculateProRataWithoutVouchers(): void
     {
-        $json = (string) file_get_contents(__DIR__ . '/data/cart_payload_with_addon_and_regular_product_without_vouchers.json');
+        $json = (string) file_get_contents(__DIR__
+        . '/data/cart_payload_with_addon_and_regular_product_without_vouchers.json');
 
-        $payload =  json_decode($json, true);
+        $payload = json_decode($json, true);
 
         $extension = new ProductGroupFactory()->extension()->createOne();
         $extensionPR = new ProductFactory()->for($extension)->createOne([
             'slug' => 'extension_nl',
         ]);
-        new ProductPriceComponentFactory()->for($extensionPR)->registration()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 1000,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($extensionPR)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 1000,
+            ]);
 
         self::assertIsArray($payload);
         $this->actingAsCustomer($this->customer)
             ->postJson($this->generateRoute('partners.cart.calculate'), $payload)
             ->assertOk()
-            ->assertJsonFragment(['productSlug' => $extensionPR->slug, 'priceExclVat' => 1000, 'priceType' => UsedProductPriceType::REGULAR_PRICE->value])
+            ->assertJsonFragment([
+                'productSlug' => $extensionPR->slug,
+                'priceExclVat' => 1000,
+                'priceType' => UsedProductPriceType::REGULAR_PRICE->value,
+            ])
             ->assertJsonFragment(['vouchers' => []]);
     }
 
     #[Test]
     public function shouldProcessCartWithAddonAndCalculateProRataWithVoucherButShouldApplyProrataPrice(): void
     {
-        VoucherFactory::new()->for($this->hostingGroup)->createOne(['code' => 'fietsen', 'amount' => 10, 'amount_type' => VoucherAmountType::PERCENTAGE, 'description' => '', 'display_name' => '']);
+        VoucherFactory::new()->for($this->hostingGroup)->createOne([
+            'code' => 'fietsen',
+            'amount' => 10,
+            'amount_type' => VoucherAmountType::PERCENTAGE,
+            'description' => '',
+            'display_name' => '',
+        ]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/cart_payload_with_addon_with_vouchers.json');
 
@@ -139,10 +161,10 @@ class CartWithAddonsControllerTest extends IntegrationTestCase
             ->assertOk()
             ->assertJsonFragment([
                 'productSlug' => $this->addonProduct->slug,
-                    'priceExclVat' => 888,
-                    'fietsen',
-                    'claimed_amount' => 0,
-                ]);
+                'priceExclVat' => 888,
+                'fietsen',
+                'claimed_amount' => 0,
+            ]);
     }
 
     #[Test]
@@ -152,15 +174,25 @@ class CartWithAddonsControllerTest extends IntegrationTestCase
         $extensionPR = new ProductFactory()->for($extension)->createOne([
             'slug' => 'extension_nl',
         ]);
-        new ProductPriceComponentFactory()->for($extensionPR)->registration()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 1000,
+        new ProductPriceComponentFactory()
+            ->for($extensionPR)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 1000,
+            ]);
+
+        VoucherFactory::new()->for($extension)->createOne([
+            'code' => 'fietsen',
+            'amount' => 10,
+            'amount_type' => VoucherAmountType::FIXED,
+            'description' => '',
+            'display_name' => '',
         ]);
 
-        VoucherFactory::new()->for($extension)->createOne(['code' => 'fietsen', 'amount' => 10, 'amount_type' => VoucherAmountType::FIXED, 'description' => '', 'display_name' => '']);
-
-        $json = (string) file_get_contents(__DIR__ . '/data/cart_payload_with_addon_and_regular_product_with_vouchers.json');
+        $json = (string) file_get_contents(__DIR__
+        . '/data/cart_payload_with_addon_and_regular_product_with_vouchers.json');
 
         $payload = json_decode($json, true);
 

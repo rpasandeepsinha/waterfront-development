@@ -24,7 +24,7 @@ class ResellerHostingDeploymentFactory extends Factory
             'plesk_customer_username' => $this->faker->name(),
             'plesk_customer_id' => $this->faker->randomNumber(),
             'directadmin_customer_username' => $this->faker->name(),
-            'server_id'         => new ServerFactory()->directadmin(),
+            'server_id' => new ServerFactory()->directadmin(),
             'subscription_uuid' => Uuid::uuid4(),
             'storage_type' => 'ssd',
             'disk_space' => $this->faker->randomNumber(),

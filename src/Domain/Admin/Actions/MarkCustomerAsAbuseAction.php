@@ -49,7 +49,7 @@ class MarkCustomerAsAbuseAction
         $this->orderService->markNonProcessedAsAbuseForCustomer($customer);
 
         $this->harborQueue->publish(
-            new MarkDebtorAsAbuse($customer->customer_number)
+            new MarkDebtorAsAbuse($customer->customer_number),
         );
 
         try {
@@ -60,7 +60,7 @@ class MarkCustomerAsAbuseAction
                 [
                     LoggingContextKeys::EXCEPTION => $e,
                     LoggingContextKeys::CUSTOMER_NUMBER => $customer->customer_number,
-                ]
+                ],
             );
         }
 

@@ -19,7 +19,10 @@ interface VirtualMachineDeploymentRepositoryInterface
      */
     public function findBySubscriptionUuid(string $uuid, int $customerId): VirtualMachineDeployment;
 
-    public function firstOrCreateBySubscriptionUuid(string $subscriptionUuid, ManagerDomainDeployment $managerDomainDeployment): VirtualMachineDeployment;
+    public function firstOrCreateBySubscriptionUuid(
+        string $subscriptionUuid,
+        ManagerDomainDeployment $managerDomainDeployment,
+    ): VirtualMachineDeployment;
 
     /**
      * @throws VirtualMachineNotFoundException

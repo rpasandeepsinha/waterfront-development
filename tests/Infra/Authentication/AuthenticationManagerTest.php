@@ -35,7 +35,8 @@ class AuthenticationManagerTest extends TestCase
         $request->headers->set('authorization', 'Bearer tokentokentoken');
 
         $oathKeeperService = self::createMock(OathKeeperService::class);
-        $oathKeeperService->expects(self::once())
+        $oathKeeperService
+            ->expects(self::once())
             ->method('retrieveValidatedJwt')
             ->with('tokentokentoken')
             ->willReturn([]);
@@ -44,7 +45,8 @@ class AuthenticationManagerTest extends TestCase
         $customer = self::createStub(Customer::class);
 
         $identitySchemaConverter = self::createMock(IdentitySchemaConverter::class);
-        $identitySchemaConverter->expects(self::once())
+        $identitySchemaConverter
+            ->expects(self::once())
             ->method('convert')
             ->with([])
             ->willReturn(
@@ -62,14 +64,11 @@ class AuthenticationManagerTest extends TestCase
                     new MetadataPublic(null, [1], [], null, null, null, null),
                     null,
                     null,
-                )
+                ),
             );
 
         $authManager = self::createMock(AuthManager::class);
-        $authManager->expects(self::once())
-            ->method('__call')
-            ->with('login', [$customer])
-            ->willReturn($customer);
+        $authManager->expects(self::once())->method('__call')->with('login', [$customer])->willReturn($customer);
 
         $customerRepository = self::createMock(CustomerRepository::class);
 
@@ -82,10 +81,7 @@ class AuthenticationManagerTest extends TestCase
             UuidV4::uuid4()->toString(),
         );
 
-        $customerRepository->expects(self::once())
-            ->method('findByCustomerNumber')
-            ->with(1)
-            ->willReturn($customer);
+        $customerRepository->expects(self::once())->method('findByCustomerNumber')->with(1)->willReturn($customer);
 
         $manager->handleRequest($request);
 
@@ -102,13 +98,15 @@ class AuthenticationManagerTest extends TestCase
         $request->headers->set('authorization', 'Bearer tokentokentoken');
 
         $oathKeeperService = self::createMock(OathKeeperService::class);
-        $oathKeeperService->expects(self::once())
+        $oathKeeperService
+            ->expects(self::once())
             ->method('retrieveValidatedJwt')
             ->with('tokentokentoken')
             ->willReturn([]);
 
         $identitySchemaConverter = self::createMock(IdentitySchemaConverter::class);
-        $identitySchemaConverter->expects(self::once())
+        $identitySchemaConverter
+            ->expects(self::once())
             ->method('convert')
             ->with([])
             ->willReturn(
@@ -126,12 +124,11 @@ class AuthenticationManagerTest extends TestCase
                     null,
                     null,
                     null,
-                )
+                ),
             );
 
         $authManager = self::createMock(AuthManager::class);
-        $authManager->expects(self::never())
-            ->method('__call');
+        $authManager->expects(self::never())->method('__call');
 
         $manager = new AuthenticationManager(
             $oathKeeperService,
@@ -156,7 +153,8 @@ class AuthenticationManagerTest extends TestCase
         $request->headers->set('authorization', 'Bearer tokentokentoken');
 
         $oathKeeperService = self::createMock(OathKeeperService::class);
-        $oathKeeperService->expects(self::once())
+        $oathKeeperService
+            ->expects(self::once())
             ->method('retrieveValidatedJwt')
             ->with('tokentokentoken')
             ->willReturn([]);
@@ -164,7 +162,8 @@ class AuthenticationManagerTest extends TestCase
         $uuid = Uuid::uuid4();
 
         $identitySchemaConverter = self::createMock(IdentitySchemaConverter::class);
-        $identitySchemaConverter->expects(self::once())
+        $identitySchemaConverter
+            ->expects(self::once())
             ->method('convert')
             ->with([])
             ->willReturn(
@@ -182,7 +181,7 @@ class AuthenticationManagerTest extends TestCase
                     null,
                     null,
                     null,
-                )
+                ),
             );
 
         $authManager = self::createStub(AuthManager::class);
@@ -211,7 +210,8 @@ class AuthenticationManagerTest extends TestCase
         $request->headers->set('authorization', 'Bearer tokentokentoken');
 
         $oathKeeperService = self::createMock(OathKeeperService::class);
-        $oathKeeperService->expects(self::once())
+        $oathKeeperService
+            ->expects(self::once())
             ->method('retrieveValidatedJwt')
             ->with('tokentokentoken')
             ->willReturn([]);
@@ -219,7 +219,8 @@ class AuthenticationManagerTest extends TestCase
         $uuid = Uuid::uuid4();
 
         $identitySchemaConverter = self::createMock(IdentitySchemaConverter::class);
-        $identitySchemaConverter->expects(self::once())
+        $identitySchemaConverter
+            ->expects(self::once())
             ->method('convert')
             ->with([])
             ->willReturn(
@@ -237,7 +238,7 @@ class AuthenticationManagerTest extends TestCase
                     null,
                     null,
                     null,
-                )
+                ),
             );
 
         $authManager = self::createStub(AuthManager::class);
@@ -268,18 +269,17 @@ class AuthenticationManagerTest extends TestCase
         $request->headers->set('authorization', 'Bearer tokentokentoken');
 
         $oathKeeperService = self::createMock(OathKeeperService::class);
-        $oathKeeperService->expects(self::once())
+        $oathKeeperService
+            ->expects(self::once())
             ->method('retrieveValidatedJwt')
             ->with('tokentokentoken')
             ->willReturn(null);
 
         $identitySchemaConverter = self::createMock(IdentitySchemaConverter::class);
-        $identitySchemaConverter->expects(self::never())
-            ->method('convert');
+        $identitySchemaConverter->expects(self::never())->method('convert');
 
         $authManager = self::createMock(AuthManager::class);
-        $authManager->expects(self::never())
-            ->method('__call');
+        $authManager->expects(self::never())->method('__call');
 
         $manager = new AuthenticationManager(
             $oathKeeperService,
@@ -301,16 +301,13 @@ class AuthenticationManagerTest extends TestCase
         $request = new Request();
 
         $oathKeeperService = self::createMock(OathKeeperService::class);
-        $oathKeeperService->expects(self::never())
-            ->method('retrieveValidatedJwt');
+        $oathKeeperService->expects(self::never())->method('retrieveValidatedJwt');
 
         $identitySchemaConverter = self::createMock(IdentitySchemaConverter::class);
-        $identitySchemaConverter->expects(self::never())
-            ->method('convert');
+        $identitySchemaConverter->expects(self::never())->method('convert');
 
         $authManager = self::createMock(AuthManager::class);
-        $authManager->expects(self::never())
-            ->method('__call');
+        $authManager->expects(self::never())->method('__call');
 
         $manager = new AuthenticationManager(
             $oathKeeperService,
@@ -333,20 +330,21 @@ class AuthenticationManagerTest extends TestCase
         $request->headers->set('authorization', 'Bearer tokentokentoken');
 
         $oathKeeperService = self::createMock(OathKeeperService::class);
-        $oathKeeperService->expects(self::once())
+        $oathKeeperService
+            ->expects(self::once())
             ->method('retrieveValidatedJwt')
             ->with('tokentokentoken')
             ->willReturn([]);
 
         $identitySchemaConverter = self::createMock(IdentitySchemaConverter::class);
-        $identitySchemaConverter->expects(self::once())
+        $identitySchemaConverter
+            ->expects(self::once())
             ->method('convert')
             ->with([])
             ->willThrowException(new InvalidArgumentException());
 
         $authManager = self::createMock(AuthManager::class);
-        $authManager->expects(self::never())
-            ->method('__call');
+        $authManager->expects(self::never())->method('__call');
 
         $manager = new AuthenticationManager(
             $oathKeeperService,

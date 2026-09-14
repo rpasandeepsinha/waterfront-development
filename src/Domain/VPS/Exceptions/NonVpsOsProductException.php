@@ -16,10 +16,10 @@ class NonVpsOsProductException extends Exception
             sprintf(
                 'Expected VPS OS product. Given product "%s" belongs to product group: "%s".',
                 $product->slug,
-                $product->productGroup->slug->value
+                $product->productGroup->slug->value,
             ),
             $code,
-            $previous
+            $previous,
         );
     }
 }

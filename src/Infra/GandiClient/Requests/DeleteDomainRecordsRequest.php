@@ -12,7 +12,7 @@ class DeleteDomainRecordsRequest extends Request
     protected Method $method = Method::DELETE;
 
     public function __construct(
-        private readonly string $domain
+        private readonly string $domain,
     ) {
     }
 

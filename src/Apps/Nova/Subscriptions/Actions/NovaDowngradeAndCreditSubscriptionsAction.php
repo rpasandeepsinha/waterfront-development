@@ -52,8 +52,7 @@ class NovaDowngradeAndCreditSubscriptionsAction extends NovaSubscriptionAction
         private readonly LoggerInterface $logger,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool =>
-            $this->onlyForSingleCustomer($request)
+            fn (NovaRequest $request): bool => $this->onlyForSingleCustomer($request),
         );
         $this->modalSize = '4xl';
         $this->confirmText($this->translator->translate('manual-downgrade.confirmation-message'));
@@ -76,29 +75,27 @@ class NovaDowngradeAndCreditSubscriptionsAction extends NovaSubscriptionAction
         $reasonOptions = [];
 
         foreach (SubscriptionCancelReason::cases() as $reason) {
-            $reasonOptions[$reason->value] = $this->translator->translate('cancel_subscriptions.reason.' . strtolower($reason->name));
+            $reasonOptions[$reason->value] = $this->translator->translate(
+                'cancel_subscriptions.reason.' . strtolower($reason->name),
+            );
         }
 
-        $potentialDowngrades = $this->productAllowedChangeRepository
-            ->getPotentialDowngrades($allAffectedSubscriptions->firstOrFail()->product);
+        $potentialDowngrades = $this->productAllowedChangeRepository->getPotentialDowngrades($allAffectedSubscriptions->firstOrFail()->product);
 
         return [
             $this->generateOverviewOfSelectedSubscriptions($allAffectedSubscriptions, $this->translator),
 
-            Heading::make("<h3 class=\"text-xl\">{$cancelCreditOptionsTitle}</h3><hr />")
-                ->asHtml(),
+            Heading::make("<h3 class=\"text-xl\">{$cancelCreditOptionsTitle}</h3><hr />")->asHtml(),
             Select::make($this->translator->translate('nova-action.downgrade_subscription.product'), 'product_id')
                 ->rules('required')
                 ->options(
-                    $potentialDowngrades
-                    ->keyBy('id')
-                    ->map(fn ($product): string => $product->name)
+                    $potentialDowngrades->keyBy('id')->map(fn ($product): string => $product->name),
                 )
                 ->displayUsingLabels(),
             Select::make($this->translator->translate('nova-action.downgrade_subscription.reason'), 'reason')
                 ->rules('required')
                 ->options(
-                    $reasonOptions
+                    $reasonOptions,
                 ),
             Text::make($this->translator->translate('nova-action.downgrade_subscription.reason_other'), 'reason_other')
                 ->hide()
@@ -106,11 +103,9 @@ class NovaDowngradeAndCreditSubscriptionsAction extends NovaSubscriptionAction
                     'reason',
                     static function (Text $field, NovaRequest $request, FormData $formData) {
                         if ($formData->get('reason') === SubscriptionCancelReason::REASON_OTHER->value) {
-                            $field
-                                ->show()
-                                ->rules('required');
+                            $field->show()->rules('required');
                         }
-                    }
+                    },
                 ),
             NovaBoolField::make($this->translator->translate('nova-action.downgrade_subscription.credit'), 'credit'),
 
@@ -129,8 +124,8 @@ class NovaDowngradeAndCreditSubscriptionsAction extends NovaSubscriptionAction
         if (! $this->subscriptionIsDowngradable($subscription)) {
             return self::danger(
                 $this->translator->translate(
-                    'nova-action.downgrade_subscription.failure'
-                )
+                    'nova-action.downgrade_subscription.failure',
+                ),
             );
         }
 
@@ -155,7 +150,7 @@ class NovaDowngradeAndCreditSubscriptionsAction extends NovaSubscriptionAction
                     $subscription,
                     $newProduct,
                     ProductChangeType::DOWNGRADE,
-                    SubscriptionChangeStatus::EXECUTION_FAILED
+                    SubscriptionChangeStatus::EXECUTION_FAILED,
                 );
 
                 $this->logger->error(
@@ -166,20 +161,28 @@ class NovaDowngradeAndCreditSubscriptionsAction extends NovaSubscriptionAction
                             'error_code' => $technicalResult->errorCode,
                             'error_message' => $technicalResult->errorMessage,
                         ],
-                    ]
+                    ],
                 );
 
-                return self::danger($this->translator->translate('nova-action.downgrade_subscription.technical_failure'));
+                return self::danger($this->translator->translate(
+                    'nova-action.downgrade_subscription.technical_failure',
+                ));
             }
 
-            $this->subscriptionChangeService->change(ProductChangeType::DOWNGRADE, $subscription, $newProduct, false, false);
-        } catch (InvalidArgumentException | CreditSubscriptionsException | SubscriptionChangeException $exception) {
+            $this->subscriptionChangeService->change(
+                ProductChangeType::DOWNGRADE,
+                $subscription,
+                $newProduct,
+                false,
+                false,
+            );
+        } catch (InvalidArgumentException|CreditSubscriptionsException|SubscriptionChangeException $exception) {
             $this->logger->critical(
                 sprintf('Nova action for downgrade and credit failed with exception: %s', $exception->getMessage()),
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return self::danger('Action failed: ' . $exception->getMessage());
@@ -191,7 +194,7 @@ class NovaDowngradeAndCreditSubscriptionsAction extends NovaSubscriptionAction
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             throw $exception;
@@ -217,9 +220,7 @@ class NovaDowngradeAndCreditSubscriptionsAction extends NovaSubscriptionAction
             $subscriptions->add($subscription);
         }
 
-        return $subscriptions
-            ->filter()
-            ->unique(fn (Subscription $subscription): int => $subscription->id);
+        return $subscriptions->filter()->unique(fn (Subscription $subscription): int => $subscription->id);
     }
 
     /**
@@ -228,7 +229,7 @@ class NovaDowngradeAndCreditSubscriptionsAction extends NovaSubscriptionAction
      */
     private function getCreditationDtoFromInput(
         Collection $subscriptions,
-        FormData|ActionFields $data
+        FormData|ActionFields $data,
     ): Creditation {
         $cancelReasonString = (string) $data->string('reason');
         Assert::stringNotEmpty($cancelReasonString);
@@ -242,13 +243,14 @@ class NovaDowngradeAndCreditSubscriptionsAction extends NovaSubscriptionAction
         $cancelTypeOtherDate = CarbonImmutable::now();
 
         $credit = boolval($data->get('credit'));
+
         return new Creditation(
             $subscriptions,
             $cancelReason,
             $cancelReasonOther,
             $cancelType,
             $cancelTypeOtherDate,
-            $credit
+            $credit,
         );
     }
 
@@ -262,10 +264,12 @@ class NovaDowngradeAndCreditSubscriptionsAction extends NovaSubscriptionAction
             ->asHtml()
             ->dependsOn(
                 ['reason'],
-                fn (Heading $field, NovaRequest $request, FormData $formData)
-                => $this->updateOverviewOfRelatedInvoices($field, $formData, $allAffectedSubscriptions)
-            )
-        ;
+                fn (Heading $field, NovaRequest $request, FormData $formData) => $this->updateOverviewOfRelatedInvoices(
+                    $field,
+                    $formData,
+                    $allAffectedSubscriptions,
+                ),
+            );
     }
 
     /**
@@ -275,18 +279,23 @@ class NovaDowngradeAndCreditSubscriptionsAction extends NovaSubscriptionAction
     private function updateOverviewOfRelatedInvoices(
         Heading $field,
         FormData $formData,
-        Collection $allAffectedSubscriptions
+        Collection $allAffectedSubscriptions,
     ): void {
         $reason = $formData->get('reason');
         if ($reason === null) {
             $field->hide();
+
             return;
         }
 
         $creditation = $this->getCreditationDtoFromInput($allAffectedSubscriptions, $formData);
 
         $field->withMeta([
-            'value' => $this->generateOverviewOfRelatedInvoicesAsHtml($creditation, $this->invoiceRepository, $this->translator),
+            'value' => $this->generateOverviewOfRelatedInvoicesAsHtml(
+                $creditation,
+                $this->invoiceRepository,
+                $this->translator,
+            ),
         ]);
         $field->show();
     }
@@ -306,18 +315,23 @@ class NovaDowngradeAndCreditSubscriptionsAction extends NovaSubscriptionAction
             ->asHtml()
             ->dependsOn(
                 ['reason', 'credit'],
-                fn (Heading $field, NovaRequest $request, FormData $formData)
-                => $this->updateCreditInvoicesOverview($field, $formData, $allAffectedSubscriptions)
-            )
-        ;
+                fn (Heading $field, NovaRequest $request, FormData $formData) => $this->updateCreditInvoicesOverview(
+                    $field,
+                    $formData,
+                    $allAffectedSubscriptions,
+                ),
+            );
     }
 
     /**
      * @param Collection<int, Subscription> $allAffectedSubscriptions
      * @param FormData<string, string>      $formData
      */
-    private function updateCreditInvoicesOverview(Heading $field, FormData $formData, Collection $allAffectedSubscriptions): void
-    {
+    private function updateCreditInvoicesOverview(
+        Heading $field,
+        FormData $formData,
+        Collection $allAffectedSubscriptions,
+    ): void {
         $reason = $formData->get('reason');
         if ($reason === null) {
             return;
@@ -327,11 +341,16 @@ class NovaDowngradeAndCreditSubscriptionsAction extends NovaSubscriptionAction
 
         if (! $creditation->shouldCreditRelatedInvoices()) {
             $field->hide();
+
             return;
         }
 
         $field->withMeta([
-            'value' => $this->generateOverviewOfCreditInvoicesAsHtml($creditation, $this->creditSubscriptionService, $this->translator),
+            'value' => $this->generateOverviewOfCreditInvoicesAsHtml(
+                $creditation,
+                $this->creditSubscriptionService,
+                $this->translator,
+            ),
         ]);
         $field->show();
     }

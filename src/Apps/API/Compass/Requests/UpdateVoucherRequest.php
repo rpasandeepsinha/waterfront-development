@@ -19,8 +19,8 @@ class UpdateVoucherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'description'    => ['required', 'string', 'min:4'],
-            'maxClaims'      => ['sometimes', 'nullable', 'integer'],
+            'description' => ['required', 'string', 'min:4'],
+            'maxClaims' => ['sometimes', 'nullable', 'integer'],
             'expirationDate' => ['sometimes', 'nullable', 'string', 'date'],
         ];
     }

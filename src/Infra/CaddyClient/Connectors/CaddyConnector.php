@@ -24,7 +24,7 @@ class CaddyConnector extends AbstractConnector
         parent::__construct(
             logger: $this->logger,
             logMasker: $this->logMasker,
-            retryConfig: $this->caddyConfig->retryConfig
+            retryConfig: $this->caddyConfig->retryConfig,
         );
     }
 
@@ -58,7 +58,7 @@ class CaddyConnector extends AbstractConnector
     {
         return new BasicAuthenticator(
             username: $this->caddyConfig->username,
-            password: $this->caddyConfig->password
+            password: $this->caddyConfig->password,
         );
     }
 }

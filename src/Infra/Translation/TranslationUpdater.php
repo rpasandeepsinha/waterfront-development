@@ -9,8 +9,10 @@ use Illuminate\Contracts\Translation\Loader;
 
 class TranslationUpdater
 {
-    public function __construct(private readonly Loader $translationLoader, private readonly Filesystem $filesystem)
-    {
+    public function __construct(
+        private readonly Loader $translationLoader,
+        private readonly Filesystem $filesystem,
+    ) {
     }
 
     public function update(string $language, string $source): void

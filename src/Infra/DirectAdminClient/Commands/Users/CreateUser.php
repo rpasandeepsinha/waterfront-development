@@ -76,6 +76,7 @@ class CreateUser extends DirectAdminCommand
     public function setUsername(string $username): CreateUser
     {
         $this->username = $username;
+
         return $this;
     }
 
@@ -93,6 +94,7 @@ class CreateUser extends DirectAdminCommand
     public function setEmail(string $email): CreateUser
     {
         $this->email = $email;
+
         return $this;
     }
 
@@ -110,6 +112,7 @@ class CreateUser extends DirectAdminCommand
     public function setPasswd(string $passwd): CreateUser
     {
         $this->passwd = $passwd;
+
         return $this;
     }
 
@@ -127,6 +130,7 @@ class CreateUser extends DirectAdminCommand
     public function setDomain(string $domain): CreateUser
     {
         $this->domain = $domain;
+
         return $this;
     }
 
@@ -144,6 +148,7 @@ class CreateUser extends DirectAdminCommand
     public function setPackage(string $package): CreateUser
     {
         $this->package = $package;
+
         return $this;
     }
 
@@ -161,6 +166,7 @@ class CreateUser extends DirectAdminCommand
     public function setIp(string $ip): CreateUser
     {
         $this->ip = $ip;
+
         return $this;
     }
 
@@ -178,6 +184,7 @@ class CreateUser extends DirectAdminCommand
     public function setNotify(string $notify): CreateUser
     {
         $this->notify = $notify;
+
         return $this;
     }
 
@@ -192,6 +199,7 @@ class CreateUser extends DirectAdminCommand
     public function setSslEnabled(string $sslEnabled): CreateUser
     {
         $this->sslEnabled = $sslEnabled;
+
         return $this;
     }
 

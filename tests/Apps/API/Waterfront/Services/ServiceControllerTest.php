@@ -36,7 +36,10 @@ class ServiceControllerTest extends IntegrationTestCase
     public function manualProvisioningSubscriptionNullAllowed(): void
     {
         $product = new ProductFactory()->for(new ProductGroupFactory()->manualSubscription())->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($product)
+            ->createOne();
 
         $manualProvisioningSubscription = new SubscriptionFactory()
             ->for($product)
@@ -45,8 +48,7 @@ class ServiceControllerTest extends IntegrationTestCase
                 'domain' => null,
             ]);
 
-        $response = $this
-            ->actingAsCustomer($this->customer)
+        $response = $this->actingAsCustomer($this->customer)
             ->getJson($this->generateRoute('partners.subscriptions.index'))
             ->assertOk();
 
@@ -57,17 +59,17 @@ class ServiceControllerTest extends IntegrationTestCase
     public function addonSubscriptionNullAllowed(): void
     {
         $product = new ProductFactory()->for(new ProductGroupFactory()->addon())->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
-
-        $addonSubscription = new SubscriptionFactory()
+        new ProductPriceComponentFactory()
+            ->prolongation()
             ->for($product)
-            ->createOne([
-                'customer_id' => $this->customer->id,
-                'domain' => null,
-            ]);
+            ->createOne();
 
-        $response = $this
-            ->actingAsCustomer($this->customer)
+        $addonSubscription = new SubscriptionFactory()->for($product)->createOne([
+            'customer_id' => $this->customer->id,
+            'domain' => null,
+        ]);
+
+        $response = $this->actingAsCustomer($this->customer)
             ->getJson($this->generateRoute('partners.subscriptions.index'))
             ->assertOk();
 
@@ -78,15 +80,14 @@ class ServiceControllerTest extends IntegrationTestCase
     public function serviceNotShowingNullDomains(): void
     {
         new SubscriptionFactory()
-            ->has((new HostingDeploymentFactory()))
+            ->has(new HostingDeploymentFactory())
             ->for(new ProductFactory()->for(new ProductGroupFactory()->extension()))
             ->createOne([
                 'customer_id' => $this->customer->id,
                 'domain' => null,
             ]);
 
-        $response = $this
-            ->actingAsCustomer($this->customer)
+        $response = $this->actingAsCustomer($this->customer)
             ->getJson($this->generateRoute('partners.subscriptions.index'))
             ->assertOk();
 
@@ -98,32 +99,41 @@ class ServiceControllerTest extends IntegrationTestCase
     {
         $differentCustomerSubscription = new SubscriptionFactory()
             ->has(
-                new SslDeploymentFactory()
-                    ->for(ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]), 'provider'),
-                'sslDeployment'
+                new SslDeploymentFactory()->for(ProviderFactory::new()->createOne([
+                    'type' => ProviderType::SSL,
+                    'slug' => ProviderSlug::OPEN_PROVIDER,
+                    'enabled' => true,
+                    'default' => true,
+                ]), 'provider'),
+                'sslDeployment',
             )
             ->for(new ProductFactory()->for(new ProductGroupFactory()->ssl()))
-            ->for((new CustomerFactory()))
+            ->for(new CustomerFactory())
             ->createOne();
 
         $hostingProduct = new ProductFactory()->for(new ProductGroupFactory()->hosting())->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($hostingProduct)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($hostingProduct)
+            ->createOne();
         new SubscriptionFactory()
-            ->has((new HostingDeploymentFactory()))
+            ->has(new HostingDeploymentFactory())
             ->for($hostingProduct)
             ->for($this->customer)
             ->createOne();
 
         $extensionProduct = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($extensionProduct)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($extensionProduct)
+            ->createOne();
         new SubscriptionFactory()
             ->has(new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()))
             ->for($extensionProduct)
             ->for($this->customer)
             ->createOne();
 
-        $response = $this
-            ->actingAsCustomer($this->customer)
+        $response = $this->actingAsCustomer($this->customer)
             ->getJson($this->generateRoute('partners.subscriptions.index'))
             ->assertOk();
 
@@ -137,11 +147,23 @@ class ServiceControllerTest extends IntegrationTestCase
         $hostingProduct = new ProductFactory()->for(new ProductGroupFactory()->hosting())->createOne();
         $domainProduct = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne();
 
-        $hostingRegistrationPrice = new ProductPriceComponentFactory()->for($hostingProduct)->registration()->createOne();
-        $domainRegistrationPrice = new ProductPriceComponentFactory()->for($domainProduct)->registration()->createOne();
+        $hostingRegistrationPrice = new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->registration()
+            ->createOne();
+        $domainRegistrationPrice = new ProductPriceComponentFactory()
+            ->for($domainProduct)
+            ->registration()
+            ->createOne();
 
-        new ProductPriceComponentFactory()->for($hostingProduct)->prolongation()->createOne();
-        new ProductPriceComponentFactory()->for($domainProduct)->prolongation()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->prolongation()
+            ->createOne();
+        new ProductPriceComponentFactory()
+            ->for($domainProduct)
+            ->prolongation()
+            ->createOne();
 
         $hostingDeployment = new SubscriptionFactory()
             ->has(new HostingDeploymentFactory())

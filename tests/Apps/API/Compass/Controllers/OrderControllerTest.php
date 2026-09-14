@@ -62,13 +62,13 @@ class OrderControllerTest extends IntegrationTestCase
             [
                 'payment_type' => PaymentType::DIRECT,
                 'vat_rate' => 21.00,
-            ]
+            ],
         );
         $productGroup = new ProductGroupFactory()->createOne(
             [
                 'name' => ProductGroupType::EXTENSION,
                 'slug' => 'extension',
-            ]
+            ],
         );
         $product = new ProductFactory()->for($productGroup)->createOne(['slug' => 'extension_nl']);
 
@@ -76,7 +76,8 @@ class OrderControllerTest extends IntegrationTestCase
             'ordered_by_metadata' => (string) json_encode([
                 'email' => 'any@email.net',
                 'schemaId' => SchemaId::CUSTOMER,
-            ])]);
+            ]),
+        ]);
 
         $this->subscription = new SubscriptionFactory()
             ->for($product)
@@ -90,7 +91,10 @@ class OrderControllerTest extends IntegrationTestCase
             ->for($this->subscription)
             ->createOne();
 
-        $this->payment = new PaymentFactory()->for($this->customer)->for($this->order)->createOne();
+        $this->payment = new PaymentFactory()
+            ->for($this->customer)
+            ->for($this->order)
+            ->createOne();
 
         $this->voucher = new VoucherFactory()->for($productGroup)->createOne([
             'amount_type' => VoucherAmountType::FIXED,
@@ -108,26 +112,26 @@ class OrderControllerTest extends IntegrationTestCase
     #[Test]
     public function showOrderWithVoucherClaimed(): void
     {
-        $response = $this->actingAsEmployee()
-            ->getJson(
-                $this->generateRoute('admin.orders.show', $this->order->id)
-            );
+        $response = $this->actingAsEmployee()->getJson(
+            $this->generateRoute('admin.orders.show', $this->order->id),
+        );
 
         $response->assertJsonFragment([
-            'id'                    => $this->order->id,
-            'customer_number'       => $this->customer->customer_number,
-            'uuid'                  => $this->order->uuid,
-            'total_price'           => $this->order->total_price,
-            'payment_method'        => $this->order->payment_method,
-            'payment_type'          => $this->customer->payment_type,
-            'last_payment_status'   => $this->payment->status,
-            'administration_fees'   => $this->order->administration_fees,
-            'status'                => $this->order->status,
-            'ordered_by'            => ([
+            'id' => $this->order->id,
+            'customer_number' => $this->customer->customer_number,
+            'uuid' => $this->order->uuid,
+            'total_price' => $this->order->total_price,
+            'payment_method' => $this->order->payment_method,
+            'payment_type' => $this->customer->payment_type,
+            'last_payment_status' => $this->payment->status,
+            'administration_fees' => $this->order->administration_fees,
+            'status' => $this->order->status,
+            'ordered_by' => [
                 'ordered_by_metadata' => [
                     'email' => 'any@email.net',
                     'schemaId' => SchemaId::CUSTOMER,
-                ]]),
+                ],
+            ],
         ]);
 
         $response->assertJsonFragment([
@@ -154,7 +158,7 @@ class OrderControllerTest extends IntegrationTestCase
         $orderOnHold = new OrderFactory()->for($this->customer)->createOne([
             'status' => OrderStatus::ON_HOLD,
             'ordered_by_metadata' => (string) json_encode([
-                'email'    => 'any@email.net',
+                'email' => 'any@email.net',
                 'schemaId' => SchemaId::CUSTOMER,
             ]),
         ]);
@@ -163,10 +167,9 @@ class OrderControllerTest extends IntegrationTestCase
 
         Queue::fake();
 
-        $response = $this->actingAsEmployee()
-            ->postJson(
-                $this->generateRoute('admin.orders.retry', $orderOnHold->id)
-            );
+        $response = $this->actingAsEmployee()->postJson(
+            $this->generateRoute('admin.orders.retry', $orderOnHold->id),
+        );
 
         $response->assertNoContent();
 
@@ -179,10 +182,9 @@ class OrderControllerTest extends IntegrationTestCase
     #[Test]
     public function showOrderExposesTheAvailableLineItemActions(): void
     {
-        $response = $this->actingAsEmployee()
-            ->getJson(
-                $this->generateRoute('admin.orders.show', $this->order->id)
-            );
+        $response = $this->actingAsEmployee()->getJson(
+            $this->generateRoute('admin.orders.show', $this->order->id),
+        );
 
         $response->assertJsonFragment([
             'id' => $this->orderLineItem->id,
@@ -198,10 +200,9 @@ class OrderControllerTest extends IntegrationTestCase
         $this->orderLineItem->processed_at = CarbonImmutable::now();
         $this->orderLineItem->save();
 
-        $response = $this->actingAsEmployee()
-            ->getJson(
-                $this->generateRoute('admin.orders.show', $this->order->id)
-            );
+        $response = $this->actingAsEmployee()->getJson(
+            $this->generateRoute('admin.orders.show', $this->order->id),
+        );
 
         $response->assertJsonFragment([
             'id' => $this->orderLineItem->id,
@@ -213,28 +214,32 @@ class OrderControllerTest extends IntegrationTestCase
     public function processLineItemPassesTheFormValuesToTheActionAndReturnsTheSuccessMessage(): void
     {
         $processOrderLineItemAction = self::createMock(ProcessOrderLineItemAction::class);
-        $processOrderLineItemAction->expects(self::once())
+        $processOrderLineItemAction
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 self::callback(fn (OrderLineItem $lineItem): bool => $lineItem->id === $this->orderLineItem->id),
-                self::callback(fn (ProcessOrderLineItemDTO $dto): bool => $dto->manageSubscriptions
-                    && $dto->administrativeStatus === AdministrativeStatus::SUSPENDED
-                    && $dto->technicalStatus === TechnicalStatus::PENDING
-                    && $dto->parentSubscriptionId === 42),
+                self::callback(
+                    fn (ProcessOrderLineItemDTO $dto): bool => (
+                        $dto->manageSubscriptions
+                        && $dto->administrativeStatus === AdministrativeStatus::SUSPENDED
+                        && $dto->technicalStatus === TechnicalStatus::PENDING
+                        && $dto->parentSubscriptionId === 42
+                    ),
+                ),
             );
 
         $this->app->instance(ProcessOrderLineItemAction::class, $processOrderLineItemAction);
 
-        $response = $this->actingAsEmployee()
-            ->postJson(
-                $this->generateRoute('admin.orders.line-items.process.line.item', $this->orderLineItem->id),
-                [
-                    'manage_subscriptions' => true,
-                    'administrative_status' => AdministrativeStatus::SUSPENDED->value,
-                    'technical_status' => TechnicalStatus::PENDING->value,
-                    'parent_subscription' => 42,
-                ]
-            );
+        $response = $this->actingAsEmployee()->postJson(
+            $this->generateRoute('admin.orders.line-items.process.line.item', $this->orderLineItem->id),
+            [
+                'manage_subscriptions' => true,
+                'administrative_status' => AdministrativeStatus::SUSPENDED->value,
+                'technical_status' => TechnicalStatus::PENDING->value,
+                'parent_subscription' => 42,
+            ],
+        );
 
         $response->assertOk();
         $response->assertJsonFragment([
@@ -249,14 +254,13 @@ class OrderControllerTest extends IntegrationTestCase
         $this->orderLineItem->processed_at = CarbonImmutable::now();
         $this->orderLineItem->save();
 
-        $response = $this->actingAsEmployee()
-            ->postJson(
-                $this->generateRoute('admin.orders.line-items.process.line.item', $this->orderLineItem->id),
-                [
-                    'administrative_status' => AdministrativeStatus::ACTIVE->value,
-                    'technical_status' => TechnicalStatus::OK->value,
-                ]
-            );
+        $response = $this->actingAsEmployee()->postJson(
+            $this->generateRoute('admin.orders.line-items.process.line.item', $this->orderLineItem->id),
+            [
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                'technical_status' => TechnicalStatus::OK->value,
+            ],
+        );
 
         $response->assertStatus(422);
         $response->assertJsonFragment([
@@ -268,11 +272,10 @@ class OrderControllerTest extends IntegrationTestCase
     #[Test]
     public function processLineItemReportsEveryStatusProblemInOneResponse(): void
     {
-        $response = $this->actingAsEmployee()
-            ->postJson(
-                $this->generateRoute('admin.orders.line-items.process.line.item', $this->orderLineItem->id),
-                ['technical_status' => 'not-a-technical-status']
-            );
+        $response = $this->actingAsEmployee()->postJson(
+            $this->generateRoute('admin.orders.line-items.process.line.item', $this->orderLineItem->id),
+            ['technical_status' => 'not-a-technical-status'],
+        );
 
         $response->assertStatus(422);
 
@@ -286,16 +289,15 @@ class OrderControllerTest extends IntegrationTestCase
             'status' => OrderStatus::PROCESSED,
         ]);
 
-        $response = $this->actingAsEmployee()
-            ->postJson(
-                $this->generateRoute('admin.orders.retry', $orderProcessed->id)
-            );
+        $response = $this->actingAsEmployee()->postJson(
+            $this->generateRoute('admin.orders.retry', $orderProcessed->id),
+        );
 
         $response->assertStatus(422);
         $response->assertJsonFragment([
             'message' => sprintf(
                 'Retry order is not supported for status "%s"',
-                OrderStatus::PROCESSED->value
+                OrderStatus::PROCESSED->value,
             ),
         ]);
     }

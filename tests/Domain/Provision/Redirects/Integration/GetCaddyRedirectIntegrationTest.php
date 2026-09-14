@@ -56,17 +56,14 @@ class GetCaddyRedirectIntegrationTest extends IntegrationTestCase
         $context = Uuid::uuid4();
         $caddyId = 'caddy-id';
 
-        new CaddyRedirectDeploymentFactory()
-            ->for(
-                new RedirectDeploymentFactory()
-                    ->createOne(
-                        [
-                            'source' => $domain,
-                            'context_uuid' => $context->toString(),
-                        ]
-                    )
-            )
-            ->createOne(['caddy_id' => $caddyId]);
+        new CaddyRedirectDeploymentFactory()->for(
+            new RedirectDeploymentFactory()->createOne(
+                [
+                    'source' => $domain,
+                    'context_uuid' => $context->toString(),
+                ],
+            ),
+        )->createOne(['caddy_id' => $caddyId]);
 
         $request = new GetRedirectRequest(
             domainName: $domain,
@@ -78,7 +75,8 @@ class GetCaddyRedirectIntegrationTest extends IntegrationTestCase
             ->method('getRedirect')
             ->with(
                 $caddyId,
-            )->willReturn(new RedirectRoute(
+            )
+            ->willReturn(new RedirectRoute(
                 id: $caddyId,
                 match: [
                     new RedirectRouteMatch(
@@ -119,7 +117,7 @@ class GetCaddyRedirectIntegrationTest extends IntegrationTestCase
                 '{"domainName": "%s"}',
                 $domain,
             ),
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         self::assertSame($context->toString(), $savedRequest->context_uuid?->toString());
@@ -138,17 +136,14 @@ class GetCaddyRedirectIntegrationTest extends IntegrationTestCase
         $context = Uuid::uuid4();
         $caddyId = 'caddy-id';
 
-        new CaddyRedirectDeploymentFactory()
-            ->for(
-                new RedirectDeploymentFactory()
-                    ->createOne(
-                        [
-                            'source' => $domain,
-                            'context_uuid' => $context->toString(),
-                        ]
-                    )
-            )
-            ->createOne(['caddy_id' => $caddyId]);
+        new CaddyRedirectDeploymentFactory()->for(
+            new RedirectDeploymentFactory()->createOne(
+                [
+                    'source' => $domain,
+                    'context_uuid' => $context->toString(),
+                ],
+            ),
+        )->createOne(['caddy_id' => $caddyId]);
 
         $request = new GetRedirectRequest(
             domainName: $domain,
@@ -160,7 +155,8 @@ class GetCaddyRedirectIntegrationTest extends IntegrationTestCase
             ->method('getRedirect')
             ->with(
                 $caddyId,
-            )->willReturn(new RedirectRoute(
+            )
+            ->willReturn(new RedirectRoute(
                 id: $caddyId,
                 match: [
                     new RedirectRouteMatch(),
@@ -195,7 +191,7 @@ class GetCaddyRedirectIntegrationTest extends IntegrationTestCase
                 '{"domainName": "%s"}',
                 $domain,
             ),
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         self::assertSame($context->toString(), $savedRequest->context_uuid?->toString());

@@ -45,19 +45,18 @@ class OrderValidationTest extends IntegrationTestCase
         $this->setUpSSLProducts();
         $this->setUpDnsProducts();
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $this->mockDomainProvider = $this->createMock(RtrService::class);
 
-        $this->mockDomainProvider
+        $this->mockDomainProvider->method('setHandle')->willReturnSelf();
 
-            ->method('setHandle')
-            ->willReturnSelf();
-
-        $this->mockDomainProvider
-
-            ->method('setClient')
-            ->willReturnSelf();
+        $this->mockDomainProvider->method('setClient')->willReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $this->mockDomainProvider);
 
@@ -75,13 +74,13 @@ class OrderValidationTest extends IntegrationTestCase
     public function success(string $orderDataFilePath): void
     {
         if ($orderDataFilePath === __DIR__ . '/data/order.php') {
-            $this->mockDomainProvider->expects(self::once())
+            $this->mockDomainProvider
+                ->expects(self::once())
                 ->method('check')
                 ->with('ketchup.nl')
                 ->willReturn(new CheckResult('ketchup.nl', 'free'));
         } else {
-            $this->mockDomainProvider->expects(self::never())
-                ->method('check');
+            $this->mockDomainProvider->expects(self::never())->method('check');
         }
 
         $orderData = include $orderDataFilePath;
@@ -105,7 +104,8 @@ class OrderValidationTest extends IntegrationTestCase
     #[Test]
     public function fails(string $orderDataFilePath): void
     {
-        $this->mockDomainProvider->expects(self::once())
+        $this->mockDomainProvider
+            ->expects(self::once())
             ->method('check')
             ->with('ketchup.nl')
             ->willReturn(new CheckResult('ketchup.nl', 'free'));
@@ -163,8 +163,8 @@ class OrderValidationTest extends IntegrationTestCase
 
         new ProductFactory()->createOne([
             'product_group_id' => $productGroup->id,
-            'name'  => 'Extended Validation',
-            'slug'  => 'ssl_extended_validation',
+            'name' => 'Extended Validation',
+            'slug' => 'ssl_extended_validation',
         ]);
     }
 
@@ -177,8 +177,8 @@ class OrderValidationTest extends IntegrationTestCase
 
         $basicDnsProduct = new ProductFactory()->createOne([
             'product_group_id' => $productGroup->id,
-            'name'  => 'DNS',
-            'slug'  => ProductType::BASIC_DNS->value,
+            'name' => 'DNS',
+            'slug' => ProductType::BASIC_DNS->value,
         ]);
         ProductSpecFactory::new()
             ->enable(ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)
@@ -187,8 +187,8 @@ class OrderValidationTest extends IntegrationTestCase
 
         $legacyDnsProduct = new ProductFactory()->createOne([
             'product_group_id' => $productGroup->id,
-            'name'  => ProductType::FREE_DNS->value,
-            'slug'  => ProductType::FREE_DNS->value,
+            'name' => ProductType::FREE_DNS->value,
+            'slug' => ProductType::FREE_DNS->value,
         ]);
         ProductSpecFactory::new()
             ->enable(ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)

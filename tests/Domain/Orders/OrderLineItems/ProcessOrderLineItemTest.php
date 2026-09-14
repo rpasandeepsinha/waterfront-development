@@ -94,10 +94,17 @@ class ProcessOrderLineItemTest extends IntegrationTestCase
 
     private function buildBasicOrderLineItem(): OrderLineItem
     {
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
-        new ServerFactory()->directadmin()->createOne([
-            'type' => ServerType::DIRECTADMIN,
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
         ]);
+        new ServerFactory()
+            ->directadmin()
+            ->createOne([
+                'type' => ServerType::DIRECTADMIN,
+            ]);
 
         $customer = new CustomerFactory()->createOne();
 
@@ -114,7 +121,10 @@ class ProcessOrderLineItemTest extends IntegrationTestCase
 
         $regularPrice = 25;
         $period = 12;
-        new ProductPriceComponentFactory()->for($resellerProduct)->registration()->createOne(['price' => $regularPrice]);
+        new ProductPriceComponentFactory()
+            ->for($resellerProduct)
+            ->registration()
+            ->createOne(['price' => $regularPrice]);
 
         new ProductSpecFactory()->for($resellerProduct)->createOne([
             'name' => 'connections',

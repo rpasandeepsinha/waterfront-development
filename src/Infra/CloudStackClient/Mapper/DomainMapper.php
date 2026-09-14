@@ -18,8 +18,8 @@ class DomainMapper implements Mapper
         assert(is_string($data['parentdomainid']));
 
         return new Domain(
-            id:             $data['id'],
-            name:           $data['name'],
+            id: $data['id'],
+            name: $data['name'],
             parentDomainId: $data['parentdomainid'],
         );
     }

@@ -39,7 +39,7 @@ class DomainSubscriptionTest extends IntegrationTestCase
                 'contract_period' => '24',
                 'gross_price' => 1008,
                 'net_price' => 585,
-            ]
+            ],
         );
 
         self::assertNotNull($subscription->domainDeployment?->id);
@@ -76,20 +76,16 @@ class DomainSubscriptionTest extends IntegrationTestCase
             'slug' => 'extension_nl',
         ]);
         $subscription = new SubscriptionFactory()->for($product)->createOne([
-             'customer_id' => $customer->id,
-             'domain' => 'ketchup.nl',
-             'contract_period' => '24',
-             'gross_price' => 1008,
-             'net_price' => 585,
-             'product_uuid' => $product->uuid,
-         ]);
+            'customer_id' => $customer->id,
+            'domain' => 'ketchup.nl',
+            'contract_period' => '24',
+            'gross_price' => 1008,
+            'net_price' => 585,
+            'product_uuid' => $product->uuid,
+        ]);
 
-        new DomainDeploymentFactory()
-             ->for(new ProviderFactory()
-                 ->domainOpenProvider()
-                 ->createOne())
-             ->createOne([
-                 'subscription_uuid' => $subscription->uuid,
-             ]);
+        new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne())->createOne([
+            'subscription_uuid' => $subscription->uuid,
+        ]);
     }
 }

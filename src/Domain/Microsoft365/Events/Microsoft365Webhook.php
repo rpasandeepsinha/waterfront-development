@@ -6,8 +6,9 @@ namespace Waterfront\Domain\Microsoft365\Events;
 
 readonly class Microsoft365Webhook
 {
-    public function __construct(private string $log)
-    {
+    public function __construct(
+        private string $log,
+    ) {
     }
 
     public function getLog(): string

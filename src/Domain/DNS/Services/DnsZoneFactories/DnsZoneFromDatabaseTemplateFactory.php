@@ -24,7 +24,7 @@ class DnsZoneFromDatabaseTemplateFactory implements DnsZoneFactoryInterface
 {
     public function __construct(
         private readonly DnsRecordHydrator $hydrator,
-        private readonly PowerDnsRecordContentSerializer $serializer
+        private readonly PowerDnsRecordContentSerializer $serializer,
     ) {
     }
 
@@ -120,11 +120,11 @@ class DnsZoneFromDatabaseTemplateFactory implements DnsZoneFactoryInterface
             str_replace(
                 ['{domain}', '{ipv4}', '{ipv6}', '{ipv4Mail}', '{ipv6Mail}', '{ns1}', '{ns2}', '{ns3}'],
                 [$fqdn->toNative(), $ipv4, $ipv6, $ipv4Mail, $ipv6Mail, ...$nameserverHostnames],
-                json_encode($data, JSON_THROW_ON_ERROR)
+                json_encode($data, JSON_THROW_ON_ERROR),
             ),
             true,
             512,
-            JSON_THROW_ON_ERROR
+            JSON_THROW_ON_ERROR,
         );
         assert(is_array($data));
 

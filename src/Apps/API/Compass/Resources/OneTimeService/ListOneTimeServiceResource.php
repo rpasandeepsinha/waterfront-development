@@ -22,18 +22,18 @@ class ListOneTimeServiceResource extends JsonResource
         $invoicesCount = $this->resource->getAttribute('invoices_count');
 
         return [
-            'uuid'           => (string) $this->resource->uuid,
-            'status'         => $this->resource->status->value,
+            'uuid' => (string) $this->resource->uuid,
+            'status' => $this->resource->status->value,
             'execution_date' => $this->resource->execution_date->toIso8601String(),
-            'amount'         => $this->resource->amount,
-            'invoiced'       => ($invoicesCount ?? 0) > 0,
-            'customer'       => [
-                'uuid'            => (string) $this->resource->customer->uuid,
+            'amount' => $this->resource->amount,
+            'invoiced' => ($invoicesCount ?? 0) > 0,
+            'customer' => [
+                'uuid' => (string) $this->resource->customer->uuid,
                 'customer_number' => $this->resource->customer->customer_number,
-                'name'            => $this->resource->customer->contact_name,
+                'name' => $this->resource->customer->contact_name,
             ],
             'subscription' => [
-                'uuid'   => $this->resource->subscription->uuid,
+                'uuid' => $this->resource->subscription->uuid,
                 'domain' => $this->resource->subscription->domain,
             ],
             'product' => [

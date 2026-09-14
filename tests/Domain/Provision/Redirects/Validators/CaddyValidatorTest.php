@@ -46,8 +46,7 @@ class CaddyValidatorTest extends TestCase
         $this->databaseExistsMock->expects('setConnection')->zeroOrMoreTimes();
 
         $translator = $this->createStub(Translator::class);
-        $translator->method('get')
-            ->willReturnCallback(fn (string $message): mixed => $message);
+        $translator->method('get')->willReturnCallback(fn (string $message): mixed => $message);
         $this->app->bind(Translator::class, fn (): Translator => $translator);
         $validatorFactory = new Factory($translator);
         $validatorFactory->setPresenceVerifier($databaseExistsMock);
@@ -71,10 +70,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function createCaddyValidationSuccess(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(0);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(0);
 
         $request = new CreateRedirectRequest(
             domain: 'yourhosting.nl',
@@ -91,10 +87,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function createCaddyValidationDomainAlreadyExists(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(1);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(1);
 
         $request = new CreateRedirectRequest(
             domain: 'yourhosting.nl',
@@ -112,9 +105,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function createCaddyValidationInvalidDomain(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->never();
+        $this->databaseExistsMock->shouldReceive('getCount')->never();
 
         $request = new CreateRedirectRequest(
             domain: 'invalid',
@@ -132,10 +123,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function getRedirectValidatorSuccess(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->twice()
-            ->andReturn(1, 1);
+        $this->databaseExistsMock->shouldReceive('getCount')->twice()->andReturn(1, 1);
 
         $request = new GetRedirectRequest(
             domainName: 'yourhosting.nl',
@@ -150,10 +138,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function getRedirectValidatorInvalidDomain(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(1);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(1);
 
         $request = new GetRedirectRequest(
             domainName: 'invalid',
@@ -193,10 +178,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function updateRedirectValidatorSuccess(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->twice()
-            ->andReturn(1, 1);
+        $this->databaseExistsMock->shouldReceive('getCount')->twice()->andReturn(1, 1);
 
         $request = new UpdateRedirectRequest(
             oldSource: 'yourhosting.nl',
@@ -214,10 +196,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function updateRedirectValidatorInvalidOldSource(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(1);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(1);
 
         $request = new UpdateRedirectRequest(
             oldSource: 'invalid',
@@ -236,10 +215,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function updateRedirectValidatorInvalidNewSource(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->twice()
-            ->andReturn([0, 1]);
+        $this->databaseExistsMock->shouldReceive('getCount')->twice()->andReturn([0, 1]);
 
         $request = new UpdateRedirectRequest(
             oldSource: 'yourhosting.nl',
@@ -258,10 +234,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function updateRedirectValidatorInvalidDestinationUrl(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->twice()
-            ->andReturn(1, 1);
+        $this->databaseExistsMock->shouldReceive('getCount')->twice()->andReturn(1, 1);
 
         $request = new UpdateRedirectRequest(
             oldSource: 'yourhosting.nl',
@@ -280,10 +253,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function updateRedirectValidatorContextDoesNotExist(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->twice()
-            ->andReturn(1, 0);
+        $this->databaseExistsMock->shouldReceive('getCount')->twice()->andReturn(1, 0);
 
         $request = new UpdateRedirectRequest(
             oldSource: 'yourhosting.nl',
@@ -302,10 +272,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function deleteRedirectValidatorSuccess(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->twice()
-            ->andReturn(1, 1);
+        $this->databaseExistsMock->shouldReceive('getCount')->twice()->andReturn(1, 1);
 
         $request = new DeleteRedirectRequest(
             domainName: 'yourhosting.nl',
@@ -320,10 +287,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function deleteRedirectValidatorInvalidDomain(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(1);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(1);
 
         $request = new DeleteRedirectRequest(
             domainName: 'invalid',
@@ -339,10 +303,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function deleteRedirectValidatorContextDoesNotExist(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->twice()
-            ->andReturn(0, 0);
+        $this->databaseExistsMock->shouldReceive('getCount')->twice()->andReturn(0, 0);
 
         $request = new DeleteRedirectRequest(
             domainName: 'yourhosting.nl',
@@ -359,10 +320,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function terminateRedirectsValidatorSuccess(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(1);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(1);
 
         $request = new TerminateRedirectsRequest(
             context: $this->context,
@@ -376,10 +334,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function terminateRedirectsValidatorContextDoesNotExist(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(0);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(0);
 
         $request = new TerminateRedirectsRequest(
             context: Uuid::uuid4(),
@@ -394,10 +349,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function suspendRedirectValidatorSuccess(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(1);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(1);
 
         $request = new SuspendRedirectRequest(
             context: $this->context,
@@ -411,10 +363,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function suspendRedirectValidatorContextDoesNotExist(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(0);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(0);
 
         $request = new SuspendRedirectRequest(
             context: $this->context,
@@ -429,10 +378,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function unsuspendRedirectValidatorSuccess(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(1);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(1);
 
         $request = new UnsuspendRedirectRequest(
             context: $this->context,
@@ -446,10 +392,7 @@ class CaddyValidatorTest extends TestCase
     #[Test]
     public function unsuspendRedirectValidatorContextDoesNotExist(): void
     {
-        $this->databaseExistsMock
-            ->shouldReceive('getCount')
-            ->once()
-            ->andReturn(0);
+        $this->databaseExistsMock->shouldReceive('getCount')->once()->andReturn(0);
 
         $request = new UnsuspendRedirectRequest(
             context: $this->context,

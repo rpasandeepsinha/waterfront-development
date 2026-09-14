@@ -46,16 +46,19 @@ class HarborPropagationArbiterTest extends IntegrationTestCase
             'customer_id' => $this->customer->id,
         ]);
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
-        $this->product  = new ProductFactory()->for($productGroup)->createOne();
+        $this->product = new ProductFactory()->for($productGroup)->createOne();
     }
 
     #[Test]
     public function withRegularFlow(): void
     {
-        new MigratedCustomersFactory()->createOne([
-            'successful' => true,
-            'enable_invoicing' => true,
-        ])->customers()->attach($this->customer);
+        new MigratedCustomersFactory()
+            ->createOne([
+                'successful' => true,
+                'enable_invoicing' => true,
+            ])
+            ->customers()
+            ->attach($this->customer);
 
         $subscriptionData = [
             'product_uuid' => $this->product->uuid,
@@ -246,7 +249,10 @@ class HarborPropagationArbiterTest extends IntegrationTestCase
             ]);
 
         $order = new OrderFactory()->for($this->customer)->createOne();
-        $payment = new PaymentFactory()->createOne(['status' => PaymentStatus::PAID, 'customer_uuid' => $subscription->customer->uuid]);
+        $payment = new PaymentFactory()->createOne([
+            'status' => PaymentStatus::PAID,
+            'customer_uuid' => $subscription->customer->uuid,
+        ]);
 
         $order->payments()->save($payment);
 

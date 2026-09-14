@@ -118,7 +118,10 @@ class VirtualMachineServiceTest extends IntegrationTestCase
 
         $this->newOsProduct = new ProductFactory()->ubuntu()->createOne();
 
-        new CloudstackEnvironmentProductFactory()->for($virtualMachineProduct)->for($this->environment)->create();
+        new CloudstackEnvironmentProductFactory()
+            ->for($virtualMachineProduct)
+            ->for($this->environment)
+            ->create();
 
         $this->virtualMachineSubscription = new SubscriptionFactory()
             ->for($virtualMachineProduct)
@@ -127,12 +130,12 @@ class VirtualMachineServiceTest extends IntegrationTestCase
                 'uuid' => '45ff89c4-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
             ]);
 
-        $this->virtualMachineDeployment = new CloudstackVirtualMachineDeploymentFactory()
-            ->for($managerDomainDeployment)
-            ->createOne([
-                'subscription_uuid' => $this->virtualMachineSubscription->uuid,
-                'cloudstack_id'      => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-            ]);
+        $this->virtualMachineDeployment = new CloudstackVirtualMachineDeploymentFactory()->for(
+            $managerDomainDeployment,
+        )->createOne([
+            'subscription_uuid' => $this->virtualMachineSubscription->uuid,
+            'cloudstack_id' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+        ]);
 
         $this->loggerMock = self::createMock(LoggerInterface::class);
 
@@ -180,7 +183,7 @@ class VirtualMachineServiceTest extends IntegrationTestCase
             ip6Address: '2600:1801:1::1',
             secondaryIp: [],
             extraDhcpOption: [],
-            deviceId: '0'
+            deviceId: '0',
         );
 
         $virtualMachine = new VirtualMachine(
@@ -191,14 +194,12 @@ class VirtualMachineServiceTest extends IntegrationTestCase
             username: 'username',
             nic: [$nic],
             state: CloudstackMachineState::RUNNING,
-            serviceOfferingId: '1234'
+            serviceOfferingId: '1234',
         );
 
         $service = self::createMock(VirtualMachineServiceInterface::class);
 
-        $service->expects(self::once())
-            ->method('findByDeployment')
-            ->willReturn($virtualMachine);
+        $service->expects(self::once())->method('findByDeployment')->willReturn($virtualMachine);
 
         $subscription = $this->virtualMachineSubscription;
         self::assertNotNull($subscription->cloudStackVirtualMachineDeployment);
@@ -215,9 +216,7 @@ class VirtualMachineServiceTest extends IntegrationTestCase
     {
         $service = self::createMock(VirtualMachineServiceInterface::class);
 
-        $service->expects(self::once())
-            ->method($state->value)
-            ->willReturn($expectedResult);
+        $service->expects(self::once())->method($state->value)->willReturn($expectedResult);
 
         $subscription = $this->virtualMachineSubscription;
 
@@ -232,9 +231,7 @@ class VirtualMachineServiceTest extends IntegrationTestCase
     {
         $service = self::createMock(VirtualMachineServiceInterface::class);
 
-        $service->expects(self::once())
-            ->method('reinstall')
-            ->willReturn(true);
+        $service->expects(self::once())->method('reinstall')->willReturn(true);
 
         $subscription = $this->virtualMachineSubscription;
 
@@ -248,9 +245,9 @@ class VirtualMachineServiceTest extends IntegrationTestCase
     public function postReinstallSuccessWithSshKeyRequired(): void
     {
         $job = new CloudstackJob([
-            'id'            => 100,
+            'id' => 100,
             'template_uuid' => 'template-uuid',
-            'ssh_key_uuid'  => 'ssh-key-uuid',
+            'ssh_key_uuid' => 'ssh-key-uuid',
         ]);
 
         $osGroup = $this->newOsProduct->productGroup;
@@ -259,16 +256,14 @@ class VirtualMachineServiceTest extends IntegrationTestCase
             ->state(['uuid' => 'template-uuid'])
             ->has(
                 new ProductSpecFactory()->state([
-                    'name'  => ProductSpecName::SSH_KEY_REQUIRED->value,
+                    'name' => ProductSpecName::SSH_KEY_REQUIRED->value,
                     'value' => 'true',
                 ]),
-                'productSpecs'
+                'productSpecs',
             )
             ->createOne();
 
-        $this->productRepository
-            ->method('findProductByUuid')
-            ->willReturn($product);
+        $this->productRepository->method('findProductByUuid')->willReturn($product);
 
         $this->productSpecRepository
             ->expects(self::once())
@@ -279,7 +274,11 @@ class VirtualMachineServiceTest extends IntegrationTestCase
         $this->linkSshKeyAction
             ->expects(self::once())
             ->method('execute')
-            ->with('ssh-key-uuid', $this->virtualMachineDeployment->id, $this->virtualMachineDeployment->managerDomainDeployment)
+            ->with(
+                'ssh-key-uuid',
+                $this->virtualMachineDeployment->id,
+                $this->virtualMachineDeployment->managerDomainDeployment,
+            )
             ->willReturn('cloud-key-name');
 
         $service = $this->getMockBuilder(VirtualMachineService::class)
@@ -298,11 +297,12 @@ class VirtualMachineServiceTest extends IntegrationTestCase
             ])
             ->getMock();
 
-        $service->expects(self::once())
+        $service
+            ->expects(self::once())
             ->method('resetSshKey')
             ->with(
                 self::assertCallbackIsModel($this->virtualMachineDeployment),
-                'cloud-key-name'
+                'cloud-key-name',
             );
 
         $service->postReinstall($this->virtualMachineDeployment, $job);
@@ -317,7 +317,7 @@ class VirtualMachineServiceTest extends IntegrationTestCase
     public function postReinstallSuccessWithoutSshKey(): void
     {
         $job = new CloudstackJob([
-            'id'            => 101,
+            'id' => 101,
             'template_uuid' => 'template-uuid',
         ]);
 
@@ -327,16 +327,14 @@ class VirtualMachineServiceTest extends IntegrationTestCase
             ->state(['uuid' => 'template-uuid'])
             ->has(
                 new ProductSpecFactory()->state([
-                    'name'  => ProductSpecName::SSH_KEY_REQUIRED->value,
+                    'name' => ProductSpecName::SSH_KEY_REQUIRED->value,
                     'value' => 'false',
                 ]),
-                'productSpecs'
+                'productSpecs',
             )
             ->createOne();
 
-        $this->productRepository
-            ->method('findProductByUuid')
-            ->willReturn($product);
+        $this->productRepository->method('findProductByUuid')->willReturn($product);
 
         $this->productSpecRepository
             ->expects(self::once())
@@ -385,7 +383,7 @@ class VirtualMachineServiceTest extends IntegrationTestCase
 
         $this->virtualMachineService->postReinstall(
             $this->virtualMachineDeployment,
-            $job
+            $job,
         );
     }
 
@@ -402,7 +400,7 @@ class VirtualMachineServiceTest extends IntegrationTestCase
         $product = new Product();
         $product->uuid = 'template-uuid';
         $spec = (object) [
-            'name'  => ProductSpecName::SSH_KEY_REQUIRED->value,
+            'name' => ProductSpecName::SSH_KEY_REQUIRED->value,
             'value' => 'true',
         ];
         $product->setRelation('productSpecs', new Collection([$spec]));
@@ -424,7 +422,7 @@ class VirtualMachineServiceTest extends IntegrationTestCase
 
         $this->virtualMachineService->postReinstall(
             $this->virtualMachineDeployment,
-            $job
+            $job,
         );
     }
 
@@ -435,12 +433,14 @@ class VirtualMachineServiceTest extends IntegrationTestCase
         $jobIdMockString = 'aaaa-aaaa-aaaa-aaaa';
 
         $cloudstackClientMock = self::createMock(CloudStackClient::class);
-        $cloudstackClientMock->expects(self::once())
+        $cloudstackClientMock
+            ->expects(self::once())
             ->method('resetSshKeyForVirtualMachine')
             ->with($this->virtualMachineDeployment->cloudstack_id, $newKeyNameMockString)
             ->willReturn(new AsynchronousCloudstackResponse(jobId: $jobIdMockString));
 
-        $this->clientFactoryMock->expects(self::once())
+        $this->clientFactoryMock
+            ->expects(self::once())
             ->method('create')
             ->with($this->virtualMachineDeployment->managerDomainDeployment)
             ->willReturn($cloudstackClientMock);
@@ -452,22 +452,19 @@ class VirtualMachineServiceTest extends IntegrationTestCase
             $this->virtualMachineDeployment->subscription->uuid,
         );
 
-        $this->loggerMock->expects(self::once())
-            ->method('info')
-            ->with($logMessage);
+        $this->loggerMock->expects(self::once())->method('info')->with($logMessage);
 
-        $this->dispatcherMock->expects(self::once())
-            ->method('dispatch');
+        $this->dispatcherMock->expects(self::once())->method('dispatch');
 
         $serviceResult = $this->virtualMachineService->resetSshKey(
             deployment: $this->virtualMachineDeployment,
-            newKeyName: $newKeyNameMockString
+            newKeyName: $newKeyNameMockString,
         );
 
         self::assertTrue($serviceResult);
         self::assertSame(
             TechnicalStatus::PENDING->value,
-            $this->virtualMachineDeployment->subscription->technical_status
+            $this->virtualMachineDeployment->subscription->technical_status,
         );
         self::assertSame(VpsActionStatus::RESETTING_SSH_KEY, $this->virtualMachineDeployment->last_action_status);
     }
@@ -480,17 +477,20 @@ class VirtualMachineServiceTest extends IntegrationTestCase
         $cloudstackClientMock = self::createMock(CloudStackClient::class);
 
         $expectedException = new CloudStackException('This is a test message');
-        $cloudstackClientMock->expects(self::once())
+        $cloudstackClientMock
+            ->expects(self::once())
             ->method('resetSshKeyForVirtualMachine')
             ->with($this->virtualMachineDeployment->cloudstack_id, $newKeyNameMockString)
             ->willThrowException($expectedException);
 
-        $this->clientFactoryMock->expects(self::once())
+        $this->clientFactoryMock
+            ->expects(self::once())
             ->method('create')
             ->with($this->virtualMachineDeployment->managerDomainDeployment)
             ->willReturn($cloudstackClientMock);
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with(
                 $expectedException->getMessage(),
@@ -500,12 +500,12 @@ class VirtualMachineServiceTest extends IntegrationTestCase
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
                     LoggingContextKeys::EXCEPTION => $expectedException,
-                ]
+                ],
             );
 
         $serviceResult = $this->virtualMachineService->resetSshKey(
             deployment: $this->virtualMachineDeployment,
-            newKeyName: $newKeyNameMockString
+            newKeyName: $newKeyNameMockString,
         );
 
         Assert::assertFalse($serviceResult);
@@ -515,7 +515,12 @@ class VirtualMachineServiceTest extends IntegrationTestCase
     public function virtualMachineReinstall(): void
     {
         $cloudstackBaseClientMock = self::createMock(CloudStackBaseClient::class);
-        $startedReinstallResponse = json_decode((string) file_get_contents(__DIR__ . '/../../data/reinstall/created_job.json'), true, 512, JSON_THROW_ON_ERROR);
+        $startedReinstallResponse = json_decode(
+            (string) file_get_contents(__DIR__ . '/../../data/reinstall/created_job.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
         $jobId = 'fbhdt34e-bb25-40hj-bd5f-320b9cq27151'; // matches json file
 
         $mockTemplate = self::createMock(Template::class);
@@ -524,7 +529,8 @@ class VirtualMachineServiceTest extends IntegrationTestCase
         $mockTemplate->id = 'fa685028-1f5f-4acd-82a3-1693b91e605a';
         $mockTemplate->name = 'mock-template';
 
-        $cloudstackBaseClientMock->expects(self::once())
+        $cloudstackBaseClientMock
+            ->expects(self::once())
             ->method('execute')
             ->with('restoreVirtualMachine', [
                 'virtualmachineid' => $this->virtualMachineDeployment->cloudstack_id,
@@ -532,12 +538,14 @@ class VirtualMachineServiceTest extends IntegrationTestCase
             ])
             ->willReturn($startedReinstallResponse);
 
-        $this->clientFactoryMock->expects(self::once())
+        $this->clientFactoryMock
+            ->expects(self::once())
             ->method('create')
             ->with($this->virtualMachineDeployment->managerDomainDeployment)
             ->willReturn(new CloudStackClient($cloudstackBaseClientMock, CloudstackSerializerFactory::get()));
 
-        $this->vpsTemplateServiceMock->expects(self::once())
+        $this->vpsTemplateServiceMock
+            ->expects(self::once())
             ->method('getTemplateByProduct')
             ->with(
                 self::assertCallbackIsModel($this->newOsProduct),
@@ -545,14 +553,18 @@ class VirtualMachineServiceTest extends IntegrationTestCase
             )
             ->willReturn($mockTemplate);
 
-        $this->dispatcherMock->expects(self::once())
+        $this->dispatcherMock
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::callback(fn ($job) => $job instanceof ReinstallVirtualMachineJob));
 
         $this->virtualMachineService->reinstall($this->virtualMachineDeployment, $this->newOsProduct);
 
         $this->virtualMachineDeployment->refresh();
-        self::assertSame(TechnicalStatus::PENDING->value, $this->virtualMachineDeployment->subscription->technical_status);
+        self::assertSame(
+            TechnicalStatus::PENDING->value,
+            $this->virtualMachineDeployment->subscription->technical_status,
+        );
         self::assertSame(VpsActionStatus::REINSTALLING, $this->virtualMachineDeployment->last_action_status);
         self::assertDatabaseHas('cloudstack_jobs', [
             'job_id' => $jobId,
@@ -564,10 +576,16 @@ class VirtualMachineServiceTest extends IntegrationTestCase
     public function virtualMachineDestroy(): void
     {
         $cloudstackBaseClientMock = self::createMock(CloudStackBaseClient::class);
-        $startedDestroyResponse = json_decode((string) file_get_contents(__DIR__ . '/../../data/destroy/created_job.json'), true, 512, JSON_THROW_ON_ERROR);
+        $startedDestroyResponse = json_decode(
+            (string) file_get_contents(__DIR__ . '/../../data/destroy/created_job.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
         $jobId = '741c702b-8857-4e3c-8b88-0157e1321cad'; // matches json file
 
-        $cloudstackBaseClientMock->expects(self::once())
+        $cloudstackBaseClientMock
+            ->expects(self::once())
             ->method('execute')
             ->with('destroyVirtualMachine', [
                 'id' => $this->virtualMachineDeployment->cloudstack_id,
@@ -575,21 +593,24 @@ class VirtualMachineServiceTest extends IntegrationTestCase
             ])
             ->willReturn($startedDestroyResponse);
 
-        $this->clientFactoryMock->expects(self::once())
+        $this->clientFactoryMock
+            ->expects(self::once())
             ->method('create')
             ->with($this->virtualMachineDeployment->managerDomainDeployment)
             ->willReturn(new CloudStackClient($cloudstackBaseClientMock, CloudstackSerializerFactory::get()));
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('info')
             ->with(sprintf(
                 'Cloudstack destroying VM [%s] with job ID %s for subscription %s.',
                 $this->virtualMachineDeployment->cloudstack_id,
                 $jobId,
-                $this->virtualMachineDeployment->subscription_uuid
+                $this->virtualMachineDeployment->subscription_uuid,
             ));
 
-        $this->dispatcherMock->expects(self::once())
+        $this->dispatcherMock
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::callback(fn ($job) => $job instanceof DestroyVirtualMachineJob));
 
@@ -608,11 +629,17 @@ class VirtualMachineServiceTest extends IntegrationTestCase
     public function virtualMachineResetPassword(): void
     {
         $cloudstackBaseClientMock = self::createMock(CloudStackBaseClient::class);
-        $startedDestroyResponse = json_decode((string) file_get_contents(__DIR__ . '/../../data/reset_password/created_job.json'), true, 512, JSON_THROW_ON_ERROR);
+        $startedDestroyResponse = json_decode(
+            (string) file_get_contents(__DIR__ . '/../../data/reset_password/created_job.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
         $jobId = '741c702b-8857-4e3c-8b88-0157e1321cad'; // matches json file
         $newPassword = 'hunter2';
 
-        $cloudstackBaseClientMock->expects(self::once())
+        $cloudstackBaseClientMock
+            ->expects(self::once())
             ->method('execute')
             ->with('resetPasswordForVirtualMachine', [
                 'id' => $this->virtualMachineDeployment->cloudstack_id,
@@ -620,25 +647,31 @@ class VirtualMachineServiceTest extends IntegrationTestCase
             ])
             ->willReturn($startedDestroyResponse);
 
-        $this->clientFactoryMock->expects(self::once())
+        $this->clientFactoryMock
+            ->expects(self::once())
             ->method('create')
             ->with($this->virtualMachineDeployment->managerDomainDeployment)
             ->willReturn(new CloudStackClient($cloudstackBaseClientMock, CloudstackSerializerFactory::get()));
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('info')
             ->with(sprintf(
                 'Cloudstack resetting VMs [%s] password with job ID %s for subscription %s.',
                 $this->virtualMachineDeployment->cloudstack_id,
                 $jobId,
-                $this->virtualMachineDeployment->subscription_uuid
+                $this->virtualMachineDeployment->subscription_uuid,
             ));
 
-        $this->dispatcherMock->expects(self::once())
+        $this->dispatcherMock
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::callback(fn ($job) => $job instanceof ResetPasswordJob));
 
-        $resetPasswordSuccess = $this->virtualMachineService->resetPassword($this->virtualMachineDeployment, $newPassword);
+        $resetPasswordSuccess = $this->virtualMachineService->resetPassword(
+            $this->virtualMachineDeployment,
+            $newPassword,
+        );
 
         $subscription = $this->virtualMachineDeployment->subscription->refresh();
         self::assertSame(TechnicalStatus::PENDING->value, $subscription->technical_status);
@@ -655,14 +688,21 @@ class VirtualMachineServiceTest extends IntegrationTestCase
     public function findVirtualMachinesTest(): void
     {
         $cloudstackBaseClientMock = self::createMock(CloudStackBaseClient::class);
-        $listVirtualMachineResponse = json_decode((string) file_get_contents(__DIR__ . '/../../data/virtualmachines/listVirtualMachines.json'), true, 512, JSON_THROW_ON_ERROR);
+        $listVirtualMachineResponse = json_decode(
+            (string) file_get_contents(__DIR__ . '/../../data/virtualmachines/listVirtualMachines.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
-        $cloudstackBaseClientMock->expects(self::once())
+        $cloudstackBaseClientMock
+            ->expects(self::once())
             ->method('execute')
             ->with('listVirtualMachines', ['listall' => 'true'])
             ->willReturn($listVirtualMachineResponse);
 
-        $this->clientFactoryMock->expects(self::once())
+        $this->clientFactoryMock
+            ->expects(self::once())
             ->method('create')
             ->with($this->virtualMachineDeployment->managerDomainDeployment)
             ->willReturn(new CloudStackClient($cloudstackBaseClientMock, CloudstackSerializerFactory::get()));
@@ -680,14 +720,21 @@ class VirtualMachineServiceTest extends IntegrationTestCase
 
         // matches json
         $expectedUrl = 'https://13.37.13.37.infra.cldin.net/resource/noVNC/vnc.html?autoconnect=true&port=8443&token=legit-token';
-        $createConsoleResponse = json_decode((string) file_get_contents(__DIR__ . '/../../data/console/create-console-endpoint.json'), true, 512, JSON_THROW_ON_ERROR);
+        $createConsoleResponse = json_decode(
+            (string) file_get_contents(__DIR__ . '/../../data/console/create-console-endpoint.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
-        $this->adminClientFactoryMock->expects(self::once())
+        $this->adminClientFactoryMock
+            ->expects(self::once())
             ->method('create')
             ->with(self::assertCallbackIsModel($this->environment))
             ->willReturn(new CloudStackClient($cloudstackBaseClientMock, CloudstackSerializerFactory::get()));
 
-        $cloudstackBaseClientMock->expects(self::once())
+        $cloudstackBaseClientMock
+            ->expects(self::once())
             ->method('execute')
             ->with('createConsoleEndpoint', ['virtualmachineid' => $this->virtualMachineDeployment->cloudstack_id])
             ->willReturn($createConsoleResponse);
@@ -704,14 +751,21 @@ class VirtualMachineServiceTest extends IntegrationTestCase
 
         // matches json
         $expectedError = 'The console endpoint is not available yet.';
-        $createConsoleResponse = json_decode((string) file_get_contents(__DIR__ . '/../../data/console/create-console-endpoint-error.json'), true, 512, JSON_THROW_ON_ERROR);
+        $createConsoleResponse = json_decode(
+            (string) file_get_contents(__DIR__ . '/../../data/console/create-console-endpoint-error.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
-        $this->adminClientFactoryMock->expects(self::once())
+        $this->adminClientFactoryMock
+            ->expects(self::once())
             ->method('create')
             ->with(self::assertCallbackIsModel($this->environment))
             ->willReturn(new CloudStackClient($cloudstackBaseClientMock, CloudstackSerializerFactory::get()));
 
-        $cloudstackBaseClientMock->expects(self::once())
+        $cloudstackBaseClientMock
+            ->expects(self::once())
             ->method('execute')
             ->with('createConsoleEndpoint', ['virtualmachineid' => $this->virtualMachineDeployment->cloudstack_id])
             ->willReturn($createConsoleResponse);
@@ -720,7 +774,7 @@ class VirtualMachineServiceTest extends IntegrationTestCase
         self::expectExceptionMessageIs(sprintf(
             'Failed to get console URL for VM %s: %s',
             $this->virtualMachineDeployment->id,
-            $expectedError
+            $expectedError,
         ));
 
         $this->virtualMachineService->getConsole($this->virtualMachineDeployment);
@@ -736,7 +790,8 @@ class VirtualMachineServiceTest extends IntegrationTestCase
             $this->virtualMachineDeployment->id,
         );
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 $logMessage,
@@ -750,7 +805,7 @@ class VirtualMachineServiceTest extends IntegrationTestCase
 
         $serviceResult = $this->virtualMachineService->resetSshKey(
             deployment: $this->virtualMachineDeployment,
-            newKeyName: 'sha1-from-the-key'
+            newKeyName: 'sha1-from-the-key',
         );
 
         Assert::assertFalse($serviceResult);
@@ -765,6 +820,7 @@ class VirtualMachineServiceTest extends IntegrationTestCase
         yield [VirtualMachineState::REBOOT, true];
         yield [VirtualMachineState::STOP, true];
         yield [VirtualMachineState::DESTROY, true];
+
         // REINSTALL is tested in 'testReinstallingStateVirtualMachine'
     }
 }

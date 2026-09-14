@@ -65,11 +65,19 @@ class SitebuilderService
     public function createSite(Subscription $subscription): bool
     {
         if (! $subscription->product->isSitebuilderProduct()) {
-            throw new UnexpectedValueException("Unexpected subscription provided sitebuilder subscriptions allowed given subscription with ID: {$subscription->id}");
+            throw new UnexpectedValueException(
+                "Unexpected subscription provided sitebuilder subscriptions allowed given subscription with ID: {$subscription->id}",
+            );
         }
 
         if ($subscription->domain === null) {
-            $this->logger->notice(sprintf('Sitebuilder provision failed for subscription uuid %s. Domain is missing', $subscription->uuid), $this->getLogContext($subscription));
+            $this->logger->notice(
+                sprintf(
+                    'Sitebuilder provision failed for subscription uuid %s. Domain is missing',
+                    $subscription->uuid,
+                ),
+                $this->getLogContext($subscription),
+            );
             throw new UnexpectedValueException('Can not provision sitebuilder because domain is missing.');
         }
 
@@ -93,13 +101,16 @@ class SitebuilderService
         if ($this->hasSitebuilderThroughGateway($subscription->customer->email)) {
             $gatewayResult = $this->createSiteUsingGateway($subscription);
             $this->setSitebuilderDns($subscription->domain, $mailOnlyServer);
+
             return $gatewayResult;
         }
 
         $sitebuilderServer = $this->getSitebuilderServer($defaultProvider);
-        $result = $this->sitebuilderServiceFactory
-            ->driver()
-            ->createSite($subscription, $sitebuilderServer, $mailOnlyServer);
+        $result = $this->sitebuilderServiceFactory->driver()->createSite(
+            $subscription,
+            $sitebuilderServer,
+            $mailOnlyServer,
+        );
 
         $hostingDeployment->basekit_server_id = $sitebuilderServer->id;
         $hostingDeployment->sitebuilder_provider_id = $defaultProvider->id;
@@ -140,18 +151,14 @@ class SitebuilderService
             ->getSite($hostingDeployment);
     }
 
-    public function getSiteFromRef(int $siteRef, Server $server, string|null $driverSlug = null): SitebuilderSiteInterface
+    public function getSiteFromRef(int $siteRef, Server $server, ?string $driverSlug = null): SitebuilderSiteInterface
     {
-        return $this->sitebuilderServiceFactory
-            ->driver($driverSlug)
-            ->getSiteFromRef($siteRef, $server);
+        return $this->sitebuilderServiceFactory->driver($driverSlug)->getSiteFromRef($siteRef, $server);
     }
 
-    public function getUserFromRef(int $userRef, Server $server, string|null $driverSlug = null): SitebuilderUserInterface
+    public function getUserFromRef(int $userRef, Server $server, ?string $driverSlug = null): SitebuilderUserInterface
     {
-        return $this->sitebuilderServiceFactory
-            ->driver($driverSlug)
-            ->getUserFromRef($userRef, $server);
+        return $this->sitebuilderServiceFactory->driver($driverSlug)->getUserFromRef($userRef, $server);
     }
 
     public function setupSsl(SslDeployment $sslDeployment, HostingDeployment $hostingDeployment): bool
@@ -160,7 +167,7 @@ class SitebuilderService
         if (is_null($server)) {
             throw new ServerNotFoundException(sprintf(
                 'No server found on hostingsubscription with id: %s',
-                $hostingDeployment->id
+                $hostingDeployment->id,
             ));
         }
 
@@ -172,12 +179,13 @@ class SitebuilderService
                     'ssl_subscription_uuid' => $sslDeployment->subscription_uuid,
                 ],
                 LoggingContextKeys::SERVER_ID => $server->id,
-            ]
+            ],
         );
 
-        $result = $this->sitebuilderServiceFactory
-            ->driver($hostingDeployment->sitebuilderProvider?->slug->value)
-            ->setupSsl($sslDeployment, $server);
+        $result = $this->sitebuilderServiceFactory->driver($hostingDeployment->sitebuilderProvider?->slug->value)->setupSsl(
+            $sslDeployment,
+            $server,
+        );
 
         return $result->getStatus() === Result::STATUS_OK;
     }
@@ -185,7 +193,9 @@ class SitebuilderService
     public function terminate(Subscription $subscription): void
     {
         if (! $subscription->product->isSitebuilderProduct()) {
-            throw new UnexpectedValueException("Unexpected subscription provided sitebuilder subscriptions allowed given subscription with ID: {$subscription->id}");
+            throw new UnexpectedValueException(
+                "Unexpected subscription provided sitebuilder subscriptions allowed given subscription with ID: {$subscription->id}",
+            );
         }
 
         $hostingDeployment = $subscription->hostingDeployment;
@@ -194,7 +204,7 @@ class SitebuilderService
             throw new UnexpectedValueException(sprintf(
                 'Subscription %s (%d) has no hosting deployment',
                 $subscription->domain,
-                $subscription->id
+                $subscription->id,
             ));
         }
 
@@ -203,7 +213,7 @@ class SitebuilderService
         if (is_null($server)) {
             throw new ServerNotFoundException(sprintf(
                 'No server found for hostingsubcription with id: %s',
-                $hostingDeployment->id
+                $hostingDeployment->id,
             ));
         }
 
@@ -213,12 +223,13 @@ class SitebuilderService
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                 LoggingContextKeys::SERVER_ID => $server->id,
-            ]
+            ],
         );
 
-        $this->sitebuilderServiceFactory
-            ->driver($hostingDeployment->sitebuilderProvider?->slug->value)
-            ->deleteSite($hostingDeployment, $server);
+        $this->sitebuilderServiceFactory->driver($hostingDeployment->sitebuilderProvider?->slug->value)->deleteSite(
+            $hostingDeployment,
+            $server,
+        );
     }
 
     public function getSsoUrl(HostingDeployment $hostingDeployment): string
@@ -236,15 +247,18 @@ class SitebuilderService
         if ($this->gatewayHelper->hasSitebuilderDeploymentUsingGateway($sitebuilderSubscription)) {
             $getSsoRequest = new GetSitebuilderSsoRequest(
                 context: Uuid::fromString($sitebuilderSubscription->uuid),
-                tagUuid: Uuid::fromString($sitebuilderSubscription->uuid)
+                tagUuid: Uuid::fromString($sitebuilderSubscription->uuid),
             );
 
             $result = $this->provisionGateway->request($getSsoRequest);
 
             if (! $result instanceof SitebuilderSsoResult || $result->failed) {
                 throw new SitebuilderException(
-                    message: sprintf('Error when trying to fetch SSO url for subscription [%s] through gateway.', $sitebuilderSubscription->uuid),
-                    previous: $result->exception
+                    message: sprintf(
+                        'Error when trying to fetch SSO url for subscription [%s] through gateway.',
+                        $sitebuilderSubscription->uuid,
+                    ),
+                    previous: $result->exception,
                 );
             }
 
@@ -258,7 +272,7 @@ class SitebuilderService
             throw new UnexpectedValueException(sprintf(
                 'Hostingdeployment with id: %s, and domain: %s, does not have baseKit_user_ref.',
                 $hostingDeployment->id,
-                $domain
+                $domain,
             ));
         }
 
@@ -268,7 +282,7 @@ class SitebuilderService
             throw new UnexpectedValueException(sprintf(
                 'Hostingdeployment with id: %s, and domain: %s, does not have baseKit_site_ref.',
                 $hostingDeployment->id,
-                $domain
+                $domain,
             ));
         }
 
@@ -276,20 +290,23 @@ class SitebuilderService
         if ($server === null) {
             throw new ServerNotFoundException(sprintf(
                 'No server found for hostingDeployment id: %s',
-                $hostingDeployment->id
+                $hostingDeployment->id,
             ));
         }
 
         if ($hostingDeployment->sitebuilder_provider_id === null) {
             throw new UnexpectedValueException(sprintf(
                 'No provider found for hostingDeployment id: %s',
-                $hostingDeployment->id
+                $hostingDeployment->id,
             ));
         }
 
-        return $this->sitebuilderServiceFactory
-            ->driver($hostingDeployment->sitebuilderProvider?->slug->value)
-            ->getSsoUrl($server, $domain, $basekitUserRef, $basekitSiteRef);
+        return $this->sitebuilderServiceFactory->driver($hostingDeployment->sitebuilderProvider?->slug->value)->getSsoUrl(
+            $server,
+            $domain,
+            $basekitUserRef,
+            $basekitSiteRef,
+        );
     }
 
     public function getMailOnlyServer(Provider $mailOnlyProvider): Server
@@ -298,21 +315,29 @@ class SitebuilderService
             case ProviderSlug::PLESK:
                 return $this->serverRepository->findAvailableServer(ServerType::PLESK);
             case ProviderSlug::DIRECTADMIN:
-                $serverId = (int) $this->providerRepository->getSettingByKey($mailOnlyProvider, ProviderSettingKey::DEFAULTSERVERID)->value;
+                $serverId = (int) $this->providerRepository->getSettingByKey(
+                    $mailOnlyProvider,
+                    ProviderSettingKey::DEFAULTSERVERID,
+                )->value;
+
                 return Server::where('id', $serverId)->firstOrFail();
             default:
                 throw new MailOnlyException(
                     sprintf(
                         'Unknown mail only provider %s',
-                        $mailOnlyProvider->slug->value
-                    )
+                        $mailOnlyProvider->slug->value,
+                    ),
                 );
         }
     }
 
     public function getSitebuilderServer(Provider $sitebuilderProvider): Server
     {
-        $serverId = (int) $this->providerRepository->getSettingByKey($sitebuilderProvider, ProviderSettingKey::DEFAULTSERVERID)->value;
+        $serverId = (int) $this->providerRepository->getSettingByKey(
+            $sitebuilderProvider,
+            ProviderSettingKey::DEFAULTSERVERID,
+        )->value;
+
         return Server::where('id', $serverId)->firstOrFail();
     }
 
@@ -330,8 +355,12 @@ class SitebuilderService
 
         if ($provisioningResult->failed) {
             $this->logger->info(
-                sprintf('Sitebuilder update failed for subscription uuid %s: with packages: %s', $subscription->uuid, implode(', ', $packages)),
-                $this->getLogContext($subscription) + [LoggingContextKeys::REQUEST_DATA => implode(', ', $packages)]
+                sprintf(
+                    'Sitebuilder update failed for subscription uuid %s: with packages: %s',
+                    $subscription->uuid,
+                    implode(', ', $packages),
+                ),
+                $this->getLogContext($subscription) + [LoggingContextKeys::REQUEST_DATA => implode(', ', $packages)],
             );
 
             throw new Exception('Sitebuilder provision failed');
@@ -339,7 +368,7 @@ class SitebuilderService
 
         $this->logger->info(
             'Sitebuilder update finished',
-            $this->getLogContext($subscription) + [LoggingContextKeys::REQUEST_DATA => implode(', ', $packages)]
+            $this->getLogContext($subscription) + [LoggingContextKeys::REQUEST_DATA => implode(', ', $packages)],
         );
     }
 
@@ -356,14 +385,21 @@ class SitebuilderService
     public function getProviderSlug(Subscription $subscription): string
     {
         if ($subscription->product->productGroup->slug !== ProductGroupType::HOSTING) {
-            return Provider::where('default', true)->where('type', ProviderType::SITEBUILDER)->firstOrFail()->slug->value;
+            return Provider::where('default', true)
+                ->where('type', ProviderType::SITEBUILDER)
+                ->firstOrFail()
+                ->slug
+                ->value;
         }
 
         if ($subscription->hostingDeployment !== null) {
             return $subscription->hostingDeployment->sitebuilderProvider?->slug->value ?? ProviderSlug::BASEKIT->value;
         }
 
-        $this->logger->notice(sprintf('Subscription with id: %d was a Sitebuilder hosting deployment but was not coupled to a SiteBuilder provider.', $subscription->id));
+        $this->logger->notice(sprintf(
+            'Subscription with id: %d was a Sitebuilder hosting deployment but was not coupled to a SiteBuilder provider.',
+            $subscription->id,
+        ));
 
         $default = Provider::where('default', true)->where('type', ProviderType::SITEBUILDER)->first();
 
@@ -384,7 +420,11 @@ class SitebuilderService
         $subscription->loadMissing(['children.product.productSpecs']);
 
         $packages = [];
-        $subscriptionBasekitProductSpec = $subscription->product->productSpecs->where('name', ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value)->first();
+        $subscriptionBasekitProductSpec = $subscription
+            ->product
+            ->productSpecs
+            ->where('name', ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value)
+            ->first();
 
         if ($subscriptionBasekitProductSpec === null) {
             throw new Exception('Can not provision sitebuilder because package ref is missing.');
@@ -393,7 +433,11 @@ class SitebuilderService
         $packages[] = (int) $subscriptionBasekitProductSpec->value;
 
         foreach ($subscription->children as $child) {
-            $spec = $child->product->productSpecs->where('name', ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value)->first();
+            $spec = $child
+                ->product
+                ->productSpecs
+                ->where('name', ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value)
+                ->first();
             if ($spec === null) {
                 continue;
             }
@@ -409,17 +453,31 @@ class SitebuilderService
         $subscription->loadMissing(['customer', 'product.productSpecs', 'children.product.productSpecs']);
         /** @var array<int> $packages */
         $packages = [];
-        $subscriptionBasekitProductSpec = $subscription->product->productSpecs->where('name', ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value)->first();
+        $subscriptionBasekitProductSpec = $subscription
+            ->product
+            ->productSpecs
+            ->where('name', ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value)
+            ->first();
 
         if ($subscriptionBasekitProductSpec === null) {
-            $this->logger->error(sprintf('Sitebuilder provision failed for subscription uuid %s: main product package ref is missing', $subscription->uuid), $this->getLogContext($subscription));
+            $this->logger->error(
+                sprintf(
+                    'Sitebuilder provision failed for subscription uuid %s: main product package ref is missing',
+                    $subscription->uuid,
+                ),
+                $this->getLogContext($subscription),
+            );
             throw new Exception('Can not provision sitebuilder because package ref is missing.');
         }
 
         $packages[] = (int) $subscriptionBasekitProductSpec->value;
 
         foreach ($this->getAdministrativelyActiveChildren($subscription) as $child) {
-            $spec = $child->product->productSpecs->where('name', ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value)->first();
+            $spec = $child
+                ->product
+                ->productSpecs
+                ->where('name', ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value)
+                ->first();
             if ($spec === null) {
                 continue;
             }
@@ -435,7 +493,7 @@ class SitebuilderService
             lastname: $subscription->customer->last_name,
             email: $subscription->customer->email,
             contractPeriod: $subscription->contract_period,
-            context: Uuid::fromString($subscription->uuid)
+            context: Uuid::fromString($subscription->uuid),
         );
 
         $request->tag = Uuid::fromString($subscription->uuid);
@@ -444,12 +502,16 @@ class SitebuilderService
 
         if ($result->failed) {
             $this->logger->info(
-                sprintf('Sitebuilder provision failed for subscription uuid %s: with packages: %s', $subscription->uuid, implode(', ', $packages)),
+                sprintf(
+                    'Sitebuilder provision failed for subscription uuid %s: with packages: %s',
+                    $subscription->uuid,
+                    implode(', ', $packages),
+                ),
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                     LoggingContextKeys::REQUEST_DATA => implode(', ', $packages),
-                ]
+                ],
             );
 
             $subscription->technical_status = TechnicalStatus::FAILED->value;
@@ -470,6 +532,7 @@ class SitebuilderService
             $child->technical_status = TechnicalStatus::OK->value;
             $child->save();
         }
+
         return true;
     }
 
@@ -478,7 +541,9 @@ class SitebuilderService
      */
     private function getAdministrativelyActiveChildren(Subscription $subscription): Collection
     {
-        return $subscription->children->filter(fn (Subscription $child) => $child->administrative_status !== AdministrativeStatus::ARCHIVED->value);
+        return $subscription->children->filter(
+            fn (Subscription $child) => $child->administrative_status !== AdministrativeStatus::ARCHIVED->value,
+        );
     }
 
     /**
@@ -499,7 +564,7 @@ class SitebuilderService
             ipv4: $this->configuration->getAsString('basekit.ipv4'),
             ipv6: null,
             ipv4Mail: $mailOnlyServer->ipv4,
-            ipv6Mail: $mailOnlyServer->ipv6
+            ipv6Mail: $mailOnlyServer->ipv6,
         );
 
         $this->eventDispatcher->dispatch(new UpdateDns($domain, $dnsChanges));

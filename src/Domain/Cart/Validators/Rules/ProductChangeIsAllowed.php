@@ -27,7 +27,10 @@ class ProductChangeIsAllowed extends AbstractValidator
             return false;
         }
 
-        $subscriptionLines = array_filter($value, fn ($product) => is_array($product) && array_key_exists('subscription_uuid', $product));
+        $subscriptionLines = array_filter(
+            $value,
+            fn ($product) => is_array($product) && array_key_exists('subscription_uuid', $product),
+        );
 
         foreach ($subscriptionLines as $line) {
             if (! is_string($line['subscription_uuid'])) {
@@ -44,8 +47,16 @@ class ProductChangeIsAllowed extends AbstractValidator
                 $slug = $line['slug'] ?? null;
                 assert(is_string($slug));
 
-                $isUpgradeAllowed   = $this->productAllowedChangeRepository->isProductChangeAllowed(ProductChangeType::UPGRADE, $subscription->product, $this->productRepository->findProductBySlug($slug));
-                $isDowngradeAllowed = $this->productAllowedChangeRepository->isProductChangeAllowed(ProductChangeType::DOWNGRADE, $subscription->product, $this->productRepository->findProductBySlug($slug));
+                $isUpgradeAllowed = $this->productAllowedChangeRepository->isProductChangeAllowed(
+                    ProductChangeType::UPGRADE,
+                    $subscription->product,
+                    $this->productRepository->findProductBySlug($slug),
+                );
+                $isDowngradeAllowed = $this->productAllowedChangeRepository->isProductChangeAllowed(
+                    ProductChangeType::DOWNGRADE,
+                    $subscription->product,
+                    $this->productRepository->findProductBySlug($slug),
+                );
 
                 if (! $isDowngradeAllowed && ! $isUpgradeAllowed) {
                     return false;

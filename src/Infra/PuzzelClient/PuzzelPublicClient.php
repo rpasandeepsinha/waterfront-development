@@ -36,29 +36,35 @@ class PuzzelPublicClient
             $this->bearerToken = is_string($cached) ? $cached : $this->authorize();
         }
 
-        $payload = array_filter([
-            'subject'    => $request->subject,
-            'body'       => $request->body,
-            'priority'   => $request->priority,
-            'status'     => $request->status,
-            'team'       => $request->team,
-            'user'       => $request->user,
-            'tags'       => $request->tags,
-            'categories' => $request->categories,
-            'customer'   => array_filter([
-                'email'        => $request->customer->email,
-                'first_name'   => $request->customer->firstName,
-                'last_name'    => $request->customer->lastName,
-                'phone_number' => $request->customer->phoneNumber,
-            ], fn (mixed $value) => $value !== null),
-        ], fn (mixed $value) => $value !== null);
+        $payload = array_filter(
+            [
+                'subject' => $request->subject,
+                'body' => $request->body,
+                'priority' => $request->priority,
+                'status' => $request->status,
+                'team' => $request->team,
+                'user' => $request->user,
+                'tags' => $request->tags,
+                'categories' => $request->categories,
+                'customer' => array_filter(
+                    [
+                        'email' => $request->customer->email,
+                        'first_name' => $request->customer->firstName,
+                        'last_name' => $request->customer->lastName,
+                        'phone_number' => $request->customer->phoneNumber,
+                    ],
+                    fn (mixed $value) => $value !== null,
+                ),
+            ],
+            fn (mixed $value) => $value !== null,
+        );
 
         try {
             $this->httpClient->request('POST', 'api/v1/tickets', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->bearerToken,
-                    'Content-Type'  => 'application/json',
-                    'Accept'        => 'application/json',
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
                 ],
                 'json' => $payload,
             ]);
@@ -85,10 +91,10 @@ class PuzzelPublicClient
             $response = $this->httpClient->request('POST', 'api/v1/oauth_tokens', [
                 'headers' => [
                     'Content-Type' => 'application/json',
-                    'Accept'       => 'application/json',
+                    'Accept' => 'application/json',
                 ],
                 'json' => [
-                    'client_id'     => $this->credentials->clientId,
+                    'client_id' => $this->credentials->clientId,
                     'client_secret' => $this->credentials->clientSecret,
                 ],
             ]);

@@ -15,12 +15,14 @@ class ResponseDto
     public function addFailure(FailureDto $failureDto): self
     {
         $this->failures[] = $failureDto;
+
         return $this;
     }
 
     public function addSuccess(SuccessDto $successDto): self
     {
         $this->success[] = $successDto;
+
         return $this;
     }
 
@@ -43,6 +45,7 @@ class ResponseDto
         foreach ($this->success as $dto) {
             $success[] = $dto->toArray();
         }
+
         return [
             'failures' => $failures,
             'success' => $success,

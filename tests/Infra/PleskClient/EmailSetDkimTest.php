@@ -29,12 +29,28 @@ class EmailSetDkimTest extends IntegrationTestCase
     {
         $mock = new MockHandler([
             function (RequestInterface $request) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_get_hosting_website_request.xml'), (string) $request->getBody());
-                return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_get_hosting_website_response.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_get_hosting_website_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    200,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_get_hosting_website_response.xml'),
+                );
             },
             function (RequestInterface $request, $options) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_email_set_dkim_request.xml'), (string) $request->getBody());
-                return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_email_set_dkim_response.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_email_set_dkim_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    200,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_email_set_dkim_response.xml'),
+                );
             },
         ]);
         $handlerStack = HandlerStack::create($mock);
@@ -46,7 +62,7 @@ class EmailSetDkimTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $result = $customerClient->setDkim(true, self::TEST_DOMAIN);

@@ -65,12 +65,10 @@ class SearchDomainTest extends IntegrationTestCase
             'name' => 'Hosting',
             'slug' => 'hosting',
         ]);
-        $hostingProduct = new ProductFactory()
-            ->for($hostingProductGroup)
-            ->createOne([
-                'name' => 'Basic',
-                'slug' => 'hosting_basic',
-            ]);
+        $hostingProduct = new ProductFactory()->for($hostingProductGroup)->createOne([
+            'name' => 'Basic',
+            'slug' => 'hosting_basic',
+        ]);
         new SubscriptionFactory()
             ->for($this->normalCustomer)
             ->for($hostingProduct)
@@ -80,8 +78,9 @@ class SearchDomainTest extends IntegrationTestCase
     #[Test]
     public function searchOnSubscriptionName(): void
     {
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.domains', ['searchterm' => $this->extensionSubscription->domain ]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.domains', [
+            'searchterm' => $this->extensionSubscription->domain,
+        ]));
 
         $response->assertOk();
         $response->assertExactJson([
@@ -99,8 +98,9 @@ class SearchDomainTest extends IntegrationTestCase
     #[Test]
     public function searchCanceledDomainName(): void
     {
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.domains', ['searchterm' => $this->canceledSubscription->domain ]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.domains', [
+            'searchterm' => $this->canceledSubscription->domain,
+        ]));
 
         $response->assertOk();
         $response->assertExactJson([
@@ -120,8 +120,9 @@ class SearchDomainTest extends IntegrationTestCase
     {
         $nonExistingDomain = 'unknown-domain.localtest';
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.domains', ['searchterm' => $nonExistingDomain ]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.domains', [
+            'searchterm' => $nonExistingDomain,
+        ]));
 
         $response->assertOk();
         $response->assertExactJson([]);

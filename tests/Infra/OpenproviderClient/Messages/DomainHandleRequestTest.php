@@ -21,7 +21,10 @@ class DomainHandleRequestTest extends TestCase
         $handleParameters = new HandleParameters();
         $handleParameters->setLocale('en-US');
 
-        $request = new DomainHandleRequest(self::createStub(Client::class), self::createStub(OpenProviderConnectionInterface::class));
+        $request = new DomainHandleRequest(
+            self::createStub(Client::class),
+            self::createStub(OpenProviderConnectionInterface::class),
+        );
         $request->setParameters($handleParameters);
 
         self::assertSame('en_US', $handleParameters->getLocale());

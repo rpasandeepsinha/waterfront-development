@@ -24,6 +24,7 @@ class CustomerWalletService
         if ($wallet->refund_requested_at !== null) {
             return;
         }
+
         $wallet->bank_account_name = $name;
         $wallet->bank_account_number = $number;
         $wallet->refund_requested_at = CarbonImmutable::now();
@@ -32,7 +33,7 @@ class CustomerWalletService
         $this->mailerService->sendRequestConfirmation(
             $wallet,
             $name,
-            $number
+            $number,
         );
     }
 
@@ -44,21 +45,21 @@ class CustomerWalletService
         $now = CarbonImmutable::now();
         $exportedString = $this->csvExporter->export(
             [
-                    'customer_number',
-                    'bank_account_name',
-                    'bank_account_number',
-                    'amount',
-                ],
+                'customer_number',
+                'bank_account_name',
+                'bank_account_number',
+                'amount',
+            ],
             array_map(fn (CustomerWallet $wallet): array => [
-                    $wallet->customer->customer_number,
-                    $wallet->bank_account_name,
-                    $wallet->bank_account_number,
-                    $wallet->amount,
-                ], $customerWallet->all()),
+                $wallet->customer->customer_number,
+                $wallet->bank_account_name,
+                $wallet->bank_account_number,
+                $wallet->amount,
+            ], $customerWallet->all()),
         );
 
         $this->customerWalletRepository->setCsvDownloadedAt($customerWallet, $now);
 
-        return  $exportedString;
+        return $exportedString;
     }
 }

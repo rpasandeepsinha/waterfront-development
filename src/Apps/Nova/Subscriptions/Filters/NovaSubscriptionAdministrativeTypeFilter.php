@@ -31,13 +31,20 @@ class NovaSubscriptionAdministrativeTypeFilter extends Filter
     public function options(NovaRequest $request): array
     {
         return [
-            $this->translator->translate('subscription.administrative_statuses.active') => AdministrativeStatus::ACTIVE->value,
-            $this->translator->translate('subscription.administrative_statuses.canceled') => AdministrativeStatus::CANCELED->value,
-            $this->translator->translate('subscription.administrative_statuses.archived') => AdministrativeStatus::ARCHIVED->value,
-            $this->translator->translate('subscription.administrative_statuses.expired') => AdministrativeStatus::EXPIRED->value,
-            $this->translator->translate('subscription.administrative_statuses.inactive') => AdministrativeStatus::INACTIVE->value,
-            $this->translator->translate('subscription.administrative_statuses.suspended') => AdministrativeStatus::SUSPENDED->value,
-            $this->translator->translate('subscription.administrative_statuses.archiving') => AdministrativeStatus::ARCHIVING->value,
+            $this->translator->translate('subscription.administrative_statuses.active') =>
+                AdministrativeStatus::ACTIVE->value,
+            $this->translator->translate('subscription.administrative_statuses.canceled') =>
+                AdministrativeStatus::CANCELED->value,
+            $this->translator->translate('subscription.administrative_statuses.archived') =>
+                AdministrativeStatus::ARCHIVED->value,
+            $this->translator->translate('subscription.administrative_statuses.expired') =>
+                AdministrativeStatus::EXPIRED->value,
+            $this->translator->translate('subscription.administrative_statuses.inactive') =>
+                AdministrativeStatus::INACTIVE->value,
+            $this->translator->translate('subscription.administrative_statuses.suspended') =>
+                AdministrativeStatus::SUSPENDED->value,
+            $this->translator->translate('subscription.administrative_statuses.archiving') =>
+                AdministrativeStatus::ARCHIVING->value,
         ];
     }
 }

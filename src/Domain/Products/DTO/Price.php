@@ -48,7 +48,9 @@ class Price
         }
 
         return new Price(
-            type: $price->type === PriceComponentType::REGISTRATION ? ProductPriceType::REGISTRATION : ProductPriceType::PROLONGATION,
+            type: $price->type === PriceComponentType::REGISTRATION
+                ? ProductPriceType::REGISTRATION
+                : ProductPriceType::PROLONGATION,
             billingPeriod: $price->billing_period,
             productId: $price->product_id,
             productGroupUuid: $price->product->productGroup->uuid,
@@ -66,7 +68,7 @@ class Price
     {
         $promotion = array_find(
             $this->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PROMOTION
+            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PROMOTION,
         );
 
         return $promotion->newPrice ?? $this->discountPrice ?? $this->regularPrice;

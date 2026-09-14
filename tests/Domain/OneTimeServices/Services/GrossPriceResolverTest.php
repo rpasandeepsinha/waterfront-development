@@ -30,17 +30,13 @@ class GrossPriceResolverTest extends IntegrationTestCase
         parent::setUp();
 
         $extensionGroup = new ProductGroupFactory()->extension()->createOne();
-        $this->productWithoutAlternativePrice = new ProductFactory()
-            ->for($extensionGroup)
-            ->createOne();
+        $this->productWithoutAlternativePrice = new ProductFactory()->for($extensionGroup)->createOne();
 
-        $this->productWithAlternativePrice = new ProductFactory()
-            ->for($extensionGroup)
-            ->createOne();
+        $this->productWithAlternativePrice = new ProductFactory()->for($extensionGroup)->createOne();
 
-        $this->oneTimeServiceProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->oneTimeService())
-            ->createOne();
+        $this->oneTimeServiceProduct = new ProductFactory()->for(
+            new ProductGroupFactory()->oneTimeService(),
+        )->createOne();
         $price = new ProductPriceComponentFactory()
             ->oneTimeService()
             ->for($this->oneTimeServiceProduct)
@@ -62,7 +58,13 @@ class GrossPriceResolverTest extends IntegrationTestCase
     #[Test]
     public function getsCorrectGrossPrices(): void
     {
-        self::assertSame(2500, $this->grossPriceResolver->getGrossPrice($this->oneTimeServiceProduct, $this->productWithoutAlternativePrice->id));
-        self::assertSame(5000, $this->grossPriceResolver->getGrossPrice($this->oneTimeServiceProduct, $this->productWithAlternativePrice->id));
+        self::assertSame(2500, $this->grossPriceResolver->getGrossPrice(
+            $this->oneTimeServiceProduct,
+            $this->productWithoutAlternativePrice->id,
+        ));
+        self::assertSame(5000, $this->grossPriceResolver->getGrossPrice(
+            $this->oneTimeServiceProduct,
+            $this->productWithAlternativePrice->id,
+        ));
     }
 }

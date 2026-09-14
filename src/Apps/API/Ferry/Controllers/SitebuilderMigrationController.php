@@ -40,8 +40,10 @@ readonly class SitebuilderMigrationController
                     $this->subscriptionMigrationValidator->validateEligibleForSitebuilderMigration($subscription);
                 } catch (NotEligibleForMigrationException $e) {
                     $this->responseDto->addFailure($this->makeFailureDto($e, $customer, $subscription));
+
                     return false;
                 }
+
                 return true;
             });
 
@@ -61,8 +63,11 @@ readonly class SitebuilderMigrationController
         return new JsonResponse($this->responseDto->toArray(), Response::HTTP_MULTI_STATUS);
     }
 
-    private function makeFailureDto(NotEligibleForMigrationException $e, Customer $customer, Subscription $subscription): FailureDto
-    {
+    private function makeFailureDto(
+        NotEligibleForMigrationException $e,
+        Customer $customer,
+        Subscription $subscription,
+    ): FailureDto {
         return FailureDto::create(
             sprintf('Sitebuilder migration step not allowed for subscription: %s', $e->getMessage()),
             [
@@ -81,7 +86,13 @@ readonly class SitebuilderMigrationController
             'Created jobs to migrate sitebuilder for every eligible subscription',
             [
                 Parameter::create('customerId', $customer->id),
-                Parameter::create('subscriptionIds', $subscriptions->map(fn (Subscription $subscription) => $subscription->id)->sort()->join(',')),
+                Parameter::create(
+                    'subscriptionIds',
+                    $subscriptions
+                        ->map(fn (Subscription $subscription) => $subscription->id)
+                        ->sort()
+                        ->join(','),
+                ),
             ],
         );
     }

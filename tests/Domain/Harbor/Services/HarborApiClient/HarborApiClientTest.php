@@ -28,10 +28,10 @@ class HarborApiClientTest extends IntegrationTestCase
         $config
             ->method('getAsString')
             ->willReturnCallback(
-                fn (string $name): string => match($name) {
+                fn (string $name): string => match ($name) {
                     $configName => '',
-                    default => 'somevalue'
-                }
+                    default => 'somevalue',
+                },
             );
 
         $this->expectException(HarborApiConfigException::class);

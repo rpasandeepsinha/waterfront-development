@@ -74,7 +74,7 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
         $event = new SubscriptionChangedEvent(
             subscription: $this->subscription,
             charge: 100,
-            changeType: ProductChangeType::UPGRADE
+            changeType: ProductChangeType::UPGRADE,
         );
 
         $container = [];
@@ -84,18 +84,22 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
             new GuzzleResponse(
                 200,
                 [],
-                ''
+                '',
             ),
         ]));
         $stack->push($history);
         $client = new Client(['handler' => $stack]);
 
-        $harborApi = new HarborApi($client, self::resolve(ConfigurationInterface::class), self::resolve(LoggerInterface::class));
+        $harborApi = new HarborApi(
+            $client,
+            self::resolve(ConfigurationInterface::class),
+            self::resolve(LoggerInterface::class),
+        );
 
         $listener = new SendCreditInvoiceListener(
             invoiceRepository: $this->invoiceRepository,
             invoiceSingleCrediter: $this->invoiceSingleCrediter,
-            harborApi: $harborApi
+            harborApi: $harborApi,
         );
 
         $logMessage = sprintf(
@@ -117,7 +121,7 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
         $event = new SubscriptionChangedEvent(
             subscription: $this->subscription,
             charge: 100,
-            changeType: ProductChangeType::DOWNGRADE
+            changeType: ProductChangeType::DOWNGRADE,
         );
 
         $container = [];
@@ -127,24 +131,28 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
             new GuzzleResponse(
                 200,
                 [],
-                ''
+                '',
             ),
         ]));
         $stack->push($history);
         $client = new Client(['handler' => $stack]);
 
-        $harborApi = new HarborApi($client, self::resolve(ConfigurationInterface::class), self::resolve(LoggerInterface::class));
+        $harborApi = new HarborApi(
+            $client,
+            self::resolve(ConfigurationInterface::class),
+            self::resolve(LoggerInterface::class),
+        );
         $listener = new SendCreditInvoiceListener(
             invoiceRepository: $this->invoiceRepository,
             invoiceSingleCrediter: $this->invoiceSingleCrediter,
-            harborApi: $harborApi
+            harborApi: $harborApi,
         );
 
         $logMessage = sprintf(
             'Subscription with id : %d (uuid : %s) has no invoice line for the new product : %s',
             $this->subscription->id,
             $this->subscription->uuid,
-            sprintf('%s (%s)', $this->subscription->product->name, ProductChangeType::DOWNGRADE->value)
+            sprintf('%s (%s)', $this->subscription->product->name, ProductChangeType::DOWNGRADE->value),
         );
 
         Log::shouldReceive('error')
@@ -158,7 +166,9 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
     public function sendCreditInvoiceFailMissingInvoiceLineForCredit(): void
     {
         $translator = self::resolve(TranslatorInterface::class);
-        $appendable = $this->subscription->domain !== null ? $translator->translate('invoice.description.for') . " {$this->subscription->domain}" : '';
+        $appendable = $this->subscription->domain !== null
+            ? $translator->translate('invoice.description.for') . " {$this->subscription->domain}"
+            : '';
         $description = sprintf(
             '%s (%s) %s',
             $this->subscription->product->name,
@@ -177,7 +187,7 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
         $event = new SubscriptionChangedEvent(
             subscription: $this->subscription,
             charge: 100,
-            changeType: ProductChangeType::DOWNGRADE
+            changeType: ProductChangeType::DOWNGRADE,
         );
 
         $container = [];
@@ -187,18 +197,22 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
             new GuzzleResponse(
                 200,
                 [],
-                ''
+                '',
             ),
         ]));
         $stack->push($history);
         $client = new Client(['handler' => $stack]);
 
-        $harborApi = new HarborApi($client, self::resolve(ConfigurationInterface::class), self::resolve(LoggerInterface::class));
+        $harborApi = new HarborApi(
+            $client,
+            self::resolve(ConfigurationInterface::class),
+            self::resolve(LoggerInterface::class),
+        );
 
         $listener = new SendCreditInvoiceListener(
             invoiceRepository: $this->invoiceRepository,
             invoiceSingleCrediter: $this->invoiceSingleCrediter,
-            harborApi: $harborApi
+            harborApi: $harborApi,
         );
 
         $logMessage = sprintf(
@@ -230,7 +244,9 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
             ]);
 
         $translator = self::resolve(TranslatorInterface::class);
-        $appendable = $this->subscription->domain !== null ? $translator->translate('invoice.description.for') . " {$this->subscription->domain}" : '';
+        $appendable = $this->subscription->domain !== null
+            ? $translator->translate('invoice.description.for') . " {$this->subscription->domain}"
+            : '';
         $description = sprintf(
             '%s (%s) %s',
             $this->subscription->product->name,
@@ -252,7 +268,7 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
         $event = new SubscriptionChangedEvent(
             subscription: $this->subscription,
             charge: 100,
-            changeType: ProductChangeType::DOWNGRADE
+            changeType: ProductChangeType::DOWNGRADE,
         );
 
         $container = [];
@@ -262,17 +278,21 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
             new GuzzleResponse(
                 200,
                 [],
-                ''
+                '',
             ),
         ]));
         $stack->push($history);
         $client = new Client(['handler' => $stack]);
 
-        $harborApi = new HarborApi($client, self::resolve(ConfigurationInterface::class), self::resolve(LoggerInterface::class));
+        $harborApi = new HarborApi(
+            $client,
+            self::resolve(ConfigurationInterface::class),
+            self::resolve(LoggerInterface::class),
+        );
         $listener = new SendCreditInvoiceListener(
             invoiceRepository: $this->invoiceRepository,
             invoiceSingleCrediter: $this->invoiceSingleCrediter,
-            harborApi: $harborApi
+            harborApi: $harborApi,
         );
 
         $logMessage2 = sprintf(
@@ -318,7 +338,9 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
             ]);
 
         $translator = self::resolve(TranslatorInterface::class);
-        $appendable = $this->subscription->domain !== null ? $translator->translate('invoice.description.for') . " {$this->subscription->domain}" : '';
+        $appendable = $this->subscription->domain !== null
+            ? $translator->translate('invoice.description.for') . " {$this->subscription->domain}"
+            : '';
         $description = sprintf(
             '%s (%s) %s',
             $this->subscription->product->name,
@@ -338,7 +360,7 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
         $event = new SubscriptionChangedEvent(
             subscription: $this->subscription,
             charge: 100,
-            changeType: ProductChangeType::DOWNGRADE
+            changeType: ProductChangeType::DOWNGRADE,
         );
 
         $expectedErrorMessage = 'This is a test message!';
@@ -354,7 +376,7 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
             new GuzzleResponse(
                 401,
                 [],
-                $body !== false ? $body : ''
+                $body !== false ? $body : '',
             ),
         ]));
         $stack->push($history);
@@ -374,11 +396,15 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
             ->once()
             ->withArgs(fn ($message): bool => str_contains($message, $logMessage));
 
-        $harborApi = new HarborApi($client, self::resolve(ConfigurationInterface::class), self::resolve(LoggerInterface::class));
+        $harborApi = new HarborApi(
+            $client,
+            self::resolve(ConfigurationInterface::class),
+            self::resolve(LoggerInterface::class),
+        );
         $listener = new SendCreditInvoiceListener(
             invoiceRepository: $this->invoiceRepository,
             invoiceSingleCrediter: $this->invoiceSingleCrediter,
-            harborApi: $harborApi
+            harborApi: $harborApi,
         );
 
         $listener->handle($event);
@@ -398,7 +424,9 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
             ]);
 
         $translator = self::resolve(TranslatorInterface::class);
-        $appendable = $this->subscription->domain !== null ? $translator->translate('invoice.description.for') . " {$this->subscription->domain}" : '';
+        $appendable = $this->subscription->domain !== null
+            ? $translator->translate('invoice.description.for') . " {$this->subscription->domain}"
+            : '';
         $description = sprintf(
             '%s (%s) %s',
             $this->subscription->product->name,
@@ -418,7 +446,7 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
         $event = new SubscriptionChangedEvent(
             subscription: $this->subscription,
             charge: 100,
-            changeType: ProductChangeType::DOWNGRADE
+            changeType: ProductChangeType::DOWNGRADE,
         );
 
         $container = [];
@@ -432,7 +460,7 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
             new GuzzleResponse(
                 400,
                 [],
-                $body !== false ? $body : ''
+                $body !== false ? $body : '',
             ),
         ]));
         $stack->push($history);
@@ -452,11 +480,15 @@ class SendCreditInvoiceListenerTest extends IntegrationTestCase
             ->once()
             ->withArgs(fn ($message): bool => str_contains($message, $logMessage));
 
-        $harborApi = new HarborApi($client, self::resolve(ConfigurationInterface::class), self::resolve(LoggerInterface::class));
+        $harborApi = new HarborApi(
+            $client,
+            self::resolve(ConfigurationInterface::class),
+            self::resolve(LoggerInterface::class),
+        );
         $listener = new SendCreditInvoiceListener(
             invoiceRepository: $this->invoiceRepository,
             invoiceSingleCrediter: $this->invoiceSingleCrediter,
-            harborApi: $harborApi
+            harborApi: $harborApi,
         );
 
         $listener->handle($event);

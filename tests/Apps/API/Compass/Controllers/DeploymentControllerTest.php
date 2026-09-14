@@ -53,7 +53,8 @@ class DeploymentControllerTest extends IntegrationTestCase
         $secondGroupedRequest = $this->createProvisioningRequestDto($requestUuidTwo, $tag);
         $transformedRequests = new Collection([$firstGroupedRequest, $secondGroupedRequest]);
 
-        $gatewayMock->expects(self::once())
+        $gatewayMock
+            ->expects(self::once())
             ->method('fetch')
             ->with(
                 self::callback(function (ProvisioningResultQueryFilters $filters): bool {
@@ -74,16 +75,19 @@ class DeploymentControllerTest extends IntegrationTestCase
             )
             ->willReturn($fetchedResults);
 
-        $transformerMock->expects(self::once())
+        $transformerMock
+            ->expects(self::once())
             ->method('transform')
             ->with($fetchedResults)
             ->willReturn($transformedRequests);
 
         $controller = $this->createController($gatewayMock, $transformerMock);
 
-        $response = $controller->FailedProvisioningResults(
-            Request::create('/deployments/requests/failed', 'GET', ['pageSize' => 1, 'page' => 2])
-        )->response();
+        $response = $controller
+            ->FailedProvisioningResults(
+                Request::create('/deployments/requests/failed', 'GET', ['pageSize' => 1, 'page' => 2]),
+            )
+            ->response();
 
         $payload = $response->getData(true);
 
@@ -119,20 +123,22 @@ class DeploymentControllerTest extends IntegrationTestCase
             $transformedRequests->push($this->createProvisioningRequestDto(Uuid::uuid4(), $tag));
         }
 
-        $gatewayMock->expects(self::once())
-            ->method('fetch')
-            ->willReturn($fetchedResults);
+        $gatewayMock->expects(self::once())->method('fetch')->willReturn($fetchedResults);
 
-        $transformerMock->expects(self::once())
+        $transformerMock
+            ->expects(self::once())
             ->method('transform')
             ->with($fetchedResults)
             ->willReturn($transformedRequests);
 
         $controller = $this->createController($gatewayMock, $transformerMock);
 
-        $payload = $controller->FailedProvisioningResults(
-            Request::create('/deployments/requests/failed', 'GET', ['pageSize' => 'invalid'])
-        )->response()->getData(true);
+        $payload = $controller
+            ->FailedProvisioningResults(
+                Request::create('/deployments/requests/failed', 'GET', ['pageSize' => 'invalid']),
+            )
+            ->response()
+            ->getData(true);
 
         self::assertIsArray($payload);
         self::assertIsArray($payload['data']);

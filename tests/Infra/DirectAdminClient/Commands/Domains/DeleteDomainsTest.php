@@ -46,8 +46,7 @@ class DeleteDomainsTest extends DirectAdminTestCase
 
         $this->api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->deleteDomains
-            ->addDomain($domain);
+        $this->deleteDomains->addDomain($domain);
 
         $this->api->call($this->deleteDomains);
 

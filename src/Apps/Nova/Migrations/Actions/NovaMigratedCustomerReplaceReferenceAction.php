@@ -57,7 +57,8 @@ class NovaMigratedCustomerReplaceReferenceAction extends Action
                     ->where([
                         'reference_name' => $slug,
                         'reference_customer_number' => $referenceItem['original_reference'],
-                    ])->first();
+                    ])
+                    ->first();
 
                 if ($mc instanceof MigratedCustomer) {
                     $mc->reference_customer_number = $referenceItem['new_reference'];
@@ -65,8 +66,10 @@ class NovaMigratedCustomerReplaceReferenceAction extends Action
                 }
             };
 
-            /** @phpstan-ignore-next-line */
-            new PendingClosureDispatch(CallQueuedClosure::create($task))->name('update_reference_bulk')->onQueue(QueueName::DEFAULT);
+            new PendingClosureDispatch(CallQueuedClosure::create($task))
+                /** @phpstan-ignore-next-line */
+                ->name('update_reference_bulk')
+                ->onQueue(QueueName::DEFAULT);
         }
 
         return ActionResponse::message('NovaMigratedCustomerReplaceReferenceAction executed');
@@ -78,7 +81,8 @@ class NovaMigratedCustomerReplaceReferenceAction extends Action
     public function fields(NovaRequest $request): array
     {
         /** @var array{string: string} $units */
-        $units = MigratedCustomer::query()->select('reference_name')
+        $units = MigratedCustomer::query()
+            ->select('reference_name')
             ->groupBy('reference_name')
             ->get()
             ->flatMap(fn (MigratedCustomer $mc) => [$mc->reference_name => $mc->reference_name])
@@ -91,10 +95,7 @@ class NovaMigratedCustomerReplaceReferenceAction extends Action
                 ->required()
                 ->store(fn (): bool => false),
 
-            Select::make('business_unit')
-                ->options($units)
-                ->default(Arr::first($units))
-                ->required(),
+            Select::make('business_unit')->options($units)->default(Arr::first($units))->required(),
         ];
     }
 }

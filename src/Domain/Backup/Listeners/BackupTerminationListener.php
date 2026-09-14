@@ -23,7 +23,7 @@ class BackupTerminationListener implements ShouldQueue
     public function handle(BackupTerminateEvent $event): void
     {
         $this->backupService->terminate(
-            subscription: $event->subscription
+            subscription: $event->subscription,
         );
     }
 }

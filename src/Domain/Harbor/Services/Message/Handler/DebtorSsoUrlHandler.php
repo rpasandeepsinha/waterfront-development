@@ -26,7 +26,7 @@ class DebtorSsoUrlHandler
                 'Unknown customer for customer number {customer.number}',
                 [
                     LoggingContextKeys::CUSTOMER_NUMBER => $debtorSsoUrlMessage->getCustomerNumber(),
-            ]
+                ],
             );
 
             return;
@@ -41,7 +41,7 @@ class DebtorSsoUrlHandler
                     'Updated customer {customer.number} SSO url',
                     [
                         LoggingContextKeys::CUSTOMER_NUMBER => $customer->customer_number,
-                    ]
+                    ],
                 );
 
                 $customer->invoice_history_url = $debtorSsoUrlMessage->getDebtorSsoUrl();
@@ -52,7 +52,7 @@ class DebtorSsoUrlHandler
                     'Updated customer {customer.number} admin url',
                     [
                         LoggingContextKeys::CUSTOMER_NUMBER => $customer->customer_number,
-                    ]
+                    ],
                 );
 
                 $customer->admin_url = $debtorSsoUrlMessage->getAdminUrl();

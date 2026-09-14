@@ -23,7 +23,7 @@ class CloudStackBaseClient
         private readonly string $apiKey,
         #[SensitiveParameter]
         private readonly string $secretKey,
-        private readonly ClientInterface $client
+        private readonly ClientInterface $client,
     ) {
     }
 
@@ -45,7 +45,7 @@ class CloudStackBaseClient
             throw new CloudStackClientException(
                 $e->getRequest()->getUri() . $e->getResponse()->getBody()->getContents(),
                 $e->getCode(),
-                $e
+                $e,
             );
         } catch (GuzzleException $e) {
             throw new CloudStackClientException((string) $e, $e->getCode(), $e);
@@ -68,8 +68,8 @@ class CloudStackBaseClient
                 sprintf(
                     'Invalid response content type for uri %s : %s',
                     $request->getUri(),
-                    $rawData
-                )
+                    $rawData,
+                ),
             );
         }
 
@@ -78,13 +78,14 @@ class CloudStackBaseClient
         } catch (JsonException) {
             $data = null;
         }
+
         if ($data === null) {
             throw new CloudStackClientException(
                 sprintf(
                     'Cannot parse json response for uri %s : %s',
                     $request->getUri(),
-                    $rawData
-                )
+                    $rawData,
+                ),
             );
         }
 
@@ -100,8 +101,8 @@ class CloudStackBaseClient
                 sprintf(
                     'Invalid response data for uri %s : %s',
                     $request->getUri(),
-                    $rawData
-                )
+                    $rawData,
+                ),
             );
         }
 
@@ -127,9 +128,10 @@ class CloudStackBaseClient
         $params['response'] = 'json';
 
         ksort($params);
+
         return implode(
             '&',
-            $this->mapParametersToQueryValues($params)
+            $this->mapParametersToQueryValues($params),
         );
     }
 
@@ -160,13 +162,14 @@ class CloudStackBaseClient
                             /** @var bool|float|int|resource|string|null $subValue */
                             foreach ($item as $subKey => $subValue) {
                                 $queryParts[] = sprintf(
-                                    '%s[%d].%s=%s',  // will end up like tags[0].key=template_slug or tags[1].value=Almalinux-9
+                                    '%s[%d].%s=%s', // will end up like tags[0].key=template_slug or tags[1].value=Almalinux-9
                                     $encodedKey,
                                     $i,
                                     $subKey,
-                                    rawurlencode(strval($subValue))
+                                    rawurlencode(strval($subValue)),
                                 );
                             }
+
                             continue;
                         }
 
@@ -175,14 +178,14 @@ class CloudStackBaseClient
                             '%s[%d]=%s',
                             $encodedKey,
                             $i,
-                            rawurlencode(strval($item))
+                            rawurlencode(strval($item)),
                         );
                     }
                 } else {
                     /** @var array<string, mixed> $value */
                     $queryParts = array_merge(
                         $queryParts,
-                        $this->mapParametersToQueryValues($value, $encodedKey)
+                        $this->mapParametersToQueryValues($value, $encodedKey),
                     );
                 }
             } else {
@@ -197,6 +200,7 @@ class CloudStackBaseClient
     private function signQueryString(string $queryString): string
     {
         $result = hash_hmac('SHA1', strtolower($queryString), $this->secretKey, true);
+
         return $queryString . '&signature=' . rawurlencode(base64_encode($result));
     }
 }

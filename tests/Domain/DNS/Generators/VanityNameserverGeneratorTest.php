@@ -33,7 +33,7 @@ class VanityNameserverGeneratorTest extends TestCase
     {
         $nameservers = new VanityNameserverGenerator()->generateVanityNames(
             domain: $domain,
-            vanityTlds: self::$vanityTlds
+            vanityTlds: self::$vanityTlds,
         );
 
         foreach ($nameservers as $key => $nameserver) {
@@ -41,11 +41,11 @@ class VanityNameserverGeneratorTest extends TestCase
             $vanityTld = $this->getVanityTld($nameserver);
 
             $nsCount = $key + 1;
-            $ns = match($nsCount) {
+            $ns = match ($nsCount) {
                 1 => $ns1,
                 2 => $ns2,
                 3 => $ns3,
-                default => null
+                default => null,
             };
 
             self::assertIsArray($ns);
@@ -64,7 +64,7 @@ class VanityNameserverGeneratorTest extends TestCase
     {
         $nameservers = new VanityNameserverGenerator()->generateVanityNames(
             domain: $domain,
-            vanityTlds: self::$vanityTlds
+            vanityTlds: self::$vanityTlds,
         );
 
         foreach ($nameservers as $nameserver) {
@@ -84,7 +84,7 @@ class VanityNameserverGeneratorTest extends TestCase
 
         new VanityNameserverGenerator()->generateVanityNames(
             domain: 'test-domain.nl',
-            vanityTlds: [self::$vanityTlds[0]]
+            vanityTlds: [self::$vanityTlds[0]],
         );
     }
 
@@ -99,10 +99,30 @@ class VanityNameserverGeneratorTest extends TestCase
 
     public static function providerDomains(): Generator
     {
-        yield 'Domain : domain.nl' => ['domain.nl', [115, self::$vanityTlds[0]], [139, self::$vanityTlds[1]], [56, self::$vanityTlds[2]] ];
-        yield 'Domain : this-is-a-testing-domain.com' => ['this-is-a-testing-domain.com', [148, self::$vanityTlds[0]], [253, self::$vanityTlds[1]], [115, self::$vanityTlds[2]] ];
-        yield 'Domain :google.nl' => ['google.nl', [176, self::$vanityTlds[0]], [114, self::$vanityTlds[1]], [59, self::$vanityTlds[2]] ];
-        yield 'Domain : domain1908.info' => ['domain1908.info', [101, self::$vanityTlds[0]], [197, self::$vanityTlds[1]], [74, self::$vanityTlds[2]] ];
+        yield 'Domain : domain.nl' => [
+            'domain.nl',
+            [115, self::$vanityTlds[0]],
+            [139, self::$vanityTlds[1]],
+            [56, self::$vanityTlds[2]],
+        ];
+        yield 'Domain : this-is-a-testing-domain.com' => [
+            'this-is-a-testing-domain.com',
+            [148, self::$vanityTlds[0]],
+            [253, self::$vanityTlds[1]],
+            [115, self::$vanityTlds[2]],
+        ];
+        yield 'Domain :google.nl' => [
+            'google.nl',
+            [176, self::$vanityTlds[0]],
+            [114, self::$vanityTlds[1]],
+            [59, self::$vanityTlds[2]],
+        ];
+        yield 'Domain : domain1908.info' => [
+            'domain1908.info',
+            [101, self::$vanityTlds[0]],
+            [197, self::$vanityTlds[1]],
+            [74, self::$vanityTlds[2]],
+        ];
     }
 
     /**
@@ -112,13 +132,15 @@ class VanityNameserverGeneratorTest extends TestCase
     {
         $parts = explode('.', $nameserver);
         $identityPartString = $parts[0];
-        return  explode('-', $identityPartString);
+
+        return explode('-', $identityPartString);
     }
 
     private function getVanityTld(string $nameserver): string
     {
         $parts = explode('.', $nameserver);
         unset($parts[0]);
+
         return implode('.', $parts);
     }
 }

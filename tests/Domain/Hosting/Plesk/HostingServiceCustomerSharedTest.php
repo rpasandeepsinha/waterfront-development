@@ -55,15 +55,17 @@ class HostingServiceCustomerSharedTest extends IntegrationTestCase
 
         $product = new ProductFactory()->createOne([
             'product_group_id' => $productGroup->id,
-            'name'             => 'Hosting basic',
-            'slug'             => 'hosting_basic',
+            'name' => 'Hosting basic',
+            'slug' => 'hosting_basic',
         ]);
 
-        $this->subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain' => $this->domain,
-            'product_uuid'       => $product->uuid,
-            'customer_id'        => $this->customer->id,
-        ]);
+        $this->subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => $this->domain,
+                'product_uuid' => $product->uuid,
+                'customer_id' => $this->customer->id,
+            ]);
 
         new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $this->subscription->uuid,
@@ -75,7 +77,12 @@ class HostingServiceCustomerSharedTest extends IntegrationTestCase
     {
         $this->app->bind(DnsService::class, fn (): DnsService => self::createStub(DnsService::class));
 
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $this->hostingService->create(
             subscriptionUuid: $this->subscription->uuid,
@@ -84,7 +91,7 @@ class HostingServiceCustomerSharedTest extends IntegrationTestCase
             product: $this->subscription->product,
             customer: $this->customer,
             serverId: $this->server->id,
-            domain: $this->domain
+            domain: $this->domain,
         );
 
         self::assertDatabaseHas('subscriptions', [
@@ -94,7 +101,7 @@ class HostingServiceCustomerSharedTest extends IntegrationTestCase
         ]);
 
         self::assertDatabaseHas('hosting_deployments', [
-           'subscription_uuid' => $this->subscription->uuid,
-       ]);
+            'subscription_uuid' => $this->subscription->uuid,
+        ]);
     }
 }

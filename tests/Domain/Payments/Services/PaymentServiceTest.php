@@ -42,13 +42,13 @@ class PaymentServiceTest extends IntegrationTestCase
 
     private Order $order;
 
-    private EventDispatcher & MockObject $eventDispatcherMock;
+    private EventDispatcher&MockObject $eventDispatcherMock;
 
-    private JobDispatcher & MockObject $jobDispatcherMock;
+    private JobDispatcher&MockObject $jobDispatcherMock;
 
-    private PaymentInterface & MockObject $clientMock;
+    private PaymentInterface&MockObject $clientMock;
 
-    private LoggerInterface & MockObject $loggerMock;
+    private LoggerInterface&MockObject $loggerMock;
 
     private PaymentService $paymentService;
 
@@ -81,7 +81,8 @@ class PaymentServiceTest extends IntegrationTestCase
     public function createPaymentSucceeds(): void
     {
         $paymentParameters = $this->createPaymentParameters();
-        $this->clientMock->expects(self::exactly(3))
+        $this->clientMock
+            ->expects(self::exactly(3))
             ->method('createPayment')
             ->with($paymentParameters)
             ->willReturn($this->createPaymentClientResult());
@@ -95,9 +96,17 @@ class PaymentServiceTest extends IntegrationTestCase
         self::assertSame($payment->order_id, $this->order->id);
         self::assertNull($payment->create_direct_debit_mandate);
 
-        $paymentWithCreateDirectDebitTrue = $this->paymentService->createPayment($this->customer, $paymentParameters, true);
+        $paymentWithCreateDirectDebitTrue = $this->paymentService->createPayment(
+            $this->customer,
+            $paymentParameters,
+            true,
+        );
         self::assertTrue($paymentWithCreateDirectDebitTrue->create_direct_debit_mandate);
-        $paymentWithCreateDirectDebitFalse = $this->paymentService->createPayment($this->customer, $paymentParameters, false);
+        $paymentWithCreateDirectDebitFalse = $this->paymentService->createPayment(
+            $this->customer,
+            $paymentParameters,
+            false,
+        );
         self::assertFalse($paymentWithCreateDirectDebitFalse->create_direct_debit_mandate);
     }
 
@@ -108,7 +117,8 @@ class PaymentServiceTest extends IntegrationTestCase
     public function createPaymentErrorResult(): void
     {
         $paymentParameters = $this->createPaymentParameters();
-        $this->clientMock->expects(self::once())
+        $this->clientMock
+            ->expects(self::once())
             ->method('createPayment')
             ->with($paymentParameters)
             ->willReturn(Result::create([
@@ -130,17 +140,23 @@ class PaymentServiceTest extends IntegrationTestCase
         $payment = $this->createPayment();
 
         $paymentClientResult = $this->createPaymentClientResult(PaymentStatus::PAID);
-        $this->clientMock->expects(self::once())
+        $this->clientMock
+            ->expects(self::once())
             ->method('fetchPayment')
             ->with($payment->external_id)
             ->willReturn($paymentClientResult);
 
-        $this->eventDispatcherMock->expects(self::once())
+        $this->eventDispatcherMock
+            ->expects(self::once())
             ->method('dispatch')
-            ->with(self::callback(fn ($event) => $event instanceof PaymentUpdatedEvent
-                && $event->getPayment()->id === $payment->id
-                && $event->getPayment()->status === PaymentStatus::PAID
-                && $event->getPaymentResult() === $paymentClientResult));
+            ->with(self::callback(
+                fn ($event) => (
+                    $event instanceof PaymentUpdatedEvent
+                    && $event->getPayment()->id === $payment->id
+                    && $event->getPayment()->status === PaymentStatus::PAID
+                    && $event->getPaymentResult() === $paymentClientResult
+                ),
+            ));
 
         $syncedPayment = $this->paymentService->syncPayment($payment);
 
@@ -156,13 +172,13 @@ class PaymentServiceTest extends IntegrationTestCase
     {
         $payment = $this->createPayment();
 
-        $this->clientMock->expects(self::once())
+        $this->clientMock
+            ->expects(self::once())
             ->method('fetchPayment')
             ->with($payment->external_id)
             ->willReturn($this->createPaymentClientResult());
 
-        $this->eventDispatcherMock->expects(self::never())
-            ->method('dispatch');
+        $this->eventDispatcherMock->expects(self::never())->method('dispatch');
 
         $this->paymentService->syncPayment($payment->external_id);
     }
@@ -175,7 +191,8 @@ class PaymentServiceTest extends IntegrationTestCase
     {
         $payment = $this->createPayment();
 
-        $this->clientMock->expects(self::once())
+        $this->clientMock
+            ->expects(self::once())
             ->method('fetchPayment')
             ->with($payment->external_id)
             ->willReturn($this->createPaymentClientResult(PaymentStatus::PAID));
@@ -194,7 +211,8 @@ class PaymentServiceTest extends IntegrationTestCase
     {
         $payment = $this->createPayment();
 
-        $this->clientMock->expects(self::once())
+        $this->clientMock
+            ->expects(self::once())
             ->method('fetchPayment')
             ->with($payment->external_id)
             ->willReturn(Result::create([
@@ -224,10 +242,10 @@ class PaymentServiceTest extends IntegrationTestCase
     public function createDirectDebitMandateFromPaymentResult(): void
     {
         CarbonImmutable::setTestNow('2024-04-05 16:51:00');
-        $this->eventDispatcherMock->expects(self::never())
-            ->method('dispatch');
+        $this->eventDispatcherMock->expects(self::never())->method('dispatch');
 
-        $this->jobDispatcherMock->expects(self::once())
+        $this->jobDispatcherMock
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::callback(fn ($job) => $job instanceof RequestDirectDebitMandateJob));
 
@@ -254,12 +272,16 @@ class PaymentServiceTest extends IntegrationTestCase
         $paymentClientResult = $this->createPaymentClientResult(PaymentStatus::PAID, null);
         $this->eventDispatcherMock->expects(self::never())->method('dispatch');
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('error')
-            ->with('Payments: cannot create direct debit mandate from payment result - details.consumerAccount is missing from response data', [
-                LoggingContextKeys::CUSTOMER_ID => $this->customer->id,
-                LoggingContextKeys::RESPONSE_DATA => (string) json_encode($paymentClientResult),
-            ]);
+            ->with(
+                'Payments: cannot create direct debit mandate from payment result - details.consumerAccount is missing from response data',
+                [
+                    LoggingContextKeys::CUSTOMER_ID => $this->customer->id,
+                    LoggingContextKeys::RESPONSE_DATA => (string) json_encode($paymentClientResult),
+                ],
+            );
 
         $this->paymentService->createDirectDebitMandateFromPaymentResult($this->customer, $paymentClientResult);
     }
@@ -297,8 +319,10 @@ class PaymentServiceTest extends IntegrationTestCase
     /**
      * @param null|array<'consumerAccount', string> $details
      */
-    private function createPaymentClientResult(PaymentStatus $status = PaymentStatus::OPEN, ?array $details = []): Result
-    {
+    private function createPaymentClientResult(
+        PaymentStatus $status = PaymentStatus::OPEN,
+        ?array $details = [],
+    ): Result {
         return Result::create([
             'status' => Result::STATUS_OK,
             'paymentData' => [
@@ -324,7 +348,8 @@ class PaymentServiceTest extends IntegrationTestCase
     {
         $paymentParameters = $this->createPaymentParameters();
 
-        $this->clientMock->expects(self::once())
+        $this->clientMock
+            ->expects(self::once())
             ->method('createPayment')
             ->with($paymentParameters)
             ->willReturn($this->createPaymentClientResult());

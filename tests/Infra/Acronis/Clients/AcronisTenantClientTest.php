@@ -96,10 +96,13 @@ class AcronisTenantClientTest extends TestCase
 
         $mockClient->assertSent(function (GetTenantRequest $request): bool {
             self::assertSame(sprintf('/tenants/%s', self::TENANT_ID), $request->resolveEndpoint());
-            self::assertSame([
-                'embed_path' => true,
-                'allow_deleted' => true,
-            ], $request->query()->all());
+            self::assertSame(
+                [
+                    'embed_path' => true,
+                    'allow_deleted' => true,
+                ],
+                $request->query()->all(),
+            );
 
             return true;
         });
@@ -144,6 +147,7 @@ class AcronisTenantClientTest extends TestCase
                 $contact = new Contact(email: self::EMAIL);
                 $contact->address1 = self::CONTACT_ADDRESS1;
                 $contact->phone = self::PHONE;
+
                 return $contact;
             })(),
         );
@@ -227,9 +231,10 @@ class AcronisTenantClientTest extends TestCase
                 $contact = new Contact(email: self::EMAIL);
                 $contact->firstname = 'New Name';
                 $contact->lastname = null;
+
                 return $contact;
             })(),
-            version: self::VERSION
+            version: self::VERSION,
         );
 
         $payload->brandId = self::BRAND_ID;
@@ -315,7 +320,11 @@ class AcronisTenantClientTest extends TestCase
 
         $tenantClient = $this->makeClient($mockClient);
 
-        $payload = new TenantPricingSettings(version: self::VERSION, mode: PricingMode::PRODUCTION, currency: PricingCurrency::EUR);
+        $payload = new TenantPricingSettings(
+            version: self::VERSION,
+            mode: PricingMode::PRODUCTION,
+            currency: PricingCurrency::EUR,
+        );
 
         $tenantPricingSettings = $tenantClient->updatePricingSettings(self::TENANT_ID, $payload);
 
@@ -330,12 +339,19 @@ class AcronisTenantClientTest extends TestCase
     public function updatePricingSettingsThrowsAcronisSerializerException(): void
     {
         $mockClient = new OAuthMockClient([
-            PutTenantPricingSettingsRequest::class => MockResponse::make(body: '{"version": "string-not-int"}', status: Response::HTTP_OK),
+            PutTenantPricingSettingsRequest::class => MockResponse::make(
+                body: '{"version": "string-not-int"}',
+                status: Response::HTTP_OK,
+            ),
         ]);
 
         $tenantClient = $this->makeClient($mockClient);
 
-        $payload = new TenantPricingSettings(version: self::VERSION, mode: PricingMode::PRODUCTION, currency: PricingCurrency::EUR);
+        $payload = new TenantPricingSettings(
+            version: self::VERSION,
+            mode: PricingMode::PRODUCTION,
+            currency: PricingCurrency::EUR,
+        );
 
         self::expectException(AcronisSerializerException::class);
 
@@ -367,7 +383,10 @@ class AcronisTenantClientTest extends TestCase
     public function getPricingSettingsThrowsAcronisSerializerException(): void
     {
         $mockClient = new OAuthMockClient([
-            GetTenantPricingSettingsRequest::class => MockResponse::make(body: '{"version": "should be int"}', status: Response::HTTP_OK),
+            GetTenantPricingSettingsRequest::class => MockResponse::make(
+                body: '{"version": "should be int"}',
+                status: Response::HTTP_OK,
+            ),
         ]);
 
         $tenantClient = $this->makeClient($mockClient);
@@ -500,10 +519,13 @@ class AcronisTenantClientTest extends TestCase
 
         $mockClient->assertSent(function (GetTenantUsagesRequest $request): bool {
             self::assertSame(sprintf('/tenants/%s/usages', self::TENANT_ID), $request->resolveEndpoint());
-            self::assertSame([
-                'usage_names' => 'storage,local_storage',
-                'editions' => 'standard,advanced',
-            ], $request->query()->all());
+            self::assertSame(
+                [
+                    'usage_names' => 'storage,local_storage',
+                    'editions' => 'standard,advanced',
+                ],
+                $request->query()->all(),
+            );
 
             return true;
         });

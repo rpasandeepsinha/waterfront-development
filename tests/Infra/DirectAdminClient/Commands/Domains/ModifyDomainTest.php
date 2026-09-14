@@ -56,15 +56,9 @@ class ModifyDomainTest extends DirectAdminTestCase
         $this->createTestUser($testUser);
         $domain = $testUser . '-domain.nl';
 
-        $this->modifyDomain
-            ->setDomain($domain)
-            ->setSsl('ON')
-            ->setUbandwidth('ON')
-            ->setUquota('ON');
+        $this->modifyDomain->setDomain($domain)->setSsl('ON')->setUbandwidth('ON')->setUquota('ON');
 
-        $modifyDomain = $this->api
-            ->loginAs($testUser)
-            ->call($this->modifyDomain);
+        $modifyDomain = $this->api->loginAs($testUser)->call($this->modifyDomain);
 
         $successResponse = '"success": "The domain has been modified"';
 
@@ -91,9 +85,7 @@ class ModifyDomainTest extends DirectAdminTestCase
 
         $this->api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->modifyDomain
-            ->setDomain($domain)
-            ->setSsl('ON');
+        $this->modifyDomain->setDomain($domain)->setSsl('ON');
 
         $this->expectException(DirectAdminCommandException::class);
         $this->expectExceptionMessageIs($exceptionMessage);
@@ -119,9 +111,7 @@ class ModifyDomainTest extends DirectAdminTestCase
 
         $this->api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->modifyDomain
-            ->setDomain($domain)
-            ->setSsl('ON');
+        $this->modifyDomain->setDomain($domain)->setSsl('ON');
 
         $this->expectException(DirectAdminCommandException::class);
         $this->expectExceptionMessageIs($exceptionMessage);
@@ -147,10 +137,7 @@ class ModifyDomainTest extends DirectAdminTestCase
 
         $this->api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->modifyDomain
-            ->setDomain($domain)
-            ->setSsl('ON')
-            ->setUbandwidth('ON');
+        $this->modifyDomain->setDomain($domain)->setSsl('ON')->setUbandwidth('ON');
 
         $this->expectException(DirectAdminCommandException::class);
         $this->expectExceptionMessageIsOrContains($exceptionMessage);

@@ -45,7 +45,12 @@ class IntroductionDiscountPriceResponseTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $this->customer = new CustomerFactory()->createOneQuietly();
 
@@ -54,8 +59,14 @@ class IntroductionDiscountPriceResponseTest extends IntegrationTestCase
             'name' => '.nl',
         ]);
 
-        new ProductPriceComponentFactory()->for($this->product)->registration()->createOne(['price' => 1000]);
-        new ProductPriceComponentFactory()->for($this->product)->introduction()->createOne(['price' => $this->introductionPrice]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->registration()
+            ->createOne(['price' => 1000]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->introduction()
+            ->createOne(['price' => $this->introductionPrice]);
 
         $this->order = new OrderFactory()->createOneQuietly(['customer_id' => $this->customer->id]);
 
@@ -86,10 +97,13 @@ class IntroductionDiscountPriceResponseTest extends IntegrationTestCase
 
         $introductionPriceComponent = array_find(
             $priceDto->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent
+            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent,
         );
 
-        self::assertSame($this->introductionDiscount->max_uses_per_customer, $introductionPriceComponent?->remainingUses);
+        self::assertSame(
+            $this->introductionDiscount->max_uses_per_customer,
+            $introductionPriceComponent?->remainingUses,
+        );
     }
 
     // test must prove that if customer already ordered 4 of same product/period
@@ -99,13 +113,15 @@ class IntroductionDiscountPriceResponseTest extends IntegrationTestCase
     {
         $numberOfPreviousOrderedProducts = 4;
 
-        new OrderLineItemFactory()->count($numberOfPreviousOrderedProducts)->createQuietly([
-            'subscription_uuid' => null,
-            'order_id' => $this->order->id,
-            'domain' => 'test-domein.nl',
-            'product_uuid' => $this->product->uuid,
-            'contract_period' => 12,
-        ]);
+        new OrderLineItemFactory()
+            ->count($numberOfPreviousOrderedProducts)
+            ->createQuietly([
+                'subscription_uuid' => null,
+                'order_id' => $this->order->id,
+                'domain' => 'test-domein.nl',
+                'product_uuid' => $this->product->uuid,
+                'contract_period' => 12,
+            ]);
 
         $priceResolver = self::resolve(PriceResolver::class);
         $priceRequest = new PriceRequest([new RegistrationPriceRequest($this->product)], $this->customer);
@@ -119,7 +135,7 @@ class IntroductionDiscountPriceResponseTest extends IntegrationTestCase
 
         $introductionPriceComponent = array_find(
             $priceDto->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent
+            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent,
         );
 
         self::assertSame(1, $introductionPriceComponent?->remainingUses);
@@ -139,7 +155,11 @@ class IntroductionDiscountPriceResponseTest extends IntegrationTestCase
         $this->introductionDiscount->save();
 
         $priceResolver = self::resolve(PriceResolver::class);
-        $priceRequest = new PriceRequest([new RegistrationPriceRequest($this->product)], $this->customer, requestingForOrder: true);
+        $priceRequest = new PriceRequest(
+            [new RegistrationPriceRequest($this->product)],
+            $this->customer,
+            requestingForOrder: true,
+        );
         $priceList = $priceResolver->getPriceList($priceRequest);
         $price = $priceList->getProductPrice($this->product->slug, 12, 12);
 
@@ -163,9 +183,12 @@ class IntroductionDiscountPriceResponseTest extends IntegrationTestCase
 
         $introductionPriceComponent = array_find(
             $priceDto->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent
+            fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent,
         );
 
-        self::assertSame($this->introductionDiscount->max_uses_per_customer, $introductionPriceComponent?->remainingUses);
+        self::assertSame(
+            $this->introductionDiscount->max_uses_per_customer,
+            $introductionPriceComponent?->remainingUses,
+        );
     }
 }

@@ -21,7 +21,9 @@ use Waterfront\Domain\Translations\Models\TranslationString;
 #[AsCommand(name: 'translate:export-to-database')]
 #[Description('find or create translations based on the json files committed in vcs towards the database.
         These will not overwrite existing translations')]
-#[Signature('translate:export-to-database {audit-log-summary=audit-log-summary.json} {atlantis=atlantis.json} {compass=compass.json} {coast=coast.json} {beacon=beacon.json} {waterfront-backend=waterfront-backend.json}')]
+#[Signature(
+    'translate:export-to-database {audit-log-summary=audit-log-summary.json} {atlantis=atlantis.json} {compass=compass.json} {coast=coast.json} {beacon=beacon.json} {waterfront-backend=waterfront-backend.json}',
+)]
 class TranslationsToDatabase extends Command
 {
     public function handle(): int
@@ -96,7 +98,7 @@ class TranslationsToDatabase extends Command
 
     private function findOrCreateTranslationStrings(string $source, string $file): void
     {
-        $localeIds  = TranslationLanguage::pluck('id', 'locale');
+        $localeIds = TranslationLanguage::pluck('id', 'locale');
 
         /** @var array<int, string> $translationKeysInDB */
         $translationKeysInDB = $this->getTranslationKeysBySource($source)->all();
@@ -126,11 +128,15 @@ class TranslationsToDatabase extends Command
                 $translatedString = Arr::get($translation, 'translated_string');
                 assert(is_string($translatedString) || is_null($translatedString));
 
-                $translationModel->language_id       = $languageId;
-                $translationModel->key_id            = $translationKeyId;
+                $translationModel->language_id = $languageId;
+                $translationModel->key_id = $translationKeyId;
                 $translationModel->translated_string = strval($translatedString);
 
-                $translationStringKey = array_search($translationModel->language_id, array_column($translationStrings, 'language_id'), true) ;
+                $translationStringKey = array_search(
+                    $translationModel->language_id,
+                    array_column($translationStrings, 'language_id'),
+                    true,
+                );
 
                 if ($translationStringKey === false) {
                     $translationModel->save();
@@ -139,8 +145,9 @@ class TranslationsToDatabase extends Command
 
                 assert(is_array($translationStrings[$translationStringKey]));
                 if ($translationStrings[$translationStringKey]['translated_string'] === null) {
-                    TranslationString::where('id', $translationStrings[$translationStringKey]['id'])
-                        ->update(['translated_string' => $translationModel->translated_string]);
+                    TranslationString::where('id', $translationStrings[$translationStringKey]['id'])->update([
+                        'translated_string' => $translationModel->translated_string,
+                    ]);
                 }
             }
         }
@@ -167,8 +174,8 @@ class TranslationsToDatabase extends Command
     private function getTranslationKeysBySource(string $source): Collection
     {
         return TranslationKey::where([
-                'source' => $source,
-            ])->pluck('key', 'id');
+            'source' => $source,
+        ])->pluck('key', 'id');
     }
 
     /**
@@ -180,7 +187,10 @@ class TranslationsToDatabase extends Command
     {
         return TranslationString::whereIn(
             'key_id',
-            array_flip($sourceIds)
-        )->get()->groupBy('key_id')->toArray();
+            array_flip($sourceIds),
+        )
+            ->get()
+            ->groupBy('key_id')
+            ->toArray();
     }
 }

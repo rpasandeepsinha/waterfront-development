@@ -10,8 +10,9 @@ use Webmozart\Assert\Assert;
 
 class PayloadDeserializer
 {
-    public function __construct(private readonly Encrypter $encrypter)
-    {
+    public function __construct(
+        private readonly Encrypter $encrypter,
+    ) {
     }
 
     /**

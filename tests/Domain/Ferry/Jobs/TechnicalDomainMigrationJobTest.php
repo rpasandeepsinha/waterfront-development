@@ -46,18 +46,21 @@ class TechnicalDomainMigrationJobTest extends IntegrationTestCase
     {
         Http::fake();
 
-        $incomingOutgoingResponse = json_encode(include __DIR__ . '/data/domain_details_valid.php', JSON_THROW_ON_ERROR);
+        $incomingOutgoingResponse = json_encode(
+            include __DIR__ . '/data/domain_details_valid.php',
+            JSON_THROW_ON_ERROR,
+        );
         $contactResponse = json_encode(include __DIR__ . '/data/contact_valid.php', JSON_THROW_ON_ERROR);
 
         $sdk = MockedClientFactory::makeSdkWithMultipleReponses([
             new Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
             // trigger an error.
             new Response(
                 status: 500,
-                body: $contactResponse
+                body: $contactResponse,
             ),
         ]);
 
@@ -72,19 +75,24 @@ class TechnicalDomainMigrationJobTest extends IntegrationTestCase
         $domainProvider = ProviderFactory::new()->domainPlaceholder()->createOne();
         ProviderFactory::new()->domainRtr()->createOne();
         $productExtension = ProductFactory::new()->for($productGroupExtension)->createOne(['slug' => 'extension_com']);
-        $subscription = SubscriptionFactory::new()
-            ->for($productExtension)
-            ->for($customer)
-            ->createOne(['domain' => $domain, 'administrative_status' => AdministrativeStatus::ACTIVE->value, 'technical_status' => DomainStatus::ACTIVE->value]);
-        $migrationSubscription  = MigratedSubscriptionsFactory::new()->createOne();
+        $subscription = SubscriptionFactory::new()->for($productExtension)->for($customer)->createOne([
+            'domain' => $domain,
+            'administrative_status' => AdministrativeStatus::ACTIVE->value,
+            'technical_status' => DomainStatus::ACTIVE->value,
+        ]);
+        $migrationSubscription = MigratedSubscriptionsFactory::new()->createOne();
         $subscription->migratedSubscriptions()->attach($migrationSubscription);
         $subscription->save();
         $migratedCustomer = MigratedCustomersFactory::new()->createOne();
         $migratedCustomer->migratedSubscriptions()->attach($migrationSubscription);
         $migratedCustomer->customers()->attach($customer);
-        $deployment = DomainDeploymentFactory::new()->createOne(['subscription_uuid' => $subscription->uuid, 'provider_id' => $domainProvider->id]);
+        $deployment = DomainDeploymentFactory::new()->createOne([
+            'subscription_uuid' => $subscription->uuid,
+            'provider_id' => $domainProvider->id,
+        ]);
 
-        $subscriptions = self::resolve(MigratableSubscriptionRepository::class)->getSubscriptionsForDomainContactMigration($customer);
+        $subscriptions = self::resolve(MigratableSubscriptionRepository::class)
+            ->getSubscriptionsForDomainContactMigration($customer);
 
         foreach ($subscriptions as $item) {
             self::assertSame(ProviderSlug::PLACEHOLDER, $item->domainDeployment?->provider->slug);
@@ -95,7 +103,11 @@ class TechnicalDomainMigrationJobTest extends IntegrationTestCase
 
         self::assertIsString($referenceSubscriptionId);
 
-        $technicalDomainPayload = new DomainMigrationPayload(null, $referenceSubscriptionId, ProviderSlug::REALTIME_REGISTER);
+        $technicalDomainPayload = new DomainMigrationPayload(
+            null,
+            $referenceSubscriptionId,
+            ProviderSlug::REALTIME_REGISTER,
+        );
 
         $job = new TechnicalDomainMigrationJob($subscription, $subscription->technical_status, $technicalDomainPayload);
         $dispatcher = self::resolve(Dispatcher::class);
@@ -136,15 +148,15 @@ class TechnicalDomainMigrationJobTest extends IntegrationTestCase
         $sdk = MockedClientFactory::makeSdkWithMultipleReponses([
             new Response(
                 status: $fetchDomainStatusCode,
-                body: $domainDetailsResponse
+                body: $domainDetailsResponse,
             ),
             new Response(
                 status: 200,
-                body: json_encode(include __DIR__ . '/data/contact_valid_registrant.php', JSON_THROW_ON_ERROR)
+                body: json_encode(include __DIR__ . '/data/contact_valid_registrant.php', JSON_THROW_ON_ERROR),
             ),
             new Response(
                 status: $exceptionOnAutorenewal ? 500 : 200,
-                body: $exceptionOnAutorenewal ? 'error enabling autorenewal' : $domainDetailsResponse
+                body: $exceptionOnAutorenewal ? 'error enabling autorenewal' : $domainDetailsResponse,
             ),
         ]);
 
@@ -172,11 +184,12 @@ class TechnicalDomainMigrationJobTest extends IntegrationTestCase
         $domainProvider = ProviderFactory::new()->domainPlaceholder()->createOne();
         ProviderFactory::new()->domainRtr()->createOne();
         $productExtension = ProductFactory::new()->for($productGroupExtension)->createOne(['slug' => 'extension_com']);
-        $subscription = SubscriptionFactory::new()
-            ->for($productExtension)
-            ->for($customer)
-            ->createOne(['domain' => $domain, 'administrative_status' => AdministrativeStatus::ACTIVE->value, 'technical_status' => DomainStatus::ACTIVE->value]);
-        $migrationSubscription  = MigratedSubscriptionsFactory::new()->createOne();
+        $subscription = SubscriptionFactory::new()->for($productExtension)->for($customer)->createOne([
+            'domain' => $domain,
+            'administrative_status' => AdministrativeStatus::ACTIVE->value,
+            'technical_status' => DomainStatus::ACTIVE->value,
+        ]);
+        $migrationSubscription = MigratedSubscriptionsFactory::new()->createOne();
         $subscription->migratedSubscriptions()->attach($migrationSubscription);
         $subscription->save();
         $migratedCustomer = MigratedCustomersFactory::new()->createOne();
@@ -184,10 +197,14 @@ class TechnicalDomainMigrationJobTest extends IntegrationTestCase
         $migratedCustomer->customers()->attach($customer);
         $existingBusinessUnit = DomainProviderBusinessUnitFactory::new()->state(['slug' => $businessUnit])->createOne();
         RtrProviderCredentialsFactory::new()->for($existingBusinessUnit)->createOne();
-        $deployment = DomainDeploymentFactory::new()
-            ->createOne(['subscription_uuid' => $subscription->uuid, 'provider_id' => $domainProvider->id, 'domain_business_unit_id' => $existingBusinessUnit->id]);
+        $deployment = DomainDeploymentFactory::new()->createOne([
+            'subscription_uuid' => $subscription->uuid,
+            'provider_id' => $domainProvider->id,
+            'domain_business_unit_id' => $existingBusinessUnit->id,
+        ]);
 
-        $subscriptions = self::resolve(MigratableSubscriptionRepository::class)->getSubscriptionsForDomainContactMigration($customer);
+        $subscriptions = self::resolve(MigratableSubscriptionRepository::class)
+            ->getSubscriptionsForDomainContactMigration($customer);
 
         foreach ($subscriptions as $item) {
             self::assertSame(ProviderSlug::PLACEHOLDER, $item->domainDeployment?->provider->slug);

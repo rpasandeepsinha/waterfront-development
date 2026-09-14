@@ -9,8 +9,12 @@ use Waterfront\Domain\Provision\Interfaces\ProvisionResultInterface;
 
 class StoreProvisionResultException extends ProvisionException
 {
-    public function __construct(ProvisionResultInterface $result, int $originRequestId, int $code = 0, ?Throwable $previous = null)
-    {
+    public function __construct(
+        ProvisionResultInterface $result,
+        int $originRequestId,
+        int $code = 0,
+        ?Throwable $previous = null,
+    ) {
         parent::__construct(
             message: sprintf(
                 'Unable to store provision result in the database from request [%d]. Provision Status: %s',
@@ -18,7 +22,7 @@ class StoreProvisionResultException extends ProvisionException
                 $result->provisionStatus->value,
             ),
             code: $code,
-            previous: $previous
+            previous: $previous,
         );
     }
 }

@@ -39,7 +39,7 @@ class SslDeploymentResource
      */
     public function toJson(SslDeployment $sslDeployment): string
     {
-        return json_encode($this->toArray($sslDeployment), flags:JSON_THROW_ON_ERROR);
+        return json_encode($this->toArray($sslDeployment), flags: JSON_THROW_ON_ERROR);
     }
 
     /**

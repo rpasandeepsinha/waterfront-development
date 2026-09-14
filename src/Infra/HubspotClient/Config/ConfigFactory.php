@@ -9,8 +9,9 @@ use Waterfront\Infra\HubspotClient\DTO\HubspotConfigDTO;
 
 readonly class ConfigFactory
 {
-    public function __construct(private ConfigurationInterface $configuration)
-    {
+    public function __construct(
+        private ConfigurationInterface $configuration,
+    ) {
     }
 
     public function get(): HubspotConfigDTO

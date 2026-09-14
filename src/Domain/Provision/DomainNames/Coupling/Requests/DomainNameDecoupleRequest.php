@@ -18,7 +18,7 @@ class DomainNameDecoupleRequest extends DomainNameCoupleProvisionRequest
     public function __construct(
         public readonly string $domain,
         public readonly UuidInterface $requestUuid,
-        public protected(set) UuidInterface $context
+        public protected(set) UuidInterface $context,
     ) {
         $this->tag = $this->context;
     }

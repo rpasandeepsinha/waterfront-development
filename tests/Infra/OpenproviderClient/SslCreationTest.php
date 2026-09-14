@@ -40,7 +40,7 @@ class SslCreationTest extends TestCase
         self::assertXmlStringEqualsXmlString(
             str_replace(['  ', "\n"], '', $requestXml),
             str_replace(['  ', "\n"], '', $request->getXml()),
-            'The xml of the request does not match the expected values'
+            'The xml of the request does not match the expected values',
         );
     }
 
@@ -50,7 +50,7 @@ class SslCreationTest extends TestCase
         $response = new Response(
             200,
             ['Content-Type' => 'text/xml'],
-            (string) file_get_contents(__DIR__ . '/data/openprovider_ssl_create_response.xml')
+            (string) file_get_contents(__DIR__ . '/data/openprovider_ssl_create_response.xml'),
         );
 
         $sslResponse = new SslCreateResponse($response);

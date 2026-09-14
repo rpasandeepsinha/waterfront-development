@@ -79,10 +79,14 @@ class ResellerHostingMigrationControllerTest extends IntegrationTestCase
             'subscription_uuid' => $this->directadminSubscription->uuid,
         ]);
 
-        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1']);
+        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1',
+        ]);
         $this->directadminSubscription->migratedSubscriptions()->attach($migratedSubscription);
 
-        $migratedSubscription2 = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_redirect_1337']);
+        $migratedSubscription2 = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_redirect_1337',
+        ]);
         $this->directadminSubscription->migratedSubscriptions()->attach($migratedSubscription2);
 
         $migrationCustomer = MigratedCustomersFactory::new()->createOne();
@@ -96,7 +100,8 @@ class ResellerHostingMigrationControllerTest extends IntegrationTestCase
 
         $mockHostingService = self::createStub(HostingService::class);
 
-        $mockHostingService->method('getUserConfigAsDto')
+        $mockHostingService
+            ->method('getUserConfigAsDto')
             ->willReturn(
                 new UserConfig(
                     dnscontrol: 'ON',
@@ -109,7 +114,7 @@ class ResellerHostingMigrationControllerTest extends IntegrationTestCase
                     quota: '1024',
                     package: 'basic',
                     usertype: HostingUserType::RESELLER,
-                )
+                ),
             );
 
         $this->app->instance(HostingService::class, $mockHostingService);
@@ -136,13 +141,16 @@ class ResellerHostingMigrationControllerTest extends IntegrationTestCase
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_reseller_hosting', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_reseller_hosting', [
+                    'customer' => $this->customer->id,
+                ]),
                 $postData,
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            )->assertStatus(Response::HTTP_MULTI_STATUS)
+                ],
+            )
+            ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [],
                 'success' => [
@@ -184,13 +192,16 @@ class ResellerHostingMigrationControllerTest extends IntegrationTestCase
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_hosting', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_hosting', [
+                    'customer' => $this->customer->id,
+                ]),
                 $postData,
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+                ],
+            )
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertExactJson([
                 'message' => 'Het geselecteerde veld is ongeldig. (and 2 more errors)',
                 'errors' => [

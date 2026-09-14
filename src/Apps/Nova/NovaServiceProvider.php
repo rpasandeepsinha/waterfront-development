@@ -32,14 +32,12 @@ use Waterfront\Apps\Nova\Customers\Resources\NovaCustomerWalletResource;
 use Waterfront\Apps\Nova\Domains\Resources\NovaDomainContactAnonymousHandleResource;
 use Waterfront\Apps\Nova\Domains\Resources\NovaDomainSubscriptionResource;
 use Waterfront\Apps\Nova\Domains\Resources\NovaOpenproviderProviderCredentials;
-use Waterfront\Apps\Nova\Domains\Resources\NovaOpenSrsProviderCredentials;
 use Waterfront\Apps\Nova\Domains\Resources\NovaRtrProviderCredentials;
 use Waterfront\Apps\Nova\General\Dashboards\NovaMainDashboard;
 use Waterfront\Apps\Nova\General\Dashboards\NovaStatisticsDashboard;
 use Waterfront\Apps\Nova\Hosting\Resources\NovaRedirectLegacyServerResource;
 use Waterfront\Apps\Nova\Hosting\Resources\NovaServerResource;
 use Waterfront\Apps\Nova\Hosting\Resources\NovaSpamExpertsClusterResource;
-use Waterfront\Apps\Nova\Invoices\Resources\NovaInvoiceResource;
 use Waterfront\Apps\Nova\Microsoft365\Resources\NovaMicrosoft365CustomerResource;
 use Waterfront\Apps\Nova\Microsoft365\Resources\NovaMicrosoft365DeploymentResource;
 use Waterfront\Apps\Nova\Microsoft365\Resources\NovaMicrosoft365KpnProductsResource;
@@ -125,7 +123,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
                 sprintf('Uncaught Nova exception: %s', $exception->getMessage()),
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
         });
     }
@@ -166,23 +164,24 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
         $resources = [];
 
         foreach (new Finder()->in('../src/Apps/Nova')->files() as $resource) {
-            $resource = $namespace . str_replace(
+            $resource = $namespace
+            . str_replace(
                 ['../src/Apps/Nova/', '/', '.php'],
                 ['', '\\', ''],
-                $resource->getPathname()
+                $resource->getPathname(),
             );
 
             if (
-                is_subclass_of($resource, Resource::class) &&
-                ! new ReflectionClass($resource)->isAbstract() &&
-                ! is_subclass_of($resource, ActionResource::class)
+                is_subclass_of($resource, Resource::class)
+                && ! new ReflectionClass($resource)->isAbstract()
+                && ! is_subclass_of($resource, ActionResource::class)
             ) {
                 $resources[] = $resource;
             }
         }
 
         Nova::resources(
-            $resources
+            $resources,
         );
     }
 
@@ -196,27 +195,27 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     private function getFakeCustomer(): Customer
     {
         return new Customer([
-            'uuid'                    => Uuid::uuid4(), // In the case that tests disable events this is necessary.
-            'customer_number'         => 12345,
-            'organization'            => 'Fake org',
-            'department'              => 'Depart',
-            'first_name'              => 'Piet',
-            'last_name'               => 'Puk',
-            'gender'                  => Gender::MALE->value,
-            'invoice_history_url'     => 'https://sandwaveio.dev',
-            'admin_url'               => 'https://sandwaveio.dev',
-            'phone_country_code'      => '31',
-            'phone_area_code'         => '6',
+            'uuid' => Uuid::uuid4(), // In the case that tests disable events this is necessary.
+            'customer_number' => 12345,
+            'organization' => 'Fake org',
+            'department' => 'Depart',
+            'first_name' => 'Piet',
+            'last_name' => 'Puk',
+            'gender' => Gender::MALE->value,
+            'invoice_history_url' => 'https://sandwaveio.dev',
+            'admin_url' => 'https://sandwaveio.dev',
+            'phone_country_code' => '31',
+            'phone_area_code' => '6',
             'phone_subscriber_number' => '87281426',
-            'email'                   => 'fake@sandwaveio.dev',
-            'locale'                  => Locale::DUTCH->value,
-            'terms_of_payment'        => 14,
-            'is_verified'            => true,
-            'payment_type'            => PaymentType::CREDIT,
-            'terms_accepted'          => true,
-            'created_at'              => CarbonImmutable::now(),
-            'updated_at'              => CarbonImmutable::now(),
-            'anonymized_at'           => null,
+            'email' => 'fake@sandwaveio.dev',
+            'locale' => Locale::DUTCH->value,
+            'terms_of_payment' => 14,
+            'is_verified' => true,
+            'payment_type' => PaymentType::CREDIT,
+            'terms_accepted' => true,
+            'created_at' => CarbonImmutable::now(),
+            'updated_at' => CarbonImmutable::now(),
+            'anonymized_at' => null,
         ]);
     }
 
@@ -247,7 +246,6 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
 
             MenuGroup::make($translator->translate('nova-group.invoices'), [
                 MenuItem::resource(NovaOrderResource::class),
-                MenuItem::resource(NovaInvoiceResource::class),
                 MenuItem::resource(NovaProductDiscountResource::class),
                 MenuItem::resource(NovaCustomerWalletResource::class),
             ])->collapsable(),
@@ -270,8 +268,9 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
             ])->collapsable(),
 
             MenuGroup::make($translator->translate('nova-group.statistics'), [
-                MenuItem::resource(NovaOneOffScriptResource::class)
-                    ->canSee(fn (Request $request) => $authorizationChecker->can(Permissions::RUN_ONE_OFF_SCRIPT)),
+                MenuItem::resource(NovaOneOffScriptResource::class)->canSee(
+                    fn (Request $request) => $authorizationChecker->can(Permissions::RUN_ONE_OFF_SCRIPT),
+                ),
                 MenuItem::dashboard(NovaStatisticsDashboard::class),
             ])->collapsable(),
 
@@ -284,7 +283,6 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
                 MenuItem::resource(NovaFerryInternalNameserverResource::class),
                 MenuItem::resource(NovaRtrProviderCredentials::class),
                 MenuItem::resource(NovaOpenproviderProviderCredentials::class),
-                MenuItem::resource(NovaOpenSrsProviderCredentials::class),
                 MenuItem::resource(NovaRedirectLegacyServerResource::class),
                 MenuItem::resource(NovaSpamExpertsClusterResource::class),
             ])->collapsable(),
@@ -307,9 +305,9 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
 
         Nova::userMenu(
             fn (Request $request, Menu $menu) => $menu
-            ->append(MenuItem::externalLink('Compass', $compassUrl))
-            ->append(MenuItem::externalLink('Account / settings', $settingsUrl))
-            ->append(MenuItem::externalLink('Account / logout', $logoutUrl))
+                ->append(MenuItem::externalLink('Compass', $compassUrl))
+                ->append(MenuItem::externalLink('Account / settings', $settingsUrl))
+                ->append(MenuItem::externalLink('Account / logout', $logoutUrl)),
         );
     }
 }

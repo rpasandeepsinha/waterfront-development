@@ -20,7 +20,7 @@ class RedirectFromUrlRule extends AbstractValidator
 
     public function __construct(
         private readonly PublicSuffixList $rules,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -71,16 +71,20 @@ class RedirectFromUrlRule extends AbstractValidator
      */
     private function hasUnsupportedUrlParts(array $parsedUrl): bool
     {
-        return array_key_exists('user', $parsedUrl)
+        return (
+            array_key_exists('user', $parsedUrl)
             || array_key_exists('pass', $parsedUrl)
             || array_key_exists('port', $parsedUrl)
-            || array_key_exists('fragment', $parsedUrl);
+            || array_key_exists('fragment', $parsedUrl)
+        );
     }
 
     private function hasValidPath(string $path): bool
     {
-        return ! $this->containsRawWhitespaceOrControlCharacter($path)
-            && ! $this->containsMalformedPercentEncoding($path, allowCaddyWildcard: true);
+        return (
+            ! $this->containsRawWhitespaceOrControlCharacter($path)
+            && ! $this->containsMalformedPercentEncoding($path, allowCaddyWildcard: true)
+        );
     }
 
     private function hasValidQuery(?string $query): bool
@@ -89,7 +93,8 @@ class RedirectFromUrlRule extends AbstractValidator
             return true;
         }
 
-        if ($this->containsRawWhitespaceOrControlCharacter($query)
+        if (
+            $this->containsRawWhitespaceOrControlCharacter($query)
             || $this->containsMalformedPercentEncoding($query)
             || str_contains($query, ';')
         ) {
@@ -128,9 +133,7 @@ class RedirectFromUrlRule extends AbstractValidator
 
     private function containsMalformedPercentEncoding(string $value, bool $allowCaddyWildcard = false): bool
     {
-        $pattern = $allowCaddyWildcard
-            ? self::MALFORMED_PATH_PERCENT_ENCODING
-            : self::MALFORMED_PERCENT_ENCODING;
+        $pattern = $allowCaddyWildcard ? self::MALFORMED_PATH_PERCENT_ENCODING : self::MALFORMED_PERCENT_ENCODING;
 
         return preg_match($pattern, $value) === 1;
     }
@@ -143,7 +146,7 @@ class RedirectFromUrlRule extends AbstractValidator
             return false;
         }
 
-        if (! ((bool) filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
+        if (! (bool) filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
             return false;
         }
 

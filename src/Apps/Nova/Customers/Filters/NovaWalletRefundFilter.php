@@ -17,12 +17,15 @@ class NovaWalletRefundFilter extends Filter
 
     public function __construct(
         private readonly string $filterFor,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
-        Assert::oneOf($this->filterFor, [
-            self::FILTER_IS_REQUESTED,
-            self::FILTER_IS_CSV_DOWNLOADED,
-        ]);
+        Assert::oneOf(
+            $this->filterFor,
+            [
+                self::FILTER_IS_REQUESTED,
+                self::FILTER_IS_CSV_DOWNLOADED,
+            ],
+        );
     }
 
     public function name(): string

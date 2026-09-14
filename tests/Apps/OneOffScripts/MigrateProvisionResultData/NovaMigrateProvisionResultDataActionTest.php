@@ -39,10 +39,11 @@ class NovaMigrateProvisionResultDataActionTest extends IntegrationTestCase
         $request = ProvisioningRequestFactory::new()
             ->hosting()
             ->has(
-                ProvisioningResultFactory::new()
-                    ->success()
-                    ->state(['response' => json_encode(['validation_results' => null, 'provisionStatus' => ProvisionStatus::SUCCESS->value])]),
-                'result'
+                ProvisioningResultFactory::new()->success()->state(['response' => json_encode([
+                    'validation_results' => null,
+                    'provisionStatus' => ProvisionStatus::SUCCESS->value,
+                ])]),
+                'result',
             )
             ->createOne();
 

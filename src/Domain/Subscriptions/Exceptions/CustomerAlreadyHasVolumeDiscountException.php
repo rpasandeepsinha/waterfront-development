@@ -22,10 +22,10 @@ class CustomerAlreadyHasVolumeDiscountException extends Exception
                 'Wanted to attach discount with product slug {%s}, but customer %d already has a volume discount {%s}',
                 $product->slug,
                 $customer->id,
-                $customerProductDiscount?->product->slug
+                $customerProductDiscount?->product->slug,
             ),
             $code,
-            $previous
+            $previous,
         );
     }
 }

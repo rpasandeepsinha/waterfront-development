@@ -55,17 +55,22 @@ readonly class SubscriptionTerminateService
             [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain ?? '',
-            ]
+            ],
         );
 
         // Microsoft 365 service knows how to handle parent or child cancellations
         if ($subscription->product->productGroup->slug === ProductGroupType::MICROSOFT_365) {
             $this->archive($subscription);
+
             return;
         }
 
-        if ($subscription->product->productGroup->slug === ProductGroupType::HOSTING && $subscription->product->isSitebuilderProduct()) {
+        if (
+            $subscription->product->productGroup->slug === ProductGroupType::HOSTING
+            && $subscription->product->isSitebuilderProduct()
+        ) {
             $this->terminateSitebuilder($subscription);
+
             return;
         }
 
@@ -77,6 +82,7 @@ readonly class SubscriptionTerminateService
             }
 
             $this->archive($subscription);
+
             return;
         }
 
@@ -89,10 +95,13 @@ readonly class SubscriptionTerminateService
 
     public function endTransferredSubscription(string $domain): void
     {
-        $subscription = $this->subscriptionRepository->getSubscriptionByDomainAndGroup($domain, ProductGroupType::EXTENSION);
+        $subscription = $this->subscriptionRepository->getSubscriptionByDomainAndGroup(
+            $domain,
+            ProductGroupType::EXTENSION,
+        );
         $this->logger->info(
             "Ending subscription because it's transferred away.",
-            [LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id]
+            [LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id],
         );
         $subscription->technical_status = TechnicalStatus::DELETED->value;
         $subscription->administrative_status = AdministrativeStatus::CANCELED->value;
@@ -108,16 +117,27 @@ readonly class SubscriptionTerminateService
 
     private function terminateSitebuilder(Subscription $parentSubscription): void
     {
-        $query = new ProvisioningResultQueryFilters(tag: Uuid::fromString($parentSubscription->uuid), requestType: ProvisionType::SITEBUILDER);
+        $query = new ProvisioningResultQueryFilters(
+            tag: Uuid::fromString($parentSubscription->uuid),
+            requestType: ProvisionType::SITEBUILDER,
+        );
         $provisioningResults = $this->provisioningGateway->fetch($query, 1);
 
         if (count($provisioningResults) === 0) {
             $this->archive($parentSubscription);
+
             return;
         }
 
         //So now we have the parent, we can see whether we only need to terminate a certain add-on, multiple add-ons.
-        $provCreatedRequest = $provisioningResults->filter(fn (ProvisioningFilteredResult $request) => $request->requestType === ProvisionType::SITEBUILDER && $request->requestName === ProvisionRequestName::CREATE_SITEBUILDER)->first();
+        $provCreatedRequest = $provisioningResults
+            ->filter(
+                fn (ProvisioningFilteredResult $request) => (
+                    $request->requestType === ProvisionType::SITEBUILDER
+                    && $request->requestName === ProvisionRequestName::CREATE_SITEBUILDER
+                ),
+            )
+            ->first();
         if ($provCreatedRequest === null) {
             return;
         }
@@ -132,6 +152,7 @@ readonly class SubscriptionTerminateService
                 $parentSubscription->technical_status = TechnicalStatus::DELETED->value;
                 $parentSubscription->administrative_status = AdministrativeStatus::ARCHIVED->value;
                 $parentSubscription->save();
+
                 return;
             }
 
@@ -139,13 +160,13 @@ readonly class SubscriptionTerminateService
                 sprintf(
                     'Failed to terminate deployment for %s (%d)',
                     $parentSubscription->domain ?? '',
-                    $parentSubscription->id
+                    $parentSubscription->id,
                 ),
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $parentSubscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $parentSubscription->domain,
                     LoggingContextKeys::EXCEPTION => $result->exception,
-                ]
+                ],
             );
 
             $parentSubscription->technical_status = TechnicalStatus::DELETING_FAILED->value;
@@ -154,20 +175,25 @@ readonly class SubscriptionTerminateService
         }
 
         $references = [];
-        $parentSubscriptionSpec = $parentSubscription->product->productSpecs()->where('name', ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value)->first();
+        $parentSubscriptionSpec = $parentSubscription
+            ->product
+            ->productSpecs()
+            ->where('name', ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value)
+            ->first();
 
         if ($parentSubscriptionSpec === null) {
             $this->logger->error(
                 sprintf(
                     'Can not terminate children of %s (%d) because parent doesnot have product spec',
                     $parentSubscription->domain ?? '',
-                    $parentSubscription->id
+                    $parentSubscription->id,
                 ),
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $parentSubscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $parentSubscription->domain,
-                ]
+                ],
             );
+
             return;
         }
 
@@ -175,7 +201,9 @@ readonly class SubscriptionTerminateService
 
         //If the parent is not due for cancellation, we should check whether there are children due for termination
         $children = $parentSubscription->children;
-        $childrenWhichAreNotGoingToBeTerminated = $children->filter(fn (Subscription $subscription) => ! $this->subscriptionRepository->isExpired($subscription));
+        $childrenWhichAreNotGoingToBeTerminated = $children->filter(fn (Subscription $subscription) => ! $this->subscriptionRepository->isExpired(
+            $subscription,
+        ));
 
         // If there are no child subscriptions or all children are not going to be terminated, we can stop here.
         if (count($children) === 0 || count($children) === count($childrenWhichAreNotGoingToBeTerminated)) {
@@ -184,7 +212,11 @@ readonly class SubscriptionTerminateService
 
         if (count($childrenWhichAreNotGoingToBeTerminated) > 0) {
             foreach ($childrenWhichAreNotGoingToBeTerminated as $child) {
-                $baseKitSpec = $child->product->productSpecs()->where('name', ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value)->first();
+                $baseKitSpec = $child
+                    ->product
+                    ->productSpecs()
+                    ->where('name', ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value)
+                    ->first();
                 if ($baseKitSpec !== null) {
                     $references[] = (int) $baseKitSpec->value;
                 }
@@ -196,7 +228,7 @@ readonly class SubscriptionTerminateService
             tagUuid: Uuid::fromString($parentSubscription->uuid),
             context: Uuid::fromString($parentSubscription->uuid),
             packages: $references,
-            contractPeriod: $parentSubscription->contract_period
+            contractPeriod: $parentSubscription->contract_period,
         );
 
         $result = $this->provisioningGateway->request($request);
@@ -206,17 +238,19 @@ readonly class SubscriptionTerminateService
                 sprintf(
                     'Failed to terminate sitebuilder addons for %s (Parent id: %d)',
                     $parentSubscription->domain ?? '',
-                    $parentSubscription->id
+                    $parentSubscription->id,
                 ),
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $parentSubscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $parentSubscription->domain,
                     LoggingContextKeys::EXCEPTION => $result->exception ?? 'No exception thrown',
-                ]
+                ],
             );
         }
 
-        $childrenWhichWillBeTerminated = $children->filter(fn (Subscription $subscription) => $this->subscriptionRepository->isExpired($subscription));
+        $childrenWhichWillBeTerminated = $children->filter(
+            fn (Subscription $subscription) => $this->subscriptionRepository->isExpired($subscription),
+        );
 
         foreach ($childrenWhichWillBeTerminated as $child) {
             $child->administrative_status = AdministrativeStatus::ARCHIVED->value;

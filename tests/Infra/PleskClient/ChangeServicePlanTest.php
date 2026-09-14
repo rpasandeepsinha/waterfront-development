@@ -28,8 +28,16 @@ class ChangeServicePlanTest extends IntegrationTestCase
         $mock = new MockHandler([
             new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_serviceplan_get_response.xml')),
             function (RequestInterface $request) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_change_serviceplan_request.xml'), (string) $request->getBody());
-                return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_change_serviceplan_response.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_change_serviceplan_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    200,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_change_serviceplan_response.xml'),
+                );
             },
         ]);
         $handlerStack = HandlerStack::create($mock);
@@ -41,7 +49,7 @@ class ChangeServicePlanTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         /** @var array{domain: string, serviceplan: string} $data */

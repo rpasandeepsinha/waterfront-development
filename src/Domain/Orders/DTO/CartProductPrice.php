@@ -15,7 +15,7 @@ readonly class CartProductPrice
         public int $netPrice,
         public int $grossPrice,
         public ?int $introductionPrice,
-        public ?int $introductionPriceRemainingUses
+        public ?int $introductionPriceRemainingUses,
     ) {
     }
 }

@@ -23,12 +23,15 @@ class PowerDnsRecordContentSerializer
         if ('MX' === $type) {
             return $this->serializeMx($data);
         }
+
         if ('SPF' === $type) {
             return $this->serializeSpf($data);
         }
+
         if ('SRV' === $type) {
             return $this->serializeSrv($data);
         }
+
         if ('TXT' === $type) {
             return $this->serializeTxt($data);
         }
@@ -50,12 +53,15 @@ class PowerDnsRecordContentSerializer
         if ('MX' === $type) {
             return $this->unserializeMx($content);
         }
+
         if ('SPF' === $type) {
             return $this->unserializeSpf($content);
         }
+
         if ('SRV' === $type) {
             return $this->unserializeSrv($content);
         }
+
         if ('TXT' === $type) {
             return $this->unserializeTxt($content);
         }
@@ -97,7 +103,7 @@ class PowerDnsRecordContentSerializer
 
         return [
             'priority' => $matches[1],
-            'content'  => $matches[2],
+            'content' => $matches[2],
         ];
     }
 
@@ -135,9 +141,9 @@ class PowerDnsRecordContentSerializer
 
         return [
             'priority' => $matches[1],
-            'weight'   => $matches[2],
-            'port'     => $matches[3],
-            'content'  => $matches[4],
+            'weight' => $matches[2],
+            'port' => $matches[3],
+            'content' => $matches[4],
         ];
     }
 
@@ -149,6 +155,7 @@ class PowerDnsRecordContentSerializer
     private function serializeTxt(array $data): string
     {
         assert(is_string($data['content']));
+
         return '"' . trim($data['content'], '"') . '"';
     }
 

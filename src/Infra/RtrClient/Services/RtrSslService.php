@@ -66,7 +66,7 @@ class RtrSslService implements SslDriverInterface
         int $period,
         array $customerData,
         SslDeployment $sslDeployment,
-        ?string $csr = null
+        ?string $csr = null,
     ): Result {
         $this->logger->info(
             self::class . '::create - Create new ssl',
@@ -74,7 +74,7 @@ class RtrSslService implements SslDriverInterface
                 LoggingContextKeys::META => [
                     'ssl_deployment_id' => $sslDeployment->id,
                 ],
-            ]
+            ],
         );
 
         $domain = $sslDeployment->subscription->domain;
@@ -121,6 +121,7 @@ class RtrSslService implements SslDriverInterface
     public function hasSslRequest(string $domain): bool
     {
         $result = $this->realtimeRegister->processes->list(limit: 1, parameters: ['identifier' => $domain]);
+
         return count($result) > 0;
     }
 
@@ -132,12 +133,12 @@ class RtrSslService implements SslDriverInterface
                 LoggingContextKeys::META => [
                     'ssl_deployment_id' => $sslDeployment->id,
                 ],
-            ]
+            ],
         );
 
         if ($sslDeployment->certificate_id === null) {
             throw new LogicException(
-                "SSL deployment with id {$sslDeployment->id} has no certificate ID, so the SSL cannot be retrieved."
+                "SSL deployment with id {$sslDeployment->id} has no certificate ID, so the SSL cannot be retrieved.",
             );
         }
 
@@ -152,7 +153,7 @@ class RtrSslService implements SslDriverInterface
     public function reissue(
         array $customerData,
         SslDeployment $sslDeployment,
-        string $csr
+        string $csr,
     ): Result {
         $domain = $sslDeployment->subscription->domain;
         Assert::notNull($domain, 'Provided subscription has no domain');
@@ -164,12 +165,12 @@ class RtrSslService implements SslDriverInterface
                 LoggingContextKeys::META => [
                     'ssl_deployment_id' => $sslDeployment->id,
                 ],
-            ]
+            ],
         );
 
         if ($sslDeployment->certificate_id === null) {
             throw new LogicException(
-                'reissue certificate called, but no certificate set for SSL deployment with id:' . $sslDeployment->id
+                'reissue certificate called, but no certificate set for SSL deployment with id:' . $sslDeployment->id,
             );
         }
 
@@ -178,7 +179,7 @@ class RtrSslService implements SslDriverInterface
         $processId = $this->certificateRequester->reissue(
             $sslDeployment->certificate_id,
             $customerData,
-            $csr
+            $csr,
         );
 
         $sslDeployment->update([
@@ -211,12 +212,12 @@ class RtrSslService implements SslDriverInterface
                 LoggingContextKeys::META => [
                     'ssl_deployment_id' => $sslDeployment->id,
                 ],
-            ]
+            ],
         );
 
         if ($sslDeployment->certificate_id === null) {
             throw new LogicException(
-                'renew certificate called, but no certificate set for SSL deployment with id:' . $sslDeployment->id
+                'renew certificate called, but no certificate set for SSL deployment with id:' . $sslDeployment->id,
             );
         }
 
@@ -229,7 +230,7 @@ class RtrSslService implements SslDriverInterface
             $sslDeployment->certificate_id,
             $customerData,
             $sslDeployment->subscription->contract_period,
-            $csr
+            $csr,
         );
 
         $sslDeployment->update([
@@ -256,9 +257,13 @@ class RtrSslService implements SslDriverInterface
             $status = $this->certificateService->check($domain, $period);
         } catch (Throwable $exception) {
             $this->logger->error(
-                self::class . '::check - status code: ' . $exception->getCode()
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString()
+                self::class
+                    . '::check - status code: '
+                    . $exception->getCode()
+                    . ', message: '
+                    . $exception->getMessage()
+                    . ', trace: '
+                    . $exception->getTraceAsString(),
             );
 
             throw $exception;
@@ -280,12 +285,14 @@ class RtrSslService implements SslDriverInterface
     /**
      * @inheritDoc
      */
-    public function prepareCertificateInstallParameters(int $certificateId, string $domain, array $certificates, bool $alreadySaved = false): array
-    {
+    public function prepareCertificateInstallParameters(
+        int $certificateId,
+        string $domain,
+        array $certificates,
+        bool $alreadySaved = false,
+    ): array {
         /** @var SslDeployment $sslDeployment */
-        $sslDeployment = SslDeployment::query()
-            ->where('certificated_id', '=', $certificateId)
-            ->firstOrFail();
+        $sslDeployment = SslDeployment::query()->where('certificated_id', '=', $certificateId)->firstOrFail();
 
         $parameters = $this->certificateService->prepareCertificateInstallParameters($domain);
 
@@ -308,16 +315,13 @@ class RtrSslService implements SslDriverInterface
         $csrTrimmed = trim($csr);
 
         if (
-            ! Str::startsWith($csrTrimmed, '-----BEGIN CERTIFICATE REQUEST-----') ||
-            ! Str::endsWith($csrTrimmed, '-----END CERTIFICATE REQUEST-----')
+            ! Str::startsWith($csrTrimmed, '-----BEGIN CERTIFICATE REQUEST-----')
+            || ! Str::endsWith($csrTrimmed, '-----END CERTIFICATE REQUEST-----')
         ) {
             return false;
         }
 
-        if (
-            ! str_contains($csr, '-----BEGIN PRIVATE KEY-----')
-            || ! str_contains($csr, '-----END PRIVATE KEY-----')
-        ) {
+        if (! str_contains($csr, '-----BEGIN PRIVATE KEY-----') || ! str_contains($csr, '-----END PRIVATE KEY-----')) {
             return false;
         }
 
@@ -358,7 +362,10 @@ class RtrSslService implements SslDriverInterface
             ]);
         }
 
-        if ($latestProcess->status === ProcessStatusEnum::STATUS_COMPLETED || $latestProcess->status === ProcessStatusEnum::STATUS_VALIDATED) {
+        if (
+            $latestProcess->status === ProcessStatusEnum::STATUS_COMPLETED
+            || $latestProcess->status === ProcessStatusEnum::STATUS_VALIDATED
+        ) {
             $sslDeployment->subscription->update(['technical_status' => TechnicalStatus::OK->value]);
 
             $sslDeployment->last_result_received = CarbonImmutable::now();
@@ -412,15 +419,16 @@ class RtrSslService implements SslDriverInterface
         return Result::create([
             'status' => Result::STATUS_ERROR,
             'errorCode' => Response::HTTP_PRECONDITION_FAILED,
-            'errorMessage' => sprintf('Unknown latest process status "%s"; no resend performed', $latestProcess->status),
+            'errorMessage' => sprintf(
+                'Unknown latest process status "%s"; no resend performed',
+                $latestProcess->status,
+            ),
         ]);
     }
 
     public function resolveCsrDomain(string $commonName): string
     {
-        $domain = $this->publicSuffixRules
-            ->getRules()
-            ->resolve($commonName);
+        $domain = $this->publicSuffixRules->getRules()->resolve($commonName);
 
         return $domain->registrableDomain()->toString();
     }
@@ -436,9 +444,7 @@ class RtrSslService implements SslDriverInterface
         $result->setDnsRecord($this->csrValidationValueGenerator->getCnameValidationHost($csr) . '.' . $domain);
         $result->setDnsValue($this->csrValidationValueGenerator->getCnameValidationValue($csr));
 
-        $registrableDomain = $this->publicSuffixRules
-            ->getRules()
-            ->resolve($domain);
+        $registrableDomain = $this->publicSuffixRules->getRules()->resolve($domain);
 
         $this->sslDnsService->updateDns($result, $registrableDomain->registrableDomain()->toString());
     }
@@ -473,6 +479,7 @@ class RtrSslService implements SslDriverInterface
     public function setClient(RealtimeRegister $realtimeRegister): RtrSslService
     {
         $this->realtimeRegister = $realtimeRegister;
+
         return $this;
     }
 
@@ -484,7 +491,10 @@ class RtrSslService implements SslDriverInterface
             return null;
         }
 
-        if ($latestProcess->status === ProcessStatusEnum::STATUS_COMPLETED || $latestProcess->status === ProcessStatusEnum::STATUS_VALIDATED) {
+        if (
+            $latestProcess->status === ProcessStatusEnum::STATUS_COMPLETED
+            || $latestProcess->status === ProcessStatusEnum::STATUS_VALIDATED
+        ) {
             $sslDeployment->subscription->update(['technical_status' => TechnicalStatus::OK->value]);
 
             $sslDeployment->last_result_received = CarbonImmutable::now();
@@ -497,6 +507,7 @@ class RtrSslService implements SslDriverInterface
 
             return null;
         }
+
         $processInfo = $this->realtimeRegister->processes->info($latestProcess->id)->toArray();
 
         $validations = Arr::get($processInfo, 'validations');
@@ -529,7 +540,7 @@ class RtrSslService implements SslDriverInterface
                 'identifier' => $domain,
                 'type' => 'certificate',
                 'order' => '-createdDate',
-            ]
+            ],
         );
     }
 
@@ -540,11 +551,12 @@ class RtrSslService implements SslDriverInterface
                 parameters: [
                     'identifier:eq' => $domain,
                     'type:eq' => 'certificate',
-                ]
+                ],
             );
             if (count($processList->entities) === 0) {
                 return null;
             }
+
             return $processList;
         } catch (BadRequestException) {
             return null;
@@ -559,6 +571,7 @@ class RtrSslService implements SslDriverInterface
         }
 
         $last = end($processList->entities);
+
         return $last instanceof Process ? $last : null;
     }
 
@@ -598,6 +611,7 @@ class RtrSslService implements SslDriverInterface
                     'note' => 'Falling back to domain as csr commonName',
                 ],
             ]);
+
             return $domain;
         }
     }

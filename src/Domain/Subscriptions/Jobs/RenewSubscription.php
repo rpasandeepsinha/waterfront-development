@@ -17,8 +17,9 @@ class RenewSubscription extends AbstractQueueableJob
     /* 15 minutes */
     public int $timeout = 900;
 
-    public function __construct(private readonly Subscription $subscription)
-    {
+    public function __construct(
+        private readonly Subscription $subscription,
+    ) {
         parent::__construct();
     }
 

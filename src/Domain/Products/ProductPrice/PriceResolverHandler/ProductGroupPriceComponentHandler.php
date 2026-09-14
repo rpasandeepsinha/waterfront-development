@@ -43,15 +43,20 @@ readonly class ProductGroupPriceComponentHandler
          *
          * @var array<string, int> $groupDiscounts
          */
-        $groupDiscounts = $customer->productGroups->mapWithKeys(function (ProductGroup $group, int $key): array {
-            /** @var float|string|null $discount */
-            $discount = $group->pivot?->getAttribute('discount');
-            if ($discount === null) {
-                throw new PriceResolvingException("ProductGroup does not have expected pivot value 'discount' group={$group->slug->value}");
-            }
+        $groupDiscounts = $customer
+            ->productGroups
+            ->mapWithKeys(function (ProductGroup $group, int $key): array {
+                /** @var float|string|null $discount */
+                $discount = $group->pivot?->getAttribute('discount');
+                if ($discount === null) {
+                    throw new PriceResolvingException(
+                        "ProductGroup does not have expected pivot value 'discount' group={$group->slug->value}",
+                    );
+                }
 
-            return [$group->slug->value => (float) $discount];
-        })->toArray();
+                return [$group->slug->value => (float) $discount];
+            })
+            ->toArray();
 
         return $prices->map(function (Price $price) use ($productMap, $groupDiscounts): Price {
             /** @var ProductPriceRequest|null $product */

@@ -10,7 +10,7 @@ abstract class ReInstall
         private readonly string $main,
         private readonly string $intermediate,
         private readonly string $root,
-        private readonly string $commonName
+        private readonly string $commonName,
     ) {
     }
 

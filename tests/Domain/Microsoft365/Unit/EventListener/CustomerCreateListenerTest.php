@@ -68,37 +68,41 @@ class CustomerCreateListenerTest extends IntegrationTestCase
     #[Test]
     public function createCustomerSuccess(): void
     {
-        $this->mockMailerInterface->expects(self::once())
+        $this->mockMailerInterface
+            ->expects(self::once())
             ->method('send')
             ->with(
                 [$this->customer->fresh()],
-                new Microsoft365SignMca('https://example.com/microsoft-365')
+                new Microsoft365SignMca('https://example.com/microsoft-365'),
             );
 
         $kpnCustomer = $this->createKpnCustomerEntity();
 
-        $status = (new Status('Modified', []));
+        $status = new Status('Modified', []);
 
         self::resolve(CustomerCreateListener::class)->execute($kpnCustomer, $status);
 
-        $customerInfo = Microsoft365CustomerInfo::where(['kpn_customer_id' => $kpnCustomer->getCustomerId()])->firstOrFail();
+        $customerInfo = Microsoft365CustomerInfo::where([
+            'kpn_customer_id' => $kpnCustomer->getCustomerId(),
+        ])->firstOrFail();
 
         self::assertSame($customerInfo->kpn_customer_id, $kpnCustomer->getCustomerId());
         self::assertSame($this->customer->id, (int) $kpnCustomer->getExternalId());
         self::assertSame(
             $this->customer->first_name . ' ' . $this->customer->last_name,
-            $kpnCustomer->getName()
+            $kpnCustomer->getName(),
         );
     }
 
     #[Test]
     public function resellerCustomerCreate(): void
     {
-        $this->mockMailerInterface->expects(self::once())
+        $this->mockMailerInterface
+            ->expects(self::once())
             ->method('send')
             ->with(
                 [$this->customer->fresh()],
-                new Microsoft365SignMca('https://example.com/microsoft-365')
+                new Microsoft365SignMca('https://example.com/microsoft-365'),
             );
 
         $this->microsoft365CustomerInfo->tenant_name = '1.onmicrosoft.com';
@@ -112,17 +116,20 @@ class CustomerCreateListenerTest extends IntegrationTestCase
             'tenant_name' => 'test1235',
         ]);
 
-        $status = (new Status('Modified', []));
+        $status = new Status('Modified', []);
 
         self::resolve(CustomerCreateListener::class)->execute($kpnCustomer1, $status);
 
-        self::assertCount(2, Microsoft365CustomerInfo::where('customer_id', $this->microsoft365CustomerInfo->customer->id)->get());
+        self::assertCount(
+            2,
+            Microsoft365CustomerInfo::where('customer_id', $this->microsoft365CustomerInfo->customer->id)->get(),
+        );
         self::assertCount(
             1,
             Microsoft365CustomerInfo::where('customer_id', $this->customer->id)
-            ->where('tenant_name', $this->microsoft365CustomerInfo->tenant_name)
-            ->where('technical_status', Microsoft365ProcessStatus::CUSTOMER_CREATED)
-            ->get()
+                ->where('tenant_name', $this->microsoft365CustomerInfo->tenant_name)
+                ->where('technical_status', Microsoft365ProcessStatus::CUSTOMER_CREATED)
+                ->get(),
         );
     }
 
@@ -142,7 +149,10 @@ class CustomerCreateListenerTest extends IntegrationTestCase
             'ZipCode' => $this->customer->address->zip_code,
             'City' => $this->customer->address->city,
             'CountryCode' => $this->customer->address->country_code,
-            'Phone1' => $this->customer->phone_country_code . $this->customer->phone_area_code . $this->customer->phone_subscriber_number,
+            'Phone1' =>
+                $this->customer->phone_country_code
+                    . $this->customer->phone_area_code
+                    . $this->customer->phone_subscriber_number,
             'Phone2' => '',
             'Fax' => '',
             'Website' => '',

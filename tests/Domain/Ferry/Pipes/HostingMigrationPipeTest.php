@@ -52,12 +52,15 @@ class HostingMigrationPipeTest extends IntegrationTestCase
     ): void {
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
-            customer: include(__DIR__ . '/data/customer_correct.php'),
-            subscriptions: $subscriptions
+            customer: include __DIR__ . '/data/customer_correct.php',
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(HostingMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedValidationResults, $processedPayload->validationResults);
     }
@@ -68,7 +71,7 @@ class HostingMigrationPipeTest extends IntegrationTestCase
     public static function hostingMigrationPipeProvider(): iterable
     {
         yield 'Validate missing fields' => [
-            'subscriptions' => include(__DIR__ . '/data/hosting_migration/hosting_bad_payload_missing_fields.php'),
+            'subscriptions' => include __DIR__ . '/data/hosting_migration/hosting_bad_payload_missing_fields.php',
             'expectedValidationResults' => [
                 MigrationValidationPipes::HOSTING_MIGRATION->value => [
                     [
@@ -91,7 +94,7 @@ class HostingMigrationPipeTest extends IntegrationTestCase
         ];
 
         yield 'Validate bad payload' => [
-            'subscriptions' => include(__DIR__ . '/data/hosting_migration/hosting_bad_payload.php'),
+            'subscriptions' => include __DIR__ . '/data/hosting_migration/hosting_bad_payload.php',
             'expectedValidationResults' => [
                 MigrationValidationPipes::HOSTING_MIGRATION->value => [
                     [
@@ -114,7 +117,7 @@ class HostingMigrationPipeTest extends IntegrationTestCase
         ];
 
         yield 'Validate server invalid' => [
-            'subscriptions' => include(__DIR__ . '/data/hosting_migration/hosting_bad_payload_servers.php'),
+            'subscriptions' => include __DIR__ . '/data/hosting_migration/hosting_bad_payload_servers.php',
             'expectedValidationResults' => [
                 MigrationValidationPipes::HOSTING_MIGRATION->value => [
                     [
@@ -134,7 +137,8 @@ class HostingMigrationPipeTest extends IntegrationTestCase
         ];
 
         yield 'Denormalization failed' => [
-            'subscriptions' => include(__DIR__ . '/data/hosting_migration/hosting_bad_payload_user_denormalize_exception.php'),
+            'subscriptions' => include
+                __DIR__ . '/data/hosting_migration/hosting_bad_payload_user_denormalize_exception.php',
             'expectedValidationResults' => [
                 MigrationValidationPipes::HOSTING_MIGRATION->value => [
                     [
@@ -174,8 +178,7 @@ class HostingMigrationPipeTest extends IntegrationTestCase
     public function validateFetchFailed(): void
     {
         $mock = self::createStub(HostingService::class);
-        $mock->method('getUserConfigAsDto')
-            ->willThrowException(new TransferException('unable to connect to server'));
+        $mock->method('getUserConfigAsDto')->willThrowException(new TransferException('unable to connect to server'));
 
         $this->app->bind(HostingService::class, fn () => $mock);
 
@@ -193,17 +196,20 @@ class HostingMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/hosting_migration/hosting_bad_payload_user.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/hosting_migration/hosting_bad_payload_user.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(HostingMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -212,20 +218,19 @@ class HostingMigrationPipeTest extends IntegrationTestCase
     public function isHostingMigrationReseller(): void
     {
         $mock = self::createStub(HostingService::class);
-        $mock->method('getUserConfigAsDto')
-            ->willReturn(new UserConfig(
-                dnscontrol: 'ON',
-                ssl: 'ON',
-                loginKeys: 'ON',
-                vdomains: '10',
-                nemails: '10',
-                mysql: '10',
-                bandwidth: '1024',
-                quota: '1024',
-                package: 'basic',
-                usertype: HostingUserType::RESELLER,
-                domain: 'testupgradefixversio.nl',
-            ));
+        $mock->method('getUserConfigAsDto')->willReturn(new UserConfig(
+            dnscontrol: 'ON',
+            ssl: 'ON',
+            loginKeys: 'ON',
+            vdomains: '10',
+            nemails: '10',
+            mysql: '10',
+            bandwidth: '1024',
+            quota: '1024',
+            package: 'basic',
+            usertype: HostingUserType::RESELLER,
+            domain: 'testupgradefixversio.nl',
+        ));
 
         $this->app->bind(HostingService::class, fn () => $mock);
 
@@ -243,17 +248,21 @@ class HostingMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/hosting_migration/hosting_bad_payload_matched_nameservers_external_domain.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include
+            __DIR__ . '/data/hosting_migration/hosting_bad_payload_matched_nameservers_external_domain.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(HostingMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -262,7 +271,8 @@ class HostingMigrationPipeTest extends IntegrationTestCase
     public function validationSsoFailed(): void
     {
         $mockHostingService = self::createStub(HostingService::class);
-        $mockHostingService->method('getUserConfigAsDto')
+        $mockHostingService
+            ->method('getUserConfigAsDto')
             ->willReturn(new UserConfig(
                 dnscontrol: 'ON',
                 ssl: 'ON',
@@ -281,8 +291,7 @@ class HostingMigrationPipeTest extends IntegrationTestCase
 
         $mockAction = self::createStub(GetSsoUrlAction::class);
 
-        $mockAction->method('execute')
-            ->willThrowException(new SsoResolveException('unable to connect to server'));
+        $mockAction->method('execute')->willThrowException(new SsoResolveException('unable to connect to server'));
 
         $this->app->bind(GetSsoUrlAction::class, fn () => $mockAction);
 
@@ -300,17 +309,20 @@ class HostingMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/hosting_migration/hosting_bad_payload_user.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/hosting_migration/hosting_bad_payload_user.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(HostingMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -323,13 +335,17 @@ class HostingMigrationPipeTest extends IntegrationTestCase
         $ipv4AddressForDaServer = '34.35.36.37';
         $differentIpv4Address = '72.66.22.88';
 
-        $serverDirectAdmin = ServerFactory::new()->directadmin()->createOne(['hostname' => $hostname, 'ipv4' => $ipv4AddressForDaServer]);
+        $serverDirectAdmin = ServerFactory::new()->directadmin()->createOne([
+            'hostname' => $hostname,
+            'ipv4' => $ipv4AddressForDaServer,
+        ]);
         $serverDirectAdmin = $serverDirectAdmin->fresh();
 
         $userData = include __DIR__ . '/data/hosting_migration/directadmin_show_user_response.php';
 
         $mockHostingService = self::createStub(HostingService::class);
-        $mockHostingService->method('getPackageOnServerAsDto')
+        $mockHostingService
+            ->method('getPackageOnServerAsDto')
             ->willReturn(new DirectAdminUserPackage(
                 vdomains: '2',
                 nemails: '5',
@@ -338,7 +354,8 @@ class HostingMigrationPipeTest extends IntegrationTestCase
                 quota: '1024',
                 package: 'basic',
             ));
-        $mockHostingService->method('getUserConfigAsDto')
+        $mockHostingService
+            ->method('getUserConfigAsDto')
             ->willReturn(new UserConfig(
                 dnscontrol: 'ON',
                 ssl: 'ON',
@@ -353,19 +370,22 @@ class HostingMigrationPipeTest extends IntegrationTestCase
                 domain: 'testupgradefixversio.nl',
             ));
 
-        $mockHostingService
-            ->method('isUsingHostingServerAsNameserver')
-            ->willReturn(true);
+        $mockHostingService->method('isUsingHostingServerAsNameserver')->willReturn(true);
 
         $this->app->bind(HostingService::class, fn () => $mockHostingService);
 
         $mockAction = self::createStub(GetSsoUrlAction::class);
-        $mockAction->method('execute')
+        $mockAction
+            ->method('execute')
             ->willReturnCallback(
-                fn (Server $server, string $userName, string $ipAddress): string => match ([$server, $userName, $ipAddress]) {
+                fn (Server $server, string $userName, string $ipAddress): string => match ([
+                    $server,
+                    $userName,
+                    $ipAddress,
+                ]) {
                     [$serverDirectAdmin, $username, '127.0.0.1'] => 'my_sso_link',
-                    default => throw new UnexpectedValueException()
-                }
+                    default => throw new UnexpectedValueException(),
+                },
             )
             ->willReturn('my_sso_link');
 
@@ -407,17 +427,21 @@ class HostingMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/hosting_migration/hosting_bad_payload_matched_nameservers_external_domain.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include
+            __DIR__ . '/data/hosting_migration/hosting_bad_payload_matched_nameservers_external_domain.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(HostingMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -430,13 +454,17 @@ class HostingMigrationPipeTest extends IntegrationTestCase
         $ipv4AddressForDaServer = '34.35.36.37dd';
         $differentIpv4Address = '72.66.22.88';
 
-        $serverDirectAdmin = ServerFactory::new()->directadmin()->createOne(['hostname' => $hostname, 'ipv4' => $ipv4AddressForDaServer]);
+        $serverDirectAdmin = ServerFactory::new()->directadmin()->createOne([
+            'hostname' => $hostname,
+            'ipv4' => $ipv4AddressForDaServer,
+        ]);
         $serverDirectAdmin = $serverDirectAdmin->fresh();
 
         $userData = include __DIR__ . '/data/hosting_migration/directadmin_show_user_response.php';
 
         $mockHostingService = self::createStub(HostingService::class);
-        $mockHostingService->method('getPackageOnServerAsDto')
+        $mockHostingService
+            ->method('getPackageOnServerAsDto')
             ->willReturn(new DirectAdminUserPackage(
                 vdomains: '2',
                 nemails: '5',
@@ -445,7 +473,8 @@ class HostingMigrationPipeTest extends IntegrationTestCase
                 quota: '1024',
                 package: 'basic',
             ));
-        $mockHostingService->method('getUserConfigAsDto')
+        $mockHostingService
+            ->method('getUserConfigAsDto')
             ->willReturn(new UserConfig(
                 dnscontrol: 'ON',
                 ssl: 'ON',
@@ -459,19 +488,22 @@ class HostingMigrationPipeTest extends IntegrationTestCase
                 usertype: HostingUserType::USER,
                 domain: 'testupgradefixversio.nl',
             ));
-        $mockHostingService
-            ->method('isUsingHostingServerAsNameserver')
-            ->willReturn(false);
+        $mockHostingService->method('isUsingHostingServerAsNameserver')->willReturn(false);
 
         $this->app->bind(HostingService::class, fn () => $mockHostingService);
 
         $mockAction = self::createStub(GetSsoUrlAction::class);
-        $mockAction->method('execute')
+        $mockAction
+            ->method('execute')
             ->willReturnCallback(
-                fn (Server $server, string $userName, string $ipAddress): string => match ([$server, $userName, $ipAddress]) {
+                fn (Server $server, string $userName, string $ipAddress): string => match ([
+                    $server,
+                    $userName,
+                    $ipAddress,
+                ]) {
                     [$serverDirectAdmin, $username, '127.0.0.1'] => 'my_sso_link',
-                    default => throw new UnexpectedValueException()
-                }
+                    default => throw new UnexpectedValueException(),
+                },
             )
             ->willReturn('my_sso_link');
 
@@ -513,17 +545,21 @@ class HostingMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/hosting_migration/hosting_bad_payload_matched_nameservers_external_domain.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include
+            __DIR__ . '/data/hosting_migration/hosting_bad_payload_matched_nameservers_external_domain.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(HostingMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -536,13 +572,17 @@ class HostingMigrationPipeTest extends IntegrationTestCase
         $ipv4AddressForDaServer = '34.35.36.37';
         $differentIpv4Address = '72.66.22.88';
 
-        $serverDirectAdmin = ServerFactory::new()->directadmin()->createOne(['hostname' => $hostname, 'ipv4' => $ipv4AddressForDaServer]);
+        $serverDirectAdmin = ServerFactory::new()->directadmin()->createOne([
+            'hostname' => $hostname,
+            'ipv4' => $ipv4AddressForDaServer,
+        ]);
         $serverDirectAdmin = $serverDirectAdmin->fresh();
 
         $userData = include __DIR__ . '/data/hosting_migration/directadmin_show_user_response.php';
 
         $mockHostingService = self::createStub(HostingService::class);
-        $mockHostingService->method('getPackageOnServerAsDto')
+        $mockHostingService
+            ->method('getPackageOnServerAsDto')
             ->willReturn(new DirectAdminUserPackage(
                 vdomains: '2',
                 nemails: '5',
@@ -551,7 +591,8 @@ class HostingMigrationPipeTest extends IntegrationTestCase
                 quota: '1024',
                 package: 'basic',
             ));
-        $mockHostingService->method('getUserConfigAsDto')
+        $mockHostingService
+            ->method('getUserConfigAsDto')
             ->willReturn(new UserConfig(
                 dnscontrol: 'ON',
                 ssl: 'ON',
@@ -565,19 +606,22 @@ class HostingMigrationPipeTest extends IntegrationTestCase
                 usertype: HostingUserType::USER,
                 domain: 'testupgradefixversio.nl',
             ));
-        $mockHostingService
-            ->method('isUsingHostingServerAsNameserver')
-            ->willReturn(true);
+        $mockHostingService->method('isUsingHostingServerAsNameserver')->willReturn(true);
 
         $this->app->bind(HostingService::class, fn () => $mockHostingService);
 
         $mockAction = self::createStub(GetSsoUrlAction::class);
-        $mockAction->method('execute')
+        $mockAction
+            ->method('execute')
             ->willReturnCallback(
-                fn (Server $server, string $userName, string $ipAddress): string => match ([$server, $userName, $ipAddress]) {
+                fn (Server $server, string $userName, string $ipAddress): string => match ([
+                    $server,
+                    $userName,
+                    $ipAddress,
+                ]) {
                     [$serverDirectAdmin, $username, '127.0.0.1'] => 'my_sso_link',
-                    default => throw new UnexpectedValueException()
-                }
+                    default => throw new UnexpectedValueException(),
+                },
             )
             ->willReturn('my_sso_link');
 
@@ -619,17 +663,21 @@ class HostingMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/hosting_migration/hosting_bad_payload_matched_nameservers_internal_domain.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include
+            __DIR__ . '/data/hosting_migration/hosting_bad_payload_matched_nameservers_internal_domain.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(HostingMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -642,13 +690,17 @@ class HostingMigrationPipeTest extends IntegrationTestCase
         $ipv4AddressForDaServer = '34.35.36.37';
         $differentIpv4Address = '72.66.22.88';
 
-        $serverDirectAdmin = ServerFactory::new()->directadmin()->createOne(['hostname' => $hostname, 'ipv4' => $ipv4AddressForDaServer]);
+        $serverDirectAdmin = ServerFactory::new()->directadmin()->createOne([
+            'hostname' => $hostname,
+            'ipv4' => $ipv4AddressForDaServer,
+        ]);
         $serverDirectAdmin = $serverDirectAdmin->fresh();
 
         $userData = include __DIR__ . '/data/hosting_migration/directadmin_show_user_response.php';
 
         $mockHostingService = self::createStub(HostingService::class);
-        $mockHostingService->method('getPackageOnServerAsDto')
+        $mockHostingService
+            ->method('getPackageOnServerAsDto')
             ->willReturn(new DirectAdminUserPackage(
                 vdomains: '2',
                 nemails: '5',
@@ -657,7 +709,8 @@ class HostingMigrationPipeTest extends IntegrationTestCase
                 quota: '1024',
                 package: 'web-mini',
             ));
-        $mockHostingService->method('getUserConfigAsDto')
+        $mockHostingService
+            ->method('getUserConfigAsDto')
             ->willReturn(new UserConfig(
                 dnscontrol: 'ON',
                 ssl: 'ON',
@@ -671,19 +724,22 @@ class HostingMigrationPipeTest extends IntegrationTestCase
                 usertype: HostingUserType::USER,
                 domain: 'testupgradefixversio.nl',
             ));
-        $mockHostingService
-            ->method('isUsingHostingServerAsNameserver')
-            ->willReturn(true);
+        $mockHostingService->method('isUsingHostingServerAsNameserver')->willReturn(true);
 
         $this->app->bind(HostingService::class, fn () => $mockHostingService);
 
         $mockAction = self::createStub(GetSsoUrlAction::class);
-        $mockAction->method('execute')
+        $mockAction
+            ->method('execute')
             ->willReturnCallback(
-                fn (Server $server, string $userName, string $ipAddress): string => match ([$server, $userName, $ipAddress]) {
+                fn (Server $server, string $userName, string $ipAddress): string => match ([
+                    $server,
+                    $userName,
+                    $ipAddress,
+                ]) {
                     [$serverDirectAdmin, $username, '127.0.0.1'] => 'my_sso_link',
-                    default => throw new UnexpectedValueException()
-                }
+                    default => throw new UnexpectedValueException(),
+                },
             )
             ->willReturn('my_sso_link');
 
@@ -735,17 +791,21 @@ class HostingMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/hosting_migration/hosting_bad_payload_matched_nameservers_internal_domain.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include
+            __DIR__ . '/data/hosting_migration/hosting_bad_payload_matched_nameservers_internal_domain.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(HostingMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -758,13 +818,17 @@ class HostingMigrationPipeTest extends IntegrationTestCase
         $ipv4AddressForDaServer = '34.35.36.37';
         $differentIpv4Address = '72.66.22.88';
 
-        $serverDirectAdmin = ServerFactory::new()->directadmin()->createOne(['hostname' => $hostname, 'ipv4' => $ipv4AddressForDaServer]);
+        $serverDirectAdmin = ServerFactory::new()->directadmin()->createOne([
+            'hostname' => $hostname,
+            'ipv4' => $ipv4AddressForDaServer,
+        ]);
         $serverDirectAdmin = $serverDirectAdmin->fresh();
 
         $userData = include __DIR__ . '/data/hosting_migration/directadmin_show_user_response.php';
 
         $mockHostingService = self::createStub(HostingService::class);
-        $mockHostingService->method('getPackageOnServerAsDto')
+        $mockHostingService
+            ->method('getPackageOnServerAsDto')
             ->willReturn(new DirectAdminUserPackage(
                 vdomains: '2',
                 nemails: '5',
@@ -773,7 +837,8 @@ class HostingMigrationPipeTest extends IntegrationTestCase
                 quota: '1024',
                 package: 'basic',
             ));
-        $mockHostingService->method('getUserConfigAsDto')
+        $mockHostingService
+            ->method('getUserConfigAsDto')
             ->willReturn(new UserConfig(
                 dnscontrol: 'ON',
                 ssl: 'ON',
@@ -786,19 +851,22 @@ class HostingMigrationPipeTest extends IntegrationTestCase
                 package: 'basic',
                 usertype: HostingUserType::USER,
             ));
-        $mockHostingService
-            ->method('isUsingHostingServerAsNameserver')
-            ->willReturn(true);
+        $mockHostingService->method('isUsingHostingServerAsNameserver')->willReturn(true);
 
         $this->app->bind(HostingService::class, fn () => $mockHostingService);
 
         $mockAction = self::createStub(GetSsoUrlAction::class);
-        $mockAction->method('execute')
+        $mockAction
+            ->method('execute')
             ->willReturnCallback(
-                fn (Server $server, string $userName, string $ipAddress): string => match ([$server, $userName, $ipAddress]) {
+                fn (Server $server, string $userName, string $ipAddress): string => match ([
+                    $server,
+                    $userName,
+                    $ipAddress,
+                ]) {
                     [$serverDirectAdmin, $username, '127.0.0.1'] => 'my_sso_link',
-                    default => throw new UnexpectedValueException()
-                }
+                    default => throw new UnexpectedValueException(),
+                },
             )
             ->willReturn('my_sso_link');
 
@@ -840,17 +908,21 @@ class HostingMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/hosting_migration/hosting_bad_payload_matched_nameservers_internal_domain.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include
+            __DIR__ . '/data/hosting_migration/hosting_bad_payload_matched_nameservers_internal_domain.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(HostingMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }
@@ -863,13 +935,17 @@ class HostingMigrationPipeTest extends IntegrationTestCase
         $ipv4AddressForDaServer = '34.35.36.37';
         $differentIpv4Address = '72.66.22.88';
 
-        $serverDirectAdmin = ServerFactory::new()->directadmin()->createOne(['hostname' => $hostname, 'ipv4' => $ipv4AddressForDaServer]);
+        $serverDirectAdmin = ServerFactory::new()->directadmin()->createOne([
+            'hostname' => $hostname,
+            'ipv4' => $ipv4AddressForDaServer,
+        ]);
         $serverDirectAdmin = $serverDirectAdmin->fresh();
 
         $userData = include __DIR__ . '/data/hosting_migration/directadmin_show_user_response.php';
 
         $mockHostingService = self::createStub(HostingService::class);
-        $mockHostingService->method('getPackageOnServerAsDto')
+        $mockHostingService
+            ->method('getPackageOnServerAsDto')
             ->willReturn(new DirectAdminUserPackage(
                 vdomains: '2',
                 nemails: '5',
@@ -878,7 +954,8 @@ class HostingMigrationPipeTest extends IntegrationTestCase
                 quota: '1024',
                 package: 'basic',
             ));
-        $mockHostingService->method('getUserConfigAsDto')
+        $mockHostingService
+            ->method('getUserConfigAsDto')
             ->willReturn(new UserConfig(
                 dnscontrol: 'ON',
                 ssl: 'ON',
@@ -892,19 +969,22 @@ class HostingMigrationPipeTest extends IntegrationTestCase
                 usertype: HostingUserType::USER,
                 domain: 'testupgradefixversio.nl',
             ));
-        $mockHostingService
-            ->method('isUsingHostingServerAsNameserver')
-            ->willReturn(false);
+        $mockHostingService->method('isUsingHostingServerAsNameserver')->willReturn(false);
 
         $this->app->bind(HostingService::class, fn () => $mockHostingService);
 
         $mockAction = self::createStub(GetSsoUrlAction::class);
-        $mockAction->method('execute')
+        $mockAction
+            ->method('execute')
             ->willReturnCallback(
-                fn (Server $server, string $userName, string $ipAddress): string => match ([$server, $userName, $ipAddress]) {
+                fn (Server $server, string $userName, string $ipAddress): string => match ([
+                    $server,
+                    $userName,
+                    $ipAddress,
+                ]) {
                     [$serverDirectAdmin, $username, '127.0.0.1'] => 'my_sso_link',
-                    default => throw new UnexpectedValueException()
-                }
+                    default => throw new UnexpectedValueException(),
+                },
             )
             ->willReturn('my_sso_link');
 
@@ -946,17 +1026,21 @@ class HostingMigrationPipeTest extends IntegrationTestCase
             ],
         ];
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/hosting_migration/hosting_bad_payload_matched_nameservers_internal_domain.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include
+            __DIR__ . '/data/hosting_migration/hosting_bad_payload_matched_nameservers_internal_domain.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $hostingMigrationPipe = self::resolve(HostingMigrationPipe::class);
-        $processedPayload = $hostingMigrationPipe->handle($validationPayload, fn ($result): ValidationPayload => $result);
+        $processedPayload = $hostingMigrationPipe->handle(
+            $validationPayload,
+            fn ($result): ValidationPayload => $result,
+        );
 
         self::assertSame($expectedPayload, $processedPayload->validationResults);
     }

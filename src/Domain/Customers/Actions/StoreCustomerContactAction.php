@@ -14,14 +14,11 @@ class StoreCustomerContactAction
         Customer $customer,
         CustomerContactType $type,
         string $email,
-        string|null $firstName,
-        string|null $lastName,
-        string|null $company,
+        ?string $firstName,
+        ?string $lastName,
+        ?string $company,
     ): CustomerContact {
-        $existingContact = $customer->customerContacts()
-            ->where('type', $type->value)
-            ->where('email', $email)
-            ->first();
+        $existingContact = $customer->customerContacts()->where('type', $type->value)->where('email', $email)->first();
 
         if ($existingContact instanceof CustomerContact) {
             $customerContact = $existingContact;

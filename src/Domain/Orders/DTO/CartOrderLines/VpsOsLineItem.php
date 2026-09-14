@@ -25,7 +25,6 @@ class VpsOsLineItem extends LineItem
         ?ProductPriceType $status,
         ?CartOrderSubscription $children,
         ?array $oneTimeServices,
-        ?string $experimentSlug,
         #[Groups(['meta_data'])]
         #[SerializedName('ssh_key_uuid')]
         public ?string $sshKeyUuid,
@@ -41,7 +40,6 @@ class VpsOsLineItem extends LineItem
             $status,
             $children,
             $oneTimeServices,
-            $experimentSlug,
         );
     }
 }

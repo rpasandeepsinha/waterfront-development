@@ -18,7 +18,7 @@ class DnsZoneNoSOARecordException extends Exception
                 $dnsZone->getFqdn()->withoutTrailingDot(),
             ),
             $code,
-            $previous
+            $previous,
         );
     }
 }

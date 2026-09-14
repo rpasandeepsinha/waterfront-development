@@ -13,8 +13,9 @@ use Webmozart\Assert\Assert;
 
 class NovaStatusFilter extends BooleanFilter
 {
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     public function name(): string
@@ -35,10 +36,14 @@ class NovaStatusFilter extends BooleanFilter
     public function apply(NovaRequest $request, Builder $query, mixed $value): Builder
     {
         Assert::isArray($value);
-        return $query->whereIn('status', array_keys(array_filter(
-            $value,
-            fn ($include) => $include,
-        )));
+
+        return $query->whereIn(
+            'status',
+            array_keys(array_filter(
+                $value,
+                fn (mixed $include): bool => (bool) $include,
+            )),
+        );
     }
 
     /**
@@ -47,9 +52,13 @@ class NovaStatusFilter extends BooleanFilter
     public function options(NovaRequest $request): array
     {
         return [
-            $this->translator->translate('one-time-service.status.' . strtolower(OneTimeServiceStatus::OPEN->name)) => OneTimeServiceStatus::OPEN->value,
-            $this->translator->translate('one-time-service.status.' . strtolower(OneTimeServiceStatus::IN_PROGRESS->name)) => OneTimeServiceStatus::IN_PROGRESS->value,
-            $this->translator->translate('one-time-service.status.' . strtolower(OneTimeServiceStatus::DONE->name)) => OneTimeServiceStatus::DONE->value,
+            $this->translator->translate('one-time-service.status.' . strtolower(OneTimeServiceStatus::OPEN->name)) =>
+                OneTimeServiceStatus::OPEN->value,
+            $this->translator->translate(
+                'one-time-service.status.' . strtolower(OneTimeServiceStatus::IN_PROGRESS->name),
+            ) => OneTimeServiceStatus::IN_PROGRESS->value,
+            $this->translator->translate('one-time-service.status.' . strtolower(OneTimeServiceStatus::DONE->name)) =>
+                OneTimeServiceStatus::DONE->value,
         ];
     }
 }

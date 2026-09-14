@@ -81,26 +81,20 @@ class SitebuilderMigrationControllerTest extends IntegrationTestCase
 
         $sitebuilderProduct = ProductFactory::new()->siteBuilder()->for($hostingGroup)->createOne();
 
-        $this->baseKitServer = ServerFactory::new()
-            ->sitebuilder()
-            ->createOne([
-                'hostname' => 'basekit.test',
-                'domain' => 'basekit.test',
-            ]);
+        $this->baseKitServer = ServerFactory::new()->sitebuilder()->createOne([
+            'hostname' => 'basekit.test',
+            'domain' => 'basekit.test',
+        ]);
 
-        $this->mailOnlyServerDirectAdmin = ServerFactory::new()
-            ->directadminMail()
-            ->createOne([
-                'hostname' => 'mail_server.directadmin.test',
-                'domain' => 'mail_server.directadmin.test',
-            ]);
+        $this->mailOnlyServerDirectAdmin = ServerFactory::new()->directadminMail()->createOne([
+            'hostname' => 'mail_server.directadmin.test',
+            'domain' => 'mail_server.directadmin.test',
+        ]);
 
-        $this->mailOnlyServerPlesk = ServerFactory::new()
-            ->plesk()
-            ->createOne([
-                'hostname' => 'mail_server.plesk.test',
-                'domain' => 'mail_server.plesk.test',
-            ]);
+        $this->mailOnlyServerPlesk = ServerFactory::new()->plesk()->createOne([
+            'hostname' => 'mail_server.plesk.test',
+            'domain' => 'mail_server.plesk.test',
+        ]);
 
         $this->subscriptionDirectAdmin = SubscriptionFactory::new()
             ->for($this->customer)
@@ -126,10 +120,14 @@ class SitebuilderMigrationControllerTest extends IntegrationTestCase
         ProviderFactory::new()->pleskHosting()->createOne();
         $this->sitebuilderProvider = ProviderFactory::new()->siteBuilderBaseKit()->createOne();
 
-        $migratedSubscriptionDirectAdmin = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1']);
+        $migratedSubscriptionDirectAdmin = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1',
+        ]);
         $this->subscriptionDirectAdmin->migratedSubscriptions()->attach($migratedSubscriptionDirectAdmin);
 
-        $migratedSubscriptionPlesk = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_2']);
+        $migratedSubscriptionPlesk = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_2',
+        ]);
         $this->subscriptionPlesk->migratedSubscriptions()->attach($migratedSubscriptionPlesk);
 
         $migrationCustomer = MigratedCustomersFactory::new()->createOne(['reference_name' => 'versio']);
@@ -163,13 +161,15 @@ class SitebuilderMigrationControllerTest extends IntegrationTestCase
             ]);
 
         $mockSitebuilderService = self::createStub(SitebuilderService::class);
-        $mockSitebuilderService->method('getSiteFromRef')
+        $mockSitebuilderService
+            ->method('getSiteFromRef')
             ->willReturn(new BaseKitSite(
                 id: 456,
                 domain: self::TEST_DOMAIN_SITEBUILDER,
             ));
 
-        $mockSitebuilderService->method('getUserFromRef')
+        $mockSitebuilderService
+            ->method('getUserFromRef')
             ->willReturn(new BaseKitUser(
                 id: 123,
                 email: 'test@email.test',
@@ -178,8 +178,7 @@ class SitebuilderMigrationControllerTest extends IntegrationTestCase
         $this->app->bind(SitebuilderService::class, fn () => $mockSitebuilderService);
 
         $mockSsoAction = self::createStub(BaseKitGetSsoUrlAction::class);
-        $mockSsoAction->method('execute')
-            ->willReturn('https://basekit.test/sso-test');
+        $mockSsoAction->method('execute')->willReturn('https://basekit.test/sso-test');
         $this->app->bind(BaseKitGetSsoUrlAction::class, fn () => $mockSsoAction);
 
         $pleskHostingService = self::createStub(PleskHostingService::class);
@@ -206,13 +205,16 @@ class SitebuilderMigrationControllerTest extends IntegrationTestCase
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_sitebuilder', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_sitebuilder', [
+                    'customer' => $this->customer->id,
+                ]),
                 $postData,
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            )->assertStatus(Response::HTTP_MULTI_STATUS)
+                ],
+            )
+            ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [],
                 'success' => [
@@ -221,7 +223,8 @@ class SitebuilderMigrationControllerTest extends IntegrationTestCase
                         'baseParameters' => [],
                         'parameters' => [
                             'customerId' => $this->customer->id,
-                            'subscriptionIds' => $this->subscriptionDirectAdmin->id . ',' . $this->subscriptionPlesk->id,
+                            'subscriptionIds' =>
+                                $this->subscriptionDirectAdmin->id . ',' . $this->subscriptionPlesk->id,
                         ],
                     ],
                 ],
@@ -290,7 +293,10 @@ class SitebuilderMigrationControllerTest extends IntegrationTestCase
         self::assertSame('da_mail_1230', $this->hostingDeploymentDirectAdmin->directadmin_customer_username);
         self::assertNull($this->hostingDeploymentDirectAdmin->plesk_customer_username);
         self::assertNull($this->hostingDeploymentDirectAdmin->plesk_customer_id);
-        self::assertSame($this->mailOnlyServerDirectAdmin->id, $this->hostingDeploymentDirectAdmin->mailOnlyServer?->id);
+        self::assertSame(
+            $this->mailOnlyServerDirectAdmin->id,
+            $this->hostingDeploymentDirectAdmin->mailOnlyServer?->id,
+        );
         self::assertNull($this->hostingDeploymentDirectAdmin->server_id);
         self::assertNull($this->hostingDeploymentDirectAdmin->provider_id);
 
@@ -318,13 +324,16 @@ class SitebuilderMigrationControllerTest extends IntegrationTestCase
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.migrate_sitebuilder', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.migrate_sitebuilder', [
+                    'customer' => $this->customer->id,
+                ]),
                 $postData,
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
                     'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            )->assertStatus(Response::HTTP_MULTI_STATUS)
+                ],
+            )
+            ->assertStatus(Response::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [
                     [
@@ -369,17 +378,17 @@ class SitebuilderMigrationControllerTest extends IntegrationTestCase
     {
         $sitebuilderService = self::createStub(SitebuilderService::class);
 
-        $sitebuilderService
-            ->method('hasSitebuilderThroughGateway')
-            ->willReturn($shouldGoThroughGateway);
+        $sitebuilderService->method('hasSitebuilderThroughGateway')->willReturn($shouldGoThroughGateway);
 
-        $sitebuilderService->method('getSiteFromRef')
+        $sitebuilderService
+            ->method('getSiteFromRef')
             ->willReturn(new BaseKitSite(
                 id: 456,
                 domain: self::TEST_DOMAIN_SITEBUILDER,
             ));
 
-        $sitebuilderService->method('getUserFromRef')
+        $sitebuilderService
+            ->method('getUserFromRef')
             ->willReturn(new BaseKitUser(
                 id: 123,
                 email: $email,
@@ -433,7 +442,7 @@ class SitebuilderMigrationControllerTest extends IntegrationTestCase
 
         $this->app->bind(
             SitebuilderProvisionService::class,
-            fn () => new SitebuilderProvisionService($sitebuilderServiceFactory)
+            fn () => new SitebuilderProvisionService($sitebuilderServiceFactory),
         );
     }
 }

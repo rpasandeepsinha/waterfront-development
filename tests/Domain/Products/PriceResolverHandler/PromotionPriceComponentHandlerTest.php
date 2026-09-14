@@ -39,13 +39,70 @@ class PromotionPriceComponentHandlerTest extends IntegrationTestCase
         $product3 = new ProductFactory()->for($group)->createOne();
 
         new ProductPriceComponentFactory()->createMany([
-            ['product_id' => $product1->id, 'type' => PriceComponentType::PROMOTION, 'price' => 123, 'contract_period' => 12, 'billing_period' => 12, 'orderable' => true, 'starts_at' => CarbonImmutable::yesterday()],
-            ['product_id' => $product1->id, 'type' => PriceComponentType::PROMOTION, 'price' => 312, 'contract_period' => 12, 'billing_period' => 12, 'orderable' => true, 'starts_at' => CarbonImmutable::now()],
-            ['product_id' => $product1->id, 'type' => PriceComponentType::PROMOTION, 'price' => 890, 'contract_period' => 12, 'billing_period' => 12, 'orderable' => true, 'starts_at' => CarbonImmutable::tomorrow()],
-            ['product_id' => $product2->id, 'type' => PriceComponentType::PROMOTION, 'price' => 456, 'contract_period' => 12, 'billing_period' => 12, 'orderable' => true, 'starts_at' => CarbonImmutable::yesterday()],
-            ['product_id' => $product2->id, 'type' => PriceComponentType::REGISTRATION, 'price' => 654, 'contract_period' => 12, 'billing_period' => 12, 'orderable' => true, 'starts_at' => CarbonImmutable::now()],
-            ['product_id' => $product3->id, 'type' => PriceComponentType::PROMOTION, 'price' => 111, 'contract_period' => 12, 'billing_period' => 12, 'orderable' => true, 'starts_at' => CarbonImmutable::now()->subMonth()],
-            ['product_id' => $product3->id, 'type' => PriceComponentType::PROMOTION, 'price' => 222, 'contract_period' => 12, 'billing_period' => 12, 'orderable' => true, 'starts_at' => CarbonImmutable::now()->subDays(3), 'expires_at' => CarbonImmutable::now()->subHour()],
+            [
+                'product_id' => $product1->id,
+                'type' => PriceComponentType::PROMOTION,
+                'price' => 123,
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'orderable' => true,
+                'starts_at' => CarbonImmutable::yesterday(),
+            ],
+            [
+                'product_id' => $product1->id,
+                'type' => PriceComponentType::PROMOTION,
+                'price' => 312,
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'orderable' => true,
+                'starts_at' => CarbonImmutable::now(),
+            ],
+            [
+                'product_id' => $product1->id,
+                'type' => PriceComponentType::PROMOTION,
+                'price' => 890,
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'orderable' => true,
+                'starts_at' => CarbonImmutable::tomorrow(),
+            ],
+            [
+                'product_id' => $product2->id,
+                'type' => PriceComponentType::PROMOTION,
+                'price' => 456,
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'orderable' => true,
+                'starts_at' => CarbonImmutable::yesterday(),
+            ],
+            [
+                'product_id' => $product2->id,
+                'type' => PriceComponentType::REGISTRATION,
+                'price' => 654,
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'orderable' => true,
+                'starts_at' => CarbonImmutable::now(),
+            ],
+            [
+                'product_id' => $product3->id,
+                'type' => PriceComponentType::PROMOTION,
+                'price' => 111,
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'orderable' => true,
+                'starts_at' => CarbonImmutable::now()->subMonth(),
+            ],
+            [
+                'product_id' => $product3->id,
+                'type' => PriceComponentType::PROMOTION,
+                'price' => 222,
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'orderable' => true,
+                'starts_at' => CarbonImmutable::now()->subDays(3),
+                'expires_at' => CarbonImmutable::now()->subHour(),
+            ],
         ]);
 
         $prices = new Collection([
@@ -57,7 +114,7 @@ class PromotionPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 1234,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
             new Price(
                 type: ProductPriceType::REGISTRATION,
@@ -67,7 +124,7 @@ class PromotionPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 789,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
 
             new Price(
@@ -78,7 +135,7 @@ class PromotionPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 3423,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
         ]);
 

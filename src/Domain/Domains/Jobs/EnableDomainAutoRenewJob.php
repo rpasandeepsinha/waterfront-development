@@ -16,7 +16,7 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
 class EnableDomainAutoRenewJob extends AbstractQueueableJob
 {
     public function __construct(
-        private readonly Subscription $subscription
+        private readonly Subscription $subscription,
     ) {
         parent::__construct();
     }
@@ -33,8 +33,10 @@ class EnableDomainAutoRenewJob extends AbstractQueueableJob
             );
             $logger->error($errorText);
             $this->fail($errorText);
+
             return;
         }
+
         $domain = $this->subscription->domain;
 
         if ($domain === null) {
@@ -44,8 +46,10 @@ class EnableDomainAutoRenewJob extends AbstractQueueableJob
             );
             $logger->error($errorText);
             $this->fail($errorText);
+
             return;
         }
+
         $providerSlug = $this->subscription->domainDeployment->provider->slug;
 
         try {
@@ -55,13 +59,14 @@ class EnableDomainAutoRenewJob extends AbstractQueueableJob
                 'Enabling auto renew for domain %s with uuid %s failed. provider message: %s',
                 $this->subscription->domain,
                 $this->subscription->uuid,
-                $exception->getMessage()
+                $exception->getMessage(),
             ));
             $this->subscription->technical_status = TechnicalStatus::ERROR->value;
             $this->subscription->save();
             $enableAutoRenewFailedMailAction->execute($this->subscription);
 
             $this->fail($exception);
+
             return;
         }
 

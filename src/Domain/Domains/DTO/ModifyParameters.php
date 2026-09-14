@@ -144,6 +144,7 @@ class ModifyParameters
         if (is_null($this->autoRenew)) {
             return null;
         }
+
         if ($this->autoRenew) {
             return 'on';
         }

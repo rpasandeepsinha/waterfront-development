@@ -44,15 +44,16 @@ class DnsTemplateController
      * @throws AuthorizationException
      * @throws AuthenticationException
      */
-    public function index(
-    ): ResourceCollection {
+    public function index(): ResourceCollection
+    {
         $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
         $this->customerPolicy->assertCanManageDnsTemplates();
 
         return TemplateResource::collection(
-            DnsCustomerTemplate::where('customer_id', $customer->id)
-                ->with(['records', 'domainDeployments.subscription'])
-                ->get()
+            DnsCustomerTemplate::where('customer_id', $customer->id)->with([
+                'records',
+                'domainDeployments.subscription',
+            ])->get(),
         );
     }
 
@@ -70,7 +71,7 @@ class DnsTemplateController
         return new JsonResponse(
             [
                 'domains' => $linkableSubscriptions->values(),
-            ]
+            ],
         );
     }
 
@@ -90,14 +91,14 @@ class DnsTemplateController
         } catch (DnsZoneNotFoundException $exception) {
             return new JsonResponse(
                 ['message' => "Zone {$exception->zone} not found"],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
 
         return new JsonResponse(
             [
                 'message' => $this->translator->translate('dns-template.link-domain-success'),
-            ]
+            ],
         );
     }
 
@@ -118,7 +119,7 @@ class DnsTemplateController
         } catch (DnsZoneNotFoundException $exception) {
             return new JsonResponse(
                 ['message' => "Zone {$exception->zone} not found"],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
 
@@ -132,7 +133,7 @@ class DnsTemplateController
         return new JsonResponse(
             [
                 'message' => $this->translator->translate('dns-template.unlink-domain-success'),
-            ]
+            ],
         );
     }
 
@@ -141,7 +142,7 @@ class DnsTemplateController
      * @throws AuthenticationException
      */
     public function show(
-        DnsCustomerTemplate $template
+        DnsCustomerTemplate $template,
     ): TemplateResource {
         $this->dnsCustomerTemplatePolicy->assertCanShow($template);
 
@@ -158,7 +159,7 @@ class DnsTemplateController
         $this->customerPolicy->assertCanApplyTechnicalConfigurationToSubscriptions();
 
         $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
-        $payload  = $request->only(['name', 'records']);
+        $payload = $request->only(['name', 'records']);
 
         $template = $this->templateService->findOrCreateTemplate($customer, $payload);
 
@@ -175,12 +176,12 @@ class DnsTemplateController
      */
     public function storeRecord(
         TemplateRecordStoreRequest $request,
-        DnsCustomerTemplate $template
+        DnsCustomerTemplate $template,
     ): Response {
         $this->customerPolicy->assertCanManageDnsTemplates();
         $this->customerPolicy->assertCanApplyTechnicalConfigurationToSubscriptions();
 
-        $payload  = $request->only([
+        $payload = $request->only([
             'type',
             'name',
             'content',
@@ -200,7 +201,7 @@ class DnsTemplateController
         } catch (DnsZoneNotFoundException $exception) {
             return new JsonResponse(
                 ['message' => "Zone {$exception->zone} not found"],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
 
@@ -213,11 +214,11 @@ class DnsTemplateController
      */
     public function update(
         TemplateUpdateRequest $request,
-        DnsCustomerTemplate $template
+        DnsCustomerTemplate $template,
     ): Response {
         $this->dnsCustomerTemplatePolicy->assertCanUpdate($template);
 
-        $payload  = $request->only(['name', 'records']);
+        $payload = $request->only(['name', 'records']);
 
         $this->templateService->updateTemplate($template, $payload);
 
@@ -237,11 +238,16 @@ class DnsTemplateController
      */
     private function handleZonePropagation(
         DnsCustomerTemplate $template,
-        array $domains = []
+        array $domains = [],
     ): void {
         // VERIFY THAT ALL ZONES EXISTS REMOTELY BEFORE WE START UPDATING.
         $collection = $this->templateService->getPdnsZonesForDomains(
-            $domains === [] ? $template->domainDeployments->map(fn (DomainDeployment $deployment) => ['domain' => $deployment->subscription->domain ?? ''])->toArray() : $domains
+            $domains === []
+                ? $template
+                    ->domainDeployments
+                    ->map(fn (DomainDeployment $deployment) => ['domain' => $deployment->subscription->domain ?? ''])
+                    ->toArray()
+                : $domains,
         );
 
         $collection->each(function (array $domain) use ($template): void {

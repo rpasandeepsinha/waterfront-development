@@ -42,7 +42,10 @@ class HostingDeploymentRepository
     public function getByActiveDomain(string $domain): Subscription
     {
         return Subscription::where('domain', $domain)
-            ->whereIn('administrative_status', [AdministrativeStatus::ACTIVE->value, AdministrativeStatus::CANCELED->value])
+            ->whereIn('administrative_status', [
+                AdministrativeStatus::ACTIVE->value,
+                AdministrativeStatus::CANCELED->value,
+            ])
             ->whereHas('product.productGroup', function (Builder $productGroup): void {
                 $productGroup->where('slug', ProductGroupType::HOSTING);
             })
@@ -61,7 +64,7 @@ class HostingDeploymentRepository
             ->firstOrFail();
     }
 
-    public function findByUuid(string $subscriptionUuid): HostingDeployment|null
+    public function findByUuid(string $subscriptionUuid): ?HostingDeployment
     {
         return HostingDeployment::where('subscription_uuid', $subscriptionUuid)->first();
     }
@@ -74,12 +77,6 @@ class HostingDeploymentRepository
             ->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())
             ->whereHas('hostingDeployment')
             ->exists();
-    }
-
-    public function getCurrentServicePlan(string $subscriptionUuid): string
-    {
-        $subscription = Subscription::where('uuid', $subscriptionUuid)->with('product')->firstOrFail();
-        return $subscription->product->slug;
     }
 
     public function storeLastResult(string $subscriptionUuid, string $lastResult): void
@@ -100,7 +97,8 @@ class HostingDeploymentRepository
     {
         return HostingDeployment::query()
             ->whereHas('subscription', function (Builder $query) use ($customer): void {
-                $query->where('customer_id', $customer->id)
+                $query
+                    ->where('customer_id', $customer->id)
                     ->where('administrative_status', AdministrativeStatus::ACTIVE->value)
                     ->whereHas('product.productGroup', function (Builder $query): void {
                         $query->where('slug', ProductGroupType::HOSTING);
@@ -108,9 +106,7 @@ class HostingDeploymentRepository
             })
             ->whereHas('server')
             ->where(function (Builder $query) {
-                $query
-                    ->whereNotNull('directadmin_customer_username')
-                    ->orWhereNotNull('plesk_customer_username');
+                $query->whereNotNull('directadmin_customer_username')->orWhereNotNull('plesk_customer_username');
             })
             ->with('subscription')
             ->get();

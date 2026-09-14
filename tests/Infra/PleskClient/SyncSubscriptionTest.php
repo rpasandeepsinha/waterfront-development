@@ -31,12 +31,13 @@ class SyncSubscriptionTest extends IntegrationTestCase
             function (RequestInterface $request) {
                 self::assertXmlStringEqualsXmlString(
                     (string) file_get_contents(__DIR__ . '/data/plesk_sync_subscription_request.xml'),
-                    (string) $request->getBody()
+                    (string) $request->getBody(),
                 );
+
                 return new Response(
                     200,
                     [],
-                    (string) file_get_contents(__DIR__ . '/data/plesk_sync_subscription_response_success.xml')
+                    (string) file_get_contents(__DIR__ . '/data/plesk_sync_subscription_response_success.xml'),
                 );
             },
         ]);
@@ -49,7 +50,7 @@ class SyncSubscriptionTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $data = require __DIR__ . '/data/pleskSyncSubscriptionData.php';
@@ -67,7 +68,7 @@ class SyncSubscriptionTest extends IntegrationTestCase
             fn (RequestInterface $request) => new Response(
                 200,
                 [],
-                (string) file_get_contents(__DIR__ . '/data/plesk_sync_subscription_response_failure.xml')
+                (string) file_get_contents(__DIR__ . '/data/plesk_sync_subscription_response_failure.xml'),
             ),
         ]);
         $handlerStack = HandlerStack::create($mock);
@@ -79,7 +80,7 @@ class SyncSubscriptionTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $data = require __DIR__ . '/data/pleskSyncSubscriptionData.php';

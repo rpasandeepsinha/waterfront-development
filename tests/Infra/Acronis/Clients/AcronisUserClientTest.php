@@ -58,8 +58,8 @@ class AcronisUserClientTest extends TestCase
         $successRecordResponse = file_get_contents(__DIR__ . '/../data/user.json');
 
         $mockClient = new OAuthMockClient([
-             GetUserRequest::class => MockResponse::make(body: $successRecordResponse),
-         ]);
+            GetUserRequest::class => MockResponse::make(body: $successRecordResponse),
+        ]);
 
         $userClient = $this->makeUserClient($mockClient);
 
@@ -80,8 +80,8 @@ class AcronisUserClientTest extends TestCase
         $successRecordResponse = file_get_contents(__DIR__ . '/../data/tenant-user-list.json');
 
         $mockClient = new OAuthMockClient([
-             GetTenantUsersRequest::class => MockResponse::make(body: $successRecordResponse),
-         ]);
+            GetTenantUsersRequest::class => MockResponse::make(body: $successRecordResponse),
+        ]);
 
         $userClient = $this->makeUserClient($mockClient);
 
@@ -100,8 +100,8 @@ class AcronisUserClientTest extends TestCase
 
         $successRecordResponse = file_get_contents(__DIR__ . '/../data/one-time-token.json');
         $mockClient = new OAuthMockClient([
-             GetUserSsoRequest::class => MockResponse::make(body: $successRecordResponse),
-         ]);
+            GetUserSsoRequest::class => MockResponse::make(body: $successRecordResponse),
+        ]);
 
         $userClient = $this->makeUserClient($mockClient);
         $response = $userClient->getSso($userUuid);
@@ -115,8 +115,8 @@ class AcronisUserClientTest extends TestCase
 
         $successRecordResponse = '{}';
         $mockClient = new OAuthMockClient([
-             GetUserSsoRequest::class => MockResponse::make(body: $successRecordResponse),
-         ]);
+            GetUserSsoRequest::class => MockResponse::make(body: $successRecordResponse),
+        ]);
 
         $userClient = $this->makeUserClient($mockClient);
         self::expectException(AcronisSerializerException::class);
@@ -130,8 +130,8 @@ class AcronisUserClientTest extends TestCase
 
         $successRecordResponse = file_get_contents(__DIR__ . '/../data/user.json');
         $mockClient = new OAuthMockClient([
-             PostUserRequest::class => MockResponse::make(body: $successRecordResponse),
-         ]);
+            PostUserRequest::class => MockResponse::make(body: $successRecordResponse),
+        ]);
 
         $userClient = $this->makeUserClient($mockClient);
         $user = $userClient->create($userCreate);
@@ -146,8 +146,8 @@ class AcronisUserClientTest extends TestCase
 
         $successRecordResponse = '{}';
         $mockClient = new OAuthMockClient([
-             PostUserRequest::class => MockResponse::make(body: $successRecordResponse),
-         ]);
+            PostUserRequest::class => MockResponse::make(body: $successRecordResponse),
+        ]);
 
         $userClient = $this->makeUserClient($mockClient);
         self::expectException(AcronisSerializerException::class);
@@ -191,13 +191,15 @@ class AcronisUserClientTest extends TestCase
         $password = 'password';
 
         $mockClient = new OAuthMockClient([
-             PostSetUserPasswordRequest::class => MockResponse::make(),
-         ]);
+            PostSetUserPasswordRequest::class => MockResponse::make(),
+        ]);
 
         $userClient = $this->makeUserClient($mockClient);
         $updatePassword = $userClient->updatePassword(self::USER_ID, $password);
 
-        $mockClient->assertSent(fn (PostSetUserPasswordRequest $request) => $request->body()->get('password') === $password);
+        $mockClient->assertSent(
+            fn (PostSetUserPasswordRequest $request) => $request->body()->get('password') === $password,
+        );
 
         self::assertTrue($updatePassword);
     }
@@ -215,16 +217,14 @@ class AcronisUserClientTest extends TestCase
             PostSetUserPasswordRequest::class => $mockResponse,
         ]);
 
-        $this->mockLogger
-            ->expects('error')
-            ->with(
-                sprintf('Could not update Acronis password for user %s.', self::USER_ID),
-                [
-                    LoggingContextKeys::EXCEPTION => $saloonException,
-                    LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
-                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
-                ]
-            );
+        $this->mockLogger->expects('error')->with(
+            sprintf('Could not update Acronis password for user %s.', self::USER_ID),
+            [
+                LoggingContextKeys::EXCEPTION => $saloonException,
+                LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
+                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
+            ],
+        );
 
         $userClient = $this->makeUserClient($mockClient);
 
@@ -260,7 +260,7 @@ class AcronisUserClientTest extends TestCase
             contact: new Contact(
                 firstname: 'le',
                 lastname: 'tester',
-                email: 'acronis.yourhosting@yourhosting.nl'
+                email: 'acronis.yourhosting@yourhosting.nl',
             ),
         );
     }

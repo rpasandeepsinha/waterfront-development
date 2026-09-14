@@ -37,7 +37,7 @@ class GenerateSsoTest extends TestCase
 
         self::assertSame(
             'api/authticket/create/username/' . urlencode($this->testDomain),
-            $clientRequest->getUri()->getPath()
+            $clientRequest->getUri()->getPath(),
         );
     }
 
@@ -49,7 +49,7 @@ class GenerateSsoTest extends TestCase
     {
         $response = new GuzzleResponse(
             200,
-            ['Content-Type' => 'text/html']
+            ['Content-Type' => 'text/html'],
         );
 
         $response = new Response($response);

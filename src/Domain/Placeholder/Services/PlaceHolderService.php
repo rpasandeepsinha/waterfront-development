@@ -10,8 +10,9 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 abstract class PlaceHolderService
 {
-    public function __construct(protected MailNotificationService $notificationService)
-    {
+    public function __construct(
+        protected MailNotificationService $notificationService,
+    ) {
     }
 
     final protected function getProvisionDetailFromSubscription(Subscription $subscription): ProvisionDetails
@@ -24,7 +25,7 @@ abstract class PlaceHolderService
             customerEmail: $subscription->customer->email,
             customerUuid: $subscription->customer->uuid,
             subscriptionId: $subscription->id,
-            productName: $subscription->product->name
+            productName: $subscription->product->name,
         );
     }
 }

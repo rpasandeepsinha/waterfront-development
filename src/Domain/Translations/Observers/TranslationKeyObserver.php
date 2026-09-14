@@ -11,8 +11,9 @@ use Waterfront\Domain\Translations\Models\TranslationString;
 
 class TranslationKeyObserver
 {
-    public function __construct(private readonly TranslationLoader $loader)
-    {
+    public function __construct(
+        private readonly TranslationLoader $loader,
+    ) {
     }
 
     public function created(TranslationKey $key): void

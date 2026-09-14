@@ -54,46 +54,48 @@ class NovaMicrosoft365LogsResource extends Resource
             BelongsTo::make(
                 self::translate('microsoft365-logs.kpn-customer'),
                 'microsoft365CustomerInfo',
-                NovaMicrosoft365CustomerResource::class
+                NovaMicrosoft365CustomerResource::class,
             ),
             BelongsTo::make(
                 self::translate('microsoft365-logs.subscription'),
                 'microsoft365Deployment',
-                NovaMicrosoft365DeploymentResource::class
+                NovaMicrosoft365DeploymentResource::class,
             ),
             Text::make(
                 self::translate('microsoft365-logs.partner-reference'),
-                'partner_reference'
+                'partner_reference',
             )->sortable(),
             BelongsTo::make(
                 self::translate('subscription.singular'),
                 'subscription',
-                NovaSubscriptionResource::class
+                NovaSubscriptionResource::class,
             )->display(function ($subscription) {
                 /** @var Subscription $subscription */
                 $id = (string) $subscription->id;
+
                 return $id;
             }),
             Text::make(
                 self::translate('microsoft365-logs.xml-name'),
-                'xml_root_name'
+                'xml_root_name',
             )->onlyOnIndex(),
             Text::make(
                 self::translate('microsoft365-customer.kpn-customer-id'),
-                'kpn_customer_id'
+                'kpn_customer_id',
             )->onlyOnDetail(),
             Text::make(
                 'KPN order ID',
-                'kpn_order_id'
+                'kpn_order_id',
             )->onlyOnDetail(),
             Code::make(
                 self::translate('microsoft365-logs.log'),
-                'log'
-            )->onlyOnDetail()
-            ->language('xml'),
+                'log',
+            )
+                ->onlyOnDetail()
+                ->language('xml'),
             DateTime::make(
                 self::translate('microsoft365-logs.time'),
-                'created_at'
+                'created_at',
             )->sortable(),
         ];
     }

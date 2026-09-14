@@ -43,13 +43,13 @@ class RedirectMigrationService
      * @throws GuzzleException
      */
     public function migrateRedirecting(
-        DnsZone|null $zone,
+        ?DnsZone $zone,
         Subscription $subscription,
         string $source,
         string $target,
         string $type,
         string $referenceCustomerId,
-        string $jobUuid
+        string $jobUuid,
     ): void {
         $alreadyProvisioned = $this->redirectAlreadyExists($subscription, $source);
 
@@ -129,7 +129,7 @@ class RedirectMigrationService
                 $this->redirectDnsService->provisionDnsRecords(
                     domain: $zone->getFqdn()->withoutTrailingDot(),
                     source: $source,
-                    dnsProvisionOption: DnsRedirectProvisionOption::IGNORE
+                    dnsProvisionOption: DnsRedirectProvisionOption::IGNORE,
                 );
             }
         } catch (Throwable $exception) {
@@ -138,7 +138,7 @@ class RedirectMigrationService
                 LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $referenceCustomerId,
                 LoggingContextKeys::EXCEPTION => $exception,
                 LoggingContextKeys::META => [
-                    'fqdn' =>  $zone->getFqdn(),
+                    'fqdn' => $zone->getFqdn(),
                     'redirecting_already_provisioned' => $alreadyProvisioned,
                     'source' => $source,
                     'target' => $target,
@@ -155,7 +155,7 @@ class RedirectMigrationService
                     LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $referenceCustomerId,
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::META => [
-                        'fqdn' =>  $zone->getFqdn(),
+                        'fqdn' => $zone->getFqdn(),
                         'redirecting_already_provisioned' => $alreadyProvisioned,
                         'source' => $source,
                         'target' => $target,
@@ -182,8 +182,9 @@ class RedirectMigrationService
      */
     private function getLegacyRedirectRecordsOnSource(DnsZone $zone, string $source): Collection
     {
-        return $this->filterLegacyRedirectDnsRecords($zone)
-            ->filter(fn (DnsRecordInterface $record) => $record->getName() === $source);
+        return $this->filterLegacyRedirectDnsRecords($zone)->filter(
+            fn (DnsRecordInterface $record) => $record->getName() === $source,
+        );
     }
 
     /**
@@ -203,11 +204,13 @@ class RedirectMigrationService
         $legacyIPv4Addresses->add($configLegacyIpv4);
         $legacyIPv6Addresses->add($configLegacyIpv6);
 
-        return $records
-            ->filter(
-                fn (DnsRecordInterface $record) =>
-                    ($record->getType() === DnsRecordType::A->value && $legacyIPv4Addresses->contains($record->getContent())) ||
-                    ($record->getType() === DnsRecordType::AAAA->value && $legacyIPv6Addresses->contains($record->getContent()))
-            );
+        return $records->filter(
+            fn (DnsRecordInterface $record) => (
+                $record->getType() === DnsRecordType::A->value
+                && $legacyIPv4Addresses->contains($record->getContent())
+                || $record->getType() === DnsRecordType::AAAA->value
+                && $legacyIPv6Addresses->contains($record->getContent())
+            ),
+        );
     }
 }

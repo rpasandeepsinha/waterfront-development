@@ -100,7 +100,7 @@ class ProductUpdateService
 
         $incomingKeys = array_map(
             fn (IntroductionPriceConfigurationDTO $configuration) => (string) $configuration->contractPeriod,
-            $introductionPriceConfiguration
+            $introductionPriceConfiguration,
         );
 
         $existingDiscounts
@@ -108,8 +108,8 @@ class ProductUpdateService
             ->each->delete();
 
         foreach ($introductionPriceConfiguration as $configuration) {
-            $introductionDiscount = $existingDiscounts->get((string) $configuration->contractPeriod)
-                ?? new ProductIntroductionDiscount();
+            $introductionDiscount =
+                $existingDiscounts->get((string) $configuration->contractPeriod) ?? new ProductIntroductionDiscount();
             $introductionDiscount->product_id = $product->id;
             $introductionDiscount->contract_period = $configuration->contractPeriod;
             $introductionDiscount->max_uses_per_customer = $configuration->maxUsesPerCustomer !== null
@@ -142,12 +142,13 @@ class ProductUpdateService
     /** @param AllowedChange[] $allowedChanges */
     private function updateAllowedChanges(Product $product, array $allowedChanges): void
     {
-        $existingChanges = $this->productRepository->getAllAllowedProductChangesFromProduct($product->id)
+        $existingChanges = $this->productRepository
+            ->getAllAllowedProductChangesFromProduct($product->id)
             ->keyBy(fn (ProductAllowedChange $change) => (string) $change->to_product_id);
 
         $incomingKeys = array_map(
             fn (AllowedChange $change) => (string) $change->toProductId,
-            $allowedChanges
+            $allowedChanges,
         );
 
         $existingChanges
@@ -171,9 +172,7 @@ class ProductUpdateService
         $existingPromotions = $product->productPromotions->keyBy('uuid');
         $incomingUuid = array_map(fn (Promotion $promotion) => $promotion->uuid, $promotions);
 
-        $existingPromotions
-            ->whereNotIn('uuid', $incomingUuid)
-            ->each->delete();
+        $existingPromotions->whereNotIn('uuid', $incomingUuid)->each->delete();
 
         foreach ($promotions as $promotion) {
             $existingPromotion = $existingPromotions->get((string) $promotion->uuid);
@@ -186,6 +185,7 @@ class ProductUpdateService
             if ($existingPromotion === null) {
                 $promotionModel->uuid = Uuid::uuid4();
             }
+
             $promotionModel->product_id = $product->id;
             $promotionModel->start_date = $promotion->startDate;
             $promotionModel->end_date = $promotion->endDate;
@@ -205,12 +205,14 @@ class ProductUpdateService
     /** @param ProductPriceEntryDTO[] $productPrices */
     private function updateProductPeriods(Product $product, array $productPrices): void
     {
-        $existingPeriods = $product->periods
-            ->keyBy(fn (ProductPeriod $period) => $this->periodKey($period->billing_period, $period->contract_period));
+        $existingPeriods = $product->periods->keyBy(fn (ProductPeriod $period) => $this->periodKey(
+            $period->billing_period,
+            $period->contract_period,
+        ));
 
         $incomingKeys = array_unique(array_map(
             fn (ProductPriceEntryDTO $entry) => $this->periodKey($entry->billingPeriod, $entry->contractPeriod),
-            $productPrices
+            $productPrices,
         ));
 
         $existingPeriods
@@ -256,16 +258,44 @@ class ProductUpdateService
 
                 match ($additionalPrice->type) {
                     PriceComponentType::INTRODUCTION => $introductionPrice = $additionalPrice->price,
-                    PriceComponentType::PROMOTION    => $promotionPrice = $additionalPrice->price,
+                    PriceComponentType::PROMOTION => $promotionPrice = $additionalPrice->price,
                     PriceComponentType::PROLONGATION => $prolongationPrice = $additionalPrice->price,
-                    default        => null,
+                    default => null,
                 };
             }
 
-            $this->upsertPriceComponent($existingPrices, $product, PriceComponentType::REGISTRATION, $entry->contractPeriod, $entry->billingPeriod, $entry->registrationPrice);
-            $this->upsertOrExpirePriceComponent($existingPrices, $product, PriceComponentType::INTRODUCTION, $entry->contractPeriod, $entry->billingPeriod, $introductionPrice);
-            $this->upsertOrExpirePriceComponent($existingPrices, $product, PriceComponentType::PROMOTION, $entry->contractPeriod, $entry->billingPeriod, $promotionPrice);
-            $this->upsertOrExpirePriceComponent($existingPrices, $product, PriceComponentType::PROLONGATION, $entry->contractPeriod, $entry->billingPeriod, $prolongationPrice);
+            $this->upsertPriceComponent(
+                $existingPrices,
+                $product,
+                PriceComponentType::REGISTRATION,
+                $entry->contractPeriod,
+                $entry->billingPeriod,
+                $entry->registrationPrice,
+            );
+            $this->upsertOrExpirePriceComponent(
+                $existingPrices,
+                $product,
+                PriceComponentType::INTRODUCTION,
+                $entry->contractPeriod,
+                $entry->billingPeriod,
+                $introductionPrice,
+            );
+            $this->upsertOrExpirePriceComponent(
+                $existingPrices,
+                $product,
+                PriceComponentType::PROMOTION,
+                $entry->contractPeriod,
+                $entry->billingPeriod,
+                $promotionPrice,
+            );
+            $this->upsertOrExpirePriceComponent(
+                $existingPrices,
+                $product,
+                PriceComponentType::PROLONGATION,
+                $entry->contractPeriod,
+                $entry->billingPeriod,
+                $prolongationPrice,
+            );
         }
 
         $existingPrices->each(function (ProductPriceComponent $price): void {
@@ -275,20 +305,32 @@ class ProductUpdateService
     }
 
     /** @param Collection<int, ProductPriceComponent> $existingPrices */
-    private function pullExistingComponent(Collection $existingPrices, PriceComponentType $type, int $contractPeriod, int $billingPeriod): ?ProductPriceComponent
-    {
+    private function pullExistingComponent(
+        Collection $existingPrices,
+        PriceComponentType $type,
+        int $contractPeriod,
+        int $billingPeriod,
+    ): ?ProductPriceComponent {
         $key = $existingPrices->search(
-            fn (ProductPriceComponent $component) => $component->type === $type
+            fn (ProductPriceComponent $component) => (
+                $component->type === $type
                 && $component->contract_period === $contractPeriod
                 && $component->billing_period === $billingPeriod
+            ),
         );
 
         return is_int($key) ? $existingPrices->pull($key) : null;
     }
 
     /** @param Collection<int, ProductPriceComponent> $existingPrices */
-    private function upsertPriceComponent(Collection $existingPrices, Product $product, PriceComponentType $type, int $contractPeriod, int $billingPeriod, int $price): void
-    {
+    private function upsertPriceComponent(
+        Collection $existingPrices,
+        Product $product,
+        PriceComponentType $type,
+        int $contractPeriod,
+        int $billingPeriod,
+        int $price,
+    ): void {
         $price = max(0, $price);
         $existing = $this->pullExistingComponent($existingPrices, $type, $contractPeriod, $billingPeriod);
 
@@ -309,13 +351,18 @@ class ProductUpdateService
         $component->price = $price;
         $component->orderable = true;
         $component->starts_at = CarbonImmutable::now();
-        $component->translation_key_id = $existing?->translation_key_id;
         $component->save();
     }
 
     /** @param Collection<int, ProductPriceComponent> $existingPrices */
-    private function upsertOrExpirePriceComponent(Collection $existingPrices, Product $product, PriceComponentType $type, int $contractPeriod, int $billingPeriod, ?int $price): void
-    {
+    private function upsertOrExpirePriceComponent(
+        Collection $existingPrices,
+        Product $product,
+        PriceComponentType $type,
+        int $contractPeriod,
+        int $billingPeriod,
+        ?int $price,
+    ): void {
         if ($price === null) {
             $existing = $this->pullExistingComponent($existingPrices, $type, $contractPeriod, $billingPeriod);
 

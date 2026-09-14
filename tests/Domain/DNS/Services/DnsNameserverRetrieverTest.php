@@ -40,7 +40,7 @@ class DnsNameserverRetrieverTest extends IntegrationTestCase
     #[Test]
     public function returnsLeastUsedNameserver(): void
     {
-        $this->createRegions(amount:1);
+        $this->createRegions(amount: 1);
         $this->createNameserver(2);
 
         $regions = $this->regions->firstOrFail();
@@ -52,13 +52,9 @@ class DnsNameserverRetrieverTest extends IntegrationTestCase
         $unusedNameserver = $regionNameservers->last();
         self::assertInstanceOf(DnsNameserver::class, $unusedNameserver);
 
-        $dnsDeployment =  new DnsDeploymentFactory()
-             ->for(
-                 new SubscriptionFactory()
-                     ->withCustomer()
-                     ->for(new ProductFactory()->freeDns())
-             )
-             ->createOne();
+        $dnsDeployment = new DnsDeploymentFactory()->for(
+            new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->freeDns()),
+        )->createOne();
         $dnsDeployment->dnsNameservers()->save($usedNameserver);
 
         $nameservers = $this->nameserverRetriever->retrieve(1);
@@ -70,7 +66,7 @@ class DnsNameserverRetrieverTest extends IntegrationTestCase
     #[Test]
     public function returnsLeastUsedNameserverPerRegion(): void
     {
-        $this->createRegions(amount:3);
+        $this->createRegions(amount: 3);
         $this->createNameserver(2);
 
         $unusedNameservers = [];
@@ -88,10 +84,10 @@ class DnsNameserverRetrieverTest extends IntegrationTestCase
             ->createMany(3)
             ->each(function (Subscription $subscription) use ($usedNameservers): void {
                 new DnsDeploymentFactory()
-                       ->for($subscription)
-                       ->createOne()
-                       ->dnsNameservers()
-                       ->saveMany($usedNameservers);
+                    ->for($subscription)
+                    ->createOne()
+                    ->dnsNameservers()
+                    ->saveMany($usedNameservers);
             });
 
         $nameservers = $this->nameserverRetriever->retrieve(3);
@@ -111,7 +107,7 @@ class DnsNameserverRetrieverTest extends IntegrationTestCase
     #[Test]
     public function throwsExceptionWhenNotEnoughRegionsExist(): void
     {
-        $this->createRegions(amount:1);
+        $this->createRegions(amount: 1);
         $this->createNameserver();
 
         self::expectException(DnsRegionNotFoundException::class);
@@ -121,7 +117,7 @@ class DnsNameserverRetrieverTest extends IntegrationTestCase
     #[Test]
     public function throwsExceptionWhenNotEnoughNameserversInRegionExist(): void
     {
-        $this->createRegions(amount:3);
+        $this->createRegions(amount: 3);
 
         self::expectException(DnsRegionNotFoundException::class);
         $this->nameserverRetriever->retrieve(2);
@@ -129,8 +125,7 @@ class DnsNameserverRetrieverTest extends IntegrationTestCase
 
     private function createRegions(int $amount): void
     {
-        $this->regions = new DnsRegionFactory()
-            ->createMany($amount);
+        $this->regions = new DnsRegionFactory()->createMany($amount);
     }
 
     private function createNameserver(int $amount = 1): void

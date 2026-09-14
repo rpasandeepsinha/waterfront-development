@@ -19,8 +19,9 @@ class DnsUpdatingListener implements ShouldQueue
 
     public string $queue = QueueName::DNS->value;
 
-    public function __construct(private readonly DnsService $dnsService)
-    {
+    public function __construct(
+        private readonly DnsService $dnsService,
+    ) {
     }
 
     public function handle(UpdateDns $event): void
@@ -33,7 +34,7 @@ class DnsUpdatingListener implements ShouldQueue
                     LoggingContextKeys::META => [
                         'dnsRecords' => $event->getChanges()->getChangedRows(),
                     ],
-                ]
+                ],
             );
             $this->dnsService->applyDiff(
                 $event->getDomain(),
@@ -43,7 +44,7 @@ class DnsUpdatingListener implements ShouldQueue
             Log::error(sprintf(
                 'Throwable catch: {%s} for domain {%s}',
                 $throwable->getMessage(),
-                $event->getDomain()
+                $event->getDomain(),
             ));
 
             $this->fail($throwable);

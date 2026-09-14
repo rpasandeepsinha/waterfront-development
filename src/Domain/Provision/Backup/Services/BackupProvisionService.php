@@ -34,13 +34,13 @@ class BackupProvisionService extends AbstractProvisionService implements Provisi
         try {
             $validator = $this->backupServiceFactory->getValidator(
                 provider: $this->getProviderForRequest($provisionData),
-                provisionRequest: $provisionData
+                provisionRequest: $provisionData,
             );
 
             if ($validator->fails()) {
                 return $this->createFailedValidationResult($provisionData, $validator);
             }
-        } catch (UnknownBackupProviderException | UnknownBackupRequestException $providerException) {
+        } catch (UnknownBackupProviderException|UnknownBackupRequestException $providerException) {
             return new BackupResult($provisionData, ProvisionStatus::FAILED, $providerException);
         }
 
@@ -51,7 +51,7 @@ class BackupProvisionService extends AbstractProvisionService implements Provisi
     {
         try {
             $backupService = $this->backupServiceFactory->getProviderService(
-                provider: $this->getProviderForRequest($provisionData)
+                provider: $this->getProviderForRequest($provisionData),
             );
         } catch (UnknownBackupProviderException $providerException) {
             return new BackupResult($provisionData, ProvisionStatus::FAILED, $providerException);
@@ -64,12 +64,14 @@ class BackupProvisionService extends AbstractProvisionService implements Provisi
             SetBackupSuspensionStateRequest::class => $backupService->setBackupSuspensionState($provisionData),
             CreateBackupRequest::class => $backupService->createBackup($provisionData),
             GetBackupUsageRequest::class => $backupService->getBackupUsages($provisionData),
-            CreateBackupDeploymentsFromMigrationRequest::class => $backupService->createBackupDeployment($provisionData),
+            CreateBackupDeploymentsFromMigrationRequest::class => $backupService->createBackupDeployment(
+                $provisionData,
+            ),
             default => new BackupResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: new UnknownBackupRequestException($provisionData)
-            )
+                exception: new UnknownBackupRequestException($provisionData),
+            ),
         };
     }
 

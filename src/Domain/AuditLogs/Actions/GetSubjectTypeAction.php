@@ -34,6 +34,7 @@ class GetSubjectTypeAction
         }
 
         $exploded = explode('\\', $subjectNamespace);
+
         return end($exploded);
     }
 }

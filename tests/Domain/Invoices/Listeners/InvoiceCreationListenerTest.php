@@ -39,11 +39,13 @@ class InvoiceCreationListenerTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
-        $product  = new ProductFactory()->for($productGroup)->createOne();
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'customer_id' => $customer->id,
-            'product_uuid' => $product->uuid,
-        ]);
+        $product = new ProductFactory()->for($productGroup)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'customer_id' => $customer->id,
+                'product_uuid' => $product->uuid,
+            ]);
 
         $invoice = new InvoiceFactory()
             ->for($customer)
@@ -71,10 +73,13 @@ class InvoiceCreationListenerTest extends IntegrationTestCase
         $this->expectNotToPerformAssertions();
 
         $customer = new CustomerFactory()->createOne();
-        new MigratedCustomersFactory()->createOne([
-            'successful' => true,
-            'enable_invoicing' => true,
-        ])->customers()->attach($customer);
+        new MigratedCustomersFactory()
+            ->createOne([
+                'successful' => true,
+                'enable_invoicing' => true,
+            ])
+            ->customers()
+            ->attach($customer);
 
         $migCustomer = new MigratedCustomersFactory()->createOne([
             'successful' => true,
@@ -84,12 +89,14 @@ class InvoiceCreationListenerTest extends IntegrationTestCase
 
         $migSubscription = new MigratedSubscriptionsFactory()->createOne();
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
-        $product  = new ProductFactory()->for($productGroup)->createOne();
+        $product = new ProductFactory()->for($productGroup)->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'customer_id' => $customer->id,
-            'product_uuid' => $product->uuid,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'customer_id' => $customer->id,
+                'product_uuid' => $product->uuid,
+            ]);
 
         $migSubscription->subscriptions()->attach($subscription);
         $migCustomer->migratedSubscriptions()->attach($migSubscription);

@@ -54,30 +54,25 @@ class TerminateCaddyRedirectsIntegrationTest extends IntegrationTestCase
         $context = Uuid::uuid4();
         $caddyId = 'caddy-id';
 
-        $caddyContext = new CaddyContextFactory()
-            ->createOne([
-                'context_uuid' => $context->toString(),
-                'host' => $domain,
-            ]);
+        $caddyContext = new CaddyContextFactory()->createOne([
+            'context_uuid' => $context->toString(),
+            'host' => $domain,
+        ]);
 
-        $redirectDeployment = new RedirectDeploymentFactory()
-            ->createOne([
-                'source' => $domain,
-                'context_uuid' => $context->toString(),
-            ]);
+        $redirectDeployment = new RedirectDeploymentFactory()->createOne([
+            'source' => $domain,
+            'context_uuid' => $context->toString(),
+        ]);
 
-        $caddyRedirectDeployment = new CaddyRedirectDeploymentFactory()
-            ->for($redirectDeployment)
-            ->createOne(['caddy_id' => $caddyId]);
+        $caddyRedirectDeployment = new CaddyRedirectDeploymentFactory()->for($redirectDeployment)->createOne([
+            'caddy_id' => $caddyId,
+        ]);
 
         $request = new TerminateRedirectsRequest(
             context: $context,
         );
 
-        $this->caddyClient
-            ->expects(self::once())
-            ->method('deleteRedirect')
-            ->with($caddyId);
+        $this->caddyClient->expects(self::once())->method('deleteRedirect')->with($caddyId);
 
         self::assertDatabaseCount(ProvisioningResult::class, 0);
         self::assertDatabaseCount(ProvisioningRequest::class, 1);
@@ -112,7 +107,7 @@ class TerminateCaddyRedirectsIntegrationTest extends IntegrationTestCase
         self::assertSame(ProvisionRequestName::TERMINATE_REDIRECTS, $savedRequest->request_name);
         self::assertSame(
             '[]',
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         $result = $savedRequest->result;
@@ -128,21 +123,19 @@ class TerminateCaddyRedirectsIntegrationTest extends IntegrationTestCase
         $context = Uuid::uuid4();
         $caddyId = 'caddy-id';
 
-        $caddyContext = new CaddyContextFactory()
-            ->createOne([
-                'context_uuid' => $context->toString(),
-                'host' => $domain,
-            ]);
+        $caddyContext = new CaddyContextFactory()->createOne([
+            'context_uuid' => $context->toString(),
+            'host' => $domain,
+        ]);
 
-        $redirectDeployment = new RedirectDeploymentFactory()
-            ->createOne([
-                'source' => $domain,
-                'context_uuid' => $context->toString(),
-            ]);
+        $redirectDeployment = new RedirectDeploymentFactory()->createOne([
+            'source' => $domain,
+            'context_uuid' => $context->toString(),
+        ]);
 
-        $caddyRedirectDeployment = new CaddyRedirectDeploymentFactory()
-            ->for($redirectDeployment)
-            ->createOne(['caddy_id' => $caddyId]);
+        $caddyRedirectDeployment = new CaddyRedirectDeploymentFactory()->for($redirectDeployment)->createOne([
+            'caddy_id' => $caddyId,
+        ]);
 
         $request = new TerminateRedirectsRequest(
             context: $context,
@@ -150,10 +143,7 @@ class TerminateCaddyRedirectsIntegrationTest extends IntegrationTestCase
 
         $expectedMessage = 'Failed to delete redirect';
         $saloonException = new SaloonException($expectedMessage);
-        $this->caddyClient
-            ->expects(self::once())
-            ->method('deleteRedirect')
-            ->willThrowException($saloonException);
+        $this->caddyClient->expects(self::once())->method('deleteRedirect')->willThrowException($saloonException);
 
         self::assertDatabaseCount(ProvisioningResult::class, 0);
         self::assertDatabaseCount(ProvisioningRequest::class, 1);
@@ -189,7 +179,7 @@ class TerminateCaddyRedirectsIntegrationTest extends IntegrationTestCase
         self::assertSame(ProvisionRequestName::TERMINATE_REDIRECTS, $savedRequest->request_name);
         self::assertSame(
             '[]',
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         self::assertSame($context->toString(), $savedRequest->context_uuid?->toString());

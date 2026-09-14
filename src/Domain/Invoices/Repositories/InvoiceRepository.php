@@ -47,7 +47,9 @@ class InvoiceRepository
         $product = $nextInvoicePrice->product;
         $customerVatDTO = $this->vatService->getCustomerVatData($customer);
 
-        $appendable = $subscription->domain !== null ? $this->translator->translate('invoice.description.for') . " {$subscription->domain}" : '';
+        $appendable = $subscription->domain !== null
+            ? $this->translator->translate('invoice.description.for') . " {$subscription->domain}"
+            : '';
         $description = sprintf(
             '%s %s',
             $product->name,
@@ -55,22 +57,22 @@ class InvoiceRepository
         );
 
         $invoice = new Invoice();
-        $invoice->subscription_id    = $subscription->id;
-        $invoice->customer_id        = $customer->id;
-        $invoice->product_id         = $product->id;
-        $invoice->ledger_code        = $product->productGroup->ledger_code;
-        $invoice->vat_code           = $customerVatDTO->vatCode;
-        $invoice->vat_rate           = $customerVatDTO->vatRate;
-        $invoice->title              = $subscription->domain ?? $product->name;
-        $invoice->description        = $description;
-        $invoice->group_label        = $subscription->domain;
-        $invoice->type               = InvoiceLine::TYPE_DEFAULT;
-        $invoice->paid               = false;
-        $invoice->start_date         = $nextInvoicePrice->startDate;
-        $invoice->end_date           = $nextInvoicePrice->endDate;
-        $invoice->period             = $nextInvoicePrice->billingPeriod;
-        $invoice->gross_price        = $nextInvoicePrice->grossPrice;
-        $invoice->net_price          = $nextInvoicePrice->netPrice;
+        $invoice->subscription_id = $subscription->id;
+        $invoice->customer_id = $customer->id;
+        $invoice->product_id = $product->id;
+        $invoice->ledger_code = $product->productGroup->ledger_code;
+        $invoice->vat_code = $customerVatDTO->vatCode;
+        $invoice->vat_rate = $customerVatDTO->vatRate;
+        $invoice->title = $subscription->domain ?? $product->name;
+        $invoice->description = $description;
+        $invoice->group_label = $subscription->domain;
+        $invoice->type = InvoiceLine::TYPE_DEFAULT;
+        $invoice->paid = false;
+        $invoice->start_date = $nextInvoicePrice->startDate;
+        $invoice->end_date = $nextInvoicePrice->endDate;
+        $invoice->period = $nextInvoicePrice->billingPeriod;
+        $invoice->gross_price = $nextInvoicePrice->grossPrice;
+        $invoice->net_price = $nextInvoicePrice->netPrice;
         $invoice->save();
 
         if ($dispatchInvoiceCreated) {
@@ -93,7 +95,9 @@ class InvoiceRepository
 
         $customerVatDTO = $this->vatService->getCustomerVatData($customer);
 
-        $appendable = $orderLineItem->domain !== null ? $this->translator->translate('invoice.description.for') . " {$orderLineItem->domain}" : '';
+        $appendable = $orderLineItem->domain !== null
+            ? $this->translator->translate('invoice.description.for') . " {$orderLineItem->domain}"
+            : '';
         $description = sprintf(
             '%s %s',
             $product->name,
@@ -101,23 +105,23 @@ class InvoiceRepository
         );
 
         $invoice = new Invoice();
-        $invoice->subscription_id    = $subscription->id;
-        $invoice->customer_id        = $customer->id;
-        $invoice->product_id         = $product->id;
-        $invoice->ledger_code        = $product->productGroup->ledger_code;
-        $invoice->vat_code           = $customerVatDTO->vatCode;
-        $invoice->vat_rate           = $customerVatDTO->vatRate;
-        $invoice->title              = $orderLineItem->domain ?? $product->name;
-        $invoice->description        = $description;
-        $invoice->group_label        = $orderLineItem->domain;
-        $invoice->type               = InvoiceLine::TYPE_DEFAULT;
-        $invoice->paid               = $prepaidReference !== null;
-        $invoice->prepaid_reference  = $prepaidReference;
-        $invoice->start_date         = $subscription->start_date;
-        $invoice->end_date           = $subscription->next_billing_date;
-        $invoice->period             = $orderLineItem->billing_period;
-        $invoice->gross_price        = $orderLineItem->gross_price;
-        $invoice->net_price          = $orderLineItem->net_price;
+        $invoice->subscription_id = $subscription->id;
+        $invoice->customer_id = $customer->id;
+        $invoice->product_id = $product->id;
+        $invoice->ledger_code = $product->productGroup->ledger_code;
+        $invoice->vat_code = $customerVatDTO->vatCode;
+        $invoice->vat_rate = $customerVatDTO->vatRate;
+        $invoice->title = $orderLineItem->domain ?? $product->name;
+        $invoice->description = $description;
+        $invoice->group_label = $orderLineItem->domain;
+        $invoice->type = InvoiceLine::TYPE_DEFAULT;
+        $invoice->paid = $prepaidReference !== null;
+        $invoice->prepaid_reference = $prepaidReference;
+        $invoice->start_date = $subscription->start_date;
+        $invoice->end_date = $subscription->next_billing_date;
+        $invoice->period = $orderLineItem->billing_period;
+        $invoice->gross_price = $orderLineItem->gross_price;
+        $invoice->net_price = $orderLineItem->net_price;
         $invoice->save();
 
         return $invoice;
@@ -129,14 +133,20 @@ class InvoiceRepository
      *
      * @throws InvalidCountryCodeException
      */
-    public function create(Subscription $subscription, ?CarbonImmutable $startDate = null, bool $paid = false, ?int $grossPrice = null, ?int $netPrice = null, bool $dispatchInvoiceCreated = true): Invoice
-    {
+    public function create(
+        Subscription $subscription,
+        ?CarbonImmutable $startDate = null,
+        bool $paid = false,
+        ?int $grossPrice = null,
+        ?int $netPrice = null,
+        bool $dispatchInvoiceCreated = true,
+    ): Invoice {
         $invoice = $this->createInvoice(
             subscription: $subscription,
             startDate: $startDate,
             paid: $paid,
             grossPrice: $grossPrice,
-            netPrice: $netPrice
+            netPrice: $netPrice,
         );
 
         if ($dispatchInvoiceCreated) {
@@ -152,20 +162,27 @@ class InvoiceRepository
      *
      * @throws InvalidCountryCodeException
      */
-    public function createInvoice(Subscription $subscription, ?CarbonImmutable $startDate = null, bool $paid = false, ?int $grossPrice = null, ?int $netPrice = null): Invoice
-    {
+    public function createInvoice(
+        Subscription $subscription,
+        ?CarbonImmutable $startDate = null,
+        bool $paid = false,
+        ?int $grossPrice = null,
+        ?int $netPrice = null,
+    ): Invoice {
         $subscription->loadMissing(
             [
                 'customer',
                 'product.productGroup',
-            ]
+            ],
         );
         $customer = $subscription->customer;
 
         $productGroup = $subscription->product->productGroup;
 
         $customerVatDTO = $this->vatService->getCustomerVatData($customer);
-        $appendable = $subscription->domain !== null ? $this->translator->translate('invoice.description.for') . " {$subscription->domain}" : '';
+        $appendable = $subscription->domain !== null
+            ? $this->translator->translate('invoice.description.for') . " {$subscription->domain}"
+            : '';
         $description = sprintf(
             '%s %s',
             $subscription->product->name,
@@ -174,8 +191,8 @@ class InvoiceRepository
 
         return Invoice::create(
             [
-                'subscription_id'    => $subscription->id,
-                'customer_id'        => $customer->id,
+                'subscription_id' => $subscription->id,
+                'customer_id' => $customer->id,
                 'product_id' => $subscription->product->id,
                 'vat_code' => $customerVatDTO->vatCode,
                 'vat_rate' => $customerVatDTO->vatRate,
@@ -193,7 +210,7 @@ class InvoiceRepository
                 'type' => InvoiceLine::TYPE_DEFAULT,
                 'credit_reason' => null,
                 'prepaid_reference' => $this->findPrepaidPayment($paid, $subscription),
-            ]
+            ],
         );
     }
 
@@ -215,7 +232,9 @@ class InvoiceRepository
         $productGroup = $subscription->product->productGroup;
 
         $customerVatDTO = $this->vatService->getCustomerVatData($customer);
-        $appendable = $subscription->domain !== null ? $this->translator->translate('invoice.description.for') . " {$subscription->domain}" : '';
+        $appendable = $subscription->domain !== null
+            ? $this->translator->translate('invoice.description.for') . " {$subscription->domain}"
+            : '';
         $description = sprintf(
             '%s (%s) %s',
             $subscription->product->name,
@@ -247,8 +266,8 @@ class InvoiceRepository
                     'type' => InvoiceLine::TYPE_DEFAULT,
                     'credit_reason' => null,
                     'prepaid_reference' => $this->findPrepaidPayment($paid, $subscription),
-                ]
-            )
+                ],
+            ),
         );
     }
 
@@ -266,13 +285,15 @@ class InvoiceRepository
         ?int $netPrice = null,
         bool $paid = false,
         ?Subscription $subscription = null,
-        ?int $ledgerCode = null
+        ?int $ledgerCode = null,
     ): Invoice {
         $customerVatDTO = $this->vatService->getCustomerVatData($customer);
 
         $description = '';
         if ($subscription !== null) {
-            $appendable = $subscription->domain !== null ? $this->translator->translate('invoice.description.for') . " {$subscription->domain}" : '';
+            $appendable = $subscription->domain !== null
+                ? $this->translator->translate('invoice.description.for') . " {$subscription->domain}"
+                : '';
             $description = sprintf(
                 '%s %s',
                 $product->name,
@@ -281,23 +302,23 @@ class InvoiceRepository
         }
 
         $invoice = new Invoice();
-        $invoice->subscription_id    = $subscription?->id;
-        $invoice->customer_id        = $customer->id;
-        $invoice->product_id         = $product->id;
-        $invoice->ledger_code        = $ledgerCode ?? $product->productGroup->ledger_code;
-        $invoice->vat_code           = $customerVatDTO->vatCode;
-        $invoice->vat_rate           = $customerVatDTO->vatRate;
-        $invoice->title              = $subscription->domain ?? $product->name;
-        $invoice->description        = $description;
-        $invoice->group_label        = $subscription?->domain;
-        $invoice->type               = InvoiceLine::TYPE_DEFAULT;
-        $invoice->paid               = $paid;
-        $invoice->prepaid_reference  = $this->findPrepaidPayment($paid, $subscription);
-        $invoice->start_date         = $startDate;
-        $invoice->end_date           = $endDate;
-        $invoice->period             = (int) $endDate->diffInMonths($startDate, true);
-        $invoice->gross_price        = $grossPrice;
-        $invoice->net_price          = $netPrice ?? $grossPrice;
+        $invoice->subscription_id = $subscription?->id;
+        $invoice->customer_id = $customer->id;
+        $invoice->product_id = $product->id;
+        $invoice->ledger_code = $ledgerCode ?? $product->productGroup->ledger_code;
+        $invoice->vat_code = $customerVatDTO->vatCode;
+        $invoice->vat_rate = $customerVatDTO->vatRate;
+        $invoice->title = $subscription->domain ?? $product->name;
+        $invoice->description = $description;
+        $invoice->group_label = $subscription?->domain;
+        $invoice->type = InvoiceLine::TYPE_DEFAULT;
+        $invoice->paid = $paid;
+        $invoice->prepaid_reference = $this->findPrepaidPayment($paid, $subscription);
+        $invoice->start_date = $startDate;
+        $invoice->end_date = $endDate;
+        $invoice->period = (int) $endDate->diffInMonths($startDate, true);
+        $invoice->gross_price = $grossPrice;
+        $invoice->net_price = $netPrice ?? $grossPrice;
         $invoice->save();
 
         return $invoice;
@@ -313,9 +334,11 @@ class InvoiceRepository
             ->first();
     }
 
-    public function getInvoiceLineForDowngradedSubscription(Subscription $subscription): Invoice|null
+    public function getInvoiceLineForDowngradedSubscription(Subscription $subscription): ?Invoice
     {
-        $appendable = $subscription->domain !== null ? $this->translator->translate('invoice.description.for') . " {$subscription->domain}" : '';
+        $appendable = $subscription->domain !== null
+            ? $this->translator->translate('invoice.description.for') . " {$subscription->domain}"
+            : '';
         $description = sprintf(
             '%s (%s) %s',
             $subscription->product->name,
@@ -329,7 +352,7 @@ class InvoiceRepository
             ->first();
     }
 
-    public function getLatestPaidInvoiceLineForDowngradedSubscription(Subscription $subscription): Invoice|null
+    public function getLatestPaidInvoiceLineForDowngradedSubscription(Subscription $subscription): ?Invoice
     {
         $timeDiff = CarbonImmutable::now()->subHour();
         $timeExclude = CarbonImmutable::create(1999);
@@ -348,7 +371,8 @@ class InvoiceRepository
 
     public function setIsSentToHarbor(int $invoiceId): int
     {
-        return Invoice::query()->where('id', '=', $invoiceId)
+        return Invoice::query()
+            ->where('id', '=', $invoiceId)
             ->update([
                 'sent_to_harbor_at' => CarbonImmutable::now(),
             ]);
@@ -361,7 +385,8 @@ class InvoiceRepository
      */
     public function lockInvoiceLine(int $invoiceId): int
     {
-        return Invoice::query()->where('id', '=', $invoiceId)
+        return Invoice::query()
+            ->where('id', '=', $invoiceId)
             ->update([
                 'sent_to_harbor_at' => CarbonImmutable::create(year: 1999),
             ]);
@@ -381,11 +406,13 @@ class InvoiceRepository
             ->where('invoices.created_at', '<=', CarbonImmutable::now()->subDays(3))
             ->where(function ($query) {
                 $query->where(function ($query) {
-                    $query
-                        ->whereNotNull('subscriptions.administrative_status')
-                        ->where('subscriptions.administrative_status', AdministrativeStatus::ACTIVE->value);
+                    $query->whereNotNull('subscriptions.administrative_status')->where(
+                        'subscriptions.administrative_status',
+                        AdministrativeStatus::ACTIVE->value,
+                    );
                 })->orWhereNull('subscriptions.administrative_status');
-            })->get();
+            })
+            ->get();
     }
 
     /**
@@ -393,10 +420,7 @@ class InvoiceRepository
      */
     public function getUnprocessedInvoiceLinesForCustomer(Customer $customer): Builder
     {
-        return Invoice::query()
-            ->where('customer_id', $customer->id)
-            ->whereNull('sent_to_harbor_at')
-            ->orderByDesc('id');
+        return Invoice::query()->where('customer_id', $customer->id)->whereNull('sent_to_harbor_at')->orderByDesc('id');
     }
 
     /**
@@ -431,8 +455,7 @@ class InvoiceRepository
             ->where('net_price', '!=', 0)
             /* let's not mess up reporting with invoice older 2 years */
             ->where('created_at', '>=', CarbonImmutable::now()->subYears(2))
-            ->count()
-        ;
+            ->count();
     }
 
     /**
@@ -474,8 +497,8 @@ class InvoiceRepository
 
     public function getOpenInvoiceAmount(Customer $customer): int
     {
-        return intval(Invoice::where('customer_id', $customer->id)
-            ->whereNull('announced_by_harbor_at')
-            ->sum('net_price'));
+        return intval(Invoice::where('customer_id', $customer->id)->whereNull('announced_by_harbor_at')->sum(
+            'net_price',
+        ));
     }
 }

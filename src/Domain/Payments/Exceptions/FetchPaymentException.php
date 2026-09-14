@@ -13,7 +13,7 @@ class FetchPaymentException extends PaymentException
         parent::__construct(
             "Error while fetching payment: $resultErrorMessage",
             $resultErrorCode,
-            $previous
+            $previous,
         );
     }
 }

@@ -7,7 +7,7 @@ namespace Waterfront\Apps\API\Atlantis\Resources\Products;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Waterfront\Domain\Experiment\Models\Experiment;
+use Waterfront\Domain\Pricing\DTO\PriceExperimentDTO;
 use Waterfront\Domain\Products\DTO\PriceList;
 use Waterfront\Domain\Products\Models\HostingProductComposition;
 use Waterfront\Domain\Products\Models\ProductGroup;
@@ -21,7 +21,7 @@ class PriceListResource extends JsonResource
      * @param Collection<int, ProductGroup>              $productGroups
      * @param Collection<int, ProductPromotion>          $productPromotions
      * @param Collection<int, HostingProductComposition> $hostingProductCompositions
-     * @param Collection<int, Experiment>                $experiments
+     * @param PriceExperimentDTO[]                       $experiments
      */
     public function __construct(
         public readonly PriceList $priceList,
@@ -29,7 +29,7 @@ class PriceListResource extends JsonResource
         public readonly Collection $productPromotions,
         public readonly Collection $hostingProductCompositions,
         public readonly int $defaultTax,
-        public readonly Collection $experiments,
+        public readonly array $experiments,
     ) {
         parent::__construct($priceList);
     }
@@ -39,6 +39,33 @@ class PriceListResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $groupedExperiments = [];
+        $experiments = [];
+        foreach ($this->experiments as $experiment) {
+            $groupedExperiments[$experiment->experimentType->value][] = $experiment;
+        }
+
+        foreach ($groupedExperiments as $experimentSlug => $experimentsPerSlug) {
+            $groupedPrices = [];
+            foreach ($experimentsPerSlug as $experimentWithPrices) {
+                $productUuid = $experimentWithPrices->productUuid->toString();
+                if (! array_key_exists($productUuid, $groupedPrices)) {
+                    $groupedPrices[$productUuid] = [];
+                }
+
+                $groupedPrices[$productUuid] = array_merge($groupedPrices[$productUuid], $experimentWithPrices->prices);
+            }
+
+            foreach ($groupedPrices as $productUuid => $prices) {
+                $groupedPrices[$productUuid] = PriceResource::collection($prices);
+            }
+
+            $experiments[] = [
+                'slug' => $experimentSlug,
+                'prices' => $groupedPrices,
+            ];
+        }
+
         return [
             'meta' => [
                 'tax' => $this->defaultTax,
@@ -47,7 +74,7 @@ class PriceListResource extends JsonResource
             'productPromotions' => ProductPromotionResource::collection($this->productPromotions),
             'productGroups' => ProductGroupResource::collection($this->productGroups),
             'hostingProductCompositions' => HostingProductCompositionResource::collection($this->hostingProductCompositions),
-            'experiments' => ExperimentResource::collection($this->experiments),
+            'experiments' => $experiments,
         ];
     }
 }

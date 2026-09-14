@@ -28,15 +28,16 @@ class InvoicePaymentAnnouncementHandlerTest extends IntegrationTestCase
         );
 
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
-                self::stringContains('Unknown invoice id')
+                self::stringContains('Unknown invoice id'),
             );
 
         $handler = new InvoicePaymentAnnouncementHandler(
             self::createStub(InvoiceRepository::class),
-            $logger
+            $logger,
         );
         $handler->handle($message);
     }
@@ -71,19 +72,20 @@ class InvoicePaymentAnnouncementHandlerTest extends IntegrationTestCase
             ]);
 
         $invoiceRepository = self::createMock(InvoiceRepository::class);
-        $invoiceRepository->expects(self::exactly(2))
+        $invoiceRepository
+            ->expects(self::exactly(2))
             ->method('findById')
             ->willReturnCallback(
                 fn (int $id): Invoice => match ($id) {
                     222 => $invoice1,
                     333 => $invoice2,
                     default => self::fail(sprintf('Unexpected invoice id %s', $id)),
-                }
+                },
             );
 
         $handler = new InvoicePaymentAnnouncementHandler(
             $invoiceRepository,
-            self::createStub(LoggerInterface::class)
+            self::createStub(LoggerInterface::class),
         );
         $handler->handle($message);
 

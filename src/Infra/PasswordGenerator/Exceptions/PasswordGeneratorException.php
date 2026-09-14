@@ -14,7 +14,7 @@ class PasswordGeneratorException extends Exception
             sprintf(
                 'The given PasswordLength (%d) is too short, the minimum is %d',
                 $givenLength,
-                $minLength
+                $minLength,
             ),
         );
     }
@@ -24,7 +24,7 @@ class PasswordGeneratorException extends Exception
         return new PasswordGeneratorException(
             sprintf(
                 'There is already a rule for the charset : %s applied',
-                $charSet
+                $charSet,
             ),
         );
     }
@@ -32,7 +32,7 @@ class PasswordGeneratorException extends Exception
     public static function noRulesFound(): PasswordGeneratorException
     {
         return new PasswordGeneratorException(
-            'There are no rules attached, so we can not generate a password'
+            'There are no rules attached, so we can not generate a password',
         );
     }
 
@@ -42,7 +42,7 @@ class PasswordGeneratorException extends Exception
             sprintf(
                 'The maximum length (%d) will be exceeded by te total of minimum occurrences (%d) of the rules',
                 $length,
-                $minOccurrences
+                $minOccurrences,
             ),
         );
     }
@@ -50,7 +50,7 @@ class PasswordGeneratorException extends Exception
     public static function ruleQueueExhausted(): PasswordGeneratorException
     {
         return new PasswordGeneratorException(
-            'The Rule Queue was exhausted before generation was finished'
+            'The Rule Queue was exhausted before generation was finished',
         );
     }
 
@@ -60,7 +60,7 @@ class PasswordGeneratorException extends Exception
             sprintf(
                 'The queue for constructing the password has invalid length | Passlength : %d - QueueLength : %d',
                 $Passlength,
-                $queueLength
+                $queueLength,
             ),
         );
     }

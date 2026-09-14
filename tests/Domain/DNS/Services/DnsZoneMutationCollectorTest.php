@@ -44,8 +44,8 @@ class DnsZoneMutationCollectorTest extends TestCase
                 $fqdn,
                 'ns1.sandwaveio.dev.',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $zone->addRecord(
@@ -54,8 +54,8 @@ class DnsZoneMutationCollectorTest extends TestCase
                 $fqdn,
                 'ns2.sandwaveio.dev.',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $zone->addRecord(new DefaultRecord(
@@ -63,7 +63,7 @@ class DnsZoneMutationCollectorTest extends TestCase
             $fqdn,
             'ns1.sandwaveio.dev. sandwaveio.dev 2023121101 3600 600 86400 3600',
             3600,
-            disabled: false
+            disabled: false,
         ));
 
         $mutations = $this->collector->collectRequiredMutationsForNewNameservers(
@@ -87,8 +87,10 @@ class DnsZoneMutationCollectorTest extends TestCase
         self::assertSame('ns3.sandwaveio.dev.', $mutations[0]->getDnsRecord()->getContent());
         self::assertSame('ns4.sandwaveio.dev.', $mutations[1]->getDnsRecord()->getContent());
         self::assertSame(
-            PowerDnsSoaSerialUpdater::increaseSoaSerial('ns3.sandwaveio.dev. sandwaveio.dev 2023121101 3600 600 86400 3600'),
-            $mutations[2]->getDnsRecord()->getContent()
+            PowerDnsSoaSerialUpdater::increaseSoaSerial(
+                'ns3.sandwaveio.dev. sandwaveio.dev 2023121101 3600 600 86400 3600',
+            ),
+            $mutations[2]->getDnsRecord()->getContent(),
         );
     }
 
@@ -103,8 +105,8 @@ class DnsZoneMutationCollectorTest extends TestCase
                 'sandwaveio.dev.',
                 'ns1.sandwaveio.dev.',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $zone->addRecord(
@@ -113,8 +115,8 @@ class DnsZoneMutationCollectorTest extends TestCase
                 'sandwaveio.dev.',
                 'ns2.sandwaveio.dev.',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $zone->addRecord(
@@ -123,8 +125,8 @@ class DnsZoneMutationCollectorTest extends TestCase
                 'sandwaveio.dev.',
                 'ns3.sandwaveio.dev.',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $zone->addRecord(
@@ -133,8 +135,8 @@ class DnsZoneMutationCollectorTest extends TestCase
                 'subdomain.sandwaveio.dev.',
                 'ns1.different.dev.',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $zone->addRecord(
@@ -143,8 +145,8 @@ class DnsZoneMutationCollectorTest extends TestCase
                 'subdomain.sandwaveio.dev.',
                 'ns2.different.dev.',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $zone->addRecord(
@@ -153,8 +155,8 @@ class DnsZoneMutationCollectorTest extends TestCase
                 'subdomain.sandwaveio.dev.',
                 'ns3.different.dev.',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $zone->addRecord(new DefaultRecord(
@@ -162,7 +164,7 @@ class DnsZoneMutationCollectorTest extends TestCase
             'sandwaveio.dev.',
             'ns1.sandwaveio.dev. sandwaveio.dev 2023121101 3600 600 86400 3600',
             3600,
-            disabled: false
+            disabled: false,
         ));
 
         $mutations = $this->collector->collectRequiredMutationsForNewNameservers(
@@ -204,8 +206,10 @@ class DnsZoneMutationCollectorTest extends TestCase
         self::assertSame('ns5.sandwaveio.dev.', $mutations[1]->getDnsRecord()->getContent());
         self::assertSame('ns6.sandwaveio.dev.', $mutations[2]->getDnsRecord()->getContent());
         self::assertSame(
-            PowerDnsSoaSerialUpdater::increaseSoaSerial('ns4.sandwaveio.dev. sandwaveio.dev 2023121101 3600 600 86400 3600'),
-            $mutations[3]->getDnsRecord()->getContent()
+            PowerDnsSoaSerialUpdater::increaseSoaSerial(
+                'ns4.sandwaveio.dev. sandwaveio.dev 2023121101 3600 600 86400 3600',
+            ),
+            $mutations[3]->getDnsRecord()->getContent(),
         );
     }
 
@@ -221,8 +225,8 @@ class DnsZoneMutationCollectorTest extends TestCase
                 $fqdn,
                 'ns1.sandwaveio.dev.',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $zone->addRecord(
@@ -231,8 +235,8 @@ class DnsZoneMutationCollectorTest extends TestCase
                 $fqdn,
                 'ns2.sandwaveio.dev.',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $zone->addRecord(new DefaultRecord(
@@ -240,7 +244,7 @@ class DnsZoneMutationCollectorTest extends TestCase
             $fqdn,
             'ns1.sandwaveio.dev. sandwaveio.dev 2023121101 3600 600 86400 3600',
             3600,
-            disabled: false
+            disabled: false,
         ));
 
         $mutations = $this->collector->collectRequiredMutationsForNewNameservers(
@@ -261,8 +265,10 @@ class DnsZoneMutationCollectorTest extends TestCase
         self::assertSame('ns2.sandwaveio.dev.', $mutations[1]->getDnsRecord()->getContent());
         self::assertSame('ns3.sandwaveio.dev.', $mutations[0]->getDnsRecord()->getContent());
         self::assertSame(
-            PowerDnsSoaSerialUpdater::increaseSoaSerial('ns3.sandwaveio.dev. sandwaveio.dev 2023121101 3600 600 86400 3600'),
-            $mutations[2]->getDnsRecord()->getContent()
+            PowerDnsSoaSerialUpdater::increaseSoaSerial(
+                'ns3.sandwaveio.dev. sandwaveio.dev 2023121101 3600 600 86400 3600',
+            ),
+            $mutations[2]->getDnsRecord()->getContent(),
         );
     }
 
@@ -278,8 +284,8 @@ class DnsZoneMutationCollectorTest extends TestCase
                 $fqdn,
                 'ns1.sandwaveio.dev.',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         $zone->addRecord(new DefaultRecord(
@@ -287,7 +293,7 @@ class DnsZoneMutationCollectorTest extends TestCase
             $fqdn,
             'ns1.sandwaveio.dev. sandwaveio.dev 2023121101 3600 600 86400 3600',
             3600,
-            disabled: false
+            disabled: false,
         ));
 
         $mutations = $this->collector->collectRequiredMutationsForNewNameservers(
@@ -308,8 +314,10 @@ class DnsZoneMutationCollectorTest extends TestCase
         self::assertSame('ns3.sandwaveio.dev.', $mutations[0]->getDnsRecord()->getContent());
         self::assertSame('ns4.sandwaveio.dev.', $mutations[1]->getDnsRecord()->getContent());
         self::assertSame(
-            PowerDnsSoaSerialUpdater::increaseSoaSerial('ns3.sandwaveio.dev. sandwaveio.dev 2023121101 3600 600 86400 3600'),
-            $mutations[2]->getDnsRecord()->getContent()
+            PowerDnsSoaSerialUpdater::increaseSoaSerial(
+                'ns3.sandwaveio.dev. sandwaveio.dev 2023121101 3600 600 86400 3600',
+            ),
+            $mutations[2]->getDnsRecord()->getContent(),
         );
     }
 
@@ -347,8 +355,8 @@ class DnsZoneMutationCollectorTest extends TestCase
                 'test',
                 'test',
                 3600,
-                disabled: false
-            )
+                disabled: false,
+            ),
         );
 
         self::expectException(RuntimeException::class);

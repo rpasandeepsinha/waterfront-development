@@ -40,9 +40,11 @@ class DomainContactCrudTest extends IntegrationTestCase
             'customer_id' => $this->customer->id,
         ]);
 
-        $response = $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute('partners.domain-contact.contacts.index')
-        )->assertOk();
+        $response = $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute('partners.domain-contact.contacts.index'),
+            )
+            ->assertOk();
 
         $json = $response->json();
         assert(is_array($json));
@@ -55,7 +57,12 @@ class DomainContactCrudTest extends IntegrationTestCase
     #[Test]
     public function show(): void
     {
-        $provider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        $provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $contact = new DomainContactFactory()->createOne([
             'email' => 'fake@faker.nl',
             'customer_id' => $this->customer->id,
@@ -92,9 +99,11 @@ class DomainContactCrudTest extends IntegrationTestCase
         $contact->contactOwnerDomainSubscriptions()->save($domainDeployment);
         self::assertNotNull($domainDeployment->contact_owner_id);
 
-        $response = $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute('partners.domain-contact.contacts.show', ['contact' => $contact->id])
-        )->assertOk();
+        $response = $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute('partners.domain-contact.contacts.show', ['contact' => $contact->id]),
+            )
+            ->assertOk();
 
         $json = $response->json();
         assert(is_array($json));
@@ -110,19 +119,28 @@ class DomainContactCrudTest extends IntegrationTestCase
             'customer_id' => $this->customer->id,
         ]);
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute('partners.domain-contact.contacts.show', ['contact' => $contact->id . 22])
-        )->assertNotFound();
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute('partners.domain-contact.contacts.show', ['contact' => $contact->id . 22]),
+            )
+            ->assertNotFound();
     }
 
     #[Test]
     public function store(): void
     {
-        $payload = json_decode((string) file_get_contents(__DIR__ . '/data/domain_contact.json'), true, 512, JSON_THROW_ON_ERROR);
+        $payload = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/domain_contact.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-contact.contacts.store', $payload)
-        )->assertCreated();
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-contact.contacts.store', $payload),
+            )
+            ->assertCreated();
 
         self::assertDatabaseHas('domain_contacts', [
             'customer_id' => $this->customer->id,
@@ -132,11 +150,18 @@ class DomainContactCrudTest extends IntegrationTestCase
     #[Test]
     public function storeInvalid(): void
     {
-        $payload = json_decode((string) file_get_contents(__DIR__ . '/data/domain_contact_invalid.json'), true, 512, JSON_THROW_ON_ERROR);
+        $payload = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/domain_contact_invalid.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-contact.contacts.store', $payload)
-        )->assertUnprocessable();
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-contact.contacts.store', $payload),
+            )
+            ->assertUnprocessable();
 
         self::assertDatabaseMissing('domain_contacts', [
             'email' => 'developer@sandwave.io',
@@ -150,9 +175,11 @@ class DomainContactCrudTest extends IntegrationTestCase
             'customer_id' => $this->customer->id,
         ]);
 
-        $this->actingAsCustomer($this->customer)->deleteJson(
-            $this->generateRoute('partners.domain-contact.contacts.destroy', ['contact' => $contact->id])
-        )->assertOk();
+        $this->actingAsCustomer($this->customer)
+            ->deleteJson(
+                $this->generateRoute('partners.domain-contact.contacts.destroy', ['contact' => $contact->id]),
+            )
+            ->assertOk();
 
         self::assertDatabaseHas('domain_contacts', [
             'customer_id' => $this->customer->id,
@@ -172,9 +199,11 @@ class DomainContactCrudTest extends IntegrationTestCase
             'customer_id' => $this->customer->id,
         ]);
 
-        $this->actingAsCustomer($this->customer)->patchJson(
-            $this->generateRoute('partners.domain-contact.contacts.set_default', ['contact' => $contact->id])
-        )->assertOk();
+        $this->actingAsCustomer($this->customer)
+            ->patchJson(
+                $this->generateRoute('partners.domain-contact.contacts.set_default', ['contact' => $contact->id]),
+            )
+            ->assertOk();
 
         self::assertDatabaseHas('domain_contacts', [
             'id' => $contact->id,
@@ -196,26 +225,40 @@ class DomainContactCrudTest extends IntegrationTestCase
 
         $anonymousHandleIdentifier = 'anonymized_handle';
 
-        $rtrProvider = ProviderFactory::new()->create(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
+        $rtrProvider = ProviderFactory::new()->create([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $anonymousContact->providers()->attach(
             $rtrProvider,
-            ['external_contact' => $anonymousHandleIdentifier]
+            ['external_contact' => $anonymousHandleIdentifier],
         );
 
         DomainContactAnonymousHandleFactory::new()->create([
             'handle' => $anonymousHandleIdentifier,
         ]);
 
-        $this->actingAsCustomer($this->customer)->patchJson(
-            $this->generateRoute('partners.domain-contact.contacts.set_default', ['contact' => $anonymousContact->id])
-        )->assertForbidden();
+        $this->actingAsCustomer($this->customer)
+            ->patchJson(
+                $this->generateRoute('partners.domain-contact.contacts.set_default', [
+                    'contact' => $anonymousContact->id,
+                ]),
+            )
+            ->assertForbidden();
     }
 
     #[Test]
     public function destroyDomainContact(): void
     {
-        $provider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        $provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $productGroup = new ProductGroupFactory()->createOne([
             'name' => 'extension',
             'slug' => 'extension',
@@ -250,9 +293,11 @@ class DomainContactCrudTest extends IntegrationTestCase
 
         $contactId = $contact->refresh()->id;
 
-        $this->actingAsCustomer($this->customer)->deleteJson(
-            $this->generateRoute('partners.domain-contact.contacts.destroy', ['contact' => $contact->id])
-        )->assertOk();
+        $this->actingAsCustomer($this->customer)
+            ->deleteJson(
+                $this->generateRoute('partners.domain-contact.contacts.destroy', ['contact' => $contact->id]),
+            )
+            ->assertOk();
 
         // ASSERTIONS
         self::assertDatabaseMissing('domain_contacts', [
@@ -286,7 +331,7 @@ class DomainContactCrudTest extends IntegrationTestCase
         ]);
         self::assertNotNull(
             DomainContact::onlyTrashed()->where('id', $contactId)->first(),
-            'Contact was not soft deleted but force deleted'
+            'Contact was not soft deleted but force deleted',
         );
     }
 }

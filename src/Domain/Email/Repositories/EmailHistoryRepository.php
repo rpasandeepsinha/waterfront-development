@@ -44,9 +44,7 @@ class EmailHistoryRepository
     /** @return Collection<int, EmailHistory> */
     public function getBeforeDate(CarbonImmutable $beforeDate): Collection
     {
-        return EmailHistory::where('requested_at', '<', $beforeDate)
-            ->whereNotNull('payload')
-            ->get();
+        return EmailHistory::where('requested_at', '<', $beforeDate)->whereNotNull('payload')->get();
     }
 
     public function removePayloadFromEmailHistory(EmailHistory $emailHistory): void
@@ -77,7 +75,7 @@ class EmailHistoryRepository
         ReceiverType $receiverType,
         string $receiverUuid,
         int $templateId,
-        CarbonImmutable $since
+        CarbonImmutable $since,
     ): bool {
         return EmailHistory::query()
             ->where('receiver_type', $receiverType->value)

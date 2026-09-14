@@ -21,7 +21,7 @@ class NovaMigrationStateReferenceNameFilter extends Filter
         return $query->whereRelation(
             'migratedSubscriptions.migratedCustomers',
             'reference_name',
-            $value
+            $value,
         );
     }
 

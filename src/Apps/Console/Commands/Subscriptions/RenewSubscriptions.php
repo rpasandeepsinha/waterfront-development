@@ -25,7 +25,7 @@ class RenewSubscriptions extends AbstractCommand
             $this->line(sprintf(
                 'Dispatching subscription renewal for %s (%s)',
                 $subscription->domain ?? '',
-                $subscription->uuid
+                $subscription->uuid,
             ));
 
             $jobDispatcher->dispatch(new RenewSubscription($subscription));

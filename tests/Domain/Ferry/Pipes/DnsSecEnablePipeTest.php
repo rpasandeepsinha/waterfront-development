@@ -29,20 +29,20 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
     #[Test]
     public function dnsZoneNotMaster(): void
     {
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/dns_sec/subscription_zone_not_master.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/dns_sec/subscription_zone_not_master.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $pdnsMock = $this->makePdnsWithMultipleResponses([
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('zone-not-master.nl', [], 'Slave')
+                $this->getMockedZoneResponseBody('zone-not-master.nl', [], 'Slave'),
             ),
         ]);
 
@@ -51,7 +51,7 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
         $dnssecEnablePipe = self::resolve(DnsSecEnablePipe::class);
         $validationPayload = $dnssecEnablePipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame(self::REFERENCE, $validationPayload->validationReference);
@@ -68,24 +68,26 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 
     #[Test]
     public function dnsZoneInvalidFQDN(): void
     {
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/dns_sec/subscription_zone_not_master.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/dns_sec/subscription_zone_not_master.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $dnsServiceMock = self::createMock(DnsService::class);
-        $dnsServiceMock->expects(self::once())->method('getDnsZone')
+        $dnsServiceMock
+            ->expects(self::once())
+            ->method('getDnsZone')
             ->willThrowException(self::createStub(ValidationException::class));
 
         $this->app->instance(DnsService::class, $dnsServiceMock);
@@ -93,7 +95,7 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
         $dnssecEnablePipe = self::resolve(DnsSecEnablePipe::class);
         $validationPayload = $dnssecEnablePipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame(self::REFERENCE, $validationPayload->validationReference);
@@ -110,27 +112,27 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 
     #[Test]
     public function dnssecNoBusinessDomain(): void
     {
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/dns_sec/subscription_bu_argeweb_rtr.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/dns_sec/subscription_bu_argeweb_rtr.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $pdnsMock = $this->makePdnsWithMultipleResponses([
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('bu-argeweb.nl')
+                $this->getMockedZoneResponseBody('bu-argeweb.nl'),
             ),
         ]);
 
@@ -138,21 +140,18 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
 
         $rtrService = $this->createMock(RtrService::class);
 
-        $rtrService->expects(self::never())
-            ->method('isDnssecSupported');
+        $rtrService->expects(self::never())->method('isDnssecSupported');
 
-        $rtrService->expects(self::never())
-            ->method('setHandle');
+        $rtrService->expects(self::never())->method('setHandle');
 
-        $rtrService->expects(self::never())
-            ->method('setClient');
+        $rtrService->expects(self::never())->method('setClient');
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
 
         $dnssecEnablePipe = self::resolve(DnsSecEnablePipe::class);
         $validationPayload = $dnssecEnablePipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame(self::REFERENCE, $validationPayload->validationReference);
@@ -169,27 +168,27 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 
     #[Test]
     public function exceptionFromDnsSec(): void
     {
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/dns_sec/subscription_throw_dns_sec_exception.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/dns_sec/subscription_throw_dns_sec_exception.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $pdnsMock = $this->makePdnsWithMultipleResponses([
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('throws-general-exception.nl')
+                $this->getMockedZoneResponseBody('throws-general-exception.nl'),
             ),
         ]);
 
@@ -197,25 +196,22 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
 
         $rtrService = $this->createMock(RtrService::class);
 
-        $rtrService->expects(self::once())
+        $rtrService
+            ->expects(self::once())
             ->method('isDnssecSupported')
             ->with(self::equalTo('throws-general-exception.nl'))
             ->willThrowException(new RealtimeRegisterClientException('Something went wrong'));
 
-        $rtrService
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrService->method('setHandle')->willReturnSelf();
 
-        $rtrService
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrService->method('setClient')->willReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
 
         $dnssecEnablePipe = self::resolve(DnsSecEnablePipe::class);
         $validationPayload = $dnssecEnablePipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame(self::REFERENCE, $validationPayload->validationReference);
@@ -232,29 +228,29 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 
     #[Test]
     public function dnssecNoCredentialsForBusinessDomain(): void
     {
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/dns_sec/subscription_bu_argeweb_rtr.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/dns_sec/subscription_bu_argeweb_rtr.php';
 
         DomainProviderBusinessUnitFactory::new()->argeweb()->createOne();
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $pdnsMock = $this->makePdnsWithMultipleResponses([
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('bu-argeweb.nl')
+                $this->getMockedZoneResponseBody('bu-argeweb.nl'),
             ),
         ]);
 
@@ -262,21 +258,18 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
 
         $rtrService = $this->createMock(RtrService::class);
 
-        $rtrService->expects(self::never())
-            ->method('isDnssecSupported');
+        $rtrService->expects(self::never())->method('isDnssecSupported');
 
-        $rtrService->expects(self::never())
-            ->method('setHandle');
+        $rtrService->expects(self::never())->method('setHandle');
 
-        $rtrService->expects(self::never())
-            ->method('setClient');
+        $rtrService->expects(self::never())->method('setClient');
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
 
         $dnssecEnablePipe = self::resolve(DnsSecEnablePipe::class);
         $validationPayload = $dnssecEnablePipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame(self::REFERENCE, $validationPayload->validationReference);
@@ -293,15 +286,15 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 
     #[Test]
     public function dnssecUnknownProvider(): void
     {
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/dns_sec/subscription_bu_argeweb_rtr.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/dns_sec/subscription_bu_argeweb_rtr.php';
         $subscriptions['domain_extensions'][0]['driver'] = 'open_srs';
 
         DomainProviderBusinessUnitFactory::new()->argeweb()->createOne();
@@ -309,14 +302,14 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $pdnsMock = $this->makePdnsWithMultipleResponses([
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('bu-argeweb.nl')
+                $this->getMockedZoneResponseBody('bu-argeweb.nl'),
             ),
         ]);
 
@@ -324,28 +317,25 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
 
         $rtrService = $this->createMock(RtrService::class);
 
-        $rtrService->expects(self::never())
-            ->method('isDnssecSupported');
+        $rtrService->expects(self::never())->method('isDnssecSupported');
 
-        $rtrService->expects(self::never())
-            ->method('setHandle');
+        $rtrService->expects(self::never())->method('setHandle');
 
-        $rtrService->expects(self::never())
-            ->method('setClient');
+        $rtrService->expects(self::never())->method('setClient');
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
 
         $dnssecEnablePipe = self::resolve(DnsSecEnablePipe::class);
         $validationPayload = $dnssecEnablePipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame(self::REFERENCE, $validationPayload->validationReference);
         self::assertSame(
             [
                 MigrationValidationPipes::DNSSEC_ENABLE->value => [
-                   [
+                    [
                         'id' => MigrationValidation::DNSSEC_PIPE_FAILED->value,
                         'message' => "Couldn't check if DNSSEC was supported for bu-argeweb.nl from backend open_srs, exception: \"open_srs\" is not a valid backing value for enum Waterfront\Domain\Providers\Enums\ProviderSlug",
                     ],
@@ -355,27 +345,27 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 
     #[Test]
     public function tldDoesntSupportDnsSec(): void
     {
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/dns_sec/subscription_no_dns_sec_domain.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/dns_sec/subscription_no_dns_sec_domain.php';
 
         $validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $pdnsMock = $this->makePdnsWithMultipleResponses([
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('dns-sec-not-supported.mg')
+                $this->getMockedZoneResponseBody('dns-sec-not-supported.mg'),
             ),
         ]);
 
@@ -383,25 +373,22 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
 
         $rtrService = $this->createMock(RtrService::class);
 
-        $rtrService->expects(self::once())
+        $rtrService
+            ->expects(self::once())
             ->method('isDnssecSupported')
             ->with(self::equalTo('dns-sec-not-supported.mg'))
             ->willReturn(false);
 
-        $rtrService
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrService->method('setHandle')->willReturnSelf();
 
-        $rtrService
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrService->method('setClient')->willReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $rtrService);
 
         $dnssecEnablePipe = self::resolve(DnsSecEnablePipe::class);
         $validationPayload = $dnssecEnablePipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame(self::REFERENCE, $validationPayload->validationReference);
@@ -418,7 +405,7 @@ class DnsSecEnablePipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 }

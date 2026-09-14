@@ -12,8 +12,9 @@ use Waterfront\Domain\Redirects\Services\RedirectDnsService;
 
 class RedirectDnsSubscriptionMapper
 {
-    public function __construct(private readonly RedirectDnsService $redirectDnsService)
-    {
+    public function __construct(
+        private readonly RedirectDnsService $redirectDnsService,
+    ) {
     }
 
     /**
@@ -27,12 +28,12 @@ class RedirectDnsSubscriptionMapper
      */
     public function addSubscriptionUuidToDnsRecords(
         Collection $dnsRecords,
-        UuidInterface $subscriptionUuid
+        UuidInterface $subscriptionUuid,
     ): Collection {
         return $dnsRecords->map(function (DnsRecordInterface $record) use ($subscriptionUuid): DnsRecordResource {
             $resource = DnsRecordResource::make($record);
 
-            if ($this->redirectDnsService->isRedirectManagedRecord($record)) {
+            if ($this->redirectDnsService->isRedirectManagedRecord(record: $record, includeLegacyServer: false)) {
                 $resource->redirectUuid = $subscriptionUuid->toString();
             }
 

@@ -133,47 +133,54 @@ class EnableDnsSecControllerTest extends IntegrationTestCase
 
         $pdnsRequests = [];
 
-        $pdnsMock = $this->makePdnsWithMultipleResponses([
-            new Response(
-                200,
-                [],
-                $this->getMockedZoneResponseBody(self::TEST_DOMAIN)
-            ),
-            new Response(
-                200,
-                [],
-                $this->getMockedZoneResponseBody(self::TEST_DOMAIN)
-            ),
-            new Response(
-                200,
-                [],
-                $this->getMockedZoneResponseBody(self::TEST_DOMAIN)
-            ),
-            // key response
-            new Response(
-                200,
-                [],
-                $this->getMockedKeyResponseBody()
-            ),
-        ], static function (RequestInterface $request) use (&$pdnsRequests): void {
-            $pdnsRequests[] = $request;
-        });
+        $pdnsMock = $this->makePdnsWithMultipleResponses(
+            [
+                new Response(
+                    200,
+                    [],
+                    $this->getMockedZoneResponseBody(self::TEST_DOMAIN),
+                ),
+                new Response(
+                    200,
+                    [],
+                    $this->getMockedZoneResponseBody(self::TEST_DOMAIN),
+                ),
+                new Response(
+                    200,
+                    [],
+                    $this->getMockedZoneResponseBody(self::TEST_DOMAIN),
+                ),
+                // key response
+                new Response(
+                    200,
+                    [],
+                    $this->getMockedKeyResponseBody(),
+                ),
+            ],
+            static function (RequestInterface $request) use (&$pdnsRequests): void {
+                $pdnsRequests[] = $request;
+            },
+        );
 
         $this->pdns($pdnsMock);
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.enable_dnssec', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.enable_dnssec', [
+                    'customer' => $this->customer->id,
+                ]),
                 [],
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
+                ],
             )
             ->assertStatus(SymfonyResponse::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [
                     [
-                        'message' => 'Enable dnssec step not allowed for subscription: ' . NotEligibleForMigrationException::technicalStatusIncorrect(DomainStatus::DELETED->value)->getMessage(),
+                        'message' =>
+                            'Enable dnssec step not allowed for subscription: '
+                                . NotEligibleForMigrationException::technicalStatusIncorrect(DomainStatus::DELETED->value)->getMessage(),
                         'parameters' => [
                             'customerId' => $this->customer->id,
                             'subscriptionId' => $this->extensionSubscription2->id,

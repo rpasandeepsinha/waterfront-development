@@ -77,19 +77,23 @@ class DowngradeHostingJobTest extends IntegrationTestCase
             'requested_at' => CarbonImmutable::now(),
             'completed_at' => null,
         ]);
-        $hostingProvider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        $hostingProvider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
-        new HostingDeploymentFactory()
-            ->for($this->subscription, 'subscription')
-            ->createOne([
-                'provider_id' => $hostingProvider->id,
-            ]);
+        new HostingDeploymentFactory()->for($this->subscription, 'subscription')->createOne([
+            'provider_id' => $hostingProvider->id,
+        ]);
     }
 
     #[Test]
     public function downgradeSuccesful(): void
     {
-        $this->hostingDowngradeExecutor->expects(self::once())
+        $this->hostingDowngradeExecutor
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 self::identicalTo($this->subscription),
@@ -117,7 +121,8 @@ class DowngradeHostingJobTest extends IntegrationTestCase
     #[Test]
     public function downgradeFailsWithExecutorMessage(): void
     {
-        $this->hostingDowngradeExecutor->expects(self::once())
+        $this->hostingDowngradeExecutor
+            ->expects(self::once())
             ->method('execute')
             ->willReturn(new SubscriptionChangeResult(
                 status: SubscriptionChangeResult::STATUS_ERROR,
@@ -141,11 +146,11 @@ class DowngradeHostingJobTest extends IntegrationTestCase
         self::assertSame(SubscriptionChangeStatus::EXECUTION_FAILED, $this->subscriptionChange->status);
         self::assertStringContainsString(
             "Current subscription package doesn't meet requirements to be downgraded",
-            $this->subscription->hostingDeployment->last_created_result ?? ''
+            $this->subscription->hostingDeployment->last_created_result ?? '',
         );
         self::assertSame(
             "Current subscription package doesn't meet requirements to be downgraded",
-            $this->subscriptionChange->failure_message
+            $this->subscriptionChange->failure_message,
         );
         self::assertSame(0, $this->subscriptionChange->failure_code);
         self::assertNotNull($this->mutation->processed_technical_at);
@@ -154,7 +159,8 @@ class DowngradeHostingJobTest extends IntegrationTestCase
     #[Test]
     public function downgradeFailsWithFallbackMessageWhenExecutorMessageEmpty(): void
     {
-        $this->hostingDowngradeExecutor->expects(self::once())
+        $this->hostingDowngradeExecutor
+            ->expects(self::once())
             ->method('execute')
             ->willReturn(new SubscriptionChangeResult(status: SubscriptionChangeResult::STATUS_ERROR));
 
@@ -176,11 +182,11 @@ class DowngradeHostingJobTest extends IntegrationTestCase
         self::assertSame(SubscriptionChangeStatus::EXECUTION_FAILED, $this->subscriptionChange->status);
         self::assertStringContainsString(
             'Hosting change failed, original error message empty.',
-            $this->subscription->hostingDeployment->last_created_result ?? ''
+            $this->subscription->hostingDeployment->last_created_result ?? '',
         );
         self::assertStringContainsString(
             'Hosting change failed, original error message empty.',
-            $this->subscriptionChange->failure_message ?? ''
+            $this->subscriptionChange->failure_message ?? '',
         );
         self::assertNotNull($this->mutation->processed_technical_at);
     }

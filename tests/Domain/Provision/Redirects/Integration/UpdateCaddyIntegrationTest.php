@@ -74,20 +74,16 @@ class UpdateCaddyIntegrationTest extends IntegrationTestCase
             'host' => $this->domain,
         ]);
 
-        $this->existingRedirectDeployment = RedirectDeploymentFactory::new()
-            ->withTemporary()
-            ->createOne([
-                'origin_provisioning_request_id' => $createProvisioningRequest->id,
-                'source' => $this->domain,
-                'destination' => $this->originalDestination,
-                'context_uuid' => $redirectContext->context_uuid,
-            ]);
+        $this->existingRedirectDeployment = RedirectDeploymentFactory::new()->withTemporary()->createOne([
+            'origin_provisioning_request_id' => $createProvisioningRequest->id,
+            'source' => $this->domain,
+            'destination' => $this->originalDestination,
+            'context_uuid' => $redirectContext->context_uuid,
+        ]);
 
-        CaddyRedirectDeploymentFactory::new()
-            ->for($this->existingRedirectDeployment)
-            ->createOne([
-                'caddy_id' => $this->existingCaddyId,
-            ]);
+        CaddyRedirectDeploymentFactory::new()->for($this->existingRedirectDeployment)->createOne([
+            'caddy_id' => $this->existingCaddyId,
+        ]);
     }
 
     #[Test]
@@ -147,7 +143,7 @@ class UpdateCaddyIntegrationTest extends IntegrationTestCase
                 $redirectType->value,
                 $updatedDestination,
             ),
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         self::assertSame($this->context->toString(), $savedRequest->context_uuid?->toString());
@@ -229,7 +225,7 @@ class UpdateCaddyIntegrationTest extends IntegrationTestCase
                 $redirectType->value,
                 $updatedDestination,
             ),
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         self::assertSame($this->context->toString(), $savedRequest->context_uuid?->toString());

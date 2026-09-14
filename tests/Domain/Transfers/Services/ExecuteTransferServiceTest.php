@@ -55,14 +55,20 @@ class ExecuteTransferServiceTest extends IntegrationTestCase
     {
         parent::setUp();
         $rtrService = self::createStub(RtrService::class);
-        $this->app->bind(RtrService::class, fn (): RtrService =>  $rtrService);
+        $this->app->bind(RtrService::class, fn (): RtrService => $rtrService);
 
         Model::preventLazyLoading(false);
 
         $this->executeTransfers = self::resolve(ExecuteTransferInterface::class);
-        $this->receiver         = new CustomerFactory()->withAddress()->createOne(['email' => 'receiver@fakeadress.io']);
-        $this->randomCustomer   = new CustomerFactory()->withAddress()->createOne(['email' => 'random@fakeadress.io']);
-        $this->from             = new CustomerFactory()->withAddress()->createOne(['email' => 'from@fakeadress.io']);
+        $this->receiver = new CustomerFactory()
+            ->withAddress()
+            ->createOne(['email' => 'receiver@fakeadress.io']);
+        $this->randomCustomer = new CustomerFactory()
+            ->withAddress()
+            ->createOne(['email' => 'random@fakeadress.io']);
+        $this->from = new CustomerFactory()
+            ->withAddress()
+            ->createOne(['email' => 'from@fakeadress.io']);
 
         $this->createEmailTemplates();
 
@@ -103,7 +109,9 @@ class ExecuteTransferServiceTest extends IntegrationTestCase
     {
         $sslGroup = new ProductGroupFactory()->createOne(['slug' => ProductGroupType::SSL]);
         $product = new ProductFactory()->for($sslGroup)->createOne(['slug' => 'ssl_uitgebreide_groene_balk']);
-        $subscription = new SubscriptionFactory()->for($product)->createOne(['customer_id' => $this->randomCustomer->id]);
+        $subscription = new SubscriptionFactory()->for($product)->createOne([
+            'customer_id' => $this->randomCustomer->id,
+        ]);
 
         Queue::fake();
         $this->expectException(TransferException::class);
@@ -124,7 +132,9 @@ class ExecuteTransferServiceTest extends IntegrationTestCase
     {
         $sslGroup = new ProductGroupFactory()->createOne(['slug' => ProductGroupType::SSL]);
         $product = new ProductFactory()->for($sslGroup)->createOne(['slug' => 'ssl_uitgebreide_groene_balk']);
-        $subscription = new SubscriptionFactory()->for($product)->createOne(['customer_id' => $this->randomCustomer->id]);
+        $subscription = new SubscriptionFactory()->for($product)->createOne([
+            'customer_id' => $this->randomCustomer->id,
+        ]);
 
         Queue::fake();
         $this->expectException(TransferException::class);
@@ -138,7 +148,7 @@ class ExecuteTransferServiceTest extends IntegrationTestCase
         $alternativeTransfer = new TransferFactory()->createOne([
             'from_customer_id' => $this->from->id,
             'to_customer_id' => $this->receiver->id,
-            'created_at'     => CarbonImmutable::now()->addMonth(),
+            'created_at' => CarbonImmutable::now()->addMonth(),
         ]);
         $alternativeTransfer->accept();
         $alternativeTransfer->start();
@@ -179,10 +189,18 @@ class ExecuteTransferServiceTest extends IntegrationTestCase
         yield 'Transfer will succeed for product group SSL' => ['slug' => ProductGroupType::SSL];
         yield 'Transfer will succeed for product group DNS' => ['slug' => ProductGroupType::DNS];
         yield 'Transfer will succeed for product group REDIRECT' => ['slug' => ProductGroupType::REDIRECT];
-        yield 'Transfer will succeed for product group RESELLER_HOSTING' => ['slug' => ProductGroupType::RESELLER_HOSTING];
-        yield 'Transfer will succeed for product group CLOUDSTACK_VIRTUAL_MACHINE' => ['slug' => ProductGroupType::CLOUDSTACK_VIRTUAL_MACHINE];
-        yield 'Transfer will succeed for product group CLOUDSTACK_MANAGER_DOMAIN' => ['slug' => ProductGroupType::CLOUDSTACK_MANAGER_DOMAIN];
-        yield 'Transfer will succeed for product group CLOUDSTACK_VOLUME' => ['slug' => ProductGroupType::CLOUDSTACK_VOLUME];
+        yield 'Transfer will succeed for product group RESELLER_HOSTING' => [
+            'slug' => ProductGroupType::RESELLER_HOSTING,
+        ];
+        yield 'Transfer will succeed for product group CLOUDSTACK_VIRTUAL_MACHINE' => [
+            'slug' => ProductGroupType::CLOUDSTACK_VIRTUAL_MACHINE,
+        ];
+        yield 'Transfer will succeed for product group CLOUDSTACK_MANAGER_DOMAIN' => [
+            'slug' => ProductGroupType::CLOUDSTACK_MANAGER_DOMAIN,
+        ];
+        yield 'Transfer will succeed for product group CLOUDSTACK_VOLUME' => [
+            'slug' => ProductGroupType::CLOUDSTACK_VOLUME,
+        ];
         yield 'Transfer will succeed for product group CLOUDSTACK_OS' => ['slug' => ProductGroupType::CLOUDSTACK_OS];
         yield 'Transfer will succeed for product group ADD_ON' => ['slug' => ProductGroupType::ADD_ON];
         yield 'Transfer will succeed for product group VPS' => ['slug' => ProductGroupType::VPS];
@@ -209,7 +227,7 @@ class ExecuteTransferServiceTest extends IntegrationTestCase
                 self::assertNull($subscription->pivot->reason_failed);
                 self::assertNull($subscription->pivot->executed_at);
                 self::assertSame($subscription->customer_id, $this->from->id);
-            }
+            },
         );
         self::assertNull($this->transfer->completed_at);
 
@@ -223,7 +241,7 @@ class ExecuteTransferServiceTest extends IntegrationTestCase
                 self::assertNull($subscription->pivot->reason_failed);
                 self::assertNotNull($subscription->pivot->executed_at);
                 self::assertSame($subscription->customer_id, $this->receiver->id);
-            }
+            },
         );
         self::assertNotNull($this->transfer->completed_at);
         Queue::assertPushed(SendEmail::class);
@@ -237,9 +255,13 @@ class ExecuteTransferServiceTest extends IntegrationTestCase
     public static function transferAdministrativelyNotSupported(): iterable
     {
         yield 'Transfer will fail for product group DOMAIN_EXPANSION' => ['slug' => ProductGroupType::DOMAIN_EXPANSION];
-        yield 'Transfer will fail for product group RESELLER_DISCOUNT' => ['slug' => ProductGroupType::RESELLER_DISCOUNT];
+        yield 'Transfer will fail for product group RESELLER_DISCOUNT' => [
+            'slug' => ProductGroupType::RESELLER_DISCOUNT,
+        ];
         yield 'Transfer will fail for product group MICROSOFT_365' => ['slug' => ProductGroupType::MICROSOFT_365];
-        yield 'Transfer will fail for product group MANUAL_SUBSCRIPTION' => ['slug' => ProductGroupType::MANUAL_SUBSCRIPTION];
+        yield 'Transfer will fail for product group MANUAL_SUBSCRIPTION' => [
+            'slug' => ProductGroupType::MANUAL_SUBSCRIPTION,
+        ];
         yield 'Transfer will fail for product group ONE_TIME_SERVICE' => ['slug' => ProductGroupType::ONE_TIME_SERVICE];
         yield 'Transfer will fail for product group VOLUME_DISCOUNT' => ['slug' => ProductGroupType::VOLUME_DISCOUNT];
     }
@@ -255,7 +277,10 @@ class ExecuteTransferServiceTest extends IntegrationTestCase
 
         $this->expectException(TransferException::class);
         $this->expectExceptionMessageIs(
-            sprintf('Transfer is not supported for product group %s', $subscription->product->productGroup->slug->value)
+            sprintf(
+                'Transfer is not supported for product group %s',
+                $subscription->product->productGroup->slug->value,
+            ),
         );
         $this->transfer->accept();
         $this->transfer->subscriptions()->saveMany([$subscription]);
@@ -265,7 +290,7 @@ class ExecuteTransferServiceTest extends IntegrationTestCase
             function (Subscription $subscription) {
                 self::assertNotNull($subscription->pivot->failed_at);
                 self::assertNotNull($subscription->pivot->reason_failed);
-            }
+            },
         );
         self::assertNotNull($this->transfer->completed_at);
         Queue::assertPushed(SendEmail::class);
@@ -279,11 +304,23 @@ class ExecuteTransferServiceTest extends IntegrationTestCase
         $subscription = new SubscriptionFactory()->for($product)->createOne(['customer_id' => $this->from->id]);
         $subscription2 = new SubscriptionFactory()->for($product)->createOne(['customer_id' => $this->from->id]);
 
-        $domainDeployment = new DomainDeploymentFactory()->withRtrProvider()->createOne(['subscription_uuid' => $subscription->uuid]);
-        $domainDeployment2 = new DomainDeploymentFactory()->withRtrProvider()->createOne(['subscription_uuid' => $subscription2->uuid]);
+        $domainDeployment = new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->createOne(['subscription_uuid' => $subscription->uuid]);
+        $domainDeployment2 = new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->createOne(['subscription_uuid' => $subscription2->uuid]);
 
-        $contact = new DomainContactFactory()->createOne(['customer_id' => $this->from->id, 'default_owner' => true, 'email' => $this->from->email]);
-        $contact2 = new DomainContactFactory()->createOne(['customer_id' => $this->receiver->id, 'default_owner' => true, 'email' => $this->receiver->email]);
+        $contact = new DomainContactFactory()->createOne([
+            'customer_id' => $this->from->id,
+            'default_owner' => true,
+            'email' => $this->from->email,
+        ]);
+        $contact2 = new DomainContactFactory()->createOne([
+            'customer_id' => $this->receiver->id,
+            'default_owner' => true,
+            'email' => $this->receiver->email,
+        ]);
 
         $contact->contactOwnerDomainSubscriptions()->save($domainDeployment);
         $contact->contactOwnerDomainSubscriptions()->save($domainDeployment2);
@@ -307,9 +344,9 @@ class ExecuteTransferServiceTest extends IntegrationTestCase
                 self::assertInstanceOf(DomainContact::class, $contactOwner);
                 self::assertSame(
                     $contact->toArray(),
-                    $contactOwner->toArray()
+                    $contactOwner->toArray(),
                 );
-            }
+            },
         );
         self::assertNull($this->transfer->completed_at);
 
@@ -332,9 +369,9 @@ class ExecuteTransferServiceTest extends IntegrationTestCase
                 self::assertInstanceOf(DomainContact::class, $contactOwner);
                 self::assertSame(
                     $contact2->toArray(),
-                    $contactOwner->toArray()
+                    $contactOwner->toArray(),
                 );
-            }
+            },
         );
         self::assertNotNull($this->transfer->completed_at);
         Queue::assertPushed(SendEmail::class);

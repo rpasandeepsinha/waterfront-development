@@ -16,6 +16,10 @@ readonly class ConnectorConfig
         public bool $debug = false,
         public bool $httpErrors = false,
     ) {
-        Assert::regex($this->baseUrl, pattern: '/^http(s)?:\/\//', message: 'The baseURL must start with http:// or https://');
+        Assert::regex(
+            $this->baseUrl,
+            pattern: '/^http(s)?:\/\//',
+            message: 'The baseURL must start with http:// or https://',
+        );
     }
 }

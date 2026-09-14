@@ -35,7 +35,7 @@ class FirstComeFirstServeStrategyTest extends TestCase
 
         $this->testItem = new FirstComeFirstServeStrategy(
             [$this->client1, $this->client2],
-            HostingPackageInterface::class
+            HostingPackageInterface::class,
         );
     }
 
@@ -46,7 +46,7 @@ class FirstComeFirstServeStrategyTest extends TestCase
 
         new FirstComeFirstServeStrategy(
             [$this->client1, $this->client2],
-            SecretKeyInterface::class
+            SecretKeyInterface::class,
         );
     }
 

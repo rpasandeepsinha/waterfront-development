@@ -30,7 +30,7 @@ class PublicSuffixListTest extends IntegrationTestCase
 
     #[DataProvider('hostProvider')]
     #[Test]
-    public function getHostFromUrlOrDomain(string|null $expectedHost, string $value): void
+    public function getHostFromUrlOrDomain(?string $expectedHost, string $value): void
     {
         $publicSuffixList = new PublicSuffixList(
             self::createStub(ConfigurationInterface::class),

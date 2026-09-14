@@ -76,26 +76,29 @@ class UnsuspendSubscriptionServiceTest extends IntegrationTestCase
         $this->unsuspendSubscriptionsAction = new UnsuspendSubscriptionService(
             $this->storeAuditLogAction,
             $dispatcher,
-            self::createStub(LoggerInterface::class)
+            self::createStub(LoggerInterface::class),
         );
     }
 
     #[Test]
     public function executeExtensionWillBeUnsuspend(): void
     {
-        new DomainDeploymentFactory()->withRtrProvider()->createOne([
-            'subscription_uuid' => $this->domainSubscription->uuid,
-        ]);
+        new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->createOne([
+                'subscription_uuid' => $this->domainSubscription->uuid,
+            ]);
         Queue::fake(UnsuspendDomainJob::class);
 
-        $this->storeAuditLogAction->expects(self::once())
+        $this->storeAuditLogAction
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 AuditLogEvent::UNSUSPENSION,
                 Subscription::class,
                 $this->domainSubscription->id,
                 [],
-                []
+                [],
             );
         $this->unsuspendSubscriptionsAction->execute($this->domainSubscription);
 
@@ -105,7 +108,12 @@ class UnsuspendSubscriptionServiceTest extends IntegrationTestCase
     #[Test]
     public function executeHostingWillBeUnsuspend(): void
     {
-        $provider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        $provider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
         new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $this->hostingSubscription->uuid,
             'provider_id' => $provider->id,
@@ -114,14 +122,15 @@ class UnsuspendSubscriptionServiceTest extends IntegrationTestCase
 
         $this->hostingSubscription->refresh();
 
-        $this->storeAuditLogAction->expects(self::once())
+        $this->storeAuditLogAction
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 AuditLogEvent::UNSUSPENSION,
                 Subscription::class,
                 $this->hostingSubscription->id,
                 [],
-                []
+                [],
             );
 
         $this->unsuspendSubscriptionsAction->execute($this->hostingSubscription);
@@ -142,8 +151,7 @@ class UnsuspendSubscriptionServiceTest extends IntegrationTestCase
 
         $this->expectException(UnableToSuspendSubscriptionException::class);
 
-        $this->storeAuditLogAction->expects(self::never())
-            ->method('execute');
+        $this->storeAuditLogAction->expects(self::never())->method('execute');
 
         try {
             $this->unsuspendSubscriptionsAction->execute($this->domainSubscription);
@@ -169,14 +177,15 @@ class UnsuspendSubscriptionServiceTest extends IntegrationTestCase
                 'administrative_status' => AdministrativeStatus::SUSPENDED->value,
             ]);
 
-        $this->storeAuditLogAction->expects(self::once())
+        $this->storeAuditLogAction
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 AuditLogEvent::UNSUSPENSION,
                 Subscription::class,
                 $faultySubscription->id,
                 [],
-                []
+                [],
             );
         $this->unsuspendSubscriptionsAction->execute($faultySubscription);
 

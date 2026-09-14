@@ -22,7 +22,7 @@ class BackupUsagesResult extends AbstractProvisionResult
         ProvisionStatus $provisionStatus,
         public ?TenantUsages $tenantUsages = null,
         ?Exception $exception = null,
-        ?ValidationResult $validationResult = null
+        ?ValidationResult $validationResult = null,
     ) {
         parent::__construct($provisionData, $provisionStatus, $exception, $validationResult);
     }

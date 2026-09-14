@@ -38,9 +38,10 @@ class SubscriptionsToResourceConverter
 
         $nextInvoicePrices = $this->getPriceList($collection);
 
-        return $collection
-            ->map(fn (Subscription $subscription) => $this->parseIndexSubscription($subscription, $nextInvoicePrices[$subscription->id] ?? null))
-            ->toArray();
+        return $collection->map(fn (Subscription $subscription) => $this->parseIndexSubscription(
+            $subscription,
+            $nextInvoicePrices[$subscription->id] ?? null,
+        ))->toArray();
     }
 
     /**
@@ -51,8 +52,13 @@ class SubscriptionsToResourceConverter
     private function getPriceList(Collection $collection): array
     {
         $uniqueProducts = $collection->map(fn (Subscription $subscription) => $subscription->product)->unique();
-        $productPriceRequests = array_map(fn ($product) => new RegistrationPriceRequest($product), $uniqueProducts->all());
-        $priceList = $this->priceResolver->getPriceList(new PriceRequest($productPriceRequests, $collection->firstOrFail()->customer));
+        $productPriceRequests = array_map(
+            fn ($product) => new RegistrationPriceRequest($product),
+            $uniqueProducts->all(),
+        );
+        $priceList = $this->priceResolver->getPriceList(
+            new PriceRequest($productPriceRequests, $collection->firstOrFail()->customer),
+        );
 
         $return = [];
 
@@ -66,7 +72,7 @@ class SubscriptionsToResourceConverter
     /**
      * @return array<mixed>
      */
-    private function parseIndexSubscription(Subscription $subscription, int|null $nextInvoicePrice): array
+    private function parseIndexSubscription(Subscription $subscription, ?int $nextInvoicePrice): array
     {
         $type = $subscription->product->productGroup->slug;
 
@@ -76,24 +82,24 @@ class SubscriptionsToResourceConverter
         }
 
         return [
-            'id'                    => $subscription->id,
-            'uuid'                  => $subscription->uuid,
-            'customer_id'           => $subscription->customer_id,
-            'product_name'          => $subscription->product->name,
-            'product_slug'          => $subscription->product->slug,
-            'domain'                => $subscription->domain,
-            'type'                  => $type->value,
-            'technical_status'      => $subscription->technical_status,
+            'id' => $subscription->id,
+            'uuid' => $subscription->uuid,
+            'customer_id' => $subscription->customer_id,
+            'product_name' => $subscription->product->name,
+            'product_slug' => $subscription->product->slug,
+            'domain' => $subscription->domain,
+            'type' => $type->value,
+            'technical_status' => $subscription->technical_status,
             'administrative_status' => $subscription->administrative_status,
-            'active_status'         => DetermineSubscriptionActiveStatusHelper::resolve($subscription),
-            'status'         => DetermineSubscriptionActiveStatusHelper::resolve($subscription),
-            'billing_period'        => $subscription->billing_period,
-            'contract_period'       => $subscription->contract_period,
-            'start_date'            => $subscription->start_date->toW3cString(),
-            'end_date'              => $subscription->end_date->toW3cString(),
-            'in_transfer'           => $this->transferService->hasOpenTransfer($subscription),
-            'available_actions'     => $this->subscriptionPolicy->getAvailableActions($subscription),
-            'labels'                => $labels,
+            'active_status' => DetermineSubscriptionActiveStatusHelper::resolve($subscription),
+            'status' => DetermineSubscriptionActiveStatusHelper::resolve($subscription),
+            'billing_period' => $subscription->billing_period,
+            'contract_period' => $subscription->contract_period,
+            'start_date' => $subscription->start_date->toW3cString(),
+            'end_date' => $subscription->end_date->toW3cString(),
+            'in_transfer' => $this->transferService->hasOpenTransfer($subscription),
+            'available_actions' => $this->subscriptionPolicy->getAvailableActions($subscription),
+            'labels' => $labels,
             'next_invoice' => [
                 'date' => $subscription->next_billing_date->format(DateTimeFormat::DATE),
                 'price' => $nextInvoicePrice,

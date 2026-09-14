@@ -28,35 +28,35 @@ class DomainHandleRequest extends BaseRequest
 
         $message[$this->endpoint] = [
             'companyName' => $this->parameters->getCompanyName(),
-            'vat'         => $this->parameters->getVat(),
-            'name'        => [
-                'initials'  => $this->parameters->getInitials(),
+            'vat' => $this->parameters->getVat(),
+            'name' => [
+                'initials' => $this->parameters->getInitials(),
                 'firstName' => $this->parameters->getFirstName(),
-                'prefix'    => $this->parameters->getPrefix(),
-                'lastName'  => $this->parameters->getLastName(),
+                'prefix' => $this->parameters->getPrefix(),
+                'lastName' => $this->parameters->getLastName(),
             ],
-            'phone'       => [
-                'countryCode'      => $this->parameters->getPhoneCountryCode(),
-                'areaCode'         => $this->parameters->getPhoneAreaCode(),
+            'phone' => [
+                'countryCode' => $this->parameters->getPhoneCountryCode(),
+                'areaCode' => $this->parameters->getPhoneAreaCode(),
                 'subscriberNumber' => $this->parameters->getPhoneSubscriberNumber(),
             ],
-            'address'     => [
-                'street'  => $this->parameters->getAddressStreet(),
-                'number'  => $this->parameters->getAddressNumber(),
-                'suffix'  => $this->parameters->getAddressSuffix(),
+            'address' => [
+                'street' => $this->parameters->getAddressStreet(),
+                'number' => $this->parameters->getAddressNumber(),
+                'suffix' => $this->parameters->getAddressSuffix(),
                 'zipcode' => $this->parameters->getAddressZipcode(),
-                'city'    => $this->parameters->getAddressCity(),
-                'state'   => $this->parameters->getAddressState(),
+                'city' => $this->parameters->getAddressCity(),
+                'state' => $this->parameters->getAddressState(),
                 'country' => $this->parameters->getAddressCountry(),
             ],
-            'email'       => $this->parameters->getEmail(),
-            'locale'      => $this->parameters->getLocale(),
+            'email' => $this->parameters->getEmail(),
+            'locale' => $this->parameters->getLocale(),
         ];
 
         if ($this->parameters->faxIsSet()) {
             $message['fax'] = [
-                'countryCode'      => $this->parameters->getFaxCountryCode(),
-                'areaCode'         => $this->parameters->getFaxAreaCode(),
+                'countryCode' => $this->parameters->getFaxCountryCode(),
+                'areaCode' => $this->parameters->getFaxAreaCode(),
                 'subscriberNumber' => $this->parameters->getFaxSubscriberNumber(),
             ];
         }

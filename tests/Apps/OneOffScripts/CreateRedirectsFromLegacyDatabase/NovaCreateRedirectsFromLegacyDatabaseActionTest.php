@@ -92,27 +92,32 @@ class NovaCreateRedirectsFromLegacyDatabaseActionTest extends IntegrationTestCas
             new Collection(),
         );
 
-        $this->mockLogger->expects('debug')
-            ->with(
-                sprintf('Executing one-time script %s', NovaCreateRedirectsFromLegacyDatabaseAction::SLUG),
-                [
-                    LoggingContextKeys::ONE_OFF_SCRIPT => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
-                    LoggingContextKeys::META => [
-                        'dry-run' => false,
-                        'only-existing' => false,
-                        'limit' => $limit,
-                    ],
-                ]
-            );
+        $this->mockLogger->expects('debug')->with(
+            sprintf('Executing one-time script %s', NovaCreateRedirectsFromLegacyDatabaseAction::SLUG),
+            [
+                LoggingContextKeys::ONE_OFF_SCRIPT => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
+                LoggingContextKeys::META => [
+                    'dry-run' => false,
+                    'only-existing' => false,
+                    'limit' => $limit,
+                ],
+            ],
+        );
 
-        $this->redisFactory->expects('connection->sMembers')
+        $this->redisFactory
+            ->expects('connection->sMembers')
             ->with(NovaCreateRedirectsFromLegacyDatabaseAction::REDIS_PROCESSED_KEY)
             ->andReturn([$alreadyProcessedUuid]);
 
-        $this->dispatcher->expects('dispatch')
+        $this->dispatcher
+            ->expects('dispatch')
             ->times($limit)
             ->withArgs(
-                fn (CreateRedirectsFromLegacyDatabaseJob $job) => ! in_array($job->subscription->uuid, [$alreadyProcessed->uuid, $nonActive->uuid, $nonRedirect->uuid], true)
+                fn (CreateRedirectsFromLegacyDatabaseJob $job) => ! in_array(
+                    $job->subscription->uuid,
+                    [$alreadyProcessed->uuid, $nonActive->uuid, $nonRedirect->uuid],
+                    true,
+                ),
             );
 
         $response = $this->action->handle($actionFields);
@@ -120,6 +125,9 @@ class NovaCreateRedirectsFromLegacyDatabaseActionTest extends IntegrationTestCas
 
         self::assertArrayHasKey('message', $responseArray);
         self::assertInstanceOf(Message::class, $responseArray['message']);
-        self::assertSame(sprintf('One-off script dispatched %d jobs to queue.', $limit), $responseArray['message']->text);
+        self::assertSame(
+            sprintf('One-off script dispatched %d jobs to queue.', $limit),
+            $responseArray['message']->text,
+        );
     }
 }

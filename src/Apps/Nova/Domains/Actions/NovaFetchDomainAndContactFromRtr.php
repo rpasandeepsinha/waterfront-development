@@ -49,7 +49,8 @@ class NovaFetchDomainAndContactFromRtr extends Action
             $localDatabaseContacts = [];
 
             if ($contactOwner !== null) {
-                $handles = $contactOwner->providers()
+                $handles = $contactOwner
+                    ->providers()
                     ->withPivot(['external_contact', 'domain_business_unit_id'])
                     ->get();
 
@@ -61,23 +62,36 @@ class NovaFetchDomainAndContactFromRtr extends Action
                         $businessUnit = $this->businessUnitRepository->findById((int) $handle->pivot->domain_business_unit_id);
                     }
 
-                    $localDatabaseContacts[] = $this->domainService->retrieveContactHandle(
-                        $handle->pivot->external_contact,
-                        $type,
-                        $businessUnit
-                    )->toArray();
+                    $localDatabaseContacts[] = $this->domainService
+                        ->retrieveContactHandle(
+                            $handle->pivot->external_contact,
+                            $type,
+                            $businessUnit,
+                        )
+                        ->toArray();
                 }
             }
 
             $remoteContacts = [];
-            $remoteContacts[sprintf('Registrant:%s', $remoteDomain->registrant)] = $this->domainService->retrieveContactHandle($remoteDomain->registrant, $type, $domainDeployment->businessUnit)->toArray();
+            $remoteContacts[sprintf('Registrant:%s', $remoteDomain->registrant)] = $this->domainService
+                ->retrieveContactHandle($remoteDomain->registrant, $type, $domainDeployment->businessUnit)
+                ->toArray();
 
             $contactArray = $remoteDomain->contacts?->entities;
 
             if ($contactArray !== null) {
                 foreach ($contactArray as $remoteContactDefinition) {
-                    $remoteContacts[sprintf('%s:%s', $remoteContactDefinition->role, $remoteContactDefinition->handle)] =
-                        $this->domainService->retrieveContactHandle($remoteContactDefinition->handle, $type, $domainDeployment->businessUnit)->toArray();
+                    $remoteContacts[sprintf(
+                        '%s:%s',
+                        $remoteContactDefinition->role,
+                        $remoteContactDefinition->handle,
+                    )] = $this->domainService
+                        ->retrieveContactHandle(
+                            $remoteContactDefinition->handle,
+                            $type,
+                            $domainDeployment->businessUnit,
+                        )
+                        ->toArray();
                 }
             }
 

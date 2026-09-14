@@ -19,8 +19,9 @@ class VatNovaCode extends AbstractValidator
 
     private string $exceptionMessage = '';
 
-    public function __construct(private readonly int $customerNumber)
-    {
+    public function __construct(
+        private readonly int $customerNumber,
+    ) {
         $this->vatService = new Vat();
     }
 
@@ -45,12 +46,17 @@ class VatNovaCode extends AbstractValidator
             return $this->vatService->validateEuropeanVatNumber($value, $countryCode);
         } catch (VatNumberValidateFailedException $exception) {
             Log::error(
-                self::class . '::Vat number - status code: ' . $exception->getCode()
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString()
+                self::class
+                    . '::Vat number - status code: '
+                    . $exception->getCode()
+                    . ', message: '
+                    . $exception->getMessage()
+                    . ', trace: '
+                    . $exception->getTraceAsString(),
             );
             $this->exceptionMessage = $exception->getMessage();
             $this->exception = true;
+
             return false;
         }
     }

@@ -29,7 +29,7 @@ class IBAN extends AbstractValidator
     ];
 
     public function __construct(
-        private readonly string|null $country = null
+        private readonly ?string $country = null,
     ) {
     }
 

@@ -6,7 +6,8 @@ namespace Waterfront\Infra\GandiClient\DTO;
 
 class MessageResponse
 {
-    public function __construct(public string $message)
-    {
+    public function __construct(
+        public string $message,
+    ) {
     }
 }

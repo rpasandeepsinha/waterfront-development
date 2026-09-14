@@ -25,7 +25,7 @@ class UpdateSubscriptionRequest extends FormRequest
                 $domainNameRule,
             ],
             'administrative_status' => ['required', Rule::in(AdministrativeStatus::cases(), 'value')],
-            'technical_status' => ['required',  Rule::in(TechnicalStatus::cases(), 'value')],
+            'technical_status' => ['required', Rule::in(TechnicalStatus::cases(), 'value')],
             'product_id' => ['required', 'integer', 'exists:products,id'],
             'net_price' => ['required', 'integer', 'min:0'],
             'gross_price' => ['required', 'integer', 'min:0'],

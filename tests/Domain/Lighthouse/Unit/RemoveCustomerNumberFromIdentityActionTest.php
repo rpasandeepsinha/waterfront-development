@@ -29,7 +29,10 @@ class RemoveCustomerNumberFromIdentityActionTest extends TestCase
         $this->lighthouseApiService = self::createMock(LighthouseApiService::class);
 
         $logger = self::createStub(LoggerInterface::class);
-        $this->removeCustomerNumberFromIdentityAction = new RemoveCustomerNumberFromIdentityAction($this->lighthouseApiService, $logger);
+        $this->removeCustomerNumberFromIdentityAction = new RemoveCustomerNumberFromIdentityAction(
+            $this->lighthouseApiService,
+            $logger,
+        );
     }
 
     #[Test]

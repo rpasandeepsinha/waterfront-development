@@ -16,9 +16,9 @@ readonly class CartItemWithoutPrice
         #[SerializedName('parentItemUuid')]
         public ?UuidInterface $parentItemUuid,
         #[SerializedName('subscriptionUuid')]
-        public UuidInterface|null $subscriptionUuid,
+        public ?UuidInterface $subscriptionUuid,
         #[SerializedName('parentSubscriptionUuid')]
-        public UuidInterface|null $parentSubscriptionUuid,
+        public ?UuidInterface $parentSubscriptionUuid,
         #[SerializedName('productSlug')]
         public string $productSlug,
         #[SerializedName('billingPeriod')]

@@ -13,7 +13,6 @@ abstract class ProductPriceRequest
         public int $quantity = 1,
         public ?int $contractPeriod = null,
         public ?int $billingPeriod = null,
-        public ?string $experimentSlug = null,
     ) {
     }
 }

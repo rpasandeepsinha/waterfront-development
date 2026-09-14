@@ -37,7 +37,7 @@ readonly class DnsProvisionedListener
             [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $dnsDeployment->subscription_uuid,
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
-            ]
+            ],
         );
 
         $domainDeployment = $this->dnsDeploymentRepository->getDomainDeployment($dnsDeployment);
@@ -48,8 +48,9 @@ readonly class DnsProvisionedListener
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $dnsDeployment->subscription_uuid,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
-                ]
+                ],
             );
+
             return;
         }
 
@@ -59,14 +60,18 @@ readonly class DnsProvisionedListener
          * This also prevents us from getting the register from being spammed with requests.
          */
         $domainSubscription = $domainDeployment->subscription;
-        if ($domainSubscription->technical_status === TechnicalStatus::FAILED->value || $domainSubscription->technical_status === TechnicalStatus::TRANSFER_FAILED->value) {
+        if (
+            $domainSubscription->technical_status === TechnicalStatus::FAILED->value
+            || $domainSubscription->technical_status === TechnicalStatus::TRANSFER_FAILED->value
+        ) {
             $this->logger->info(
                 'Domain registration failed, not trying to register or update domain',
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $domainSubscription->uuid,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
-                ]
+                ],
             );
+
             return;
         }
 
@@ -89,9 +94,10 @@ readonly class DnsProvisionedListener
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $domainDeployment->subscription_uuid,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
-                ]
+                ],
             );
             $this->dispatcher->dispatch(new UpdateDomainNameRegistrationJob($domainDeployment, $nameservers));
+
             return;
         }
 
@@ -105,12 +111,14 @@ readonly class DnsProvisionedListener
                     LoggingContextKeys::SUBSCRIPTION_UUID => $domainSubscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $domainSubscription->domain,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
-                ]
+                ],
             );
+
             return;
         }
 
-        $registrationRequiresDnsBeforeSubmission = $this->domainService->registrationRequiresDnsBeforeSubmission($domain);
+        $registrationRequiresDnsBeforeSubmission =
+            $this->domainService->registrationRequiresDnsBeforeSubmission($domain);
 
         /**
          * If the domain subscription is in PENDING status and there is no zone check or nameserver requirement,
@@ -126,8 +134,10 @@ readonly class DnsProvisionedListener
          * is PENDING but no transfer has been submitted yet, so we must NOT skip: we need to fall through and
          * dispatch RegisterDomainNameJob to perform the transfer (or registration) for the first time.
          */
-        if ($domainDeployment->subscription->technical_status === TechnicalStatus::PENDING->value
-            && ! $registrationRequiresDnsBeforeSubmission) {
+        if (
+            $domainDeployment->subscription->technical_status === TechnicalStatus::PENDING->value
+            && ! $registrationRequiresDnsBeforeSubmission
+        ) {
             $this->logger->info(
                 'Domain {domain.name} is currently transferring will not attempt to register domain',
                 [
@@ -137,8 +147,9 @@ readonly class DnsProvisionedListener
                         'last_result' => $domainDeployment->last_result,
                         'last_result_received' => $domainDeployment->last_result_received,
                     ],
-                ]
+                ],
             );
+
             return;
         }
 
@@ -147,7 +158,7 @@ readonly class DnsProvisionedListener
             [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $domainDeployment->subscription_uuid,
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DNS,
-            ]
+            ],
         );
 
         $this->dispatcher->dispatch(new RegisterDomainNameJob($domainDeployment));

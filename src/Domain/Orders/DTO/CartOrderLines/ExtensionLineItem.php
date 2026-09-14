@@ -25,13 +25,14 @@ class ExtensionLineItem extends LineItem
         ?ProductPriceType $status,
         ?CartOrderSubscription $children,
         ?array $oneTimeServices,
-        ?string $experimentSlug,
+        #[Groups(['meta_data'])]
+        public ?string $experimentSlug,
         #[Groups(['meta_data'])]
         public ?string $transferSecret,
         #[Groups(['meta_data'])]
         public ?bool $privateWhois,
         #[Groups(['meta_data'])]
-        public ?int $contactId
+        public ?int $contactId,
     ) {
         parent::__construct(
             $uuid,
@@ -44,7 +45,6 @@ class ExtensionLineItem extends LineItem
             $status,
             $children,
             $oneTimeServices,
-            $experimentSlug,
         );
     }
 }

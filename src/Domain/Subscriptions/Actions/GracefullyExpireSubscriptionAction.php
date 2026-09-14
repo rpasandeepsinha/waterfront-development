@@ -46,10 +46,16 @@ class GracefullyExpireSubscriptionAction
         $gracePeriodDays = $this->getGracePeriodInDays($subscription);
 
         if ($gracePeriodDays > 0) {
-            $this->logger->info(sprintf('Grace period of %d days detected for subscription {subscription.id}: {domain.name} ', $gracePeriodDays), [
-                LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
-                LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-            ]);
+            $this->logger->info(
+                sprintf(
+                    'Grace period of %d days detected for subscription {subscription.id}: {domain.name} ',
+                    $gracePeriodDays,
+                ),
+                [
+                    LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
+                    LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
+                ],
+            );
             $terminationDate = new CarbonImmutable()->addDays($gracePeriodDays);
             $this->suspendDeployment($subscription);
         }
@@ -82,7 +88,8 @@ class GracefullyExpireSubscriptionAction
             ProductGroupType::VOLUME_DISCOUNT,
             ProductGroupType::CLOUDSTACK_MANAGER_DOMAIN,
             ProductGroupType::BACKUP,
-            ProductGroupType::ONE_TIME_SERVICE => $this->setSuspendedState($subscription),
+            ProductGroupType::ONE_TIME_SERVICE,
+                => $this->setSuspendedState($subscription),
         };
     }
 
@@ -91,12 +98,12 @@ class GracefullyExpireSubscriptionAction
         $this->logger->info(
             sprintf(
                 "'suspending' subscription {subscription.id}: {domain.name} with productGroup: %s",
-                $subscription->product->productGroup->slug->value
+                $subscription->product->productGroup->slug->value,
             ),
             [
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-            ]
+            ],
         );
 
         $subscription->technical_status = TechnicalStatus::SUSPENDED->value;
@@ -115,6 +122,7 @@ class GracefullyExpireSubscriptionAction
         $deployment = $subscription->domainDeployment;
         if ($deployment === null) {
             $this->setSuspendedState($subscription);
+
             return;
         }
 
@@ -126,7 +134,7 @@ class GracefullyExpireSubscriptionAction
     {
         return new SuspendDomainJob(
             domainDeployment: $deployment,
-            sendMailAfterSuspensionSuccess: false
+            sendMailAfterSuspensionSuccess: false,
         );
     }
 
@@ -140,8 +148,10 @@ class GracefullyExpireSubscriptionAction
         $deployment = $subscription->hostingDeployment;
         if ($deployment === null) {
             $this->setSuspendedState($subscription);
+
             return;
         }
+
         $this->jobDispatcher->dispatch(new SuspendHostingJob($deployment, sendMailAfterSuspensionSuccess: false));
     }
 
@@ -157,13 +167,22 @@ class GracefullyExpireSubscriptionAction
         }
 
         if ($subscription->parent !== null) {
-            $period = $this->productSpecRepository->findBySpecification($subscription->product, 'services.technical_grace_period');
+            $period = $this->productSpecRepository->findBySpecification(
+                $subscription->product,
+                'services.technical_grace_period',
+            );
 
             if (! $period instanceof ProductSpec) {
-                $period = $this->productSpecRepository->findBySpecification($subscription->parent->product, 'services.technical_grace_period');
+                $period = $this->productSpecRepository->findBySpecification(
+                    $subscription->parent->product,
+                    'services.technical_grace_period',
+                );
             }
         } else {
-            $period = $this->productSpecRepository->findBySpecification($subscription->product, 'services.technical_grace_period');
+            $period = $this->productSpecRepository->findBySpecification(
+                $subscription->product,
+                'services.technical_grace_period',
+            );
         }
 
         return $period instanceof ProductSpec ? (int) $period->value : 0;

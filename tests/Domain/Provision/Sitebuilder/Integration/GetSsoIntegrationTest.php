@@ -66,7 +66,7 @@ class GetSsoIntegrationTest extends IntegrationTestCase
             ssoUrl: $ssoUrl,
             username: 'user',
             password: 'pass',
-            brandReference: 1337
+            brandReference: 1337,
         ));
 
         $mockLoginApi = self::mock(LoginApiInterface::class);
@@ -81,6 +81,7 @@ class GetSsoIntegrationTest extends IntegrationTestCase
             );
 
             $basekit->loginApi = $mockLoginApi;
+
             return $basekit;
         });
 
@@ -103,34 +104,27 @@ class GetSsoIntegrationTest extends IntegrationTestCase
             'user_ref' => $userRef,
         ]);
 
-        BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                        ->sitebuilder()
-                        ->state([
-                            'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-                            'context_uuid' => $contextUuid,
-                            'tag' => $tag,
-                        ])
-                        ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne(['site_ref' => $siteRef]);
+        BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->sitebuilder()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+                        'context_uuid' => $contextUuid,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne(['site_ref' => $siteRef]);
 
         $expectedSsoUrl = sprintf('%s/login?hash=%s&siteRef=%s', self::SSO_URL, $responseHash, $siteRef);
 
-        $this->mockLoginApi
-            ->expects('autoLogin')
-            ->once()
-            ->with($userRef)
-            ->andReturn($responseHash);
+        $this->mockLoginApi->expects('autoLogin')->once()->with($userRef)->andReturn($responseHash);
 
         $request = new GetSitebuilderSsoRequest(
             context: $contextUuid,
-            tagUuid: $tag
+            tagUuid: $tag,
         );
 
         self::assertDatabaseCount(ProvisioningResult::class, 1);
@@ -152,10 +146,12 @@ class GetSsoIntegrationTest extends IntegrationTestCase
         self::assertSame(ProvisionRequestName::GET_SITEBUILDER_SSO, $savedRequest->request_name);
         self::assertSame(
             '[]',
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
-        $savedResult = $this->resultRepository->fetchProvisioningResults(new ProvisioningResultQueryFilters(requestUuid: $savedRequest->uuid), 1)->first();
+        $savedResult = $this->resultRepository
+            ->fetchProvisioningResults(new ProvisioningResultQueryFilters(requestUuid: $savedRequest->uuid), 1)
+            ->first();
         self::assertNotNull($savedResult);
         self::assertSame(ProvisionStatus::SUCCESS, $savedResult->status);
     }
@@ -171,7 +167,7 @@ class GetSsoIntegrationTest extends IntegrationTestCase
 
         $request = new GetSitebuilderSsoRequest(
             context: $contextUuid,
-            tagUuid: $tag
+            tagUuid: $tag,
         );
 
         $result = $this->gateway->request($request);
@@ -185,7 +181,10 @@ class GetSsoIntegrationTest extends IntegrationTestCase
         self::assertArrayHasKey('context', $result->validationResult->messages);
         self::assertArrayHasKey('tag', $result->validationResult->messages);
         self::assertSame([$doesntExistsMessage], $result->validationResult->messages['context']);
-        self::assertSame(['No create request with this tag in the [sitebuilder] type.'], $result->validationResult->messages['tag']);
+        self::assertSame(
+            ['No create request with this tag in the [sitebuilder] type.'],
+            $result->validationResult->messages['tag'],
+        );
 
         self::assertDatabaseCount(ProvisioningResult::class, 1);
         self::assertDatabaseCount(ProvisioningRequest::class, 1);
@@ -198,10 +197,12 @@ class GetSsoIntegrationTest extends IntegrationTestCase
         self::assertSame(ProvisionRequestName::GET_SITEBUILDER_SSO, $savedRequest->request_name);
         self::assertSame(
             '[]',
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
-        $savedResult = $this->resultRepository->fetchProvisioningResults(new ProvisioningResultQueryFilters(requestUuid: $savedRequest->uuid), 1)->first();
+        $savedResult = $this->resultRepository
+            ->fetchProvisioningResults(new ProvisioningResultQueryFilters(requestUuid: $savedRequest->uuid), 1)
+            ->first();
         self::assertNotNull($savedResult);
         self::assertSame(ProvisionStatus::VALIDATION_ERROR, $savedResult->status);
     }
@@ -219,34 +220,27 @@ class GetSsoIntegrationTest extends IntegrationTestCase
             'user_ref' => $userRef,
         ]);
 
-        BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->sitebuilder()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-                                'context_uuid' => $contextUuid,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne(['site_ref' => $siteRef]);
+        BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->sitebuilder()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+                        'context_uuid' => $contextUuid,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne(['site_ref' => $siteRef]);
 
         $expectedException = new UnexpectedValueException('Something went wrong');
 
-        $this->mockLoginApi
-            ->expects('autoLogin')
-            ->once()
-            ->with($userRef)
-            ->andThrows($expectedException);
+        $this->mockLoginApi->expects('autoLogin')->once()->with($userRef)->andThrows($expectedException);
 
         $request = new GetSitebuilderSsoRequest(
             context: $contextUuid,
-            tagUuid: $tag
+            tagUuid: $tag,
         );
 
         self::assertDatabaseCount(ProvisioningResult::class, 1);
@@ -267,10 +261,12 @@ class GetSsoIntegrationTest extends IntegrationTestCase
         self::assertSame(ProvisionRequestName::GET_SITEBUILDER_SSO, $savedRequest->request_name);
         self::assertSame(
             '[]',
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
-        $savedResult = $this->resultRepository->fetchProvisioningResults(new ProvisioningResultQueryFilters(requestUuid: $savedRequest->uuid), 1)->first();
+        $savedResult = $this->resultRepository
+            ->fetchProvisioningResults(new ProvisioningResultQueryFilters(requestUuid: $savedRequest->uuid), 1)
+            ->first();
         self::assertNotNull($savedResult);
         self::assertSame(ProvisionStatus::FAILED, $savedResult->status);
     }

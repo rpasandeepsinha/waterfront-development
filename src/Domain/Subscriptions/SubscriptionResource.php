@@ -78,8 +78,13 @@ class SubscriptionResource extends Resource
             'product_name' => $this->resource->product->name,
             'product_slug' => $this->resource->product->slug,
             'available_actions' => $subscriptionPolicy->getAvailableActions($this->resource),
-            'children' => $this->resource->children()
-            ->whereNotIn('administrative_status', [...AdministrativeStatus::administrativelyEnded(), AdministrativeStatus::ARCHIVING->value])->get(['id', 'product_uuid']),
+            'children' => $this->resource
+                ->children()
+                ->whereNotIn('administrative_status', [
+                    ...AdministrativeStatus::administrativelyEnded(),
+                    AdministrativeStatus::ARCHIVING->value,
+                ])
+                ->get(['id', 'product_uuid']),
             'has_custom_nameservers' => $this->hasCustomNameservers(),
             'has_hosting' => $this->hasHostingSubscription($this->resource),
             'service_provider' => $serviceProvider,
@@ -132,7 +137,9 @@ class SubscriptionResource extends Resource
                 if ($serviceProvider === ProviderSlug::PLACEHOLDER->value) {
                     /** @var DnsService $dnsService */
                     $dnsService = Container::getInstance()->make(DnsService::class);
-                    $resource['has_dns_zone'] = $this->resource->domain === null ? false : $dnsService->hasDnsZone($this->resource->domain);
+                    $resource['has_dns_zone'] = $this->resource->domain === null
+                        ? false
+                        : $dnsService->hasDnsZone($this->resource->domain);
                 }
             }
         }
@@ -145,13 +152,14 @@ class SubscriptionResource extends Resource
         $getHostingProvider = function (Subscription $subscription) {
             /** @var HostingService $hostingService */
             $hostingService = Container::getInstance()->make(HostingService::class);
+
             return $hostingService->getProviderSlug($subscription);
         };
 
         return match ($this->product->productGroup->slug) {
             ProductGroupType::HOSTING => $getHostingProvider($subscription),
             ProductGroupType::EXTENSION => $this->domainDeployment?->provider->slug->value,
-            ProductGroupType::SSL =>  $subscription->sslDeployment?->provider->slug->value,
+            ProductGroupType::SSL => $subscription->sslDeployment?->provider->slug->value,
             ProductGroupType::MANUAL_SUBSCRIPTION => 'mail-notification',
             default => null,
         };
@@ -199,8 +207,7 @@ class SubscriptionResource extends Resource
         $repository = Container::getInstance()->make(SubscriptionRepository::class);
 
         try {
-            $dnsSubscription = $repository
-                ->getNotAdministrativelyEndedOrSuspendedDnsSubscription($this->domain);
+            $dnsSubscription = $repository->getNotAdministrativelyEndedOrSuspendedDnsSubscription($this->domain);
         } catch (ModelNotFoundException) {
             return false;
         }

@@ -22,7 +22,7 @@ class ReissueSslCertificate extends AbstractQueueableJob
     use InteractsWithQueue;
 
     public function __construct(
-        public readonly SslDeployment $sslDeployment
+        public readonly SslDeployment $sslDeployment,
     ) {
         parent::__construct();
     }
@@ -52,9 +52,9 @@ class ReissueSslCertificate extends AbstractQueueableJob
         $reissueResult = $customerSharedSslService->reissue($this->sslDeployment);
 
         $reissueResultData = [
-            'reissue_result_status'        => $reissueResult->getStatus(),
-            'reissue_result_reason'        => $reissueResult->getReason(),
-            'reissue_result_error_code'    => $reissueResult->getErrorCode(),
+            'reissue_result_status' => $reissueResult->getStatus(),
+            'reissue_result_reason' => $reissueResult->getReason(),
+            'reissue_result_error_code' => $reissueResult->getErrorCode(),
             'reissue_result_error_message' => $reissueResult->getErrorMessage(),
         ];
 
@@ -64,9 +64,9 @@ class ReissueSslCertificate extends AbstractQueueableJob
             LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SSL,
             LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::RTR,
             LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-            LoggingContextKeys::PROVISIONING_ID   => $this->sslDeployment->id,
+            LoggingContextKeys::PROVISIONING_ID => $this->sslDeployment->id,
             LoggingContextKeys::SUBSCRIPTION_UUID => $this->sslDeployment->subscription_uuid,
-            LoggingContextKeys::META              => $reissueResultData,
+            LoggingContextKeys::META => $reissueResultData,
         ];
 
         if ($reissueResult->getErrorCode() !== null || $reissueResult->getErrorMessage() !== null) {
@@ -79,8 +79,9 @@ class ReissueSslCertificate extends AbstractQueueableJob
 
             $logger->error(
                 'ReissueSslCertificate reissue error result',
-                $context
+                $context,
             );
+
             return;
         }
 
@@ -93,7 +94,7 @@ class ReissueSslCertificate extends AbstractQueueableJob
 
         $logger->info(
             'ReissueSslCertificate reissue result',
-            $context
+            $context,
         );
     }
 

@@ -43,7 +43,7 @@ class Result
      */
     public static function create(array $data): self
     {
-        $data = array_filter($data);
+        $data = array_filter($data, fn (mixed $value): bool => (bool) $value);
 
         return new Hydrator()->hydrate($data, new self());
     }

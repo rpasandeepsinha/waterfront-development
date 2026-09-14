@@ -38,7 +38,7 @@ class BasekitContext extends Model
             firstKey: 'context_uuid',
             secondKey: 'origin_provisioning_request_id',
             localKey: 'context_uuid',
-            secondLocalKey: 'id'
+            secondLocalKey: 'id',
         );
     }
 

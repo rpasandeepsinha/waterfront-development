@@ -37,10 +37,7 @@ class RetentionOfferEligibilityService
             );
         }
 
-        if (
-            $selectedAction === SelectedAction::RF
-            || $selectedAction === SelectedAction::BZ
-        ) {
+        if ($selectedAction === SelectedAction::RF || $selectedAction === SelectedAction::BZ) {
             return new RetentionOfferEligibilityResultDTO(
                 code: RetentionOfferEligibilityCode::NO_PRICE_REQUIRED,
                 reason: sprintf(
@@ -50,26 +47,14 @@ class RetentionOfferEligibilityService
             );
         }
 
-        if (
-            $this->subscriptionMutationRepository
-                ->findOpenMutation($subscription) !== null
-        ) {
+        if ($this->subscriptionMutationRepository->findOpenMutation($subscription) !== null) {
             return new RetentionOfferEligibilityResultDTO(
                 code: RetentionOfferEligibilityCode::OPEN_MUTATION,
                 reason: 'The subscription has an open mutation that must be reviewed first.',
             );
         }
 
-        $isDowngrade = in_array(
-            $selectedAction,
-            [
-                SelectedAction::DG_OPTION_1A,
-                SelectedAction::DG_OPTION_1D,
-            ],
-            true,
-        );
-
-        if (! $isDowngrade && $contractPeriod !== $subscription->contract_period) {
+        if (! $selectedAction->isDowngrade() && $contractPeriod !== $subscription->contract_period) {
             return new RetentionOfferEligibilityResultDTO(
                 code: RetentionOfferEligibilityCode::INVALID_CONTRACT_PERIOD,
                 reason: sprintf(
@@ -79,7 +64,7 @@ class RetentionOfferEligibilityService
             );
         }
 
-        if (! $isDowngrade && $billingPeriod !== $subscription->billing_period) {
+        if (! $selectedAction->isDowngrade() && $billingPeriod !== $subscription->billing_period) {
             return new RetentionOfferEligibilityResultDTO(
                 code: RetentionOfferEligibilityCode::INVALID_BILLING_PERIOD,
                 reason: sprintf(
@@ -92,39 +77,29 @@ class RetentionOfferEligibilityService
         $subscription->loadMissing('product.productGroup');
 
         return match ($selectedAction) {
-            SelectedAction::DM_OPTION_1 => $this->retentionOfferActionEligibilityService
-                ->determineDmOptionOneEligibility($subscription),
-            SelectedAction::DG_OPTION_1A => $this->retentionOfferActionEligibilityService
-                ->determineDgOptionOneAEligibility(
-                    subscription: $subscription,
-                    contractPeriod: $contractPeriod,
-                    billingPeriod: $billingPeriod,
-                    targetProduct: $targetProduct,
-                ),
-            SelectedAction::DG_OPTION_1D => $this->retentionOfferActionEligibilityService
-                ->determineDgOptionOneDEligibility(
-                    subscription: $subscription,
-                    contractPeriod: $contractPeriod,
-                    billingPeriod: $billingPeriod,
-                    targetProduct: $targetProduct,
-                ),
-            SelectedAction::TK_OPTION_1 => $this->retentionOfferActionEligibilityService
-                ->determineTkOptionOneEligibility($subscription),
+            SelectedAction::DM_OPTION_1
+                => $this->retentionOfferActionEligibilityService->determineDmOptionOneEligibility($subscription),
+            SelectedAction::DG_OPTION_1A,
+            SelectedAction::DG_OPTION_1D,
+                => $this->retentionOfferActionEligibilityService->determineDowngradeEligibility(
+                subscription: $subscription,
+                selectedAction: $selectedAction,
+                targetProduct: $targetProduct,
+            ),
             SelectedAction::TK_OPTION_2 => new RetentionOfferEligibilityResultDTO(
                 code: RetentionOfferEligibilityCode::ELIGIBLE,
                 reason: null,
             ),
-            SelectedAction::TK_OPTION_3 => $this->retentionOfferActionEligibilityService
-                ->determineHostingEligibility(
-                    subscription: $subscription,
-                    selectedAction: $selectedAction,
-                ),
+            SelectedAction::TK_OPTION_3 => $this->retentionOfferActionEligibilityService->determineHostingEligibility(
+                subscription: $subscription,
+                selectedAction: $selectedAction,
+            ),
             SelectedAction::TK_OPTION_5,
-            SelectedAction::TK_OPTION_6 => $this->retentionOfferActionEligibilityService
-                ->determineDomainOrHostingEligibility(
-                    subscription: $subscription,
-                    selectedAction: $selectedAction,
-                ),
+            SelectedAction::TK_OPTION_6,
+                => $this->retentionOfferActionEligibilityService->determineDomainOrHostingEligibility(
+                subscription: $subscription,
+                selectedAction: $selectedAction,
+            ),
         };
     }
 }

@@ -21,22 +21,30 @@ class PublicSuffixList
     public function getRules(): Rules
     {
         if (! $this->shouldCache) {
-            $this->rules = Rules::fromPath($this->configuration->getAsString('filesystems.disks.private.root') . '/public_suffix_list.dat');
+            $this->rules = Rules::fromPath(
+                $this->configuration->getAsString('filesystems.disks.private.root') . '/public_suffix_list.dat',
+            );
+
             return $this->rules;
         }
 
-        $this->rules = Cache::remember('pdp_public_suffix', 86400, fn (): Rules => Rules::fromPath($this->configuration->getAsString('pdp.public_suffix_url')));
+        $this->rules = Cache::remember(
+            'pdp_public_suffix',
+            86400,
+            fn (): Rules => Rules::fromPath($this->configuration->getAsString('pdp.public_suffix_url')),
+        );
+
         return $this->rules;
     }
 
-    public function getRegistrableDomain(string $domain): string|null
+    public function getRegistrableDomain(string $domain): ?string
     {
         $resolvedDomainName = $this->getRules()->resolve($domain);
 
         return $resolvedDomainName->registrableDomain()->value();
     }
 
-    public function getHostFromUrlOrDomain(string $value): string|null
+    public function getHostFromUrlOrDomain(string $value): ?string
     {
         $host = parse_url($value, PHP_URL_HOST);
 

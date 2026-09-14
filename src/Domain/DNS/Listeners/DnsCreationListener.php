@@ -73,8 +73,7 @@ class DnsCreationListener implements ShouldQueue
         $domain = $event->domain;
         Assert::stringNotEmpty($domain);
 
-        $dnsSubscription = Subscription::where('uuid', $event->subscriptionUuid)
-            ->firstOrFail();
+        $dnsSubscription = Subscription::where('uuid', $event->subscriptionUuid)->firstOrFail();
 
         /** @var Subscription $dnsSubscription */
         $isPremiumDns = $this->dnsProductSpecRepository->isPremiumDns($dnsSubscription->product);
@@ -84,7 +83,7 @@ class DnsCreationListener implements ShouldQueue
             [
                 LoggingContextKeys::DOMAIN_NAME => $domain,
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
-            ]
+            ],
         );
 
         $dnsDeployment = $dnsSubscription->dnsDeployment;
@@ -113,6 +112,7 @@ class DnsCreationListener implements ShouldQueue
 
             if ($isPremiumDns) {
                 $this->dnsService->enablePremiumDns($domain);
+
                 return;
             }
 
@@ -141,7 +141,7 @@ class DnsCreationListener implements ShouldQueue
                         LoggingContextKeys::DOMAIN_NAME => $domain,
                         LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                         LoggingContextKeys::EXCEPTION => $throwable,
-                    ]
+                    ],
                 );
 
                 $this->release($delay);
@@ -151,7 +151,7 @@ class DnsCreationListener implements ShouldQueue
                     [
                         LoggingContextKeys::DOMAIN_NAME => $domain,
                         LoggingContextKeys::EXCEPTION => $throwable,
-                    ]
+                    ],
                 );
 
                 $this->fail($throwable);
@@ -174,7 +174,7 @@ class DnsCreationListener implements ShouldQueue
                 'Create dns, zone already exists for domain {domain.name}. Updating kind to master',
                 [
                     LoggingContextKeys::DOMAIN_NAME => $domain,
-                ]
+                ],
             );
 
             $this->dnsService->changeToMasterAndEmptyMasters($domain);
@@ -183,7 +183,7 @@ class DnsCreationListener implements ShouldQueue
                 'Create dns, zone already exists for domain {domain.name}. Disabling presigned',
                 [
                     LoggingContextKeys::DOMAIN_NAME => $domain,
-                ]
+                ],
             );
             $this->disableZonePresigningAction->disable($domain);
         }
@@ -192,7 +192,7 @@ class DnsCreationListener implements ShouldQueue
             'Create dns, zone already exists for domain {domain.name}. Trying to update any legacy NS- and SOA-records',
             [
                 LoggingContextKeys::DOMAIN_NAME => $domain,
-            ]
+            ],
         );
         $this->updateNameserverAndSoaAction->updateRecords($domain, $nameservers);
     }

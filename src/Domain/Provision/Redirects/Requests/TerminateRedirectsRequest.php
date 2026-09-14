@@ -12,7 +12,7 @@ class TerminateRedirectsRequest extends RedirectProvisionRequest
     public ProvisionRequestName $name = ProvisionRequestName::TERMINATE_REDIRECTS;
 
     public function __construct(
-        public protected(set) UuidInterface $context
+        public protected(set) UuidInterface $context,
     ) {
         $this->tag = $this->context;
     }

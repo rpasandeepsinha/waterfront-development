@@ -19,7 +19,7 @@ class HostingMigrationIsResellerException extends Exception
                 $hostname,
             ),
             0,
-            $previous
+            $previous,
         );
     }
 }

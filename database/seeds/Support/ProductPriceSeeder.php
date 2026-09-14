@@ -66,39 +66,39 @@ class ProductPriceSeeder
     {
         $query = <<<SQL
 
-insert into public.product_prices (product_id,billing_period,"type",regular_price,promotion_price,created_at,updated_at,product_discount_id,contract_period,translation_key_id,introduction_price,orderable,action_period,action_period_price,is_default)
-select
-    id,
-    :billingPeriod,
-    :type,
-    :regularPrice,
-    :promotionPrice,
-    now(),
-    now(),
-    :productDiscountId,
-    :contractPeriod,
-    :translationKey,
-    :introductionPrice,
-    :orderable,
-    :actionPeriod,
-    :actionPeriodPrice,
-    :isDefault
-from products
-where (slug = :productSlug or slug = concat('local-', :productSlug))
-  and exists (select 1 from product_discounts where id = :productDiscountId or :productDiscountId is null)
-on conflict on constraint unique_product_price do update set
-    regular_price = EXCLUDED.regular_price,
-    promotion_price = EXCLUDED.promotion_price,
-    updated_at = now(),
-    product_discount_id = EXCLUDED.product_discount_id,
-    contract_period = EXCLUDED.contract_period,
-    translation_key_id = EXCLUDED.translation_key_id,
-    introduction_price = EXCLUDED.introduction_price,
-    orderable = EXCLUDED.orderable,
-    action_period = EXCLUDED.action_period,
-    action_period_price = EXCLUDED.action_period_price,
-    is_default = EXCLUDED.is_default
-SQL;
+        insert into public.product_prices (product_id,billing_period,"type",regular_price,promotion_price,created_at,updated_at,product_discount_id,contract_period,translation_key_id,introduction_price,orderable,action_period,action_period_price,is_default)
+        select
+            id,
+            :billingPeriod,
+            :type,
+            :regularPrice,
+            :promotionPrice,
+            now(),
+            now(),
+            :productDiscountId,
+            :contractPeriod,
+            :translationKey,
+            :introductionPrice,
+            :orderable,
+            :actionPeriod,
+            :actionPeriodPrice,
+            :isDefault
+        from products
+        where (slug = :productSlug or slug = concat('local-', :productSlug))
+          and exists (select 1 from product_discounts where id = :productDiscountId or :productDiscountId is null)
+        on conflict on constraint unique_product_price do update set
+            regular_price = EXCLUDED.regular_price,
+            promotion_price = EXCLUDED.promotion_price,
+            updated_at = now(),
+            product_discount_id = EXCLUDED.product_discount_id,
+            contract_period = EXCLUDED.contract_period,
+            translation_key_id = EXCLUDED.translation_key_id,
+            introduction_price = EXCLUDED.introduction_price,
+            orderable = EXCLUDED.orderable,
+            action_period = EXCLUDED.action_period,
+            action_period_price = EXCLUDED.action_period_price,
+            is_default = EXCLUDED.is_default
+        SQL;
 
         DB::statement($query, [
             'productSlug' => $row[0],
@@ -123,20 +123,20 @@ SQL;
             };
 
             $query = <<<SQL
-    insert into public.product_price_components (product_id,"type",billing_period,price,created_at,updated_at,contract_period,orderable,starts_at)
-    select
-        id,
-        :type,
-        :billingPeriod,
-        :staffelPrice,
-        now(),
-        now(),
-        :contractPeriod,
-        :orderable,
-        now()
-    from products
-    where (slug = :productSlug or slug = concat('local-', :productSlug))
-    SQL;
+            insert into public.product_price_components (product_id,"type",billing_period,price,created_at,updated_at,contract_period,orderable,starts_at)
+            select
+                id,
+                :type,
+                :billingPeriod,
+                :staffelPrice,
+                now(),
+                now(),
+                :contractPeriod,
+                :orderable,
+                now()
+            from products
+            where (slug = :productSlug or slug = concat('local-', :productSlug))
+            SQL;
 
             DB::statement($query, [
                 'productSlug' => $row[0],
@@ -156,20 +156,20 @@ SQL;
     {
         $query = <<<SQL
 
-insert into public.product_price_components (product_id,"type",billing_period,price,created_at,updated_at,contract_period,orderable,starts_at)
-select
-    id,
-    :type,
-    :billingPeriod,
-    :registrationPrice,
-    now(),
-    now(),
-    :contractPeriod,
-    :orderable,
-    now()
-from products
-where (slug = :productSlug or slug = concat('local-', :productSlug))
-SQL;
+        insert into public.product_price_components (product_id,"type",billing_period,price,created_at,updated_at,contract_period,orderable,starts_at)
+        select
+            id,
+            :type,
+            :billingPeriod,
+            :registrationPrice,
+            now(),
+            now(),
+            :contractPeriod,
+            :orderable,
+            now()
+        from products
+        where (slug = :productSlug or slug = concat('local-', :productSlug))
+        SQL;
 
         DB::statement($query, [
             'productSlug' => $row[0],
@@ -188,20 +188,20 @@ SQL;
     {
         $query = <<<SQL
 
-insert into public.product_price_components (product_id,"type",billing_period,price,created_at,updated_at,contract_period,orderable,starts_at)
-select
-    id,
-    :type,
-    :billingPeriod,
-    :registrationPrice,
-    now(),
-    now(),
-    :contractPeriod,
-    :orderable,
-    now()
-from products
-where (slug = :productSlug or slug = concat('local-', :productSlug))
-SQL;
+        insert into public.product_price_components (product_id,"type",billing_period,price,created_at,updated_at,contract_period,orderable,starts_at)
+        select
+            id,
+            :type,
+            :billingPeriod,
+            :registrationPrice,
+            now(),
+            now(),
+            :contractPeriod,
+            :orderable,
+            now()
+        from products
+        where (slug = :productSlug or slug = concat('local-', :productSlug))
+        SQL;
 
         DB::statement($query, [
             'productSlug' => $row[0],
@@ -220,20 +220,20 @@ SQL;
     {
         $query = <<<SQL
 
-insert into public.product_price_components (product_id,"type",billing_period,price,created_at,updated_at,contract_period,orderable,starts_at)
-select
-    id,
-    :type,
-    :billingPeriod,
-    :promotionPrice,
-    now(),
-    now(),
-    :contractPeriod,
-    :orderable,
-    now()
-from products
-where (slug = :productSlug or slug = concat('local-', :productSlug))
-SQL;
+        insert into public.product_price_components (product_id,"type",billing_period,price,created_at,updated_at,contract_period,orderable,starts_at)
+        select
+            id,
+            :type,
+            :billingPeriod,
+            :promotionPrice,
+            now(),
+            now(),
+            :contractPeriod,
+            :orderable,
+            now()
+        from products
+        where (slug = :productSlug or slug = concat('local-', :productSlug))
+        SQL;
 
         DB::statement($query, [
             'productSlug' => $row[0],
@@ -252,20 +252,20 @@ SQL;
     {
         $query = <<<SQL
 
-insert into public.product_price_components (product_id,"type",billing_period,price,created_at,updated_at,contract_period,orderable,starts_at)
-select
-    id,
-    :type,
-    :billingPeriod,
-    :introductionPrice,
-    now(),
-    now(),
-    :contractPeriod,
-    :orderable,
-    now()
-from products
-where (slug = :productSlug or slug = concat('local-', :productSlug))
-SQL;
+        insert into public.product_price_components (product_id,"type",billing_period,price,created_at,updated_at,contract_period,orderable,starts_at)
+        select
+            id,
+            :type,
+            :billingPeriod,
+            :introductionPrice,
+            now(),
+            now(),
+            :contractPeriod,
+            :orderable,
+            now()
+        from products
+        where (slug = :productSlug or slug = concat('local-', :productSlug))
+        SQL;
 
         DB::statement($query, [
             'productSlug' => $row[0],

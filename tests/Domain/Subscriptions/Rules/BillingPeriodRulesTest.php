@@ -45,18 +45,27 @@ class BillingPeriodRulesTest extends IntegrationTestCase
         $this->product = new ProductFactory()->for($productGroup)->createOne([
             'slug' => 'ssl-basic',
         ]);
-        new ProductPriceComponentFactory()->for($this->product)->registration()->createOne([
-            'contract_period' => 12,
-            'billing_period' => 12,
-        ]);
-        new ProductPriceComponentFactory()->for($this->product)->registration()->createOne([
-            'contract_period' => 12,
-            'billing_period' => 1,
-        ]);
-        new ProductPriceComponentFactory()->for($this->product)->registration()->createOne([
-            'contract_period' => 1,
-            'billing_period' => 1,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->registration()
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => 12,
+            ]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->registration()
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => 1,
+            ]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->registration()
+            ->createOne([
+                'contract_period' => 1,
+                'billing_period' => 1,
+            ]);
 
         $this->rule = new BillingPeriodRules(
             self::resolve(TranslatorInterface::class),
@@ -74,8 +83,7 @@ class BillingPeriodRulesTest extends IntegrationTestCase
     #[Test]
     public function billingExceedsContract(): void
     {
-        $this->mockAuthenticationManager->expects(self::never())
-            ->method('getAuthenticatedCustomer');
+        $this->mockAuthenticationManager->expects(self::never())->method('getAuthenticatedCustomer');
 
         $this->rule->setData([
             'subscriptions.ssl.0.slug' => $this->product->slug,
@@ -97,7 +105,8 @@ class BillingPeriodRulesTest extends IntegrationTestCase
     #[Test]
     public function noMonthlyBilling(): void
     {
-        $this->mockAuthenticationManager->expects(self::once())
+        $this->mockAuthenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedCustomer')
             ->willReturn($this->makeAuthenticatedCustomer(false));
 
@@ -118,7 +127,8 @@ class BillingPeriodRulesTest extends IntegrationTestCase
     #[Test]
     public function monthlyBillingButCustomerHasDirectDebit(): void
     {
-        $this->mockAuthenticationManager->expects(self::once())
+        $this->mockAuthenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedCustomer')
             ->willReturn($this->makeAuthenticatedCustomer(true));
 
@@ -139,7 +149,8 @@ class BillingPeriodRulesTest extends IntegrationTestCase
     #[Test]
     public function monthlyBillingButDirectDebitWillBeCreated(): void
     {
-        $this->mockAuthenticationManager->expects(self::once())
+        $this->mockAuthenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedCustomer')
             ->willReturn($this->makeAuthenticatedCustomer(false));
 
@@ -161,7 +172,8 @@ class BillingPeriodRulesTest extends IntegrationTestCase
     #[Test]
     public function monthlyBillingWithNoDirectDebit(): void
     {
-        $this->mockAuthenticationManager->expects(self::once())
+        $this->mockAuthenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedCustomer')
             ->willReturn($this->makeAuthenticatedCustomer(false));
 
@@ -186,7 +198,8 @@ class BillingPeriodRulesTest extends IntegrationTestCase
     #[Test]
     public function monthlyBillingWithNoPaymentMethod(): void
     {
-        $this->mockAuthenticationManager->expects(self::once())
+        $this->mockAuthenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedCustomer')
             ->willReturn($this->makeAuthenticatedCustomer(false));
 
@@ -213,7 +226,8 @@ class BillingPeriodRulesTest extends IntegrationTestCase
             'addon_product_id' => $this->product->id,
         ]);
 
-        $this->mockAuthenticationManager->expects(self::once())
+        $this->mockAuthenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedCustomer')
             ->willReturn($this->makeAuthenticatedCustomer(false));
 
@@ -235,7 +249,8 @@ class BillingPeriodRulesTest extends IntegrationTestCase
     #[Test]
     public function monthlyBillingWithMonthlyContract(): void
     {
-        $this->mockAuthenticationManager->expects(self::once())
+        $this->mockAuthenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedCustomer')
             ->willReturn($this->makeAuthenticatedCustomer(false));
 
@@ -257,7 +272,8 @@ class BillingPeriodRulesTest extends IntegrationTestCase
     #[Test]
     public function monthlyBillingWithNoOtherAvailablePeriods(): void
     {
-        $this->mockAuthenticationManager->expects(self::once())
+        $this->mockAuthenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedCustomer')
             ->willReturn($this->makeAuthenticatedCustomer(false));
 
@@ -285,8 +301,7 @@ class BillingPeriodRulesTest extends IntegrationTestCase
     #[Test]
     public function invalidSlug(): void
     {
-        $this->mockAuthenticationManager->expects(self::never())
-            ->method('getAuthenticatedCustomer');
+        $this->mockAuthenticationManager->expects(self::never())->method('getAuthenticatedCustomer');
 
         $this->rule->setData([
             'paymentMethod' => 'bancontact',
@@ -304,6 +319,7 @@ class BillingPeriodRulesTest extends IntegrationTestCase
         $identity = self::createStub(KratosIdentity::class);
         $customer = new Customer();
         $customer->has_direct_debit = $hasDirectDebit;
+
         return new AuthenticatedCustomer($customer, $identity, true);
     }
 }

@@ -48,6 +48,7 @@ class JwtAuthentication
         if ($request->headers->contains('accept', 'application/json')) {
             return new Response('Forbidden', 403);
         }
+
         return new RedirectResponse($this->redirectUrl);
     }
 }

@@ -47,6 +47,7 @@ class MockCommand extends DirectAdminCommand
     public function setUrlDecode(bool $urlDecode): MockCommand
     {
         $this->urlDecode = $urlDecode;
+
         return $this;
     }
 
@@ -58,6 +59,7 @@ class MockCommand extends DirectAdminCommand
     public function setResponseBody(string $responseBody): MockCommand
     {
         $this->responseBody = $responseBody;
+
         return $this;
     }
 }

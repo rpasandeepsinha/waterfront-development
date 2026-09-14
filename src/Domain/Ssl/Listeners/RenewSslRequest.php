@@ -37,7 +37,7 @@ class RenewSslRequest implements ShouldQueue
         private readonly LoggerInterface $logger,
         private readonly SslDnsManagementResolver $sslDnsManagementResolver,
         private readonly TemplateRepository $templateRepository,
-        private readonly EmailHistoryRepository $emailHistoryRepository
+        private readonly EmailHistoryRepository $emailHistoryRepository,
     ) {
     }
 
@@ -45,9 +45,7 @@ class RenewSslRequest implements ShouldQueue
     {
         $subscription = $event->subscription;
 
-        if (
-            ! $subscription->sslDeployment instanceof SslDeployment
-        ) {
+        if (! $subscription->sslDeployment instanceof SslDeployment) {
             return;
         }
 
@@ -61,14 +59,14 @@ class RenewSslRequest implements ShouldQueue
         }
 
         $template = $this->templateRepository->getBySlug(
-            SslRenewalFailedMissingCname::getTemplateSlug()
+            SslRenewalFailedMissingCname::getTemplateSlug(),
         );
 
         $alreadySent = $this->emailHistoryRepository->wasEmailSentSince(
             receiverType: ReceiverType::CUSTOMER,
             receiverUuid: (string) $subscription->customer->getUuid(),
             templateId: $template->id,
-            since: CarbonImmutable::today()
+            since: CarbonImmutable::today(),
         );
 
         if ($alreadySent) {
@@ -88,8 +86,9 @@ class RenewSslRequest implements ShouldQueue
                     LoggingContextKeys::META => [
                         'reason' => 'dcv_details_null',
                     ],
-                ]
+                ],
             );
+
             return;
         }
 
@@ -105,8 +104,8 @@ class RenewSslRequest implements ShouldQueue
                 domain: $domain,
                 cnameName: $dcv->dnsRecord,
                 cnameValue: $dcv->dnsContent,
-                expirydate: $subscription->end_date->format('Y-m-d')
-            )
+                expirydate: $subscription->end_date->format('Y-m-d'),
+            ),
         );
     }
 }

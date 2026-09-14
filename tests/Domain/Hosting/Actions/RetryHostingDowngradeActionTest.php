@@ -44,7 +44,7 @@ class RetryHostingDowngradeActionTest extends IntegrationTestCase
             SubscriptionMutation::query()
                 ->where('subscription_id', $subscription->id)
                 ->whereNull('mutated_at')
-                ->count()
+                ->count(),
         );
 
         $action = self::resolve(RetryHostingDowngradeAction::class);
@@ -56,14 +56,9 @@ class RetryHostingDowngradeActionTest extends IntegrationTestCase
     #[Test]
     public function throwsWhenSubscriptionHasNoHostingDeployment(): void
     {
-        $product = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->createOne())
-            ->createOne();
+        $product = ProductFactory::new()->for(ProductGroupFactory::new()->createOne())->createOne();
 
-        $subscription = SubscriptionFactory::new()
-            ->withCustomer()
-            ->for($product)
-            ->createOne();
+        $subscription = SubscriptionFactory::new()->withCustomer()->for($product)->createOne();
 
         $action = self::resolve(RetryHostingDowngradeAction::class);
 
@@ -76,16 +71,14 @@ class RetryHostingDowngradeActionTest extends IntegrationTestCase
     public function returnsTrueWhenOpenMutationExistsAndDowngradeSucceeds(): void
     {
         $this->mock(HostingDowngradePossibilityChecker::class)
-            ->shouldReceive('canDowngradeToServicePlan')  // Changed from 'check'
+            ->shouldReceive('canDowngradeToServicePlan') // Changed from 'check'
             ->once()
             ->andReturn(new DowngradeCheckResult(true, null));
 
         $subscription = $this->makeSubscriptionWithHostingDeployment();
         $hostingProductGroup = $subscription->product->productGroup;
 
-        $downgradeProduct = new ProductFactory()
-        ->for($hostingProductGroup)
-        ->createOne([
+        $downgradeProduct = new ProductFactory()->for($hostingProductGroup)->createOne([
             'name' => 'basic',
             'slug' => 'basic',
         ]);
@@ -117,16 +110,14 @@ class RetryHostingDowngradeActionTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
 
         $hostingProductGroup = new ProductGroupFactory()->createOne([
-        'name' => ProductGroupType::HOSTING,
-        'slug' => ProductGroupType::HOSTING,
-    ]);
+            'name' => ProductGroupType::HOSTING,
+            'slug' => ProductGroupType::HOSTING,
+        ]);
 
-        $product = new ProductFactory()
-            ->for($hostingProductGroup)
-            ->createOne([
-                'name' => 'premium',
-                'slug' => 'premium',
-            ]);
+        $product = new ProductFactory()->for($hostingProductGroup)->createOne([
+            'name' => 'premium',
+            'slug' => 'premium',
+        ]);
 
         $provider = ProviderFactory::new()->createOne([
             'type' => ProviderType::HOSTING,
@@ -134,13 +125,12 @@ class RetryHostingDowngradeActionTest extends IntegrationTestCase
             'enabled' => true,
             'default' => true,
         ]);
+
         return new SubscriptionFactory()
             ->for($customer)
             ->for($product)
             ->has(
-                new HostingDeploymentFactory()
-                    ->for($provider, 'provider')
-                    ->for(new ServerFactory())
+                new HostingDeploymentFactory()->for($provider, 'provider')->for(new ServerFactory()),
             )
             ->createOne([
                 'technical_status' => TechnicalStatus::OK->value,

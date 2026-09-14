@@ -84,7 +84,7 @@ class ManagerDomainDeployment extends Model implements AuditableContract
             SshKey::class,
             'cloudstack_managerdomain_cloudstack_vm_ssh_keys',
             'manager_domain_deployment_id',
-            'ssh_key_id'
+            'ssh_key_id',
         )->withTimestamps();
     }
 

@@ -16,8 +16,11 @@ use Waterfront\Infra\Configuration\ConfigurationInterface;
 #[Description('Cleanup email history from gdpr values')]
 class CleanEmailHistoryPayloadData extends Command
 {
-    public function handle(ConfigurationInterface $configuration, EmailHistoryRepository $emailHistoryRepository, CleanEmailHistoryAction $cleanEmailHistoryAction): int
-    {
+    public function handle(
+        ConfigurationInterface $configuration,
+        EmailHistoryRepository $emailHistoryRepository,
+        CleanEmailHistoryAction $cleanEmailHistoryAction,
+    ): int {
         $days = $configuration->getAsInteger('hubspot.email_history_retention_days');
         $beforeDate = CarbonImmutable::now()->subDays($days);
 

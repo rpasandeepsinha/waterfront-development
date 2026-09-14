@@ -13,15 +13,15 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 readonly class RetentionOfferItemDTO
 {
     /**
-     * @param positive-int $contractPeriod
-     * @param positive-int $billingPeriod
+     * @param null|positive-int $contractPeriod
+     * @param null|positive-int $billingPeriod
      */
     public function __construct(
         public Subscription $subscription,
         public SelectedAction $selectedAction,
         public ExecutionDate $executionDate,
-        public int $contractPeriod,
-        public int $billingPeriod,
+        public ?int $contractPeriod,
+        public ?int $billingPeriod,
         public ?Product $targetProduct,
         public ?SubscriptionCancelReason $cancelReason,
         public ?string $cancelReasonOther,

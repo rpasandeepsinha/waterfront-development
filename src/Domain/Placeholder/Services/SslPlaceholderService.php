@@ -26,7 +26,7 @@ class SslPlaceholderService extends PlaceHolderService implements SslDriverInter
         int $period,
         array $customerData,
         SslDeployment $sslDeployment,
-        ?string $csr = null
+        ?string $csr = null,
     ): Result {
         $provider = Provider::where('type', ProviderType::SSL)->where('slug', ProviderSlug::PLACEHOLDER)->first();
 
@@ -34,7 +34,7 @@ class SslPlaceholderService extends PlaceHolderService implements SslDriverInter
             throw new DriverNotFoundException(sprintf(
                 'There was no sslprovider found with the slug %s for the SSL deployment with id: %s',
                 ProviderSlug::PLACEHOLDER->value,
-                $sslDeployment->id
+                $sslDeployment->id,
             ));
         }
 
@@ -59,7 +59,7 @@ class SslPlaceholderService extends PlaceHolderService implements SslDriverInter
     public function reissue(
         array $customerData,
         SslDeployment $sslDeployment,
-        string $csr
+        string $csr,
     ): Result {
         throw new NotImplementedException();
     }
@@ -88,7 +88,7 @@ class SslPlaceholderService extends PlaceHolderService implements SslDriverInter
         int $certificateId,
         string $domain,
         array $certificates,
-        bool $alreadySaved = false
+        bool $alreadySaved = false,
     ): array {
         throw new NotImplementedException();
     }

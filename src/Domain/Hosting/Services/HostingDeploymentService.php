@@ -44,7 +44,10 @@ class HostingDeploymentService
             }
         }
 
-        throw new RuntimeException(sprintf('HostingDeployment: cannot perform action on unsupported provider %s: fetching matching username', $slug?->value));
+        throw new RuntimeException(sprintf(
+            'HostingDeployment: cannot perform action on unsupported provider %s: fetching matching username',
+            $slug?->value,
+        ));
     }
 
     public function getMailUsername(HostingDeployment $hostingDeployment): ?string
@@ -55,7 +58,10 @@ class HostingDeploymentService
             ProviderSlug::DIRECTADMIN => $hostingDeployment->directadmin_customer_username,
             ProviderSlug::PLESK => $hostingDeployment->plesk_customer_username,
             ProviderSlug::PLACEHOLDER => null,
-            default => throw new RuntimeException(sprintf('HostingDeployment: cannot perform action on unsupported provider %s: fetching matching mail username', $slug?->value)),
+            default => throw new RuntimeException(sprintf(
+                'HostingDeployment: cannot perform action on unsupported provider %s: fetching matching mail username',
+                $slug?->value,
+            )),
         };
     }
 
@@ -71,7 +77,11 @@ class HostingDeploymentService
                 $hostingDeployment->plesk_customer_username = $username;
                 break;
             default:
-                throw new RuntimeException(sprintf('HostingDeployment: cannot perform action on unsupported provider %s: setting mail username: %s', $slug?->value, $username));
+                throw new RuntimeException(sprintf(
+                    'HostingDeployment: cannot perform action on unsupported provider %s: setting mail username: %s',
+                    $slug?->value,
+                    $username,
+                ));
         }
 
         $hostingDeployment->save();
@@ -79,6 +89,8 @@ class HostingDeploymentService
 
     private function getMailProviderSlug(HostingDeployment $hostingDeployment): ?ProviderSlug
     {
-        return $hostingDeployment->subscription->product->isMailOnlyServer() ? $hostingDeployment->mailProvider?->slug : $hostingDeployment->provider?->slug;
+        return $hostingDeployment->subscription->product->isMailOnlyServer()
+            ? $hostingDeployment->mailProvider?->slug
+            : $hostingDeployment->provider?->slug;
     }
 }

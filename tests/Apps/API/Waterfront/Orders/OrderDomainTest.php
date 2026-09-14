@@ -43,17 +43,14 @@ class OrderDomainTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->withAddress()->createOne();
 
-        $defaultContact = new DomainContactFactory()
-            ->for($this->customer)->createOne();
+        $defaultContact = new DomainContactFactory()->for($this->customer)->createOne();
 
-        $this->anonymousContact = DomainContactfactory::new()
-            ->for($this->customer)->createOne();
+        $this->anonymousContact = DomainContactfactory::new()->for($this->customer)->createOne();
 
         $anonymousHandleIdentifier = 'anonymized_handle';
-        DomainContactAnonymousHandleFactory::new()
-            ->createOne([
-                'handle' => $anonymousHandleIdentifier,
-            ]);
+        DomainContactAnonymousHandleFactory::new()->createOne([
+            'handle' => $anonymousHandleIdentifier,
+        ]);
 
         $domainGroup = new ProductGroupFactory()->createOne([
             'slug' => 'extension',
@@ -64,29 +61,40 @@ class OrderDomainTest extends IntegrationTestCase
             'name' => '.com',
             'slug' => 'extension_com',
         ]);
-        new ProductPriceComponentFactory()->for($product)->registration()->createOne(['price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne(['price' => 96]);
 
-        $domainProvider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        $domainProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
-        $rtrProvider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
+        $rtrProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
-        $this->customContact = DomainContactFactory::new()
-            ->for($this->customer)
-            ->createOne();
+        $this->customContact = DomainContactFactory::new()->for($this->customer)->createOne();
 
-        $this->anonymousContact->providers()
-            ->attach($rtrProvider, ['external_contact' => $anonymousHandleIdentifier]);
-        $defaultContact->providers()
-            ->attach($domainProvider, ['external_contact' => 'handle-default-contact-1']);
-        $this->customContact->providers()
-            ->attach($domainProvider, ['external_contact' => 'handle-custom-contact-1']);
+        $this->anonymousContact->providers()->attach($rtrProvider, ['external_contact' => $anonymousHandleIdentifier]);
+        $defaultContact->providers()->attach($domainProvider, ['external_contact' => 'handle-default-contact-1']);
+        $this->customContact->providers()->attach($domainProvider, ['external_contact' => 'handle-custom-contact-1']);
 
         $dnsGroup = new ProductGroupFactory()->dns()->createOne(['name' => ProductGroupType::DNS]);
         $dnsProduct = new ProductFactory()->for($dnsGroup)->createOne([
             'name' => 'free-dns',
             'slug' => 'free-dns',
         ]);
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne(['price' => 0]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
     }
 
     #[Test]
@@ -112,16 +120,22 @@ class OrderDomainTest extends IntegrationTestCase
         assert(is_array($payload['subscriptions']));
         $payload['subscriptions']['extension'][0]['contact_id'] = $this->customContact->id;
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.order.order'),
-            $payload
-        )->assertOk();
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.order.order'),
+                $payload,
+            )
+            ->assertOk();
 
-        $subscription = Subscription::query()->whereProductGroupType(ProductGroupType::EXTENSION)
+        $subscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::EXTENSION)
             ->where('domain', 'domainwithcontact.com')
             ->firstOrFail();
 
-        $dnsSubscription = Subscription::query()->whereProductGroupType(ProductGroupType::DNS)->where('domain', $subscription->domain)->firstOrFail();
+        $dnsSubscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::DNS)
+            ->where('domain', $subscription->domain)
+            ->firstOrFail();
         self::assertSame(AdministrativeStatus::ACTIVE->value, $dnsSubscription->administrative_status);
 
         $domainDeployment = $subscription->domainDeployment()->firstOrFail();
@@ -137,7 +151,7 @@ class OrderDomainTest extends IntegrationTestCase
 
         self::assertSame(
             'handle-custom-contact-1',
-            $domainContactLink->pivot->external_contact
+            $domainContactLink->pivot->external_contact,
         );
 
         Event::assertDispatched(CreateDns::class);
@@ -161,13 +175,13 @@ class OrderDomainTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.order.order'),
-                $payload
+                $payload,
             )
             ->assertUnprocessable()
             ->assertExactJson([
                 'message' => 'validation.domain_contact.anonymous.rule',
                 'errors' => [
-                    'subscriptions.extension.0.contact_id' =>  [
+                    'subscriptions.extension.0.contact_id' => [
                         'validation.domain_contact.anonymous.rule',
                     ],
                 ],

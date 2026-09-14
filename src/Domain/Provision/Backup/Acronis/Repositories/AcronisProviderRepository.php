@@ -10,14 +10,11 @@ class AcronisProviderRepository
 {
     public function find(int $id): ?AcronisProvider
     {
-        return AcronisProvider::query()
-            ->find($id);
+        return AcronisProvider::query()->find($id);
     }
 
     public function getDefault(): ?AcronisProvider
     {
-        return AcronisProvider::query()
-            ->where('default', true)
-            ->first();
+        return AcronisProvider::query()->where('default', true)->first();
     }
 }

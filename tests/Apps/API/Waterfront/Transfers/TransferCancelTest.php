@@ -38,7 +38,10 @@ class TransferCancelTest extends IntegrationTestCase
 
         $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne();
 
-        $subscription = new SubscriptionFactory()->for($product)->for($this->fromCustomer)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($this->fromCustomer)
+            ->createOne();
         $this->transfer = new TransferFactory()->createOne([
             'from_customer_id' => $this->fromCustomer->id,
             'to_customer_id' => $receiver->id,
@@ -54,9 +57,11 @@ class TransferCancelTest extends IntegrationTestCase
             MailTransferCancelledReceiver::class,
         ]);
 
-        $this->actingAsCustomer($this->fromCustomer)->postJson(
-            $this->generateRoute('partners.transfers.cancel', ['transfer' => $this->transfer->uuid])
-        )->assertOk();
+        $this->actingAsCustomer($this->fromCustomer)
+            ->postJson(
+                $this->generateRoute('partners.transfers.cancel', ['transfer' => $this->transfer->uuid]),
+            )
+            ->assertOk();
 
         $transfer = $this->transfer->refresh();
 
@@ -72,13 +77,14 @@ class TransferCancelTest extends IntegrationTestCase
         $this->transfer->complete();
 
         $mailer = self::createMock(Mailer::class);
-        $mailer->expects(self::never())
-            ->method('send');
+        $mailer->expects(self::never())->method('send');
         $this->app->bind(Mailer::class, fn () => $mailer);
 
-        $this->actingAsCustomer($this->fromCustomer)->postJson(
-            $this->generateRoute('partners.transfers.cancel', ['transfer' => $this->transfer->uuid])
-        )->assertUnprocessable();
+        $this->actingAsCustomer($this->fromCustomer)
+            ->postJson(
+                $this->generateRoute('partners.transfers.cancel', ['transfer' => $this->transfer->uuid]),
+            )
+            ->assertUnprocessable();
 
         $this->transfer->refresh();
 

@@ -42,9 +42,7 @@ class RepairMissingRemoteNameserversJobTest extends TestCase
         $this->failedDomainSubscriptionRepairService = self::createMock(FailedDomainSubscriptionRepairService::class);
         $this->logger = self::createStub(LoggerInterface::class);
 
-        $this->subscription = SubscriptionFactory::new()
-            ->forDomain('example.test')
-            ->makeOne();
+        $this->subscription = SubscriptionFactory::new()->forDomain('example.test')->makeOne();
 
         $this->domainDeployment = new DomainDeployment();
         $this->domainDeployment->id = 101;
@@ -58,11 +56,13 @@ class RepairMissingRemoteNameserversJobTest extends TestCase
     {
         Queue::fake();
 
-        $this->app->make(Dispatcher::class)->dispatch(new RepairMissingRemoteNameserversJob(
-            subscription: $this->subscription,
-            dryRun: true,
-            triggeredBy: self::TRIGGERED_BY,
-        ));
+        $this->app
+            ->make(Dispatcher::class)
+            ->dispatch(new RepairMissingRemoteNameserversJob(
+                subscription: $this->subscription,
+                dryRun: true,
+                triggeredBy: self::TRIGGERED_BY,
+            ));
 
         Queue::assertPushedOn(QueueName::DEFAULT->value, RepairMissingRemoteNameserversJob::class);
     }
@@ -72,11 +72,13 @@ class RepairMissingRemoteNameserversJobTest extends TestCase
     {
         Bus::fake();
 
-        $this->app->make(Dispatcher::class)->dispatch(new RepairMissingRemoteNameserversJob(
-            subscription: $this->subscription,
-            dryRun: true,
-            triggeredBy: self::TRIGGERED_BY,
-        ));
+        $this->app
+            ->make(Dispatcher::class)
+            ->dispatch(new RepairMissingRemoteNameserversJob(
+                subscription: $this->subscription,
+                dryRun: true,
+                triggeredBy: self::TRIGGERED_BY,
+            ));
 
         Bus::assertNotDispatchedSync(RepairMissingRemoteNameserversJob::class);
     }
@@ -84,9 +86,7 @@ class RepairMissingRemoteNameserversJobTest extends TestCase
     #[Test]
     public function handleDoesNotCallRepairServiceInDryRun(): void
     {
-        $this->failedDomainSubscriptionRepairService
-            ->expects(self::never())
-            ->method('repairMissingRemoteNameservers');
+        $this->failedDomainSubscriptionRepairService->expects(self::never())->method('repairMissingRemoteNameservers');
 
         $job = new RepairMissingRemoteNameserversJob(
             subscription: $this->subscription,
@@ -126,9 +126,7 @@ class RepairMissingRemoteNameserversJobTest extends TestCase
     #[Test]
     public function handleLogsDryRunMessage(): void
     {
-        $this->failedDomainSubscriptionRepairService
-            ->expects(self::never())
-            ->method('repairMissingRemoteNameservers');
+        $this->failedDomainSubscriptionRepairService->expects(self::never())->method('repairMissingRemoteNameservers');
 
         $logger = self::createMock(LoggerInterface::class);
         $logger

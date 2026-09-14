@@ -43,10 +43,12 @@ class CloudstackJobTest extends IntegrationTestCase
             ->for($environment)
             ->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $vmProduct->uuid,
-            'customer_id' => $customer->id,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $vmProduct->uuid,
+                'customer_id' => $customer->id,
+            ]);
 
         $vmSubscription = new CloudstackVirtualMachineDeploymentFactory()
             ->for($subscription, 'subscription')

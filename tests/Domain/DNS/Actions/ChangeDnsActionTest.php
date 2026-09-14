@@ -78,22 +78,18 @@ class ChangeDnsActionTest extends IntegrationTestCase
             ->withCustomer()
             ->for($this->freeDnsProduct)
             ->has(
-                new DnsDeploymentFactory()
-                    ->has((new DnsVanityNameserverFactory()), 'vanityNameservers'),
+                new DnsDeploymentFactory()->has(new DnsVanityNameserverFactory(), 'vanityNameservers'),
             )
             ->createOne();
 
-        $this->mockDnsService->expects(self::once())
-            ->method('enablePremiumDns')
-            ->with($subscription->domain);
+        $this->mockDnsService->expects(self::once())->method('enablePremiumDns')->with($subscription->domain);
 
-        $this->mockDnsService->expects(self::never())
-            ->method('disablePremiumDns');
+        $this->mockDnsService->expects(self::never())->method('disablePremiumDns');
 
-        $this->gandiClient->expects(self::never())
-            ->method('deleteDomain');
+        $this->gandiClient->expects(self::never())->method('deleteDomain');
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Upgrading subscription with domain {domain.name} to Premium DNS',
@@ -101,10 +97,11 @@ class ChangeDnsActionTest extends IntegrationTestCase
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-                ]
+                ],
             );
 
-        $this->logger->expects(self::exactly(2))
+        $this->logger
+            ->expects(self::exactly(2))
             ->method('debug')
             ->with(
                 ...self::withConsecutive(
@@ -124,29 +121,24 @@ class ChangeDnsActionTest extends IntegrationTestCase
                             LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                         ],
                     ],
-                )
+                ),
             );
 
-        $this->vanityAssigner
-            ->expects(self::never())
-            ->method('assign');
+        $this->vanityAssigner->expects(self::never())->method('assign');
 
-        $this->mockDnsNameserverAssigner
-            ->expects(self::once())
-            ->method('clear')
-            ->with($subscription->dnsDeployment);
+        $this->mockDnsNameserverAssigner->expects(self::once())->method('clear')->with($subscription->dnsDeployment);
 
         $changeDnsAction = new ChangeDnsAction(
             dnsService: $this->mockDnsService,
             logger: $this->logger,
             gandiClient: $this->gandiClient,
             dnsVanityNameserverAssigner: $this->vanityAssigner,
-            dnsNameserverAssigner: $this->mockDnsNameserverAssigner
+            dnsNameserverAssigner: $this->mockDnsNameserverAssigner,
         );
 
         $changeDnsAction->execute(
             subscription: $subscription,
-            changeType: ProductChangeType::UPGRADE
+            changeType: ProductChangeType::UPGRADE,
         );
 
         $subscription->refresh();
@@ -163,20 +155,17 @@ class ChangeDnsActionTest extends IntegrationTestCase
         $subscription = new SubscriptionFactory()
             ->withCustomer()
             ->for($this->freeDnsProduct)
-            ->has((new DnsDeploymentFactory()))
+            ->has(new DnsDeploymentFactory())
             ->createOne();
 
-        $this->mockDnsService->expects(self::once())
-            ->method('enablePremiumDns')
-            ->with($subscription->domain);
+        $this->mockDnsService->expects(self::once())->method('enablePremiumDns')->with($subscription->domain);
 
-        $this->mockDnsService->expects(self::never())
-            ->method('disablePremiumDns');
+        $this->mockDnsService->expects(self::never())->method('disablePremiumDns');
 
-        $this->gandiClient->expects(self::never())
-            ->method('deleteDomain');
+        $this->gandiClient->expects(self::never())->method('deleteDomain');
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Upgrading subscription with domain {domain.name} to Premium DNS',
@@ -184,10 +173,11 @@ class ChangeDnsActionTest extends IntegrationTestCase
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-                ]
+                ],
             );
 
-        $this->logger->expects(self::exactly(2))
+        $this->logger
+            ->expects(self::exactly(2))
             ->method('debug')
             ->with(
                 ...self::withConsecutive(
@@ -207,30 +197,24 @@ class ChangeDnsActionTest extends IntegrationTestCase
                             LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                         ],
                     ],
-                )
+                ),
             );
 
-        $this->vanityAssigner
-            ->expects(self::once())
-            ->method('assign')
-            ->with($subscription->dnsDeployment);
+        $this->vanityAssigner->expects(self::once())->method('assign')->with($subscription->dnsDeployment);
 
-        $this->mockDnsNameserverAssigner
-            ->expects(self::once())
-            ->method('clear')
-            ->with($subscription->dnsDeployment);
+        $this->mockDnsNameserverAssigner->expects(self::once())->method('clear')->with($subscription->dnsDeployment);
 
         $changeDnsAction = new ChangeDnsAction(
             dnsService: $this->mockDnsService,
             logger: $this->logger,
             gandiClient: $this->gandiClient,
             dnsVanityNameserverAssigner: $this->vanityAssigner,
-            dnsNameserverAssigner: $this->mockDnsNameserverAssigner
+            dnsNameserverAssigner: $this->mockDnsNameserverAssigner,
         );
 
         $changeDnsAction->execute(
             subscription: $subscription,
-            changeType: ProductChangeType::UPGRADE
+            changeType: ProductChangeType::UPGRADE,
         );
 
         $subscription->refresh();
@@ -246,9 +230,7 @@ class ChangeDnsActionTest extends IntegrationTestCase
             ->createOne();
 
         new DomainDeploymentFactory()
-            ->for(new ProviderFactory()
-                ->domainOpenProvider()
-                ->createOne())
+            ->for(new ProviderFactory()->domainOpenProvider()->createOne())
             ->for($parentSubscription)
             ->createOne();
 
@@ -259,22 +241,16 @@ class ChangeDnsActionTest extends IntegrationTestCase
             ->has(new DnsDeploymentFactory()->premiumDns(), 'dnsDeployment')
             ->createOne();
 
-        $this->mockDnsNameserverAssigner->expects(self::once())
-            ->method('assign')
-            ->with($subscription->dnsDeployment);
+        $this->mockDnsNameserverAssigner->expects(self::once())->method('assign')->with($subscription->dnsDeployment);
 
-        $this->mockDnsService->expects(self::once())
-            ->method('disablePremiumDns')
-            ->with($subscription->domain, true);
+        $this->mockDnsService->expects(self::once())->method('disablePremiumDns')->with($subscription->domain, true);
 
-        $this->gandiClient->expects(self::once())
-            ->method('deleteDomain')
-            ->with($subscription->domain);
+        $this->gandiClient->expects(self::once())->method('deleteDomain')->with($subscription->domain);
 
-        $this->mockDnsService->expects(self::never())
-            ->method('enablePremiumDns');
+        $this->mockDnsService->expects(self::never())->method('enablePremiumDns');
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'Downgrading subscription with domain {domain.name} from Premium DNS',
@@ -282,10 +258,11 @@ class ChangeDnsActionTest extends IntegrationTestCase
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-                ]
+                ],
             );
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('debug')
             ->with(
                 'Remove vanity nameservers for subscription with domain {domain.name} during downgrade',
@@ -293,25 +270,22 @@ class ChangeDnsActionTest extends IntegrationTestCase
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-                ]
+                ],
             );
 
-        $this->vanityAssigner
-            ->expects(self::once())
-            ->method('clear')
-            ->with($subscription->dnsDeployment);
+        $this->vanityAssigner->expects(self::once())->method('clear')->with($subscription->dnsDeployment);
 
         $changeDnsAction = new ChangeDnsAction(
             dnsService: $this->mockDnsService,
             logger: $this->logger,
             gandiClient: $this->gandiClient,
             dnsVanityNameserverAssigner: $this->vanityAssigner,
-            dnsNameserverAssigner: $this->mockDnsNameserverAssigner
+            dnsNameserverAssigner: $this->mockDnsNameserverAssigner,
         );
 
         $changeDnsAction->execute(
             subscription: $subscription,
-            changeType: ProductChangeType::DOWNGRADE
+            changeType: ProductChangeType::DOWNGRADE,
         );
 
         $subscription->refresh();
@@ -326,15 +300,13 @@ class ChangeDnsActionTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne()))
             ->createOne();
 
-        $this->mockDnsService->expects(self::never())
-            ->method('enablePremiumDns');
-        $this->mockDnsService->expects(self::never())
-            ->method('disablePremiumDns');
+        $this->mockDnsService->expects(self::never())->method('enablePremiumDns');
+        $this->mockDnsService->expects(self::never())->method('disablePremiumDns');
 
-        $this->gandiClient->expects(self::never())
-            ->method('deleteDomain');
+        $this->gandiClient->expects(self::never())->method('deleteDomain');
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Invalid subscription with domain {domain.name} for DNS change. Expected subscription with product group {expected.product_group} but got {actual.product_group}',
@@ -346,7 +318,7 @@ class ChangeDnsActionTest extends IntegrationTestCase
                         'expected.product_group' => ProductGroupType::DNS->value,
                         'actual.product_group' => $subscription->product->productGroup->slug->value,
                     ],
-                ]
+                ],
             );
 
         $changeDnsAction = new ChangeDnsAction(
@@ -354,13 +326,13 @@ class ChangeDnsActionTest extends IntegrationTestCase
             $this->logger,
             $this->gandiClient,
             $this->vanityAssigner,
-            $this->mockDnsNameserverAssigner
+            $this->mockDnsNameserverAssigner,
         );
 
         self::expectException(DnsChangeException::class);
         $changeDnsAction->execute(
             subscription: $subscription,
-            changeType: ProductChangeType::DOWNGRADE
+            changeType: ProductChangeType::DOWNGRADE,
         );
     }
 
@@ -379,7 +351,7 @@ class ChangeDnsActionTest extends IntegrationTestCase
             logger: $this->logger,
             gandiClient: $this->gandiClient,
             dnsVanityNameserverAssigner: $this->vanityAssigner,
-            dnsNameserverAssigner: $this->mockDnsNameserverAssigner
+            dnsNameserverAssigner: $this->mockDnsNameserverAssigner,
         );
 
         $this->expectException(DnsDeploymentNotFoundException::class);
@@ -387,7 +359,7 @@ class ChangeDnsActionTest extends IntegrationTestCase
 
         $changeDnsAction->execute(
             subscription: $subscription,
-            changeType: ProductChangeType::DOWNGRADE
+            changeType: ProductChangeType::DOWNGRADE,
         );
     }
 
@@ -406,7 +378,7 @@ class ChangeDnsActionTest extends IntegrationTestCase
             logger: $this->logger,
             gandiClient: $this->gandiClient,
             dnsVanityNameserverAssigner: $this->vanityAssigner,
-            dnsNameserverAssigner: $this->mockDnsNameserverAssigner
+            dnsNameserverAssigner: $this->mockDnsNameserverAssigner,
         );
 
         $this->expectException(DnsDeploymentNotFoundException::class);
@@ -414,7 +386,7 @@ class ChangeDnsActionTest extends IntegrationTestCase
 
         $changeDnsAction->execute(
             subscription: $subscription,
-            changeType: ProductChangeType::UPGRADE
+            changeType: ProductChangeType::UPGRADE,
         );
     }
 }

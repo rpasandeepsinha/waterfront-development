@@ -55,14 +55,11 @@ class NovaAcronisProviderResource extends Resource
                 ->showOnCreating()
                 ->sortable(),
 
-            Text::make(self::translate('acronis-providers.name'), 'name')
-                ->rules('required', 'string'),
+            Text::make(self::translate('acronis-providers.name'), 'name')->rules('required', 'string'),
 
-            Text::make(self::translate('acronis-providers.endpoint'), 'endpoint')
-                ->rules('required', 'string', 'url'),
+            Text::make(self::translate('acronis-providers.endpoint'), 'endpoint')->rules('required', 'string', 'url'),
 
-            Text::make(self::translate('acronis-providers.tenant_uuid'), 'tenant_uuid')
-                ->rules('required', 'uuid'),
+            Text::make(self::translate('acronis-providers.tenant_uuid'), 'tenant_uuid')->rules('required', 'uuid'),
 
             Text::make(self::translate('acronis-providers.client_id'), 'client_id')
                 ->onlyOnForms()
@@ -71,8 +68,11 @@ class NovaAcronisProviderResource extends Resource
 
             Boolean::make(self::translate('acronis-providers.default'), 'default'),
 
-            Text::make(self::translate('acronis-providers.sso_target_url'), 'sso_target_url')
-                ->rules('required', 'string', 'url'),
+            Text::make(self::translate('acronis-providers.sso_target_url'), 'sso_target_url')->rules(
+                'required',
+                'string',
+                'url',
+            ),
 
             Credential::make(self::translate('acronis-providers.client_secret'), 'client_secret')
                 ->onlyOnForms()

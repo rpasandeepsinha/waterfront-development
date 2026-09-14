@@ -49,7 +49,12 @@ class AvailableDomainsTest extends IntegrationTestCase
             'default' => true,
         ]);
 
-        $rtrProvider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
+        $rtrProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $productGroup = new ProductGroupFactory()->createOne(['slug' => 'extension']);
         $product = new ProductFactory()->createOne([
@@ -74,7 +79,7 @@ class AvailableDomainsTest extends IntegrationTestCase
 
         $this->anonymousContact->providers()->attach(
             $rtrProvider,
-            ['external_contact' => $anonymousHandleIdentifier]
+            ['external_contact' => $anonymousHandleIdentifier],
         );
 
         DomainContactAnonymousHandleFactory::new()->createOne([
@@ -185,7 +190,10 @@ class AvailableDomainsTest extends IntegrationTestCase
     public function showAvailableDomainsWhenProvidingAnonymousContact(): void
     {
         $this->actingAsCustomer($this->customer)
-            ->getJson($this->generateRoute('partners.domain-contact.contacts.available-domains', $this->anonymousContact))
+            ->getJson($this->generateRoute(
+                'partners.domain-contact.contacts.available-domains',
+                $this->anonymousContact,
+            ))
             ->assertOk()
             ->assertExactJson([
                 'data' => [],

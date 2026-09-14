@@ -25,7 +25,7 @@ class RetryDomainAction
         DomainDeployment $domainDeployment,
         bool $enableDnssec,
         bool $privateWhois,
-        ?string $transferSecret
+        ?string $transferSecret,
     ): void {
         $subscription = $domainDeployment->subscription;
 
@@ -35,7 +35,7 @@ class RetryDomainAction
                 'Retry Domain failed because domain name is missing for subscription [{subscription.uuid}]',
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                ]
+                ],
             );
 
             return;
@@ -54,7 +54,7 @@ class RetryDomainAction
                 [
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                ]
+                ],
             );
 
             return;
@@ -64,7 +64,7 @@ class RetryDomainAction
             new CreateDns(
                 $dnsSubscription->uuid,
                 $domain,
-            )
+            ),
         );
 
         $this->eventDispatcher->dispatch(
@@ -72,7 +72,7 @@ class RetryDomainAction
                 domain: $domain,
                 subscription: $subscription,
                 domainDeployment: $domainDeployment,
-            )
+            ),
         );
     }
 }

@@ -47,7 +47,7 @@ class SitebuilderUserFetchAction
                     'userId' => $userId,
                     'payload.driver' => $payload->driver,
                 ],
-            ]
+            ],
         );
 
         try {
@@ -55,7 +55,7 @@ class SitebuilderUserFetchAction
                 userRef: $userId,
                 subscription: $subscription,
                 payload: $payload,
-                server: $server
+                server: $server,
             );
         } catch (Throwable $exception) {
             throw new HostingInstanceNotFoundException($payload, $server, $subscription, $exception);

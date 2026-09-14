@@ -9,8 +9,9 @@ use Waterfront\Infra\Validation\AbstractValidator;
 
 class Uppercase extends AbstractValidator
 {
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     protected function passes(string $attribute, mixed $value): bool

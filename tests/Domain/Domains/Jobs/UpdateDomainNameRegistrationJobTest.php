@@ -51,14 +51,15 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
 
         $job = new UpdateDomainNameRegistrationJob(
             domainDeployment: $domainSubscription->domainDeployment,
-            nameservers: $testNameservers
+            nameservers: $testNameservers,
         );
 
         $mockLogger = self::createMock(LoggerInterface::class);
         $mockDomainDriver = self::createMock(DomainDriverInterface::class);
         $mockDomainServiceFactory = self::createMock(DomainServiceFactory::class);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with('UpdateDomainRegistrationJob started for domain {domain.name}', [
                 LoggingContextKeys::DOMAIN_NAME => $domainSubscription->domain,
@@ -67,19 +68,18 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
                 LoggingContextKeys::PROVISIONING_TYPE => 'domain',
             ]);
 
-        $mockDomainServiceFactory->expects(self::once())
+        $mockDomainServiceFactory
+            ->expects(self::once())
             ->method('driver')
             ->with($domainSubscription->domainDeployment->provider->slug)
             ->willReturn($mockDomainDriver);
 
         $expectedNameserverHostnames = [self::NS1, self::NS2];
 
-        $mockDomainDriver->expects(self::once())
-            ->method('modify')
-            ->with($domainSubscription->domain, [
-                'dnssecKeys' => null,
-                'ns' => $expectedNameserverHostnames,
-            ]);
+        $mockDomainDriver->expects(self::once())->method('modify')->with($domainSubscription->domain, [
+            'dnssecKeys' => null,
+            'ns' => $expectedNameserverHostnames,
+        ]);
 
         $job->handle($mockDomainServiceFactory, $mockLogger);
 
@@ -91,13 +91,16 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
         self::assertNotNull($domainSubscription->domainDeployment->last_result_received);
         self::assertSame(
             [
-                'message' => sprintf('Successfully updated domain name registration for domain %s', $domainSubscription->domain),
+                'message' => sprintf(
+                    'Successfully updated domain name registration for domain %s',
+                    $domainSubscription->domain,
+                ),
                 'data' => [
                     'dnssec' => $domainSubscription->domainDeployment->dnssec_enabled,
                     'ns' => $expectedNameserverHostnames,
                 ],
             ],
-            json_decode($domainSubscription->domainDeployment->last_result ?? '', true)
+            json_decode($domainSubscription->domainDeployment->last_result ?? '', true),
         );
     }
 
@@ -120,16 +123,14 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
 
         $job = new UpdateDomainNameRegistrationJob(
             domainDeployment: $domainSubscription->domainDeployment,
-            nameservers: $testNameservers
+            nameservers: $testNameservers,
         );
 
         $mockDomainDriver = self::createMock(DomainDriverInterface::class);
-        $mockDomainDriver->expects(self::once())
-            ->method('modify');
+        $mockDomainDriver->expects(self::once())->method('modify');
 
         $mockDomainServiceFactory = self::createStub(DomainServiceFactory::class);
-        $mockDomainServiceFactory->method('driver')
-            ->willReturn($mockDomainDriver);
+        $mockDomainServiceFactory->method('driver')->willReturn($mockDomainDriver);
 
         $job->handle($mockDomainServiceFactory, self::createStub(LoggerInterface::class));
 
@@ -159,9 +160,11 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
         $domainSubscription = new SubscriptionFactory()
             ->withCustomer()
             ->for(new ProductFactory()->nlDomain())
-            ->has(new DomainDeploymentFactory()
-                ->withRtrProvider()
-                ->withRtrDomainStatus(RtrDomainStatus::PENDING_VALIDATION))
+            ->has(
+                new DomainDeploymentFactory()
+                    ->withRtrProvider()
+                    ->withRtrDomainStatus(RtrDomainStatus::PENDING_VALIDATION),
+            )
             ->technicalStatus(TechnicalStatus::PENDING->value)
             ->createOne();
 
@@ -169,13 +172,13 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
 
         $job = new UpdateDomainNameRegistrationJob(
             domainDeployment: $domainSubscription->domainDeployment,
-            nameservers: $testNameservers
+            nameservers: $testNameservers,
         );
 
         $mockDomainDriver = self::createMock(RtrService::class);
-        $mockDomainDriver->expects(self::once())
-            ->method('modify');
-        $mockDomainDriver->expects(self::once())
+        $mockDomainDriver->expects(self::once())->method('modify');
+        $mockDomainDriver
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with($domainSubscription->domain)
             ->willReturn(
@@ -187,21 +190,24 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
                     autoRenewPeriod: 12,
                     ns: [],
                     premium: false,
-                )
+                ),
             );
-        $mockDomainDriver->expects(self::once())
+        $mockDomainDriver
+            ->expects(self::once())
             ->method('getPrimaryDomainStatusFromDomainStatusList')
             ->with([RtrDomainStatus::PENDING_VALIDATION->value])
             ->willReturn(RtrDomainStatus::PENDING_VALIDATION);
 
         $mockDomainServiceFactory = self::createStub(DomainServiceFactory::class);
-        $mockDomainServiceFactory->method('driver')
-            ->willReturn($mockDomainDriver);
+        $mockDomainServiceFactory->method('driver')->willReturn($mockDomainDriver);
 
         $job->handle($mockDomainServiceFactory, self::createStub(LoggerInterface::class));
 
         self::assertSame(TechnicalStatus::PENDING->value, $domainSubscription->refresh()->technical_status);
-        self::assertSame(RtrDomainStatus::PENDING_VALIDATION, $domainSubscription->domainDeployment?->refresh()->domain_status);
+        self::assertSame(
+            RtrDomainStatus::PENDING_VALIDATION,
+            $domainSubscription->domainDeployment?->refresh()->domain_status,
+        );
     }
 
     #[DataProvider('activationReadyRtrDomainStatusDataProvider')]
@@ -215,9 +221,11 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
         $domainSubscription = new SubscriptionFactory()
             ->withCustomer()
             ->for(new ProductFactory()->nlDomain())
-            ->has(new DomainDeploymentFactory()
-                ->withRtrProvider()
-                ->withRtrDomainStatus(RtrDomainStatus::PENDING_VALIDATION))
+            ->has(
+                new DomainDeploymentFactory()
+                    ->withRtrProvider()
+                    ->withRtrDomainStatus(RtrDomainStatus::PENDING_VALIDATION),
+            )
             ->technicalStatus(TechnicalStatus::PENDING->value)
             ->createOne();
 
@@ -225,13 +233,13 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
 
         $job = new UpdateDomainNameRegistrationJob(
             domainDeployment: $domainSubscription->domainDeployment,
-            nameservers: $testNameservers
+            nameservers: $testNameservers,
         );
 
         $mockDomainDriver = self::createMock(RtrService::class);
-        $mockDomainDriver->expects(self::once())
-            ->method('modify');
-        $mockDomainDriver->expects(self::once())
+        $mockDomainDriver->expects(self::once())->method('modify');
+        $mockDomainDriver
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with($domainSubscription->domain)
             ->willReturn(
@@ -243,16 +251,16 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
                     autoRenewPeriod: 12,
                     ns: [],
                     premium: false,
-                )
+                ),
             );
-        $mockDomainDriver->expects(self::once())
+        $mockDomainDriver
+            ->expects(self::once())
             ->method('getPrimaryDomainStatusFromDomainStatusList')
             ->with([$rtrDomainStatus->value])
             ->willReturn($rtrDomainStatus);
 
         $mockDomainServiceFactory = self::createStub(DomainServiceFactory::class);
-        $mockDomainServiceFactory->method('driver')
-            ->willReturn($mockDomainDriver);
+        $mockDomainServiceFactory->method('driver')->willReturn($mockDomainDriver);
 
         $job->handle($mockDomainServiceFactory, self::createStub(LoggerInterface::class));
 
@@ -294,9 +302,9 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
         );
 
         $mockDomainDriver = self::createMock(RtrService::class);
-        $mockDomainDriver->expects(self::once())
-            ->method('modify');
-        $mockDomainDriver->expects(self::once())
+        $mockDomainDriver->expects(self::once())->method('modify');
+        $mockDomainDriver
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with($domainSubscription->domain)
             ->willReturn(
@@ -308,16 +316,16 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
                     autoRenewPeriod: 12,
                     ns: [],
                     premium: false,
-                )
+                ),
             );
-        $mockDomainDriver->expects(self::once())
+        $mockDomainDriver
+            ->expects(self::once())
             ->method('getPrimaryDomainStatusFromDomainStatusList')
             ->with([RtrDomainStatus::OK->value])
             ->willReturn(RtrDomainStatus::OK);
 
         $mockDomainServiceFactory = self::createStub(DomainServiceFactory::class);
-        $mockDomainServiceFactory->method('driver')
-            ->willReturn($mockDomainDriver);
+        $mockDomainServiceFactory->method('driver')->willReturn($mockDomainDriver);
 
         $job->handle(
             $mockDomainServiceFactory,
@@ -338,9 +346,11 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
         $domainSubscription = new SubscriptionFactory()
             ->withCustomer()
             ->for(new ProductFactory()->nlDomain())
-            ->has(new DomainDeploymentFactory()
-                ->withRtrProvider()
-                ->withRtrDomainStatus(RtrDomainStatus::PENDING_VALIDATION))
+            ->has(
+                new DomainDeploymentFactory()
+                    ->withRtrProvider()
+                    ->withRtrDomainStatus(RtrDomainStatus::PENDING_VALIDATION),
+            )
             ->technicalStatus(TechnicalStatus::PENDING->value)
             ->createOne();
 
@@ -348,13 +358,13 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
 
         $job = new UpdateDomainNameRegistrationJob(
             domainDeployment: $domainSubscription->domainDeployment,
-            nameservers: $testNameservers
+            nameservers: $testNameservers,
         );
 
         $mockDomainDriver = self::createMock(RtrService::class);
-        $mockDomainDriver->expects(self::once())
-            ->method('modify');
-        $mockDomainDriver->expects(self::once())
+        $mockDomainDriver->expects(self::once())->method('modify');
+        $mockDomainDriver
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with($domainSubscription->domain)
             ->willReturn(
@@ -366,21 +376,24 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
                     autoRenewPeriod: 12,
                     ns: [],
                     premium: false,
-                )
+                ),
             );
-        $mockDomainDriver->expects(self::once())
+        $mockDomainDriver
+            ->expects(self::once())
             ->method('getPrimaryDomainStatusFromDomainStatusList')
             ->with([RtrDomainStatus::SERVER_UPDATE_PROHIBITED->value])
             ->willReturn(RtrDomainStatus::SERVER_UPDATE_PROHIBITED);
 
         $mockDomainServiceFactory = self::createStub(DomainServiceFactory::class);
-        $mockDomainServiceFactory->method('driver')
-            ->willReturn($mockDomainDriver);
+        $mockDomainServiceFactory->method('driver')->willReturn($mockDomainDriver);
 
         $job->handle($mockDomainServiceFactory, self::createStub(LoggerInterface::class));
 
         self::assertSame(TechnicalStatus::PENDING->value, $domainSubscription->refresh()->technical_status);
-        self::assertSame(RtrDomainStatus::SERVER_UPDATE_PROHIBITED, $domainSubscription->domainDeployment?->refresh()->domain_status);
+        self::assertSame(
+            RtrDomainStatus::SERVER_UPDATE_PROHIBITED,
+            $domainSubscription->domainDeployment?->refresh()->domain_status,
+        );
     }
 
     #[DataProvider('nonUpdateReadyTechnicalStatusDataProvider')]
@@ -402,16 +415,14 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
 
         $job = new UpdateDomainNameRegistrationJob(
             domainDeployment: $domainSubscription->domainDeployment,
-            nameservers: $testNameservers
+            nameservers: $testNameservers,
         );
 
         $mockDomainDriver = self::createMock(DomainDriverInterface::class);
-        $mockDomainDriver->expects(self::once())
-            ->method('modify');
+        $mockDomainDriver->expects(self::once())->method('modify');
 
         $mockDomainServiceFactory = self::createStub(DomainServiceFactory::class);
-        $mockDomainServiceFactory->method('driver')
-            ->willReturn($mockDomainDriver);
+        $mockDomainServiceFactory->method('driver')->willReturn($mockDomainDriver);
 
         $job->handle($mockDomainServiceFactory, self::createStub(LoggerInterface::class));
 
@@ -446,18 +457,17 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
             ->withCustomer()
             ->for(new ProductFactory()->nlDomain())
             ->forDomain($testDomain)
-            ->has(new DomainDeploymentFactory()
-                ->for(new ProviderFactory()->domainOpenProvider()->createOne())
-                ->state([
-                    'last_result' => null,
-                    'last_result_received' => null,
-                ]), 'domainDeployment')
+            ->has(new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne())->state([
+                'last_result' => null,
+                'last_result_received' => null,
+            ]), 'domainDeployment')
             ->createOne();
 
         $mockLogger = self::createMock(LoggerInterface::class);
         $this->app->bind(LoggerInterface::class, fn () => $mockLogger);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Error UpdateDomainRegistrationJob for domain {domain.name} job definitely failed after {job.attempt} attempts',
@@ -468,7 +478,7 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
                     LoggingContextKeys::EXCEPTION => $testThrowable,
                     LoggingContextKeys::PROVISIONING_TYPE => 'domain',
                     LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                ]
+                ],
             );
 
         self::assertNotNull($domainSubscription->domainDeployment);
@@ -488,7 +498,7 @@ class UpdateDomainNameRegistrationJobTest extends IntegrationTestCase
                 'exception' => $testExceptionMessage,
                 'trace' => $testThrowable->getTraceAsString(),
             ],
-            json_decode($domainSubscription->domainDeployment->last_result ?? '', true)
+            json_decode($domainSubscription->domainDeployment->last_result ?? '', true),
         );
     }
 }

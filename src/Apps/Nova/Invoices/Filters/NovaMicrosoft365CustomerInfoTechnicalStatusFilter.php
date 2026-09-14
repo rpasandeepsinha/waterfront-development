@@ -12,8 +12,9 @@ use Waterfront\Infra\Translation\TranslatorInterface;
 
 class NovaMicrosoft365CustomerInfoTechnicalStatusFilter extends Filter
 {
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     public function apply(NovaRequest $request, Builder $query, mixed $value): Builder
@@ -25,10 +26,14 @@ class NovaMicrosoft365CustomerInfoTechnicalStatusFilter extends Filter
     public function options(NovaRequest $request): array
     {
         return [
-            $this->translator->translate('microsoft365-customer-info.technical-status.initiated') => Microsoft365ProcessStatus::INITIATED->value,
-            $this->translator->translate('microsoft365-customer-info.technical-status.customer-created') => Microsoft365ProcessStatus::CUSTOMER_CREATED->value,
-            $this->translator->translate('microsoft365-customer-info.technical-status.active') => Microsoft365ProcessStatus::ACTIVE->value,
-            $this->translator->translate('microsoft365-customer-info.technical-status.failed') => Microsoft365ProcessStatus::FAILED->value,
+            $this->translator->translate('microsoft365-customer-info.technical-status.initiated') =>
+                Microsoft365ProcessStatus::INITIATED->value,
+            $this->translator->translate('microsoft365-customer-info.technical-status.customer-created') =>
+                Microsoft365ProcessStatus::CUSTOMER_CREATED->value,
+            $this->translator->translate('microsoft365-customer-info.technical-status.active') =>
+                Microsoft365ProcessStatus::ACTIVE->value,
+            $this->translator->translate('microsoft365-customer-info.technical-status.failed') =>
+                Microsoft365ProcessStatus::FAILED->value,
         ];
     }
 }

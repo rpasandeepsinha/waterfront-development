@@ -48,28 +48,49 @@ class OrderTransferServiceTest extends IntegrationTestCase
             'name' => 'free-dns',
             'slug' => 'free-dns',
         ]);
-        new ProductPriceComponentFactory()->for($this->dnsProduct)->registration()->createOne(['price' => 0]);
-        new ProductPriceComponentFactory()->for($this->dnsProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 0]);
+        new ProductPriceComponentFactory()
+            ->for($this->dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
+        new ProductPriceComponentFactory()->for($this->dnsProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 0,
+        ]);
         ProductSpecFactory::new()
             ->enable(ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)
             ->for($this->dnsProduct)
             ->create();
 
-        $extensionGroup = new ProductGroupFactory()->extension()->createOne(['name' => 'extension']);
+        $extensionGroup = new ProductGroupFactory()
+            ->extension()
+            ->createOne(['name' => 'extension']);
         $this->extensionProduct = new ProductFactory()->for($extensionGroup)->createOne([
             'slug' => 'extension_com',
             'name' => '.com',
         ]);
-        new ProductPriceComponentFactory()->for($this->extensionProduct)->registration()->createOne(['price' => 120]);
-        new ProductPriceComponentFactory()->for($this->extensionProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($this->extensionProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($this->extensionProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
 
-        $otsGroup = new ProductGroupFactory()->oneTimeService()->createOne(['name' => ProductGroupType::ONE_TIME_SERVICE]);
+        $otsGroup = new ProductGroupFactory()
+            ->oneTimeService()
+            ->createOne(['name' => ProductGroupType::ONE_TIME_SERVICE]);
         $this->otsProduct = new ProductFactory()->for($otsGroup)->createOne([
             'name' => 'transfer_service',
             'slug' => 'transfer_service',
         ]);
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $this->customer = new CustomerFactory()->withAddress()->createOne();
     }
@@ -87,30 +108,48 @@ class OrderTransferServiceTest extends IntegrationTestCase
                 'name' => ProductSpecName::HAS_SERVICE_PLUS->value,
                 'value' => '1',
                 'product_id' => $hostingPremium->id,
-            ]
+            ],
         );
 
-        new ProductPriceComponentFactory()->for($hostingPremium)->registration()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 120,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($hostingPremium)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 120,
+            ]);
 
-        new ProductPriceComponentFactory()->for($hostingBrons)->registration()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 120,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($hostingBrons)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 120,
+            ]);
 
-        new ProductPriceComponentFactory()->for($this->otsProduct)->oneTimeService()->registration()->createOne(['price' => 7500]);
+        new ProductPriceComponentFactory()
+            ->for($this->otsProduct)
+            ->oneTimeService()
+            ->registration()
+            ->createOne(['price' => 7500]);
 
-        new SubscriptionFactory()->administrativeStatusActive()->for($this->customer)->for($this->extensionProduct)->createOne([
-            'domain' => 'already-existing-domain.com',
-        ]);
+        new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->for($this->customer)
+            ->for($this->extensionProduct)
+            ->createOne([
+                'domain' => 'already-existing-domain.com',
+            ]);
 
-        new SubscriptionFactory()->administrativeStatusActive()->for($this->dnsProduct)->for($this->customer)->createOne([
-            'domain' => 'already-existing-domain.com',
-        ]);
+        new SubscriptionFactory()
+            ->administrativeStatusActive()
+            ->for($this->dnsProduct)
+            ->for($this->customer)
+            ->createOne([
+                'domain' => 'already-existing-domain.com',
+            ]);
 
         $this->app->bind(ProvisionService::class, fn () => self::createStub(ProvisionService::class));
 
@@ -118,7 +157,8 @@ class OrderTransferServiceTest extends IntegrationTestCase
 
         /** @var array<int, array<string>> $orderPayload */
         $orderPayload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        $response = $this->withoutExceptionHandling()->actingAsCustomer($this->customer)
+        $response = $this->withoutExceptionHandling()
+            ->actingAsCustomer($this->customer)
             ->postJson($this->generateRoute('partners.order.order'), $orderPayload);
         $response->assertOk();
 
@@ -127,9 +167,17 @@ class OrderTransferServiceTest extends IntegrationTestCase
         Assert::assertCount(6, $order->lineItems);
 
         $hostingBronsOrderLine = $order->lineItems()->where('product_uuid', $hostingBrons->uuid)->firstOrFail();
-        $transferBronsLine = $order->lineItems()->where('product_uuid', $this->otsProduct->uuid)->where('parent_id', $hostingBronsOrderLine->id)->firstOrFail();
+        $transferBronsLine = $order
+            ->lineItems()
+            ->where('product_uuid', $this->otsProduct->uuid)
+            ->where('parent_id', $hostingBronsOrderLine->id)
+            ->firstOrFail();
         $hostingPremiumOrderLine = $order->lineItems()->where('product_uuid', $hostingPremium->uuid)->firstOrFail();
-        $transferPremiumLine = $order->lineItems()->where('product_uuid', $this->otsProduct->uuid)->where('parent_id', $hostingPremiumOrderLine->id)->firstOrFail();
+        $transferPremiumLine = $order
+            ->lineItems()
+            ->where('product_uuid', $this->otsProduct->uuid)
+            ->where('parent_id', $hostingPremiumOrderLine->id)
+            ->firstOrFail();
 
         self::assertSame(7500, $transferBronsLine->net_price);
         self::assertSame(0, $transferPremiumLine->net_price);
@@ -143,8 +191,12 @@ class OrderTransferServiceTest extends IntegrationTestCase
         self::assertSame(7500, $otsPremium->gross_price);
         self::assertSame(100, $otsPremium->discount_percentage);
 
-        $invoiceLineBrons = Invoice::where('product_id', $this->otsProduct->id)->where('subscription_id', $hostingBronsOrderLine->subscription?->id)->firstOrFail();
-        $invoiceLinePremium = Invoice::where('product_id', $this->otsProduct->id)->where('subscription_id', $hostingPremiumOrderLine->subscription?->id)->firstOrFail();
+        $invoiceLineBrons = Invoice::where('product_id', $this->otsProduct->id)
+            ->where('subscription_id', $hostingBronsOrderLine->subscription?->id)
+            ->firstOrFail();
+        $invoiceLinePremium = Invoice::where('product_id', $this->otsProduct->id)
+            ->where('subscription_id', $hostingPremiumOrderLine->subscription?->id)
+            ->firstOrFail();
 
         self::assertSame(7500, $invoiceLineBrons->gross_price);
         self::assertSame(7500, $invoiceLineBrons->net_price);

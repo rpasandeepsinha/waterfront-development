@@ -37,27 +37,24 @@ class GetSsoUrlAction
         }
 
         $ssoUrl = match ($server->type) {
-            ServerType::DIRECTADMIN =>
-                $this->directAdminGetSsoUrlAction->execute(
-                    $server,
-                    $username
-                ),
-            ServerType::PLESK =>
-                $this->pleskGetSsoUrlAction->execute(
-                    $server,
-                    $username,
-                    $ipAddress,
-                    $redirectToMail
-                ),
-            ServerType::SITEBUILDER =>
-                $this->baseKitGetSsoUrlAction->execute(
-                    $server,
-                    (int) $username,
-                    (int) $siteRef
-                ),
+            ServerType::DIRECTADMIN => $this->directAdminGetSsoUrlAction->execute(
+                $server,
+                $username,
+            ),
+            ServerType::PLESK => $this->pleskGetSsoUrlAction->execute(
+                $server,
+                $username,
+                $ipAddress,
+                $redirectToMail,
+            ),
+            ServerType::SITEBUILDER => $this->baseKitGetSsoUrlAction->execute(
+                $server,
+                (int) $username,
+                (int) $siteRef,
+            ),
             default => throw new NotImplementedException(sprintf(
                 'Server type "%s" not supported to generate SSO url with.',
-                $server->type->value
+                $server->type->value,
             )),
         };
 

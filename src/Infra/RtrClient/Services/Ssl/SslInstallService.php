@@ -16,7 +16,7 @@ class SslInstallService implements SslInstallServiceInterface
 {
     public function __construct(
         private readonly CertificateInstaller $certificateInstaller,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -34,7 +34,7 @@ class SslInstallService implements SslInstallServiceInterface
                 sprintf('Could not install certificate: %s', $exception->getMessage()),
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return 'error';

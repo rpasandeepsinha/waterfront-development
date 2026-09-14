@@ -76,9 +76,9 @@ class ScheduledSupportCallTimeSlotsResource extends JsonResource
         $timeslot = $request->timeslot;
 
         return [
-            'date'        => $request->desired_callback_time->toIso8601String(),
-            'startTime'   => $timeslot->start_timeslot->format(DateTimeFormat::TIME_HM),
-            'endTime'     => $timeslot->end_timeslot->format(DateTimeFormat::TIME_HM),
+            'date' => $request->desired_callback_time->toIso8601String(),
+            'startTime' => $timeslot->start_timeslot->format(DateTimeFormat::TIME_HM),
+            'endTime' => $timeslot->end_timeslot->format(DateTimeFormat::TIME_HM),
             'phoneNumber' => $request->phone_number,
         ];
     }
@@ -100,9 +100,9 @@ class ScheduledSupportCallTimeSlotsResource extends JsonResource
         Assert::notNull($dateTime);
 
         return [
-            'date'        => $dateTime->toIso8601String(),
-            'startTime'   => $dateTime->roundUnit('hour')->format(DateTimeFormat::TIME_HM),
-            'endTime'     => $dateTime->roundUnit('hour')->addMinutes(30)->format(DateTimeFormat::TIME_HM),
+            'date' => $dateTime->toIso8601String(),
+            'startTime' => $dateTime->roundUnit('hour')->format(DateTimeFormat::TIME_HM),
+            'endTime' => $dateTime->roundUnit('hour')->addMinutes(30)->format(DateTimeFormat::TIME_HM),
             'phoneNumber' => $request->requestRemoteAddress,
         ];
     }

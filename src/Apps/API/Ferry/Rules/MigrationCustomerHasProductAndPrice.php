@@ -35,13 +35,14 @@ class MigrationCustomerHasProductAndPrice implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (
-            ! is_array($value) ||
-            ! array_key_exists('contract_period', $value) ||
-            ! array_key_exists('billing_period', $value) ||
-            ! array_key_exists('slug', $value)
+            ! is_array($value)
+            || ! array_key_exists('contract_period', $value)
+            || ! array_key_exists('billing_period', $value)
+            || ! array_key_exists('slug', $value)
         ) {
             // The above fields are "required" in the MigrationValidationLibrary rules.
             $fail('Missing required fields (contract_period, billing_period, slug) for product price validation');
+
             return;
         }
 
@@ -52,10 +53,10 @@ class MigrationCustomerHasProductAndPrice implements ValidationRule
         $referenceNetPriceIsFixed = Arr::get($value, 'reference_net_price_is_fixed');
 
         if (
-            ! is_int($contractPeriod) ||
-            ! is_int($billingPeriod) ||
-            ! is_string($slug) ||
-            ($referenceNetPrice !== null && ! is_int($referenceNetPrice))
+            ! is_int($contractPeriod)
+            || ! is_int($billingPeriod)
+            || ! is_string($slug)
+            || $referenceNetPrice !== null && ! is_int($referenceNetPrice)
         ) {
             // No message because the integer/string validation in the MigrationValidationLibrary handles this.
             return;
@@ -64,7 +65,7 @@ class MigrationCustomerHasProductAndPrice implements ValidationRule
         $product = ProductModel::query()
             ->whereHas(
                 'productGroup',
-                fn (Builder $query) => $query->where('slug', $this->productGroupType)
+                fn (Builder $query) => $query->where('slug', $this->productGroupType),
             )
             ->where('slug', $slug)
             ->first();
@@ -78,10 +79,11 @@ class MigrationCustomerHasProductAndPrice implements ValidationRule
         try {
             // This needs to be resolvable in migrations to verify we can give a pricing to the given slug.
             $priceRequest = new PriceRequest([new ProlongationPriceRequest($product)], $this->customer);
-            $price = $this
-                ->priceResolver
-                ->getPriceList($priceRequest)
-                ->getProductPrice(productSlug: $slug, contractPeriod: $contractPeriod, billingPeriod: $billingPeriod);
+            $price = $this->priceResolver->getPriceList($priceRequest)->getProductPrice(
+                productSlug: $slug,
+                contractPeriod: $contractPeriod,
+                billingPeriod: $billingPeriod,
+            );
 
             // If the net price is fixed, there is no need to validate it. We do want to know
             // a price is resolvable for the product periods combination.
@@ -99,17 +101,15 @@ class MigrationCustomerHasProductAndPrice implements ValidationRule
              *
              * @see src/Domain/Customers/DTO/SubscriptionDTO.php
              */
-            if (
-                $referenceNetPrice !== null
-                && $price->calculatedPrice !== $referenceNetPrice
-            ) {
+            if ($referenceNetPrice !== null && $price->calculatedPrice !== $referenceNetPrice) {
                 $fail(sprintf(
                     'Price is different for product %s and customer %d: new product price %d, reference product price %d',
                     $slug,
                     $this->customer->id,
                     $price->calculatedPrice,
-                    $referenceNetPrice
+                    $referenceNetPrice,
                 ));
+
                 return;
             }
         } catch (ItemNotFoundException $exception) {
@@ -124,10 +124,11 @@ class MigrationCustomerHasProductAndPrice implements ValidationRule
                         'billing_period' => $billingPeriod,
                         'price_type' => ProductPriceType::PROLONGATION->value,
                     ],
-                ]
+                ],
             );
 
             $fail($exception->getMessage());
+
             return;
         }
     }

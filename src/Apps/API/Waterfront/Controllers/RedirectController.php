@@ -46,7 +46,9 @@ class RedirectController
         $this->redirectPolicy->assertCanList($subscription);
 
         if ($subscription->domain === null) {
-            throw new RuntimeException('Something went wrong, trying to retrieve redirects for a subscription without a domain.');
+            throw new RuntimeException(
+                'Something went wrong, trying to retrieve redirects for a subscription without a domain.',
+            );
         }
 
         try {
@@ -75,7 +77,7 @@ class RedirectController
      */
     public function store(
         StoreRequest $request,
-        Subscription $subscription
+        Subscription $subscription,
     ): JsonResponse {
         $this->redirectPolicy->assertCanCreate($subscription);
 
@@ -83,7 +85,12 @@ class RedirectController
         $target = strval($request->string('target'));
         $type = strval($request->string('type'));
 
-        $createRedirect = $this->redirectService->createRedirect($subscription, $source, $target, RedirectType::from($type));
+        $createRedirect = $this->redirectService->createRedirect(
+            $subscription,
+            $source,
+            $target,
+            RedirectType::from($type),
+        );
 
         if ($createRedirect->failed) {
             return new JsonResponse([
@@ -111,7 +118,7 @@ class RedirectController
      */
     public function update(
         UpdateRequest $request,
-        Subscription $subscription
+        Subscription $subscription,
     ): JsonResponse {
         $this->redirectPolicy->assertCanUpdate($subscription);
         $newSource = strval($request->string('new.source'));
@@ -121,7 +128,13 @@ class RedirectController
         $oldType = strval($request->string('old.type'));
         $typeToUse = $newType !== $oldType ? $newType : $oldType;
 
-        $updateRedirect = $this->redirectService->updateRedirect($subscription, $oldSource, $newSource, $newTarget, RedirectType::from($typeToUse));
+        $updateRedirect = $this->redirectService->updateRedirect(
+            $subscription,
+            $oldSource,
+            $newSource,
+            $newTarget,
+            RedirectType::from($typeToUse),
+        );
 
         if ($updateRedirect->failed) {
             return new JsonResponse([
@@ -142,7 +155,7 @@ class RedirectController
      */
     public function destroy(
         DestroyRequest $request,
-        Subscription $subscription
+        Subscription $subscription,
     ): JsonResponse {
         $this->redirectPolicy->assertCanDelete($subscription);
 

@@ -55,21 +55,33 @@ class NovaMicrosoft365RetryOrderModifyAction extends Action
 
             try {
                 assert(is_string($microsoft365Deployment->microsoft365CustomerInfo->kpn_customer_id));
-                $KpnCustomerId = str_replace('CID', '', $microsoft365Deployment->microsoft365CustomerInfo->kpn_customer_id);
+                $KpnCustomerId = str_replace(
+                    'CID',
+                    '',
+                    $microsoft365Deployment->microsoft365CustomerInfo->kpn_customer_id,
+                );
                 $childSubscription = $microsoft365Deployment->subscriptionChildren[0];
                 Assert::isInstanceOf($childSubscription, Subscription::class);
-                $microsoft365OrderSummary = $this->microsoft365Service->orderSummary(customer: (int) $KpnCustomerId, productName: $childSubscription->product->name);
+                $microsoft365OrderSummary = $this->microsoft365Service->orderSummary(
+                    customer: (int) $KpnCustomerId,
+                    productName: $childSubscription->product->name,
+                );
             } catch (OrderSummaryException|OrderSummaryCustomerNotFoundException $e) {
-                return self::danger($this->translator->translate('nova-action.failed.microsoft365-order-summary-retrieval'));
+                return self::danger($this->translator->translate(
+                    'nova-action.failed.microsoft365-order-summary-retrieval',
+                ));
             }
 
             try {
-                $successful = $this->microsoft365Service->modifyOrder(orderId: (int) $microsoft365Deployment->kpn_order_id, amount: $microsoft365ChildSubscriptionCount - ($microsoft365OrderSummary[0]->getQuantity()));
+                $successful = $this->microsoft365Service->modifyOrder(
+                    orderId: (int) $microsoft365Deployment->kpn_order_id,
+                    amount: $microsoft365ChildSubscriptionCount - $microsoft365OrderSummary[0]->getQuantity(),
+                );
             } catch (Office365Exception $e) {
                 Log::error(sprintf(
                     'Error while modifying order for order_id: [%s] with amount: [%s]. With exception message: %s',
                     $microsoft365Deployment->kpn_order_id,
-                    $microsoft365ChildSubscriptionCount - ($microsoft365OrderSummary[0]->getQuantity()),
+                    $microsoft365ChildSubscriptionCount - $microsoft365OrderSummary[0]->getQuantity(),
                     $e->getMessage(),
                 ));
 

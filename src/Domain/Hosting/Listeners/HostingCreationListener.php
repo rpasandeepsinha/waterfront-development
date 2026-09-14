@@ -19,7 +19,7 @@ class HostingCreationListener implements ShouldQueue
 
     public function __construct(
         private readonly HostingService $hostingService,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -37,7 +37,7 @@ class HostingCreationListener implements ShouldQueue
                     'hosting.contact_person_name' => $event->contactPersonName,
                     'hosting.contact_email' => $event->contactEmail,
                 ],
-            ]
+            ],
         );
 
         $this->hostingService->create(
@@ -48,7 +48,7 @@ class HostingCreationListener implements ShouldQueue
             $event->customer,
             $event->serverId,
             null,
-            $event->domain
+            $event->domain,
         );
     }
 }

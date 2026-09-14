@@ -118,14 +118,10 @@ class DnsServiceTest extends IntegrationTestCase
         );
 
         $authManager = self::createMock(AuthenticationManager::class);
-        $authManager
-            ->method('getAuthenticatedSubject')
-            ->willReturn($customer);
+        $authManager->method('getAuthenticatedSubject')->willReturn($customer);
 
         $systemHelper = self::createMock(SystemHelper::class);
-        $systemHelper
-            ->method('getClientIp')
-            ->willReturn('1.1.1.1');
+        $systemHelper->method('getClientIp')->willReturn('1.1.1.1');
 
         $dnsLogService = new DnsLogService(
             $dnsRecordChangeRepository,
@@ -155,18 +151,18 @@ class DnsServiceTest extends IntegrationTestCase
         $cname = [
             [
                 'comments' => [],
-                'name'     => 'cname-example.test.nl.',
-                'records'  => [
+                'name' => 'cname-example.test.nl.',
+                'records' => [
                     [
-                        'content'  => 'pieters-super-server.test.nl',
+                        'content' => 'pieters-super-server.test.nl',
                         'disabled' => false,
-                        'ttl'      => 1200,
-                        'name'     => 'cname-example.test.nl',
-                        'type'     => 'CNAME',
+                        'ttl' => 1200,
+                        'name' => 'cname-example.test.nl',
+                        'type' => 'CNAME',
                     ],
                 ],
-                'ttl'      => 1200,
-                'type'     => 'CNAME',
+                'ttl' => 1200,
+                'type' => 'CNAME',
             ],
         ];
 
@@ -174,27 +170,27 @@ class DnsServiceTest extends IntegrationTestCase
             new Response(
                 201,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN, $cname)
+                $this->getMockedZoneResponseBody(self::DOMAIN, $cname),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN, $cname)
+                $this->getMockedZoneResponseBody(self::DOMAIN, $cname),
             ),
             new Response(
                 200,
@@ -222,14 +218,15 @@ class DnsServiceTest extends IntegrationTestCase
                 name: $expectedRecord->getName(),
                 content: PowerDnsSoaSerialUpdater::increaseSoaSerial($expectedRecord->getContent()),
                 ttl: $expectedRecord->getTtl() ?? 3600,
-                disabled: $expectedRecord->isDisabled()
+                disabled: $expectedRecord->isDisabled(),
             );
         }
+
         $dnsZone = $dnsService->addDnsRecord(self::DOMAIN, $record);
 
         self::assertSame(
             json_encode($expectedRecords, JSON_THROW_ON_ERROR),
-            json_encode($dnsZone->getRecords(), JSON_THROW_ON_ERROR)
+            json_encode($dnsZone->getRecords(), JSON_THROW_ON_ERROR),
         );
 
         $new = new CnameRecord('cname-example.test.nl.', 'pieters-super-server.test.nl.', 1200);
@@ -245,14 +242,14 @@ class DnsServiceTest extends IntegrationTestCase
                     name: $expectedRecord->getName(),
                     content: PowerDnsSoaSerialUpdater::increaseSoaSerial($expectedRecord->getContent()),
                     ttl: $expectedRecord->getTtl() ?? 3600,
-                    disabled: $expectedRecord->isDisabled()
+                    disabled: $expectedRecord->isDisabled(),
                 );
             }
         }
 
         self::assertSame(
             json_encode($expectedRecords, JSON_THROW_ON_ERROR),
-            json_encode($dnsZone->getRecords(), JSON_THROW_ON_ERROR)
+            json_encode($dnsZone->getRecords(), JSON_THROW_ON_ERROR),
         );
     }
 
@@ -263,12 +260,12 @@ class DnsServiceTest extends IntegrationTestCase
             new Response(
                 201,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 201,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 204,
@@ -326,61 +323,61 @@ class DnsServiceTest extends IntegrationTestCase
         $existingZone = new DnsZone(new Fqdn($testDomain));
         $existingZone->setRecords([$lowTtlRecord, $highTtlRecord]);
 
-        $mockPowerDnsClient->shouldReceive('getZone')
-            ->once()
-            ->with($testDomain)
-            ->andReturn($existingZone);
+        $mockPowerDnsClient->shouldReceive('getZone')->once()->with($testDomain)->andReturn($existingZone);
 
-        $mockPowerDnsClient->shouldReceive('changeZone')
+        $mockPowerDnsClient
+            ->shouldReceive('changeZone')
             ->once()
             ->withArgs(function (DnsZone $zone) use ($lowTtlRecord, $highTtlRecord): bool {
                 self::assertCount(2, $zone->getRecords());
                 $changedTtl = $zone->getRecords()[0];
                 $unchangedTtl = $zone->getRecords()[1];
 
-                return $changedTtl->getType() === DnsRecordType::A->value
+                return (
+                    $changedTtl->getType() === DnsRecordType::A->value
                     && $changedTtl->getName() === $lowTtlRecord->getName()
                     && $changedTtl->getContent() === $lowTtlRecord->getContent()
                     && $changedTtl->getTtl() === 300
                     && $unchangedTtl->getType() === DnsRecordType::A->value
                     && $unchangedTtl->getName() === $highTtlRecord->getName()
                     && $unchangedTtl->getContent() === $highTtlRecord->getContent()
-                    && $unchangedTtl->getTtl() === $highTtlRecord->getTtl();
+                    && $unchangedTtl->getTtl() === $highTtlRecord->getTtl()
+                );
             })
             ->andReturnUsing(fn (DnsZone $zone): DnsZone => $zone);
 
-        $mockConfiguration->expects(self::once())
+        $mockConfiguration
+            ->expects(self::once())
             ->method('getAsBoolean')
             ->with('dns.gandi.live_dns_notify_bridge.use_ipv6')
             ->willReturn(true);
 
-        $mockConfiguration->expects(self::once())
+        $mockConfiguration
+            ->expects(self::once())
             ->method('getAsString')
             ->with('dns.gandi.live_dns_notify_bridge.ipv6')
             ->willReturn($testIp);
 
-        $mockPowerDnsClient->shouldReceive('createMetadata')
+        $mockPowerDnsClient
+            ->shouldReceive('createMetadata')
             ->once()
             ->with($testDomain, PowerDnsMetadataType::ALLOW_AXFR_FROM, [$testIp]);
 
-        $mockPowerDnsClient->shouldReceive('createMetadata')
+        $mockPowerDnsClient
+            ->shouldReceive('createMetadata')
             ->once()
             ->with($testDomain, PowerDnsMetadataType::ALSO_NOTIFY, [$testIp]);
 
-        $mockPowerDnsClient->shouldReceive('createMetadata')
+        $mockPowerDnsClient
+            ->shouldReceive('createMetadata')
             ->once()
             ->with($testDomain, PowerDnsMetadataType::SOA_EDIT, ['INCEPTION-INCREMENT']);
 
-        $mockPowerDnsClient->shouldReceive('updateLiveDns')
-            ->once()
-            ->with($testDomain, true);
+        $mockPowerDnsClient->shouldReceive('updateLiveDns')->once()->with($testDomain, true);
 
-        $mockPowerDnsClient->shouldReceive('sendNotify')
-            ->once()
-            ->with($testDomain);
+        $mockPowerDnsClient->shouldReceive('sendNotify')->once()->with($testDomain);
 
-        $mockJobDispatcher->expects(self::once())
-            ->method('dispatch');
+        $mockJobDispatcher->expects(self::once())->method('dispatch');
 
         $service->enablePremiumDns($testDomain);
     }
@@ -410,24 +407,21 @@ class DnsServiceTest extends IntegrationTestCase
             dnsZoneService: self::createMock(DnsZoneService::class),
         );
 
-        $mockPowerDnsClient->shouldReceive('deleteMetadata')
+        $mockPowerDnsClient
+            ->shouldReceive('deleteMetadata')
             ->once()
             ->with($testDomain, PowerDnsMetadataType::ALLOW_AXFR_FROM);
 
-        $mockPowerDnsClient->shouldReceive('deleteMetadata')
+        $mockPowerDnsClient
+            ->shouldReceive('deleteMetadata')
             ->once()
             ->with($testDomain, PowerDnsMetadataType::ALSO_NOTIFY);
 
-        $mockPowerDnsClient->shouldReceive('deleteMetadata')
-            ->once()
-            ->with($testDomain, PowerDnsMetadataType::SOA_EDIT);
+        $mockPowerDnsClient->shouldReceive('deleteMetadata')->once()->with($testDomain, PowerDnsMetadataType::SOA_EDIT);
 
-        $mockPowerDnsClient->shouldReceive('updateLiveDns')
-            ->once()
-            ->with($testDomain, false);
+        $mockPowerDnsClient->shouldReceive('updateLiveDns')->once()->with($testDomain, false);
 
-        $mockJobDispatcher->expects(self::once())
-            ->method('dispatch');
+        $mockJobDispatcher->expects(self::once())->method('dispatch');
 
         $service->disablePremiumDns($testDomain, true);
     }
@@ -457,25 +451,21 @@ class DnsServiceTest extends IntegrationTestCase
             dnsZoneService: self::createMock(DnsZoneService::class),
         );
 
-        $mockPowerDnsClient->shouldReceive('deleteMetadata')
+        $mockPowerDnsClient
+            ->shouldReceive('deleteMetadata')
             ->once()
             ->with($testDomain, PowerDnsMetadataType::ALLOW_AXFR_FROM);
 
-        $mockPowerDnsClient->shouldReceive('deleteMetadata')
+        $mockPowerDnsClient
+            ->shouldReceive('deleteMetadata')
             ->once()
             ->with($testDomain, PowerDnsMetadataType::ALSO_NOTIFY);
 
-        $mockPowerDnsClient->shouldReceive('deleteMetadata')
-            ->once()
-            ->with($testDomain, PowerDnsMetadataType::SOA_EDIT);
+        $mockPowerDnsClient->shouldReceive('deleteMetadata')->once()->with($testDomain, PowerDnsMetadataType::SOA_EDIT);
 
-        $mockPowerDnsClient->shouldReceive('updateLiveDns')
-            ->once()
-            ->with($testDomain, false);
+        $mockPowerDnsClient->shouldReceive('updateLiveDns')->once()->with($testDomain, false);
 
-        $mockJobDispatcher->expects(self::once())
-            ->method('dispatch')
-            ->with(new UpdateNameservers($testDomain, false));
+        $mockJobDispatcher->expects(self::once())->method('dispatch')->with(new UpdateNameservers($testDomain, false));
 
         $service->disablePremiumDns(domain: $testDomain, shouldUpdateNameservers: true);
     }
@@ -505,24 +495,21 @@ class DnsServiceTest extends IntegrationTestCase
             dnsZoneService: self::createMock(DnsZoneService::class),
         );
 
-        $mockPowerDnsClient->shouldReceive('deleteMetadata')
+        $mockPowerDnsClient
+            ->shouldReceive('deleteMetadata')
             ->once()
             ->with($testDomain, PowerDnsMetadataType::ALLOW_AXFR_FROM);
 
-        $mockPowerDnsClient->shouldReceive('deleteMetadata')
+        $mockPowerDnsClient
+            ->shouldReceive('deleteMetadata')
             ->once()
             ->with($testDomain, PowerDnsMetadataType::ALSO_NOTIFY);
 
-        $mockPowerDnsClient->shouldReceive('deleteMetadata')
-            ->once()
-            ->with($testDomain, PowerDnsMetadataType::SOA_EDIT);
+        $mockPowerDnsClient->shouldReceive('deleteMetadata')->once()->with($testDomain, PowerDnsMetadataType::SOA_EDIT);
 
-        $mockPowerDnsClient->shouldReceive('updateLiveDns')
-            ->once()
-            ->with($testDomain, false);
+        $mockPowerDnsClient->shouldReceive('updateLiveDns')->once()->with($testDomain, false);
 
-        $mockJobDispatcher->expects(self::never())
-            ->method('dispatch');
+        $mockJobDispatcher->expects(self::never())->method('dispatch');
 
         $service->disablePremiumDns(domain: $testDomain, shouldUpdateNameservers: false);
     }
@@ -551,7 +538,7 @@ class DnsServiceTest extends IntegrationTestCase
             new Response(
                 404,
                 [],
-                '{"message" : "zone test.nl does not exist"}'
+                '{"message" : "zone test.nl does not exist"}',
             ),
         ]);
 
@@ -572,12 +559,12 @@ class DnsServiceTest extends IntegrationTestCase
             new Response(
                 201,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 400,
                 [],
-                '{"message" : "zone already exists."}'
+                '{"message" : "zone already exists."}',
             ),
         ]);
 
@@ -596,12 +583,12 @@ class DnsServiceTest extends IntegrationTestCase
             new Response(
                 201,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
         ]);
 
@@ -614,7 +601,7 @@ class DnsServiceTest extends IntegrationTestCase
 
         self::assertNotEmpty(
             $zone->getRecords(),
-            'Zone did not contain any records.'
+            'Zone did not contain any records.',
         );
 
         // SOA record is not logged
@@ -628,12 +615,12 @@ class DnsServiceTest extends IntegrationTestCase
             new Response(
                 201,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
         ]);
 
@@ -645,14 +632,14 @@ class DnsServiceTest extends IntegrationTestCase
             'default',
             null,
             null,
-            true
+            true,
         );
 
         $zone = $dnsService->getDnsZone(self::DOMAIN);
 
         self::assertNotEmpty(
             $zone->getRecords(),
-            'Zone did not contain any records.'
+            'Zone did not contain any records.',
         );
 
         self::assertTrue($zone->hasDnsSec());
@@ -668,7 +655,7 @@ class DnsServiceTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedKeyResponseBody()
+                $this->getMockedKeyResponseBody(),
             ),
         ]);
 
@@ -679,7 +666,7 @@ class DnsServiceTest extends IntegrationTestCase
 
         self::assertSame(
             '257 3 13 kJugvFdAwIy1cLirD3H23rJuf8Ul1XFwponZ7y8qq7rMBN3/Hdvs9PnRTD6Hm4R8sANAh5Cqfn2EZcXvROIxLw==',
-            $key->getDnsKey()
+            $key->getDnsKey(),
         );
     }
 
@@ -688,8 +675,7 @@ class DnsServiceTest extends IntegrationTestCase
     {
         $this->dnsZone->kind = PowerDnsZoneKind::SLAVE->value;
 
-        $this->mockPowerDnsClient->method('getZone')
-            ->willReturn($this->dnsZone);
+        $this->mockPowerDnsClient->method('getZone')->willReturn($this->dnsZone);
 
         $this->app->bind(PowerDnsClient::class, fn (): PowerDnsClient => $this->mockPowerDnsClient);
 
@@ -701,8 +687,7 @@ class DnsServiceTest extends IntegrationTestCase
     {
         $this->dnsZone->kind = PowerDnsZoneKind::MASTER->value;
 
-        $this->mockPowerDnsClient->method('getZone')
-            ->willReturn($this->dnsZone);
+        $this->mockPowerDnsClient->method('getZone')->willReturn($this->dnsZone);
 
         $this->app->bind(PowerDnsClient::class, fn (): PowerDnsClient => $this->mockPowerDnsClient);
 
@@ -713,7 +698,7 @@ class DnsServiceTest extends IntegrationTestCase
     public function applyTemplate(): void
     {
         $template = DnsCustomerTemplate::create([
-            'name'        => 'exampleExistingTemplate',
+            'name' => 'exampleExistingTemplate',
             'customer_id' => $this->customer->id,
         ]);
 
@@ -724,10 +709,10 @@ class DnsServiceTest extends IntegrationTestCase
         ];
 
         $templateRecord = new DnsCustomerTemplateRecord([
-            'name'     => 'template-record-name',
-            'content'  => 'template-record-content',
-            'type'     => 'A',
-            'ttl'      => 100,
+            'name' => 'template-record-name',
+            'content' => 'template-record-content',
+            'type' => 'A',
+            'ttl' => 100,
             'disabled' => false,
         ]);
 
@@ -759,41 +744,46 @@ class DnsServiceTest extends IntegrationTestCase
             dnsZoneService: self::createMock(DnsZoneService::class),
         );
 
-        $this->mockPowerDnsClient->expects(self::never())
-            ->method('getZone');
+        $this->mockPowerDnsClient->expects(self::never())->method('getZone');
 
-        $this->mockPowerDnsClient->expects(self::once())
-            ->method('changeZone')
-            ->willReturn($newDnsZone);
+        $this->mockPowerDnsClient->expects(self::once())->method('changeZone')->willReturn($newDnsZone);
 
-        $mockDnsLog->shouldReceive('logMultipleRecords')
+        $mockDnsLog
+            ->shouldReceive('logMultipleRecords')
             ->once()
             ->withArgs(
-                function (array $recordsDeleted, string $domain, DnsChangeType $changeType) use ($existingRecords, $newDnsZone) {
+                function (array $recordsDeleted, string $domain, DnsChangeType $changeType) use (
+                    $existingRecords,
+                    $newDnsZone,
+                ) {
                     // we expect the Cname and A record in the deleted log, not the NS record.
                     $aRecordPresent = in_array($existingRecords[0], $recordsDeleted, true);
                     $cnameRecordPresent = in_array($existingRecords[1], $recordsDeleted, true);
                     $nsNotPresent = ! in_array($existingRecords[2], $recordsDeleted, true);
 
-                    return $domain === $newDnsZone->getFqdn()->toNative()
+                    return (
+                        $domain === $newDnsZone->getFqdn()->toNative()
                         && $changeType === DnsChangeType::DELETED
                         && $aRecordPresent
                         && $cnameRecordPresent
-                        && $nsNotPresent;
-                }
+                        && $nsNotPresent
+                    );
+                },
             );
 
-        $mockDnsLog->shouldReceive('logMultipleRecords')
+        $mockDnsLog
+            ->shouldReceive('logMultipleRecords')
             ->once()
             ->withArgs(
                 /** @var AbstractRecord[] $recordsCreated */
-                fn (array $recordsCreated, string $domain, DnsChangeType $changeType) =>
+                fn (array $recordsCreated, string $domain, DnsChangeType $changeType) => (
                     // we expect the record from the template to be in the created log and nothing else
                     $domain === $newDnsZone->getFqdn()->toNative()
-                        && count($recordsCreated) === 1
-                        && $templateTypedRecord->getType() === $recordsCreated[0]->getType()
-                        && $templateTypedRecord->getContent() === $recordsCreated[0]->getContent()
-                        && $changeType === DnsChangeType::CREATED
+                    && count($recordsCreated) === 1
+                    && $templateTypedRecord->getType() === $recordsCreated[0]->getType()
+                    && $templateTypedRecord->getContent() === $recordsCreated[0]->getContent()
+                    && $changeType === DnsChangeType::CREATED
+                ),
             );
 
         $dnsService->applyTemplate($zone, self::DOMAIN, $template);
@@ -818,13 +808,9 @@ class DnsServiceTest extends IntegrationTestCase
         $newDnsZone->setRecords($existingRecords);
         $newDnsZone = $newDnsZone->addRecord($record);
 
-        $this->mockPowerDnsClient->expects(self::once())
-            ->method('getZone')
-            ->willReturn($zone);
+        $this->mockPowerDnsClient->expects(self::once())->method('getZone')->willReturn($zone);
 
-        $this->mockPowerDnsClient->expects(self::once())
-            ->method('changeZone')
-            ->willReturn($newDnsZone);
+        $this->mockPowerDnsClient->expects(self::once())->method('changeZone')->willReturn($newDnsZone);
 
         $dnsZone = $this->dnsService->applyDiff(self::DOMAIN, $dnsZoneDiff);
 
@@ -847,22 +833,23 @@ class DnsServiceTest extends IntegrationTestCase
             new DefaultRecord('NS', self::DOMAIN, 'ns1.test.nl.', 3600),
         ]);
 
-        $this->mockDnsZoneService->method('getParkingAddressRecords')->willReturn([
-            new DefaultRecord('A', self::DOMAIN, '203.0.113.1', 600),
-            new DefaultRecord('AAAA', self::DOMAIN, '2001:db8::1', 600),
-        ]);
+        $this->mockDnsZoneService
+            ->method('getParkingAddressRecords')
+            ->willReturn([
+                new DefaultRecord('A', self::DOMAIN, '203.0.113.1', 600),
+                new DefaultRecord('AAAA', self::DOMAIN, '2001:db8::1', 600),
+            ]);
 
         $dnsZoneDiff = new DnsZoneDiff([
             new AddedDnsRecord(new DefaultRecord('A', self::DOMAIN, '198.51.100.10', 600)),
             new AddedDnsRecord(new DefaultRecord('AAAA', self::DOMAIN, '2001:db8::10', 600)),
         ]);
 
-        $this->mockPowerDnsClient->expects(self::once())
-            ->method('getZone')
-            ->willReturn($zone);
+        $this->mockPowerDnsClient->expects(self::once())->method('getZone')->willReturn($zone);
 
         $capturedZone = null;
-        $this->mockPowerDnsClient->expects(self::once())
+        $this->mockPowerDnsClient
+            ->expects(self::once())
             ->method('changeZone')
             ->willReturnCallback(function (DnsZone $dnsZone) use (&$capturedZone): DnsZone {
                 $capturedZone = $dnsZone;
@@ -898,10 +885,12 @@ class DnsServiceTest extends IntegrationTestCase
             new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:3::20', 600),
         ]);
 
-        $this->mockDnsZoneService->method('getParkingAddressRecords')->willReturn([
-            new DefaultRecord('A', self::DOMAIN, '212.204.220.100', 600),
-            new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:2::100', 600),
-        ]);
+        $this->mockDnsZoneService
+            ->method('getParkingAddressRecords')
+            ->willReturn([
+                new DefaultRecord('A', self::DOMAIN, '212.204.220.100', 600),
+                new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:2::100', 600),
+            ]);
 
         $this->mockPowerDnsClient->method('getZone')->willReturn($zone);
 
@@ -924,10 +913,12 @@ class DnsServiceTest extends IntegrationTestCase
             new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:2::100', 600),
         ]);
 
-        $this->mockDnsZoneService->method('getParkingAddressRecords')->willReturn([
-            new DefaultRecord('A', self::DOMAIN, '212.204.220.100', 600),
-            new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:2::100', 600),
-        ]);
+        $this->mockDnsZoneService
+            ->method('getParkingAddressRecords')
+            ->willReturn([
+                new DefaultRecord('A', self::DOMAIN, '212.204.220.100', 600),
+                new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:2::100', 600),
+            ]);
 
         $this->mockPowerDnsClient->method('getZone')->willReturn($zone);
 
@@ -947,10 +938,12 @@ class DnsServiceTest extends IntegrationTestCase
             new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:2::100', 600),
         ]);
 
-        $this->mockDnsZoneService->method('getParkingAddressRecords')->willReturn([
-            new DefaultRecord('A', self::DOMAIN, '212.204.220.100', 600),
-            new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:2::100', 600),
-        ]);
+        $this->mockDnsZoneService
+            ->method('getParkingAddressRecords')
+            ->willReturn([
+                new DefaultRecord('A', self::DOMAIN, '212.204.220.100', 600),
+                new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:2::100', 600),
+            ]);
 
         $this->mockPowerDnsClient->method('getZone')->willReturn($zone);
 
@@ -960,9 +953,11 @@ class DnsServiceTest extends IntegrationTestCase
     #[Test]
     public function getConflictingParkingRecordsReturnsEmptyWhenZoneNotFound(): void
     {
-        $this->mockDnsZoneService->method('getParkingAddressRecords')->willReturn([
-            new DefaultRecord('A', self::DOMAIN, '212.204.220.100', 600),
-        ]);
+        $this->mockDnsZoneService
+            ->method('getParkingAddressRecords')
+            ->willReturn([
+                new DefaultRecord('A', self::DOMAIN, '212.204.220.100', 600),
+            ]);
 
         $this->mockPowerDnsClient->method('getZone')->willThrowException(new DnsZoneNotFoundException());
 
@@ -995,15 +990,18 @@ class DnsServiceTest extends IntegrationTestCase
             new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:3::20', 600),
         ]);
 
-        $this->mockDnsZoneService->method('getParkingAddressRecords')->willReturn([
-            new DefaultRecord('A', self::DOMAIN, '212.204.220.100', 600),
-            new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:2::100', 600),
-        ]);
+        $this->mockDnsZoneService
+            ->method('getParkingAddressRecords')
+            ->willReturn([
+                new DefaultRecord('A', self::DOMAIN, '212.204.220.100', 600),
+                new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:2::100', 600),
+            ]);
 
         $this->mockPowerDnsClient->method('getZone')->willReturn($zone);
 
         $capturedZone = null;
-        $this->mockPowerDnsClient->expects(self::once())
+        $this->mockPowerDnsClient
+            ->expects(self::once())
             ->method('changeZone')
             ->willReturnCallback(function (DnsZone $dnsZone) use (&$capturedZone): DnsZone {
                 $capturedZone = $dnsZone;
@@ -1036,10 +1034,12 @@ class DnsServiceTest extends IntegrationTestCase
             new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:2::100', 600),
         ]);
 
-        $this->mockDnsZoneService->method('getParkingAddressRecords')->willReturn([
-            new DefaultRecord('A', self::DOMAIN, '212.204.220.100', 600),
-            new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:2::100', 600),
-        ]);
+        $this->mockDnsZoneService
+            ->method('getParkingAddressRecords')
+            ->willReturn([
+                new DefaultRecord('A', self::DOMAIN, '212.204.220.100', 600),
+                new DefaultRecord('AAAA', self::DOMAIN, '2a05:1500:900:2::100', 600),
+            ]);
 
         $this->mockPowerDnsClient->method('getZone')->willReturn($zone);
         $this->mockPowerDnsClient->expects(self::never())->method('changeZone');
@@ -1062,12 +1062,11 @@ class DnsServiceTest extends IntegrationTestCase
             new AddedDnsRecord(new DefaultRecord('A', self::DOMAIN, '198.51.100.10', 600)),
         ]);
 
-        $this->mockPowerDnsClient->expects(self::once())
-            ->method('getZone')
-            ->willReturn($zone);
+        $this->mockPowerDnsClient->expects(self::once())->method('getZone')->willReturn($zone);
 
         $capturedZone = null;
-        $this->mockPowerDnsClient->expects(self::once())
+        $this->mockPowerDnsClient
+            ->expects(self::once())
             ->method('changeZone')
             ->willReturnCallback(function (DnsZone $dnsZone) use (&$capturedZone): DnsZone {
                 $capturedZone = $dnsZone;

@@ -111,7 +111,9 @@ class AcronisOfferingItemHelper
             $offeringItems[] = new OfferingItemDto(
                 propertyName: OfferingItemPropertyName::GOOGLE_TEAM_DRIVE,
                 quota: null,
-                status: $provisionData->enableGoogleWorkspaceDrive ? OfferingItemStatus::ACTIVE : OfferingItemStatus::NOT_ACTIVE,
+                status: $provisionData->enableGoogleWorkspaceDrive
+                    ? OfferingItemStatus::ACTIVE
+                    : OfferingItemStatus::NOT_ACTIVE,
             );
         }
 

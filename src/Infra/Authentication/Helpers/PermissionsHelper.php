@@ -18,8 +18,7 @@ class PermissionsHelper
         return match ($authenticatedSubject::class) {
             AuthenticatedEmployee::class => SchemaId::EMPLOYEE,
             AuthenticatedSystem::class => SchemaId::SYSTEM,
-            AuthenticatedCustomer::class,
-            AuthenticatedUnregisteredCustomer::class => SchemaId::CUSTOMER,
+            AuthenticatedCustomer::class, AuthenticatedUnregisteredCustomer::class => SchemaId::CUSTOMER,
             default => throw new InvalidArgumentException('Unknown schema id'),
         };
     }

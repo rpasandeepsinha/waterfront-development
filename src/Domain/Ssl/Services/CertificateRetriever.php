@@ -33,8 +33,8 @@ class CertificateRetriever
             sprintf(
                 'Certificate for %s of type %s not found',
                 $domain,
-                $type
-            )
+                $type,
+            ),
         );
 
         return $certificate;

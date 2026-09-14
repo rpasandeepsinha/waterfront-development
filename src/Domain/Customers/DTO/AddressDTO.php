@@ -13,7 +13,7 @@ readonly class AddressDTO
         public string $zipCode,
         public string $city,
         public string $countryCode,
-        public ?string $type
+        public ?string $type,
     ) {
     }
 
@@ -29,7 +29,7 @@ readonly class AddressDTO
             $address['zipCode'],
             $address['city'],
             $address['countryCode'],
-            $address['type'] ?? null
+            $address['type'] ?? null,
         );
     }
 }

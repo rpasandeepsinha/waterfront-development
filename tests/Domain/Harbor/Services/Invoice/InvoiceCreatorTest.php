@@ -37,7 +37,10 @@ class InvoiceCreatorTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
-        $subscription = new SubscriptionFactory()->for($product)->for($customer)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->createOne();
 
         $customerVatDto = $this->vatService->getCustomerVatData($customer);
 
@@ -46,9 +49,9 @@ class InvoiceCreatorTest extends IntegrationTestCase
             ->for($subscription)
             ->for($product)
             ->createOne([
-                'prepaid_reference'  => 'fake-reference',
-                'start_date'         => CarbonImmutable::create(2001),
-                'end_date'           => CarbonImmutable::create(2002),
+                'prepaid_reference' => 'fake-reference',
+                'start_date' => CarbonImmutable::create(2001),
+                'end_date' => CarbonImmutable::create(2002),
             ]);
 
         $existingUpToDateInvoice = new InvoiceFactory()
@@ -56,8 +59,8 @@ class InvoiceCreatorTest extends IntegrationTestCase
             ->for($subscription)
             ->for($product)
             ->createOne([
-                'start_date'         => CarbonImmutable::create(1337),
-                'end_date'           => CarbonImmutable::create(1337),
+                'start_date' => CarbonImmutable::create(1337),
+                'end_date' => CarbonImmutable::create(1337),
             ]);
 
         $batchCreateResult = $this->invoiceCreator->batchCreateFromExisting([
@@ -95,7 +98,10 @@ class InvoiceCreatorTest extends IntegrationTestCase
         self::assertSame($existingUpToDateInvoice->gross_price, $newFromUpToDateInvoice->gross_price);
         self::assertSame($existingUpToDateInvoice->customer_id, $newFromUpToDateInvoice->customer_id);
         self::assertSame($existingUpToDateInvoice->product_id, $newFromUpToDateInvoice->product_id);
-        self::assertSame($existingUpToDateInvoice->start_date->timestamp, $newFromUpToDateInvoice->start_date->timestamp);
+        self::assertSame(
+            $existingUpToDateInvoice->start_date->timestamp,
+            $newFromUpToDateInvoice->start_date->timestamp,
+        );
         self::assertSame($existingUpToDateInvoice->end_date->timestamp, $newFromUpToDateInvoice->end_date->timestamp);
         self::assertSame($existingUpToDateInvoice->period, $newFromUpToDateInvoice->period);
         self::assertSame($existingUpToDateInvoice->vat_code, $newFromUpToDateInvoice->vat_code);

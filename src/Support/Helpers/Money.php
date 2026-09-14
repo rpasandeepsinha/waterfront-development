@@ -12,8 +12,12 @@ class Money
     /**
      * Format money in the dutch format.
      */
-    public static function format(int|float|string|null $priceInCents = 0, ?string $country = null, ?string $currency = null, ?int $decimals = null): string
-    {
+    public static function format(
+        int|float|string|null $priceInCents = 0,
+        ?string $country = null,
+        ?string $currency = null,
+        ?int $decimals = null,
+    ): string {
         $price = intval($priceInCents) / 100;
 
         $country ??= 'NL';
@@ -28,7 +32,7 @@ class Money
 
         $formatter = new NumberFormatter(
             App::getLocale() . '_' . $country,
-            NumberFormatter::CURRENCY
+            NumberFormatter::CURRENCY,
         );
         $formatter->setAttribute(NumberFormatter::FRACTION_DIGITS, $decimals);
 

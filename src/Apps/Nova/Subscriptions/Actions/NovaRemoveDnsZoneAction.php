@@ -25,13 +25,13 @@ class NovaRemoveDnsZoneAction extends NovaSubscriptionAction
         private readonly DnsService $dnsService,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool =>
+            fn (NovaRequest $request): bool => (
                 $this->onlyForSingleSubscription($request)
                 && (
                     $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::EXTENSION)
-                    ||
-                    $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::DNS)
+                    || $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::DNS)
                 )
+            ),
         );
 
         $this->sole();

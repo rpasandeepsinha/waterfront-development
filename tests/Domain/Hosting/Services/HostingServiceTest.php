@@ -61,33 +61,28 @@ class HostingServiceTest extends IntegrationTestCase
             ->technicalStatus(TechnicalStatus::PENDING->value)
             ->createOne(['domain' => $testDomain]);
 
-        $mockHostingServiceFactory->expects(self::exactly(2))
-            ->method('defaultDriver')
-            ->willReturn($mockHostingService);
+        $mockHostingServiceFactory->expects(self::exactly(2))->method('defaultDriver')->willReturn($mockHostingService);
 
-        $mockHostingService->expects(self::once())
-            ->method('findServer')
-            ->with()
-            ->willReturn($server);
+        $mockHostingService->expects(self::once())->method('findServer')->with()->willReturn($server);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with('Create hosting', [
-                LoggingContextKeys::DOMAIN_NAME       => $testDomain,
+                LoggingContextKeys::DOMAIN_NAME => $testDomain,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $hostingSubscription->uuid,
-                LoggingContextKeys::SERVER_ID         => null,
+                LoggingContextKeys::SERVER_ID => null,
                 LoggingContextKeys::META => [
-                    'contact email'                       => $customer->email,
-                    'contact person'                      => $customer->name,
-                    'email'                               => $customer->email,
+                    'contact email' => $customer->email,
+                    'contact person' => $customer->name,
+                    'email' => $customer->email,
                 ],
             ]);
 
-        $mockSubscriptionRepository->expects(self::once())
-            ->method('getByUuid')
-            ->willReturn($hostingSubscription);
+        $mockSubscriptionRepository->expects(self::once())->method('getByUuid')->willReturn($hostingSubscription);
 
-        $mockHostingService->expects(self::once())
+        $mockHostingService
+            ->expects(self::once())
             ->method('create')
             ->with(
                 $customer->name,
@@ -98,15 +93,14 @@ class HostingServiceTest extends IntegrationTestCase
                 $hostingProduct->productSpecs->toArray(),
                 $server,
                 null,
-                $testDomain
+                $testDomain,
             )
             ->willReturn([
                 'result' => TechnicalStatus::OK->value,
                 'domain' => $testDomain,
             ]);
 
-        $mockBusDispatcher->expects(self::never())
-            ->method('dispatch');
+        $mockBusDispatcher->expects(self::never())->method('dispatch');
 
         $hostingService = new HostingService(
             $mockHostingServiceFactory,
@@ -126,7 +120,7 @@ class HostingServiceTest extends IntegrationTestCase
             product: $hostingProduct,
             customer: $customer,
             serverId: null,
-            domain: $testDomain
+            domain: $testDomain,
         );
 
         self::assertSame(TechnicalStatus::OK->value, $hostingSubscription->refresh()->technical_status);
@@ -149,12 +143,13 @@ class HostingServiceTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $hostingProduct = new ProductFactory()->hostingBrons()
+        $hostingProduct = new ProductFactory()
+            ->hostingBrons()
             ->has(
                 new ProductSpecFactory()->state([
                     'name' => ProductSpecName::WAIT_FOR_WP_TOOLKIT->value,
                     'value' => 1,
-                ])
+                ]),
             )
             ->createOne();
 
@@ -164,33 +159,28 @@ class HostingServiceTest extends IntegrationTestCase
             ->technicalStatus(TechnicalStatus::PENDING->value)
             ->createOne(['domain' => $testDomain]);
 
-        $mockHostingServiceFactory->expects(self::exactly(2))
-            ->method('defaultDriver')
-            ->willReturn($mockHostingService);
+        $mockHostingServiceFactory->expects(self::exactly(2))->method('defaultDriver')->willReturn($mockHostingService);
 
-        $mockHostingService->expects(self::once())
-            ->method('findServer')
-            ->with()
-            ->willReturn($server);
+        $mockHostingService->expects(self::once())->method('findServer')->with()->willReturn($server);
 
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('info')
             ->with('Create hosting', [
-                LoggingContextKeys::DOMAIN_NAME       => $testDomain,
+                LoggingContextKeys::DOMAIN_NAME => $testDomain,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $hostingSubscription->uuid,
-                LoggingContextKeys::SERVER_ID         => null,
+                LoggingContextKeys::SERVER_ID => null,
                 LoggingContextKeys::META => [
-                    'contact email'                       => $customer->email,
-                    'contact person'                      => $customer->name,
-                    'email'                               => $customer->email,
+                    'contact email' => $customer->email,
+                    'contact person' => $customer->name,
+                    'email' => $customer->email,
                 ],
             ]);
 
-        $mockSubscriptionRepository->expects(self::once())
-            ->method('getByUuid')
-            ->willReturn($hostingSubscription);
+        $mockSubscriptionRepository->expects(self::once())->method('getByUuid')->willReturn($hostingSubscription);
 
-        $mockHostingService->expects(self::once())
+        $mockHostingService
+            ->expects(self::once())
             ->method('create')
             ->with(
                 $customer->name,
@@ -201,15 +191,14 @@ class HostingServiceTest extends IntegrationTestCase
                 $hostingProduct->productSpecs->toArray(),
                 $server,
                 null,
-                $testDomain
+                $testDomain,
             )
             ->willReturn([
                 'result' => TechnicalStatus::OK->value,
                 'domain' => $testDomain,
             ]);
 
-        $mockBusDispatcher->expects(self::once())
-            ->method('dispatch');
+        $mockBusDispatcher->expects(self::once())->method('dispatch');
 
         $hostingService = new HostingService(
             $mockHostingServiceFactory,
@@ -229,7 +218,7 @@ class HostingServiceTest extends IntegrationTestCase
             product: $hostingProduct,
             customer: $customer,
             serverId: null,
-            domain: $testDomain
+            domain: $testDomain,
         );
 
         self::assertSame(TechnicalStatus::PENDING->value, $hostingSubscription->refresh()->technical_status);
@@ -252,14 +241,13 @@ class HostingServiceTest extends IntegrationTestCase
             self::resolve(HostingDeploymentService::class),
         );
 
-        $hostingServiceFactory->expects($this->once())
+        $hostingServiceFactory
+            ->expects($this->once())
             ->method('driver')
             ->with($driver)
             ->willReturn($hostingServiceMock = self::createMock(HostingServiceInterface::class));
 
-        $hostingServiceMock->expects(self::once())
-            ->method('getCustomerDomainsForDkim')
-            ->with($hostingDeployment);
+        $hostingServiceMock->expects(self::once())->method('getCustomerDomainsForDkim')->with($hostingDeployment);
 
         $hostingService->getCustomerDomains($driver->value, $hostingDeployment);
     }
@@ -280,12 +268,14 @@ class HostingServiceTest extends IntegrationTestCase
             self::resolve(HostingDeploymentService::class),
         );
 
-        $hostingServiceFactory->expects($this->once())
+        $hostingServiceFactory
+            ->expects($this->once())
             ->method('driver')
             ->with($driver)
             ->willReturn($hostingServiceMock = self::createMock(HostingServiceInterface::class));
 
-        $hostingServiceMock->expects(self::once())
+        $hostingServiceMock
+            ->expects(self::once())
             ->method('isDkimEnabled')
             ->with($hostingDeployment, self::DOMAIN)
             ->willReturn(true);
@@ -310,12 +300,14 @@ class HostingServiceTest extends IntegrationTestCase
             self::resolve(HostingDeploymentService::class),
         );
 
-        $hostingServiceFactory->expects($this->once())
+        $hostingServiceFactory
+            ->expects($this->once())
             ->method('driver')
             ->with($driver)
             ->willReturn($hostingServiceMock = self::createMock(HostingServiceInterface::class));
 
-        $hostingServiceMock->expects(self::once())
+        $hostingServiceMock
+            ->expects(self::once())
             ->method('isDkimEnabled')
             ->with($hostingDeployment, self::DOMAIN)
             ->willReturn(false);
@@ -340,14 +332,13 @@ class HostingServiceTest extends IntegrationTestCase
             self::resolve(HostingDeploymentService::class),
         );
 
-        $hostingServiceFactory->expects($this->once())
+        $hostingServiceFactory
+            ->expects($this->once())
             ->method('driver')
             ->with($driver)
             ->willReturn($hostingServiceMock = self::createMock(HostingServiceInterface::class));
 
-        $hostingServiceMock->expects(self::once())
-            ->method('setDkim')
-            ->with($hostingDeployment, self::DOMAIN, true);
+        $hostingServiceMock->expects(self::once())->method('setDkim')->with($hostingDeployment, self::DOMAIN, true);
 
         $hostingService->setDkim($driver->value, $hostingDeployment, self::DOMAIN, true);
     }
@@ -368,15 +359,19 @@ class HostingServiceTest extends IntegrationTestCase
             self::resolve(HostingDeploymentService::class),
         );
 
-        $hostingServiceFactory->expects($this->once())
+        $hostingServiceFactory
+            ->expects($this->once())
             ->method('driver')
             ->with($driver)
             ->willReturn($hostingServiceMock = self::createMock(HostingServiceInterface::class));
 
-        $hostingServiceMock->expects(self::once())
+        $hostingServiceMock
+            ->expects(self::once())
             ->method('getDkimRecord')
             ->with($hostingDeployment, self::DOMAIN)
-            ->willReturn($dkimRecordMock = new DnsRecord('TXT', '_domainkey2.sandwave.io.', 'v=DKIM1; p=differentDKIM'));
+            ->willReturn(
+                $dkimRecordMock = new DnsRecord('TXT', '_domainkey2.sandwave.io.', 'v=DKIM1; p=differentDKIM'),
+            );
 
         $dkimRecord = $hostingService->getDkimRecord($driver->value, $hostingDeployment, self::DOMAIN);
         self::assertInstanceOf(DnsRecord::class, $dkimRecord);
@@ -399,12 +394,14 @@ class HostingServiceTest extends IntegrationTestCase
             self::resolve(HostingDeploymentService::class),
         );
 
-        $hostingServiceFactory->expects($this->once())
+        $hostingServiceFactory
+            ->expects($this->once())
             ->method('driver')
             ->with($driver)
             ->willReturn($hostingServiceMock = self::createMock(HostingServiceInterface::class));
 
-        $hostingServiceMock->expects(self::once())
+        $hostingServiceMock
+            ->expects(self::once())
             ->method('getDkimRecord')
             ->with($hostingDeployment, self::DOMAIN)
             ->willReturn(null);
@@ -422,12 +419,15 @@ class HostingServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->hosting()->createOne()))
             ->createOne();
 
-        $hostingProvider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
-        $hostingDeployment = new HostingDeploymentFactory()
-            ->for($subscription, 'subscription')
-            ->createOne([
-                'provider_id' => $hostingProvider->id,
-            ]);
+        $hostingProvider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        $hostingDeployment = new HostingDeploymentFactory()->for($subscription, 'subscription')->createOne([
+            'provider_id' => $hostingProvider->id,
+        ]);
         $driver = ProviderSlug::PLESK;
         $hostingDeploymentRepository = self::resolve(HostingDeploymentRepository::class);
         $hostingDeploymentService = self::resolve(HostingDeploymentService::class);
@@ -442,7 +442,8 @@ class HostingServiceTest extends IntegrationTestCase
             $hostingDeploymentService,
         );
 
-        $hostingServiceFactory->expects($this->once())
+        $hostingServiceFactory
+            ->expects($this->once())
             ->method('driver')
             ->with($driver)
             ->willReturn($hostingServiceMock = self::createMock(HostingServiceInterface::class));
@@ -459,7 +460,8 @@ class HostingServiceTest extends IntegrationTestCase
         $parameters->setIpv4Address($server?->getIpv4() ?? '');
         $parameters->setServer($server);
 
-        $hostingServiceMock->expects(self::once())
+        $hostingServiceMock
+            ->expects(self::once())
             ->method('getUserStats')
             ->with($parameters)
             ->willReturn($userStatistics);

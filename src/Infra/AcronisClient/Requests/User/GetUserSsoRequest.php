@@ -39,7 +39,9 @@ class GetUserSsoRequest extends Request implements HasBody
         return [
             'user_id' => $this->userId->toString(),
             'purpose' => 'user_login',
-            'audit_data' => $this->employeeUuid === null ? self::AUDIT_DATA_CUSTOMER_LOGIN : sprintf(self::AUDIT_DATA_EMPLOYEE_LOGIN, $this->employeeUuid),
+            'audit_data' => $this->employeeUuid === null
+                ? self::AUDIT_DATA_CUSTOMER_LOGIN
+                : sprintf(self::AUDIT_DATA_EMPLOYEE_LOGIN, $this->employeeUuid),
         ];
     }
 }

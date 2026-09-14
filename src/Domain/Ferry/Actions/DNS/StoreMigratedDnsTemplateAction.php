@@ -17,7 +17,7 @@ class StoreMigratedDnsTemplateAction
     public function execute(
         DnsTemplateDTO $dnsTemplateDTO,
         Customer $customer,
-        MigratedCustomer $migratedCustomer
+        MigratedCustomer $migratedCustomer,
     ): void {
         $alreadyMigrated = MigratedDnsTemplate::query()
             ->where('reference_template_id', $dnsTemplateDTO->referenceTemplateId)

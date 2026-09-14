@@ -23,24 +23,21 @@ class CancelDomainSubscriptionJob extends AbstractQueueableJob
     public int $tries = 3;
 
     public function __construct(
-        private readonly string $domainName
+        private readonly string $domainName,
     ) {
         parent::__construct();
     }
 
     public function handle(
         CancellationService $cancellationService,
-        DomainService $domainService
+        DomainService $domainService,
     ): void {
         $subscription = Subscription::query()
             ->whereProductGroupType(ProductGroupType::EXTENSION)
             ->where('domain', $this->domainName)
             ->first();
 
-        if (
-            ! $subscription instanceof Subscription
-            || ! $subscription->domainDeployment instanceof DomainDeployment
-        ) {
+        if (! $subscription instanceof Subscription || ! $subscription->domainDeployment instanceof DomainDeployment) {
             return;
         }
 
@@ -49,7 +46,7 @@ class CancelDomainSubscriptionJob extends AbstractQueueableJob
             cancelType: SubscriptionCancelType::CANCEL_END_DATE,
             cancelReason: SubscriptionCancelReason::REASON_TRANSFER,
             sendMail: false,
-            cancelNote: self::CANCEL_REASON
+            cancelNote: self::CANCEL_REASON,
         );
 
         try {

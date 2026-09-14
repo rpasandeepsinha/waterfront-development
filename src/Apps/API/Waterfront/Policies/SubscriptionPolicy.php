@@ -153,12 +153,10 @@ class SubscriptionPolicy
         $dnsSubscription = $this->getDnsSubscription($subscription);
         $this->canAccessDomainAndDnsSubscription($subscription, $dnsSubscription, $subject);
 
-        if (
-            ! $this->productSpecRepository->booleanSpecificationIsTrue(
-                $dnsSubscription->product,
-                ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT
-            )
-        ) {
+        if (! $this->productSpecRepository->booleanSpecificationIsTrue(
+            $dnsSubscription->product,
+            ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT,
+        )) {
             throw new AuthorizationException();
         }
     }
@@ -200,7 +198,11 @@ class SubscriptionPolicy
     {
         $this->assertCanManageDomain($subscription);
 
-        if (! in_array($subscription->technical_status, [DomainStatus::FAILED->value, TechnicalStatus::FAILED->value, TechnicalStatus::TRANSFER_FAILED->value], true)) {
+        if (! in_array(
+            $subscription->technical_status,
+            [DomainStatus::FAILED->value, TechnicalStatus::FAILED->value, TechnicalStatus::TRANSFER_FAILED->value],
+            true,
+        )) {
             throw new AuthorizationException();
         }
     }
@@ -213,7 +215,10 @@ class SubscriptionPolicy
     {
         $subject = $this->authManager->getAuthenticatedSubject();
 
-        if ($subject->identitySchema->schemaId === SchemaId::EMPLOYEE || $subject->identitySchema->schemaId === SchemaId::SYSTEM) {
+        if (
+            $subject->identitySchema->schemaId === SchemaId::EMPLOYEE
+            || $subject->identitySchema->schemaId === SchemaId::SYSTEM
+        ) {
             return;
         }
 
@@ -223,7 +228,10 @@ class SubscriptionPolicy
             throw new AuthorizationException();
         }
 
-        if ($subscription->product->productGroup->slug !== ProductGroupType::HOSTING && $subscription->product->productGroup->slug !== ProductGroupType::REDIRECT) {
+        if (
+            $subscription->product->productGroup->slug !== ProductGroupType::HOSTING
+            && $subscription->product->productGroup->slug !== ProductGroupType::REDIRECT
+        ) {
             throw new AuthorizationException();
         }
 
@@ -271,7 +279,10 @@ class SubscriptionPolicy
     {
         $subject = $this->authManager->getAuthenticatedSubject();
 
-        if ($subject->identitySchema->schemaId === SchemaId::EMPLOYEE || $subject->identitySchema->schemaId === SchemaId::SYSTEM) {
+        if (
+            $subject->identitySchema->schemaId === SchemaId::EMPLOYEE
+            || $subject->identitySchema->schemaId === SchemaId::SYSTEM
+        ) {
             return;
         }
 
@@ -306,7 +317,10 @@ class SubscriptionPolicy
     {
         $this->authManager->getAuthenticatedCustomer();
 
-        if ($this->subscriptionChangeService->getPotentialChanges(ProductChangeType::DOWNGRADE, $subscription)->isEmpty()) {
+        if ($this->subscriptionChangeService->getPotentialChanges(
+            ProductChangeType::DOWNGRADE,
+            $subscription,
+        )->isEmpty()) {
             throw new AuthorizationException();
         }
     }
@@ -321,7 +335,7 @@ class SubscriptionPolicy
 
         try {
             $this->assertCanDowngrade($subscription);
-        } catch (AuthorizationException | AuthenticationException) {
+        } catch (AuthorizationException|AuthenticationException) {
             throw new AuthorizationException();
         }
 
@@ -380,7 +394,10 @@ class SubscriptionPolicy
         $this->customerPolicy->assertCanManageSubscription();
         $this->assertCanAccess($subscription);
 
-        if ($this->subscriptionChangeService->getPotentialChanges(ProductChangeType::UPGRADE, $subscription)->count() > 0) {
+        if (
+            $this->subscriptionChangeService->getPotentialChanges(ProductChangeType::UPGRADE, $subscription)->count()
+            > 0
+        ) {
             return;
         }
 
@@ -414,7 +431,11 @@ class SubscriptionPolicy
 
     public function canCreateMutationWithDiscount(): bool
     {
-        return $this->authorizationService->can($this->authManager->getAuthenticatedSubject()->identitySchema, Permissions::CREATE_SUBSCRIPTION_MUTATION_WITH_DISCOUNT, null);
+        return $this->authorizationService->can(
+            $this->authManager->getAuthenticatedSubject()->identitySchema,
+            Permissions::CREATE_SUBSCRIPTION_MUTATION_WITH_DISCOUNT,
+            null,
+        );
     }
 
     /**
@@ -451,91 +472,91 @@ class SubscriptionPolicy
         try {
             self::assertCanView($subscription);
             $actions[] = 'view';
-        } catch (AuthenticationException | AuthorizationException) {
+        } catch (AuthenticationException|AuthorizationException) {
             // @ignoreException
         }
 
         try {
             self::assertCanCancel($subscription);
             $actions[] = 'cancel';
-        } catch (AuthenticationException | AuthorizationException) {
+        } catch (AuthenticationException|AuthorizationException) {
             // @ignoreException
         }
 
         try {
             $this->dnsPolicy->assertCanManageDns($subscription);
             $actions[] = 'manageDns';
-        } catch (AuthenticationException | AuthorizationException) {
+        } catch (AuthenticationException|AuthorizationException) {
             // @ignoreException
         }
 
         try {
             self::assertCanCoupleHosting($subscription);
             $actions[] = 'coupleHosting';
-        } catch (AuthenticationException | AuthorizationException) {
+        } catch (AuthenticationException|AuthorizationException) {
             // @ignoreException
         }
 
         try {
             self::assertCanManageDomain($subscription);
             $actions[] = 'manageDomain';
-        } catch (AuthenticationException | AuthorizationException) {
+        } catch (AuthenticationException|AuthorizationException) {
             // @ignoreException
         }
 
         try {
             self::assertCanManageHosting($subscription);
             $actions[] = 'manageHosting';
-        } catch (AuthenticationException | AuthorizationException) {
+        } catch (AuthenticationException|AuthorizationException) {
             // @ignoreException
         }
 
         try {
             self::assertCanUpgrade($subscription);
             $actions[] = 'upgrade';
-        } catch (AuthorizationException | AuthenticationException) {
+        } catch (AuthorizationException|AuthenticationException) {
             // @ignoreException
         }
 
         try {
             self::assertCanRetryProvisioning($subscription);
             $actions[] = 'retryProvisioning';
-        } catch (AuthenticationException | AuthorizationException) {
+        } catch (AuthenticationException|AuthorizationException) {
             // @ignoreException
         }
 
         try {
             self::assertCanDowngrade($subscription);
             $actions[] = 'canDowngrade';
-        } catch (AuthenticationException | AuthorizationException) {
+        } catch (AuthenticationException|AuthorizationException) {
             // @ignoreException
         }
 
         try {
             self::assertCanRequestDowngrade($subscription);
             $actions[] = 'canRequestDowngrade';
-        } catch (AuthenticationException | AuthorizationException) {
+        } catch (AuthenticationException|AuthorizationException) {
             // @ignoreException
         }
 
         try {
             self::assertCanRetryDowngrades($subscription);
             $actions[] = 'retryDowngrades';
-        } catch (AuthenticationException | AuthorizationException) {
+        } catch (AuthenticationException|AuthorizationException) {
             // @ignoreException
         }
 
         try {
             self::assertCanUseWpSso($subscription);
             $actions[] = 'canUseWpSso';
-        } catch (AuthenticationException | AuthorizationException) {
+        } catch (AuthenticationException|AuthorizationException) {
             // @ignoreException
         }
 
         try {
             self::assertCanChangeContract($subscription);
             $actions[] = 'canChangeContract';
-        } catch (AuthenticationException | AuthorizationException) {
+        } catch (AuthenticationException|AuthorizationException) {
             // @ignoreException
         }
 
@@ -573,7 +594,11 @@ class SubscriptionPolicy
             $actions[] = 'retryProvisionSsl';
         }
 
-        if (! $this->hasOpenMutation($subscription) && ! $this->assertInvoicedEarly($subscription) && $subscription->administrative_status === AdministrativeStatus::ACTIVE->value) {
+        if (
+            ! $this->hasOpenMutation($subscription)
+            && ! $this->assertInvoicedEarly($subscription)
+            && $subscription->administrative_status === AdministrativeStatus::ACTIVE->value
+        ) {
             $actions[] = 'extendContract';
         }
 
@@ -609,7 +634,7 @@ class SubscriptionPolicy
         return in_array(
             $subscription->product->productGroup->slug,
             [ProductGroupType::HOSTING, ProductGroupType::RESELLER_HOSTING],
-            true
+            true,
         );
     }
 
@@ -662,10 +687,7 @@ class SubscriptionPolicy
             return false;
         }
 
-        if (
-            ! $subject instanceof AuthenticatedCustomer
-            || ! $this->canAccess($subject, $subscription)
-        ) {
+        if (! $subject instanceof AuthenticatedCustomer || ! $this->canAccess($subject, $subscription)) {
             return false;
         }
 
@@ -685,10 +707,11 @@ class SubscriptionPolicy
             [
                 ...AdministrativeStatus::administrativelyEnded(),
                 ...AdministrativeStatus::getIneligibleForSuspension(),
-            ]
+            ],
         )) {
             return false;
         }
+
         return true;
     }
 
@@ -700,6 +723,7 @@ class SubscriptionPolicy
     private function subscriptionProductHasMultiYearPricing(Subscription $subscription): bool
     {
         $subscription->loadMissing('product');
+
         return $this->productPriceRepository->hasPricesWithMultipleContractPeriods($subscription->product);
     }
 
@@ -710,12 +734,14 @@ class SubscriptionPolicy
 
     private function isSuspended(Subscription $subscription): bool
     {
-        return $subscription->technical_status === TechnicalStatus::SUSPENDING->value
+        return (
+            $subscription->technical_status === TechnicalStatus::SUSPENDING->value
             || $subscription->technical_status === TechnicalStatus::UNSUSPENDING->value
             || $subscription->administrative_status === AdministrativeStatus::SUSPENDED->value
             // In fail cases we will treat the subscription as suspended
             || $subscription->technical_status === TechnicalStatus::SUSPENSION_FAILED->value
-            || $subscription->technical_status === TechnicalStatus::UNSUSPENSION_FAILED->value;
+            || $subscription->technical_status === TechnicalStatus::UNSUSPENSION_FAILED->value
+        );
     }
 
     private function isModifiable(Subscription $subscription): bool
@@ -758,23 +784,17 @@ class SubscriptionPolicy
     private function canAccessDomainAndDnsSubscription(
         Subscription $subscription,
         Subscription $dnsSubscription,
-        AuthenticatedCustomer $subject
+        AuthenticatedCustomer $subject,
     ): void {
         if (! $this->isNotSuspendedAndModifiable($subscription)) {
             throw new AuthorizationException();
         }
 
-        if (
-            ! $this->isModifiable($subscription)
-            || ! $this->isModifiable($dnsSubscription)
-        ) {
+        if (! $this->isModifiable($subscription) || ! $this->isModifiable($dnsSubscription)) {
             throw new AuthorizationException();
         }
 
-        if (
-            ! $this->canAccess($subject, $subscription)
-            || ! $this->canAccess($subject, $dnsSubscription)
-        ) {
+        if (! $this->canAccess($subject, $subscription) || ! $this->canAccess($subject, $dnsSubscription)) {
             throw new AuthorizationException();
         }
     }
@@ -784,7 +804,12 @@ class SubscriptionPolicy
      */
     private function showCoupledM365CancellationAlert(Subscription $subscription): void
     {
-        if ($this->m365Repository->getDeploymentsByCustomerAndDomainName($subscription->customer, $subscription->domain)->count() === 0) {
+        if (
+            $this->m365Repository->getDeploymentsByCustomerAndDomainName(
+                $subscription->customer,
+                $subscription->domain,
+            )->count() === 0
+        ) {
             throw new AuthorizationException();
         }
     }
@@ -811,11 +836,15 @@ class SubscriptionPolicy
             return false;
         }
 
-        $ots = $this->oneTimeServiceRepository->getBySubscriptionIdAndProductId($subscription->id, $transferProduct->id);
+        $ots = $this->oneTimeServiceRepository->getBySubscriptionIdAndProductId(
+            $subscription->id,
+            $transferProduct->id,
+        );
 
         if ($ots === null || $ots->status === OneTimeServiceStatus::DONE) {
             return false;
         }
+
         return true;
     }
 
@@ -897,7 +926,7 @@ class SubscriptionPolicy
         return in_array(
             $subscription->product->productGroup->slug,
             [ProductGroupType::HOSTING, ProductGroupType::EXTENSION],
-            true
+            true,
         );
     }
 

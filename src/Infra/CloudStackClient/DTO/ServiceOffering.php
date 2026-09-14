@@ -13,7 +13,7 @@ class ServiceOffering
         public int $cpunumber,
         public string $domainid,
         public string $domain,
-        public int $rootdisksize
+        public int $rootdisksize,
     ) {
     }
 }

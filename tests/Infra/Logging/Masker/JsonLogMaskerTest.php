@@ -20,7 +20,7 @@ class JsonLogMaskerTest extends TestCase
         $logger = self::createStub(LoggerInterface::class);
         $masker = new JsonLogMasker($logger);
 
-        $maskKeys = new class () implements MaskKeysInterface {
+        $maskKeys = new class() implements MaskKeysInterface {
             public function getMaskKeys(): array
             {
                 return ['password', 'token', 'secret', 'new-password', 'private-key'];
@@ -30,24 +30,30 @@ class JsonLogMaskerTest extends TestCase
         $requestBody = json_encode([
             'password' => 'testpassword',
             'username' => 'testuser',
-            'token'    => 'testtoken',
-            'role'     => 'admin',
-            'user_id'  => 1337,
-            'secret'   => 'testsecret',
+            'token' => 'testtoken',
+            'role' => 'admin',
+            'user_id' => 1337,
+            'secret' => 'testsecret',
         ], JSON_THROW_ON_ERROR);
 
         $responseBody = json_encode([
             'new-password' => 'newpassword',
-            'username'     => 'testuser',
-            'token'        => 'newtoken',
-            'private-key'  => 'privatekeysecret',
+            'username' => 'testuser',
+            'token' => 'newtoken',
+            'private-key' => 'privatekeysecret',
         ], JSON_THROW_ON_ERROR);
 
         $maskedRequestBody = $masker->mask($requestBody, $maskKeys);
-        self::assertSame('{"password":"[Filtered]","username":"testuser","token":"[Filtered]","role":"admin","user_id":1337,"secret":"[Filtered]"}', $maskedRequestBody);
+        self::assertSame(
+            '{"password":"[Filtered]","username":"testuser","token":"[Filtered]","role":"admin","user_id":1337,"secret":"[Filtered]"}',
+            $maskedRequestBody,
+        );
 
         $maskedResponseBody = $masker->mask($responseBody, $maskKeys);
-        self::assertSame('{"new-password":"[Filtered]","username":"testuser","token":"[Filtered]","private-key":"[Filtered]"}', $maskedResponseBody);
+        self::assertSame(
+            '{"new-password":"[Filtered]","username":"testuser","token":"[Filtered]","private-key":"[Filtered]"}',
+            $maskedResponseBody,
+        );
     }
 
     #[Test]
@@ -56,20 +62,21 @@ class JsonLogMaskerTest extends TestCase
         $logger = self::mock(LoggerInterface::class);
         $masker = new JsonLogMasker($logger);
 
-        $maskKeys = new class () implements MaskKeysInterface {
+        $maskKeys = new class() implements MaskKeysInterface {
             public function getMaskKeys(): array
             {
                 return ['password', 'token', 'secret', 'new-password', 'private-key'];
             }
         };
 
-        $logger->shouldReceive('warning')
+        $logger
+            ->shouldReceive('warning')
             ->times(2)
             ->with(
                 sprintf(
                     'Could not mask log items for %s, invalid JSON body. Not logging body as precaution.',
-                    $maskKeys::class
-                )
+                    $maskKeys::class,
+                ),
             );
 
         $maskedRequestBody = $masker->mask('invalid json', $maskKeys);

@@ -56,11 +56,12 @@ class ReProvisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->extension()))
             ->createOne();
 
-        $mutation = new SubscriptionMutationFactory()->for($subscription)->for($subscription->product)->createOne();
+        $mutation = new SubscriptionMutationFactory()
+            ->for($subscription)
+            ->for($subscription->product)
+            ->createOne();
 
-        $this->dispatcher
-            ->expects(self::never())
-            ->method('dispatch');
+        $this->dispatcher->expects(self::never())->method('dispatch');
 
         $this->expectException(NotImplementedException::class);
         $this->service->reProvisionSubscription($subscription, $mutation);
@@ -76,7 +77,10 @@ class ReProvisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for($hostingGroup))
             ->createOne();
 
-        $mutation = new SubscriptionMutationFactory()->for($subscription)->for($subscription->product)->createOne();
+        $mutation = new SubscriptionMutationFactory()
+            ->for($subscription)
+            ->for($subscription->product)
+            ->createOne();
         new SubscriptionChangeFactory()->for($subscription)->createOne([
             'subscription_uuid' => $subscription->uuid,
             'from_product_uuid' => $subscription->product->uuid,
@@ -89,7 +93,8 @@ class ReProvisionServiceTest extends IntegrationTestCase
 
         $this->dispatcher
             ->expects(self::once())
-            ->method('dispatch')->with($this->isInstanceOf(DowngradeHostingJob::class));
+            ->method('dispatch')
+            ->with($this->isInstanceOf(DowngradeHostingJob::class));
 
         $this->service->reProvisionSubscription($subscription, $mutation);
     }
@@ -103,11 +108,12 @@ class ReProvisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for($hostingGroup))
             ->createOne();
 
-        $mutation = new SubscriptionMutationFactory()->for($subscription)->for($subscription->product)->createOne();
+        $mutation = new SubscriptionMutationFactory()
+            ->for($subscription)
+            ->for($subscription->product)
+            ->createOne();
 
-        $this->dispatcher
-            ->expects(self::never())
-            ->method('dispatch');
+        $this->dispatcher->expects(self::never())->method('dispatch');
 
         $this->expectException(Exception::class);
         $this->service->reProvisionSubscription($subscription, $mutation);
@@ -121,40 +127,41 @@ class ReProvisionServiceTest extends IntegrationTestCase
             'name' => 'Backup 100',
             'slug' => 'backup-100',
         ]);
-        new ProductSpecFactory()
-            ->for($newProduct)
-            ->createMany([
-                [
-                    'name'  => ProductSpecName::ACRONIS_CLOUD_STORAGE_GB->value,
-                    'value' => '100',
-                ],
-                [
-                    'name'  => ProductSpecName::ACRONIS_LOCAL_STORAGE_GB->value,
-                    'value' => '100',
-                ],
-                [
-                    'name'  => ProductSpecName::ACRONIS_MOBILE_DEVICES->value,
-                    'value' => '15',
-                ],
-                [
-                    'name'  => ProductSpecName::ACRONIS_WORKSTATIONS->value,
-                    'value' => '10',
-                ],
-                [
-                    'name'  => ProductSpecName::ACRONIS_VMS->value,
-                    'value' => '20',
-                ],
-                [
-                    'name'  => ProductSpecName::ACRONIS_SERVERS->value,
-                    'value' => '5',
-                ],
-            ]);
+        new ProductSpecFactory()->for($newProduct)->createMany([
+            [
+                'name' => ProductSpecName::ACRONIS_CLOUD_STORAGE_GB->value,
+                'value' => '100',
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_LOCAL_STORAGE_GB->value,
+                'value' => '100',
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_MOBILE_DEVICES->value,
+                'value' => '15',
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_WORKSTATIONS->value,
+                'value' => '10',
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_VMS->value,
+                'value' => '20',
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_SERVERS->value,
+                'value' => '5',
+            ],
+        ]);
         $subscription = new SubscriptionFactory()
             ->for(new CustomerFactory())
             ->for(new ProductFactory()->backupAcronis()->for($backupGroup))
             ->createOne();
 
-        $mutation = new SubscriptionMutationFactory()->for($subscription)->for($subscription->product)->createOne();
+        $mutation = new SubscriptionMutationFactory()
+            ->for($subscription)
+            ->for($subscription->product)
+            ->createOne();
         new SubscriptionChangeFactory()->for($subscription)->createOne([
             'subscription_uuid' => $subscription->uuid,
             'from_product_uuid' => $subscription->product->uuid,
@@ -167,7 +174,8 @@ class ReProvisionServiceTest extends IntegrationTestCase
 
         $this->dispatcher
             ->expects(self::once())
-            ->method('dispatch')->with($this->isInstanceOf(UpgradeBackupJob::class));
+            ->method('dispatch')
+            ->with($this->isInstanceOf(UpgradeBackupJob::class));
 
         $this->service->reProvisionSubscription($subscription, $mutation);
     }
@@ -181,11 +189,12 @@ class ReProvisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->backupAcronis()->for($backupGroup))
             ->createOne();
 
-        $mutation = new SubscriptionMutationFactory()->for($subscription)->for($subscription->product)->createOne();
+        $mutation = new SubscriptionMutationFactory()
+            ->for($subscription)
+            ->for($subscription->product)
+            ->createOne();
 
-        $this->dispatcher
-            ->expects(self::never())
-            ->method('dispatch');
+        $this->dispatcher->expects(self::never())->method('dispatch');
 
         $this->expectException(Exception::class);
         $this->service->reProvisionSubscription($subscription, $mutation);

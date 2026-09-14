@@ -58,6 +58,7 @@ class OrderMessageListener implements OrderMessageObserverInterface
                 'Skipped handling of order_message because it is not active or has no order_id.',
                 $loggingContext,
             );
+
             return;
         }
 
@@ -66,15 +67,22 @@ class OrderMessageListener implements OrderMessageObserverInterface
                 'Skipped handling of order_message because it is not related to a Microsoft tenant order.',
                 $loggingContext,
             );
+
             return;
         }
 
-        $customerInfo = $this->microsoft365CustomerInfoRepository->findByTenantOrderId($orderMessage->getOrderData()->getOrderId());
+        $customerInfo = $this->microsoft365CustomerInfoRepository->findByTenantOrderId(
+            $orderMessage->getOrderData()->getOrderId(),
+        );
         if (! $customerInfo instanceof Microsoft365CustomerInfo) {
             $this->logger->error(
-                sprintf('Could not find KPN customer info for order_id: %d', $orderMessage->getOrderData()->getOrderId()),
+                sprintf(
+                    'Could not find KPN customer info for order_id: %d',
+                    $orderMessage->getOrderData()->getOrderId(),
+                ),
                 $loggingContext,
             );
+
             return;
         }
 

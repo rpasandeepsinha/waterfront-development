@@ -45,7 +45,7 @@ class AddMissingTenantOrderIdJob extends AbstractQueueableJob
                         'customer_info_id' => $this->microsoft365CustomerInfo->id,
                         'kpn_customer_id' => $kpnCustomerId,
                     ],
-                ]
+                ],
             );
 
             return;
@@ -60,7 +60,7 @@ class AddMissingTenantOrderIdJob extends AbstractQueueableJob
                         'customer_info_id' => $this->microsoft365CustomerInfo->id,
                         'kpn_customer_id' => $kpnCustomerId,
                     ],
-                ]
+                ],
             );
 
             return;
@@ -75,7 +75,7 @@ class AddMissingTenantOrderIdJob extends AbstractQueueableJob
                     'kpn_customer_id' => $kpnCustomerId,
                     'tenant_order_id' => $tenantOrderId,
                 ],
-            ]
+            ],
         );
 
         $this->microsoft365CustomerInfo->tenant_order_id = $tenantOrderId;

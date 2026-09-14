@@ -12,8 +12,9 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
 
 class TerminateSitebuilderHosting extends AbstractQueueableJob
 {
-    public function __construct(private readonly TerminateSitebuilderHostingEvent $event)
-    {
+    public function __construct(
+        private readonly TerminateSitebuilderHostingEvent $event,
+    ) {
         parent::__construct();
     }
 

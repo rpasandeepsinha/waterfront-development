@@ -61,7 +61,7 @@ class OpenproviderService implements DomainDriverInterface
         private readonly DnsService $dnsService,
         private readonly DnsNameserverAssigner $nameserverAssigner,
         private readonly ConfigurationInterface $configuration,
-        private readonly DnsDeploymentRepository $dnsDeploymentRepository
+        private readonly DnsDeploymentRepository $dnsDeploymentRepository,
     ) {
     }
 
@@ -120,9 +120,10 @@ class OpenproviderService implements DomainDriverInterface
         $domain = $deployment->subscription->domain;
         Assert::notNull($domain, 'Provided deployment has no domain');
 
-        $retrieveResult = $this->openproviderClient->retrieveDomain(
-            $domain,
-        );
+        $retrieveResult =
+            $this->openproviderClient->retrieveDomain(
+                $domain,
+            );
 
         $dnsDeployment = $this->dnsDeploymentRepository->getDnsDeploymentFromDomainDeployment($deployment);
 
@@ -144,6 +145,7 @@ class OpenproviderService implements DomainDriverInterface
     {
         try {
             $this->openproviderClient->getCustomerHandle($handle);
+
             return true;
         } catch (GuzzleException) {
             return false;
@@ -166,7 +168,7 @@ class OpenproviderService implements DomainDriverInterface
 
         $phone = new PhoneDTO($handleData['phone']);
         $handleData['phone_country_code'] = $phone->getCountryCode();
-        $handleData['phone_area_code']    = $phone->getAreaCode();
+        $handleData['phone_area_code'] = $phone->getAreaCode();
         $handleData['phone_subscriber_number'] = $phone->getNumber();
         $handleData['address'] = array_merge(
             $address,
@@ -175,7 +177,7 @@ class OpenproviderService implements DomainDriverInterface
                 'street_number' => $address['number'],
                 'zip_code' => $address['zipcode'],
                 'country_code' => $address['country'],
-            ]
+            ],
         );
         $handleData['locale'] = Locale::DUTCH->value;
 
@@ -194,9 +196,9 @@ class OpenproviderService implements DomainDriverInterface
                 ModifyParameters::create(
                     array_merge(
                         $parameters,
-                        ['domain' => $domain]
-                    )
-                )
+                        ['domain' => $domain],
+                    ),
+                ),
             );
         } catch (Throwable $exception) {
             Log::error(
@@ -249,9 +251,11 @@ class OpenproviderService implements DomainDriverInterface
                 [
                     'domain' => $domain,
                     'period' => $periodInYears,
-                    'nameServerGroup' => $this->configuration->getAsString('domainservice.nameservers.name-server-group'),
+                    'nameServerGroup' => $this->configuration->getAsString(
+                        'domainservice.nameservers.name-server-group',
+                    ),
                     'customer' => $domainSubscription->customer->load('address')->toArray(),
-                ]
+                ],
             );
 
             return $this->openproviderClient->transferDomain($parameters);
@@ -278,7 +282,7 @@ class OpenproviderService implements DomainDriverInterface
                 'handles' => $handles,
                 'period' => $periodInYears,
                 'nameServers' => [new Nameserver($primaryNs), new Nameserver($secondaryNs)],
-            ]
+            ],
         );
 
         return $this->openproviderClient->registerDomain($parameters);
@@ -293,7 +297,7 @@ class OpenproviderService implements DomainDriverInterface
         Customer $customer,
         Handles $handles,
         bool $isPrivateWhoisEnabled = false,
-        bool $dnssecEnabled = false
+        bool $dnssecEnabled = false,
     ): RegistrationResult {
         $domain = $deployment->subscription->domain;
         Assert::notNull($domain, 'Provided subscription has no domain');
@@ -315,7 +319,7 @@ class OpenproviderService implements DomainDriverInterface
                     'period' => $periodInYears,
                     'nameServers' => $this->dnsDeploymentRepository->getNameserverHostnames($dnsDeployment),
                     'isPrivateWhoisEnabled' => $isPrivateWhoisEnabled,
-                ]
+                ],
             );
 
             if ($this->isDnssecSupported($domain)) {
@@ -376,11 +380,13 @@ class OpenproviderService implements DomainDriverInterface
                     'domain' => $domain,
                     'period' => $periodInYears,
                     'nameServers' => $this->nameServerRetriever->fetchNameServers($domain),
-                    'nameServerGroup' => $this->configuration->getAsString('domainservice.nameservers.name-server-group'),
+                    'nameServerGroup' => $this->configuration->getAsString(
+                        'domainservice.nameservers.name-server-group',
+                    ),
                     'customer' => $customer,
                     'transferSecret' => $transferSecret,
                     'isPrivateWhoisEnabled' => $isPrivateWhoisEnabled,
-                ]
+                ],
             );
 
             return $this->openproviderClient->transferDomain($parameters);
@@ -483,7 +489,7 @@ class OpenproviderService implements DomainDriverInterface
         if ($dateString === null) {
             throw new LogicException(sprintf(
                 'Could not retrieve date from OpenProvider for domain %s',
-                $domain
+                $domain,
             ));
         }
 
@@ -529,8 +535,12 @@ class OpenproviderService implements DomainDriverInterface
             childHosts: [],
             privacyProtect: $retrieveResult->getIsPrivateWhoisEnabled(),
             authcode: $retrieveResult->getAuthCode(),
-            createdDate: $retrieveResult->getActiveDate() !== null ? new DateTime($retrieveResult->getActiveDate()) : null,
-            expiryDate: $retrieveResult->getExpirationDate() !== null ? new DateTime($retrieveResult->getExpirationDate()) : null,
+            createdDate: $retrieveResult->getActiveDate() !== null
+                ? new DateTime($retrieveResult->getActiveDate())
+                : null,
+            expiryDate: $retrieveResult->getExpirationDate() !== null
+                ? new DateTime($retrieveResult->getExpirationDate())
+                : null,
         );
     }
 
@@ -560,6 +570,11 @@ class OpenproviderService implements DomainDriverInterface
         return false; // Not Implemented by OpenProvider
     }
 
+    public function getContactValidationCategoriesForDomain(string $domain): array
+    {
+        throw new NotImplementedException();
+    }
+
     public function ensureContactValidatedForDomain(string $domain, string $handle): void
     {
         throw new NotImplementedException();
@@ -568,6 +583,7 @@ class OpenproviderService implements DomainDriverInterface
     public function setClient(OpenproviderClient $openproviderClient): OpenproviderService
     {
         $this->openproviderClient = $openproviderClient;
+
         return $this;
     }
 
@@ -577,8 +593,7 @@ class OpenproviderService implements DomainDriverInterface
             DomainStatus::ACTIVE->value => DomainStatusEnum::STATUS_OK,
             DomainStatus::DELETED->value => DomainStatusEnum::STATUS_REDEMPTION_PERIOD,
             DomainStatus::FAILED->value => DomainStatusEnum::STATUS_INACTIVE, // Inactive is probably the closest status
-            DomainStatus::PENDING->value,
-            DomainStatus::REQUESTED->value => DomainStatusEnum::STATUS_PENDING_VALIDATION, // Closest status probably...
+            DomainStatus::PENDING->value, DomainStatus::REQUESTED->value => DomainStatusEnum::STATUS_PENDING_VALIDATION, // Closest status probably...
             DomainStatus::RESTORE_REQUESTED->value => DomainStatusEnum::STATUS_PENDING_RESTORE,
             DomainStatus::SCHEDULED->value => DomainStatusEnum::STATUS_PENDING_TRANSFER,
             default => throw new UnexpectedValueException('Unknown status: ' . $openProviderStatus),

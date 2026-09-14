@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use Waterfront\Domain\Customers\Models\Customer;
+use Waterfront\Domain\Pricing\DTO\PriceComponents\ExperimentPriceLadderPriceComponent;
 use Waterfront\Domain\Pricing\DTO\PriceComponents\IntroductionPriceComponent;
 use Waterfront\Domain\Pricing\DTO\PriceComponents\PriceComponent;
 use Waterfront\Domain\Pricing\DTO\PriceComponents\ProductGroupPriceComponent;
@@ -31,6 +32,7 @@ use Waterfront\Domain\Products\DTO\RegistrationPriceRequest;
 use Waterfront\Domain\Products\DTO\UpgradePriceRequest;
 use Waterfront\Domain\Products\Enums\ProductPriceType;
 use Waterfront\Domain\Products\ProductPrice\PriceResolverHandler\BasePriceHandler;
+use Waterfront\Domain\Products\ProductPrice\PriceResolverHandler\ExperimentPriceLadderPriceHandler;
 use Waterfront\Domain\Products\ProductPrice\PriceResolverHandler\IntroDiscountPricePriceHandler;
 use Waterfront\Domain\Products\ProductPrice\PriceResolverHandler\Microsoft365RemainingDurationComponentPriceHandler;
 use Waterfront\Domain\Products\ProductPrice\PriceResolverHandler\ProductDiscountPriceComponentHandler;
@@ -56,6 +58,7 @@ readonly class PriceResolver
         private PriceService $priceService,
         private BasePriceHandler $basePriceHandler,
         private ProlongationPriceComponentHandler $prolongationPriceComponentHandler,
+        private ExperimentPriceLadderPriceHandler $experimentPriceHandler,
         private PromotionPriceComponentHandler $promotionPriceComponentHandler,
         private IntroDiscountPricePriceHandler $introDiscountPricePriceHandler,
         private Microsoft365RemainingDurationComponentPriceHandler $microsoft365RemainingDurationPricesPriceHandler,
@@ -102,16 +105,25 @@ readonly class PriceResolver
         // Based on the "public" and base prices fetched before, all calculations will be done.
         // We also fetch the products from the database to prevent lazy loading during expensive calculations.
         $prices = $this->prolongationPriceComponentHandler->handle($prices);
+        $prices = $this->experimentPriceHandler->handle($prices, $productMap);
         $prices = $this->promotionPriceComponentHandler->handle($prices);
         $prices = $this->introDiscountPricePriceHandler->handle($prices, $request->customer);
 
         if ($request->customer !== null) {
-            $prices = $this->microsoft365RemainingDurationPricesPriceHandler->handle($prices, $productMap, $request->customer);
+            $prices = $this->microsoft365RemainingDurationPricesPriceHandler->handle(
+                $prices,
+                $productMap,
+                $request->customer,
+            );
             $prices = $this->productGroupDiscountPriceHandler->handle($prices, $productMap, $request->customer);
             $prices = $this->productDiscountPriceHandler->handle($prices, $request->customer);
         }
 
-        $prices = $prices->map(fn (Price $price) => $this->calculateFinalPrice($price, $productMap[$price->productId], $request->requestingForOrder));
+        $prices = $prices->map(fn (Price $price) => $this->calculateFinalPrice(
+            $price,
+            $productMap[$price->productId],
+            $request->requestingForOrder,
+        ));
         $prices = $this->processQuantities($prices, $request->productPriceRequests, $request->requestingForOrder);
         $prices = $this->applyVouchers($prices, $vouchers);
 
@@ -128,11 +140,15 @@ readonly class PriceResolver
      */
     private function getActivePrices(array $productMap): Collection
     {
-        $productIds = array_unique(array_map(static fn (ProductPriceRequest $productPriceRequest): int => $productPriceRequest->product->id, $productMap));
+        $productIds = array_unique(array_map(
+            static fn (ProductPriceRequest $productPriceRequest): int => $productPriceRequest->product->id,
+            $productMap,
+        ));
         $productIdsString = implode(',', array_map(static fn ($id) => strval($id), $productIds));
         $prices = new Collection();
 
-        $registrationAndProlongationPrices = DB::select(<<<SQL
+        $registrationAndProlongationPrices = DB::select(
+            <<<SQL
             select distinct on (product_price_components.product_id, product_price_components.type, product_price_components.contract_period, product_price_components.billing_period)
                 product_price_components.product_id,
                 product_price_components.type,
@@ -169,13 +185,21 @@ readonly class PriceResolver
                 and (product_price_components.expires_at is null or product_price_components.expires_at > :currentDate)
                 and (product_price_components.type = :registrationPriceType or product_price_components.type = :prolongationPriceType)
             order by product_price_components.product_id, product_price_components.type, product_price_components.contract_period, product_price_components.billing_period, product_price_components.starts_at desc
-            SQL, ['currentDate' => CarbonImmutable::now(), 'registrationPriceType' => PriceComponentType::REGISTRATION->value, 'prolongationPriceType' => PriceComponentType::PROLONGATION->value]);
+            SQL,
+            [
+                'currentDate' => CarbonImmutable::now(),
+                'registrationPriceType' => PriceComponentType::REGISTRATION->value,
+                'prolongationPriceType' => PriceComponentType::PROLONGATION->value,
+            ],
+        );
 
         foreach ($registrationAndProlongationPrices as $registrationAndProlongationPrice) {
             // Let's try to map the translation key here. Yes, this is in theory an N+1 query.
             // With the low amount of prices with a translation this shouldn't be an issue.
             // As soon as we get rid of the product prices this can be rewritten.
-            $translationKey = is_int($registrationAndProlongationPrice->translation_key_id) ? TranslationKey::find($registrationAndProlongationPrice->translation_key_id) : null;
+            $translationKey = is_int($registrationAndProlongationPrice->translation_key_id)
+                ? TranslationKey::find($registrationAndProlongationPrice->translation_key_id)
+                : null;
 
             $price = new Price(
                 type: ProductPriceType::from($registrationAndProlongationPrice->type),
@@ -185,11 +209,12 @@ readonly class PriceResolver
                 regularPrice: $registrationAndProlongationPrice->price,
                 contractPeriod: $registrationAndProlongationPrice->contract_period,
                 orderable: $registrationAndProlongationPrice->orderable,
-                is_default: is_bool($registrationAndProlongationPrice->is_default) && $registrationAndProlongationPrice->is_default,
+                is_default: is_bool($registrationAndProlongationPrice->is_default)
+                && $registrationAndProlongationPrice->is_default,
                 priceExplanation: $translationKey,
                 actionPeriod: $registrationAndProlongationPrice->action_period,
                 actionPeriodPrice: $registrationAndProlongationPrice->action_period_price,
-                alternativeGrossPrices: $priceAlternatives ?? []
+                alternativeGrossPrices: $priceAlternatives ?? [],
             );
 
             $prices->add($price);
@@ -199,12 +224,21 @@ readonly class PriceResolver
                 continue;
             }
 
-            if ($registrationAndProlongationPrice->price_alternatives !== null && json_validate($registrationAndProlongationPrice->price_alternatives)) {
+            if (
+                $registrationAndProlongationPrice->price_alternatives !== null
+                && json_validate($registrationAndProlongationPrice->price_alternatives)
+            ) {
                 /** @var array<int, int> $priceAlternatives */
-                $priceAlternatives = json_decode($registrationAndProlongationPrice->price_alternatives, true, 512, JSON_THROW_ON_ERROR);
+                $priceAlternatives = json_decode(
+                    $registrationAndProlongationPrice->price_alternatives,
+                    true,
+                    512,
+                    JSON_THROW_ON_ERROR,
+                );
                 $price->alternativeGrossPrices = $priceAlternatives;
             }
         }
+
         return $prices;
     }
 
@@ -212,7 +246,7 @@ readonly class PriceResolver
     {
         $registrationPriceComponent = array_find(
             $price->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::REGISTRATION
+            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::REGISTRATION,
         );
 
         if ($registrationPriceComponent instanceof RegistrationPriceComponent) {
@@ -222,22 +256,24 @@ readonly class PriceResolver
 
         $price = match ($request::class) {
             RegistrationPriceRequest::class => $this->calculateFinalPriceForRegistration($price, $requestingForOrder),
-            AddonRegistrationPriceRequest::class => $this->calculateFinalPriceForAddonRegistration($price, $request, $requestingForOrder),
+            AddonRegistrationPriceRequest::class => $this->calculateFinalPriceForAddonRegistration(
+                $price,
+                $request,
+                $requestingForOrder,
+            ),
             UpgradePriceRequest::class => $this->calculateFinalPriceForUpgrade($price, $request),
             ProlongationPriceRequest::class => $this->calculateFinalPriceForProlongation($price),
             default => throw new RuntimeException(),
         };
 
         $applyProrate = match ($request::class) {
-            RegistrationPriceRequest::class,
-            AddonRegistrationPriceRequest::class,
-            UpgradePriceRequest::class => true,
+            RegistrationPriceRequest::class, AddonRegistrationPriceRequest::class, UpgradePriceRequest::class => true,
             ProlongationPriceRequest::class => false,
         };
 
         $proRatePriceComponent = array_find(
             $price->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PRO_RATE
+            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PRO_RATE,
         );
 
         if ($proRatePriceComponent instanceof ProRatePriceComponent && $applyProrate) {
@@ -249,12 +285,29 @@ readonly class PriceResolver
 
     private function applyProrate(Price $price, ProRatePriceComponent $proRatePriceComponent): Price
     {
-        $price->regularPrice = $this->priceService->calculateProRate($proRatePriceComponent->amountPaid, $price->regularPrice, $proRatePriceComponent->until, $price->billingPeriod);
-        $price->discountPrice = $price->discountPrice !== null ? $this->priceService->calculateProRate($proRatePriceComponent->amountPaid, $price->discountPrice, $proRatePriceComponent->until, $price->billingPeriod) : null;
+        $price->regularPrice = $this->priceService->calculateProRate(
+            $proRatePriceComponent->amountPaid,
+            $price->regularPrice,
+            $proRatePriceComponent->until,
+            $price->billingPeriod,
+        );
+        $price->discountPrice = $price->discountPrice !== null
+            ? $this->priceService->calculateProRate(
+                $proRatePriceComponent->amountPaid,
+                $price->discountPrice,
+                $proRatePriceComponent->until,
+                $price->billingPeriod,
+            )
+            : null;
 
         Assert::natural($price->calculatedPrice);
 
-        $newPrice = $this->priceService->calculateProRate($proRatePriceComponent->amountPaid, $price->calculatedPrice, $proRatePriceComponent->until, $price->billingPeriod);
+        $newPrice = $this->priceService->calculateProRate(
+            $proRatePriceComponent->amountPaid,
+            $price->calculatedPrice,
+            $proRatePriceComponent->until,
+            $price->billingPeriod,
+        );
         $proRateAmount = $price->calculatedPrice - $newPrice;
         assert($proRateAmount >= 0);
         $proRatePriceComponent->fixedDiscount = $proRateAmount;
@@ -272,7 +325,9 @@ readonly class PriceResolver
 
         $staffelPriceComponent = array_find(
             $price->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::REGISTRATION_STAFFEL
+            fn (PriceComponent $priceComponent): bool => (
+                $priceComponent->type === PriceComponentType::REGISTRATION_STAFFEL
+            ),
         );
 
         if ($staffelPriceComponent instanceof RegistrationStaffelPriceComponent) {
@@ -289,15 +344,35 @@ readonly class PriceResolver
             return $price;
         }
 
+        // The price ladder experiment price should technically be applied on the first prolongation invoice. Because the experiment
+        // is to attract more customers with a lower "from price", we apply the ladder price on the regular price here.
+        $experimentPriceComponent = array_find(
+            $price->possiblePriceComponents,
+            fn (PriceComponent $priceComponent): bool => (
+                $priceComponent->type === PriceComponentType::EXPERIMENT_PRICE_LADDER
+            ),
+        );
+
+        if ($experimentPriceComponent instanceof ExperimentPriceLadderPriceComponent) {
+            $experimentPriceComponent->appliedOrder = ++$amountAppliedPriceComponents;
+            $price->appliedPriceComponents[] = $experimentPriceComponent;
+            $price->regularPrice = max(0, $experimentPriceComponent->fixedPrice);
+        }
+
         if ($requestingForOrder && $price->type === ProductPriceType::REGISTRATION) {
             $introductionPriceComponent = array_find(
                 $price->possiblePriceComponents,
-                fn (PriceComponent $priceComponent): bool => $priceComponent instanceof IntroductionPriceComponent && ($priceComponent->maxUsesPerCustomer === null || $priceComponent->remainingUses > 0)
+                fn (PriceComponent $priceComponent): bool => (
+                    $priceComponent instanceof IntroductionPriceComponent
+                    && ($priceComponent->maxUsesPerCustomer === null || $priceComponent->remainingUses > 0)
+                ),
             );
 
             if ($introductionPriceComponent instanceof IntroductionPriceComponent) {
                 $introductionPriceComponent->appliedOrder = ++$amountAppliedPriceComponents;
-                $introductionPriceComponent->remainingUses = $introductionPriceComponent->remainingUses === null ? null : max(0, $introductionPriceComponent->remainingUses - 1);
+                $introductionPriceComponent->remainingUses = $introductionPriceComponent->remainingUses === null
+                    ? null
+                    : max(0, $introductionPriceComponent->remainingUses - 1);
                 $price->appliedPriceComponents[] = $introductionPriceComponent;
                 $price->calculatedPrice = $introductionPriceComponent->newPrice;
                 $price->actionPeriod = $introductionPriceComponent->firstMonthsDiscountPeriod;
@@ -309,7 +384,7 @@ readonly class PriceResolver
 
         $promotionPriceComponent = array_find(
             $price->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PROMOTION
+            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PROMOTION,
         );
 
         if ($promotionPriceComponent instanceof PromotionPriceComponent) {
@@ -322,12 +397,17 @@ readonly class PriceResolver
 
         $groupPriceComponent = array_find(
             $price->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PRODUCT_GROUP
+            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PRODUCT_GROUP,
         );
 
         if ($groupPriceComponent instanceof ProductGroupPriceComponent) {
-            Assert::true($groupPriceComponent->percentageDiscount !== null && $groupPriceComponent->percentageDiscount >= 0);
-            $price->calculatedPrice = $this->priceService->calculatePercentageDiscount($price->regularPrice, $groupPriceComponent->percentageDiscount);
+            Assert::true(
+                $groupPriceComponent->percentageDiscount !== null && $groupPriceComponent->percentageDiscount >= 0,
+            );
+            $price->calculatedPrice = $this->priceService->calculatePercentageDiscount(
+                $price->regularPrice,
+                $groupPriceComponent->percentageDiscount,
+            );
             Assert::natural($price->calculatedPrice);
             $groupPriceComponent->newPrice = $price->calculatedPrice;
             $groupPriceComponent->appliedOrder = ++$amountAppliedPriceComponents;
@@ -352,7 +432,7 @@ readonly class PriceResolver
 
         $prolongationPriceComponent = array_find(
             $price->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PROLONGATION
+            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PROLONGATION,
         );
 
         if ($prolongationPriceComponent instanceof ProlongationPriceComponent) {
@@ -366,7 +446,9 @@ readonly class PriceResolver
 
         $staffelPriceComponent = array_find(
             $price->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PROLONGATION_STAFFEL
+            fn (PriceComponent $priceComponent): bool => (
+                $priceComponent->type === PriceComponentType::PROLONGATION_STAFFEL
+            ),
         );
 
         if ($staffelPriceComponent instanceof ProlongationStaffelPriceComponent) {
@@ -385,12 +467,17 @@ readonly class PriceResolver
 
         $groupPriceComponent = array_find(
             $price->possiblePriceComponents,
-            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PRODUCT_GROUP
+            fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PRODUCT_GROUP,
         );
 
         if ($groupPriceComponent instanceof ProductGroupPriceComponent) {
-            Assert::true($groupPriceComponent->percentageDiscount !== null && $groupPriceComponent->percentageDiscount >= 0);
-            $price->calculatedPrice = $this->priceService->calculatePercentageDiscount($price->regularPrice, $groupPriceComponent->percentageDiscount);
+            Assert::true(
+                $groupPriceComponent->percentageDiscount !== null && $groupPriceComponent->percentageDiscount >= 0,
+            );
+            $price->calculatedPrice = $this->priceService->calculatePercentageDiscount(
+                $price->regularPrice,
+                $groupPriceComponent->percentageDiscount,
+            );
             Assert::natural($price->calculatedPrice);
             $groupPriceComponent->newPrice = $price->calculatedPrice;
             $groupPriceComponent->appliedOrder = ++$amountAppliedPriceComponents;
@@ -402,19 +489,47 @@ readonly class PriceResolver
             $price->discountPrice = $price->calculatedPrice;
         }
 
+        $experimentPriceComponent = array_find(
+            $price->possiblePriceComponents,
+            fn (PriceComponent $priceComponent): bool => (
+                $priceComponent->type === PriceComponentType::EXPERIMENT_PRICE_LADDER
+            ),
+        );
+
+        if (
+            $experimentPriceComponent instanceof ExperimentPriceLadderPriceComponent
+            && $experimentPriceComponent->newPrice <= $price->calculatedPrice
+        ) {
+            $experimentPriceComponent->appliedOrder = ++$amountAppliedPriceComponents;
+            $price->appliedPriceComponents[] = $experimentPriceComponent;
+            $price->calculatedPrice = $experimentPriceComponent->newPrice;
+            // Yes, changing the regular price is a bit weird at this point. The "ladder experiment" is to act like we have
+            // a lower base price. If we don't overwrite the regular price here the "from price" in all communication is still the same.
+            $price->regularPrice = $experimentPriceComponent->newPrice;
+            $price->discountPrice = null;
+
+            return $price;
+        }
+
         return $price;
     }
 
     private function calculateFinalPriceForUpgrade(Price $price, UpgradePriceRequest $request): Price
     {
         $price = $this->calculateFinalPriceForProlongation($price);
-        $price->possiblePriceComponents[] = new ProRatePriceComponent($request->endOfBillingCycle, $request->amountPaid);
+        $price->possiblePriceComponents[] = new ProRatePriceComponent(
+            $request->endOfBillingCycle,
+            $request->amountPaid,
+        );
 
         return $price;
     }
 
-    private function calculateFinalPriceForAddonRegistration(Price $price, AddonRegistrationPriceRequest $request, bool $requestingForOrder): Price
-    {
+    private function calculateFinalPriceForAddonRegistration(
+        Price $price,
+        AddonRegistrationPriceRequest $request,
+        bool $requestingForOrder,
+    ): Price {
         $price = $this->calculateFinalPriceForRegistration($price, $requestingForOrder);
         $price->possiblePriceComponents[] = new ProRatePriceComponent($request->endOfBillingCycle, 0);
 
@@ -449,7 +564,7 @@ readonly class PriceResolver
                 ->where('type', ProductPriceType::REGISTRATION)
                 ->firstOrFail();
 
-            for ($i = 0; $i < $priceRequest->quantity - 1; $i++) {
+            for ($i = 0; $i < ($priceRequest->quantity - 1); $i++) {
                 $priceCopy = new Price(
                     $price->type,
                     $price->billingPeriod,
@@ -459,6 +574,11 @@ readonly class PriceResolver
                     $price->contractPeriod,
                     $price->orderable,
                     $price->is_default,
+                    $price->priceExplanation,
+                    $price->discountPrice,
+                    $price->actionPeriod,
+                    $price->actionPeriodPrice,
+                    $price->alternativeGrossPrices,
                     appliedPriceComponents: [],
                     possiblePriceComponents: $price->possiblePriceComponents,
                 );
@@ -486,12 +606,22 @@ readonly class PriceResolver
         $productGroupVouchers = array_filter($vouchers, fn (Voucher $voucher) => $voucher->product_uuid === null);
 
         foreach ($productVouchers as $productVoucher) {
-            $price = array_find($prices->all(), fn (Price $price) =>
-                $price->type === ProductPriceType::REGISTRATION &&
-                $productVoucher->product !== null &&
-                $productVoucher->product->id === $price->productId &&
-                ($productVoucher->contract_period === null || $productVoucher->contract_period === $price->contractPeriod) &&
-                ($productVoucher->billing_period === null || $productVoucher->billing_period === $price->billingPeriod));
+            $price = array_find(
+                $prices->all(),
+                fn (Price $price) => (
+                    $price->type === ProductPriceType::REGISTRATION
+                    && $productVoucher->product !== null
+                    && $productVoucher->product->id === $price->productId
+                    && (
+                        $productVoucher->contract_period === null
+                        || $productVoucher->contract_period === $price->contractPeriod
+                    )
+                    && (
+                        $productVoucher->billing_period === null
+                        || $productVoucher->billing_period === $price->billingPeriod
+                    )
+                ),
+            );
 
             if ($price === null) {
                 continue;
@@ -499,7 +629,7 @@ readonly class PriceResolver
 
             $voucherPriceComponent = array_find(
                 $price->appliedPriceComponents,
-                fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::VOUCHER
+                fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::VOUCHER,
             );
 
             if ($voucherPriceComponent !== null) {
@@ -508,7 +638,9 @@ readonly class PriceResolver
 
             $groupPriceComponent = array_find(
                 $price->appliedPriceComponents,
-                fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PRODUCT_GROUP
+                fn (PriceComponent $priceComponent): bool => (
+                    $priceComponent->type === PriceComponentType::PRODUCT_GROUP
+                ),
             );
 
             if (! $productVoucher->apply_with_discount && $groupPriceComponent !== null) {
@@ -529,7 +661,10 @@ readonly class PriceResolver
                     $fixedDiscount = $productVoucher->amount;
                     break;
                 case VoucherAmountType::PERCENTAGE:
-                    $newPrice = $this->priceService->calculatePercentageDiscount($price->calculatedPrice, $productVoucher->amount);
+                    $newPrice = $this->priceService->calculatePercentageDiscount(
+                        $price->calculatedPrice,
+                        $productVoucher->amount,
+                    );
                     $percentageDiscount = $productVoucher->amount;
                     break;
                 default:
@@ -538,7 +673,14 @@ readonly class PriceResolver
 
             $newPrice = max($newPrice, 0);
             $appliedAmount = max($oldPrice - $newPrice, 0);
-            $voucherPriceComponent = new VoucherPriceComponent($fixedDiscount, $percentageDiscount, $newPrice, $appliedAmount, $productVoucher, $this->getNextPriceComponentOrderNumber($price));
+            $voucherPriceComponent = new VoucherPriceComponent(
+                $fixedDiscount,
+                $percentageDiscount,
+                $newPrice,
+                $appliedAmount,
+                $productVoucher,
+                $this->getNextPriceComponentOrderNumber($price),
+            );
             $price->appliedPriceComponents[] = $voucherPriceComponent;
             $price->calculatedPrice = $newPrice;
         }
@@ -546,16 +688,26 @@ readonly class PriceResolver
         foreach ($productGroupVouchers as $productGroupVoucher) {
             // A fixed amount voucher for a product group should be spreadable over multiple product prices.
             $remainingAmount = $productGroupVoucher->amount;
-            $applicablePrices = array_filter($prices->all(), fn (Price $price) =>
-                $price->type === ProductPriceType::REGISTRATION &&
-                $productGroupVoucher->product_group_uuid === $price->productGroupUuid &&
-                ($productGroupVoucher->contract_period === null || $productGroupVoucher->contract_period === $price->contractPeriod) &&
-                ($productGroupVoucher->billing_period === null || $productGroupVoucher->billing_period === $price->billingPeriod));
+            $applicablePrices = array_filter(
+                $prices->all(),
+                fn (Price $price) => (
+                    $price->type === ProductPriceType::REGISTRATION
+                    && $productGroupVoucher->product_group_uuid === $price->productGroupUuid
+                    && (
+                        $productGroupVoucher->contract_period === null
+                        || $productGroupVoucher->contract_period === $price->contractPeriod
+                    )
+                    && (
+                        $productGroupVoucher->billing_period === null
+                        || $productGroupVoucher->billing_period === $price->billingPeriod
+                    )
+                ),
+            );
 
             foreach ($applicablePrices as $applicablePrice) {
                 $voucherPriceComponent = array_find(
                     $applicablePrice->appliedPriceComponents,
-                    fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::VOUCHER
+                    fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::VOUCHER,
                 );
 
                 if ($voucherPriceComponent !== null) {
@@ -564,7 +716,9 @@ readonly class PriceResolver
 
                 $groupPriceComponent = array_find(
                     $applicablePrice->appliedPriceComponents,
-                    fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PRODUCT_GROUP
+                    fn (PriceComponent $priceComponent): bool => (
+                        $priceComponent->type === PriceComponentType::PRODUCT_GROUP
+                    ),
                 );
 
                 if (! $productGroupVoucher->apply_with_discount && $groupPriceComponent !== null) {
@@ -585,7 +739,10 @@ readonly class PriceResolver
                         $fixedDiscount = $productGroupVoucher->amount;
                         break;
                     case VoucherAmountType::PERCENTAGE:
-                        $newPrice = $this->priceService->calculatePercentageDiscount($applicablePrice->calculatedPrice, $productGroupVoucher->amount);
+                        $newPrice = $this->priceService->calculatePercentageDiscount(
+                            $applicablePrice->calculatedPrice,
+                            $productGroupVoucher->amount,
+                        );
                         $percentageDiscount = $productGroupVoucher->amount;
                         break;
                     default:
@@ -596,7 +753,14 @@ readonly class PriceResolver
                 $appliedAmount = max($oldPrice - $newPrice, 0);
                 $remainingAmount -= $appliedAmount;
 
-                $voucherPriceComponent = new VoucherPriceComponent($fixedDiscount, $percentageDiscount, $newPrice, $appliedAmount, $productGroupVoucher, $this->getNextPriceComponentOrderNumber($applicablePrice));
+                $voucherPriceComponent = new VoucherPriceComponent(
+                    $fixedDiscount,
+                    $percentageDiscount,
+                    $newPrice,
+                    $appliedAmount,
+                    $productGroupVoucher,
+                    $this->getNextPriceComponentOrderNumber($applicablePrice),
+                );
                 $applicablePrice->appliedPriceComponents[] = $voucherPriceComponent;
                 $applicablePrice->calculatedPrice = $newPrice;
             }

@@ -17,10 +17,12 @@ class CustomerRetentionOfferResource extends JsonResource
         $createdByMetadata = $this->resource->created_by_metadata;
 
         return [
-            'created_by_metadata' => $createdByMetadata === null ? null : [
-                'uuid' => $createdByMetadata->uuid->toString(),
-                'email' => $createdByMetadata->email,
-            ],
+            'created_by_metadata' => $createdByMetadata === null
+                ? null
+                : [
+                    'uuid' => $createdByMetadata->uuid->toString(),
+                    'email' => $createdByMetadata->email,
+                ],
             'customer_type' => $this->resource->customer_type->value,
             'selected_action' => $this->resource->selected_action->value,
             'puzzel_ticket_id' => $this->resource->puzzel_ticket_id,

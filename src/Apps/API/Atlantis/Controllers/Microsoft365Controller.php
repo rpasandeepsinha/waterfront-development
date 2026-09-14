@@ -29,7 +29,7 @@ class Microsoft365Controller
                     'message' => $this->translator->translate('microsoft365.validation.tenant-not-found'),
                     'errors' => [],
                 ],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
 
@@ -39,7 +39,7 @@ class Microsoft365Controller
                     'message' => $this->translator->translate('microsoft365.validation.tenant-not-authorized'),
                     'errors' => [],
                 ],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
 

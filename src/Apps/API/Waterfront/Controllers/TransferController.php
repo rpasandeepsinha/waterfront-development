@@ -41,8 +41,7 @@ class TransferController
         $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
 
         $transfers = Transfer::where(function ($query) use ($customer): void {
-            $query->where('from_customer_id', $customer->id)
-                ->orWhere('to_customer_id', $customer->id);
+            $query->where('from_customer_id', $customer->id)->orWhere('to_customer_id', $customer->id);
         })->orderBy('id')->get();
 
         return new JsonResponse(['data' => $this->productTransferPresenter->collectionToArray($transfers, $customer)]);
@@ -101,10 +100,11 @@ class TransferController
                 'message' => $this->translator->translate('transfer.customers.store.unable_to_resolve_subscriptions'),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+
         $transfer = $this->transferService->createTransfer(
             $subscriptions,
             $originalCustomer,
-            $receiver
+            $receiver,
         );
 
         return new JsonResponse([

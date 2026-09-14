@@ -33,7 +33,7 @@ class PuzzelCallbackTimeslot extends Model
     {
         return $this->hasMany(
             PuzzelCallbackRequest::class,
-            'puzzel_callback_timeslot_id'
+            'puzzel_callback_timeslot_id',
         );
     }
 

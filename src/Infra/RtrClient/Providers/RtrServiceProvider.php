@@ -21,15 +21,15 @@ class RtrServiceProvider extends BaseProvider
             [
                 __DIR__ . '/../Config/config.php' => $this->app->configPath('rtrservice.php'),
             ],
-            'config'
+            'config',
         );
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/connection.php',
-            'realtimeregisterclient'
+            'realtimeregisterclient',
         );
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/handles.php',
-            'realtimeregisterclient'
+            'realtimeregisterclient',
         );
     }
 
@@ -52,7 +52,7 @@ class RtrServiceProvider extends BaseProvider
         $this->app->bind(RtrNotificationsService::class, fn (Application $app): RtrNotificationsService => new RtrNotificationsService(
             $app[RealtimeRegisterPackage::class],
             $app[LoggerInterface::class],
-            $configuration->getAsString('realtimeregisterclient.handles.billing')
+            $configuration->getAsString('realtimeregisterclient.handles.billing'),
         ));
     }
 

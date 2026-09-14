@@ -38,7 +38,7 @@ class ProductExperimentOfferingRepository
     {
         return array_map(
             static fn (OfferedProductDTO $offered): string => $offered->product->slug,
-            $this->getOfferedProducts($offering)
+            $this->getOfferedProducts($offering),
         );
     }
 

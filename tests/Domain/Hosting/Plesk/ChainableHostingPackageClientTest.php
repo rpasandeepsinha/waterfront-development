@@ -45,7 +45,7 @@ class ChainableHostingPackageClientTest extends TestCase
             $otherStrategy,
             $otherStrategy,
             $ssoStrategy,
-            $otherStrategy
+            $otherStrategy,
         );
     }
 
@@ -58,10 +58,10 @@ class ChainableHostingPackageClientTest extends TestCase
         $parameters = Parameters::create(
             [
                 'contactPersonName' => 'not used for EAT',
-                'emailAddress'      => 'not-used@on-the-eat-server.nl',
-                'domain'            => 'justeat.nl',
-                'ipv4Address'       => '1.2.3.4',
-            ]
+                'emailAddress' => 'not-used@on-the-eat-server.nl',
+                'domain' => 'justeat.nl',
+                'ipv4Address' => '1.2.3.4',
+            ],
         );
         $this->client->expects(self::atLeastOnce())->method('createHosting');
 

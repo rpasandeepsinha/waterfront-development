@@ -31,6 +31,7 @@ class DisableLetsEncryptAutoRenew extends DirectAdminCommand
     public function setDomain(string $domain): self
     {
         $this->domain = $domain;
+
         return $this;
     }
 

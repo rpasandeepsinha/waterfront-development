@@ -40,7 +40,7 @@ class DnsIntegrationTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('domain.com')
+                $this->getMockedZoneResponseBody('domain.com'),
             ),
         ]);
 
@@ -50,7 +50,7 @@ class DnsIntegrationTest extends IntegrationTestCase
         $record = new CnameRecord(
             '_990def0862163bf175976daceb192883.domain.com',
             'abbadcf82b8e29d246017fec6c52e8dc.3d763c840eac90b65b883772360a6d25.NXl18ZS0Mzz8EImpRmKr.sectigo.com',
-            600
+            600,
         );
         $expected = new DnsZoneDiff([new AddedDnsRecord($record)]);
         self::assertEquals($expected, $actual);

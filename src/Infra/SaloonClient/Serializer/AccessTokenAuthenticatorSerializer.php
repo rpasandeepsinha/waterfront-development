@@ -29,7 +29,7 @@ class AccessTokenAuthenticatorSerializer
         return json_encode([
             'accessToken' => $authenticator->getAccessToken(),
             'refreshToken' => $authenticator->refreshToken,
-            'expiresAt' =>  $dateString,
+            'expiresAt' => $dateString,
         ], JSON_THROW_ON_ERROR);
     }
 
@@ -59,7 +59,7 @@ class AccessTokenAuthenticatorSerializer
 
             if ($date === false) {
                 throw new SaloonException(
-                    sprintf('Could not deserialize access token, invalid date: [%s]', $deserialized['expiresAt'])
+                    sprintf('Could not deserialize access token, invalid date: [%s]', $deserialized['expiresAt']),
                 );
             }
         }
@@ -67,7 +67,7 @@ class AccessTokenAuthenticatorSerializer
         return new AccessTokenAuthenticator(
             accessToken: $deserialized['accessToken'],
             refreshToken: $deserialized['refreshToken'],
-            expiresAt: $date
+            expiresAt: $date,
         );
     }
 }

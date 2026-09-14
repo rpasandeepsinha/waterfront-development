@@ -26,7 +26,8 @@ class TemplateListenerTest extends IntegrationTestCase
         $event = new ZoneOutdated($template, 'test.mydomain.com');
 
         $templateService = self::createMock(TemplateService::class);
-        $templateService->expects(self::once())
+        $templateService
+            ->expects(self::once())
             ->method('applyTemplateToZone')
             ->with($template, 'test.mydomain.com', null);
 

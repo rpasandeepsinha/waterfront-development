@@ -13,8 +13,9 @@ use Waterfront\Domain\Provision\Interfaces\ProvisionRequestInterface;
 
 class DirectAdminValidator implements HostingRequestValidatorInterface
 {
-    public function __construct(private readonly Factory $validatorFactory)
-    {
+    public function __construct(
+        private readonly Factory $validatorFactory,
+    ) {
     }
 
     /**
@@ -24,7 +25,7 @@ class DirectAdminValidator implements HostingRequestValidatorInterface
     {
         return match ($provisionRequest::class) {
             HostingCreateRequest::class => $this->getCreateRequestValidator($provisionRequest),
-            default => throw new UnknownHostingRequestException($provisionRequest)
+            default => throw new UnknownHostingRequestException($provisionRequest),
         };
     }
 

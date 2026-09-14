@@ -44,13 +44,28 @@ class SitebuilderUpgradeTest extends IntegrationTestCase
     public function success(): void
     {
         $customer = new CustomerFactory()->createOne();
-        $sitebuilderProduct = new ProductFactory()->for(new ProductGroupFactory()->hosting())->siteBuilder()->createOne();
-        ProductSpecFactory::new()->for($sitebuilderProduct)->createOne(['name' => ProductSpecName::BASEKIT_PACKAGE_REFERENCE, 'value' => 123]);
+        $sitebuilderProduct = new ProductFactory()
+            ->for(new ProductGroupFactory()->hosting())
+            ->siteBuilder()
+            ->createOne();
+        ProductSpecFactory::new()->for($sitebuilderProduct)->createOne([
+            'name' => ProductSpecName::BASEKIT_PACKAGE_REFERENCE,
+            'value' => 123,
+        ]);
         $addonProduct = ProductFactory::new()->for(ProductGroupFactory::new()->addon()->createOne())->createOne();
-        ProductSpecFactory::new()->for($addonProduct)->createOne(['name' => ProductSpecName::BASEKIT_PACKAGE_REFERENCE, 'value' => 1234]);
+        ProductSpecFactory::new()->for($addonProduct)->createOne([
+            'name' => ProductSpecName::BASEKIT_PACKAGE_REFERENCE,
+            'value' => 1234,
+        ]);
 
-        $subscription = new SubscriptionFactory()->for($sitebuilderProduct)->for($customer)->createOne();
-        new SubscriptionFactory()->for($addonProduct)->for($customer)->createOne(['parent_subscription_id' => $subscription->id]);
+        $subscription = new SubscriptionFactory()
+            ->for($sitebuilderProduct)
+            ->for($customer)
+            ->createOne();
+        new SubscriptionFactory()
+            ->for($addonProduct)
+            ->for($customer)
+            ->createOne(['parent_subscription_id' => $subscription->id]);
 
         $gatewayResult = new BasekitSiteResult(
             provisionData: self::createStub(ProvisionRequestInterface::class),
@@ -59,13 +74,15 @@ class SitebuilderUpgradeTest extends IntegrationTestCase
             domain: 'example.com',
         );
 
-        $this->gatewayMock->expects($this->once())
+        $this->gatewayMock
+            ->expects($this->once())
             ->method('request')
             ->with(self::callback(function (UpdateSitebuilderRequest $request) use ($subscription) {
                 self::assertEqualsCanonicalizing([123, 1234], $request->packages);
                 self::assertSame($subscription->uuid, $request->context->toString());
                 self::assertSame($subscription->uuid, $request->tag->toString());
                 self::assertSame($subscription->contract_period, $request->contractPeriod);
+
                 return true;
             }))
             ->willReturn($gatewayResult);
@@ -77,10 +94,19 @@ class SitebuilderUpgradeTest extends IntegrationTestCase
     public function provisioningFailedShouldThrowException(): void
     {
         $customer = new CustomerFactory()->createOne();
-        $sitebuilderProduct = new ProductFactory()->for(new ProductGroupFactory()->hosting())->siteBuilder()->createOne();
-        ProductSpecFactory::new()->for($sitebuilderProduct)->createOne(['name' => ProductSpecName::BASEKIT_PACKAGE_REFERENCE, 'value' => 123]);
+        $sitebuilderProduct = new ProductFactory()
+            ->for(new ProductGroupFactory()->hosting())
+            ->siteBuilder()
+            ->createOne();
+        ProductSpecFactory::new()->for($sitebuilderProduct)->createOne([
+            'name' => ProductSpecName::BASEKIT_PACKAGE_REFERENCE,
+            'value' => 123,
+        ]);
 
-        $subscription = new SubscriptionFactory()->for($sitebuilderProduct)->for($customer)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($sitebuilderProduct)
+            ->for($customer)
+            ->createOne();
 
         $gatewayResult = new BasekitSiteResult(
             provisionData: self::createStub(ProvisionRequestInterface::class),
@@ -89,9 +115,7 @@ class SitebuilderUpgradeTest extends IntegrationTestCase
             domain: 'example.com',
         );
 
-        $this->gatewayMock->expects($this->once())
-            ->method('request')
-            ->willReturn($gatewayResult);
+        $this->gatewayMock->expects($this->once())->method('request')->willReturn($gatewayResult);
 
         $originalStatus = $subscription->technical_status;
 

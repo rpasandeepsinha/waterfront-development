@@ -48,7 +48,7 @@ class DnsExternalNameserverAssignerTest extends IntegrationTestCase
 
         $this->assigner = new DnsExternalNameserverAssigner(
             dnsDeploymentRepository: self::resolve(DnsDeploymentRepository::class),
-            domainServiceFactory: $this->mockDriverFactory
+            domainServiceFactory: $this->mockDriverFactory,
         );
 
         $domain = 'test-domain-external-nameservers.nl';
@@ -59,9 +59,9 @@ class DnsExternalNameserverAssignerTest extends IntegrationTestCase
             ->forDomain($domain)
             ->createOne();
 
-        $this->dnsDeployment = DnsDeploymentFactory::new()
-            ->for($dnsSubscription)
-            ->createOne(['nameserver_type' => NameserverType::EXTERNAL]);
+        $this->dnsDeployment = DnsDeploymentFactory::new()->for($dnsSubscription)->createOne([
+            'nameserver_type' => NameserverType::EXTERNAL,
+        ]);
     }
 
     #[Test]
@@ -75,13 +75,11 @@ class DnsExternalNameserverAssignerTest extends IntegrationTestCase
             new Nameserver('ns3.external-nameserver.nl'),
         ];
 
-        $this->mockDriverFactory
-            ->expects(self::never())
-            ->method('driver');
+        $this->mockDriverFactory->expects(self::never())->method('driver');
 
-        $assignResult =  $this->assigner->assign(
+        $assignResult = $this->assigner->assign(
             dnsDeployment: $this->dnsDeployment,
-            nameservers: $nameservers
+            nameservers: $nameservers,
         );
 
         self::assertSame(NameserverType::EXTERNAL, $this->dnsDeployment->nameserver_type);
@@ -100,11 +98,9 @@ class DnsExternalNameserverAssignerTest extends IntegrationTestCase
     #[Test]
     public function assignSuccessWithAlreadyAssigned(): void
     {
-        DnsExternalNameserverFactory::new()
-            ->for($this->dnsDeployment)
-            ->createOne(
-                ['nameserver' => 'ns1.pre-assigned-nameserver.nl']
-            );
+        DnsExternalNameserverFactory::new()->for($this->dnsDeployment)->createOne(
+            ['nameserver' => 'ns1.pre-assigned-nameserver.nl'],
+        );
 
         $nameservers = [
             new Nameserver('ns1.external-nameserver.nl'),
@@ -112,13 +108,11 @@ class DnsExternalNameserverAssignerTest extends IntegrationTestCase
             new Nameserver('ns3.external-nameserver.nl'),
         ];
 
-        $this->mockDriverFactory
-            ->expects(self::never())
-            ->method('driver');
+        $this->mockDriverFactory->expects(self::never())->method('driver');
 
-        $assignResult =  $this->assigner->assign(
+        $assignResult = $this->assigner->assign(
             dnsDeployment: $this->dnsDeployment,
-            nameservers: $nameservers
+            nameservers: $nameservers,
         );
 
         $this->dnsDeployment->refresh();
@@ -134,21 +128,21 @@ class DnsExternalNameserverAssignerTest extends IntegrationTestCase
     #[Test]
     public function fetchFromRegistryWhenMissingNameservers(): void
     {
-        $rtrResponse =  new RetrieveResult();
+        $rtrResponse = new RetrieveResult();
         $rtrResponse->setNameServers([
             [
-                'id'    => '1',
+                'id' => '1',
                 'seqNr' => '0',
-                'name'  => 'ns1.rtr-nameservers.nl',
-                'ip'    => '52.57.114.204',
-                'ip6'   => '2a05:d014:0f80:6e00:bde7:af96:9434:75d5',
+                'name' => 'ns1.rtr-nameservers.nl',
+                'ip' => '52.57.114.204',
+                'ip6' => '2a05:d014:0f80:6e00:bde7:af96:9434:75d5',
             ],
             [
-                'id'    => '2',
+                'id' => '2',
                 'seqNr' => '1',
-                'name'  => 'ns2.rtr-nameservers.nl',
-                'ip'    => '52.214.115.96',
-                'ip6'   => '2a05:d018:061d:bd00:21bc:c938:d548:dab1',
+                'name' => 'ns2.rtr-nameservers.nl',
+                'ip' => '52.214.115.96',
+                'ip6' => '2a05:d018:061d:bd00:21bc:c938:d548:dab1',
             ],
         ]);
 
@@ -175,9 +169,7 @@ class DnsExternalNameserverAssignerTest extends IntegrationTestCase
 
         $this->dnsDeployment->refresh();
 
-        $this->mockDomainService->expects(self::once())
-            ->method('nameservers')
-            ->willReturn($rtrResponse);
+        $this->mockDomainService->expects(self::once())->method('nameservers')->willReturn($rtrResponse);
 
         $this->assigner->assign(
             dnsDeployment: $this->dnsDeployment,
@@ -187,28 +179,30 @@ class DnsExternalNameserverAssignerTest extends IntegrationTestCase
     #[Test]
     public function fetchFromRegistryWhenMissingNameserversWithBusinessUnit(): void
     {
-        $rtrResponse =  new RetrieveResult();
+        $rtrResponse = new RetrieveResult();
         $rtrResponse->setNameServers([
             [
-                'id'    => '1',
+                'id' => '1',
                 'seqNr' => '0',
-                'name'  => 'ns1.rtr-nameservers.nl',
-                'ip'    => '52.57.114.204',
-                'ip6'   => '2a05:d014:0f80:6e00:bde7:af96:9434:75d5',
+                'name' => 'ns1.rtr-nameservers.nl',
+                'ip' => '52.57.114.204',
+                'ip6' => '2a05:d014:0f80:6e00:bde7:af96:9434:75d5',
             ],
             [
-                'id'    => '2',
+                'id' => '2',
                 'seqNr' => '1',
-                'name'  => 'ns2.rtr-nameservers.nl',
-                'ip'    => '52.214.115.96',
-                'ip6'   => '2a05:d018:061d:bd00:21bc:c938:d548:dab1',
+                'name' => 'ns2.rtr-nameservers.nl',
+                'ip' => '52.214.115.96',
+                'ip6' => '2a05:d018:061d:bd00:21bc:c938:d548:dab1',
             ],
         ]);
 
         $businessUnit = DomainProviderBusinessUnitFactory::new()->argeweb()->createOne();
 
         $domainSubscription = new SubscriptionFactory()
-            ->has(new DomainDeploymentFactory()->withRtrProvider()->state(['domain_business_unit_id' => $businessUnit->id]))
+            ->has(new DomainDeploymentFactory()
+                ->withRtrProvider()
+                ->state(['domain_business_unit_id' => $businessUnit->id]))
             ->for(new ProductFactory()->nlDomain())
             ->withCustomer()
             ->createOne();
@@ -220,7 +214,7 @@ class DnsExternalNameserverAssignerTest extends IntegrationTestCase
             ->method('driver')
             ->with(
                 $domainSubscription->domainDeployment->provider->slug,
-                self::assertCallbackIsModel($businessUnit)
+                self::assertCallbackIsModel($businessUnit),
             )
             ->willReturn($this->mockDomainService);
 
@@ -230,9 +224,7 @@ class DnsExternalNameserverAssignerTest extends IntegrationTestCase
 
         $this->dnsDeployment->refresh();
 
-        $this->mockDomainService->expects(self::once())
-            ->method('nameservers')
-            ->willReturn($rtrResponse);
+        $this->mockDomainService->expects(self::once())->method('nameservers')->willReturn($rtrResponse);
 
         $this->assigner->assign(
             dnsDeployment: $this->dnsDeployment,
@@ -242,7 +234,7 @@ class DnsExternalNameserverAssignerTest extends IntegrationTestCase
     #[Test]
     public function throwExceptionIfFetchFromRegistryIsEmpty(): void
     {
-        $rtrResponse =  new RetrieveResult();
+        $rtrResponse = new RetrieveResult();
         $rtrResponse->setNameServers([]);
 
         $domainSubscription = new SubscriptionFactory()
@@ -268,9 +260,7 @@ class DnsExternalNameserverAssignerTest extends IntegrationTestCase
             )
             ->willReturn($this->mockDomainService);
 
-        $this->mockDomainService->expects(self::once())
-            ->method('nameservers')
-            ->willReturn($rtrResponse);
+        $this->mockDomainService->expects(self::once())->method('nameservers')->willReturn($rtrResponse);
 
         $this->expectException(AssignNameserversWithoutNameserversException::class);
 
@@ -288,9 +278,9 @@ class DnsExternalNameserverAssignerTest extends IntegrationTestCase
             new Nameserver('ns3.external-nameserver.nl'),
         ];
 
-        $assignResult =  $this->assigner->assign(
+        $assignResult = $this->assigner->assign(
             dnsDeployment: $this->dnsDeployment,
-            nameservers: $nameservers
+            nameservers: $nameservers,
         );
 
         Assert::assertCount(3, $assignResult);

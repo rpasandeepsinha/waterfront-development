@@ -11,11 +11,13 @@ class IntelligentCancellationProvider extends BaseProvider
     public function boot(): void
     {
         $this->publishes([
-            __DIR__ . '/../Config/intelligent-cancellation.php' => $this->app->configPath('intelligent-cancellation.php'),
+            __DIR__ . '/../Config/intelligent-cancellation.php' => $this->app->configPath(
+                'intelligent-cancellation.php',
+            ),
         ], 'config');
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/intelligent-cancellation.php',
-            'intelligent-cancellation'
+            'intelligent-cancellation',
         );
     }
 }

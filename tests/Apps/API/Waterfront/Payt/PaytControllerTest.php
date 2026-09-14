@@ -35,11 +35,13 @@ class PaytControllerTest extends IntegrationTestCase
         $payload = json_decode($jsonString, true, 512, JSON_THROW_ON_ERROR);
         self::assertIsArray($payload);
 
-        $this->actingAsSystem()->postJson(
-            $this->generateRoute('webhooks.payt.new-event', ['businessUnit' => 'versio-2']),
-            $payload,
-            ['X-PAYT-SIGNATURE' => 'any-signature']
-        )->assertOk();
+        $this->actingAsSystem()
+            ->postJson(
+                $this->generateRoute('webhooks.payt.new-event', ['businessUnit' => 'versio-2']),
+                $payload,
+                ['X-PAYT-SIGNATURE' => 'any-signature'],
+            )
+            ->assertOk();
     }
 
     #[Test]
@@ -54,11 +56,12 @@ class PaytControllerTest extends IntegrationTestCase
         $payload = json_decode($jsonString, true, 512, JSON_THROW_ON_ERROR);
         self::assertIsArray($payload);
 
-        $this->actingAsSystem()->postJson(
-            $this->generateRoute('webhooks.payt.new-event', ['businessUnit' => 'versio-2']),
-            $payload,
-            ['X-PAYT-SIGNATURE' => 'invalid']
-        )
+        $this->actingAsSystem()
+            ->postJson(
+                $this->generateRoute('webhooks.payt.new-event', ['businessUnit' => 'versio-2']),
+                $payload,
+                ['X-PAYT-SIGNATURE' => 'invalid'],
+            )
             ->assertUnauthorized();
     }
 
@@ -78,7 +81,7 @@ class PaytControllerTest extends IntegrationTestCase
             ->postJson(
                 $this->generateRoute('webhooks.payt.new-event', ['businessUnit' => 'versio-2']),
                 $payload,
-                ['X-PAYT-SIGNATURE' => 'any-signature']
+                ['X-PAYT-SIGNATURE' => 'any-signature'],
             )
             ->assertBadRequest();
     }
@@ -94,7 +97,7 @@ class PaytControllerTest extends IntegrationTestCase
             ->postJson(
                 $this->generateRoute('webhooks.payt.new-event', ['businessUnit' => 'unknown-bu']),
                 $payload,
-                ['X-PAYT-SIGNATURE' => 'any-signature']
+                ['X-PAYT-SIGNATURE' => 'any-signature'],
             )
             ->assertBadRequest();
     }
@@ -111,11 +114,13 @@ class PaytControllerTest extends IntegrationTestCase
         $payload = json_decode($jsonString, true, 512, JSON_THROW_ON_ERROR);
         self::assertIsArray($payload);
 
-        $this->actingAsSystem()->postJson(
-            $this->generateRoute('webhooks.payt.new-event', ['businessUnit' => 'versio-2']),
-            $payload,
-            ['X-PAYT-SIGNATURE' => 'any-signature']
-        )->assertOk();
+        $this->actingAsSystem()
+            ->postJson(
+                $this->generateRoute('webhooks.payt.new-event', ['businessUnit' => 'versio-2']),
+                $payload,
+                ['X-PAYT-SIGNATURE' => 'any-signature'],
+            )
+            ->assertOk();
     }
 
     #[Test]
@@ -130,10 +135,12 @@ class PaytControllerTest extends IntegrationTestCase
         $payload = json_decode($jsonString, true, 512, JSON_THROW_ON_ERROR);
         self::assertIsArray($payload);
 
-        $this->actingAsSystem()->postJson(
-            $this->generateRoute('webhooks.payt.new-event', ['businessUnit' => 'versio-2']),
-            $payload,
-            ['X-PAYT-SIGNATURE' => 'any-signature']
-        )->assertOk();
+        $this->actingAsSystem()
+            ->postJson(
+                $this->generateRoute('webhooks.payt.new-event', ['businessUnit' => 'versio-2']),
+                $payload,
+                ['X-PAYT-SIGNATURE' => 'any-signature'],
+            )
+            ->assertOk();
     }
 }

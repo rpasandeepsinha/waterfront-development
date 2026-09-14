@@ -14,8 +14,9 @@ class DnsZoneService
 {
     private const array ADDRESS_RECORD_TYPES = ['A', 'AAAA'];
 
-    public function __construct(private readonly DnsZoneFactoryInterface $dnsZoneFactory)
-    {
+    public function __construct(
+        private readonly DnsZoneFactoryInterface $dnsZoneFactory,
+    ) {
     }
 
     public function getHostingDnsRecords(string $domain, ?string $ipv4, ?string $ipv6): DnsZoneDiff
@@ -29,15 +30,20 @@ class DnsZoneService
      * Get the hosting-related DNS records used when updating a zone.
      *
      */
-    public function getExternalHostingDnsRecords(string $domain, ?string $ipv4, ?string $ipv6, ?string $ipv4Mail, ?string $ipv6Mail): DnsZoneDiff
-    {
+    public function getExternalHostingDnsRecords(
+        string $domain,
+        ?string $ipv4,
+        ?string $ipv6,
+        ?string $ipv4Mail,
+        ?string $ipv6Mail,
+    ): DnsZoneDiff {
         $dnsZone = $this->dnsZoneFactory->create(
             domain: $domain,
             dnsTemplate: 'external-hosting',
             ipv4: $ipv4,
             ipv6: $ipv6,
             ipv4Mail: $ipv4Mail,
-            ipv6Mail: $ipv6Mail
+            ipv6Mail: $ipv6Mail,
         );
 
         return new DnsZone(new Fqdn($domain))->diff($dnsZone);
@@ -54,7 +60,7 @@ class DnsZoneService
 
         return array_values(array_filter(
             $parkingZone->getRecords(),
-            fn (DnsRecordInterface $record): bool => in_array($record->getType(), self::ADDRESS_RECORD_TYPES, true)
+            fn (DnsRecordInterface $record): bool => in_array($record->getType(), self::ADDRESS_RECORD_TYPES, true),
         ));
     }
 }

@@ -9,7 +9,7 @@ use Waterfront\Domain\Customers\Models\Customer;
 class CustomerDataChangedEvent
 {
     public function __construct(
-        public Customer $customer
+        public Customer $customer,
     ) {
     }
 }

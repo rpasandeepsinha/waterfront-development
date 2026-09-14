@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Waterfront\Domain\Pricing\Services;
 
 use Carbon\CarbonImmutable;
+use LogicException;
 use Waterfront\Domain\Orders\Models\OrderLineItem;
 use Waterfront\Domain\Pricing\DTO\PriceComponents\CustomIndefinitePriceComponent;
 use Waterfront\Domain\Pricing\DTO\PriceComponents\CustomOneOffPriceComponent;
@@ -62,15 +63,20 @@ readonly class PricePersistService
 
         $introductionComponent = array_find(
             $priceComponents,
-            fn (PriceComponent $component): bool => $component->type === PriceComponentType::INTRODUCTION
+            fn (PriceComponent $component): bool => $component->type === PriceComponentType::INTRODUCTION,
         );
 
-        if ($introductionComponent instanceof IntroductionPriceComponent && $introductionComponent->firstMonthsDiscountPeriod !== null) {
+        if (
+            $introductionComponent instanceof IntroductionPriceComponent
+            && $introductionComponent->firstMonthsDiscountPeriod !== null
+        ) {
             $billingCycle = 2;
             $totalBillingCycles = $orderLine->contract_period / $orderLine->billing_period;
             // firstMonthsDiscountPeriod can be lower than billing_period (example 12/12 subscription with first 3 months discount).
             // That should be rounded to 1, as it is still a discounted billing cycle.
-            $discountedBillingCycles = ceil($introductionComponent->firstMonthsDiscountPeriod / $orderLine->billing_period);
+            $discountedBillingCycles = ceil(
+                $introductionComponent->firstMonthsDiscountPeriod / $orderLine->billing_period,
+            );
             $normalBillingCycles = $totalBillingCycles - $discountedBillingCycles;
 
             // We are now in the second billing cycle, so we want to remove pro-rate components, because
@@ -78,7 +84,11 @@ readonly class PricePersistService
             $priceComponents = $this->withoutPriceComponent($priceComponents, PriceComponentType::PRO_RATE);
 
             for ($i = 1; $i < $discountedBillingCycles; $i++) {
-                $this->createOrderLinePrice($orderLine, $startBillingCycle->addMonths(($billingCycle - 1) * $orderLine->billing_period), $priceComponents);
+                $this->createOrderLinePrice(
+                    $orderLine,
+                    $startBillingCycle->addMonths(($billingCycle - 1) * $orderLine->billing_period),
+                    $priceComponents,
+                );
 
                 $billingCycle++;
             }
@@ -88,7 +98,11 @@ readonly class PricePersistService
             $priceComponents = $this->withoutPriceComponent($priceComponents, PriceComponentType::INTRODUCTION);
 
             for ($i = 0; $i < $normalBillingCycles; $i++) {
-                $this->createOrderLinePrice($orderLine, $startBillingCycle->addMonths(($billingCycle - 1) * $orderLine->billing_period), $priceComponents);
+                $this->createOrderLinePrice(
+                    $orderLine,
+                    $startBillingCycle->addMonths(($billingCycle - 1) * $orderLine->billing_period),
+                    $priceComponents,
+                );
 
                 $billingCycle++;
             }
@@ -123,7 +137,9 @@ readonly class PricePersistService
             }
         }
 
-        assert($firstSubscriptionPrice instanceof SubscriptionPrice);
+        if ($firstSubscriptionPrice === null) {
+            throw new LogicException('Cannot persist subscription price from order line');
+        }
 
         /**
          * We save all price components with the orderline, which can include a pro-rate component. We SHOULD NOT save the resulting
@@ -138,18 +154,23 @@ readonly class PricePersistService
          */
         $proRatePriceComponent = array_find(
             $firstSubscriptionPrice->components->all(),
-            fn (SubscriptionPriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::PRO_RATE
+            fn (SubscriptionPriceComponent $priceComponent): bool => (
+                $priceComponent->type === PriceComponentType::PRO_RATE
+            ),
         );
 
         if ($proRatePriceComponent !== null) {
             $priceComponentBeforeProRate = array_find(
                 $firstSubscriptionPrice->components->all(),
-                fn (SubscriptionPriceComponent $priceComponent): bool => $priceComponent->order_applied === $proRatePriceComponent->order_applied - 1
+                fn (SubscriptionPriceComponent $priceComponent): bool => (
+                    $priceComponent->order_applied === ($proRatePriceComponent->order_applied - 1)
+                ),
             );
 
             Assert::notNull($priceComponentBeforeProRate);
 
             $subscription->net_price = $priceComponentBeforeProRate->new_price;
+            $subscription->gross_price = $priceComponentBeforeProRate->new_price;
             $subscription->save();
         }
 
@@ -167,8 +188,12 @@ readonly class PricePersistService
      * We might have already calculated all "billing cycles" (i.e. a subscription price for each invoice), so
      * those will be removed, and we mark the custom price override as such.
      */
-    public function persistCustomPrice(Subscription $subscription, int $price, bool $oneOff, CustomPriceReasonType $reason): void
-    {
+    public function persistCustomPrice(
+        Subscription $subscription,
+        int $price,
+        bool $oneOff,
+        CustomPriceReasonType $reason,
+    ): void {
         $this->priceRepository->deleteFutureSubscriptionPrices($subscription);
 
         if ($oneOff) {
@@ -177,7 +202,11 @@ readonly class PricePersistService
             $priceComponent = new CustomIndefinitePriceComponent($price);
         }
 
-        $newSubscriptionPrice = $this->createSubscriptionPrice($subscription, [$priceComponent], CarbonImmutable::now());
+        $newSubscriptionPrice = $this->createSubscriptionPrice(
+            $subscription,
+            [$priceComponent],
+            CarbonImmutable::now(),
+        );
 
         $customPriceReason = new CustomPriceReason();
         $customPriceReason->subscription_price_id = $newSubscriptionPrice->id;
@@ -192,8 +221,11 @@ readonly class PricePersistService
     /**
      * @param array<PriceComponent> $components
      */
-    private function createSubscriptionPrice(Subscription $subscription, array $components, CarbonImmutable $validFrom): SubscriptionPrice
-    {
+    private function createSubscriptionPrice(
+        Subscription $subscription,
+        array $components,
+        CarbonImmutable $validFrom,
+    ): SubscriptionPrice {
         $subscriptionPrice = new SubscriptionPrice();
         $subscriptionPrice->subscription_id = $subscription->id;
         $subscriptionPrice->valid_from = $validFrom;
@@ -220,8 +252,11 @@ readonly class PricePersistService
     /**
      * @param array<PriceComponent> $components
      */
-    private function createOrderLinePrice(OrderLineItem $orderLine, CarbonImmutable $from, array $components): OrderLinePrice
-    {
+    private function createOrderLinePrice(
+        OrderLineItem $orderLine,
+        CarbonImmutable $from,
+        array $components,
+    ): OrderLinePrice {
         $orderLinePrice = new OrderLinePrice();
         $orderLinePrice->order_line_item_id = $orderLine->id;
         $orderLinePrice->valid_from = $from;
@@ -267,7 +302,7 @@ readonly class PricePersistService
 
         $componentToRemoveKey = array_find_key(
             $components,
-            fn (PriceComponent $component): bool => $component->type === $type
+            fn (PriceComponent $component): bool => $component->type === $type,
         );
 
         if ($componentToRemoveKey === null) {
@@ -283,7 +318,7 @@ readonly class PricePersistService
         // recalculated based on the running price of the component before it.
         usort(
             $components,
-            fn (PriceComponent $a, PriceComponent $b): int => ($a->appliedOrder ?? 0) <=> ($b->appliedOrder ?? 0)
+            fn (PriceComponent $a, PriceComponent $b): int => ($a->appliedOrder ?? 0) <=> ($b->appliedOrder ?? 0),
         );
 
         $basePrice = null;

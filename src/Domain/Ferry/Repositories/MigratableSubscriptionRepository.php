@@ -17,7 +17,7 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 class MigratableSubscriptionRepository
 {
     public function __construct(
-        private readonly SitebuilderService $sitebuilderService
+        private readonly SitebuilderService $sitebuilderService,
     ) {
     }
 
@@ -26,7 +26,8 @@ class MigratableSubscriptionRepository
      */
     public function getSubscriptionsForDomainContactMigration(Customer $customer): Collection
     {
-        return $customer->subscriptions()
+        return $customer
+            ->subscriptions()
             ->with([
                 'domainDeployment',
                 'domainDeployment.provider',
@@ -36,7 +37,10 @@ class MigratableSubscriptionRepository
                 'product',
                 'product.productGroup',
             ])
-            ->whereHas('product.productGroup', fn (Builder $query) => $query->where('slug', ProductGroupType::EXTENSION))
+            ->whereHas('product.productGroup', fn (Builder $query) => $query->where(
+                'slug',
+                ProductGroupType::EXTENSION,
+            ))
             ->whereHas('migratedSubscriptions')
             ->orderBy('id')
             ->get();
@@ -47,7 +51,8 @@ class MigratableSubscriptionRepository
      */
     public function getSubscriptionsForConfigureDnsMigration(Customer $customer): Collection
     {
-        return $customer->subscriptions()
+        return $customer
+            ->subscriptions()
             ->with([
                 'domainDeployment',
                 'domainDeployment.provider',
@@ -55,7 +60,10 @@ class MigratableSubscriptionRepository
                 'product',
                 'product.productGroup',
             ])
-            ->whereDoesntHave('product', fn (Builder $query) => $query->where('slug', ProductNotAllowedToMigrate::FREE_DNS->value))
+            ->whereDoesntHave('product', fn (Builder $query) => $query->where(
+                'slug',
+                ProductNotAllowedToMigrate::FREE_DNS->value,
+            ))
             ->whereHas('product.productGroup', fn (Builder $query) => $query->whereIn('slug', [
                 ProductGroupType::EXTENSION,
                 ProductGroupType::DNS,
@@ -70,7 +78,8 @@ class MigratableSubscriptionRepository
      */
     public function getSubscriptionsForRedirectMigration(Customer $customer): Collection
     {
-        return $customer->subscriptions()
+        return $customer
+            ->subscriptions()
             ->with([
                 'migratedSubscriptions',
                 'product',
@@ -87,7 +96,8 @@ class MigratableSubscriptionRepository
      */
     public function getSubscriptionsForNameserverMigration(Customer $customer): Collection
     {
-        return $customer->subscriptions()
+        return $customer
+            ->subscriptions()
             ->with([
                 'domainDeployment',
                 'domainDeployment.provider',
@@ -95,7 +105,10 @@ class MigratableSubscriptionRepository
                 'product',
                 'product.productGroup',
             ])
-            ->whereHas('product.productGroup', fn (Builder $query) => $query->where('slug', ProductGroupType::EXTENSION))
+            ->whereHas('product.productGroup', fn (Builder $query) => $query->where(
+                'slug',
+                ProductGroupType::EXTENSION,
+            ))
             ->whereHas('migratedSubscriptions')
             ->orderBy('id')
             ->get();
@@ -106,7 +119,8 @@ class MigratableSubscriptionRepository
      */
     public function getSubscriptionsForBackupMigration(Customer $customer): Collection
     {
-        return $customer->subscriptions()
+        return $customer
+            ->subscriptions()
             ->with([
                 'migratedSubscriptions',
                 'product',
@@ -123,7 +137,8 @@ class MigratableSubscriptionRepository
      */
     public function getSubscriptionsForHostingMigration(Customer $customer): Collection
     {
-        return $customer->subscriptions()
+        return $customer
+            ->subscriptions()
             ->with([
                 'hostingDeployment',
                 'hostingDeployment.provider',
@@ -146,7 +161,8 @@ class MigratableSubscriptionRepository
      */
     public function getSubscriptionsForResellerHostingMigration(Customer $customer): Collection
     {
-        return $customer->subscriptions()
+        return $customer
+            ->subscriptions()
             ->with([
                 'resellerHostingDeployment',
                 'resellerHostingDeployment.provider',
@@ -155,7 +171,10 @@ class MigratableSubscriptionRepository
                 'product',
                 'product.productGroup',
             ])
-            ->whereHas('product.productGroup', fn (Builder $query) => $query->where('slug', ProductGroupType::RESELLER_HOSTING))
+            ->whereHas('product.productGroup', fn (Builder $query) => $query->where(
+                'slug',
+                ProductGroupType::RESELLER_HOSTING,
+            ))
             ->whereHas('resellerHostingDeployment.provider')
             ->whereHas('migratedSubscriptions')
             ->orderBy('id')
@@ -167,7 +186,8 @@ class MigratableSubscriptionRepository
      */
     public function getSubscriptionsForMailOnlyMigration(Customer $customer): Collection
     {
-        return $customer->subscriptions()
+        return $customer
+            ->subscriptions()
             ->with([
                 'hostingDeployment',
                 'hostingDeployment.provider',
@@ -191,10 +211,10 @@ class MigratableSubscriptionRepository
      */
     public function getSubscriptionsForSitebuilderMigration(Customer $customer): Collection
     {
-        $isGatewaySitebuilder = $this->sitebuilderService
-            ->hasSitebuilderThroughGateway($customer->email);
+        $isGatewaySitebuilder = $this->sitebuilderService->hasSitebuilderThroughGateway($customer->email);
 
-        $query = $customer->subscriptions()
+        $query = $customer
+            ->subscriptions()
             ->with([
                 'hostingDeployment',
                 'hostingDeployment.provider',
@@ -221,7 +241,8 @@ class MigratableSubscriptionRepository
      */
     public function getSubscriptionsForSslMigration(Customer $customer): Collection
     {
-        return $customer->subscriptions()
+        return $customer
+            ->subscriptions()
             ->with([
                 'sslDeployment',
                 'sslDeployment.provider',
@@ -246,12 +267,15 @@ class MigratableSubscriptionRepository
     public function isSubscriptionAlreadyCreated(
         string $subscriptionReferenceId,
         string $productReferenceId,
-        string|null $bu
+        ?string $bu,
     ): bool {
         return MigratedSubscription::query()
             ->when(
                 $bu !== null,
-                fn (Builder $query) => $query->whereHas('migratedCustomers', fn (Builder $query) => $query->where('reference_name', $bu))
+                fn (Builder $query) => $query->whereHas('migratedCustomers', fn (Builder $query) => $query->where(
+                    'reference_name',
+                    $bu,
+                )),
             )
             ->where([
                 'reference_subscription_id' => $subscriptionReferenceId,
@@ -263,7 +287,7 @@ class MigratableSubscriptionRepository
     public function getAlreadyExistingSubscriptionFromMigration(
         string $subscriptionReferenceId,
         string $productReferenceId,
-        string $productSlug
+        string $productSlug,
     ): Subscription {
         return Subscription::whereHas('migratedSubscriptions', fn (Builder $query) => $query->where([
             'reference_subscription_id' => $subscriptionReferenceId,
@@ -275,9 +299,7 @@ class MigratableSubscriptionRepository
 
     public function getAlreadyExistingFreeDnsSubscription(string $domain): Subscription
     {
-        return Subscription::whereProductGroupType(ProductGroupType::DNS)
-            ->where('domain', $domain)
-            ->firstOrFail();
+        return Subscription::whereProductGroupType(ProductGroupType::DNS)->where('domain', $domain)->firstOrFail();
     }
 
     public function getBuOriginNameFromSubscription(Subscription $subscription): string

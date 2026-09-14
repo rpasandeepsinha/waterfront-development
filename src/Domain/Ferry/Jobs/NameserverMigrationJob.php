@@ -49,14 +49,12 @@ class NameserverMigrationJob extends MigrationJob
             throw new DomainWithoutDnsDeploymentException($domain);
         }
 
-        if (
-            $this->dnsMigrationService->hasModernInternalNameservers(
-                subscriptionId: $this->subscription->id,
-                domain: $domain,
-                referenceCustomerNumber: $this->migratedCustomer->reference_customer_number,
-                driver: $domainDeploymentProviderSlug,
-            )
-        ) {
+        if ($this->dnsMigrationService->hasModernInternalNameservers(
+            subscriptionId: $this->subscription->id,
+            domain: $domain,
+            referenceCustomerNumber: $this->migratedCustomer->reference_customer_number,
+            driver: $domainDeploymentProviderSlug,
+        )) {
             $this->logger->debug(
                 'Migration domain already has modern internal nameservers',
                 [
@@ -64,21 +62,20 @@ class NameserverMigrationJob extends MigrationJob
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                     LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                     LoggingContextKeys::DOMAIN_NAME => $domain,
-                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
-                ]
+                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                        $this->migratedCustomer->reference_customer_number,
+                ],
             );
 
             return;
         }
 
-        if (
-            $this->dnsMigrationService->hasLegacyInternalNameservers(
-                subscriptionId: $this->subscription->id,
-                domain: $domain,
-                referenceCustomerNumber: $this->migratedCustomer->reference_customer_number,
-                driver: $domainDeploymentProviderSlug,
-            )
-        ) {
+        if ($this->dnsMigrationService->hasLegacyInternalNameservers(
+            subscriptionId: $this->subscription->id,
+            domain: $domain,
+            referenceCustomerNumber: $this->migratedCustomer->reference_customer_number,
+            driver: $domainDeploymentProviderSlug,
+        )) {
             $this->logger->debug(
                 'Migration domain has legacy internal nameservers, assigning internal nameservers',
                 [
@@ -86,8 +83,9 @@ class NameserverMigrationJob extends MigrationJob
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                     LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                     LoggingContextKeys::DOMAIN_NAME => $domain,
-                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
-                ]
+                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                        $this->migratedCustomer->reference_customer_number,
+                ],
             );
 
             $this->assignInternalNameservers($dnsDeployment, $domain, $domainDeploymentProviderSlug);
@@ -95,14 +93,12 @@ class NameserverMigrationJob extends MigrationJob
             return;
         }
 
-        if (
-            $this->dnsMigrationService->hasLegacyWhitelabelNameservers(
-                subscriptionId: $this->subscription->id,
-                domain: $domain,
-                referenceCustomerNumber: $this->migratedCustomer->reference_customer_number,
-                driver: $domainDeploymentProviderSlug
-            )
-        ) {
+        if ($this->dnsMigrationService->hasLegacyWhitelabelNameservers(
+            subscriptionId: $this->subscription->id,
+            domain: $domain,
+            referenceCustomerNumber: $this->migratedCustomer->reference_customer_number,
+            driver: $domainDeploymentProviderSlug,
+        )) {
             $this->logger->debug(
                 'Migration domain has legacy whitelabel internal nameservers, assigning internal nameservers',
                 [
@@ -110,8 +106,9 @@ class NameserverMigrationJob extends MigrationJob
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                     LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                     LoggingContextKeys::DOMAIN_NAME => $domain,
-                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
-                ]
+                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                        $this->migratedCustomer->reference_customer_number,
+                ],
             );
 
             $this->assignInternalNameservers($dnsDeployment, $domain, $domainDeploymentProviderSlug);
@@ -122,7 +119,7 @@ class NameserverMigrationJob extends MigrationJob
         $this->dnsDeploymentRepository->setNameserverType($dnsDeployment, NameserverType::EXTERNAL);
         $this->assignNameserversToDomainAction->assign(
             domainDeployment: $domainDeployment,
-            shouldProvision: false
+            shouldProvision: false,
         );
     }
 
@@ -143,8 +140,11 @@ class NameserverMigrationJob extends MigrationJob
         $this->dnsDeploymentRepository = $this->resolve(DnsDeploymentRepository::class);
     }
 
-    private function assignInternalNameservers(DnsDeployment $dnsDeployment, string $domain, ProviderSlug $domainDeploymentProviderSlug): void
-    {
+    private function assignInternalNameservers(
+        DnsDeployment $dnsDeployment,
+        string $domain,
+        ProviderSlug $domainDeploymentProviderSlug,
+    ): void {
         $this->dnsDeploymentRepository->setNameserverType($dnsDeployment, NameserverType::INTERNAL);
 
         try {
@@ -158,14 +158,15 @@ class NameserverMigrationJob extends MigrationJob
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                     LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                     LoggingContextKeys::DOMAIN_NAME => $domain,
-                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
+                    LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                        $this->migratedCustomer->reference_customer_number,
                     LoggingContextKeys::PROVISIONING_PROVIDER => $domainDeploymentProviderSlug->value,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             // Only reset DNSSEC on the first and second to last attempt
-            if ($this->attempts() === 1 || $this->attempts() === $this->tries - 1) {
+            if ($this->attempts() === 1 || $this->attempts() === ($this->tries - 1)) {
                 // ticket: https://yh-jira.atlassian.net/browse/SWD-9386
                 $this->logger->debug(
                     'Resetting DNSSEC',
@@ -174,10 +175,11 @@ class NameserverMigrationJob extends MigrationJob
                         LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                         LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                         LoggingContextKeys::DOMAIN_NAME => $domain,
-                        LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
+                        LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                            $this->migratedCustomer->reference_customer_number,
                         LoggingContextKeys::PROVISIONING_PROVIDER => $domainDeploymentProviderSlug->value,
                         LoggingContextKeys::EXCEPTION => $exception,
-                    ]
+                    ],
                 );
 
                 $this->dnsMigrationService->resetDnssec($domain, $domainDeploymentProviderSlug);
@@ -195,9 +197,10 @@ class NameserverMigrationJob extends MigrationJob
                         LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                         LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                         LoggingContextKeys::DOMAIN_NAME => $domain,
-                        LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $this->migratedCustomer->reference_customer_number,
+                        LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                            $this->migratedCustomer->reference_customer_number,
                         LoggingContextKeys::EXCEPTION => $exception,
-                    ]
+                    ],
                 );
 
                 $this->release($delay);

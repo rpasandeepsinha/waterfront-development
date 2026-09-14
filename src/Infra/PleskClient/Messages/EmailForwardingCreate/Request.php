@@ -11,8 +11,11 @@ class Request implements RequestInterface
     /**
      * @param array<int, string> $destinationAddresses
      */
-    public function __construct(private readonly int $siteId, private readonly string $sourceAddress, private readonly array $destinationAddresses)
-    {
+    public function __construct(
+        private readonly int $siteId,
+        private readonly string $sourceAddress,
+        private readonly array $destinationAddresses,
+    ) {
     }
 
     /**

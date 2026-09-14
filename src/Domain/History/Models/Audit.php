@@ -62,6 +62,7 @@ class Audit extends AuditModel
     {
         /** @var TranslatorInterface $translator */
         $translator = Container::getInstance()->make(TranslatorInterface::class);
+
         return $translator->translate('audit.events.' . $this->event);
     }
 
@@ -86,13 +87,23 @@ class Audit extends AuditModel
 
         /** @var mixed[]|string $oldValues */
         $oldValues = $this->old_values;
-        if (is_array($oldValues) && array_key_exists('name', $oldValues) && $oldValues['name'] !== null && $oldValues['name'] !== '') {
+        if (
+            is_array($oldValues)
+            && array_key_exists('name', $oldValues)
+            && $oldValues['name'] !== null
+            && $oldValues['name'] !== ''
+        ) {
             return $type . ' "' . $oldValues['name'] . '"';
         }
 
         /** @var mixed[]|string $newValues */
         $newValues = $this->old_values;
-        if (is_array($newValues) && array_key_exists('name', $newValues) && $newValues['name'] !== null && $newValues['name'] !== '') {
+        if (
+            is_array($newValues)
+            && array_key_exists('name', $newValues)
+            && $newValues['name'] !== null
+            && $newValues['name'] !== ''
+        ) {
             return $type . ' "' . $newValues['name'] . '"';
         }
 
@@ -103,8 +114,8 @@ class Audit extends AuditModel
     {
         return [
             'identity_uuid' => UuidCast::class,
-            'old_values'   => 'json',
-            'new_values'   => 'json',
+            'old_values' => 'json',
+            'new_values' => 'json',
         ];
     }
 }

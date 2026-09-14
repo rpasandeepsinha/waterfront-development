@@ -17,7 +17,7 @@ readonly class MollieMandateResponseDTO
         public MollieMandateStatus $status,
         public MollieMandateMethod $method,
         public MollieMandateDetailsDTO $details,
-        public string|null $mandateReference,
+        public ?string $mandateReference,
         public string $signatureDate,
         public DateTimeImmutable $createdAt,
     ) {

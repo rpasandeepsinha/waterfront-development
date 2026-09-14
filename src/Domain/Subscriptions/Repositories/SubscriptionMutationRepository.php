@@ -24,6 +24,10 @@ class SubscriptionMutationRepository
      */
     public function getEligibleForTechnicalProcessing(): Collection
     {
-        return SubscriptionMutation::query()->with('subscription')->where('process_technical_at', '<=', CarbonImmutable::today())->whereNull('processed_technical_at')->get();
+        return SubscriptionMutation::query()
+            ->with('subscription')
+            ->where('process_technical_at', '<=', CarbonImmutable::today())
+            ->whereNull('processed_technical_at')
+            ->get();
     }
 }

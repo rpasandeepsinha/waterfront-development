@@ -28,8 +28,8 @@ class InvoicePaymentAnnouncementHandler
                 $this->logger->error(
                     'Unknown invoice id: {invoice_line.wf_id}',
                     [
-                     LoggingContextKeys::INVOICE_LINE_ID => $invoiceLineId,
-                    ]
+                        LoggingContextKeys::INVOICE_LINE_ID => $invoiceLineId,
+                    ],
                 );
                 continue;
             }
@@ -39,12 +39,15 @@ class InvoicePaymentAnnouncementHandler
                     'Invoice was already announced',
                     [
                         LoggingContextKeys::INVOICE_LINE_ID => $invoice,
-                    ]
+                    ],
                 );
                 continue;
             }
 
-            $announced = CarbonImmutable::createFromTimestamp($announcementMessage->getPaymentAnnounced(), date_default_timezone_get());
+            $announced = CarbonImmutable::createFromTimestamp(
+                $announcementMessage->getPaymentAnnounced(),
+                date_default_timezone_get(),
+            );
             $invoice->announced_by_harbor_at = $announced;
             $invoice->save();
 
@@ -52,7 +55,7 @@ class InvoicePaymentAnnouncementHandler
                 'Invoice payment announcement set',
                 [
                     LoggingContextKeys::INVOICE_LINE_ID => $invoice->id,
-                ]
+                ],
             );
         }
     }

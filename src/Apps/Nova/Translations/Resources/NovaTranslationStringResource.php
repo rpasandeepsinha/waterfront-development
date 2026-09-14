@@ -63,8 +63,13 @@ class NovaTranslationStringResource extends Resource
         return [
             ID::make(self::translate('ID'), 'id')->sortable(),
             BelongsTo::make('Translation', 'language', NovaTranslationResource::class),
-            BelongsTo::make('TranslationKey', 'translationkey', NovaTranslationKeyResource::class)->searchable()->rules(new TranslationStringsUnique()),
-            Textarea::make(self::translate(self::getTranslationKey() . '.attributes.translated_string'), 'translated_string')->sortable(),
+            BelongsTo::make('TranslationKey', 'translationkey', NovaTranslationKeyResource::class)
+                ->searchable()
+                ->rules(new TranslationStringsUnique()),
+            Textarea::make(
+                self::translate(self::getTranslationKey() . '.attributes.translated_string'),
+                'translated_string',
+            )->sortable(),
         ];
     }
 
@@ -76,7 +81,11 @@ class NovaTranslationStringResource extends Resource
         return [
             new HtmlCard()
                 ->width('full')
-                ->html('<p class="text-80 font-light mt-2">' . self::translate('language.nova_info.translationstring_overview') . '</p>'),
+                ->html(
+                    '<p class="text-80 font-light mt-2">'
+                    . self::translate('language.nova_info.translationstring_overview')
+                    . '</p>',
+                ),
         ];
     }
 

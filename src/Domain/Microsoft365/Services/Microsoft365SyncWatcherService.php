@@ -63,7 +63,8 @@ class Microsoft365SyncWatcherService
 
     public function handleMicrosoft365ParentAndChildSubscriptionsDeleted(): void
     {
-        $microsoft365SubscriptionsToBeTerminated = $this->microsoft365Repository->findMicrosoft365ParentAndChildSubscriptionsDeleted();
+        $microsoft365SubscriptionsToBeTerminated =
+            $this->microsoft365Repository->findMicrosoft365ParentAndChildSubscriptionsDeleted();
 
         // Cant check for archiving/expired here as the subscription can still be active in IRMA
         foreach ($microsoft365SubscriptionsToBeTerminated as $microsoft365Deployment) {
@@ -73,7 +74,11 @@ class Microsoft365SyncWatcherService
                 ->count();
 
             //Set Microsoft 365 subscription on terminated if subscription and children are all deleted
-            if ($waterfrontSeatCount === 0 && $microsoft365Deployment->subscription->administrative_status === AdministrativeStatus::ARCHIVED->value) {
+            if (
+                $waterfrontSeatCount === 0
+                && $microsoft365Deployment->subscription->administrative_status
+                    === AdministrativeStatus::ARCHIVED->value
+            ) {
                 $microsoft365Deployment->kpn_status = Microsoft365OrderStatus::TERMINATED;
                 $microsoft365Deployment->save();
                 $this->createMicrosoft365SyncLog(
@@ -83,7 +88,7 @@ class Microsoft365SyncWatcherService
                         Microsoft365OrderStatus::TERMINATED->value,
                     ),
                     $microsoft365Deployment->microsoft365_customer_info_id,
-                    $microsoft365Deployment->id
+                    $microsoft365Deployment->id,
                 );
             }
         }
@@ -91,7 +96,8 @@ class Microsoft365SyncWatcherService
 
     public function handleSeatProductMicrosoft365Subscriptions(): void
     {
-        $childProductMicrosoft365Subscriptions = $this->microsoft365Repository->findSeatProductMicrosoft365Subscriptions();
+        $childProductMicrosoft365Subscriptions =
+            $this->microsoft365Repository->findSeatProductMicrosoft365Subscriptions();
 
         if ($childProductMicrosoft365Subscriptions->count() > 0) {
             $this->createMicrosoft365SyncLog(
@@ -104,8 +110,11 @@ class Microsoft365SyncWatcherService
         }
     }
 
-    public function createMicrosoft365SyncLog(string $logMessage, ?int $microsoft365CustomerInfoId = null, ?int $microsoft365SubscriptionId = null): void
-    {
+    public function createMicrosoft365SyncLog(
+        string $logMessage,
+        ?int $microsoft365CustomerInfoId = null,
+        ?int $microsoft365SubscriptionId = null,
+    ): void {
         $log = new Microsoft365SyncLog();
         $log->log = $logMessage;
         $log->microsoft365_customer_info_id = $microsoft365CustomerInfoId;
@@ -116,9 +125,14 @@ class Microsoft365SyncWatcherService
     /**
      * @param array<int, OrderSummary> $orderSummary
      */
-    public function incorrectMicrosoft365CustomerStatus(array $orderSummary, Microsoft365CustomerInfo $microsoft365CustomerInfo): void
-    {
-        if (count($orderSummary) > 0 && $microsoft365CustomerInfo->technical_status !== Microsoft365ProcessStatus::ACTIVE) {
+    public function incorrectMicrosoft365CustomerStatus(
+        array $orderSummary,
+        Microsoft365CustomerInfo $microsoft365CustomerInfo,
+    ): void {
+        if (
+            count($orderSummary) > 0
+            && $microsoft365CustomerInfo->technical_status !== Microsoft365ProcessStatus::ACTIVE
+        ) {
             $this->createMicrosoft365SyncLog(
                 sprintf(
                     'Microsoft365 customer {%d} had a {%s} state and now has a {%s} state despite having multiple subscriptions in irma.',
@@ -134,10 +148,17 @@ class Microsoft365SyncWatcherService
         }
     }
 
-    public function checkWaterfrontIrmaAmountDifferences(Microsoft365CustomerInfo $microsoft365CustomerInfo, int $irmaMicrosoft365SubscriptionCount): void
-    {
+    public function checkWaterfrontIrmaAmountDifferences(
+        Microsoft365CustomerInfo $microsoft365CustomerInfo,
+        int $irmaMicrosoft365SubscriptionCount,
+    ): void {
         $waterfrontMicrosoft365SubscriptionCount = $microsoft365CustomerInfo::query()
-            ->join('microsoft365_deployments', 'microsoft365_deployments.microsoft365_customer_info_id', '=', 'microsoft365_customer_info.id')
+            ->join(
+                'microsoft365_deployments',
+                'microsoft365_deployments.microsoft365_customer_info_id',
+                '=',
+                'microsoft365_customer_info.id',
+            )
             ->join('subscriptions', 'subscriptions.id', '=', 'microsoft365_deployments.subscription_id')
             ->where('microsoft365_customer_info.id', '=', $microsoft365CustomerInfo->id)
             ->whereNot('subscriptions.administrative_status', AdministrativeStatus::ARCHIVED->value)
@@ -146,9 +167,10 @@ class Microsoft365SyncWatcherService
             // period ends. When that happens IRMA sends a webhook that archives the subscription on our side.
             // Until that webhook arrives this would cause a false positive count mismatch, so skip them here.
             ->whereNot(
-                fn (Builder $query) => $query
-                    ->where('subscriptions.administrative_status', AdministrativeStatus::ARCHIVING->value)
-                    ->where('subscriptions.contract_period', self::YEARLY_CONTRACT_PERIOD_MONTHS)
+                fn (Builder $query) => $query->where(
+                    'subscriptions.administrative_status',
+                    AdministrativeStatus::ARCHIVING->value,
+                )->where('subscriptions.contract_period', self::YEARLY_CONTRACT_PERIOD_MONTHS),
             )
             ->count();
 
@@ -183,8 +205,10 @@ class Microsoft365SyncWatcherService
     /**
      * @param OrderSummary[] $tenantOrderSummary
      */
-    public function handleOrderSummary(array $tenantOrderSummary, Microsoft365CustomerInfo $microsoft365CustomerInfo): void
-    {
+    public function handleOrderSummary(
+        array $tenantOrderSummary,
+        Microsoft365CustomerInfo $microsoft365CustomerInfo,
+    ): void {
         foreach ($tenantOrderSummary as $order) {
             $orderId = $order->getOrderId();
             $kpnProductCode = $order->getProductId();
@@ -192,7 +216,11 @@ class Microsoft365SyncWatcherService
             $microsoft365Deployment = Microsoft365Deployment::where('kpn_order_id', $orderId)->first();
 
             if (! $microsoft365Deployment instanceof Microsoft365Deployment) {
-                $microsoft365Deployment = $this->findAndReplaceKpnOrderId($kpnProductCode, $microsoft365CustomerInfo, $orderId);
+                $microsoft365Deployment = $this->findAndReplaceKpnOrderId(
+                    $kpnProductCode,
+                    $microsoft365CustomerInfo,
+                    $orderId,
+                );
                 if ($microsoft365Deployment === null) {
                     continue;
                 }
@@ -200,12 +228,19 @@ class Microsoft365SyncWatcherService
 
             // Update the start date to the time it became active or when it was created
             if ($microsoft365Deployment->kpn_start_date !== $order->getDateActive()) {
-                $microsoft365Deployment->kpn_start_date = $this->getKpnStartDate($order->getDateCreated(), $order->getDateActive());
+                $microsoft365Deployment->kpn_start_date = $this->getKpnStartDate(
+                    $order->getDateCreated(),
+                    $order->getDateActive(),
+                );
                 $microsoft365Deployment->save();
             }
 
             // Update the KPN status to active if this status 'placed' or 'accepted'.
-            if (in_array($microsoft365Deployment->kpn_status, [Microsoft365OrderStatus::PLACED, Microsoft365OrderStatus::ACCEPTED], true)) {
+            if (in_array(
+                $microsoft365Deployment->kpn_status,
+                [Microsoft365OrderStatus::PLACED, Microsoft365OrderStatus::ACCEPTED],
+                true,
+            )) {
                 $previousKpnStatus = $microsoft365Deployment->kpn_status;
 
                 $this->createMicrosoft365SyncLog(
@@ -216,7 +251,7 @@ class Microsoft365SyncWatcherService
                         Microsoft365OrderStatus::ACTIVE->value,
                     ),
                     $microsoft365CustomerInfo->id,
-                    $microsoft365Deployment->id
+                    $microsoft365Deployment->id,
                 );
 
                 $microsoft365Deployment->kpn_status = Microsoft365OrderStatus::ACTIVE;
@@ -231,14 +266,16 @@ class Microsoft365SyncWatcherService
                         $microsoft365Deployment->id,
                     ),
                     $microsoft365CustomerInfo->id,
-                    $microsoft365Deployment->id
+                    $microsoft365Deployment->id,
                 );
                 continue;
             }
 
             // Check if the administrative and seats got the right administrative and technical status.
             $subscription = $microsoft365Deployment->subscription;
-            $activeSeatCount = Subscription::where('administrative_status', '<>', AdministrativeStatus::ARCHIVED->value)->where('parent_subscription_id', $subscription->id)->count();
+            $activeSeatCount = Subscription::where('administrative_status', '<>', AdministrativeStatus::ARCHIVED->value)
+                ->where('parent_subscription_id', $subscription->id)
+                ->count();
             if ($subscription->administrative_status === AdministrativeStatus::ARCHIVED->value) {
                 if ($activeSeatCount > 0) {
                     $this->createMicrosoft365SyncLog(
@@ -249,13 +286,14 @@ class Microsoft365SyncWatcherService
                             $activeSeatCount,
                         ),
                         $microsoft365CustomerInfo->id,
-                        $microsoft365Deployment->id
+                        $microsoft365Deployment->id,
                     );
                     continue;
                 }
 
-                if ($microsoft365Deployment->kpn_status === Microsoft365OrderStatus::TERMINATED &&
-                    $subscription->technical_status !== TechnicalStatus::DELETED->value
+                if (
+                    $microsoft365Deployment->kpn_status === Microsoft365OrderStatus::TERMINATED
+                    && $subscription->technical_status !== TechnicalStatus::DELETED->value
                 ) {
                     $subscription->technical_status = TechnicalStatus::DELETED->value;
                     $subscription->save();
@@ -266,7 +304,7 @@ class Microsoft365SyncWatcherService
                             TechnicalStatus::DELETED->value,
                         ),
                         $microsoft365Deployment->microsoft365_customer_info_id,
-                        $microsoft365Deployment->id
+                        $microsoft365Deployment->id,
                     );
                 }
             }
@@ -278,10 +316,10 @@ class Microsoft365SyncWatcherService
                         'Microsoft365 subscription {%d} has subscription with technical status {%s} changed to {%s}.',
                         $microsoft365Deployment->id,
                         $subscription->technical_status,
-                        TechnicalStatus::OK->value
+                        TechnicalStatus::OK->value,
                     ),
                     $microsoft365CustomerInfo->id,
-                    $microsoft365Deployment->id
+                    $microsoft365Deployment->id,
                 );
 
                 $subscription->technical_status = TechnicalStatus::OK->value;
@@ -306,102 +344,135 @@ class Microsoft365SyncWatcherService
                         $irmaSeatCount,
                         $waterfrontSeatCount,
                         $orderId,
-                        $microsoft365CustomerInfo->kpn_customer_id
+                        $microsoft365CustomerInfo->kpn_customer_id,
                     ),
                     $microsoft365CustomerInfo->id,
-                    $microsoft365Deployment->id
+                    $microsoft365Deployment->id,
                 );
             }
         }
     }
 
-    private function chunkChildSubscriptions(Subscription $subscription, Microsoft365Deployment $microsoft365Deployment, Microsoft365CustomerInfo $microsoft365CustomerInfo): void
-    {
+    private function chunkChildSubscriptions(
+        Subscription $subscription,
+        Microsoft365Deployment $microsoft365Deployment,
+        Microsoft365CustomerInfo $microsoft365CustomerInfo,
+    ): void {
         // Cant check for archiving/expired here as the subscription can still be active in IRMA
-        Subscription::where('parent_subscription_id', $subscription->id)
-            ->chunk(100, function (Collection $children) use ($microsoft365Deployment, $microsoft365CustomerInfo, $subscription) {
-                foreach ($children as $child) {
-                    if ($child->technical_status !== TechnicalStatus::OK->value && ($child->administrative_status === AdministrativeStatus::ACTIVE->value || $child->administrative_status === AdministrativeStatus::CANCELED->value)) {
-                        $this->createMicrosoft365SyncLog(
-                            sprintf(
-                                'Microsoft365 subscription {%d} has seats with technical status {%s} changed to {%s}.',
-                                $microsoft365Deployment->id,
-                                $child->technical_status,
-                                TechnicalStatus::OK->value
-                            ),
-                            $microsoft365CustomerInfo->id,
-                            $microsoft365Deployment->id
-                        );
+        Subscription::where(
+            'parent_subscription_id',
+            $subscription->id,
+        )->chunk(100, function (Collection $children) use (
+            $microsoft365Deployment,
+            $microsoft365CustomerInfo,
+            $subscription,
+        ) {
+            foreach ($children as $child) {
+                if (
+                    $child->technical_status !== TechnicalStatus::OK->value
+                    && (
+                        $child->administrative_status === AdministrativeStatus::ACTIVE->value
+                        || $child->administrative_status === AdministrativeStatus::CANCELED->value
+                    )
+                ) {
+                    $this->createMicrosoft365SyncLog(
+                        sprintf(
+                            'Microsoft365 subscription {%d} has seats with technical status {%s} changed to {%s}.',
+                            $microsoft365Deployment->id,
+                            $child->technical_status,
+                            TechnicalStatus::OK->value,
+                        ),
+                        $microsoft365CustomerInfo->id,
+                        $microsoft365Deployment->id,
+                    );
 
-                        $child->technical_status = TechnicalStatus::OK->value;
-                        $child->save();
-                    }
-
-                    if ($child->technical_status !== TechnicalStatus::DELETED->value && $child->administrative_status === AdministrativeStatus::ARCHIVED->value) {
-                        $this->createMicrosoft365SyncLog(
-                            sprintf(
-                                'Microsoft365 subscription {%d} has seats with technical status {%s} changed to {%s}.',
-                                $microsoft365Deployment->id,
-                                $child->technical_status,
-                                TechnicalStatus::DELETED->value
-                            ),
-                            $microsoft365CustomerInfo->id,
-                            $microsoft365Deployment->id
-                        );
-
-                        $child->technical_status = TechnicalStatus::DELETED->value;
-                        $child->save();
-                    }
-
-                    if ($child->end_date->notEqualTo($subscription->end_date) && $child->administrative_status === AdministrativeStatus::ACTIVE->value) {
-                        $this->createMicrosoft365SyncLog(
-                            sprintf(
-                                'Microsoft365 subscription {%d} has seats with end date {%s} changed to {%s}.',
-                                $microsoft365Deployment->id,
-                                $child->end_date,
-                                $subscription->end_date
-                            ),
-                            $microsoft365CustomerInfo->id,
-                            $microsoft365Deployment->id
-                        );
-
-                        $child->end_date = $subscription->end_date;
-                        $child->save();
-                    }
-
-                    if ($child->next_billing_date->notEqualTo($subscription->next_billing_date) && $child->administrative_status === AdministrativeStatus::ACTIVE->value) {
-                        $this->createMicrosoft365SyncLog(
-                            sprintf(
-                                'Microsoft365 subscription {%d} has seats with next billing date {%s} changed to {%s}.',
-                                $microsoft365Deployment->id,
-                                $child->next_billing_date,
-                                $subscription->next_billing_date
-                            ),
-                            $microsoft365CustomerInfo->id,
-                            $microsoft365Deployment->id
-                        );
-
-                        $child->next_billing_date = $subscription->next_billing_date;
-                        $child->save();
-                    }
+                    $child->technical_status = TechnicalStatus::OK->value;
+                    $child->save();
                 }
-            });
+
+                if (
+                    $child->technical_status !== TechnicalStatus::DELETED->value
+                    && $child->administrative_status === AdministrativeStatus::ARCHIVED->value
+                ) {
+                    $this->createMicrosoft365SyncLog(
+                        sprintf(
+                            'Microsoft365 subscription {%d} has seats with technical status {%s} changed to {%s}.',
+                            $microsoft365Deployment->id,
+                            $child->technical_status,
+                            TechnicalStatus::DELETED->value,
+                        ),
+                        $microsoft365CustomerInfo->id,
+                        $microsoft365Deployment->id,
+                    );
+
+                    $child->technical_status = TechnicalStatus::DELETED->value;
+                    $child->save();
+                }
+
+                if (
+                    $child->end_date->notEqualTo($subscription->end_date)
+                    && $child->administrative_status === AdministrativeStatus::ACTIVE->value
+                ) {
+                    $this->createMicrosoft365SyncLog(
+                        sprintf(
+                            'Microsoft365 subscription {%d} has seats with end date {%s} changed to {%s}.',
+                            $microsoft365Deployment->id,
+                            $child->end_date,
+                            $subscription->end_date,
+                        ),
+                        $microsoft365CustomerInfo->id,
+                        $microsoft365Deployment->id,
+                    );
+
+                    $child->end_date = $subscription->end_date;
+                    $child->save();
+                }
+
+                if (
+                    $child->next_billing_date->notEqualTo($subscription->next_billing_date)
+                    && $child->administrative_status === AdministrativeStatus::ACTIVE->value
+                ) {
+                    $this->createMicrosoft365SyncLog(
+                        sprintf(
+                            'Microsoft365 subscription {%d} has seats with next billing date {%s} changed to {%s}.',
+                            $microsoft365Deployment->id,
+                            $child->next_billing_date,
+                            $subscription->next_billing_date,
+                        ),
+                        $microsoft365CustomerInfo->id,
+                        $microsoft365Deployment->id,
+                    );
+
+                    $child->next_billing_date = $subscription->next_billing_date;
+                    $child->save();
+                }
+            }
+        });
     }
 
-    private function findAndReplaceKpnOrderId(string $kpnProductCode, Microsoft365CustomerInfo $microsoft365CustomerInfo, int $orderId): ?Microsoft365Deployment
-    {
+    private function findAndReplaceKpnOrderId(
+        string $kpnProductCode,
+        Microsoft365CustomerInfo $microsoft365CustomerInfo,
+        int $orderId,
+    ): ?Microsoft365Deployment {
         $microsoft365Subscriptions = Microsoft365Deployment::query()
             ->select('microsoft365_deployments.*')
             ->join('subscriptions', 'subscriptions.id', '=', 'microsoft365_deployments.subscription_id')
             ->join('products', 'products.uuid', '=', 'subscriptions.product_uuid')
             ->join(
                 'microsoft365_kpn_product',
-                fn (JoinClause $join) => $join->on('microsoft365_kpn_product.product_id', '=', 'products.id')
-                    ->on('microsoft365_kpn_product.contract_period', '=', 'subscriptions.contract_period')
+                fn (JoinClause $join) => $join->on('microsoft365_kpn_product.product_id', '=', 'products.id')->on(
+                    'microsoft365_kpn_product.contract_period',
+                    '=',
+                    'subscriptions.contract_period',
+                ),
             )
             ->where('microsoft365_kpn_product.kpn_product_code', '=', $kpnProductCode)
             ->where('microsoft365_deployments.microsoft365_customer_info_id', '=', $microsoft365CustomerInfo->id)
-            ->whereNotIn('administrative_status', [...AdministrativeStatus::administrativelyEnded(), AdministrativeStatus::ARCHIVING->value])
+            ->whereNotIn('administrative_status', [
+                ...AdministrativeStatus::administrativelyEnded(),
+                AdministrativeStatus::ARCHIVING->value,
+            ])
             ->get();
 
         if (count($microsoft365Subscriptions) !== 1) {
@@ -422,11 +493,13 @@ class Microsoft365SyncWatcherService
         $this->createMicrosoft365SyncLog(
             sprintf(
                 'Microsoft365 subscription was kpn_order_id {%s} and is now updated to {%d}. Updating subscription with the same product.',
-                $microsoft365Deployment->kpn_order_id === null ? 'null' : (string) $microsoft365Deployment->kpn_order_id,
+                $microsoft365Deployment->kpn_order_id === null
+                    ? 'null'
+                    : (string) $microsoft365Deployment->kpn_order_id,
                 $orderId,
             ),
             $microsoft365CustomerInfo->id,
-            $microsoft365Deployment->id
+            $microsoft365Deployment->id,
         );
 
         $microsoft365Deployment->kpn_order_id = $orderId;

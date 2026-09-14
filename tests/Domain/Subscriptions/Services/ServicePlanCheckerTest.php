@@ -39,7 +39,7 @@ class ServicePlanCheckerTest extends IntegrationTestCase
                 'name' => ProductSpecName::HAS_SERVICE_PLUS,
                 'value' => '1',
                 'product_id' => $productAddon->id,
-            ]
+            ],
         );
 
         $productAddon->productSpecs()->save($productSpecHasServicePlus);
@@ -47,10 +47,18 @@ class ServicePlanCheckerTest extends IntegrationTestCase
         $productGroupHosting = ProductGroupFactory::new()->hosting()->createOne();
         $productHosting = ProductFactory::new()->for($productGroupHosting)->createOne();
 
-        $subscriptionHosting = SubscriptionFactory::new()->administrativeStatusActive()->for($customer)->for($productHosting)->createOne();
-        SubscriptionFactory::new()->administrativeStatusActive()->for($customer)->for($productAddon)->createOne(
-            ['parent_subscription_id' => $subscriptionHosting->id]
-        );
+        $subscriptionHosting = SubscriptionFactory::new()
+            ->administrativeStatusActive()
+            ->for($customer)
+            ->for($productHosting)
+            ->createOne();
+        SubscriptionFactory::new()
+            ->administrativeStatusActive()
+            ->for($customer)
+            ->for($productAddon)
+            ->createOne(
+                ['parent_subscription_id' => $subscriptionHosting->id],
+            );
 
         self::assertTrue($this->servicePlanChecker->isServicePlanActive($subscriptionHosting));
     }
@@ -67,11 +75,15 @@ class ServicePlanCheckerTest extends IntegrationTestCase
                 'name' => ProductSpecName::HAS_SERVICE_PLUS,
                 'value' => '1',
                 'product_id' => $product->id,
-            ]
+            ],
         );
 
         $product->productSpecs()->save($productSpecHasServicePlus);
-        $subscription = SubscriptionFactory::new()->administrativeStatusArchived()->for($customer)->for($product)->createOne();
+        $subscription = SubscriptionFactory::new()
+            ->administrativeStatusArchived()
+            ->for($customer)
+            ->for($product)
+            ->createOne();
         self::assertFalse($this->servicePlanChecker->isServicePlanActive($subscription));
     }
 
@@ -82,7 +94,11 @@ class ServicePlanCheckerTest extends IntegrationTestCase
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
 
-        $subscription = SubscriptionFactory::new()->administrativeStatusActive()->for($customer)->for($product)->createOne();
+        $subscription = SubscriptionFactory::new()
+            ->administrativeStatusActive()
+            ->for($customer)
+            ->for($product)
+            ->createOne();
         self::assertFalse($this->servicePlanChecker->isServicePlanActive($subscription));
     }
 
@@ -107,8 +123,10 @@ class ServicePlanCheckerTest extends IntegrationTestCase
 
     #[Test]
     #[DataProvider('hostingSpecValueDataProvider')]
-    public function hostingSubscriptionWithValueForFreeServicePlusProductSpecWillReturnAsExpected(mixed $value, bool $expected): void
-    {
+    public function hostingSubscriptionWithValueForFreeServicePlusProductSpecWillReturnAsExpected(
+        mixed $value,
+        bool $expected,
+    ): void {
         $customer = CustomerFactory::new()->createOne();
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
@@ -118,12 +136,16 @@ class ServicePlanCheckerTest extends IntegrationTestCase
                 'name' => ProductSpecName::HAS_SERVICE_PLUS,
                 'value' => $value,
                 'product_id' => $product->id,
-            ]
+            ],
         );
 
         $product->productSpecs()->save($productSpecHasServicePlus);
 
-        $subscription = SubscriptionFactory::new()->administrativeStatusActive()->for($customer)->for($product)->createOne();
+        $subscription = SubscriptionFactory::new()
+            ->administrativeStatusActive()
+            ->for($customer)
+            ->for($product)
+            ->createOne();
 
         if ($expected) {
             self::assertTrue($this->servicePlanChecker->isServicePlanActive($subscription));
@@ -144,7 +166,7 @@ class ServicePlanCheckerTest extends IntegrationTestCase
                 'name' => ProductSpecName::HAS_SERVICE_PLUS,
                 'value' => '1',
                 'product_id' => $product->id,
-            ]
+            ],
         );
 
         $product->productSpecs()->save($productSpecHasServicePlus);
@@ -170,7 +192,7 @@ class ServicePlanCheckerTest extends IntegrationTestCase
                 'name' => ProductSpecName::HAS_SERVICE_PLUS,
                 'value' => '1',
                 'product_id' => $product->id,
-            ]
+            ],
         );
 
         $product->productSpecs()->save($productSpecHasServicePlus);
@@ -193,12 +215,16 @@ class ServicePlanCheckerTest extends IntegrationTestCase
                 'name' => ProductSpecName::HAS_SERVICE_PLUS,
                 'value' => '1',
                 'product_id' => $productWithServicePlus->id,
-            ]
+            ],
         );
 
         $productWithServicePlus->productSpecs()->save($productSpecHasServicePlus);
 
-        SubscriptionFactory::new()->administrativeStatusActive()->for($customer)->for($productWithoutServicePlus)->createOne();
+        SubscriptionFactory::new()
+            ->administrativeStatusActive()
+            ->for($customer)
+            ->for($productWithoutServicePlus)
+            ->createOne();
 
         self::assertTrue($this->servicePlanChecker->canOrderServicePlan($customer));
     }
@@ -216,12 +242,16 @@ class ServicePlanCheckerTest extends IntegrationTestCase
                 'name' => ProductSpecName::HAS_SERVICE_PLUS,
                 'value' => '1',
                 'product_id' => $productWithServicePlus->id,
-            ]
+            ],
         );
 
         $productWithServicePlus->productSpecs()->save($productSpecHasServicePlus);
 
-        SubscriptionFactory::new()->administrativeStatusActive()->for($customer)->for($productWithServicePlus)->createOne();
+        SubscriptionFactory::new()
+            ->administrativeStatusActive()
+            ->for($customer)
+            ->for($productWithServicePlus)
+            ->createOne();
 
         self::assertFalse($this->servicePlanChecker->canOrderServicePlan($customer));
     }

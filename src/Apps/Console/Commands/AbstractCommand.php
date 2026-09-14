@@ -28,11 +28,11 @@ abstract class AbstractCommand extends Command
         parent::line(
             $string,
             $style,
-            $verbosity
+            $verbosity,
         );
     }
 
-    private function writeToLaravelLog(string $string, string|null $style = null): void
+    private function writeToLaravelLog(string $string, ?string $style = null): void
     {
         match ($style) {
             'warning' => Log::warning($string),

@@ -34,8 +34,10 @@ class CancellationFlowController
         $ip = $request->ip();
         $subscriptions = $this->subscriptionRepository->getSubscriptionsByUuid($request->subscriptionUuids);
 
-        if (! $this->cancellationFlowPolicy->validateOwnership($subscriptions) ||
-            ! $this->cancellationFlowPolicy->validateAdminstrativeState($subscriptions)) {
+        if (
+            ! $this->cancellationFlowPolicy->validateOwnership($subscriptions)
+            || ! $this->cancellationFlowPolicy->validateAdminstrativeState($subscriptions)
+        ) {
             throw new AuthorizationException();
         }
 
@@ -50,9 +52,18 @@ class CancellationFlowController
         /** @var int[] $contractPeriods */
         $contractPeriods = array_unique(array_merge([36, 24], $subscriptions->pluck('contract_period')->toArray()));
         /** @var int[] $billingPeriods */
-        $billingPeriods = array_unique(array_merge([36, 24, 12, 1], $subscriptions->pluck('billing_period')->toArray()));
+        $billingPeriods = array_unique(array_merge([
+            36,
+            24,
+            12,
+            1,
+        ], $subscriptions->pluck('billing_period')->toArray()));
 
-        $prices = $this->cancellationFlowService->getSubscriptionPrices($subscriptions, $contractPeriods, $billingPeriods);
+        $prices = $this->cancellationFlowService->getSubscriptionPrices(
+            $subscriptions,
+            $contractPeriods,
+            $billingPeriods,
+        );
         // Format prices as array so we don't double encode to json
         $prices = array_map(fn (ResourceCollection $prices) => $prices->toArray($request), $prices);
 
@@ -69,7 +80,13 @@ class CancellationFlowController
         assert(is_string($stepData));
         assert(is_string($responseData));
 
-        $this->cancellationFlowService->processCancellationSteps($flow, CancellationStepType::START, $stepData, $responseData, CancellationActionPerformedType::STARTED);
+        $this->cancellationFlowService->processCancellationSteps(
+            $flow,
+            CancellationStepType::START,
+            $stepData,
+            $responseData,
+            CancellationActionPerformedType::STARTED,
+        );
 
         return new JsonResponse([
             'id' => $flow->id,
@@ -98,7 +115,13 @@ class CancellationFlowController
         assert(is_string($stepData));
         assert(is_string($responseData));
 
-        $this->cancellationFlowService->processCancellationSteps($cancellationFlow, CancellationStepType::from($stepType), $stepData, $responseData, $action);
+        $this->cancellationFlowService->processCancellationSteps(
+            $cancellationFlow,
+            CancellationStepType::from($stepType),
+            $stepData,
+            $responseData,
+            $action,
+        );
 
         return new JsonResponse(['message' => 'ok']);
     }

@@ -23,18 +23,19 @@ class ProductPromotionFactory extends Factory
     public function definition(): array
     {
         $startDate = new CarbonImmutable();
+
         return [
-            'uuid'          => Uuid::uuid4(),
-            'platform'      => ProductPromotionPlatform::CUSTOMER_PANEL,
+            'uuid' => Uuid::uuid4(),
+            'platform' => ProductPromotionPlatform::CUSTOMER_PANEL,
             'placement_url' => $this->faker->url(),
             'start_date' => $startDate,
             'end_date' => $startDate->addYear(),
             'weight' => 1,
             'call_to_action' => [
-                'title'             => $this->faker->sentence(),
-                'button_text'       => $this->faker->words(2, true),
-                'description'       => $this->faker->sentence(),
-                'destination_url'   => $this->faker->url(),
+                'title' => $this->faker->sentence(),
+                'button_text' => $this->faker->words(2, true),
+                'description' => $this->faker->sentence(),
+                'destination_url' => $this->faker->url(),
                 'price_description' => $this->faker->sentence(),
             ],
         ];

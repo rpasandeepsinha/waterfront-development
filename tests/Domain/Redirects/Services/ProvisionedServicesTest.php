@@ -21,12 +21,12 @@ class ProvisionedServicesTest extends TestCase
         self::assertInstanceOf(
             RedirectDnsService::class,
             $this->app->get(RedirectDnsServiceInterface::class),
-            'The Redirects.CustomerSharedDnsService was not registered correctly.'
+            'The Redirects.CustomerSharedDnsService was not registered correctly.',
         );
         self::assertInstanceOf(
             RedirectService::class,
             $this->app->get(RedirectServiceInterface::class),
-            'The Redirects.CustomerSharedDnsService was not registered correctly.'
+            'The Redirects.CustomerSharedDnsService was not registered correctly.',
         );
     }
 }

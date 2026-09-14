@@ -11,8 +11,9 @@ use Psr\Http\Message\RequestInterface;
 
 class InternalPowerDnsClient
 {
-    public function __construct(public readonly ClientInterface $client)
-    {
+    public function __construct(
+        public readonly ClientInterface $client,
+    ) {
     }
 
     /**
@@ -28,7 +29,7 @@ class InternalPowerDnsClient
             'POST',
             $path,
             ['Content-Type' => 'application/json', 'Accept' => 'application/json'],
-            $encoded
+            $encoded,
         );
     }
 
@@ -37,7 +38,7 @@ class InternalPowerDnsClient
         return new Request(
             'GET',
             $path,
-            ['Accept' => 'application/json']
+            ['Accept' => 'application/json'],
         );
     }
 
@@ -54,7 +55,7 @@ class InternalPowerDnsClient
             'PUT',
             $path,
             ['Content-Type' => 'application/json', 'Accept' => 'application/json'],
-            $input === null ? $input : $encoded
+            $input === null ? $input : $encoded,
         );
     }
 

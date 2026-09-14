@@ -48,10 +48,9 @@ class DomainAndSslMigrationService
     public function listRtrSslCertificates(string $domain): CertificateCollection
     {
         return $this->realtimeRegister->certificates->listCertificates(
-            parameters:
-            [
+            parameters: [
                 'domainName:eq' => $domain,
-            ]
+            ],
         );
     }
 
@@ -120,41 +119,6 @@ class DomainAndSslMigrationService
         return $ownerContact;
     }
 
-    /**
-     * @throws NumberParseException
-     */
-    public function createDomainContactFromCustomerHandle(
-        RetrieveCustomerResponse $customerHandle,
-        Customer $customer,
-        string $role,
-    ): DomainContact {
-        // fetch contact based the handle retrieveCustomerHandleForRegistrant in a separate service
-        [$phoneCountryCode, $phoneAreaCode, $phoneSubscriberNumber] = $this->parseRemotePhone($customerHandle);
-
-        $domainContact = $this->domainContactRepository->createOrFindDomainContact(
-            email: $customerHandle->getEmail(),
-            firstName: $customerHandle->getFirstName(),
-            lastName: $customerHandle->getLastName(),
-            phoneCountryCode: $phoneCountryCode,
-            areaCode: $phoneAreaCode,
-            subscriberNumber: $phoneSubscriberNumber,
-            organization: $customerHandle->getOrganization(),
-            streetName: $customerHandle->getStreet() ?? '',
-            streetNumber: $customerHandle->getStreetNumber() ?? '',
-            zipCode: $customerHandle->getZip() ?? '',
-            city: $customerHandle->getCity() ?? '',
-            customerId: $customer->id,
-            countryCode: $customer->address->country_code ?? 'NL'
-        );
-
-        $domainContact->default_owner = false;
-        if ($role === DomainContactRoleEnum::ROLE_REGISTRANT && ! $this->customerAlreadyHasDefaultOwner($customer)) {
-            $domainContact->default_owner = true;
-        }
-
-        return $domainContact;
-    }
-
     public function attachOwnerToDeployment(DomainContact $domainContact, DomainDeployment $domainDeployment): void
     {
         $domainDeployment->contactOwner()->associate($domainContact);
@@ -171,11 +135,15 @@ class DomainAndSslMigrationService
      * @throws DomainBusinessUnitNotFoundException
      * @throws NoCredentialsForDomainBusinessUnitException
      */
-    public function attachBusinessUnitToDomainDeployment(DomainDeployment $deployment, string $businessUnitSlug, ?ProviderSlug $providerSlug = null): bool
-    {
+    public function attachBusinessUnitToDomainDeployment(
+        DomainDeployment $deployment,
+        string $businessUnitSlug,
+        ?ProviderSlug $providerSlug = null,
+    ): bool {
         $businessUnit = $this->getProviderBusinessUnit($businessUnitSlug, $providerSlug ?? $deployment->provider->slug);
 
         $deployment->businessUnit()->associate($businessUnit);
+
         return $deployment->save();
     }
 
@@ -208,6 +176,7 @@ class DomainAndSslMigrationService
                 $phoneSubscriberNumber = $phone->getNumber();
             }
         }
+
         return [
             $phoneCountryCode,
             $phoneAreaCode,
@@ -219,14 +188,16 @@ class DomainAndSslMigrationService
      * @throws DomainBusinessUnitNotFoundException
      * @throws NoCredentialsForDomainBusinessUnitException
      */
-    public function getProviderBusinessUnit(string $businessUnitSlug, ProviderSlug $providerSlug): DomainProviderBusinessUnit
-    {
+    public function getProviderBusinessUnit(
+        string $businessUnitSlug,
+        ProviderSlug $providerSlug,
+    ): DomainProviderBusinessUnit {
         try {
             $businessUnit = $this->domainBuRepository->findBySlug($businessUnitSlug);
         } catch (ModelNotFoundException $exception) {
             throw new DomainBusinessUnitNotFoundException(
                 businessUnitSlug: $businessUnitSlug,
-                previous: $exception
+                previous: $exception,
             );
         }
 
@@ -253,6 +224,41 @@ class DomainAndSslMigrationService
 
     /**
      * @throws NumberParseException
+     */
+    private function createDomainContactFromCustomerHandle(
+        RetrieveCustomerResponse $customerHandle,
+        Customer $customer,
+        string $role,
+    ): DomainContact {
+        // fetch contact based the handle retrieveCustomerHandleForRegistrant in a separate service
+        [$phoneCountryCode, $phoneAreaCode, $phoneSubscriberNumber] = $this->parseRemotePhone($customerHandle);
+
+        $domainContact = $this->domainContactRepository->createOrFindDomainContact(
+            email: $customerHandle->getEmail(),
+            firstName: $customerHandle->getFirstName(),
+            lastName: $customerHandle->getLastName(),
+            phoneCountryCode: $phoneCountryCode,
+            areaCode: $phoneAreaCode,
+            subscriberNumber: $phoneSubscriberNumber,
+            organization: $customerHandle->getOrganization(),
+            streetName: $customerHandle->getStreet() ?? '',
+            streetNumber: $customerHandle->getStreetNumber() ?? '',
+            zipCode: $customerHandle->getZip() ?? '',
+            city: $customerHandle->getCity() ?? '',
+            customerId: $customer->id,
+            countryCode: $customer->address->country_code ?? 'NL',
+        );
+
+        $domainContact->default_owner = false;
+        if ($role === DomainContactRoleEnum::ROLE_REGISTRANT && ! $this->customerAlreadyHasDefaultOwner($customer)) {
+            $domainContact->default_owner = true;
+        }
+
+        return $domainContact;
+    }
+
+    /**
+     * @throws NumberParseException
      * @throws DomainContactHandleException
      */
     private function createDomainContactWithHandle(
@@ -262,10 +268,14 @@ class DomainAndSslMigrationService
         Subscription $subscription,
         Provider $domainProvider,
         string $handleId,
-        string $role
+        string $role,
     ): DomainContact {
         try {
-            $customerHandle = $this->domainService->retrieveContactHandle($handleId, $domainProvider->slug, $subscription->domainDeployment?->businessUnit);
+            $customerHandle = $this->domainService->retrieveContactHandle(
+                $handleId,
+                $domainProvider->slug,
+                $subscription->domainDeployment?->businessUnit,
+            );
         } catch (Throwable $exception) {
             $this->logger->error(
                 'Unable to fetch remote contact',
@@ -278,7 +288,7 @@ class DomainAndSslMigrationService
                     LoggingContextKeys::META => [
                         'handle' => $handleId,
                     ],
-                ]
+                ],
             );
 
             throw new DomainContactHandleException(
@@ -286,10 +296,10 @@ class DomainAndSslMigrationService
                     'Unable to fetch remote contact for handle: %s for domain %s message: %s',
                     $handleId,
                     $migrationDomain->domainDetails->domainName,
-                    $exception->getMessage()
+                    $exception->getMessage(),
                 ),
                 $exception->getCode(),
-                $exception
+                $exception,
             );
         }
 
@@ -300,6 +310,7 @@ class DomainAndSslMigrationService
         );
 
         $businessUnitId = $subscription->domainDeployment?->domain_business_unit_id;
+
         return $this->saveAndAttachDomainContact($domainContact, $domainProvider, $handleId, $businessUnitId);
     }
 
@@ -315,19 +326,28 @@ class DomainAndSslMigrationService
     //        return $this->findDomainContactByHandle(customer: $customer, providerSlug: $providerSlug, handle: $handle) !== null;
     //    }
 
-    private function findDomainContactByHandle(Customer $customer, ProviderSlug $providerSlug, string $handle, ?int $businessUnitId): DomainContact|null
-    {
+    private function findDomainContactByHandle(
+        Customer $customer,
+        ProviderSlug $providerSlug,
+        string $handle,
+        ?int $businessUnitId,
+    ): ?DomainContact {
         $customer->refresh();
         $contacts = $customer->domainContacts;
 
         // Making an active choice here to run multiple queries here instead of optimization for simpler code since there is no risk
         // for thousands of contacts. (we are expecting 3 ish at most per domain)
-        return $contacts->filter(fn (DomainContact $contact): bool => $contact->providers()
-            ->where('slug', $providerSlug)
-            ->where('type', ProviderType::DOMAIN)
-            ->wherePivot('external_contact', $handle)
-            ->wherePivot('domain_business_unit_id', $businessUnitId)
-            ->exists())->first();
+        return $contacts
+            ->filter(
+                fn (DomainContact $contact): bool => $contact
+                    ->providers()
+                    ->where('slug', $providerSlug)
+                    ->where('type', ProviderType::DOMAIN)
+                    ->wherePivot('external_contact', $handle)
+                    ->wherePivot('domain_business_unit_id', $businessUnitId)
+                    ->exists(),
+            )
+            ->first();
     }
 
     /**
@@ -335,8 +355,12 @@ class DomainAndSslMigrationService
      * so that the Migration dry runs can call the `createDomainContactFromCustomerHandle`
      * without database interaction.
      */
-    private function saveAndAttachDomainContact(DomainContact $domainContact, Provider $domainProvider, string $handleId, ?int $businessUnitId): DomainContact
-    {
+    private function saveAndAttachDomainContact(
+        DomainContact $domainContact,
+        Provider $domainProvider,
+        string $handleId,
+        ?int $businessUnitId,
+    ): DomainContact {
         $domainContact->save();
 
         $domainContact->providers()->attach($domainProvider, [

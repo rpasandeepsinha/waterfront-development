@@ -79,7 +79,7 @@ class BasekitProvisionServiceTest extends TestCase
             ssoUrl: 'https://test-sso.basekit.com',
             username: 'user',
             password: 'pass',
-            brandReference: 1337
+            brandReference: 1337,
         );
 
         $sitebuilderRepo = self::mock(SitebuilderDeploymentRepository::class);
@@ -113,20 +113,12 @@ class BasekitProvisionServiceTest extends TestCase
         $sitebuilderDeployment->setRelation('basekitDeployment', $basekitSitebuilderDeployment);
         $sitebuilderDeployment->setRelation('basekitContext', $basekitContext);
 
-        $this->mockSitebuilderRepository
-            ->expects('findByTag')
-            ->once()
-            ->with($tag)
-            ->andReturn($sitebuilderDeployment);
+        $this->mockSitebuilderRepository->expects('findByTag')->once()->with($tag)->andReturn($sitebuilderDeployment);
 
         $mockLoginApi = self::mock(LoginApiInterface::class);
         $this->mockBasekitClient->loginApi = $mockLoginApi;
 
-        $mockLoginApi
-            ->expects('autoLogin')
-            ->once()
-            ->with($basekitContext->user_ref)
-            ->andReturn('login-hash');
+        $mockLoginApi->expects('autoLogin')->once()->with($basekitContext->user_ref)->andReturn('login-hash');
 
         $service = new BasekitProvisionService(
             createBasekitService: self::createStub(CreateBasekitService::class),
@@ -135,7 +127,7 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: self::createStub(DeleteBasekitService::class)
+            deleteBasekitService: self::createStub(DeleteBasekitService::class),
         );
 
         $result = $service->getSso($ssoRequest);
@@ -144,7 +136,7 @@ class BasekitProvisionServiceTest extends TestCase
             '%s/login?hash=%s&siteRef=%s',
             $this->basekitConfig->ssoUrl,
             rawurlencode('login-hash'),
-            $basekitSitebuilderDeployment->site_ref
+            $basekitSitebuilderDeployment->site_ref,
         );
 
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
@@ -170,20 +162,12 @@ class BasekitProvisionServiceTest extends TestCase
         $sitebuilderDeployment->setRelation('basekitDeployment', $basekitSitebuilderDeployment);
         $sitebuilderDeployment->setRelation('basekitContext', $basekitContext);
 
-        $this->mockSitebuilderRepository
-            ->expects('findByTag')
-            ->once()
-            ->with($tag)
-            ->andReturn($sitebuilderDeployment);
+        $this->mockSitebuilderRepository->expects('findByTag')->once()->with($tag)->andReturn($sitebuilderDeployment);
 
         $mockLoginApi = self::mock(LoginApiInterface::class);
         $this->mockBasekitClient->loginApi = $mockLoginApi;
 
-        $mockLoginApi
-            ->expects('autoLogin')
-            ->once()
-            ->with($basekitContext->user_ref)
-            ->andThrow($externalException);
+        $mockLoginApi->expects('autoLogin')->once()->with($basekitContext->user_ref)->andThrow($externalException);
 
         $service = new BasekitProvisionService(
             createBasekitService: self::createStub(CreateBasekitService::class),
@@ -192,7 +176,7 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: self::createStub(DeleteBasekitService::class)
+            deleteBasekitService: self::createStub(DeleteBasekitService::class),
         );
 
         $result = $service->getSso($ssoRequest);
@@ -210,11 +194,7 @@ class BasekitProvisionServiceTest extends TestCase
             tagUuid: $tag,
         );
 
-        $this->mockSitebuilderRepository
-            ->expects('findByTag')
-            ->once()
-            ->with($tag)
-            ->andReturn(null);
+        $this->mockSitebuilderRepository->expects('findByTag')->once()->with($tag)->andReturn(null);
 
         $service = new BasekitProvisionService(
             createBasekitService: self::createStub(CreateBasekitService::class),
@@ -223,13 +203,16 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: self::createStub(DeleteBasekitService::class)
+            deleteBasekitService: self::createStub(DeleteBasekitService::class),
         );
 
         $result = $service->getSso($ssoRequest);
 
         self::assertInstanceOf(DeploymentNotFoundException::class, $result->exception);
-        self::assertSame(sprintf('No sitebuilder deployment found for the given tag [%s].', $tag), $result->exception->getMessage());
+        self::assertSame(
+            sprintf('No sitebuilder deployment found for the given tag [%s].', $tag),
+            $result->exception->getMessage(),
+        );
     }
 
     #[Test]
@@ -243,11 +226,7 @@ class BasekitProvisionServiceTest extends TestCase
 
         $sitebuilderDeployment = SitebuilderDeploymentFactory::new()->makeOne();
 
-        $this->mockSitebuilderRepository
-            ->expects('findByTag')
-            ->once()
-            ->with($tag)
-            ->andReturn($sitebuilderDeployment);
+        $this->mockSitebuilderRepository->expects('findByTag')->once()->with($tag)->andReturn($sitebuilderDeployment);
 
         $service = new BasekitProvisionService(
             createBasekitService: self::createStub(CreateBasekitService::class),
@@ -256,7 +235,7 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: self::createStub(DeleteBasekitService::class)
+            deleteBasekitService: self::createStub(DeleteBasekitService::class),
         );
 
         $result = $service->getSso($ssoRequest);
@@ -279,11 +258,7 @@ class BasekitProvisionServiceTest extends TestCase
 
         $sitebuilderDeployment->setRelation('basekitDeployment', $basekitSitebuilderDeployment);
 
-        $this->mockSitebuilderRepository
-            ->expects('findByTag')
-            ->once()
-            ->with($tag)
-            ->andReturn($sitebuilderDeployment);
+        $this->mockSitebuilderRepository->expects('findByTag')->once()->with($tag)->andReturn($sitebuilderDeployment);
 
         $service = new BasekitProvisionService(
             createBasekitService: self::createStub(CreateBasekitService::class),
@@ -292,7 +267,7 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: self::createStub(DeleteBasekitService::class)
+            deleteBasekitService: self::createStub(DeleteBasekitService::class),
         );
 
         $result = $service->getSso($ssoRequest);
@@ -319,19 +294,12 @@ class BasekitProvisionServiceTest extends TestCase
 
         $sitebuilderDeployment->setRelation('basekitDeployment', $basekitSitebuilderDeployment);
 
-        $this->mockSitebuilderRepository
-            ->expects('findByTag')
-            ->once()
-            ->with($tag)
-            ->andReturn($sitebuilderDeployment);
+        $this->mockSitebuilderRepository->expects('findByTag')->once()->with($tag)->andReturn($sitebuilderDeployment);
 
         $mockSitesApi = self::mock(SitesApiInterface::class);
         $this->mockBasekitClient->sitesApi = $mockSitesApi;
 
-        $mockSitesApi
-            ->expects('hardDelete')
-            ->once()
-            ->with($basekitSitebuilderDeployment->site_ref);
+        $mockSitesApi->expects('hardDelete')->once()->with($basekitSitebuilderDeployment->site_ref);
 
         $this->mockSitebuilderRepository
             ->expects('deleteSitebuilderAndChildren')
@@ -339,18 +307,16 @@ class BasekitProvisionServiceTest extends TestCase
             ->with($sitebuilderDeployment)
             ->andReturn(true);
 
-        $this->mockLogger
-            ->expects('debug')
-            ->with('Terminating single basekit sitebuilder site', [
-                LoggingContextKeys::PROVISIONING_CONTEXT => $terminateRequest->context,
-                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
-                LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::BASEKIT,
-                LoggingContextKeys::PROVISIONING_REQUEST_ID => $terminateRequest->requestId,
-                LoggingContextKeys::DOMAIN_NAME => $sitebuilderDeployment->domain,
-                LoggingContextKeys::META => [
-                    'site_ref' => $sitebuilderDeployment->basekitDeployment?->site_ref,
-                ],
-            ]);
+        $this->mockLogger->expects('debug')->with('Terminating single basekit sitebuilder site', [
+            LoggingContextKeys::PROVISIONING_CONTEXT => $terminateRequest->context,
+            LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
+            LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::BASEKIT,
+            LoggingContextKeys::PROVISIONING_REQUEST_ID => $terminateRequest->requestId,
+            LoggingContextKeys::DOMAIN_NAME => $sitebuilderDeployment->domain,
+            LoggingContextKeys::META => [
+                'site_ref' => $sitebuilderDeployment->basekitDeployment?->site_ref,
+            ],
+        ]);
 
         $deleteBasekitService = new DeleteBasekitService(
             logger: $this->mockLogger,
@@ -366,7 +332,7 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: $deleteBasekitService
+            deleteBasekitService: $deleteBasekitService,
         );
 
         $result = $service->terminateSitebuilder($terminateRequest);
@@ -390,11 +356,7 @@ class BasekitProvisionServiceTest extends TestCase
         $sitebuilderDeployment = SitebuilderDeploymentFactory::new()->makeOne();
         $sitebuilderDeployment->setRelation('basekitDeployment', $basekitSitebuilderDeployment);
 
-        $this->mockSitebuilderRepository
-            ->expects('findByTag')
-            ->once()
-            ->with($tag)
-            ->andReturn($sitebuilderDeployment);
+        $this->mockSitebuilderRepository->expects('findByTag')->once()->with($tag)->andReturn($sitebuilderDeployment);
 
         $mockSitesApi = self::mock(SitesApiInterface::class);
         $this->mockBasekitClient->sitesApi = $mockSitesApi;
@@ -407,9 +369,7 @@ class BasekitProvisionServiceTest extends TestCase
             ->with($basekitSitebuilderDeployment->site_ref)
             ->andThrow($external);
 
-        $this->mockSitebuilderRepository
-            ->expects('deleteSitebuilderAndChildren')
-            ->never();
+        $this->mockSitebuilderRepository->expects('deleteSitebuilderAndChildren')->never();
 
         $deleteBasekitService = new DeleteBasekitService(
             logger: self::createStub(LoggerInterface::class),
@@ -425,7 +385,7 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: self::createStub(LoggerInterface::class),
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: $deleteBasekitService
+            deleteBasekitService: $deleteBasekitService,
         );
 
         $result = $service->terminateSitebuilder($terminateRequest);
@@ -443,11 +403,7 @@ class BasekitProvisionServiceTest extends TestCase
             tagUuid: $tag,
         );
 
-        $this->mockSitebuilderRepository
-            ->expects('findByTag')
-            ->once()
-            ->with($tag)
-            ->andReturn(null);
+        $this->mockSitebuilderRepository->expects('findByTag')->once()->with($tag)->andReturn(null);
 
         $this->mockSitebuilderRepository->expects('deleteSitebuilderAndChildren')->never();
 
@@ -465,14 +421,17 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: $deleteBasekitService
+            deleteBasekitService: $deleteBasekitService,
         );
 
         $result = $service->terminateSitebuilder($terminateRequest);
 
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertInstanceOf(DeploymentNotFoundException::class, $result->exception);
-        self::assertSame(sprintf('No sitebuilder deployment found for the given tag [%s].', $tag), $result->exception->getMessage());
+        self::assertSame(
+            sprintf('No sitebuilder deployment found for the given tag [%s].', $tag),
+            $result->exception->getMessage(),
+        );
     }
 
     #[Test]
@@ -487,20 +446,14 @@ class BasekitProvisionServiceTest extends TestCase
 
         $sitebuilderDeployment = SitebuilderDeploymentFactory::new()->makeOne();
 
-        $this->mockSitebuilderRepository
-            ->expects('findByTag')
-            ->once()
-            ->with($tag)
-            ->andReturn($sitebuilderDeployment);
+        $this->mockSitebuilderRepository->expects('findByTag')->once()->with($tag)->andReturn($sitebuilderDeployment);
 
         $mockSitesApi = self::mock(SitesApiInterface::class);
         $this->mockBasekitClient->sitesApi = $mockSitesApi;
 
         $mockSitesApi->expects('hardDelete')->never();
 
-        $this->mockSitebuilderRepository
-            ->expects('deleteSitebuilderAndChildren')
-            ->never();
+        $this->mockSitebuilderRepository->expects('deleteSitebuilderAndChildren')->never();
 
         $deleteBasekitService = new DeleteBasekitService(
             logger: self::createStub(LoggerInterface::class),
@@ -516,7 +469,7 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: self::createStub(LoggerInterface::class),
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: $deleteBasekitService
+            deleteBasekitService: $deleteBasekitService,
         );
 
         $result = $service->terminateSitebuilder($terminateRequest);
@@ -529,10 +482,7 @@ class BasekitProvisionServiceTest extends TestCase
     public function terminateContextUnknownContextUuid(): void
     {
         $context = Uuid::uuid4();
-        $this->mockBasekitContextRepository
-            ->expects('findByContext')
-            ->with($context)
-            ->andReturn(null);
+        $this->mockBasekitContextRepository->expects('findByContext')->with($context)->andReturn(null);
 
         $deleteBasekitService = new DeleteBasekitService(
             logger: self::createStub(LoggerInterface::class),
@@ -548,12 +498,10 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: $deleteBasekitService
+            deleteBasekitService: $deleteBasekitService,
         );
 
-        $this->mockBasekitContextRepository
-            ->expects('delete')
-            ->never();
+        $this->mockBasekitContextRepository->expects('delete')->never();
 
         $request = new TerminateSitebuilderContextRequest($context);
         $result = $service->terminateByContext($request);
@@ -569,14 +517,9 @@ class BasekitProvisionServiceTest extends TestCase
 
         $deploymentsToTerminate = SitebuilderDeploymentFactory::new()->count(2)->make();
 
-        $basekitContext = SitebuilderContextBasekitFactory::new()
-            ->state(['context_uuid' => $context])
-            ->makeOne();
+        $basekitContext = SitebuilderContextBasekitFactory::new()->state(['context_uuid' => $context])->makeOne();
 
-        $this->mockBasekitContextRepository
-            ->expects('findByContext')
-            ->with($context)
-            ->andReturn($basekitContext);
+        $this->mockBasekitContextRepository->expects('findByContext')->with($context)->andReturn($basekitContext);
 
         $mockUserApi = self::mock(UserApiInterface::class);
         $this->mockBasekitClient->userApi = $mockUserApi;
@@ -601,43 +544,37 @@ class BasekitProvisionServiceTest extends TestCase
         self::assertNotNull($firstDeployment);
         self::assertNotNull($secondDeployment);
 
-        $this->mockLogger
-            ->expects('debug')
-            ->with('Removing sitebuilder deployment and basekit deployment with given context.', [
-                LoggingContextKeys::DOMAIN_NAME => $firstDeployment->domain,
-                LoggingContextKeys::PROVISIONING_ID => $firstDeployment->id,
-                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
-                LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::BASEKIT,
-                LoggingContextKeys::PROVISIONING_REQUEST_ID => 0,
-                LoggingContextKeys::PROVISIONING_CONTEXT => $context,
-                LoggingContextKeys::META => [
-                    'user_ref' => $basekitContext->user_ref,
-                ],
-            ]);
+        $this->mockLogger->expects(
+            'debug',
+        )->with('Removing sitebuilder deployment and basekit deployment with given context.', [
+            LoggingContextKeys::DOMAIN_NAME => $firstDeployment->domain,
+            LoggingContextKeys::PROVISIONING_ID => $firstDeployment->id,
+            LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
+            LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::BASEKIT,
+            LoggingContextKeys::PROVISIONING_REQUEST_ID => 0,
+            LoggingContextKeys::PROVISIONING_CONTEXT => $context,
+            LoggingContextKeys::META => [
+                'user_ref' => $basekitContext->user_ref,
+            ],
+        ]);
 
-        $this->mockSitebuilderRepository
-            ->expects('deleteSitebuilderAndChildren')
-            ->once()
-            ->with($firstDeployment);
+        $this->mockSitebuilderRepository->expects('deleteSitebuilderAndChildren')->once()->with($firstDeployment);
 
-        $this->mockLogger
-            ->expects('debug')
-            ->with('Removing sitebuilder deployment and basekit deployment with given context.', [
-                LoggingContextKeys::DOMAIN_NAME => $secondDeployment->domain,
-                LoggingContextKeys::PROVISIONING_ID => $secondDeployment->id,
-                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
-                LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::BASEKIT,
-                LoggingContextKeys::PROVISIONING_REQUEST_ID => 0,
-                LoggingContextKeys::PROVISIONING_CONTEXT => $context,
-                LoggingContextKeys::META => [
-                    'user_ref' => $basekitContext->user_ref,
-                ],
-            ]);
+        $this->mockLogger->expects(
+            'debug',
+        )->with('Removing sitebuilder deployment and basekit deployment with given context.', [
+            LoggingContextKeys::DOMAIN_NAME => $secondDeployment->domain,
+            LoggingContextKeys::PROVISIONING_ID => $secondDeployment->id,
+            LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
+            LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::BASEKIT,
+            LoggingContextKeys::PROVISIONING_REQUEST_ID => 0,
+            LoggingContextKeys::PROVISIONING_CONTEXT => $context,
+            LoggingContextKeys::META => [
+                'user_ref' => $basekitContext->user_ref,
+            ],
+        ]);
 
-        $this->mockSitebuilderRepository
-            ->expects('deleteSitebuilderAndChildren')
-            ->once()
-            ->with($secondDeployment);
+        $this->mockSitebuilderRepository->expects('deleteSitebuilderAndChildren')->once()->with($secondDeployment);
 
         $this->mockBasekitContextRepository
             ->expects('delete')
@@ -658,7 +595,7 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: $deleteBasekitService
+            deleteBasekitService: $deleteBasekitService,
         );
 
         $request = new TerminateSitebuilderContextRequest($context);
@@ -699,11 +636,7 @@ class BasekitProvisionServiceTest extends TestCase
             null,
         );
 
-        $mockSitesApi
-            ->expects('get')
-            ->once()
-            ->with($siteRef)
-            ->andReturn($basekitSite);
+        $mockSitesApi->expects('get')->once()->with($siteRef)->andReturn($basekitSite);
 
         $this->mockBasekitClient->sitesApi = $mockSitesApi;
 
@@ -714,7 +647,7 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: self::createStub(DeleteBasekitService::class)
+            deleteBasekitService: self::createStub(DeleteBasekitService::class),
         );
 
         $result = $service->getBasekitSiteByRef($basekitSiteByRefRequest);
@@ -742,26 +675,20 @@ class BasekitProvisionServiceTest extends TestCase
 
         $external = new BaseKitRequestException('kaboom');
 
-        $mockSitesApi
-            ->expects('get')
-            ->once()
-            ->with($siteRef)
-            ->andThrow($external);
+        $mockSitesApi->expects('get')->once()->with($siteRef)->andThrow($external);
 
         $this->mockBasekitClient->sitesApi = $mockSitesApi;
 
-        $this->mockLogger
-            ->expects('error')
-            ->with('Unable to get basekit site by ref', [
-                LoggingContextKeys::PROVISIONING_CONTEXT => $basekitSiteByRefRequest->context,
-                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
-                LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::BASEKIT,
-                LoggingContextKeys::PROVISIONING_REQUEST_ID => $basekitSiteByRefRequest->requestId,
-                LoggingContextKeys::EXCEPTION => $external,
-                LoggingContextKeys::META => [
-                    'site_ref' => $basekitSiteByRefRequest->siteRef,
-                ],
-            ]);
+        $this->mockLogger->expects('error')->with('Unable to get basekit site by ref', [
+            LoggingContextKeys::PROVISIONING_CONTEXT => $basekitSiteByRefRequest->context,
+            LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
+            LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::BASEKIT,
+            LoggingContextKeys::PROVISIONING_REQUEST_ID => $basekitSiteByRefRequest->requestId,
+            LoggingContextKeys::EXCEPTION => $external,
+            LoggingContextKeys::META => [
+                'site_ref' => $basekitSiteByRefRequest->siteRef,
+            ],
+        ]);
 
         $service = new BasekitProvisionService(
             createBasekitService: self::createStub(CreateBasekitService::class),
@@ -770,7 +697,7 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: self::createStub(DeleteBasekitService::class)
+            deleteBasekitService: self::createStub(DeleteBasekitService::class),
         );
 
         $result = $service->getBasekitSiteByRef($basekitSiteByRefRequest);
@@ -825,11 +752,7 @@ class BasekitProvisionServiceTest extends TestCase
             null,
         );
 
-        $mockUserApi
-            ->expects('get')
-            ->once()
-            ->with($userRef)
-            ->andReturn($accountHolder);
+        $mockUserApi->expects('get')->once()->with($userRef)->andReturn($accountHolder);
 
         $this->mockBasekitClient->userApi = $mockUserApi;
 
@@ -840,7 +763,7 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: self::createStub(DeleteBasekitService::class)
+            deleteBasekitService: self::createStub(DeleteBasekitService::class),
         );
 
         $result = $service->getBasekitUserByRef($basekitUserByRefRequest);
@@ -869,26 +792,20 @@ class BasekitProvisionServiceTest extends TestCase
 
         $external = new BaseKitRequestException('kaboom');
 
-        $mockUserApi
-            ->expects('get')
-            ->once()
-            ->with($userRef)
-            ->andThrow($external);
+        $mockUserApi->expects('get')->once()->with($userRef)->andThrow($external);
 
         $this->mockBasekitClient->userApi = $mockUserApi;
 
-        $this->mockLogger
-            ->expects('error')
-            ->with('Unable to get basekit user by ref', [
-                LoggingContextKeys::PROVISIONING_CONTEXT => $basekitUserByRefRequest->context,
-                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
-                LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::BASEKIT,
-                LoggingContextKeys::PROVISIONING_REQUEST_ID => $basekitUserByRefRequest->requestId,
-                LoggingContextKeys::EXCEPTION => $external,
-                LoggingContextKeys::META => [
-                    'user_ref' => $basekitUserByRefRequest->userRef,
-                ],
-            ]);
+        $this->mockLogger->expects('error')->with('Unable to get basekit user by ref', [
+            LoggingContextKeys::PROVISIONING_CONTEXT => $basekitUserByRefRequest->context,
+            LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
+            LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::BASEKIT,
+            LoggingContextKeys::PROVISIONING_REQUEST_ID => $basekitUserByRefRequest->requestId,
+            LoggingContextKeys::EXCEPTION => $external,
+            LoggingContextKeys::META => [
+                'user_ref' => $basekitUserByRefRequest->userRef,
+            ],
+        ]);
 
         $service = new BasekitProvisionService(
             createBasekitService: self::createStub(CreateBasekitService::class),
@@ -897,7 +814,7 @@ class BasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: self::createStub(DeleteBasekitService::class)
+            deleteBasekitService: self::createStub(DeleteBasekitService::class),
         );
 
         $result = $service->getBasekitUserByRef($basekitUserByRefRequest);

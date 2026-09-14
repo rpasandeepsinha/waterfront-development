@@ -64,7 +64,12 @@ class RtrSslServiceTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->sslProvider = ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        $this->sslProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $customer = new CustomerFactory()->withAddress([
             'street_name' => 'Street',
@@ -72,16 +77,16 @@ class RtrSslServiceTest extends IntegrationTestCase
             'city' => 'Vlissingen',
             'zip_code' => '1234XD',
         ])->createOne([
-                    'organization' => 'Sandwave',
-                    'department' => 'Sandwave department',
-                    'coc_number' => '1234567890',
-                    'phone_country_code' => '31',
-                    'phone_area_code' => '40',
-                    'phone_subscriber_number' => '1234567',
-                    'first_name' => 'Eerste',
-                    'last_name' => 'Laatste',
-                    'email' => 'admin@local.testing',
-                ]);
+            'organization' => 'Sandwave',
+            'department' => 'Sandwave department',
+            'coc_number' => '1234567890',
+            'phone_country_code' => '31',
+            'phone_area_code' => '40',
+            'phone_subscriber_number' => '1234567',
+            'first_name' => 'Eerste',
+            'last_name' => 'Laatste',
+            'email' => 'admin@local.testing',
+        ]);
 
         $customer->refresh();
         $customer->load('address');
@@ -110,12 +115,9 @@ class RtrSslServiceTest extends IntegrationTestCase
     #[Test]
     public function canCreateCertificate(string $domain, string $expectedDnsZone): void
     {
-        $subscription = SubscriptionFactory::new()
-            ->for($this->product)
-            ->for($this->customer)
-            ->createOne([
-                'domain' => $domain,
-            ]);
+        $subscription = SubscriptionFactory::new()->for($this->product)->for($this->customer)->createOne([
+            'domain' => $domain,
+        ]);
 
         $sslDeployment = new SslDeploymentFactory()
             ->for($subscription)
@@ -136,7 +138,7 @@ class RtrSslServiceTest extends IntegrationTestCase
                         'validations' => [
                             'dcv' => [],
                         ],
-                    ], JSON_THROW_ON_ERROR)
+                    ], JSON_THROW_ON_ERROR),
                 ),
             ],
             function (RequestInterface $request): void {
@@ -144,7 +146,10 @@ class RtrSslServiceTest extends IntegrationTestCase
 
                 $approver = $body->approver;
 
-                self::assertSame($this->getConfiguration()->getAsString('realtimeregisterclient.handles.billing'), $body->customer);
+                self::assertSame(
+                    $this->getConfiguration()->getAsString('realtimeregisterclient.handles.billing'),
+                    $body->customer,
+                );
                 self::assertSame('ssl_geotrust', $body->product);
                 self::assertSame(12, $body->period);
                 self::assertSame('Sandwave', $body->organization);
@@ -159,26 +164,29 @@ class RtrSslServiceTest extends IntegrationTestCase
                 self::assertSame('Laatste', $approver->lastName);
                 self::assertSame('admin@local.testing', $approver->email);
                 self::assertSame('+31.401234567', $approver->voice);
-            }
+            },
         );
 
         $csrManagerMock = self::createMock(CsrManager::class);
-        $csrManagerMock->expects(self::once())
-            ->method('create')
-            ->with($this->customerData, $domain);
-        $csrManagerMock->expects(self::once())
+        $csrManagerMock->expects(self::once())->method('create')->with($this->customerData, $domain);
+        $csrManagerMock
+            ->expects(self::once())
             ->method('getRawCsr')
             ->with($domain)
             ->willReturn(include __DIR__ . '/../data/csr.php');
 
         $dnsMock = $this->mock(SslDnsService::class);
-        $dnsMock->shouldReceive('updateDns')->once()->withArgs(
-            static fn (Result $result, string $updateDnsDomain): bool =>
-            $updateDnsDomain === $expectedDnsZone
-            && Str::startsWith($result->getDnsRecord(), '_')
-            && Str::endsWith($result->getDnsRecord(), '.' . $domain)
-            && Str::contains($result->getDnsValue() ?? '', '.sectigo.com.')
-        );
+        $dnsMock
+            ->shouldReceive('updateDns')
+            ->once()
+            ->withArgs(
+                static fn (Result $result, string $updateDnsDomain): bool => (
+                    $updateDnsDomain === $expectedDnsZone
+                    && Str::startsWith($result->getDnsRecord(), '_')
+                    && Str::endsWith($result->getDnsRecord(), '.' . $domain)
+                    && Str::contains($result->getDnsValue() ?? '', '.sectigo.com.')
+                ),
+            );
 
         $this->app->instance(RealtimeRegister::class, $sdk);
         $this->app->instance(SslDnsService::class, $dnsMock);
@@ -194,10 +202,13 @@ class RtrSslServiceTest extends IntegrationTestCase
         self::assertSame(Result::STATUS_WAITING, $result->getStatus());
 
         self::assertSame(1, $sslDeployment->request_id);
-        self::assertSame(json_encode([
-            'process_id' => 1,
-            'certificate_status' => 'Certificate request is created. Pending validation.',
-        ]), $sslDeployment->last_result);
+        self::assertSame(
+            json_encode([
+                'process_id' => 1,
+                'certificate_status' => 'Certificate request is created. Pending validation.',
+            ]),
+            $sslDeployment->last_result,
+        );
     }
 
     #[Test]
@@ -225,7 +236,7 @@ class RtrSslServiceTest extends IntegrationTestCase
                         'validations' => [
                             'dcv' => [],
                         ],
-                    ], JSON_THROW_ON_ERROR)
+                    ], JSON_THROW_ON_ERROR),
                 ),
             ],
             function (RequestInterface $request) use ($csr): void {
@@ -244,7 +255,7 @@ class RtrSslServiceTest extends IntegrationTestCase
                 self::assertSame('Laatste', $approver->lastName);
                 self::assertSame('admin@local.testing', $approver->email);
                 self::assertSame('+31.401234567', $approver->voice);
-            }
+            },
         );
         $this->app->instance(RealtimeRegister::class, $sdk);
         $this->app->instance(SslDnsService::class, $this->getDnsMock());
@@ -256,10 +267,13 @@ class RtrSslServiceTest extends IntegrationTestCase
         $sslDeployment->refresh();
 
         self::assertSame(1, $sslDeployment->request_id);
-        self::assertSame(json_encode([
-            'process_id' => 1,
-            'certificate_status' => 'Certificate reissue has been requested. Pending validation.',
-        ]), $sslDeployment->last_result);
+        self::assertSame(
+            json_encode([
+                'process_id' => 1,
+                'certificate_status' => 'Certificate reissue has been requested. Pending validation.',
+            ]),
+            $sslDeployment->last_result,
+        );
 
         self::assertSame(1, $result->getRequestId());
         self::assertSame(Result::STATUS_ISSUED, $result->getStatus());
@@ -277,7 +291,8 @@ class RtrSslServiceTest extends IntegrationTestCase
         $sslService = self::resolve(RtrSslService::class);
 
         self::expectException(LogicException::class);
-        self::expectExceptionMessageIs('reissue certificate called, but no certificate set for SSL deployment with id:' . $sslDeployment->id);
+        self::expectExceptionMessageIs('reissue certificate called, but no certificate set for SSL deployment with id:'
+        . $sslDeployment->id);
         $sslService->reissue($this->customerData, $sslDeployment, 'csr');
     }
 
@@ -292,34 +307,38 @@ class RtrSslServiceTest extends IntegrationTestCase
 
         $sdk = MockedClientFactory::makeSdkWithMultipleReponses(
             [
-                new Response(201, [], (string) json_encode([
-                    'id' => 12,
-                    'process' => 1,
-                    'status' => StatusEnum::STATUS_ACTIVE,
-                    'certificateType' => 'SINGLE_DOMAIN',
-                    'publicKeyAlgorithm' => 'RSA',
-                    'organization' => 'Sandwave',
-                    'department' => 'Sandwave department',
-                    'address' => 'Street 1',
-                    'domain' => 'test',
-                    'product' => 'test',
-                    'domainName' => 'test',
-                    'validationType' => 'DOMAIN_VALIDATION',
-                    'startDate' => 'now',
-                    'expiryDate' => 'tomorrow',
-                    'approver' => 'admin@local.testing',
-                    'postalCode' => '1234XD',
-                    'city' => 'Vlissingen',
-                    'coc' => '1234567890',
-                    'firstName' => 'Eerste',
-                    'lastName' => 'Laatste',
-                    'voice' => '+31.401234567',
-                    'csr' => '',
-                ])),
+                new Response(
+                    201,
+                    [],
+                    (string) json_encode([
+                        'id' => 12,
+                        'process' => 1,
+                        'status' => StatusEnum::STATUS_ACTIVE,
+                        'certificateType' => 'SINGLE_DOMAIN',
+                        'publicKeyAlgorithm' => 'RSA',
+                        'organization' => 'Sandwave',
+                        'department' => 'Sandwave department',
+                        'address' => 'Street 1',
+                        'domain' => 'test',
+                        'product' => 'test',
+                        'domainName' => 'test',
+                        'validationType' => 'DOMAIN_VALIDATION',
+                        'startDate' => 'now',
+                        'expiryDate' => 'tomorrow',
+                        'approver' => 'admin@local.testing',
+                        'postalCode' => '1234XD',
+                        'city' => 'Vlissingen',
+                        'coc' => '1234567890',
+                        'firstName' => 'Eerste',
+                        'lastName' => 'Laatste',
+                        'voice' => '+31.401234567',
+                        'csr' => '',
+                    ]),
+                ),
             ],
             function (RequestInterface $request): void {
                 self::assertSame('v2/ssl/certificates/12', $request->getUri()->getPath());
-            }
+            },
         );
         $this->instance(RealtimeRegister::class, $sdk);
 
@@ -340,7 +359,9 @@ class RtrSslServiceTest extends IntegrationTestCase
         ]);
 
         self::expectException(LogicException::class);
-        self::expectExceptionMessageIs("SSL deployment with id {$sslDeployment->id} has no certificate ID, so the SSL cannot be retrieved.");
+        self::expectExceptionMessageIs(
+            "SSL deployment with id {$sslDeployment->id} has no certificate ID, so the SSL cannot be retrieved.",
+        );
 
         $sslService = self::resolve(RtrSslService::class);
         $sslService->retrieve($sslDeployment);
@@ -378,7 +399,7 @@ class RtrSslServiceTest extends IntegrationTestCase
                         'validations' => [
                             'dcv' => [],
                         ],
-                    ], JSON_THROW_ON_ERROR)
+                    ], JSON_THROW_ON_ERROR),
                 ),
             ],
             function (RequestInterface $request) use ($domain): void {
@@ -402,26 +423,29 @@ class RtrSslServiceTest extends IntegrationTestCase
                 self::assertSame('Laatste', $approver->lastName);
                 self::assertSame('admin@local.testing', $approver->email);
                 self::assertSame('+31.401234567', $approver->voice);
-            }
+            },
         );
 
         $csrManagerMock = self::createMock(CsrManager::class);
-        $csrManagerMock->expects(self::once())
-            ->method('create')
-            ->with($this->customerData, $domain);
-        $csrManagerMock->expects(self::exactly(2))
+        $csrManagerMock->expects(self::once())->method('create')->with($this->customerData, $domain);
+        $csrManagerMock
+            ->expects(self::exactly(2))
             ->method('getRawCsr')
             ->with($domain)
             ->willReturn(include __DIR__ . '/../data/csr.php');
 
         $dnsMock = $this->mock(SslDnsService::class);
-        $dnsMock->shouldReceive('updateDns')->once()->withArgs(
-            static fn (Result $result, string $updateDnsDomain): bool =>
-            $updateDnsDomain === $expectedDnsZone
-            && Str::startsWith($result->getDnsRecord(), '_')
-            && Str::endsWith($result->getDnsRecord(), '.' . $domain)
-            && Str::contains($result->getDnsValue() ?? '', '.sectigo.com.')
-        );
+        $dnsMock
+            ->shouldReceive('updateDns')
+            ->once()
+            ->withArgs(
+                static fn (Result $result, string $updateDnsDomain): bool => (
+                    $updateDnsDomain === $expectedDnsZone
+                    && Str::startsWith($result->getDnsRecord(), '_')
+                    && Str::endsWith($result->getDnsRecord(), '.' . $domain)
+                    && Str::contains($result->getDnsValue() ?? '', '.sectigo.com.')
+                ),
+            );
 
         $this->app->instance(RealtimeRegister::class, $sdk);
         $this->app->instance(SslDnsService::class, $dnsMock);
@@ -434,10 +458,13 @@ class RtrSslServiceTest extends IntegrationTestCase
         $sslDeployment->refresh();
 
         self::assertSame(1, $sslDeployment->request_id);
-        self::assertSame(json_encode([
-            'process_id' => 1,
-            'certificate_status' => 'Certificate renewal has been requested. Pending validation.',
-        ]), $sslDeployment->last_result);
+        self::assertSame(
+            json_encode([
+                'process_id' => 1,
+                'certificate_status' => 'Certificate renewal has been requested. Pending validation.',
+            ]),
+            $sslDeployment->last_result,
+        );
 
         self::assertSame(1, $result->getRequestId());
         self::assertSame(Result::STATUS_OK, $result->getStatus());
@@ -455,7 +482,8 @@ class RtrSslServiceTest extends IntegrationTestCase
         $sslService = self::resolve(RtrSslService::class);
 
         self::expectException(LogicException::class);
-        self::expectExceptionMessageIs('renew certificate called, but no certificate set for SSL deployment with id:' . $sslDeployment->id);
+        self::expectExceptionMessageIs('renew certificate called, but no certificate set for SSL deployment with id:'
+        . $sslDeployment->id);
         $sslService->renew($sslDeployment);
     }
 
@@ -483,7 +511,7 @@ class RtrSslServiceTest extends IntegrationTestCase
 
         $rtrSdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString([$sslListCertificatesData])
+            $this->getJsonString([$sslListCertificatesData]),
         );
 
         $service = $this->rtrSslService->setClient($rtrSdk);
@@ -496,7 +524,7 @@ class RtrSslServiceTest extends IntegrationTestCase
     {
         $rtrSdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString([])
+            $this->getJsonString([]),
         );
 
         $service = $this->rtrSslService->setClient($rtrSdk);
@@ -511,7 +539,7 @@ class RtrSslServiceTest extends IntegrationTestCase
 
         $rtrSdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString([$sslListCertificatesData])
+            $this->getJsonString([$sslListCertificatesData]),
         );
 
         $service = $this->rtrSslService->setClient($rtrSdk);
@@ -530,7 +558,7 @@ class RtrSslServiceTest extends IntegrationTestCase
     {
         $rtrSdk = MockedClientFactory::makeSdk(
             200,
-            $this->getJsonString([]) // RTR returned no processes for this domain
+            $this->getJsonString([]), // RTR returned no processes for this domain
         );
 
         $service = $this->rtrSslService->setClient($rtrSdk);
@@ -560,7 +588,10 @@ class RtrSslServiceTest extends IntegrationTestCase
         self::assertNotNull($result);
         self::assertSame('CNAME', $result->dnsType);
         self::assertSame('_c7fbc2039e400c8ef74129ec7db1842c.example.nl.', $result->dnsRecord);
-        self::assertSame('c9c863405fe7675a3988b97664ea6baf.442019e4e52fa335f406f7c5f26cf14f.sectigo.com.', $result->dnsContent);
+        self::assertSame(
+            'c9c863405fe7675a3988b97664ea6baf.442019e4e52fa335f406f7c5f26cf14f.sectigo.com.',
+            $result->dnsContent,
+        );
     }
 
     #[Test]
@@ -587,15 +618,11 @@ class RtrSslServiceTest extends IntegrationTestCase
     #[Test]
     public function resendDcvSuccessPersistsResult(): void
     {
-        $subscription = SubscriptionFactory::new()
-            ->for($this->product)
-            ->for($this->customer)
-            ->createOne(['domain' => 'example.nl']);
+        $subscription = SubscriptionFactory::new()->for($this->product)->for($this->customer)->createOne([
+            'domain' => 'example.nl',
+        ]);
 
-        $sslDeployment = SslDeploymentFactory::new()
-            ->for($subscription)
-            ->for($this->sslProvider)
-            ->createOne();
+        $sslDeployment = SslDeploymentFactory::new()->for($subscription)->for($this->sslProvider)->createOne();
 
         $processList = include __DIR__ . '/../data/processes_list.php';
         $rtrSdk = MockedClientFactory::makeSdk(200, $this->getJsonString([$processList]));
@@ -606,11 +633,13 @@ class RtrSslServiceTest extends IntegrationTestCase
         $csrManager->shouldReceive('hasCsr')->once()->with('*.example.nl')->andReturnFalse()->ordered();
 
         $certRequester = self::mock(CertificateRequester::class);
-        $certRequester->shouldReceive('resendDcv')
+        $certRequester
+            ->shouldReceive('resendDcv')
             ->once()
             ->withArgs(function (int $processId, string $commonName): bool {
                 self::assertSame('example.nl', $commonName);
                 self::assertGreaterThan(0, $processId);
+
                 return true;
             })
             ->andReturn(Result::create([
@@ -637,15 +666,11 @@ class RtrSslServiceTest extends IntegrationTestCase
     #[Test]
     public function resendDcvReturnsErrorWhenNoProcessId(): void
     {
-        $subscription = SubscriptionFactory::new()
-            ->for($this->product)
-            ->for($this->customer)
-            ->createOne(['domain' => 'noprocess.example']);
+        $subscription = SubscriptionFactory::new()->for($this->product)->for($this->customer)->createOne([
+            'domain' => 'noprocess.example',
+        ]);
 
-        $sslDeployment = SslDeploymentFactory::new()
-            ->for($subscription)
-            ->for($this->sslProvider)
-            ->createOne();
+        $sslDeployment = SslDeploymentFactory::new()->for($subscription)->for($this->sslProvider)->createOne();
 
         $rtrSdk = MockedClientFactory::makeSdk(200, $this->getJsonString([]));
         $this->app->instance(RealtimeRegister::class, $rtrSdk);
@@ -661,22 +686,18 @@ class RtrSslServiceTest extends IntegrationTestCase
         self::assertSame(HttpResponse::HTTP_PRECONDITION_FAILED, $result->getErrorCode());
         self::assertSame(
             sprintf('No RTR certificate processes found for domain %s', 'noprocess.example'),
-            $result->getErrorMessage()
+            $result->getErrorMessage(),
         );
     }
 
     #[Test]
     public function resendDcvFallsBackToDomainWhenCsrParseFails(): void
     {
-        $subscription = SubscriptionFactory::new()
-            ->for($this->product)
-            ->for($this->customer)
-            ->createOne(['domain' => 'fallback.example']);
+        $subscription = SubscriptionFactory::new()->for($this->product)->for($this->customer)->createOne([
+            'domain' => 'fallback.example',
+        ]);
 
-        $sslDeployment = SslDeploymentFactory::new()
-            ->for($subscription)
-            ->for($this->sslProvider)
-            ->createOne();
+        $sslDeployment = SslDeploymentFactory::new()->for($subscription)->for($this->sslProvider)->createOne();
 
         $processList = include __DIR__ . '/../data/processes_list.php';
         $rtrSdk = MockedClientFactory::makeSdk(200, $this->getJsonString([$processList]));
@@ -684,17 +705,26 @@ class RtrSslServiceTest extends IntegrationTestCase
 
         $csrManager = self::createMock(CsrManager::class);
         $csrManager->expects(self::once())->method('hasCsr')->with('fallback.example')->willReturn(true);
-        $csrManager->expects(self::once())->method('getRawCsr')->with('fallback.example')->willReturn(
-            include __DIR__ . '/../data/csr.php'
-        );
+        $csrManager
+            ->expects(self::once())
+            ->method('getRawCsr')
+            ->with('fallback.example')
+            ->willReturn(
+                include __DIR__ . '/../data/csr.php',
+            );
         $this->app->instance(CsrManager::class, $csrManager);
 
         $certRequester = self::mock(CertificateRequester::class);
-        $certRequester->shouldReceive('getCommonNameFromCsr')->once()->andThrow(new InvalidArgumentException('bad csr'));
-        $certRequester->shouldReceive('resendDcv')
+        $certRequester
+            ->shouldReceive('getCommonNameFromCsr')
+            ->once()
+            ->andThrow(new InvalidArgumentException('bad csr'));
+        $certRequester
+            ->shouldReceive('resendDcv')
             ->once()
             ->withArgs(function (int $processId, string $commonName): bool {
                 self::assertSame('fallback.example', $commonName);
+
                 return $processId > 0;
             })
             ->andReturn(Result::create(['status' => Result::STATUS_OK]));
@@ -717,18 +747,25 @@ class RtrSslServiceTest extends IntegrationTestCase
     {
         $ref = new ReflectionClass($object);
         $m = $ref->getMethod($method);
+
         return $m->invoke($object, ...$args);
     }
 
     private function getDnsMock(): MockInterface
     {
         $dnsMock = $this->mock(SslDnsService::class);
-        $dnsMock->shouldReceive('updateDns')->once()->withArgs(
-            static fn (Result $result, string $domain): bool => $domain === 'sandwave.io'
-            && Str::startsWith($result->getDnsRecord(), '_')
-            && Str::endsWith($result->getDnsRecord(), '.' . $domain)
-            && Str::contains($result->getDnsValue() ?? '', '.sectigo.com.')
-        );
+        $dnsMock
+            ->shouldReceive('updateDns')
+            ->once()
+            ->withArgs(
+                static fn (Result $result, string $domain): bool => (
+                    $domain === 'sandwave.io'
+                    && Str::startsWith($result->getDnsRecord(), '_')
+                    && Str::endsWith($result->getDnsRecord(), '.' . $domain)
+                    && Str::contains($result->getDnsValue() ?? '', '.sectigo.com.')
+                ),
+            );
+
         return $dnsMock;
     }
 

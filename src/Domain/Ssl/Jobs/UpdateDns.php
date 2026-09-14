@@ -31,8 +31,10 @@ class UpdateDns extends AbstractQueueableJob
      */
     private $retry = 3600;
 
-    public function __construct(private readonly string $domain, private readonly bool $recursive = true)
-    {
+    public function __construct(
+        private readonly string $domain,
+        private readonly bool $recursive = true,
+    ) {
         parent::__construct();
     }
 
@@ -42,9 +44,10 @@ class UpdateDns extends AbstractQueueableJob
     public function handle(
         SslDnsService $sslDnsService,
         OpenproviderClientFactory $openproviderClientFactory,
-        PublicSuffixList $rules
+        PublicSuffixList $rules,
     ): void {
-        $subscription = Subscription::query()->whereProductGroupType(ProductGroupType::SSL)
+        $subscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::SSL)
             ->where('domain', $this->domain)
             ->firstOrFail();
 
@@ -53,7 +56,7 @@ class UpdateDns extends AbstractQueueableJob
         if (is_null($sslDeployment)) {
             throw new RuntimeException(sprintf(
                 'Subscription for domain %s has no SSL deployment',
-                $this->domain
+                $this->domain,
             ));
         }
 
@@ -72,7 +75,7 @@ class UpdateDns extends AbstractQueueableJob
                 Log::info(sprintf(
                     'Checking DNS response for SSL certificate %s with certificate id %s because certificate is still requested',
                     $this->domain,
-                    $result->getCertificateId()
+                    $result->getCertificateId(),
                 ));
 
                 if ($result->getDnsRecord() !== '') {
@@ -89,19 +92,17 @@ class UpdateDns extends AbstractQueueableJob
                 Log::info(sprintf(
                     'No DNS record found in SSL response for domain %s with certificate id %s',
                     $this->domain,
-                    $result->getCertificateId()
+                    $result->getCertificateId(),
                 ));
 
-                $this->recursive
-                    ? $this->release($this->retry)
-                    : $this->delete();
+                $this->recursive ? $this->release($this->retry) : $this->delete();
                 break;
             default:
                 Log::info(sprintf(
                     'Deleted job to update DNS for SSL certificate %s with certificate id %s because certificate status is %s',
                     $this->domain,
                     $result->getCertificateId(),
-                    $result->getCertificateStatus()
+                    $result->getCertificateStatus(),
                 ));
 
                 $this->delete();

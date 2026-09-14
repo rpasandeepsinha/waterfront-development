@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Domain\Pricing\Services;
 
 use Carbon\CarbonImmutable;
+use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Factories\CustomerFactory;
@@ -50,8 +51,14 @@ class PricePersistServiceTest extends IntegrationTestCase
     #[Test]
     public function persistPriceForSubscription(): void
     {
-        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->for($this->product)->createOne();
-        new ProductPriceComponentFactory()->for($this->product)->createOne(['type' => PriceComponentType::PROLONGATION, 'price' => 450]);
+        $subscription = new SubscriptionFactory()
+            ->for(new CustomerFactory()->createOne())
+            ->for($this->product)
+            ->createOne();
+        new ProductPriceComponentFactory()->for($this->product)->createOne([
+            'type' => PriceComponentType::PROLONGATION,
+            'price' => 450,
+        ]);
         $price = new Price(
             type: ProductPriceType::REGISTRATION,
             billingPeriod: 12,
@@ -63,8 +70,20 @@ class PricePersistServiceTest extends IntegrationTestCase
             is_default: true,
         );
         $price->appliedPriceComponents = [
-            new ProlongationPriceComponent(fixedDiscount: null, percentageDiscount: null, fixedPrice: 450, newPrice: 450, appliedOrder: 1),
-            new ProductGroupPriceComponent(fixedDiscount: null, percentageDiscount: 30, fixedPrice: null, newPrice: 315, appliedOrder: 2),
+            new ProlongationPriceComponent(
+                fixedDiscount: null,
+                percentageDiscount: null,
+                fixedPrice: 450,
+                newPrice: 450,
+                appliedOrder: 1,
+            ),
+            new ProductGroupPriceComponent(
+                fixedDiscount: null,
+                percentageDiscount: 30,
+                fixedPrice: null,
+                newPrice: 315,
+                appliedOrder: 2,
+            ),
         ];
         $price->calculatedPrice = 315;
 
@@ -80,7 +99,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'subscription_id' => $subscription->id,
                 'net_price' => 315,
                 'valid_from' => $subscription->start_date,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'subscription_price_components',
@@ -90,7 +109,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_price' => 450,
                 'new_price' => 450,
                 'order_applied' => 1,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'subscription_price_components',
@@ -100,14 +119,17 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'percentage_discount' => 30,
                 'new_price' => 315,
                 'order_applied' => 2,
-            ]
+            ],
         );
     }
 
     #[Test]
     public function persistPriceWithIntroductionComponentForOrderLine(): void
     {
-        $orderLine = new OrderLineItemFactory()->for(new OrderFactory()->for(new CustomerFactory()))->for($this->product)->createOne(['contract_period' => 3, 'billing_period' => 1]);
+        $orderLine = new OrderLineItemFactory()
+            ->for(new OrderFactory()->for(new CustomerFactory()))
+            ->for($this->product)
+            ->createOne(['contract_period' => 3, 'billing_period' => 1]);
         $price = new Price(
             type: ProductPriceType::REGISTRATION,
             billingPeriod: 1,
@@ -117,11 +139,20 @@ class PricePersistServiceTest extends IntegrationTestCase
             contractPeriod: 3,
             orderable: true,
             is_default: true,
-            calculatedPrice: 200
+            calculatedPrice: 200,
         );
         $price->appliedPriceComponents = [
             new RegistrationPriceComponent(price: 450),
-            new IntroductionPriceComponent(fixedDiscount: null, percentageDiscount: null, fixedPrice: 200, newPrice: 200, remainingUses: 1, maxUsesPerCustomer: 1, firstMonthsDiscountPeriod: 2, appliedOrder: 2),
+            new IntroductionPriceComponent(
+                fixedDiscount: null,
+                percentageDiscount: null,
+                fixedPrice: 200,
+                newPrice: 200,
+                remainingUses: 1,
+                maxUsesPerCustomer: 1,
+                firstMonthsDiscountPeriod: 2,
+                appliedOrder: 2,
+            ),
         ];
 
         $this->service->persistOrderLineItemPrice($orderLine, $price);
@@ -147,7 +178,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_price' => 450,
                 'new_price' => 450,
                 'order_applied' => 1,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -157,7 +188,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_price' => 200,
                 'new_price' => 200,
                 'order_applied' => 2,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -167,7 +198,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_price' => 450,
                 'new_price' => 450,
                 'order_applied' => 1,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -177,7 +208,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_price' => 200,
                 'new_price' => 200,
                 'order_applied' => 2,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -187,21 +218,24 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_price' => 450,
                 'new_price' => 450,
                 'order_applied' => 1,
-            ]
+            ],
         );
         self::assertDatabaseMissing(
             'order_line_price_components',
             [
                 'order_line_price_id' => $price3->id,
                 'type' => PriceComponentType::INTRODUCTION,
-            ]
+            ],
         );
     }
 
     #[Test]
     public function persistingPriceWithIntroductionComponentForOrderLineRemovesProRateComponentAfterFirstBillingCycle(): void
     {
-        $orderLine = new OrderLineItemFactory()->for(new OrderFactory()->for(new CustomerFactory()))->for($this->product)->createOne(['contract_period' => 3, 'billing_period' => 1]);
+        $orderLine = new OrderLineItemFactory()
+            ->for(new OrderFactory()->for(new CustomerFactory()))
+            ->for($this->product)
+            ->createOne(['contract_period' => 3, 'billing_period' => 1]);
         $price = new Price(
             type: ProductPriceType::REGISTRATION,
             billingPeriod: 1,
@@ -211,15 +245,29 @@ class PricePersistServiceTest extends IntegrationTestCase
             contractPeriod: 3,
             orderable: true,
             is_default: true,
-            calculatedPrice: 190
+            calculatedPrice: 190,
         );
 
         // A prorate component is made and is later applied over other components, so the discount (read: price reduction) is only added later, and not passed into the constructor.
-        $proRateComponent = new ProRatePriceComponent(until: CarbonImmutable::now()->addMonth(), amountPaid: 10, newPrice: 190, appliedOrder: 3);
+        $proRateComponent = new ProRatePriceComponent(
+            until: CarbonImmutable::now()->addMonth(),
+            amountPaid: 10,
+            newPrice: 190,
+            appliedOrder: 3,
+        );
         $proRateComponent->fixedDiscount = 10;
         $price->appliedPriceComponents = [
             new RegistrationPriceComponent(price: 450),
-            new IntroductionPriceComponent(fixedDiscount: null, percentageDiscount: null, fixedPrice: 200, newPrice: 200, remainingUses: 1, maxUsesPerCustomer: 1, firstMonthsDiscountPeriod: 2, appliedOrder: 2),
+            new IntroductionPriceComponent(
+                fixedDiscount: null,
+                percentageDiscount: null,
+                fixedPrice: 200,
+                newPrice: 200,
+                remainingUses: 1,
+                maxUsesPerCustomer: 1,
+                firstMonthsDiscountPeriod: 2,
+                appliedOrder: 2,
+            ),
             $proRateComponent,
         ];
 
@@ -246,7 +294,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_price' => 450,
                 'new_price' => 450,
                 'order_applied' => 1,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -256,7 +304,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_price' => 200,
                 'new_price' => 200,
                 'order_applied' => 2,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -266,7 +314,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_discount' => 10,
                 'new_price' => 190,
                 'order_applied' => 3,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -276,7 +324,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_price' => 450,
                 'new_price' => 450,
                 'order_applied' => 1,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -286,14 +334,14 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_price' => 200,
                 'new_price' => 200,
                 'order_applied' => 2,
-            ]
+            ],
         );
         self::assertDatabaseMissing(
             'order_line_price_components',
             [
                 'order_line_price_id' => $price2->id,
                 'type' => PriceComponentType::PRO_RATE,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -303,21 +351,21 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_price' => 450,
                 'new_price' => 450,
                 'order_applied' => 1,
-            ]
+            ],
         );
         self::assertDatabaseMissing(
             'order_line_price_components',
             [
                 'order_line_price_id' => $price3->id,
                 'type' => PriceComponentType::INTRODUCTION,
-            ]
+            ],
         );
         self::assertDatabaseMissing(
             'order_line_price_components',
             [
                 'order_line_price_id' => $price3->id,
                 'type' => PriceComponentType::PRO_RATE,
-            ]
+            ],
         );
     }
 
@@ -330,7 +378,10 @@ class PricePersistServiceTest extends IntegrationTestCase
         // Example with 3/1 subscription with 2 month introduction: registration 100, introduction -10%, voucher -20%.
         // At month 3 introduction should be removed and the voucher should be recalculated/rebased over the
         // registration price to get the price of the subscription for the third invoice.
-        $orderLine = new OrderLineItemFactory()->for(new OrderFactory()->for(new CustomerFactory()))->for($this->product)->createOne(['contract_period' => 3, 'billing_period' => 1]);
+        $orderLine = new OrderLineItemFactory()
+            ->for(new OrderFactory()->for(new CustomerFactory()))
+            ->for($this->product)
+            ->createOne(['contract_period' => 3, 'billing_period' => 1]);
         $price = new Price(
             type: ProductPriceType::REGISTRATION,
             billingPeriod: 1,
@@ -340,13 +391,29 @@ class PricePersistServiceTest extends IntegrationTestCase
             contractPeriod: 3,
             orderable: true,
             is_default: true,
-            calculatedPrice: 72
+            calculatedPrice: 72,
         );
 
         $price->appliedPriceComponents = [
             new RegistrationPriceComponent(price: 100),
-            new IntroductionPriceComponent(fixedDiscount: null, percentageDiscount: 10, fixedPrice: null, newPrice: 90, remainingUses: 1, maxUsesPerCustomer: 1, firstMonthsDiscountPeriod: 2, appliedOrder: 2),
-            new VoucherPriceComponent(fixedDiscount: null, percentageDiscount: 20, newPrice: 72, appliedAmount: 18, voucher: new VoucherFactory()->createOne(), appliedOrder: 3),
+            new IntroductionPriceComponent(
+                fixedDiscount: null,
+                percentageDiscount: 10,
+                fixedPrice: null,
+                newPrice: 90,
+                remainingUses: 1,
+                maxUsesPerCustomer: 1,
+                firstMonthsDiscountPeriod: 2,
+                appliedOrder: 2,
+            ),
+            new VoucherPriceComponent(
+                fixedDiscount: null,
+                percentageDiscount: 20,
+                newPrice: 72,
+                appliedAmount: 18,
+                voucher: new VoucherFactory()->createOne(),
+                appliedOrder: 3,
+            ),
         ];
 
         $this->service->persistOrderLineItemPrice($orderLine, $price);
@@ -372,7 +439,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_price' => 100,
                 'new_price' => 100,
                 'order_applied' => 1,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -382,7 +449,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'percentage_discount' => 10,
                 'new_price' => 90,
                 'order_applied' => 2,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -392,7 +459,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'percentage_discount' => 20,
                 'new_price' => 72,
                 'order_applied' => 3,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -402,7 +469,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_price' => 100,
                 'new_price' => 100,
                 'order_applied' => 1,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -412,7 +479,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'percentage_discount' => 10,
                 'new_price' => 90,
                 'order_applied' => 2,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -422,7 +489,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'percentage_discount' => 20,
                 'new_price' => 72,
                 'order_applied' => 3,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -432,14 +499,14 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'fixed_price' => 100,
                 'new_price' => 100,
                 'order_applied' => 1,
-            ]
+            ],
         );
         self::assertDatabaseMissing(
             'order_line_price_components',
             [
                 'order_line_price_id' => $price3->id,
                 'type' => PriceComponentType::INTRODUCTION,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'order_line_price_components',
@@ -449,8 +516,206 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'percentage_discount' => 20,
                 'new_price' => 80,
                 'order_applied' => 2,
-            ]
+            ],
         );
+    }
+
+    #[Test]
+    public function persistSubscriptionPriceFromOrderLineCreatesSubscriptionPriceForEachOrderLinePrice(): void
+    {
+        $orderLine = new OrderLineItemFactory()
+            ->for(new OrderFactory()->for(new CustomerFactory()))
+            ->for($this->product)
+            ->createOne(['contract_period' => 3, 'billing_period' => 1]);
+        $price = new Price(
+            type: ProductPriceType::REGISTRATION,
+            billingPeriod: 1,
+            productId: $this->product->id,
+            productGroupUuid: $this->product->productGroup->uuid,
+            regularPrice: 450,
+            contractPeriod: 3,
+            orderable: true,
+            is_default: true,
+            calculatedPrice: 200,
+        );
+        $price->appliedPriceComponents = [
+            new RegistrationPriceComponent(price: 450),
+            new IntroductionPriceComponent(
+                fixedDiscount: null,
+                percentageDiscount: null,
+                fixedPrice: 200,
+                newPrice: 200,
+                remainingUses: 1,
+                maxUsesPerCustomer: 1,
+                firstMonthsDiscountPeriod: 2,
+                appliedOrder: 2,
+            ),
+        ];
+        $this->service->persistOrderLineItemPrice($orderLine, $price);
+
+        $subscription = new SubscriptionFactory()
+            ->for(new CustomerFactory()->createOne())
+            ->for($this->product)
+            ->createOne(['gross_price' => 999, 'net_price' => 888]);
+
+        $this->service->persistSubscriptionPriceFromOrderLine($subscription, $orderLine);
+
+        $orderLinePrices = $orderLine->prices->sortBy('valid_from')->values();
+        $orderLinePrice1 = $orderLinePrices->shift();
+        $orderLinePrice2 = $orderLinePrices->shift();
+        $orderLinePrice3 = $orderLinePrices->shift();
+
+        self::assertInstanceOf(OrderLinePrice::class, $orderLinePrice1);
+        self::assertInstanceOf(OrderLinePrice::class, $orderLinePrice2);
+        self::assertInstanceOf(OrderLinePrice::class, $orderLinePrice3);
+
+        self::assertDatabaseHas(
+            'subscription_prices',
+            [
+                'subscription_id' => $subscription->id,
+                'net_price' => $orderLinePrice1->net_price,
+                'valid_from' => $orderLinePrice1->valid_from,
+            ],
+        );
+        self::assertDatabaseHas(
+            'subscription_prices',
+            [
+                'subscription_id' => $subscription->id,
+                'net_price' => $orderLinePrice2->net_price,
+                'valid_from' => $orderLinePrice2->valid_from,
+            ],
+        );
+        self::assertDatabaseHas(
+            'subscription_prices',
+            [
+                'subscription_id' => $subscription->id,
+                'net_price' => $orderLinePrice3->net_price,
+                'valid_from' => $orderLinePrice3->valid_from,
+            ],
+        );
+
+        $subscriptionPrice = SubscriptionPrice::query()
+            ->where('subscription_id', $subscription->id)
+            ->where('valid_from', $orderLinePrice1->valid_from)
+            ->firstOrFail();
+
+        self::assertDatabaseHas(
+            'subscription_price_components',
+            [
+                'subscription_price_id' => $subscriptionPrice->id,
+                'type' => PriceComponentType::REGISTRATION,
+                'fixed_price' => 450,
+                'new_price' => 450,
+                'order_applied' => 1,
+            ],
+        );
+        self::assertDatabaseHas(
+            'subscription_price_components',
+            [
+                'subscription_price_id' => $subscriptionPrice->id,
+                'type' => PriceComponentType::INTRODUCTION,
+                'fixed_price' => 200,
+                'new_price' => 200,
+                'order_applied' => 2,
+            ],
+        );
+
+        // No pro-rate component is present, so the subscription's own price is left untouched.
+        self::assertSame(999, $subscription->gross_price);
+        self::assertSame(888, $subscription->net_price);
+        self::assertSame($subscriptionPrice->id, $subscription->subscription_price_id);
+    }
+
+    #[Test]
+    public function persistSubscriptionPriceFromOrderLineRebasesSubscriptionPriceOnComponentBeforeProRate(): void
+    {
+        $orderLine = new OrderLineItemFactory()
+            ->for(new OrderFactory()->for(new CustomerFactory()))
+            ->for($this->product)
+            ->createOne(['contract_period' => 3, 'billing_period' => 1]);
+        $price = new Price(
+            type: ProductPriceType::REGISTRATION,
+            billingPeriod: 1,
+            productId: $this->product->id,
+            productGroupUuid: $this->product->productGroup->uuid,
+            regularPrice: 450,
+            contractPeriod: 3,
+            orderable: true,
+            is_default: true,
+            calculatedPrice: 190,
+        );
+
+        $proRateComponent = new ProRatePriceComponent(
+            until: CarbonImmutable::now()->addMonth(),
+            amountPaid: 10,
+            newPrice: 190,
+            appliedOrder: 3,
+        );
+        $proRateComponent->fixedDiscount = 10;
+        $price->appliedPriceComponents = [
+            new RegistrationPriceComponent(price: 450),
+            new IntroductionPriceComponent(
+                fixedDiscount: null,
+                percentageDiscount: null,
+                fixedPrice: 200,
+                newPrice: 200,
+                remainingUses: 1,
+                maxUsesPerCustomer: 1,
+                firstMonthsDiscountPeriod: 2,
+                appliedOrder: 2,
+            ),
+            $proRateComponent,
+        ];
+        $this->service->persistOrderLineItemPrice($orderLine, $price);
+
+        $subscription = new SubscriptionFactory()
+            ->for(new CustomerFactory()->createOne())
+            ->for($this->product)
+            ->createOne();
+
+        $this->service->persistSubscriptionPriceFromOrderLine($subscription, $orderLine);
+
+        $firstOrderLinePrice = $orderLine->prices->sortBy('valid_from')->first();
+        self::assertInstanceOf(OrderLinePrice::class, $firstOrderLinePrice);
+
+        $subscriptionPrice = SubscriptionPrice::query()
+            ->where('subscription_id', $subscription->id)
+            ->where('valid_from', $firstOrderLinePrice->valid_from)
+            ->firstOrFail();
+
+        self::assertDatabaseHas(
+            'subscription_price_components',
+            [
+                'subscription_price_id' => $subscriptionPrice->id,
+                'type' => PriceComponentType::PRO_RATE,
+                'fixed_discount' => 10,
+                'new_price' => 190,
+                'order_applied' => 3,
+            ],
+        );
+
+        // The subscription's own (recurring) price should be the price of the component applied right
+        // before the pro-rate component (i.e. without the one-off pro-rated amount), not the final net price.
+        self::assertSame(200, $subscription->net_price);
+        self::assertSame(200, $subscription->gross_price);
+        self::assertSame($subscriptionPrice->id, $subscription->subscription_price_id);
+    }
+
+    #[Test]
+    public function persistSubscriptionPriceFromOrderLineThrowsWhenOrderLineHasNoPrices(): void
+    {
+        $orderLine = new OrderLineItemFactory()
+            ->for(new OrderFactory()->for(new CustomerFactory()))
+            ->for($this->product)
+            ->createOne(['contract_period' => 3, 'billing_period' => 1]);
+        $subscription = new SubscriptionFactory()
+            ->for(new CustomerFactory()->createOne())
+            ->for($this->product)
+            ->createOne();
+
+        $this->expectException(LogicException::class);
+
+        $this->service->persistSubscriptionPriceFromOrderLine($subscription, $orderLine);
     }
 
     #[Test]
@@ -463,7 +728,10 @@ class PricePersistServiceTest extends IntegrationTestCase
         // We might have already calculated all "billing cycles" (i.e. a subscription price for each invoice), so
         // those will be removed, and we mark the custom price override as such.
 
-        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->for($this->product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for(new CustomerFactory()->createOne())
+            ->for($this->product)
+            ->createOne();
 
         $subscriptionPrice = new SubscriptionPrice();
         $subscriptionPrice->subscription_id = $subscription->id;
@@ -507,7 +775,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'subscription_id' => $subscription->id,
                 'net_price' => 456,
                 'valid_from' => $subscription->start_date,
-            ]
+            ],
         );
         // dd($subscription->subscription_price_id);
         self::assertDatabaseHas(
@@ -517,7 +785,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'type' => PriceComponentType::CUSTOM_ONE_OFF,
                 'fixed_price' => 456,
                 'new_price' => 456,
-            ]
+            ],
         );
 
         self::assertModelMissing($futureSubscriptionPrice);
@@ -527,7 +795,10 @@ class PricePersistServiceTest extends IntegrationTestCase
     #[Test]
     public function persistIndefiniteCustomSubscriptionPrice(): void
     {
-        $subscription = new SubscriptionFactory()->for(new CustomerFactory()->createOne())->for($this->product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for(new CustomerFactory()->createOne())
+            ->for($this->product)
+            ->createOne();
 
         $this->service->persistCustomPrice($subscription, 654, false, CustomPriceReasonType::FIXED_MIGRATION_PRICE);
 
@@ -539,7 +810,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'subscription_id' => $subscription->id,
                 'net_price' => 654,
                 'valid_from' => $subscription->start_date,
-            ]
+            ],
         );
         self::assertDatabaseHas(
             'subscription_price_components',
@@ -548,7 +819,7 @@ class PricePersistServiceTest extends IntegrationTestCase
                 'type' => PriceComponentType::CUSTOM_INDEFINITE,
                 'fixed_price' => 654,
                 'new_price' => 654,
-            ]
+            ],
         );
     }
 }

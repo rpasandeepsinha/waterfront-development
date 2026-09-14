@@ -21,14 +21,14 @@ class RedirectMigrationRules
      * @return array<string, mixed>
      */
     public function getRules(
-        Customer|null $customer,
-        string|null $domain,
+        ?Customer $customer,
+        ?string $domain,
     ): array {
         return MigrationValidationLibrary::getRedirectBaseRules(
             $this->domainNameRule,
             $this->publicSuffixList,
             $customer,
-            $domain
+            $domain,
         );
     }
 }

@@ -77,14 +77,17 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
                 'slug' => ProviderSlug::REALTIME_REGISTER,
                 'default' => true,
                 'enabled' => true,
-            ]
+            ],
         );
 
-        $this->subscription = new SubscriptionFactory()->withCustomer()->for($product)->createOne([
-            'domain' => self::DOMAIN,
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-            'technical_status' => TechnicalStatus::PENDING->value,
-        ]);
+        $this->subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->createOne([
+                'domain' => self::DOMAIN,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                'technical_status' => TechnicalStatus::PENDING->value,
+            ]);
 
         new DomainDeploymentFactory()
             ->withRtrProvider()
@@ -101,7 +104,7 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
             'fireDate' => '2023-09-08T11:01:10Z',
             'message' => sprintf(
                 'The DNS configuration of the domain \'%s\' does not meet the requirements set by the registry. Until the requirements are met the domain will remain suspended.',
-                self::DOMAIN
+                self::DOMAIN,
             ),
             'process' => 5,
             'customer' => 'versiosandwave',
@@ -132,14 +135,13 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
             domainDeploymentRepository: self::resolve(DomainDeploymentRepository::class),
         );
 
-        $mockRtrErrorParseService->expects(self::once())
+        $mockRtrErrorParseService
+            ->expects(self::once())
             ->method('getRtrErrorFromMessage')
             ->with($notification->message)
             ->willReturn(RtrValidationError::REGISTRY_REQUIREMENTS_NOT_MET);
 
-        $mockValidateDnsPropagationAndRetry->expects(self::once())
-            ->method('execute')
-            ->with(self::DOMAIN);
+        $mockValidateDnsPropagationAndRetry->expects(self::once())->method('execute')->with(self::DOMAIN);
 
         $handler->handle($notification, $rtrNotification);
     }
@@ -166,8 +168,7 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
         $rtrNotification = new RtrResponseLogFactory()->createOne();
 
         $subscriptionService = self::createMock(SubscriptionService::class);
-        $subscriptionService->expects(self::never())
-            ->method('updateSubscription');
+        $subscriptionService->expects(self::never())->method('updateSubscription');
 
         $handler = new DomainNotificationHandler(
             subscriptionService: $subscriptionService,
@@ -194,9 +195,7 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
             'domain_status' => DomainStatus::PENDING_VALIDATION,
         ]);
 
-        $dnsProduct = ProductFactory::new()
-            ->freeDns()
-            ->createOne();
+        $dnsProduct = ProductFactory::new()->freeDns()->createOne();
 
         $dnsSubscription = SubscriptionFactory::new()
             ->for($this->subscription->customer)
@@ -204,15 +203,15 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
             ->parentSubscription($this->subscription)
             ->createOne();
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->for($dnsSubscription)
-            ->createOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->for($dnsSubscription)->createOne();
 
-        $dnsDeployment->dnsNameservers()->save(
-            DnsNameserverFactory::new()
-                ->for(DnsRegionFactory::new())
-                ->createOne(['nameserver' => 'ns1.example.nl']),
-        );
+        $dnsDeployment
+            ->dnsNameservers()
+            ->save(
+                DnsNameserverFactory::new()->for(DnsRegionFactory::new())->createOne([
+                    'nameserver' => 'ns1.example.nl',
+                ]),
+            );
 
         $notification = RtrNotification::fromArray([
             'id' => 123,
@@ -237,12 +236,14 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
         $mockSubscriptionService = self::createMock(SubscriptionService::class);
         $mockLogger = self::createMock(LoggerInterface::class);
 
-        $mockRtrErrorParseService->expects(self::once())
+        $mockRtrErrorParseService
+            ->expects(self::once())
             ->method('getRtrErrorFromMessage')
             ->with($notification->message)
             ->willReturn(null);
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(self::DOMAIN)
             ->willReturn(new DomainDetailsDTO(
@@ -255,15 +256,16 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
                 premium: false,
             ));
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('getTechnicalStatusFromDomainStatusList')
             ->with([DomainStatus::INACTIVE->value])
             ->willReturn(TechnicalStatus::OK->value);
 
-        $mockRtrService->method('getPrimaryDomainStatusFromDomainStatusList')
-            ->willReturn(DomainStatus::INACTIVE);
+        $mockRtrService->method('getPrimaryDomainStatusFromDomainStatusList')->willReturn(DomainStatus::INACTIVE);
 
-        $mockSubscriptionService->expects(self::once())
+        $mockSubscriptionService
+            ->expects(self::once())
             ->method('updateSubscriptionStatus')
             ->with(
                 self::DOMAIN,
@@ -272,7 +274,8 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
                 false,
             );
 
-        $mockLogger->expects(self::exactly(2))
+        $mockLogger
+            ->expects(self::exactly(2))
             ->method('info')
             ->with(...self::withConsecutive(
                 [
@@ -312,7 +315,10 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
 
         $handler->handle($notification, $rtrResponseLog);
 
-        Bus::assertDispatched(SetNameserversForDomainJob::class, fn (SetNameserversForDomainJob $job): bool => $job->domain === self::DOMAIN);
+        Bus::assertDispatched(
+            SetNameserversForDomainJob::class,
+            fn (SetNameserversForDomainJob $job): bool => $job->domain === self::DOMAIN,
+        );
         self::assertSame(DomainStatus::INACTIVE, $this->subscription->domainDeployment?->refresh()->domain_status);
     }
 
@@ -332,12 +338,12 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
         $fetchException = new DomainDoesNotExistException();
 
         $mockRtrService = self::createMock(RtrService::class);
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(self::DOMAIN)
             ->willThrowException($fetchException);
-        $mockRtrService->expects(self::never())
-            ->method('findOpenPrevalidationProcessForDomain');
+        $mockRtrService->expects(self::never())->method('findOpenPrevalidationProcessForDomain');
 
         $handler = new DomainNotificationHandler(
             subscriptionService: self::resolve(SubscriptionService::class),
@@ -371,9 +377,9 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
         ]);
         $rtrResponseLog = new RtrResponseLogFactory()->createOne();
         $mockRtrService = self::createMock(RtrService::class);
-        $mockRtrService->method('fetchDomain')
-            ->willThrowException(new DomainDoesNotExistException());
-        $mockRtrService->expects(self::once())
+        $mockRtrService->method('fetchDomain')->willThrowException(new DomainDoesNotExistException());
+        $mockRtrService
+            ->expects(self::once())
             ->method('findOpenPrevalidationProcessForDomain')
             ->with(self::DOMAIN)
             ->willReturn(Process::fromArray([
@@ -387,7 +393,8 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
                 'command' => [],
             ]));
         $mockSubscriptionService = self::createMock(SubscriptionService::class);
-        $mockSubscriptionService->expects(self::once())
+        $mockSubscriptionService
+            ->expects(self::once())
             ->method('updateSubscriptionStatus')
             ->with(
                 self::DOMAIN,
@@ -432,7 +439,8 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
         ]);
         $rtrResponseLog = new RtrResponseLogFactory()->createOne();
         $rtrServiceStub = self::createStub(RtrService::class);
-        $rtrServiceStub->method('fetchDomain')
+        $rtrServiceStub
+            ->method('fetchDomain')
             ->willReturn(new DomainDetailsDTO(
                 domainName: self::DOMAIN,
                 registrant: 'johndoe',
@@ -442,8 +450,7 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
                 ns: [],
                 premium: false,
             ));
-        $rtrServiceStub->method('getPrimaryDomainStatusFromDomainStatusList')
-            ->willReturn(null);
+        $rtrServiceStub->method('getPrimaryDomainStatusFromDomainStatusList')->willReturn(null);
 
         $handler = new DomainNotificationHandler(
             subscriptionService: self::resolve(SubscriptionService::class),
@@ -491,8 +498,7 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
         $rtrResponseLog = new RtrResponseLogFactory()->createOne();
 
         $mockRtrService = self::createMock(RtrService::class);
-        $mockRtrService->expects(self::never())
-            ->method('fetchDomain');
+        $mockRtrService->expects(self::never())->method('fetchDomain');
 
         $handler = new DomainNotificationHandler(
             subscriptionService: self::resolve(SubscriptionService::class),
@@ -524,9 +530,7 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
             'domain_status' => DomainStatus::PENDING_VALIDATION,
         ]);
 
-        $dnsProduct = ProductFactory::new()
-            ->freeDns()
-            ->createOne();
+        $dnsProduct = ProductFactory::new()->freeDns()->createOne();
 
         $dnsSubscription = SubscriptionFactory::new()
             ->for($this->subscription->customer)
@@ -534,15 +538,15 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
             ->parentSubscription($this->subscription)
             ->createOne();
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->for($dnsSubscription)
-            ->createOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->for($dnsSubscription)->createOne();
 
-        $dnsDeployment->dnsNameservers()->save(
-            DnsNameserverFactory::new()
-                ->for(DnsRegionFactory::new())
-                ->createOne(['nameserver' => 'ns1.example.nl']),
-        );
+        $dnsDeployment
+            ->dnsNameservers()
+            ->save(
+                DnsNameserverFactory::new()->for(DnsRegionFactory::new())->createOne([
+                    'nameserver' => 'ns1.example.nl',
+                ]),
+            );
 
         $notification = RtrNotification::fromArray([
             'id' => 123,
@@ -559,12 +563,14 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
         $mockRtrErrorParseService = self::createMock(RtrErrorParseService::class);
         $subscriptionServiceStub = self::createStub(SubscriptionService::class);
 
-        $mockRtrErrorParseService->expects(self::once())
+        $mockRtrErrorParseService
+            ->expects(self::once())
             ->method('getRtrErrorFromMessage')
             ->with($notification->message)
             ->willReturn(null);
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(self::DOMAIN)
             ->willReturn(new DomainDetailsDTO(
@@ -577,13 +583,13 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
                 premium: false,
             ));
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('getTechnicalStatusFromDomainStatusList')
             ->with([DomainStatus::OK->value])
             ->willReturn(TechnicalStatus::OK->value);
 
-        $mockRtrService->method('getPrimaryDomainStatusFromDomainStatusList')
-            ->willReturn(DomainStatus::OK);
+        $mockRtrService->method('getPrimaryDomainStatusFromDomainStatusList')->willReturn(DomainStatus::OK);
 
         $handler = new DomainNotificationHandler(
             subscriptionService: $subscriptionServiceStub,
@@ -601,7 +607,10 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
 
         $handler->handle($notification, $rtrResponseLog);
 
-        Bus::assertDispatched(SetNameserversForDomainJob::class, fn (SetNameserversForDomainJob $job): bool => $job->domain === self::DOMAIN);
+        Bus::assertDispatched(
+            SetNameserversForDomainJob::class,
+            fn (SetNameserversForDomainJob $job): bool => $job->domain === self::DOMAIN,
+        );
         self::assertSame(DomainStatus::OK, $this->subscription->domainDeployment?->refresh()->domain_status);
     }
 
@@ -616,9 +625,7 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
             'domain_status' => DomainStatus::PENDING_VALIDATION,
         ]);
 
-        $dnsProduct = ProductFactory::new()
-            ->freeDns()
-            ->createOne();
+        $dnsProduct = ProductFactory::new()->freeDns()->createOne();
 
         $dnsSubscription = SubscriptionFactory::new()
             ->for($this->subscription->customer)
@@ -626,15 +633,15 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
             ->parentSubscription($this->subscription)
             ->createOne();
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->for($dnsSubscription)
-            ->createOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->for($dnsSubscription)->createOne();
 
-        $dnsDeployment->dnsNameservers()->save(
-            DnsNameserverFactory::new()
-                ->for(DnsRegionFactory::new())
-                ->createOne(['nameserver' => 'ns1.example.nl']),
-        );
+        $dnsDeployment
+            ->dnsNameservers()
+            ->save(
+                DnsNameserverFactory::new()->for(DnsRegionFactory::new())->createOne([
+                    'nameserver' => 'ns1.example.nl',
+                ]),
+            );
 
         $notification = RtrNotification::fromArray([
             'id' => 123,
@@ -651,10 +658,10 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
         $rtrErrorParseServiceStub = self::createStub(RtrErrorParseService::class);
         $subscriptionServiceStub = self::createStub(SubscriptionService::class);
 
-        $rtrErrorParseServiceStub->method('getRtrErrorFromMessage')
-            ->willReturn(null);
+        $rtrErrorParseServiceStub->method('getRtrErrorFromMessage')->willReturn(null);
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(self::DOMAIN)
             ->willReturn(new DomainDetailsDTO(
@@ -667,13 +674,13 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
                 premium: false,
             ));
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('getTechnicalStatusFromDomainStatusList')
             ->with([DomainStatus::OK->value])
             ->willReturn(TechnicalStatus::OK->value);
 
-        $mockRtrService->method('getPrimaryDomainStatusFromDomainStatusList')
-            ->willReturn(DomainStatus::OK);
+        $mockRtrService->method('getPrimaryDomainStatusFromDomainStatusList')->willReturn(DomainStatus::OK);
 
         $handler = new DomainNotificationHandler(
             subscriptionService: $subscriptionServiceStub,
@@ -700,9 +707,7 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
     {
         Bus::fake();
 
-        $dnsProduct = ProductFactory::new()
-            ->freeDns()
-            ->createOne();
+        $dnsProduct = ProductFactory::new()->freeDns()->createOne();
 
         $dnsSubscription = SubscriptionFactory::new()
             ->for($this->subscription->customer)
@@ -710,15 +715,15 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
             ->parentSubscription($this->subscription)
             ->createOne();
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->for($dnsSubscription)
-            ->createOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->for($dnsSubscription)->createOne();
 
-        $dnsDeployment->dnsNameservers()->save(
-            DnsNameserverFactory::new()
-                ->for(DnsRegionFactory::new())
-                ->createOne(['nameserver' => 'ns1.example.nl']),
-        );
+        $dnsDeployment
+            ->dnsNameservers()
+            ->save(
+                DnsNameserverFactory::new()->for(DnsRegionFactory::new())->createOne([
+                    'nameserver' => 'ns1.example.nl',
+                ]),
+            );
 
         $notification = RtrNotification::fromArray([
             'id' => 123,
@@ -735,10 +740,10 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
         $rtrErrorParseServiceStub = self::createStub(RtrErrorParseService::class);
         $subscriptionServiceStub = self::createStub(SubscriptionService::class);
 
-        $rtrErrorParseServiceStub->method('getRtrErrorFromMessage')
-            ->willReturn(null);
+        $rtrErrorParseServiceStub->method('getRtrErrorFromMessage')->willReturn(null);
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(self::DOMAIN)
             ->willReturn(new DomainDetailsDTO(
@@ -751,13 +756,13 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
                 premium: false,
             ));
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('getTechnicalStatusFromDomainStatusList')
             ->with([DomainStatus::OK->value])
             ->willReturn(TechnicalStatus::OK->value);
 
-        $mockRtrService->method('getPrimaryDomainStatusFromDomainStatusList')
-            ->willReturn(DomainStatus::OK);
+        $mockRtrService->method('getPrimaryDomainStatusFromDomainStatusList')->willReturn(DomainStatus::OK);
 
         $handler = new DomainNotificationHandler(
             subscriptionService: $subscriptionServiceStub,
@@ -799,10 +804,10 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
         $mockSubscriptionService = self::createMock(SubscriptionService::class);
         $logger = self::createMock(LoggerInterface::class);
 
-        $rtrErrorParseServiceStub->method('getRtrErrorFromMessage')
-            ->willReturn(null);
+        $rtrErrorParseServiceStub->method('getRtrErrorFromMessage')->willReturn(null);
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(self::DOMAIN)
             ->willReturn(new DomainDetailsDTO(
@@ -815,18 +820,20 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
                 premium: false,
             ));
 
-        $mockRtrService->expects(self::once())
+        $mockRtrService
+            ->expects(self::once())
             ->method('getTechnicalStatusFromDomainStatusList')
             ->with([DomainStatus::INACTIVE->value])
             ->willReturn(TechnicalStatus::OK->value);
 
-        $mockRtrService->method('getPrimaryDomainStatusFromDomainStatusList')
-            ->willReturn(DomainStatus::INACTIVE);
+        $mockRtrService->method('getPrimaryDomainStatusFromDomainStatusList')->willReturn(DomainStatus::INACTIVE);
 
-        $mockSubscriptionService->expects(self::once())
+        $mockSubscriptionService
+            ->expects(self::once())
             ->method('updateSubscriptionStatus')
             ->with(self::DOMAIN, TechnicalStatus::PENDING->value, 'Domain created but inactive', false);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('warning')
             ->with('RTR domain inactive without local nameservers', [
                 LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
@@ -1095,21 +1102,21 @@ class DomainNotificationHandlerTest extends IntegrationTestCase
 
     private function createTestRtrSdk(
         RtrNotification $rtrNotification,
-        string $transferInfoFileLocation
+        string $transferInfoFileLocation,
     ): RealtimeRegister {
         return MockedClientFactory::makeSdkWithMultipleReponses([
             new Response(
                 status: 200,
                 body: (string) json_encode([
                     'entities' => [$rtrNotification->toArray()],
-                ])
+                ]),
             ),
             new Response(
                 status: 200,
-                body: json_encode(include $transferInfoFileLocation, JSON_THROW_ON_ERROR)
+                body: json_encode(include $transferInfoFileLocation, JSON_THROW_ON_ERROR),
             ),
             new Response(
-                status: 201
+                status: 201,
             ),
         ]);
     }

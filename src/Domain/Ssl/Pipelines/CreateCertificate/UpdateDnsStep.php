@@ -13,7 +13,7 @@ class UpdateDnsStep
 {
     public function __construct(
         private readonly SslDnsService $sslDnsService,
-        private readonly Dispatcher $eventDispatcher
+        private readonly Dispatcher $eventDispatcher,
     ) {
     }
 

@@ -29,18 +29,19 @@ class ManualSubscriptionObserverTest extends IntegrationTestCase
         ]);
 
         $manualSubscriptionGroup = new ProductGroupFactory()->manualSubscription()->createOne();
-        $manualProduct = new ProductFactory()->for($manualSubscriptionGroup)
-            ->createOne(['name' => 'manual test', 'slug' => 'manual_test']);
+        $manualProduct = new ProductFactory()->for($manualSubscriptionGroup)->createOne([
+            'name' => 'manual test',
+            'slug' => 'manual_test',
+        ]);
 
         $subscriptionUuid = Str::uuid();
         $customer = new CustomerFactory()->createOne();
-        $subscription = new SubscriptionFactory()
-            ->createOne([
-                'uuid' => $subscriptionUuid,
-                'customer_id' => $customer->id,
-                'domain' => null,
-                'product_uuid' => $manualProduct->uuid,
-            ]);
+        $subscription = new SubscriptionFactory()->createOne([
+            'uuid' => $subscriptionUuid,
+            'customer_id' => $customer->id,
+            'domain' => null,
+            'product_uuid' => $manualProduct->uuid,
+        ]);
 
         self::assertNull($subscription->technical_status);
 
@@ -52,23 +53,23 @@ class ManualSubscriptionObserverTest extends IntegrationTestCase
     public function observerTechnicalStatusSubscriptionWrongStatus(): void
     {
         $mailer = self::createMock(Mailer::class);
-        $mailer->expects(self::never())
-            ->method('send');
+        $mailer->expects(self::never())->method('send');
         $this->app->bind(Mailer::class, fn () => $mailer);
 
         $manualSubscriptionGroup = new ProductGroupFactory()->manualSubscription()->createOne();
-        $manualProduct = new ProductFactory()->for($manualSubscriptionGroup)
-            ->createOne(['name' => 'manual test', 'slug' => 'manual_test']);
+        $manualProduct = new ProductFactory()->for($manualSubscriptionGroup)->createOne([
+            'name' => 'manual test',
+            'slug' => 'manual_test',
+        ]);
 
         $subscriptionUuid = Str::uuid();
         $customer = new CustomerFactory()->createOne();
-        $subscription = new SubscriptionFactory()
-            ->createOne([
-                'uuid' => $subscriptionUuid,
-                'customer_id' => $customer->id,
-                'domain' => null,
-                'product_uuid' => $manualProduct->uuid,
-            ]);
+        $subscription = new SubscriptionFactory()->createOne([
+            'uuid' => $subscriptionUuid,
+            'customer_id' => $customer->id,
+            'domain' => null,
+            'product_uuid' => $manualProduct->uuid,
+        ]);
 
         self::assertNull($subscription->technical_status);
 
@@ -80,23 +81,23 @@ class ManualSubscriptionObserverTest extends IntegrationTestCase
     public function observerTechnicalStatusSubscriptionWrongField(): void
     {
         $mailer = self::createMock(Mailer::class);
-        $mailer->expects(self::never())
-            ->method('send');
+        $mailer->expects(self::never())->method('send');
         $this->app->bind(Mailer::class, fn () => $mailer);
 
         $manualSubscriptionGroup = new ProductGroupFactory()->manualSubscription()->createOne();
-        $manualProduct = new ProductFactory()->for($manualSubscriptionGroup)
-            ->createOne(['name' => 'manual test', 'slug' => 'manual_test']);
+        $manualProduct = new ProductFactory()->for($manualSubscriptionGroup)->createOne([
+            'name' => 'manual test',
+            'slug' => 'manual_test',
+        ]);
 
         $subscriptionUuid = Str::uuid();
         $customer = new CustomerFactory()->createOne();
-        $subscription = new SubscriptionFactory()
-            ->createOne([
-                'uuid' => $subscriptionUuid,
-                'customer_id' => $customer->id,
-                'domain' => null,
-                'product_uuid' => $manualProduct->uuid,
-            ]);
+        $subscription = new SubscriptionFactory()->createOne([
+            'uuid' => $subscriptionUuid,
+            'customer_id' => $customer->id,
+            'domain' => null,
+            'product_uuid' => $manualProduct->uuid,
+        ]);
 
         self::assertNull($subscription->technical_status);
 

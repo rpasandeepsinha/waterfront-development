@@ -33,7 +33,7 @@ class PriceServiceTest extends IntegrationTestCase
         int $expectedPrice,
         string $startDate,
         string $nextBillingDate,
-        string $testDate
+        string $testDate,
     ): void {
         $startDate = CarbonImmutable::createFromFormat(DateTimeFormat::DATE, $startDate);
         $nextBillingDate = CarbonImmutable::createFromFormat(DateTimeFormat::DATE, $nextBillingDate);

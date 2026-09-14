@@ -14,10 +14,10 @@ class FailedToFetchNameserversException extends Exception
         parent::__construct(
             sprintf(
                 'Failed to fetch nameservers for domain: %s',
-                $domain
+                $domain,
             ),
             $code,
-            $previous
+            $previous,
         );
     }
 }

@@ -17,8 +17,9 @@ use Waterfront\Infra\Authentication\DTO\AuthenticatedSystem;
  */
 class AuditObserver
 {
-    public function __construct(private readonly AuthenticationManager $authenticationManager)
-    {
+    public function __construct(
+        private readonly AuthenticationManager $authenticationManager,
+    ) {
     }
 
     public function creating(Audit|AuditBaseModel $audit): void
@@ -26,7 +27,9 @@ class AuditObserver
         try {
             $authenticatedSubject = $this->authenticationManager->getAuthenticatedSubject();
 
-            $auditLogUserType = $authenticatedSubject instanceof AuthenticatedSystem ? AuditLogUserType::CONSOLE : AuditLogUserType::USER;
+            $auditLogUserType = $authenticatedSubject instanceof AuthenticatedSystem
+                ? AuditLogUserType::CONSOLE
+                : AuditLogUserType::USER;
 
             $audit['user_type'] = $auditLogUserType;
             $audit['identity_uuid'] = $authenticatedSubject->identitySchema->id;

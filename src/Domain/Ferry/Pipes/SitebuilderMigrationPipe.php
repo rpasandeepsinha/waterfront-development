@@ -59,20 +59,28 @@ class SitebuilderMigrationPipe extends ValidationPipe
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Start'
+            message: 'Start',
         );
 
         /** @var array<int, array<string, mixed>> $sitebuilderPayloadsArray */
         $sitebuilderPayloadsArray = Arr::get($payload->subscriptions, 'sitebuilder', []);
 
         foreach ($sitebuilderPayloadsArray as $index => $sitebuilderPayload) {
-            Arr::set($sitebuilderPayloadsArray, "$index.bundle.mail_only.reference_subscription_id", $sitebuilderPayload['reference_subscription_id']);
-            Arr::set($sitebuilderPayloadsArray, "$index.bundle.sitebuilder.reference_subscription_id", $sitebuilderPayload['reference_subscription_id']);
+            Arr::set(
+                $sitebuilderPayloadsArray,
+                "$index.bundle.mail_only.reference_subscription_id",
+                $sitebuilderPayload['reference_subscription_id'],
+            );
+            Arr::set(
+                $sitebuilderPayloadsArray,
+                "$index.bundle.sitebuilder.reference_subscription_id",
+                $sitebuilderPayload['reference_subscription_id'],
+            );
         }
 
         $validator = $this->validatorFactory->make(
             $sitebuilderPayloadsArray,
-            MigrationValidationLibrary::getSitebuilderBaseRules()
+            MigrationValidationLibrary::getSitebuilderBaseRules(),
         );
 
         try {
@@ -89,14 +97,17 @@ class SitebuilderMigrationPipe extends ValidationPipe
 
         try {
             /** @var array<int, SitebuilderSubscriptionPayload> $sitebuilderPayloads */
-            $sitebuilderPayloads = $this->serializer->denormalize($sitebuilderPayloadsArray, SitebuilderSubscriptionPayload::class . '[]');
+            $sitebuilderPayloads = $this->serializer->denormalize(
+                $sitebuilderPayloadsArray,
+                SitebuilderSubscriptionPayload::class . '[]',
+            );
         } catch (Throwable $exception) { // @phpstan-ignore-line
             $this->addValidationResult(
                 validationPayload: $payload,
                 migrationValidationKey: MigrationValidation::SITEBUILDER_PAYLOAD_INVALID,
                 message: 'Unable to denormalize sitebuilder migration validation payload',
                 data: [
-                    'payload'   => $sitebuilderPayloadsArray,
+                    'payload' => $sitebuilderPayloadsArray,
                     'exception' => $exception->getMessage(),
                 ],
             );
@@ -110,7 +121,7 @@ class SitebuilderMigrationPipe extends ValidationPipe
             $payload->addValidationTimeline(
                 pipeline: $this->getValidationIdentifier(),
                 message: 'looping',
-                id: $referenceSubscriptionId
+                id: $referenceSubscriptionId,
             );
 
             // Sitebuilder
@@ -131,7 +142,7 @@ class SitebuilderMigrationPipe extends ValidationPipe
                 $payload,
                 $sitebuilderMigrationPayload,
                 $sitebuilderServer,
-                $referenceSubscriptionId
+                $referenceSubscriptionId,
             );
 
             if (! $sitebuilderExists) {
@@ -142,7 +153,7 @@ class SitebuilderMigrationPipe extends ValidationPipe
                 $payload,
                 $sitebuilderMigrationPayload,
                 $sitebuilderServer,
-                $referenceSubscriptionId
+                $referenceSubscriptionId,
             );
 
             // Mail only
@@ -163,7 +174,7 @@ class SitebuilderMigrationPipe extends ValidationPipe
                 $payload,
                 $mailOnlyMigrationPayload,
                 $mailOnlyServer,
-                $referenceSubscriptionId
+                $referenceSubscriptionId,
             );
 
             if (! $mailOnlyExists) {
@@ -174,7 +185,7 @@ class SitebuilderMigrationPipe extends ValidationPipe
                 $payload,
                 $mailOnlyMigrationPayload,
                 $mailOnlyServer,
-                $referenceSubscriptionId
+                $referenceSubscriptionId,
             );
 
             $this->isMailOnlyReseller(
@@ -182,13 +193,13 @@ class SitebuilderMigrationPipe extends ValidationPipe
                 $mailOnlyMigrationPayload,
                 $mailOnlyServer,
                 $referenceSubscriptionId,
-                $payload->getJobId()
+                $payload->getJobId(),
             );
         }
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Finish'
+            message: 'Finish',
         );
 
         return $this->finishPipe(
@@ -208,13 +219,12 @@ class SitebuilderMigrationPipe extends ValidationPipe
         ValidationPayload $payload,
         string $serverHostname,
         string $driver,
-        string $referenceSubscriptionId
-    ): Server|null {
+        string $referenceSubscriptionId,
+    ): ?Server {
         $server = null;
 
         try {
-            $server = $this->serverRepository
-                ->findByHostname($serverHostname);
+            $server = $this->serverRepository->findByHostname($serverHostname);
         } catch (ModelNotFoundException) {
             $message = sprintf(
                 'Server of type "%s" and server hostname "%s" not found',
@@ -226,7 +236,7 @@ class SitebuilderMigrationPipe extends ValidationPipe
                 validationPayload: $payload,
                 migrationValidationKey: MigrationValidation::SITEBUILDER_SERVER_INVALID,
                 message: $message,
-                referenceSubscriptionId: $referenceSubscriptionId
+                referenceSubscriptionId: $referenceSubscriptionId,
             );
 
             $this->logger->debug($message, [
@@ -253,7 +263,7 @@ class SitebuilderMigrationPipe extends ValidationPipe
             return $this->sitebuilderProxy->assertSitebuilderSiteExists(
                 customerEmail: $email,
                 siteRef: $siteRef,
-                server: $server
+                server: $server,
             );
         } catch (Throwable $exception) { // @phpstan-ignore-line
             $message = sprintf(
@@ -284,7 +294,7 @@ class SitebuilderMigrationPipe extends ValidationPipe
         ValidationPayload $payload,
         HostingMigrationPayload $sitebuilderMigrationPayload,
         Server $server,
-        string $referenceSubscriptionId
+        string $referenceSubscriptionId,
     ): bool {
         try {
             $this->getSsoUrlAction->execute(
@@ -300,9 +310,12 @@ class SitebuilderMigrationPipe extends ValidationPipe
                 [
                     LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
-                    LoggingContextKeys::REQUEST_DATA => $this->serializer->serialize($sitebuilderMigrationPayload, 'json'),
+                    LoggingContextKeys::REQUEST_DATA => $this->serializer->serialize(
+                        $sitebuilderMigrationPayload,
+                        'json',
+                    ),
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             $this->addValidationResult(
@@ -326,7 +339,7 @@ class SitebuilderMigrationPipe extends ValidationPipe
         ValidationPayload $payload,
         HostingMigrationPayload $mailOnlyMigrationPayload,
         Server $mailOnlyServer,
-        string $referenceSubscriptionId
+        string $referenceSubscriptionId,
     ): bool {
         try {
             // DirectAdmin mail only is managed through the control panel so we don't need an SSO.
@@ -334,7 +347,7 @@ class SitebuilderMigrationPipe extends ValidationPipe
                 $this->getSsoUrlAction->execute(
                     server: $mailOnlyServer,
                     username: $mailOnlyMigrationPayload->hostingDetails->getUsername(),
-                    ipAddress: '127.0.0.1'
+                    ipAddress: '127.0.0.1',
                 );
             }
 
@@ -347,7 +360,7 @@ class SitebuilderMigrationPipe extends ValidationPipe
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                     LoggingContextKeys::REQUEST_DATA => $this->serializer->serialize($mailOnlyMigrationPayload, 'json'),
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             $this->addValidationResult(
@@ -370,13 +383,13 @@ class SitebuilderMigrationPipe extends ValidationPipe
         ValidationPayload $payload,
         HostingMigrationPayload $mailOnlyMigrationPayload,
         Server $server,
-        string $referenceSubscriptionId
+        string $referenceSubscriptionId,
     ): bool {
         try {
             $this->mailDto = $this->hostingService->getUserConfigAsDto(
                 $mailOnlyMigrationPayload->driver,
                 $mailOnlyMigrationPayload->hostingDetails->getUsername(),
-                $server
+                $server,
             );
 
             return true;
@@ -435,9 +448,10 @@ class SitebuilderMigrationPipe extends ValidationPipe
                         'username' => $hostingMigrationPayload->hostingDetails->getUsername(),
                     ],
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $validationPayload->validationReference,
-                ]
+                ],
             );
         }
+
         return $this->mailDto->isReseller();
     }
 

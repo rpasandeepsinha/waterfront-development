@@ -17,10 +17,10 @@ class StoreCustomerAddressNoExistingCustomerException extends Exception
         parent::__construct(
             sprintf(
                 'No customer found when creating address: %s',
-                json_encode($address, JSON_THROW_ON_ERROR)
+                json_encode($address, JSON_THROW_ON_ERROR),
             ),
             $code,
-            $previous
+            $previous,
         );
     }
 }

@@ -71,7 +71,8 @@ class DowngradeSubscriptionsActionTest extends IntegrationTestCase
         $freeDns = ProductFactory::new()->freeDns($group)->createOne();
         $subscription = SubscriptionFactory::new()->withCustomer()->for($premiumDns)->createOne();
 
-        $this->changeDnsAction->expects(self::once())
+        $this->changeDnsAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, ProductChangeType::DOWNGRADE);
 
@@ -90,7 +91,8 @@ class DowngradeSubscriptionsActionTest extends IntegrationTestCase
 
         $exception = new RuntimeException('PowerDNS zone not found', 42);
 
-        $this->changeDnsAction->expects(self::once())
+        $this->changeDnsAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, ProductChangeType::DOWNGRADE)
             ->willThrowException($exception);
@@ -113,7 +115,8 @@ class DowngradeSubscriptionsActionTest extends IntegrationTestCase
         $subscription = SubscriptionFactory::new()
             ->withCustomer()
             ->has(HostingDeploymentFactory::new()->withPleskProvider())
-            ->for($hostingGold)->createOne();
+            ->for($hostingGold)
+            ->createOne();
 
         $hostingDeployment = $subscription->hostingDeployment;
         self::assertInstanceOf(HostingDeployment::class, $hostingDeployment);
@@ -121,7 +124,8 @@ class DowngradeSubscriptionsActionTest extends IntegrationTestCase
         $currentServerId = $hostingDeployment->server_id;
         $currentProviderId = $hostingDeployment->provider_id;
 
-        $this->mockSpecRepository->expects(self::once())
+        $this->mockSpecRepository
+            ->expects(self::once())
             ->method('booleanSpecificationIsTrue')
             ->with($hostingBronze, ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER)
             ->willReturn(true);
@@ -148,16 +152,19 @@ class DowngradeSubscriptionsActionTest extends IntegrationTestCase
         $subscription = SubscriptionFactory::new()
             ->withCustomer()
             ->has(HostingDeploymentFactory::new()->withPleskProvider())
-            ->for($hostingGold)->createOne();
+            ->for($hostingGold)
+            ->createOne();
 
-        $this->mockSpecRepository->expects(self::once())
+        $this->mockSpecRepository
+            ->expects(self::once())
             ->method('booleanSpecificationIsTrue')
             ->with($hostingBronze, ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER)
             ->willReturn(false);
 
         $expectedResult = new SubscriptionChangeResult(status: SubscriptionChangeResult::STATUS_OK);
 
-        $this->mockHostingDowngradeExecutor->expects(self::once())
+        $this->mockHostingDowngradeExecutor
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 self::identicalTo($subscription),
@@ -184,16 +191,19 @@ class DowngradeSubscriptionsActionTest extends IntegrationTestCase
         $subscription = SubscriptionFactory::new()
             ->withCustomer()
             ->has(HostingDeploymentFactory::new()->withPleskProvider())
-            ->for($hostingGold)->createOne();
+            ->for($hostingGold)
+            ->createOne();
 
         $originalStatus = $subscription->technical_status;
 
-        $this->mockSpecRepository->expects(self::once())
+        $this->mockSpecRepository
+            ->expects(self::once())
             ->method('booleanSpecificationIsTrue')
             ->with($hostingBronze, ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER)
             ->willReturn(false);
 
-        $this->mockHostingDowngradeExecutor->expects(self::once())
+        $this->mockHostingDowngradeExecutor
+            ->expects(self::once())
             ->method('execute')
             ->willReturn(new SubscriptionChangeResult(
                 status: SubscriptionChangeResult::STATUS_ERROR,
@@ -219,21 +229,22 @@ class DowngradeSubscriptionsActionTest extends IntegrationTestCase
         $subscription = SubscriptionFactory::new()
             ->withCustomer()
             ->has(HostingDeploymentFactory::new()->withMailOnlyProvider())
-            ->for($sitebuilderShop)->createOne();
+            ->for($sitebuilderShop)
+            ->createOne();
 
-        $this->mockSpecRepository->expects(self::once())
+        $this->mockSpecRepository
+            ->expects(self::once())
             ->method('booleanSpecificationIsTrue')
             ->with($sitebuilder, ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER)
             ->willReturn(false);
 
-        $this->mockSitebuilderService->expects(self::once())
+        $this->mockSitebuilderService
+            ->expects(self::once())
             ->method('hasSitebuilderThroughGateway')
             ->with($subscription->customer->email)
             ->willReturn(true);
 
-        $this->mockSitebuilderService->expects(self::once())
-            ->method('update')
-            ->with($subscription);
+        $this->mockSitebuilderService->expects(self::once())->method('update')->with($subscription);
 
         $this->mockHostingDowngradeExecutor->expects(self::never())->method('execute');
 
@@ -251,21 +262,25 @@ class DowngradeSubscriptionsActionTest extends IntegrationTestCase
         $subscription = SubscriptionFactory::new()
             ->withCustomer()
             ->has(HostingDeploymentFactory::new()->withMailOnlyProvider())
-            ->for($sitebuilderShop)->createOne();
+            ->for($sitebuilderShop)
+            ->createOne();
 
         $originalStatus = $subscription->technical_status;
 
-        $this->mockSpecRepository->expects(self::once())
+        $this->mockSpecRepository
+            ->expects(self::once())
             ->method('booleanSpecificationIsTrue')
             ->with($sitebuilder, ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER)
             ->willReturn(false);
 
-        $this->mockSitebuilderService->expects(self::once())
+        $this->mockSitebuilderService
+            ->expects(self::once())
             ->method('hasSitebuilderThroughGateway')
             ->with($subscription->customer->email)
             ->willReturn(true);
 
-        $this->mockSitebuilderService->expects(self::once())
+        $this->mockSitebuilderService
+            ->expects(self::once())
             ->method('update')
             ->with($subscription)
             ->willThrowException(new RuntimeException('Sitebuilder provision failed'));

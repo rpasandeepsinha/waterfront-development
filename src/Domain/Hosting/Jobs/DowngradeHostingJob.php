@@ -42,12 +42,12 @@ class DowngradeHostingJob extends AbstractQueueableJob
         $logger->info(
             'Start downgrade hosting job: {subscription.uuid}',
             [
-            LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
-            LoggingContextKeys::META => [
-                'subscription_change_id' => $this->subscriptionChange->id,
-                'subscription_mutation_id' => $this->subscriptionMutation->id,
+                LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
+                LoggingContextKeys::META => [
+                    'subscription_change_id' => $this->subscriptionChange->id,
+                    'subscription_mutation_id' => $this->subscriptionMutation->id,
+                ],
             ],
-        ]
         );
 
         $deployment = $this->subscription->hostingDeployment;
@@ -60,7 +60,7 @@ class DowngradeHostingJob extends AbstractQueueableJob
                         'subscription_change_id' => $this->subscriptionChange->id,
                         'subscription_mutation_id' => $this->subscriptionMutation->id,
                     ],
-                ]
+                ],
             );
 
             return;
@@ -80,7 +80,10 @@ class DowngradeHostingJob extends AbstractQueueableJob
         );
 
         if ($result->status === SubscriptionChangeResult::STATUS_ERROR) {
-            $this->failed(new Exception($result->errorMessage ?? 'Hosting change failed, original error message empty.'), $deployment);
+            $this->failed(
+                new Exception($result->errorMessage ?? 'Hosting change failed, original error message empty.'),
+                $deployment,
+            );
 
             return;
         }
@@ -93,7 +96,10 @@ class DowngradeHostingJob extends AbstractQueueableJob
     public function failed(Throwable $exception, HostingDeployment $hostingDeployment): void
     {
         $hostingDeployment->last_created_result_received = CarbonImmutable::now();
-        $json = json_encode([ 'message' => $exception->getMessage(), 'code' => $exception->getCode()], JSON_THROW_ON_ERROR);
+        $json = json_encode([
+            'message' => $exception->getMessage(),
+            'code' => $exception->getCode(),
+        ], JSON_THROW_ON_ERROR);
         $hostingDeployment->last_created_result = $json;
         $hostingDeployment->save();
 

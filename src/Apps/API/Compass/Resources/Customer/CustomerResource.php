@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Waterfront\Apps\API\Compass\Policies\CustomerPolicy;
 use Waterfront\Domain\Customers\Models\Customer;
-use Waterfront\Domain\Customers\Services\CustomerExperimentService;
+use Waterfront\Domain\Customers\Services\ExperimentService;
 
 /**
  * @property Customer $resource
@@ -22,7 +22,7 @@ class CustomerResource extends JsonResource
     public function toArray(Request $request): array
     {
         $customerPolicy = Container::getInstance()->make(CustomerPolicy::class);
-        $customerExperimentService = Container::getInstance()->make(CustomerExperimentService::class);
+        $experimentService = Container::getInstance()->make(ExperimentService::class);
 
         return [
             'id' => $this->resource->id,
@@ -49,7 +49,7 @@ class CustomerResource extends JsonResource
             'migrated_customers' => CustomerMigrationResource::collection($this->resource->migratedCustomers),
             'available_actions' => $customerPolicy->getAvailableCompassActions($this->resource),
             'labels' => [
-                'experiments' => $customerExperimentService->participatesInExperiments($this->resource),
+                'experiments' => $experimentService->customerParticipatesInExperiments($this->resource),
             ],
         ];
     }

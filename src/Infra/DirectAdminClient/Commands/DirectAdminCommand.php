@@ -72,8 +72,8 @@ abstract class DirectAdminCommand implements DirectAdminCommandContract
 
         if ($this->urlDecode && Str::contains($this->responseBody, $this->failureString)) {
             throw new DirectAdminCommandException(
-                "DirectAdmin returned a Failure on {$this->getCurrentCommand()}," .
-                'Response: ' . rawurldecode($this->responseBody)
+                "DirectAdmin returned a Failure on {$this->getCurrentCommand()}," . 'Response: '
+                    . rawurldecode($this->responseBody),
             );
         }
 
@@ -85,7 +85,7 @@ abstract class DirectAdminCommand implements DirectAdminCommandContract
                 $error = $decoded['error'];
                 assert(is_string($error));
                 throw new DirectAdminCommandException(
-                    "Failed [{$this->getCurrentCommand()}]: {$error} - {$result}"
+                    "Failed [{$this->getCurrentCommand()}]: {$error} - {$result}",
                 );
             }
         }
@@ -113,6 +113,7 @@ abstract class DirectAdminCommand implements DirectAdminCommandContract
     public function decodeUrlEncodedString(string $encoded): array
     {
         parse_str($encoded, $decoded);
+
         return $decoded;
     }
 
@@ -128,6 +129,7 @@ abstract class DirectAdminCommand implements DirectAdminCommandContract
             if (is_int($name)) {
                 $name = (string) $name;
             }
+
             $this->{$this->caseProperty($name)} = $value;
         }
 
@@ -148,9 +150,7 @@ abstract class DirectAdminCommand implements DirectAdminCommandContract
      */
     public function caseProperty(string $property): string
     {
-        return (Str::length($property) > 2)
-            ? Str::camel($property)
-            : Str::lower($property);
+        return Str::length($property) > 2 ? Str::camel($property) : Str::lower($property);
     }
 
     /**
@@ -235,6 +235,7 @@ abstract class DirectAdminCommand implements DirectAdminCommandContract
     final public function setFormValues(array $formValues): DirectAdminCommand
     {
         $this->formValues = $formValues;
+
         return $this;
     }
 

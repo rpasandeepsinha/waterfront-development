@@ -29,8 +29,16 @@ class DisableTest extends IntegrationTestCase
     {
         $mock = new MockHandler([
             function (RequestInterface $request, $options) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_disable_request.xml'), (string) $request->getBody());
-                return new Response(HttpResponse::HTTP_OK, [], (string) file_get_contents(__DIR__ . '/data/plesk_disable_response.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_disable_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    HttpResponse::HTTP_OK,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_disable_response.xml'),
+                );
             },
         ]);
         $handlerStack = HandlerStack::create($mock);
@@ -42,7 +50,7 @@ class DisableTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $data = require __DIR__ . '/data/pleskChangeHostingPackageStatusData.php';

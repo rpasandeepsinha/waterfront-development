@@ -39,8 +39,8 @@ class HostingServiceFactory
             ProviderSlug::ACRONIS,
             ProviderSlug::REALTIME_REGISTER,
             ProviderSlug::XOLPHIN,
-            ProviderSlug::OPEN_SRS,
-            ProviderSlug::OPEN_PROVIDER => throw new RuntimeException()
+            ProviderSlug::OPEN_PROVIDER,
+                => throw new RuntimeException(),
         };
     }
 
@@ -57,13 +57,12 @@ class HostingServiceFactory
     public function getDriverFromServer(Server $server): ProviderSlug
     {
         return match ($server->type) {
-            ServerType::DIRECTADMIN,
-            ServerType::DIRECTADMIN_MAIL => ProviderSlug::DIRECTADMIN,
+            ServerType::DIRECTADMIN, ServerType::DIRECTADMIN_MAIL => ProviderSlug::DIRECTADMIN,
             ServerType::PLESK => ProviderSlug::PLESK,
             default => throw new DriverNotDefinedException(sprintf(
                 'Could not resolve a driver from a hosting server ID: {%d} with hostname: {%s}',
                 $server->id,
-                $server->hostname
+                $server->hostname,
             )),
         };
     }

@@ -18,7 +18,7 @@ use Waterfront\Infra\Translation\TranslatorInterface;
 class NovaMicrosoft365RetryCreateKpnCustomerAction extends Action
 {
     public function __construct(
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -39,7 +39,10 @@ class NovaMicrosoft365RetryCreateKpnCustomerAction extends Action
         foreach ($microsoft365CustomerInfos as $microsoft365CustomerInfo) {
             if ($microsoft365CustomerInfo->kpn_customer_id === null) {
                 try {
-                    $successful = $microsoft365Service->createKpnCustomer(customer: $microsoft365CustomerInfo->customer, customerInfoId: (string) $microsoft365CustomerInfo->id);
+                    $successful = $microsoft365Service->createKpnCustomer(
+                        customer: $microsoft365CustomerInfo->customer,
+                        customerInfoId: (string) $microsoft365CustomerInfo->id,
+                    );
                 } catch (Office365Exception $e) {
                     Log::error(sprintf(
                         'Error while creating KPN customer for customer_id: [%s]. With exception message: %s',
@@ -47,12 +50,17 @@ class NovaMicrosoft365RetryCreateKpnCustomerAction extends Action
                         $e->getMessage(),
                     ));
 
-                    return self::danger($this->translator->translate('nova-action.failed.microsoft365-customer-failed'));
+                    return self::danger($this->translator->translate(
+                        'nova-action.failed.microsoft365-customer-failed',
+                    ));
                 }
 
                 if (! $successful) {
                     $microsoft365CustomerInfo->update(['technical_status' => Microsoft365ProcessStatus::FAILED]);
-                    return self::danger($this->translator->translate('nova-action.failed.microsoft365-customer-failed'));
+
+                    return self::danger($this->translator->translate(
+                        'nova-action.failed.microsoft365-customer-failed',
+                    ));
                 }
             }
         }

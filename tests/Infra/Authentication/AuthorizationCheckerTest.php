@@ -48,7 +48,8 @@ class AuthorizationCheckerTest extends TestCase
         );
 
         $authenticationManager = self::createMock(AuthenticationManager::class);
-        $authenticationManager->expects(self::once())
+        $authenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedSubject')
             ->willReturn($authenticatedSubject);
 
@@ -86,7 +87,8 @@ class AuthorizationCheckerTest extends TestCase
         );
 
         $authenticationManager = self::createMock(AuthenticationManager::class);
-        $authenticationManager->expects(self::once())
+        $authenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedSubject')
             ->willReturn($authenticatedSubject);
 

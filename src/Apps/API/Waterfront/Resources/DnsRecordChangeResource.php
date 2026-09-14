@@ -33,7 +33,7 @@ class DnsRecordChangeResource extends Resource
             'record_type' => $this->resource->record_type->value,
             'change_type' => $this->resource->change_type->value,
             'agent_type' => $translator->translate(
-                sprintf('dns.agent_type.%s', $this->resource->agent_type->value)
+                sprintf('dns.agent_type.%s', $this->resource->agent_type->value),
             ),
             'content' => $this->resource->content,
             'ttl' => $this->resource->ttl,

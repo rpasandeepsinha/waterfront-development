@@ -51,7 +51,7 @@ class StoreSubscriptionAction
 
         if (! $responseDto->hasFailures()) {
             $this->touchMigrationCustomerMigratedAtTimestamp(
-                createSubscriptions: $createSubscriptions
+                createSubscriptions: $createSubscriptions,
             );
         }
 
@@ -63,7 +63,7 @@ class StoreSubscriptionAction
                 externalSubscription: $externalSubscription,
                 customer: $customer,
                 migratedCustomer: $migratedCustomer,
-                responseDto: $responseDto
+                responseDto: $responseDto,
             );
 
             if ($alreadyCreated) {
@@ -81,19 +81,19 @@ class StoreSubscriptionAction
             $subscription = $this->createSubscriptions(
                 customer: $customer,
                 externalSubscription: $externalSubscription,
-                responseDto: $responseDto
+                responseDto: $responseDto,
             );
 
             $this->createMigrationSubscriptionAdministration(
                 externalSubscription: $externalSubscription,
                 subscription: $subscription,
-                customer: $customer
+                customer: $customer,
             );
 
             $this->addSuccessMessage(
                 responseDto: $responseDto,
                 subscription: $subscription,
-                createSubscriptionDTO: $externalSubscription
+                createSubscriptionDTO: $externalSubscription,
             );
 
             $subscriptions[] = $subscription;
@@ -141,9 +141,11 @@ class StoreSubscriptionAction
     }
 
     private function touchMigrationCustomerMigratedAtTimestamp(
-        CreateSubscriptionsDTO $createSubscriptions
+        CreateSubscriptionsDTO $createSubscriptions,
     ): void {
-        $createSubscriptions->getCustomer()->migratedCustomers()
+        $createSubscriptions
+            ->getCustomer()
+            ->migratedCustomers()
             ->where([
                 'reference_customer_number' => $createSubscriptions->getReferenceCustomerId(),
             ])
@@ -160,7 +162,7 @@ class StoreSubscriptionAction
         $alreadyExists = $this->migratableSubscriptionRepository->isSubscriptionAlreadyCreated(
             subscriptionReferenceId: $externalSubscription->referenceSubscriptionId,
             productReferenceId: $externalSubscription->referenceProductId,
-            bu: $migratedCustomer->reference_name
+            bu: $migratedCustomer->reference_name,
         );
 
         if ($alreadyExists) {
@@ -175,7 +177,7 @@ class StoreSubscriptionAction
             $extensionSubscription = $this->migratableSubscriptionRepository->getAlreadyExistingSubscriptionFromMigration(
                 subscriptionReferenceId: $externalSubscription->referenceSubscriptionId,
                 productReferenceId: $externalSubscription->referenceProductId,
-                productSlug: $externalSubscription->slug
+                productSlug: $externalSubscription->slug,
             );
 
             if ($extensionSubscription->product->productGroup->slug === ProductGroupType::EXTENSION) {
@@ -191,13 +193,16 @@ class StoreSubscriptionAction
     private function createSubscriptions(
         Customer $customer,
         CreateSubscriptionDTO $externalSubscription,
-        ResponseDto $responseDto
+        ResponseDto $responseDto,
     ): Subscription {
         $subscription = $this->subscriptionRepository->createFromMigration($customer, $externalSubscription);
 
         $this->attachSubscriptionLabels($subscription, $externalSubscription);
 
-        $this->technicalPlaceHolderSubscriptionFactory->create($subscription, $externalSubscription->implementableProduct);
+        $this->technicalPlaceHolderSubscriptionFactory->create(
+            $subscription,
+            $externalSubscription->implementableProduct,
+        );
 
         if ($subscription->product->productGroup->slug === ProductGroupType::EXTENSION) {
             $this->createFreeDnsSubscription($subscription, $responseDto, $externalSubscription);
@@ -211,14 +216,16 @@ class StoreSubscriptionAction
         Subscription $subscription,
         Customer $customer,
     ): void {
-        $migratedSubscription = $subscription->migratedSubscriptions()
+        $migratedSubscription = $subscription
+            ->migratedSubscriptions()
             ->create([
                 'reference_product_id' => $externalSubscription->referenceProductId,
                 'reference_subscription_id' => $externalSubscription->referenceSubscriptionId,
             ]);
 
         /** @var MigratedCustomer $migratedCustomer */
-        $migratedCustomer = $customer->migratedCustomers()
+        $migratedCustomer = $customer
+            ->migratedCustomers()
             ->where([
                 'reference_customer_number' => $externalSubscription->createSubscriptions->getReferenceCustomerId(),
             ])
@@ -227,20 +234,29 @@ class StoreSubscriptionAction
         $migratedCustomer->migratedSubscriptions()->attach($migratedSubscription);
     }
 
-    private function createFreeDnsSubscription(Subscription $extensionSubscription, ResponseDto $responseDto, CreateSubscriptionDTO $externalSubscription): void
-    {
-        $freeDnsSubscription = $this->subscriptionService->createFreeDnsSubscriptionForExtension($extensionSubscription);
+    private function createFreeDnsSubscription(
+        Subscription $extensionSubscription,
+        ResponseDto $responseDto,
+        CreateSubscriptionDTO $externalSubscription,
+    ): void {
+        $freeDnsSubscription =
+            $this->subscriptionService->createFreeDnsSubscriptionForExtension($extensionSubscription);
 
         if ($freeDnsSubscription instanceof Subscription) {
             $this->addSuccessMessage($responseDto, $freeDnsSubscription, $externalSubscription);
-            $this->dnsDeploymentRepository->create($freeDnsSubscription->uuid, nameserverType: NameserverType::EXTERNAL);
+            $this->dnsDeploymentRepository->create(
+                $freeDnsSubscription->uuid,
+                nameserverType: NameserverType::EXTERNAL,
+            );
         } else {
             $this->addFreeDnsSuccessMessage($responseDto, $extensionSubscription, $externalSubscription);
         }
     }
 
-    private function attachSubscriptionLabels(Subscription $subscription, CreateSubscriptionDTO $externalSubscription): void
-    {
+    private function attachSubscriptionLabels(
+        Subscription $subscription,
+        CreateSubscriptionDTO $externalSubscription,
+    ): void {
         $labels = $externalSubscription->labels;
 
         if ($labels === null) {
@@ -256,22 +272,26 @@ class StoreSubscriptionAction
     private function addSuccessMessage(
         ResponseDto $responseDto,
         Subscription $subscription,
-        CreateSubscriptionDTO $createSubscriptionDTO
+        CreateSubscriptionDTO $createSubscriptionDTO,
     ): void {
         $responseDto->addSuccess(
-            SuccessDto::create('Migrated successfully', [], [
-                Parameter::create('subscription_id', $subscription->id),
-                Parameter::create('product_group_slug', $subscription->product->productGroup->slug->value),
-                Parameter::create('product_slug', $subscription->product->slug),
-                Parameter::create('reference_subscription_id', $createSubscriptionDTO->referenceSubscriptionId),
-            ])
+            SuccessDto::create(
+                'Migrated successfully',
+                [],
+                [
+                    Parameter::create('subscription_id', $subscription->id),
+                    Parameter::create('product_group_slug', $subscription->product->productGroup->slug->value),
+                    Parameter::create('product_slug', $subscription->product->slug),
+                    Parameter::create('reference_subscription_id', $createSubscriptionDTO->referenceSubscriptionId),
+                ],
+            ),
         );
     }
 
     private function addFreeDnsSuccessMessage(
         ResponseDto $responseDto,
         Subscription $extensionSubscription,
-        CreateSubscriptionDTO $externalSubscription
+        CreateSubscriptionDTO $externalSubscription,
     ): void {
         $domain = $extensionSubscription->domain;
         assert(is_string($domain));

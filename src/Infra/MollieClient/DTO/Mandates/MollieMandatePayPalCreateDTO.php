@@ -15,7 +15,7 @@ class MollieMandatePayPalCreateDTO implements MollieMandateCreateInterface
         public readonly string $consumerEmail,
         public readonly string $paypalBillingAgreementId,
         public string $signatureDate, // Y-m-d
-        public string|null $mandateReference = null // our own reference
+        public ?string $mandateReference = null, // our own reference
     ) {
         $this->method = MollieMandateMethod::PAYPAL;
     }

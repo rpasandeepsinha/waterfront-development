@@ -44,9 +44,10 @@ class NovaRetryHostingAction extends NovaSubscriptionAction
         private readonly LoggerInterface $logger,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool =>
+            fn (NovaRequest $request): bool => (
                 $this->onlyForSingleSubscription($request)
                 && $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::HOSTING)
+            ),
         );
 
         $this->sole();
@@ -101,12 +102,13 @@ class NovaRetryHostingAction extends NovaSubscriptionAction
     {
         return [
             Select::make($this->translator->translate('nova-action.hosting_options'), 'hosting_options')
-                ->options(self::HOSTING_OPTIONS)->default('basic'),
+                ->options(self::HOSTING_OPTIONS)
+                ->default('basic'),
             Number::make($this->translator->translate('nova-action.server_id'), 'server_id'),
         ];
     }
 
-    private function handleBasicHosting(Subscription $subscription, int|null $serverId): void
+    private function handleBasicHosting(Subscription $subscription, ?int $serverId): void
     {
         $domain = $subscription->domain;
 
@@ -115,18 +117,20 @@ class NovaRetryHostingAction extends NovaSubscriptionAction
                 'Deleting hosting deployment',
                 [
                     LoggingContextKeys::SERVER_ID => $subscription->hostingDeployment?->server_id,
-                    LoggingContextKeys::PROVISIONING_PROVIDER => $subscription->hostingDeployment?->provider?->slug->value,
+                    LoggingContextKeys::PROVISIONING_PROVIDER =>
+                        $subscription->hostingDeployment?->provider?->slug->value,
                     LoggingContextKeys::META => [
                         'sitebuilder_provider_id' => $subscription->hostingDeployment?->sitebuilder_provider_id,
                         'mail_only_provider_id' => $subscription->hostingDeployment?->mail_only_provider_id,
                         'basekit_user_ref' => $subscription->hostingDeployment?->basekit_user_ref,
                         'basekit_site_ref' => $subscription->hostingDeployment?->basekit_site_ref,
                         'basekit_server_id' => $subscription->hostingDeployment?->basekit_server_id,
-                        'directadmin_customer_username' => $subscription->hostingDeployment?->directadmin_customer_username,
+                        'directadmin_customer_username' =>
+                            $subscription->hostingDeployment?->directadmin_customer_username,
                         'plesk_customer_id' => $subscription->hostingDeployment?->plesk_customer_id,
                         'plesk_customer_username' => $subscription->hostingDeployment?->plesk_customer_username,
                     ],
-                ]
+                ],
             );
             $subscription->hostingDeployment?->forceDelete();
         }
@@ -141,7 +145,7 @@ class NovaRetryHostingAction extends NovaSubscriptionAction
                 $subscription->customer,
                 $subscription->product,
                 $serverId,
-            )
+            ),
         );
     }
 
@@ -153,7 +157,7 @@ class NovaRetryHostingAction extends NovaSubscriptionAction
         $this->eventDispatcher->dispatch(new CreateSitebuilder(
             $subscription->customer->name,
             $subscription->customer->email,
-            $subscription
+            $subscription,
         ));
     }
 
@@ -165,7 +169,7 @@ class NovaRetryHostingAction extends NovaSubscriptionAction
         $this->eventDispatcher->dispatch(new CreateMailOnlyHosting(
             $subscription->customer->name,
             $subscription->customer->email,
-            $subscription
+            $subscription,
         ));
     }
 
@@ -179,8 +183,8 @@ class NovaRetryHostingAction extends NovaSubscriptionAction
                 contactEmail: $subscription->customer->email,
                 serverId: $serverId,
                 customer: $subscription->customer,
-                product: $subscription->product
-            )
+                product: $subscription->product,
+            ),
         );
     }
 }

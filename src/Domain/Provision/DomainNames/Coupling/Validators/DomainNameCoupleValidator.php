@@ -32,8 +32,8 @@ class DomainNameCoupleValidator implements ProvisionTypeValidatorInterface
     {
         return match ($provisionRequest::class) {
             DomainNameDecoupleRequest::class => $this->getDecoupleRequestValidator($provisionRequest),
-            DomainNameCoupleRequest::class   => $this->getCoupleRequestValidator($provisionRequest),
-            default => throw new UnknownDomainNameCoupleRequestException($provisionRequest)
+            DomainNameCoupleRequest::class => $this->getCoupleRequestValidator($provisionRequest),
+            default => throw new UnknownDomainNameCoupleRequestException($provisionRequest),
         };
     }
 
@@ -47,7 +47,7 @@ class DomainNameCoupleValidator implements ProvisionTypeValidatorInterface
             [
                 'domain' => ['required', $this->domainNameRule],
                 'requestUuid' => ['required', $this->deploymentExistsRule, $this->domainNameCoupleAllowedRule],
-            ]
+            ],
         );
     }
 
@@ -61,7 +61,7 @@ class DomainNameCoupleValidator implements ProvisionTypeValidatorInterface
             [
                 'domain' => ['required', $this->domainNameRule],
                 'requestUuid' => ['required', $this->deploymentExistsRule, $this->domainNameCoupleAllowedRule],
-            ]
+            ],
         );
     }
 }

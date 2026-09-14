@@ -30,14 +30,17 @@ class JwtAuthenticationTest extends IntegrationTestCase
         parent::setUp();
 
         $this->authenticationManager = self::createMock(AuthenticationManager::class);
-        $this->middleware = new JwtAuthentication($this->authenticationManager, self::createStub(LoggerInterface::class), 'https://redirect.url');
+        $this->middleware = new JwtAuthentication(
+            $this->authenticationManager,
+            self::createStub(LoggerInterface::class),
+            'https://redirect.url',
+        );
     }
 
     #[Test]
     public function customerSucceeds(): void
     {
-        $this->authenticationManager->expects(self::once())
-            ->method('handleRequest');
+        $this->authenticationManager->expects(self::once())->method('handleRequest');
 
         $this->middleware->handle(new Request(), fn () => new Response());
     }
@@ -47,7 +50,8 @@ class JwtAuthenticationTest extends IntegrationTestCase
     {
         self::expectException(AuthenticationException::class);
 
-        $this->authenticationManager->expects(self::once())
+        $this->authenticationManager
+            ->expects(self::once())
             ->method('handleRequest')
             ->willThrowException(new AuthenticationException());
 
@@ -57,7 +61,8 @@ class JwtAuthenticationTest extends IntegrationTestCase
     #[Test]
     public function redirectsOnUnsupportedIdentityType(): void
     {
-        $this->authenticationManager->expects(self::once())
+        $this->authenticationManager
+            ->expects(self::once())
             ->method('handleRequest')
             ->willThrowException(new LogicException());
 
@@ -70,7 +75,8 @@ class JwtAuthenticationTest extends IntegrationTestCase
     #[Test]
     public function forbiddenOnUnsupportedIdentityTypeWithFetchCall(): void
     {
-        $this->authenticationManager->expects(self::once())
+        $this->authenticationManager
+            ->expects(self::once())
             ->method('handleRequest')
             ->willThrowException(new LogicException());
 

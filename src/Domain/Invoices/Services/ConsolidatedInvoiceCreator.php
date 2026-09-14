@@ -46,12 +46,12 @@ class ConsolidatedInvoiceCreator
             sprintf(
                 'Trying to invoicing customer %s for billing date %s',
                 $customer->customer_number,
-                $billingDate->format(DateTimeFormat::DATE)
+                $billingDate->format(DateTimeFormat::DATE),
             ),
             [
                 LoggingContextKeys::CUSTOMER_ID => $customer->id,
                 LoggingContextKeys::CUSTOMER_NUMBER => $customer->customer_number,
-            ]
+            ],
         );
 
         if (! $this->isCustomerCurrentlyValidForConsolidation($customer, $billingDate)) {
@@ -59,15 +59,19 @@ class ConsolidatedInvoiceCreator
                 sprintf(
                     'Customer with %s has no valid subscriptions for consolidation for the given billing-date %s ',
                     $customer->customer_number,
-                    $billingDate->format(DateTimeFormat::DATE)
-                )
+                    $billingDate->format(DateTimeFormat::DATE),
+                ),
             );
+
             return;
         }
 
         $subscriptions = $this->subscriptionRepository->getAllDueForInvoicing(
             $customer,
-            DateTimeImmutable::createFromInterface($billingDate)->modify(sprintf('+ %d days', $this->consolidatingDays)),
+            DateTimeImmutable::createFromInterface($billingDate)->modify(sprintf(
+                '+ %d days',
+                $this->consolidatingDays,
+            )),
         );
 
         $invoicingPostponedByMigration = $this->migrationCustomerRepository->isCustomerInActiveMigrationWithInvoicingDisabled($customer->id);
@@ -90,13 +94,14 @@ class ConsolidatedInvoiceCreator
 
             $invoices = $this->createNewInvoicesForSubscription(
                 subscription: $subscription,
-                dispatchInvoiceCreated: $dispatchInvoiceCreated
+                dispatchInvoiceCreated: $dispatchInvoiceCreated,
             );
             $newInvoicesForCustomer = array_merge($newInvoicesForCustomer, $invoices);
         }
 
         if (count($newInvoicesForCustomer) === 0) {
             $this->logger->debug(sprintf('No invoices were created for customer %d', $customer->id));
+
             return;
         }
 
@@ -113,7 +118,7 @@ class ConsolidatedInvoiceCreator
                     $newInvoicesForCustomer[] = $this->administrationFeesManager->createAdministrationFeesInvoice(
                         customer: $customer,
                         administrationFees: $administrationFees,
-                        dispatchInvoiceCreated: $dispatchInvoiceCreated
+                        dispatchInvoiceCreated: $dispatchInvoiceCreated,
                     );
                 }
             }
@@ -122,15 +127,15 @@ class ConsolidatedInvoiceCreator
         if (! $invoicingPostponedByMigration) {
             $this->logger->info(sprintf(
                 'Dispatching consolidated invoices job for customer %d',
-                $customer->id
+                $customer->id,
             ));
 
             $this->bus->dispatch(
                 new DispatchConsolidatedInvoicesForCustomer(
                     customer: $customer,
                     invoices: $newInvoicesForCustomer,
-                    createInvoiceInstantly: true
-                )
+                    createInvoiceInstantly: true,
+                ),
             );
         }
     }
@@ -157,15 +162,20 @@ class ConsolidatedInvoiceCreator
                     'Canceled subscription should not be invoiced after end date, with subscription id : %d (uuid : %s)',
                     $subscription->id,
                     $subscription->uuid,
-                )
+                ),
             );
+
             return false;
         }
 
         if (in_array(
             $subscription->administrative_status,
-            [AdministrativeStatus::CANCELED->value, AdministrativeStatus::ACTIVE->value, AdministrativeStatus::SUSPENDED->value],
-            true
+            [
+                AdministrativeStatus::CANCELED->value,
+                AdministrativeStatus::ACTIVE->value,
+                AdministrativeStatus::SUSPENDED->value,
+            ],
+            true,
         )) {
             return true;
         }
@@ -176,18 +186,23 @@ class ConsolidatedInvoiceCreator
     /**
      * @return Invoice[]
      */
-    private function createNewInvoicesForSubscription(Subscription $subscription, bool $dispatchInvoiceCreated = true): array
-    {
+    private function createNewInvoicesForSubscription(
+        Subscription $subscription,
+        bool $dispatchInvoiceCreated = true,
+    ): array {
         $invoices = [];
         $this->logger->info(
             sprintf(
                 'Creating invoicing for subscription %d (uuid : %s)',
                 $subscription->id,
-                $subscription->uuid
-            )
+                $subscription->uuid,
+            ),
         );
 
-        $newInvoice = $this->createInvoiceAndBillingDateForSubscriptionAction->execute($subscription, $dispatchInvoiceCreated);
+        $newInvoice = $this->createInvoiceAndBillingDateForSubscriptionAction->execute(
+            $subscription,
+            $dispatchInvoiceCreated,
+        );
         $invoices[] = $newInvoice;
 
         if ($this->comesWithFreeProductInvoiceManager->isSubscriptionWhichComesWithFreeProduct($subscription)) {
@@ -204,7 +219,10 @@ class ConsolidatedInvoiceCreator
 
         $children = Subscription::query()
             ->where('parent_subscription_id', $subscription->id)
-            ->whereNotIn('administrative_status', [...AdministrativeStatus::administrativelyEnded(), AdministrativeStatus::ARCHIVING->value])
+            ->whereNotIn('administrative_status', [
+                ...AdministrativeStatus::administrativelyEnded(),
+                AdministrativeStatus::ARCHIVING->value,
+            ])
             ->cursor();
 
         $children->each(
@@ -213,8 +231,11 @@ class ConsolidatedInvoiceCreator
                     return;
                 }
 
-                $invoices[] = $this->createInvoiceAndBillingDateForSubscriptionAction->execute($childSubscription, $dispatchInvoiceCreated);
-            }
+                $invoices[] = $this->createInvoiceAndBillingDateForSubscriptionAction->execute(
+                    $childSubscription,
+                    $dispatchInvoiceCreated,
+                );
+            },
         );
 
         return $invoices;

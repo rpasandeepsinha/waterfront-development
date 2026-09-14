@@ -20,9 +20,9 @@ use Waterfront\Domain\MailManagement\Jobs\CleanupMailOnlyDns;
 #[CoversClass(CleanupMailOnlyDns::class)]
 class CleanupMailOnlyDnsTest extends IntegrationTestCase
 {
-    public const string TEST_DOMAIN        = 'example.com';
+    public const string TEST_DOMAIN = 'example.com';
 
-    public const string TEST_PRIMARY_HOST  = 'mail.example.net';
+    public const string TEST_PRIMARY_HOST = 'mail.example.net';
 
     public const string TEST_FALLBACK_HOST = 'fallback.example.net';
 
@@ -45,10 +45,18 @@ class CleanupMailOnlyDnsTest extends IntegrationTestCase
         $zone = new DnsZone(new Fqdn(self::TEST_DOMAIN));
         $zone->setRecords([]);
 
-        $this->dnsService->expects(self::once())->method('getDnsRecordsForDomain')->willReturn(new Collection($zone->getRecords()));
+        $this->dnsService
+            ->expects(self::once())
+            ->method('getDnsRecordsForDomain')
+            ->willReturn(new Collection($zone->getRecords()));
         $this->dnsService->expects(self::never())->method('deleteRecordFromObject');
 
-        self::resolve(Dispatcher::class)->dispatchSync(new CleanupMailOnlyDns(self::TEST_DOMAIN, self::TEST_PRIMARY_HOST, self::TEST_FALLBACK_HOST));
+        self::resolve(Dispatcher::class)
+            ->dispatchSync(new CleanupMailOnlyDns(
+                self::TEST_DOMAIN,
+                self::TEST_PRIMARY_HOST,
+                self::TEST_FALLBACK_HOST,
+            ));
     }
 
     #[Test]
@@ -61,10 +69,18 @@ class CleanupMailOnlyDnsTest extends IntegrationTestCase
             new MxRecord(self::TEST_DOMAIN, self::TEST_FALLBACK_HOST, 20, 3600),
         ]);
 
-        $this->dnsService->expects(self::once())->method('getDnsRecordsForDomain')->willReturn(new Collection($zone->getRecords()));
+        $this->dnsService
+            ->expects(self::once())
+            ->method('getDnsRecordsForDomain')
+            ->willReturn(new Collection($zone->getRecords()));
         $this->dnsService->expects(self::exactly(2))->method('deleteRecordFromObject');
 
-        self::resolve(Dispatcher::class)->dispatchSync(new CleanupMailOnlyDns(self::TEST_DOMAIN, self::TEST_PRIMARY_HOST, self::TEST_FALLBACK_HOST));
+        self::resolve(Dispatcher::class)
+            ->dispatchSync(new CleanupMailOnlyDns(
+                self::TEST_DOMAIN,
+                self::TEST_PRIMARY_HOST,
+                self::TEST_FALLBACK_HOST,
+            ));
     }
 
     #[Test]
@@ -75,20 +91,36 @@ class CleanupMailOnlyDnsTest extends IntegrationTestCase
             new MxRecord(self::TEST_DOMAIN, self::TEST_FALLBACK_HOST, 20, 3600),
         ]);
 
-        $this->dnsService->expects(self::once())->method('getDnsRecordsForDomain')->willReturn(new Collection($zone->getRecords()));
+        $this->dnsService
+            ->expects(self::once())
+            ->method('getDnsRecordsForDomain')
+            ->willReturn(new Collection($zone->getRecords()));
         $this->dnsService->expects(self::once())->method('deleteRecordFromObject');
 
-        self::resolve(Dispatcher::class)->dispatchSync(new CleanupMailOnlyDns(self::TEST_DOMAIN, self::TEST_PRIMARY_HOST, self::TEST_FALLBACK_HOST));
+        self::resolve(Dispatcher::class)
+            ->dispatchSync(new CleanupMailOnlyDns(
+                self::TEST_DOMAIN,
+                self::TEST_PRIMARY_HOST,
+                self::TEST_FALLBACK_HOST,
+            ));
     }
 
     #[Test]
     public function cleanupNonexistingZone(): void
     {
-        $this->dnsService->expects(self::once())->method('getDnsRecordsForDomain')->willThrowException(new DnsZoneNotFoundException(''));
+        $this->dnsService
+            ->expects(self::once())
+            ->method('getDnsRecordsForDomain')
+            ->willThrowException(new DnsZoneNotFoundException(''));
         $this->dnsService->expects(self::never())->method('deleteRecordFromObject');
 
         $this->expectException(DnsZoneNotFoundException::class);
 
-        self::resolve(Dispatcher::class)->dispatchSync(new CleanupMailOnlyDns(self::TEST_DOMAIN, self::TEST_PRIMARY_HOST, self::TEST_FALLBACK_HOST));
+        self::resolve(Dispatcher::class)
+            ->dispatchSync(new CleanupMailOnlyDns(
+                self::TEST_DOMAIN,
+                self::TEST_PRIMARY_HOST,
+                self::TEST_FALLBACK_HOST,
+            ));
     }
 }

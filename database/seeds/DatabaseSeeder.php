@@ -73,7 +73,6 @@ class DatabaseSeeder extends Seeder
             TranslationKeySeeder::class,
             TranslationStringSeeder::class,
             OneOffScriptSeeder::class,
-            ExperimentSeeder::class,
         ]);
 
         if ($this->config->getAsBoolean('app.seed_with_logic')) {
@@ -105,6 +104,11 @@ class DatabaseSeeder extends Seeder
             OneTimeServiceSeeder::class,
             RedirectSeeder::class,
             AcronisSeeder::class,
+        ]);
+
+        // Links an experiment to a product, so it runs after the product seeders
+        $this->call([
+            ExperimentSeeder::class,
         ]);
 
         // Load prices from CSV

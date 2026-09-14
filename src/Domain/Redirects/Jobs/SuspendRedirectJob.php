@@ -50,11 +50,12 @@ class SuspendRedirectJob extends AbstractQueueableJob
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
                     LoggingContextKeys::EXCEPTION => $result->exception,
-                ]
+                ],
             );
 
             $this->subscription->technical_status = TechnicalStatus::SUSPENSION_FAILED->value;
             $this->subscription->save();
+
             return;
         }
 
@@ -87,7 +88,7 @@ class SuspendRedirectJob extends AbstractQueueableJob
             [
                 LoggingContextKeys::SUBSCRIPTION_ID => $this->subscription->id,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
-            ]
+            ],
         );
         $sendSubscriptionSuspendedMailAction->execute($this->subscription);
     }

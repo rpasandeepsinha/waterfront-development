@@ -57,15 +57,16 @@ class DecouplePrimaryDomainJob extends AbstractQueueableJob
                 LoggingContextKeys::META => [
                     'Microsoft365CustomerInfoId' => $this->customerInfo->id,
                 ],
-            ]
+            ],
         );
 
         Subscription::query()
             ->whereHas(
                 'microsoft365Customer',
-                fn (Builder $query) => $query
-                    ->where('customer_id', $this->customerInfo->customer_id)
-                    ->where('tenant_name', $this->customerInfo->tenant_name)
+                fn (Builder $query) => $query->where('customer_id', $this->customerInfo->customer_id)->where(
+                    'tenant_name',
+                    $this->customerInfo->tenant_name,
+                ),
             )
             ->update(['technical_status' => TechnicalStatus::FAILED->value]);
     }
@@ -82,12 +83,15 @@ class DecouplePrimaryDomainJob extends AbstractQueueableJob
         Assert::string($domain);
 
         $subscription = $this->customerInfo->microsoft365Deployments->first()?->subscription;
-        Assert::notNull($subscription, 'Microsoft365CustomerInfo must have at least one deployment with a subscription.');
+        Assert::notNull(
+            $subscription,
+            'Microsoft365CustomerInfo must have at least one deployment with a subscription.',
+        );
 
         $logger->debug(
             sprintf(
                 'Promoting [{domain.name}] to primary domain, attempt {queue.attempt}/%d',
-                $this->tries
+                $this->tries,
             ),
             [
                 LoggingContextKeys::DOMAIN_NAME => $tenantName,
@@ -95,7 +99,7 @@ class DecouplePrimaryDomainJob extends AbstractQueueableJob
                 LoggingContextKeys::META => [
                     'Microsoft365CustomerInfoId' => $this->customerInfo->id,
                 ],
-            ]
+            ],
         );
 
         $promoted = $microsoft365Service->promoteDomainInMicrosoftAccount(
@@ -112,16 +116,17 @@ class DecouplePrimaryDomainJob extends AbstractQueueableJob
                     LoggingContextKeys::META => [
                         'Microsoft365CustomerInfoId' => $this->customerInfo->id,
                     ],
-                ]
+                ],
             );
             $this->release($this->getBackoffDelay());
+
             return;
         }
 
         $logger->debug(
             sprintf(
                 'Removing [{domain.name}] domain from tenant, attempt {queue.attempt}/%d',
-                $this->tries
+                $this->tries,
             ),
             [
                 LoggingContextKeys::DOMAIN_NAME => $domain,
@@ -129,7 +134,7 @@ class DecouplePrimaryDomainJob extends AbstractQueueableJob
                 LoggingContextKeys::META => [
                     'Microsoft365CustomerInfoId' => $this->customerInfo->id,
                 ],
-            ]
+            ],
         );
 
         $deleted = $microsoft365Service->deleteDomainInMicrosoftAccount(
@@ -147,9 +152,10 @@ class DecouplePrimaryDomainJob extends AbstractQueueableJob
                     LoggingContextKeys::META => [
                         'Microsoft365CustomerInfoId' => $this->customerInfo->id,
                     ],
-                ]
+                ],
             );
             $this->release($this->getBackoffDelay());
+
             return;
         }
 

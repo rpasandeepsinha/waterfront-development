@@ -21,7 +21,7 @@ class MicrosoftGraphClientServiceProvider extends BaseProvider
         ], 'config');
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/config.php',
-            'microsoftgraph'
+            'microsoftgraph',
         );
     }
 
@@ -33,7 +33,7 @@ class MicrosoftGraphClientServiceProvider extends BaseProvider
             return new ConnectorConfig(
                 tenantId: $config->getAsString('microsoftgraph.tenant_id'),
                 clientId: $config->getAsString('microsoftgraph.client_id'),
-                clientSecret: $config->getAsString('microsoftgraph.client_secret')
+                clientSecret: $config->getAsString('microsoftgraph.client_secret'),
             );
         });
 

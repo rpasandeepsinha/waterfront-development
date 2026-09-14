@@ -28,7 +28,7 @@ class NovaFetchUserFromServer extends Action
         private readonly TranslatorInterface $translator,
         private readonly HostingService $hostingService,
         private readonly GetSsoUrlAction $getSsoUrlAction,
-        private readonly MailManagementService $mailOnlyService
+        private readonly MailManagementService $mailOnlyService,
     ) {
         $this->sole();
     }
@@ -59,12 +59,13 @@ class NovaFetchUserFromServer extends Action
         if ($identifier === null) {
             return self::danger($this->translator->translate('nova-action.error.no_identifier_provided'));
         }
-        $driver      = $this->getDriverFromSlug($server->type, $server);
+
+        $driver = $this->getDriverFromSlug($server->type, $server);
         $fetchedUser = [];
         $fetchedEmailForwards = [];
-        $fetchedEmailUsers    = [];
-        $sso         = null;
-        $exceptions  = [];
+        $fetchedEmailUsers = [];
+        $sso = null;
+        $exceptions = [];
 
         try {
             $fetchedUser = $this->hostingService->getUserConfigAsAdmin($driver, (string) $identifier, $server);
@@ -72,7 +73,7 @@ class NovaFetchUserFromServer extends Action
             $fetchedUser = match ($driver) {
                 ProviderSlug::PLESK->value => $this->filterPleskCredentials($collection),
                 ProviderSlug::DIRECTADMIN->value => $collection,
-                default => throw new UnexpectedValueException()
+                default => throw new UnexpectedValueException(),
             };
         } catch (Throwable $exception) { // @phpstan-ignore-line
             $exceptions[] = [
@@ -122,7 +123,7 @@ class NovaFetchUserFromServer extends Action
                     providerSlug: ProviderSlug::from($driver),
                     server: $server,
                     username: $username,
-                    domain: $domain
+                    domain: $domain,
                 );
                 /** @var array<int, string> $fetchedEmailUsers */
                 $fetchedEmailUsers = Arr::get($fetchedEmailUsers, 'users', []);
@@ -146,7 +147,7 @@ class NovaFetchUserFromServer extends Action
         $title = sprintf(
             'Fetched user {%s} from server with hostname {%s} with response:',
             $identifier,
-            $server->hostname
+            $server->hostname,
         );
 
         return self::modal('modal-response', [
@@ -171,15 +172,15 @@ class NovaFetchUserFromServer extends Action
 
     private function getDriverFromSlug(ServerType $slug, Server $server): string
     {
-        return match($slug) {
+        return match ($slug) {
             ServerType::PLESK => ProviderSlug::PLESK->value,
             ServerType::DIRECTADMIN, ServerType::DIRECTADMIN_MAIL => ProviderSlug::DIRECTADMIN->value,
             default => throw new UnexpectedValueException(
                 sprintf(
                     'Unable to resolve driver from the selected server with ID: {%d}',
-                    $server->id
-                )
-            )
+                    $server->id,
+                ),
+            ),
         };
     }
 
@@ -195,12 +196,14 @@ class NovaFetchUserFromServer extends Action
                 if ($key === 'response_result' && is_string($item)) {
                     $pattern = '/<password>.+<\/password>/';
                     $replacement = '<password>***********</password>';
+
                     return preg_replace($pattern, $replacement, $item);
                 }
 
                 return $item;
             });
         }
+
         return $collection->except('response_body.customer.get.result.data.gen_info.password');
     }
 }

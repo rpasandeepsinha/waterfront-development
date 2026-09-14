@@ -50,8 +50,15 @@ class NovaPaymentResource extends Resource
                 ->currency('EUR')
                 ->step('0.01')
                 ->asMinorUnits(),
-            Text::make(self::translate('payment.attributes.status'), 'status', fn (): string => $this->resource->status->value),
-            Boolean::make(self::translate('payment.attributes.create-direct-debit-mandate'), 'create_direct_debit_mandate'),
+            Text::make(
+                self::translate('payment.attributes.status'),
+                'status',
+                fn (): string => $this->resource->status->value,
+            ),
+            Boolean::make(
+                self::translate('payment.attributes.create-direct-debit-mandate'),
+                'create_direct_debit_mandate',
+            ),
         ];
     }
 

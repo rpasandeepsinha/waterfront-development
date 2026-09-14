@@ -16,8 +16,9 @@ class TransferResult
 
     private ?string $transferSecret = null;
 
-    public function __construct(private readonly string $status)
-    {
+    public function __construct(
+        private readonly string $status,
+    ) {
     }
 
     public function getStatus(): string
@@ -81,6 +82,7 @@ class TransferResult
     public function setExceptionMessage(string $exceptionMessage): TransferResult
     {
         $this->exceptionMessage = $exceptionMessage;
+
         return $this;
     }
 }

@@ -11,7 +11,9 @@ use SandwaveIo\LighthouseAuthBase\Permissions\Permissions;
 #[Attribute(Attribute::IS_REPEATABLE | Attribute::TARGET_METHOD)]
 readonly class RequirePermission
 {
-    public function __construct(public Permissions $permission, public ?SchemaId $schemaId = null)
-    {
+    public function __construct(
+        public Permissions $permission,
+        public ?SchemaId $schemaId = null,
+    ) {
     }
 }

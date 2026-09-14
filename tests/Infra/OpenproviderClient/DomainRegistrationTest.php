@@ -50,7 +50,7 @@ class DomainRegistrationTest extends IntegrationTestCase
         self::assertXmlStringEqualsXmlString(
             (string) $expectedXml,
             $request->getXml(),
-            'The xml of the domain registration request does not match the expected values.'
+            'The xml of the domain registration request does not match the expected values.',
         );
     }
 
@@ -60,7 +60,7 @@ class DomainRegistrationTest extends IntegrationTestCase
         $response = new Response(
             200,
             ['Content-Type' => 'text/xml'],
-            (string) file_get_contents(__DIR__ . '/data/openprovider_register_response.xml')
+            (string) file_get_contents(__DIR__ . '/data/openprovider_register_response.xml'),
         );
 
         $domainRegResponse = new DomainRegistrationResponse($response);
@@ -73,7 +73,7 @@ class DomainRegistrationTest extends IntegrationTestCase
         self::assertSame(
             '2012-04-22 14:41:32',
             $result->getOpenProviderExpirationDate(),
-            ' - retrieve open provider expiration date'
+            ' - retrieve open provider expiration date',
         );
         self::assertSame('123456', $result->getAuthCode(), ' - retrieve auth code');
     }
@@ -83,8 +83,8 @@ class DomainRegistrationTest extends IntegrationTestCase
      */
     private function getParameters(): RegistrationParameters
     {
-        $customer = include(__DIR__ . '/data/customer.php');
-        $dnssecKey = include(__DIR__ . '/data/dnsseckey.php');
+        $customer = include __DIR__ . '/data/customer.php';
+        $dnssecKey = include __DIR__ . '/data/dnsseckey.php';
 
         $nameservers = [
             new Nameserver('ns-01.sandwave.io'),
@@ -92,12 +92,12 @@ class DomainRegistrationTest extends IntegrationTestCase
         ];
 
         return RegistrationParameters::create([
-            'domain'          => 'example.org',
-            'customer'        => $customer,
-            'handles'         => new Handles('test-handle'),
-            'period'          => 1,
-            'nameServers'     => $nameservers,
-            'dnssecKeys'      => [
+            'domain' => 'example.org',
+            'customer' => $customer,
+            'handles' => new Handles('test-handle'),
+            'period' => 1,
+            'nameServers' => $nameservers,
+            'dnssecKeys' => [
                 PowerDnsSecKey::fromArray($dnssecKey),
             ],
         ]);

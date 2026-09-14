@@ -61,7 +61,7 @@ class PuzzelClientTest extends TestCase
             $this->config,
             $this->app->make(LoggerInterface::class),
             $this->app->make(JsonLogMasker::class),
-            $this->app->make(Repository::class)
+            $this->app->make(Repository::class),
         );
 
         $mockQueueResponse = (string) file_get_contents(__DIR__ . '/data/queue-with-item.json');
@@ -76,7 +76,7 @@ class PuzzelClientTest extends TestCase
         $client = new PuzzelClient(
             connector: $puzzelConnector,
             config: $this->config,
-            logger: $this->app->make(LoggerInterface::class)
+            logger: $this->app->make(LoggerInterface::class),
         );
 
         $result = $client->getQueueItems();
@@ -114,7 +114,7 @@ class PuzzelClientTest extends TestCase
             $this->config,
             $this->app->make(LoggerInterface::class),
             $this->app->make(JsonLogMasker::class),
-            $this->app->make(Repository::class)
+            $this->app->make(Repository::class),
         );
 
         $mockQueuesResponse = (string) file_get_contents(__DIR__ . '/data/queues.json');
@@ -127,7 +127,7 @@ class PuzzelClientTest extends TestCase
         $client = new PuzzelClient(
             connector: $puzzelConnector,
             config: $this->config,
-            logger: $this->app->make(LoggerInterface::class)
+            logger: $this->app->make(LoggerInterface::class),
         );
 
         $result = $client->getSystemQueues();
@@ -154,26 +154,31 @@ class PuzzelClientTest extends TestCase
             description: 'Call be me back please',
             category: 'test category',
             phoneNumber: new PhoneNumber($testPhoneNumber, 'NL'),
-            scheduledDateTime: CarbonImmutable::now()->addDay()
+            scheduledDateTime: CarbonImmutable::now()->addDay(),
         );
 
         $mockResponse = self::mock(Response::class);
-        $mockResponse->expects('header')
-            ->with('Location')
-            ->andReturn(CreateCallback::REDIRECT_OK);
+        $mockResponse->expects('header')->with('Location')->andReturn(CreateCallback::REDIRECT_OK);
 
         $puzzelConnector = self::mock(PuzzelConnector::class);
-        $puzzelConnector->expects('send')
-            ->withArgs(fn (CreateCallback $receivedCallback) => $receivedCallback->body()->get('requestDescription') === $testCallback->description
-                && $receivedCallback->body()->get('requestCategory') === $testCallback->category
-                && $receivedCallback->body()->get('callbackNumber') === $expectedSendNumber
-                && $receivedCallback->body()->get('scheduledDateTime') === $testCallback->scheduledDateTime->format(CreateCallback::PUZZEL_ISO8601_NO_TIMEZONE_FORMAT))
+        $puzzelConnector
+            ->expects('send')
+            ->withArgs(
+                fn (CreateCallback $receivedCallback) => (
+                    $receivedCallback->body()->get('requestDescription') === $testCallback->description
+                    && $receivedCallback->body()->get('requestCategory') === $testCallback->category
+                    && $receivedCallback->body()->get('callbackNumber') === $expectedSendNumber
+                    && $receivedCallback->body()->get(
+                        'scheduledDateTime',
+                    ) === $testCallback->scheduledDateTime->format(CreateCallback::PUZZEL_ISO8601_NO_TIMEZONE_FORMAT)
+                ),
+            )
             ->andReturn($mockResponse);
 
         $client = new PuzzelClient(
             connector: $puzzelConnector,
             config: $this->config,
-            logger: $this->app->make(LoggerInterface::class)
+            logger: $this->app->make(LoggerInterface::class),
         );
 
         $result = $client->createCallback($testCallback);
@@ -192,26 +197,24 @@ class PuzzelClientTest extends TestCase
             description: 'Call be me back please',
             category: 'test category',
             phoneNumber: new PhoneNumber($testPhoneNumber, 'NL'),
-            scheduledDateTime: CarbonImmutable::now()->addDay()
+            scheduledDateTime: CarbonImmutable::now()->addDay(),
         );
 
         $puzzelConnector = self::mock(PuzzelConnector::class);
         $exception = new SaloonException('TooManyRequests');
-        $puzzelConnector->expects('send')
-            ->andThrow($exception);
+        $puzzelConnector->expects('send')->andThrow($exception);
 
-        $mockLogger->expects('error')
-            ->with(
-                'Error during create callback request.',
-                [
-                    LoggingContextKeys::EXCEPTION => $exception,
-                    LoggingContextKeys::META => [
-                        'callback_description' => $testCallback->description,
-                        'callback_scheduledTime' => $testCallback->scheduledDateTime,
-                        'callback_phone_number' => $testCallback->phoneNumber->getRawNumber(),
-                    ],
-                ]
-            );
+        $mockLogger->expects('error')->with(
+            'Error during create callback request.',
+            [
+                LoggingContextKeys::EXCEPTION => $exception,
+                LoggingContextKeys::META => [
+                    'callback_description' => $testCallback->description,
+                    'callback_scheduledTime' => $testCallback->scheduledDateTime,
+                    'callback_phone_number' => $testCallback->phoneNumber->getRawNumber(),
+                ],
+            ],
+        );
 
         $client = new PuzzelClient(
             connector: $puzzelConnector,
@@ -235,30 +238,38 @@ class PuzzelClientTest extends TestCase
             description: 'Call be me back please',
             category: 'test category',
             phoneNumber: new PhoneNumber($testPhoneNumber, 'NL'),
-            scheduledDateTime: CarbonImmutable::now()->addDay()
+            scheduledDateTime: CarbonImmutable::now()->addDay(),
         );
 
         $expectedErrorMessage = 'Puzzel API is offline. Please try again later.';
-        $errorResponse = sprintf('%s?errorMessage=%s', CreateCallback::REDIRECT_ERROR, urlencode($expectedErrorMessage));
+        $errorResponse = sprintf(
+            '%s?errorMessage=%s',
+            CreateCallback::REDIRECT_ERROR,
+            urlencode($expectedErrorMessage),
+        );
 
         $mockResponse = self::mock(Response::class);
-        $mockResponse->expects('header')
-            ->with('Location')
-            ->andReturn($errorResponse);
+        $mockResponse->expects('header')->with('Location')->andReturn($errorResponse);
 
         $puzzelConnector = self::mock(PuzzelConnector::class);
-        $puzzelConnector->expects('send')
-            ->withArgs(fn (CreateCallback $receivedCallback) =>
-                $receivedCallback->body()->get('requestDescription') === $testCallback->description
-                && $receivedCallback->body()->get('requestCategory') === $testCallback->category
-                && $receivedCallback->body()->get('callbackNumber') === $expectedSendNumber
-                && $receivedCallback->body()->get('scheduledDateTime') === $testCallback->scheduledDateTime->format(CreateCallback::PUZZEL_ISO8601_NO_TIMEZONE_FORMAT))
+        $puzzelConnector
+            ->expects('send')
+            ->withArgs(
+                fn (CreateCallback $receivedCallback) => (
+                    $receivedCallback->body()->get('requestDescription') === $testCallback->description
+                    && $receivedCallback->body()->get('requestCategory') === $testCallback->category
+                    && $receivedCallback->body()->get('callbackNumber') === $expectedSendNumber
+                    && $receivedCallback->body()->get(
+                        'scheduledDateTime',
+                    ) === $testCallback->scheduledDateTime->format(CreateCallback::PUZZEL_ISO8601_NO_TIMEZONE_FORMAT)
+                ),
+            )
             ->andReturn($mockResponse);
 
         $client = new PuzzelClient(
             connector: $puzzelConnector,
             config: $this->config,
-            logger: $this->app->make(LoggerInterface::class)
+            logger: $this->app->make(LoggerInterface::class),
         );
 
         $result = $client->createCallback($testCallback);
@@ -275,36 +286,40 @@ class PuzzelClientTest extends TestCase
             description: 'Call be me back please',
             category: 'test category',
             phoneNumber: new PhoneNumber($testPhoneNumber, 'NL'),
-            scheduledDateTime: CarbonImmutable::now()->addDay()
+            scheduledDateTime: CarbonImmutable::now()->addDay(),
         );
 
         $puzzelResponseBody = 'Puzzel response body';
         $mockResponse = self::mock(Response::class);
-        $mockResponse->expects('header')
-            ->with('Location')
-            ->andReturn('');
+        $mockResponse->expects('header')->with('Location')->andReturn('');
 
-        $mockResponse->expects('body')
-            ->andReturn($puzzelResponseBody);
+        $mockResponse->expects('body')->andReturn($puzzelResponseBody);
 
         $puzzelConnector = self::mock(PuzzelConnector::class);
-        $puzzelConnector->expects('send')
-            ->withArgs(fn (CreateCallback $receivedCallback) => $receivedCallback->body()->get('requestDescription') === $testCallback->description
-                && $receivedCallback->body()->get('requestCategory') === $testCallback->category
-                && $receivedCallback->body()->get('callbackNumber') === $expectedSendNumber
-                && $receivedCallback->body()->get('scheduledDateTime') === $testCallback->scheduledDateTime->format(CreateCallback::PUZZEL_ISO8601_NO_TIMEZONE_FORMAT))
+        $puzzelConnector
+            ->expects('send')
+            ->withArgs(
+                fn (CreateCallback $receivedCallback) => (
+                    $receivedCallback->body()->get('requestDescription') === $testCallback->description
+                    && $receivedCallback->body()->get('requestCategory') === $testCallback->category
+                    && $receivedCallback->body()->get('callbackNumber') === $expectedSendNumber
+                    && $receivedCallback->body()->get(
+                        'scheduledDateTime',
+                    ) === $testCallback->scheduledDateTime->format(CreateCallback::PUZZEL_ISO8601_NO_TIMEZONE_FORMAT)
+                ),
+            )
             ->andReturn($mockResponse);
 
         $client = new PuzzelClient(
             connector: $puzzelConnector,
             config: $this->config,
-            logger: $this->app->make(LoggerInterface::class)
+            logger: $this->app->make(LoggerInterface::class),
         );
 
         self::expectException(PuzzelResponseMissingRedirectException::class);
         self::expectExceptionMessageIs(sprintf(
             'Missing redirect in the response from Puzzel. Response: [%s]',
-            $puzzelResponseBody
+            $puzzelResponseBody,
         ));
 
         $client->createCallback($testCallback);

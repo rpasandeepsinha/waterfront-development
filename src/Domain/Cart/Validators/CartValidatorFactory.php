@@ -60,8 +60,12 @@ class CartValidatorFactory extends Factory
      * @param mixed[] $messages
      * @param mixed[] $customAttributes
      */
-    protected function resolve(array $data, array $rules, array $messages, array $customAttributes): Validator|CartValidator
-    {
+    protected function resolve(
+        array $data,
+        array $rules,
+        array $messages,
+        array $customAttributes,
+    ): Validator|CartValidator {
         $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
         $this->authenticationManager->getAuthenticatedSubject();
 
@@ -88,7 +92,7 @@ class CartValidatorFactory extends Factory
             $data,
             $rules,
             $messages,
-            $customAttributes
+            $customAttributes,
         );
     }
 }

@@ -69,26 +69,26 @@ class VpsService
 
     public function create(
         Subscription $subscription,
-        ?string $sshKeyUuid
+        ?string $sshKeyUuid,
     ): void {
         $customer = $subscription->customer;
         $product = $subscription->product;
 
         try {
             $osProduct = $this->virtualMachineDeploymentRepository->getOsSubscriptionChildFromSubscriptionUuid(
-                subscriptionUuid: $subscription->uuid
+                subscriptionUuid: $subscription->uuid,
             )->product;
 
             $environment = $this->resolveEnvironment(
                 customerId: $customer->id,
                 productId: $product->id,
                 osProduct: $osProduct,
-                subscriptionUuid: $subscription->uuid
+                subscriptionUuid: $subscription->uuid,
             );
 
             $managerDomainDeployment = $this->findOrCreateManagerDomain(
                 environment: $environment,
-                customer: $customer
+                customer: $customer,
             );
 
             $vmDeployment = $this->findOrCreateVmDeployment(
@@ -106,6 +106,7 @@ class VpsService
                 ]);
 
                 $this->setTechnicalStatusSubscription($subscription, TechnicalStatus::OK);
+
                 return;
             }
 
@@ -118,13 +119,14 @@ class VpsService
                 ]);
 
                 $this->setTechnicalStatusSubscription($subscription, TechnicalStatus::PENDING);
+
                 return;
             }
 
             if ($vmDeployment->cloudstack_id !== null) {
                 $this->clearCloudstackId(
                     deployment: $vmDeployment,
-                    message: 'Create: CloudStack VM not found; clearing cloudstack_id before deploy.'
+                    message: 'Create: CloudStack VM not found; clearing cloudstack_id before deploy.',
                 );
                 $vmDeployment->refresh();
             }
@@ -165,18 +167,10 @@ class VpsService
 
             $this->setTechnicalStatusSubscription(
                 subscription: $subscription,
-                status: TechnicalStatus::PENDING
+                status: TechnicalStatus::PENDING,
             );
         } catch (
-            CloudstackException |
-            ClientException |
-            ManagerDomainException |
-            SshKeyNotFoundException |
-            NonVpsOsProductException |
-            NoAvailableNetworkFoundException |
-            NoCloudstackTemplateFoundFromProduct |
-            AdminClientFactoryException |
-            CloudstackNotFoundException $exception
+            CloudstackException|ClientException|ManagerDomainException|SshKeyNotFoundException|NonVpsOsProductException|NoAvailableNetworkFoundException|NoCloudstackTemplateFoundFromProduct|AdminClientFactoryException|CloudstackNotFoundException $exception
         ) {
             $this->logger->error(
                 sprintf(
@@ -186,16 +180,19 @@ class VpsService
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             $this->setTechnicalStatusSubscription(
                 subscription: $subscription,
-                status: TechnicalStatus::ERROR
+                status: TechnicalStatus::ERROR,
             );
 
             try {
-                $vmDeployment = $this->virtualMachineDeploymentRepository->findBySubscriptionUuid($subscription->uuid, $customer->id);
+                $vmDeployment = $this->virtualMachineDeploymentRepository->findBySubscriptionUuid(
+                    $subscription->uuid,
+                    $customer->id,
+                );
 
                 $vmDeployment->last_result_received = CarbonImmutable::now();
                 $vmDeployment->last_result = $exception->getMessage();
@@ -206,6 +203,7 @@ class VpsService
                     LoggingContextKeys::CUSTOMER_ID => $customer->id,
                 ]);
             }
+
             throw $exception;
         }
     }
@@ -225,7 +223,10 @@ class VpsService
         $customer = $subscription->customer;
 
         try {
-            $deployment = $this->virtualMachineDeploymentRepository->findBySubscriptionUuid($subscription->uuid, $customer->id);
+            $deployment = $this->virtualMachineDeploymentRepository->findBySubscriptionUuid(
+                $subscription->uuid,
+                $customer->id,
+            );
         } catch (VirtualMachineNotFoundException) {
             $this->logger->debug(
                 'No existing VM deployment found, creating new deployment.',
@@ -233,7 +234,7 @@ class VpsService
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
-                ]
+                ],
             );
 
             $environment = $this->environmentRepository->getPreferredEnvironment();
@@ -261,6 +262,7 @@ class VpsService
             }
 
             $this->create($subscription, $sshKeyUuid);
+
             return;
         }
 
@@ -273,6 +275,7 @@ class VpsService
             ]);
 
             $this->setTechnicalStatusSubscription($subscription, TechnicalStatus::PENDING);
+
             return;
         }
 
@@ -300,12 +303,12 @@ class VpsService
                 $deployment->save();
 
                 $this->virtualMachineService->destroy($deployment, $sshKeyUuid);
+
                 return;
             }
 
-            $osProduct = $this->virtualMachineDeploymentRepository
-                ->getOsSubscriptionChildFromSubscriptionUuid(subscriptionUuid: $subscription->uuid)
-                ->product;
+            $osProduct =
+                $this->virtualMachineDeploymentRepository->getOsSubscriptionChildFromSubscriptionUuid(subscriptionUuid: $subscription->uuid)->product;
 
             $this->setTechnicalStatusSubscription($subscription, TechnicalStatus::PENDING);
 
@@ -326,14 +329,14 @@ class VpsService
 
         $this->clearCloudstackId(
             deployment: $deployment,
-            message: 'Retry: CloudStack VM not found; clearing cloudstack_id before redeploy.'
+            message: 'Retry: CloudStack VM not found; clearing cloudstack_id before redeploy.',
         );
         $this->create($subscription, $sshKeyUuid);
     }
 
     public function mailCustomerVmDetails(
         VirtualMachineDeployment $virtualMachineDeployment,
-        VirtualMachine $vm
+        VirtualMachine $vm,
     ): void {
         $nic = array_first($vm->nic);
 
@@ -345,8 +348,9 @@ class VpsService
                     LoggingContextKeys::CUSTOMER_ID => $virtualMachineDeployment->subscription->customer->id,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
-                ]
+                ],
             );
+
             return;
         }
 
@@ -357,7 +361,7 @@ class VpsService
                 password: $vm->password,
                 ipaddress: $nic->ipAddress,
                 ip6address: $nic->ip6Address,
-            )
+            ),
         );
     }
 
@@ -377,7 +381,7 @@ class VpsService
         string $subscriptionUuid,
         int $customerId,
         int $productId,
-        Product $osProduct
+        Product $osProduct,
     ): Environment {
         $environment = $this->environmentRepository->getPreferredEnvironment();
 
@@ -391,7 +395,7 @@ class VpsService
                 $osProduct->id,
                 $osProduct->slug,
                 $subscriptionUuid,
-                $productId
+                $productId,
             ),
             [
                 LoggingContextKeys::CUSTOMER_ID => $customerId,
@@ -402,7 +406,7 @@ class VpsService
                     'os_product_id' => $osProduct->id,
                     'os_product_slug' => $osProduct->slug,
                 ],
-            ]
+            ],
         );
 
         throw CloudstackNotFoundException::environmentNotFound($osProduct->id, $productId);
@@ -418,7 +422,7 @@ class VpsService
     ): ManagerDomainDeployment {
         $existing = $this->managerDomainDeploymentRepository->getManagerDomainDeploymentByEnvironment(
             customerId: $customer->id,
-            environmentId: $environment->id
+            environmentId: $environment->id,
         );
 
         if ($existing instanceof ManagerDomainDeployment) {
@@ -469,7 +473,7 @@ class VpsService
     ): void {
         $osTemplate = $this->vpsTemplateService->getTemplateByProduct(
             product: $osProduct,
-            environment: $environment
+            environment: $environment,
         );
 
         $networks = $client->listNetworks();
@@ -490,7 +494,7 @@ class VpsService
         $createdJob = $client->deployVirtualMachine(
             serviceOfferingId: $this->environmentProductRepository->getComputeOfferingId(
                 productId: $product->id,
-                environmentId: $environment->id
+                environmentId: $environment->id,
             ),
             osTemplateId: $osTemplate->id,
             zoneId: $client->listZones()->id,
@@ -498,7 +502,7 @@ class VpsService
             account: $managerDomainDeployment->account,
             securityGroupId: $this->prepareSecurityGroup(
                 cloudStackClient: $client,
-                managerDomainDeployment: $managerDomainDeployment
+                managerDomainDeployment: $managerDomainDeployment,
             ),
             displayName: $this->getDisplayName(
                 productName: $product->name,
@@ -508,18 +512,18 @@ class VpsService
             hostname: $hostname,
             fqdn: $fqdn,
             keyPair: $sshKeyUuid !== null
-            ? $this->resolveAndLinkSshKeyAction->execute(
-                sshKeyUuid: $sshKeyUuid,
-                vmDeploymentId: $vmDeployment->id,
-                managerDomainDeployment: $managerDomainDeployment
-            )
-            : null,
-            networkId: $network->id
+                ? $this->resolveAndLinkSshKeyAction->execute(
+                    sshKeyUuid: $sshKeyUuid,
+                    vmDeploymentId: $vmDeployment->id,
+                    managerDomainDeployment: $managerDomainDeployment,
+                )
+                : null,
+            networkId: $network->id,
         );
 
         $cloudstackJob = $this->persistCloudstackJob(
             jobId: $createdJob->jobId,
-            vmDeployment: $vmDeployment
+            vmDeployment: $vmDeployment,
         );
 
         $this->logger->info(
@@ -537,12 +541,12 @@ class VpsService
                     'hostname' => $hostname,
                     'fqdn' => $fqdn,
                 ],
-            ]
+            ],
         );
 
         $this->bus->dispatch(new DeployVirtualMachineJob(
             deployment: $vmDeployment,
-            cloudstackJob: $cloudstackJob
+            cloudstackJob: $cloudstackJob,
         ));
     }
 
@@ -551,7 +555,7 @@ class VpsService
      */
     private function prepareSecurityGroup(
         CloudStackClient $cloudStackClient,
-        ManagerDomainDeployment $managerDomainDeployment
+        ManagerDomainDeployment $managerDomainDeployment,
     ): string {
         /**
          * Currently API calls to 'listSecurityGroups' in cloudstack are not working correctly.
@@ -568,21 +572,21 @@ class VpsService
             throw new ManagerDomainException(
                 sprintf(
                     'DomainId not set on ManagerDomain subscription with ID %s',
-                    $managerDomainDeployment->id
-                )
+                    $managerDomainDeployment->id,
+                ),
             );
         }
 
         $securityGroupId = $cloudStackClient->createSecurityGroup(
             account: $account,
             domainId: $domainId,
-            name: $securityGroupName
+            name: $securityGroupName,
         );
 
         $cloudStackClient->authorizeSecurityGroupIngress(
             account: $account,
             domainId: $domainId,
-            securityGroupId: $securityGroupId
+            securityGroupId: $securityGroupId,
         );
 
         return $securityGroupId;

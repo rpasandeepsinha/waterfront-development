@@ -12,7 +12,7 @@ class LighthouseServiceProvider extends BaseProvider
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/lighthouse.php',
-            'lighthouse'
+            'lighthouse',
         );
     }
 }

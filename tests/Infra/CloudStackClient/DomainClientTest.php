@@ -51,7 +51,8 @@ class DomainClientTest extends TestCase
     public function createDomain(): void
     {
         $mock = self::createMock(CloudStackBaseClient::class);
-        $mock->expects(self::once())
+        $mock
+            ->expects(self::once())
             ->method('execute')
             ->with('createDomain', ['name' => 'bar', 'parentdomainid' => 'baz'])
             ->willReturn([

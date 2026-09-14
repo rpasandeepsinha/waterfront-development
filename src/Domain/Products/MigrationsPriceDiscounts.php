@@ -20,8 +20,9 @@ use Webmozart\Assert\Assert;
  */
 class MigrationsPriceDiscounts
 {
-    public function __construct(private readonly VolumeDiscountService $productDiscountService)
-    {
+    public function __construct(
+        private readonly VolumeDiscountService $productDiscountService,
+    ) {
     }
 
     public function assignDiscount(
@@ -29,7 +30,7 @@ class MigrationsPriceDiscounts
         int $contractPeriod,
         int $billingPeriod,
         Price $price,
-        Customer $customer
+        Customer $customer,
     ): void {
         Assert::natural($discountPrice);
 
@@ -89,7 +90,7 @@ class MigrationsPriceDiscounts
             Log::warning(sprintf(
                 'Given price %d was the same as the base price model for product id %d',
                 $discountPrice,
-                $price->productId
+                $price->productId,
             ));
 
             return false;
@@ -101,7 +102,7 @@ class MigrationsPriceDiscounts
                 'Given price %d was higher than the base price model with regular price %d product id %d',
                 $discountPrice,
                 $price->regularPrice,
-                $price->productId
+                $price->productId,
             ));
 
             return false;
@@ -115,7 +116,7 @@ class MigrationsPriceDiscounts
             Log::warning(sprintf(
                 'Given base price model with regular price %d product id %d was either already free or negative',
                 $price->regularPrice,
-                $price->productId
+                $price->productId,
             ));
 
             return false;
@@ -124,9 +125,14 @@ class MigrationsPriceDiscounts
         return true;
     }
 
-    private function alreadyHasDiscount(Customer $customer, int $productId, int $contractPeriod, int $billingPeriod): bool
-    {
-        $discount = DB::select(<<<SQL
+    private function alreadyHasDiscount(
+        Customer $customer,
+        int $productId,
+        int $contractPeriod,
+        int $billingPeriod,
+    ): bool {
+        $discount = DB::select(
+            <<<SQL
             select p.id
             from product_price_components p
             join product_discount_prices pdp
@@ -140,7 +146,16 @@ class MigrationsPriceDiscounts
             and billing_period = :billingPeriod
             and starts_at <= :currentDate
             and (expires_at is null or expires_at > :currentDate)
-            SQL, ['currentDate' => CarbonImmutable::now(), 'priceType' => PriceComponentType::PROLONGATION_STAFFEL->value, 'customerId' => $customer->id, 'productId' => $productId, 'contractPeriod' => $contractPeriod, 'billingPeriod' => $billingPeriod]);
+            SQL,
+            [
+                'currentDate' => CarbonImmutable::now(),
+                'priceType' => PriceComponentType::PROLONGATION_STAFFEL->value,
+                'customerId' => $customer->id,
+                'productId' => $productId,
+                'contractPeriod' => $contractPeriod,
+                'billingPeriod' => $billingPeriod,
+            ],
+        );
 
         return count($discount) > 0;
     }

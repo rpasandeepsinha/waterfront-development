@@ -22,13 +22,13 @@ class ServiceOfferingMapper implements Mapper
         assert(is_int($data['rootdisksize']));
 
         return new ServiceOffering(
-            id:           $data['id'],
-            name:         $data['name'],
-            memory:       $data['memory'],
-            cpunumber:    $data['cpunumber'],
-            domainid:     $data['domainid'],
-            domain:       $data['domain'],
-            rootdisksize: $data['rootdisksize']
+            id: $data['id'],
+            name: $data['name'],
+            memory: $data['memory'],
+            cpunumber: $data['cpunumber'],
+            domainid: $data['domainid'],
+            domain: $data['domain'],
+            rootdisksize: $data['rootdisksize'],
         );
     }
 }

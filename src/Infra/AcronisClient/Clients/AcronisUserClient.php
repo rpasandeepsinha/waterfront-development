@@ -45,7 +45,7 @@ class AcronisUserClient
     public function list(string $tenantId): TenantUsers
     {
         $response = $this->connector->send(new GetTenantUsersRequest(
-            tenantId: $tenantId
+            tenantId: $tenantId,
         ));
 
         try {
@@ -66,7 +66,7 @@ class AcronisUserClient
     public function get(string $userId): UserResponse
     {
         $response = $this->connector->send(new GetUserRequest(
-            userId: $userId
+            userId: $userId,
         ));
 
         try {
@@ -109,7 +109,7 @@ class AcronisUserClient
         try {
             $response = $this->connector->send(new PostSetUserPasswordRequest(
                 userId: $userId,
-                password: $password
+                password: $password,
             ));
         } catch (SaloonException $exception) {
             $this->logger->error(sprintf('Could not update Acronis password for user %s.', $userId), [
@@ -133,11 +133,15 @@ class AcronisUserClient
     {
         $response = $this->connector->send(new PutUpdateUserAccessPoliciesRequest(
             userId: $userId,
-            payload: $payload
+            payload: $payload,
         ));
 
         try {
-            $userAccessPolicies = AcronisSerializer::get()->deserialize($response->body(), UserAccessPolicies::class, 'json');
+            $userAccessPolicies = AcronisSerializer::get()->deserialize(
+                $response->body(),
+                UserAccessPolicies::class,
+                'json',
+            );
         } catch (RuntimeException $exception) {
             throw new AcronisSerializerException(UserAccessPolicies::class, $response->body(), $exception);
         }
@@ -155,7 +159,7 @@ class AcronisUserClient
     {
         $response = $this->connector->send(new GetUserSsoRequest(
             userId: $userId,
-            employeeUuid: $employeeUuid
+            employeeUuid: $employeeUuid,
         ));
 
         try {

@@ -11,9 +11,7 @@ class InternalNamserverRepository
 {
     public function isInternalNamserver(string $nameserver): bool
     {
-        return FerryInternalNameserver::query()
-            ->where('nameserver_hostname', $nameserver)
-            ->exists();
+        return FerryInternalNameserver::query()->where('nameserver_hostname', $nameserver)->exists();
     }
 
     /**
@@ -21,9 +19,7 @@ class InternalNamserverRepository
      */
     public function paginate(int $pageSize): LengthAwarePaginator
     {
-        return FerryInternalNameserver::query()
-            ->orderBy('id')
-            ->paginate($pageSize);
+        return FerryInternalNameserver::query()->orderBy('id')->paginate($pageSize);
     }
 
     public function store(string $nameserverHostname): FerryInternalNameserver

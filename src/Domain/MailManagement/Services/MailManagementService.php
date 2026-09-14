@@ -84,15 +84,15 @@ class MailManagementService
         $hostingDeployment = $this->getHostingDeployment($subscription);
 
         $provider = $this->getMailHostingProviderSlug($hostingDeployment);
-        $domainUsername = $this->mailOnlyServiceFactory
-            ->driver($provider)
-            ->getUsername($hostingDeployment);
+        $domainUsername = $this->mailOnlyServiceFactory->driver($provider)->getUsername($hostingDeployment);
 
         $server = $this->serverService->getServer($hostingDeployment);
 
-        return $this->mailOnlyServiceFactory
-            ->driver($provider)
-            ->listDomain($server->hostname, $domain, $domainUsername);
+        return $this->mailOnlyServiceFactory->driver($provider)->listDomain(
+            $server->hostname,
+            $domain,
+            $domainUsername,
+        );
     }
 
     /**
@@ -104,9 +104,7 @@ class MailManagementService
         string $username,
         string $domain,
     ): array {
-        return $this->mailOnlyServiceFactory
-            ->driver($providerSlug)
-            ->listDomainFromServer($server, $domain, $username);
+        return $this->mailOnlyServiceFactory->driver($providerSlug)->listDomainFromServer($server, $domain, $username);
     }
 
     public function domainUserExists(Subscription $subscription, string $username): bool
@@ -114,7 +112,9 @@ class MailManagementService
         $users = Arr::get($this->users($subscription), 'users', []);
         assert(is_array($users));
 
-        return new Collection($users)->filter(fn (string $user): bool => $user === $username)->isNotEmpty();
+        return new Collection($users)
+            ->filter(fn (string $user): bool => $user === $username)
+            ->isNotEmpty();
     }
 
     public function createDomain(Subscription $subscription, string $email): bool
@@ -122,7 +122,8 @@ class MailManagementService
         $domain = $subscription->domain;
 
         if ($domain === null) {
-            throw new RuntimeException('MailOnlyService expects domain to not be null for subscription: ' . $subscription->uuid);
+            throw new RuntimeException('MailOnlyService expects domain to not be null for subscription: '
+            . $subscription->uuid);
         }
 
         if ($subscription->hostingDeployment()->doesntExist()) {
@@ -144,21 +145,20 @@ class MailManagementService
                     'fullDomain' => $domain,
                     'email' => $email,
                 ],
-            ]
+            ],
         );
 
-        $result = $this->mailOnlyServiceFactory
-            ->driver()
-            ->createDomain($domain, $email);
+        $result = $this->mailOnlyServiceFactory->driver()->createDomain($domain, $email);
 
         $usesMailOnlyServer = $this->productSpecRepository->booleanSpecificationIsTrue(
             $subscription->product,
-            ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER
+            ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER,
         );
 
         $usesMailOnlyServer
             ? $hostingDeployment->update([
-                'mail_only_provider_id' => $this->providerRepository->getEnabledDefaultByType(ProviderType::MAILONLY)->id,
+                'mail_only_provider_id' =>
+                    $this->providerRepository->getEnabledDefaultByType(ProviderType::MAILONLY)->id,
                 'mail_only_server_id' => $result->getServerId(),
             ])
             : $hostingDeployment->update([
@@ -173,8 +173,9 @@ class MailManagementService
         $hostingDeployment = $subscription->hostingDeployment;
 
         $usesMailOnlyServer
-            ? $hostingDeployment->provider_id = null // This gets set automatically, so we revert it in case of mail-only.
-            : $hostingDeployment->mail_only_provider_id = null;
+            ? ($hostingDeployment->provider_id = null)
+            // This gets set automatically, so we revert it in case of mail-only.
+            : ($hostingDeployment->mail_only_provider_id = null);
 
         if ($result->getStatus() === Result::STATUS_OK && ! is_null($result->getResourceId())) {
             $this->hostingDeploymentService->setMailUsername($hostingDeployment, $result->getResourceId());
@@ -202,7 +203,7 @@ class MailManagementService
 
         if (is_null($domain)) {
             throw new InvalidArgumentException(
-                "Invalid subscription provided with uuid {$subscription->uuid} Unable to resolve domain name."
+                "Invalid subscription provided with uuid {$subscription->uuid} Unable to resolve domain name.",
             );
         }
 
@@ -210,16 +211,12 @@ class MailManagementService
         $this->deploymentPolicy->assertCanManageMailAccounts($hostingDeployment);
 
         $driver = $this->getMailHostingProviderSlug($hostingDeployment);
-        $domainUsername = $this->mailOnlyServiceFactory
-            ->driver($driver)
-            ->getUsername($hostingDeployment);
+        $domainUsername = $this->mailOnlyServiceFactory->driver($driver)->getUsername($hostingDeployment);
 
         $server = $this->serverService->getServer($hostingDeployment);
         $hostname = $server->hostname;
 
-        $providerType = $subscription->product->isMailOnlyServer()
-            ? ProviderType::MAILONLY
-            : ProviderType::HOSTING;
+        $providerType = $subscription->product->isMailOnlyServer() ? ProviderType::MAILONLY : ProviderType::HOSTING;
 
         $limit = $this->getLimit($driver, $providerType);
         $quota = $this->getQuota($driver, $providerType);
@@ -241,12 +238,18 @@ class MailManagementService
                     'quota' => $quota,
                     'driver' => $driver->value,
                 ],
-            ]
+            ],
         );
 
-        $result = $this->mailOnlyServiceFactory
-            ->driver($driver)
-            ->createUser($hostname, $domain, $domainUsername, $mailUser, $password, $limit, $quota);
+        $result = $this->mailOnlyServiceFactory->driver($driver)->createUser(
+            $hostname,
+            $domain,
+            $domainUsername,
+            $mailUser,
+            $password,
+            $limit,
+            $quota,
+        );
 
         $emailAddress = $domainUsername . '@' . $domain;
         $this->sendUserCreatedConfirmationMail($subscription->customer, $emailAddress);
@@ -262,23 +265,20 @@ class MailManagementService
         $domain = $subscription->domain;
 
         if ($domain === null) {
-            throw new RuntimeException('MailOnlyService expects domain to not be null for subscription: ' . $subscription->uuid);
+            throw new RuntimeException('MailOnlyService expects domain to not be null for subscription: '
+            . $subscription->uuid);
         }
 
         $hostingDeployment = $this->getHostingDeployment($subscription);
         $this->deploymentPolicy->assertCanManageMailAccounts($hostingDeployment);
 
         $driver = $this->getMailHostingProviderSlug($hostingDeployment);
-        $domainUsername = $this->mailOnlyServiceFactory
-            ->driver($driver)
-            ->getUsername($hostingDeployment);
+        $domainUsername = $this->mailOnlyServiceFactory->driver($driver)->getUsername($hostingDeployment);
 
         $server = $this->serverService->getServer($hostingDeployment);
         $hostname = $server->hostname;
 
-        $providerType = $subscription->product->isMailOnlyServer()
-            ? ProviderType::MAILONLY
-            : ProviderType::HOSTING;
+        $providerType = $subscription->product->isMailOnlyServer() ? ProviderType::MAILONLY : ProviderType::HOSTING;
 
         $quota = $this->getQuota($driver, $providerType);
 
@@ -296,12 +296,17 @@ class MailManagementService
                     'mailUser' => $mailUser,
                     'quota' => $quota,
                 ],
-            ]
+            ],
         );
 
-        $result = $this->mailOnlyServiceFactory
-            ->driver($driver)
-            ->resetPassword($hostname, $domain, $domainUsername, $mailUser, $password, $quota);
+        $result = $this->mailOnlyServiceFactory->driver($driver)->resetPassword(
+            $hostname,
+            $domain,
+            $domainUsername,
+            $mailUser,
+            $password,
+            $quota,
+        );
 
         return $result->getStatus() === Result::STATUS_OK;
     }
@@ -312,7 +317,7 @@ class MailManagementService
 
         if (is_null($domain)) {
             throw new InvalidArgumentException(
-                "Invalid subscription provided with uuid {$subscription->uuid} Unable to resolve domain name."
+                "Invalid subscription provided with uuid {$subscription->uuid} Unable to resolve domain name.",
             );
         }
 
@@ -320,13 +325,13 @@ class MailManagementService
 
         $token = $this->spamExpertsClient->generateSsoToken($domain, $spamExpertsCluster);
 
-        $spamexpertsEndpoint = $spamExpertsCluster !== null ?
-            $spamExpertsCluster->hostname :
-            $this->configuration->getAsString('spamexpertsclient.connection.api_url');
+        $spamexpertsEndpoint = $spamExpertsCluster !== null
+            ? $spamExpertsCluster->hostname
+            : $this->configuration->getAsString('spamexpertsclient.connection.api_url');
 
         if ($spamexpertsEndpoint === '') {
             throw new UnexpectedValueException(
-                'Spamexperts base url not set in the env file!'
+                'Spamexperts base url not set in the env file!',
             );
         }
 
@@ -340,7 +345,7 @@ class MailManagementService
         if (is_null($domain)) {
             throw new InvalidArgumentException(
                 "Invalid subscription
-                provided with uuid {$subscription->uuid} Unable to resolve domain name."
+                provided with uuid {$subscription->uuid} Unable to resolve domain name.",
             );
         }
 
@@ -363,12 +368,12 @@ class MailManagementService
                     'hostname' => $hostname,
                     'domainUsername' => $domainUsername,
                 ],
-            ]
+            ],
         );
 
-        $result = $this->mailOnlyServiceFactory
-            ->driver($this->getMailHostingProviderSlug($hostingDeployment))
-            ->deleteDomain($hostname, $domain, $domainUsername);
+        $result = $this->mailOnlyServiceFactory->driver($this->getMailHostingProviderSlug(
+            $hostingDeployment,
+        ))->deleteDomain($hostname, $domain, $domainUsername);
 
         if ($result->getStatus() === Result::STATUS_OK) {
             $spamExpertsCluster = $subscription->hostingDeployment?->spamExpertsCluster;
@@ -384,7 +389,7 @@ class MailManagementService
 
         if (is_null($domain)) {
             throw new InvalidArgumentException(
-                "Invalid subscription provided with uuid {$subscription->uuid} Unable to resolve domain name."
+                "Invalid subscription provided with uuid {$subscription->uuid} Unable to resolve domain name.",
             );
         }
 
@@ -411,12 +416,12 @@ class MailManagementService
                     'domainUsername' => $domainUsername,
                     'mailUser' => $mailUser,
                 ],
-            ]
+            ],
         );
 
-        $result = $this->mailOnlyServiceFactory
-            ->driver($this->getMailHostingProviderSlug($hostingDeployment))
-            ->deleteUser($hostname, $domain, $domainUsername, $mailUser);
+        $result = $this->mailOnlyServiceFactory->driver($this->getMailHostingProviderSlug(
+            $hostingDeployment,
+        ))->deleteUser($hostname, $domain, $domainUsername, $mailUser);
 
         return $result->getStatus() === Result::STATUS_OK;
     }
@@ -452,15 +457,13 @@ class MailManagementService
         Assert::isInstanceOf($server, Server::class);
         Assert::string($username);
 
-        return $this->mailOnlyServiceFactory
-            ->driver($provider->slug)
-            ->createEmailForward(
-                server: $server,
-                identifier: $username,
-                domain: $domain,
-                sourceEmailAddressUsername: $sourceEmailAddressUsername,
-                destinationEmailAddresses: $destinationEmailAddresses,
-            );
+        return $this->mailOnlyServiceFactory->driver($provider->slug)->createEmailForward(
+            server: $server,
+            identifier: $username,
+            domain: $domain,
+            sourceEmailAddressUsername: $sourceEmailAddressUsername,
+            destinationEmailAddresses: $destinationEmailAddresses,
+        );
     }
 
     /**
@@ -478,14 +481,12 @@ class MailManagementService
         Assert::isInstanceOf($server, Server::class);
         Assert::string($username);
 
-        return $this->mailOnlyServiceFactory
-            ->driver($provider->slug)
-            ->deleteEmailForward(
-                server: $server,
-                domain: $domain,
-                identifier: $username,
-                source: $source,
-            );
+        return $this->mailOnlyServiceFactory->driver($provider->slug)->deleteEmailForward(
+            server: $server,
+            domain: $domain,
+            identifier: $username,
+            source: $source,
+        );
     }
 
     /**
@@ -497,15 +498,13 @@ class MailManagementService
         string $domain,
         Server $server,
         string $username,
-        ProviderSlug $providerSlug
+        ProviderSlug $providerSlug,
     ): array {
-        return $this->mailOnlyServiceFactory
-            ->driver($providerSlug)
-            ->getEmailForwards(
-                server: $server,
-                domain: $domain,
-                identifier: $username,
-            );
+        return $this->mailOnlyServiceFactory->driver($providerSlug)->getEmailForwards(
+            server: $server,
+            domain: $domain,
+            identifier: $username,
+        );
     }
 
     /**
@@ -530,7 +529,7 @@ class MailManagementService
             domain: $domain,
             server: $server,
             username: $username,
-            providerSlug: $provider->slug
+            providerSlug: $provider->slug,
         );
     }
 
@@ -571,7 +570,7 @@ class MailManagementService
                     'hasMailOnlyServer' => false,
                     'hosting_deployment' => $subscription->hostingDeployment?->id,
                 ],
-            ]
+            ],
         );
 
         return $this->providerRepository->getEnabledDefaultByType(ProviderType::HOSTING)->slug;
@@ -611,9 +610,10 @@ class MailManagementService
                     'Hosting deployment not found for subscription [%s - %s]',
                     $subscription->domain,
                     $subscription->uuid,
-                )
+                ),
             );
         }
+
         return $hostingDeployment;
     }
 
@@ -623,7 +623,7 @@ class MailManagementService
             [$customer],
             new EmailAccountCreatedMail(
                 $emailAddress,
-            )
+            ),
         );
     }
 }

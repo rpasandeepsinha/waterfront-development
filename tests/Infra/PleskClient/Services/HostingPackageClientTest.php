@@ -26,8 +26,8 @@ class HostingPackageClientTest extends TestCase
     public function getDkimRecord(): void
     {
         $expectedValue = 'v=DKIM1; p=mockDkimRecord;';
-        $expectedHost  = 'default._domainkey.test-domain.com.';
-        $expectedType  = 'TXT';
+        $expectedHost = 'default._domainkey.test-domain.com.';
+        $expectedType = 'TXT';
         $expectedSiteId = 27;
 
         $mockLogger = $this->createMock(LoggerInterface::class);
@@ -63,18 +63,31 @@ class HostingPackageClientTest extends TestCase
     public function getMultipleDkimRecordsShouldLogAndReturnFirst(): void
     {
         $expectedValue = 'v=DKIM1; p=mockDkimRecord;';
-        $expectedHost  = 'default._domainkey.test-domain.com.';
-        $expectedType  = 'TXT';
+        $expectedHost = 'default._domainkey.test-domain.com.';
+        $expectedType = 'TXT';
         $expectedSiteId = 27;
 
         $recordResults = [
-                new DnsRecord($expectedSiteId, $expectedType, $expectedHost, $expectedValue, null),
-                new DnsRecord($expectedSiteId, $expectedType, '_domainkey2.test-domain.com.', 'v=DKIM1; p=differentDKIM', null),
-                new DnsRecord($expectedSiteId, $expectedType, '_domainkey3.test-domain.com.', 'v=DKIM1; p=differentDKIM2', null),
-            ];
+            new DnsRecord($expectedSiteId, $expectedType, $expectedHost, $expectedValue, null),
+            new DnsRecord(
+                $expectedSiteId,
+                $expectedType,
+                '_domainkey2.test-domain.com.',
+                'v=DKIM1; p=differentDKIM',
+                null,
+            ),
+            new DnsRecord(
+                $expectedSiteId,
+                $expectedType,
+                '_domainkey3.test-domain.com.',
+                'v=DKIM1; p=differentDKIM2',
+                null,
+            ),
+        ];
 
         $mockLogger = $this->createMock(LoggerInterface::class);
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('warning')
             ->with('Multiple DKIM records found for {domain.name}, returning first.', [
                 LoggingContextKeys::DOMAIN_NAME => self::TEST_DOMAIN,

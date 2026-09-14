@@ -43,14 +43,18 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class DiscountSeeder extends Seeder
 {
-    public function __construct(private readonly ReferenceRepository $referenceRepo)
-    {
+    public function __construct(
+        private readonly ReferenceRepository $referenceRepo,
+    ) {
     }
 
     public function run(): void
     {
         $customer = $this->customer();
-        $volumeDiscount = $this->referenceRepo->get(ProductReference::VOLUME_DISCOUNT_HOSTING_BRONS_PRODUCT_DISCOUNT, ProductDiscount::class);
+        $volumeDiscount = $this->referenceRepo->get(
+            ProductReference::VOLUME_DISCOUNT_HOSTING_BRONS_PRODUCT_DISCOUNT,
+            ProductDiscount::class,
+        );
         $volumeDiscount->customers->add($customer);
         $volumeDiscount->save();
 
@@ -98,20 +102,32 @@ class DiscountSeeder extends Seeder
     private function hostingBronze(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::HOSTING_BRONZE, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::VOLUME_DISCOUNT_HOSTING_BRONS_PRODUCT_DISCOUNT_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::VOLUME_DISCOUNT_HOSTING_BRONS_PRODUCT_DISCOUNT_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $provider = $this->referenceRepo->get(ProductReference::HOSTING_PROVIDER_DIRECT_ADMIN, Provider::class);
         $server = $this->referenceRepo->get(ProductReference::HOSTING_SERVER_DIRECT_ADMIN, Server::class);
 
         $domainProduct = $this->referenceRepo->get(ProductReference::DOMAIN_NL, Product::class);
-        $domainPrice = $this->referenceRepo->get(ProductReference::DOMAIN_NL_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $domainPrice = $this->referenceRepo->get(
+            ProductReference::DOMAIN_NL_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
         $domainProvider = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_DEFAULT, Provider::class);
         $domainContact = $this->referenceRepo->get(ScenarioReference::TEST_KEES_DOMAIN_CONTACT, DomainContact::class);
 
         $dnsProduct = $this->referenceRepo->get(ProductReference::DNS_FREE, Product::class);
-        $dnsPrice = $this->referenceRepo->get(ProductReference::DNS_FREE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $dnsPrice = $this->referenceRepo->get(
+            ProductReference::DNS_FREE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $volumeDiscountProduct = $this->referenceRepo->get(ProductReference::VOLUME_DISCOUNT_BRONS, Product::class);
-        $volumeDiscountPrice = $this->referenceRepo->get(ProductReference::VOLUME_DISCOUNT_BRONS_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $volumeDiscountPrice = $this->referenceRepo->get(
+            ProductReference::VOLUME_DISCOUNT_BRONS_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $dnsNameserver1 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_1, DnsNameserver::class);
         $dnsNameserver2 = $this->referenceRepo->get(ProductReference::DNS_NAMESERVER_2, DnsNameserver::class);
@@ -209,7 +225,11 @@ class DiscountSeeder extends Seeder
         $invoiceItem->net_price = $hostingSubscription->net_price;
         $invoiceItem->gross_price = $hostingSubscription->gross_price;
         $invoiceItem->title = $hostingSubscription->domain ?? $hostingSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $hostingSubscription->product->name, $hostingSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $hostingSubscription->product->name,
+            $hostingSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -291,7 +311,11 @@ class DiscountSeeder extends Seeder
         $invoiceItem->net_price = $domainSubscription->net_price;
         $invoiceItem->gross_price = $domainSubscription->gross_price;
         $invoiceItem->title = $domainSubscription->domain ?? $domainSubscription->product->name;
-        $invoiceItem->description = sprintf('%s for %s', $domainSubscription->product->name, $domainSubscription->domain);
+        $invoiceItem->description = sprintf(
+            '%s for %s',
+            $domainSubscription->product->name,
+            $domainSubscription->domain,
+        );
         $invoiceItem->group_label = null;
         $invoiceItem->type = InvoiceLine::TYPE_DEFAULT;
         $invoiceItem->prepaid_reference = null;
@@ -358,11 +382,13 @@ class DiscountSeeder extends Seeder
         $dnsDeployment->nameserver_type = NameserverType::INTERNAL;
         $dnsDeployment->save();
 
-        $dnsDeployment->dnsNameservers()->saveMany([
-            $dnsNameserver1,
-            $dnsNameserver2,
-            $dnsNameserver3,
-        ]);
+        $dnsDeployment
+            ->dnsNameservers()
+            ->saveMany([
+                $dnsNameserver1,
+                $dnsNameserver2,
+                $dnsNameserver3,
+            ]);
 
         $invoiceItem = new Invoice();
         $invoiceItem->subscription_id = $dnsSubscription->id;

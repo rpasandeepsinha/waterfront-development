@@ -13,8 +13,9 @@ use Waterfront\Infra\Authentication\DTO\AuthenticatedCustomer;
 
 class TransferPolicy
 {
-    public function __construct(private readonly AuthenticationManager $authManager)
-    {
+    public function __construct(
+        private readonly AuthenticationManager $authManager,
+    ) {
     }
 
     /**
@@ -46,7 +47,10 @@ class TransferPolicy
     {
         $subject = $this->authManager->getAuthenticatedCustomer();
 
-        if ($transfer->to_customer_id !== $subject->customer->id || $transfer->getStatus() !== TransferStatus::REQUESTED) {
+        if (
+            $transfer->to_customer_id !== $subject->customer->id
+            || $transfer->getStatus() !== TransferStatus::REQUESTED
+        ) {
             throw new AuthorizationException();
         }
     }

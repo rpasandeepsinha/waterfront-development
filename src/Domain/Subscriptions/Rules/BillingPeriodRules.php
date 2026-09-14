@@ -43,6 +43,7 @@ class BillingPeriodRules implements DataAwareRule, ValidationRule
     public function setData(array $data): self
     {
         $this->data = $data;
+
         return $this;
     }
 
@@ -64,6 +65,7 @@ class BillingPeriodRules implements DataAwareRule, ValidationRule
         $contractPeriod = Arr::get($this->data, str_replace('billing_period', 'contract_period', $attribute));
         if ($contractPeriod > 0 && $value > 0 && $value > $contractPeriod) {
             $fail($this->translator->translate('validation.billing_period_exceeds_contract_period'));
+
             return;
         }
 
@@ -73,7 +75,13 @@ class BillingPeriodRules implements DataAwareRule, ValidationRule
         $requestPriceType = Arr::get($this->data, str_replace('billing_period', 'status', $attribute));
         assert(is_string($requestPriceType));
         $priceType = ProductPriceType::from($requestPriceType);
-        if ($value === 1 && $contractPeriod > 1 && ! $customer->has_direct_debit && $paymentMethod !== null && ! $this->paymentService->isPaymentMethodThatSupportsDirectDebitCreation($paymentMethod)) {
+        if (
+            $value === 1
+            && $contractPeriod > 1
+            && ! $customer->has_direct_debit
+            && $paymentMethod !== null
+            && ! $this->paymentService->isPaymentMethodThatSupportsDirectDebitCreation($paymentMethod)
+        ) {
             $productPriceRequest = match ($priceType) {
                 ProductPriceType::REGISTRATION => new RegistrationPriceRequest($product),
                 ProductPriceType::PROLONGATION => new ProlongationPriceRequest($product),
@@ -83,12 +91,17 @@ class BillingPeriodRules implements DataAwareRule, ValidationRule
 
             // Customer selected multi-month contract with monthly payment but
             // has no direct debit mandate. Did the customer have a choice?
-            $isNonMonthlyBillingAvailable = $prices->where('slug', $product->slug)->firstOrFail()->prices->some(
-                fn (Price $productPrice) => $productPrice->type === $priceType
-                && $productPrice->contractPeriod === $contractPeriod
-                && $productPrice->billingPeriod > 1
-                && $productPrice->orderable
-            );
+            $isNonMonthlyBillingAvailable = $prices
+                ->where('slug', $product->slug)
+                ->firstOrFail()
+                ->prices->some(
+                    fn (Price $productPrice) => (
+                        $productPrice->type === $priceType
+                        && $productPrice->contractPeriod === $contractPeriod
+                        && $productPrice->billingPeriod > 1
+                        && $productPrice->orderable
+                    ),
+                );
 
             $isAddon = ProductAddonCoupling::where('addon_product_id', $product->id)->exists();
 

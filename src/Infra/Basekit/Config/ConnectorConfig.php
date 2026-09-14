@@ -18,10 +18,18 @@ readonly class ConnectorConfig
         public private(set) int $brandReference,
     ) {
         Assert::stringNotEmpty($this->baseUrl, message: 'The baseURL can\'t be empty');
-        Assert::regex($this->baseUrl, pattern: '/^http(s)?:\/\//', message: 'The baseURL must start with http:// or https://');
+        Assert::regex(
+            $this->baseUrl,
+            pattern: '/^http(s)?:\/\//',
+            message: 'The baseURL must start with http:// or https://',
+        );
 
         Assert::stringNotEmpty($this->ssoUrl, message: 'The ssoURL can\'t be empty');
-        Assert::regex($this->ssoUrl, pattern: '/^http(s)?:\/\//', message: 'The ssoURL must start with http:// or https://');
+        Assert::regex(
+            $this->ssoUrl,
+            pattern: '/^http(s)?:\/\//',
+            message: 'The ssoURL must start with http:// or https://',
+        );
 
         Assert::stringNotEmpty($this->username, message: 'The username is required and cannot be set as empty');
         Assert::stringNotEmpty($this->password, message: 'The password is required and cannot be set as empty');

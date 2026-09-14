@@ -87,10 +87,9 @@ class NovaRetryVpsActionTest extends IntegrationTestCase
         $productGroup = ProductGroupFactory::new()->cloudstackVirtualMachine()->createOne();
         $osProduct = ProductFactory::new()->ubuntu()->createOne();
 
-        $this->subscription = SubscriptionFactory::new()
-            ->for(CustomerFactory::new())
-            ->for(ProductFactory::new()->for($productGroup))
-            ->createOne();
+        $this->subscription = SubscriptionFactory::new()->for(CustomerFactory::new())->for(ProductFactory::new()->for(
+            $productGroup,
+        ))->createOne();
 
         SubscriptionFactory::new()
             ->for($this->subscription->customer)
@@ -98,15 +97,13 @@ class NovaRetryVpsActionTest extends IntegrationTestCase
             ->parentSubscription($this->subscription)
             ->createOne();
 
-        $this->subscriptionAlreadyDeployed = SubscriptionFactory::new()
-            ->for(CustomerFactory::new())
-            ->for(ProductFactory::new()->for($productGroup))
-            ->createOne();
+        $this->subscriptionAlreadyDeployed = SubscriptionFactory::new()->for(
+            CustomerFactory::new(),
+        )->for(ProductFactory::new()->for($productGroup))->createOne();
 
-        $this->subscriptionWithOutManagerDomainDeployment = SubscriptionFactory::new()
-            ->for(CustomerFactory::new())
-            ->for(ProductFactory::new()->for($productGroup))
-            ->createOne();
+        $this->subscriptionWithOutManagerDomainDeployment = SubscriptionFactory::new()->for(
+            CustomerFactory::new(),
+        )->for(ProductFactory::new()->for($productGroup))->createOne();
 
         $osSubscription = SubscriptionFactory::new()
             ->for($this->subscriptionWithOutManagerDomainDeployment->customer)
@@ -114,38 +111,27 @@ class NovaRetryVpsActionTest extends IntegrationTestCase
             ->parentSubscription($this->subscriptionWithOutManagerDomainDeployment)
             ->createOne();
 
-        $this->orderSshKey = SshKeyFactory::new()
-            ->for($this->subscriptionWithOutManagerDomainDeployment->customer)
-            ->createOne();
+        $this->orderSshKey = SshKeyFactory::new()->for($this->subscriptionWithOutManagerDomainDeployment->customer)->createOne();
 
-        $order = OrderFactory::new()
-            ->for($this->subscriptionWithOutManagerDomainDeployment->customer)
-            ->createOne();
+        $order = OrderFactory::new()->for($this->subscriptionWithOutManagerDomainDeployment->customer)->createOne();
 
         $metaContent = [
             'type' => ProductGroupType::CLOUDSTACK_OS->value,
             'sshKeyUuid' => $this->orderSshKey->uuid->toString(),
         ];
 
-        $this->osOrderLineItem = OrderLineItemFactory::new()
-            ->for($order)
-            ->createOne(
-                [
-                    'product_uuid' => $osSubscription->product->uuid,
-                    'subscription_uuid' => $osSubscription->uuid,
-                    'meta_data' => json_encode($metaContent),
-                ]
-            );
+        $this->osOrderLineItem = OrderLineItemFactory::new()->for($order)->createOne(
+            [
+                'product_uuid' => $osSubscription->product->uuid,
+                'subscription_uuid' => $osSubscription->uuid,
+                'meta_data' => json_encode($metaContent),
+            ],
+        );
 
-        $this->defaultSshKey = SshKeyFactory::new()
-            ->for($this->subscription->customer)
-            ->createOne();
+        $this->defaultSshKey = SshKeyFactory::new()->for($this->subscription->customer)->createOne();
 
         $this->cloudstackEnvironment = CloudstackEnvironmentFactory::new()->createOne();
-        $this->managerDomainDeployment = CloudstackManagerDomainDeploymentFactory::new()
-            ->for($this->subscription->customer)
-            ->for($this->cloudstackEnvironment)
-            ->createOne();
+        $this->managerDomainDeployment = CloudstackManagerDomainDeploymentFactory::new()->for($this->subscription->customer)->for($this->cloudstackEnvironment)->createOne();
     }
 
     #[Test]
@@ -164,15 +150,17 @@ class NovaRetryVpsActionTest extends IntegrationTestCase
         $virtualMachineDeployment = $this->createVirtualMachineDeployment();
         $virtualMachineDeployment->sshKeys()->save($this->defaultSshKey);
 
-        $this->vpsServiceMock->expects(self::once())
+        $this->vpsServiceMock
+            ->expects(self::once())
             ->method('retry')
             ->with(
                 $this->subscription,
                 $this->defaultSshKey->uuid->toString(),
-                true
+                true,
             );
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('debug')
             ->with('Start Nova VPS Retry action with deleting existing VM deployment', [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
@@ -192,15 +180,17 @@ class NovaRetryVpsActionTest extends IntegrationTestCase
         $virtualMachineDeployment = $this->createVirtualMachineDeployment();
         $virtualMachineDeployment->sshKeys()->save($this->defaultSshKey);
 
-        $this->vpsServiceMock->expects(self::once())
+        $this->vpsServiceMock
+            ->expects(self::once())
             ->method('retry')
             ->with(
                 $this->subscription,
                 $this->defaultSshKey->uuid->toString(),
-                false
+                false,
             );
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('debug')
             ->with('Start Nova VPS Retry action without deleting existing VM deployment', [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
@@ -219,15 +209,17 @@ class NovaRetryVpsActionTest extends IntegrationTestCase
     {
         $virtualMachineDeployment = $this->createVirtualMachineDeployment();
 
-        $this->vpsServiceMock->expects(self::once())
+        $this->vpsServiceMock
+            ->expects(self::once())
             ->method('retry')
             ->with(
                 $this->subscription,
                 null,
-                true
+                true,
             );
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('debug')
             ->with('Start Nova VPS Retry action with deleting existing VM deployment', [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
@@ -249,15 +241,18 @@ class NovaRetryVpsActionTest extends IntegrationTestCase
 
         $exception = new ClientException('Something went wrong');
 
-        $this->vpsServiceMock->expects(self::once())
+        $this->vpsServiceMock
+            ->expects(self::once())
             ->method('retry')
             ->with(
                 $this->subscription,
                 $this->defaultSshKey->uuid->toString(),
-                true
-            )->willThrowException($exception);
+                true,
+            )
+            ->willThrowException($exception);
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('debug')
             ->with('Start Nova VPS Retry action with deleting existing VM deployment', [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
@@ -265,7 +260,8 @@ class NovaRetryVpsActionTest extends IntegrationTestCase
                 LoggingContextKeys::PROVISIONING_ID => $virtualMachineDeployment->id,
             ]);
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'An error occurred while redeploying the VPS',
@@ -279,7 +275,7 @@ class NovaRetryVpsActionTest extends IntegrationTestCase
                         'delete_vm_first' => true,
                         'ssh_key_uuid' => $this->defaultSshKey->uuid->toString(),
                     ],
-                ]
+                ],
             );
 
         $models = new Collection([$this->subscription]);
@@ -291,12 +287,13 @@ class NovaRetryVpsActionTest extends IntegrationTestCase
     #[Test]
     public function vpsRetryActionWithoutExistingVMDeploymentSuccess(): void
     {
-        $this->vpsServiceMock->expects(self::once())
+        $this->vpsServiceMock
+            ->expects(self::once())
             ->method('retry')
             ->with(
                 $this->subscription,
                 null,
-                false
+                false,
             );
 
         $models = new Collection([$this->subscription]);
@@ -313,12 +310,13 @@ class NovaRetryVpsActionTest extends IntegrationTestCase
             'sshKeyUuid' => null,
         ], JSON_THROW_ON_ERROR);
 
-        $this->vpsServiceMock->expects(self::once())
+        $this->vpsServiceMock
+            ->expects(self::once())
             ->method('retry')
             ->with(
                 $this->subscription,
                 null,
-                false
+                false,
             );
 
         $models = new Collection([$this->subscription]);
@@ -335,15 +333,16 @@ class NovaRetryVpsActionTest extends IntegrationTestCase
             [
                 'customer_id' => $this->subscriptionWithOutManagerDomainDeployment->customer->id,
                 'environment_id' => $this->cloudstackEnvironment->id,
-            ]
+            ],
         );
 
-        $this->vpsServiceMock->expects(self::once())
+        $this->vpsServiceMock
+            ->expects(self::once())
             ->method('retry')
             ->with(
                 $this->subscriptionWithOutManagerDomainDeployment,
                 $this->orderSshKey->uuid,
-                false
+                false,
             );
 
         $models = new Collection([$this->subscriptionWithOutManagerDomainDeployment]);
@@ -360,12 +359,13 @@ class NovaRetryVpsActionTest extends IntegrationTestCase
             ->for($this->managerDomainDeployment)
             ->createOne();
 
-        $this->vpsServiceMock->expects(self::once())
+        $this->vpsServiceMock
+            ->expects(self::once())
             ->method('retry')
             ->with(
                 $this->subscription,
                 null,
-                false
+                false,
             );
 
         $models = new Collection([$this->subscription]);
@@ -384,9 +384,6 @@ class NovaRetryVpsActionTest extends IntegrationTestCase
 
     private function createVirtualMachineDeployment(): VirtualMachineDeployment
     {
-        return CloudstackVirtualMachineDeploymentFactory::new()
-            ->for($this->managerDomainDeployment)
-            ->for($this->subscription)
-            ->createOne();
+        return CloudstackVirtualMachineDeploymentFactory::new()->for($this->managerDomainDeployment)->for($this->subscription)->createOne();
     }
 }

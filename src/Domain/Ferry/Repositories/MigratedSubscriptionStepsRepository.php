@@ -12,8 +12,10 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class MigratedSubscriptionStepsRepository
 {
-    public function findStepBySubscription(Subscription $subscription, MigrationStep $migrationStep): ?MigratedSubscriptionSteps
-    {
+    public function findStepBySubscription(
+        Subscription $subscription,
+        MigrationStep $migrationStep,
+    ): ?MigratedSubscriptionSteps {
         return MigratedSubscriptionSteps::where('subscription_id', $subscription->id)
             ->where('step', $migrationStep)
             ->first();

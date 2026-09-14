@@ -41,6 +41,7 @@ class ShowUserConfig extends DirectAdminCommand
     public function setUser(string $username): ShowUserConfig
     {
         $this->user = $username;
+
         return $this;
     }
 
@@ -50,6 +51,7 @@ class ShowUserConfig extends DirectAdminCommand
     public function responseReceived(array $decodedContent): static
     {
         $this->userConfig = $decodedContent;
+
         return parent::responseReceived($decodedContent);
     }
 
@@ -67,6 +69,7 @@ class ShowUserConfig extends DirectAdminCommand
     public function setUserConfig(array $userConfig): ShowUserConfig
     {
         $this->userConfig = $userConfig;
+
         return $this;
     }
 

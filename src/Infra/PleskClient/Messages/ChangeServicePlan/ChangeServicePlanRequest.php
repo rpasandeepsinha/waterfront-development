@@ -8,8 +8,10 @@ use Waterfront\Domain\Hosting\Interfaces\Hosting\RequestInterface;
 
 class ChangeServicePlanRequest implements RequestInterface
 {
-    public function __construct(private readonly string $domain, private readonly string $servicePlanGuuid)
-    {
+    public function __construct(
+        private readonly string $domain,
+        private readonly string $servicePlanGuuid,
+    ) {
     }
 
     /**

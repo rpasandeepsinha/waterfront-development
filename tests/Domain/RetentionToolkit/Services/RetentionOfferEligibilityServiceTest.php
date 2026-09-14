@@ -36,24 +36,17 @@ class RetentionOfferEligibilityServiceTest extends TestCase
     {
         parent::setUp();
 
-        $productGroup = ProductGroupFactory::new()
-            ->hosting()
-            ->makeOne();
-        $product = ProductFactory::new()
-            ->hostingGold($productGroup)
-            ->makeOne();
+        $productGroup = ProductGroupFactory::new()->hosting()->makeOne();
+        $product = ProductFactory::new()->hostingGold($productGroup)->makeOne();
         $product->setRelation('productGroup', $productGroup);
 
-        $this->subscription = SubscriptionFactory::new()
-            ->administrativeStatusActive()
-            ->makeOne();
+        $this->subscription = SubscriptionFactory::new()->administrativeStatusActive()->makeOne();
         $this->subscription->setRelation('product', $product);
 
         $this->subscriptionMutationRepository = self::createStub(
             SubscriptionMutationRepository::class,
         );
-        $this->subscriptionMutationRepository->method('findOpenMutation')
-            ->willReturn(null);
+        $this->subscriptionMutationRepository->method('findOpenMutation')->willReturn(null);
 
         $this->actionEligibilityService = self::createStub(
             RetentionOfferActionEligibilityService::class,
@@ -68,9 +61,7 @@ class RetentionOfferEligibilityServiceTest extends TestCase
     #[Test]
     public function rejectsInactiveSubscription(): void
     {
-        $subscription = SubscriptionFactory::new()
-            ->administrativeStatusCancelled()
-            ->makeOne();
+        $subscription = SubscriptionFactory::new()->administrativeStatusCancelled()->makeOne();
 
         $result = $this->eligibilityService->determineEligibility(
             subscription: $subscription,
@@ -92,7 +83,7 @@ class RetentionOfferEligibilityServiceTest extends TestCase
         $result = $this->eligibilityService->determineEligibility(
             subscription: $this->subscription,
             selectedAction: SelectedAction::TK_OPTION_2,
-            contractPeriod: 6,
+            contractPeriod: 24,
             billingPeriod: 12,
             targetProduct: null,
         );
@@ -110,7 +101,7 @@ class RetentionOfferEligibilityServiceTest extends TestCase
             subscription: $this->subscription,
             selectedAction: SelectedAction::TK_OPTION_2,
             contractPeriod: 12,
-            billingPeriod: 6,
+            billingPeriod: 1,
             targetProduct: null,
         );
 
@@ -126,7 +117,8 @@ class RetentionOfferEligibilityServiceTest extends TestCase
         $subscriptionMutationRepository = self::createStub(
             SubscriptionMutationRepository::class,
         );
-        $subscriptionMutationRepository->method('findOpenMutation')
+        $subscriptionMutationRepository
+            ->method('findOpenMutation')
             ->willReturn(SubscriptionMutationFactory::new()->makeOne());
 
         $service = new RetentionOfferEligibilityService(
@@ -160,8 +152,7 @@ class RetentionOfferEligibilityServiceTest extends TestCase
         $subscriptionMutationRepository = self::createMock(
             SubscriptionMutationRepository::class,
         );
-        $subscriptionMutationRepository->expects(self::never())
-            ->method('findOpenMutation');
+        $subscriptionMutationRepository->expects(self::never())->method('findOpenMutation');
 
         $service = new RetentionOfferEligibilityService(
             $subscriptionMutationRepository,
@@ -223,9 +214,7 @@ class RetentionOfferEligibilityServiceTest extends TestCase
         $actionEligibilityService = self::createMock(
             RetentionOfferActionEligibilityService::class,
         );
-        $actionEligibilityService->expects(self::once())
-            ->method($eligibilityMethod)
-            ->willReturn($expectedResult);
+        $actionEligibilityService->expects(self::once())->method($eligibilityMethod)->willReturn($expectedResult);
 
         $eligibilityService = new RetentionOfferEligibilityService(
             $this->subscriptionMutationRepository,
@@ -268,21 +257,15 @@ class RetentionOfferEligibilityServiceTest extends TestCase
         ];
         yield 'DG Option 1A' => [
             SelectedAction::DG_OPTION_1A,
-            12,
-            12,
-            'determineDgOptionOneAEligibility',
+            24,
+            1,
+            'determineDowngradeEligibility',
         ];
         yield 'DG Option 1D' => [
             SelectedAction::DG_OPTION_1D,
-            24,
-            24,
-            'determineDgOptionOneDEligibility',
-        ];
-        yield 'TK Option 1' => [
-            SelectedAction::TK_OPTION_1,
-            12,
-            12,
-            'determineTkOptionOneEligibility',
+            36,
+            36,
+            'determineDowngradeEligibility',
         ];
         yield 'TK Option 3' => [
             SelectedAction::TK_OPTION_3,

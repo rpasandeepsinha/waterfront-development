@@ -29,23 +29,23 @@ class AddChangedSubscriptionInvoiceTest extends TestCase
         $subscription = self::createStub(Subscription::class);
 
         $invoiceRepository = self::createMock(InvoiceRepository::class);
-        $invoiceRepository->expects(self::once())
+        $invoiceRepository
+            ->expects(self::once())
             ->method('createInvoiceForChangedSubscription')
             ->with(
                 self::equalTo($subscription),
                 100,
                 ProductChangeType::DOWNGRADE,
-                $now
+                $now,
             );
 
         $dispatcher = self::createMock(Dispatcher::class);
-        $dispatcher->expects(self::never())
-            ->method('dispatch');
+        $dispatcher->expects(self::never())->method('dispatch');
 
         $event = new SubscriptionChangedEvent(
             $subscription,
             100,
-            ProductChangeType::DOWNGRADE
+            ProductChangeType::DOWNGRADE,
         );
 
         $listener = new AddChangedSubscriptionInvoice($invoiceRepository, $dispatcher);
@@ -62,17 +62,20 @@ class AddChangedSubscriptionInvoiceTest extends TestCase
         $invoice = self::createStub(Invoice::class);
 
         $invoiceRepository = self::createMock(InvoiceRepository::class);
-        $invoiceRepository->expects(self::once())
+        $invoiceRepository
+            ->expects(self::once())
             ->method('createInvoiceForChangedSubscription')
             ->with(
                 self::identicalTo($subscription),
                 200,
                 ProductChangeType::UPGRADE,
-                $now
-            )->willReturn($invoice);
+                $now,
+            )
+            ->willReturn($invoice);
 
         $dispatcher = self::createMock(Dispatcher::class);
-        $dispatcher->expects(self::once())
+        $dispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(
                 self::callback(static function (InvoiceCreatedEvent $invoiceCreatedEvent) use ($invoice): bool {
@@ -80,13 +83,13 @@ class AddChangedSubscriptionInvoiceTest extends TestCase
                     self::assertFalse($invoiceCreatedEvent->isRenewed);
 
                     return true;
-                })
+                }),
             );
 
         $event = new SubscriptionChangedEvent(
             $subscription,
             200,
-            ProductChangeType::UPGRADE
+            ProductChangeType::UPGRADE,
         );
 
         $listener = new AddChangedSubscriptionInvoice($invoiceRepository, $dispatcher);

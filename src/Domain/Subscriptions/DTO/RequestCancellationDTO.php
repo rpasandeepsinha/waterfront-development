@@ -13,7 +13,7 @@ class RequestCancellationDTO
         public readonly string $uuid,
         public readonly bool $cancel,
         public readonly SubscriptionCancelType $cancelType,
-        public readonly SubscriptionCancelReason $cancelReason
+        public readonly SubscriptionCancelReason $cancelReason,
     ) {
     }
 }

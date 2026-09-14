@@ -32,7 +32,10 @@ class RequireAuthenticatedSystemTest extends IntegrationTestCase
         parent::setUp();
 
         $this->authenticationManager = self::createMock(AuthenticationManager::class);
-        $this->middleware = new RequireAuthenticatedSystem($this->authenticationManager, self::createStub(LoggerInterface::class));
+        $this->middleware = new RequireAuthenticatedSystem(
+            $this->authenticationManager,
+            self::createStub(LoggerInterface::class),
+        );
     }
 
     #[Test]
@@ -56,9 +59,7 @@ class RequireAuthenticatedSystemTest extends IntegrationTestCase
             ),
         );
 
-        $this->authenticationManager->expects(self::once())
-            ->method('getAuthenticatedSubject')
-            ->willReturn($system);
+        $this->authenticationManager->expects(self::once())->method('getAuthenticatedSubject')->willReturn($system);
 
         $this->middleware->handle(new Request(), fn () => new Response());
     }
@@ -68,7 +69,8 @@ class RequireAuthenticatedSystemTest extends IntegrationTestCase
     {
         self::expectException(AuthenticationException::class);
 
-        $this->authenticationManager->expects(self::once())
+        $this->authenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedSubject')
             ->willThrowException(new AuthenticationException());
 

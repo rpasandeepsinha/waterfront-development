@@ -78,8 +78,8 @@ class NovaFetchUserFromSubscription extends Action
         $fetchedUser = [];
         $fetchedEmailForwards = [];
         $fetchedEmailUsers = [];
-        $sso         = null;
-        $exceptions  = [];
+        $sso = null;
+        $exceptions = [];
 
         try {
             // Fetch user
@@ -90,20 +90,26 @@ class NovaFetchUserFromSubscription extends Action
                     throw new UnexpectedValueException('BaseKit user reference is null');
                 }
 
-                $fetchedUser['sitebuilder']['user'] = $baseKitClient->userApi->get($hostingDeployment->basekit_user_ref)->toArray();
+                $fetchedUser['sitebuilder']['user'] = $baseKitClient
+                    ->userApi
+                    ->get($hostingDeployment->basekit_user_ref)
+                    ->toArray();
 
                 if ($hostingDeployment->basekit_site_ref === null) {
                     throw new UnexpectedValueException('BaseKit site reference is null');
                 }
 
-                $fetchedUser['sitebuilder']['site'] = $baseKitClient->sitesApi->get($hostingDeployment->basekit_site_ref)->toArray();
+                $fetchedUser['sitebuilder']['site'] = $baseKitClient
+                    ->sitesApi
+                    ->get($hostingDeployment->basekit_site_ref)
+                    ->toArray();
             } else {
                 $fetchedUser = $this->hostingService->getUserConfig($driver, $identifier, $server);
                 $collection = new Collection($fetchedUser);
                 $fetchedUser = match ($driver) {
                     ProviderSlug::PLESK->value => $this->filterPleskCredentials($collection),
                     ProviderSlug::DIRECTADMIN->value => $collection,
-                    default => throw new UnexpectedValueException()
+                    default => throw new UnexpectedValueException(),
                 };
             }
         } catch (Throwable $exception) { // @phpstan-ignore-line
@@ -155,7 +161,7 @@ class NovaFetchUserFromSubscription extends Action
                     providerSlug: ProviderSlug::from($relevantProviderSlug),
                     server: $server,
                     username: $identifier,
-                    domain: $domain
+                    domain: $domain,
                 );
                 /** @var array<int, string> $fetchedEmailUsers */
                 $fetchedEmailUsers = Arr::get($fetchedEmailUsers, 'users', []);
@@ -179,7 +185,7 @@ class NovaFetchUserFromSubscription extends Action
         $title = sprintf(
             'Fetched user {%s} from server with hostname {%s} with response:',
             $identifier,
-            $server->hostname
+            $server->hostname,
         );
 
         return self::modal('modal-response', [
@@ -204,12 +210,16 @@ class NovaFetchUserFromSubscription extends Action
         $mailProvider = $hostingDeployment->mailProvider()->first();
         $standardProvider = $hostingDeployment->provider;
 
-        return $mailProvider instanceof Provider ?
-            $mailProvider->slug->value :
-            (
-                $standardProvider instanceof Provider ?
-                $standardProvider->slug->value :
-                throw new UnexpectedValueException("Hosting deployment with ID {$hostingDeployment->id} does not have a known provider coupled. Check database.}")
-            );
+        return (
+            $mailProvider instanceof Provider
+                ? $mailProvider->slug->value
+                : (
+                    $standardProvider instanceof Provider
+                        ? $standardProvider->slug->value
+                        : throw new UnexpectedValueException(
+                            "Hosting deployment with ID {$hostingDeployment->id} does not have a known provider coupled. Check database.}",
+                        )
+                )
+        );
     }
 }

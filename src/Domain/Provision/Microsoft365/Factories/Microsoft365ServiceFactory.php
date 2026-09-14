@@ -18,7 +18,7 @@ class Microsoft365ServiceFactory implements ProvisionServiceFactoryInterface
 {
     public function __construct(
         private readonly MicrosoftOnlineValidator $microsoftOnlineValidator,
-        private readonly MicrosoftOnlineService $microsoftOnlineService
+        private readonly MicrosoftOnlineService $microsoftOnlineService,
     ) {
     }
 
@@ -29,8 +29,10 @@ class Microsoft365ServiceFactory implements ProvisionServiceFactoryInterface
     public function getValidator(ProvisionProvider $provider, ProvisionRequestInterface $provisionRequest): Validator
     {
         return match ($provider) {
-            ProvisionProvider::MICROSOFT_ONLINE => $this->microsoftOnlineValidator->getValidatorByRequest($provisionRequest),
-            default => throw new UnknownMicrosoft365ProviderException($provider)
+            ProvisionProvider::MICROSOFT_ONLINE => $this->microsoftOnlineValidator->getValidatorByRequest(
+                $provisionRequest,
+            ),
+            default => throw new UnknownMicrosoft365ProviderException($provider),
         };
     }
 
@@ -41,7 +43,7 @@ class Microsoft365ServiceFactory implements ProvisionServiceFactoryInterface
     {
         return match ($provider) {
             ProvisionProvider::MICROSOFT_ONLINE => $this->microsoftOnlineService,
-            default => throw new UnknownMicrosoft365ProviderException($provider)
+            default => throw new UnknownMicrosoft365ProviderException($provider),
         };
     }
 }

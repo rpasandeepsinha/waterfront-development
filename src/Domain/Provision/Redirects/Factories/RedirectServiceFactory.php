@@ -30,7 +30,7 @@ readonly class RedirectServiceFactory implements ProvisionServiceFactoryInterfac
     {
         return match ($provider) {
             ProvisionProvider::CADDY => $this->caddyValidator->getValidatorByRequest($provisionRequest),
-            default => throw new UnknownRedirectProviderException($provider)
+            default => throw new UnknownRedirectProviderException($provider),
         };
     }
 
@@ -41,7 +41,7 @@ readonly class RedirectServiceFactory implements ProvisionServiceFactoryInterfac
     {
         return match ($provider) {
             ProvisionProvider::CADDY => $this->caddyProvisionService,
-            default => throw new UnknownRedirectProviderException($provider)
+            default => throw new UnknownRedirectProviderException($provider),
         };
     }
 }

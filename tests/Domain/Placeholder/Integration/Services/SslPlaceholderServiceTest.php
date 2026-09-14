@@ -58,7 +58,12 @@ class SslPlaceholderServiceTest extends IntegrationTestCase
             'value' => 31,
         ]);
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
     }
 
     #[Test]
@@ -70,9 +75,17 @@ class SslPlaceholderServiceTest extends IntegrationTestCase
 
         $placeholderService = self::resolve(SslPlaceholderService::class);
 
-        $provider = ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::PLACEHOLDER, 'enabled' => true, 'default' => false]);
+        $provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::PLACEHOLDER,
+            'enabled' => true,
+            'default' => false,
+        ]);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($this->product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->createOne();
         $sslDeployment = new SslDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
             'provider_id' => $provider->id,
@@ -86,14 +99,14 @@ class SslPlaceholderServiceTest extends IntegrationTestCase
             $this->productSpec,
             12,
             $this->customer->toArray(),
-            $sslDeployment
+            $sslDeployment,
         );
 
         self::assertSame(TechnicalStatus::PENDING->value, $result->getStatus());
         self::assertDatabaseHas('ssl_deployments', [
-           'subscription_uuid' => $subscription->uuid,
-           'provider_id' => $provider->id,
-       ]);
+            'subscription_uuid' => $subscription->uuid,
+            'provider_id' => $provider->id,
+        ]);
     }
 
     #[Test]
@@ -104,7 +117,12 @@ class SslPlaceholderServiceTest extends IntegrationTestCase
 
         $subscriptionUuid = Str::uuid();
         $customer = new CustomerFactory()->createOne();
-        $provider = ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::PLACEHOLDER, 'enabled' => true, 'default' => true]);
+        $provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::PLACEHOLDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $subscription = new SubscriptionFactory()
             ->for($this->product)
             ->for($customer)
@@ -120,16 +138,19 @@ class SslPlaceholderServiceTest extends IntegrationTestCase
         $subscription->sslDeployment()->save($sslDeployment);
         $subscription->save();
 
-        $mockMail->expects(self::once())
+        $mockMail
+            ->expects(self::once())
             ->method('send')
             ->with(
                 self::callback(function (array $recipients) use ($customer) {
                     self::assertSame($customer->getEmail(), $recipients[0]->getEmail());
                     self::assertCount(1, $recipients);
+
                     return true;
                 }),
                 self::callback(function (MailTemplateInterface $template) {
                     self::assertInstanceOf(ActivatedManualSubscriptionCustomer::class, $template);
+
                     return true;
                 }),
             );
@@ -145,7 +166,12 @@ class SslPlaceholderServiceTest extends IntegrationTestCase
         $this->app->bind(MailerInterface::class, fn (): MailerInterface => $mockMail);
 
         $subscriptionUuid = Str::uuid();
-        $provider = ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::PLACEHOLDER, 'enabled' => true, 'default' => true]);
+        $provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::PLACEHOLDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $subscription = new SubscriptionFactory()
             ->withCustomer()
             ->for($this->product)

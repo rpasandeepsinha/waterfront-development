@@ -47,12 +47,12 @@ class CreateOneTimeServiceRequest extends FormRequest
                     ProductGroupType::ONE_TIME_SERVICE,
                 ),
             ],
-            'amount'              => ['required', 'integer', 'min:1'],
+            'amount' => ['required', 'integer', 'min:1'],
             'discount_percentage' => ['required', 'integer', 'min:0', 'max:100'],
-            'execution_date'      => ['required', 'date_format:' . DateTimeFormat::DATE, 'after_or_equal:today'],
-            'status'              => ['required', Rule::enum(OneTimeServiceStatus::class)],
-            'comment'             => ['sometimes', 'nullable', 'string'],
-            'invoice_now'         => ['sometimes', 'boolean'],
+            'execution_date' => ['required', 'date_format:' . DateTimeFormat::DATE, 'after_or_equal:today'],
+            'status' => ['required', Rule::enum(OneTimeServiceStatus::class)],
+            'comment' => ['sometimes', 'nullable', 'string'],
+            'invoice_now' => ['sometimes', 'boolean'],
         ];
     }
 }

@@ -39,7 +39,7 @@ class HandleDebtorNewCommentJobTest extends IntegrationTestCase
 
         $job = new HandleDebtorNewCommentJob(
             $paytDebtor,
-            PaytSupportedBusinessUnit::VERSIO2
+            PaytSupportedBusinessUnit::VERSIO2,
         );
 
         $lastPaytMessageDto = new PaytMessageDTO(
@@ -63,14 +63,11 @@ class HandleDebtorNewCommentJobTest extends IntegrationTestCase
             debtorIdentifier: null,
             languageCode: null,
             postalAddress: null,
-            administrationId: null
+            administrationId: null,
         );
 
         $paytClientMock = $this->createMock(PaytClient::class);
-        $paytClientMock
-            ->expects(self::atLeastOnce())
-            ->method('getDebtorByDebtorNumber')
-            ->willReturn([$paytDebtorDto]);
+        $paytClientMock->expects(self::atLeastOnce())->method('getDebtorByDebtorNumber')->willReturn([$paytDebtorDto]);
         $paytClientMock
             ->expects(self::atLeastOnce())
             ->method('getLastMessageByDebtorId')
@@ -108,7 +105,7 @@ class HandleDebtorNewCommentJobTest extends IntegrationTestCase
 
         $job = new HandleDebtorNewCommentJob(
             $paytDebtor,
-            PaytSupportedBusinessUnit::VERSIO2
+            PaytSupportedBusinessUnit::VERSIO2,
         );
 
         $lastPaytMessageDto = new PaytMessageDTO(
@@ -132,14 +129,11 @@ class HandleDebtorNewCommentJobTest extends IntegrationTestCase
             debtorIdentifier: null,
             languageCode: null,
             postalAddress: null,
-            administrationId: null
+            administrationId: null,
         );
 
         $paytClientMock = $this->createMock(PaytClient::class);
-        $paytClientMock
-            ->expects(self::atLeastOnce())
-            ->method('getDebtorByDebtorNumber')
-            ->willReturn([$paytDebtorDto]);
+        $paytClientMock->expects(self::atLeastOnce())->method('getDebtorByDebtorNumber')->willReturn([$paytDebtorDto]);
         $paytClientMock
             ->expects(self::atLeastOnce())
             ->method('getLastMessageByDebtorId')
@@ -153,14 +147,15 @@ class HandleDebtorNewCommentJobTest extends IntegrationTestCase
             ->willReturn($paytClientMock);
 
         $puzzelPublicClient = self::createMock(PuzzelPublicClient::class);
-        $puzzelPublicClient->expects(self::once())
+        $puzzelPublicClient
+            ->expects(self::once())
             ->method('createTicket')
             ->with(self::equalTo(
                 new PuzzelCreateTicketRequest(
                     subject: 'Reactie op debiteur 3001244',
-                    body: 'content bla' .
-                    '<br>The following email addresses are known in Payt to related debtor:<br>' .
-                    'Primary email address: first@email.com<br>',
+                    body: 'content bla'
+                    . '<br>The following email addresses are known in Payt to related debtor:<br>'
+                    . 'Primary email address: first@email.com<br>',
                     customer: new PuzzelTicketCustomer(
                         email: $paytDebtorDto->primaryEmailAddress ?? '',
                         firstName: $paytDebtorDto->name,
@@ -171,7 +166,7 @@ class HandleDebtorNewCommentJobTest extends IntegrationTestCase
                         ['name' => 'Brand', 'value' => 'Versio 2.0'],
                         ['name' => 'Customer ID', 'value' => $paytDebtorDto->debtorNumber],
                     ],
-                )
+                ),
             ));
         $convertor = new PaytToPuzzelConvertor(
             $puzzelPublicClient,

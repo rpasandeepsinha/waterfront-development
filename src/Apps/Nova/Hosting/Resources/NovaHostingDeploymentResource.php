@@ -51,140 +51,177 @@ class NovaHostingDeploymentResource extends Resource
             BelongsTo::make(
                 self::translate('subscription.hosting-subscription.internal_subscription'),
                 'subscription',
-                NovaSubscriptionResource::class
-            )->sortable()
+                NovaSubscriptionResource::class,
+            )
+                ->sortable()
                 ->exceptOnForms(),
 
             Text::make(
                 self::translate('subscription.hosting-subscription.plesk_username'),
-                'plesk_customer_username'
-            )->nullable()
+                'plesk_customer_username',
+            )
+                ->nullable()
                 ->showOnDetail($this->resource->plesk_customer_username !== null),
 
             Number::make(
                 self::translate('subscription.hosting-subscription.customer_id'),
-                'plesk_customer_id'
-            )->hideFromIndex()->nullable()
+                'plesk_customer_id',
+            )
+                ->hideFromIndex()
+                ->nullable()
                 ->canSee(
-                    fn (): bool => ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest())
+                    fn (): bool => (
+                        $request->isCreateOrAttachRequest()
+                        || $request->isUpdateOrUpdateAttachedRequest()
                         || $this->resource->plesk_customer_id !== null
+                    ),
                 ),
 
             Text::make(
                 self::translate('subscription.hosting-subscription.directadmin_username'),
-                'directadmin_customer_username'
-            )->nullable()
+                'directadmin_customer_username',
+            )
+                ->nullable()
                 ->showOnDetail($this->resource->directadmin_customer_username !== null),
 
             BelongsTo::make(
                 self::translate('subscription.hosting-subscription.server'),
                 'server',
-                NovaServerResource::class
-            )->sortable()->nullable()
+                NovaServerResource::class,
+            )
+                ->sortable()
+                ->nullable()
                 ->canSee(
-                    fn (): bool =>
-                    ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest())
-                    || $this->resource->server !== null
+                    fn (): bool => (
+                        $request->isCreateOrAttachRequest()
+                        || $request->isUpdateOrUpdateAttachedRequest()
+                        || $this->resource->server !== null
+                    ),
                 ),
 
             Select::make(
                 self::translate('subscription.hosting-subscription.provider'),
                 'provider_id',
-            )->options(function (): array {
-                $groups = Provider::where('type', ProviderType::HOSTING)->get(['id', 'slug']);
-                return array_column($groups->toArray(), 'slug', 'id');
-            })->displayUsingLabels()
+            )
+                ->options(function (): array {
+                    $groups = Provider::where('type', ProviderType::HOSTING)->get(['id', 'slug']);
+
+                    return array_column($groups->toArray(), 'slug', 'id');
+                })
+                ->displayUsingLabels()
                 ->sortable()
                 ->nullable()
                 ->canSee(
-                    fn (): bool =>
-                    ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest())
-                    || $this->resource->provider !== null
+                    fn (): bool => (
+                        $request->isCreateOrAttachRequest()
+                        || $request->isUpdateOrUpdateAttachedRequest()
+                        || $this->resource->provider !== null
+                    ),
                 ),
 
             BelongsTo::make(
                 self::translate('subscription.hosting-subscription.mail-only-server'),
                 'mailOnlyServer',
                 NovaServerResource::class,
-            )->sortable()->nullable()
+            )
+                ->sortable()
+                ->nullable()
                 ->canSee(
-                    fn (): bool =>
-                    ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest())
-                    || $this->resource->mailOnlyServer !== null
+                    fn (): bool => (
+                        $request->isCreateOrAttachRequest()
+                        || $request->isUpdateOrUpdateAttachedRequest()
+                        || $this->resource->mailOnlyServer !== null
+                    ),
                 ),
 
             Select::make(
                 self::translate('subscription.hosting-subscription.mail-only-provider'),
                 'mail_only_provider_id',
-            )->options(function (): array {
-                $groups = Provider::query()->where('type', '=', ProviderType::MAILONLY)->get(['id', 'slug']);
-                return array_column($groups->toArray(), 'slug', 'id');
-            })->displayUsingLabels()
+            )
+                ->options(function (): array {
+                    $groups = Provider::query()->where('type', '=', ProviderType::MAILONLY)->get(['id', 'slug']);
+
+                    return array_column($groups->toArray(), 'slug', 'id');
+                })
+                ->displayUsingLabels()
                 ->sortable()
                 ->nullable()
                 ->canSee(
-                    fn (): bool =>
-                        ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest())
+                    fn (): bool => (
+                        $request->isCreateOrAttachRequest()
+                        || $request->isUpdateOrUpdateAttachedRequest()
                         || $this->resource->mailProvider !== null
+                    ),
                 ),
 
             Number::make(
                 self::translate('subscription.hosting-subscription.wp_installation_id'),
-                'wp_installation_id'
-            )->onlyOnDetail()
+                'wp_installation_id',
+            )
+                ->onlyOnDetail()
                 ->showOnDetail($this->resource->wp_installation_id !== null),
 
             Number::make(
                 self::translate('subscription.hosting-subscription.basekit_user_ref'),
-                'basekit_user_ref'
-            )->nullable()
+                'basekit_user_ref',
+            )
+                ->nullable()
                 ->canSee(
-                    fn (): bool =>
-                        ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest())
-                        || $this->resource->subscription->product->isSitebuilderProduct()
+                    fn (): bool => $request->isCreateOrAttachRequest()
+                    || $request->isUpdateOrUpdateAttachedRequest()
+                    || $this->resource->subscription->product->isSitebuilderProduct(),
                 ),
 
             Number::make(
                 self::translate('subscription.hosting-subscription.basekit_site_ref'),
-                'basekit_site_ref'
-            )->nullable()
+                'basekit_site_ref',
+            )
+                ->nullable()
                 ->canSee(
-                    fn (): bool =>
-                        ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest())
-                        || $this->resource->subscription->product->isSitebuilderProduct()
+                    fn (): bool => $request->isCreateOrAttachRequest()
+                    || $request->isUpdateOrUpdateAttachedRequest()
+                    || $this->resource->subscription->product->isSitebuilderProduct(),
                 ),
 
             BelongsTo::make(
                 self::translate('subscription.hosting-subscription.sitebuilder-server'),
                 'basekitServer',
-                NovaServerResource::class
-            )->sortable()->nullable()
+                NovaServerResource::class,
+            )
+                ->sortable()
+                ->nullable()
                 ->canSee(
-                    fn (): bool =>
-                        ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest())
-                        || $this->resource->subscription->product->isSitebuilderProduct()
+                    fn (): bool => $request->isCreateOrAttachRequest()
+                    || $request->isUpdateOrUpdateAttachedRequest()
+                    || $this->resource->subscription->product->isSitebuilderProduct(),
                 ),
 
             Select::make(
                 self::translate('subscription.hosting-subscription.sitebuilder-provider'),
                 'sitebuilder_provider_id',
-            )->options(function (): array {
-                $groups = Provider::where('type', ProviderType::SITEBUILDER)->get(['id', 'slug']);
-                return array_column($groups->toArray(), 'slug', 'id');
-            })->displayUsingLabels()
+            )
+                ->options(function (): array {
+                    $groups = Provider::where('type', ProviderType::SITEBUILDER)->get(['id', 'slug']);
+
+                    return array_column($groups->toArray(), 'slug', 'id');
+                })
+                ->displayUsingLabels()
                 ->sortable()
                 ->nullable()
                 ->canSee(
-                    fn (): bool =>
-                        ($request->isCreateOrAttachRequest() || $request->isUpdateOrUpdateAttachedRequest())
+                    fn (): bool => (
+                        $request->isCreateOrAttachRequest()
+                        || $request->isUpdateOrUpdateAttachedRequest()
                         || $this->resource->sitebuilderProvider !== null
+                    ),
                 ),
 
             BelongsTo::make(
                 self::translate('subscription.hosting-subscription.spamexperts-cluster'),
                 'spamexpertsCluster',
-                NovaSpamExpertsClusterResource::class
-            )->help(self::translate('subscription.hosting-subscription.spamexperts-cluster.help'))
+                NovaSpamExpertsClusterResource::class,
+            )
+                ->help(self::translate('subscription.hosting-subscription.spamexperts-cluster.help'))
                 ->nullable()
                 ->showOnDetail($this->resource->spamExpertsCluster !== null),
         ];

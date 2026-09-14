@@ -17,13 +17,13 @@ class Client
 
     public function __construct(
         private readonly GuzzleClient $guzzleClient,
-        private readonly ConnectionDetails $connectionDetails
+        private readonly ConnectionDetails $connectionDetails,
     ) {
         $this->baseUrl = sprintf(
             '%s:%d%s',
             $this->connectionDetails->pleskHost,
             $this->connectionDetails->pleskPort,
-            self::API_BASE_URL
+            self::API_BASE_URL,
         );
 
         $this->validateAuthenticationFields();
@@ -36,14 +36,15 @@ class Client
             $this->baseUrl,
         );
 
-        return $this->guzzleClient->request(
-            'GET',
-            $requestUri,
-            options: [
-                RequestOptions::HEADERS => $this->getAuthenticationHeader(),
-                RequestOptions::VERIFY => true,
-            ]
-        )
+        return $this->guzzleClient
+            ->request(
+                'GET',
+                $requestUri,
+                options: [
+                    RequestOptions::HEADERS => $this->getAuthenticationHeader(),
+                    RequestOptions::VERIFY => true,
+                ],
+            )
             ->getBody()
             ->getContents();
     }
@@ -53,17 +54,18 @@ class Client
         $requestUri = sprintf(
             '%s/v1/installations/%d/credentials',
             $this->baseUrl,
-            $installationId
+            $installationId,
         );
 
-        return $this->guzzleClient->request(
-            'GET',
-            $requestUri,
-            options: [
-                RequestOptions::HEADERS => $this->getAuthenticationHeader(),
-                RequestOptions::VERIFY => true,
-            ]
-        )
+        return $this->guzzleClient
+            ->request(
+                'GET',
+                $requestUri,
+                options: [
+                    RequestOptions::HEADERS => $this->getAuthenticationHeader(),
+                    RequestOptions::VERIFY => true,
+                ],
+            )
             ->getBody()
             ->getContents();
     }
@@ -73,9 +75,11 @@ class Client
      */
     private function getAuthenticationHeader(): array
     {
-        return $this->connectionDetails->token !== null
-            ? ['X-API-Key' => $this->connectionDetails->token]
-            : ['Authorization' => 'Basic ' . $this->getBasicAuthBase64String()];
+        return (
+            $this->connectionDetails->token !== null
+                ? ['X-API-Key' => $this->connectionDetails->token]
+                : ['Authorization' => 'Basic ' . $this->getBasicAuthBase64String()]
+        );
     }
 
     private function getBasicAuthBase64String(): string
@@ -84,18 +88,27 @@ class Client
             sprintf(
                 '%s:%s',
                 $this->connectionDetails->username,
-                $this->connectionDetails->password
-            )
+                $this->connectionDetails->password,
+            ),
         );
     }
 
     private function validateAuthenticationFields(): void
     {
         if ($this->connectionDetails->token === null) {
-            Assert::stringNotEmpty($this->connectionDetails->username, 'Username is required and cannot be empty when token is not set');
-            Assert::stringNotEmpty($this->connectionDetails->password, 'Password is required and cannot be empty when token is not set');
+            Assert::stringNotEmpty(
+                $this->connectionDetails->username,
+                'Username is required and cannot be empty when token is not set',
+            );
+            Assert::stringNotEmpty(
+                $this->connectionDetails->password,
+                'Password is required and cannot be empty when token is not set',
+            );
         } else {
-            Assert::stringNotEmpty($this->connectionDetails->token, 'The token cannot be empty when username and password are not set');
+            Assert::stringNotEmpty(
+                $this->connectionDetails->token,
+                'The token cannot be empty when username and password are not set',
+            );
         }
     }
 }

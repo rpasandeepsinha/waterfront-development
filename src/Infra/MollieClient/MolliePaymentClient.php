@@ -15,8 +15,9 @@ use Waterfront\Domain\Payments\Models\Result;
 
 class MolliePaymentClient implements PaymentInterface
 {
-    public function __construct(protected Client $client)
-    {
+    public function __construct(
+        protected Client $client,
+    ) {
     }
 
     /**
@@ -30,8 +31,8 @@ class MolliePaymentClient implements PaymentInterface
 
         if (201 !== $code) {
             return Result::create([
-                'status'       => Result::STATUS_ERROR,
-                'errorCode'    => $response->getStatusCode(),
+                'status' => Result::STATUS_ERROR,
+                'errorCode' => $response->getStatusCode(),
                 'errorMessage' => $response->getReasonPhrase(),
             ]);
         }
@@ -42,7 +43,7 @@ class MolliePaymentClient implements PaymentInterface
         Log::info(self::class . '::createPayment - Payment was successfully created.');
 
         return Result::create([
-            'status'      => Result::STATUS_OK,
+            'status' => Result::STATUS_OK,
             'paymentData' => $responseBody,
         ]);
     }
@@ -58,8 +59,8 @@ class MolliePaymentClient implements PaymentInterface
 
         if (200 !== $code) {
             return Result::create([
-                'status'       => Result::STATUS_ERROR,
-                'errorCode'    => $response->getStatusCode(),
+                'status' => Result::STATUS_ERROR,
+                'errorCode' => $response->getStatusCode(),
                 'errorMessage' => $response->getReasonPhrase(),
             ]);
         }
@@ -68,7 +69,7 @@ class MolliePaymentClient implements PaymentInterface
         $responseBody = json_decode($responseBodyJson, true, 512, JSON_THROW_ON_ERROR);
 
         return Result::create([
-            'status'      => Result::STATUS_OK,
+            'status' => Result::STATUS_OK,
             'paymentData' => $responseBody,
         ]);
     }
@@ -80,7 +81,7 @@ class MolliePaymentClient implements PaymentInterface
     protected function sendCreatePaymentRequest(PaymentParameters $parameters): ResponseInterface
     {
         return $this->client->request('POST', 'payments', [
-            'body'        => json_encode($parameters->toArray(), JSON_THROW_ON_ERROR),
+            'body' => json_encode($parameters->toArray(), JSON_THROW_ON_ERROR),
             'http_errors' => false,
         ]);
     }

@@ -26,7 +26,7 @@ class FetchUserFromSubscriptionTest extends IntegrationTestCase
     #[Test]
     public function action(): void
     {
-        $product      = ProductFactory::new()->hostingBrons()->createOne();
+        $product = ProductFactory::new()->hostingBrons()->createOne();
         $subscription = SubscriptionFactory::new()
             ->withCustomer()
             ->administrativeStatusActive()
@@ -34,11 +34,14 @@ class FetchUserFromSubscriptionTest extends IntegrationTestCase
             ->for($product)
             ->createOne();
 
-        $server = ServerFactory::new()
-            ->directadmin()
-            ->createOne(['hostname' => 'single-server.nl']);
+        $server = ServerFactory::new()->directadmin()->createOne(['hostname' => 'single-server.nl']);
 
-        $provider = ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        $provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $hostingDeployment = HostingDeploymentFactory::new()
             ->for($subscription, 'subscription')
@@ -48,7 +51,7 @@ class FetchUserFromSubscriptionTest extends IntegrationTestCase
 
         $action = self::resolve(NovaFetchUserFromSubscription::class);
 
-        $fields =  new ActionFields((new Collection()), (new Collection()));
+        $fields = new ActionFields(new Collection(), new Collection());
         $payload = new Collection([$hostingDeployment]);
 
         $result = $action->handle($fields, $payload);
@@ -58,7 +61,7 @@ class FetchUserFromSubscriptionTest extends IntegrationTestCase
 
         self::assertSame(
             'Fetched user {Omnis qui.} from server with hostname {single-server.nl} with response:',
-            $modal->payload['title']
+            $modal->payload['title'],
         );
     }
 }

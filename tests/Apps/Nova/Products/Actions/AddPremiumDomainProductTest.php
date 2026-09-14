@@ -41,7 +41,8 @@ class AddPremiumDomainProductTest extends TestCase
         $factory->method('defaultDriver')->willReturn($domainService);
 
         $premiumDomainProducts = $this->mock(PremiumDomainService::class);
-        $premiumDomainProducts->expects('createProductPriceForPremiumDomain')
+        $premiumDomainProducts
+            ->expects('createProductPriceForPremiumDomain')
             ->once()
             ->withArgs([$checkResult, 25])
             ->andReturn(new Product());
@@ -49,13 +50,21 @@ class AddPremiumDomainProductTest extends TestCase
         $translator = self::createStub(TranslatorInterface::class);
 
         $action = new NovaAddPremiumDomainProductAction($factory, $premiumDomainProducts, $translator);
-        $action->handle(new ActionFields(new Collection(['domain' => 'fast.cars', 'margin' => 25]), new Collection([])), new Collection([]));
+        $action->handle(new ActionFields(new Collection([
+            'domain' => 'fast.cars',
+            'margin' => 25,
+        ]), new Collection([])), new Collection([]));
     }
 
     #[DataProvider('getTestValidationData')]
     #[Test]
-    public function validation(string $domain, int $margin, CheckResult $checkResult, bool $priceAlreadyExists, bool $isValid): void
-    {
+    public function validation(
+        string $domain,
+        int $margin,
+        CheckResult $checkResult,
+        bool $priceAlreadyExists,
+        bool $isValid,
+    ): void {
         $domainService = $this->mock(DomainDriverInterface::class);
         $domainService->expects('check')->with($domain)->andReturns($checkResult);
 
@@ -64,7 +73,10 @@ class AddPremiumDomainProductTest extends TestCase
 
         $premiumDomainProducts = $this->mock(PremiumDomainService::class);
         $premiumDomainProducts->expects('createProductPriceForPremiumDomain')->never();
-        $premiumDomainProducts->expects('doesProductExistForPremiumDomain')->zeroOrMoreTimes()->andReturns($priceAlreadyExists);
+        $premiumDomainProducts
+            ->expects('doesProductExistForPremiumDomain')
+            ->zeroOrMoreTimes()
+            ->andReturns($priceAlreadyExists);
 
         $translator = self::createStub(TranslatorInterface::class);
 
@@ -72,6 +84,7 @@ class AddPremiumDomainProductTest extends TestCase
         if (! $isValid) {
             $this->expectException(ValidationException::class);
         }
+
         $action->validateFields(new ActionRequest(['domain' => $domain, 'margin' => $margin]));
     }
 

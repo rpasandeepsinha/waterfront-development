@@ -53,7 +53,8 @@ class UncategorizedFailedSubscriptionsLens extends Lens
         }
 
         return $request->withFilters(
-            $query->whereDoesntHave('category')
+            $query
+                ->whereDoesntHave('category')
                 ->whereIn('technical_status', [
                     TechnicalStatus::ERROR->value,
                     TechnicalStatus::REGISTRATION->value,
@@ -62,14 +63,15 @@ class UncategorizedFailedSubscriptionsLens extends Lens
                     TechnicalStatus::DELETING_FAILED->value,
                     TechnicalStatus::SUSPENSION_FAILED->value,
                     TechnicalStatus::UNSUSPENSION_FAILED->value,
-                ])->whereNotIn(
+                ])
+                ->whereNotIn(
                     'administrative_status',
                     [
                         AdministrativeStatus::CANCELED->value,
                         AdministrativeStatus::ARCHIVING->value,
                         ...AdministrativeStatus::administrativelyEnded(),
-                    ]
-                )
+                    ],
+                ),
         );
     }
 
@@ -80,13 +82,15 @@ class UncategorizedFailedSubscriptionsLens extends Lens
             BelongsTo::make(
                 $this->translator->translate('subscription.relations.customer'),
                 'customer',
-                NovaCustomerResource::class
-            )->sortable()->searchable(),
+                NovaCustomerResource::class,
+            )
+                ->sortable()
+                ->searchable(),
             Text::make('domain'),
             BelongsTo::make(
                 $this->translator->translate('subscription.relations.product'),
                 'product',
-                NovaProductResource::class
+                NovaProductResource::class,
             ),
             Text::make('administrative_status'),
             NovaSubscriptionTechnicalStatusSelectField::make()

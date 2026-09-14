@@ -31,18 +31,19 @@ class SearchCustomerTest extends IntegrationTestCase
     #[Test]
     public function searchOnCustomerId(): void
     {
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.customers', ['searchterm' => $this->customer->customer_number]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.customers', [
+            'searchterm' => $this->customer->customer_number,
+        ]));
 
         $response->assertOk();
         $response->assertExactJson([
-                [
-                    'customer_number' => $this->customer->customer_number,
-                    'first_name' => $this->customer->first_name,
-                    'last_name' => $this->customer->last_name,
-                    'organization' => $this->customer->organization,
-                    'type' => SearchType::CUSTOMER->value,
-                ],
+            [
+                'customer_number' => $this->customer->customer_number,
+                'first_name' => $this->customer->first_name,
+                'last_name' => $this->customer->last_name,
+                'organization' => $this->customer->organization,
+                'type' => SearchType::CUSTOMER->value,
+            ],
         ]);
     }
 
@@ -51,8 +52,9 @@ class SearchCustomerTest extends IntegrationTestCase
     {
         $nonExistingCustomerId = 'invalid_uuid';
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.customers', ['searchterm' => $nonExistingCustomerId ]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.customers', [
+            'searchterm' => $nonExistingCustomerId,
+        ]));
 
         $response->assertOk();
         $response->assertExactJson([]);
@@ -82,8 +84,9 @@ class SearchCustomerTest extends IntegrationTestCase
             'organization' => 'organization',
         ]);
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.customers', ['searchterm' => $search ]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.customers', [
+            'searchterm' => $search,
+        ]));
 
         $response->assertOk();
         $response->assertExactJson([
@@ -101,7 +104,11 @@ class SearchCustomerTest extends IntegrationTestCase
     public static function provideInvalidNameSearches(): iterable
     {
         yield 'Does not find customer with non matching input' => ['Dmitri', 'Lenselink', 'Test Kees'];
-        yield 'Does not find customer when one of the terms is not matching name' => ['Dmitri', 'Lenselink', 'dm le kaas'];
+        yield 'Does not find customer when one of the terms is not matching name' => [
+            'Dmitri',
+            'Lenselink',
+            'dm le kaas',
+        ];
     }
 
     #[DataProvider('provideInvalidNameSearches')]
@@ -113,8 +120,9 @@ class SearchCustomerTest extends IntegrationTestCase
             'last_name' => $lastName,
         ]);
 
-        $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.customers', ['searchterm' => $searchTerm ]));
+        $response = $this->actingAsEmployee()->getJson($this->generateRoute('admin.search.customers', [
+            'searchterm' => $searchTerm,
+        ]));
 
         $response->assertOk();
         $response->assertJsonCount(0);
@@ -135,12 +143,10 @@ class SearchCustomerTest extends IntegrationTestCase
     {
         // Make customer_number mass assignable for just this test to test searching on a specific customer number
         $customer = new CustomerFactory()->createOne();
-        $customer
-            ->mergeFillable(['customer_number'])
-            ->update(['customer_number' => $customerNumber]);
+        $customer->mergeFillable(['customer_number'])->update(['customer_number' => $customerNumber]);
 
         $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.customers', ['searchterm' => $searchTerm ]))
+            ->getJson($this->generateRoute('admin.search.customers', ['searchterm' => $searchTerm]))
             ->assertOk()
             ->assertJsonCount($expectedResultCount);
 
@@ -157,30 +163,30 @@ class SearchCustomerTest extends IntegrationTestCase
     public function findCustomerByEmail(): void
     {
         new CustomerFactory()->create(
-            ['email' => 'john.doe@example.com']
+            ['email' => 'john.doe@example.com'],
         );
         new CustomerFactory()->create(
-            ['email' => 'john.doe@example.co.uk']
+            ['email' => 'john.doe@example.co.uk'],
         );
         new CustomerFactory()->create(
-            ['email' => 'john.doe@example.co']
+            ['email' => 'john.doe@example.co'],
         );
 
         $partialMatch = 'john.doe@example.co';
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.customers', ['searchterm' => $partialMatch ]))
+            ->getJson($this->generateRoute('admin.search.customers', ['searchterm' => $partialMatch]))
             ->assertOk()
             ->assertJsonCount(3);
 
         $completeMatch = 'john.doe@example.com';
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.customers', ['searchterm' => $completeMatch ]))
+            ->getJson($this->generateRoute('admin.search.customers', ['searchterm' => $completeMatch]))
             ->assertOk()
             ->assertJsonCount(1);
 
         $noMatch = 'doe@exmple.com';
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.search.customers', ['searchterm' => $noMatch ]))
+            ->getJson($this->generateRoute('admin.search.customers', ['searchterm' => $noMatch]))
             ->assertOk()
             ->assertJsonCount(0);
     }

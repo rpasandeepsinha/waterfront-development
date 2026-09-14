@@ -41,6 +41,7 @@ class ProcessOrderLineItemAction
 
         if ($orderLineItem->product?->productGroup->slug === ProductGroupType::ONE_TIME_SERVICE) {
             $this->oneTimeServiceCreator->createFromOrderLineItem($orderLineItem);
+
             return;
         }
 
@@ -48,7 +49,7 @@ class ProcessOrderLineItemAction
 
         $subscription = $this->subscriptionService->createSubscriptionFromOrderLineItem(
             $orderLineItem,
-            $processOrderLineItem->manageSubscriptions
+            $processOrderLineItem->manageSubscriptions,
         );
 
         $orderLineItem->subscription()->associate($subscription);

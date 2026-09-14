@@ -16,7 +16,10 @@ class ProductAddonCouplingRepository
      */
     public function getAddonProductsForParentProduct(Product $product): Collection
     {
-        return ProductAddonCoupling::query()->with(['addonProduct', 'parentProduct'])->where('parent_product_id', $product->id)->get();
+        return ProductAddonCoupling::query()
+            ->with(['addonProduct', 'parentProduct'])
+            ->where('parent_product_id', $product->id)
+            ->get();
     }
 
     /**
@@ -24,14 +27,21 @@ class ProductAddonCouplingRepository
      */
     public function getOrderableAddonProductsForParentProduct(Product $product): Collection
     {
-        return ProductAddonCoupling::query()->with(['addonProduct', 'parentProduct'])->where('parent_product_id', $product->id)->whereHas(
-            'addonProduct',
-            fn (Builder $builder) => $builder->where('orderable', true)
-        )->get();
+        return ProductAddonCoupling::query()
+            ->with(['addonProduct', 'parentProduct'])
+            ->where('parent_product_id', $product->id)
+            ->whereHas(
+                'addonProduct',
+                fn (Builder $builder) => $builder->where('orderable', true),
+            )
+            ->get();
     }
 
     public function existsForParentIdAndAddonId(int $parentProductId, int $addonProductId): bool
     {
-        return ProductAddonCoupling::query()->where('parent_product_id', $parentProductId)->where('addon_product_id', $addonProductId)->exists();
+        return ProductAddonCoupling::query()
+            ->where('parent_product_id', $parentProductId)
+            ->where('addon_product_id', $addonProductId)
+            ->exists();
     }
 }

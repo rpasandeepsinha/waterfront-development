@@ -50,7 +50,7 @@ class UpgradeFreeRedirectJobTest extends IntegrationTestCase
                     ->for($freeRedirectProduct)
                     ->createOne([
                         'domain' => self::DOMAIN,
-                    ])
+                    ]),
             )
             ->withPleskProvider()
             ->createOne();
@@ -60,8 +60,7 @@ class UpgradeFreeRedirectJobTest extends IntegrationTestCase
     public function upgradeFreeRedirectJob(): void
     {
         $cancellationService = self::createMock(CancellationService::class);
-        $cancellationService->expects(self::never())
-            ->method('cancel');
+        $cancellationService->expects(self::never())->method('cancel');
 
         $subscription = $this->freeRedirectDeployment->subscription;
 
@@ -71,20 +70,29 @@ class UpgradeFreeRedirectJobTest extends IntegrationTestCase
         );
 
         $mockGateway = self::createMock(ProvisionGateway::class);
-        $stubRedirectResult = new GetRedirectResult(provisionData: $mockRequest, provisionStatus: ProvisionStatus::PENDING);
-        $mockGateway->expects(self::once())
+        $stubRedirectResult = new GetRedirectResult(
+            provisionData: $mockRequest,
+            provisionStatus: ProvisionStatus::PENDING,
+        );
+        $mockGateway
+            ->expects(self::once())
             ->method('request')
-            ->with(self::callback(fn (ListRedirectsRequest $request) => $request->context->toString() === $subscription->uuid))
-            ->willReturn(new ListRedirectResult(provisionData: $mockRequest, provisionStatus: ProvisionStatus::SUCCESS, redirects: [$stubRedirectResult]));
+            ->with(self::callback(
+                fn (ListRedirectsRequest $request) => $request->context->toString() === $subscription->uuid,
+            ))
+            ->willReturn(new ListRedirectResult(
+                provisionData: $mockRequest,
+                provisionStatus: ProvisionStatus::SUCCESS,
+                redirects: [$stubRedirectResult],
+            ));
 
         $newProduct = self::createStub(Product::class);
         $productRepository = self::createMock(ProductRepository::class);
-        $productRepository->expects(self::once())
-            ->method('findProductBySlug')
-            ->willReturn($newProduct);
+        $productRepository->expects(self::once())->method('findProductBySlug')->willReturn($newProduct);
 
         $subscriptionChangeService = self::createMock(SubscriptionChangeService::class);
-        $subscriptionChangeService->expects(self::once())
+        $subscriptionChangeService
+            ->expects(self::once())
             ->method('change')
             ->with(
                 changeType: ProductChangeType::UPGRADE,
@@ -109,8 +117,7 @@ class UpgradeFreeRedirectJobTest extends IntegrationTestCase
     public function upgradeFreeRedirectJobSkippedWhenNoRedirectsAreFound(): void
     {
         $cancellationService = self::createMock(CancellationService::class);
-        $cancellationService->expects(self::once())
-            ->method('cancel');
+        $cancellationService->expects(self::once())->method('cancel');
 
         $subscription = $this->freeRedirectDeployment->subscription;
 
@@ -120,18 +127,23 @@ class UpgradeFreeRedirectJobTest extends IntegrationTestCase
         );
 
         $mockGateway = self::createMock(ProvisionGateway::class);
-        $mockGateway->expects(self::once())
+        $mockGateway
+            ->expects(self::once())
             ->method('request')
-            ->with(self::callback(fn (ListRedirectsRequest $request) => $request->context->toString() === $subscription->uuid))
-            ->willReturn(new ListRedirectResult(provisionData: $mockRequest, provisionStatus: ProvisionStatus::SUCCESS, redirects: []));
+            ->with(self::callback(
+                fn (ListRedirectsRequest $request) => $request->context->toString() === $subscription->uuid,
+            ))
+            ->willReturn(new ListRedirectResult(
+                provisionData: $mockRequest,
+                provisionStatus: ProvisionStatus::SUCCESS,
+                redirects: [],
+            ));
 
         $productRepository = self::createMock(ProductRepository::class);
-        $productRepository->expects(self::never())
-            ->method('findProductBySlug');
+        $productRepository->expects(self::never())->method('findProductBySlug');
 
         $subscriptionChangeService = self::createMock(SubscriptionChangeService::class);
-        $subscriptionChangeService->expects(self::never())
-            ->method('change');
+        $subscriptionChangeService->expects(self::never())->method('change');
 
         $job = new UpgradeFreeRedirectJob($this->freeRedirectDeployment->subscription);
         $job->handle(

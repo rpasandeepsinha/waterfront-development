@@ -49,7 +49,8 @@ class MigratedCustomersLens extends Lens
     private const string CUSTOMERS_FIRST_NAME = self::TABLE_CUSTOMERS . '.' . self::FIELD_FIRST_NAME;
     private const string CUSTOMERS_LAST_NAME = self::TABLE_CUSTOMERS . '.' . self::FIELD_LAST_NAME;
     private const string MIGRATED_CUSTOMERS_ID = self::TABLE_MIGRATED_CUSTOMERS . '.' . self::FIELD_ID;
-    private const string MIGRATED_CUSTOMERS_REFERENCE_CUSTOMER_ID = self::TABLE_MIGRATED_CUSTOMERS . '.' . self::FIELD_REFERENCE_CUSTOMER_ID;
+    private const string MIGRATED_CUSTOMERS_REFERENCE_CUSTOMER_ID =
+        self::TABLE_MIGRATED_CUSTOMERS . '.' . self::FIELD_REFERENCE_CUSTOMER_ID;
     private const string MIGRATED_CUSTOMERS_BATCH_ID = self::TABLE_MIGRATED_CUSTOMERS . '.' . self::FIELD_BATCH_ID;
 
     public static function query(LensRequest $request, Builder $query): Builder
@@ -57,9 +58,16 @@ class MigratedCustomersLens extends Lens
         return $request->withOrdering($request->withFilters(
             $query
                 ->join(self::TABLE_PIVOT, self::PIVOT_CUSTOMER_ID, '=', self::CUSTOMERS_CUSTOMER_ID)
-                ->join(self::TABLE_MIGRATED_CUSTOMERS, self::PIVOT_MIGRATED_CUSTOMER_ID, '=', self::MIGRATED_CUSTOMERS_ID)
+                ->join(
+                    self::TABLE_MIGRATED_CUSTOMERS,
+                    self::PIVOT_MIGRATED_CUSTOMER_ID,
+                    '=',
+                    self::MIGRATED_CUSTOMERS_ID,
+                )
                 ->select(self::columns())
-                ->withCount([self::FIELD_SUBSCRIPTIONS => fn (Builder $query) => $query->has(self::FIELD_MIGRATED_SUBSCRIPTIONS)])
+                ->withCount([
+                    self::FIELD_SUBSCRIPTIONS => fn (Builder $query) => $query->has(self::FIELD_MIGRATED_SUBSCRIPTIONS),
+                ]),
         ));
     }
 
@@ -69,14 +77,19 @@ class MigratedCustomersLens extends Lens
     public function fields(NovaRequest $request): array
     {
         return [
-            ID::make(self::translate('nova-resource-labels.waterfront-customer-id'), self::FIELD_ID)
-                ->sortable(),
-            Text::make(self::translate('nova-resource-labels.waterfront-customer-number'), self::FIELD_CUSTOMER_NUMBER)
-                ->sortable(),
-            Text::make(self::translate('nova-resource-labels.reference-customer-id'), self::FIELD_REFERENCE_CUSTOMER_ID)
-                ->sortable(),
-            Text::make(self::translate('nova-resource-labels.migrated-subscriptions-count'), self::FIELD_SUBSCRIPTIONS_COUNT)
-                ->sortable(),
+            ID::make(self::translate('nova-resource-labels.waterfront-customer-id'), self::FIELD_ID)->sortable(),
+            Text::make(
+                self::translate('nova-resource-labels.waterfront-customer-number'),
+                self::FIELD_CUSTOMER_NUMBER,
+            )->sortable(),
+            Text::make(
+                self::translate('nova-resource-labels.reference-customer-id'),
+                self::FIELD_REFERENCE_CUSTOMER_ID,
+            )->sortable(),
+            Text::make(
+                self::translate('nova-resource-labels.migrated-subscriptions-count'),
+                self::FIELD_SUBSCRIPTIONS_COUNT,
+            )->sortable(),
         ];
     }
 

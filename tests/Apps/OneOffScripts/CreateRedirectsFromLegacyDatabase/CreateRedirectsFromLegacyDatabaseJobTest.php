@@ -77,35 +77,25 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             ->for(new ProductFactory()->redirect())
             ->createOne(['domain' => null]);
 
-        $this->logger
-            ->expects(self::never())
-            ->method('info');
+        $this->logger->expects(self::never())->method('info');
 
-        $this->redirectContextRepository
-            ->expects(self::never())
-            ->method('findByContext');
+        $this->redirectContextRepository->expects(self::never())->method('findByContext');
 
-        $this->redirectDeploymentRepository
-            ->expects(self::never())
-            ->method('findAllByContext');
+        $this->redirectDeploymentRepository->expects(self::never())->method('findAllByContext');
 
-        $this->legacyRepository
-            ->expects(self::never())
-            ->method('listRedirects');
+        $this->legacyRepository->expects(self::never())->method('listRedirects');
 
-        $this->gateway
-            ->expects(self::never())
-            ->method('request');
+        $this->gateway->expects(self::never())->method('request');
 
-        $this->dnsUpdater
-            ->expects(self::never())
-            ->method('updateDnsRecordToCaddy');
+        $this->dnsUpdater->expects(self::never())->method('updateDnsRecordToCaddy');
 
-        $this->redisFactory->expects('connection->sAdd')
+        $this->redisFactory
+            ->expects('connection->sAdd')
             ->with(
                 NovaCreateRedirectsFromLegacyDatabaseAction::REDIS_PROCESSED_KEY,
-                $subscription->uuid
-            )->never();
+                $subscription->uuid,
+            )
+            ->never();
 
         $this->expectException(RedirectWithoutDomainException::class);
 
@@ -118,7 +108,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             redirectContextRepository: $this->redirectContextRepository,
             logger: $this->logger,
             redirectDnsUpdater: $this->dnsUpdater,
-            redisFactory: $this->redisFactory
+            redisFactory: $this->redisFactory,
         );
     }
 
@@ -203,9 +193,15 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
                         self::callback(function (array $context) use ($contextUuid): bool {
                             self::assertSame('example.com', $context[LoggingContextKeys::DOMAIN_NAME]);
                             self::assertEquals($contextUuid, $context[LoggingContextKeys::PROVISIONING_CONTEXT]);
-                            self::assertSame(ProvisionProvider::CADDY, $context[LoggingContextKeys::PROVISIONING_PROVIDER]);
+                            self::assertSame(
+                                ProvisionProvider::CADDY,
+                                $context[LoggingContextKeys::PROVISIONING_PROVIDER],
+                            );
                             self::assertSame(ProvisionType::REDIRECT, $context[LoggingContextKeys::PROVISIONING_TYPE]);
-                            self::assertSame(NovaCreateRedirectsFromLegacyDatabaseAction::SLUG, $context[LoggingContextKeys::ONE_OFF_SCRIPT]);
+                            self::assertSame(
+                                NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
+                                $context[LoggingContextKeys::ONE_OFF_SCRIPT],
+                            );
                             self::assertFalse($context[LoggingContextKeys::META]['dry-run']);
                             self::assertIsInt($context[LoggingContextKeys::META]['caddy_context_id']);
 
@@ -246,14 +242,16 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
                             ],
                         ],
                     ],
-                )
+                ),
             );
 
-        $this->redisFactory->expects('connection->sAdd')
+        $this->redisFactory
+            ->expects('connection->sAdd')
             ->with(
                 NovaCreateRedirectsFromLegacyDatabaseAction::REDIS_PROCESSED_KEY,
-                $subscription->uuid
-            )->once();
+                $subscription->uuid,
+            )
+            ->once();
 
         $job = new CreateRedirectsFromLegacyDatabaseJob(
             dryRun: false,
@@ -264,7 +262,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             redirectContextRepository: $this->redirectContextRepository,
             logger: $this->logger,
             redirectDnsUpdater: $this->dnsUpdater,
-            redisFactory: $this->redisFactory
+            redisFactory: $this->redisFactory,
         );
     }
 
@@ -301,13 +299,9 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             ->with($subscription->customer_id, 'example.com')
             ->willReturn([]);
 
-        $this->gateway
-            ->expects(self::never())
-            ->method('request');
+        $this->gateway->expects(self::never())->method('request');
 
-        $this->dnsUpdater
-            ->expects(self::never())
-            ->method('updateDnsRecordToCaddy');
+        $this->dnsUpdater->expects(self::never())->method('updateDnsRecordToCaddy');
 
         $this->logger
             ->expects(self::once())
@@ -324,11 +318,13 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
                 ],
             );
 
-        $this->redisFactory->expects('connection->sAdd')
+        $this->redisFactory
+            ->expects('connection->sAdd')
             ->with(
                 NovaCreateRedirectsFromLegacyDatabaseAction::REDIS_PROCESSED_KEY,
-                $subscription->uuid
-            )->once();
+                $subscription->uuid,
+            )
+            ->once();
 
         $job = new CreateRedirectsFromLegacyDatabaseJob(
             dryRun: false,
@@ -339,7 +335,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             redirectContextRepository: $this->redirectContextRepository,
             logger: $this->logger,
             redirectDnsUpdater: $this->dnsUpdater,
-            redisFactory: $this->redisFactory
+            redisFactory: $this->redisFactory,
         );
     }
 
@@ -439,7 +435,10 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
                         ],
                     ],
                     [
-                        sprintf('Redirect with source [example.com] already exists for context [%s], skipping creation', $contextUuid),
+                        sprintf(
+                            'Redirect with source [example.com] already exists for context [%s], skipping creation',
+                            $contextUuid,
+                        ),
                         [
                             LoggingContextKeys::DOMAIN_NAME => 'example.com',
                             LoggingContextKeys::PROVISIONING_CONTEXT => $contextUuid,
@@ -466,14 +465,16 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
                             ],
                         ],
                     ],
-                )
+                ),
             );
 
-        $this->redisFactory->expects('connection->sAdd')
+        $this->redisFactory
+            ->expects('connection->sAdd')
             ->with(
                 NovaCreateRedirectsFromLegacyDatabaseAction::REDIS_PROCESSED_KEY,
-                $subscription->uuid
-            )->once();
+                $subscription->uuid,
+            )
+            ->once();
 
         $job = new CreateRedirectsFromLegacyDatabaseJob(
             dryRun: false,
@@ -484,7 +485,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             redirectContextRepository: $this->redirectContextRepository,
             logger: $this->logger,
             redirectDnsUpdater: $this->dnsUpdater,
-            redisFactory: $this->redisFactory
+            redisFactory: $this->redisFactory,
         );
     }
 
@@ -503,10 +504,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
         $existingContext->host = 'example.com';
         $existingContext->context_uuid = $contextUuid;
 
-        $this->redirectContextRepository
-            ->expects(self::once())
-            ->method('findByContext')
-            ->willReturn($existingContext);
+        $this->redirectContextRepository->expects(self::once())->method('findByContext')->willReturn($existingContext);
 
         $existingDeployment = new RedirectDeployment();
         $existingDeployment->forceFill(['source' => 'example.com']);
@@ -527,19 +525,11 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             ),
         ];
 
-        $this->legacyRepository
-            ->expects(self::once())
-            ->method('listRedirects')
-            ->willReturn($legacyRedirects);
+        $this->legacyRepository->expects(self::once())->method('listRedirects')->willReturn($legacyRedirects);
 
-        $this->gateway
-            ->expects(self::never())
-            ->method('request');
+        $this->gateway->expects(self::never())->method('request');
 
-        $this->dnsUpdater
-            ->expects(self::once())
-            ->method('updateDnsRecordToCaddy')
-            ->with('example.com', 'example.com');
+        $this->dnsUpdater->expects(self::once())->method('updateDnsRecordToCaddy')->with('example.com', 'example.com');
 
         $this->logger
             ->expects(self::exactly(2))
@@ -558,7 +548,10 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
                         ],
                     ],
                     [
-                        sprintf('Redirect with source [example.com] already exists for context [%s], skipping creation', $contextUuid),
+                        sprintf(
+                            'Redirect with source [example.com] already exists for context [%s], skipping creation',
+                            $contextUuid,
+                        ),
                         [
                             LoggingContextKeys::DOMAIN_NAME => 'example.com',
                             LoggingContextKeys::PROVISIONING_CONTEXT => $contextUuid,
@@ -568,13 +561,12 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
                             LoggingContextKeys::META => ['dry-run' => false],
                         ],
                     ],
-                )
+                ),
             );
 
-        $this->redisFactory->expects('connection->sAdd')
-        ->with(
+        $this->redisFactory->expects('connection->sAdd')->with(
             NovaCreateRedirectsFromLegacyDatabaseAction::REDIS_PROCESSED_KEY,
-            $subscription->uuid
+            $subscription->uuid,
         );
 
         $job = new CreateRedirectsFromLegacyDatabaseJob(
@@ -586,7 +578,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             redirectContextRepository: $this->redirectContextRepository,
             logger: $this->logger,
             redirectDnsUpdater: $this->dnsUpdater,
-            redisFactory: $this->redisFactory
+            redisFactory: $this->redisFactory,
         );
     }
 
@@ -605,10 +597,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
         $existingContext->host = 'example.com';
         $existingContext->context_uuid = $contextUuid;
 
-        $this->redirectContextRepository
-            ->expects(self::once())
-            ->method('findByContext')
-            ->willReturn($existingContext);
+        $this->redirectContextRepository->expects(self::once())->method('findByContext')->willReturn($existingContext);
 
         $this->redirectDeploymentRepository
             ->expects(self::once())
@@ -626,10 +615,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             ),
         ];
 
-        $this->legacyRepository
-            ->expects(self::once())
-            ->method('listRedirects')
-            ->willReturn($legacyRedirects);
+        $this->legacyRepository->expects(self::once())->method('listRedirects')->willReturn($legacyRedirects);
 
         $createRequest = new CreateRedirectRequest(
             domain: 'example.com',
@@ -644,15 +630,9 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             provisionStatus: ProvisionStatus::SUCCESS,
         );
 
-        $this->gateway
-            ->expects(self::once())
-            ->method('request')
-            ->willReturn($provisionResult);
+        $this->gateway->expects(self::once())->method('request')->willReturn($provisionResult);
 
-        $this->dnsUpdater
-            ->expects(self::once())
-            ->method('updateDnsRecordToCaddy')
-            ->with('example.com', 'example.com');
+        $this->dnsUpdater->expects(self::once())->method('updateDnsRecordToCaddy')->with('example.com', 'example.com');
 
         $this->logger
             ->expects(self::exactly(2))
@@ -687,14 +667,16 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
                             ],
                         ],
                     ],
-                )
+                ),
             );
 
-        $this->redisFactory->expects('connection->sAdd')
+        $this->redisFactory
+            ->expects('connection->sAdd')
             ->with(
                 NovaCreateRedirectsFromLegacyDatabaseAction::REDIS_PROCESSED_KEY,
-                $subscription->uuid
-            )->once();
+                $subscription->uuid,
+            )
+            ->once();
 
         $job = new CreateRedirectsFromLegacyDatabaseJob(
             dryRun: false,
@@ -705,7 +687,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             redirectContextRepository: $this->redirectContextRepository,
             logger: $this->logger,
             redirectDnsUpdater: $this->dnsUpdater,
-            redisFactory: $this->redisFactory
+            redisFactory: $this->redisFactory,
         );
     }
 
@@ -724,10 +706,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
         $existingContext->host = 'example.com';
         $existingContext->context_uuid = $contextUuid;
 
-        $this->redirectContextRepository
-            ->expects(self::once())
-            ->method('findByContext')
-            ->willReturn($existingContext);
+        $this->redirectContextRepository->expects(self::once())->method('findByContext')->willReturn($existingContext);
 
         $this->redirectDeploymentRepository
             ->expects(self::once())
@@ -745,10 +724,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             ),
         ];
 
-        $this->legacyRepository
-            ->expects(self::once())
-            ->method('listRedirects')
-            ->willReturn($legacyRedirects);
+        $this->legacyRepository->expects(self::once())->method('listRedirects')->willReturn($legacyRedirects);
 
         $createRequest = new CreateRedirectRequest(
             domain: 'example.com',
@@ -764,14 +740,9 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             exception: new Exception('Provisioning error'),
         );
 
-        $this->gateway
-            ->expects(self::once())
-            ->method('request')
-            ->willReturn($provisionResult);
+        $this->gateway->expects(self::once())->method('request')->willReturn($provisionResult);
 
-        $this->dnsUpdater
-            ->expects(self::never())
-            ->method('updateDnsRecordToCaddy');
+        $this->dnsUpdater->expects(self::never())->method('updateDnsRecordToCaddy');
 
         $this->logger
             ->expects(self::once())
@@ -788,11 +759,13 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
                 ],
             );
 
-        $this->redisFactory->expects('connection->sAdd')
+        $this->redisFactory
+            ->expects('connection->sAdd')
             ->with(
                 NovaCreateRedirectsFromLegacyDatabaseAction::REDIS_PROCESSED_KEY,
-                $subscription->uuid
-            )->never();
+                $subscription->uuid,
+            )
+            ->never();
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessageIs('Provisioning error');
@@ -806,7 +779,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             redirectContextRepository: $this->redirectContextRepository,
             logger: $this->logger,
             redirectDnsUpdater: $this->dnsUpdater,
-            redisFactory: $this->redisFactory
+            redisFactory: $this->redisFactory,
         );
     }
 
@@ -825,10 +798,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
         $existingContext->host = 'example.com';
         $existingContext->context_uuid = $contextUuid;
 
-        $this->redirectContextRepository
-            ->expects(self::once())
-            ->method('findByContext')
-            ->willReturn($existingContext);
+        $this->redirectContextRepository->expects(self::once())->method('findByContext')->willReturn($existingContext);
 
         $this->redirectDeploymentRepository
             ->expects(self::once())
@@ -846,10 +816,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             ),
         ];
 
-        $this->legacyRepository
-            ->expects(self::once())
-            ->method('listRedirects')
-            ->willReturn($legacyRedirects);
+        $this->legacyRepository->expects(self::once())->method('listRedirects')->willReturn($legacyRedirects);
 
         $createRequest = new CreateRedirectRequest(
             domain: 'example.com',
@@ -874,10 +841,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             }))
             ->willReturn($provisionResult);
 
-        $this->dnsUpdater
-            ->expects(self::once())
-            ->method('updateDnsRecordToCaddy')
-            ->with('example.com', 'example.com');
+        $this->dnsUpdater->expects(self::once())->method('updateDnsRecordToCaddy')->with('example.com', 'example.com');
 
         $this->logger
             ->expects(self::exactly(2))
@@ -912,14 +876,16 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
                             ],
                         ],
                     ],
-                )
+                ),
             );
 
-        $this->redisFactory->expects('connection->sAdd')
+        $this->redisFactory
+            ->expects('connection->sAdd')
             ->with(
                 NovaCreateRedirectsFromLegacyDatabaseAction::REDIS_PROCESSED_KEY,
-                $subscription->uuid
-            )->once();
+                $subscription->uuid,
+            )
+            ->once();
 
         $job = new CreateRedirectsFromLegacyDatabaseJob(
             dryRun: false,
@@ -930,7 +896,7 @@ class CreateRedirectsFromLegacyDatabaseJobTest extends IntegrationTestCase
             redirectContextRepository: $this->redirectContextRepository,
             logger: $this->logger,
             redirectDnsUpdater: $this->dnsUpdater,
-            redisFactory: $this->redisFactory
+            redisFactory: $this->redisFactory,
         );
     }
 }

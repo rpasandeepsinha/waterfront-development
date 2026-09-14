@@ -31,72 +31,72 @@ class DomainModifyTest extends IntegrationTestCase
             new NameServer('ns05.testing.test', '1.2.3.5'),
         );
 
-        $dnssecKey = include(__DIR__ . '/data/dnsseckey.php');
+        $dnssecKey = include __DIR__ . '/data/dnsseckey.php';
 
         return [
-            'setNameServers'   => [
-                'parameters'  => ModifyParameters::create([
-                    'domain'      => 'example.org',
+            'setNameServers' => [
+                'parameters' => ModifyParameters::create([
+                    'domain' => 'example.org',
                     'nameServers' => $nameServers->toArray(),
                 ]),
                 'requestBody' => file_get_contents(
-                    __DIR__ . '/data/openprovider_modify_request_set_nameservers.xml'
+                    __DIR__ . '/data/openprovider_modify_request_set_nameservers.xml',
                 ),
             ],
             'disableAutoRenew' => [
-                'parameters'  => ModifyParameters::create([
-                    'domain'    => 'example.org',
+                'parameters' => ModifyParameters::create([
+                    'domain' => 'example.org',
                     'autoRenew' => false,
                 ]),
                 'requestBody' => file_get_contents(
-                    __DIR__ . '/data/openprovider_modify_request_disable_autorenew.xml'
+                    __DIR__ . '/data/openprovider_modify_request_disable_autorenew.xml',
                 ),
             ],
             'enableAutoRenew' => [
-                'parameters'  => ModifyParameters::create([
-                    'domain'    => 'example.org',
+                'parameters' => ModifyParameters::create([
+                    'domain' => 'example.org',
                     'autoRenew' => true,
                 ]),
                 'requestBody' => file_get_contents(
-                    __DIR__ . '/data/openprovider_modify_request_enable_autorenew.xml'
+                    __DIR__ . '/data/openprovider_modify_request_enable_autorenew.xml',
                 ),
             ],
             'enableDnssec' => [
-                'parameters'  => ModifyParameters::create([
-                    'domain'    => 'example.org',
+                'parameters' => ModifyParameters::create([
+                    'domain' => 'example.org',
                     'dnssecKeys' => [
                         PowerDnsSecKey::fromArray($dnssecKey),
                     ],
                 ]),
                 'requestBody' => file_get_contents(
-                    __DIR__ . '/data/openprovider_modify_request_enable_dnssec.xml'
+                    __DIR__ . '/data/openprovider_modify_request_enable_dnssec.xml',
                 ),
             ],
             'disableDnssec' => [
-                'parameters'  => ModifyParameters::create([
-                    'domain'    => 'example.org',
+                'parameters' => ModifyParameters::create([
+                    'domain' => 'example.org',
                     'dnssecKeys' => [],
                 ]),
                 'requestBody' => file_get_contents(
-                    __DIR__ . '/data/openprovider_modify_request_disable_dnssec.xml'
+                    __DIR__ . '/data/openprovider_modify_request_disable_dnssec.xml',
                 ),
             ],
             'enablePrivateWhois' => [
-                'parameters'  => ModifyParameters::create([
-                    'domain'    => 'example.org',
+                'parameters' => ModifyParameters::create([
+                    'domain' => 'example.org',
                     'isPrivateWhoisEnabled' => true,
                 ]),
                 'requestBody' => file_get_contents(
-                    __DIR__ . '/data/openprovider_modify_request_private_enable.xml'
+                    __DIR__ . '/data/openprovider_modify_request_private_enable.xml',
                 ),
             ],
             'disablePrivateWhois' => [
-                'parameters'  => ModifyParameters::create([
-                    'domain'    => 'example.org',
+                'parameters' => ModifyParameters::create([
+                    'domain' => 'example.org',
                     'isPrivateWhoisEnabled' => false,
                 ]),
                 'requestBody' => file_get_contents(
-                    __DIR__ . '/data/openprovider_modify_request_private_disable.xml'
+                    __DIR__ . '/data/openprovider_modify_request_private_disable.xml',
                 ),
             ],
         ];
@@ -117,7 +117,7 @@ class DomainModifyTest extends IntegrationTestCase
         self::assertXmlStringEqualsXmlString(
             $requestBody,
             $request->getXml(),
-            ' - domain modify xml created correctly'
+            ' - domain modify xml created correctly',
         );
     }
 

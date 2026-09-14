@@ -28,7 +28,7 @@ class WithdrawInvoicePaymentAnnouncementHandler
                     'Unknown invoice id: {invoice_line.wf_id}',
                     [
                         LoggingContextKeys::INVOICE_LINE_ID => $invoiceLineId,
-                    ]
+                    ],
                 );
                 continue;
             }
@@ -38,7 +38,7 @@ class WithdrawInvoicePaymentAnnouncementHandler
                     'Invoice was already not announced',
                     [
                         LoggingContextKeys::INVOICE_LINE_ID => $invoice,
-                    ]
+                    ],
                 );
                 continue;
             }
@@ -50,7 +50,7 @@ class WithdrawInvoicePaymentAnnouncementHandler
                 'Invoice payment announcement withdrawn',
                 [
                     LoggingContextKeys::INVOICE_LINE_ID => $invoice->id,
-                ]
+                ],
             );
         }
     }

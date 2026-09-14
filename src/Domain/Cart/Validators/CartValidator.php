@@ -67,14 +67,14 @@ class CartValidator extends Validator
         array $data,
         array $rules,
         array $messages = [],
-        array $customAttributes = []
+        array $customAttributes = [],
     ) {
         parent::__construct(
             $translator,
             $data,
             $rules + $this->getValidationRules($data),
             $messages,
-            $customAttributes
+            $customAttributes,
         );
     }
 
@@ -96,22 +96,35 @@ class CartValidator extends Validator
         return array_merge(
             [
                 // General order validation
-                'payment_method'                => ['required', 'string'],
-                'create_direct_debit_mandate'   => ['nullable', 'boolean'],
-                'vouchers'                      => ['nullable', 'array'],
-                'vouchers.*'                    => ['nullable', 'required', 'string'],
+                'payment_method' => ['required', 'string'],
+                'create_direct_debit_mandate' => ['nullable', 'boolean'],
+                'vouchers' => ['nullable', 'array'],
+                'vouchers.*' => ['nullable', 'required', 'string'],
                 // General product validation
-                'subscriptions.*.*.uuid'            => ['required', 'uuid'],
-                'subscriptions.*.*.status'          => ['required', Rule::in([ProductPriceType::REGISTRATION, ProductPriceType::PROLONGATION])],
+                'subscriptions.*.*.uuid' => ['required', 'uuid'],
+                'subscriptions.*.*.status' => [
+                    'required',
+                    Rule::in([ProductPriceType::REGISTRATION, ProductPriceType::PROLONGATION]),
+                ],
                 'subscriptions.*.*.contract_period' => ['required', 'integer', 'min:1'],
-                'subscriptions.*.*.billing_period'  => ['required', 'integer', 'min:1', $this->billingPeriodRules],
-                'subscriptions.*.*.parent_subscription_uuid'  => ['sometimes', 'missing_with:subscriptions.*.*.subscription_uuid',
-                    Rule::exists(Subscription::class, 'uuid')->where('administrative_status', AdministrativeStatus::ACTIVE->value),
+                'subscriptions.*.*.billing_period' => ['required', 'integer', 'min:1', $this->billingPeriodRules],
+                'subscriptions.*.*.parent_subscription_uuid' => [
+                    'sometimes',
+                    'missing_with:subscriptions.*.*.subscription_uuid',
+                    Rule::exists(Subscription::class, 'uuid')->where(
+                        'administrative_status',
+                        AdministrativeStatus::ACTIVE->value,
+                    ),
                 ],
-                'subscriptions.*.*.subscription_uuid'  => ['sometimes', 'missing_with:subscriptions.*.*.parent_subscription_uuid',
-                    Rule::exists(Subscription::class, 'uuid')->where('administrative_status', AdministrativeStatus::ACTIVE->value),
+                'subscriptions.*.*.subscription_uuid' => [
+                    'sometimes',
+                    'missing_with:subscriptions.*.*.parent_subscription_uuid',
+                    Rule::exists(Subscription::class, 'uuid')->where(
+                        'administrative_status',
+                        AdministrativeStatus::ACTIVE->value,
+                    ),
                 ],
-                'subscriptions.*.*.domain'          => [
+                'subscriptions.*.*.domain' => [
                     'sometimes',
                     'nullable',
                     'string',
@@ -137,7 +150,10 @@ class CartValidator extends Validator
                         // Example $attribute value: subscriptions.ssl.0.slug
                         $productGroup = explode('.', $attribute)[1];
                         /** @var string $value */
-                        $valid = $this->productRepository->slugExistsForGroup($value, ProductGroupType::from($productGroup));
+                        $valid = $this->productRepository->slugExistsForGroup(
+                            $value,
+                            ProductGroupType::from($productGroup),
+                        );
 
                         if (! $valid) {
                             $fail($this->translator->get('validation.in'));
@@ -157,7 +173,10 @@ class CartValidator extends Validator
                         // Example $attribute value: subscriptions.domain.0.children.dns.0.slug
                         $productGroup = explode('.', $attribute)[4];
                         /** @var string $value */
-                        $valid = $this->productRepository->slugExistsForGroup($value, ProductGroupType::from($productGroup));
+                        $valid = $this->productRepository->slugExistsForGroup(
+                            $value,
+                            ProductGroupType::from($productGroup),
+                        );
 
                         if (! $valid) {
                             $fail($this->translator->get('validation.in'));

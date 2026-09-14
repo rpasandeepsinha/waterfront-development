@@ -47,9 +47,13 @@ class HubspotMailer
         $cc = $this->getCC($emailHistory);
         $ccAddresses = array_map(fn (string $email) => new EmailAddress($email), $cc);
 
-        $payload = $emailHistory->payload !== null ? $this->payloadDeserializer->deserialize($emailHistory->payload) : null;
+        $payload = $emailHistory->payload !== null
+            ? $this->payloadDeserializer->deserialize($emailHistory->payload)
+            : null;
 
-        $customProperties = $payload !== null ? array_map(fn (mixed $value) => is_scalar($value) ? (string) $value : $value, $payload) : [];
+        $customProperties = $payload !== null
+            ? array_map(fn (mixed $value) => is_scalar($value) ? (string) $value : $value, $payload)
+            : [];
         $emailRequest = new HubspotSendEmailRequest(
             new EmailAddress($emailHistory->receiver_email),
             $emailHistory->template->hubspot_template_id,

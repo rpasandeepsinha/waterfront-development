@@ -48,7 +48,7 @@ class Microsoft365SubscriptionService
     /**
      * @param Collection<Subscription> $subscriptions
      */
-    public function create(Collection $subscriptions, null|string $tenantName, null|string $tenantId): void
+    public function create(Collection $subscriptions, ?string $tenantName, ?string $tenantId): void
     {
         $firstSubscription = $subscriptions->firstOrFail();
         assert($firstSubscription instanceof Subscription);
@@ -61,40 +61,53 @@ class Microsoft365SubscriptionService
         }
 
         if ($tenantName !== null) {
-            $customerInfo = Microsoft365CustomerInfo::where('customer_id', $customer->id)->where('tenant_name', $tenantName)->firstOrFail();
+            $customerInfo = Microsoft365CustomerInfo::where('customer_id', $customer->id)
+                ->where('tenant_name', $tenantName)
+                ->firstOrFail();
         } else {
             $customerInfo = Microsoft365CustomerInfo::where('customer_id', $customer->id)->firstOrFail();
         }
 
-        $subscriptions->groupBy('product_uuid')->each(
-            function (Collection $seatSubscriptions) use ($customerInfo, $customer, $isFirstTimeMicrosoftCustomer): void {
-                $firstSubscription = $seatSubscriptions->firstOrFail();
-                assert($firstSubscription instanceof Subscription);
-                $parentSubscription = $this->createParentSubscriptionIfNeeded($firstSubscription, $customer, $customerInfo, $isFirstTimeMicrosoftCustomer);
+        $subscriptions
+            ->groupBy('product_uuid')
+            ->each(
+                function (Collection $seatSubscriptions) use (
+                    $customerInfo,
+                    $customer,
+                    $isFirstTimeMicrosoftCustomer,
+                ): void {
+                    $firstSubscription = $seatSubscriptions->firstOrFail();
+                    assert($firstSubscription instanceof Subscription);
+                    $parentSubscription = $this->createParentSubscriptionIfNeeded(
+                        $firstSubscription,
+                        $customer,
+                        $customerInfo,
+                        $isFirstTimeMicrosoftCustomer,
+                    );
 
-                /** The customer bought a new seat for a canceled parent subscription. This should be possible. */
-                if ($parentSubscription->administrative_status === AdministrativeStatus::CANCELED->value) {
-                    $parentSubscription->update([
-                        'administrative_status' => AdministrativeStatus::ACTIVE->value,
-                        'cancel_date' => null,
-                    ]);
-                }
+                    /** The customer bought a new seat for a canceled parent subscription. This should be possible. */
+                    if ($parentSubscription->administrative_status === AdministrativeStatus::CANCELED->value) {
+                        $parentSubscription->update([
+                            'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                            'cancel_date' => null,
+                        ]);
+                    }
 
-                /** @var Collection<int, Subscription> $seatSubscriptions */
-                $this->attachChildrenToParentSubscription($seatSubscriptions, $parentSubscription);
+                    /** @var Collection<int, Subscription> $seatSubscriptions */
+                    $this->attachChildrenToParentSubscription($seatSubscriptions, $parentSubscription);
 
-                if ($isFirstTimeMicrosoftCustomer) {
-                    /**
-                     * We can't continue since we need a customer entity at KPN. This is the normal flow for a new Microsoft 365
-                     * customer. As soon as we get a message back from KPN that a customer is made the order will be
-                     * submitted.
-                     */
-                    return;
-                }
+                    if ($isFirstTimeMicrosoftCustomer) {
+                        /**
+                         * We can't continue since we need a customer entity at KPN. This is the normal flow for a new Microsoft 365
+                         * customer. As soon as we get a message back from KPN that a customer is made the order will be
+                         * submitted.
+                         */
+                        return;
+                    }
 
-                $this->createOrModifyOrder($seatSubscriptions, $customer);
-            }
-        );
+                    $this->createOrModifyOrder($seatSubscriptions, $customer);
+                },
+            );
     }
 
     /**
@@ -106,7 +119,10 @@ class Microsoft365SubscriptionService
         $child = $subscriptions->first();
         $amount = $subscriptions->count();
 
-        $microsoft365Deployment = Microsoft365Deployment::where('subscription_id', $child->parent_subscription_id)->firstOrFail();
+        $microsoft365Deployment = Microsoft365Deployment::where(
+            'subscription_id',
+            $child->parent_subscription_id,
+        )->firstOrFail();
         $kpnCustomerNumber = $this->getKpnCustomerNumber($customer);
 
         if ($kpnCustomerNumber === null) {
@@ -118,7 +134,7 @@ class Microsoft365SubscriptionService
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::M365,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::MICROSOFT_IRMA,
                     LoggingContextKeys::CUSTOMER_ID => $customer->id,
-                ]
+                ],
             );
 
             $subscriptions->each(function (Subscription $subscription): void {
@@ -128,7 +144,10 @@ class Microsoft365SubscriptionService
             return;
         }
 
-        if ($microsoft365Deployment->kpn_order_id !== null && $microsoft365Deployment->kpn_status === Microsoft365OrderStatus::ACTIVE) {
+        if (
+            $microsoft365Deployment->kpn_order_id !== null
+            && $microsoft365Deployment->kpn_status === Microsoft365OrderStatus::ACTIVE
+        ) {
             try {
                 $this->microsoft365Service->modifyOrder($microsoft365Deployment->kpn_order_id, $amount);
             } catch (Office365Exception $exception) {
@@ -146,7 +165,7 @@ class Microsoft365SubscriptionService
                             'microsoft365_customer_info_id' => $microsoft365Deployment->microsoft365CustomerInfo->id,
                             'amount' => $amount,
                         ],
-                    ]
+                    ],
                 );
             }
         } else {
@@ -157,8 +176,9 @@ class Microsoft365SubscriptionService
                 $customerInfo = $microsoft365Deployment->microsoft365CustomerInfo;
                 if ($customerInfo->tenant_order_id === null) {
                     try {
-                        $tenantOrderIdSynchronized = $this->microsoft365Service->synchronizeTenantOrderIdFromOrderSummary($customerInfo);
-                    } catch (OrderSummaryCustomerNotFoundException | OrderSummaryException $exception) {
+                        $tenantOrderIdSynchronized =
+                            $this->microsoft365Service->synchronizeTenantOrderIdFromOrderSummary($customerInfo);
+                    } catch (OrderSummaryCustomerNotFoundException|OrderSummaryException $exception) {
                         $this->logger->error(
                             'M365 tenant order summary failed',
                             [
@@ -171,7 +191,7 @@ class Microsoft365SubscriptionService
                                 LoggingContextKeys::META => [
                                     'microsoft365_customer_info_id' => $customerInfo->id,
                                 ],
-                            ]
+                            ],
                         );
 
                         return;
@@ -179,7 +199,7 @@ class Microsoft365SubscriptionService
 
                     if (! $tenantOrderIdSynchronized) {
                         $this->microsoft365Service->createTenant(
-                            microsoft365CustomerInfo: $customerInfo
+                            microsoft365CustomerInfo: $customerInfo,
                         );
 
                         // Creating tenant order is a queued API call, so we can immediately start creating the other orders
@@ -193,7 +213,7 @@ class Microsoft365SubscriptionService
                     productCode: $kpnProduct->kpn_product_code,
                     amount: $amount,
                 );
-            } catch (TenantNameTakenException | Office365Exception $exception) {
+            } catch (TenantNameTakenException|Office365Exception $exception) {
                 $this->logger->error(
                     'M365 order creation failed',
                     [
@@ -208,7 +228,7 @@ class Microsoft365SubscriptionService
                             'microsoft365_customer_info_id' => $microsoft365Deployment->microsoft365CustomerInfo->id,
                             'tenant_order_id' => $microsoft365Deployment->microsoft365CustomerInfo->tenant_order_id,
                         ],
-                    ]
+                    ],
                 );
             }
         }
@@ -225,16 +245,23 @@ class Microsoft365SubscriptionService
         return $customerInfo->kpn_customer_id;
     }
 
-    private function checkFirstTimeCustomer(Customer $customer, string|null $tenantName): bool
+    private function checkFirstTimeCustomer(Customer $customer, ?string $tenantName): bool
     {
         return $tenantName === null
             ? Microsoft365CustomerInfo::where('customer_id', $customer->id)->doesntExist()
-            : Microsoft365CustomerInfo::where('customer_id', $customer->id)->where('tenant_name', $tenantName)->doesntExist();
+            : Microsoft365CustomerInfo::where('customer_id', $customer->id)
+                ->where('tenant_name', $tenantName)
+                ->doesntExist();
     }
 
-    private function initiateFirstTimeCustomer(Customer $customer, string|null $tenantName, string|null $tenantId, Subscription $firstSubscription): void
-    {
-        $metaData = $firstSubscription->orderLineItem->meta_data ?? $firstSubscription->children()->first()?->orderLineItem?->meta_data;
+    private function initiateFirstTimeCustomer(
+        Customer $customer,
+        ?string $tenantName,
+        ?string $tenantId,
+        Subscription $firstSubscription,
+    ): void {
+        $metaData = $firstSubscription->orderLineItem->meta_data
+        ?? $firstSubscription->children()->first()?->orderLineItem?->meta_data;
         if ($metaData !== null) {
             $metaData = $this->microsoft365TenantService->getMicrosoft365MetaData($metaData);
         }
@@ -267,7 +294,7 @@ class Microsoft365SubscriptionService
                         'microsoft365_customer_info_id' => $customerInfo->id,
                         'tenant_id' => $customerInfo->tenant_id,
                     ],
-                ]
+                ],
             );
 
             $customerInfo->update(['technical_status' => Microsoft365ProcessStatus::FAILED]);
@@ -287,7 +314,7 @@ class Microsoft365SubscriptionService
         Subscription $childSubscription,
         Customer $customer,
         Microsoft365CustomerInfo $customerInfo,
-        bool $firstTimeCustomer
+        bool $firstTimeCustomer,
     ): Subscription {
         $parentProduct = Product::where('slug', $childSubscription->product->slug . '-parent')->firstOrFail();
 
@@ -295,17 +322,22 @@ class Microsoft365SubscriptionService
         $parentSubscription = Subscription::where('product_uuid', $parentProduct->uuid)
             ->where('customer_id', $customer->id)
             ->where('contract_period', $childSubscription->contract_period)
-            ->whereNotIn('administrative_status', [...AdministrativeStatus::administrativelyEnded(), AdministrativeStatus::ARCHIVING->value])
-
+            ->whereNotIn('administrative_status', [
+                ...AdministrativeStatus::administrativelyEnded(),
+                AdministrativeStatus::ARCHIVING->value,
+            ])
             ->first();
 
         if (! $parentSubscription instanceof Subscription || $firstTimeCustomer) {
-            $parentSubscription = $this->subscriptionService->createFreeParentSubscription($childSubscription, $parentProduct);
+            $parentSubscription = $this->subscriptionService->createFreeParentSubscription(
+                $childSubscription,
+                $parentProduct,
+            );
 
             $invoice = $this->invoiceRepository->create(
                 subscription: $parentSubscription,
                 startDate: $parentSubscription->start_date,
-                dispatchInvoiceCreated: false
+                dispatchInvoiceCreated: false,
             );
 
             $this->dispatcher->dispatch(
@@ -313,7 +345,7 @@ class Microsoft365SubscriptionService
                     customer: $customer,
                     invoices: [$invoice],
                     createInvoiceInstantly: false,
-                )
+                ),
             );
 
             Microsoft365Deployment::create([

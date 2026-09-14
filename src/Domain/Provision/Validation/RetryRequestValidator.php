@@ -30,7 +30,7 @@ class RetryRequestValidator
         if ($originRequest === null) {
             $validationResult->addValidationError(
                 valueName: 'retryOf',
-                message: ProvisionErrorMessage::RETRY_ORIGIN_NOT_FOUND->value
+                message: ProvisionErrorMessage::RETRY_ORIGIN_NOT_FOUND->value,
             );
 
             return new ProvisionResult(
@@ -43,28 +43,28 @@ class RetryRequestValidator
         if ($originRequest->request_type !== $provisionData->type) {
             $validationResult->addValidationError(
                 valueName: 'retryOf',
-                message: ProvisionErrorMessage::RETRY_ORIGIN_TYPE_MISMATCH->value
+                message: ProvisionErrorMessage::RETRY_ORIGIN_TYPE_MISMATCH->value,
             );
         }
 
         if ($originRequest->request_name !== $provisionData->name) {
             $validationResult->addValidationError(
                 valueName: 'retryOf',
-                message: ProvisionErrorMessage::RETRY_ORIGIN_NAME_MISMATCH->value
+                message: ProvisionErrorMessage::RETRY_ORIGIN_NAME_MISMATCH->value,
             );
         }
 
         if ($originRequest->retry_of_request_id !== null) {
             $validationResult->addValidationError(
                 valueName: 'retryOf',
-                message: ProvisionErrorMessage::RETRY_ORIGIN_IS_RETRY->value
+                message: ProvisionErrorMessage::RETRY_ORIGIN_IS_RETRY->value,
             );
         }
 
         if ($originRequest->result === null || $originRequest->result->succeeded) {
             $validationResult->addValidationError(
                 valueName: 'retryOf',
-                message: ProvisionErrorMessage::RETRY_ORIGIN_NOT_FAILED->value
+                message: ProvisionErrorMessage::RETRY_ORIGIN_NOT_FAILED->value,
             );
         }
 

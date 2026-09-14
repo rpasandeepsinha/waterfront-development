@@ -35,7 +35,8 @@ class DestroyVirtualMachineJob extends CloudstackAsyncJob
             $this->deployment->subscription->technical_status = TechnicalStatus::DELETING->value;
             $this->deployment->subscription->save();
 
-            Container::getInstance()->make(Dispatcher::class)
+            Container::getInstance()
+                ->make(Dispatcher::class)
                 ->dispatch(new WaitForVirtualMachineDestroyedThenRedeployJob(
                     deployment: $this->deployment,
                     cloudstackJob: $this->cloudstackJob,

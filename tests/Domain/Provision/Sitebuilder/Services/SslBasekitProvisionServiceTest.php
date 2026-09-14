@@ -64,7 +64,7 @@ class SslBasekitProvisionServiceTest extends TestCase
             ssoUrl: 'https://test-sso.basekit.com',
             username: 'user',
             password: 'pass',
-            brandReference: 1337
+            brandReference: 1337,
         );
         self::mock(CreateBasekitService::class);
 
@@ -84,7 +84,7 @@ class SslBasekitProvisionServiceTest extends TestCase
             tagUuid: $tag,
             context: Uuid::uuid4(),
             privateKey: self::TEST_KEY,
-            mainCertificate: self::TEST_CERT
+            mainCertificate: self::TEST_CERT,
         );
 
         $addSitebuilder->requestId = 1234;
@@ -97,11 +97,7 @@ class SslBasekitProvisionServiceTest extends TestCase
         $sitebuilderDeployment->setRelation('basekitDeployment', $basekitSitebuilderDeployment);
         $sitebuilderDeployment->setRelation('basekitContext', $basekitContext);
 
-        $this->mockSitebuilderRepository
-            ->expects('findByTag')
-            ->once()
-            ->with($tag)
-            ->andReturn($sitebuilderDeployment);
+        $this->mockSitebuilderRepository->expects('findByTag')->once()->with($tag)->andReturn($sitebuilderDeployment);
 
         $mockSslApi = self::mock(SslApiInterface::class);
         $this->mockBasekitClient->sslApi = $mockSslApi;
@@ -123,7 +119,7 @@ class SslBasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: self::createStub(DeleteBasekitService::class)
+            deleteBasekitService: self::createStub(DeleteBasekitService::class),
         );
 
         $this->mockLogger
@@ -152,14 +148,10 @@ class SslBasekitProvisionServiceTest extends TestCase
             tagUuid: $tag,
             context: Uuid::uuid4(),
             privateKey: self::TEST_KEY,
-            mainCertificate: self::TEST_CERT
+            mainCertificate: self::TEST_CERT,
         );
 
-        $this->mockSitebuilderRepository
-            ->expects('findByTag')
-            ->once()
-            ->with($tag)
-            ->andReturn(null);
+        $this->mockSitebuilderRepository->expects('findByTag')->once()->with($tag)->andReturn(null);
 
         $service = new BasekitProvisionService(
             createBasekitService: self::createStub(CreateBasekitService::class),
@@ -168,7 +160,7 @@ class SslBasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: self::createStub(DeleteBasekitService::class)
+            deleteBasekitService: self::createStub(DeleteBasekitService::class),
         );
 
         $result = $service->addSsl($addSitebuilder);
@@ -176,7 +168,10 @@ class SslBasekitProvisionServiceTest extends TestCase
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
         self::assertNotNull($result->exception);
         self::assertInstanceOf(DeploymentNotFoundException::class, $result->exception);
-        self::assertSame(sprintf('No sitebuilder deployment found for the given tag [%s].', $tag), $result->exception->getMessage());
+        self::assertSame(
+            sprintf('No sitebuilder deployment found for the given tag [%s].', $tag),
+            $result->exception->getMessage(),
+        );
     }
 
     #[Test]
@@ -188,7 +183,7 @@ class SslBasekitProvisionServiceTest extends TestCase
             tagUuid: $tag,
             context: Uuid::uuid4(),
             privateKey: self::TEST_KEY,
-            mainCertificate: self::TEST_CERT
+            mainCertificate: self::TEST_CERT,
         );
         $addSitebuilder->requestId = 1234;
         $addSitebuilder->provider = ProvisionProvider::BASEKIT;
@@ -200,11 +195,7 @@ class SslBasekitProvisionServiceTest extends TestCase
         $sitebuilderDeployment->setRelation('basekitDeployment', $basekitSitebuilderDeployment);
         $sitebuilderDeployment->setRelation('basekitContext', $basekitContext);
 
-        $this->mockSitebuilderRepository
-            ->expects('findByTag')
-            ->once()
-            ->with($tag)
-            ->andReturn($sitebuilderDeployment);
+        $this->mockSitebuilderRepository->expects('findByTag')->once()->with($tag)->andReturn($sitebuilderDeployment);
 
         $mockSslApi = self::mock(SslApiInterface::class);
         $this->mockBasekitClient->sslApi = $mockSslApi;
@@ -238,7 +229,7 @@ class SslBasekitProvisionServiceTest extends TestCase
             sitebuilderDeploymentRepository: $this->mockSitebuilderRepository,
             logger: $this->mockLogger,
             updateBasekitService: self::createStub(UpdateBasekitService::class),
-            deleteBasekitService: self::createStub(DeleteBasekitService::class)
+            deleteBasekitService: self::createStub(DeleteBasekitService::class),
         );
 
         $this->mockLogger

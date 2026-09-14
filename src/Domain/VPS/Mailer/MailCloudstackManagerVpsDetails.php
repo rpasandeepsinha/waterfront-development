@@ -8,8 +8,12 @@ use Waterfront\Domain\Mailer\MailTemplateInterface;
 
 class MailCloudstackManagerVpsDetails implements MailTemplateInterface
 {
-    public function __construct(public readonly string $username, public readonly ?string $password, public readonly string $ipaddress, public readonly string $ip6address)
-    {
+    public function __construct(
+        public readonly string $username,
+        public readonly ?string $password,
+        public readonly string $ipaddress,
+        public readonly string $ip6address,
+    ) {
     }
 
     public static function getTemplateSlug(): string

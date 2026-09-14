@@ -22,8 +22,9 @@ class UpdateInternalNameserverRequest extends FormRequest
             'nameserver_hostname' => [
                 'required',
                 'string',
-                Rule::unique('migrated_dns_internal_nameservers', 'nameserver_hostname')
-                    ->ignore($nameserver instanceof FerryInternalNameserver ? $nameserver->id : null),
+                Rule::unique('migrated_dns_internal_nameservers', 'nameserver_hostname')->ignore(
+                    $nameserver instanceof FerryInternalNameserver ? $nameserver->id : null,
+                ),
             ],
         ];
     }

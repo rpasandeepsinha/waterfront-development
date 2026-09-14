@@ -31,7 +31,7 @@ class FetchServerPackagesAction
                 [
                     LoggingContextKeys::SERVER_ID => $server->id,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return new ServerPackagesDTO(
@@ -58,7 +58,7 @@ class FetchServerPackagesAction
                     LoggingContextKeys::SERVER_ID => $server->id,
                     LoggingContextKeys::META => $packageName,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return new ServerPackageDTO(
@@ -90,7 +90,7 @@ class FetchServerPackagesAction
             [
                 LoggingContextKeys::SERVER_ID => $server->id,
                 LoggingContextKeys::META => array_slice(array_keys($response), 0, 10),
-            ]
+            ],
         );
 
         return [];

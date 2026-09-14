@@ -34,7 +34,7 @@ class LabelController
         $labels = $this->labelService->getLabels($customer);
 
         return new JsonResponse(
-            LabelResource::collection($labels)
+            LabelResource::collection($labels),
         );
     }
 

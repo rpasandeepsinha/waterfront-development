@@ -56,5 +56,4 @@ return [
 
         'specs' => $app->basePath('docs/api'),
     ],
-
 ];

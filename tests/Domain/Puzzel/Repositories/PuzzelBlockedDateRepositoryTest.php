@@ -53,13 +53,11 @@ class PuzzelBlockedDateRepositoryTest extends TestCase
         ]);
 
         $futureDays = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-        $futureDates = PuzzelBlockedDateFactory::new()
-            ->state(
-                [
+        $futureDates = PuzzelBlockedDateFactory::new()->state(
+            [
                 'date' => CarbonImmutable::now()->addDays(array_pop($futureDays)),
-                ]
-            )
-            ->createMany(10);
+            ],
+        )->createMany(10);
 
         $todayDate = PuzzelBlockedDateFactory::new()->createOne([
             'date' => CarbonImmutable::now()->addHour(),

@@ -30,19 +30,31 @@ class ExtendContractAction
      *
      * @throws ItemNotFoundException
      */
-    public function execute(Subscription $subscription, int $billingPeriod, int $contractPeriod, ?int $renewalPrice, ?Product $product): SubscriptionMutation
-    {
+    public function execute(
+        Subscription $subscription,
+        int $billingPeriod,
+        int $contractPeriod,
+        ?int $renewalPrice,
+        ?Product $product,
+    ): SubscriptionMutation {
         $subscription->loadMissing('customer');
 
-        if ($subscription->contract_period === $contractPeriod && $subscription->billing_period === $billingPeriod && $renewalPrice === null && $product === null) {
+        if (
+            $subscription->contract_period === $contractPeriod
+            && $subscription->billing_period === $billingPeriod
+            && $renewalPrice === null
+            && $product === null
+        ) {
             throw new InvalidArgumentException(
-                "Can't extend contract with same values as already on subscription, normal renew scenario will take place."
+                "Can't extend contract with same values as already on subscription, normal renew scenario will take place.",
             );
         }
 
         $productToFetchPricesFor = $product ?? $subscription->product;
 
-        $priceRequest = new PriceRequest([new ProlongationPriceRequest($productToFetchPricesFor)], $subscription->customer);
+        $priceRequest = new PriceRequest([new ProlongationPriceRequest(
+            $productToFetchPricesFor,
+        )], $subscription->customer);
         $priceList = $this->priceResolver->getPriceList($priceRequest);
 
         $price = $priceList->getProductPrice($productToFetchPricesFor->slug, $contractPeriod, $billingPeriod);
@@ -72,7 +84,7 @@ class ExtendContractAction
                     $contractPeriod,
                     $billingPeriod,
                     $subscription->domain ?? '',
-                )
+                ),
             );
         }
 

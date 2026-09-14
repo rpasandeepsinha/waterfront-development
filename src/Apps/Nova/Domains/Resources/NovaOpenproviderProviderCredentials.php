@@ -46,8 +46,9 @@ class NovaOpenproviderProviderCredentials extends Resource
             BelongsTo::make(
                 self::translate('domain-provider-business-unit.plural'),
                 'domainProviderBusinessUnit',
-                NovaDomainProviderBusinessUnitResource::class
-            )->creationRules('unique:openprovider_provider_credentials,domain_business_unit_id')
+                NovaDomainProviderBusinessUnitResource::class,
+            )
+                ->creationRules('unique:openprovider_provider_credentials,domain_business_unit_id')
                 ->updateRules('unique:openprovider_provider_credentials,domain_business_unit_id,{{resourceId}}'),
         ];
     }

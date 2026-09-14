@@ -9,13 +9,15 @@ use Waterfront\Infra\Validation\AbstractValidator;
 
 class KpnCustomerId extends AbstractValidator
 {
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     protected function passes(string $attribute, mixed $value): bool
     {
         assert(is_string($value));
+
         return str_starts_with($value, 'CID');
     }
 

@@ -25,27 +25,27 @@ class CustomerFactory extends Factory
     public function definition(): array
     {
         return [
-            'uuid'                    => Uuid::uuid4(), // In the case that tests disable events this is necessary.
-            'organization'            => $this->faker->words(2, true),
-            'department'              => $this->faker->words(2, true),
-            'first_name'              => $this->faker->firstName(),
-            'last_name'               => $this->faker->lastName(),
-            'gender'                  => $this->faker->randomElement(array_column(Gender::cases(), 'value')),
-            'invoice_history_url'     => $this->faker->url(),
-            'admin_url'               => $this->faker->url(),
-            'phone_country_code'      => '31',
-            'phone_area_code'         => '6',
+            'uuid' => Uuid::uuid4(), // In the case that tests disable events this is necessary.
+            'organization' => $this->faker->words(2, true),
+            'department' => $this->faker->words(2, true),
+            'first_name' => $this->faker->firstName(),
+            'last_name' => $this->faker->lastName(),
+            'gender' => $this->faker->randomElement(array_column(Gender::cases(), 'value')),
+            'invoice_history_url' => $this->faker->url(),
+            'admin_url' => $this->faker->url(),
+            'phone_country_code' => '31',
+            'phone_area_code' => '6',
             'phone_subscriber_number' => '87281426',
-            'email'                   => $this->faker->email(),
-            'locale'                  => 'nl-NL',
-            'terms_of_payment'        => 14,
-            'is_verified'            => true,
-            'payment_type'            => PaymentType::CREDIT,
-            'terms_accepted'          => true,
-            'created_at'              => CarbonImmutable::now(),
-            'updated_at'              => CarbonImmutable::now(),
-            'customer_since'          => CarbonImmutable::now(),
-            'anonymized_at'           => null,
+            'email' => $this->faker->email(),
+            'locale' => 'nl-NL',
+            'terms_of_payment' => 14,
+            'is_verified' => true,
+            'payment_type' => PaymentType::CREDIT,
+            'terms_accepted' => true,
+            'created_at' => CarbonImmutable::now(),
+            'updated_at' => CarbonImmutable::now(),
+            'customer_since' => CarbonImmutable::now(),
+            'anonymized_at' => null,
         ];
     }
 
@@ -70,8 +70,8 @@ class CustomerFactory extends Factory
                     [
                         'type' => CustomerContactType::FINANCIAL->value,
                     ],
-                    $data
-                )
+                    $data,
+                ),
             );
         });
     }

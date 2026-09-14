@@ -25,7 +25,7 @@ class StoreAuditLogActionTest extends IntegrationTestCase
                 Customer::class,
                 1,
                 ['test' => 'test'],
-                ['test' => 'hallo']
+                ['test' => 'hallo'],
             );
 
         $auditLog = Audit::where('auditable_type', Customer::class)->first();
@@ -49,7 +49,7 @@ class StoreAuditLogActionTest extends IntegrationTestCase
                 Customer::class,
                 1,
                 ['test' => 'test'],
-                ['test' => 'hallo']
+                ['test' => 'hallo'],
             );
 
         $auditLog = Audit::where('auditable_type', Customer::class)->first();

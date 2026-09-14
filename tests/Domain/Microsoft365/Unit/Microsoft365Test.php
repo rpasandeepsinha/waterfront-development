@@ -39,10 +39,12 @@ class Microsoft365Test extends IntegrationTestCase
     {
         Event::fake([CreateMicrosoft365::class]);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $this->product->uuid,
-            'domain' => '',
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $this->product->uuid,
+                'domain' => '',
+            ]);
 
         $microsoftSubscriptionService = self::createMock(Microsoft365SubscriptionService::class);
         $microsoftSubscriptionService->expects(self::once())->method('create');
@@ -50,7 +52,7 @@ class Microsoft365Test extends IntegrationTestCase
         $event = new CreateMicrosoft365([$subscription]);
 
         $listener = new Microsoft365CreationListener(
-            $microsoftSubscriptionService
+            $microsoftSubscriptionService,
         );
 
         $listener->handle($event);

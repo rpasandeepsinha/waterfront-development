@@ -61,10 +61,12 @@ class InvoiceRepositoryReadsTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'customer_id' => $customer->id,
-            'product_uuid' => $product->uuid,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'customer_id' => $customer->id,
+                'product_uuid' => $product->uuid,
+            ]);
         $invoice = new InvoiceFactory()
             ->for($customer)
             ->for($product)
@@ -85,7 +87,9 @@ class InvoiceRepositoryReadsTest extends IntegrationTestCase
     public function findPrepaidPaymentReturnsPaymentWhenInvoiceIsSetToPaidAndHasOrderLinePayment(): void
     {
         $customer = new CustomerFactory()->createOne();
-        $productGroup = new ProductGroupFactory()->hosting()->createOne(['uuid' => 'test']);
+        $productGroup = new ProductGroupFactory()
+            ->hosting()
+            ->createOne(['uuid' => 'test']);
         $product = new ProductFactory()->for($productGroup)->createOne();
         $subscription = new SubscriptionFactory()->for($customer)->createOne([
             'product_uuid' => $product->uuid,
@@ -115,9 +119,7 @@ class InvoiceRepositoryReadsTest extends IntegrationTestCase
     {
         CarbonImmutable::setTestNow($now = CarbonImmutable::now());
 
-        $product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension())
-            ->createOne();
+        $product = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne();
         $subscription = new SubscriptionFactory()
             ->withCustomer()
             ->for($product)
@@ -184,7 +186,10 @@ class InvoiceRepositoryReadsTest extends IntegrationTestCase
                 'parent_invoice_id' => $invoice3->id,
             ]);
 
-        $invoiceLines = $this->invoiceRepository->getNonCreditInvoiceLinesForSubscriptionAndEndDate($subscription, $endDate);
+        $invoiceLines = $this->invoiceRepository->getNonCreditInvoiceLinesForSubscriptionAndEndDate(
+            $subscription,
+            $endDate,
+        );
 
         self::assertCount(3, $invoiceLines);
 
@@ -194,7 +199,7 @@ class InvoiceRepositoryReadsTest extends IntegrationTestCase
                 $invoice1Voucher->id,
                 $invoice3->id,
             ],
-            $invoiceLines->pluck('id')->toArray()
+            $invoiceLines->pluck('id')->toArray(),
         );
     }
 
@@ -217,7 +222,9 @@ class InvoiceRepositoryReadsTest extends IntegrationTestCase
 
         $translator = self::resolve(TranslatorInterface::class);
 
-        $appendable = $subscription->domain !== null ? $translator->translate('invoice.description.for') . " {$subscription->domain}" : '';
+        $appendable = $subscription->domain !== null
+            ? $translator->translate('invoice.description.for') . " {$subscription->domain}"
+            : '';
         $description = sprintf(
             '%s (%s) %s',
             $subscription->product->name,
@@ -234,7 +241,7 @@ class InvoiceRepositoryReadsTest extends IntegrationTestCase
                 'paid' => 0,
             ]);
 
-        $invoice =  $this->invoiceRepository->getInvoiceLineForDowngradedSubscription($subscription);
+        $invoice = $this->invoiceRepository->getInvoiceLineForDowngradedSubscription($subscription);
         self::assertNotNull($invoice);
         self::assertSame($invoice->description, $description);
     }
@@ -256,7 +263,7 @@ class InvoiceRepositoryReadsTest extends IntegrationTestCase
             ->for($subscription)
             ->createOne(['paid' => true]);
 
-        $invoice =  $this->invoiceRepository->getInvoiceLineForDowngradedSubscription($subscription);
+        $invoice = $this->invoiceRepository->getInvoiceLineForDowngradedSubscription($subscription);
         self::assertNull($invoice);
     }
 
@@ -413,7 +420,7 @@ class InvoiceRepositoryReadsTest extends IntegrationTestCase
                 'sent_to_harbor_at' => null,
             ]);
 
-        $invoice =  $this->invoiceRepository->getLatestPaidInvoiceLineForDowngradedSubscription($subscription);
+        $invoice = $this->invoiceRepository->getLatestPaidInvoiceLineForDowngradedSubscription($subscription);
         self::assertNotNull($invoice);
         self::assertNotNull($invoice->sent_to_harbor_at);
         self::assertTrue($invoice->paid);

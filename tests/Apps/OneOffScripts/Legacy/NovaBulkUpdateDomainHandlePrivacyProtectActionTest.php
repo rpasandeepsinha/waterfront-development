@@ -142,8 +142,8 @@ class NovaBulkUpdateDomainHandlePrivacyProtectActionTest extends IntegrationTest
 
         return new ActionFields(
             new Collection([
-                'dry-run'    => $dryRun,
-                'limit'      => $limit,
+                'dry-run' => $dryRun,
+                'limit' => $limit,
                 'csv_upload' => UploadedFile::fake()->createWithContent($filename, $csv),
             ]),
             new Collection(),

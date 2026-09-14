@@ -58,19 +58,19 @@ class HubspotEventRepository
         // Resulting in deleting all the oldest records
 
         $sql = <<<SQL
-delete from hubspot_events
-using (
-	select
-		id,
-		row_number () over (
-			partition by customer_id, event, status
-			order by created_at desc
-		) as "row_number"
-	from hubspot_events he
-) sub
-where sub.id = hubspot_events.id
-	and sub."row_number" > :retention
-SQL;
+        delete from hubspot_events
+        using (
+        	select
+        		id,
+        		row_number () over (
+        			partition by customer_id, event, status
+        			order by created_at desc
+        		) as "row_number"
+        	from hubspot_events he
+        ) sub
+        where sub.id = hubspot_events.id
+        	and sub."row_number" > :retention
+        SQL;
         DB::statement($sql, ['retention' => $retention]);
     }
 }

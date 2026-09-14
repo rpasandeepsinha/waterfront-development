@@ -18,7 +18,7 @@ class FerryServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/ferry.php',
-            'ferry'
+            'ferry',
         );
     }
 

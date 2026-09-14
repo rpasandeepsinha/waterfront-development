@@ -7,7 +7,7 @@ namespace Waterfront\Apps\API\Compass\Resources\Enum;
 enum SearchType: string
 {
     case CUSTOMER = 'customer';
-    case SUBSCRIPTION  = 'subscription';
-    case DOMAIN      = 'domain';
+    case SUBSCRIPTION = 'subscription';
+    case DOMAIN = 'domain';
     case PRODUCT = 'product';
 }

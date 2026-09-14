@@ -45,16 +45,16 @@ class MailForwardsCreateTest extends IntegrationTestCase
         $this->domain = 'example.com';
         $this->customer = CustomerFactory::new()->createOne();
 
-        $this->server = ServerFactory::new()
-            ->createOne([
-                'type' => ServerType::DIRECTADMIN_MAIL,
-            ]);
+        $this->server = ServerFactory::new()->createOne([
+            'type' => ServerType::DIRECTADMIN_MAIL,
+        ]);
 
-        $product = ProductFactory::new()
-            ->emailStart()
-            ->createOne();
+        $product = ProductFactory::new()->emailStart()->createOne();
 
-        new ProductSpecFactory()->for($product)->createOne(['name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value, 'value' => '1']);
+        new ProductSpecFactory()->for($product)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '1',
+        ]);
 
         $subscription = SubscriptionFactory::new()
             ->for($product)
@@ -62,11 +62,10 @@ class MailForwardsCreateTest extends IntegrationTestCase
             ->forDomain($this->domain)
             ->createOne();
 
-        $mailProvider = ProviderFactory::new()
-            ->createOne([
-                'type' => ProviderType::MAILONLY,
-                'slug' => ProviderSlug::DIRECTADMIN,
-            ]);
+        $mailProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::MAILONLY,
+            'slug' => ProviderSlug::DIRECTADMIN,
+        ]);
 
         /** @var HostingDeployment $hostingDeploymentForMail */
         $hostingDeploymentForMail = HostingDeploymentFactory::new()
@@ -98,18 +97,21 @@ class MailForwardsCreateTest extends IntegrationTestCase
             'destination2@mail.test',
         ];
 
-        $this->mailOnlyService->expects(self::once())
+        $this->mailOnlyService
+            ->expects(self::once())
             ->method('createEmailForward')
             ->with($this->hostingDeploymentForMail, $source, $destinations)
             ->willReturn(true);
 
         $this->actingAsCustomer($this->customer)
             ->postJson(
-                $this->generateRoute('partners.mail.create-forward', ['hostingDeployment' => $this->hostingDeploymentForMail->subscription_uuid]),
+                $this->generateRoute('partners.mail.create-forward', [
+                    'hostingDeployment' => $this->hostingDeploymentForMail->subscription_uuid,
+                ]),
                 [
                     'source' => $source,
                     'destinations' => $destinations,
-                ]
+                ],
             )
             ->assertCreated();
     }
@@ -122,18 +124,21 @@ class MailForwardsCreateTest extends IntegrationTestCase
             'also-not-an-email',
         ];
 
-        $this->mailOnlyService->expects(self::never())
+        $this->mailOnlyService
+            ->expects(self::never())
             ->method('createEmailForward')
             ->with($this->hostingDeploymentForMail, $source, $destinations)
             ->willReturn(true);
 
         $this->actingAsCustomer($this->customer)
             ->postJson(
-                $this->generateRoute('partners.mail.create-forward', ['hostingDeployment' => $this->hostingDeploymentForMail->subscription_uuid]),
+                $this->generateRoute('partners.mail.create-forward', [
+                    'hostingDeployment' => $this->hostingDeploymentForMail->subscription_uuid,
+                ]),
                 [
                     'source' => $source,
                     'destinations' => $destinations,
-                ]
+                ],
             )
             ->assertUnprocessable()
             ->assertExactJson([
@@ -157,7 +162,8 @@ class MailForwardsCreateTest extends IntegrationTestCase
             'exception@mail.test',
         ];
 
-        $this->mailOnlyService->expects(self::once())
+        $this->mailOnlyService
+            ->expects(self::once())
             ->method('createEmailForward')
             ->with($this->hostingDeploymentForMail, $source, $destinations)
             ->willThrowException(
@@ -168,17 +174,19 @@ class MailForwardsCreateTest extends IntegrationTestCase
                     [
                         'source' => $source,
                         'destination' => $destinations,
-                    ]
-                )
+                    ],
+                ),
             );
 
         $this->actingAsCustomer($this->customer)
             ->postJson(
-                $this->generateRoute('partners.mail.create-forward', ['hostingDeployment' => $this->hostingDeploymentForMail->subscription_uuid]),
+                $this->generateRoute('partners.mail.create-forward', [
+                    'hostingDeployment' => $this->hostingDeploymentForMail->subscription_uuid,
+                ]),
                 [
                     'source' => $source,
                     'destinations' => $destinations,
-                ]
+                ],
             )
             ->assertInternalServerError()
             ->assertExactJson([

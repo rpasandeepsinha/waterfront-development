@@ -38,8 +38,9 @@ class HandleHostingBulkPayloadJob extends AbstractQueueableJob
     /**
      * @param array<int, array<mixed>> $hostingPayloads
      */
-    public function __construct(private readonly array $hostingPayloads)
-    {
+    public function __construct(
+        private readonly array $hostingPayloads,
+    ) {
         parent::__construct();
     }
 
@@ -79,13 +80,16 @@ class HandleHostingBulkPayloadJob extends AbstractQueueableJob
 
             $migratedCustomer = $customer->migratedCustomers->first();
             if (! $migratedCustomer instanceof MigratedCustomer) {
-                $logger->warning('No migrated customer found for existing customer in ferry hosting bulk migrations proxy job. Was this customer ID part of the migration? Skipping this payload.', [
-                    LoggingContextKeys::QUEUE_JOB_ID => $this->job?->getJobId(),
-                    LoggingContextKeys::CUSTOMER_ID => $waterfrontCustomerId,
-                    LoggingContextKeys::META => [
-                        'array_key' => $key,
+                $logger->warning(
+                    'No migrated customer found for existing customer in ferry hosting bulk migrations proxy job. Was this customer ID part of the migration? Skipping this payload.',
+                    [
+                        LoggingContextKeys::QUEUE_JOB_ID => $this->job?->getJobId(),
+                        LoggingContextKeys::CUSTOMER_ID => $waterfrontCustomerId,
+                        LoggingContextKeys::META => [
+                            'array_key' => $key,
+                        ],
                     ],
-                ]);
+                );
                 continue;
             }
 
@@ -93,14 +97,14 @@ class HandleHostingBulkPayloadJob extends AbstractQueueableJob
                 customer: $customer,
                 migratableSubscriptionRepository: $migratableSubscriptionRepository,
                 subscriptionMigrationValidator: $subscriptionMigrationValidator,
-                responseDto: $responseDto
+                responseDto: $responseDto,
             );
 
             if ($subscriptions->isNotEmpty()) {
                 $hostingMigrationPayloads = $this->getHostingMigrationPayloads(
                     hostingMapper: $hostingMapper,
                     subscriptions: $subscriptions,
-                    validated: $subscriptionRequestPayload
+                    validated: $subscriptionRequestPayload,
                 );
 
                 $executeTechnicalHostingMigrationAction->execute($hostingMigrationPayloads);
@@ -116,16 +120,18 @@ class HandleHostingBulkPayloadJob extends AbstractQueueableJob
                     message: AzureDataFactoryMessage::create(
                         $messageType,
                         [
-                            ...$adfPayloadService->fetchTechnicalMigrationBulkCustomerStatePayload(
-                                customer: $customer,
-                                migratedCustomer: $migratedCustomer,
-                                migrationStep: MigrationStep::NAMESERVER
-                            )->toArray(),
+                            ...$adfPayloadService
+                                ->fetchTechnicalMigrationBulkCustomerStatePayload(
+                                    customer: $customer,
+                                    migratedCustomer: $migratedCustomer,
+                                    migrationStep: MigrationStep::NAMESERVER,
+                                )
+                                ->toArray(),
                             ...$validationPayload,
-                        ]
+                        ],
                     ),
-                    reference: $migratedCustomer->reference_customer_number
-                )
+                    reference: $migratedCustomer->reference_customer_number,
+                ),
             );
         }
 
@@ -149,16 +155,19 @@ class HandleHostingBulkPayloadJob extends AbstractQueueableJob
         Customer $customer,
         MigratableSubscriptionRepository $migratableSubscriptionRepository,
         SubscriptionMigrationValidator $subscriptionMigrationValidator,
-        ResponseDto $responseDto
+        ResponseDto $responseDto,
     ): Collection {
-        return $migratableSubscriptionRepository->getSubscriptionsForHostingMigration($customer)
+        return $migratableSubscriptionRepository
+            ->getSubscriptionsForHostingMigration($customer)
             ->filter(function ($subscription) use ($customer, $subscriptionMigrationValidator, $responseDto) {
                 try {
                     $subscriptionMigrationValidator->validateEligibleForHostingMigration($subscription);
                 } catch (NotEligibleForMigrationException $e) {
                     $responseDto->addFailure($this->makeFailureDto($e, $customer, $subscription));
+
                     return false;
                 }
+
                 return true;
             });
     }
@@ -169,21 +178,29 @@ class HandleHostingBulkPayloadJob extends AbstractQueueableJob
      *
      * @return array<int, HostingMigrationPayload>
      */
-    private function getHostingMigrationPayloads(HostingMapper $hostingMapper, Collection $subscriptions, array $validated): array
-    {
+    private function getHostingMigrationPayloads(
+        HostingMapper $hostingMapper,
+        Collection $subscriptions,
+        array $validated,
+    ): array {
         $technicalPayloads = $hostingMapper->filterEligiblePayloads($subscriptions, $validated);
 
         $hostingMigrationPayloads = [];
         foreach ($technicalPayloads as $mappablePayload) {
-            $hostingMigrationPayloads[] = $hostingMapper
-                ->mapSubscriptionsWithConnectionDetails($subscriptions, $mappablePayload);
+            $hostingMigrationPayloads[] = $hostingMapper->mapSubscriptionsWithConnectionDetails(
+                $subscriptions,
+                $mappablePayload,
+            );
         }
 
         return $hostingMigrationPayloads;
     }
 
-    private function makeFailureDto(NotEligibleForMigrationException $e, Customer $customer, Subscription $subscription): FailureDto
-    {
+    private function makeFailureDto(
+        NotEligibleForMigrationException $e,
+        Customer $customer,
+        Subscription $subscription,
+    ): FailureDto {
         return FailureDto::create(
             sprintf('Hosting migration step not allowed for subscription: %s', $e->getMessage()),
             [
@@ -202,7 +219,13 @@ class HandleHostingBulkPayloadJob extends AbstractQueueableJob
             'Created jobs to migrate hosting for every eligible subscription',
             [
                 Parameter::create('customerId', $customer->id),
-                Parameter::create('subscriptionIds', $subscriptions->map(fn ($s) => $s->id)->sort()->join(',')),
+                Parameter::create(
+                    'subscriptionIds',
+                    $subscriptions
+                        ->map(fn ($s) => $s->id)
+                        ->sort()
+                        ->join(','),
+                ),
             ],
         );
     }
@@ -218,8 +241,8 @@ class HandleHostingBulkPayloadJob extends AbstractQueueableJob
             throw new UnexpectedValueException(
                 sprintf(
                     'Value for %s needs to be a number',
-                    $key
-                )
+                    $key,
+                ),
             );
         }
 

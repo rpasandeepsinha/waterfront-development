@@ -47,8 +47,10 @@ class FerryInternalNameserverController
     }
 
     #[RequirePermission(Permissions::CAN_CONFIGURE_MIGRATIONS)]
-    public function update(UpdateInternalNameserverRequest $request, FerryInternalNameserver $ferryInternalNameserver): JsonResponse
-    {
+    public function update(
+        UpdateInternalNameserverRequest $request,
+        FerryInternalNameserver $ferryInternalNameserver,
+    ): JsonResponse {
         $this->internalNameserverRepository->updateHostname(
             $ferryInternalNameserver,
             $request->nameserver_hostname,

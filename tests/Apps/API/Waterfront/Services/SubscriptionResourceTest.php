@@ -47,9 +47,19 @@ class SubscriptionResourceTest extends IntegrationTestCase
         $this->customer = $this->extensionSubscription->customer;
 
         $nextInvoicePriceMock = self::createStub(GetNextInvoicePriceAction::class);
-        $nextInvoicePriceMock->method('execute')->willReturn(
-            new NextInvoicePriceDTO($this->extensionSubscription->product, 0, 0, 0, null, CarbonImmutable::now(), CarbonImmutable::now())
-        );
+        $nextInvoicePriceMock
+            ->method('execute')
+            ->willReturn(
+                new NextInvoicePriceDTO(
+                    $this->extensionSubscription->product,
+                    0,
+                    0,
+                    0,
+                    null,
+                    CarbonImmutable::now(),
+                    CarbonImmutable::now(),
+                ),
+            );
 
         $this->app->bind(GetNextInvoicePriceAction::class, fn () => $nextInvoicePriceMock);
     }
@@ -59,7 +69,9 @@ class SubscriptionResourceTest extends IntegrationTestCase
     {
         DomainSubscriptionDataProvider::deployment($this->extensionSubscription);
         $resource = SubscriptionResource::make($this->extensionSubscription);
-        $request = Request::create($this->generateRoute('partners.subscriptions.show', ['subscription' => $this->extensionSubscription]));
+        $request = Request::create($this->generateRoute('partners.subscriptions.show', [
+            'subscription' => $this->extensionSubscription,
+        ]));
 
         $data = $resource->toArray($request);
         self::assertArrayHasKey('id', $data);
@@ -114,9 +126,7 @@ class SubscriptionResourceTest extends IntegrationTestCase
     public function subscriptionResourcePlaceholderWithZone(): void
     {
         $mockDnsService = $this->mock(DnsService::class);
-        $mockDnsService->expects('hasDnsZone')
-            ->with($this->extensionSubscription->domain)
-            ->andReturns(true);
+        $mockDnsService->expects('hasDnsZone')->with($this->extensionSubscription->domain)->andReturns(true);
 
         $this->app->bind(DnsService::class, fn () => $mockDnsService);
 
@@ -129,7 +139,7 @@ class SubscriptionResourceTest extends IntegrationTestCase
 
         $resource = SubscriptionResource::make($this->extensionSubscription);
         $request = Request::create(
-            $this->generateRoute('partners.subscriptions.show', ['subscription' => $this->extensionSubscription])
+            $this->generateRoute('partners.subscriptions.show', ['subscription' => $this->extensionSubscription]),
         );
         $data = $resource->toArray($request);
 
@@ -141,22 +151,20 @@ class SubscriptionResourceTest extends IntegrationTestCase
     public function subscriptionResourcePlaceholderWithoutZone(): void
     {
         $mockDnsService = $this->mock(DnsService::class);
-        $mockDnsService->expects('hasDnsZone')
-            ->with($this->extensionSubscription->domain)
-            ->andReturns(false);
+        $mockDnsService->expects('hasDnsZone')->with($this->extensionSubscription->domain)->andReturns(false);
 
         $this->app->bind(DnsService::class, fn () => $mockDnsService);
 
         new DomainDeploymentFactory()
-        ->withPlaceholderProvider()
-        ->for($this->extensionSubscription, 'subscription')
-        ->createOne();
+            ->withPlaceholderProvider()
+            ->for($this->extensionSubscription, 'subscription')
+            ->createOne();
 
         $this->extensionSubscription->fresh();
 
         $resource = SubscriptionResource::make($this->extensionSubscription);
         $request = Request::create(
-            $this->generateRoute('partners.subscriptions.show', ['subscription' => $this->extensionSubscription])
+            $this->generateRoute('partners.subscriptions.show', ['subscription' => $this->extensionSubscription]),
         );
         $data = $resource->toArray($request);
 
@@ -174,7 +182,7 @@ class SubscriptionResourceTest extends IntegrationTestCase
 
         $resource = SubscriptionResource::make($this->extensionSubscription);
         $request = Request::create(
-            $this->generateRoute('partners.subscriptions.show', ['subscription' => $this->extensionSubscription])
+            $this->generateRoute('partners.subscriptions.show', ['subscription' => $this->extensionSubscription]),
         );
         $data = $resource->toArray($request);
 
@@ -187,7 +195,7 @@ class SubscriptionResourceTest extends IntegrationTestCase
     public function subscriptionResourceActiveStatus(
         string $adminstrativeStatus,
         string $technicalStatus,
-        string $expected
+        string $expected,
     ): void {
         $productGroup = new ProductGroupFactory()->manualSubscription()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
@@ -200,7 +208,9 @@ class SubscriptionResourceTest extends IntegrationTestCase
             ->createOne();
 
         $resource = SubscriptionResource::make($subscription);
-        $request = Request::create($this->generateRoute('partners.subscriptions.show', ['subscription' => $subscription]));
+        $request = Request::create($this->generateRoute('partners.subscriptions.show', [
+            'subscription' => $subscription,
+        ]));
 
         $data = $resource->toArray($request);
 
@@ -214,7 +224,9 @@ class SubscriptionResourceTest extends IntegrationTestCase
         $techSubscription = HostingSubscriptionDataProvider::technicalSubscription($subscription);
 
         $resource = SubscriptionResource::make($subscription);
-        $request = Request::create($this->generateRoute('partners.subscriptions.show', ['subscription' => $subscription]));
+        $request = Request::create($this->generateRoute('partners.subscriptions.show', [
+            'subscription' => $subscription,
+        ]));
 
         $data = $resource->toArray($request);
 
@@ -247,7 +259,7 @@ class SubscriptionResourceTest extends IntegrationTestCase
 
         $resource = SubscriptionResource::make($addonSubscription);
         $request = Request::create(
-            $this->generateRoute('partners.subscriptions.show', ['subscription' => $addonSubscription])
+            $this->generateRoute('partners.subscriptions.show', ['subscription' => $addonSubscription]),
         );
 
         $data = $resource->toArray($request);
@@ -283,7 +295,7 @@ class SubscriptionResourceTest extends IntegrationTestCase
 
         $resource = SubscriptionResource::make($parentHostingSubscription);
         $request = Request::create(
-            $this->generateRoute('partners.subscriptions.show', ['subscription' => $parentHostingSubscription])
+            $this->generateRoute('partners.subscriptions.show', ['subscription' => $parentHostingSubscription]),
         );
 
         $data = $resource->toArray($request);
@@ -327,7 +339,7 @@ class SubscriptionResourceTest extends IntegrationTestCase
 
         $resource = SubscriptionResource::make($parentHostingSubscription);
         $request = Request::create(
-            $this->generateRoute('partners.subscriptions.show', ['subscription' => $parentHostingSubscription])
+            $this->generateRoute('partners.subscriptions.show', ['subscription' => $parentHostingSubscription]),
         );
 
         $data = $resource->toArray($request);
@@ -350,7 +362,9 @@ class SubscriptionResourceTest extends IntegrationTestCase
     {
         DomainSubscriptionDataProvider::deployment($this->extensionSubscription);
         $resource = SubscriptionResource::make($this->extensionSubscription);
-        $request = Request::create($this->generateRoute('partners.subscriptions.show', ['subscription' => $this->extensionSubscription]));
+        $request = Request::create($this->generateRoute('partners.subscriptions.show', [
+            'subscription' => $this->extensionSubscription,
+        ]));
 
         $data = $resource->toArray($request);
 
@@ -359,7 +373,10 @@ class SubscriptionResourceTest extends IntegrationTestCase
 
         self::assertArrayHasKey('service_provider', $data);
 
-        self::assertSame($data['service_provider'], $this->extensionSubscription->domainDeployment?->provider->slug->value);
+        self::assertSame(
+            $data['service_provider'],
+            $this->extensionSubscription->domainDeployment?->provider->slug->value,
+        );
     }
 
     #[Test]
@@ -367,7 +384,12 @@ class SubscriptionResourceTest extends IntegrationTestCase
     {
         $productGroup = new ProductGroupFactory()->ssl()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
-        $provider = ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        $provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $subscription = new SubscriptionFactory()
             ->for($this->customer)
@@ -376,11 +398,13 @@ class SubscriptionResourceTest extends IntegrationTestCase
 
         new SslDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
-            'provider_id'       => $provider->id,
+            'provider_id' => $provider->id,
         ]);
 
         $resource = SubscriptionResource::make($subscription);
-        $request = Request::create($this->generateRoute('partners.subscriptions.show', ['subscription' => $subscription]));
+        $request = Request::create($this->generateRoute('partners.subscriptions.show', [
+            'subscription' => $subscription,
+        ]));
 
         $data = $resource->toArray($request);
 

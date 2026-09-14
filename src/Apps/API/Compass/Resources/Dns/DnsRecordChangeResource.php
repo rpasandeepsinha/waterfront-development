@@ -34,7 +34,7 @@ class DnsRecordChangeResource extends Resource
             'record_type' => $this->resource->record_type->value,
             'change_type' => $this->resource->change_type->value,
             'agent_type' => $translator->translate(
-                sprintf('dns.agent_type.%s', $this->resource->agent_type->value)
+                sprintf('dns.agent_type.%s', $this->resource->agent_type->value),
             ),
             'content' => $this->resource->content,
             'ttl' => $this->resource->ttl,
@@ -60,11 +60,15 @@ class DnsRecordChangeResource extends Resource
         }
 
         if ($dnsRecordChange->changed_by_metadata !== null) {
-            $changedBy = [...$changedBy, 'changed_by_metadata' => json_decode($dnsRecordChange->changed_by_metadata, true)];
+            $changedBy = [
+                ...$changedBy,
+                'changed_by_metadata' => json_decode($dnsRecordChange->changed_by_metadata, true),
+            ];
             if (
-                is_array($changedBy['changed_by_metadata']) &&
-                array_key_exists('email', $changedBy['changed_by_metadata']) &&
-                $changedBy['changed_by_metadata']['email'] !== null) {
+                is_array($changedBy['changed_by_metadata'])
+                && array_key_exists('email', $changedBy['changed_by_metadata'])
+                && $changedBy['changed_by_metadata']['email'] !== null
+            ) {
                 $email = '(' . $changedBy['changed_by_metadata']['email'] . ')';
             }
         }
@@ -76,7 +80,7 @@ class DnsRecordChangeResource extends Resource
                 'email' => $email,
                 'change-type' => $translator->translate('dns.change_type.' . $this->resource->change_type->value),
                 'record-type' => $this->resource->record_type->value,
-            ]
+            ],
         );
     }
 }

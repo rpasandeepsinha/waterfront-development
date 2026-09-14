@@ -37,7 +37,7 @@ class HostingDowngradePossibilityCheckerTest extends TestCase
             mysql: '2',
             bandwidth: '1024',
             quota: '1024',
-            package: 'pakketHaalbareKaart'
+            package: 'pakketHaalbareKaart',
         );
 
         $stubHostingDeploymentRepository = self::createStub(HostingDeploymentRepository::class);
@@ -56,7 +56,9 @@ class HostingDowngradePossibilityCheckerTest extends TestCase
         $stubHostingService->method('getUserStats')->willReturn($userStats);
 
         $subSubscriptionRepository = self::createStub(SubscriptionRepository::class);
-        $subSubscriptionRepository->method('getSubscriptionByHostingDeployment')->willReturn(self::createStub(Subscription::class));
+        $subSubscriptionRepository
+            ->method('getSubscriptionByHostingDeployment')
+            ->willReturn(self::createStub(Subscription::class));
 
         $checker = new HostingDowngradePossibilityChecker(
             $stubHostingServiceFactory,
@@ -74,7 +76,7 @@ class HostingDowngradePossibilityCheckerTest extends TestCase
             $checker->canDowngradeToServicePlan(
                 $hostingDeployment,
                 $servicePlan,
-            )->isSuccessful
+            )->isSuccessful,
         );
     }
 
@@ -91,7 +93,7 @@ class HostingDowngradePossibilityCheckerTest extends TestCase
                 mailAutoResponders: 0,
                 redirects: 0,
                 databases: 0,
-                traffic: 0
+                traffic: 0,
             ),
             true,
         ];
@@ -106,7 +108,7 @@ class HostingDowngradePossibilityCheckerTest extends TestCase
                 mailAutoResponders: 0,
                 redirects: 0,
                 databases: 0,
-                traffic: 0
+                traffic: 0,
             ),
             false,
         ];
@@ -121,7 +123,7 @@ class HostingDowngradePossibilityCheckerTest extends TestCase
                 mailAutoResponders: 0,
                 redirects: 0,
                 databases: 0,
-                traffic: 0
+                traffic: 0,
             ),
             false,
         ];
@@ -136,7 +138,7 @@ class HostingDowngradePossibilityCheckerTest extends TestCase
                 mailAutoResponders: 0,
                 redirects: 0,
                 databases: 0,
-                traffic: 0
+                traffic: 0,
             ),
             false,
         ];
@@ -151,7 +153,7 @@ class HostingDowngradePossibilityCheckerTest extends TestCase
                 mailAutoResponders: 0,
                 redirects: 0,
                 databases: 3,
-                traffic: 0
+                traffic: 0,
             ),
             false,
         ];

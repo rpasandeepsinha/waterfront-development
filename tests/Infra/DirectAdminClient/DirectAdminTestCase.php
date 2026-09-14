@@ -50,10 +50,7 @@ abstract class DirectAdminTestCase extends TestCase
         $api = new DirectAdminApi($this->getTestServer(), $client);
 
         $cmd = new ManageUserPackages();
-        $cmd
-            ->setPackagename($name)
-            ->setBandwidth('1337')
-            ->setDnscontrol('OFF');
+        $cmd->setPackagename($name)->setBandwidth('1337')->setDnscontrol('OFF');
 
         $api->call($cmd);
     }
@@ -76,12 +73,7 @@ abstract class DirectAdminTestCase extends TestCase
         $api = new DirectAdminApi($this->getTestServer(), $client);
 
         $cmd = new ManageResellerPackages();
-        $cmd
-            ->setPackagename($name)
-            ->setBandwidth('1337')
-            ->setDnscontrol('OFF')
-            ->setUinode('ON')
-            ->setLoginKeys('OFF');
+        $cmd->setPackagename($name)->setBandwidth('1337')->setDnscontrol('OFF')->setUinode('ON')->setLoginKeys('OFF');
 
         $api->call($cmd);
     }
@@ -154,7 +146,7 @@ abstract class DirectAdminTestCase extends TestCase
         $resellerList = $api->call($resellersCmd);
 
         if (! in_array($name, $resellerList->getResellerList(), true)) {
-            $testUser =  new CreateReseller()
+            $testUser = new CreateReseller()
                 ->setDomain($name . '-domain.nl')
                 ->setEmail($name . '@user.nl')
                 ->setPasswd('secret')

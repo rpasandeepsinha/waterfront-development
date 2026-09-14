@@ -11,7 +11,8 @@ class MarkMigratedCustomersAdministrativeSuccessfulAction
     public function execute(Customer $customer): void
     {
         // We're assuming that if you want to enable invoicing it is also administratively successful
-        $customer->migratedCustomers()
+        $customer
+            ->migratedCustomers()
             ->where('administrative_successful', false)
             ->update(['administrative_successful' => true]);
     }

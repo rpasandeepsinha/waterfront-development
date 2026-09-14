@@ -51,20 +51,26 @@ class DnsDowngradeOnTerminationTest extends IntegrationTestCase
         $freeDnsProduct = new ProductFactory()
             ->freeDns($dnsProductGroup)
             ->createOne();
-        new ProductPriceComponentFactory()->for($freeDnsProduct)->prolongation()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 0,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($freeDnsProduct)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 0,
+            ]);
 
         $premiumDnsProduct = new ProductFactory()
             ->premiumDns($dnsProductGroup)
             ->createOne();
-        new ProductPriceComponentFactory()->for($premiumDnsProduct)->registration()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 2388,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($premiumDnsProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 2388,
+            ]);
         new ProductSpecFactory()
             ->for($premiumDnsProduct)
             ->for($premiumDnsProduct)
@@ -73,9 +79,7 @@ class DnsDowngradeOnTerminationTest extends IntegrationTestCase
                 'value' => $freeDnsProduct->slug,
             ]);
 
-        $nlDomain = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
+        $nlDomain = new ProductFactory()->nlDomain()->createOne();
 
         $parentDomainSubscription = new SubscriptionFactory()
             ->forDomain(self::DOMAIN)
@@ -92,7 +96,7 @@ class DnsDowngradeOnTerminationTest extends IntegrationTestCase
             ->technicalStatusOk()
             ->for($customer)
             ->for($premiumDnsProduct)
-            ->has((new DnsDeploymentFactory()))
+            ->has(new DnsDeploymentFactory())
             ->createOne([
                 'parent_subscription_id' => $parentDomainSubscription->id,
                 'start_date' => CarbonImmutable::now()->subYear(),
@@ -103,7 +107,7 @@ class DnsDowngradeOnTerminationTest extends IntegrationTestCase
 
         ProductAllowedChangeFactory::new()->downgradeChange()->create([
             'from_product_id' => $premiumDnsProduct->id,
-            'to_product_id' =>  $freeDnsProduct->id,
+            'to_product_id' => $freeDnsProduct->id,
         ]);
 
         $mockPdns = self::mock(PowerDnsClient::class);
@@ -111,62 +115,41 @@ class DnsDowngradeOnTerminationTest extends IntegrationTestCase
 
         $dnsZone = new DnsZone(new Fqdn(self::DOMAIN));
 
-        $mockPdns->shouldReceive('getZone')
-            ->with(self::DOMAIN)
-            ->andReturn($dnsZone);
+        $mockPdns->shouldReceive('getZone')->with(self::DOMAIN)->andReturn($dnsZone);
 
-        $mockPdns->shouldReceive('deleteMetadata')
-            ->with(self::DOMAIN, PowerDnsMetadataType::ALLOW_AXFR_FROM);
+        $mockPdns->shouldReceive('deleteMetadata')->with(self::DOMAIN, PowerDnsMetadataType::ALLOW_AXFR_FROM);
 
-        $mockPdns->shouldReceive('deleteMetadata')
-            ->with(self::DOMAIN, PowerDnsMetadataType::ALSO_NOTIFY);
+        $mockPdns->shouldReceive('deleteMetadata')->with(self::DOMAIN, PowerDnsMetadataType::ALSO_NOTIFY);
 
-        $mockPdns->shouldReceive('deleteMetadata')
-            ->with(self::DOMAIN, PowerDnsMetadataType::SOA_EDIT);
+        $mockPdns->shouldReceive('deleteMetadata')->with(self::DOMAIN, PowerDnsMetadataType::SOA_EDIT);
 
-        $mockPdns->shouldReceive('updateLiveDns')
-            ->with(self::DOMAIN, false);
+        $mockPdns->shouldReceive('updateLiveDns')->with(self::DOMAIN, false);
 
-        $mockPdns->shouldReceive('changeZone')
-            ->andReturn($dnsZone);
+        $mockPdns->shouldReceive('changeZone')->andReturn($dnsZone);
 
         $mockGandiClient = self::mock(GandiClient::class);
         $this->app->bind(GandiClient::class, fn () => $mockGandiClient);
 
-        $mockGandiClient->shouldReceive('deleteDomain')
-            ->with(self::DOMAIN);
+        $mockGandiClient->shouldReceive('deleteDomain')->with(self::DOMAIN);
 
         $rtrMock = $this->createMock(RtrService::class);
 
         $this->app->bind(RtrService::class, fn () => $rtrMock);
 
-        $rtrMock->expects(self::exactly(1))
-            ->method('modify')
-            ->willReturn(true);
+        $rtrMock->expects(self::exactly(1))->method('modify')->willReturn(true);
 
-        $rtrMock
-            ->expects(self::exactly(2))
-            ->method('fetchDomain')
-            ->with(self::DOMAIN)
-            ->willReturn($domainDetails);
+        $rtrMock->expects(self::exactly(2))->method('fetchDomain')->with(self::DOMAIN)->willReturn($domainDetails);
 
-        $rtrMock
-            ->method('getPrimaryDomainStatusFromDomainStatusList')
-            ->willReturn(RtrDomainStatus::OK);
+        $rtrMock->method('getPrimaryDomainStatusFromDomainStatusList')->willReturn(RtrDomainStatus::OK);
 
-        $rtrMock
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrMock->method('setHandle')->willReturnSelf();
 
-        $rtrMock
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrMock->method('setClient')->willReturnSelf();
 
         $mockPdnsSync = self::mock(PowerDnsNameserverSynchronizer::class);
         $this->app->bind(PowerDnsNameserverSynchronizer::class, fn () => $mockPdnsSync);
 
-        $mockPdnsSync->shouldReceive('synchronize')
-                    ->with(self::DOMAIN, self::anything(), false);
+        $mockPdnsSync->shouldReceive('synchronize')->with(self::DOMAIN, self::anything(), false);
 
         $terminateCommand = self::artisan('subscriptions:terminate');
         $terminateCommand->execute();

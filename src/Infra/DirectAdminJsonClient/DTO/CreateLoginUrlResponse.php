@@ -18,7 +18,7 @@ class CreateLoginUrlResponse
         public DateTimeImmutable $expires,
         public string $id,
         public ?string $redirectURL,
-        public string $url
+        public string $url,
     ) {
     }
 }

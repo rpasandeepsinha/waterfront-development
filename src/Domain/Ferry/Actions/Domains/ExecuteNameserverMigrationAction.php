@@ -29,8 +29,8 @@ class ExecuteNameserverMigrationAction
             $this->jobDispatcher->dispatch(
                 new NameserverMigrationJob(
                     subscription: $subscription,
-                    failedTechnicalStatus: DomainStatus::FAILED->value
-                )
+                    failedTechnicalStatus: DomainStatus::FAILED->value,
+                ),
             );
         }
     }

@@ -11,8 +11,9 @@ use Waterfront\Infra\Translation\TranslatorInterface;
 
 class NovaTranslationStatusFilter extends BooleanFilter
 {
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     public function name(): string
@@ -35,7 +36,7 @@ class NovaTranslationStatusFilter extends BooleanFilter
     public function options(NovaRequest $request): array
     {
         return [
-           $this->translator->translate('nova-filter.translation_statuses.untranslated') => 'translation_status',
+            $this->translator->translate('nova-filter.translation_statuses.untranslated') => 'translation_status',
         ];
     }
 }

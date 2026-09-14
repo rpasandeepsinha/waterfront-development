@@ -31,10 +31,9 @@ class DomainProviderControllerTest extends IntegrationTestCase
         $customer = CustomerFactory::new()->createOne();
         $product = ProductFactory::new()->nlDomain()->createOne();
 
-        $this->subscription = SubscriptionFactory::new()
-            ->for($customer)
-            ->for($product)
-            ->createOne(['domain' => self::DOMAIN]);
+        $this->subscription = SubscriptionFactory::new()->for($customer)->for($product)->createOne([
+            'domain' => self::DOMAIN,
+        ]);
     }
 
     #[Test]
@@ -43,14 +42,14 @@ class DomainProviderControllerTest extends IntegrationTestCase
         $oldProvider = ProviderFactory::new()->domainOpenProvider()->createOne();
         $newProvider = ProviderFactory::new()->domainRtr()->createOne();
 
-        DomainDeploymentFactory::new()
-            ->for($oldProvider)
-            ->createOne(['subscription_uuid' => $this->subscription->uuid]);
+        DomainDeploymentFactory::new()->for($oldProvider)->createOne([
+            'subscription_uuid' => $this->subscription->uuid,
+        ]);
 
         $this->actingAsEmployee()
             ->patchJson(
                 $this->generateRoute('admin.domain.provider.update', ['domain' => self::DOMAIN]),
-                ['provider' => ProviderSlug::REALTIME_REGISTER->value]
+                ['provider' => ProviderSlug::REALTIME_REGISTER->value],
             )
             ->assertNoContent();
 
@@ -67,7 +66,7 @@ class DomainProviderControllerTest extends IntegrationTestCase
         $this->actingAsEmployee()
             ->patchJson(
                 $this->generateRoute('admin.domain.provider.update', ['domain' => 'non-existent-domain.nl']),
-                ['provider' => ProviderSlug::REALTIME_REGISTER->value]
+                ['provider' => ProviderSlug::REALTIME_REGISTER->value],
             )
             ->assertNotFound()
             ->assertJsonStructure(['message']);
@@ -81,7 +80,7 @@ class DomainProviderControllerTest extends IntegrationTestCase
         $this->actingAsEmployee()
             ->patchJson(
                 $this->generateRoute('admin.domain.provider.update', ['domain' => self::DOMAIN]),
-                ['provider' => ProviderSlug::REALTIME_REGISTER->value]
+                ['provider' => ProviderSlug::REALTIME_REGISTER->value],
             )
             ->assertNotFound()
             ->assertJsonStructure(['message']);
@@ -90,14 +89,14 @@ class DomainProviderControllerTest extends IntegrationTestCase
     #[Test]
     public function updateReturnsUnprocessableEntityForInvalidProviderSlug(): void
     {
-        DomainDeploymentFactory::new()
-            ->withOpenProvider()
-            ->createOne(['subscription_uuid' => $this->subscription->uuid]);
+        DomainDeploymentFactory::new()->withOpenProvider()->createOne([
+            'subscription_uuid' => $this->subscription->uuid,
+        ]);
 
         $this->actingAsEmployee()
             ->patchJson(
                 $this->generateRoute('admin.domain.provider.update', ['domain' => self::DOMAIN]),
-                ['provider' => 'non_existent_provider']
+                ['provider' => 'non_existent_provider'],
             )
             ->assertUnprocessable()
             ->assertJsonStructure(['message']);
@@ -113,14 +112,14 @@ class DomainProviderControllerTest extends IntegrationTestCase
             'default' => false,
         ]);
 
-        DomainDeploymentFactory::new()
-            ->withOpenProvider()
-            ->createOne(['subscription_uuid' => $this->subscription->uuid]);
+        DomainDeploymentFactory::new()->withOpenProvider()->createOne([
+            'subscription_uuid' => $this->subscription->uuid,
+        ]);
 
         $this->actingAsEmployee()
             ->patchJson(
                 $this->generateRoute('admin.domain.provider.update', ['domain' => self::DOMAIN]),
-                ['provider' => ProviderSlug::REALTIME_REGISTER->value]
+                ['provider' => ProviderSlug::REALTIME_REGISTER->value],
             )
             ->assertUnprocessable()
             ->assertJsonStructure(['message']);
@@ -131,14 +130,14 @@ class DomainProviderControllerTest extends IntegrationTestCase
     {
         ProviderFactory::new()->sslRtr()->createOne();
 
-        DomainDeploymentFactory::new()
-            ->withOpenProvider()
-            ->createOne(['subscription_uuid' => $this->subscription->uuid]);
+        DomainDeploymentFactory::new()->withOpenProvider()->createOne([
+            'subscription_uuid' => $this->subscription->uuid,
+        ]);
 
         $this->actingAsEmployee()
             ->patchJson(
                 $this->generateRoute('admin.domain.provider.update', ['domain' => self::DOMAIN]),
-                ['provider' => ProviderSlug::REALTIME_REGISTER->value]
+                ['provider' => ProviderSlug::REALTIME_REGISTER->value],
             )
             ->assertUnprocessable()
             ->assertJsonStructure(['message']);
@@ -150,7 +149,7 @@ class DomainProviderControllerTest extends IntegrationTestCase
         $this->actingAsEmployee()
             ->patchJson(
                 $this->generateRoute('admin.domain.provider.update', ['domain' => self::DOMAIN]),
-                []
+                [],
             )
             ->assertUnprocessable();
     }

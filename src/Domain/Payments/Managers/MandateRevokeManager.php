@@ -35,8 +35,8 @@ class MandateRevokeManager
         $this->logger->debug(
             sprintf(
                 'Attempting to revoke mandate with ID {%d}',
-                $mandate->id
-            )
+                $mandate->id,
+            ),
         );
 
         /*
@@ -63,13 +63,13 @@ class MandateRevokeManager
                 $mandate->id,
                 $mandate->mollie_mandate_reference_id,
                 $mandate->payt_mandate_reference_id,
-            )
+            ),
         );
 
         try {
             $this->mollieMandateClient->revokeMandate(
                 $mandate->mollieCustomer->mollie_customer_reference_id,
-                $mandate->mollie_mandate_reference_id
+                $mandate->mollie_mandate_reference_id,
             );
 
             $this->logger->debug(
@@ -77,7 +77,7 @@ class MandateRevokeManager
                     'Mandate with ID {%d} revoked mandate {%s} at Mollie',
                     $mandate->id,
                     $mandate->mollie_mandate_reference_id,
-                )
+                ),
             );
         } catch (MollieMandateApiException $mollieMandateApiException) {
             if ($mollieMandateApiException->status !== Response::HTTP_GONE) {
@@ -87,16 +87,16 @@ class MandateRevokeManager
             $this->logger->debug(
                 sprintf(
                     'Mandate with ID {%d} is already revoked at Mollie, proceeding',
-                    $mandate->id
-                )
+                    $mandate->id,
+                ),
             );
         }
 
         $this->logger->debug(
             sprintf(
                 'Deleting Mandate with ID {%d} from database',
-                $mandate->id
-            )
+                $mandate->id,
+            ),
         );
 
         $mandate->delete();

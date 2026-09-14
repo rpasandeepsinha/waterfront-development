@@ -31,7 +31,9 @@ class RequireAuthenticatedEmployee
         try {
             $employee = $this->authManager->getAuthenticatedEmployee();
         } catch (AuthenticationException|AuthorizationException $exception) {
-            $this->logger->debug('Checking required employee authentication failed: {exception.message}', [LoggingContextKeys::EXCEPTION => $exception]);
+            $this->logger->debug('Checking required employee authentication failed: {exception.message}', [
+                LoggingContextKeys::EXCEPTION => $exception,
+            ]);
 
             return $this->redirectOrReturnForbidden($request);
         }
@@ -47,8 +49,13 @@ class RequireAuthenticatedEmployee
             return $next($request);
         }
 
-        $secureAuthenticationEnabled = $employee->identitySchema->authenticatedSession->isUsingSecureAuthentication ?? false;
-        $oidcAuthenticated = in_array(AuthenticationMethod::OIDC, $employee->identitySchema->authenticatedSession->availableAuthenticationMethods ?? [], true);
+        $secureAuthenticationEnabled =
+            $employee->identitySchema->authenticatedSession->isUsingSecureAuthentication ?? false;
+        $oidcAuthenticated = in_array(
+            AuthenticationMethod::OIDC,
+            $employee->identitySchema->authenticatedSession->availableAuthenticationMethods ?? [],
+            true,
+        );
 
         if (! $secureAuthenticationEnabled && ! $oidcAuthenticated) {
             $this->logger->debug('Employee is not using secure authentication');
@@ -64,6 +71,7 @@ class RequireAuthenticatedEmployee
         if ($request->headers->contains('accept', 'application/json')) {
             return new Response('Forbidden', 403);
         }
+
         return new RedirectResponse($this->redirectUrl);
     }
 }

@@ -40,14 +40,14 @@ class ResellerHostingDeploymentControllerTest extends IntegrationTestCase
             ->createOne(['domain' => self::DOMAIN]);
 
         $provider = new ProviderFactory()->hostingDirectAdmin()->createOne();
-        $deployment = new ResellerHostingDeploymentFactory()
-            ->for($provider)
-            ->createOne([
-                'subscription_uuid' => $subscription->uuid,
-            ]);
+        $deployment = new ResellerHostingDeploymentFactory()->for($provider)->createOne([
+            'subscription_uuid' => $subscription->uuid,
+        ]);
 
         $response = $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.subscriptions.subscription.reseller-hosting-deployment', ['subscription' => $subscription->id]))
+            ->getJson($this->generateRoute('admin.subscriptions.subscription.reseller-hosting-deployment', [
+                'subscription' => $subscription->id,
+            ]))
             ->assertOk();
 
         $content = $response->json();
@@ -71,7 +71,9 @@ class ResellerHostingDeploymentControllerTest extends IntegrationTestCase
             ->createOne(['domain' => self::DOMAIN]);
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.subscriptions.subscription.reseller-hosting-deployment', ['subscription' => $subscription->id]))
+            ->getJson($this->generateRoute('admin.subscriptions.subscription.reseller-hosting-deployment', [
+                'subscription' => $subscription->id,
+            ]))
             ->assertServerError()
             ->assertExactJson(['message' => 'The deployment could not be found']);
     }

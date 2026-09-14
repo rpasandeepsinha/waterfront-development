@@ -40,13 +40,14 @@ class AdfPayloadServiceTest extends IntegrationTestCase
         $customer = CustomerFactory::new()->createOne();
 
         $subscription = SubscriptionFactory::new()->for($customer)->for(ProductFactory::new()->nlDomain())->createOne();
-        DomainDeploymentFactory::new()
-            ->for(new ProviderFactory()->domainOpenProvider()->createOne())
-            ->createOne(['subscription_uuid' => $subscription->uuid]);
+        DomainDeploymentFactory::new()->for(new ProviderFactory()->domainOpenProvider()->createOne())->createOne([
+            'subscription_uuid' => $subscription->uuid,
+        ]);
 
-        $dnsSubscription = SubscriptionFactory::new()->for($customer)->for(ProductFactory::new()->freeDns())->createOne();
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->createOne(['subscription_uuid' => $dnsSubscription->uuid]);
+        $dnsSubscription = SubscriptionFactory::new()->for($customer)->for(
+            ProductFactory::new()->freeDns(),
+        )->createOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->createOne(['subscription_uuid' => $dnsSubscription->uuid]);
 
         $subscription->children()->save($dnsSubscription);
 
@@ -84,15 +85,14 @@ class AdfPayloadServiceTest extends IntegrationTestCase
         $provider = ProviderFactory::new()->hostingDirectAdmin()->createOne();
         $subscription = SubscriptionFactory::new()->withCustomer()->for(ProductFactory::new()->nlDomain())->createOne();
 
-        $deployment = HostingDeploymentFactory::new()
-            ->createOne(
-                [
-                    'server_id' => $server->id,
-                    'provider_id' => $provider->id,
-                    'subscription_uuid' => $subscription->uuid,
-                    'directadmin_customer_username' => 'test123',
-                ]
-            );
+        $deployment = HostingDeploymentFactory::new()->createOne(
+            [
+                'server_id' => $server->id,
+                'provider_id' => $provider->id,
+                'subscription_uuid' => $subscription->uuid,
+                'directadmin_customer_username' => 'test123',
+            ],
+        );
 
         $migrationSubscription = MigratedSubscriptionsFactory::new()->createOne();
         $subscription->migratedSubscriptions()->attach($migrationSubscription);
@@ -119,10 +119,13 @@ class AdfPayloadServiceTest extends IntegrationTestCase
     #[Test]
     public function nameserverPayloadNoNameservers(): void
     {
-        $subscription = SubscriptionFactory::new()->withCustomer()->for(ProductFactory::new()->nlDomain())->createOne(['domain' => null]);
-        DomainDeploymentFactory::new()
-            ->for(new ProviderFactory()->domainOpenProvider()->createOne())
-            ->createOne(['subscription_uuid' => $subscription->uuid]);
+        $subscription = SubscriptionFactory::new()
+            ->withCustomer()
+            ->for(ProductFactory::new()->nlDomain())
+            ->createOne(['domain' => null]);
+        DomainDeploymentFactory::new()->for(new ProviderFactory()->domainOpenProvider()->createOne())->createOne([
+            'subscription_uuid' => $subscription->uuid,
+        ]);
 
         $migrationSubscription = MigratedSubscriptionsFactory::new()->createOne();
         $subscription->migratedSubscriptions()->attach($migrationSubscription);
@@ -147,10 +150,13 @@ class AdfPayloadServiceTest extends IntegrationTestCase
     #[Test]
     public function nameserverPayloadNoNameserversNoDomain(): void
     {
-        $subscription = SubscriptionFactory::new()->withCustomer()->for(ProductFactory::new()->nlDomain())->createOne(['domain' => null]);
-        DomainDeploymentFactory::new()
-            ->for(new ProviderFactory()->domainOpenProvider()->createOne())
-            ->createOne(['subscription_uuid' => $subscription->uuid]);
+        $subscription = SubscriptionFactory::new()
+            ->withCustomer()
+            ->for(ProductFactory::new()->nlDomain())
+            ->createOne(['domain' => null]);
+        DomainDeploymentFactory::new()->for(new ProviderFactory()->domainOpenProvider()->createOne())->createOne([
+            'subscription_uuid' => $subscription->uuid,
+        ]);
 
         $migrationSubscription = MigratedSubscriptionsFactory::new()->createOne();
         $subscription->migratedSubscriptions()->attach($migrationSubscription);
@@ -226,10 +232,9 @@ class AdfPayloadServiceTest extends IntegrationTestCase
         $provider = ProviderFactory::new()->emailOnlyPlaceholder()->createOne();
         $subscription = SubscriptionFactory::new()->withCustomer()->for(ProductFactory::new()->mailOnly())->createOne();
 
-        HostingDeploymentFactory::new()
-            ->for($subscription)
-            ->for($provider, 'mailProvider')
-            ->createOne(['provider_id' => null]);
+        HostingDeploymentFactory::new()->for($subscription)->for($provider, 'mailProvider')->createOne([
+            'provider_id' => null,
+        ]);
 
         $migrationSubscription = MigratedSubscriptionsFactory::new()->createOne();
         $subscription->migratedSubscriptions()->attach($migrationSubscription);

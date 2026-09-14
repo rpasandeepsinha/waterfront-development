@@ -58,7 +58,10 @@ class OpenproviderClientTest extends IntegrationTestCase
                 'domain' => self::DOMAIN,
             ]);
 
-        new DomainDeploymentFactory()->for($provider)->for($subscription)->createOne();
+        new DomainDeploymentFactory()
+            ->for($provider)
+            ->for($subscription)
+            ->createOne();
 
         $domain = $subscription->domain;
         assert(is_string($domain));
@@ -79,7 +82,7 @@ class OpenproviderClientTest extends IntegrationTestCase
         $mock = new MockHandler([
             new Response(
                 status: 200,
-                body: $xml
+                body: $xml,
             ),
         ]);
         $handlerStack = HandlerStack::create($mock);

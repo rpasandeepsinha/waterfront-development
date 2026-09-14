@@ -10,8 +10,9 @@ use Waterfront\Domain\Provision\Models\ProvisioningResult;
 
 class TagFilter
 {
-    public function __construct(private readonly ?UuidInterface $uuid)
-    {
+    public function __construct(
+        private readonly ?UuidInterface $uuid,
+    ) {
     }
 
     /**

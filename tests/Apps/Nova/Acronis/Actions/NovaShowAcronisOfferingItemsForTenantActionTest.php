@@ -111,9 +111,7 @@ class NovaShowAcronisOfferingItemsForTenantActionTest extends IntegrationTestCas
             ->with($this->provider, $this->tenantUuid)
             ->willThrowException($exception);
 
-        $this->logger
-            ->expects(self::once())
-            ->method('error');
+        $this->logger->expects(self::once())->method('error');
 
         $action = $this->makeAction();
 

@@ -13,7 +13,6 @@ use Tests\Factories\CustomerFactory;
 use Tests\Factories\HostingDeploymentFactory;
 use Tests\Factories\ProductFactory;
 use Tests\Factories\ProductSpecFactory;
-use Tests\Factories\ServerFactory;
 use Tests\Factories\SubscriptionFactory;
 use Tests\Factories\TemplateFactory;
 use Tests\IntegrationTestCase;
@@ -42,12 +41,10 @@ class DirectAdminTest extends IntegrationTestCase
         parent::setUp();
 
         $mailOnlyProduct = ProductFactory::new()->mailOnly()->createOne();
-        new ProductSpecFactory()
-            ->for($mailOnlyProduct)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
-                'value' => '1',
-            ]);
+        new ProductSpecFactory()->for($mailOnlyProduct)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '1',
+        ]);
 
         $subscription = SubscriptionFactory::new()
             ->withCustomer()
@@ -57,11 +54,9 @@ class DirectAdminTest extends IntegrationTestCase
 
         $this->hostingGroup = $subscription->product->productGroup;
 
-        $deployment = HostingDeploymentFactory::new()
-            ->withMailOnlyProvider()
-            ->createOne([
-                'subscription_uuid' => $subscription->uuid,
-            ]);
+        $deployment = HostingDeploymentFactory::new()->withMailOnlyProvider()->createOne([
+            'subscription_uuid' => $subscription->uuid,
+        ]);
 
         self::assertNotNull($deployment->mailOnlyServer);
         $this->server = $deployment->mailOnlyServer;
@@ -108,19 +103,6 @@ class DirectAdminTest extends IntegrationTestCase
         $email = 'john.doe@sandwave.io';
         $ipv4 = '127.0.0.1';
         $ipv6 = '::1';
-
-        $mailProduct = new ProductFactory()->emailStart($this->hostingGroup)->createOne();
-
-        $subscription = new SubscriptionFactory()->withCustomer()->for($mailProduct)->createOne([
-            'domain' => $domain,
-        ]);
-
-        new HostingDeploymentFactory()->createOne([
-            'subscription_uuid' => $subscription->uuid,
-            'provider_id' => null,
-        ]);
-
-        new ServerFactory()->directadmin()->createOne();
 
         $mailOnlyDirectAdminService = self::resolve(MailManagementDirectAdminService::class);
         $result = $mailOnlyDirectAdminService->createDomain($domain, $email);

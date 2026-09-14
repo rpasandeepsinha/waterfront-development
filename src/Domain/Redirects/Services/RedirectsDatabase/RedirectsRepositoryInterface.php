@@ -9,7 +9,7 @@ interface RedirectsRepositoryInterface
     /** @return Redirect[] */
     public function listRedirects(int $customerId, string $domain): array;
 
-    public function findBySourceForMigrations(string $source): RedirectDatabaseRepository|null;
+    public function findBySourceForMigrations(string $source): ?RedirectDatabaseRepository;
 
     public function createRedirect(int $customerId, string $source, string $destination, string $type): Redirect;
 

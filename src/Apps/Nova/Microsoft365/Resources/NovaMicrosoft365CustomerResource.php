@@ -65,32 +65,36 @@ class NovaMicrosoft365CustomerResource extends Resource
         return [
             Text::make(
                 self::translate('microsoft365-customer.tenant-name'),
-                'tenant_name'
-            )->sortable()->rules('required', resolve(OnMicrosoft::class)),
+                'tenant_name',
+            )
+                ->sortable()
+                ->rules('required', resolve(OnMicrosoft::class)),
             Text::make(
                 self::translate('microsoft365-customer.tenant-id'),
-                'tenant_id'
+                'tenant_id',
             )->onlyOnDetail(),
             Text::make(
                 self::translate('microsoft365-customer.tenant-order-id'),
-                'tenant_order_id'
+                'tenant_order_id',
             )->onlyOnDetail(),
             Text::make(
                 self::translate('microsoft365-customer.primary-domain'),
-                'primary_domain'
+                'primary_domain',
             )->onlyOnDetail(),
             Text::make(
                 self::translate('microsoft365-customer.primary-domain-status'),
-                'primary_domain_status'
+                'primary_domain_status',
             )->onlyOnDetail(),
             Text::make(
                 self::translate('microsoft365-customer.kpn-customer-id'),
-                'kpn_customer_id'
-            )->sortable()->rules('required', resolve(KpnCustomerId::class)),
+                'kpn_customer_id',
+            )
+                ->sortable()
+                ->rules('required', resolve(KpnCustomerId::class)),
             BelongsTo::make(
                 self::translate('customer.singular'),
                 'customer',
-                NovaCustomerResource::class
+                NovaCustomerResource::class,
             )->searchable(),
             Select::make(self::translate('microsoft365-customer.status'), 'technical_status')
                 ->options([
@@ -131,22 +135,22 @@ class NovaMicrosoft365CustomerResource extends Resource
             DateTime::make('Last sync date', 'synced_at')->sortable()->rules('required'),
             DateTime::make(
                 self::translate('microsoft365-customer.mca_signed_at'),
-                'mca_signed_at'
+                'mca_signed_at',
             )->showOnIndex(false),
             HasMany::make(
                 self::translate('nova-resource-labels.microsoft365-subscriptions'),
                 'microsoft365Deployments',
-                NovaMicrosoft365DeploymentResource::class
+                NovaMicrosoft365DeploymentResource::class,
             ),
             HasMany::make(
                 self::translate('nova-resource-labels.microsoft365-sync-logs'),
                 'microsoft365SyncLogs',
-                NovaMicrosoft365SyncLogsResource::class
+                NovaMicrosoft365SyncLogsResource::class,
             ),
             HasMany::make(
                 self::translate('nova-resource-labels.microsoft365-logs'),
                 'microsoft365HttpLogs',
-                NovaMicrosoft365LogsResource::class
+                NovaMicrosoft365LogsResource::class,
             ),
         ];
     }
@@ -170,12 +174,16 @@ class NovaMicrosoft365CustomerResource extends Resource
             new HtmlCard()
                 ->width('1/2')
                 ->center()
-                ->html('<h1 class="font-light mb-4">Irma</h1><a href="https://irma.routit.nl" target="_blank" rel="noopener noreferrer" class="btn btn-default btn-primary" role="button">Login</a>'),
+                ->html(
+                    '<h1 class="font-light mb-4">Irma</h1><a href="https://irma.routit.nl" target="_blank" rel="noopener noreferrer" class="btn btn-default btn-primary" role="button">Login</a>',
+                ),
 
             new HtmlCard()
                 ->width('1/2')
                 ->center()
-                ->html('<h1 class="font-light mb-4">Microsoft Portal</h1><a href="https://login.microsoftonline.com/" target="_blank" rel="noopener noreferrer" class="btn btn-default btn-primary" role="button">Login</a>'),
+                ->html(
+                    '<h1 class="font-light mb-4">Microsoft Portal</h1><a href="https://login.microsoftonline.com/" target="_blank" rel="noopener noreferrer" class="btn btn-default btn-primary" role="button">Login</a>',
+                ),
         ];
     }
 

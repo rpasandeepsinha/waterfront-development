@@ -34,10 +34,17 @@ class OrderHostingTest extends IntegrationTestCase
     public function orderHostingWithoutDomainDirectAdmin(): void
     {
         $daUsername = Str::random(10);
-        $daServer = new ServerFactory()->directadmin()->createOne(['hostname' => 'single-server.nl']);
+        $daServer = new ServerFactory()
+            ->directadmin()
+            ->createOne(['hostname' => 'single-server.nl']);
         $expectedDomain = $daUsername . '.com';
 
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $hostingGroup = new ProductGroupFactory()->hosting()->createOne();
 
         $hostingProduct = new ProductFactory()->createOne([
@@ -46,7 +53,9 @@ class OrderHostingTest extends IntegrationTestCase
             'product_group_id' => $hostingGroup->id,
         ]);
 
-        new ProductPriceComponentFactory()->registration()->createOne(['product_id' => $hostingProduct->id]);
+        new ProductPriceComponentFactory()
+            ->registration()
+            ->createOne(['product_id' => $hostingProduct->id]);
 
         new ProductSpecFactory()->createOne(['product_id' => $hostingProduct->id]);
 
@@ -60,35 +69,44 @@ class OrderHostingTest extends IntegrationTestCase
         $this->app->bind(BehavesAsDirectAdmin::class, fn () => $directAdminMock);
         $this->app->bind(DirectadminUsernameBroker::class, fn () => $usernameBroker);
 
-        $usernameBroker->expects(self::once())
-            ->method('generateUsername')
-            ->willReturn($daUsername);
+        $usernameBroker->expects(self::once())->method('generateUsername')->willReturn($daUsername);
 
         $customer = new CustomerFactory()->withAddress()->createOne();
 
         /** @var array<mixed, mixed> $orderData */
-        $orderData = json_decode((string) file_get_contents(__DIR__ . '/data/order_payload_hosting_without_domainname.json'), true, 512, JSON_THROW_ON_ERROR);
+        $orderData = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/order_payload_hosting_without_domainname.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
-        $directAdminMock->expects(self::once())
+        $directAdminMock
+            ->expects(self::once())
             ->method('user')
-            ->with(self::callback(fn (Server $server): bool => $server->name === $daServer->name && $server->id === $daServer->id))
+            ->with(self::callback(
+                fn (Server $server): bool => $server->name === $daServer->name && $server->id === $daServer->id,
+            ))
             ->willReturn($directAdminUserMock);
 
         $createUserCommand = new CreateUser();
         $createUserCommand->setSucceeded(true);
 
-        $directAdminUserMock->expects(self::once())
+        $directAdminUserMock
+            ->expects(self::once())
             ->method('create')
             ->with(self::callback(fn (array $userData): bool => $expectedDomain === $userData['domain']))
             ->willReturn($createUserCommand);
 
-        $response = $this
-            ->actingAsCustomer($customer)
-            ->json('post', $this->generateRoute('partners.order.order'), $orderData);
+        $response = $this->actingAsCustomer($customer)->json(
+            'post',
+            $this->generateRoute('partners.order.order'),
+            $orderData,
+        );
 
         $response->assertOk();
         $response->assertJsonFragment([
-            'status'           => 'ok',
+            'status' => 'ok',
         ]);
     }
 }

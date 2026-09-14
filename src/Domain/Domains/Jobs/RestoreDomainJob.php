@@ -43,7 +43,7 @@ class RestoreDomainJob extends AbstractQueueableJob
 
         if (is_null($subscription->domain)) {
             throw new RestoreDomainException(
-                sprintf('domain not filled for subscription with id %s', $subscription->id)
+                sprintf('domain not filled for subscription with id %s', $subscription->id),
             );
         }
 
@@ -56,20 +56,28 @@ class RestoreDomainJob extends AbstractQueueableJob
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
             $this->updateSubscriptionTechnicalStatus($subscription, TechnicalStatus::FAILED->value);
             $this->storeLastResultOnDeployment($domainDeployment, $exception->getMessage());
             throw $exception;
         }
 
-        if ($firstDomainCheck->autoRenew && in_array(strtoupper(TechnicalStatus::OK->value), $firstDomainCheck->status, true)) {
+        if (
+            $firstDomainCheck->autoRenew
+            && in_array(strtoupper(TechnicalStatus::OK->value), $firstDomainCheck->status, true)
+        ) {
             $this->updateSubscriptionTechnicalStatus($subscription, TechnicalStatus::OK->value);
+
             return;
-        } elseif (! $firstDomainCheck->autoRenew && in_array(strtoupper(TechnicalStatus::OK->value), $firstDomainCheck->status, true)) {
+        } elseif (
+            ! $firstDomainCheck->autoRenew
+            && in_array(strtoupper(TechnicalStatus::OK->value), $firstDomainCheck->status, true)
+        ) {
             try {
                 $domainService->enableAutoRenewal($subscription->domain, $provider);
                 $this->updateSubscriptionTechnicalStatus($subscription, TechnicalStatus::OK->value);
+
                 return;
             } catch (EnableAutorenewalFailedException $exception) {
                 $logger->error(
@@ -78,7 +86,7 @@ class RestoreDomainJob extends AbstractQueueableJob
                         LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                         LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                         LoggingContextKeys::EXCEPTION => $exception,
-                    ]
+                    ],
                 );
                 $this->updateSubscriptionTechnicalStatus($subscription, TechnicalStatus::FAILED->value);
                 $this->storeLastResultOnDeployment($domainDeployment, $exception->getMessage());
@@ -109,7 +117,7 @@ class RestoreDomainJob extends AbstractQueueableJob
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
             $this->updateSubscriptionTechnicalStatus($subscription, TechnicalStatus::FAILED->value);
             $this->storeLastResultOnDeployment($domainDeployment, $exception->getMessage());
@@ -126,7 +134,7 @@ class RestoreDomainJob extends AbstractQueueableJob
                         LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                         LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                         LoggingContextKeys::EXCEPTION => $exception,
-                    ]
+                    ],
                 );
                 $this->updateSubscriptionTechnicalStatus($subscription, TechnicalStatus::FAILED->value);
                 $this->storeLastResultOnDeployment($domainDeployment, $exception->getMessage());

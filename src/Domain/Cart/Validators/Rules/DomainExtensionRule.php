@@ -29,7 +29,13 @@ class DomainExtensionRule extends AbstractValidator
      */
     protected function passes(string $attribute, mixed $value): bool
     {
-        if (! is_array($value) || ! array_key_exists('slug', $value) || $value['slug'] === '' || ! array_key_exists('domain', $value) || $value['domain'] === '') {
+        if (
+            ! is_array($value)
+            || ! array_key_exists('slug', $value)
+            || $value['slug'] === ''
+            || ! array_key_exists('domain', $value)
+            || $value['domain'] === ''
+        ) {
             return false; // if slug or domain is an empty string or does not exist validation should not pass.
         }
 
@@ -45,7 +51,7 @@ class DomainExtensionRule extends AbstractValidator
             return $product->slug === $this->premiumDomainProducts->getPremiumDomainProductSlug($domain);
         }
 
-        [,$tld] = explode('.', $domain, 2);
+        [, $tld] = explode('.', $domain, 2);
 
         return '.' . $tld === $product->name;
     }

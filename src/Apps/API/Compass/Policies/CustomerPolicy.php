@@ -55,6 +55,7 @@ class CustomerPolicy
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -63,6 +64,10 @@ class CustomerPolicy
 
     private function canCancelAndCreditSubscriptions(): bool
     {
-        return $this->authorizationService->can($this->authManager->getAuthenticatedEmployee()->identitySchema, Permissions::CAN_CREDIT_SUBSCRIPTIONS, null);
+        return $this->authorizationService->can(
+            $this->authManager->getAuthenticatedEmployee()->identitySchema,
+            Permissions::CAN_CANCEL_AND_CREDIT,
+            null,
+        );
     }
 }

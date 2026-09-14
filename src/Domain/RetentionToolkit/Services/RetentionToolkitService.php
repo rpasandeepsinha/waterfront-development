@@ -17,7 +17,6 @@ use Waterfront\Domain\RetentionToolkit\DTO\RetentionOfferItemDTO;
 use Waterfront\Domain\RetentionToolkit\DTO\RetentionOfferRequestDTO;
 use Waterfront\Domain\RetentionToolkit\Enums\ExecutionDate;
 use Waterfront\Domain\RetentionToolkit\Enums\RetentionOfferCalculationStatus;
-use Waterfront\Domain\RetentionToolkit\Enums\RetentionOfferEligibilityCode;
 use Waterfront\Domain\RetentionToolkit\Enums\SelectedAction;
 use Waterfront\Domain\RetentionToolkit\Exceptions\RetentionOfferCannotBeAppliedException;
 use Waterfront\Domain\RetentionToolkit\Models\CustomerRetentionOffer;
@@ -69,7 +68,13 @@ readonly class RetentionToolkitService
     ): array {
         $results = $this->calculate($request);
 
-        $this->assertResultsCanBeApplied($request, $results);
+        foreach ($results as $result) {
+            if ($result->status !== RetentionOfferCalculationStatus::CALCULATED) {
+                return $results;
+            }
+        }
+
+        $this->assertActionsCanBeApplied($request);
 
         try {
             DB::beginTransaction();
@@ -94,13 +99,12 @@ readonly class RetentionToolkitService
                     case SelectedAction::RF:
                         Assert::notNull($result->cancellationDate);
 
-                        $preparedInvoiceLinesToCredit =
-                            $this->applyRetentionCancellationAction->execute(
-                                customerType: $request->customerType,
-                                item: $item,
-                                result: $result,
-                                subscription: $item->subscription,
-                            );
+                        $preparedInvoiceLinesToCredit = $this->applyRetentionCancellationAction->execute(
+                            customerType: $request->customerType,
+                            item: $item,
+                            result: $result,
+                            subscription: $item->subscription,
+                        );
 
                         if ($preparedInvoiceLinesToCredit !== null) {
                             $shouldCreditInvoiceLines = true;
@@ -115,7 +119,6 @@ readonly class RetentionToolkitService
                         $customerRetentionOffer->effective_at = $result->cancellationDate;
                         break;
                     case SelectedAction::DM_OPTION_1:
-                    case SelectedAction::TK_OPTION_1:
                     case SelectedAction::TK_OPTION_2:
                     case SelectedAction::TK_OPTION_3:
                     case SelectedAction::TK_OPTION_5:
@@ -133,12 +136,11 @@ readonly class RetentionToolkitService
 
                             $this->addInvoiceLinesToCredit(
                                 target: $invoiceLinesToCredit,
-                                source: $this->creditSubscriptionService
-                                    ->getInvoiceLinesToCreditBatchFromDate(
-                                        subscription: $item->subscription,
-                                        creditFromDate: $effectiveDate,
-                                        cancelReason: SubscriptionCancelReason::REASON_CANCELLATION,
-                                    ),
+                                source: $this->creditSubscriptionService->getInvoiceLinesToCreditBatchFromDate(
+                                    subscription: $item->subscription,
+                                    creditFromDate: $effectiveDate,
+                                    cancelReason: SubscriptionCancelReason::REASON_CANCELLATION,
+                                ),
                             );
                         }
 
@@ -161,8 +163,7 @@ readonly class RetentionToolkitService
             }
 
             if ($shouldCreditInvoiceLines) {
-                $this->creditSubscriptionService
-                    ->creditInvoiceLines($invoiceLinesToCredit);
+                $this->creditSubscriptionService->creditInvoiceLines($invoiceLinesToCredit);
             }
 
             DB::commit();
@@ -184,30 +185,9 @@ readonly class RetentionToolkitService
         return $results;
     }
 
-    /**
-     * @param list<RetentionOfferItemCalculationDTO> $results
-     *
-     * @throws RetentionOfferCannotBeAppliedException
-     */
-    private function assertResultsCanBeApplied(
-        RetentionOfferRequestDTO $request,
-        array $results,
-    ): void {
-        foreach ($results as $result) {
-            if ($result->price?->eligibility->code === RetentionOfferEligibilityCode::OPEN_MUTATION) {
-                throw new RetentionOfferCannotBeAppliedException(
-                    $result->reason
-                    ?? 'The subscription has an open mutation that must be reviewed first.',
-                );
-            }
-
-            if ($result->status !== RetentionOfferCalculationStatus::CALCULATED) {
-                throw new RetentionOfferCannotBeAppliedException(
-                    'Every retention action must be calculated before it can be applied.',
-                );
-            }
-        }
-
+    /** @throws RetentionOfferCannotBeAppliedException */
+    private function assertActionsCanBeApplied(RetentionOfferRequestDTO $request): void
+    {
         foreach ($request->items as $item) {
             if (! in_array(
                 $item->selectedAction,
@@ -215,7 +195,6 @@ readonly class RetentionToolkitService
                     SelectedAction::RF,
                     SelectedAction::BZ,
                     SelectedAction::DM_OPTION_1,
-                    SelectedAction::TK_OPTION_1,
                     SelectedAction::TK_OPTION_2,
                     SelectedAction::TK_OPTION_3,
                     SelectedAction::TK_OPTION_5,
@@ -262,6 +241,9 @@ readonly class RetentionToolkitService
 
             $targetProduct = $item->targetProduct;
         }
+
+        Assert::notNull($item->billingPeriod);
+        Assert::notNull($item->contractPeriod);
 
         $subscriptionMutation = $this->extendContractAction->execute(
             subscription: $subscription,

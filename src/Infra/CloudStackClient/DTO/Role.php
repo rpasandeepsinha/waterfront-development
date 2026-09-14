@@ -10,7 +10,7 @@ class Role
         public string $id,
         public string $name,
         public string $description,
-        public string $type
+        public string $type,
     ) {
     }
 }

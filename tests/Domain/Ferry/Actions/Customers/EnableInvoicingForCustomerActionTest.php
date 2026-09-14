@@ -40,9 +40,12 @@ class EnableInvoicingForCustomerActionTest extends IntegrationTestCase
         ProductPriceComponentFactory::new()->for($product)->registration()->createOne();
 
         // the parent subscription
-        $subscription = SubscriptionFactory::new()->withCustomer()->for($product)->createOne([
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-        ]);
+        $subscription = SubscriptionFactory::new()
+            ->withCustomer()
+            ->for($product)
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+            ]);
 
         InvoiceFactory::new()
             ->for($customer)

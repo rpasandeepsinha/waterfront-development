@@ -88,12 +88,14 @@ class VirtualMachineController
     {
         $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
         $this->customerPolicy->assertCanManageVPS();
-        $virtualMachineSubscriptions = $customer->subscriptions()
+        $virtualMachineSubscriptions = $customer
+            ->subscriptions()
             ->with(['cloudStackVirtualMachineDeployment', 'cloudStackVirtualMachineDeployment.managerDomainDeployment'])
             ->whereHas('product.productGroup', function (Builder $q): void {
                 $q->where('slug', ProductGroupType::VPS);
                 $q->orWhere('slug', ProductGroupType::CLOUDSTACK_VIRTUAL_MACHINE);
-            })->get();
+            })
+            ->get();
 
         $vmCollection = $this->groupVirtualMachinesByManagerDomain($virtualMachineSubscriptions);
 
@@ -107,13 +109,20 @@ class VirtualMachineController
                 foreach ($vmCollectionItem['virtual_machine_subscriptions'] as $virtual_machine_subscription) {
                     $virtualMachineResources[] = VirtualMachineResource::make($virtual_machine_subscription);
                 }
+
                 continue;
             }
 
-            $virtualMachines = new Collection($this->virtualMachineService->findVirtualMachines($managerDomainDeployment));
+            $virtualMachines = new Collection($this->virtualMachineService->findVirtualMachines(
+                $managerDomainDeployment,
+            ));
 
             foreach ($vmCollectionItem['virtual_machine_subscriptions'] as $virtualMachineSubscription) {
-                $virtualMachine = $virtualMachines->firstWhere('id', '=', $virtualMachineSubscription->cloudStackVirtualMachineDeployment?->cloudstack_id);
+                $virtualMachine = $virtualMachines->firstWhere(
+                    'id',
+                    '=',
+                    $virtualMachineSubscription->cloudStackVirtualMachineDeployment?->cloudstack_id,
+                );
 
                 if ($virtualMachine === null) {
                     $virtualMachineResources[] = VirtualMachineResource::make($virtualMachineSubscription);
@@ -131,7 +140,7 @@ class VirtualMachineController
         }
 
         return VirtualMachineResource::collection(
-            $virtualMachineResources
+            $virtualMachineResources,
         );
     }
 
@@ -143,7 +152,10 @@ class VirtualMachineController
         $state = (string) $request->string('state');
 
         try {
-            $deployment = $this->virtualMachineDeploymentRepository->findBySubscriptionUuid($subscription->uuid, $customer->id);
+            $deployment = $this->virtualMachineDeploymentRepository->findBySubscriptionUuid(
+                $subscription->uuid,
+                $customer->id,
+            );
 
             $result = $this->virtualMachineService->handleByStateAndDeployment($state, $deployment);
         } catch (VirtualMachineNotFoundException) {
@@ -151,7 +163,7 @@ class VirtualMachineController
                 [
                     'error' => $this->translator->translate('vps.not-found'),
                 ],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
 
@@ -160,7 +172,7 @@ class VirtualMachineController
                 [
                     'error' => sprintf('Failed to %s the VPS.', $state),
                 ],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
 
@@ -175,15 +187,14 @@ class VirtualMachineController
     {
         $this->subscriptionPolicy->assertCanManageVirtualMachine($subscription);
         try {
-            $osSubscriptionChild = $this->virtualMachineDeploymentRepository
-                ->getOsSubscriptionChildFromSubscriptionUuid($subscription->uuid);
+            $osSubscriptionChild = $this->virtualMachineDeploymentRepository->getOsSubscriptionChildFromSubscriptionUuid($subscription->uuid);
         } catch (VirtualMachineNotFoundException) {
             return new JsonResponse(
                 [
                     'message' => $this->translator->translate('vps.not-found'),
                     'errors' => [],
                 ],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
 
@@ -191,9 +202,7 @@ class VirtualMachineController
 
         $resourceCollection = AvailableReinstallOptionsResource::collection($options);
 
-        return $resourceCollection
-            ->response()
-            ->setStatusCode(Response::HTTP_OK);
+        return $resourceCollection->response()->setStatusCode(Response::HTTP_OK);
     }
 
     public function reinstall(ReinstallVpsRequest $request, Subscription $subscription): JsonResponse
@@ -202,12 +211,14 @@ class VirtualMachineController
         $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
 
         try {
-            $deployment = $this->virtualMachineDeploymentRepository
-                ->findBySubscriptionUuid($subscription->uuid, $customer->id);
+            $deployment = $this->virtualMachineDeploymentRepository->findBySubscriptionUuid(
+                $subscription->uuid,
+                $customer->id,
+            );
         } catch (VirtualMachineNotFoundException) {
             return new JsonResponse(
                 ['message' => $this->translator->translate('vps.not-found'), 'errors' => []],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
 
@@ -221,7 +232,7 @@ class VirtualMachineController
             if ($osChildSubscription->product->productGroup->slug !== ProductGroupType::CLOUDSTACK_OS) {
                 return new JsonResponse(
                     ['error' => $this->translator->translate('vps.invalid-os-subscription')],
-                    Response::HTTP_UNPROCESSABLE_ENTITY
+                    Response::HTTP_UNPROCESSABLE_ENTITY,
                 );
             }
 
@@ -229,15 +240,15 @@ class VirtualMachineController
                 $osChildSubscription,
                 $deployment,
                 $osUuid,
-                $sshKeyUuid
+                $sshKeyUuid,
             );
-        } catch (InvalidArgumentException | ClientException $exception) {
+        } catch (InvalidArgumentException|ClientException $exception) {
             $this->logger->error('Error during VM reinstall', [
-                LoggingContextKeys::SUBSCRIPTION_UUID    => $subscription->uuid,
-                LoggingContextKeys::PROVISIONING_ID      => $deployment->id,
-                LoggingContextKeys::PROVISIONING_TYPE    => ProvisionType::VPS,
+                LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
+                LoggingContextKeys::PROVISIONING_ID => $deployment->id,
+                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::VPS,
                 LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CLOUDSTACK,
-                LoggingContextKeys::EXCEPTION            => $exception,
+                LoggingContextKeys::EXCEPTION => $exception,
             ]);
 
             $ok = false;
@@ -246,7 +257,7 @@ class VirtualMachineController
         if (! $ok) {
             return new JsonResponse(
                 ['error' => $this->translator->translate('vps.reinstall-failed')],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
 
@@ -263,28 +274,28 @@ class VirtualMachineController
         $password = (string) $request->string('password');
         $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
         try {
-            $deployment = $this->virtualMachineDeploymentRepository->findBySubscriptionUuid($subscription->uuid, $customer->id);
+            $deployment = $this->virtualMachineDeploymentRepository->findBySubscriptionUuid(
+                $subscription->uuid,
+                $customer->id,
+            );
         } catch (VirtualMachineNotFoundException) {
             return new JsonResponse(
                 [
                     'message' => $this->translator->translate('vps.not-found'),
                     'errors' => [],
                 ],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
 
         $virtualMachine = $this->virtualMachineService->findByDeployment($deployment);
-        if (
-            ! $virtualMachine instanceof VirtualMachine
-            || $virtualMachine->state !== CloudstackMachineState::STOPPED
-        ) {
+        if (! $virtualMachine instanceof VirtualMachine || $virtualMachine->state !== CloudstackMachineState::STOPPED) {
             return new JsonResponse(
                 [
                     'message' => $this->translator->translate('vps.not-stopped'),
                     'errors' => [],
                 ],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
 
@@ -296,7 +307,7 @@ class VirtualMachineController
                     'message' => $this->translator->translate('vps.reset-password-failed'),
                     'errors' => [],
                 ],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
 
@@ -314,32 +325,36 @@ class VirtualMachineController
         $sshKeyUuid = (string) $request->string('ssh_uuid');
 
         try {
-            $virtualMachineDeployment = $this->virtualMachineDeploymentRepository
-                ->findBySubscriptionUuid($subscription->uuid, $customer->id);
+            $virtualMachineDeployment = $this->virtualMachineDeploymentRepository->findBySubscriptionUuid(
+                $subscription->uuid,
+                $customer->id,
+            );
 
             $newSshKey = $this->sshKeyRepository->findByCustomerAndUuid(
                 customer: $customer,
-                uuid: $sshKeyUuid
+                uuid: $sshKeyUuid,
             );
 
-            return $this->resetSshKeyAction->execute(
-                virtualMachineDeployment: $virtualMachineDeployment,
-                newSshKey: $newSshKey
-            )
-                ? new JsonResponse(status: Response::HTTP_NO_CONTENT)
-                : new JsonResponse(
-                    ['message' => $this->translator->translate('ssh-key.general-reset.error')],
-                    Response::HTTP_UNPROCESSABLE_ENTITY
-                );
+            return (
+                $this->resetSshKeyAction->execute(
+                    virtualMachineDeployment: $virtualMachineDeployment,
+                    newSshKey: $newSshKey,
+                )
+                    ? new JsonResponse(status: Response::HTTP_NO_CONTENT)
+                    : new JsonResponse(
+                        ['message' => $this->translator->translate('ssh-key.general-reset.error')],
+                        Response::HTTP_UNPROCESSABLE_ENTITY,
+                    )
+            );
         } catch (VirtualMachineNotFoundException) {
             return new JsonResponse(
                 ['message' => $this->translator->translate('ssh-key.notfound-reset.error')],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         } catch (ClientFactoryException) {
             return new JsonResponse(
                 ['message' => $this->translator->translate('ssh-key.technical-reset.error')],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
     }
@@ -355,11 +370,12 @@ class VirtualMachineController
         $customName = (string) $request->string('custom_name');
 
         try {
-            $virtualMachineDeployment = $this->virtualMachineDeploymentRepository
-                ->findBySubscriptionUuid($subscription->uuid, $customer->id);
+            $virtualMachineDeployment = $this->virtualMachineDeploymentRepository->findBySubscriptionUuid(
+                $subscription->uuid,
+                $customer->id,
+            );
 
-            $this->virtualMachineDeploymentRepository
-                ->updateCustomName($virtualMachineDeployment, $customName);
+            $this->virtualMachineDeploymentRepository->updateCustomName($virtualMachineDeployment, $customName);
 
             return new JsonResponse(
                 [
@@ -373,7 +389,7 @@ class VirtualMachineController
                     'message' => $this->translator->translate('vps.not-found'),
                     'errors' => [],
                 ],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
     }
@@ -391,8 +407,10 @@ class VirtualMachineController
         $customer = $this->authenticationManager->getAuthenticatedCustomer()->customer;
 
         try {
-            $virtualMachineDeployment = $this->virtualMachineDeploymentRepository
-                ->findBySubscriptionUuid($subscription->uuid, $customer->id);
+            $virtualMachineDeployment = $this->virtualMachineDeploymentRepository->findBySubscriptionUuid(
+                $subscription->uuid,
+                $customer->id,
+            );
 
             $consoleUrl = $this->virtualMachineService->getConsole($virtualMachineDeployment);
 
@@ -403,13 +421,13 @@ class VirtualMachineController
                     'errors' => [],
                 ],
             );
-        } catch (VirtualMachineNotFoundException | CloudstackNotFoundException) {
+        } catch (VirtualMachineNotFoundException|CloudstackNotFoundException) {
             return new JsonResponse(
                 [
                     'message' => $this->translator->translate('vps.not-found'),
                     'errors' => [],
                 ],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
     }
@@ -422,9 +440,15 @@ class VirtualMachineController
     private function groupVirtualMachinesByManagerDomain(Collection $virtualMachineSubscriptions): Collection
     {
         return $virtualMachineSubscriptions
-            ->groupBy(fn (Subscription $subscription) => $subscription->cloudStackVirtualMachineDeployment->managerDomainDeployment->id ?? 'unknown-manager-domain')
+            ->groupBy(
+                fn (Subscription $subscription) => (
+                    $subscription->cloudStackVirtualMachineDeployment->managerDomainDeployment->id
+                    ?? 'unknown-manager-domain'
+                ),
+            )
             ->map(fn ($group) => [
-                'manager_domain_deployment' => $group->first()?->cloudStackVirtualMachineDeployment?->managerDomainDeployment,
+                'manager_domain_deployment' =>
+                    $group->first()?->cloudStackVirtualMachineDeployment?->managerDomainDeployment,
                 'virtual_machine_subscriptions' => $group->all(),
             ])
             ->values();

@@ -37,7 +37,10 @@ class ShopConfigWriteRequest extends FormRequest
             'telco.sections.*.blocks.*.title.nl' => ['string'],
             'telco.sections.*.blocks.*.title.en' => ['string', 'required_with:telco.sections.*.blocks.*.title.nl'],
             'telco.sections.*.blocks.*.description.nl' => ['string'],
-            'telco.sections.*.blocks.*.description.en' => ['string', 'required_with:telco.sections.*.blocks.*.description.nl'],
+            'telco.sections.*.blocks.*.description.en' => [
+                'string',
+                'required_with:telco.sections.*.blocks.*.description.nl',
+            ],
             'telco.sections.*.blocks.*.usps.nl' => ['string'],
             'telco.sections.*.blocks.*.usps.en' => ['string', 'required_with:telco.sections.*.blocks.*.usps.nl'],
             'telco.sections.*.blocks.*.cons.nl' => ['string'],

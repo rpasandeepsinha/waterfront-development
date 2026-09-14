@@ -33,7 +33,10 @@ class SubscriptionExpireTest extends IntegrationTestCase
         $extensionGroup = new ProductGroupFactory()->extension();
 
         $this->product = new ProductFactory()->for($extensionGroup)->createOne();
-        new ProductSpecFactory()->for($this->product)->createOne(['name' => 'services.technical_grace_period', 'value' => 30]);
+        new ProductSpecFactory()->for($this->product)->createOne([
+            'name' => 'services.technical_grace_period',
+            'value' => 30,
+        ]);
     }
 
     #[Test]
@@ -42,10 +45,26 @@ class SubscriptionExpireTest extends IntegrationTestCase
         $now = new CarbonImmutable();
         CarbonImmutable::setTestNow($now);
 
-        $domainProvider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::PLACEHOLDER, 'default' => false, 'enabled' => true]);
-        $canceledSubscription = new SubscriptionFactory()->withCustomer()->for($this->product)->administrativeStatusCancelled()->createOne(['end_date' => $now->subDay()]);
-        new DomainDeploymentFactory()->for($domainProvider, 'provider')->for($canceledSubscription)->createOne();
-        $activeSubscription = new SubscriptionFactory()->withCustomer()->for($this->product)->administrativeStatusActive()->createOne();
+        $domainProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::PLACEHOLDER,
+            'default' => false,
+            'enabled' => true,
+        ]);
+        $canceledSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->administrativeStatusCancelled()
+            ->createOne(['end_date' => $now->subDay()]);
+        new DomainDeploymentFactory()
+            ->for($domainProvider, 'provider')
+            ->for($canceledSubscription)
+            ->createOne();
+        $activeSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->administrativeStatusActive()
+            ->createOne();
 
         $this->artisan(AdministrativelyExpireSubscriptions::class);
 
@@ -53,6 +72,9 @@ class SubscriptionExpireTest extends IntegrationTestCase
         $activeSubscription->refresh();
 
         self::assertSame(AdministrativeStatus::EXPIRED->value, $canceledSubscription->administrative_status);
-        self::assertSame($now->addDays(30)->format(DateTimeFormat::DATE), $canceledSubscription->termination_date?->format(DateTimeFormat::DATE));
+        self::assertSame(
+            $now->addDays(30)->format(DateTimeFormat::DATE),
+            $canceledSubscription->termination_date?->format(DateTimeFormat::DATE),
+        );
     }
 }

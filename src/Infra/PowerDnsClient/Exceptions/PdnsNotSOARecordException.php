@@ -17,7 +17,7 @@ class PdnsNotSOARecordException extends Exception
                 $recordContent,
             ),
             $code,
-            $previous
+            $previous,
         );
     }
 }

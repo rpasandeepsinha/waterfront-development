@@ -55,7 +55,10 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     #[Test]
     public function updateProductLineUpdatesBasicProductFields(): void
     {
-        $product = new ProductFactory()->for($this->productGroup)->createOne(['slug' => 'test-product', 'name' => 'Original Name']);
+        $product = new ProductFactory()->for($this->productGroup)->createOne([
+            'slug' => 'test-product',
+            'name' => 'Original Name',
+        ]);
 
         $this->productUpdateService->updateProductLine($product, $this->makeDto(name: 'Updated Name'));
 
@@ -76,10 +79,14 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         $this->productUpdateService->updateProductLine(
             $product,
-            $this->makeDto(specifications: [new Specifications('bandwidth', '50')])
+            $this->makeDto(specifications: [new Specifications('bandwidth', '50')]),
         );
 
-        self::assertDatabaseHas('product_specs', ['product_id' => $product->id, 'name' => 'bandwidth', 'value' => '50']);
+        self::assertDatabaseHas('product_specs', [
+            'product_id' => $product->id,
+            'name' => 'bandwidth',
+            'value' => '50',
+        ]);
         self::assertDatabaseCount('product_specs', 1);
     }
 
@@ -94,7 +101,7 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         $this->productUpdateService->updateProductLine(
             $product,
-            $this->makeDto(specifications: [new Specifications('bandwidth', '10')])
+            $this->makeDto(specifications: [new Specifications('bandwidth', '10')]),
         );
 
         self::assertDatabaseHas('product_specs', ['product_id' => $product->id, 'name' => 'bandwidth']);
@@ -108,10 +115,14 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         $this->productUpdateService->updateProductLine(
             $product,
-            $this->makeDto(specifications: [new Specifications('bandwidth', '100')])
+            $this->makeDto(specifications: [new Specifications('bandwidth', '100')]),
         );
 
-        self::assertDatabaseHas('product_specs', ['product_id' => $product->id, 'name' => 'bandwidth', 'value' => '100']);
+        self::assertDatabaseHas('product_specs', [
+            'product_id' => $product->id,
+            'name' => 'bandwidth',
+            'value' => '100',
+        ]);
     }
 
     #[Test]
@@ -132,7 +143,7 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         $this->productUpdateService->updateProductLine(
             $product,
-            $this->makeDto(allowedChanges: [$updatedChange])
+            $this->makeDto(allowedChanges: [$updatedChange]),
         );
 
         self::assertDatabaseHas('product_allowed_changes', [
@@ -165,11 +176,25 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         $this->productUpdateService->updateProductLine(
             $product,
-            $this->makeDto(allowedChanges: [new AllowedChange('keep', $keepProduct->id, ProductChangeType::UPGRADE, 1, true)])
+            $this->makeDto(allowedChanges: [new AllowedChange(
+                'keep',
+                $keepProduct->id,
+                ProductChangeType::UPGRADE,
+                1,
+                true,
+            )]),
         );
 
-        self::assertDatabaseHas('product_allowed_changes', ['from_product_id' => $product->id, 'to_product_id' => $keepProduct->id, 'deleted_at' => null]);
-        self::assertDatabaseMissing('product_allowed_changes', ['from_product_id' => $product->id, 'to_product_id' => $removeProduct->id, 'deleted_at' => null]);
+        self::assertDatabaseHas('product_allowed_changes', [
+            'from_product_id' => $product->id,
+            'to_product_id' => $keepProduct->id,
+            'deleted_at' => null,
+        ]);
+        self::assertDatabaseMissing('product_allowed_changes', [
+            'from_product_id' => $product->id,
+            'to_product_id' => $removeProduct->id,
+            'deleted_at' => null,
+        ]);
     }
 
     #[Test]
@@ -180,7 +205,13 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         $this->productUpdateService->updateProductLine(
             $product,
-            $this->makeDto(allowedChanges: [new AllowedChange('target', $targetProduct->id, ProductChangeType::DOWNGRADE, 1, true)])
+            $this->makeDto(allowedChanges: [new AllowedChange(
+                'target',
+                $targetProduct->id,
+                ProductChangeType::DOWNGRADE,
+                1,
+                true,
+            )]),
         );
 
         self::assertDatabaseHas('product_allowed_changes', [
@@ -204,7 +235,13 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         $this->productUpdateService->updateProductLine(
             $product,
-            $this->makeDto(allowedChanges: [new AllowedChange('target', $targetProduct->id, ProductChangeType::DOWNGRADE, 1, true)])
+            $this->makeDto(allowedChanges: [new AllowedChange(
+                'target',
+                $targetProduct->id,
+                ProductChangeType::DOWNGRADE,
+                1,
+                true,
+            )]),
         );
 
         self::assertDatabaseHas('product_allowed_changes', [
@@ -232,7 +269,11 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         $this->productUpdateService->updateProductLine($product, $this->makeDto(promotions: [$updatedPromotion]));
 
-        self::assertDatabaseHas('product_promotions', ['product_id' => $product->id, 'uuid' => $uuid->toString(), 'weight' => 10]);
+        self::assertDatabaseHas('product_promotions', [
+            'product_id' => $product->id,
+            'uuid' => $uuid->toString(),
+            'weight' => 10,
+        ]);
         self::assertDatabaseCount('product_promotions', 1);
     }
 
@@ -248,7 +289,7 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         $this->productUpdateService->updateProductLine(
             $product,
-            $this->makeDto(promotions: [$this->makePromotion(uuid: $uuid)])
+            $this->makeDto(promotions: [$this->makePromotion(uuid: $uuid)]),
         );
 
         self::assertDatabaseHas('product_promotions', ['product_id' => $product->id, 'uuid' => $uuid]);
@@ -262,7 +303,7 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         $this->productUpdateService->updateProductLine(
             $product,
-            $this->makeDto(promotions: [$this->makePromotion(uuid: null)])
+            $this->makeDto(promotions: [$this->makePromotion(uuid: null)]),
         );
 
         self::assertDatabaseHas('product_promotions', ['product_id' => $product->id]);
@@ -283,7 +324,7 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         $this->productUpdateService->updateProductLine(
             $product,
-            $this->makeDto(promotions: [$this->makePromotion(uuid: $uuid, weight: 99)])
+            $this->makeDto(promotions: [$this->makePromotion(uuid: $uuid, weight: 99)]),
         );
 
         self::assertDatabaseHas('product_promotions', ['product_id' => $product->id, 'uuid' => $uuid, 'weight' => 1]);
@@ -304,8 +345,8 @@ class ProductUpdateServiceTest extends IntegrationTestCase
         $this->productUpdateService->updateProductLine($product, $this->makeDto(productPrices: [$entry]));
 
         self::assertDatabaseHas('product_periods', [
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
+            'product_id' => $product->id,
+            'billing_period' => 1,
             'contract_period' => 12,
         ]);
         self::assertDatabaseCount('product_periods', 1);
@@ -316,9 +357,9 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->productGroup)->createOne(['slug' => 'test-product']);
         $existingPeriod = new ProductPeriodFactory()->for($product)->createOne([
-            'billing_period'  => 1,
+            'billing_period' => 1,
             'contract_period' => 12,
-            'action_period'   => 3,
+            'action_period' => 3,
         ]);
 
         $entry = new ProductPriceEntryDTO(
@@ -331,11 +372,11 @@ class ProductUpdateServiceTest extends IntegrationTestCase
         $this->productUpdateService->updateProductLine($product, $this->makeDto(productPrices: [$entry]));
 
         self::assertDatabaseHas('product_periods', [
-            'id'              => $existingPeriod->id,
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
+            'id' => $existingPeriod->id,
+            'product_id' => $product->id,
+            'billing_period' => 1,
             'contract_period' => 12,
-            'action_period'   => 3,
+            'action_period' => 3,
         ]);
         self::assertDatabaseCount('product_periods', 1);
     }
@@ -345,11 +386,11 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->productGroup)->createOne(['slug' => 'test-product']);
         new ProductPeriodFactory()->for($product)->createOne([
-            'billing_period'  => 1,
+            'billing_period' => 1,
             'contract_period' => 12,
         ]);
         new ProductPeriodFactory()->for($product)->createOne([
-            'billing_period'  => 12,
+            'billing_period' => 12,
             'contract_period' => 12,
         ]);
 
@@ -363,13 +404,13 @@ class ProductUpdateServiceTest extends IntegrationTestCase
         $this->productUpdateService->updateProductLine($product, $this->makeDto(productPrices: [$entry]));
 
         self::assertDatabaseHas('product_periods', [
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
+            'product_id' => $product->id,
+            'billing_period' => 1,
             'contract_period' => 12,
         ]);
         self::assertDatabaseMissing('product_periods', [
-            'product_id'      => $product->id,
-            'billing_period'  => 12,
+            'product_id' => $product->id,
+            'billing_period' => 12,
             'contract_period' => 12,
         ]);
         self::assertDatabaseCount('product_periods', 1);
@@ -380,7 +421,7 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->productGroup)->createOne(['slug' => 'test-product']);
         new ProductPeriodFactory()->for($product)->createOne([
-            'billing_period'  => 1,
+            'billing_period' => 1,
             'contract_period' => 12,
         ]);
 
@@ -407,7 +448,10 @@ class ProductUpdateServiceTest extends IntegrationTestCase
             additionalPrices: null,
         );
 
-        $this->productUpdateService->updateProductLine($product, $this->makeDto(productPrices: [$firstEntry, $duplicateEntry]));
+        $this->productUpdateService->updateProductLine(
+            $product,
+            $this->makeDto(productPrices: [$firstEntry, $duplicateEntry]),
+        );
 
         self::assertDatabaseCount('product_periods', 1);
     }
@@ -427,12 +471,12 @@ class ProductUpdateServiceTest extends IntegrationTestCase
         $this->productUpdateService->updateProductLine($product, $this->makeDto(productPrices: [$entry]));
 
         self::assertDatabaseHas('product_price_components', [
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
+            'product_id' => $product->id,
+            'billing_period' => 1,
             'contract_period' => 12,
-            'type'            => PriceComponentType::REGISTRATION,
-            'price'           => 999,
-            'expires_at'      => null,
+            'type' => PriceComponentType::REGISTRATION,
+            'price' => 999,
+            'expires_at' => null,
         ]);
     }
 
@@ -441,12 +485,14 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->productGroup)->createOne(['slug' => 'test-product']);
 
-        $existing = new ProductPriceComponentFactory()->registration()->createOne([
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
-            'contract_period' => 12,
-            'price'           => 500,
-        ]);
+        $existing = new ProductPriceComponentFactory()
+            ->registration()
+            ->createOne([
+                'product_id' => $product->id,
+                'billing_period' => 1,
+                'contract_period' => 12,
+                'price' => 500,
+            ]);
 
         $entry = new ProductPriceEntryDTO(
             billingPeriod: 1,
@@ -459,12 +505,12 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         self::assertNotNull($existing->refresh()->expires_at);
         self::assertDatabaseHas('product_price_components', [
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
+            'product_id' => $product->id,
+            'billing_period' => 1,
             'contract_period' => 12,
-            'type'            => PriceComponentType::REGISTRATION,
-            'price'           => 1500,
-            'expires_at'      => null,
+            'type' => PriceComponentType::REGISTRATION,
+            'price' => 1500,
+            'expires_at' => null,
         ]);
         self::assertDatabaseCount('product_price_components', 2);
     }
@@ -474,12 +520,14 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->productGroup)->createOne(['slug' => 'test-product']);
 
-        $existing = new ProductPriceComponentFactory()->registration()->createOne([
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
-            'contract_period' => 12,
-            'price'           => 999,
-        ]);
+        $existing = new ProductPriceComponentFactory()
+            ->registration()
+            ->createOne([
+                'product_id' => $product->id,
+                'billing_period' => 1,
+                'contract_period' => 12,
+                'price' => 999,
+            ]);
 
         $entry = new ProductPriceEntryDTO(
             billingPeriod: 1,
@@ -499,16 +547,20 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->productGroup)->createOne(['slug' => 'test-product']);
 
-        new ProductPriceComponentFactory()->registration()->createOne([
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
-            'contract_period' => 12,
-        ]);
-        $removed = new ProductPriceComponentFactory()->registration()->createOne([
-            'product_id'      => $product->id,
-            'billing_period'  => 12,
-            'contract_period' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->registration()
+            ->createOne([
+                'product_id' => $product->id,
+                'billing_period' => 1,
+                'contract_period' => 12,
+            ]);
+        $removed = new ProductPriceComponentFactory()
+            ->registration()
+            ->createOne([
+                'product_id' => $product->id,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
         $entry = new ProductPriceEntryDTO(
             billingPeriod: 1,
@@ -519,7 +571,12 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         $this->productUpdateService->updateProductLine($product, $this->makeDto(productPrices: [$entry]));
 
-        self::assertDatabaseHas('product_price_components', ['product_id' => $product->id, 'billing_period' => 1, 'contract_period' => 12, 'expires_at' => null]);
+        self::assertDatabaseHas('product_price_components', [
+            'product_id' => $product->id,
+            'billing_period' => 1,
+            'contract_period' => 12,
+            'expires_at' => null,
+        ]);
         self::assertNotNull($removed->refresh()->expires_at);
     }
 
@@ -528,20 +585,20 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->productGroup)->createOne(['slug' => 'test-product']);
         $staffel = new ProductPriceComponentFactory()->createOne([
-            'product_id'      => $product->id,
-            'type'            => PriceComponentType::REGISTRATION_STAFFEL,
-            'billing_period'  => 12,
+            'product_id' => $product->id,
+            'type' => PriceComponentType::REGISTRATION_STAFFEL,
+            'billing_period' => 12,
             'contract_period' => 12,
-            'price'           => 777,
+            'price' => 777,
         ]);
 
         $this->productUpdateService->updateProductLine($product, $this->makeDto(productPrices: []));
 
         self::assertDatabaseHas('product_price_components', [
-            'id'         => $staffel->id,
+            'id' => $staffel->id,
             'product_id' => $product->id,
-            'type'       => PriceComponentType::REGISTRATION_STAFFEL,
-            'price'      => 777,
+            'type' => PriceComponentType::REGISTRATION_STAFFEL,
+            'price' => 777,
             'expires_at' => null,
         ]);
     }
@@ -565,36 +622,36 @@ class ProductUpdateServiceTest extends IntegrationTestCase
         $this->productUpdateService->updateProductLine($product, $this->makeDto(productPrices: [$entry]));
 
         self::assertDatabaseHas('product_price_components', [
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
+            'product_id' => $product->id,
+            'billing_period' => 1,
             'contract_period' => 12,
-            'type'            => PriceComponentType::REGISTRATION,
-            'price'           => 999,
-            'expires_at'      => null,
+            'type' => PriceComponentType::REGISTRATION,
+            'price' => 999,
+            'expires_at' => null,
         ]);
         self::assertDatabaseHas('product_price_components', [
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
+            'product_id' => $product->id,
+            'billing_period' => 1,
             'contract_period' => 12,
-            'type'            => PriceComponentType::INTRODUCTION,
-            'price'           => 100,
-            'expires_at'      => null,
+            'type' => PriceComponentType::INTRODUCTION,
+            'price' => 100,
+            'expires_at' => null,
         ]);
         self::assertDatabaseHas('product_price_components', [
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
+            'product_id' => $product->id,
+            'billing_period' => 1,
             'contract_period' => 12,
-            'type'            => PriceComponentType::PROMOTION,
-            'price'           => 200,
-            'expires_at'      => null,
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 200,
+            'expires_at' => null,
         ]);
         self::assertDatabaseHas('product_price_components', [
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
+            'product_id' => $product->id,
+            'billing_period' => 1,
             'contract_period' => 12,
-            'type'            => PriceComponentType::PROLONGATION,
-            'price'           => 300,
-            'expires_at'      => null,
+            'type' => PriceComponentType::PROLONGATION,
+            'price' => 300,
+            'expires_at' => null,
         ]);
     }
 
@@ -615,20 +672,20 @@ class ProductUpdateServiceTest extends IntegrationTestCase
         $this->productUpdateService->updateProductLine($product, $this->makeDto(productPrices: [$entry]));
 
         self::assertDatabaseHas('product_price_components', [
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
+            'product_id' => $product->id,
+            'billing_period' => 1,
             'contract_period' => 12,
-            'type'            => PriceComponentType::REGISTRATION,
-            'price'           => 999,
-            'expires_at'      => null,
+            'type' => PriceComponentType::REGISTRATION,
+            'price' => 999,
+            'expires_at' => null,
         ]);
         self::assertDatabaseHas('product_price_components', [
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
+            'product_id' => $product->id,
+            'billing_period' => 1,
             'contract_period' => 12,
-            'type'            => PriceComponentType::PROLONGATION,
-            'price'           => 300,
-            'expires_at'      => null,
+            'type' => PriceComponentType::PROLONGATION,
+            'price' => 300,
+            'expires_at' => null,
         ]);
     }
 
@@ -636,19 +693,23 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     public function updateProductPricesWithProlongationUpdatesProlongation(): void
     {
         $product = new ProductFactory()->for($this->productGroup)->createOne(['slug' => 'test-product']);
-        $existingRegistration = new ProductPriceComponentFactory()->registration()->createOne([
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
-            'contract_period' => 12,
-            'price'           => 999,
-        ]);
+        $existingRegistration = new ProductPriceComponentFactory()
+            ->registration()
+            ->createOne([
+                'product_id' => $product->id,
+                'billing_period' => 1,
+                'contract_period' => 12,
+                'price' => 999,
+            ]);
 
-        $existingProlongation = new ProductPriceComponentFactory()->prolongation()->createOne([
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
-            'contract_period' => 12,
-            'price'           => 1000,
-        ]);
+        $existingProlongation = new ProductPriceComponentFactory()
+            ->prolongation()
+            ->createOne([
+                'product_id' => $product->id,
+                'billing_period' => 1,
+                'contract_period' => 12,
+                'price' => 1000,
+            ]);
 
         $entry = new ProductPriceEntryDTO(
             billingPeriod: 1,
@@ -664,12 +725,12 @@ class ProductUpdateServiceTest extends IntegrationTestCase
         self::assertDatabaseHas('product_price_components', ['id' => $existingRegistration->id, 'expires_at' => null]);
         self::assertNotNull($existingProlongation->refresh()->expires_at);
         self::assertDatabaseHas('product_price_components', [
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
+            'product_id' => $product->id,
+            'billing_period' => 1,
             'contract_period' => 12,
-            'type'            => PriceComponentType::PROLONGATION,
-            'price'           => 300,
-            'expires_at'      => null,
+            'type' => PriceComponentType::PROLONGATION,
+            'price' => 300,
+            'expires_at' => null,
         ]);
     }
 
@@ -690,18 +751,18 @@ class ProductUpdateServiceTest extends IntegrationTestCase
         $this->productUpdateService->updateProductLine($product, $this->makeDto(productPrices: [$entry]));
 
         self::assertDatabaseHas('product_price_components', [
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
+            'product_id' => $product->id,
+            'billing_period' => 1,
             'contract_period' => 12,
-            'type'            => PriceComponentType::REGISTRATION,
-            'price'           => 999,
-            'expires_at'      => null,
+            'type' => PriceComponentType::REGISTRATION,
+            'price' => 999,
+            'expires_at' => null,
         ]);
         self::assertDatabaseMissing('product_price_components', [
-            'product_id'      => $product->id,
-            'billing_period'  => 1,
+            'product_id' => $product->id,
+            'billing_period' => 1,
             'contract_period' => 12,
-            'type'            => PriceComponentType::PROLONGATION,
+            'type' => PriceComponentType::PROLONGATION,
         ]);
     }
 
@@ -710,8 +771,14 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->productGroup)->createOne();
 
-        new ProductPriceComponentFactory()->for($product)->registration()->createOne();
-        $existingProlongation = new ProductPriceComponentFactory()->for($product)->prolongation()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne();
+        $existingProlongation = new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne();
 
         $entry = new ProductPriceEntryDTO(
             billingPeriod: 12,
@@ -725,15 +792,18 @@ class ProductUpdateServiceTest extends IntegrationTestCase
         $this->productUpdateService->updateProductLine($product, $this->makeDto(productPrices: [$entry]));
 
         self::assertDatabaseHas('product_price_components', [
-            'product_id'      => $product->id,
-            'type'            => PriceComponentType::REGISTRATION,
-            'billing_period'  => 12,
+            'product_id' => $product->id,
+            'type' => PriceComponentType::REGISTRATION,
+            'billing_period' => 12,
             'contract_period' => 12,
-            'price'           => 999,
-            'expires_at'      => null,
+            'price' => 999,
+            'expires_at' => null,
         ]);
         self::assertNotNull($existingProlongation->refresh()->expires_at);
-        self::assertSame(1, ProductPriceComponent::query()->where('product_id', $product->id)->whereNull('expires_at')->count());
+        self::assertSame(
+            1,
+            ProductPriceComponent::query()->where('product_id', $product->id)->whereNull('expires_at')->count(),
+        );
     }
 
     #[Test]
@@ -741,8 +811,14 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->productGroup)->createOne();
 
-        new ProductPriceComponentFactory()->for($product)->registration()->createOne();
-        $existingProlongation = new ProductPriceComponentFactory()->for($product)->prolongation()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne();
+        $existingProlongation = new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne();
 
         $entry = new ProductPriceEntryDTO(
             billingPeriod: 12,
@@ -754,15 +830,18 @@ class ProductUpdateServiceTest extends IntegrationTestCase
         $this->productUpdateService->updateProductLine($product, $this->makeDto(productPrices: [$entry]));
 
         self::assertDatabaseHas('product_price_components', [
-            'product_id'      => $product->id,
-            'type'            => PriceComponentType::REGISTRATION,
-            'billing_period'  => 12,
+            'product_id' => $product->id,
+            'type' => PriceComponentType::REGISTRATION,
+            'billing_period' => 12,
             'contract_period' => 12,
-            'price'           => 999,
-            'expires_at'      => null,
+            'price' => 999,
+            'expires_at' => null,
         ]);
         self::assertNotNull($existingProlongation->refresh()->expires_at);
-        self::assertSame(1, ProductPriceComponent::query()->where('product_id', $product->id)->whereNull('expires_at')->count());
+        self::assertSame(
+            1,
+            ProductPriceComponent::query()->where('product_id', $product->id)->whereNull('expires_at')->count(),
+        );
     }
 
     #[Test]
@@ -775,7 +854,7 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         $existingCoupling = new ProductAddonCouplingFactory()->createOne([
             'parent_product_id' => $product->id,
-            'addon_product_id'  => $existingAddon->id,
+            'addon_product_id' => $existingAddon->id,
         ]);
 
         $this->productUpdateService->updateProductLine($product, $this->makeDto(addons: [
@@ -784,13 +863,13 @@ class ProductUpdateServiceTest extends IntegrationTestCase
         ]));
 
         self::assertDatabaseHas('product_addon_coupling', [
-            'id'                => $existingCoupling->id,
+            'id' => $existingCoupling->id,
             'parent_product_id' => $product->id,
-            'addon_product_id'  => $existingAddon->id,
+            'addon_product_id' => $existingAddon->id,
         ]);
         self::assertDatabaseHas('product_addon_coupling', [
             'parent_product_id' => $product->id,
-            'addon_product_id'  => $newAddon->id,
+            'addon_product_id' => $newAddon->id,
         ]);
         self::assertDatabaseCount('product_addon_coupling', 2);
     }
@@ -805,22 +884,22 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         new ProductAddonCouplingFactory()->createOne([
             'parent_product_id' => $product->id,
-            'addon_product_id'  => $removedAddon->id,
+            'addon_product_id' => $removedAddon->id,
         ]);
         new ProductAddonCouplingFactory()->createOne([
             'parent_product_id' => $product->id,
-            'addon_product_id'  => $keptAddon->id,
+            'addon_product_id' => $keptAddon->id,
         ]);
 
         $this->productUpdateService->updateProductLine($product, $this->makeDto(addons: [new ProductAddonDTO($keptAddon->id)]));
 
         self::assertDatabaseMissing('product_addon_coupling', [
             'parent_product_id' => $product->id,
-            'addon_product_id'  => $removedAddon->id,
+            'addon_product_id' => $removedAddon->id,
         ]);
         self::assertDatabaseHas('product_addon_coupling', [
             'parent_product_id' => $product->id,
-            'addon_product_id'  => $keptAddon->id,
+            'addon_product_id' => $keptAddon->id,
         ]);
         self::assertDatabaseCount('product_addon_coupling', 1);
     }
@@ -829,11 +908,13 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     public function updateProductLineWithoutAddonsRemovesAllCouplings(): void
     {
         $product = new ProductFactory()->for($this->productGroup)->createOne();
-        $addon = new ProductFactory()->for(new ProductGroupFactory()->addon()->createOne())->createOne(['slug' => 'addon']);
+        $addon = new ProductFactory()->for(new ProductGroupFactory()->addon()->createOne())->createOne([
+            'slug' => 'addon',
+        ]);
 
         new ProductAddonCouplingFactory()->createOne([
             'parent_product_id' => $product->id,
-            'addon_product_id'  => $addon->id,
+            'addon_product_id' => $addon->id,
         ]);
 
         $this->productUpdateService->updateProductLine($product, $this->makeDto(addons: []));
@@ -852,14 +933,17 @@ class ProductUpdateServiceTest extends IntegrationTestCase
             firstMonthsDiscountPeriod: 3,
         );
 
-        $this->productUpdateService->updateProductLine($product, $this->makeDto(introductionPriceConfiguration: [$configuration]));
+        $this->productUpdateService->updateProductLine(
+            $product,
+            $this->makeDto(introductionPriceConfiguration: [$configuration]),
+        );
 
         self::assertDatabaseHas('product_introduction_discounts', [
-            'product_id'                   => $product->id,
-            'contract_period'              => 12,
-            'max_uses_per_customer'        => 5,
+            'product_id' => $product->id,
+            'contract_period' => 12,
+            'max_uses_per_customer' => 5,
             'first_months_discount_period' => 3,
-            'deleted_at'                   => null,
+            'deleted_at' => null,
         ]);
         self::assertDatabaseCount('product_introduction_discounts', 1);
     }
@@ -869,7 +953,7 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->productGroup)->createOne();
         $existingDiscount = new ProductIntroductionDiscountsFactory()->for($product)->createOne([
-            'contract_period'       => 12,
+            'contract_period' => 12,
             'max_uses_per_customer' => 5,
         ]);
 
@@ -879,15 +963,18 @@ class ProductUpdateServiceTest extends IntegrationTestCase
             firstMonthsDiscountPeriod: 6,
         );
 
-        $this->productUpdateService->updateProductLine($product, $this->makeDto(introductionPriceConfiguration: [$configuration]));
+        $this->productUpdateService->updateProductLine(
+            $product,
+            $this->makeDto(introductionPriceConfiguration: [$configuration]),
+        );
 
         self::assertDatabaseHas('product_introduction_discounts', [
-            'id'                           => $existingDiscount->id,
-            'product_id'                   => $product->id,
-            'contract_period'              => 12,
-            'max_uses_per_customer'        => 9,
+            'id' => $existingDiscount->id,
+            'product_id' => $product->id,
+            'contract_period' => 12,
+            'max_uses_per_customer' => 9,
             'first_months_discount_period' => 6,
-            'deleted_at'                   => null,
+            'deleted_at' => null,
         ]);
         self::assertDatabaseCount('product_introduction_discounts', 1);
     }
@@ -905,17 +992,20 @@ class ProductUpdateServiceTest extends IntegrationTestCase
             firstMonthsDiscountPeriod: null,
         );
 
-        $this->productUpdateService->updateProductLine($product, $this->makeDto(introductionPriceConfiguration: [$configuration]));
+        $this->productUpdateService->updateProductLine(
+            $product,
+            $this->makeDto(introductionPriceConfiguration: [$configuration]),
+        );
 
         self::assertDatabaseHas('product_introduction_discounts', [
-            'product_id'      => $product->id,
+            'product_id' => $product->id,
             'contract_period' => 12,
-            'deleted_at'      => null,
+            'deleted_at' => null,
         ]);
         self::assertDatabaseMissing('product_introduction_discounts', [
-            'product_id'      => $product->id,
+            'product_id' => $product->id,
             'contract_period' => 24,
-            'deleted_at'      => null,
+            'deleted_at' => null,
         ]);
     }
 
@@ -938,17 +1028,17 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->productGroup)->createOne();
         new ProductIntroductionDiscountsFactory()->for($product)->createOne([
-            'contract_period'       => 12,
+            'contract_period' => 12,
             'max_uses_per_customer' => 5,
         ]);
 
         $this->productUpdateService->updateProductLine($product, $this->makeDto());
 
         self::assertDatabaseHas('product_introduction_discounts', [
-            'product_id'            => $product->id,
-            'contract_period'       => 12,
+            'product_id' => $product->id,
+            'contract_period' => 12,
             'max_uses_per_customer' => 5,
-            'deleted_at'            => null,
+            'deleted_at' => null,
         ]);
     }
 
@@ -956,7 +1046,9 @@ class ProductUpdateServiceTest extends IntegrationTestCase
     public function updateIntroductionPriceConfigurationCreatesNewDiscountWhenExistingDiscountIsSoftDeleted(): void
     {
         $product = new ProductFactory()->for($this->productGroup)->createOne();
-        $trashedDiscount = new ProductIntroductionDiscountsFactory()->for($product)->createOne(['contract_period' => 12]);
+        $trashedDiscount = new ProductIntroductionDiscountsFactory()->for($product)->createOne([
+            'contract_period' => 12,
+        ]);
         $trashedDiscount->delete();
 
         $configuration = new IntroductionPriceConfigurationDTO(
@@ -965,13 +1057,16 @@ class ProductUpdateServiceTest extends IntegrationTestCase
             firstMonthsDiscountPeriod: null,
         );
 
-        $this->productUpdateService->updateProductLine($product, $this->makeDto(introductionPriceConfiguration: [$configuration]));
+        $this->productUpdateService->updateProductLine(
+            $product,
+            $this->makeDto(introductionPriceConfiguration: [$configuration]),
+        );
 
         self::assertDatabaseHas('product_introduction_discounts', [
-            'product_id'            => $product->id,
-            'contract_period'       => 12,
+            'product_id' => $product->id,
+            'contract_period' => 12,
             'max_uses_per_customer' => 2,
-            'deleted_at'            => null,
+            'deleted_at' => null,
         ]);
         self::assertDatabaseCount('product_introduction_discounts', 2);
     }
@@ -996,13 +1091,13 @@ class ProductUpdateServiceTest extends IntegrationTestCase
 
         $this->productUpdateService->updateProductLine(
             $product,
-            $this->makeDto(productPrices: [$entry], introductionPriceConfiguration: [$configuration])
+            $this->makeDto(productPrices: [$entry], introductionPriceConfiguration: [$configuration]),
         );
 
         self::assertDatabaseHas('product_introduction_discounts', [
-            'product_id'      => $product->id,
+            'product_id' => $product->id,
             'contract_period' => 24,
-            'deleted_at'      => null,
+            'deleted_at' => null,
         ]);
     }
 
@@ -1040,7 +1135,7 @@ class ProductUpdateServiceTest extends IntegrationTestCase
         );
     }
 
-    private function makePromotion(UuidInterface|null $uuid, int $weight = 1): Promotion
+    private function makePromotion(?UuidInterface $uuid, int $weight = 1): Promotion
     {
         return new Promotion(
             uuid: $uuid,

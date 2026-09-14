@@ -38,7 +38,7 @@ class WpToolkitSerializerFactory
             new ObjectNormalizer(
                 classMetadataFactory: $classMetadataFactory,
                 nameConverter: $metadataAwareNameConverter,
-                propertyTypeExtractor: $extractor
+                propertyTypeExtractor: $extractor,
             ),
         ];
 

@@ -32,7 +32,7 @@ class LighthouseApiService
      */
     public function createKratosIdentity(string $email, int $customerNumber): IdentityCreatedResponseDTO
     {
-        $response  = $this->requestHelper->request(
+        $response = $this->requestHelper->request(
             $this->configuration->getAsString('lighthouse.api_url') . '/kratos/identities',
             [
                 'email' => $email,
@@ -44,15 +44,19 @@ class LighthouseApiService
                     'waterfront',
                 ],
             ],
-            Request::METHOD_POST
+            Request::METHOD_POST,
         );
 
-        return $this->identitySerializerFactory->get()->deserialize($response->body(), IdentityCreatedResponseDTO::class, 'json');
+        return $this->identitySerializerFactory->get()->deserialize(
+            $response->body(),
+            IdentityCreatedResponseDTO::class,
+            'json',
+        );
     }
 
     public function updateKratosIdentity(Identity $identity): Identity
     {
-        $response  = $this->requestHelper->request(
+        $response = $this->requestHelper->request(
             $this->configuration->getAsString('lighthouse.api_url') . "/kratos/identities/{$identity->id}",
             [
                 'email' => $identity->traits->email,
@@ -60,7 +64,7 @@ class LighthouseApiService
                 'customers' => $identity->metadataPublic->customerNumbers ?? [],
                 'business_relations' => $identity->metadataPublic->businessRelations ?? [],
             ],
-            Request::METHOD_PUT
+            Request::METHOD_PUT,
         );
 
         return $this->identitySerializerFactory->get()->deserialize($response->body(), Identity::class, 'json');
@@ -77,13 +81,13 @@ class LighthouseApiService
             '%s/%s/%s',
             $this->configuration->getAsString('lighthouse.api_url'),
             'kratos/identities',
-            $identifier
+            $identifier,
         );
 
         $response = $this->requestHelper->request(
             $url,
             [],
-            Request::METHOD_GET
+            Request::METHOD_GET,
         );
 
         return $this->identitySerializerFactory->get()->deserialize($response->body(), Identity::class, 'json');
@@ -109,11 +113,16 @@ class LighthouseApiService
             [
                 'customerNumber' => $customerNumber,
             ],
-            Request::METHOD_GET
+            Request::METHOD_GET,
         );
 
         /** @var Identity[] $identitiesResponse */
-        $identitiesResponse = $this->identitySerializerFactory->get()->deserialize($response->body(), Identity::class . '[]', 'json');
+        $identitiesResponse = $this->identitySerializerFactory->get()->deserialize(
+            $response->body(),
+            Identity::class . '[]',
+            'json',
+        );
+
         return $identitiesResponse;
     }
 
@@ -128,7 +137,7 @@ class LighthouseApiService
             $this->configuration->getAsString('lighthouse.api_url'),
             '/kratos/identities',
             $uuid,
-            '/detach-customer'
+            '/detach-customer',
         );
 
         $this->requestHelper->request(
@@ -136,7 +145,7 @@ class LighthouseApiService
             [
                 'customerNumber' => $customerNumber,
             ],
-            Request::METHOD_POST
+            Request::METHOD_POST,
         );
     }
 }

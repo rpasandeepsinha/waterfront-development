@@ -55,25 +55,30 @@ class CancelSubscriptionsCheckControllerTest extends IntegrationTestCase
         $creditAndDispatchInvoiceLinesToHarbor->expects(self::never())->method('creditAndDispatch');
         $this->app->bind(
             CreditAndDispatchInvoiceLinesToHarbor::class,
-            fn (): CreditAndDispatchInvoiceLinesToHarbor => $creditAndDispatchInvoiceLinesToHarbor
+            fn (): CreditAndDispatchInvoiceLinesToHarbor => $creditAndDispatchInvoiceLinesToHarbor,
         );
 
         $cancelSubscriptionsAction = self::createMock(CancelSubscriptionsAction::class);
         $cancelSubscriptionsAction->expects(self::never())->method('execute');
-        $this->app->bind(CancelSubscriptionsAction::class, fn (): CancelSubscriptionsAction => $cancelSubscriptionsAction);
+        $this->app->bind(
+            CancelSubscriptionsAction::class,
+            fn (): CancelSubscriptionsAction => $cancelSubscriptionsAction,
+        );
     }
 
     #[Test]
     public function checkReturnsTheSelectionWithoutInvoicesWhenNothingHasBeenFilledInYet(): void
     {
-        $subscription =  new SubscriptionFactory()
+        $subscription = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->for($this->product)
             ->for($this->customer)
             ->createOne();
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.subscriptions.cancel-and-credit.check'), ['subscription_uuids' => [$subscription->uuid]])
+            ->postJson($this->generateRoute('admin.subscriptions.cancel-and-credit.check'), ['subscription_uuids' => [
+                $subscription->uuid,
+            ]])
             ->assertOk()
             ->assertJson([
                 'subscriptions' => [
@@ -98,19 +103,21 @@ class CancelSubscriptionsCheckControllerTest extends IntegrationTestCase
     #[Test]
     public function checkAddsDependentSubscriptions(): void
     {
-        $parentSubscription =  new SubscriptionFactory()
+        $parentSubscription = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->for($this->product)
             ->for($this->customer)
             ->createOne();
-        $childSubscription =  new SubscriptionFactory()
+        $childSubscription = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->for($this->product)
             ->for($this->customer)
             ->createOne(['parent_subscription_id' => $parentSubscription->id]);
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.subscriptions.cancel-and-credit.check'), ['subscription_uuids' => [$parentSubscription->uuid]])
+            ->postJson($this->generateRoute('admin.subscriptions.cancel-and-credit.check'), ['subscription_uuids' => [
+                $parentSubscription->uuid,
+            ]])
             ->assertOk()
             ->assertJsonCount(2, 'subscriptions')
             ->assertJson([
@@ -125,7 +132,7 @@ class CancelSubscriptionsCheckControllerTest extends IntegrationTestCase
     #[Test]
     public function checkLeavesOutDependentSubscriptionsThatAreAlreadyArchived(string $status): void
     {
-        $parentSubscription =  new SubscriptionFactory()
+        $parentSubscription = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->for($this->product)
             ->for($this->customer)
@@ -135,12 +142,14 @@ class CancelSubscriptionsCheckControllerTest extends IntegrationTestCase
             ->for($this->product)
             ->for($this->customer)
             ->createOne([
-            'parent_subscription_id' => $parentSubscription->id,
-            'administrative_status' => $status,
-        ]);
+                'parent_subscription_id' => $parentSubscription->id,
+                'administrative_status' => $status,
+            ]);
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.subscriptions.cancel-and-credit.check'), ['subscription_uuids' => [$parentSubscription->uuid]])
+            ->postJson($this->generateRoute('admin.subscriptions.cancel-and-credit.check'), ['subscription_uuids' => [
+                $parentSubscription->uuid,
+            ]])
             ->assertOk()
             ->assertJsonCount(1, 'subscriptions')
             ->assertJsonPath('subscriptions.0.id', $parentSubscription->id);
@@ -158,13 +167,13 @@ class CancelSubscriptionsCheckControllerTest extends IntegrationTestCase
     #[Test]
     public function checkPreviewsTheCreditInvoiceLinesThatWouldBeGenerated(): void
     {
-        $subscription =  new SubscriptionFactory()
+        $subscription = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->for($this->product)
             ->for($this->customer)
             ->createOne([
-            'end_date' => CarbonImmutable::now()->addDays(self::INVOICE_LINE_PERIOD_IN_DAYS),
-        ]);
+                'end_date' => CarbonImmutable::now()->addDays(self::INVOICE_LINE_PERIOD_IN_DAYS),
+            ]);
         $invoiceLine = new InvoiceFactory()
             ->for($this->customer)
             ->for($this->product)
@@ -209,13 +218,13 @@ class CancelSubscriptionsCheckControllerTest extends IntegrationTestCase
     #[Test]
     public function checkOnlyListsCreditableInvoiceLinesWhenCreditingIsNotRequested(): void
     {
-        $subscription =  new SubscriptionFactory()
+        $subscription = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->for($this->product)
             ->for($this->customer)
             ->createOne([
-            'end_date' => CarbonImmutable::now()->addDays(self::INVOICE_LINE_PERIOD_IN_DAYS),
-        ]);
+                'end_date' => CarbonImmutable::now()->addDays(self::INVOICE_LINE_PERIOD_IN_DAYS),
+            ]);
         new InvoiceFactory()
             ->for($this->customer)
             ->for($this->product)
@@ -236,7 +245,12 @@ class CancelSubscriptionsCheckControllerTest extends IntegrationTestCase
                 'credit' => false,
             ])
             ->assertOk()
-            ->assertJson(['credit_allowed' => true, 'credit_applied' => false, 'credit_invoice_lines' => [], 'credit_total' => 0])
+            ->assertJson([
+                'credit_allowed' => true,
+                'credit_applied' => false,
+                'credit_invoice_lines' => [],
+                'credit_total' => 0,
+            ])
             ->assertJsonCount(1, 'creditable_invoice_lines');
     }
 
@@ -244,15 +258,15 @@ class CancelSubscriptionsCheckControllerTest extends IntegrationTestCase
     #[Test]
     public function checkReportsThatCreditingIsNotPossibleAndShowsNoInvoiceLines(
         SubscriptionCancelReason $reason,
-        SubscriptionCancelType $type
+        SubscriptionCancelType $type,
     ): void {
-        $subscription =  new SubscriptionFactory()
+        $subscription = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->for($this->product)
             ->for($this->customer)
             ->createOne([
-            'end_date' => CarbonImmutable::now()->addDays(self::INVOICE_LINE_PERIOD_IN_DAYS),
-        ]);
+                'end_date' => CarbonImmutable::now()->addDays(self::INVOICE_LINE_PERIOD_IN_DAYS),
+            ]);
         new InvoiceFactory()
             ->for($this->customer)
             ->for($this->product)
@@ -313,19 +327,22 @@ class CancelSubscriptionsCheckControllerTest extends IntegrationTestCase
     #[Test]
     public function checkReturnsTheHighestEndDateOfTheAffectedSubscriptionsAsMaxSelectableDate(): void
     {
-        $earliest =  new SubscriptionFactory()
+        $earliest = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->for($this->product)
             ->for($this->customer)
             ->createOne(['end_date' => CarbonImmutable::now()->addDays(30)]);
-        $latest =  new SubscriptionFactory()
+        $latest = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->for($this->product)
             ->for($this->customer)
             ->createOne(['end_date' => CarbonImmutable::now()->addDays(300)]);
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.subscriptions.cancel-and-credit.check'), ['subscription_uuids' => [$earliest->uuid, $latest->uuid]])
+            ->postJson($this->generateRoute('admin.subscriptions.cancel-and-credit.check'), ['subscription_uuids' => [
+                $earliest->uuid,
+                $latest->uuid,
+            ]])
             ->assertOk()
             ->assertJsonPath('max_selectable_end_date', $latest->end_date->format(DateTimeFormat::DATE));
     }
@@ -333,7 +350,7 @@ class CancelSubscriptionsCheckControllerTest extends IntegrationTestCase
     #[Test]
     public function checkReportsSubscriptionsOfMultipleCustomersAsABlockingProblem(): void
     {
-        $subscription =  new SubscriptionFactory()
+        $subscription = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->for($this->product)
             ->for($this->customer)
@@ -365,7 +382,9 @@ class CancelSubscriptionsCheckControllerTest extends IntegrationTestCase
             ->createOne(['administrative_status' => $status]);
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.subscriptions.cancel-and-credit.check'), ['subscription_uuids' => [$subscription->uuid]])
+            ->postJson($this->generateRoute('admin.subscriptions.cancel-and-credit.check'), ['subscription_uuids' => [
+                $subscription->uuid,
+            ]])
             ->assertOk()
             ->assertJsonPath('blocking_problems', [
                 ['subscription_id' => $subscription->id, 'message' => 'subscription.cancel.failure_non_cancellable'],
@@ -423,13 +442,16 @@ class CancelSubscriptionsCheckControllerTest extends IntegrationTestCase
     #[Test]
     public function checkReportsAChildThatMayNotBeCancelledSeparatelyAsABlockingProblem(): void
     {
-        $parentSubscription =  new SubscriptionFactory()
+        $parentSubscription = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->for($this->product)
             ->for($this->customer)
             ->createOne();
         $childProduct = new ProductFactory()->for($this->productGroup)->createOne();
-        new ProductSpecFactory()->disable(ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD)->for($childProduct)->createOne();
+        new ProductSpecFactory()
+            ->disable(ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD)
+            ->for($childProduct)
+            ->createOne();
         $childSubscription = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->for($childProduct)
@@ -437,10 +459,15 @@ class CancelSubscriptionsCheckControllerTest extends IntegrationTestCase
             ->createOne(['parent_subscription_id' => $parentSubscription->id]);
 
         $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.subscriptions.cancel-and-credit.check'), ['subscription_uuids' => [$childSubscription->uuid]])
+            ->postJson($this->generateRoute('admin.subscriptions.cancel-and-credit.check'), ['subscription_uuids' => [
+                $childSubscription->uuid,
+            ]])
             ->assertOk()
             ->assertJsonPath('blocking_problems', [
-                ['subscription_id' => $childSubscription->id, 'message' => 'subscription.cancel.failure_cancel_with_parent'],
+                [
+                    'subscription_id' => $childSubscription->id,
+                    'message' => 'subscription.cancel.failure_cancel_with_parent',
+                ],
             ])
             ->assertJsonPath('subscriptions.0.id', $childSubscription->id)
             ->assertJsonPath('subscriptions.0.product.name', $childProduct->name);
@@ -488,7 +515,7 @@ class CancelSubscriptionsCheckControllerTest extends IntegrationTestCase
     #[Test]
     public function checkRequiresADateWhenCancellingOnAnotherDate(): void
     {
-        $subscription =  new SubscriptionFactory()
+        $subscription = new SubscriptionFactory()
             ->administrativeStatusActive()
             ->for($this->product)
             ->for($this->customer)

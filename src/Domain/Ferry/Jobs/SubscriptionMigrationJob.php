@@ -32,8 +32,9 @@ class SubscriptionMigrationJob extends AbstractQueueableJob
     /**
      * @param array<mixed> $subscriptionRawData
      */
-    public function __construct(private readonly array $subscriptionRawData)
-    {
+    public function __construct(
+        private readonly array $subscriptionRawData,
+    ) {
         parent::__construct();
     }
 
@@ -80,15 +81,17 @@ class SubscriptionMigrationJob extends AbstractQueueableJob
                     message: AzureDataFactoryMessage::create(
                         AzureDataFactoryMessageType::MIGRATION_EXECUTED->value,
                         [
-                            ...$adfPayloadService->fetchMigrationBulkSubscriptionPayload(
-                                createSubscriptionsDTO: $createSubscriptionsDTO,
-                                subscriptions: $this->getSubscriptionsMap($createSubscriptionsDTO),
-                                migrationStep: MigrationStep::SUBSCRIPTION
-                            )->toArray(),
-                        ]
+                            ...$adfPayloadService
+                                ->fetchMigrationBulkSubscriptionPayload(
+                                    createSubscriptionsDTO: $createSubscriptionsDTO,
+                                    subscriptions: $this->getSubscriptionsMap($createSubscriptionsDTO),
+                                    migrationStep: MigrationStep::SUBSCRIPTION,
+                                )
+                                ->toArray(),
+                        ],
                     ),
-                    reference: $createSubscriptionsDTO->getReferenceCustomerId()
-                )
+                    reference: $createSubscriptionsDTO->getReferenceCustomerId(),
+                ),
             );
         }
     }
@@ -109,9 +112,9 @@ class SubscriptionMigrationJob extends AbstractQueueableJob
         foreach ($subscriptions as $subscription) {
             $list[] = [
                 'waterfront_subscription_id' => $subscription->id,
-                'reference_subscription_id' => $subscription->migratedSubscriptions->isNotEmpty() ?
-                    $subscription->migratedSubscriptions->firstOrFail()->reference_subscription_id :
-                    null,
+                'reference_subscription_id' => $subscription->migratedSubscriptions->isNotEmpty()
+                    ? $subscription->migratedSubscriptions->firstOrFail()->reference_subscription_id
+                    : null,
             ];
         }
 
@@ -124,7 +127,7 @@ class SubscriptionMigrationJob extends AbstractQueueableJob
         SubscriptionMigrationRules $subscriptionMigrationRules,
         ValidatorFactory $validatorFactory,
         LoggerInterface $logger,
-        Dispatcher $dispatcher
+        Dispatcher $dispatcher,
     ): bool {
         try {
             $customer = Customer::findOrFail($customerId);
@@ -161,10 +164,10 @@ class SubscriptionMigrationJob extends AbstractQueueableJob
                         AzureDataFactoryMessageType::MIGRATION_EXECUTED_UNSUCCESSFUL->value,
                         [
                             'validation_errors' => $exception->errors(),
-                        ]
+                        ],
                     ),
                     reference: $referenceCustomerId,
-                )
+                ),
             );
         } catch (ModelNotFoundException $exception) {
             $logger->info('Encountered validation exception while inserting subscriptions for customer in job.', [
@@ -183,7 +186,7 @@ class SubscriptionMigrationJob extends AbstractQueueableJob
                         $exceptionPayload,
                     ),
                     reference: $referenceCustomerId,
-                )
+                ),
             );
         }
 
@@ -197,28 +200,31 @@ class SubscriptionMigrationJob extends AbstractQueueableJob
         MigrationSubscriptionPayloadToDtoConverter $converter,
         LoggerInterface $logger,
         Dispatcher $dispatcher,
-    ): CreateSubscriptionsDTO|null {
+    ): ?CreateSubscriptionsDTO {
         try {
             $createSubscriptionsDTO = $converter->convert($this->subscriptionRawData);
 
             $logger->info('Starting to insert subscriptions for customer in job.', [
                 LoggingContextKeys::QUEUE_JOB_ID => $this->job?->getJobId(),
                 LoggingContextKeys::CUSTOMER_ID => $createSubscriptionsDTO->getCustomer()->id,
-                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $createSubscriptionsDTO->getReferenceCustomerId(),
+                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                    $createSubscriptionsDTO->getReferenceCustomerId(),
             ]);
 
             $storeSubscriptionAction->execute(
                 createSubscriptions: $createSubscriptionsDTO,
-                responseDto: new ResponseDto()
+                responseDto: new ResponseDto(),
             );
 
             $logger->info('Completed inserting subscriptions for customer in job.', [
                 LoggingContextKeys::QUEUE_JOB_ID => $this->job?->getJobId(),
                 LoggingContextKeys::CUSTOMER_ID => $createSubscriptionsDTO->getCustomer()->id,
-                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $createSubscriptionsDTO->getReferenceCustomerId(),
+                LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                    $createSubscriptionsDTO->getReferenceCustomerId(),
             ]);
 
             return $createSubscriptionsDTO;
+
             /** @phpstan-ignore-next-line  */
         } catch (Throwable $exception) {
             $logger->info('Encountered exception while inserting subscriptions for customer in job.', [
@@ -237,7 +243,7 @@ class SubscriptionMigrationJob extends AbstractQueueableJob
                         $exceptionPayload,
                     ),
                     reference: $referenceCustomerId,
-                )
+                ),
             );
 
             return null;

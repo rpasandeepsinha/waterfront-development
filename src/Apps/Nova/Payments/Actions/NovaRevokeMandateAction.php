@@ -18,7 +18,7 @@ class NovaRevokeMandateAction extends Action
 {
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private readonly MandateRevokeManager $mandateRevokeManager
+        private readonly MandateRevokeManager $mandateRevokeManager,
     ) {
     }
 
@@ -43,7 +43,7 @@ class NovaRevokeMandateAction extends Action
             $this->mandateRevokeManager->revokeMandate($mandate);
 
             return self::message(
-                $this->translator->translate('nova-action.success.revoke_action')
+                $this->translator->translate('nova-action.success.revoke_action'),
             );
         } catch (MollieMandateApiException|PaytMandateApiException $exception) {
             return self::modal('modal-response', [

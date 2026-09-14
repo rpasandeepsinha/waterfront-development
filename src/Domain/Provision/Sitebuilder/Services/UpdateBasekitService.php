@@ -38,11 +38,11 @@ class UpdateBasekitService
             $this->logger->error(
                 sprintf(
                     'Failed to retrieve context "%s"',
-                    $updateSitebuilderRequest->context
+                    $updateSitebuilderRequest->context,
                 ),
-                LogContextBuilder::for($updateSitebuilderRequest)
-                    ->withException($exception = new BasekitUserRefNotFoundForContextException($updateSitebuilderRequest->context))
-                    ->build()
+                LogContextBuilder::for($updateSitebuilderRequest)->withException(
+                    $exception = new BasekitUserRefNotFoundForContextException($updateSitebuilderRequest->context),
+                )->build(),
             );
 
             return new SitebuilderResult(
@@ -61,7 +61,7 @@ class UpdateBasekitService
                 exception: new UpdateBasekitException(
                     message: $exception->getMessage(),
                     code: $exception->getCode(),
-                    previous: $exception
+                    previous: $exception,
                 ),
             );
         }
@@ -97,8 +97,10 @@ class UpdateBasekitService
         ], $updateSitebuilderRequest->packages);
     }
 
-    private function updateUserPackages(BasekitContext $basekitContext, UpdateSitebuilderRequest $updateSitebuilderRequest): void
-    {
+    private function updateUserPackages(
+        BasekitContext $basekitContext,
+        UpdateSitebuilderRequest $updateSitebuilderRequest,
+    ): void {
         $accountPackages = $this->getUserPackages($basekitContext, $updateSitebuilderRequest);
         $currentPackageIds = [];
         $basekitPackageStateMeta = [
@@ -116,16 +118,14 @@ class UpdateBasekitService
                         'Start deleting account package %d with package reference %d for user %d',
                         $accountPackage->ref,
                         $accountPackage->package->ref,
-                        $basekitContext->user_ref
+                        $basekitContext->user_ref,
                     ),
-                    LogContextBuilder::for($updateSitebuilderRequest)
-                        ->withMeta([
-                            'basekit_account_package_ref' => $accountPackage->ref,
-                            'basekit_package_ref' => $accountPackage->package->ref,
-                            'basekit_user_ref' => $basekitContext->user_ref,
-                            'basekit_packages' => $basekitPackageStateMeta,
-                        ])
-                        ->build()
+                    LogContextBuilder::for($updateSitebuilderRequest)->withMeta([
+                        'basekit_account_package_ref' => $accountPackage->ref,
+                        'basekit_package_ref' => $accountPackage->package->ref,
+                        'basekit_user_ref' => $basekitContext->user_ref,
+                        'basekit_packages' => $basekitPackageStateMeta,
+                    ])->build(),
                 );
                 $this->deleteUserPackage($basekitContext, $accountPackage, $updateSitebuilderRequest);
             } else {
@@ -139,15 +139,13 @@ class UpdateBasekitService
                 sprintf(
                     'Start adding package %d for user %d',
                     $packageRef,
-                    $basekitContext->user_ref
+                    $basekitContext->user_ref,
                 ),
-                LogContextBuilder::for($updateSitebuilderRequest)
-                    ->withMeta([
-                        'basekit_package_ref' => $packageRef,
-                        'basekit_user_ref' => $basekitContext->user_ref,
-                        'basekit_packages' => $basekitPackageStateMeta,
-                    ])
-                    ->build()
+                LogContextBuilder::for($updateSitebuilderRequest)->withMeta([
+                    'basekit_package_ref' => $packageRef,
+                    'basekit_user_ref' => $basekitContext->user_ref,
+                    'basekit_packages' => $basekitPackageStateMeta,
+                ])->build(),
             );
 
             $this->addUserPackage($basekitContext, $packageRef, $updateSitebuilderRequest);
@@ -167,14 +165,14 @@ class UpdateBasekitService
             $this->logger->error(
                 sprintf(
                     'Failed to retrieve user packages for user %d',
-                    $basekitContext->user_ref
+                    $basekitContext->user_ref,
                 ),
                 LogContextBuilder::for($request)
                     ->withException($exception)
                     ->withMeta([
                         'basekit_user_ref' => $basekitContext->user_ref,
                     ])
-                    ->build()
+                    ->build(),
             );
 
             throw new BasekitGetPackagesForUserException(
@@ -184,8 +182,11 @@ class UpdateBasekitService
         }
     }
 
-    private function deleteUserPackage(BasekitContext $basekitContext, AccountPackage $accountPackage, UpdateSitebuilderRequest $request): void
-    {
+    private function deleteUserPackage(
+        BasekitContext $basekitContext,
+        AccountPackage $accountPackage,
+        UpdateSitebuilderRequest $request,
+    ): void {
         try {
             $this->baseKitClient->packageApi->deleteUserPackage(
                 $basekitContext->user_ref,
@@ -196,7 +197,7 @@ class UpdateBasekitService
                 sprintf(
                     'Failed to delete account package %d for user %d',
                     $accountPackage->package->ref,
-                    $basekitContext->user_ref
+                    $basekitContext->user_ref,
                 ),
                 LogContextBuilder::for($request)
                     ->withException($exception)
@@ -205,26 +206,29 @@ class UpdateBasekitService
                         'basekit_package_ref' => $accountPackage->package->ref,
                         'basekit_user_ref' => $basekitContext->user_ref,
                     ])
-                    ->build()
+                    ->build(),
             );
             throw new BasekitDeletePackageForUserException($accountPackage->package->ref, $basekitContext->user_ref);
         }
     }
 
-    private function addUserPackage(BasekitContext $basekitContext, int $packageRef, UpdateSitebuilderRequest $request): void
-    {
+    private function addUserPackage(
+        BasekitContext $basekitContext,
+        int $packageRef,
+        UpdateSitebuilderRequest $request,
+    ): void {
         try {
             $this->baseKitClient->packageApi->addUserPackage(
                 $basekitContext->user_ref,
                 $packageRef,
-                $request->contractPeriod
+                $request->contractPeriod,
             );
         } catch (BaseKitClientException|UnexpectedValueException $exception) {
             $this->logger->error(
                 sprintf(
                     'Failed to add package %d for user %d',
                     $packageRef,
-                    $basekitContext->user_ref
+                    $basekitContext->user_ref,
                 ),
                 LogContextBuilder::for($request)
                     ->withException($exception)
@@ -233,7 +237,7 @@ class UpdateBasekitService
                         'basekit_user_ref' => $basekitContext->user_ref,
                         'basekit_subscription_period' => $request->contractPeriod,
                     ])
-                    ->build()
+                    ->build(),
             );
 
             throw new BasekitAddPackageForUserException(

@@ -13,7 +13,7 @@ readonly class ValidationErrorResult implements ValidationResultInterface
      */
     public function __construct(
         public MigrationValidation $id,
-        public array $messages
+        public array $messages,
     ) {
     }
 

@@ -65,16 +65,19 @@ class DnsController
                 [
                     'message' => $this->translator->translate('dns.dns-zone-not-exists'),
                 ],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
 
         try {
-            $redirectSubscription = $this->subscriptionRepository->getSubscriptionByDomainAndGroup($domain, ProductGroupType::REDIRECT);
+            $redirectSubscription = $this->subscriptionRepository->getSubscriptionByDomainAndGroup(
+                $domain,
+                ProductGroupType::REDIRECT,
+            );
 
             $mappedRecords = $this->redirectDnsMapper->addSubscriptionUuidToDnsRecords(
                 dnsRecords: $records,
-                subscriptionUuid: Uuid::fromString($redirectSubscription->uuid)
+                subscriptionUuid: Uuid::fromString($redirectSubscription->uuid),
             );
         } catch (ModelNotFoundException) {
             $mappedRecords = $records;
@@ -109,14 +112,14 @@ class DnsController
                         ],
                     ],
                 ],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         } catch (JsonException|PdnsResponseException|DnsZoneNotFoundException|GuzzleException $exception) {
             Log::error(
                 self::class . '::store',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return new JsonResponse(
@@ -128,7 +131,7 @@ class DnsController
                         ],
                     ],
                 ],
-                Response::HTTP_BAD_GATEWAY
+                Response::HTTP_BAD_GATEWAY,
             );
         }
 
@@ -169,14 +172,14 @@ class DnsController
                         ],
                     ],
                 ],
-                Response::HTTP_UNPROCESSABLE_ENTITY
+                Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         } catch (DnsZoneNotFoundException|JsonException|GuzzleException|PdnsResponseException $exception) {
             Log::error(
                 self::class . '::update',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return new JsonResponse(
@@ -188,7 +191,7 @@ class DnsController
                         ],
                     ],
                 ],
-                Response::HTTP_BAD_GATEWAY
+                Response::HTTP_BAD_GATEWAY,
             );
         }
 
@@ -216,19 +219,21 @@ class DnsController
             if ($this->dnsProductSpecRepository->isPremiumDns($subscription->product)) {
                 $this->dnsService->sendNotify($domain);
             }
-        } catch (JsonException|PdnsResponseException|DnsZoneNotFoundException|GuzzleException|ValidationException $exception) {
+        } catch (
+            JsonException|PdnsResponseException|DnsZoneNotFoundException|GuzzleException|ValidationException $exception
+        ) {
             Log::error(
                 self::class . '::store',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return new JsonResponse(
                 [
                     'message' => $this->translator->translate('dns.dns-operation-failed'),
                 ],
-                Response::HTTP_BAD_GATEWAY
+                Response::HTTP_BAD_GATEWAY,
             );
         }
 
@@ -241,7 +246,8 @@ class DnsController
     private function getSubscriptionByDomain(string $domain): Subscription
     {
         /** @var Subscription|null $subscription */
-        $subscription = $this->subscriptionService->getSubscriptionsQuery()
+        $subscription = $this->subscriptionService
+            ->getSubscriptionsQuery()
             ->where('domain', $domain)
             ->whereProductGroupType(ProductGroupType::DNS)
             ->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())

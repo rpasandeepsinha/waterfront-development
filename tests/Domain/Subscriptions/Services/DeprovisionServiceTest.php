@@ -99,7 +99,7 @@ class DeprovisionServiceTest extends IntegrationTestCase
 
         self::assertSame(
             TechnicalStatus::DELETING->value,
-            $subscription->refresh()->technical_status
+            $subscription->refresh()->technical_status,
         );
     }
 
@@ -120,7 +120,9 @@ class DeprovisionServiceTest extends IntegrationTestCase
             ->for(new CustomerFactory())
             ->for($mailOnlyProduct)
             ->createOne();
-        $sitebuilderProduct = new ProductFactory()->for($productGroup)->createOne(['slug' => ProductType::SITEBUILDER->value]);
+        $sitebuilderProduct = new ProductFactory()->for($productGroup)->createOne([
+            'slug' => ProductType::SITEBUILDER->value,
+        ]);
         $sitebuilderSubscription = new SubscriptionFactory()
             ->for(new CustomerFactory())
             ->for($sitebuilderProduct)
@@ -129,9 +131,18 @@ class DeprovisionServiceTest extends IntegrationTestCase
             ->for(new CustomerFactory())
             ->for(new ProductFactory()->for($productGroup))
             ->createOne();
-        new HostingDeploymentFactory()->for($mailOnlySubscription)->withMailOnlyProvider()->createOne();
-        new HostingDeploymentFactory()->for($sitebuilderSubscription)->withPleskProvider()->createOne();
-        new HostingDeploymentFactory()->for($hostingSubscription)->withDirectAdminProvider()->createOne();
+        new HostingDeploymentFactory()
+            ->for($mailOnlySubscription)
+            ->withMailOnlyProvider()
+            ->createOne();
+        new HostingDeploymentFactory()
+            ->for($sitebuilderSubscription)
+            ->withPleskProvider()
+            ->createOne();
+        new HostingDeploymentFactory()
+            ->for($hostingSubscription)
+            ->withDirectAdminProvider()
+            ->createOne();
 
         $this->eventDispatcher
             ->expects(self::exactly(3))
@@ -141,7 +152,7 @@ class DeprovisionServiceTest extends IntegrationTestCase
                     [self::isInstanceOf(TerminateMailOnlyHosting::class)],
                     [self::isInstanceOf(TerminateSitebuilderHosting::class)],
                     [self::isInstanceOf(TerminateHosting::class)],
-                )
+                ),
             );
 
         $this->service->deprovision($mailOnlySubscription);
@@ -212,10 +223,11 @@ class DeprovisionServiceTest extends IntegrationTestCase
             ->for(new CustomerFactory())
             ->for(new ProductFactory()->for(new ProductGroupFactory()->cloudstackVirtualMachine()))
             ->createOne();
-        new CloudstackVirtualMachineDeploymentFactory()
-            ->for(new CloudstackManagerDomainDeploymentFactory()->for(new CloudstackEnvironmentFactory())->for(new CustomerFactory()))
-            ->for($subscription)
-            ->createOne();
+        new CloudstackVirtualMachineDeploymentFactory()->for(new CloudstackManagerDomainDeploymentFactory()->for(
+            new CloudstackEnvironmentFactory(),
+        )->for(
+            new CustomerFactory(),
+        ))->for($subscription)->createOne();
 
         $this->eventDispatcher
             ->expects(self::once())
@@ -234,10 +246,11 @@ class DeprovisionServiceTest extends IntegrationTestCase
             ->for(new CustomerFactory())
             ->for(new ProductFactory()->for(new ProductGroupFactory()->vps()))
             ->createOne();
-        new CloudstackVirtualMachineDeploymentFactory()
-            ->for(new CloudstackManagerDomainDeploymentFactory()->for(new CloudstackEnvironmentFactory())->for(new CustomerFactory()))
-            ->for($subscription)
-            ->createOne();
+        new CloudstackVirtualMachineDeploymentFactory()->for(new CloudstackManagerDomainDeploymentFactory()->for(
+            new CloudstackEnvironmentFactory(),
+        )->for(
+            new CustomerFactory(),
+        ))->for($subscription)->createOne();
 
         $this->eventDispatcher
             ->expects(self::once())
@@ -256,10 +269,11 @@ class DeprovisionServiceTest extends IntegrationTestCase
             ->for(new CustomerFactory())
             ->for(new ProductFactory()->for(new ProductGroupFactory()->cloudstackVolume()))
             ->createOne();
-        new CloudstackVolumeDeploymentFactory()
-            ->for(new CloudstackManagerDomainDeploymentFactory()->for(new CloudstackEnvironmentFactory())->for(new CustomerFactory()))
-            ->for($subscription)
-            ->createOne();
+        new CloudstackVolumeDeploymentFactory()->for(new CloudstackManagerDomainDeploymentFactory()->for(
+            new CloudstackEnvironmentFactory(),
+        )->for(
+            new CustomerFactory(),
+        ))->for($subscription)->createOne();
 
         $this->service->deprovision($subscription);
 
@@ -323,13 +337,9 @@ class DeprovisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->other()))
             ->createOne();
 
-        $this->jobDispatcher
-            ->expects(self::never())
-            ->method(self::anything());
+        $this->jobDispatcher->expects(self::never())->method(self::anything());
 
-        $this->eventDispatcher
-            ->expects(self::never())
-            ->method(self::anything());
+        $this->eventDispatcher->expects(self::never())->method(self::anything());
 
         $this->service->deprovision($subscription);
     }
@@ -342,13 +352,9 @@ class DeprovisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->cloudstackOs()))
             ->createOne();
 
-        $this->jobDispatcher
-            ->expects(self::never())
-            ->method(self::anything());
+        $this->jobDispatcher->expects(self::never())->method(self::anything());
 
-        $this->eventDispatcher
-            ->expects(self::never())
-            ->method(self::anything());
+        $this->eventDispatcher->expects(self::never())->method(self::anything());
 
         $this->service->deprovision($subscription);
     }
@@ -361,13 +367,9 @@ class DeprovisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->oneTimeService()))
             ->createOne();
 
-        $this->jobDispatcher
-            ->expects(self::never())
-            ->method(self::anything());
+        $this->jobDispatcher->expects(self::never())->method(self::anything());
 
-        $this->eventDispatcher
-            ->expects(self::never())
-            ->method(self::anything());
+        $this->eventDispatcher->expects(self::never())->method(self::anything());
 
         $this->service->deprovision($subscription);
     }
@@ -380,13 +382,9 @@ class DeprovisionServiceTest extends IntegrationTestCase
             ->for(new ProductFactory()->for(new ProductGroupFactory()->addon()))
             ->createOne();
 
-        $this->jobDispatcher
-            ->expects(self::never())
-            ->method(self::anything());
+        $this->jobDispatcher->expects(self::never())->method(self::anything());
 
-        $this->eventDispatcher
-            ->expects(self::never())
-            ->method(self::anything());
+        $this->eventDispatcher->expects(self::never())->method(self::anything());
 
         $this->service->deprovision($subscription);
     }
@@ -408,7 +406,7 @@ class DeprovisionServiceTest extends IntegrationTestCase
 
         self::assertSame(
             TechnicalStatus::DELETING->value,
-            $subscription->refresh()->technical_status
+            $subscription->refresh()->technical_status,
         );
     }
 }

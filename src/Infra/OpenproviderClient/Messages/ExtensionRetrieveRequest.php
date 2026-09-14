@@ -14,7 +14,7 @@ class ExtensionRetrieveRequest extends BaseRequest
     public function __construct(
         Client $client,
         OpenProviderConnectionInterface $connection,
-        private readonly string $extension
+        private readonly string $extension,
     ) {
         parent::__construct($client, $connection);
     }

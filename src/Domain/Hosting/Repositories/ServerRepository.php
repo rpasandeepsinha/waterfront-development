@@ -44,8 +44,7 @@ class ServerRepository
      */
     public function findByHostname(string $hostName): Server
     {
-        return Server::where('hostname', $hostName)
-            ->firstOrFail();
+        return Server::where('hostname', $hostName)->firstOrFail();
     }
 
     public function getById(int $id): Server

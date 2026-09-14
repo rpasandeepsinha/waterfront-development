@@ -99,7 +99,7 @@ class HandleParameters
      */
     public static function create(array $data): HandleParameters
     {
-        $data = array_filter($data);
+        $data = array_filter($data, fn (mixed $value): bool => (bool) $value);
 
         self::validateRequiredFields($data);
 
@@ -116,42 +116,44 @@ class HandleParameters
     public static function createFromCustomerArray(array $customer): HandleParameters
     {
         return self::create([
-            'companyName'           => Arr::get($customer, 'organization'),
-            'firstName'             => Arr::get($customer, 'first_name'),
-            'lastName'              => Arr::get($customer, 'last_name'),
-            'phoneCountryCode'      => Arr::get($customer, 'phone_country_code'),
-            'phoneAreaCode'         => Arr::get($customer, 'phone_area_code'),
+            'companyName' => Arr::get($customer, 'organization'),
+            'firstName' => Arr::get($customer, 'first_name'),
+            'lastName' => Arr::get($customer, 'last_name'),
+            'phoneCountryCode' => Arr::get($customer, 'phone_country_code'),
+            'phoneAreaCode' => Arr::get($customer, 'phone_area_code'),
             'phoneSubscriberNumber' => Arr::get($customer, 'phone_subscriber_number'),
-            'addressStreet'         => Arr::get($customer, 'address.street_name'),
-            'addressNumber'         => Arr::get($customer, 'address.street_number'),
-            'addressZipcode'        => Arr::get($customer, 'address.zip_code'),
-            'addressCity'           => Arr::get($customer, 'address.city'),
-            'addressCountry'        => Arr::get($customer, 'address.country_code'),
-            'email'                 => Arr::get($customer, 'email'),
-            'locale'                => Arr::get($customer, 'locale'),
-            'customerNumber'        => Arr::get($customer, 'customer_number'),
+            'addressStreet' => Arr::get($customer, 'address.street_name'),
+            'addressNumber' => Arr::get($customer, 'address.street_number'),
+            'addressZipcode' => Arr::get($customer, 'address.zip_code'),
+            'addressCity' => Arr::get($customer, 'address.city'),
+            'addressCountry' => Arr::get($customer, 'address.country_code'),
+            'email' => Arr::get($customer, 'email'),
+            'locale' => Arr::get($customer, 'locale'),
+            'customerNumber' => Arr::get($customer, 'customer_number'),
         ]);
     }
 
-    public static function createFromRetrieveCustomerResponse(RetrieveCustomerResponse $customerResponse, Customer $customer): self
-    {
+    public static function createFromRetrieveCustomerResponse(
+        RetrieveCustomerResponse $customerResponse,
+        Customer $customer,
+    ): self {
         $phoneNumber = new PhoneDTO($customerResponse->getPhone());
 
         return self::create([
-            'companyName'           => $customerResponse->getOrganization(),
-            'firstName'             => $customerResponse->getFirstName(),
-            'lastName'              => $customerResponse->getLastName(),
-            'phoneCountryCode'      => $phoneNumber->getCountryCode(),
-            'phoneAreaCode'         => $phoneNumber->getAreaCode(),
+            'companyName' => $customerResponse->getOrganization(),
+            'firstName' => $customerResponse->getFirstName(),
+            'lastName' => $customerResponse->getLastName(),
+            'phoneCountryCode' => $phoneNumber->getCountryCode(),
+            'phoneAreaCode' => $phoneNumber->getAreaCode(),
             'phoneSubscriberNumber' => $phoneNumber->getNumber(),
-            'addressStreet'         => $customerResponse->getStreet(),
-            'addressNumber'         => $customerResponse->getStreetNumber(),
-            'addressZipcode'        => $customerResponse->getZip(),
-            'addressCity'           => $customerResponse->getCity(),
-            'addressCountry'        => $customerResponse->getCountryCode(),
-            'email'                 => $customerResponse->getEmail(),
-            'locale'                => $customer->locale,
-            'customerNumber'        => $customer->customer_number,
+            'addressStreet' => $customerResponse->getStreet(),
+            'addressNumber' => $customerResponse->getStreetNumber(),
+            'addressZipcode' => $customerResponse->getZip(),
+            'addressCity' => $customerResponse->getCity(),
+            'addressCountry' => $customerResponse->getCountryCode(),
+            'email' => $customerResponse->getEmail(),
+            'locale' => $customer->locale,
+            'customerNumber' => $customer->customer_number,
         ]);
     }
 

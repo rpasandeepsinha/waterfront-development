@@ -24,7 +24,7 @@ class TranslationJsonValidTest extends TestCase
 
             self::assertTrue(
                 Str::isJson($translationJson),
-                "Translation file '$jsonFilename' contains invalid JSON!"
+                "Translation file '$jsonFilename' contains invalid JSON!",
             );
 
             $duplicateKeys = $this->findDuplicateJsonKeys($translationJson);
@@ -32,7 +32,7 @@ class TranslationJsonValidTest extends TestCase
             self::assertCount(
                 0,
                 $duplicateKeys,
-                "Translation file '$jsonFilename' contains duplicate keys: " . implode(', ', $duplicateKeys)
+                "Translation file '$jsonFilename' contains duplicate keys: " . implode(', ', $duplicateKeys),
             );
         }
     }
@@ -48,7 +48,7 @@ class TranslationJsonValidTest extends TestCase
 
         return array_diff_assoc(
             $matches['key'],
-            array_unique($matches['key'])
+            array_unique($matches['key']),
         );
     }
 }

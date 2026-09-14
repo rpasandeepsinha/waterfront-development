@@ -54,8 +54,8 @@ class NovaFetchUserFromResellerSubscription extends Action
         }
 
         $fetchedUser = [];
-        $sso         = null;
-        $exceptions  = [];
+        $sso = null;
+        $exceptions = [];
 
         try {
             // Fetch user
@@ -64,7 +64,7 @@ class NovaFetchUserFromResellerSubscription extends Action
             $fetchedUser = match ($driver) {
                 ProviderSlug::PLESK->value => $this->filterPleskCredentials($collection),
                 ProviderSlug::DIRECTADMIN->value => $collection,
-                default => throw new UnexpectedValueException()
+                default => throw new UnexpectedValueException(),
             };
         } catch (Throwable $exception) { // @phpstan-ignore-line
             $exceptions[] = [
@@ -95,7 +95,7 @@ class NovaFetchUserFromResellerSubscription extends Action
         $title = sprintf(
             'Fetched reseller {%s} from server with hostname {%s} with response:',
             $identifier,
-            $server->hostname
+            $server->hostname,
         );
 
         return self::modal('modal-response', [

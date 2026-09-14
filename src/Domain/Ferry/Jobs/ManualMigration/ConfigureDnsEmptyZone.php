@@ -25,6 +25,7 @@ class ConfigureDnsEmptyZone extends ManualMigrationJob
         if ($zone !== null) {
             throw new RuntimeException(sprintf('Existing DNS zone found for domain: %s', $domain));
         }
+
         $dnsMigrationService->createDnsZone($this->subscription, $domain, '');
     }
 

@@ -52,11 +52,11 @@ class CustomerClient extends PleskClient implements CustomerInterface
                 LoggingContextKeys::RESPONSE_CODE => $response->getStatusCode(),
                 LoggingContextKeys::META => [
                     'status message' => $response->getStatusMessage(),
-                    'status'         => $response->getStatus(),
-                    'customer ID'    => $response->getCustomerId(),
-                    'customer GUID'  => $response->getCustomerGuid(),
-                    'error code'     => $response->getErrorCode(),
-                    'error text'     => $response->getErrorText(),
+                    'status' => $response->getStatus(),
+                    'customer ID' => $response->getCustomerId(),
+                    'customer GUID' => $response->getCustomerGuid(),
+                    'error code' => $response->getErrorCode(),
+                    'error text' => $response->getErrorText(),
                 ],
             ]);
         }
@@ -72,7 +72,7 @@ class CustomerClient extends PleskClient implements CustomerInterface
     {
         Assert::stringNotEmpty(
             $parameters->getCustomerLogin(),
-            'Customer login not allowed to be empty string!'
+            'Customer login not allowed to be empty string!',
         );
 
         $request = new CustomerDeleteRequest($parameters);

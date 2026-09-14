@@ -94,13 +94,12 @@ class Microsoft365UpdatePrimaryDomainTest extends IntegrationTestCase
             ->for($domainSubscription)
             ->createOne();
 
-        $this->dispatcher->expects(self::once())
-            ->method('dispatch');
+        $this->dispatcher->expects(self::once())->method('dispatch');
 
         $this->actingAsCustomer($this->customer)
             ->post(
                 $this->generateRoute('partners.microsoft365.microsoft-update-primary-domain'),
-                ['subscription' => $domainSubscription->uuid]
+                ['subscription' => $domainSubscription->uuid],
             )
             ->assertOk();
     }

@@ -28,23 +28,24 @@ class CreateVpsEventTest extends IntegrationTestCase
 
         $vpsProduct = new ProductFactory()->for($vpsProductGroup)->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $vpsProduct->uuid,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $vpsProduct->uuid,
+            ]);
 
         Event::fake([CreateVps::class]);
 
-        self::resolve(Dispatcher::class)->dispatch(
-            new CreateVps(
-                subscriptionUuid: $subscription->uuid,
-                sshKeyUuid: null,
-            )
-        );
+        self::resolve(Dispatcher::class)
+            ->dispatch(
+                new CreateVps(
+                    subscriptionUuid: $subscription->uuid,
+                    sshKeyUuid: null,
+                ),
+            );
 
         Event::assertDispatched(
-            fn (CreateVps $event) =>
-            $event->subscriptionUuid === $subscription->uuid
-            && $event->sshKeyUuid === null
+            fn (CreateVps $event) => $event->subscriptionUuid === $subscription->uuid && $event->sshKeyUuid === null,
         );
     }
 }

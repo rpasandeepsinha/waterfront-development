@@ -79,7 +79,10 @@ class TechnicalHostingMigrationJobDirectAdminTest extends IntegrationTestCase
         $extensionHostingGroup = ProductGroupFactory::new()->hosting()->createOne();
         $extensionGroup = ProductGroupFactory::new()->extension()->createOne();
 
-        $hostingProduct = ProductFactory::new()->for($extensionHostingGroup)->hostingBrons($extensionHostingGroup)->createOne();
+        $hostingProduct = ProductFactory::new()
+            ->for($extensionHostingGroup)
+            ->hostingBrons($extensionHostingGroup)
+            ->createOne();
         $this->extensionProduct = ProductFactory::new()->for($extensionGroup)->createOne([
             'name' => '.nl',
             'slug' => 'extension_nl',
@@ -94,14 +97,19 @@ class TechnicalHostingMigrationJobDirectAdminTest extends IntegrationTestCase
             ]);
 
         /** @var Server $server */
-        $server = ServerFactory::new()->directadmin()->createOne([
-            'hostname' => self::TEST_DIRECTADMIN_SERVER,
-            'domain' => self::TEST_DIRECTADMIN_SERVER,
-            'name' => self::TEST_DIRECTADMIN_SERVER,
-        ])->fresh(); // fresh or else the "wasRecentlyCreated" won't match in the mocked "with" params
+        $server = ServerFactory::new()
+            ->directadmin()
+            ->createOne([
+                'hostname' => self::TEST_DIRECTADMIN_SERVER,
+                'domain' => self::TEST_DIRECTADMIN_SERVER,
+                'name' => self::TEST_DIRECTADMIN_SERVER,
+            ])
+            ->fresh(); // fresh or else the "wasRecentlyCreated" won't match in the mocked "with" params
         $this->server = $server;
 
-        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1']);
+        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1',
+        ]);
         $this->directadminSubscription->migratedSubscriptions()->attach($migratedSubscription);
 
         $migratedCustomer = MigratedCustomersFactory::new()->createOne();
@@ -116,15 +124,15 @@ class TechnicalHostingMigrationJobDirectAdminTest extends IntegrationTestCase
 
         $this->directAdminUsername = 'test_remote_username123';
 
-        HostingDeploymentFactory::new()
-            ->for($this->directadminSubscription, 'subscription')
-            ->for($placeholderProvider, 'provider')
-            ->createOne([
-                'directadmin_customer_username' => null,
-                'plesk_customer_username' => null,
-                'plesk_customer_id' => null,
-                'server_id' => null,
-            ]);
+        HostingDeploymentFactory::new()->for($this->directadminSubscription, 'subscription')->for(
+            $placeholderProvider,
+            'provider',
+        )->createOne([
+            'directadmin_customer_username' => null,
+            'plesk_customer_username' => null,
+            'plesk_customer_id' => null,
+            'server_id' => null,
+        ]);
 
         $this->migratedSubscription = $migratedSubscription;
     }
@@ -132,13 +140,13 @@ class TechnicalHostingMigrationJobDirectAdminTest extends IntegrationTestCase
     #[DataProvider('hostingMigrationJobProvider')]
     #[Test]
     public function hostingMigrationJob(
-        string|null $originalSubscriptionDomain,
-        string|null $defaultDomain,
+        ?string $originalSubscriptionDomain,
+        ?string $defaultDomain,
         string $expectedSubscriptionDomain,
         bool $desiredDNSSetting,
         bool $loginKeysSetting,
         bool $isUsingHostingServerAsNameserver,
-        string|null $extensionAdministrativeStatus,
+        ?string $extensionAdministrativeStatus,
         bool $isReseller,
     ): void {
         if ($extensionAdministrativeStatus !== null) {
@@ -160,10 +168,10 @@ class TechnicalHostingMigrationJobDirectAdminTest extends IntegrationTestCase
 
         $daHostingService = self::createStub(DirectAdminHostingService::class);
 
-        $daHostingService->method('getDefaultDomain')
-            ->willReturn($defaultDomain);
+        $daHostingService->method('getDefaultDomain')->willReturn($defaultDomain);
 
-        $daHostingService->method('getPackageOnServerAsDto')
+        $daHostingService
+            ->method('getPackageOnServerAsDto')
             ->willReturn(new DirectAdminUserPackage(
                 vdomains: '2',
                 nemails: '5',
@@ -173,7 +181,8 @@ class TechnicalHostingMigrationJobDirectAdminTest extends IntegrationTestCase
                 package: 'basic',
             ));
 
-        $daHostingService->method('getUserConfigAsDto')
+        $daHostingService
+            ->method('getUserConfigAsDto')
             ->willReturn(
                 new UserConfig(
                     dnscontrol: $desiredDNSSetting ? 'ON' : 'OFF',
@@ -187,12 +196,10 @@ class TechnicalHostingMigrationJobDirectAdminTest extends IntegrationTestCase
                     package: 'basic',
                     usertype: $isReseller ? HostingUserType::RESELLER : HostingUserType::USER,
                     domain: $defaultDomain,
-                )
+                ),
             );
 
-        $daHostingService
-            ->method('isUsingHostingServerAsNameserver')
-            ->willReturn($isUsingHostingServerAsNameserver);
+        $daHostingService->method('isUsingHostingServerAsNameserver')->willReturn($isUsingHostingServerAsNameserver);
 
         $daHostingService->method('modifyCustomer')->willReturn(true);
 
@@ -206,7 +213,7 @@ class TechnicalHostingMigrationJobDirectAdminTest extends IntegrationTestCase
             $this->migratedSubscription->reference_subscription_id ?? 'sub_1337_1',
             ProviderSlug::DIRECTADMIN->value,
             $this->server->getDomain(),
-            new DirectAdminHostingDetails($this->directAdminUsername)
+            new DirectAdminHostingDetails($this->directAdminUsername),
         );
 
         $expectedParams = new Parameters();
@@ -224,37 +231,41 @@ class TechnicalHostingMigrationJobDirectAdminTest extends IntegrationTestCase
                 self::assertCallbackIsModel($directAdminSubscription),
                 self::callback(
                     function (Parameters $params) use ($expectedParams) {
-                        self::assertSame($expectedParams->getEnableDns(), $params->getEnableDns(), 'DNS setting was not the same in hosting modify');
-                        self::assertSame($expectedParams->getEnableLoginKeys(), $params->getEnableLoginKeys(), 'login keys setting was not the same in hosting modify');
+                        self::assertSame(
+                            $expectedParams->getEnableDns(),
+                            $params->getEnableDns(),
+                            'DNS setting was not the same in hosting modify',
+                        );
+                        self::assertSame(
+                            $expectedParams->getEnableLoginKeys(),
+                            $params->getEnableLoginKeys(),
+                            'login keys setting was not the same in hosting modify',
+                        );
 
                         return true;
-                    }
-                )
+                    },
+                ),
             );
 
         // Mocking the deeper laying HostingService so that we also are sure the HostingParams here
         // get properly tested
         $this->app->bind(
             HostingModifySiteForMigrationAction::class,
-            fn (): HostingModifySiteForMigrationAction =>
-                new HostingModifySiteForMigrationAction(
-                    $hostingService,
-                    self::resolve(LoggerInterface::class)
-                )
+            fn (): HostingModifySiteForMigrationAction => new HostingModifySiteForMigrationAction(
+                $hostingService,
+                self::resolve(LoggerInterface::class),
+            ),
         );
 
         $ssoMock = self::createMock(HostingCanGenerateSSOAction::class);
-        $ssoMock->expects($loginKeysSetting ? self::once() : self::never())
+        $ssoMock
+            ->expects($loginKeysSetting ? self::once() : self::never())
             ->method('execute')
             ->with(
                 $this->directadminSubscription->refresh(),
-                $this->directadminSubscription
-                    ->customer()
-                    ->firstOrFail()
-                    ->migratedCustomers()
-                    ->firstOrFail(),
+                $this->directadminSubscription->customer()->firstOrFail()->migratedCustomers()->firstOrFail(),
                 $payload,
-                $this->server
+                $this->server,
             );
 
         $this->app->bind(HostingCanGenerateSSOAction::class, fn (): HostingCanGenerateSSOAction => $ssoMock);
@@ -279,125 +290,136 @@ class TechnicalHostingMigrationJobDirectAdminTest extends IntegrationTestCase
      */
     public static function hostingMigrationJobProvider(): iterable
     {
-        yield 'Set default domain when subscription domain is null + External domain + Internal nameservers + is not a reseller' => [
-            'originalSubscriptionDomain' => null,
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'default-domain.testing',
-            'desiredDNSSetting' => true,
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => null,
-            'isReseller' => false,
-        ];
+        yield 'Set default domain when subscription domain is null + External domain + Internal nameservers + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => null,
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'default-domain.testing',
+                'desiredDNSSetting' => true,
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => null,
+                'isReseller' => false,
+            ];
 
-        yield 'Set default domain when subscription domain is null + External domain + Internal nameservers + is a reseller' => [
-            'originalSubscriptionDomain' => null,
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'default-domain.testing',
-            'desiredDNSSetting' => true,
-            'loginKeysSetting' => false,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => null,
-            'isReseller' => true,
-        ];
+        yield 'Set default domain when subscription domain is null + External domain + Internal nameservers + is a reseller' =>
+            [
+                'originalSubscriptionDomain' => null,
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'default-domain.testing',
+                'desiredDNSSetting' => true,
+                'loginKeysSetting' => false,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => null,
+                'isReseller' => true,
+            ];
 
-        yield 'Set default domain when subscription domain is null + External domain + Internal nameservers + SSO disabled + is not a reseller' => [
-            'originalSubscriptionDomain' => null,
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'default-domain.testing',
-            'desiredDNSSetting' => true,
-            'loginKeysSetting' => false,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => null,
-            'isReseller' => false,
-        ];
+        yield 'Set default domain when subscription domain is null + External domain + Internal nameservers + SSO disabled + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => null,
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'default-domain.testing',
+                'desiredDNSSetting' => true,
+                'loginKeysSetting' => false,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => null,
+                'isReseller' => false,
+            ];
 
-        yield 'Subscription domain should not be overwritten + Internal domain + Internal nameservers + is not a reseller' => [
-            'originalSubscriptionDomain' => 'already-set-domain.testing',
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'already-set-domain.testing',
-            'desiredDNSSetting' => false,
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
-            'isReseller' => false,
-        ];
+        yield 'Subscription domain should not be overwritten + Internal domain + Internal nameservers + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => 'already-set-domain.testing',
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'already-set-domain.testing',
+                'desiredDNSSetting' => false,
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
+                'isReseller' => false,
+            ];
 
-        yield 'Subscription domain should not be overwritten + Internal Domain + External nameservers + is not a reseller' => [
-            'originalSubscriptionDomain' => 'already-set-domain.testing',
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'already-set-domain.testing',
-            'desiredDNSSetting' => false,
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => false,
-            'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
-            'isReseller' => false,
-        ];
+        yield 'Subscription domain should not be overwritten + Internal Domain + External nameservers + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => 'already-set-domain.testing',
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'already-set-domain.testing',
+                'desiredDNSSetting' => false,
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => false,
+                'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
+                'isReseller' => false,
+            ];
 
-        yield 'Subscription domain should not be overwritten + Internal domain (canceled) + Internal nameservers + is not a reseller' => [
-            'originalSubscriptionDomain' => 'already-set-domain.testing',
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'already-set-domain.testing',
-            'desiredDNSSetting' => false,
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => AdministrativeStatus::CANCELED->value,
-            'isReseller' => false,
-        ];
+        yield 'Subscription domain should not be overwritten + Internal domain (canceled) + Internal nameservers + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => 'already-set-domain.testing',
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'already-set-domain.testing',
+                'desiredDNSSetting' => false,
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => AdministrativeStatus::CANCELED->value,
+                'isReseller' => false,
+            ];
 
-        yield 'Subscription domain should not be overwritten + Internal domain (expired) + Internal nameservers + is not a reseller' => [
-            'originalSubscriptionDomain' => 'already-set-domain.testing',
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'already-set-domain.testing',
-            'desiredDNSSetting' => true,
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => AdministrativeStatus::EXPIRED->value,
-            'isReseller' => false,
-        ];
+        yield 'Subscription domain should not be overwritten + Internal domain (expired) + Internal nameservers + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => 'already-set-domain.testing',
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'already-set-domain.testing',
+                'desiredDNSSetting' => true,
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => AdministrativeStatus::EXPIRED->value,
+                'isReseller' => false,
+            ];
 
-        yield 'Subscription domain should not be overwritten + Internal domain (archived) + Internal nameservers + is not a reseller' => [
-            'originalSubscriptionDomain' => 'already-set-domain.testing',
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'already-set-domain.testing',
-            'desiredDNSSetting' => true,
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => true,
-            'extensionAdministrativeStatus' => AdministrativeStatus::ARCHIVED->value,
-            'isReseller' => false,
-        ];
+        yield 'Subscription domain should not be overwritten + Internal domain (archived) + Internal nameservers + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => 'already-set-domain.testing',
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'already-set-domain.testing',
+                'desiredDNSSetting' => true,
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => true,
+                'extensionAdministrativeStatus' => AdministrativeStatus::ARCHIVED->value,
+                'isReseller' => false,
+            ];
 
-        yield 'Set default domain when subscription domain is null and backend domain is null + External Domain + External nameservers + is not a reseller' => [
-            'originalSubscriptionDomain' => null,
-            'defaultDomain' => null,
-            'expectedSubscriptionDomain' => 'test_remote_username123.204.directadmin.test', // Fallback test
-            'desiredDNSSetting' => false,
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => false,
-            'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
-            'isReseller' => false,
-        ];
+        yield 'Set default domain when subscription domain is null and backend domain is null + External Domain + External nameservers + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => null,
+                'defaultDomain' => null,
+                'expectedSubscriptionDomain' => 'test_remote_username123.204.directadmin.test', // Fallback test
+                'desiredDNSSetting' => false,
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => false,
+                'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
+                'isReseller' => false,
+            ];
 
-        yield 'Set default domain when subscription domain is null + External Domain + External nameservers + is not a reseller' => [
-            'originalSubscriptionDomain' => null,
-            'defaultDomain' => 'default-domain.testing',
-            'expectedSubscriptionDomain' => 'default-domain.testing',
-            'desiredDNSSetting' => false,
-            'loginKeysSetting' => true,
-            'isUsingHostingServerAsNameserver' => false,
-            'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
-            'isReseller' => false,
-        ];
+        yield 'Set default domain when subscription domain is null + External Domain + External nameservers + is not a reseller' =>
+            [
+                'originalSubscriptionDomain' => null,
+                'defaultDomain' => 'default-domain.testing',
+                'expectedSubscriptionDomain' => 'default-domain.testing',
+                'desiredDNSSetting' => false,
+                'loginKeysSetting' => true,
+                'isUsingHostingServerAsNameserver' => false,
+                'extensionAdministrativeStatus' => AdministrativeStatus::ACTIVE->value,
+                'isReseller' => false,
+            ];
     }
 
     #[Test]
     public function hostingMigrationJobRollback(): void
     {
         $exceptionMessage = 'testing error';
-        $exceptionStatus  = 404;
+        $exceptionStatus = 404;
         $daHostingService = self::createStub(DirectAdminHostingService::class);
-        $daHostingService->method('getDefaultDomain')
-            ->willThrowException((new DirectAdminCommandException($exceptionMessage, $exceptionStatus)));
+        $daHostingService
+            ->method('getDefaultDomain')
+            ->willThrowException(new DirectAdminCommandException($exceptionMessage, $exceptionStatus));
 
         $this->app->bind(DirectAdminHostingService::class, fn (): DirectAdminHostingService => $daHostingService);
 
@@ -412,7 +434,7 @@ class TechnicalHostingMigrationJobDirectAdminTest extends IntegrationTestCase
             $this->migratedSubscription->reference_subscription_id ?? 'sub_1337_1',
             ProviderSlug::DIRECTADMIN->value,
             $this->server->getDomain(),
-            new DirectAdminHostingDetails($this->directAdminUsername)
+            new DirectAdminHostingDetails($this->directAdminUsername),
         );
 
         $job = new TechnicalHostingMigrationJob(
@@ -431,8 +453,8 @@ class TechnicalHostingMigrationJobDirectAdminTest extends IntegrationTestCase
                 'Hosting default domain could not be set using server %s for subscription %d (payload: %s)',
                 $this->server->hostname,
                 $this->directadminSubscription->id,
-                json_encode($payload->toArray(), JSON_THROW_ON_ERROR)
-            )
+                json_encode($payload->toArray(), JSON_THROW_ON_ERROR),
+            ),
         );
 
         $job->handle($adfService, $dispatcher, $logger);
@@ -456,8 +478,7 @@ class TechnicalHostingMigrationJobDirectAdminTest extends IntegrationTestCase
             $this->directadminSubscription->id,
         );
         $daHostingService = self::createStub(DirectAdminHostingService::class);
-        $daHostingService->method('modifyCustomer')
-            ->willThrowException(new Exception('something unforeseen'));
+        $daHostingService->method('modifyCustomer')->willThrowException(new Exception('something unforeseen'));
 
         $this->app->bind(DirectAdminHostingService::class, fn (): DirectAdminHostingService => $daHostingService);
 
@@ -472,7 +493,7 @@ class TechnicalHostingMigrationJobDirectAdminTest extends IntegrationTestCase
             $this->migratedSubscription->reference_subscription_id ?? 'sub_1337_1',
             ProviderSlug::DIRECTADMIN->value,
             $this->server->getDomain(),
-            new DirectAdminHostingDetails($this->directAdminUsername)
+            new DirectAdminHostingDetails($this->directAdminUsername),
         );
 
         $job = new TechnicalHostingMigrationJob(

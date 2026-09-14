@@ -22,7 +22,7 @@ class LogJobEventListenerTest extends TestCase
     public function handleJobUsesJobClassName(): void
     {
         // Faking the queue class to make the payload logic publicly accessible
-        $queueClass = new class () extends Queue {
+        $queueClass = new class() extends Queue {
             public function createPayload($job, $queue, $data = '', $delay = null)
             {
                 return parent::createPayload($job, $queue, $data);
@@ -41,9 +41,7 @@ class LogJobEventListenerTest extends TestCase
         $logger = self::createMock(LoggerInterface::class);
 
         // Just check if the log message contains the right class
-        $logger->expects(self::once())
-            ->method('info')
-            ->with(self::stringContains(AddDomainToSpamFilter::class));
+        $logger->expects(self::once())->method('info')->with(self::stringContains(AddDomainToSpamFilter::class));
 
         $eventListener = new LogJobEventListener($logger);
         $eventListener->handle($event);

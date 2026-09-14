@@ -19,10 +19,7 @@ class UnsentInvoiceLineException extends SubscriptionCrediterException
         ];
 
         parent::__construct(sprintf(
-            (
-                'Attempted to credit an invoice line that has yet to be sent to Harbor. '
-                . 'Invoice line %s.'
-            ),
+            'Attempted to credit an invoice line that has yet to be sent to Harbor. ' . 'Invoice line %s.',
             $invoiceLine->id,
         ));
     }

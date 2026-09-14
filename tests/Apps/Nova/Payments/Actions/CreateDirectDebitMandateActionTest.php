@@ -55,8 +55,7 @@ class CreateDirectDebitMandateActionTest extends IntegrationTestCase
             $mandate->method = MollieMandateMethod::DIRECTDEBIT;
             $mandate->mollieCustomer = $mollieCustomer;
 
-            $mock->method('execute')
-                ->willReturn($mandate);
+            $mock->method('execute')->willReturn($mandate);
 
             return $mock;
         });

@@ -12,5 +12,5 @@ Route::middleware(Kernel::MIDDLEWARE_GROUP_NO_AUTH_WEBHOOK)
     ->group(
         function (): void {
             Route::post('microsoft365/api/v1/webhook/kpn', [WebhookController::class, 'incomingCall']);
-        }
+        },
     );

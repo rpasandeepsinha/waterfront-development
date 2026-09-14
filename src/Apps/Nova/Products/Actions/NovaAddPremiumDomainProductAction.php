@@ -24,7 +24,7 @@ class NovaAddPremiumDomainProductAction extends Action
     public function __construct(
         private readonly DomainServiceFactory $domainServiceFactory,
         private readonly PremiumDomainService $premiumDomainProducts,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->confirmButtonText = $this->translator->translate('nova-action.add_premium_domain_product_confirm');
     }
@@ -45,6 +45,7 @@ class NovaAddPremiumDomainProductAction extends Action
         assert(is_numeric($fields->get('margin')));
         $margin = (int) $fields->get('margin');
         $product = $this->premiumDomainProducts->createProductPriceForPremiumDomain($availability, $margin);
+
         return self::redirect(sprintf('/nova/resources/%s/%s', NovaProductResource::uriKey(), $product->id));
     }
 
@@ -54,8 +55,10 @@ class NovaAddPremiumDomainProductAction extends Action
     public function fields(NovaRequest $request): array
     {
         return [
-            Text::make($this->translator->translate('nova-action.add_premium_domain_product_domain'), 'domain')
-                ->required(),
+            Text::make(
+                $this->translator->translate('nova-action.add_premium_domain_product_domain'),
+                'domain',
+            )->required(),
             Select::make($this->translator->translate('nova-action.add_premium_domain_product_margin'), 'margin')
                 ->options([
                     25 => '25%',
@@ -74,13 +77,21 @@ class NovaAddPremiumDomainProductAction extends Action
         assert(is_string($request->input('domain')));
         $availability = $domainService->check($request->input('domain'));
         if ($availability->isPremium() === null) {
-            throw ValidationException::withMessages(['domain' => $this->translator->translate('nova-action.error.domain_premium_unsupported')]);
+            throw ValidationException::withMessages([
+                'domain' => $this->translator->translate('nova-action.error.domain_premium_unsupported'),
+            ]);
         }
+
         if (! $availability->isPremium()) {
-            throw ValidationException::withMessages(['domain' => $this->translator->translate('nova-action.error.domain_is_not_premium')]);
+            throw ValidationException::withMessages([
+                'domain' => $this->translator->translate('nova-action.error.domain_is_not_premium'),
+            ]);
         }
+
         if ($this->premiumDomainProducts->doesProductExistForPremiumDomain($availability->getDomain())) {
-            throw ValidationException::withMessages(['domain' => $this->translator->translate('nova-action.error.domain_premium_product_exists')]);
+            throw ValidationException::withMessages([
+                'domain' => $this->translator->translate('nova-action.error.domain_premium_product_exists'),
+            ]);
         }
     }
 }

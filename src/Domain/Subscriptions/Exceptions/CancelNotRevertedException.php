@@ -15,7 +15,7 @@ class CancelNotRevertedException extends Exception
                 'Subscription with ID "%d" and UUID "%s" not reverted because of non cancelled administrative status and/or no existing cancellation date',
                 $subscriptionId,
                 $subscriptionUuid,
-            )
+            ),
         );
     }
 
@@ -26,7 +26,7 @@ class CancelNotRevertedException extends Exception
                 'The Subscription with ID "%d" and UUID "%s" has an expired end_date',
                 $subscriptionId,
                 $subscriptionUuid,
-            )
+            ),
         );
     }
 }

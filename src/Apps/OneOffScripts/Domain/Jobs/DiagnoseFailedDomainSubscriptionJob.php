@@ -23,7 +23,7 @@ class DiagnoseFailedDomainSubscriptionJob extends RepairFailedDomainSubscription
 
         $repairPlan = $failedDomainSubscriptionRepairService->determineRepair(
             subscription: $this->subscription,
-            source: $this->triggeredBy
+            source: $this->triggeredBy,
         );
 
         $logger->info(

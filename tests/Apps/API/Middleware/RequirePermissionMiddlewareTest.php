@@ -35,7 +35,7 @@ class RequirePermissionMiddlewareTest extends IntegrationTestCase
         $middleware = new RequirePermissionMiddleware(
             self::resolve(AuthenticationManager::class),
             self::resolve(AuthorizationService::class),
-            $routeAttributes
+            $routeAttributes,
         );
 
         $response = $middleware->handle(Request::create('/'), fn () => new Response());
@@ -55,7 +55,7 @@ class RequirePermissionMiddlewareTest extends IntegrationTestCase
         $middleware = new RequirePermissionMiddleware(
             self::resolve(AuthenticationManager::class),
             self::resolve(AuthorizationService::class),
-            $routeAttributes
+            $routeAttributes,
         );
 
         $response = $middleware->handle(Request::create('/'), fn () => new Response());
@@ -75,7 +75,7 @@ class RequirePermissionMiddlewareTest extends IntegrationTestCase
         $middleware = new RequirePermissionMiddleware(
             self::resolve(AuthenticationManager::class),
             self::resolve(AuthorizationService::class),
-            $routeAttributes
+            $routeAttributes,
         );
 
         $response = $middleware->handle(Request::create('/'), fn () => new Response());
@@ -95,7 +95,7 @@ class RequirePermissionMiddlewareTest extends IntegrationTestCase
         $middleware = new RequirePermissionMiddleware(
             self::resolve(AuthenticationManager::class),
             self::resolve(AuthorizationService::class),
-            $routeAttributes
+            $routeAttributes,
         );
 
         self::expectException(AuthorizationException::class);
@@ -116,7 +116,7 @@ class RequirePermissionMiddlewareTest extends IntegrationTestCase
         $middleware = new RequirePermissionMiddleware(
             self::resolve(AuthenticationManager::class),
             self::resolve(AuthorizationService::class),
-            $routeAttributes
+            $routeAttributes,
         );
 
         self::expectException(AuthorizationException::class);

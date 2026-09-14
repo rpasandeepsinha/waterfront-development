@@ -10,8 +10,9 @@ use Waterfront\Domain\Ssl\Repositories\DeploymentRepository;
 
 class UpdateSubscriptionStep
 {
-    public function __construct(private readonly DeploymentRepository $subscriptionRepo)
-    {
+    public function __construct(
+        private readonly DeploymentRepository $subscriptionRepo,
+    ) {
     }
 
     public function execute(Result $result, string $subscriptionUuid, bool $customCsr): SslDeployment

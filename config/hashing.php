@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Illuminate\Support\Env;
 
 return [
-
     //default hash driver. supported: bcrypt, argon, argon2id
     'driver' => 'bcrypt',
 
@@ -14,8 +13,8 @@ return [
     ],
 
     'argon' => [
-        'memory'  => 1024,
+        'memory' => 1024,
         'threads' => 2,
-        'time'    => 2,
+        'time' => 2,
     ],
 ];

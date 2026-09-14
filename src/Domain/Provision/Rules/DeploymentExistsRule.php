@@ -22,7 +22,12 @@ class DeploymentExistsRule extends AbstractValidator
     {
         Assert::isInstanceOf($value, UuidInterface::class);
 
-        if (! $this->provisioningDeploymentRepository->findDeploymentByRequestUuid($value) instanceof ProvisionDeployment) {
+        if (
+            !
+                $this->provisioningDeploymentRepository->findDeploymentByRequestUuid($value)
+                instanceof ProvisionDeployment
+
+        ) {
             return false;
         }
 

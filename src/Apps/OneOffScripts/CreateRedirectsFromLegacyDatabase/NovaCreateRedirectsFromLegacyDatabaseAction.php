@@ -45,8 +45,7 @@ class NovaCreateRedirectsFromLegacyDatabaseAction extends NovaOneOffScriptAbstra
             Boolean::make('Dry run', 'dry-run')->default(true),
             Boolean::make('Fix dns for existing', 'only-existing')->default(false),
             Number::make('Limit subscriptions', 'limit')->default(200),
-            Heading::make("<h3 class=\"text-xl\">Currently processed: {$processed}</h3><hr />")
-                ->asHtml(),
+            Heading::make("<h3 class=\"text-xl\">Currently processed: {$processed}</h3><hr />")->asHtml(),
         ];
     }
 
@@ -65,15 +64,18 @@ class NovaCreateRedirectsFromLegacyDatabaseAction extends NovaOneOffScriptAbstra
                     'only-existing' => $onlyExisting,
                     'limit' => $limit,
                 ],
-            ]
+            ],
         );
 
-        $redirectSubscriptionQuery = Subscription::whereNotIn('administrative_status', AdministrativeStatus::getIneligibleForSuspension())
+        $redirectSubscriptionQuery = Subscription::whereNotIn(
+            'administrative_status',
+            AdministrativeStatus::getIneligibleForSuspension(),
+        )
             ->where('technical_status', TechnicalStatus::OK)
             ->whereHas('product', function (Builder $productQuery) {
                 $productQuery->whereHas(
                     'productGroup',
-                    fn (Builder $productGroupQuery) => $productGroupQuery->where('slug', ProductGroupType::REDIRECT)
+                    fn (Builder $productGroupQuery) => $productGroupQuery->where('slug', ProductGroupType::REDIRECT),
                 );
             });
 
@@ -84,7 +86,8 @@ class NovaCreateRedirectsFromLegacyDatabaseAction extends NovaOneOffScriptAbstra
         $processed = $this->redisFactory->connection()->sMembers(self::REDIS_PROCESSED_KEY);
 
         if ($onlyExisting) {
-            $alreadyProcessedSubscriptions = $redirectSubscriptionQuery->get()
+            $alreadyProcessedSubscriptions = $redirectSubscriptionQuery
+                ->get()
                 ->reject(fn (Subscription $subscription) => ! in_array($subscription->uuid, $processed, true))
                 ->take($limit);
 
@@ -92,15 +95,19 @@ class NovaCreateRedirectsFromLegacyDatabaseAction extends NovaOneOffScriptAbstra
                 fn (Subscription $subscription) => $this->busDispatcher->dispatch(
                     new CreateRedirectsFromLegacyDatabaseJob(
                         dryRun: $isDryRun,
-                        subscription: $subscription
-                    )
-                )
+                        subscription: $subscription,
+                    ),
+                ),
             );
 
-            return self::message(sprintf('One-off script dispatched on already parsed subscriptions: %d jobs to queue.', $alreadyProcessedSubscriptions->count()));
+            return self::message(sprintf(
+                'One-off script dispatched on already parsed subscriptions: %d jobs to queue.',
+                $alreadyProcessedSubscriptions->count(),
+            ));
         }
 
-        $nonProcessedSubscriptions = $redirectSubscriptionQuery->get()
+        $nonProcessedSubscriptions = $redirectSubscriptionQuery
+            ->get()
             ->reject(fn (Subscription $subscription) => in_array($subscription->uuid, $processed, true))
             ->take($limit);
 
@@ -108,12 +115,15 @@ class NovaCreateRedirectsFromLegacyDatabaseAction extends NovaOneOffScriptAbstra
             fn (Subscription $subscription) => $this->busDispatcher->dispatch(
                 new CreateRedirectsFromLegacyDatabaseJob(
                     dryRun: $isDryRun,
-                    subscription: $subscription
-                )
-            )
+                    subscription: $subscription,
+                ),
+            ),
         );
 
-        return self::message(sprintf('One-off script dispatched %d jobs to queue.', $nonProcessedSubscriptions->count()));
+        return self::message(sprintf(
+            'One-off script dispatched %d jobs to queue.',
+            $nonProcessedSubscriptions->count(),
+        ));
     }
 
     protected function getOneOffScriptSlug(): string

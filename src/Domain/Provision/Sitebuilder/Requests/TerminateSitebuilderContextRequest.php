@@ -11,8 +11,9 @@ class TerminateSitebuilderContextRequest extends SitebuilderProvisionRequestProv
 {
     public ProvisionRequestName $name = ProvisionRequestName::TERMINATE_SITEBUILDER_CONTEXT;
 
-    public function __construct(public protected(set) UuidInterface $context)
-    {
+    public function __construct(
+        public protected(set) UuidInterface $context,
+    ) {
         $this->tag = $this->context;
     }
 }

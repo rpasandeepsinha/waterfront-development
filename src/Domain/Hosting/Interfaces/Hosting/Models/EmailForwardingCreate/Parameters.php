@@ -58,7 +58,9 @@ class Parameters
     public function setSourceEmailAddressUsername(string $sourceEmailAddressUsername): void
     {
         if (str_contains($sourceEmailAddressUsername, '@')) {
-            throw new InvalidArgumentException("Expecting the source email address' username. Example: [mymail] from [mymail@sandwaveio.dev]");
+            throw new InvalidArgumentException(
+                "Expecting the source email address' username. Example: [mymail] from [mymail@sandwaveio.dev]",
+            );
         }
 
         $this->sourceEmailAddressUsername = $sourceEmailAddressUsername;

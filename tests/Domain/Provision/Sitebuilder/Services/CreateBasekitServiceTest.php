@@ -101,12 +101,14 @@ class CreateBasekitServiceTest extends TestCase
         $accountHolder = $this->getAccountHolderDto();
         $accountHolder->ref = 234;
 
-        $this->baseKitContextRepository->expects($this->once())
+        $this->baseKitContextRepository
+            ->expects($this->once())
             ->method('findByContext')
             ->with($context)
             ->willReturn(null);
 
-        $this->userApi->expects($this->once())
+        $this->userApi
+            ->expects($this->once())
             ->method('create')
             ->with(
                 1234,
@@ -121,25 +123,25 @@ class CreateBasekitServiceTest extends TestCase
 
         $basekitContext = new BasekitContext();
         $basekitContext->user_ref = $accountHolder->ref;
-        $this->baseKitContextRepository->expects($this->once())
-            ->method('create')
-            ->willReturn($basekitContext);
+        $this->baseKitContextRepository->expects($this->once())->method('create')->willReturn($basekitContext);
 
         $index = 0;
-        $this->packagesApi->expects($this->exactly(count($packages)))
+        $this->packagesApi
+            ->expects($this->exactly(count($packages)))
             ->method('addUserPackage')
             ->with(
                 $accountHolder->ref,
                 self::callback(function ($package) use ($packages, &$index): bool {
                     return $package === $packages[$index++];
                 }),
-                $contractPeriod
+                $contractPeriod,
             );
 
         $siteDto = $this->getSiteDto();
         $siteDto->domains = [new Domain(777, $domain)];
 
-        $this->sitesApi->expects($this->once())
+        $this->sitesApi
+            ->expects($this->once())
             ->method('create')
             ->with($accountHolder->ref, 1234, $domain)
             ->willReturn($siteDto);
@@ -170,34 +172,35 @@ class CreateBasekitServiceTest extends TestCase
         $accountHolder = $this->getAccountHolderDto();
         $accountHolder->ref = $basekitContext->user_ref;
 
-        $this->baseKitContextRepository->expects($this->once())
+        $this->baseKitContextRepository
+            ->expects($this->once())
             ->method('findByContext')
             ->with($context)
             ->willReturn($basekitContext);
 
-        $this->userApi->expects($this->never())
-            ->method('create');
+        $this->userApi->expects($this->never())->method('create');
 
         $basekitContext = new BasekitContext();
         $basekitContext->user_ref = $accountHolder->ref;
-        $this->baseKitContextRepository->expects($this->never())
-            ->method('create');
+        $this->baseKitContextRepository->expects($this->never())->method('create');
 
         $index = 0;
-        $this->packagesApi->expects($this->exactly(count($packages)))
+        $this->packagesApi
+            ->expects($this->exactly(count($packages)))
             ->method('addUserPackage')
             ->with(
                 $accountHolder->ref,
                 self::callback(function ($package) use ($packages, &$index): bool {
                     return $package === $packages[$index++];
                 }),
-                $contractPeriod
+                $contractPeriod,
             );
 
         $siteDto = $this->getSiteDto();
         $siteDto->domains = [new Domain(777, $domain)];
 
-        $this->sitesApi->expects($this->once())
+        $this->sitesApi
+            ->expects($this->once())
             ->method('create')
             ->with($accountHolder->ref, 1234, $domain)
             ->willReturn($siteDto);
@@ -223,15 +226,15 @@ class CreateBasekitServiceTest extends TestCase
         $request->requestId = 1234;
         $request->provider = ProvisionProvider::BASEKIT;
 
-        $this->baseKitContextRepository->expects($this->once())
-            ->method('findByContext')
-            ->willReturn(null);
+        $this->baseKitContextRepository->expects($this->once())->method('findByContext')->willReturn(null);
 
-        $this->userApi->expects($this->once())
+        $this->userApi
+            ->expects($this->once())
             ->method('create')
             ->willThrowException($exception = self::createMock(BaseKitClientException::class));
 
-        $this->logger->expects($this->once())
+        $this->logger
+            ->expects($this->once())
             ->method('error')
             ->with(
                 sprintf(
@@ -245,7 +248,7 @@ class CreateBasekitServiceTest extends TestCase
                     LoggingContextKeys::PROVISIONING_CONTEXT => $context,
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::DOMAIN_NAME => $domain,
-                ]
+                ],
             );
 
         $result = $this->createBasekitService->create($request);
@@ -274,21 +277,21 @@ class CreateBasekitServiceTest extends TestCase
         $accountHolder = $this->getAccountHolderDto();
         $accountHolder->ref = $basekitContext->user_ref;
 
-        $this->baseKitContextRepository->expects($this->once())
-            ->method('findByContext')
-            ->willReturn($basekitContext);
+        $this->baseKitContextRepository->expects($this->once())->method('findByContext')->willReturn($basekitContext);
 
-        $this->packagesApi->expects($this->once())
+        $this->packagesApi
+            ->expects($this->once())
             ->method('addUserPackage')
             ->willThrowException($exception = self::createMock(BaseKitClientException::class));
 
-        $this->logger->expects($this->once())
+        $this->logger
+            ->expects($this->once())
             ->method('error')
             ->with(
                 sprintf(
                     'Failed to add package %d for user %d',
                     1337,
-                    $accountHolder->ref
+                    $accountHolder->ref,
                 ),
                 [
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
@@ -301,7 +304,7 @@ class CreateBasekitServiceTest extends TestCase
                         'basekit_user_ref' => $accountHolder->ref,
                         'basekit_subscription_period' => $contractPeriod,
                     ],
-                ]
+                ],
             );
 
         $result = $this->createBasekitService->create($request);
@@ -330,21 +333,21 @@ class CreateBasekitServiceTest extends TestCase
         $accountHolder = $this->getAccountHolderDto();
         $accountHolder->ref = $basekitContext->user_ref;
 
-        $this->baseKitContextRepository->expects($this->once())
-            ->method('findByContext')
-            ->willReturn($basekitContext);
+        $this->baseKitContextRepository->expects($this->once())->method('findByContext')->willReturn($basekitContext);
 
-        $this->sitesApi->expects($this->once())
+        $this->sitesApi
+            ->expects($this->once())
             ->method('create')
             ->willThrowException($exception = self::createMock(BaseKitClientException::class));
 
-        $this->logger->expects($this->once())
+        $this->logger
+            ->expects($this->once())
             ->method('error')
             ->with(
                 sprintf(
                     'Failed to create site "%s" for user %d',
                     $domain,
-                    $accountHolder->ref
+                    $accountHolder->ref,
                 ),
                 [
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
@@ -356,7 +359,7 @@ class CreateBasekitServiceTest extends TestCase
                     LoggingContextKeys::META => [
                         'basekit_user_ref' => $accountHolder->ref,
                     ],
-                ]
+                ],
             );
 
         $result = $this->createBasekitService->create($request);
@@ -375,16 +378,15 @@ class CreateBasekitServiceTest extends TestCase
 
         $request->requestId = 1234;
 
-        $this->baseKitContextRepository->expects($this->once())
+        $this->baseKitContextRepository
+            ->expects($this->once())
             ->method('findWithTrashedByContext')
             ->with($context)
             ->willReturn(null);
 
         $basekitContext = new BasekitContext();
         $basekitContext->user_ref = $request->userRef;
-        $this->baseKitContextRepository->expects($this->once())
-            ->method('create')
-            ->willReturn($basekitContext);
+        $this->baseKitContextRepository->expects($this->once())->method('create')->willReturn($basekitContext);
 
         $result = $this->createBasekitService->createFromMigration($request);
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
@@ -406,13 +408,13 @@ class CreateBasekitServiceTest extends TestCase
         $basekitContext = new BasekitContext();
         $basekitContext->user_ref = $request->userRef;
 
-        $this->baseKitContextRepository->expects($this->once())
+        $this->baseKitContextRepository
+            ->expects($this->once())
             ->method('findWithTrashedByContext')
             ->with($context)
             ->willReturn($basekitContext);
 
-        $this->baseKitContextRepository->expects($this->never())
-            ->method('create');
+        $this->baseKitContextRepository->expects($this->never())->method('create');
 
         $result = $this->createBasekitService->createFromMigration($request);
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);

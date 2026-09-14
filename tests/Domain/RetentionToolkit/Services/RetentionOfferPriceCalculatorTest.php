@@ -82,27 +82,19 @@ class RetentionOfferPriceCalculatorTest extends TestCase
             new CarbonImmutable('2026-07-01'),
         );
 
-        $productGroup = ProductGroupFactory::new()
-            ->hosting()
-            ->makeOne();
+        $productGroup = ProductGroupFactory::new()->hosting()->makeOne();
 
-        $product = ProductFactory::new()
-            ->hostingGold($productGroup)
-            ->makeOne();
+        $product = ProductFactory::new()->hostingGold($productGroup)->makeOne();
 
-        $this->targetProduct = ProductFactory::new()
-            ->hostingBrons($productGroup)
-            ->makeOne();
+        $this->targetProduct = ProductFactory::new()->hostingBrons($productGroup)->makeOne();
         $this->targetProduct->setRelation('productGroup', $productGroup);
 
         $customer = CustomerFactory::new()->makeOne(['id' => 1]);
 
-        $this->subscription = SubscriptionFactory::new()
-            ->for($customer)
-            ->makeOne([
-                'start_date' => new CarbonImmutable('2026-01-01'),
-                'end_date' => new CarbonImmutable('2026-12-31'),
-            ]);
+        $this->subscription = SubscriptionFactory::new()->for($customer)->makeOne([
+            'start_date' => new CarbonImmutable('2026-01-01'),
+            'end_date' => new CarbonImmutable('2026-12-31'),
+        ]);
 
         $this->subscription->setRelation('product', $product);
         $this->subscription->setRelation('customer', $customer);
@@ -161,7 +153,8 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         $this->eligibilityService = self::createStub(
             RetentionOfferEligibilityService::class,
         );
-        $this->eligibilityService->method('determineEligibility')
+        $this->eligibilityService
+            ->method('determineEligibility')
             ->willReturn(new RetentionOfferEligibilityResultDTO(
                 code: RetentionOfferEligibilityCode::ELIGIBLE,
                 reason: null,
@@ -170,8 +163,7 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         $this->effectiveDateCalculator = self::createStub(
             RetentionEffectiveDateCalculator::class,
         );
-        $this->effectiveDateCalculator->method('calculate')
-            ->willReturn($this->subscription->end_date);
+        $this->effectiveDateCalculator->method('calculate')->willReturn($this->subscription->end_date);
 
         $this->creditSubscriptionService = self::createStub(
             CreditSubscriptionService::class,
@@ -181,11 +173,9 @@ class RetentionOfferPriceCalculatorTest extends TestCase
             ->willReturn(new InvoiceToCreditBatch());
 
         $this->priceResolver = self::createStub(PriceResolver::class);
-        $this->priceResolver->method('getPriceList')
-            ->willReturn($this->priceList);
+        $this->priceResolver->method('getPriceList')->willReturn($this->priceList);
 
-        $this->itemCalculationFactory =
-            new RetentionOfferItemCalculationFactory();
+        $this->itemCalculationFactory = new RetentionOfferItemCalculationFactory();
 
         $this->calculator = new RetentionOfferPriceCalculator(
             eligibilityService: $this->eligibilityService,
@@ -208,9 +198,7 @@ class RetentionOfferPriceCalculatorTest extends TestCase
     {
         $otherCustomer = CustomerFactory::new()->makeOne(['id' => 2]);
 
-        $subscription = SubscriptionFactory::new()
-            ->for($otherCustomer)
-            ->makeOne();
+        $subscription = SubscriptionFactory::new()->for($otherCustomer)->makeOne();
 
         $result = $this->calculator->calculateItem(
             request: $this->request,
@@ -243,7 +231,8 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         $eligibilityService = self::createStub(
             RetentionOfferEligibilityService::class,
         );
-        $eligibilityService->method('determineEligibility')
+        $eligibilityService
+            ->method('determineEligibility')
             ->willReturn(new RetentionOfferEligibilityResultDTO(
                 code: RetentionOfferEligibilityCode::INELIGIBLE_PRODUCT,
                 reason: 'Eligibility failed.',
@@ -284,7 +273,8 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         $eligibilityService = self::createStub(
             RetentionOfferEligibilityService::class,
         );
-        $eligibilityService->method('determineEligibility')
+        $eligibilityService
+            ->method('determineEligibility')
             ->willReturn(new RetentionOfferEligibilityResultDTO(
                 code: RetentionOfferEligibilityCode::NO_PRICE_REQUIRED,
                 reason: null,
@@ -328,7 +318,8 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         $eligibilityService = self::createStub(
             RetentionOfferEligibilityService::class,
         );
-        $eligibilityService->method('determineEligibility')
+        $eligibilityService
+            ->method('determineEligibility')
             ->willReturn(new RetentionOfferEligibilityResultDTO(
                 code: RetentionOfferEligibilityCode::NO_PRICE_REQUIRED,
                 reason: null,
@@ -372,7 +363,8 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         $effectiveDateCalculator = self::createStub(
             RetentionEffectiveDateCalculator::class,
         );
-        $effectiveDateCalculator->method('calculate')
+        $effectiveDateCalculator
+            ->method('calculate')
             ->willThrowException(
                 new InvalidRetentionEffectiveDateException('Invalid date.'),
             );
@@ -419,7 +411,8 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         $eligibilityService = self::createStub(
             RetentionOfferEligibilityService::class,
         );
-        $eligibilityService->method('determineEligibility')
+        $eligibilityService
+            ->method('determineEligibility')
             ->willReturn(new RetentionOfferEligibilityResultDTO(
                 code: RetentionOfferEligibilityCode::NO_PRICE_REQUIRED,
                 reason: null,
@@ -430,8 +423,7 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         $effectiveDateCalculator = self::createStub(
             RetentionEffectiveDateCalculator::class,
         );
-        $effectiveDateCalculator->method('calculate')
-            ->willReturn($effectiveDate);
+        $effectiveDateCalculator->method('calculate')->willReturn($effectiveDate);
 
         $invoice = InvoiceFactory::new()->makeOne([
             'start_date' => CarbonImmutable::today(),
@@ -441,7 +433,8 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         $creditSubscriptionService = self::createMock(
             CreditSubscriptionService::class,
         );
-        $creditSubscriptionService->expects(self::once())
+        $creditSubscriptionService
+            ->expects(self::once())
             ->method('getInvoiceLinesToCreditBatchFromDate')
             ->with(
                 $this->subscription,
@@ -495,7 +488,8 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         $eligibilityService = self::createStub(
             RetentionOfferEligibilityService::class,
         );
-        $eligibilityService->method('determineEligibility')
+        $eligibilityService
+            ->method('determineEligibility')
             ->willReturn(new RetentionOfferEligibilityResultDTO(
                 code: RetentionOfferEligibilityCode::NO_PRICE_REQUIRED,
                 reason: null,
@@ -504,8 +498,7 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         $creditSubscriptionService = self::createMock(
             CreditSubscriptionService::class,
         );
-        $creditSubscriptionService->expects(self::never())
-            ->method('getInvoiceLinesToCreditBatchFromDate');
+        $creditSubscriptionService->expects(self::never())->method('getInvoiceLinesToCreditBatchFromDate');
 
         $calculator = new RetentionOfferPriceCalculator(
             eligibilityService: $eligibilityService,
@@ -551,8 +544,7 @@ class RetentionOfferPriceCalculatorTest extends TestCase
             RetentionEffectiveDateCalculator::class,
         );
 
-        $effectiveDateCalculator->method('calculate')
-            ->willReturn($effectiveDate);
+        $effectiveDateCalculator->method('calculate')->willReturn($effectiveDate);
 
         $creditSubscriptionService = self::createStub(
             CreditSubscriptionService::class,
@@ -749,29 +741,34 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         ];
     }
 
+    /**
+     * @param positive-int $contractPeriod
+     * @param positive-int $billingPeriod
+     */
+    #[DataProvider('dgOptionOneAPeriodProvider')]
     #[Test]
-    public function dgOptionOneAUsesTargetProductPrice(): void
-    {
-        $this->subscription->billing_period = 1;
-        $this->subscription->contract_period = 12;
-
-        $this->price->billingPeriod = 1;
+    public function dgOptionOneAUsesTargetProductPrice(
+        int $contractPeriod,
+        int $billingPeriod,
+    ): void {
+        $this->price->billingPeriod = $billingPeriod;
         $this->price->regularPrice = 1000;
-        $this->price->contractPeriod = 12;
+        $this->price->contractPeriod = $contractPeriod;
         $this->price->calculatedPrice = 800;
 
         $priceResolver = self::createMock(PriceResolver::class);
-        $priceResolver->expects(self::once())
+        $priceResolver
+            ->expects(self::once())
             ->method('getPriceList')
-            ->with(self::callback(function (PriceRequest $priceRequest): bool {
+            ->with(self::callback(function (PriceRequest $priceRequest) use ($contractPeriod, $billingPeriod): bool {
                 $productPriceRequest = $priceRequest->productPriceRequests[0];
 
                 self::assertSame(
                     $this->targetProduct,
                     $productPriceRequest->product,
                 );
-                self::assertSame(12, $productPriceRequest->contractPeriod);
-                self::assertSame(1, $productPriceRequest->billingPeriod);
+                self::assertSame($contractPeriod, $productPriceRequest->contractPeriod);
+                self::assertSame($billingPeriod, $productPriceRequest->billingPeriod);
 
                 return true;
             }))
@@ -791,8 +788,8 @@ class RetentionOfferPriceCalculatorTest extends TestCase
                 subscription: $this->subscription,
                 selectedAction: SelectedAction::DG_OPTION_1A,
                 executionDate: ExecutionDate::CONTRACT_END,
-                contractPeriod: 12,
-                billingPeriod: 1,
+                contractPeriod: $contractPeriod,
+                billingPeriod: $billingPeriod,
                 targetProduct: $this->targetProduct,
                 cancelReason: null,
                 cancelReasonOther: null,
@@ -806,8 +803,22 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         self::assertSame(0, $result->price->discountAmount);
     }
 
+    /** @return iterable<string, array{positive-int, positive-int}> */
+    public static function dgOptionOneAPeriodProvider(): iterable
+    {
+        yield '12 month contract billed monthly' => [12, 1];
+        yield '12 month contract billed annually' => [12, 12];
+        yield '24 month contract billed monthly' => [24, 1];
+        yield '24 month contract billed annually' => [24, 12];
+        yield '24 month contract billed all at once' => [24, 24];
+        yield '36 month contract billed monthly' => [36, 1];
+        yield '36 month contract billed annually' => [36, 12];
+        yield '36 month contract billed all at once' => [36, 36];
+    }
+
     /**
      * @param positive-int     $contractPeriod
+     * @param positive-int     $billingPeriod
      * @param non-negative-int $annualRegularPrice
      * @param non-negative-int $annualCalculatedPrice
      * @param non-negative-int $termPrice
@@ -817,8 +828,9 @@ class RetentionOfferPriceCalculatorTest extends TestCase
      */
     #[DataProvider('validDgOptionOneDProvider')]
     #[Test]
-    public function dgOptionOneDComparesMultiyearPriceWithAnnualRenewal(
+    public function dgOptionOneDComparesBillingPeriodPriceWithAnnualRenewal(
         int $contractPeriod,
+        int $billingPeriod,
         int $annualRegularPrice,
         int $annualCalculatedPrice,
         int $termPrice,
@@ -831,7 +843,7 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         $this->resolvedTargetProduct->prices->push(
             new Price(
                 type: ProductPriceType::REGISTRATION,
-                billingPeriod: $contractPeriod,
+                billingPeriod: $billingPeriod,
                 productId: 1,
                 productGroupUuid: 'uuid',
                 regularPrice: $termPrice,
@@ -839,20 +851,21 @@ class RetentionOfferPriceCalculatorTest extends TestCase
                 orderable: true,
                 is_default: false,
                 calculatedPrice: $termPrice,
-            )
+            ),
         );
 
         $priceResolver = self::createMock(PriceResolver::class);
-        $priceResolver->expects(self::once())
+        $priceResolver
+            ->expects(self::once())
             ->method('getPriceList')
             ->with(self::callback(
-                function (PriceRequest $priceRequest) use ($contractPeriod): bool {
+                function (PriceRequest $priceRequest) use ($contractPeriod, $billingPeriod): bool {
                     self::assertSame($this->targetProduct, $priceRequest->productPriceRequests[0]->product);
                     self::assertSame($contractPeriod, $priceRequest->productPriceRequests[0]->contractPeriod);
-                    self::assertSame($contractPeriod, $priceRequest->productPriceRequests[0]->billingPeriod);
+                    self::assertSame($billingPeriod, $priceRequest->productPriceRequests[0]->billingPeriod);
 
                     return true;
-                }
+                },
             ))
             ->willReturn($this->targetPriceList);
 
@@ -871,7 +884,7 @@ class RetentionOfferPriceCalculatorTest extends TestCase
                 selectedAction: SelectedAction::DG_OPTION_1D,
                 executionDate: ExecutionDate::CONTRACT_END,
                 contractPeriod: $contractPeriod,
-                billingPeriod: $contractPeriod,
+                billingPeriod: $billingPeriod,
                 targetProduct: $this->targetProduct,
                 cancelReason: null,
                 cancelReasonOther: null,
@@ -885,10 +898,31 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         self::assertSame($expectedDiscount, $result->price->discountAmount);
     }
 
-    /** @return iterable<string, array{int, int, int, int, int, int, int}> */
+    /** @return iterable<string, array{int, int, int, int, int, int, int, int}> */
     public static function validDgOptionOneDProvider(): iterable
     {
-        yield '24 month hosting price' => [
+        yield '12 month contract billed monthly rounds cents' => [
+            12,
+            1,
+            1001,
+            1001,
+            75,
+            83,
+            83,
+            8,
+        ];
+        yield '24 month contract billed annually' => [
+            24,
+            12,
+            1000,
+            1000,
+            900,
+            1000,
+            1000,
+            100,
+        ];
+        yield '24 month contract billed all at once' => [
+            24,
             24,
             1000,
             1000,
@@ -897,7 +931,8 @@ class RetentionOfferPriceCalculatorTest extends TestCase
             2000,
             200,
         ];
-        yield '36 month hosting price' => [
+        yield '36 month contract billed all at once' => [
+            36,
             36,
             1000,
             1000,
@@ -907,6 +942,7 @@ class RetentionOfferPriceCalculatorTest extends TestCase
             500,
         ];
         yield 'annual calculated price forms the comparison basis' => [
+            24,
             24,
             1200,
             1000,
@@ -926,8 +962,7 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         $this->price->calculatedPrice = 1800;
 
         $priceResolver = self::createStub(PriceResolver::class);
-        $priceResolver->method('getPriceList')
-            ->willReturn($this->targetPriceList);
+        $priceResolver->method('getPriceList')->willReturn($this->targetPriceList);
 
         $calculator = new RetentionOfferPriceCalculator(
             eligibilityService: $this->eligibilityService,
@@ -972,8 +1007,7 @@ class RetentionOfferPriceCalculatorTest extends TestCase
             calculatedPrice: 2000,
         ));
         $priceResolver = self::createStub(PriceResolver::class);
-        $priceResolver->method('getPriceList')
-            ->willReturn($this->targetPriceList);
+        $priceResolver->method('getPriceList')->willReturn($this->targetPriceList);
 
         $calculator = new RetentionOfferPriceCalculator(
             eligibilityService: $this->eligibilityService,
@@ -1003,110 +1037,11 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         );
     }
 
-    /**
-     * @param positive-int     $billingPeriod
-     * @param non-negative-int $regularPrice
-     * @param non-negative-int $calculatedPrice
-     * @param non-negative-int $expectedOfferPrice
-     * @param non-negative-int $expectedDiscount
-     */
-    #[DataProvider('tkOptionOneBillingPeriodProvider')]
     #[Test]
-    public function tkOptionOneAppliesThreeMonthsAtNinetyNineCents(
-        int $billingPeriod,
-        int $regularPrice,
-        int $calculatedPrice,
-        int $expectedOfferPrice,
-        int $expectedDiscount,
-    ): void {
-        $this->subscription->billing_period = $billingPeriod;
-        $this->subscription->contract_period = $billingPeriod;
-
-        $this->price->billingPeriod = $billingPeriod;
-        $this->price->regularPrice = $regularPrice;
-        $this->price->contractPeriod = $billingPeriod;
-        $this->price->calculatedPrice = $calculatedPrice;
-
-        $result = $this->calculator->calculateItem(
-            request: $this->request,
-            item: new RetentionOfferItemDTO(
-                subscription: $this->subscription,
-                selectedAction: SelectedAction::TK_OPTION_1,
-                executionDate: ExecutionDate::CONTRACT_END,
-                contractPeriod: $billingPeriod,
-                billingPeriod: $billingPeriod,
-                targetProduct: null,
-                cancelReason: null,
-                cancelReasonOther: null,
-            ),
-        );
-
-        self::assertNotNull($result->price);
-        self::assertSame($regularPrice, $result->price->normalNetPrice);
-        self::assertSame($expectedOfferPrice, $result->price->offerNetPrice);
-        self::assertSame($expectedDiscount, $result->price->discountAmount);
-    }
-
-    /** @return iterable<string, array{int, int, int, int, int}> */
-    public static function tkOptionOneBillingPeriodProvider(): iterable
+    public function returnsMissingPriceWhenExactDowngradeCombinationIsUnavailable(): void
     {
-        yield '12 months' => [
-            12,
-            12000,
-            12000,
-            9297,
-            2703,
-        ];
-        yield '24 months uses its term price' => [
-            24,
-            21600,
-            21600,
-            19197,
-            2403,
-        ];
-        yield '36 months uses its term price' => [
-            36,
-            28800,
-            28800,
-            26697,
-            2103,
-        ];
-    }
-
-    #[Test]
-    public function tkOptionOneRequiresPositiveDiscount(): void
-    {
-        $this->price->regularPrice = 600;
-        $this->price->calculatedPrice = 600;
-
-        $result = $this->calculator->calculateItem(
-            request: $this->request,
-            item: new RetentionOfferItemDTO(
-                subscription: $this->subscription,
-                selectedAction: SelectedAction::TK_OPTION_1,
-                executionDate: ExecutionDate::CONTRACT_END,
-                contractPeriod: 12,
-                billingPeriod: 12,
-                targetProduct: null,
-                cancelReason: null,
-                cancelReasonOther: null,
-            ),
-        );
-
-        self::assertSame(
-            RetentionOfferCalculationStatus::MANUAL,
-            $result->status,
-        );
-    }
-
-    #[Test]
-    public function returnsMissingPriceWhenProductPricingIsUnavailable(): void
-    {
-        $this->subscription->contract_period = 6;
-
         $priceResolver = self::createStub(PriceResolver::class);
-        $priceResolver->method('getPriceList')
-            ->willReturn(new PriceList());
+        $priceResolver->method('getPriceList')->willReturn($this->targetPriceList);
 
         $calculator = new RetentionOfferPriceCalculator(
             eligibilityService: $this->eligibilityService,
@@ -1120,11 +1055,11 @@ class RetentionOfferPriceCalculatorTest extends TestCase
             request: $this->request,
             item: new RetentionOfferItemDTO(
                 subscription: $this->subscription,
-                selectedAction: SelectedAction::TK_OPTION_2,
+                selectedAction: SelectedAction::DG_OPTION_1A,
                 executionDate: ExecutionDate::CONTRACT_END,
-                contractPeriod: 6,
-                billingPeriod: 6,
-                targetProduct: null,
+                contractPeriod: 36,
+                billingPeriod: 12,
+                targetProduct: $this->targetProduct,
                 cancelReason: null,
                 cancelReasonOther: null,
             ),
@@ -1134,13 +1069,18 @@ class RetentionOfferPriceCalculatorTest extends TestCase
             RetentionOfferCalculationStatus::MANUAL,
             $result->status,
         );
+        self::assertSame(
+            RetentionOfferEligibilityCode::MISSING_PRICE,
+            $result->price?->eligibility->code,
+        );
     }
 
     #[Test]
     public function returnsMissingPriceWhenPriceResolutionFails(): void
     {
         $priceResolver = self::createStub(PriceResolver::class);
-        $priceResolver->method('getPriceList')
+        $priceResolver
+            ->method('getPriceList')
             ->willThrowException(
                 new PriceResolvingException('Unable to resolve price.'),
             );
@@ -1180,7 +1120,8 @@ class RetentionOfferPriceCalculatorTest extends TestCase
         $this->price->contractPeriod = 24;
 
         $priceResolver = self::createMock(PriceResolver::class);
-        $priceResolver->expects(self::once())
+        $priceResolver
+            ->expects(self::once())
             ->method('getPriceList')
             ->with(self::callback(function (PriceRequest $priceRequest): bool {
                 $productPriceRequest = $priceRequest->productPriceRequests[0];

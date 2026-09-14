@@ -47,10 +47,12 @@ class DomainIsUnclaimedRuleTest extends IntegrationTestCase
 
         $rule->validate('subscriptions.extension.*.domain', $domain, self::assertClosureIsCalled(false));
 
-        new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product->uuid,
-            'domain' => $domain,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product->uuid,
+                'domain' => $domain,
+            ]);
 
         $rule->validate('subscriptions.extension.*.domain', $domain, self::assertClosureIsCalled(true));
     }

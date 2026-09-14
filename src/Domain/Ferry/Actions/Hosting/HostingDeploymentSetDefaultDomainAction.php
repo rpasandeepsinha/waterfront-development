@@ -39,7 +39,7 @@ readonly class HostingDeploymentSetDefaultDomainAction
                 LoggingContextKeys::REQUEST_DATA => (string) json_encode($payload->toArray()),
                 LoggingContextKeys::SERVER_ID => $server->id,
                 LoggingContextKeys::SERVER_HOSTNAME => $server->hostname,
-            ]
+            ],
         );
 
         $subscription = $hostingDeployment->subscription;
@@ -48,7 +48,7 @@ readonly class HostingDeploymentSetDefaultDomainAction
             $defaultDomain = $this->hostingService->getDefaultDomain(
                 ProviderSlug::from($payload->driver),
                 $payload->hostingDetails->getUsername(),
-                $server
+                $server,
             );
 
             if ($defaultDomain === null || $defaultDomain === '') {
@@ -57,7 +57,7 @@ readonly class HostingDeploymentSetDefaultDomainAction
                 $defaultDomain = sprintf(
                     '%s.%s',
                     $payload->hostingDetails->getUsername(),
-                    $server->hostname
+                    $server->hostname,
                 );
             }
 
@@ -69,7 +69,7 @@ readonly class HostingDeploymentSetDefaultDomainAction
                     LoggingContextKeys::REQUEST_DATA => (string) json_encode($payload->toArray()),
                     LoggingContextKeys::SERVER_ID => $server->id,
                     LoggingContextKeys::SERVER_HOSTNAME => $server->hostname,
-                ]
+                ],
             );
 
             $subscription->domain = $defaultDomain;
@@ -79,7 +79,7 @@ readonly class HostingDeploymentSetDefaultDomainAction
                 $subscription,
                 $payload,
                 $server,
-                $exception
+                $exception,
             );
         }
     }

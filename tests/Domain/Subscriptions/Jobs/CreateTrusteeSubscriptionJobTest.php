@@ -25,13 +25,15 @@ class CreateTrusteeSubscriptionJobTest extends IntegrationTestCase
     {
         $domainSubscription = DomainSubscriptionDataProvider::subscription();
         $trusteeProduct = new ProductFactory()->for(new ProductGroupFactory()->addon())->createOne();
-        new ProductPriceComponentFactory()->for($trusteeProduct)->registration()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($trusteeProduct)
+            ->registration()
+            ->createOne();
 
-        new ProductAddonCouplingFactory()
-            ->createOne([
-                'parent_product_id' => $domainSubscription->product->id,
-                'addon_product_id' => $trusteeProduct->id,
-            ]);
+        new ProductAddonCouplingFactory()->createOne([
+            'parent_product_id' => $domainSubscription->product->id,
+            'addon_product_id' => $trusteeProduct->id,
+        ]);
 
         $job = new CreateTrusteeSubscriptionJob(
             $domainSubscription,

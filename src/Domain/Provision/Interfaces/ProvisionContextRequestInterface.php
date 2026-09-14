@@ -8,8 +8,5 @@ use Ramsey\Uuid\UuidInterface;
 
 interface ProvisionContextRequestInterface extends ProvisionRequestInterface
 {
-    public protected(set) UuidInterface $context {
-        get;
-        set;
-    }
+    public protected(set) UuidInterface $context { get; set; }
 }

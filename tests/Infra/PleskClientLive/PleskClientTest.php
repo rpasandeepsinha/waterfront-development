@@ -15,8 +15,10 @@ use Tests\IntegrationTestCase;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\CreateCustomer\Result as CustomerCreateResult;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\DeleteCustomer\Parameters as CustomerDeleteParameters;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\DeleteWebsite\Parameters as WebsiteDeleteParameters;
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailForwardingCreate\Parameters as EmailForwardingCreateParameters;
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailGetAccountSettings\Parameters as EmailGetAccountSettingsParameters;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailForwardingCreate\Parameters as EmailForwardingCreateParameters
+;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailGetAccountSettings\Parameters as EmailGetAccountSettingsParameters
+;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailSetCatchAll\Parameters as EmailSetCatchAllParameters;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Parameters as HostingParameters;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Result;
@@ -230,7 +232,9 @@ class PleskClientTest extends IntegrationTestCase
         $this->hostingPackageClient->createHosting($this->hostingParameters);
 
         $this->expectException(PleskClientException::class);
-        $this->expectExceptionMessageIs('[Waterfront\Infra\PleskClient\Exceptions\PleskClientException]:: Not enough resources available for domain');
+        $this->expectExceptionMessageIs(
+            '[Waterfront\Infra\PleskClient\Exceptions\PleskClientException]:: Not enough resources available for domain',
+        );
 
         $this->hostingPackageClient->changeServicePlan(self::DOMAIN, self::SERVICEPLAN);
     }
@@ -281,7 +285,7 @@ class PleskClientTest extends IntegrationTestCase
         $logMessage = sprintf(
             '[Waterfront\Infra\PleskClient\Services\HostingPackageClient]::changeServicePlanSwitchBetweenHostingType - Switching between serviceplans : %s and %s',
             $this->hostingParameters->getPackage(),
-            self::PLANTOCHANGE
+            self::PLANTOCHANGE,
         );
 
         Log::shouldReceive('info')
@@ -321,7 +325,7 @@ class PleskClientTest extends IntegrationTestCase
         $logMessage6 = sprintf(
             '[Waterfront\Infra\PleskClient\Services\HostingPackageClient]::changeServicePlanSwitchBetweenHostingType - Emailaccount %s with forwading to %s is imported',
             $fowardedEmailInfo['sourceEmailAddressUsername'],
-            json_encode($fowardedEmailInfo['destinationEmailAddresses'])
+            json_encode($fowardedEmailInfo['destinationEmailAddresses']),
         );
 
         Log::shouldReceive('info')
@@ -331,7 +335,7 @@ class PleskClientTest extends IntegrationTestCase
         $logMessage7 = sprintf(
             '[Waterfront\Infra\PleskClient\Services\HostingPackageClient]::changeServicePlanSwitchBetweenHostingType - Emailaccount %s with forwading to %s is imported',
             $fowardedEmailTesty['sourceEmailAddressUsername'],
-            json_encode($fowardedEmailTesty['destinationEmailAddresses'])
+            json_encode($fowardedEmailTesty['destinationEmailAddresses']),
         );
 
         Log::shouldReceive('info')
@@ -341,7 +345,7 @@ class PleskClientTest extends IntegrationTestCase
         $this->hostingPackageClient->changeServicePlanSwitchBetweenHostingType(
             hostingParameters: $this->hostingParameters,
             domain: self::DOMAIN,
-            servicePlanGuuid: self::PLANTOCHANGE
+            servicePlanGuuid: self::PLANTOCHANGE,
         );
 
         //Get the new created hosting
@@ -411,7 +415,7 @@ class PleskClientTest extends IntegrationTestCase
         $logMessage = sprintf(
             '[Waterfront\Infra\PleskClient\Services\HostingPackageClient]::changeServicePlanSwitchBetweenHostingType - Switching between serviceplans : %s and %s',
             $this->hostingParameters->getPackage(),
-            self::PLANTOCHANGE
+            self::PLANTOCHANGE,
         );
 
         Log::shouldReceive('info')
@@ -451,7 +455,7 @@ class PleskClientTest extends IntegrationTestCase
         $logMessage6 = sprintf(
             '[Waterfront\Infra\PleskClient\Services\HostingPackageClient]::changeServicePlanSwitchBetweenHostingType - Emailaccount %s with forwading to %s is imported',
             $fowardedEmailInfo['sourceEmailAddressUsername'],
-            json_encode($fowardedEmailInfo['destinationEmailAddresses'])
+            json_encode($fowardedEmailInfo['destinationEmailAddresses']),
         );
 
         Log::shouldReceive('info')
@@ -461,7 +465,7 @@ class PleskClientTest extends IntegrationTestCase
         $logMessage7 = sprintf(
             '[Waterfront\Infra\PleskClient\Services\HostingPackageClient]::changeServicePlanSwitchBetweenHostingType - Emailaccount %s with forwading to %s is imported',
             $fowardedEmailTesty['sourceEmailAddressUsername'],
-            json_encode($fowardedEmailTesty['destinationEmailAddresses'])
+            json_encode($fowardedEmailTesty['destinationEmailAddresses']),
         );
 
         Log::shouldReceive('info')
@@ -471,7 +475,7 @@ class PleskClientTest extends IntegrationTestCase
         $this->hostingPackageClient->changeServicePlanSwitchBetweenHostingType(
             hostingParameters: $this->hostingParameters,
             domain: self::DOMAIN,
-            servicePlanGuuid: self::PLANTOCHANGE
+            servicePlanGuuid: self::PLANTOCHANGE,
         );
 
         //Get the new created hosting
@@ -528,7 +532,7 @@ class PleskClientTest extends IntegrationTestCase
         $logMessage = sprintf(
             '[Waterfront\Infra\PleskClient\Services\HostingPackageClient]::changeServicePlanSwitchBetweenHostingType - Switching between serviceplans : %s and %s',
             $this->hostingParameters->getPackage(),
-            self::PLANTOCHANGE
+            self::PLANTOCHANGE,
         );
 
         Log::shouldReceive('info')
@@ -549,7 +553,7 @@ class PleskClientTest extends IntegrationTestCase
 
         $logMessage4 = sprintf(
             '[Waterfront\Infra\PleskClient\Services\HostingPackageClient]::changeServicePlanSwitchBetweenHostingType - There was no catchAll set for domain %s',
-            $this->hostingParameters->getDomain()
+            $this->hostingParameters->getDomain(),
         );
 
         Log::shouldReceive('info')
@@ -559,7 +563,7 @@ class PleskClientTest extends IntegrationTestCase
         $this->hostingPackageClient->changeServicePlanSwitchBetweenHostingType(
             hostingParameters: $this->hostingParameters,
             domain: self::DOMAIN,
-            servicePlanGuuid: self::PLANTOCHANGE
+            servicePlanGuuid: self::PLANTOCHANGE,
         );
 
         //Get the new created hosting
@@ -605,8 +609,8 @@ class PleskClientTest extends IntegrationTestCase
         $this->hostingPackageClient->createHosting($this->hostingParameters);
 
         $websiteDeleteParameters = WebsiteDeleteParameters::create([
-              'domain' => self::PARAMETERS['domain'],
-          ]);
+            'domain' => self::PARAMETERS['domain'],
+        ]);
 
         $deleteResult = $this->hostingPackageClient->deleteWebsite($websiteDeleteParameters);
         self::assertSame(Result::STATUS_OK, $deleteResult->getStatus());
@@ -638,7 +642,10 @@ class PleskClientTest extends IntegrationTestCase
 
         self::assertSame(Result::STATUS_OK, $result->getStatus());
         $resultData = $result->getResponseBody();
-        self::assertSame($this->hostingParameters->getDomain(), Arr::get($resultData, 'site.get.result.data.gen_info.name'));
+        self::assertSame(
+            $this->hostingParameters->getDomain(),
+            Arr::get($resultData, 'site.get.result.data.gen_info.name'),
+        );
     }
 
     #[Test]
@@ -855,7 +862,7 @@ class PleskClientTest extends IntegrationTestCase
 
         $this->hostingPackageClient->createHosting($this->hostingParameters);
 
-        $result =  $this->hostingPackageClient->isServicePlanChangeable(self::DOMAIN, self::PLANTOCHANGE);
+        $result = $this->hostingPackageClient->isServicePlanChangeable(self::DOMAIN, self::PLANTOCHANGE);
         self::assertFalse($result);
     }
 
@@ -871,7 +878,7 @@ class PleskClientTest extends IntegrationTestCase
         $this->hostingParameters->setCustomerId($customerResult->getCustomerId());
         $this->hostingPackageClient->createHosting($this->hostingParameters);
 
-        $result =  $this->hostingPackageClient->isServicePlanChangeable(self::DOMAIN, self::PLANTOCHANGE);
+        $result = $this->hostingPackageClient->isServicePlanChangeable(self::DOMAIN, self::PLANTOCHANGE);
         self::assertTrue($result);
     }
 
@@ -916,6 +923,7 @@ class PleskClientTest extends IntegrationTestCase
         foreach (self::FORGET_HOSTING_SETTINGS as $key) {
             Arr::forget($productSpecsConfig, $key);
         }
+
         Config::set('product-specs.hosting', $productSpecsConfig);
     }
 
@@ -961,7 +969,7 @@ class PleskClientTest extends IntegrationTestCase
      */
     private function createForwardMail(array $data): void
     {
-        $emailForwardParameters =  EmailForwardingCreateParameters::create([
+        $emailForwardParameters = EmailForwardingCreateParameters::create([
             'domain' => $this->hostingParameters->getDomain(),
             'sourceEmailAddressUsername' => $data['sourceEmailAddressUsername'],
             'destinationEmailAddresses' => $data['destinationEmailAddresses'],

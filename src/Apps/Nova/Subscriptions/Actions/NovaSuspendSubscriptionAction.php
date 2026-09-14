@@ -37,6 +37,7 @@ class NovaSuspendSubscriptionAction extends NovaSubscriptionAction
                 // @ignoreException
             }
         }
+
         return self::message($this->translator->translate('nova-action.success.subscription_suspension_successful'));
     }
 }

@@ -43,7 +43,8 @@ class ProvisionRetryControllerTest extends IntegrationTestCase
         ];
 
         $basekitProvisionServiceMock = self::createMock(BasekitProvisionService::class);
-        $basekitProvisionServiceMock->expects(self::once())
+        $basekitProvisionServiceMock
+            ->expects(self::once())
             ->method('create')
             ->with(self::callback(static function (CreateSitebuilderRequest $request) use ($correctedEmail): bool {
                 self::assertSame($correctedEmail, $request->email);
@@ -54,7 +55,7 @@ class ProvisionRetryControllerTest extends IntegrationTestCase
                 static fn (CreateSitebuilderRequest $request): SitebuilderResult => new SitebuilderResult(
                     provisionData: $request,
                     provisionStatus: ProvisionStatus::SUCCESS,
-                )
+                ),
             );
         $this->app->bind(
             BasekitProvisionService::class,
@@ -78,17 +79,13 @@ class ProvisionRetryControllerTest extends IntegrationTestCase
         self::assertNotNull($failedResult->validationResult);
         self::assertArrayHasKey('email', $failedResult->validationResult->messages);
 
-        $originRequest = self::resolve(ProvisioningRequestRepository::class)
-            ->findById($failedRequest->requestId);
+        $originRequest = self::resolve(ProvisioningRequestRepository::class)->findById($failedRequest->requestId);
         self::assertNotNull($originRequest);
 
-        $this->actingAsEmployee($retryRequester)
-            ->postJson($this->generateRoute('admin.deployments.requests.retry'), [
-                'retryOf' => $originRequest->uuid->toString(),
-                'retryData' => $retryData,
-            ])
-            ->assertOk()
-            ->assertJsonPath('provisionStatus', ProvisionStatus::SUCCESS->value);
+        $this->actingAsEmployee($retryRequester)->postJson($this->generateRoute('admin.deployments.requests.retry'), [
+            'retryOf' => $originRequest->uuid->toString(),
+            'retryData' => $retryData,
+        ])->assertOk()->assertJsonPath('provisionStatus', ProvisionStatus::SUCCESS->value);
 
         self::assertDatabaseHas(ProvisioningRequest::class, [
             'retry_of_request_id' => $originRequest->id,
@@ -125,7 +122,8 @@ class ProvisionRetryControllerTest extends IntegrationTestCase
         );
 
         $provisionRetryServiceMock = self::createMock(ProvisionRetryService::class);
-        $provisionRetryServiceMock->expects(self::once())
+        $provisionRetryServiceMock
+            ->expects(self::once())
             ->method('retry')
             ->with(
                 self::callback(static fn (UuidInterface $uuid): bool => $retryOf->equals($uuid)),
@@ -165,13 +163,10 @@ class ProvisionRetryControllerTest extends IntegrationTestCase
     #[Test]
     public function retryRejectsEmptyRetryData(): void
     {
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.deployments.requests.retry'), [
-                'retryOf' => Uuid::uuid4()->toString(),
-                'retryData' => [],
-            ])
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['retryData']);
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.deployments.requests.retry'), [
+            'retryOf' => Uuid::uuid4()->toString(),
+            'retryData' => [],
+        ])->assertUnprocessable()->assertJsonValidationErrors(['retryData']);
     }
 
     #[Test]
@@ -180,7 +175,8 @@ class ProvisionRetryControllerTest extends IntegrationTestCase
         $retryOf = Uuid::uuid4();
 
         $provisionRetryServiceMock = self::createMock(ProvisionRetryService::class);
-        $provisionRetryServiceMock->expects(self::once())
+        $provisionRetryServiceMock
+            ->expects(self::once())
             ->method('retry')
             ->willThrowException(new RetryOriginNotFoundException($retryOf));
         $this->app->bind(

@@ -50,7 +50,8 @@ class RemoveStrayParkingDnsJobTest extends TestCase
     public function testDryRunLogsFindingsButDoesNotRemoveAnything(): void
     {
         $this->hostingDeploymentRepository->method('hasHostingDeploymentForDomain')->willReturn(true);
-        $this->dnsService->method('getConflictingParkingRecords')
+        $this->dnsService
+            ->method('getConflictingParkingRecords')
             ->willReturn([new DefaultRecord('A', self::DOMAIN, '212.204.220.100', 600)]);
 
         $this->dnsService->expects(self::never())->method('removeConflictingParkingRecords');
@@ -64,7 +65,8 @@ class RemoveStrayParkingDnsJobTest extends TestCase
     {
         $this->hostingDeploymentRepository->method('hasHostingDeploymentForDomain')->willReturn(true);
 
-        $this->dnsService->expects(self::once())
+        $this->dnsService
+            ->expects(self::once())
             ->method('removeConflictingParkingRecords')
             ->with(self::DOMAIN)
             ->willReturn([new DefaultRecord('A', self::DOMAIN, '212.204.220.100', 600)]);

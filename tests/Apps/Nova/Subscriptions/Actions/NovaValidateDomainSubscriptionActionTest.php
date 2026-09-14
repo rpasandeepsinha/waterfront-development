@@ -87,7 +87,9 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
             ->createOne();
 
         $dnsGroup = new ProductGroupFactory()->dns()->createOne();
-        $dnsProduct = new ProductFactory()->premiumDns($dnsGroup)->createOne();
+        $dnsProduct = new ProductFactory()
+            ->premiumDns($dnsGroup)
+            ->createOne();
 
         $this->dnsSubscription = new SubscriptionFactory()
             ->for($customer)
@@ -126,7 +128,10 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
         self::assertInstanceOf(ActionResponse::class, $result);
         $modal = $result['modal'];
         self::assertInstanceOf(Modal::class, $modal);
-        self::assertSame('<ul><li>❌ nova-action.validate-dns-domain.no-domainnova-action.validate-dns-domain.further-validation</li></ul>', $modal->payload['html']);
+        self::assertSame(
+            '<ul><li>❌ nova-action.validate-dns-domain.no-domainnova-action.validate-dns-domain.further-validation</li></ul>',
+            $modal->payload['html'],
+        );
     }
 
     #[Test]
@@ -140,7 +145,10 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
         self::assertInstanceOf(ActionResponse::class, $result);
         $modal = $result['modal'];
         self::assertInstanceOf(Modal::class, $modal);
-        self::assertSame('<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>❌ nova-action.validate-dns-domain.no-product-group-extensionnova-action.validate-dns-domain.further-validation</li></ul>', $modal->payload['html']);
+        self::assertSame(
+            '<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>❌ nova-action.validate-dns-domain.no-product-group-extensionnova-action.validate-dns-domain.further-validation</li></ul>',
+            $modal->payload['html'],
+        );
     }
 
     #[Test]
@@ -153,7 +161,10 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
         self::assertInstanceOf(ActionResponse::class, $result);
         $modal = $result['modal'];
         self::assertInstanceOf(Modal::class, $modal);
-        self::assertSame('<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>❌ nova-action.validate-dns-domain.no-domain-deploymentnova-action.validate-dns-domain.further-validation</li></ul>', $modal->payload['html']);
+        self::assertSame(
+            '<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>❌ nova-action.validate-dns-domain.no-domain-deploymentnova-action.validate-dns-domain.further-validation</li></ul>',
+            $modal->payload['html'],
+        );
     }
 
     #[Test]
@@ -169,7 +180,10 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
         self::assertInstanceOf(ActionResponse::class, $result);
         $modal = $result['modal'];
         self::assertInstanceOf(Modal::class, $modal);
-        self::assertSame('<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>✅ nova-action.validate-dns-domain.has-domain-deployment</li><li>❌ nova-action.validate-dns-domain.domain-could-not-be-retrievednova-action.validate-dns-domain.further-validation</li></ul>', $modal->payload['html']);
+        self::assertSame(
+            '<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>✅ nova-action.validate-dns-domain.has-domain-deployment</li><li>❌ nova-action.validate-dns-domain.domain-could-not-be-retrievednova-action.validate-dns-domain.further-validation</li></ul>',
+            $modal->payload['html'],
+        );
     }
 
     #[Test]
@@ -189,7 +203,10 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
         self::assertInstanceOf(ActionResponse::class, $result);
         $modal = $result['modal'];
         self::assertInstanceOf(Modal::class, $modal);
-        self::assertSame('<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>✅ nova-action.validate-dns-domain.has-domain-deployment</li><li>✅ nova-action.validate-dns-domain.domain-could-be-retrieved</li><li>❌ nova-action.validate-dns-domain.no-dns-subscriptionnova-action.validate-dns-domain.further-validation</li></ul>', $modal->payload['html']);
+        self::assertSame(
+            '<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>✅ nova-action.validate-dns-domain.has-domain-deployment</li><li>✅ nova-action.validate-dns-domain.domain-could-be-retrieved</li><li>❌ nova-action.validate-dns-domain.no-dns-subscriptionnova-action.validate-dns-domain.further-validation</li></ul>',
+            $modal->payload['html'],
+        );
     }
 
     #[Test]
@@ -213,7 +230,10 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
         self::assertInstanceOf(ActionResponse::class, $result);
         $modal = $result['modal'];
         self::assertInstanceOf(Modal::class, $modal);
-        self::assertSame('<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>✅ nova-action.validate-dns-domain.has-domain-deployment</li><li>✅ nova-action.validate-dns-domain.domain-could-be-retrieved</li><li>✅ nova-action.validate-dns-domain.has-domain</li><li>❌ nova-action.validate-dns-domain.dns-deployment-no-nameserver</li><li>❌ nova-action.validate-dns-domain.no-domain-nameservers-registry</li><li>✅ nova-action.validate-dns-domain.domain-nameservers-registry</li><li>❌ nova-action.validate-dns-domain.no-domain-nameservers-dns-server</li><li>❌ nova-action.validate-dns-domain.no-nameserversnova-action.validate-dns-domain.further-validation</li></ul>', $modal->payload['html']);
+        self::assertSame(
+            '<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>✅ nova-action.validate-dns-domain.has-domain-deployment</li><li>✅ nova-action.validate-dns-domain.domain-could-be-retrieved</li><li>✅ nova-action.validate-dns-domain.has-domain</li><li>❌ nova-action.validate-dns-domain.dns-deployment-no-nameserver</li><li>❌ nova-action.validate-dns-domain.no-domain-nameservers-registry</li><li>✅ nova-action.validate-dns-domain.domain-nameservers-registry</li><li>❌ nova-action.validate-dns-domain.no-domain-nameservers-dns-server</li><li>❌ nova-action.validate-dns-domain.no-nameserversnova-action.validate-dns-domain.further-validation</li></ul>',
+            $modal->payload['html'],
+        );
     }
 
     #[Test]
@@ -225,14 +245,20 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
             ->with(self::DOMAIN, ProviderSlug::REALTIME_REGISTER)
             ->willReturn($this->domainDetails);
 
-        $this->mockDnsService->expects(self::once())->method('getDnsZone')->willThrowException(new DnsZoneNotFoundException());
+        $this->mockDnsService
+            ->expects(self::once())
+            ->method('getDnsZone')
+            ->willThrowException(new DnsZoneNotFoundException());
 
         $result = $this->runAction();
 
         self::assertInstanceOf(ActionResponse::class, $result);
         $modal = $result['modal'];
         self::assertInstanceOf(Modal::class, $modal);
-        self::assertSame('<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>✅ nova-action.validate-dns-domain.has-domain-deployment</li><li>✅ nova-action.validate-dns-domain.domain-could-be-retrieved</li><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.dns-subscription-nameservers</li><li>✅ nova-action.validate-dns-domain.domain-nameservers-registry</li><li>❌ nova-action.validate-dns-domain.no-dns-zonenova-action.validate-dns-domain.further-validation</li></ul>', $modal->payload['html']);
+        self::assertSame(
+            '<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>✅ nova-action.validate-dns-domain.has-domain-deployment</li><li>✅ nova-action.validate-dns-domain.domain-could-be-retrieved</li><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.dns-subscription-nameservers</li><li>✅ nova-action.validate-dns-domain.domain-nameservers-registry</li><li>❌ nova-action.validate-dns-domain.no-dns-zonenova-action.validate-dns-domain.further-validation</li></ul>',
+            $modal->payload['html'],
+        );
     }
 
     #[Test]
@@ -251,7 +277,7 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
                 'test',
                 'ns1.sandwave-test.com.',
                 3600,
-                disabled: false
+                disabled: false,
             ),
         );
         $zone->addRecord(
@@ -260,7 +286,7 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
                 'test',
                 'ns2.sandwave-test.com.',
                 3600,
-                disabled: false
+                disabled: false,
             ),
         );
 
@@ -271,7 +297,10 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
         self::assertInstanceOf(ActionResponse::class, $result);
         $modal = $result['modal'];
         self::assertInstanceOf(Modal::class, $modal);
-        self::assertSame('<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>✅ nova-action.validate-dns-domain.has-domain-deployment</li><li>✅ nova-action.validate-dns-domain.domain-could-be-retrieved</li><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.dns-subscription-nameservers</li><li>✅ nova-action.validate-dns-domain.domain-nameservers-registry</li><li>❌ nova-action.validate-dns-domain.no-domain-nameservers-dns-server</li><li>❌ nova-action.validate-dns-domain.no-nameserversnova-action.validate-dns-domain.further-validation</li></ul>', $modal->payload['html']);
+        self::assertSame(
+            '<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>✅ nova-action.validate-dns-domain.has-domain-deployment</li><li>✅ nova-action.validate-dns-domain.domain-could-be-retrieved</li><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.dns-subscription-nameservers</li><li>✅ nova-action.validate-dns-domain.domain-nameservers-registry</li><li>❌ nova-action.validate-dns-domain.no-domain-nameservers-dns-server</li><li>❌ nova-action.validate-dns-domain.no-nameserversnova-action.validate-dns-domain.further-validation</li></ul>',
+            $modal->payload['html'],
+        );
     }
 
     #[Test]
@@ -290,11 +319,10 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
 
         $mockSaloonResponse = self::createMock(Response::class);
 
-        $mockSaloonResponse->expects(self::once())
-            ->method('body')
-            ->willReturn($gandiFakeResponse);
+        $mockSaloonResponse->expects(self::once())->method('body')->willReturn($gandiFakeResponse);
 
-        $this->mockGandiClient->expects(self::once())
+        $this->mockGandiClient
+            ->expects(self::once())
             ->method('getDnsRecords')
             ->with(self::DOMAIN)
             ->willThrowException(new NotFoundException($mockSaloonResponse));
@@ -304,7 +332,10 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
         self::assertInstanceOf(ActionResponse::class, $result);
         $modal = $result['modal'];
         self::assertInstanceOf(Modal::class, $modal);
-        self::assertSame('<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>✅ nova-action.validate-dns-domain.has-domain-deployment</li><li>✅ nova-action.validate-dns-domain.domain-could-be-retrieved</li><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.dns-subscription-nameservers</li><li>✅ nova-action.validate-dns-domain.domain-nameservers-registry</li><li>❌ nova-action.validate-dns-domain.gandi-no-dns-zonenova-action.validate-dns-domain.further-validation</li></ul>', $modal->payload['html']);
+        self::assertSame(
+            '<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>✅ nova-action.validate-dns-domain.has-domain-deployment</li><li>✅ nova-action.validate-dns-domain.domain-could-be-retrieved</li><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.dns-subscription-nameservers</li><li>✅ nova-action.validate-dns-domain.domain-nameservers-registry</li><li>❌ nova-action.validate-dns-domain.gandi-no-dns-zonenova-action.validate-dns-domain.further-validation</li></ul>',
+            $modal->payload['html'],
+        );
     }
 
     #[Test]
@@ -323,7 +354,7 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
                 'test',
                 'ns1.sandwave-test.com.',
                 3600,
-                disabled: false
+                disabled: false,
             ),
         );
         $zone->addRecord(
@@ -332,7 +363,7 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
                 'test',
                 'ns2.sandwave-test.com.',
                 3600,
-                disabled: false
+                disabled: false,
             ),
         );
         $this->mockDnsService->expects(self::once())->method('getDnsZone')->willReturn($zone);
@@ -358,7 +389,8 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
             ],
         ];
 
-        $this->mockGandiClient->expects(self::once())
+        $this->mockGandiClient
+            ->expects(self::once())
             ->method('getDnsRecords')
             ->with(self::DOMAIN)
             ->willReturn($gandiFakeResponse);
@@ -368,7 +400,10 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
         self::assertInstanceOf(ActionResponse::class, $result);
         $modal = $result['modal'];
         self::assertInstanceOf(Modal::class, $modal);
-        self::assertSame('<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>✅ nova-action.validate-dns-domain.has-domain-deployment</li><li>✅ nova-action.validate-dns-domain.domain-could-be-retrieved</li><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.dns-subscription-nameservers</li><li>✅ nova-action.validate-dns-domain.domain-nameservers-registry</li><li>✅ nova-action.validate-dns-domain.gandi-dns-zone-retrieved</li><li>✅ nova-action.validate-dns-domain.domain-nameservers-dns-server</li><li>✅ nova-action.validate-dns-domain.nameserver-has-at</li><li>✅ nova-action.validate-dns-domain.nameserver-has-at</li><li>✅ nova-action.validate-dns-domain.nameserver-has-at</li><li>✅ nova-action.validate-dns-domain.nameserver-has-at</li><li>✅ nova-action.validate-dns-domain.nameserver-has-at</li><li>✅ nova-action.validate-dns-domain.nameserver-has-at</li></ul>', $modal->payload['html']);
+        self::assertSame(
+            '<ul><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.is-product-group-extension</li><li>✅ nova-action.validate-dns-domain.has-domain-deployment</li><li>✅ nova-action.validate-dns-domain.domain-could-be-retrieved</li><li>✅ nova-action.validate-dns-domain.has-domain</li><li>✅ nova-action.validate-dns-domain.dns-subscription-nameservers</li><li>✅ nova-action.validate-dns-domain.domain-nameservers-registry</li><li>✅ nova-action.validate-dns-domain.gandi-dns-zone-retrieved</li><li>✅ nova-action.validate-dns-domain.domain-nameservers-dns-server</li><li>✅ nova-action.validate-dns-domain.nameserver-has-at</li><li>✅ nova-action.validate-dns-domain.nameserver-has-at</li><li>✅ nova-action.validate-dns-domain.nameserver-has-at</li><li>✅ nova-action.validate-dns-domain.nameserver-has-at</li><li>✅ nova-action.validate-dns-domain.nameserver-has-at</li><li>✅ nova-action.validate-dns-domain.nameserver-has-at</li></ul>',
+            $modal->payload['html'],
+        );
     }
 
     private function runAction(): ActionResponse|NovaValidateDomainSubscriptionAction
@@ -387,7 +422,7 @@ class NovaValidateDomainSubscriptionActionTest extends IntegrationTestCase
 
         return $action->handle(
             new ActionFields(new Collection(), new Collection()),
-            $subscriptions
+            $subscriptions,
         );
     }
 }

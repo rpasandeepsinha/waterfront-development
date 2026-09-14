@@ -46,7 +46,7 @@ class DnsLogService
      */
     public function log(
         DnsRecordChangeDTO $dnsRecordChangeDTO,
-        string $domain
+        string $domain,
     ): void {
         // In DNS there might be a trailing '.' for FQDN, here we ensure we remove this to match our subscription.
         $trimmedDomain = rtrim($domain, '.');
@@ -57,10 +57,10 @@ class DnsLogService
             throw new SubscriptionNotFoundException(
                 sprintf(
                     'Cannot find subscription with domain %s for DNS log',
-                    $trimmedDomain
+                    $trimmedDomain,
                 ),
                 $exception->getCode(),
-                $exception
+                $exception,
             );
         }
 
@@ -71,12 +71,18 @@ class DnsLogService
             $authenticatedSubject = null;
         }
 
-        if ($this->systemHelper->isRunningInConsole() || $authenticatedSubject === null || $authenticatedSubject instanceof AuthenticatedSystem) {
+        if (
+            $this->systemHelper->isRunningInConsole()
+            || $authenticatedSubject === null
+            || $authenticatedSubject instanceof AuthenticatedSystem
+        ) {
             $this->logSystemDnsRecordChange($dnsRecordChangeDTO, DnsAgentType::SYSTEM, $subscription);
+
             return;
         }
 
-        Assert::true($authenticatedSubject instanceof AuthenticatedCustomer || $authenticatedSubject instanceof AuthenticatedEmployee);
+        Assert::true($authenticatedSubject instanceof AuthenticatedCustomer
+        || $authenticatedSubject instanceof AuthenticatedEmployee);
 
         $agentType = $authenticatedSubject->identitySchema->schemaId === SchemaId::EMPLOYEE
             ? DnsAgentType::CS_AGENT
@@ -97,7 +103,7 @@ class DnsLogService
         try {
             $this->log(
                 dnsRecordChangeDTO: $this->fillDnsRecordChangeDTO($record, $type),
-                domain: $domain
+                domain: $domain,
             );
         } catch (ValueError) {
             return;
@@ -147,7 +153,7 @@ class DnsLogService
             ttl: $record->getTtl() ?? self::DEFAULT_TTL,
             priority: $priority,
             weight: $weight,
-            port: $port
+            port: $port,
         );
     }
 
@@ -160,7 +166,12 @@ class DnsLogService
         DnsAgentType $dnsAgentType,
         Subscription $subscription,
     ): void {
-        $this->dnsRecordChangeRepository->createDnsRecordChange($dnsRecordChangeDTO, $dnsAgentType, $subscription, '127.0.0.1');
+        $this->dnsRecordChangeRepository->createDnsRecordChange(
+            $dnsRecordChangeDTO,
+            $dnsAgentType,
+            $subscription,
+            '127.0.0.1',
+        );
     }
 
     /**
@@ -174,6 +185,12 @@ class DnsLogService
         string $ip_address,
         AuthenticatedCustomer|AuthenticatedEmployee $authenticatedSubject,
     ): void {
-        $this->dnsRecordChangeRepository->createDnsRecordChange($dnsRecordChangeDTO, $dnsAgentType, $subscription, $ip_address, $authenticatedSubject);
+        $this->dnsRecordChangeRepository->createDnsRecordChange(
+            $dnsRecordChangeDTO,
+            $dnsAgentType,
+            $subscription,
+            $ip_address,
+            $authenticatedSubject,
+        );
     }
 }

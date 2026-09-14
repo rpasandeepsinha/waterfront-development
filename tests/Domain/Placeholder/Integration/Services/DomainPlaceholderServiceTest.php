@@ -68,13 +68,18 @@ class DomainPlaceholderServiceTest extends IntegrationTestCase
 
         $placeholderService = self::resolve(DomainPlaceholderService::class);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($this->product)->createOne([
-            'domain' => self::DOMAIN,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->createOne([
+                'domain' => self::DOMAIN,
+            ]);
 
-        $domainDeployment = new DomainDeploymentFactory()->withPlaceholderProvider()->createOne([
-            'subscription_uuid' => $subscription->uuid,
-        ]);
+        $domainDeployment = new DomainDeploymentFactory()
+            ->withPlaceholderProvider()
+            ->createOne([
+                'subscription_uuid' => $subscription->uuid,
+            ]);
 
         new TemplateFactory()->createOne([
             'slug' => OrderedManualSubscriptionEmployee::getTemplateSlug(),
@@ -84,7 +89,7 @@ class DomainPlaceholderServiceTest extends IntegrationTestCase
             deployment: $domainDeployment,
             period: 12,
             customer: $this->customer,
-            handles: new Handles('test')
+            handles: new Handles('test'),
         );
 
         self::assertSame(DomainStatus::PENDING, $result->getStatus());
@@ -99,13 +104,18 @@ class DomainPlaceholderServiceTest extends IntegrationTestCase
     public function registerFailedMissingProvider(): void
     {
         $placeHolderService = self::resolve(DomainPlaceholderService::class);
-        $subscription = new SubscriptionFactory()->withCustomer()->for($this->product)->createOne([
-            'domain' => self::DOMAIN,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->createOne([
+                'domain' => self::DOMAIN,
+            ]);
 
-        $domainDeployment = new DomainDeploymentFactory()->withRtrProvider()->createOne([
-            'subscription_uuid' => $subscription->uuid,
-        ]);
+        $domainDeployment = new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->createOne([
+                'subscription_uuid' => $subscription->uuid,
+            ]);
 
         $this->expectException(DriverNotFoundException::class);
 
@@ -113,7 +123,7 @@ class DomainPlaceholderServiceTest extends IntegrationTestCase
             deployment: $domainDeployment,
             period: 12,
             customer: $this->customer,
-            handles: new Handles('test')
+            handles: new Handles('test'),
         );
     }
 
@@ -128,7 +138,12 @@ class DomainPlaceholderServiceTest extends IntegrationTestCase
 
         $subscriptionUuid = Str::uuid();
         $customer = new CustomerFactory()->createOne();
-        $provider = ProviderFactory::new()->createOne(['slug' => ProviderSlug::PLACEHOLDER, 'type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => true]);
+        $provider = ProviderFactory::new()->createOne([
+            'slug' => ProviderSlug::PLACEHOLDER,
+            'type' => ProviderType::DOMAIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $subscription = new SubscriptionFactory()
             ->for($this->product)
             ->for($customer)
@@ -144,16 +159,19 @@ class DomainPlaceholderServiceTest extends IntegrationTestCase
         $subscription->domainDeployment()->save($domainDeployment);
         $subscription->save();
 
-        $mockMail->expects(self::once())
+        $mockMail
+            ->expects(self::once())
             ->method('send')
             ->with(
                 self::callback(function (array $recipients) use ($customer) {
                     self::assertSame($customer->getEmail(), $recipients[0]->getEmail());
                     self::assertCount(1, $recipients);
+
                     return true;
                 }),
                 self::callback(function (MailTemplateInterface $template) {
                     self::assertInstanceOf(ActivatedManualSubscriptionCustomer::class, $template);
+
                     return true;
                 }),
             );

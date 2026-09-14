@@ -31,6 +31,7 @@ use RealtimeRegister\Domain\ProcessCollection;
 use RealtimeRegister\Domain\TLDInfo;
 use RealtimeRegister\Domain\Zone;
 use RealtimeRegister\Exceptions\BadRequestException;
+use RealtimeRegister\Exceptions\ForbiddenException;
 use RealtimeRegister\Exceptions\NotFoundException;
 use RealtimeRegister\Exceptions\RealtimeRegisterClientException;
 use RealtimeRegister\Exceptions\UnexpectedValueException;
@@ -62,6 +63,7 @@ use Waterfront\Domain\Domains\DTO\TransferResult;
 use Waterfront\Domain\Domains\Enums\DomainStatus;
 use Waterfront\Domain\Domains\Exceptions\ContactValidationRequiredException;
 use Waterfront\Domain\Domains\Exceptions\DomainDoesNotExistException;
+use Waterfront\Domain\Domains\Exceptions\DomainForbiddenException;
 use Waterfront\Domain\Domains\Exceptions\DomainModificationFailedException;
 use Waterfront\Domain\Domains\Exceptions\InvalidDnssecKeyException;
 use Waterfront\Domain\Domains\Interfaces\DomainDriverInterface;
@@ -140,7 +142,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     'status code: %d, message: %s',
                     $exception->getCode(),
                     $exception->getMessage(),
-                )
+                ),
             );
             throw new RtrApiException($exception->getMessage(), $exception->getCode(), $exception);
         }
@@ -153,6 +155,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
     {
         try {
             $expireDate = $this->realtimeRegister->domains->get($domain)->expiryDate;
+
             return CarbonImmutable::instance($expireDate);
         } catch (Exception $exception) {
             Log::error(
@@ -160,7 +163,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     'Status code: %d, message: %s',
                     $exception->getCode(),
                     $exception->getMessage(),
-                )
+                ),
             );
             throw new RtrApiException($exception->getMessage(), $exception->getCode(), $exception);
         }
@@ -190,7 +193,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::RTR,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
                     LoggingContextKeys::DOMAIN_NAME => $domain,
-                ]
+                ],
             );
             throw new RtrApiException($exception->getMessage(), $exception->getCode(), $exception);
         }
@@ -220,7 +223,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 status: $availability,
                 reason: $reason,
                 isPremium: $isPremium,
-                price: $price
+                price: $price,
             );
         } catch (Throwable $exception) {
             Log::error(
@@ -228,7 +231,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     'status code: %d, message: %s',
                     $exception->getCode(),
                     $exception->getMessage(),
-                )
+                ),
             );
             throw new RtrApiException($exception->getMessage(), $exception->getCode(), $exception);
         }
@@ -236,50 +239,34 @@ class RtrService implements DomainDriverInterface, RevisionInterface
 
     public function nameserversAreRequired(string $domain): bool
     {
-        $domainProspect = $this->domainRules
-            ->getRules()
-            ->resolve($domain)
-            ->suffix()
-            ->toString();
+        $domainProspect = $this->domainRules->getRules()->resolve($domain)->suffix()->toString();
 
         $tldInfo = $this->getTldInfo($domainProspect);
+
         return $tldInfo->metadata->nameservers->required;
     }
 
     public function hasZoneCheck(string $domain): bool
     {
-        $domainProspect = $this->domainRules
-            ->getRules()
-            ->resolve($domain)
-            ->suffix()
-            ->toString();
+        $domainProspect = $this->domainRules->getRules()->resolve($domain)->suffix()->toString();
 
         $tldInfo = $this->getTldInfo($domainProspect);
+
         return $tldInfo->metadata->zoneCheck !== null;
     }
 
     public function creationRequiresPreValidation(string $domain): bool
     {
-        $domainProspect = $this->domainRules
-            ->getRules()
-            ->resolve($domain)
-            ->suffix()
-            ->toString();
+        $domainProspect = $this->domainRules->getRules()->resolve($domain)->suffix()->toString();
 
         $tldInfo = $this->getTldInfo($domainProspect);
+
         return $tldInfo->metadata->creationRequiresPreValidation;
     }
 
-    /**
-     * @return array<int, string>
-     */
     public function getContactValidationCategoriesForDomain(string $domain): array
     {
-        $domainProspect = $this->domainRules
-            ->getRules()
-            ->resolve($domain)
-            ->suffix()
-            ->toString();
+        $domainProspect = $this->domainRules->getRules()->resolve($domain)->suffix()->toString();
 
         $domainTld = $this->getTldFromPossibleSld($domainProspect);
 
@@ -339,7 +326,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     'handle' => $handle,
                     'missing_categories' => array_values($missingCategories),
                 ],
-            ]
+            ],
         );
 
         try {
@@ -351,12 +338,12 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::RTR,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
         }
 
         throw new ContactValidationRequiredException(
-            sprintf('Contact validation required before linking for [%s]', $domain)
+            sprintf('Contact validation required before linking for [%s]', $domain),
         );
     }
 
@@ -377,18 +364,14 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 sprintf(
                     'DnsSec not supported for domain {%s} because zone is not set to master. Current zone: %s',
                     $domain,
-                    $zone->kind
-                )
+                    $zone->kind,
+                ),
             );
 
             return false;
         }
 
-        $domainProspect = $this->domainRules
-            ->getRules()
-            ->resolve($domain)
-            ->suffix()
-            ->toString();
+        $domainProspect = $this->domainRules->getRules()->resolve($domain)->suffix()->toString();
 
         $domainTld = $this->getTldFromPossibleSld($domainProspect);
 
@@ -434,10 +417,15 @@ class RtrService implements DomainDriverInterface, RevisionInterface
         $retrieveResult = $this->retrieveNameservers($domain);
 
         $dnsDeployment = $this->dnsDeploymentRepository->getDnsDeploymentFromDomainDeployment($deployment);
-        Assert::notNull($dnsDeployment, sprintf('No DNS deployment found for domain deployment with id [%d]', $deployment->id));
+        Assert::notNull($dnsDeployment, sprintf(
+            'No DNS deployment found for domain deployment with id [%d]',
+            $deployment->id,
+        ));
 
         $nameserverType = $dnsDeployment->nameserver_type;
-        $retrieveResult->setIsDefaultNameservers($nameserverType === NameserverType::INTERNAL || $nameserverType === NameserverType::VANITY);
+        $retrieveResult->setIsDefaultNameservers($nameserverType === NameserverType::INTERNAL
+        || $nameserverType === NameserverType::VANITY);
+
         return $retrieveResult;
     }
 
@@ -450,7 +438,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
     {
         $handle ??= $this->generateCustomerHandle(
             $params->getCustomerNumber(),
-            $params->getCompanyName() ?? $params->getFirstName() . $params->getLastName()
+            $params->getCompanyName() ?? $params->getFirstName() . $params->getLastName(),
         );
 
         $areaCode = $params->getPhoneAreaCode();
@@ -460,10 +448,12 @@ class RtrService implements DomainDriverInterface, RevisionInterface
             $areaCode = Str::substr($areaCode, Str::length($cutOff));
         }
 
-        $phoneNumber = (str_starts_with('+', $params->getPhoneCountryCode()) ? '' : '+') .
-            $params->getPhoneCountryCode() . '.' .
-            $areaCode .
-            $params->getPhoneSubscriberNumber();
+        $phoneNumber =
+            (str_starts_with('+', $params->getPhoneCountryCode()) ? '' : '+')
+            . $params->getPhoneCountryCode()
+            . '.'
+            . $areaCode
+            . $params->getPhoneSubscriberNumber();
 
         try {
             $this->realtimeRegister->contacts->create(
@@ -477,7 +467,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 $params->getEmail(),
                 $phoneNumber,
                 null,
-                $params->getCompanyName()
+                $params->getCompanyName(),
             );
 
             return $handle;
@@ -487,7 +477,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
             throw new RtrApiException(
                 "Failed creating contact remote for customer id: { $customerId } : {$exception->getMessage()} ",
                 $exception->getCode(),
-                $exception
+                $exception,
             );
         }
     }
@@ -499,7 +489,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
     {
         $contact = $this->realtimeRegister->contacts->get(
             $this->billingHandle,
-            $handle
+            $handle,
         );
         $contactName = explode(' ', $contact->name, 2);
         $streetName = '';
@@ -513,6 +503,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 $streetNumber = $matches[2];
             }
         }
+
         return new RetrieveCustomerResponse(
             null,
             null,
@@ -621,11 +612,12 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 $handleData['brand'] ?? null,
                 $handleData['organization'] ?? null,
                 $handleData['state'] ?? null,
-                $handleData['fax'] ?? null
+                $handleData['fax'] ?? null,
             );
         } catch (Throwable $exception) {
             throw new RtrApiException('Failed updating customer handle', 0, $exception);
         }
+
         return true;
     }
 
@@ -636,7 +628,6 @@ class RtrService implements DomainDriverInterface, RevisionInterface
      */
     public function linkContactHandle(string $domain, HandleInterface $handles): void
     {
-        // TODO only change for type
         $this->modify($domain, [
             'registrant' => $handles->getOwnerHandle(),
             'contacts' => $this->contactList($handles->getOwnerHandle()),
@@ -661,11 +652,15 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 LoggingContextKeys::DOMAIN_NAME => $domain,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $domainDeployment->subscription_uuid,
                 LoggingContextKeys::PROVISIONING_TYPE => 'domains',
-            ]
+            ],
         );
 
         try {
-            $billables = $this->findBillableCollection($domain, $domainDeployment, BillableActionEnum::ACTION_TRANSFER->value);
+            $billables = $this->findBillableCollection(
+                $domain,
+                $domainDeployment,
+                BillableActionEnum::ACTION_TRANSFER->value,
+            );
 
             $domainTransferStatus = $this->realtimeRegister->domains->transfer(
                 domainName: $domain,
@@ -674,11 +669,15 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 authcode: $domainDeployment->transfer_secret,
                 autoRenew: true,
                 contacts: $this->contactList($handles->getOwnerHandle()),
-                billables: $billables
+                billables: $billables,
             );
 
-            $this->rtrResponseLogPersister->logApiResponse(json_encode($domainTransferStatus->toArray(), JSON_THROW_ON_ERROR));
+            $this->rtrResponseLogPersister->logApiResponse(json_encode(
+                $domainTransferStatus->toArray(),
+                JSON_THROW_ON_ERROR,
+            ));
             Assert::isInstanceOf($domainTransferStatus, DomainTransferStatus::class, 'Expected a DomainTransferStatus');
+
             return $this->createSuccesTransferResult($domainTransferStatus);
         } catch (RealtimeRegisterClientException $exception) {
             $this->logger->error(
@@ -687,9 +686,10 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $domainDeployment->subscription_uuid,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
             $this->rtrResponseLogPersister->logApiResponse(json_encode($exception->getMessage(), JSON_THROW_ON_ERROR));
+
             return $this->createFailedTransferResult($exception);
         } catch (Throwable $exception) { // @phpstan-ignore-line We allow the throwable to be ended here as we return the transfer result as failed.
             $this->logger->error(
@@ -698,9 +698,10 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $domainDeployment->subscription_uuid,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
             $this->rtrResponseLogPersister->logApiResponse(json_encode($exception->getMessage(), JSON_THROW_ON_ERROR));
+
             return $this->createFailedTransferResult($exception);
         }
     }
@@ -716,7 +717,10 @@ class RtrService implements DomainDriverInterface, RevisionInterface
         $domain = $domainDeployment->subscription->domain;
         $period = $domainDeployment->subscription->contract_period;
 
-        Assert::notNull($domain, sprintf('Provided subscription [%s] has no domain', $domainDeployment->subscription_uuid));
+        Assert::notNull($domain, sprintf(
+            'Provided subscription [%s] has no domain',
+            $domainDeployment->subscription_uuid,
+        ));
 
         $this->validateContactHandles($handles, $domain);
 
@@ -728,11 +732,15 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 LoggingContextKeys::META => [
                     'domain.handles' => $contacts->toArray(),
                 ],
-            ]
+            ],
         );
 
         try {
-            $billables = $this->findBillableCollection($domain, $domainDeployment, BillableActionEnum::ACTION_CREATE->value);
+            $billables = $this->findBillableCollection(
+                $domain,
+                $domainDeployment,
+                BillableActionEnum::ACTION_CREATE->value,
+            );
             $period = $this->getValidRegistrationPeriod($domain, $period);
             $languageCode = $this->resolveIdnLanguageCode($domain);
 
@@ -749,9 +757,11 @@ class RtrService implements DomainDriverInterface, RevisionInterface
 
             $this->rtrResponseLogPersister->logApiResponse(json_encode($register->toArray(), JSON_THROW_ON_ERROR));
             Assert::isInstanceOf($register, DomainRegistration::class, 'Expected a DomainRegistration');
+
             return $this->createSuccesRegistrationResult($register, $domainDeployment);
         } catch (RealtimeRegisterClientException $exception) {
             $this->rtrResponseLogPersister->logApiResponse(json_encode($exception->getMessage(), JSON_THROW_ON_ERROR));
+
             return $this->createdFailedRegistrationResult($exception);
         } catch (Throwable $exception) { // @phpstan-ignore-line We allow the throwable to be ended here as we return the registration result as failed.
             $this->logger->error(
@@ -760,7 +770,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $domainDeployment->subscription_uuid,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             $this->rtrResponseLogPersister->logApiResponse(json_encode($exception->getMessage(), JSON_THROW_ON_ERROR));
@@ -781,7 +791,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
         Customer $customer,
         Handles $handles,
         bool $isPrivateWhoisEnabled = false,
-        bool $dnssecEnabled = false
+        bool $dnssecEnabled = false,
     ): RegistrationResult {
         $domain = $deployment->subscription->domain;
         Assert::notNull($domain, 'Provided subscription has no domain');
@@ -822,14 +832,16 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 ns: $this->getNameserversHostnamesFromDnsDeployment($dnsDeployment),
                 contacts: $contacts,
                 keyData: $dnssecKeyData,
-                billables: $billables
+                billables: $billables,
             );
 
             $this->rtrResponseLogPersister->logApiResponse(json_encode($register->toArray(), JSON_THROW_ON_ERROR));
             Assert::isInstanceOf($register, DomainRegistration::class, 'Expected a DomainRegistration');
+
             return $this->createSuccesRegistrationResult($register, $deployment);
         } catch (RealtimeRegisterClientException $exception) {
             $this->rtrResponseLogPersister->logApiResponse(json_encode($exception->getMessage(), JSON_THROW_ON_ERROR));
+
             return $this->createdFailedRegistrationResult($exception);
         } catch (Throwable $exception) {
             Log::error(
@@ -839,7 +851,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::RTR,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
             $this->rtrResponseLogPersister->logApiResponse(json_encode($exception->getMessage(), JSON_THROW_ON_ERROR));
             $this->nameserverAssigner->clear($dnsDeployment);
@@ -875,7 +887,11 @@ class RtrService implements DomainDriverInterface, RevisionInterface
 
         try {
             $dnssecKeyData = $dnssecEnabled ? $this->getDomainKeyDataCollection($domain) : null;
-            $billables = $this->findBillableCollection($domain, $deployment, BillableActionEnum::ACTION_TRANSFER->value);
+            $billables = $this->findBillableCollection(
+                $domain,
+                $deployment,
+                BillableActionEnum::ACTION_TRANSFER->value,
+            );
             $domainTransferStatus = $this->realtimeRegister->domains->transfer(
                 $domain,
                 $this->billingHandle,
@@ -890,13 +906,18 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 null,
                 $this->contactList($handles->getOwnerHandle()),
                 $dnssecKeyData,
-                $billables
+                $billables,
             );
-            $this->rtrResponseLogPersister->logApiResponse(json_encode($domainTransferStatus->toArray(), JSON_THROW_ON_ERROR));
+            $this->rtrResponseLogPersister->logApiResponse(json_encode(
+                $domainTransferStatus->toArray(),
+                JSON_THROW_ON_ERROR,
+            ));
             Assert::isInstanceOf($domainTransferStatus, DomainTransferStatus::class, 'Expected a DomainTransferStatus');
+
             return $this->createSuccesTransferResult($domainTransferStatus);
         } catch (RealtimeRegisterClientException $exception) {
             $this->rtrResponseLogPersister->logApiResponse(json_encode($exception->getMessage(), JSON_THROW_ON_ERROR));
+
             return $this->createFailedTransferResult($exception);
         } catch (Throwable $exception) {
             Log::error(
@@ -906,8 +927,9 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::RTR,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
+
             return $this->createFailedTransferResult($exception);
         }
     }
@@ -955,7 +977,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 $parameters['zone'] ?? null,
                 $parameters['contacts'] ?? null,
                 $parameters['dnssecKeys'] ?? null,
-                $parameters['billables'] ?? null
+                $parameters['billables'] ?? null,
             );
         } catch (Throwable $exception) {
             Log::error(
@@ -970,6 +992,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
 
             throw new DomainModificationFailedException('Domain modification failed', 1, $exception);
         }
+
         return true;
     }
 
@@ -981,6 +1004,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
     public function updateNameServers(string $domain, array $nameServers): bool
     {
         $hostnames = array_map(fn ($nameServer) => rtrim($nameServer->hostname, '.'), $nameServers);
+
         return $this->modify($domain, ['ns' => $hostnames]);
     }
 
@@ -1027,7 +1051,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
             [
                 LoggingContextKeys::DOMAIN_NAME => $domain,
                 LoggingContextKeys::META => ['path' => $path],
-            ]
+            ],
         );
 
         $this->preflightDnssecEnable($domain, $key);
@@ -1037,7 +1061,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
             [
                 LoggingContextKeys::DOMAIN_NAME => $domain,
                 LoggingContextKeys::META => ['path' => $path],
-            ]
+            ],
         );
 
         if ($key instanceof PowerDnsSecKey) {
@@ -1048,7 +1072,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 [
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::META => ['keys' => 1],
-                ]
+                ],
             );
         } else {
             $zone = $this->dnsService->getDnsZone($domain);
@@ -1056,7 +1080,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
             if (! $zone->hasDnsSec()) {
                 $this->logger->info(
                     'Enabling DNSSEC on PDNS zone',
-                    [LoggingContextKeys::DOMAIN_NAME => $domain]
+                    [LoggingContextKeys::DOMAIN_NAME => $domain],
                 );
                 $this->dnsService->enableDnssec($domain);
             }
@@ -1073,7 +1097,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 [
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::META => ['keys' => count($zoneKeys)],
-                ]
+                ],
             );
         }
 
@@ -1084,7 +1108,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 'algorithm' => $key['alg'],
                 'publicKey' => $key['pubKey'],
             ],
-            $zoneKeys
+            $zoneKeys,
         );
 
         $this->logger->info(
@@ -1095,8 +1119,9 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     'path' => $path,
                     'key_count' => count($keys),
                 ],
-            ]
+            ],
         );
+
         return $this->modify($domain, ['dnssecKeys' => KeyDataCollection::fromArray($keys)]);
     }
 
@@ -1136,6 +1161,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
     public function setClient(RealtimeRegister $realtimeRegister): RtrService
     {
         $this->realtimeRegister = $realtimeRegister;
+
         return $this;
     }
 
@@ -1144,10 +1170,12 @@ class RtrService implements DomainDriverInterface, RevisionInterface
         // Reset billing handle from BU to waterfront config if handle is null
         if ($handle === null) {
             $this->billingHandle = $this->configuration->getAsString('realtimeregisterclient.handles.billing');
+
             return $this;
         }
 
         $this->billingHandle = $handle;
+
         return $this;
     }
 
@@ -1159,7 +1187,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
         try {
             $this->realtimeRegister->contacts->delete(
                 $this->billingHandle,
-                $handleId
+                $handleId,
             );
 
             return new DestroyContactResult(true);
@@ -1173,7 +1201,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     LoggingContextKeys::META => [
                         'handle_id' => $handleId,
                     ],
-                ]
+                ],
             );
 
             throw new LogicException($exception->getMessage(), $exception->getCode(), $exception);
@@ -1193,6 +1221,8 @@ class RtrService implements DomainDriverInterface, RevisionInterface
     }
 
     /**
+     * @throws DomainDoesNotExistException
+     * @throws DomainForbiddenException
      * @throws DomainModificationFailedException
      * @throws Exception
      */
@@ -1205,14 +1235,34 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 'Failed suspend domain {domain.name}, because it does not exist with RTR.',
                 [
                     LoggingContextKeys::DOMAIN_NAME => $domain,
-                ]
+                    LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::RTR,
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
+                ],
             );
 
             throw new DomainDoesNotExistException(
                 sprintf(
                     'Domain "%s" not found with RTR.',
-                    $domain
-                )
+                    $domain,
+                ),
+            );
+        } catch (ForbiddenException $exception) {
+            $this->logger->error(
+                'Failed suspend domain {domain.name}, access forbidden by RTR.',
+                [
+                    LoggingContextKeys::DOMAIN_NAME => $domain,
+                    LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::RTR,
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
+                    LoggingContextKeys::EXCEPTION => $exception,
+                ],
+            );
+
+            throw new DomainForbiddenException(
+                sprintf(
+                    'Access forbidden by RTR for domain "%s", the domain is likely linked to the wrong business unit.',
+                    $domain,
+                ),
+                previous: $exception,
             );
         }
 
@@ -1223,8 +1273,9 @@ class RtrService implements DomainDriverInterface, RevisionInterface
         if (in_array(RtrDomainStatus::PENDING_DELETE->value, $currentDomainStatus, true)) {
             $this->logger->info(
                 'skipping suspending for {domain.name}, unable to update domain when pending_delete.',
-                [LoggingContextKeys::DOMAIN_NAME => $domain]
+                [LoggingContextKeys::DOMAIN_NAME => $domain],
             );
+
             return;
         }
 
@@ -1235,7 +1286,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     RtrDomainStatus::CLIENT_HOLD->value,
                     ...$currentDomainStatus,
                 ],
-            ]
+            ],
         );
 
         if (! $success) {
@@ -1243,19 +1294,57 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 sprintf(
                     'Failed to update domain status to "%s" for domain "%s"',
                     RtrDomainStatus::CLIENT_HOLD->value,
-                    $domain
-                )
+                    $domain,
+                ),
             );
         }
     }
 
     /**
+     * @throws DomainDoesNotExistException
+     * @throws DomainForbiddenException
      * @throws DomainModificationFailedException
      * @throws Exception
      */
     public function unsuspend(string $domain): void
     {
-        $currentDomainStatus = $this->realtimeRegister->domains->get($domain)->status;
+        try {
+            $currentDomainStatus = $this->realtimeRegister->domains->get($domain)->status;
+        } catch (NotFoundException) {
+            $this->logger->error(
+                'Failed unsuspend domain {domain.name}, because it does not exist with RTR.',
+                [
+                    LoggingContextKeys::DOMAIN_NAME => $domain,
+                    LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::RTR,
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
+                ],
+            );
+
+            throw new DomainDoesNotExistException(
+                sprintf(
+                    'Domain "%s" not found with RTR.',
+                    $domain,
+                ),
+            );
+        } catch (ForbiddenException $exception) {
+            $this->logger->error(
+                'Failed unsuspend domain {domain.name}, access forbidden by RTR.',
+                [
+                    LoggingContextKeys::DOMAIN_NAME => $domain,
+                    LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::RTR,
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
+                    LoggingContextKeys::EXCEPTION => $exception,
+                ],
+            );
+
+            throw new DomainForbiddenException(
+                sprintf(
+                    'Access forbidden by RTR for domain "%s", the domain is likely linked to the wrong business unit.',
+                    $domain,
+                ),
+                previous: $exception,
+            );
+        }
 
         if (! in_array(RtrDomainStatus::CLIENT_HOLD->value, $currentDomainStatus, true)) {
             return;
@@ -1274,8 +1363,8 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 sprintf(
                     'Failed to update domain status to "%s" for domain "%s"',
                     RtrDomainStatus::OK->value,
-                    $domain
-                )
+                    $domain,
+                ),
             );
         }
     }
@@ -1328,6 +1417,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
         if (in_array(TechnicalStatus::OK->value, $formatStatus, true)) {
             return TechnicalStatus::OK->value;
         }
+
         if (in_array(TechnicalStatus::PENDING->value, $formatStatus, true)) {
             return TechnicalStatus::PENDING->value;
         }
@@ -1418,7 +1508,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::RTR,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return null;
@@ -1430,7 +1520,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::RTR,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return null;
@@ -1464,11 +1554,12 @@ class RtrService implements DomainDriverInterface, RevisionInterface
         try {
             $this->realtimeRegister->contacts->get(
                 $this->billingHandle,
-                $handle
+                $handle,
             );
         } catch (BadRequestException) {
             return false;
         }
+
         return true;
     }
 
@@ -1492,11 +1583,11 @@ class RtrService implements DomainDriverInterface, RevisionInterface
         $retrieveResult->setNameServers(
             array_map(
                 fn (string $ns) => ['ip' => null, 'ip6' => null, 'name' => $ns],
-                $remoteDomain->ns
-            )
+                $remoteDomain->ns,
+            ),
         );
         $retrieveResult->setIsPrivateWhoisEnabled(
-            (bool) $remoteDomain->privacyProtect
+            (bool) $remoteDomain->privacyProtect,
         );
 
         return $retrieveResult;
@@ -1509,11 +1600,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
      */
     private function getTldCreateDurations(string $domain): array
     {
-        $domainProspect = $this->domainRules
-            ->getRules()
-            ->resolve($domain)
-            ->suffix()
-            ->toString();
+        $domainProspect = $this->domainRules->getRules()->resolve($domain)->suffix()->toString();
 
         $domainTld = $this->getTldFromPossibleSld($domainProspect);
 
@@ -1539,7 +1626,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
     {
         if (! $this->isDnssecSupported($domain)) {
             throw new InvalidArgumentException(
-                'DNSSEC not supported: zone must be MASTER and TLD must allow algorithm 13.'
+                'DNSSEC not supported: zone must be MASTER and TLD must allow algorithm 13.',
             );
         }
     }
@@ -1554,7 +1641,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
         $parts = preg_split('/\s+/', $dnskey, 4);
         if ($parts === false || count($parts) !== 4) {
             throw new InvalidDnssecKeyException(
-                'Invalid DNSKEY format. Expected: "<flags> 3 <algorithm> <base64PublicKey>".'
+                'Invalid DNSKEY format. Expected: "<flags> 3 <algorithm> <base64PublicKey>".',
             );
         }
 
@@ -1590,12 +1677,13 @@ class RtrService implements DomainDriverInterface, RevisionInterface
             ->every(function (string $ns) use ($databaseInternalNameservers, $vanityTlds): bool {
                 $isInternal = $databaseInternalNameservers->contains('nameserver', $ns);
                 $isVanity = $vanityTlds->contains(fn (string $tld) => Str::endsWith($ns, $tld));
+
                 return $isInternal || $isVanity;
             });
 
         if (! $everyMatches) {
             throw new InvalidArgumentException(
-                'External nameservers detected: provide flags, alg (13) and base64 public key.'
+                'External nameservers detected: provide flags, alg (13) and base64 public key.',
             );
         }
     }
@@ -1603,7 +1691,12 @@ class RtrService implements DomainDriverInterface, RevisionInterface
     private function getTldInfo(string $tld): TLDInfo
     {
         $key = sprintf('%s%s', self::TLD_INFO_CACHE_PREFIX, $tld);
-        return $this->cache->remember($key, CarbonImmutable::now()->addDay(), fn () => $this->realtimeRegister->tlds->info($tld));
+
+        return $this->cache->remember(
+            $key,
+            CarbonImmutable::now()->addDay(),
+            fn () => $this->realtimeRegister->tlds->info($tld),
+        );
     }
 
     private function resolveIdnLanguageCode(string $domain): ?string
@@ -1664,9 +1757,9 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     default => throw new UnexpectedValueException(
                         sprintf(
                             'Found a unexpected role type while getting nameservers given role: %s',
-                            $contact->role
-                        )
-                    )
+                            $contact->role,
+                        ),
+                    ),
                 };
             }
 
@@ -1674,7 +1767,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 owner: $remoteDomain->registrant,
                 admin: $matches['ADMIN'] ?? null,
                 tech: $matches['TECH'] ?? null,
-                billing: $matches['BILLING'] ?? null
+                billing: $matches['BILLING'] ?? null,
             );
 
             $retrieveResult->setHandles($handles);
@@ -1686,12 +1779,13 @@ class RtrService implements DomainDriverInterface, RevisionInterface
     private function findBillableCollection(
         string $domain,
         DomainDeployment $deployment,
-        string $action
+        string $action,
     ): ?BillableCollection {
         $product = $deployment->subscription->product;
         if ($product->slug !== $this->premiumDomainProducts->getPremiumDomainProductSlug($domain)) {
             return null;
         }
+
         $billable = [];
         $billable['product'] = $this->premiumDomainProducts->getPremiumDomainRtrProduct($domain);
         $billable['action'] = $action;
@@ -1716,7 +1810,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                     'publicKey' => $dnssecKey->getPubKey(),
                 ];
             },
-            $powerDnsSecKeySet->getKeys()
+            $powerDnsSecKeySet->getKeys(),
         );
 
         return KeyDataCollection::fromArray($keys);
@@ -1730,6 +1824,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
     private function getNameserversHostnamesFromDnsDeployment(DnsDeployment $dnsDeployment): array
     {
         $nameservers = $this->dnsDeploymentRepository->getNameservers($dnsDeployment);
+
         return array_map(fn (Nameserver $nameserver) => $nameserver->hostname, $nameservers);
     }
 
@@ -1752,8 +1847,8 @@ class RtrService implements DomainDriverInterface, RevisionInterface
                 sprintf(
                     'Domain %s wants handle %s but does not exist externally',
                     $domain,
-                    $handles->getOwnerHandle()
-                )
+                    $handles->getOwnerHandle(),
+                ),
             );
         }
     }
@@ -1765,13 +1860,14 @@ class RtrService implements DomainDriverInterface, RevisionInterface
 
         if (! in_array($period, $tldCreateDurations, true)) {
             // The period should be a divisible round number. For a period of 48 a 24 would work, but 36 wouldn't.
-            $tldCreateDurations = array_filter($tldCreateDurations, fn ($value) => $period % $value === 0);
+            $tldCreateDurations = array_filter($tldCreateDurations, fn ($value) => ($period % $value) === 0);
 
             // Use the longest of the remaining periods. If none remain, don't alter the request period.
             if (count($tldCreateDurations) !== 0) {
                 $period = max($tldCreateDurations);
             }
         }
+
         return $period;
     }
 
@@ -1792,6 +1888,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
         $transferResult = new TransferResult(TechnicalStatus::FAILED->value);
         $transferResult->setExceptionMessage($exception->getMessage());
         $reason = $this->errorParseService->getTranslatedRtrError($exception->getMessage());
+
         return $transferResult->setReason($reason);
     }
 
@@ -1802,12 +1899,12 @@ class RtrService implements DomainDriverInterface, RevisionInterface
         $this->persistRtrDomainStatusFromRegistration($domainDeployment, $register);
 
         $registrationResult = new RegistrationResult(
-            $this->getLocalDomainStatusFromRegistration($register)
+            $this->getLocalDomainStatusFromRegistration($register),
         );
 
         if ($register->expiryDate !== null) {
             $registrationResult->setExpirationDate(
-                $register->expiryDate->format(DateTimeFormat::DEFAULT)
+                $register->expiryDate->format(DateTimeFormat::DEFAULT),
             );
         }
 
@@ -1912,14 +2009,18 @@ class RtrService implements DomainDriverInterface, RevisionInterface
             return false;
         }
 
-        return in_array($process->status, [
-            ProcessStatusEnum::STATUS_NEW,
-            ProcessStatusEnum::STATUS_VALIDATED,
-            ProcessStatusEnum::STATUS_RUNNING,
-            ProcessStatusEnum::STATUS_IN_DOUBT,
-            ProcessStatusEnum::STATUS_SCHEDULED,
-            ProcessStatusEnum::STATUS_SUSPENDED,
-        ], true);
+        return in_array(
+            $process->status,
+            [
+                ProcessStatusEnum::STATUS_NEW,
+                ProcessStatusEnum::STATUS_VALIDATED,
+                ProcessStatusEnum::STATUS_RUNNING,
+                ProcessStatusEnum::STATUS_IN_DOUBT,
+                ProcessStatusEnum::STATUS_SCHEDULED,
+                ProcessStatusEnum::STATUS_SUSPENDED,
+            ],
+            true,
+        );
     }
 
     private function createdFailedRegistrationResult(Throwable $exception): RegistrationResult
@@ -1927,6 +2028,7 @@ class RtrService implements DomainDriverInterface, RevisionInterface
         $registrationResult = new RegistrationResult(DomainStatus::FAILED);
         $registrationResult->setExceptionMessage($exception->getMessage());
         $reason = $this->errorParseService->getTranslatedRtrError($exception->getMessage());
+
         return $registrationResult->setReason($reason);
     }
 }

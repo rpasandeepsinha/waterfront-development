@@ -14,8 +14,10 @@ class Connection implements Stringable
     /**
      * @param DirectAdminServer $server Eloquent model with server information
      */
-    public function __construct(private readonly DirectAdminServer $server, private readonly ?Client $client = null)
-    {
+    public function __construct(
+        private readonly DirectAdminServer $server,
+        private readonly ?Client $client = null,
+    ) {
     }
 
     /**
@@ -53,7 +55,9 @@ class Connection implements Stringable
         }
 
         $password = $this->usesLoginKey() ? $this->server->getLoginKey() : $this->server->getPassword();
-        $username = $this->usesAsUser() ? $this->server->getUsername() . '|' . $this->asUser : $this->server->getUsername();
+        $username = $this->usesAsUser()
+            ? $this->server->getUsername() . '|' . $this->asUser
+            : $this->server->getUsername();
 
         return new Client([
             'http_errors' => false,
@@ -70,6 +74,7 @@ class Connection implements Stringable
     public function usesLoginKey(): bool
     {
         $loginKey = $this->server->getLoginKey();
+
         return $loginKey !== '';
     }
 
@@ -95,9 +100,7 @@ class Connection implements Stringable
      */
     public function getProtocolString(): string
     {
-        return $this->server->usesSsl()
-            ? 'https://'
-            : 'http://';
+        return $this->server->usesSsl() ? 'https://' : 'http://';
     }
 
     /**

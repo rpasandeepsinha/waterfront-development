@@ -51,9 +51,10 @@ readonly class ReProvisionService
             ProductGroupType::MICROSOFT_365,
             ProductGroupType::ONE_TIME_SERVICE,
             ProductGroupType::VOLUME_DISCOUNT,
-            ProductGroupType::ADD_ON => throw new NotImplementedException(
-                'Something requires to be reprovisioned but has no function to handle it'
-            )
+            ProductGroupType::ADD_ON,
+                => throw new NotImplementedException(
+                'Something requires to be reprovisioned but has no function to handle it',
+            ),
         };
         $this->dispatcher->dispatch($job);
     }
@@ -78,9 +79,11 @@ readonly class ReProvisionService
                 LoggingContextKeys::META => [
                     'mutation_id' => $mutation->id,
                 ],
-            ]
+            ],
         );
-        throw new Exception('Reprovisioning of a hosting subscription was required but it was something other than a downgrade or too many requests where found.');
+        throw new Exception(
+            'Reprovisioning of a hosting subscription was required but it was something other than a downgrade or too many requests where found.',
+        );
     }
 
     private function handleBackup(Subscription $subscription, SubscriptionMutation $mutation): UpgradeBackupJob
@@ -89,7 +92,7 @@ readonly class ReProvisionService
 
         try {
             $request = $unCompletedRequests->sole();
-        } catch (ItemNotFoundException | MultipleItemsFoundException) {
+        } catch (ItemNotFoundException|MultipleItemsFoundException) {
             $this->logger->warning(
                 'reProvisionSubscription service plan for subscription {subscription.uuid} failed',
                 [
@@ -98,17 +101,17 @@ readonly class ReProvisionService
                         'mutation_id' => $mutation->id,
                         'open_requests_count' => $unCompletedRequests->count(),
                     ],
-                ]
+                ],
             );
 
             throw new Exception(
-                'Reprovisioning of a backup subscription requires exactly one open change request.'
+                'Reprovisioning of a backup subscription requires exactly one open change request.',
             );
         }
 
         if ($request->type !== ProductChangeType::UPGRADE) {
             throw new Exception(
-                'Reprovisioning of a backup subscription was required but the open request was not an upgrade.'
+                'Reprovisioning of a backup subscription was required but the open request was not an upgrade.',
             );
         }
 

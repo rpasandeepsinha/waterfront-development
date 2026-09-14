@@ -15,8 +15,9 @@ class ProductFilter
         'orderable',
     ];
 
-    public function __construct(private readonly Sorting $sorting)
-    {
+    public function __construct(
+        private readonly Sorting $sorting,
+    ) {
     }
 
     /**
@@ -31,7 +32,8 @@ class ProductFilter
         $hasProductGroupFilter = $request->has('product_group');
 
         if ($hasSearch || $hasProductGroupFilter) {
-            $query->leftJoin('product_groups', 'product_groups.id', '=', 'products.product_group_id')
+            $query
+                ->leftJoin('product_groups', 'product_groups.id', '=', 'products.product_group_id')
                 ->select('products.*');
         }
 
@@ -54,7 +56,8 @@ class ProductFilter
         $search = strtolower($request->string('search')->trim()->toString());
 
         $query->where(function (Builder $q) use ($search): void {
-            $q->where('products.name', 'ilike', "%{$search}%")
+            $q
+                ->where('products.name', 'ilike', "%{$search}%")
                 ->orWhere('products.slug', 'ilike', "%{$search}%")
                 ->orWhere('products.description', 'ilike', "%{$search}%")
                 ->orWhere('product_groups.name', 'ilike', "%{$search}%")

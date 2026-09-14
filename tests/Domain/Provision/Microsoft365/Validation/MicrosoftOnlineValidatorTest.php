@@ -22,8 +22,7 @@ class MicrosoftOnlineValidatorTest extends TestCase
     {
         parent::setUp();
         $translator = $this->createStub(Translator::class);
-        $translator->method('get')
-            ->willReturnCallback(fn (string $message): mixed => $message);
+        $translator->method('get')->willReturnCallback(fn (string $message): mixed => $message);
         $this->microsoftOnlineValidator = new MicrosoftOnlineValidator(new Factory($translator));
     }
 
@@ -32,7 +31,7 @@ class MicrosoftOnlineValidatorTest extends TestCase
     {
         $tenantIdRequest = new Microsoft365TenantIdRequest(
             tenantName: 'test-tenant',
-            context: Str::uuid()
+            context: Str::uuid(),
         );
 
         $validator = $this->microsoftOnlineValidator->getTenantIdRequestValidator($tenantIdRequest);

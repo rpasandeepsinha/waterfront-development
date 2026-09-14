@@ -47,14 +47,20 @@ class FetchAuditLogsForSubscriptionActionTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
         $product = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne();
-        $this->subscription = new SubscriptionFactory()->for($product)->for($this->customer)->createOne();
+        $this->subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($this->customer)
+            ->createOne();
     }
 
     #[Test]
     public function findSubscriptionLinked(): void
     {
         $productHosting = new ProductFactory()->for(new ProductGroupFactory()->hosting())->createOne();
-        $subscription2 = new SubscriptionFactory()->for($productHosting)->for($this->customer)->createOne();
+        $subscription2 = new SubscriptionFactory()
+            ->for($productHosting)
+            ->for($this->customer)
+            ->createOne();
 
         new AuditFactory()->create([
             'event' => 'event1',
@@ -104,7 +110,7 @@ class FetchAuditLogsForSubscriptionActionTest extends IntegrationTestCase
     public function findDomainDeploymentLinked(): void
     {
         $this->assertAuditFetch(
-            new DomainDeploymentFactory()->withPlaceholderProvider()
+            new DomainDeploymentFactory()->withPlaceholderProvider(),
         );
     }
 
@@ -112,7 +118,7 @@ class FetchAuditLogsForSubscriptionActionTest extends IntegrationTestCase
     public function findHostingDeploymentLinked(): void
     {
         $this->assertAuditFetch(
-            new HostingDeploymentFactory()->withPleskProvider()
+            new HostingDeploymentFactory()->withPleskProvider(),
         );
     }
 
@@ -120,13 +126,12 @@ class FetchAuditLogsForSubscriptionActionTest extends IntegrationTestCase
     public function findResellerHostingDeploymentLinked(): void
     {
         $this->assertAuditFetch(
-            new ResellerHostingDeploymentFactory()
-                ->for(new ProviderFactory()->createOne([
-                    'type' => ProviderType::HOSTING,
-                    'slug' => ProviderSlug::DIRECTADMIN,
-                    'enabled' => true,
-                    'default' => true,
-                ]), 'provider')
+            new ResellerHostingDeploymentFactory()->for(new ProviderFactory()->createOne([
+                'type' => ProviderType::HOSTING,
+                'slug' => ProviderSlug::DIRECTADMIN,
+                'enabled' => true,
+                'default' => true,
+            ]), 'provider'),
         );
     }
 
@@ -134,7 +139,7 @@ class FetchAuditLogsForSubscriptionActionTest extends IntegrationTestCase
     public function findSslDeploymentLinked(): void
     {
         $this->assertAuditFetch(
-            new SslDeploymentFactory()->rtrProvider()
+            new SslDeploymentFactory()->rtrProvider(),
         );
     }
 
@@ -143,7 +148,7 @@ class FetchAuditLogsForSubscriptionActionTest extends IntegrationTestCase
     {
         $customer = new Microsoft365CustomerInfoFactory()->for(new CustomerFactory())->createOne();
         $this->assertAuditFetch(
-            new Microsoft365DeploymentFactory()->for($customer)
+            new Microsoft365DeploymentFactory()->for($customer),
         );
     }
 
@@ -159,11 +164,10 @@ class FetchAuditLogsForSubscriptionActionTest extends IntegrationTestCase
         $managerDomainDeployment = new CloudstackManagerDomainDeploymentFactory()
             ->for($environment)
             ->for($this->customer)
-            ->createOne([
-        ]);
+            ->createOne([]);
 
         $this->assertAuditFetch(
-            new CloudstackVirtualMachineDeploymentFactory()->for($managerDomainDeployment)
+            new CloudstackVirtualMachineDeploymentFactory()->for($managerDomainDeployment),
         );
     }
 
@@ -179,14 +183,13 @@ class FetchAuditLogsForSubscriptionActionTest extends IntegrationTestCase
         $managerDomainDeployment = new CloudstackManagerDomainDeploymentFactory()
             ->for($environment)
             ->for($this->customer)
-            ->createOne([
-            ]);
+            ->createOne([]);
 
         $this->assertAuditFetch(
             new CloudstackVolumeDeploymentFactory()->for($managerDomainDeployment)->state([
                 'subscription_uuid' => $this->subscription->uuid,
                 'cloudstack_id' => 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
-            ])
+            ]),
         );
     }
 

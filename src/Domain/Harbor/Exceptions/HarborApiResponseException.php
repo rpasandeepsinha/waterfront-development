@@ -14,8 +14,8 @@ class HarborApiResponseException extends Exception
             sprintf(
                 'The API responded with a error =>  Statuscode : %d | Message : %s',
                 $statusCode,
-                $message
-            )
+                $message,
+            ),
         );
     }
 }

@@ -34,12 +34,14 @@ class DeleteEmailForward extends DirectAdminCommand
     public function setDomain(string $domain): self
     {
         $this->domain = $domain;
+
         return $this;
     }
 
     public function setSelect0(string $select0): self
     {
         $this->select0 = $select0;
+
         return $this;
     }
 

@@ -19,9 +19,17 @@ readonly class DomainProviderHistory
     ) {
     }
 
-    public function saveHistory(RtrResponseLog $log, ProviderSlug $domainProviderSlug, string $domain, string $status, string $message): void
-    {
-        $subscription = $this->subscriptionRepository->getSubscriptionByDomainAndGroup($domain, ProductGroupType::EXTENSION);
+    public function saveHistory(
+        RtrResponseLog $log,
+        ProviderSlug $domainProviderSlug,
+        string $domain,
+        string $status,
+        string $message,
+    ): void {
+        $subscription = $this->subscriptionRepository->getSubscriptionByDomainAndGroup(
+            $domain,
+            ProductGroupType::EXTENSION,
+        );
         $domainDeployment = $subscription->domainDeployment;
 
         DomainProviderStatus::create([

@@ -10,10 +10,13 @@ use JsonException;
 use SensitiveParameter;
 use Symfony\Component\HttpFoundation\Response;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\HostingPackageInterface;
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\ChangeHostingPackageStatus\Parameters as ChangeHostingPackageStatusParameters;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\ChangeHostingPackageStatus\Parameters as ChangeHostingPackageStatusParameters
+;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\DeleteWebsite\Parameters as WebsiteDeleteParameters;
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailForwardingCreate\Parameters as EmailForwardingCreateParameters;
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailGetAccountSettings\Parameters as EmailGetAccountSettingsParameters;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailForwardingCreate\Parameters as EmailForwardingCreateParameters
+;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailGetAccountSettings\Parameters as EmailGetAccountSettingsParameters
+;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailSetCatchAll\Parameters as EmailSetCatchAllParameters;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Parameters as HostingParameters;
 use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\Result;
@@ -128,6 +131,7 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
         $request = new IpAddressesRequest();
         $httpResponse = $this->send($request);
         $response = new IpAddressesResponse($httpResponse);
+
         return $response->getResult();
     }
 
@@ -241,6 +245,7 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
     {
         $request = new ServicePlanGuidGetRequest($parameters);
         $httpResponse = $this->send($request);
+
         return new ServicePlanGetResponse($httpResponse)->getServicePlanName();
     }
 
@@ -273,7 +278,7 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
             return false;
         }
 
-        $currenHostingType =  $current['site']['get']['result']['data']['gen_info']['htype'];
+        $currenHostingType = $current['site']['get']['result']['data']['gen_info']['htype'];
 
         //Get desired serviceplan
         $hostingParameters = new HostingParameters();
@@ -320,9 +325,9 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
         }
 
         if (
-            $response->getStatusCode() === Response::HTTP_OK &&
-            $response->getStatus() === BaseResponse::STATUS_ERROR &&
-            $response->getResult()->getErrorCode() === 1023
+            $response->getStatusCode() === Response::HTTP_OK
+            && $response->getStatus() === BaseResponse::STATUS_ERROR
+            && $response->getResult()->getErrorCode() === 1023
         ) {
             $this->logger->info('There are not enough resources to make the change', [
                 LoggingContextKeys::RESPONSE_DATA => (string) json_encode($response->getResult()->toArray()),
@@ -336,9 +341,9 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
         }
 
         if (
-            $response->getStatusCode() === Response::HTTP_OK &&
-            $response->getStatus() === BaseResponse::STATUS_ERROR &&
-            $response->getResult()->getErrorCode() === 1013
+            $response->getStatusCode() === Response::HTTP_OK
+            && $response->getStatus() === BaseResponse::STATUS_ERROR
+            && $response->getResult()->getErrorCode() === 1013
         ) {
             $this->logger->info('There was an error while changing the Serviceplan', [
                 LoggingContextKeys::RESPONSE_DATA => (string) json_encode($response->getResult()->toArray()),
@@ -346,7 +351,7 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
 
             throw PleskClientException::pleskApiException(
                 errorCode: $response->getResult()->getErrorCode(),
-                ErrorMessage: (string) $response->getResult()->getErrorMessage()
+                ErrorMessage: (string) $response->getResult()->getErrorMessage(),
             );
         }
 
@@ -358,8 +363,11 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
      * @throws GuzzleException
      * @throws JsonException
      */
-    public function changeServicePlanSwitchBetweenHostingType(HostingParameters $hostingParameters, string $domain, string $servicePlanGuuid): Result
-    {
+    public function changeServicePlanSwitchBetweenHostingType(
+        HostingParameters $hostingParameters,
+        string $domain,
+        string $servicePlanGuuid,
+    ): Result {
         $this->logger->info(sprintf(
             'Switching serviceplan for domain %s from : %s to %s',
             $hostingParameters->getDomain(),
@@ -442,7 +450,7 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
 
         foreach ($emailAccounts as $emailAccount) {
             if ($emailAccount->isForwarding()) {
-                $emailForwardParameters =  EmailForwardingCreateParameters::create([
+                $emailForwardParameters = EmailForwardingCreateParameters::create([
                     'domain' => $hostingParameters->getDomain(),
                     'sourceEmailAddressUsername' => $emailAccount->getMailName(),
                     'destinationEmailAddresses' => $emailAccount->getForwardDestinationAddresses(),
@@ -477,7 +485,7 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
         if ($response->getStatusCode() === Response::HTTP_OK && $response->getStatus() === BaseResponse::STATUS_ERROR) {
             throw PleskClientException::pleskApiException(
                 errorCode: (int) $response->getResult()->getErrorCode(),
-                ErrorMessage: (string) $response->getResult()->getErrorMessage()
+                ErrorMessage: (string) $response->getResult()->getErrorMessage(),
             );
         }
 
@@ -506,7 +514,7 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
         if ($response->getStatusCode() === Response::HTTP_OK && $response->getStatus() === BaseResponse::STATUS_ERROR) {
             throw PleskClientException::pleskApiException(
                 errorCode: (int) $response->getResult()->getErrorCode(),
-                ErrorMessage: (string) $response->getResult()->getErrorMessage()
+                ErrorMessage: (string) $response->getResult()->getErrorMessage(),
             );
         }
 
@@ -525,6 +533,7 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
         $request = new DnsRecordsRequest($siteId);
         $httpResponse = $this->send($request);
         $response = new DnsRecordsResponse($httpResponse);
+
         return $response->getResult();
     }
 
@@ -537,7 +546,10 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
     {
         $records = $this->getDnsRecords($domain)->records;
 
-        $dkimRecords = array_filter($records, fn (DnsRecord $record) => $record->type === 'TXT' && str_contains($record->value, 'v=DKIM1'));
+        $dkimRecords = array_filter(
+            $records,
+            fn (DnsRecord $record) => $record->type === 'TXT' && str_contains($record->value, 'v=DKIM1'),
+        );
 
         if (count($dkimRecords) === 0) {
             return null;
@@ -574,7 +586,7 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
             throw PleskClientException::ServicePlanNotExistsException($servicePlanGuuid);
         }
 
-        return  $response->getServicePlanGuid();
+        return $response->getServicePlanGuid();
     }
 
     /**
@@ -582,8 +594,11 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
      * @throws GuzzleException
      * @throws JsonException
      */
-    public function createEmailAccount(string $domain, string $emailAccount, string $password): EmailAccountCreateResponse
-    {
+    public function createEmailAccount(
+        string $domain,
+        string $emailAccount,
+        string $password,
+    ): EmailAccountCreateResponse {
         $httpResponse = $this->send(new EmailAccountCreateRequest(
             siteId: $this->getSiteIdByDomain($domain),
             emailAccount: $emailAccount,
@@ -613,8 +628,11 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
      * @throws GuzzleException
      * @throws JsonException
      */
-    public function resetEmailPassword(string $domain, string $emailAccount, string $password): EmailPasswordResetResponse
-    {
+    public function resetEmailPassword(
+        string $domain,
+        string $emailAccount,
+        string $password,
+    ): EmailPasswordResetResponse {
         $httpResponse = $this->send(new EmailPasswordResetRequest(
             siteId: $this->getSiteIdByDomain($domain),
             emailAccount: $emailAccount,
@@ -633,7 +651,11 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
     {
         $siteId = $this->getSiteIdByDomain($parameters->getDomain());
 
-        $request = new EmailForwardCreateRequest($siteId, $parameters->getSourceEmailAddressUsername(), $parameters->getDestinationEmailAddresses());
+        $request = new EmailForwardCreateRequest(
+            $siteId,
+            $parameters->getSourceEmailAddressUsername(),
+            $parameters->getDestinationEmailAddresses(),
+        );
         $httpResponse = $this->send($request);
         $response = new EmailForwardCreateResponse($httpResponse);
 
@@ -677,6 +699,7 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
         $request = new EmailSetDkimRequest($siteId, $enable);
         $httpResponse = $this->send($request);
         $response = new EmailSetDkimResponse($httpResponse);
+
         return $response->getResult();
     }
 
@@ -699,7 +722,10 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
      */
     public function disable(ChangeHostingPackageStatusParameters $parameters): Result
     {
-        $request = new ChangeHostingPackageStatusRequest($parameters->getDomain(), HostingPackageStatus::DISABLED_BY_PLESK_ADMIN);
+        $request = new ChangeHostingPackageStatusRequest(
+            $parameters->getDomain(),
+            HostingPackageStatus::DISABLED_BY_PLESK_ADMIN,
+        );
         $httpResponse = $this->send($request);
         $response = new ChangeHostingPackageStatusResponse($httpResponse);
 
@@ -718,6 +744,7 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
         $request = new DnsDisableZoneRequest($siteId);
         $httpResponse = $this->send($request);
         $response = new DnsDisableZoneResponse($httpResponse);
+
         return $response->getResult();
     }
 
@@ -734,7 +761,7 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
             throw PleskClientException::ServicePlanNotExistsException($parameters->getPackage() ?? 'unknown');
         }
 
-        return  $response->plan;
+        return $response->plan;
     }
 
     /**
@@ -747,6 +774,7 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
         $request = new SyncSubscriptionRequest($domain);
         $httpResponse = $this->send($request);
         $response = new SyncSubscriptionResponse($httpResponse);
+
         return $response->getResult();
     }
 
@@ -760,6 +788,7 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
         $request = new FtpSetPasswordRequest($domain, $user, $password);
         $httpResponse = $this->send($request);
         $response = new FtpSetPasswordResponse($httpResponse);
+
         return $response->getResult();
     }
 
@@ -779,13 +808,17 @@ class HostingPackageClient extends PleskClient implements HostingPackageInterfac
         ]);
         $siteResult = $this->getHostingSite($hostingParameters);
         if ($siteResult->getStatus() !== BaseResponse::STATUS_OK) {
-            throw PleskClientException::pleskApiException($siteResult->getErrorCode() ?? 0, $siteResult->getErrorMessage() ?? '');
+            throw PleskClientException::pleskApiException(
+                $siteResult->getErrorCode() ?? 0,
+                $siteResult->getErrorMessage() ?? '',
+            );
         }
 
         $responseBody = $siteResult->getResponseBody();
         assert(is_array($responseBody['site']));
         $id = $responseBody['site']['get']['result']['id'];
         assert(is_int($id) || is_string($id) || is_float($id) || is_bool($id) || is_null($id));
+
         return intval($id);
     }
 

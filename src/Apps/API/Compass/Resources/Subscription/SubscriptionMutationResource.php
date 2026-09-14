@@ -14,8 +14,9 @@ use Waterfront\Infra\Configuration\ConfigurationInterface;
 
 class SubscriptionMutationResource
 {
-    public function __construct(private readonly ConfigurationInterface $configuration)
-    {
+    public function __construct(
+        private readonly ConfigurationInterface $configuration,
+    ) {
     }
 
     /**
@@ -26,25 +27,28 @@ class SubscriptionMutationResource
         $subscriptionMutation->loadMissing(['product', 'subscription']);
 
         return [
-            'id'               => $subscriptionMutation->id,
-            'subscription_id'  => $subscriptionMutation->subscription_id,
-            'product'          => [
-                'id'   => $subscriptionMutation->product->id,
+            'id' => $subscriptionMutation->id,
+            'subscription_id' => $subscriptionMutation->subscription_id,
+            'product' => [
+                'id' => $subscriptionMutation->product->id,
                 'name' => $subscriptionMutation->product->name,
             ],
-            'gross_price'      =>  $subscriptionMutation->gross_price,
-            'net_price'        =>  $subscriptionMutation->net_price,
-            'billing_period'   => $subscriptionMutation->billing_period,
-            'contract_period'  => $subscriptionMutation->contract_period,
-            'mutated_at'       => $subscriptionMutation->mutated_at?->toW3cString(),
-            'administratively_mutate_at'       => is_null($subscriptionMutation->mutated_at) ? $subscriptionMutation
-                ->subscription
-                ->end_date
-                ->subDays(
-                    $this->configuration->getAsInteger('constants.renewal-days')
-                )->toW3cString() : null,
-            'process_technical_at'       => $subscriptionMutation->process_technical_at?->toW3cString(),
-            'processed_technical_at'       => $subscriptionMutation->processed_technical_at?->toW3cString(),
+            'gross_price' => $subscriptionMutation->gross_price,
+            'net_price' => $subscriptionMutation->net_price,
+            'billing_period' => $subscriptionMutation->billing_period,
+            'contract_period' => $subscriptionMutation->contract_period,
+            'mutated_at' => $subscriptionMutation->mutated_at?->toW3cString(),
+            'administratively_mutate_at' => is_null($subscriptionMutation->mutated_at)
+                ? $subscriptionMutation
+                    ->subscription
+                    ->end_date
+                    ->subDays(
+                        $this->configuration->getAsInteger('constants.renewal-days'),
+                    )
+                    ->toW3cString()
+                : null,
+            'process_technical_at' => $subscriptionMutation->process_technical_at?->toW3cString(),
+            'processed_technical_at' => $subscriptionMutation->processed_technical_at?->toW3cString(),
             'created_at' => $subscriptionMutation->created_at?->toW3cString(),
             'requested_by' => $this->requestedBy($subscriptionMutation),
         ];
@@ -61,6 +65,7 @@ class SubscriptionMutationResource
         foreach ($mutations as $mutation) {
             $mutationsArray[] = $this->mutationToArray($mutation);
         }
+
         return $mutationsArray;
     }
 
@@ -75,10 +80,11 @@ class SubscriptionMutationResource
         foreach ($mutations as $mutation) {
             $mutationsArray[] = $this->mutationToArray($mutation);
         }
-        return json_encode($mutationsArray, flags:JSON_THROW_ON_ERROR);
+
+        return json_encode($mutationsArray, flags: JSON_THROW_ON_ERROR);
     }
 
-    private function requestedBy(SubscriptionMutation $mutation): AuditLoggableIdentity|null
+    private function requestedBy(SubscriptionMutation $mutation): ?AuditLoggableIdentity
     {
         $auditLog = Audit::where('auditable_type', SubscriptionMutation::class)
             ->where('auditable_id', $mutation->id)
@@ -90,7 +96,7 @@ class SubscriptionMutationResource
                 $identityMetadata = json_decode(
                     $auditLog->identity_metadata ?? '',
                     false,
-                    flags: JSON_THROW_ON_ERROR
+                    flags: JSON_THROW_ON_ERROR,
                 );
                 assert($identityMetadata instanceof stdClass);
             } catch (JsonException) {
@@ -103,6 +109,7 @@ class SubscriptionMutationResource
                 $identityMetadata->schemaId ?? null,
             );
         }
+
         return null;
     }
 }

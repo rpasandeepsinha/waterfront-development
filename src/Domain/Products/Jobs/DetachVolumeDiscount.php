@@ -12,8 +12,10 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
 
 class DetachVolumeDiscount extends AbstractQueueableJob
 {
-    public function __construct(private readonly Customer $customer, private readonly Product $product)
-    {
+    public function __construct(
+        private readonly Customer $customer,
+        private readonly Product $product,
+    ) {
         parent::__construct();
     }
 

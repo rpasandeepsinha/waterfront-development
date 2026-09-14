@@ -31,7 +31,7 @@ class DisablePrivateRequest extends FormRequest
                     $translator,
                     ProductGroupType::EXTENSION,
                     'domain.allow_whois_private',
-                    ['yes']
+                    ['yes'],
                 ),
             ],
         ];
@@ -45,6 +45,7 @@ class DisablePrivateRequest extends FormRequest
         // Add the route parameter to the request so we can use it for validation
         $data = parent::all($keys);
         $data['domain'] = $this->route('domain');
+
         return $data;
     }
 }

@@ -40,7 +40,7 @@ class NovaUpdateDomainHandlePrivacyProtectJob extends AbstractQueueableJob
         if ($subscription === null) {
             $logger->warning(
                 'Domain {domain.name} does not exist or is no longer active in Waterfront',
-                array_merge($baseContext, [LoggingContextKeys::META => ['dry_run' => $this->dryRun]])
+                array_merge($baseContext, [LoggingContextKeys::META => ['dry_run' => $this->dryRun]]),
             );
 
             return;
@@ -55,7 +55,7 @@ class NovaUpdateDomainHandlePrivacyProtectJob extends AbstractQueueableJob
                 array_merge($baseContext, [
                     LoggingContextKeys::CUSTOMER_ID => $customer->id,
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
-                ])
+                ]),
             );
 
             return;
@@ -87,7 +87,7 @@ class NovaUpdateDomainHandlePrivacyProtectJob extends AbstractQueueableJob
                 array_merge($baseContext, [
                     LoggingContextKeys::CUSTOMER_ID => $customer->id,
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
-                ])
+                ]),
             );
 
             return;
@@ -103,7 +103,7 @@ class NovaUpdateDomainHandlePrivacyProtectJob extends AbstractQueueableJob
             array_merge($baseContext, [
                 LoggingContextKeys::CUSTOMER_ID => $customer->id,
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
-            ])
+            ]),
         );
     }
 

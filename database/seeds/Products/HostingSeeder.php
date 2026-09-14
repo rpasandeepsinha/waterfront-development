@@ -127,11 +127,25 @@ class HostingSeeder extends Seeder
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 999);
 
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
-        $prolongationPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', ProductPriceType::PROLONGATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
+        $prolongationPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', ProductPriceType::PROLONGATION)
+            ->firstOrFail();
 
-        $this->referenceRepo->set(ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN_REGISTRATION_PRICE, $defaultPrice);
-        $this->referenceRepo->set(ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN_PROLONGATION_PRICE, $prolongationPrice);
+        $this->referenceRepo->set(
+            ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN_REGISTRATION_PRICE,
+            $defaultPrice,
+        );
+        $this->referenceRepo->set(
+            ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN_PROLONGATION_PRICE,
+            $prolongationPrice,
+        );
     }
 
     private function mailOnlyGrowPlesk(ProductGroup $group): void
@@ -148,7 +162,11 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_MAIL_ONLY_GROW_PLESK, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC, 'value' => 26843545600, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC,
+                'value' => 26843545600,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE, 'value' => 2684354560, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 50, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 5, 'product_id' => $product->id],
@@ -159,7 +177,11 @@ class HostingSeeder extends Seeder
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 1499);
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_MAIL_ONLY_GROW_PLESK_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -178,7 +200,11 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_MAIL_ONLY_START_PLESK, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC, 'value' => 26843545600, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC,
+                'value' => 26843545600,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE, 'value' => 2684354560, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 50, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 5, 'product_id' => $product->id],
@@ -190,7 +216,11 @@ class HostingSeeder extends Seeder
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 1999);
 
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_MAIL_ONLY_START_PLESK_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -209,7 +239,11 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_MAIL_ONLY_PLUS_PLESK, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC, 'value' => 26843545600, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC,
+                'value' => 26843545600,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE, 'value' => 2684354560, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 50, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 5, 'product_id' => $product->id],
@@ -220,7 +254,11 @@ class HostingSeeder extends Seeder
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 2499);
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_MAIL_ONLY_PLUS_PLESK_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -239,7 +277,11 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WORDPRESS_TOOLKIT, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC, 'value' => 26843545600, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC,
+                'value' => 26843545600,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE, 'value' => 2684354560, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 50, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 5, 'product_id' => $product->id],
@@ -250,7 +292,11 @@ class HostingSeeder extends Seeder
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 2499);
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_WORDPRESS_TOOLKIT_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -269,19 +315,35 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_BASIC, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC, 'value' => 26843545600, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC,
+                'value' => 26843545600,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE, 'value' => 2684354560, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 25, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 5, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT, 'value' => '128M', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT,
+                'value' => '128M',
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::SERVICES_TECHNICAL_GRACE_PERIOD, 'value' => 30, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT, 'value' => true, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 1499);
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_BASIC_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -300,19 +362,35 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_BASIC_WP, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC, 'value' => 26843545600, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC,
+                'value' => 26843545600,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE, 'value' => 2684354560, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 25, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 5, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT, 'value' => '128M', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT,
+                'value' => '128M',
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::SERVICES_TECHNICAL_GRACE_PERIOD, 'value' => 30, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT, 'value' => true, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 1499);
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_BASIC_WP_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -342,7 +420,11 @@ class HostingSeeder extends Seeder
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 1299);
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_MAIL_ONLY_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -362,19 +444,39 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_PREMIUM, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC, 'value' => 107374182400, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE, 'value' => 10737418240, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC,
+                'value' => 107374182400,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE,
+                'value' => 10737418240,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 50, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 10, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT, 'value' => '256M', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT,
+                'value' => '256M',
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::SERVICES_TECHNICAL_GRACE_PERIOD, 'value' => 30, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT, 'value' => true, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 399);
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_PREMIUM_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -393,18 +495,38 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_GROW, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC, 'value' => 214748364800, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE, 'value' => 21474836480, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC,
+                'value' => 214748364800,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE,
+                'value' => 21474836480,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 100, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 15, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT, 'value' => '512M', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT,
+                'value' => '512M',
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT, 'value' => true, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 1999);
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_GROW_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -423,12 +545,28 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_GROW_WP, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC, 'value' => 214748364800, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE, 'value' => 21474836480, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC,
+                'value' => 214748364800,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE,
+                'value' => 21474836480,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 100, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 15, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT, 'value' => '512M', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT,
+                'value' => '512M',
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT, 'value' => true, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
@@ -451,12 +589,20 @@ class HostingSeeder extends Seeder
 
         ProductSpec::insert([
             ['name' => ProductSpecName::SHOP_IS_MAILHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 499);
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_MINI_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -475,13 +621,21 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_BASIC, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 999);
 
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_BASIC_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -500,13 +654,21 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_BASIC_WP, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 999);
 
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_BASIC_WP_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -525,13 +687,21 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_GROW, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 1499);
 
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_GROW_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -550,7 +720,11 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_GROW_WP, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
@@ -571,14 +745,26 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_START, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::PRODUCT_COMPARISON_BADGE, 'value' => 'pages.steps.cross-sell.hosting.most-popular', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::PRODUCT_COMPARISON_BADGE,
+                'value' => 'pages.steps.cross-sell.hosting.most-popular',
+                'product_id' => $product->id,
+            ],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 1999);
 
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_START_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -597,7 +783,11 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_START_WP, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
@@ -618,13 +808,21 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_PLUS, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 2499);
 
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_PLUS_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -643,7 +841,11 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_ONLY_PLUS_WP, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
@@ -664,18 +866,38 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_START, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC, 'value' => 536870912000, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE, 'value' => 53687091200, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC,
+                'value' => 536870912000,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE,
+                'value' => 53687091200,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 100, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 15, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT, 'value' => '512M', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT,
+                'value' => '512M',
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT, 'value' => true, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 2499);
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_START_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -694,12 +916,28 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_START_WP, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC, 'value' => 536870912000, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE, 'value' => 53687091200, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC,
+                'value' => 536870912000,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE,
+                'value' => 53687091200,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 100, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 15, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT, 'value' => '512M', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT,
+                'value' => '512M',
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT, 'value' => true, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
@@ -721,18 +959,38 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_PLUS, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC, 'value' => 536870912000, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE, 'value' => 53687091200, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC,
+                'value' => 536870912000,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE,
+                'value' => 53687091200,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 100, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 15, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT, 'value' => '512M', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT,
+                'value' => '512M',
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT, 'value' => true, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 2999);
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_PLUS_REGISTRATION_PRICE, $defaultPrice);
     }
@@ -751,12 +1009,28 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_WEB_PLUS_WP, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC, 'value' => 536870912000, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE, 'value' => 53687091200, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC,
+                'value' => 536870912000,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE,
+                'value' => 53687091200,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 100, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 15, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT, 'value' => '512M', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_PHP_SETTINGS_MEMORY_LIMIT,
+                'value' => '512M',
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT, 'value' => true, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
@@ -779,18 +1053,34 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_BRONZE, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC, 'value' => 536870912000, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_LIMITS_MAX_TRAFFIC,
+                'value' => 536870912000,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LIMITS_DISK_SPACE, 'value' => 5368709120, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 50, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 15, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT, 'value' => true, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 399);
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
-        $prolongationPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', ProductPriceType::PROLONGATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
+        $prolongationPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', ProductPriceType::PROLONGATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_BRONZE_REGISTRATION_PRICE, $defaultPrice);
         $this->referenceRepo->set(ProductReference::HOSTING_BRONZE_PROLONGATION_PRICE, $prolongationPrice);
@@ -813,12 +1103,20 @@ class HostingSeeder extends Seeder
         ProductSpec::insert([
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 75, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 20, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 399);
-        $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
     }
 
     private function groot(ProductGroup $group): void
@@ -837,12 +1135,20 @@ class HostingSeeder extends Seeder
         ProductSpec::insert([
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_BOX, 'value' => 200, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_LIMITS_MAX_DB, 'value' => 66, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_PERMISSIONS_MANAGE_CRONTAB,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 399);
-        $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
     }
 
     private function placeholder(ProductGroup $group): void
@@ -1268,74 +1574,83 @@ class HostingSeeder extends Seeder
         $webMiniProduct = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_MINI, Product::class);
         $basicWebOnlyProduct = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_BASIC, Product::class);
         $basicWebOnlyWpProduct = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_BASIC_WP, Product::class);
-        $basicMailOnlyProduct = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN, Product::class);
+        $basicMailOnlyProduct = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN,
+            Product::class,
+        );
         $basicProduct = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC, Product::class);
         $basicWpProduct = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC_WP, Product::class);
         $growWebOnlyProduct = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_GROW, Product::class);
         $growWebOnlyWpProduct = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_GROW_WP, Product::class);
-        $growMailOnlyProduct = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_GROW_PLESK, Product::class);
+        $growMailOnlyProduct = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_GROW_PLESK,
+            Product::class,
+        );
         $growProduct = $this->referenceRepo->get(ProductReference::HOSTING_WEB_GROW, Product::class);
         $growWpProduct = $this->referenceRepo->get(ProductReference::HOSTING_WEB_GROW_WP, Product::class);
         $startWebOnlyProduct = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_START, Product::class);
         $startWebOnlyWpProduct = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_START_WP, Product::class);
-        $startMailOnlyProduct = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_START_PLESK, Product::class);
+        $startMailOnlyProduct = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_START_PLESK,
+            Product::class,
+        );
         $startProduct = $this->referenceRepo->get(ProductReference::HOSTING_WEB_START, Product::class);
         $startWpProduct = $this->referenceRepo->get(ProductReference::HOSTING_WEB_START_WP, Product::class);
 
         $paths = [
-            [$webMiniProduct, $basicProduct],
-            [$webMiniProduct, $basicWebOnlyProduct],
-            [$webMiniProduct, $growProduct],
-            [$webMiniProduct, $growWebOnlyProduct],
-            [$webMiniProduct, $startProduct],
-            [$webMiniProduct, $startWebOnlyProduct],
+            [$webMiniProduct,        $basicProduct],
+            [$webMiniProduct,        $basicWebOnlyProduct],
+            [$webMiniProduct,        $growProduct],
+            [$webMiniProduct,        $growWebOnlyProduct],
+            [$webMiniProduct,        $startProduct],
+            [$webMiniProduct,        $startWebOnlyProduct],
 
-            [$basicWebOnlyProduct, $basicProduct],
-            [$basicWebOnlyProduct, $growProduct],
-            [$basicWebOnlyProduct, $startProduct],
-            [$basicWebOnlyProduct, $growWebOnlyProduct],
-            [$basicWebOnlyProduct, $startWebOnlyProduct],
+            [$basicWebOnlyProduct,   $basicProduct],
+            [$basicWebOnlyProduct,   $growProduct],
+            [$basicWebOnlyProduct,   $startProduct],
+            [$basicWebOnlyProduct,   $growWebOnlyProduct],
+            [$basicWebOnlyProduct,   $startWebOnlyProduct],
             [$basicWebOnlyWpProduct, $basicWpProduct],
             [$basicWebOnlyWpProduct, $growWpProduct],
             [$basicWebOnlyWpProduct, $startWpProduct],
             [$basicWebOnlyWpProduct, $growWebOnlyWpProduct],
             [$basicWebOnlyWpProduct, $startWebOnlyWpProduct],
 
-            [$basicMailOnlyProduct, $basicProduct],
-            [$basicMailOnlyProduct, $basicWpProduct],
-            [$basicMailOnlyProduct, $growProduct],
-            [$basicMailOnlyProduct, $growWpProduct],
-            [$basicMailOnlyProduct, $startProduct],
-            [$basicMailOnlyProduct, $startWpProduct],
-            [$basicMailOnlyProduct, $growMailOnlyProduct],
-            [$basicMailOnlyProduct, $startMailOnlyProduct],
+            [$basicMailOnlyProduct,  $basicProduct],
+            [$basicMailOnlyProduct,  $basicWpProduct],
+            [$basicMailOnlyProduct,  $growProduct],
+            [$basicMailOnlyProduct,  $growWpProduct],
+            [$basicMailOnlyProduct,  $startProduct],
+            [$basicMailOnlyProduct,  $startWpProduct],
+            [$basicMailOnlyProduct,  $growMailOnlyProduct],
+            [$basicMailOnlyProduct,  $startMailOnlyProduct],
 
-            [$basicProduct, $growProduct],
-            [$basicProduct, $startProduct],
-            [$basicWpProduct, $growWpProduct],
-            [$basicWpProduct, $startWpProduct],
+            [$basicProduct,          $growProduct],
+            [$basicProduct,          $startProduct],
+            [$basicWpProduct,        $growWpProduct],
+            [$basicWpProduct,        $startWpProduct],
 
-            [$growWebOnlyProduct, $growProduct],
-            [$growWebOnlyProduct, $startProduct],
-            [$growWebOnlyProduct, $startWebOnlyProduct],
-            [$growWebOnlyWpProduct, $growWpProduct],
-            [$growWebOnlyWpProduct, $startWpProduct],
-            [$growWebOnlyWpProduct, $startWebOnlyWpProduct],
+            [$growWebOnlyProduct,    $growProduct],
+            [$growWebOnlyProduct,    $startProduct],
+            [$growWebOnlyProduct,    $startWebOnlyProduct],
+            [$growWebOnlyWpProduct,  $growWpProduct],
+            [$growWebOnlyWpProduct,  $startWpProduct],
+            [$growWebOnlyWpProduct,  $startWebOnlyWpProduct],
 
-            [$growMailOnlyProduct, $growProduct],
-            [$growMailOnlyProduct, $growWpProduct],
-            [$growMailOnlyProduct, $startProduct],
-            [$growMailOnlyProduct, $startWpProduct],
-            [$growMailOnlyProduct, $startMailOnlyProduct],
+            [$growMailOnlyProduct,   $growProduct],
+            [$growMailOnlyProduct,   $growWpProduct],
+            [$growMailOnlyProduct,   $startProduct],
+            [$growMailOnlyProduct,   $startWpProduct],
+            [$growMailOnlyProduct,   $startMailOnlyProduct],
 
-            [$growProduct, $startProduct],
-            [$growWpProduct, $startWpProduct],
+            [$growProduct,           $startProduct],
+            [$growWpProduct,         $startWpProduct],
 
-            [$startWebOnlyProduct, $startProduct],
+            [$startWebOnlyProduct,   $startProduct],
             [$startWebOnlyWpProduct, $startWpProduct],
 
-            [$startMailOnlyProduct, $startProduct],
-            [$startMailOnlyProduct, $startWpProduct],
+            [$startMailOnlyProduct,  $startProduct],
+            [$startMailOnlyProduct,  $startWpProduct],
         ];
 
         foreach ($paths as $index => $path) {
@@ -1362,35 +1677,95 @@ class HostingSeeder extends Seeder
     private function compositeHosting(): void
     {
         $composition = new HostingProductComposition();
-        $composition->composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC, Product::class)->id;
-        $composition->wp_composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_BASIC_WP, Product::class)->id;
-        $composition->mail_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN, Product::class)->id;
-        $composition->web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_BASIC, Product::class)->id;
-        $composition->wp_web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_BASIC_WP, Product::class)->id;
+        $composition->composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_BASIC,
+            Product::class,
+        )->id;
+        $composition->wp_composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_BASIC_WP,
+            Product::class,
+        )->id;
+        $composition->mail_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_BASIC_DIRECT_ADMIN,
+            Product::class,
+        )->id;
+        $composition->web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_BASIC,
+            Product::class,
+        )->id;
+        $composition->wp_web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_BASIC_WP,
+            Product::class,
+        )->id;
         $composition->save();
 
         $composition = new HostingProductComposition();
-        $composition->composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_GROW, Product::class)->id;
-        $composition->wp_composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_GROW_WP, Product::class)->id;
-        $composition->mail_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_GROW_PLESK, Product::class)->id;
-        $composition->web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_GROW, Product::class)->id;
-        $composition->wp_web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_GROW_WP, Product::class)->id;
+        $composition->composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_GROW,
+            Product::class,
+        )->id;
+        $composition->wp_composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_GROW_WP,
+            Product::class,
+        )->id;
+        $composition->mail_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_GROW_PLESK,
+            Product::class,
+        )->id;
+        $composition->web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_GROW,
+            Product::class,
+        )->id;
+        $composition->wp_web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_GROW_WP,
+            Product::class,
+        )->id;
         $composition->save();
 
         $composition = new HostingProductComposition();
-        $composition->composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_START, Product::class)->id;
-        $composition->wp_composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_START_WP, Product::class)->id;
-        $composition->mail_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_START_PLESK, Product::class)->id;
-        $composition->web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_START, Product::class)->id;
-        $composition->wp_web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_START_WP, Product::class)->id;
+        $composition->composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_START,
+            Product::class,
+        )->id;
+        $composition->wp_composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_START_WP,
+            Product::class,
+        )->id;
+        $composition->mail_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_START_PLESK,
+            Product::class,
+        )->id;
+        $composition->web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_START,
+            Product::class,
+        )->id;
+        $composition->wp_web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_START_WP,
+            Product::class,
+        )->id;
         $composition->save();
 
         $composition = new HostingProductComposition();
-        $composition->composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_PLUS, Product::class)->id;
-        $composition->wp_composed_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_PLUS_WP, Product::class)->id;
-        $composition->mail_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_MAIL_ONLY_PLUS_PLESK, Product::class)->id;
-        $composition->web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_PLUS, Product::class)->id;
-        $composition->wp_web_only_product_id = $this->referenceRepo->get(ProductReference::HOSTING_WEB_ONLY_PLUS_WP, Product::class)->id;
+        $composition->composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_PLUS,
+            Product::class,
+        )->id;
+        $composition->wp_composed_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_PLUS_WP,
+            Product::class,
+        )->id;
+        $composition->mail_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_MAIL_ONLY_PLUS_PLESK,
+            Product::class,
+        )->id;
+        $composition->web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_PLUS,
+            Product::class,
+        )->id;
+        $composition->wp_web_only_product_id = $this->referenceRepo->get(
+            ProductReference::HOSTING_WEB_ONLY_PLUS_WP,
+            Product::class,
+        )->id;
         $composition->save();
     }
 
@@ -1408,12 +1783,20 @@ class HostingSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::HOSTING_PROVISIONING, $product);
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE, 'value' => true, 'product_id' => $product->id],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 1999);
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::HOSTING_PROVISIONING_REGISTRATION_PRICE, $defaultPrice);
     }

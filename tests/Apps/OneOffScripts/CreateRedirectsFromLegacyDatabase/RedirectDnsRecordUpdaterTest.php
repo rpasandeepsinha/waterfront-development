@@ -51,7 +51,8 @@ class RedirectDnsRecordUpdaterTest extends TestCase
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $config = $this->createStub(Configuration::class);
-        $config->method('getAsString')
+        $config
+            ->method('getAsString')
             ->willReturnMap([
                 ['redirects.service.ipv4_host', self::LEGACY_IPV4],
                 ['redirects.service.ipv6_host', self::LEGACY_IPV6],
@@ -73,11 +74,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
     {
         $rootDomain = 'example.com';
 
-        $this->dnsService
-            ->expects(self::once())
-            ->method('hasDnsZone')
-            ->with($rootDomain)
-            ->willReturn(true);
+        $this->dnsService->expects(self::once())->method('hasDnsZone')->with($rootDomain)->willReturn(true);
 
         $this->dnsService
             ->expects(self::exactly(2))
@@ -98,12 +95,10 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                     self::assertSame(1200, $record->getTtl());
 
                     return true;
-                })
+                }),
             );
 
-        $this->dnsService
-            ->expects(self::never())
-            ->method('deleteRecordFromObject');
+        $this->dnsService->expects(self::never())->method('deleteRecordFromObject');
 
         $baseLogContext = [
             LoggingContextKeys::DOMAIN_NAME => $rootDomain,
@@ -145,9 +140,15 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                         'Redirect is on root domain [example.com], Setting ALIAS record for caddy.',
                         self::callback(function (array $context) use ($rootDomain): bool {
                             self::assertSame($rootDomain, $context[LoggingContextKeys::DOMAIN_NAME]);
-                            self::assertSame(ProvisionProvider::CADDY, $context[LoggingContextKeys::PROVISIONING_PROVIDER]);
+                            self::assertSame(
+                                ProvisionProvider::CADDY,
+                                $context[LoggingContextKeys::PROVISIONING_PROVIDER],
+                            );
                             self::assertSame(ProvisionType::REDIRECT, $context[LoggingContextKeys::PROVISIONING_TYPE]);
-                            self::assertSame(NovaCreateRedirectsFromLegacyDatabaseAction::SLUG, $context[LoggingContextKeys::ONE_OFF_SCRIPT]);
+                            self::assertSame(
+                                NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
+                                $context[LoggingContextKeys::ONE_OFF_SCRIPT],
+                            );
                             self::assertFalse($context[LoggingContextKeys::META]['dry-run']);
                             self::assertSame($rootDomain, $context[LoggingContextKeys::META]['redirect_source']);
                             self::assertSame($rootDomain, $context[LoggingContextKeys::META]['redirect_destination']);
@@ -156,7 +157,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                             return true;
                         }),
                     ],
-                )
+                ),
             );
 
         $this->updater->updateDnsRecordToCaddy(rootDomain: $rootDomain, source: $rootDomain);
@@ -168,11 +169,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
         $rootDomain = 'example.com';
         $source = 'sub.example.com';
 
-        $this->dnsService
-            ->expects(self::once())
-            ->method('hasDnsZone')
-            ->with($rootDomain)
-            ->willReturn(true);
+        $this->dnsService->expects(self::once())->method('hasDnsZone')->with($rootDomain)->willReturn(true);
 
         $this->dnsService
             ->expects(self::exactly(2))
@@ -232,23 +229,36 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                         ],
                     ],
                     [
-                        sprintf('Setting CNAME record for subdomain [%s] that points to [%s]', $source, self::SUBDOMAIN_CNAME),
+                        sprintf(
+                            'Setting CNAME record for subdomain [%s] that points to [%s]',
+                            $source,
+                            self::SUBDOMAIN_CNAME,
+                        ),
                         self::callback(function (array $context) use ($rootDomain, $source): bool {
                             self::assertSame($rootDomain, $context[LoggingContextKeys::DOMAIN_NAME]);
-                            self::assertSame(ProvisionProvider::CADDY, $context[LoggingContextKeys::PROVISIONING_PROVIDER]);
+                            self::assertSame(
+                                ProvisionProvider::CADDY,
+                                $context[LoggingContextKeys::PROVISIONING_PROVIDER],
+                            );
                             self::assertSame(ProvisionType::REDIRECT, $context[LoggingContextKeys::PROVISIONING_TYPE]);
-                            self::assertSame(NovaCreateRedirectsFromLegacyDatabaseAction::SLUG, $context[LoggingContextKeys::ONE_OFF_SCRIPT]);
+                            self::assertSame(
+                                NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
+                                $context[LoggingContextKeys::ONE_OFF_SCRIPT],
+                            );
                             self::assertFalse($context[LoggingContextKeys::META]['dry-run']);
                             self::assertSame($source, $context[LoggingContextKeys::META]['redirect_source']);
                             self::assertSame($rootDomain, $context[LoggingContextKeys::META]['redirect_destination']);
                             self::assertArrayHasKey('CNAME_record', $context[LoggingContextKeys::META]);
                             self::assertSame($source, $context[LoggingContextKeys::META]['CNAME_record']['name']);
-                            self::assertSame(self::SUBDOMAIN_CNAME, $context[LoggingContextKeys::META]['CNAME_record']['content']);
+                            self::assertSame(
+                                self::SUBDOMAIN_CNAME,
+                                $context[LoggingContextKeys::META]['CNAME_record']['content'],
+                            );
 
                             return true;
                         }),
                     ],
-                )
+                ),
             );
 
         $this->updater->updateDnsRecordToCaddy(rootDomain: $rootDomain, source: $source);
@@ -259,27 +269,24 @@ class RedirectDnsRecordUpdaterTest extends TestCase
     {
         $rootDomain = 'example.com';
 
-        $this->dnsService
-            ->expects(self::once())
-            ->method('hasDnsZone')
-            ->with($rootDomain)
-            ->willReturn(false);
+        $this->dnsService->expects(self::once())->method('hasDnsZone')->with($rootDomain)->willReturn(false);
 
-        $this->dnsService
-            ->expects(self::once())
-            ->method('createDnsZone')
-            ->with($rootDomain);
+        $this->dnsService->expects(self::once())->method('createDnsZone')->with($rootDomain);
 
-        $this->dnsService
-            ->expects(self::never())
-            ->method('getDnsRecordsForDomain');
+        $this->dnsService->expects(self::never())->method('getDnsRecordsForDomain');
 
         $this->dnsService
             ->expects(self::once())
             ->method('addRecordFromObject')
             ->with(
                 $rootDomain,
-                self::callback(fn (DnsRecordInterface $record): bool => $record instanceof DefaultRecord && $record->getType() === 'ALIAS' && $record->getContent() === self::SUBDOMAIN_CNAME),
+                self::callback(
+                    fn (DnsRecordInterface $record): bool => (
+                        $record instanceof DefaultRecord
+                        && $record->getType() === 'ALIAS'
+                        && $record->getContent() === self::SUBDOMAIN_CNAME
+                    ),
+                ),
             );
 
         $baseLogContext = [
@@ -316,7 +323,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                             return true;
                         }),
                     ],
-                )
+                ),
             );
 
         $this->updater->updateDnsRecordToCaddy(rootDomain: $rootDomain, source: $rootDomain);
@@ -351,11 +358,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
             disabled: false,
         );
 
-        $this->dnsService
-            ->expects(self::once())
-            ->method('hasDnsZone')
-            ->with($rootDomain)
-            ->willReturn(true);
+        $this->dnsService->expects(self::once())->method('hasDnsZone')->with($rootDomain)->willReturn(true);
 
         $this->dnsService
             ->expects(self::exactly(2))
@@ -388,7 +391,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                             return true;
                         }),
                     ],
-                )
+                ),
             );
 
         $this->dnsService
@@ -396,7 +399,13 @@ class RedirectDnsRecordUpdaterTest extends TestCase
             ->method('addRecordFromObject')
             ->with(
                 $rootDomain,
-                self::callback(fn (DnsRecordInterface $record): bool => $record instanceof DefaultRecord && $record->getType() === 'ALIAS' && $record->getContent() === self::SUBDOMAIN_CNAME),
+                self::callback(
+                    fn (DnsRecordInterface $record): bool => (
+                        $record instanceof DefaultRecord
+                        && $record->getType() === 'ALIAS'
+                        && $record->getContent() === self::SUBDOMAIN_CNAME
+                    ),
+                ),
             );
 
         $this->logger
@@ -445,7 +454,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                             return true;
                         }),
                     ],
-                )
+                ),
             );
 
         $this->updater->updateDnsRecordToCaddy(rootDomain: $rootDomain, source: $rootDomain);
@@ -480,11 +489,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
             disabled: false,
         );
 
-        $this->dnsService
-            ->expects(self::once())
-            ->method('hasDnsZone')
-            ->with($rootDomain)
-            ->willReturn(true);
+        $this->dnsService->expects(self::once())->method('hasDnsZone')->with($rootDomain)->willReturn(true);
 
         $this->dnsService
             ->expects(self::exactly(2))
@@ -508,16 +513,16 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                         }),
                     ],
                     [
-                    $rootDomain,
-                    self::callback(function (DefaultRecord $record): bool {
-                        self::assertSame('AAAA', $record->getType());
-                        self::assertSame(self::CADDY_IPV6, $record->getContent());
-                        self::assertSame('example.com', $record->getName());
+                        $rootDomain,
+                        self::callback(function (DefaultRecord $record): bool {
+                            self::assertSame('AAAA', $record->getType());
+                            self::assertSame(self::CADDY_IPV6, $record->getContent());
+                            self::assertSame('example.com', $record->getName());
 
-                        return true;
-                    }),
-                ],
-                )
+                            return true;
+                        }),
+                    ],
+                ),
             );
 
         $this->dnsService
@@ -525,7 +530,13 @@ class RedirectDnsRecordUpdaterTest extends TestCase
             ->method('addRecordFromObject')
             ->with(
                 $rootDomain,
-                self::callback(fn (DnsRecordInterface $record): bool => $record instanceof DefaultRecord && $record->getType() === 'ALIAS' && $record->getContent() === self::SUBDOMAIN_CNAME),
+                self::callback(
+                    fn (DnsRecordInterface $record): bool => (
+                        $record instanceof DefaultRecord
+                        && $record->getType() === 'ALIAS'
+                        && $record->getContent() === self::SUBDOMAIN_CNAME
+                    ),
+                ),
             );
 
         $this->logger
@@ -534,47 +545,47 @@ class RedirectDnsRecordUpdaterTest extends TestCase
             ->with(
                 ...self::withConsecutive(
                     [
-                    'Updating DNS for redirect with source [example.com] and destination [example.com]',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => $rootDomain,
-                        LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CADDY,
-                        LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
-                        LoggingContextKeys::ONE_OFF_SCRIPT => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
-                        LoggingContextKeys::META => [
-                            'dry-run' => false,
-                            'redirect_source' => $rootDomain,
-                            'redirect_destination' => $rootDomain,
-                        ],
-                    ],
-                ],
-                    [
-                    'Deleting [2] legacy redirect DNS records for domain [example.com] and source [example.com]',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => $rootDomain,
-                        LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CADDY,
-                        LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
-                        LoggingContextKeys::ONE_OFF_SCRIPT => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
-                        LoggingContextKeys::META => [
-                            'dry-run' => false,
-                            'redirect_source' => $rootDomain,
-                            'redirect_destination' => $rootDomain,
-                            'records' => [
-                                'example.com A ' . self::CADDY_IPV4,
-                                'example.com AAAA ' . self::CADDY_IPV6,
+                        'Updating DNS for redirect with source [example.com] and destination [example.com]',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => $rootDomain,
+                            LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CADDY,
+                            LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
+                            LoggingContextKeys::ONE_OFF_SCRIPT => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
+                            LoggingContextKeys::META => [
+                                'dry-run' => false,
+                                'redirect_source' => $rootDomain,
+                                'redirect_destination' => $rootDomain,
                             ],
                         ],
                     ],
-                ],
                     [
-                    'Redirect is on root domain [example.com], Setting ALIAS record for caddy.',
-                    self::callback(function (array $context) use ($rootDomain): bool {
-                        self::assertSame($rootDomain, $context[LoggingContextKeys::DOMAIN_NAME]);
-                        self::assertArrayHasKey('ALIAS_record', $context[LoggingContextKeys::META]);
+                        'Deleting [2] legacy redirect DNS records for domain [example.com] and source [example.com]',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => $rootDomain,
+                            LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CADDY,
+                            LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
+                            LoggingContextKeys::ONE_OFF_SCRIPT => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
+                            LoggingContextKeys::META => [
+                                'dry-run' => false,
+                                'redirect_source' => $rootDomain,
+                                'redirect_destination' => $rootDomain,
+                                'records' => [
+                                    'example.com A ' . self::CADDY_IPV4,
+                                    'example.com AAAA ' . self::CADDY_IPV6,
+                                ],
+                            ],
+                        ],
+                    ],
+                    [
+                        'Redirect is on root domain [example.com], Setting ALIAS record for caddy.',
+                        self::callback(function (array $context) use ($rootDomain): bool {
+                            self::assertSame($rootDomain, $context[LoggingContextKeys::DOMAIN_NAME]);
+                            self::assertArrayHasKey('ALIAS_record', $context[LoggingContextKeys::META]);
 
-                        return true;
-                    }),
-                ],
-                )
+                            return true;
+                        }),
+                    ],
+                ),
             );
 
         $this->updater->updateDnsRecordToCaddy(rootDomain: $rootDomain, source: $rootDomain);
@@ -593,11 +604,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
             disabled: false,
         );
 
-        $this->dnsService
-            ->expects(self::once())
-            ->method('hasDnsZone')
-            ->with($rootDomain)
-            ->willReturn(true);
+        $this->dnsService->expects(self::once())->method('hasDnsZone')->with($rootDomain)->willReturn(true);
 
         $this->dnsService
             ->expects(self::exactly(2))
@@ -605,13 +612,9 @@ class RedirectDnsRecordUpdaterTest extends TestCase
             ->with($rootDomain)
             ->willReturn(new Collection([$existingARecord]));
 
-        $this->dnsService
-            ->expects(self::never())
-            ->method('addRecordFromObject');
+        $this->dnsService->expects(self::never())->method('addRecordFromObject');
 
-        $this->dnsService
-            ->expects(self::never())
-            ->method('deleteRecordFromObject');
+        $this->dnsService->expects(self::never())->method('deleteRecordFromObject');
 
         $this->logger
             ->expects(self::exactly(2))
@@ -647,7 +650,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                             ],
                         ],
                     ],
-                )
+                ),
             );
 
         $this->logger
@@ -666,7 +669,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                         'redirect_destination' => $rootDomain,
                         'existing_records' => ['example.com A 10.20.30.40'],
                     ],
-                ]
+                ],
             );
 
         $this->updater->updateDnsRecordToCaddy(rootDomain: $rootDomain, source: $rootDomain);
@@ -685,11 +688,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
             disabled: false,
         );
 
-        $this->dnsService
-            ->expects(self::once())
-            ->method('hasDnsZone')
-            ->with($rootDomain)
-            ->willReturn(true);
+        $this->dnsService->expects(self::once())->method('hasDnsZone')->with($rootDomain)->willReturn(true);
 
         $this->dnsService
             ->expects(self::exactly(2))
@@ -697,105 +696,9 @@ class RedirectDnsRecordUpdaterTest extends TestCase
             ->with($rootDomain)
             ->willReturn(new Collection([$existingAAAARecord]));
 
-        $this->dnsService
-            ->expects(self::never())
-            ->method('addRecordFromObject');
+        $this->dnsService->expects(self::never())->method('addRecordFromObject');
 
-        $this->dnsService
-            ->expects(self::never())
-            ->method('deleteRecordFromObject');
-
-        $this->logger
-            ->expects(self::exactly(2))
-            ->method('info')
-            ->with(
-                ...self::withConsecutive(
-                    [
-                    'Updating DNS for redirect with source [example.com] and destination [example.com]',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => $rootDomain,
-                        LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CADDY,
-                        LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
-                        LoggingContextKeys::ONE_OFF_SCRIPT => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
-                        LoggingContextKeys::META => [
-                            'dry-run' => false,
-                            'redirect_source' => $rootDomain,
-                            'redirect_destination' => $rootDomain,
-                        ],
-                    ],
-                ],
-                    [
-                    'Deleting [0] legacy redirect DNS records for domain [example.com] and source [example.com]',
-                    [
-                        LoggingContextKeys::DOMAIN_NAME => $rootDomain,
-                        LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CADDY,
-                        LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
-                        LoggingContextKeys::ONE_OFF_SCRIPT => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
-                        LoggingContextKeys::META => [
-                            'dry-run' => false,
-                            'redirect_source' => $rootDomain,
-                            'redirect_destination' => $rootDomain,
-                            'records' => [],
-                        ],
-                    ],
-                ],
-                )
-            );
-
-        $this->logger
-            ->expects(self::once())
-            ->method('warning')
-            ->with(
-                'A,AAAA or ALIAS records already exist for [example.com], skipping caddy DNS record creation to avoid breaking existing DNS.',
-                [
-                    LoggingContextKeys::DOMAIN_NAME => $rootDomain,
-                    LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CADDY,
-                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
-                    LoggingContextKeys::ONE_OFF_SCRIPT => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
-                    LoggingContextKeys::META => [
-                        'dry-run' => false,
-                        'redirect_source' => $rootDomain,
-                        'redirect_destination' => $rootDomain,
-                        'existing_records' => ['example.com AAAA 2001:db8:85a3:0000:0000:8a2e:0370:7334'],
-                    ],
-                ]
-            );
-
-        $this->updater->updateDnsRecordToCaddy(rootDomain: $rootDomain, source: $rootDomain);
-    }
-
-    #[Test]
-    public function skipsRootDomainRecordCreationWhenNonLegacyALIASRecordExists(): void
-    {
-        $rootDomain = 'example.com';
-
-        $existingAliasRecord = new DefaultRecord(
-            type: 'ALIAS',
-            name: $rootDomain,
-            content: 'alias.example.com',
-            ttl: 3600,
-            disabled: false,
-        );
-
-        $this->dnsService
-            ->expects(self::once())
-            ->method('hasDnsZone')
-            ->with($rootDomain)
-            ->willReturn(true);
-
-        $this->dnsService
-            ->expects(self::exactly(2))
-            ->method('getDnsRecordsForDomain')
-            ->with($rootDomain)
-            ->willReturn(new Collection([$existingAliasRecord]));
-
-        $this->dnsService
-            ->expects(self::never())
-            ->method('addRecordFromObject');
-
-        $this->dnsService
-            ->expects(self::never())
-            ->method('deleteRecordFromObject');
+        $this->dnsService->expects(self::never())->method('deleteRecordFromObject');
 
         $this->logger
             ->expects(self::exactly(2))
@@ -831,7 +734,91 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                             ],
                         ],
                     ],
-                )
+                ),
+            );
+
+        $this->logger
+            ->expects(self::once())
+            ->method('warning')
+            ->with(
+                'A,AAAA or ALIAS records already exist for [example.com], skipping caddy DNS record creation to avoid breaking existing DNS.',
+                [
+                    LoggingContextKeys::DOMAIN_NAME => $rootDomain,
+                    LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CADDY,
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
+                    LoggingContextKeys::ONE_OFF_SCRIPT => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
+                    LoggingContextKeys::META => [
+                        'dry-run' => false,
+                        'redirect_source' => $rootDomain,
+                        'redirect_destination' => $rootDomain,
+                        'existing_records' => ['example.com AAAA 2001:db8:85a3:0000:0000:8a2e:0370:7334'],
+                    ],
+                ],
+            );
+
+        $this->updater->updateDnsRecordToCaddy(rootDomain: $rootDomain, source: $rootDomain);
+    }
+
+    #[Test]
+    public function skipsRootDomainRecordCreationWhenNonLegacyALIASRecordExists(): void
+    {
+        $rootDomain = 'example.com';
+
+        $existingAliasRecord = new DefaultRecord(
+            type: 'ALIAS',
+            name: $rootDomain,
+            content: 'alias.example.com',
+            ttl: 3600,
+            disabled: false,
+        );
+
+        $this->dnsService->expects(self::once())->method('hasDnsZone')->with($rootDomain)->willReturn(true);
+
+        $this->dnsService
+            ->expects(self::exactly(2))
+            ->method('getDnsRecordsForDomain')
+            ->with($rootDomain)
+            ->willReturn(new Collection([$existingAliasRecord]));
+
+        $this->dnsService->expects(self::never())->method('addRecordFromObject');
+
+        $this->dnsService->expects(self::never())->method('deleteRecordFromObject');
+
+        $this->logger
+            ->expects(self::exactly(2))
+            ->method('info')
+            ->with(
+                ...self::withConsecutive(
+                    [
+                        'Updating DNS for redirect with source [example.com] and destination [example.com]',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => $rootDomain,
+                            LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CADDY,
+                            LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
+                            LoggingContextKeys::ONE_OFF_SCRIPT => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
+                            LoggingContextKeys::META => [
+                                'dry-run' => false,
+                                'redirect_source' => $rootDomain,
+                                'redirect_destination' => $rootDomain,
+                            ],
+                        ],
+                    ],
+                    [
+                        'Deleting [0] legacy redirect DNS records for domain [example.com] and source [example.com]',
+                        [
+                            LoggingContextKeys::DOMAIN_NAME => $rootDomain,
+                            LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CADDY,
+                            LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
+                            LoggingContextKeys::ONE_OFF_SCRIPT => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
+                            LoggingContextKeys::META => [
+                                'dry-run' => false,
+                                'redirect_source' => $rootDomain,
+                                'redirect_destination' => $rootDomain,
+                                'records' => [],
+                            ],
+                        ],
+                    ],
+                ),
             );
 
         $this->logger
@@ -850,7 +837,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                         'redirect_destination' => $rootDomain,
                         'existing_records' => ['example.com ALIAS alias.example.com'],
                     ],
-                ]
+                ],
             );
 
         $this->updater->updateDnsRecordToCaddy(rootDomain: $rootDomain, source: $rootDomain);
@@ -869,11 +856,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
             disabled: false,
         );
 
-        $this->dnsService
-            ->expects(self::once())
-            ->method('hasDnsZone')
-            ->with($rootDomain)
-            ->willReturn(true);
+        $this->dnsService->expects(self::once())->method('hasDnsZone')->with($rootDomain)->willReturn(true);
 
         $this->dnsService
             ->expects(self::exactly(2))
@@ -881,13 +864,9 @@ class RedirectDnsRecordUpdaterTest extends TestCase
             ->with($rootDomain)
             ->willReturn(new Collection([$existingCname]));
 
-        $this->dnsService
-            ->expects(self::never())
-            ->method('addRecordFromObject');
+        $this->dnsService->expects(self::never())->method('addRecordFromObject');
 
-        $this->dnsService
-            ->expects(self::never())
-            ->method('deleteRecordFromObject');
+        $this->dnsService->expects(self::never())->method('deleteRecordFromObject');
 
         $this->logger
             ->expects(self::exactly(2))
@@ -923,7 +902,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                             ],
                         ],
                     ],
-                )
+                ),
             );
 
         $this->logger
@@ -966,11 +945,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
         $caddyContext->host = $rootDomain;
         $caddyContext->setRelation('redirectDeployments', new Collection([$deployment]));
 
-        $this->dnsService
-            ->expects(self::once())
-            ->method('hasDnsZone')
-            ->with($rootDomain)
-            ->willReturn(true);
+        $this->dnsService->expects(self::once())->method('hasDnsZone')->with($rootDomain)->willReturn(true);
 
         $this->dnsService
             ->expects(self::exactly(2))
@@ -1004,7 +979,11 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                         ],
                     ],
                     [
-                        sprintf('Updating DNS for redirect with source [%s] and destination [%s]', $source, $rootDomain),
+                        sprintf(
+                            'Updating DNS for redirect with source [%s] and destination [%s]',
+                            $source,
+                            $rootDomain,
+                        ),
                         [
                             LoggingContextKeys::DOMAIN_NAME => $rootDomain,
                             LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CADDY,
@@ -1018,7 +997,11 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                         ],
                     ],
                     [
-                        sprintf('Deleting [0] legacy redirect DNS records for domain [%s] and source [%s]', $rootDomain, $source),
+                        sprintf(
+                            'Deleting [0] legacy redirect DNS records for domain [%s] and source [%s]',
+                            $rootDomain,
+                            $source,
+                        ),
                         [
                             LoggingContextKeys::DOMAIN_NAME => $rootDomain,
                             LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::CADDY,
@@ -1033,7 +1016,11 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                         ],
                     ],
                     [
-                        sprintf('Setting CNAME record for subdomain [%s] that points to [%s]', $source, self::SUBDOMAIN_CNAME),
+                        sprintf(
+                            'Setting CNAME record for subdomain [%s] that points to [%s]',
+                            $source,
+                            self::SUBDOMAIN_CNAME,
+                        ),
                         self::callback(function (array $context) use ($rootDomain): bool {
                             self::assertSame($rootDomain, $context[LoggingContextKeys::DOMAIN_NAME]);
                             self::assertArrayHasKey('CNAME_record', $context[LoggingContextKeys::META]);
@@ -1041,7 +1028,7 @@ class RedirectDnsRecordUpdaterTest extends TestCase
                             return true;
                         }),
                     ],
-                )
+                ),
             );
 
         $this->updater->updateRedirectDnsFromProvisionDeployment($caddyContext);

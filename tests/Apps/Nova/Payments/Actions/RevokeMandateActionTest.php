@@ -46,8 +46,8 @@ class RevokeMandateActionTest extends IntegrationTestCase
             return $mock;
         });
 
-        $action   = self::resolve(NovaRevokeMandateAction::class);
-        $fields   = $this->getActionFields();
+        $action = self::resolve(NovaRevokeMandateAction::class);
+        $fields = $this->getActionFields();
         $response = $action->handle($fields, $this->mandates);
 
         self::assertInstanceOf(ActionResponse::class, $response);
@@ -60,7 +60,7 @@ class RevokeMandateActionTest extends IntegrationTestCase
     {
         return new ActionFields(
             new Collection([]),
-            new Collection([])
+            new Collection([]),
         );
     }
 }

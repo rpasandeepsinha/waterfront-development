@@ -57,8 +57,13 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
 
         $directAdminHostingService = self::resolve(DirectAdminHostingService::class);
 
-        $domainSubscription = new SubscriptionFactory()->withCustomer()->for($this->product)
-            ->has(new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()), 'domainDeployment')
+        $domainSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->has(
+                new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()),
+                'domainDeployment',
+            )
             ->createOne([
                 'domain' => $domainName,
             ]);
@@ -67,7 +72,9 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         self::assertInstanceOf(DomainDeployment::class, $domainDeployment);
 
         $this->expectException(CoupleHostingException::class);
-        $this->expectExceptionMessageIs("Could not find any coupled hosting for $domainName in Domain deployment $domainDeployment->id with Subscription $domainSubscription->uuid");
+        $this->expectExceptionMessageIs(
+            "Could not find any coupled hosting for $domainName in Domain deployment $domainDeployment->id with Subscription $domainSubscription->uuid",
+        );
 
         $directAdminHostingService->decoupleHostingByDomain($domainDeployment);
     }
@@ -91,7 +98,11 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         $directAdminResponseDomains = [];
         if ($rawDirectAdminResponseDomains !== false) {
             /** @var array<mixed,mixed> $directAdminResponseDomains */
-            $directAdminResponseDomains = json_decode(json: $rawDirectAdminResponseDomains, associative: true, flags: JSON_THROW_ON_ERROR);
+            $directAdminResponseDomains = json_decode(
+                json: $rawDirectAdminResponseDomains,
+                associative: true,
+                flags: JSON_THROW_ON_ERROR,
+            );
         }
 
         $deleteErrorResponse = '{"message":"Something went wrong on DirectAdmin"}';
@@ -104,8 +115,13 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
 
         $directAdminHostingService = self::resolve(DirectAdminHostingService::class);
 
-        $domainSubscription = new SubscriptionFactory()->withCustomer()->for($this->product)
-            ->has(new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()), 'domainDeployment')
+        $domainSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->has(
+                new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()),
+                'domainDeployment',
+            )
             ->createOne([
                 'domain' => $domainName,
             ]);
@@ -114,7 +130,7 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         self::assertInstanceOf(DomainDeployment::class, $domainDeployment);
 
         $hostingSubscription = new SubscriptionFactory()
-            ->has((new HostingDeploymentFactory()))
+            ->has(new HostingDeploymentFactory())
             ->for($this->product)
             ->for($domainSubscription->customer)
             ->createOne([
@@ -125,28 +141,42 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         self::assertInstanceOf(HostingDeployment::class, $hostingDeployment);
 
         // We expect the directadmin client to use the server we have attached to our hosting deployment
-        $directAdminMock->expects(self::exactly(2))
+        $directAdminMock
+            ->expects(self::exactly(2))
             ->method('useServer')
-            ->willReturnCallback(fn (Server $server) => $server->id === $hostingDeployment->server?->id ? $directAdminApiMock : null);
+            ->willReturnCallback(fn (Server $server) => $server->id === $hostingDeployment->server?->id
+                ? $directAdminApiMock
+                : null);
 
-        $directAdminApiMock->expects(self::once())
+        $directAdminApiMock
+            ->expects(self::once())
             ->method('loginAs')
-            ->willReturnCallback(fn (string $username) => $username === $hostingDeployment->directadmin_customer_username ? $directAdminApiMock : null);
+            ->willReturnCallback(fn (string $username) => $username
+                === $hostingDeployment->directadmin_customer_username
+                    ? $directAdminApiMock
+                    : null);
 
         $deleteDomainCommand = new DeleteDomains();
-        $deleteDomainCommand->responseReceived(json_decode(json: $deleteErrorResponse, associative: true, flags: JSON_THROW_ON_ERROR));
+        $deleteDomainCommand->responseReceived(json_decode(
+            json: $deleteErrorResponse,
+            associative: true,
+            flags: JSON_THROW_ON_ERROR,
+        ));
 
         $showUserStatsCommand = new ShowUserStats()->responseReceived($directAdminResponseDomains);
-        $directAdminApiMock->expects(self::exactly(2))
+        $directAdminApiMock
+            ->expects(self::exactly(2))
             ->method('call')
             ->willReturnCallback(fn ($command) => match (true) {
                 $command instanceof ShowUserStats => $showUserStatsCommand,
                 $command instanceof DeleteDomains => $deleteDomainCommand,
-                default => throw new LogicException()
+                default => throw new LogicException(),
             });
 
         $this->expectException(DirectAdminCommandException::class);
-        $this->expectExceptionMessageIsOrContains("Could not remove Domaindeployment $domainDeployment->id ($domainName) from Hostingdeployment $hostingDeployment->id.");
+        $this->expectExceptionMessageIsOrContains(
+            "Could not remove Domaindeployment $domainDeployment->id ($domainName) from Hostingdeployment $hostingDeployment->id.",
+        );
 
         $directAdminHostingService->decoupleHostingByDomain($domainDeployment);
     }
@@ -167,14 +197,22 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         $rawDirectAdminResponseDomains = file_get_contents(__DIR__ . '/data/delete-domain/UserStats.json');
         $directAdminResponseDomains = [];
         if ($rawDirectAdminResponseDomains !== false) {
-            $directAdminResponseDomains = json_decode(json: $rawDirectAdminResponseDomains, associative: true, flags: JSON_THROW_ON_ERROR);
+            $directAdminResponseDomains = json_decode(
+                json: $rawDirectAdminResponseDomains,
+                associative: true,
+                flags: JSON_THROW_ON_ERROR,
+            );
             assert(is_array($directAdminResponseDomains));
         }
 
         $rawDirectAdminResponseDelete = file_get_contents(__DIR__ . '/data/delete-domain/DeleteDomains.json');
         $directAdminResponseDelete = [];
         if ($rawDirectAdminResponseDelete !== false) {
-            $directAdminResponseDelete = json_decode(json: $rawDirectAdminResponseDelete, associative: true, flags: JSON_THROW_ON_ERROR);
+            $directAdminResponseDelete = json_decode(
+                json: $rawDirectAdminResponseDelete,
+                associative: true,
+                flags: JSON_THROW_ON_ERROR,
+            );
             assert(is_array($directAdminResponseDelete));
         }
 
@@ -186,8 +224,13 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
 
         $directAdminHostingService = self::resolve(DirectAdminHostingService::class);
 
-        $domainSubscription = new SubscriptionFactory()->withCustomer()->for($this->product)
-            ->has(new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()), 'domainDeployment')
+        $domainSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->has(
+                new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()),
+                'domainDeployment',
+            )
             ->createOne([
                 'domain' => $domainName,
             ]);
@@ -198,7 +241,7 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         $hostingSubscription = new SubscriptionFactory()
             ->for($this->product)
             ->for($domainSubscription->customer)
-            ->has((new HostingDeploymentFactory()))
+            ->has(new HostingDeploymentFactory())
             ->createOne([
                 'domain' => $domainName,
             ]);
@@ -207,11 +250,13 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         self::assertInstanceOf(HostingDeployment::class, $hostingDeployment);
 
         // We expect the directadmin client to use the server we have attached to our hosting deployment
-        $directAdminMock->expects(self::exactly(2))
+        $directAdminMock
+            ->expects(self::exactly(2))
             ->method('useServer')
             ->with(self::callback(function ($server) use ($hostingDeployment): bool {
                 $hostingServer = $hostingDeployment->server;
                 self::assertInstanceOf(Server::class, $hostingServer);
+
                 return $server->id === $hostingServer->id;
             }))
             ->willReturn($directAdminApiMock);
@@ -219,17 +264,21 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         $deleteDomainCommand = new DeleteDomains();
         self::assertFalse($deleteDomainCommand->hasSucceeded());
 
-        $directAdminApiMock->expects(self::once())
+        $directAdminApiMock
+            ->expects(self::once())
             ->method('loginAs')
-            ->with(self::callback(fn ($username): bool => $username === $hostingDeployment->directadmin_customer_username))
+            ->with(self::callback(
+                fn ($username): bool => $username === $hostingDeployment->directadmin_customer_username,
+            ))
             ->willReturn($directAdminApiMock);
 
-        $directAdminApiMock->expects(self::exactly(2))
+        $directAdminApiMock
+            ->expects(self::exactly(2))
             ->method('call')
             ->willReturnCallback(fn ($command) => match (true) {
                 $command instanceof ShowUserStats => new ShowUserStats()->responseReceived($directAdminResponseDomains),
                 $command instanceof DeleteDomains => $deleteDomainCommand->responseReceived($directAdminResponseDelete),
-                default => throw new LogicException()
+                default => throw new LogicException(),
             });
 
         $directAdminHostingService->decoupleHostingByDomain($domainDeployment);
@@ -253,7 +302,11 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         $directAdminResponse = [];
         if ($rawDirectAdminResponse !== false) {
             /** @var array<int,mixed> $directAdminResponse */
-            $directAdminResponse = json_decode(json: $rawDirectAdminResponse, associative: true, flags: JSON_THROW_ON_ERROR);
+            $directAdminResponse = json_decode(
+                json: $rawDirectAdminResponse,
+                associative: true,
+                flags: JSON_THROW_ON_ERROR,
+            );
             $directAdminResponse['domains'][0]['domain'] = $domainName;
         }
 
@@ -263,8 +316,13 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         $this->app->bind(DirectAdminApiInterface::class, fn () => $directAdminApiMock);
         $this->app->bind(BehavesAsDirectAdmin::class, fn () => $directAdminMock);
 
-        $domainSubscription = new SubscriptionFactory()->withCustomer()->for($this->product)
-            ->has(new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()), 'domainDeployment')
+        $domainSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->has(
+                new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()),
+                'domainDeployment',
+            )
             ->createOne([
                 'domain' => $domainName,
             ]);
@@ -273,7 +331,7 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         self::assertInstanceOf(DomainDeployment::class, $domainDeployment);
 
         $hostingSubscription = new SubscriptionFactory()
-            ->has((new HostingDeploymentFactory()))
+            ->has(new HostingDeploymentFactory())
             ->for($this->product)
             ->for($domainSubscription->customer)
             ->createOne([
@@ -286,16 +344,19 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         $directAdminHostingService = self::resolve(DirectAdminHostingService::class);
 
         // We expect the directadmin client to use the server we have attached to our hosting deployment
-        $directAdminMock->expects(self::once())
+        $directAdminMock
+            ->expects(self::once())
             ->method('useServer')
             ->with(self::callback(function ($server) use ($hostingDeployment): bool {
                 $hostingServer = $hostingDeployment->server;
                 self::assertInstanceOf(Server::class, $hostingServer);
+
                 return $server->id === $hostingServer->id;
             }))
             ->willReturn($directAdminApiMock);
 
-        $directAdminApiMock->expects(self::once())
+        $directAdminApiMock
+            ->expects(self::once())
             ->method('call')
             ->with(self::callback(fn ($command): bool => $command instanceof ShowUserStats))
             ->willReturn(new ShowUserStats()->responseReceived($directAdminResponse));
@@ -316,8 +377,13 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
     {
         $domainName = 'couple-me-to-hosting.nl';
 
-        $domainSubscription = new SubscriptionFactory()->withCustomer()->for($this->product)
-            ->has(new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()), 'domainDeployment')
+        $domainSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->has(
+                new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()),
+                'domainDeployment',
+            )
             ->createOne([
                 'domain' => $domainName,
             ]);
@@ -329,7 +395,9 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
             ->has(new HostingDeploymentFactory()->state([
                 'directadmin_customer_username' => null,
             ]))
-            ->for($domainSubscription->customer)->for($this->product)->createOne();
+            ->for($domainSubscription->customer)
+            ->for($this->product)
+            ->createOne();
         $directAdminHostingService = self::resolve(DirectAdminHostingService::class);
 
         self::assertNull($directAdminHostingService->getCoupledHostingByDomain($domainDeployment));
@@ -345,8 +413,13 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
     {
         $domainName = 'couple-me-to-hosting.nl';
 
-        $domainSubscription = new SubscriptionFactory()->withCustomer()->for($this->product)
-            ->has(new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()), 'domainDeployment')
+        $domainSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
+            ->has(
+                new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()),
+                'domainDeployment',
+            )
             ->createOne([
                 'domain' => $domainName,
             ]);
@@ -359,7 +432,9 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
                 'directadmin_customer_username' => 'test',
                 'server_id' => null,
             ]), 'hostingDeployment')
-            ->for($domainSubscription->customer)->for($this->product)->createOne();
+            ->for($domainSubscription->customer)
+            ->for($this->product)
+            ->createOne();
 
         $directAdminHostingService = self::resolve(DirectAdminHostingService::class);
 
@@ -382,7 +457,11 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         $rawDirectAdminResponse = file_get_contents(__DIR__ . '/data/UserStats.json');
         $directAdminResponse = [];
         if ($rawDirectAdminResponse !== false) {
-            $directAdminResponse = json_decode(json: $rawDirectAdminResponse, associative: true, flags: JSON_THROW_ON_ERROR);
+            $directAdminResponse = json_decode(
+                json: $rawDirectAdminResponse,
+                associative: true,
+                flags: JSON_THROW_ON_ERROR,
+            );
             assert(is_array($directAdminResponse));
         }
 
@@ -392,7 +471,9 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         $this->app->bind(DirectAdminApiInterface::class, fn () => $directAdminApiMock);
         $this->app->bind(BehavesAsDirectAdmin::class, fn () => $directAdminMock);
 
-        $domainSubscription = new SubscriptionFactory()->withCustomer()->for($this->product)
+        $domainSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
             ->has(new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()))
             ->createOne([
                 'domain' => $domainName,
@@ -404,7 +485,7 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         $hostingSubscription = new SubscriptionFactory()
             ->for($this->product)
             ->for($domainSubscription->customer)
-            ->has((new HostingDeploymentFactory()), 'hostingDeployment')
+            ->has(new HostingDeploymentFactory(), 'hostingDeployment')
             ->createOne([
                 'domain' => $domainName,
             ]);
@@ -415,15 +496,19 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         $directAdminHostingService = self::resolve(DirectAdminHostingService::class);
 
         // We expect the directadmin client to use the server we have attached to our hosting deployment
-        $directAdminMock->expects(self::once())
+        $directAdminMock
+            ->expects(self::once())
             ->method('useServer')
             ->with(self::callback(function ($server) use ($hostingDeployment): bool {
                 $hostingServer = $hostingDeployment->server;
                 self::assertInstanceOf(Server::class, $hostingServer);
-                return $server->id === $hostingServer->id;
-            }))->willReturn($directAdminApiMock);
 
-        $directAdminApiMock->expects(self::once())
+                return $server->id === $hostingServer->id;
+            }))
+            ->willReturn($directAdminApiMock);
+
+        $directAdminApiMock
+            ->expects(self::once())
             ->method('call')
             ->with(self::callback(fn ($command): bool => $command instanceof ShowUserStats))
             ->willReturn(new ShowUserStats()->responseReceived($directAdminResponse));
@@ -446,7 +531,9 @@ class DirectAdminHostingCoupleTest extends IntegrationTestCase
         $this->app->bind(DirectAdminApiInterface::class, fn () => $directAdminApiMock);
         $this->app->bind(BehavesAsDirectAdmin::class, fn () => $directAdminMock);
 
-        $domainSubscription = new SubscriptionFactory()->withCustomer()->for($this->product)
+        $domainSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->product)
             ->has(new DomainDeploymentFactory()->withPlaceholderProvider(), 'domainDeployment')
             ->createOne();
 

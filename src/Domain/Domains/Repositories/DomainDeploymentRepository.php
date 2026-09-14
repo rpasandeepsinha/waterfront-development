@@ -10,7 +10,6 @@ use Waterfront\Domain\Customers\Models\Customer;
 use Waterfront\Domain\Domains\Models\DomainDeployment;
 use Waterfront\Domain\Domains\Models\DomainProviderBusinessUnit;
 use Waterfront\Domain\Domains\Models\OpenproviderProviderCredentials;
-use Waterfront\Domain\Domains\Models\OpenSrsProviderCredentials;
 use Waterfront\Domain\Domains\Models\RtrProviderCredentials;
 use Waterfront\Domain\Products\Enums\ProductGroupType;
 use Waterfront\Domain\Providers\Enums\ProviderSlug;
@@ -22,79 +21,92 @@ use Waterfront\Infra\RtrClient\Services\Enums\DomainStatus;
 
 class DomainDeploymentRepository
 {
-    public function getDomainProviderCredentials(ProviderSlug $providerSlug, DomainProviderBusinessUnit $businessUnit): RtrProviderCredentials|OpenproviderProviderCredentials|OpenSrsProviderCredentials
-    {
+    public function getDomainProviderCredentials(
+        ProviderSlug $providerSlug,
+        DomainProviderBusinessUnit $businessUnit,
+    ): RtrProviderCredentials|OpenproviderProviderCredentials {
         $credentialQueryBuilder = match ($providerSlug) {
             ProviderSlug::REALTIME_REGISTER => RtrProviderCredentials::query(),
             ProviderSlug::OPEN_PROVIDER => OpenproviderProviderCredentials::query(),
-            ProviderSlug::OPEN_SRS => OpenSrsProviderCredentials::query(),
             default => throw new InvalidArgumentException(
                 sprintf(
                     'Invalid provider type [%s] for domain provider credentials',
-                    $providerSlug->value
-                )
+                    $providerSlug->value,
+                ),
             ),
         };
 
-        return $credentialQueryBuilder
-            ->where('domain_business_unit_id', $businessUnit->id)
-            ->firstOrFail();
+        return $credentialQueryBuilder->where('domain_business_unit_id', $businessUnit->id)->firstOrFail();
     }
 
     public function getActiveDeploymentByDomain(string $domain): ?DomainDeployment
     {
-        /** @var DomainDeployment|null */
         return DomainDeployment::query()
             ->whereHas('subscription', function (SubscriptionQueryBuilder $subscription) use ($domain) {
-                $subscription
-                    ->where('administrative_status', AdministrativeStatus::ACTIVE->value)
-                    ->where('domain', $domain);
+                $subscription->where('administrative_status', AdministrativeStatus::ACTIVE->value)->where(
+                    'domain',
+                    $domain,
+                );
             })
             ->first();
     }
 
     public function getDeploymentByDomainAndCustomer(string $domain, Customer $customer): ?DomainDeployment
     {
-        /** @var DomainDeployment|null */
         return DomainDeployment::query()
             ->whereHas(
                 'subscription',
-                fn (Builder $query) => $query
-                    ->where('domain', $domain)
-                    ->where('customer_id', $customer->id)
+                fn (Builder $query) => $query->where('domain', $domain)->where('customer_id', $customer->id),
             )
             ->first();
     }
 
     public function getDomainDeploymentByDomain(string $domain): ?DomainDeployment
     {
-        /** @var DomainDeployment|null */
         return DomainDeployment::query()
             ->whereHas(
                 'subscription',
-                fn (Builder $query) => $query
-                    ->where('domain', $domain)
-                    ->whereNotIn('administrative_status', [
-                        ...AdministrativeStatus::administrativelyEnded(),
-                        AdministrativeStatus::SUSPENDED->value,
-                    ])
+                fn (Builder $query) => $query->where('domain', $domain)->whereNotIn('administrative_status', [
+                    ...AdministrativeStatus::administrativelyEnded(),
+                    AdministrativeStatus::SUSPENDED->value,
+                ]),
             )
             ->with('provider')
+            ->first();
+    }
+
+    public function getDomainDeploymentByDomainIncludingSuspended(string $domain): ?DomainDeployment
+    {
+        return DomainDeployment::query()
+            ->whereHas(
+                'subscription',
+                fn (Builder $query) => $query->where('domain', $domain)->whereNotIn(
+                    'administrative_status',
+                    AdministrativeStatus::administrativelyEnded(),
+                ),
+            )
+            ->with('businessUnit')
+            ->latest()
             ->first();
     }
 
     public function getDnsChildSubscription(Subscription $subscription): ?Subscription
     {
         /** @var ?Subscription $child */
-        $child = $subscription->children()->whereHas('product.productGroup', function (Builder $productGroup) {
-            $productGroup->where('slug', ProductGroupType::DNS);
-        })->first();
+        $child = $subscription
+            ->children()
+            ->whereHas('product.productGroup', function (Builder $productGroup) {
+                $productGroup->where('slug', ProductGroupType::DNS);
+            })
+            ->first();
 
         return $child;
     }
 
-    public function getActiveDomainDeploymentBySubscriptionUuidAndCustomer(Customer $customer, string $subscriptionUuid): ?DomainDeployment
-    {
+    public function getActiveDomainDeploymentBySubscriptionUuidAndCustomer(
+        Customer $customer,
+        string $subscriptionUuid,
+    ): ?DomainDeployment {
         return DomainDeployment::query()
             ->whereHas(
                 'subscription',
@@ -104,7 +116,7 @@ class DomainDeploymentRepository
                     ->whereNotIn('administrative_status', [
                         ...AdministrativeStatus::administrativelyEnded(),
                         AdministrativeStatus::SUSPENDED->value,
-                    ])
+                    ]),
             )
             ->with('provider')
             ->first();
@@ -119,7 +131,8 @@ class DomainDeploymentRepository
     public function getExtensionParentSubscription(Subscription $subscription): ?Subscription
     {
         /** @var ?Subscription $parent */
-        $parent = $subscription->parent()
+        $parent = $subscription
+            ->parent()
             ->whereHas('product.productGroup', function (Builder $productGroup): void {
                 $productGroup->where('slug', ProductGroupType::EXTENSION);
             })
@@ -135,6 +148,7 @@ class DomainDeploymentRepository
     public function setDomainStatus(DomainDeployment $domainDeployment, DomainStatus $status): bool
     {
         $domainDeployment->domain_status = $status;
+
         return $domainDeployment->save();
     }
 }

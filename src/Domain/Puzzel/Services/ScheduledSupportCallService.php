@@ -38,30 +38,14 @@ class ScheduledSupportCallService
     ) {
     }
 
-    public function customerExistsInQueue(Customer $customer): ?RequestInQueue
-    {
-        $queueItems = $this->puzzelClient->getQueueItems()->result;
-
-        if ($queueItems === null || $queueItems === []) {
-            return null;
-        }
-
-        $phoneNumber = sprintf('00%s%s%s', $customer->phone_country_code, $customer->phone_area_code, $customer->phone_subscriber_number);
-        $customerItems = array_filter($queueItems, fn (RequestInQueue $item) => $item->requestRemoteAddress === $phoneNumber);
-
-        if ($customerItems === []) {
-            return null;
-        }
-
-        return $customerItems[0];
-    }
-
     public function getScheduleForCustomer(Customer $customer): SupportCallSchedule
     {
         $now = CarbonImmutable::now();
 
         return new SupportCallSchedule(
-            existingRequest: $this->findExistingRequestForCustomer($customer, $now) ?? $this->customerExistsInQueue($customer),
+            existingRequest: $this->findExistingRequestForCustomer($customer, $now) ?? $this->customerExistsInQueue(
+                $customer,
+            ),
             slotsByDate: $this->getAvailableSlotsByDate($now),
         );
     }
@@ -74,7 +58,7 @@ class ScheduledSupportCallService
         UuidInterface $timeslotUuid,
         string $category,
         string $description,
-        Customer $customer
+        Customer $customer,
     ): ScheduledCallbackResponse {
         $phoneNumber = new PhoneNumber($customer->phone_number, $customer->phone_country_code);
         $timeslot = $this->timeslotRepository->getByUuid($timeslotUuid);
@@ -85,7 +69,7 @@ class ScheduledSupportCallService
             month: $date->month,
             day: $date->day,
             hour: $timeslot->start_timeslot->hour,
-            minute: $timeslot->start_timeslot->minute
+            minute: $timeslot->start_timeslot->minute,
         );
 
         Assert::notNull($scheduledDateTime);
@@ -95,8 +79,8 @@ class ScheduledSupportCallService
                 description: $description,
                 category: $category,
                 phoneNumber: $phoneNumber,
-                scheduledDateTime: $scheduledDateTime
-            )
+                scheduledDateTime: $scheduledDateTime,
+            ),
         );
 
         if ($createResult->status !== Result::SUCCESS) {
@@ -110,10 +94,36 @@ class ScheduledSupportCallService
             name: $customer->contact_name,
             requestCategory: $category,
             requestDescription: $description,
-            desiredCallbackTime: $scheduledDateTime
+            desiredCallbackTime: $scheduledDateTime,
         );
 
         return $createResult;
+    }
+
+    private function customerExistsInQueue(Customer $customer): ?RequestInQueue
+    {
+        $queueItems = $this->puzzelClient->getQueueItems()->result;
+
+        if ($queueItems === null || $queueItems === []) {
+            return null;
+        }
+
+        $phoneNumber = sprintf(
+            '00%s%s%s',
+            $customer->phone_country_code,
+            $customer->phone_area_code,
+            $customer->phone_subscriber_number,
+        );
+        $customerItems = array_filter(
+            $queueItems,
+            fn (RequestInQueue $item) => $item->requestRemoteAddress === $phoneNumber,
+        );
+
+        if ($customerItems === []) {
+            return null;
+        }
+
+        return $customerItems[0];
     }
 
     private function findExistingRequestForCustomer(
@@ -131,9 +141,7 @@ class ScheduledSupportCallService
         $blockedDates = $this->blockedDateRepository->getTodayAndFutureDates();
 
         $startDate = $now->startOfDay();
-        $endDate = $startDate
-            ->addWeeks(self::WINDOW_WEEKS)
-            ->subDay();
+        $endDate = $startDate->addWeeks(self::WINDOW_WEEKS)->subDay();
 
         $days = (int) $startDate->diffInDays($endDate) + 1;
 
@@ -141,30 +149,28 @@ class ScheduledSupportCallService
 
         $usageRows = $this->requestRepository->usageByDateAndTimeslot($startDate, $endDate);
 
-        $slotsByDate = $usageRows
-            ->groupBy(
-                static fn (SupportCallTimeslotUsage $usage): string => $usage->date,
-            )
-            ->map(
-                static fn (Collection $rowsForDate): Collection => $rowsForDate->mapWithKeys(
-                    static fn (SupportCallTimeslotUsage $usage): array => [
-                        $usage->timeslotUuid => $usage->requestsCount,
-                    ],
-                ),
-            );
+        $slotsByDate = $usageRows->groupBy(
+            static fn (SupportCallTimeslotUsage $usage): string => $usage->date,
+        )->map(
+            static fn (Collection $rowsForDate): Collection => $rowsForDate->mapWithKeys(
+                static fn (SupportCallTimeslotUsage $usage): array => [
+                    $usage->timeslotUuid => $usage->requestsCount,
+                ],
+            ),
+        );
 
         return Collection::make()
             ->times(
                 $days,
-                static fn (int $offset): CarbonImmutable => $startDate->addDays($offset - 1)
+                static fn (int $offset): CarbonImmutable => $startDate->addDays($offset - 1),
             )
             ->filter(
-                static fn (CarbonImmutable $date): bool => ! $date->isWeekend()
+                static fn (CarbonImmutable $date): bool => ! $date->isWeekend(),
             )
             ->filter(
                 static fn (CarbonImmutable $date): bool => $blockedDates->doesntContain(
-                    static fn (PuzzelBlockedDate $blockedDate): bool => $blockedDate->date->isSameDay($date)
-                )
+                    static fn (PuzzelBlockedDate $blockedDate): bool => $blockedDate->date->isSameDay($date),
+                ),
             )
             ->mapWithKeys(function (CarbonImmutable $date) use ($timeslots, $slotsByDate, $now): array {
                 $dateKey = $date->format(DateTimeFormat::DATE);
@@ -173,8 +179,12 @@ class ScheduledSupportCallService
 
                 $availableSlots = $timeslots
                     ->filter(
-                        fn (PuzzelCallbackTimeslot $slot): bool =>
-                        $this->isSlotAvailableOnDate($slot, $date, $now, $usageForDate)
+                        fn (PuzzelCallbackTimeslot $slot): bool => $this->isSlotAvailableOnDate(
+                            $slot,
+                            $date,
+                            $now,
+                            $usageForDate,
+                        ),
                     )
                     ->values();
 
@@ -202,7 +212,7 @@ class ScheduledSupportCallService
         }
 
         $slotDateTime = $date->setTimeFromTimeString(
-            $slot->start_timeslot->format(DateTimeFormat::TIME_HMS)
+            $slot->start_timeslot->format(DateTimeFormat::TIME_HMS),
         );
 
         return $slotDateTime->greaterThanOrEqualTo($now);

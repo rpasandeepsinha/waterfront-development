@@ -101,7 +101,8 @@ class AdministrationFeesManagerTest extends IntegrationTestCase
         $customer = CustomerFactory::new()->withAddress()->createOne();
 
         $eventDispatcher = self::createMock(Dispatcher::class);
-        $eventDispatcher->expects(self::once())
+        $eventDispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(InvoiceCreatedEvent::class));
 
@@ -137,7 +138,8 @@ class AdministrationFeesManagerTest extends IntegrationTestCase
         $customer = CustomerFactory::new()->withAddress()->createOne();
 
         $eventDispatcher = self::createMock(Dispatcher::class);
-        $eventDispatcher->expects(self::once())
+        $eventDispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(InvoiceCreatedEvent::class));
 
@@ -171,7 +173,8 @@ class AdministrationFeesManagerTest extends IntegrationTestCase
         $customer = CustomerFactory::new()->withAddress()->createOne();
 
         $eventDispatcher = self::createMock(Dispatcher::class);
-        $eventDispatcher->expects(self::once())
+        $eventDispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(InvoiceCreatedEvent::class));
 
@@ -191,7 +194,7 @@ class AdministrationFeesManagerTest extends IntegrationTestCase
         $invoice = $service->createAdministrationFeesInvoice(
             customer: $customer,
             administrationFees: $administrationFees,
-            administrationFeesPrice: 111
+            administrationFeesPrice: 111,
         );
 
         self::assertSame(111, $invoice->net_price);
@@ -206,8 +209,7 @@ class AdministrationFeesManagerTest extends IntegrationTestCase
         $customer = CustomerFactory::new()->withAddress()->createOne();
 
         $eventDispatcher = self::createMock(Dispatcher::class);
-        $eventDispatcher->expects(self::never())
-            ->method('dispatch');
+        $eventDispatcher->expects(self::never())->method('dispatch');
 
         $service = new AdministrationFeesManager(
             self::resolve(ProductRepository::class),
@@ -238,11 +240,9 @@ class AdministrationFeesManagerTest extends IntegrationTestCase
         bool $customerApprovedForDirectDebitWithOrder,
         bool $expectedResult,
     ): void {
-        $customer = CustomerFactory::new()
-            ->withAddress()
-            ->createOne([
-                'has_direct_debit' => $customerAlreadyHasDirectDebit,
-            ]);
+        $customer = CustomerFactory::new()->withAddress()->createOne([
+            'has_direct_debit' => $customerAlreadyHasDirectDebit,
+        ]);
         $this->createAdminFeesProductPrice();
         $config = $this->createConfigFeatureFlags(onOrder: $featureFlagOnOrder);
 
@@ -256,58 +256,68 @@ class AdministrationFeesManagerTest extends IntegrationTestCase
             self::resolve(PriceResolver::class),
         );
 
-        self::assertSame($expectedResult, $service->shouldBeChargedWithOrder($customer, $paymentType, $customerApprovedForDirectDebitWithOrder));
+        self::assertSame($expectedResult, $service->shouldBeChargedWithOrder(
+            $customer,
+            $paymentType,
+            $customerApprovedForDirectDebitWithOrder,
+        ));
     }
 
     public static function chargeWithOrderData(): Generator
     {
-        yield 'If enabled and customer has no direct debit, no approve for direct debit with order; should be charged' => [
-            'featureFlagOnOrder' => true,
-            'customerAlreadyHasDirectDebit' => false,
-            'paymentType' => 'ideal',
-            'customerApprovedForDirectDebitWithOrder' => false,
-            'expectedResult' => true,
-        ];
+        yield 'If enabled and customer has no direct debit, no approve for direct debit with order; should be charged' =>
+            [
+                'featureFlagOnOrder' => true,
+                'customerAlreadyHasDirectDebit' => false,
+                'paymentType' => 'ideal',
+                'customerApprovedForDirectDebitWithOrder' => false,
+                'expectedResult' => true,
+            ];
 
-        yield 'If disabled and customer has no direct debit, no approve for direct debit with order; should not be charged' => [
-            'featureFlagOnOrder' => false,
-            'customerAlreadyHasDirectDebit' => false,
-            'paymentType' => 'ideal',
-            'customerApprovedForDirectDebitWithOrder' => false,
-            'expectedResult' => false,
-        ];
+        yield 'If disabled and customer has no direct debit, no approve for direct debit with order; should not be charged' =>
+            [
+                'featureFlagOnOrder' => false,
+                'customerAlreadyHasDirectDebit' => false,
+                'paymentType' => 'ideal',
+                'customerApprovedForDirectDebitWithOrder' => false,
+                'expectedResult' => false,
+            ];
 
-        yield 'If enabled and customer has direct debit, no approve for direct debit with order; should not be charged' => [
-            'featureFlagOnOrder' => true,
-            'customerAlreadyHasDirectDebit' => true,
-            'paymentType' => 'ideal',
-            'customerApprovedForDirectDebitWithOrder' => false,
-            'expectedResult' => false,
-        ];
+        yield 'If enabled and customer has direct debit, no approve for direct debit with order; should not be charged' =>
+            [
+                'featureFlagOnOrder' => true,
+                'customerAlreadyHasDirectDebit' => true,
+                'paymentType' => 'ideal',
+                'customerApprovedForDirectDebitWithOrder' => false,
+                'expectedResult' => false,
+            ];
 
-        yield 'If enabled and customer has no direct debit, approve given for direct debit with order; should not be charged' => [
-            'featureFlagOnOrder' => true,
-            'customerAlreadyHasDirectDebit' => false,
-            'paymentType' => 'ideal',
-            'customerApprovedForDirectDebitWithOrder' => true,
-            'expectedResult' => false,
-        ];
+        yield 'If enabled and customer has no direct debit, approve given for direct debit with order; should not be charged' =>
+            [
+                'featureFlagOnOrder' => true,
+                'customerAlreadyHasDirectDebit' => false,
+                'paymentType' => 'ideal',
+                'customerApprovedForDirectDebitWithOrder' => true,
+                'expectedResult' => false,
+            ];
 
-        yield 'If enabled and customer has no direct debit, no approve for direct debit with order but payment method is credit; should not be charged' => [
-            'featureFlagOnOrder' => true,
-            'customerAlreadyHasDirectDebit' => false,
-            'paymentType' => PaymentType::CREDIT->value,
-            'customerApprovedForDirectDebitWithOrder' => false,
-            'expectedResult' => false,
-        ];
+        yield 'If enabled and customer has no direct debit, no approve for direct debit with order but payment method is credit; should not be charged' =>
+            [
+                'featureFlagOnOrder' => true,
+                'customerAlreadyHasDirectDebit' => false,
+                'paymentType' => PaymentType::CREDIT->value,
+                'customerApprovedForDirectDebitWithOrder' => false,
+                'expectedResult' => false,
+            ];
 
-        yield 'If enabled and customer has no direct debit, no approve for direct debit with order and payment method null; should not be charged' => [
-            'featureFlagOnOrder' => true,
-            'customerAlreadyHasDirectDebit' => false,
-            'paymentType' => null,
-            'customerApprovedForDirectDebitWithOrder' => false,
-            'expectedResult' => false,
-        ];
+        yield 'If enabled and customer has no direct debit, no approve for direct debit with order and payment method null; should not be charged' =>
+            [
+                'featureFlagOnOrder' => true,
+                'customerAlreadyHasDirectDebit' => false,
+                'paymentType' => null,
+                'customerApprovedForDirectDebitWithOrder' => false,
+                'expectedResult' => false,
+            ];
     }
 
     #[DataProvider('chargeWithDailyBillingData')]
@@ -317,11 +327,9 @@ class AdministrationFeesManagerTest extends IntegrationTestCase
         bool $customerAlreadyHasDirectDebit,
         bool $expectedResult,
     ): void {
-        $customer = CustomerFactory::new()
-            ->withAddress()
-            ->createOne([
-                'has_direct_debit' => $customerAlreadyHasDirectDebit,
-            ]);
+        $customer = CustomerFactory::new()->withAddress()->createOne([
+            'has_direct_debit' => $customerAlreadyHasDirectDebit,
+        ]);
         $this->createAdminFeesProductPrice();
         $config = $this->createConfigFeatureFlags(onDailyBilling: $featureFlagOnDailyBilling);
 
@@ -366,11 +374,9 @@ class AdministrationFeesManagerTest extends IntegrationTestCase
         bool $customerAlreadyHasDirectDebit,
         bool $expectedResult,
     ): void {
-        $customer = CustomerFactory::new()
-            ->withAddress()
-            ->createOne([
-                'has_direct_debit' => $customerAlreadyHasDirectDebit,
-            ]);
+        $customer = CustomerFactory::new()->withAddress()->createOne([
+            'has_direct_debit' => $customerAlreadyHasDirectDebit,
+        ]);
         $this->createAdminFeesProductPrice();
         $config = $this->createConfigFeatureFlags(onOts: $featureFlagOnOneTimeService);
 
@@ -410,15 +416,12 @@ class AdministrationFeesManagerTest extends IntegrationTestCase
 
     private function createAdminFeesProductPrice(int $price = 200): ProductPriceComponent
     {
-        $product = ProductFactory::new()
-            ->administrationFees()
-            ->createOne();
-        return ProductPriceComponentFactory::new()
-            ->administrationFee()
-            ->createOne([
-                'product_id' => $product->id,
-                'price' => $price,
-            ]);
+        $product = ProductFactory::new()->administrationFees()->createOne();
+
+        return ProductPriceComponentFactory::new()->administrationFee()->createOne([
+            'product_id' => $product->id,
+            'price' => $price,
+        ]);
     }
 
     private function createConfigFeatureFlags(
@@ -427,16 +430,17 @@ class AdministrationFeesManagerTest extends IntegrationTestCase
         bool $onOts = false,
     ): ConfigurationInterface&Stub {
         $config = self::createStub(ConfigurationInterface::class);
-        $config->method('getAsBoolean')
+        $config
+            ->method('getAsBoolean')
             ->willReturnCallback(
-                fn (string $configKey): bool
-                => match ($configKey) {
+                fn (string $configKey): bool => match ($configKey) {
                     'financial.administration_fees_daily_billing_enabled' => $onDailyBilling,
                     'financial.administration_fees_order_billing_enabled' => $onOrder,
                     'financial.administration_fees_ots_enabled' => $onOts,
                     default => throw new RuntimeException('Unknown config key'),
-                }
+                },
             );
+
         return $config;
     }
 }

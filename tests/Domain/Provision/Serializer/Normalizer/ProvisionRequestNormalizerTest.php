@@ -40,7 +40,7 @@ class ProvisionRequestNormalizerTest extends TestCase
             ],
             encoders: [
                 new JsonEncoder(),
-            ]
+            ],
         );
 
         $objectNormalizer->setSerializer($serializer);
@@ -149,7 +149,9 @@ class ProvisionRequestNormalizerTest extends TestCase
     public function denormalizeThrowsOnNonArrayData(): void
     {
         self::expectException(NotNormalizableValueException::class);
-        self::expectExceptionMessageIs('Received invalid data during provision request denormalization, expected array with string "name" key.');
+        self::expectExceptionMessageIs(
+            'Received invalid data during provision request denormalization, expected array with string "name" key.',
+        );
 
         $this->normalizer->denormalize('not-an-array', ProvisionRequestInterface::class);
     }
@@ -158,7 +160,9 @@ class ProvisionRequestNormalizerTest extends TestCase
     public function denormalizeThrowsOnMissingNameKey(): void
     {
         self::expectException(NotNormalizableValueException::class);
-        self::expectExceptionMessageIs('Received invalid data during provision request denormalization, expected array with string "name" key.');
+        self::expectExceptionMessageIs(
+            'Received invalid data during provision request denormalization, expected array with string "name" key.',
+        );
 
         $this->normalizer->denormalize(['domain' => 'example.com'], ProvisionRequestInterface::class);
     }
@@ -167,7 +171,9 @@ class ProvisionRequestNormalizerTest extends TestCase
     public function denormalizeThrowsOnNonStringNameValue(): void
     {
         self::expectException(NotNormalizableValueException::class);
-        self::expectExceptionMessageIs('Received invalid data during provision request denormalization, expected array with string "name" key.');
+        self::expectExceptionMessageIs(
+            'Received invalid data during provision request denormalization, expected array with string "name" key.',
+        );
 
         $this->normalizer->denormalize(['name' => 123], ProvisionRequestInterface::class);
     }
@@ -180,7 +186,7 @@ class ProvisionRequestNormalizerTest extends TestCase
 
         $this->normalizer->denormalize(
             ['name' => 'nonexistent_request'],
-            ProvisionRequestInterface::class
+            ProvisionRequestInterface::class,
         );
     }
 }

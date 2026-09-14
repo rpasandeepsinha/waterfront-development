@@ -35,14 +35,13 @@ class FindMollieCustomerActionTest extends IntegrationTestCase
         $this->app->bind(function (): MollieCustomerClient {
             $mock = self::createStub(MollieCustomerClient::class);
 
-            $mock->method('getCustomerById')
-                ->willReturn($this->getMollieCustomerResponseDTO());
+            $mock->method('getCustomerById')->willReturn($this->getMollieCustomerResponseDTO());
 
             return $mock;
         });
 
-        $action   = self::resolve(NovaFindMollieCustomerAction::class);
-        $fields   = $this->getActionFields();
+        $action = self::resolve(NovaFindMollieCustomerAction::class);
+        $fields = $this->getActionFields();
         $response = $action->handle($fields);
 
         self::assertInstanceOf(ActionResponse::class, $response);
@@ -60,7 +59,7 @@ class FindMollieCustomerActionTest extends IntegrationTestCase
             new Collection([
                 'mollie_customer_reference_id' => 'cst_test_1',
             ]),
-            new Collection([])
+            new Collection([]),
         );
     }
 
@@ -75,7 +74,7 @@ class FindMollieCustomerActionTest extends IntegrationTestCase
             metadata: new MollieCustomerMetadataDTO(
                 debtorId: 100123,
             ),
-            createdAt: $this->baseTime
+            createdAt: $this->baseTime,
         );
     }
 }

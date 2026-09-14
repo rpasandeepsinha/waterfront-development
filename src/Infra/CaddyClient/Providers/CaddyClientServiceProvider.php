@@ -20,7 +20,7 @@ class CaddyClientServiceProvider extends BaseProvider implements DeferrableProvi
         ], 'config');
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/config.php',
-            'caddyclient'
+            'caddyclient',
         );
     }
 

@@ -35,7 +35,7 @@ class OnlyOneInstanceShouldReturnTrueStrategyTest extends TestCase
 
         $this->testItem = new OnlyOneInstanceShouldReturnTrueStrategy(
             [$this->client1, $this->client2],
-            HostingPackageInterface::class
+            HostingPackageInterface::class,
         );
     }
 
@@ -46,7 +46,7 @@ class OnlyOneInstanceShouldReturnTrueStrategyTest extends TestCase
 
         new OnlyOneInstanceShouldReturnTrueStrategy(
             [$this->client1, $this->client2],
-            SecretKeyInterface::class
+            SecretKeyInterface::class,
         );
     }
 

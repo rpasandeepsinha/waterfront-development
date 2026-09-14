@@ -24,8 +24,8 @@ class DnsDeploymentRepository
                 'subscription_uuid' => $subscriptionUuid,
             ],
             [
-                    'nameserver_type' =>  $nameserverType,
-            ]
+                'nameserver_type' => $nameserverType,
+            ],
         );
     }
 
@@ -33,6 +33,7 @@ class DnsDeploymentRepository
     {
         $dnsDeployment->last_result_premium_provider_received = CarbonImmutable::now();
         $dnsDeployment->last_result_premium_provider = $response;
+
         return $dnsDeployment->save();
     }
 
@@ -40,12 +41,14 @@ class DnsDeploymentRepository
     {
         $dnsDeployment->last_result_received = CarbonImmutable::now();
         $dnsDeployment->last_result = $response;
+
         return $dnsDeployment->save();
     }
 
     public function setNameserverType(DnsDeployment $dnsDeployment, NameserverType $type): bool
     {
         $dnsDeployment->nameserver_type = $type;
+
         return $dnsDeployment->save();
     }
 
@@ -83,14 +86,20 @@ class DnsDeploymentRepository
 
     public function getDomainDeployment(DnsDeployment $dnsDeployment): ?DomainDeployment
     {
-        return $dnsDeployment->subscription->parent()->whereHas('product.productGroup', function (Builder $builder) {
-            $builder->where('slug', ProductGroupType::EXTENSION);
-        })->first()?->domainDeployment;
+        return $dnsDeployment
+            ->subscription
+            ->parent()
+            ->whereHas('product.productGroup', function (Builder $builder) {
+                $builder->where('slug', ProductGroupType::EXTENSION);
+            })
+            ->first()
+            ?->domainDeployment;
     }
 
     public function getDnsDeploymentFromDomainDeployment(DomainDeployment $deployment): ?DnsDeployment
     {
         $domain = $deployment->subscription->domain;
+
         return $domain === null ? null : $this->getDnsDeploymentFromDomain($domain);
     }
 
@@ -117,7 +126,7 @@ class DnsDeploymentRepository
         }
 
         /** @var string[] $nameserverHostnames */
-        $nameserverHostnames =  $this->getStoredNameservers($dnsDeployment)->toArray();
+        $nameserverHostnames = $this->getStoredNameservers($dnsDeployment)->toArray();
 
         return $nameserverHostnames;
     }
@@ -128,7 +137,7 @@ class DnsDeploymentRepository
     public function getNameserverHostnames(DnsDeployment $dnsDeployment): array
     {
         /** @var string[] $nameserverHostnames */
-        $nameserverHostnames =  $this->getStoredNameservers($dnsDeployment)->toArray();
+        $nameserverHostnames = $this->getStoredNameservers($dnsDeployment)->toArray();
 
         return $nameserverHostnames;
     }
@@ -137,6 +146,7 @@ class DnsDeploymentRepository
     {
         /** @var ?DnsDeployment $dnsDeployment */
         $dnsDeployment = DnsDeployment::find($id);
+
         return $dnsDeployment;
     }
 
@@ -145,7 +155,7 @@ class DnsDeploymentRepository
      */
     private function getStoredNameservers(DnsDeployment $dnsDeployment): Collection
     {
-        return match($dnsDeployment->nameserver_type) {
+        return match ($dnsDeployment->nameserver_type) {
             NameserverType::INTERNAL => $dnsDeployment->dnsNameservers()->get()->pluck('nameserver'),
             NameserverType::VANITY => $dnsDeployment->vanityNameservers()->get()->pluck('nameserver'),
             NameserverType::EXTERNAL => $dnsDeployment->externalNameservers()->get()->pluck('nameserver'),

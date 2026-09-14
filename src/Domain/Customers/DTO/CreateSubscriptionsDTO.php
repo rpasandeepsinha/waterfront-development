@@ -22,7 +22,7 @@ class CreateSubscriptionsDTO
 
     public function __construct(
         private readonly Customer $customer,
-        private readonly string $referenceCustomerId
+        private readonly string $referenceCustomerId,
     ) {
     }
 
@@ -32,7 +32,7 @@ class CreateSubscriptionsDTO
     public static function create(
         Customer $customer,
         string $referenceCustomerId,
-        array $subscriptions
+        array $subscriptions,
     ): self {
         $subscriptionsDto = new self($customer, $referenceCustomerId);
 
@@ -66,7 +66,10 @@ class CreateSubscriptionsDTO
                     && is_int($item['reference_net_price'])
                 ) {
                     $fixedPrice = $item['reference_net_price'];
-                    $fixedPriceIsOneOff = array_key_exists('reference_net_price_is_one_off', $item) && is_bool($item['reference_net_price_is_one_off']) && $item['reference_net_price_is_one_off'];
+                    $fixedPriceIsOneOff =
+                        array_key_exists('reference_net_price_is_one_off', $item)
+                        && is_bool($item['reference_net_price_is_one_off'])
+                        && $item['reference_net_price_is_one_off'];
                 }
 
                 $subscriptionDto = new CreateSubscriptionDTO(
@@ -83,8 +86,9 @@ class CreateSubscriptionsDTO
                     startDate: new CarbonImmutable($item['start_date']),
                     nextContractDate: new CarbonImmutable($item['next_contract_date']),
                     nextBillingDate: new CarbonImmutable($item['next_billing_date']),
-                    cancelDate: array_key_exists('cancel_date', $item) && ! is_null($item['cancel_date']) ?
-                        new CarbonImmutable($item['cancel_date']) : null,
+                    cancelDate: array_key_exists('cancel_date', $item) && ! is_null($item['cancel_date'])
+                        ? new CarbonImmutable($item['cancel_date'])
+                        : null,
                     labels: $item['labels'] ?? null,
                     createSubscriptions: $subscriptionsDto,
                     implementableProduct: ImplementableProducts::from($implementableProduct),
@@ -92,6 +96,7 @@ class CreateSubscriptionsDTO
                 $subscriptionsDto->addSubscription($subscriptionDto);
             }
         }
+
         return $subscriptionsDto;
     }
 
@@ -148,6 +153,7 @@ class CreateSubscriptionsDTO
         foreach ($this->subscriptions as $createSubscription) {
             $collection[] = $createSubscription->toArray();
         }
+
         return $collection;
     }
 

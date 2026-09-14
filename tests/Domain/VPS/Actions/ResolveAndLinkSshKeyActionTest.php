@@ -47,11 +47,12 @@ class ResolveAndLinkSshKeyActionTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
 
-        $subscription  = new SubscriptionFactory()
+        $subscription = new SubscriptionFactory()
             ->for($this->customer)
             ->for(
-                new ProductFactory()->vps()
-            )->createOne();
+                new ProductFactory()->vps(),
+            )
+            ->createOne();
 
         $cloudstackEnvironment = new CloudstackEnvironmentFactory()->createOne();
         $this->managerDomainDeployment = new CloudstackManagerDomainDeploymentFactory()
@@ -70,58 +71,54 @@ class ResolveAndLinkSshKeyActionTest extends IntegrationTestCase
 
         $this->action = new ResolveAndLinkSshKeyAction(
             sshKeyRepository: $this->sshKeyRepositoryMock,
-            cloudstackService: $this->cloudstackServiceMock
+            cloudstackService: $this->cloudstackServiceMock,
         );
     }
 
     #[Test]
     public function resolveKeyNotFound(): void
     {
-        $this->sshKeyRepositoryMock->expects(self::once())
-            ->method('findByUuid')
-            ->willReturn(null);
+        $this->sshKeyRepositoryMock->expects(self::once())->method('findByUuid')->willReturn(null);
 
         $this->expectException(SshKeyNotFoundException::class);
 
         $this->action->execute(
             sshKeyUuid: 'b2cb1ed9-d498-4039-b28c-d7610456a8f6',
             vmDeploymentId: 1,
-            managerDomainDeployment: $this->managerDomainDeployment
+            managerDomainDeployment: $this->managerDomainDeployment,
         );
     }
 
     #[Test]
     public function resolveKeyNotLinkedToEnvironment(): void
     {
-        $sshKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $sshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
-        $this->sshKeyRepositoryMock->expects(self::once())
-            ->method('findByUuid')
-            ->willReturn($sshKey);
+        $this->sshKeyRepositoryMock->expects(self::once())->method('findByUuid')->willReturn($sshKey);
 
-        $this->sshKeyRepositoryMock->expects(self::once())
+        $this->sshKeyRepositoryMock
+            ->expects(self::once())
             ->method('keyLinkedToManagerDomain')
             ->with($sshKey, $this->managerDomainDeployment->id)
             ->willReturn(false);
 
-        $this->cloudstackServiceMock->expects(self::once())
+        $this->cloudstackServiceMock
+            ->expects(self::once())
             ->method('registerSshKeyPair')
-        ->with(
-            $this->managerDomainDeployment,
-            $sshKey->cloudstack_ssh_name,
-            $sshKey->public_key
-        )
-        ->willReturn([
-            'name' => $sshKey->cloudstack_ssh_name,
-            'public_key' => $sshKey->public_key,
-        ]);
+            ->with(
+                $this->managerDomainDeployment,
+                $sshKey->cloudstack_ssh_name,
+                $sshKey->public_key,
+            )
+            ->willReturn([
+                'name' => $sshKey->cloudstack_ssh_name,
+                'public_key' => $sshKey->public_key,
+            ]);
 
         $sshKeyPairString = $this->action->execute(
             sshKeyUuid: (string) $sshKey->uuid,
             vmDeploymentId: $this->virtualMachineDeployment->id,
-            managerDomainDeployment: $this->managerDomainDeployment
+            managerDomainDeployment: $this->managerDomainDeployment,
         );
 
         Assert::assertSame($sshKey->cloudstack_ssh_name, $sshKeyPairString);
@@ -139,17 +136,14 @@ class ResolveAndLinkSshKeyActionTest extends IntegrationTestCase
     #[Test]
     public function resolveKeyLinkedToEnvironment(): void
     {
-        $sshKey = new SshKeyFactory()
-            ->for($this->customer)
-            ->createOne();
+        $sshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
         $sshKey->managerDomains()->save($this->managerDomainDeployment);
 
-        $this->sshKeyRepositoryMock->expects(self::once())
-            ->method('findByUuid')
-            ->willReturn($sshKey);
+        $this->sshKeyRepositoryMock->expects(self::once())->method('findByUuid')->willReturn($sshKey);
 
-        $this->sshKeyRepositoryMock->expects(self::once())
+        $this->sshKeyRepositoryMock
+            ->expects(self::once())
             ->method('keyLinkedToManagerDomain')
             ->with($sshKey, $this->managerDomainDeployment->id)
             ->willReturn(true);
@@ -157,7 +151,7 @@ class ResolveAndLinkSshKeyActionTest extends IntegrationTestCase
         $sshKeyPairString = $this->action->execute(
             sshKeyUuid: (string) $sshKey->uuid,
             vmDeploymentId: $this->virtualMachineDeployment->id,
-            managerDomainDeployment: $this->managerDomainDeployment
+            managerDomainDeployment: $this->managerDomainDeployment,
         );
 
         Assert::assertSame($sshKey->cloudstack_ssh_name, $sshKeyPairString);

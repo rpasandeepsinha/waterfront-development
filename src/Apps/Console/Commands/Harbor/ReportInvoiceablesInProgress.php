@@ -14,9 +14,10 @@ use Waterfront\Domain\Invoices\Services\InvoiceablesReporter;
 class ReportInvoiceablesInProgress extends AbstractCommand
 {
     public function handle(
-        InvoiceablesReporter $progressReporter
+        InvoiceablesReporter $progressReporter,
     ): int {
         $progressReporter->report();
+
         return self::SUCCESS;
     }
 }

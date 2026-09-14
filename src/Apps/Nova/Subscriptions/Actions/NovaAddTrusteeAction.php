@@ -27,9 +27,10 @@ class NovaAddTrusteeAction extends NovaSubscriptionAction
         private readonly ProductAddonCouplingRepository $productAddonCouplingRepository,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool =>
+            fn (NovaRequest $request): bool => (
                 $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::EXTENSION)
                 && $this->onlyForSingleSubscription($request)
+            ),
         );
 
         $this->sole();
@@ -59,9 +60,7 @@ class NovaAddTrusteeAction extends NovaSubscriptionAction
         }
 
         return [
-            Select::make('addon product', 'addon_product_id')
-                ->options($options)
-                ->required()->rules('required'),
+            Select::make('addon product', 'addon_product_id')->options($options)->required()->rules('required'),
         ];
     }
 
@@ -81,9 +80,16 @@ class NovaAddTrusteeAction extends NovaSubscriptionAction
         assert(is_numeric($fields->get('addon_product_id')));
         $addonProduct = $this->productRepository->findProductById((int) $fields->get('addon_product_id'));
 
-        if (! $this->productAddonCouplingRepository->existsForParentIdAndAddonId($subscription->product->id, $addonProduct->id)) {
-            return self::danger($this->translator->translate('nova-action.error.product_combo_not_supported', ['mainProduct' => $subscription->product->name, 'addonProduct' => $addonProduct->name]));
+        if (! $this->productAddonCouplingRepository->existsForParentIdAndAddonId(
+            $subscription->product->id,
+            $addonProduct->id,
+        )) {
+            return self::danger($this->translator->translate('nova-action.error.product_combo_not_supported', [
+                'mainProduct' => $subscription->product->name,
+                'addonProduct' => $addonProduct->name,
+            ]));
         }
+
         $this->jobDispatcher->dispatch(new CreateTrusteeSubscriptionJob($subscription, $addonProduct));
 
         return self::message($this->translator->translate('nova-action.success.subscription_created'));

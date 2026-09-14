@@ -37,7 +37,12 @@ class RequireAuthenticatedEmployeeTest extends IntegrationTestCase
         parent::setUp();
 
         $this->authenticationManager = self::createMock(AuthenticationManager::class);
-        $this->middleware = new RequireAuthenticatedEmployee($this->authenticationManager, self::createStub(LoggerInterface::class), '/login', Environment::PROD);
+        $this->middleware = new RequireAuthenticatedEmployee(
+            $this->authenticationManager,
+            self::createStub(LoggerInterface::class),
+            '/login',
+            Environment::PROD,
+        );
     }
 
     #[Test]
@@ -57,17 +62,20 @@ class RequireAuthenticatedEmployeeTest extends IntegrationTestCase
                 null,
                 null,
                 null,
-                new Session('aal2', true, new DateTimeImmutable(), [
-                    AuthenticationMethod::PASSWORD,
-                    AuthenticationMethod::TOTP,
-                ]),
+                new Session(
+                    'aal2',
+                    true,
+                    new DateTimeImmutable(),
+                    [
+                        AuthenticationMethod::PASSWORD,
+                        AuthenticationMethod::TOTP,
+                    ],
+                ),
             ),
             verified: true,
         );
 
-        $this->authenticationManager->expects(self::once())
-            ->method('getAuthenticatedEmployee')
-            ->willReturn($employee);
+        $this->authenticationManager->expects(self::once())->method('getAuthenticatedEmployee')->willReturn($employee);
 
         $response = new Response();
         $result = $this->middleware->handle(new Request(), fn () => $response);
@@ -97,9 +105,7 @@ class RequireAuthenticatedEmployeeTest extends IntegrationTestCase
             verified: false,
         );
 
-        $this->authenticationManager->expects(self::once())
-            ->method('getAuthenticatedEmployee')
-            ->willReturn($employee);
+        $this->authenticationManager->expects(self::once())->method('getAuthenticatedEmployee')->willReturn($employee);
 
         $response = $this->middleware->handle(new Request(), fn () => new Response());
 
@@ -129,9 +135,7 @@ class RequireAuthenticatedEmployeeTest extends IntegrationTestCase
             verified: true,
         );
 
-        $this->authenticationManager->expects(self::once())
-            ->method('getAuthenticatedEmployee')
-            ->willReturn($employee);
+        $this->authenticationManager->expects(self::once())->method('getAuthenticatedEmployee')->willReturn($employee);
 
         $response = $this->middleware->handle(new Request(), fn () => new Response());
 
@@ -161,9 +165,7 @@ class RequireAuthenticatedEmployeeTest extends IntegrationTestCase
             verified: true,
         );
 
-        $this->authenticationManager->expects(self::once())
-            ->method('getAuthenticatedEmployee')
-            ->willReturn($employee);
+        $this->authenticationManager->expects(self::once())->method('getAuthenticatedEmployee')->willReturn($employee);
 
         $response = new Response();
         $result = $this->middleware->handle(new Request(), fn () => $response);
@@ -174,7 +176,8 @@ class RequireAuthenticatedEmployeeTest extends IntegrationTestCase
     #[Test]
     public function AuthenticatedSubjectNotSetThrowsAuthenticationException(): void
     {
-        $this->authenticationManager->expects(self::once())
+        $this->authenticationManager
+            ->expects(self::once())
             ->method('getAuthenticatedEmployee')
             ->willThrowException(new AuthenticationException());
 

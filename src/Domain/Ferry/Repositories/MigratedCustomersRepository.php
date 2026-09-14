@@ -16,9 +16,7 @@ class MigratedCustomersRepository
      */
     public function getMigratedCustomersByGroupType(string $groupType): Collection
     {
-        return MigratedCustomer::query()
-            ->where('group_type', $groupType)
-            ->get();
+        return MigratedCustomer::query()->where('group_type', $groupType)->get();
     }
 
     public function isMigratedCustomerEligibleForMailing(string $emailAddress): bool
@@ -26,7 +24,7 @@ class MigratedCustomersRepository
         return Customer::query()
             ->where(
                 'email',
-                $emailAddress
+                $emailAddress,
             )
             ->whereHas('migratedCustomers', function (Builder $builder): void {
                 $builder->where('successful', false);
@@ -34,16 +32,13 @@ class MigratedCustomersRepository
             ->doesntExist();
     }
 
-    public function getMigratedCustomerByReferenceId(string $referenceId): MigratedCustomer
-    {
-        return MigratedCustomer::where('reference_customer_number', $referenceId)
-            ->firstOrFail();
-    }
-
     public function getFirstCustomerByMigratedCustomerReferenceId(string $referenceId): Customer
     {
-        return $this->getMigratedCustomerByReferenceId($referenceId)
-            ->customers
-            ->firstOrFail();
+        return $this->getMigratedCustomerByReferenceId($referenceId)->customers->firstOrFail();
+    }
+
+    private function getMigratedCustomerByReferenceId(string $referenceId): MigratedCustomer
+    {
+        return MigratedCustomer::where('reference_customer_number', $referenceId)->firstOrFail();
     }
 }

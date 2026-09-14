@@ -32,7 +32,12 @@ class RestoreDomainJobTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->domainDeployment = DomainSubscriptionDataProvider::deployment(domainProvider: ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => true, 'slug' => ProviderSlug::REALTIME_REGISTER]));
+        $this->domainDeployment = DomainSubscriptionDataProvider::deployment(domainProvider: ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'enabled' => true,
+            'default' => true,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+        ]));
     }
 
     #[test]
@@ -43,15 +48,16 @@ class RestoreDomainJobTest extends IntegrationTestCase
         $serializer = DomainSerializerFactory::getSerializer();
 
         $domainService = self::createMock(DomainService::class);
-        $domainService->expects(self::exactly(2))
+        $domainService
+            ->expects(self::exactly(2))
             ->method('fetchDomain')
             ->with(
                 $this->domainDeployment->subscription->domain,
-                $this->domainDeployment->provider->slug
+                $this->domainDeployment->provider->slug,
             )
             ->willReturnOnConsecutiveCalls(
                 $serializer->denormalize($detailsAutoRenewOff, DomainDetailsDTO::class),
-                $serializer->denormalize($detailsAutoRenewOn, DomainDetailsDTO::class)
+                $serializer->denormalize($detailsAutoRenewOn, DomainDetailsDTO::class),
             );
 
         $domainService
@@ -73,18 +79,20 @@ class RestoreDomainJobTest extends IntegrationTestCase
         $domainDetailsAutoRenewOn = $serializer->denormalize($detailsAutoRenewOn, DomainDetailsDTO::class);
 
         $domainService = self::createMock(DomainService::class);
-        $domainService->expects(self::once())
+        $domainService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(
                 $this->domainDeployment->subscription->domain,
-                $this->domainDeployment->provider->slug
-            )->willReturn($domainDetailsAutoRenewOn);
+                $this->domainDeployment->provider->slug,
+            )
+            ->willReturn($domainDetailsAutoRenewOn);
         $domainService
             ->expects(self::never())
             ->method('restore')
             ->with(
                 $this->domainDeployment->subscription->domain,
-                $this->domainDeployment->provider->slug
+                $this->domainDeployment->provider->slug,
             );
 
         $job = new RestoreDomainJob($this->domainDeployment);
@@ -102,18 +110,20 @@ class RestoreDomainJobTest extends IntegrationTestCase
         $domainDetailsAutoRenewOff = $serializer->denormalize($detailsAutoRenewOff, DomainDetailsDTO::class);
 
         $domainService = self::createMock(DomainService::class);
-        $domainService->expects(self::once())
+        $domainService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(
                 $this->domainDeployment->subscription->domain,
-                $this->domainDeployment->provider->slug
-            )->willReturn($domainDetailsAutoRenewOff);
+                $this->domainDeployment->provider->slug,
+            )
+            ->willReturn($domainDetailsAutoRenewOff);
         $domainService
             ->expects(self::once())
             ->method('restore')
             ->with(
                 $this->domainDeployment->subscription->domain,
-                $this->domainDeployment->provider->slug
+                $this->domainDeployment->provider->slug,
             )
             ->willThrowException(new RestoreDomainException($exceptionMessage));
 
@@ -135,18 +145,20 @@ class RestoreDomainJobTest extends IntegrationTestCase
         $exceptionMessage = 'exception: its broken';
 
         $domainService = self::createMock(DomainService::class);
-        $domainService->expects(self::once())
+        $domainService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(
                 $this->domainDeployment->subscription->domain,
-                $this->domainDeployment->provider->slug
-            )->willThrowException(new FetchDomainException($exceptionMessage));
+                $this->domainDeployment->provider->slug,
+            )
+            ->willThrowException(new FetchDomainException($exceptionMessage));
         $domainService
             ->expects(self::never())
             ->method('restore')
             ->with(
                 $this->domainDeployment->subscription->domain,
-                $this->domainDeployment->provider->slug
+                $this->domainDeployment->provider->slug,
             );
 
         $loggerMock = self::createMock(LoggerInterface::class);
@@ -170,26 +182,30 @@ class RestoreDomainJobTest extends IntegrationTestCase
 
         $matcher = self::exactly(2);
         $domainService = self::createMock(DomainService::class);
-        $domainService->expects($matcher)
+        $domainService
+            ->expects($matcher)
             ->method('fetchDomain')
             ->willReturnCallback(
                 function () use ($detailsAutoRenewOff, $matcher, $exceptionMessage) {
                     if ($matcher->numberOfInvocations() === 1) {
                         $serializer = DomainSerializerFactory::getSerializer();
+
                         return $serializer->denormalize($detailsAutoRenewOff, DomainDetailsDTO::class);
                     }
+
                     if ($matcher->numberOfInvocations() === 2) {
                         throw new FetchDomainException($exceptionMessage);
                     }
+
                     throw new LogicException();
-                }
+                },
             );
         $domainService
             ->expects(self::once())
             ->method('restore')
             ->with(
                 $this->domainDeployment->subscription->domain,
-                $this->domainDeployment->provider->slug
+                $this->domainDeployment->provider->slug,
             );
 
         $loggerMock = self::createMock(LoggerInterface::class);
@@ -212,20 +228,21 @@ class RestoreDomainJobTest extends IntegrationTestCase
         $domainDetailsAutoRenewOff = $serializer->denormalize($domainAutoRenewOff, DomainDetailsDTO::class);
 
         $domainService = self::createMock(DomainService::class);
-        $domainService->expects(self::once())
+        $domainService
+            ->expects(self::once())
             ->method('fetchDomain')
             ->with(
                 $this->domainDeployment->subscription->domain,
-                $this->domainDeployment->provider->slug
-            )->willReturn($domainDetailsAutoRenewOff);
-        $domainService->expects(self::once())
-            ->method('enableAutoRenewal');
+                $this->domainDeployment->provider->slug,
+            )
+            ->willReturn($domainDetailsAutoRenewOff);
+        $domainService->expects(self::once())->method('enableAutoRenewal');
         $domainService
             ->expects(self::never())
             ->method('restore')
             ->with(
                 $this->domainDeployment->subscription->domain,
-                $this->domainDeployment->provider->slug
+                $this->domainDeployment->provider->slug,
             );
 
         $job = new RestoreDomainJob($this->domainDeployment);

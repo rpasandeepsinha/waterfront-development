@@ -63,7 +63,7 @@ class ResetDnsTemplateJob extends AbstractQueueableJob
                 LoggingContextKeys::PROVISIONING_ID => $this->hostingDeployment->id,
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING->value,
                 LoggingContextKeys::SUBSCRIPTION_ID => $hostingSubscription->id,
-            ]
+            ],
         );
 
         try {
@@ -81,7 +81,11 @@ class ResetDnsTemplateJob extends AbstractQueueableJob
                 $server = $sitebuilderService->getSitebuilderServer($defaultProvider);
                 $mailOnlyServer = $sitebuilderService->getMailOnlyServer($mailOnlyProvider);
 
-                $hostingServiceFactory->driver($provider->slug)->resetDnsForSitebuilder($server, $mailOnlyServer, $domain);
+                $hostingServiceFactory->driver($provider->slug)->resetDnsForSitebuilder(
+                    $server,
+                    $mailOnlyServer,
+                    $domain,
+                );
             } else {
                 $hostingServiceFactory->driver($provider->slug)->setDnsForHosting($server, $domain);
             }
@@ -93,11 +97,14 @@ class ResetDnsTemplateJob extends AbstractQueueableJob
                     LoggingContextKeys::PROVISIONING_ID => $this->hostingDeployment->id,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING->value,
                     LoggingContextKeys::SUBSCRIPTION_ID => $hostingSubscription->id,
-                ]
+                ],
             );
 
             if (! $hostingSubscription->product->isSitebuilderProduct()) {
-                $dkimRecord = $hostingServiceFactory->driver($provider->slug)->getDkimRecord($this->hostingDeployment, $domain);
+                $dkimRecord = $hostingServiceFactory->driver($provider->slug)->getDkimRecord(
+                    $this->hostingDeployment,
+                    $domain,
+                );
                 $logger->debug(
                     'Retrieved DKIM record for domain {domain.name}',
                     [
@@ -106,13 +113,15 @@ class ResetDnsTemplateJob extends AbstractQueueableJob
                         LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING->value,
                         LoggingContextKeys::SUBSCRIPTION_ID => $hostingSubscription->id,
                         LoggingContextKeys::META => [
-                            'dkim_record' => $dkimRecord === null ? null : [
-                                'type' => $dkimRecord->type,
-                                'host' => $dkimRecord->host,
-                                'value' => $dkimRecord->value,
-                            ],
+                            'dkim_record' => $dkimRecord === null
+                                ? null
+                                : [
+                                    'type' => $dkimRecord->type,
+                                    'host' => $dkimRecord->host,
+                                    'value' => $dkimRecord->value,
+                                ],
                         ],
-                    ]
+                    ],
                 );
                 if ($dkimRecord !== null) {
                     $dnsService->addRecordFromObject(
@@ -122,7 +131,7 @@ class ResetDnsTemplateJob extends AbstractQueueableJob
                             name: $dkimRecord->host,
                             content: $dkimRecord->value,
                             ttl: self::TTL,
-                        )
+                        ),
                     );
                     $logger->debug(
                         'Added DKIM record to DNS for domain {domain.name}',
@@ -138,7 +147,7 @@ class ResetDnsTemplateJob extends AbstractQueueableJob
                                     'value' => $dkimRecord->value,
                                 ],
                             ],
-                        ]
+                        ],
                     );
                 }
             }
@@ -154,10 +163,13 @@ class ResetDnsTemplateJob extends AbstractQueueableJob
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING->value,
                     LoggingContextKeys::SUBSCRIPTION_ID => $hostingSubscription->id,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
-            $this->dnsDeployment->last_result = (string) json_encode(['message' => 'Dns reset failed', 'error' => $exception->getMessage()]);
+            $this->dnsDeployment->last_result = (string) json_encode([
+                'message' => 'Dns reset failed',
+                'error' => $exception->getMessage(),
+            ]);
             $this->dnsDeployment->save();
 
             $this->failed();

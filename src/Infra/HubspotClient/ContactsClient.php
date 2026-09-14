@@ -162,7 +162,9 @@ class ContactsClient
     {
         Assert::string($contactRequest->id);
 
-        $context = new ObjectNormalizerContextBuilder()->withGroups('update')->toArray();
+        $context = new ObjectNormalizerContextBuilder()
+            ->withGroups('update')
+            ->toArray();
 
         return $this->crm->patch(
             sprintf('objects/contacts/%d', $contact->id),
@@ -184,7 +186,9 @@ class ContactsClient
     {
         Assert::string($contactRequest->id);
 
-        $context = new ObjectNormalizerContextBuilder()->withGroups('update')->toArray();
+        $context = new ObjectNormalizerContextBuilder()
+            ->withGroups('update')
+            ->toArray();
 
         $this->crm->patch(
             sprintf('objects/contacts/%d', $contactRequest->id),

@@ -11,7 +11,7 @@ class BasekitUserRefNotFoundForContextException extends BasekitException
 {
     public function __construct(
         UuidInterface $contextUuid,
-        ?Throwable $previous = null
+        ?Throwable $previous = null,
     ) {
         parent::__construct(
             message: sprintf('No Basekit user_ref mapping found for context_uuid %s.', $contextUuid),

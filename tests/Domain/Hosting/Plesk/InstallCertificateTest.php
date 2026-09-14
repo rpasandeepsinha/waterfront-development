@@ -35,14 +35,14 @@ class InstallCertificateTest extends IntegrationTestCase
 
         $this->server = new ServerFactory()->createOne(
             [
-                'hostname'           => 'plesk.testing.test',
-                'ipv4'               => '1.2.3.4',
-                'ipv6'               => '::1',
-                'owner'              => 'TestOwner',
+                'hostname' => 'plesk.testing.test',
+                'ipv4' => '1.2.3.4',
+                'ipv6' => '::1',
+                'owner' => 'TestOwner',
                 'allow_new_websites' => true,
-                'maximum_websites'   => 1,
-                'type'               => ServerType::PLESK,
-            ]
+                'maximum_websites' => 1,
+                'type' => ServerType::PLESK,
+            ],
         );
     }
 
@@ -67,11 +67,11 @@ class InstallCertificateTest extends IntegrationTestCase
             $parentSubscription->uuid,
             [
                 'domain' => $domain,
-                'csr'    => 'csr',
-                'pvt'    => 'pvt',
-                'cert'   => 'cert',
-                'ca'     => 'ca',
-            ]
+                'csr' => 'csr',
+                'pvt' => 'pvt',
+                'cert' => 'cert',
+                'ca' => 'ca',
+            ],
         );
         $emails = $symfonyTransport->messages();
         self::assertCount(0, $emails);
@@ -101,20 +101,24 @@ class InstallCertificateTest extends IntegrationTestCase
             'name' => 'basic',
             'slug' => 'hosting_basic',
         ]);
-        $parentSubscription = new SubscriptionFactory()->withCustomer()->for($productHosting)->createOne([
-            'domain' => $domain,
-            'gross_price' => 120,
-            'net_price' => 120,
-            'technical_status' => DomainStatus::ACTIVE->value,
-            'contract_period' => 12,
-            'billing_period' => 12,
-        ]);
+        $parentSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($productHosting)
+            ->createOne([
+                'domain' => $domain,
+                'gross_price' => 120,
+                'net_price' => 120,
+                'technical_status' => DomainStatus::ACTIVE->value,
+                'contract_period' => 12,
+                'billing_period' => 12,
+            ]);
         $hostingDeployment = new HostingDeploymentFactory()->for($server)->createOne([
             'subscription_uuid' => $parentSubscription->uuid,
         ]);
         $hostingDeployment->subscription()->associate($parentSubscription);
         $hostingDeployment->server()->associate($server);
         $hostingDeployment->save();
+
         return $hostingDeployment;
     }
 }

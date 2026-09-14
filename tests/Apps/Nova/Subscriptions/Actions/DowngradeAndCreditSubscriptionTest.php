@@ -88,11 +88,14 @@ class DowngradeAndCreditSubscriptionTest extends IntegrationTestCase
             product: $this->freeDnsProduct,
             reason: SubscriptionCancelReason::REASON_CANCELLATION,
             reasonOther: null,
-            credit: false
+            credit: false,
         );
-        $subscription = SubscriptionFactory::new()->withCustomer()->for($this->premiumDnsProduct)->createOne([
-            'administrative_status' => AdministrativeStatus::ARCHIVED->value,
-        ]);
+        $subscription = SubscriptionFactory::new()
+            ->withCustomer()
+            ->for($this->premiumDnsProduct)
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::ARCHIVED->value,
+            ]);
 
         $subscriptionsCollection = new Collection();
         $subscriptionsCollection->add($subscription);
@@ -111,23 +114,25 @@ class DowngradeAndCreditSubscriptionTest extends IntegrationTestCase
             product: $this->freeDnsProduct,
             reason: SubscriptionCancelReason::REASON_CANCELLATION,
             reasonOther: null,
-            credit: false
+            credit: false,
         );
         $subscription = SubscriptionFactory::new()->withCustomer()->for($this->premiumDnsProduct)->createOne();
-        $this->productRepository->expects(self::once())
+        $this->productRepository
+            ->expects(self::once())
             ->method('findProductById')
             ->with($this->freeDnsProduct->id)
             ->willReturn($this->freeDnsProduct);
 
-        $this->creditSubscriptionService->expects(self::never())
-            ->method('creditSubscriptions');
+        $this->creditSubscriptionService->expects(self::never())->method('creditSubscriptions');
 
-        $this->downgradeSubscriptionsAction->expects(self::once())
+        $this->downgradeSubscriptionsAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, $this->freeDnsProduct)
             ->willReturn(new SubscriptionChangeResult(status: SubscriptionChangeResult::STATUS_OK));
 
-        $this->subscriptionChangeService->expects(self::once())
+        $this->subscriptionChangeService
+            ->expects(self::once())
             ->method('change')
             ->with(ProductChangeType::DOWNGRADE, $subscription, $this->freeDnsProduct);
 
@@ -148,23 +153,25 @@ class DowngradeAndCreditSubscriptionTest extends IntegrationTestCase
             product: $this->freeDnsProduct,
             reason: SubscriptionCancelReason::REASON_CANCELLATION,
             reasonOther: null,
-            credit: true
+            credit: true,
         );
         $subscription = SubscriptionFactory::new()->withCustomer()->for($this->premiumDnsProduct)->createOne();
-        $this->productRepository->expects(self::once())
+        $this->productRepository
+            ->expects(self::once())
             ->method('findProductById')
             ->with($this->freeDnsProduct->id)
             ->willReturn($this->freeDnsProduct);
 
-        $this->creditSubscriptionService->expects(self::once())
-            ->method('creditSubscriptions');
+        $this->creditSubscriptionService->expects(self::once())->method('creditSubscriptions');
 
-        $this->downgradeSubscriptionsAction->expects(self::once())
+        $this->downgradeSubscriptionsAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, $this->freeDnsProduct)
             ->willReturn(new SubscriptionChangeResult(status: SubscriptionChangeResult::STATUS_OK));
 
-        $this->subscriptionChangeService->expects(self::once())
+        $this->subscriptionChangeService
+            ->expects(self::once())
             ->method('change')
             ->with(ProductChangeType::DOWNGRADE, $subscription, $this->freeDnsProduct);
 
@@ -185,28 +192,37 @@ class DowngradeAndCreditSubscriptionTest extends IntegrationTestCase
             product: $this->freeDnsProduct,
             reason: SubscriptionCancelReason::REASON_CANCELLATION,
             reasonOther: null,
-            credit: false
+            credit: false,
         );
         $subscription = SubscriptionFactory::new()->withCustomer()->for($this->premiumDnsProduct)->createOne();
-        $this->productRepository->expects(self::once())
+        $this->productRepository
+            ->expects(self::once())
             ->method('findProductById')
             ->with($this->freeDnsProduct->id)
             ->willReturn($this->freeDnsProduct);
 
-        $this->downgradeSubscriptionsAction->expects(self::once())
+        $this->downgradeSubscriptionsAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, $this->freeDnsProduct)
-            ->willReturn(new SubscriptionChangeResult(status: SubscriptionChangeResult::STATUS_ERROR, errorMessage: 'panel unreachable'));
+            ->willReturn(new SubscriptionChangeResult(
+                status: SubscriptionChangeResult::STATUS_ERROR,
+                errorMessage: 'panel unreachable',
+            ));
 
-        $this->subscriptionChangeService->expects(self::never())
-            ->method('change');
+        $this->subscriptionChangeService->expects(self::never())->method('change');
 
-        $this->subscriptionChangeService->expects(self::once())
+        $this->subscriptionChangeService
+            ->expects(self::once())
             ->method('storeChangeRecord')
-            ->with($subscription, $this->freeDnsProduct, ProductChangeType::DOWNGRADE, SubscriptionChangeStatus::EXECUTION_FAILED);
+            ->with(
+                $subscription,
+                $this->freeDnsProduct,
+                ProductChangeType::DOWNGRADE,
+                SubscriptionChangeStatus::EXECUTION_FAILED,
+            );
 
-        $this->logger->expects(self::once())
-            ->method('error');
+        $this->logger->expects(self::once())->method('error');
 
         $subscriptionsCollection = new Collection();
         $subscriptionsCollection->add($subscription);
@@ -225,28 +241,31 @@ class DowngradeAndCreditSubscriptionTest extends IntegrationTestCase
             product: $this->freeDnsProduct,
             reason: SubscriptionCancelReason::REASON_CANCELLATION,
             reasonOther: null,
-            credit: false
+            credit: false,
         );
         $subscription = SubscriptionFactory::new()->withCustomer()->for($this->premiumDnsProduct)->createOne();
-        $this->productRepository->expects(self::once())
+        $this->productRepository
+            ->expects(self::once())
             ->method('findProductById')
             ->with($this->freeDnsProduct->id)
             ->willReturn($this->freeDnsProduct);
 
         $exception = new SubscriptionChangeException('dummy message');
-        $this->downgradeSubscriptionsAction->expects(self::once())
+        $this->downgradeSubscriptionsAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, $this->freeDnsProduct)
             ->willThrowException($exception);
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('critical')
             ->with(
                 'Nova action for downgrade and credit failed with exception: dummy message',
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
         $subscriptionsCollection = new Collection();
@@ -266,22 +285,23 @@ class DowngradeAndCreditSubscriptionTest extends IntegrationTestCase
             product: $this->freeDnsProduct,
             reason: SubscriptionCancelReason::REASON_CANCELLATION,
             reasonOther: null,
-            credit: false
+            credit: false,
         );
         $subscription = SubscriptionFactory::new()->withCustomer()->for($this->premiumDnsProduct)->createOne();
-        $this->productRepository->expects(self::once())
+        $this->productRepository
+            ->expects(self::once())
             ->method('findProductById')
             ->with($this->freeDnsProduct->id)
             ->willReturn($this->freeDnsProduct);
 
         $exception = new NotImplementedException('dummy message');
-        $this->downgradeSubscriptionsAction->expects(self::once())
+        $this->downgradeSubscriptionsAction
+            ->expects(self::once())
             ->method('execute')
             ->with($subscription, $this->freeDnsProduct)
             ->willThrowException($exception);
 
-        $this->logger->expects(self::never())
-            ->method('critical');
+        $this->logger->expects(self::never())->method('critical');
 
         $subscriptionsCollection = new Collection();
         $subscriptionsCollection->add($subscription);
@@ -297,7 +317,7 @@ class DowngradeAndCreditSubscriptionTest extends IntegrationTestCase
         Product $product,
         SubscriptionCancelReason $reason,
         ?string $reasonOther,
-        bool $credit
+        bool $credit,
     ): ActionFields {
         return new ActionFields(
             new Collection([
@@ -306,7 +326,7 @@ class DowngradeAndCreditSubscriptionTest extends IntegrationTestCase
                 'reason_other' => $reasonOther,
                 'credit' => $credit,
             ]),
-            new Collection([])
+            new Collection([]),
         );
     }
 }

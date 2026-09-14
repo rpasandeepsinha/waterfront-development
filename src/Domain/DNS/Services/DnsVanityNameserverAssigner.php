@@ -44,7 +44,10 @@ class DnsVanityNameserverAssigner implements NameserverAssignerInterface
 
         $vanityTlds = $this->nameserverConfig->getNameservers();
 
-        $nameservers = $this->vanityNameserverGenerator->generateVanityNames($dnsDeployment->subscription->domain, $vanityTlds);
+        $nameservers = $this->vanityNameserverGenerator->generateVanityNames(
+            $dnsDeployment->subscription->domain,
+            $vanityTlds,
+        );
 
         $this->logger->debug('Assigning vanity nameservers to DNS deployment ({domain.name})', [
             LoggingContextKeys::DOMAIN_NAME => $dnsDeployment->subscription->domain,
@@ -57,11 +60,12 @@ class DnsVanityNameserverAssigner implements NameserverAssignerInterface
         ]);
 
         foreach ($nameservers as $nameserver) {
-            $dnsDeployment->vanityNameservers()
+            $dnsDeployment
+                ->vanityNameservers()
                 ->save(
                     DnsVanityNameserver::firstOrCreate(
-                        ['nameserver' => $nameserver]
-                    )
+                        ['nameserver' => $nameserver],
+                    ),
                 );
         }
 

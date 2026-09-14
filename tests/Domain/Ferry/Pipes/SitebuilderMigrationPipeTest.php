@@ -80,21 +80,23 @@ class SitebuilderMigrationPipeTest extends IntegrationTestCase
     #[DataProvider('sitebuilderMigrationPipeProvider')]
     #[Test]
     public function sitebuilderMigrationPipe(
-        array $expectedValidationResults
+        array $expectedValidationResults,
     ): void {
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/subscriptions_correct.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/subscriptions_correct.php';
 
         $reference = 'unique_reference_for_adf';
 
         $mockSitebuilderService = self::createStub(SitebuilderService::class);
-        $mockSitebuilderService->method('getSiteFromRef')
+        $mockSitebuilderService
+            ->method('getSiteFromRef')
             ->willReturn(new BaseKitSite(
                 id: 456,
                 domain: 'test-dns-intern-10.nl',
             ));
 
-        $mockSitebuilderService->method('getUserFromRef')
+        $mockSitebuilderService
+            ->method('getUserFromRef')
             ->willReturn(new BaseKitUser(
                 id: 123,
                 email: 'test@email.test',
@@ -103,12 +105,12 @@ class SitebuilderMigrationPipeTest extends IntegrationTestCase
         $this->app->bind(SitebuilderService::class, fn () => $mockSitebuilderService);
 
         $mockSsoAction = self::createStub(BaseKitGetSsoUrlAction::class);
-        $mockSsoAction->method('execute')
-            ->willReturn('https://basekit.test/sso-test');
+        $mockSsoAction->method('execute')->willReturn('https://basekit.test/sso-test');
         $this->app->bind(BaseKitGetSsoUrlAction::class, fn () => $mockSsoAction);
 
         $mockHostingService = self::createMock(HostingService::class);
-        $mockHostingService->expects(self::once())
+        $mockHostingService
+            ->expects(self::once())
             ->method('getUserConfigAsDto')
             ->with(ProviderSlug::DIRECTADMIN->value, 'da1230', $this->mailOnlyServer)
             ->willReturn(
@@ -124,21 +126,21 @@ class SitebuilderMigrationPipeTest extends IntegrationTestCase
                     package: 'custom',
                     usertype: HostingUserType::USER,
                     domain: 'test-dns-intern-10.nl',
-                )
+                ),
             );
         $this->app->bind(HostingService::class, fn () => $mockHostingService);
 
         $validationPayload = new ValidationPayload(
             validationReference: $reference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $sitebuilderMigrationPipe = self::resolve(SitebuilderMigrationPipe::class);
 
         $validationPayload = $sitebuilderMigrationPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame($reference, $validationPayload->validationReference);
@@ -154,10 +156,10 @@ class SitebuilderMigrationPipeTest extends IntegrationTestCase
     #[DataProvider('sitebuilderMigrationPipeProvider')]
     #[Test]
     public function sitebuilderThroughGatewayMigrationPipe(
-        array $expectedValidationResults
+        array $expectedValidationResults,
     ): void {
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/subscriptions_correct.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/subscriptions_correct.php';
 
         $customer['email'] = 'gatewaytest@sandwave.io';
 
@@ -171,22 +173,21 @@ class SitebuilderMigrationPipeTest extends IntegrationTestCase
         );
 
         $provisionGatewayMock = $this->createMock(ProvisionGateway::class);
-        $provisionGatewayMock->expects(self::once())
-            ->method('request')
-            ->willReturn($sitebuilderRequestResult);
+        $provisionGatewayMock->expects(self::once())->method('request')->willReturn($sitebuilderRequestResult);
         $this->app->bind(ProvisionGateway::class, fn () => $provisionGatewayMock);
 
         $mockSitebuilderService = self::createMock(SitebuilderService::class);
 
-        $mockSitebuilderService->expects(self::never())
-            ->method('getSiteFromRef');
+        $mockSitebuilderService->expects(self::never())->method('getSiteFromRef');
 
-        $mockSitebuilderService->expects(self::once())
+        $mockSitebuilderService
+            ->expects(self::once())
             ->method('hasSitebuilderThroughGateway')
             ->with($customer['email'])
             ->willReturn(true);
 
-        $mockSitebuilderService->method('getUserFromRef')
+        $mockSitebuilderService
+            ->method('getUserFromRef')
             ->willReturn(new BaseKitUser(
                 id: 123,
                 email: 'test@email.test',
@@ -195,12 +196,12 @@ class SitebuilderMigrationPipeTest extends IntegrationTestCase
         $this->app->bind(SitebuilderService::class, fn () => $mockSitebuilderService);
 
         $mockSsoAction = self::createStub(BaseKitGetSsoUrlAction::class);
-        $mockSsoAction->method('execute')
-            ->willReturn('https://basekit.test/sso-test');
+        $mockSsoAction->method('execute')->willReturn('https://basekit.test/sso-test');
         $this->app->bind(BaseKitGetSsoUrlAction::class, fn () => $mockSsoAction);
 
         $mockHostingService = self::createMock(HostingService::class);
-        $mockHostingService->expects(self::once())
+        $mockHostingService
+            ->expects(self::once())
             ->method('getUserConfigAsDto')
             ->with(ProviderSlug::DIRECTADMIN->value, 'da1230', $this->mailOnlyServer)
             ->willReturn(
@@ -216,21 +217,21 @@ class SitebuilderMigrationPipeTest extends IntegrationTestCase
                     package: 'custom',
                     usertype: HostingUserType::USER,
                     domain: 'test-dns-intern-10.nl',
-                )
+                ),
             );
         $this->app->bind(HostingService::class, fn () => $mockHostingService);
 
         $validationPayload = new ValidationPayload(
             validationReference: $reference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $sitebuilderMigrationPipe = self::resolve(SitebuilderMigrationPipe::class);
 
         $validationPayload = $sitebuilderMigrationPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame($reference, $validationPayload->validationReference);
@@ -257,19 +258,21 @@ class SitebuilderMigrationPipeTest extends IntegrationTestCase
     #[Test]
     public function sitebuilderMigrationPipePlesk(): void
     {
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/sitebuilder_migration/sitebuilder_plesk_mail.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/sitebuilder_migration/sitebuilder_plesk_mail.php';
 
         $reference = 'unique_reference_for_adf';
 
         $mockSitebuilderService = self::createStub(SitebuilderService::class);
-        $mockSitebuilderService->method('getSiteFromRef')
+        $mockSitebuilderService
+            ->method('getSiteFromRef')
             ->willReturn(new BaseKitSite(
                 id: 456,
                 domain: 'test-dns-intern-10.nl',
             ));
 
-        $mockSitebuilderService->method('getUserFromRef')
+        $mockSitebuilderService
+            ->method('getUserFromRef')
             ->willReturn(new BaseKitUser(
                 id: 123,
                 email: 'test@email.test',
@@ -278,12 +281,12 @@ class SitebuilderMigrationPipeTest extends IntegrationTestCase
         $this->app->bind(SitebuilderService::class, fn () => $mockSitebuilderService);
 
         $mockSsoAction = self::createStub(BaseKitGetSsoUrlAction::class);
-        $mockSsoAction->method('execute')
-            ->willReturn('https://basekit.test/sso-test');
+        $mockSsoAction->method('execute')->willReturn('https://basekit.test/sso-test');
         $this->app->bind(BaseKitGetSsoUrlAction::class, fn () => $mockSsoAction);
 
         $mockHostingService = self::createMock(HostingService::class);
-        $mockHostingService->expects(self::once())
+        $mockHostingService
+            ->expects(self::once())
             ->method('getUserConfigAsDto')
             ->with(ProviderSlug::PLESK->value, 'plesk1230', $this->mailOnlyServerPlesk)
             ->willReturn(
@@ -299,7 +302,7 @@ class SitebuilderMigrationPipeTest extends IntegrationTestCase
                     package: 'custom',
                     usertype: HostingUserType::USER,
                     domain: 'test-dns-intern-10.nl',
-                )
+                ),
             );
         $this->app->bind(HostingService::class, fn () => $mockHostingService);
 
@@ -324,14 +327,14 @@ class SitebuilderMigrationPipeTest extends IntegrationTestCase
         $validationPayload = new ValidationPayload(
             validationReference: $reference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $sitebuilderMigrationPipe = self::resolve(SitebuilderMigrationPipe::class);
 
         $validationPayload = $sitebuilderMigrationPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame($reference, $validationPayload->validationReference);
@@ -344,7 +347,7 @@ class SitebuilderMigrationPipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 }

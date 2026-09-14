@@ -32,6 +32,7 @@ class NewsController
         } catch (Throwable) {
             $news = [];
         }
+
         return NewsResource::collection($news)->additional(['links' => [
             'overview' => $newsOverview,
         ]]);

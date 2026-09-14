@@ -14,8 +14,9 @@ class Request
     /** @var string */
     private $endpoint = 'api/domain/add/domain/{domain}/destinations/{destinations}';
 
-    public function __construct(private readonly HttpClient $client)
-    {
+    public function __construct(
+        private readonly HttpClient $client,
+    ) {
     }
 
     /**
@@ -27,7 +28,7 @@ class Request
         $path = str_replace(
             ['{domain}', '{destinations}'],
             [urlencode($domain), urlencode(json_encode(['mail.' . $domain], JSON_THROW_ON_ERROR))],
-            $this->endpoint
+            $this->endpoint,
         );
 
         return $this->client->request('GET', $path);

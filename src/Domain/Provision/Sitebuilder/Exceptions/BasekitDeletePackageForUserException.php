@@ -14,7 +14,11 @@ class BasekitDeletePackageForUserException extends BasekitException
         ?Throwable $previous = null,
     ) {
         parent::__construct(
-            message: sprintf('Failed to delete account package %d for user %d', $accountPackageReference, $userReference),
+            message: sprintf(
+                'Failed to delete account package %d for user %d',
+                $accountPackageReference,
+                $userReference,
+            ),
             previous: $previous,
         );
     }

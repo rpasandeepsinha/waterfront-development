@@ -61,7 +61,7 @@ class AcronisOfferingItemsClientTest extends TestCase
         $mockClient->assertSent(function (GetOfferingItemsRequest $request): bool {
             self::assertSame(
                 sprintf('/tenants/%s/offering_items', self::TENANT_ID),
-                $request->resolveEndpoint()
+                $request->resolveEndpoint(),
             );
 
             self::assertSame(['edition' => '*'], $request->query()->all());
@@ -101,7 +101,7 @@ class AcronisOfferingItemsClientTest extends TestCase
         $mockClient->assertSent(function (GetOfferingItemsRequest $request) use ($expectedQuery): bool {
             self::assertSame(
                 sprintf('/tenants/%s/offering_items', self::TENANT_ID),
-                $request->resolveEndpoint()
+                $request->resolveEndpoint(),
             );
 
             self::assertSame($expectedQuery, $request->query()->all());
@@ -117,7 +117,10 @@ class AcronisOfferingItemsClientTest extends TestCase
     public function getOfferingItemsThrowsAcronisSerializerException(): void
     {
         $mockClient = new OAuthMockClient([
-            GetOfferingItemsRequest::class => MockResponse::make(body: '{"items": "invalid"}', status: Response::HTTP_OK),
+            GetOfferingItemsRequest::class => MockResponse::make(
+                body: '{"items": "invalid"}',
+                status: Response::HTTP_OK,
+            ),
         ]);
 
         $offeringItemsClient = $this->makeClient($mockClient);
@@ -165,7 +168,7 @@ class AcronisOfferingItemsClientTest extends TestCase
         $mockClient->assertSent(function (PutOfferingItemsRequest $request) use ($payload): bool {
             self::assertSame(
                 sprintf('/tenants/%s/offering_items', self::TENANT_ID),
-                $request->resolveEndpoint()
+                $request->resolveEndpoint(),
             );
 
             $body = $request->body()->all();
@@ -224,7 +227,10 @@ class AcronisOfferingItemsClientTest extends TestCase
         $payload = new OfferingItems(checkUsage: true, offeringItems: [$item0]);
 
         $mockClient = new OAuthMockClient([
-            PutOfferingItemsRequest::class => MockResponse::make(body: '{"items": "invalid"}', status: Response::HTTP_OK),
+            PutOfferingItemsRequest::class => MockResponse::make(
+                body: '{"items": "invalid"}',
+                status: Response::HTTP_OK,
+            ),
         ]);
 
         $offeringItemsClient = $this->makeClient($mockClient);
@@ -242,7 +248,10 @@ class AcronisOfferingItemsClientTest extends TestCase
         $successResponse = file_get_contents(__DIR__ . '/../data/offering-items-pricing.json');
 
         $mockClient = new OAuthMockClient([
-            GetOfferingItemsPricingRequest::class => MockResponse::make(body: $successResponse, status: Response::HTTP_OK),
+            GetOfferingItemsPricingRequest::class => MockResponse::make(
+                body: $successResponse,
+                status: Response::HTTP_OK,
+            ),
         ]);
 
         $offeringItemsClient = $this->makeClient($mockClient);
@@ -252,7 +261,7 @@ class AcronisOfferingItemsClientTest extends TestCase
         $mockClient->assertSent(function (GetOfferingItemsPricingRequest $request): bool {
             self::assertSame(
                 sprintf('/tenants/%s/offering_items/pricing', self::TENANT_ID),
-                $request->resolveEndpoint()
+                $request->resolveEndpoint(),
             );
 
             return true;
@@ -301,7 +310,10 @@ class AcronisOfferingItemsClientTest extends TestCase
         $successResponse = file_get_contents(__DIR__ . '/../data/offering-items-pricing.json');
 
         $mockClient = new OAuthMockClient([
-            PutOfferingItemsPricingRequest::class => MockResponse::make(body: $successResponse, status: Response::HTTP_OK),
+            PutOfferingItemsPricingRequest::class => MockResponse::make(
+                body: $successResponse,
+                status: Response::HTTP_OK,
+            ),
         ]);
 
         $offeringItemsClient = $this->makeClient($mockClient);
@@ -311,7 +323,7 @@ class AcronisOfferingItemsClientTest extends TestCase
         $mockClient->assertSent(function (PutOfferingItemsPricingRequest $request) use ($payload): bool {
             self::assertSame(
                 sprintf('/tenants/%s/offering_items/pricing', self::TENANT_ID),
-                $request->resolveEndpoint()
+                $request->resolveEndpoint(),
             );
 
             $body = $request->body()->all();

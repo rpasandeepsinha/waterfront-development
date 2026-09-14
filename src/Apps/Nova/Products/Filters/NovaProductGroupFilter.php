@@ -32,9 +32,6 @@ class NovaProductGroupFilter extends Filter
      */
     public function options(NovaRequest $request): array
     {
-        return ProductGroup::query()
-            ->orderBy('name')
-            ->pluck('id', 'name')
-            ->toArray();
+        return ProductGroup::query()->orderBy('name')->pluck('id', 'name')->toArray();
     }
 }

@@ -41,6 +41,7 @@ class HubspotCrmHttpClientTest extends TestCase
         ]));
         $handlerStack->push(fn (callable $handler) => function (RequestInterface $request, $options) use ($handler) {
             self::assertSame('Bearer accessToken', $request->getHeader('Authorization')[0]);
+
             return $handler($request, $options);
         });
         $guzzleClient = new Client(['handler' => $handlerStack]);
@@ -84,6 +85,7 @@ class HubspotCrmHttpClientTest extends TestCase
         $handlerStack->push(fn (callable $handler) => function (RequestInterface $request, $options) use ($handler) {
             self::assertSame('GET', $request->getMethod());
             self::assertSame('', $request->getBody()->getContents());
+
             return $handler($request, $options);
         });
         $guzzleClient = new Client(['handler' => $handlerStack]);
@@ -101,6 +103,7 @@ class HubspotCrmHttpClientTest extends TestCase
         $handlerStack->push(fn (callable $handler) => function (RequestInterface $request, $options) use ($handler) {
             self::assertSame('POST', $request->getMethod());
             self::assertSame('{"foo":"bar"}', $request->getBody()->getContents());
+
             return $handler($request, $options);
         });
         $guzzleClient = new Client(['handler' => $handlerStack]);
@@ -118,6 +121,7 @@ class HubspotCrmHttpClientTest extends TestCase
         $handlerStack->push(fn (callable $handler) => function (RequestInterface $request, $options) use ($handler) {
             self::assertSame('PATCH', $request->getMethod());
             self::assertSame('{"foo":"bar"}', $request->getBody()->getContents());
+
             return $handler($request, $options);
         });
         $guzzleClient = new Client(['handler' => $handlerStack]);
@@ -137,7 +141,7 @@ class HubspotCrmHttpClientTest extends TestCase
             'marketing_mail_surveys',
             'marketing_mail_newsletter',
             1,
-            1
+            1,
         );
     }
 }

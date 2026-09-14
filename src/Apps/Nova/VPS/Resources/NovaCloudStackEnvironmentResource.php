@@ -45,9 +45,7 @@ class NovaCloudStackEnvironmentResource extends Resource
                 ->help(self::translate('cloudstack-environments.attributes_help.slug'))
                 ->showOnUpdating(false)
                 ->rules('required', 'alpha_num', resolve(Uppercase::class)),
-            Text::make(self::translate('cloudstack-environments.attributes.name'), 'name')
-                ->sortable()
-                ->required(),
+            Text::make(self::translate('cloudstack-environments.attributes.name'), 'name')->sortable()->required(),
             Text::make(self::translate('cloudstack-environments.attributes.api_url'), 'api_url')
                 ->sortable()
                 ->rules('required', 'url'),
@@ -62,9 +60,14 @@ class NovaCloudStackEnvironmentResource extends Resource
                 ->sortable()
                 ->required()
                 ->help(self::translate('cloudstack-environments.attributes_help.domain_name')),
-            NovaBoolField::make(self::translate('cloudstack-environments.attributes.preferred'), 'preferred')
-                ->help(self::translate('cloudstack-environments.attributes_help.preferred')),
-            Text::make(self::translate('cloudstack-environments.attributes.default_email_address'), 'default_email_address')
+            NovaBoolField::make(
+                self::translate('cloudstack-environments.attributes.preferred'),
+                'preferred',
+            )->help(self::translate('cloudstack-environments.attributes_help.preferred')),
+            Text::make(
+                self::translate('cloudstack-environments.attributes.default_email_address'),
+                'default_email_address',
+            )
                 ->help(self::translate('cloudstack-environments.attributes_help.default_email_address'))
                 ->hideFromIndex()
                 ->rules('required', 'email'),
@@ -76,10 +79,7 @@ class NovaCloudStackEnvironmentResource extends Resource
                 ->onlyOnForms()
                 ->creationRules('required')
                 ->updateRules('nullable'),
-            Credential::make('API KEY', 'api_key')
-                ->onlyOnForms()
-                ->creationRules('required')
-                ->updateRules('nullable'),
+            Credential::make('API KEY', 'api_key')->onlyOnForms()->creationRules('required')->updateRules('nullable'),
         ];
     }
 }

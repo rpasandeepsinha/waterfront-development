@@ -11,8 +11,9 @@ use SensitiveParameter;
 
 class PayloadSerializer
 {
-    public function __construct(private readonly Encrypter $encrypter)
-    {
+    public function __construct(
+        private readonly Encrypter $encrypter,
+    ) {
     }
 
     public function serialize(MailTemplateInterface $template): ?string
@@ -38,6 +39,14 @@ class PayloadSerializer
             return [];
         }
 
-        return array_filter(array_map(fn (ReflectionParameter $parameter) => $parameter->getAttributes(SensitiveParameter::class) !== [] ? $parameter->getName() : null, $constructor->getParameters()));
+        return array_filter(
+            array_map(
+                fn (ReflectionParameter $parameter) => $parameter->getAttributes(SensitiveParameter::class) !== []
+                    ? $parameter->getName()
+                    : null,
+                $constructor->getParameters(),
+            ),
+            fn (?string $parameterName): bool => $parameterName !== null,
+        );
     }
 }

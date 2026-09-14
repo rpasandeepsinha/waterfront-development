@@ -15,8 +15,9 @@ use Waterfront\Infra\DirectAdminClient\Exceptions\DirectAdminResellerPackageNotF
 
 readonly class ResellerPackage
 {
-    public function __construct(private DirectAdminApiInterface $api)
-    {
+    public function __construct(
+        private DirectAdminApiInterface $api,
+    ) {
     }
 
     /**
@@ -33,6 +34,7 @@ readonly class ResellerPackage
         }
 
         $packageSettings['packagename'] = $packageName;
+
         return $this->create($packageSettings);
     }
 

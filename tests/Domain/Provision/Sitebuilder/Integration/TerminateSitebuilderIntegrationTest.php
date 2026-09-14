@@ -85,6 +85,7 @@ class TerminateSitebuilderIntegrationTest extends IntegrationTestCase
             );
             $basekit->sitesApi = $mockSitesApi;
             $basekit->userApi = $mockUserApi;
+
             return $basekit;
         });
 
@@ -106,33 +107,26 @@ class TerminateSitebuilderIntegrationTest extends IntegrationTestCase
             'user_ref' => 42,
         ]);
 
-        $basekit = BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->sitebuilder()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-                                'context_uuid' => $contextUuid,
-                                'uuid' => $originRequestUuid,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne(['site_ref' => $siteRef]);
+        $basekit = BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->sitebuilder()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+                        'context_uuid' => $contextUuid,
+                        'uuid' => $originRequestUuid,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne(['site_ref' => $siteRef]);
 
-        $this->mockSitesApi
-            ->expects('hardDelete')
-            ->once()
-            ->with($siteRef)
-            ->andReturnNull();
+        $this->mockSitesApi->expects('hardDelete')->once()->with($siteRef)->andReturnNull();
 
         $request = new TerminateSitebuilderRequest(
             context: $contextUuid,
-            tagUuid: $tag
+            tagUuid: $tag,
         );
 
         self::assertDatabaseCount(ProvisioningResult::class, 1);
@@ -153,7 +147,7 @@ class TerminateSitebuilderIntegrationTest extends IntegrationTestCase
         self::assertSame(ProvisionRequestName::TERMINATE_SITEBUILDER_SITE, $savedRequest->request_name);
         self::assertSame(
             '[]',
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         $savedResult = $this->resultRepository
@@ -181,7 +175,7 @@ class TerminateSitebuilderIntegrationTest extends IntegrationTestCase
 
         $request = new TerminateSitebuilderRequest(
             context: $contextUuid,
-            tagUuid: $tag
+            tagUuid: $tag,
         );
 
         $result = $this->gateway->request($request);
@@ -195,7 +189,10 @@ class TerminateSitebuilderIntegrationTest extends IntegrationTestCase
         self::assertArrayHasKey('context', $result->validationResult->messages);
         self::assertArrayHasKey('tag', $result->validationResult->messages);
         self::assertSame([$doesntExistsMessage], $result->validationResult->messages['context']);
-        self::assertSame(['No create request with this tag in the [sitebuilder] type.'], $result->validationResult->messages['tag']);
+        self::assertSame(
+            ['No create request with this tag in the [sitebuilder] type.'],
+            $result->validationResult->messages['tag'],
+        );
 
         self::assertDatabaseCount(ProvisioningResult::class, 1);
         self::assertDatabaseCount(ProvisioningRequest::class, 1);
@@ -208,7 +205,7 @@ class TerminateSitebuilderIntegrationTest extends IntegrationTestCase
         self::assertSame(ProvisionRequestName::TERMINATE_SITEBUILDER_SITE, $savedRequest->request_name);
         self::assertSame(
             '[]',
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         $savedResult = $this->resultRepository
@@ -230,34 +227,27 @@ class TerminateSitebuilderIntegrationTest extends IntegrationTestCase
             'user_ref' => 42,
         ]);
 
-        $basekit = BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->sitebuilder()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-                                'context_uuid' => $contextUuid,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne(['site_ref' => $siteRef]);
+        $basekit = BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->sitebuilder()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+                        'context_uuid' => $contextUuid,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne(['site_ref' => $siteRef]);
 
         $expectedException = new BaseKitRequestException('Something went wrong');
 
-        $this->mockSitesApi
-            ->expects('hardDelete')
-            ->once()
-            ->with($siteRef)
-            ->andThrows($expectedException);
+        $this->mockSitesApi->expects('hardDelete')->once()->with($siteRef)->andThrows($expectedException);
 
         $request = new TerminateSitebuilderRequest(
             context: $contextUuid,
-            tagUuid: $tag
+            tagUuid: $tag,
         );
 
         self::assertDatabaseCount(ProvisioningResult::class, 1);
@@ -277,7 +267,7 @@ class TerminateSitebuilderIntegrationTest extends IntegrationTestCase
         self::assertSame(ProvisionRequestName::TERMINATE_SITEBUILDER_SITE, $savedRequest->request_name);
         self::assertSame(
             '[]',
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         $savedResult = $this->resultRepository
@@ -305,35 +295,25 @@ class TerminateSitebuilderIntegrationTest extends IntegrationTestCase
             'user_ref' => $userRef,
         ]);
 
-        $basekit1 = BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->sitebuilder()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-                                'context_uuid' => $contextUuid,
-                            ]),
-                        'request'
-                    )
-            )
-            ->createOne(['site_ref' => 1234]);
+        $basekit1 = BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()->sitebuilder()->state([
+                    'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+                    'context_uuid' => $contextUuid,
+                ]),
+                'request',
+            ),
+        )->createOne(['site_ref' => 1234]);
 
-        $basekit2 = BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->sitebuilder()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-                                'context_uuid' => $contextUuid,
-                            ]),
-                        'request'
-                    )
-            )
-            ->createOne(['site_ref' => 5678]);
+        $basekit2 = BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()->sitebuilder()->state([
+                    'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+                    'context_uuid' => $contextUuid,
+                ]),
+                'request',
+            ),
+        )->createOne(['site_ref' => 5678]);
 
         $shouldNotBeTerminatedContext = Uuid::uuid4();
         $noTerminateUserRef = 8888;
@@ -342,31 +322,19 @@ class TerminateSitebuilderIntegrationTest extends IntegrationTestCase
             'user_ref' => $noTerminateUserRef,
         ]);
 
-        $noTerminateDeployments = BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->sitebuilder()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-                                'context_uuid' => $shouldNotBeTerminatedContext,
-                            ]),
-                        'request'
-                    )
-            )
-            ->createOne(['site_ref' => 4321]);
+        $noTerminateDeployments = BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()->sitebuilder()->state([
+                    'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+                    'context_uuid' => $shouldNotBeTerminatedContext,
+                ]),
+                'request',
+            ),
+        )->createOne(['site_ref' => 4321]);
 
-        $this->mockUserApi
-            ->expects('delete')
-            ->once()
-            ->with($userRef)
-            ->andReturnNull();
+        $this->mockUserApi->expects('delete')->once()->with($userRef)->andReturnNull();
 
-        $this->mockUserApi
-            ->expects('delete')
-            ->never()
-            ->with($noTerminateUserRef);
+        $this->mockUserApi->expects('delete')->never()->with($noTerminateUserRef);
 
         $request = new TerminateSitebuilderContextRequest(
             context: $contextUuid,
@@ -392,7 +360,7 @@ class TerminateSitebuilderIntegrationTest extends IntegrationTestCase
         self::assertSame(ProvisionRequestName::TERMINATE_SITEBUILDER_CONTEXT, $savedTerminateRequest->request_name);
         self::assertSame(
             '[]',
-            $savedTerminateRequest->request_data
+            $savedTerminateRequest->request_data,
         );
 
         $savedResult = $this->resultRepository

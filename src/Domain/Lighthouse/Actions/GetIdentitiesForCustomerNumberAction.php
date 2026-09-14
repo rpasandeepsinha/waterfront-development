@@ -30,14 +30,14 @@ class GetIdentitiesForCustomerNumberAction
         } catch (LighthouseException $exception) {
             $message = sprintf(
                 'Failed to fetch lighthouse identities for customer number %d',
-                $customerNumber
+                $customerNumber,
             );
             $this->logger->error($message);
 
             throw new FailedToFetchIdentitiesForCustomerNumbers(
                 $message,
                 $exception->getCode(),
-                $exception
+                $exception,
             );
         }
     }

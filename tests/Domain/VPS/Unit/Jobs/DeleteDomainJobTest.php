@@ -67,10 +67,11 @@ class DeleteDomainJobTest extends IntegrationTestCase
 
         Queue::assertNothingPushed();
 
-        self::resolve(Dispatcher::class)->dispatch(new DeleteDomainJob(
-            new ManagerDomainDeployment(),
-            new CloudstackJob(),
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DeleteDomainJob(
+                new ManagerDomainDeployment(),
+                new CloudstackJob(),
+            ));
 
         Queue::assertPushedOn(QueueName::CLOUDSTACK->value, DeleteDomainJob::class);
     }
@@ -80,10 +81,11 @@ class DeleteDomainJobTest extends IntegrationTestCase
     {
         Bus::fake();
 
-        self::resolve(Dispatcher::class)->dispatch(new DeleteDomainJob(
-            new ManagerDomainDeployment(),
-            new CloudstackJob(),
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DeleteDomainJob(
+                new ManagerDomainDeployment(),
+                new CloudstackJob(),
+            ));
 
         Bus::assertNotDispatchedSync(DeleteDomainJob::class);
     }
@@ -98,9 +100,15 @@ class DeleteDomainJobTest extends IntegrationTestCase
         $clientFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())->method('execute')
+        $baseClientMock
+            ->expects(self::once())
+            ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
-            ->willReturn(['domainid' => self::MOCK_DOMAIN_ID, 'jobid' => self::MOCK_JOB_ID, 'jobstatus' => JobStatus::PENDING->value]);
+            ->willReturn([
+                'domainid' => self::MOCK_DOMAIN_ID,
+                'jobid' => self::MOCK_JOB_ID,
+                'jobstatus' => JobStatus::PENDING->value,
+            ]);
         $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
 
         Queue::after(function (JobProcessed $event) {
@@ -111,10 +119,11 @@ class DeleteDomainJobTest extends IntegrationTestCase
             self::assertFalse($event->job->hasFailed());
         });
 
-        self::resolve(Dispatcher::class)->dispatch(new DeleteDomainJob(
-            $this->managerDomainDeployment,
-            $this->cloudstackJob,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DeleteDomainJob(
+                $this->managerDomainDeployment,
+                $this->cloudstackJob,
+            ));
     }
 
     #[Test]
@@ -127,9 +136,15 @@ class DeleteDomainJobTest extends IntegrationTestCase
         $clientFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())->method('execute')
+        $baseClientMock
+            ->expects(self::once())
+            ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
-            ->willReturn(['domainid' => self::MOCK_DOMAIN_ID, 'jobid' => self::MOCK_JOB_ID, 'jobstatus' => JobStatus::FAILED->value]);
+            ->willReturn([
+                'domainid' => self::MOCK_DOMAIN_ID,
+                'jobid' => self::MOCK_JOB_ID,
+                'jobstatus' => JobStatus::FAILED->value,
+            ]);
         $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
 
         Queue::after(function (JobProcessed $event) {
@@ -140,10 +155,11 @@ class DeleteDomainJobTest extends IntegrationTestCase
             self::assertFalse($event->job->isReleased());
         });
 
-        self::resolve(Dispatcher::class)->dispatch(new DeleteDomainJob(
-            $this->managerDomainDeployment,
-            $this->cloudstackJob,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DeleteDomainJob(
+                $this->managerDomainDeployment,
+                $this->cloudstackJob,
+            ));
 
         $this->managerDomainDeployment->refresh();
 
@@ -160,9 +176,15 @@ class DeleteDomainJobTest extends IntegrationTestCase
         $clientFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
         $this->app->bind(ClientFactory::class, fn () => $clientFactoryMock);
 
-        $baseClientMock->expects(self::once())->method('execute')
+        $baseClientMock
+            ->expects(self::once())
+            ->method('execute')
             ->with('queryAsyncJobResult', ['jobid' => self::MOCK_JOB_ID])
-            ->willReturn(['domainid' => self::MOCK_DOMAIN_ID, 'jobid' => self::MOCK_JOB_ID, 'jobstatus' => JobStatus::SUCCESS->value]);
+            ->willReturn([
+                'domainid' => self::MOCK_DOMAIN_ID,
+                'jobid' => self::MOCK_JOB_ID,
+                'jobstatus' => JobStatus::SUCCESS->value,
+            ]);
         $clientMock->expects(self::once())->method('getBaseClient')->willReturn($baseClientMock);
 
         Queue::after(function (JobProcessed $event) {
@@ -175,10 +197,11 @@ class DeleteDomainJobTest extends IntegrationTestCase
 
         self::assertNull($this->managerDomainDeployment->deleted_at);
 
-        self::resolve(Dispatcher::class)->dispatch(new DeleteDomainJob(
-            $this->managerDomainDeployment,
-            $this->cloudstackJob,
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatch(new DeleteDomainJob(
+                $this->managerDomainDeployment,
+                $this->cloudstackJob,
+            ));
 
         $this->managerDomainDeployment->refresh();
 

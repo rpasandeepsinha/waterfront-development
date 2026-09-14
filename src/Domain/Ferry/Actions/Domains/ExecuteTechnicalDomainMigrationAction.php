@@ -33,13 +33,13 @@ class ExecuteTechnicalDomainMigrationAction
 
             $technicalDomainPayload = $this->domainMapper->mapDomainWithTechnicalPayload(
                 $subscription,
-                $technicalPayloads
+                $technicalPayloads,
             );
 
             $job = new TechnicalDomainMigrationJob(
                 subscription: $subscription,
                 failedTechnicalStatus: DomainStatus::FAILED->value,
-                payload: $technicalDomainPayload
+                payload: $technicalDomainPayload,
             );
 
             $job->delay(self::DELAY);

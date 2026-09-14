@@ -27,7 +27,7 @@ class CertificateRequestNotificationListener
         }
 
         $this->certificateNotificationHandler->handle(
-            $newNotificationEvent->getNotification()
+            $newNotificationEvent->getNotification(),
         );
     }
 }

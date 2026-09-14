@@ -39,8 +39,14 @@ class ProductResource extends JsonResource
             'description' => $this->resource->description,
             'weight' => $this->resource->weight,
             'prices' => PriceResource::collection(
-                $this->resource->prices->filter(fn (Price $price) => $price->orderable)
-                ->sortBy(fn (Price $price) => $price->type->value . '-' . $price->contractPeriod . '-' . $price->billingPeriod)
+                $this->resource
+                    ->prices
+                    ->filter(fn (Price $price) => $price->orderable)
+                    ->sortBy(
+                        fn (Price $price) => (
+                            $price->type->value . '-' . $price->contractPeriod . '-' . $price->billingPeriod
+                        ),
+                    ),
             ),
             'specifications' => $this->resource->specifications->toArray(),
             'defaultPrice' => $this->resource->default_price,
@@ -67,8 +73,8 @@ class ProductResource extends JsonResource
         foreach ($price->possiblePriceComponents as $priceComponent) {
             $priceComponents[] = match ($priceComponent::class) {
                 ProductGroupPriceComponent::class => [
-                   'type' => $priceComponent->type->value,
-                   'price' => $priceComponent->newPrice,
+                    'type' => $priceComponent->type->value,
+                    'price' => $priceComponent->newPrice,
                 ],
                 IntroductionPriceComponent::class => [
                     'type' => $priceComponent->type->value,
@@ -97,10 +103,10 @@ class ProductResource extends JsonResource
                     'price' => $priceComponent->newPrice,
                 ],
                 ProRatePriceComponent::class => [
-                  'type' => $priceComponent->type->value,
-                  'until' => $priceComponent->until->toString(),
+                    'type' => $priceComponent->type->value,
+                    'until' => $priceComponent->until->toString(),
                 ],
-                default => []
+                default => [],
             };
         }
 

@@ -47,9 +47,7 @@ class RestoreFromProcessesJobTest extends TestCase
         $this->failedDomainSubscriptionRepairService = self::createMock(FailedDomainSubscriptionRepairService::class);
         $this->logger = self::createStub(LoggerInterface::class);
 
-        $this->subscription = SubscriptionFactory::new()
-            ->forDomain('example.test')
-            ->makeOne();
+        $this->subscription = SubscriptionFactory::new()->forDomain('example.test')->makeOne();
 
         $this->domainDeployment = new DomainDeployment();
         $this->domainDeployment->id = 101;
@@ -77,12 +75,14 @@ class RestoreFromProcessesJobTest extends TestCase
     {
         Queue::fake();
 
-        $this->app->make(Dispatcher::class)->dispatch(new RestoreFromProcesses(
-            processCollection: $this->processCollection,
-            subscription: $this->subscription,
-            dryRun: true,
-            triggeredBy: self::TRIGGERED_BY,
-        ));
+        $this->app
+            ->make(Dispatcher::class)
+            ->dispatch(new RestoreFromProcesses(
+                processCollection: $this->processCollection,
+                subscription: $this->subscription,
+                dryRun: true,
+                triggeredBy: self::TRIGGERED_BY,
+            ));
 
         Queue::assertPushedOn(QueueName::DEFAULT->value, RestoreFromProcesses::class);
     }
@@ -92,12 +92,14 @@ class RestoreFromProcessesJobTest extends TestCase
     {
         Bus::fake();
 
-        $this->app->make(Dispatcher::class)->dispatch(new RestoreFromProcesses(
-            processCollection: $this->processCollection,
-            subscription: $this->subscription,
-            dryRun: true,
-            triggeredBy: self::TRIGGERED_BY,
-        ));
+        $this->app
+            ->make(Dispatcher::class)
+            ->dispatch(new RestoreFromProcesses(
+                processCollection: $this->processCollection,
+                subscription: $this->subscription,
+                dryRun: true,
+                triggeredBy: self::TRIGGERED_BY,
+            ));
 
         Bus::assertNotDispatchedSync(RestoreFromProcesses::class);
     }
@@ -105,9 +107,7 @@ class RestoreFromProcessesJobTest extends TestCase
     #[Test]
     public function handleDoesNotCallRepairServiceInDryRun(): void
     {
-        $this->failedDomainSubscriptionRepairService
-            ->expects(self::never())
-            ->method('restoreFromProcesses');
+        $this->failedDomainSubscriptionRepairService->expects(self::never())->method('restoreFromProcesses');
 
         $job = new RestoreFromProcesses(
             processCollection: $this->processCollection,
@@ -150,9 +150,7 @@ class RestoreFromProcessesJobTest extends TestCase
     #[Test]
     public function handleLogsDryRunMessageWithMetadata(): void
     {
-        $this->failedDomainSubscriptionRepairService
-            ->expects(self::never())
-            ->method('restoreFromProcesses');
+        $this->failedDomainSubscriptionRepairService->expects(self::never())->method('restoreFromProcesses');
 
         $logger = self::createMock(LoggerInterface::class);
         $logger
@@ -194,7 +192,7 @@ class RestoreFromProcessesJobTest extends TestCase
             ->with(
                 subscription: $this->subscription,
                 source: self::TRIGGERED_BY,
-                processes: $this->processCollection
+                processes: $this->processCollection,
             );
 
         $logger = self::createMock(LoggerInterface::class);

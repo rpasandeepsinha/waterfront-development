@@ -57,7 +57,12 @@ class DnsTemplateZoneLinkTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
 
-        $this->provider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::PLACEHOLDER, 'enabled' => true, 'default' => false]);
+        $this->provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::PLACEHOLDER,
+            'enabled' => true,
+            'default' => false,
+        ]);
 
         //PHPStan does not seem to like create, using new as alternative.
         $this->dnsCustomerTemplate = new DnsCustomerTemplate([
@@ -106,34 +111,37 @@ class DnsTemplateZoneLinkTest extends IntegrationTestCase
     #[Test]
     public function linkToDomain(): void
     {
-        $this->mockDnsService->expects(self::exactly(2))
-            ->method('applyTemplate');
+        $this->mockDnsService->expects(self::exactly(2))->method('applyTemplate');
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.dns.templates.link', ['template' => $this->dnsCustomerTemplate->id]),
-            [
-                'domains' => [
-                    ['domain' => 'domain.com'],
-                    ['domain' => 'domain2.com'],
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.dns.templates.link', ['template' => $this->dnsCustomerTemplate->id]),
+                [
+                    'domains' => [
+                        ['domain' => 'domain.com'],
+                        ['domain' => 'domain2.com'],
+                    ],
                 ],
-            ]
-        )
+            )
             ->assertOk()
-            ->assertExactJson(['message' => self::resolve(TranslatorInterface::class)->translate('dns-template.link-domain-success')]);
+            ->assertExactJson([
+                'message' => self::resolve(TranslatorInterface::class)->translate('dns-template.link-domain-success'),
+            ]);
     }
 
     #[Test]
     public function linkToDomainValidationFailed(): void
     {
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.dns.templates.link', ['template' => $this->dnsCustomerTemplate->id]),
-            [
-                'domains' => [
-                    ['domain' => 'domainfail.com'],
-                    ['domain' => 'domain2.com'],
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.dns.templates.link', ['template' => $this->dnsCustomerTemplate->id]),
+                [
+                    'domains' => [
+                        ['domain' => 'domainfail.com'],
+                        ['domain' => 'domain2.com'],
+                    ],
                 ],
-            ]
-        )
+            )
             ->assertUnprocessable();
     }
 
@@ -142,15 +150,16 @@ class DnsTemplateZoneLinkTest extends IntegrationTestCase
     {
         $this->mockDnsService->method('getDnsZone')->willThrowException(new DnsZoneNotFoundException());
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.dns.templates.link', ['template' => $this->dnsCustomerTemplate->id]),
-            [
-                'domains' => [
-                    ['domain' => $this->subscription->domain],
-                    ['domain' => $this->subscription2->domain],
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.dns.templates.link', ['template' => $this->dnsCustomerTemplate->id]),
+                [
+                    'domains' => [
+                        ['domain' => $this->subscription->domain],
+                        ['domain' => $this->subscription2->domain],
+                    ],
                 ],
-            ]
-        )
+            )
             ->assertNotFound()
             ->assertJson([
                 'message' => 'Zone domain.com not found',
@@ -165,40 +174,56 @@ class DnsTemplateZoneLinkTest extends IntegrationTestCase
 
         self::assertNotNull($this->subscription2->domain);
 
-        new SubscriptionFactory()->for($this->customer)->forDomain($this->subscription2->domain)->for($this->dnsProduct)->createOne();
+        new SubscriptionFactory()
+            ->for($this->customer)
+            ->forDomain($this->subscription2->domain)
+            ->for($this->dnsProduct)
+            ->createOne();
 
-        $subscription3 = new SubscriptionFactory()->forDomain('zzzz.com')->for($this->product)->for($this->customer)->createOne();
+        $subscription3 = new SubscriptionFactory()
+            ->forDomain('zzzz.com')
+            ->for($this->product)
+            ->for($this->customer)
+            ->createOne();
 
         new DomainDeploymentFactory()
             ->for($subscription3)
             ->for($this->provider, 'provider')
             ->createOne();
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute('partners.dns.templates.available_domains', ['template' => $this->dnsCustomerTemplate->id])
-        )->assertOk()->assertJsonFragment([
-            'domain' => $this->subscription->domain,
-            'available' => true,
-            'linked' => false,
-        ])
-        ->assertJsonFragment([
-            'domain' => $subscription3->domain,
-            'available' => false,
-            'linked' => false,
-        ])
-        ->assertJsonFragment([
-        'domain' => $this->subscription2->domain,
-        'available' => true,
-        'linked' => false,
-        ]);
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute('partners.dns.templates.available_domains', [
+                    'template' => $this->dnsCustomerTemplate->id,
+                ]),
+            )
+            ->assertOk()
+            ->assertJsonFragment([
+                'domain' => $this->subscription->domain,
+                'available' => true,
+                'linked' => false,
+            ])
+            ->assertJsonFragment([
+                'domain' => $subscription3->domain,
+                'available' => false,
+                'linked' => false,
+            ])
+            ->assertJsonFragment([
+                'domain' => $this->subscription2->domain,
+                'available' => true,
+                'linked' => false,
+            ]);
     }
 
     #[Test]
     public function linkableDomainsNoneFound(): void
     {
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute('partners.dns.templates.available_domains', ['template' => $this->dnsCustomerTemplate->id])
-        )
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute('partners.dns.templates.available_domains', [
+                    'template' => $this->dnsCustomerTemplate->id,
+                ]),
+            )
             ->assertOk()
             ->assertJson(['domains' => []]);
     }
@@ -206,17 +231,20 @@ class DnsTemplateZoneLinkTest extends IntegrationTestCase
     #[Test]
     public function unLinkFromDomain(): void
     {
-        $this->mockDnsService->expects(self::once())
+        $this->mockDnsService
+            ->expects(self::once())
             ->method('getDnsZone')
             ->willReturn(new DnsZone(new Fqdn('domain.com')));
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.dns.templates.unlink', ['template' => $this->dnsCustomerTemplate->id]),
-            [
-                'domains' => [
-                    ['domain' => $this->subscription->domain],
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.dns.templates.unlink', ['template' => $this->dnsCustomerTemplate->id]),
+                [
+                    'domains' => [
+                        ['domain' => $this->subscription->domain],
+                    ],
                 ],
-            ]
-        )->assertOk();
+            )
+            ->assertOk();
     }
 }

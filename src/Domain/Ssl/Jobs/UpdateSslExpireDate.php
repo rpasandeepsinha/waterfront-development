@@ -49,7 +49,7 @@ class UpdateSslExpireDate extends AbstractQueueableJob
                 LoggingContextKeys::PROVISIONING_ID => $this->sslDeployment->id,
                 LoggingContextKeys::DOMAIN_NAME => $this->sslDeployment->subscription->domain,
                 LoggingContextKeys::EXCEPTION => $exception,
-            ]
+            ],
         );
 
         if ($this->fallbackToSubscriptionEndDate) {

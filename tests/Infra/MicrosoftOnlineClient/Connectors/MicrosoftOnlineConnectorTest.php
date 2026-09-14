@@ -44,12 +44,13 @@ class MicrosoftOnlineConnectorTest extends IntegrationTestCase
         $client = new MicrosoftOnlineConnector(
             $debugConfig,
             $logger,
-            self::resolve(JsonLogMasker::class)
+            self::resolve(JsonLogMasker::class),
         );
 
         $client->withMockClient($mockClient);
 
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 '[MicrosoftOnlineConnector] "{request.method} {request.uri}" {response.code}',
@@ -59,7 +60,7 @@ class MicrosoftOnlineConnectorTest extends IntegrationTestCase
                     'request.method' => 'GET',
                     'response.code' => 418,
                     'response.data' => 'this-is-response-data',
-                ]
+                ],
             );
 
         $this->expectException(ClientException::class);
@@ -86,12 +87,13 @@ class MicrosoftOnlineConnectorTest extends IntegrationTestCase
         $client = new MicrosoftOnlineConnector(
             $debugConfig,
             $logger,
-            self::resolve(JsonLogMasker::class)
+            self::resolve(JsonLogMasker::class),
         );
 
         $client->withMockClient($mockClient);
 
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 '[MicrosoftOnlineConnector] "{request.method} {request.uri}" {response.code}',
@@ -101,7 +103,7 @@ class MicrosoftOnlineConnectorTest extends IntegrationTestCase
                     'request.method' => 'GET',
                     'response.code' => 200,
                     'response.data' => 'this-is-response-data',
-                ]
+                ],
             );
 
         $client->withMockClient($mockClient);

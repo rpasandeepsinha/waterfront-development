@@ -11,16 +11,12 @@ class BasekitContextRepository
 {
     public function findByContext(UuidInterface $context): ?BasekitContext
     {
-        return BasekitContext::query()
-            ->where('context_uuid', $context)
-            ->first();
+        return BasekitContext::query()->where('context_uuid', $context)->first();
     }
 
     public function findWithTrashedByContext(UuidInterface $context): ?BasekitContext
     {
-        return BasekitContext::withTrashed()
-            ->where('context_uuid', $context)
-            ->first();
+        return BasekitContext::withTrashed()->where('context_uuid', $context)->first();
     }
 
     public function create(UuidInterface $context, int $userReference): BasekitContext
@@ -35,8 +31,6 @@ class BasekitContextRepository
 
     public function delete(UuidInterface $context): bool
     {
-        return (bool) BasekitContext::query()
-            ->where('context_uuid', $context)
-            ->delete();
+        return (bool) BasekitContext::query()->where('context_uuid', $context)->delete();
     }
 }

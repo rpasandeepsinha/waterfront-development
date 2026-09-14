@@ -16,7 +16,7 @@ class SrvRecord extends AbstractRecord implements DnsRecordInterface, ContentWit
         private readonly int $weight,
         private readonly int $port,
         int $ttl,
-        bool $disabled = false
+        bool $disabled = false,
     ) {
         parent::__construct('SRV', $name, rtrim($content, '.'), $ttl, $disabled);
     }

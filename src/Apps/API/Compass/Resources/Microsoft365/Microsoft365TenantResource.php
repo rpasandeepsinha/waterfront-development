@@ -33,8 +33,13 @@ class Microsoft365TenantResource
             'type' => $microsoft365CustomerInfo->type->value,
             'synced_at' => $microsoft365CustomerInfo->synced_at->toW3cString(),
             'mca_signed_at' => $microsoft365CustomerInfo->mca_signed_at?->toW3cString(),
-            'deployments' => $microsoft365CustomerInfo->microsoft365Deployments
-                ->map(fn (Microsoft365Deployment $deployment) => $this->microsoft365DeploymentResource->toArray($deployment))
+            'deployments' => $microsoft365CustomerInfo
+                ->microsoft365Deployments
+                ->map(
+                    fn (Microsoft365Deployment $deployment) => $this->microsoft365DeploymentResource->toArray(
+                        $deployment,
+                    ),
+                )
                 ->values()
                 ->all(),
         ];

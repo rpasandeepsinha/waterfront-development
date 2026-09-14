@@ -26,8 +26,7 @@ class PleskValidatorTest extends TestCase
         parent::setUp();
         $this->context = Str::uuid();
         $translator = $this->createStub(Translator::class);
-        $translator->method('get')
-            ->willReturnCallback(fn (string $message): mixed => $message);
+        $translator->method('get')->willReturnCallback(fn (string $message): mixed => $message);
         $this->pleskValidator = new PleskValidator(new Factory($translator));
     }
 

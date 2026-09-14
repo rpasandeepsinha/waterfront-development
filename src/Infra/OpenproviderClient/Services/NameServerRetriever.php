@@ -33,7 +33,7 @@ class NameServerRetriever
 
                 return $nameServer;
             },
-            $nsRecords
+            $nsRecords,
         ));
     }
 }

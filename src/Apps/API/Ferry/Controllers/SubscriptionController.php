@@ -14,7 +14,7 @@ use Waterfront\Domain\Ferry\Dto\ResponseDto;
 class SubscriptionController
 {
     public function __construct(
-        private readonly StoreSubscriptionAction $storeSubscriptionAction
+        private readonly StoreSubscriptionAction $storeSubscriptionAction,
     ) {
     }
 

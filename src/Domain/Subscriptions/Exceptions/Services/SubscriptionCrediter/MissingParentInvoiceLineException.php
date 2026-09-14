@@ -23,10 +23,8 @@ class MissingParentInvoiceLineException extends SubscriptionCrediterException
         ];
 
         parent::__construct(sprintf(
-            (
-                'Attempted to construct a message with an invoice line that has no attached parent invoice line. '
-                . 'Invoice line %d.'
-            ),
+            'Attempted to construct a message with an invoice line that has no attached parent invoice line. '
+            . 'Invoice line %d.',
             $invoiceLine->id,
         ));
     }

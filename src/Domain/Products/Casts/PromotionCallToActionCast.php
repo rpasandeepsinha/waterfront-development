@@ -16,8 +16,8 @@ use Waterfront\Domain\Products\DTO\Configuration\PromotionCallToAction;
 class PromotionCallToActionCast implements CastsAttributes
 {
     private const array KEY_MAP = [
-        'buttonText'       => 'button_text',
-        'destinationUrl'   => 'destination_url',
+        'buttonText' => 'button_text',
+        'destinationUrl' => 'destination_url',
         'priceDescription' => 'price_description',
     ];
 
@@ -49,10 +49,10 @@ class PromotionCallToActionCast implements CastsAttributes
     {
         $array = match (true) {
             $value instanceof PromotionCallToAction => [
-                'title'             => $value->title,
-                'button_text'       => $value->buttonText,
-                'description'       => $value->description,
-                'destination_url'   => $value->destinationUrl,
+                'title' => $value->title,
+                'button_text' => $value->buttonText,
+                'description' => $value->description,
+                'destination_url' => $value->destinationUrl,
                 'price_description' => $value->priceDescription,
             ],
             is_array($value) => $this->normalizeKeys($value),

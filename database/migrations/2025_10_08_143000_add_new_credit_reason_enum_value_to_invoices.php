@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-return new class () extends Migration {
+return new class() extends Migration {
     public function up(): void
     {
         DB::statement('ALTER TABLE invoices DROP CONSTRAINT invoices_credit_reason_check');
@@ -24,7 +24,9 @@ return new class () extends Migration {
             'reason_incorrect',
         ];
         $result = join(', ', array_map(fn ($value) => sprintf("'%s'::character varying", $value), $types));
-        DB::statement("ALTER TABLE invoices add CONSTRAINT invoices_credit_reason_check CHECK (credit_reason::text = ANY (ARRAY[$result]::text[]))");
+        DB::statement(
+            "ALTER TABLE invoices add CONSTRAINT invoices_credit_reason_check CHECK (credit_reason::text = ANY (ARRAY[$result]::text[]))",
+        );
     }
 
     public function down(): void
@@ -45,6 +47,8 @@ return new class () extends Migration {
             'reason_abuse',
         ];
         $result = join(', ', array_map(fn ($value) => sprintf("'%s'::character varying", $value), $types));
-        DB::statement("ALTER TABLE invoices add CONSTRAINT invoices_credit_reason_check CHECK (credit_reason::text = ANY (ARRAY[$result]::text[]))");
+        DB::statement(
+            "ALTER TABLE invoices add CONSTRAINT invoices_credit_reason_check CHECK (credit_reason::text = ANY (ARRAY[$result]::text[]))",
+        );
     }
 };

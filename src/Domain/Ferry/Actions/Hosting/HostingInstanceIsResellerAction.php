@@ -42,13 +42,13 @@ class HostingInstanceIsResellerAction
                         'username' => $username,
                         'payload.driver' => $driver,
                     ],
-                ]
+                ],
             );
 
             throw new HostingMigrationIsResellerException(
                 username: $username,
                 driver: $driver,
-                hostname: $hostname
+                hostname: $hostname,
             );
         }
     }

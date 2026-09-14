@@ -33,22 +33,22 @@ class SubscriptionPipeTest extends IntegrationTestCase
     #[Test]
     public function handleBadPayload(): void
     {
-        $customer      = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/subscriptions_bad_payload.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/subscriptions_bad_payload.php';
 
         $validationReference = 'unique_reference_for_adf';
 
         $validationPayload = new ValidationPayload(
             validationReference: $validationReference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $subscriptionPipe = self::resolve(SubscriptionPipe::class);
 
         $validationPayload = $subscriptionPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame($validationReference, $validationPayload->validationReference);
@@ -122,7 +122,7 @@ class SubscriptionPipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 
@@ -131,25 +131,46 @@ class SubscriptionPipeTest extends IntegrationTestCase
     {
         Log::spy();
 
-        $customer      = include(__DIR__ . '/data/customer_correct_already_migrated.php');
-        $subscriptions = include(__DIR__ . '/data/subscriptions_correct_already_migrated.php');
+        $customer = include __DIR__ . '/data/customer_correct_already_migrated.php';
+        $subscriptions = include __DIR__ . '/data/subscriptions_correct_already_migrated.php';
 
-        $product = ProductFactory::new()->for(ProductGroupFactory::new()->extension()->createOne())->createOne(['slug' => 'extension_nl']);
-        new ProductPriceComponentFactory()->for($product)->prolongation()->createOne(['price' => 1120]);
+        $product = ProductFactory::new()->for(ProductGroupFactory::new()->extension()->createOne())->createOne([
+            'slug' => 'extension_nl',
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
         $hostingGroup = ProductGroupFactory::new()->hosting()->createOne();
 
         $product = ProductFactory::new()->for($hostingGroup)->createOne(['slug' => 'start']);
-        new ProductPriceComponentFactory()->for($product)->prolongation()->createOne(['price' => 1120]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
         $product = ProductFactory::new()->freeRedirect()->createOne();
-        new ProductPriceComponentFactory()->for($product)->prolongation()->createOne(['price' => 1120]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
-        $product = ProductFactory::new()->for(ProductGroupFactory::new()->ssl()->createOne())->createOne(['slug' => 'ssl_single_domain']);
-        new ProductPriceComponentFactory()->for($product)->prolongation()->createOne(['price' => 1120]);
+        $product = ProductFactory::new()->for(ProductGroupFactory::new()->ssl()->createOne())->createOne([
+            'slug' => 'ssl_single_domain',
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
-        $product = ProductFactory::new()->for(ProductGroupFactory::new()->dns()->createOne())->createOne(['slug' => 'dns_free']);
-        new ProductPriceComponentFactory()->for($product)->prolongation()->createOne(['price' => 1120]);
+        $product = ProductFactory::new()->for(ProductGroupFactory::new()->dns()->createOne())->createOne([
+            'slug' => 'dns_free',
+        ]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne(['price' => 1120]);
 
         $migratedCustomer = MigratedCustomersFactory::new()->createOne([
             'reference_customer_number' => 'identifierunique',
@@ -175,14 +196,14 @@ class SubscriptionPipeTest extends IntegrationTestCase
         $validationPayload = new ValidationPayload(
             validationReference: $validationReference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $validationMessage = sprintf(
             'Migration Subscription for reference Product ID: {%s} and reference Subscription ID: {%s} with migration reference: %s already exists',
             $referenceProductId,
             $referenceSubscriptionId,
-            $validationReference
+            $validationReference,
         );
 
         $matched = false;
@@ -191,6 +212,7 @@ class SubscriptionPipeTest extends IntegrationTestCase
             if ($args === $validationMessage) {
                 $matched = true;
             }
+
             return true;
         });
 
@@ -198,7 +220,7 @@ class SubscriptionPipeTest extends IntegrationTestCase
 
         $validationPayload = $subscriptionPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertTrue($matched);
@@ -213,19 +235,19 @@ class SubscriptionPipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 
     #[Test]
     public function badReferencePrice(): void
     {
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/subscriptions_bad_reference_price.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/subscriptions_bad_reference_price.php';
 
-        $productSsl = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->ssl()->createOne())
-            ->createOne(['slug' => 'ssl_single_domain']);
+        $productSsl = ProductFactory::new()->for(ProductGroupFactory::new()->ssl()->createOne())->createOne([
+            'slug' => 'ssl_single_domain',
+        ]);
 
         new ProductPriceComponentFactory()
             ->for($productSsl)
@@ -241,14 +263,14 @@ class SubscriptionPipeTest extends IntegrationTestCase
         $validationPayload = new ValidationPayload(
             validationReference: $validationReference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $subscriptionPipe = self::resolve(SubscriptionPipe::class);
 
         $validationPayload = $subscriptionPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame($validationReference, $validationPayload->validationReference);
@@ -269,7 +291,7 @@ class SubscriptionPipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 
@@ -281,27 +303,30 @@ class SubscriptionPipeTest extends IntegrationTestCase
             'slug' => 'volume_discount_brons',
         ]);
 
-        new ProductPriceComponentFactory()->for($discountProduct)->prolongation()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($discountProduct)
+            ->prolongation()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/subscriptions_bad_volume_discount.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/subscriptions_bad_volume_discount.php';
 
         $validationReference = 'unique_reference_for_adf';
 
         $validationPayload = new ValidationPayload(
             validationReference: $validationReference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $subscriptionPipe = self::resolve(SubscriptionPipe::class);
 
         $validationPayload = $subscriptionPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame($validationReference, $validationPayload->validationReference);
@@ -321,7 +346,7 @@ class SubscriptionPipeTest extends IntegrationTestCase
                     ],
                 ],
             ],
-            $validationPayload->validationResults
+            $validationPayload->validationResults,
         );
     }
 }

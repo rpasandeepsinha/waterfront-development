@@ -104,9 +104,7 @@ class ResetDnsTemplateJobTest extends IntegrationTestCase
             ->parentSubscription($domainSubscription)
             ->createOne();
 
-        $this->dnsDeployment = new DnsDeploymentFactory()
-            ->for($this->dnsSubscription)
-            ->createOne();
+        $this->dnsDeployment = new DnsDeploymentFactory()->for($this->dnsSubscription)->createOne();
 
         $this->hostingSubscription = new SubscriptionFactory()
             ->for($customer)
@@ -114,7 +112,10 @@ class ResetDnsTemplateJobTest extends IntegrationTestCase
             ->forDomain(self::DOMAIN)
             ->createOne();
 
-        $this->hostingDeployment = new HostingDeploymentFactory()->for($this->hostingSubscription)->withPleskProvider()->createOne();
+        $this->hostingDeployment = new HostingDeploymentFactory()
+            ->for($this->hostingSubscription)
+            ->withPleskProvider()
+            ->createOne();
 
         $this->mockLogger = self::createMock(LoggerInterface::class);
         $this->mockHostingServiceFactory = self::createMock(HostingServiceFactory::class);
@@ -136,7 +137,7 @@ class ResetDnsTemplateJobTest extends IntegrationTestCase
                 new ResetDnsTemplateJob(
                     $this->dnsDeployment,
                     $this->hostingDeployment,
-                )
+                ),
             );
 
         Queue::assertPushedOn(QueueName::DNS->value, ResetDnsTemplateJob::class);
@@ -152,7 +153,7 @@ class ResetDnsTemplateJobTest extends IntegrationTestCase
                 new ResetDnsTemplateJob(
                     $this->dnsDeployment,
                     $this->hostingDeployment,
-                )
+                ),
             );
 
         Bus::assertNotDispatchedSync(ResetDnsTemplateJob::class);
@@ -176,7 +177,8 @@ class ResetDnsTemplateJobTest extends IntegrationTestCase
     {
         $dkimRecord = new DnsRecord('TXT', '_domainkey2.reset-dns-template.nl.', 'v=DKIM1; p=differentDKIM');
 
-        $this->mockLogger->expects(self::exactly(4))
+        $this->mockLogger
+            ->expects(self::exactly(4))
             ->method('debug')
             ->with(...self::withConsecutive(
                 [
@@ -228,7 +230,7 @@ class ResetDnsTemplateJobTest extends IntegrationTestCase
                             ],
                         ],
                     ],
-                ]
+                ],
             ));
 
         $zone = new DnsZone(new Fqdn(self::DOMAIN));
@@ -277,7 +279,7 @@ class ResetDnsTemplateJobTest extends IntegrationTestCase
                     name: $dkimRecord->host,
                     content: $dkimRecord->value,
                     ttl: 3600,
-                )
+                ),
             );
 
         $job = new ResetDnsTemplateJob(
@@ -342,7 +344,8 @@ class ResetDnsTemplateJobTest extends IntegrationTestCase
         $providerSetting->provider_id = $emailOnlyProvider->id;
         $providerSetting->save();
 
-        $this->mockLogger->expects(self::exactly(2))
+        $this->mockLogger
+            ->expects(self::exactly(2))
             ->method('debug')
             ->with(...self::withConsecutive(
                 [
@@ -390,13 +393,9 @@ class ResetDnsTemplateJobTest extends IntegrationTestCase
             ->with($this->hostingDeployment->provider->slug)
             ->willReturn($hostingServiceMock = self::createMock(HostingServiceInterface::class));
 
-        $hostingServiceMock
-            ->expects(self::once())
-            ->method('resetDnsForSitebuilder');
+        $hostingServiceMock->expects(self::once())->method('resetDnsForSitebuilder');
 
-        $hostingServiceMock
-            ->expects(self::never())
-            ->method('getDkimRecord');
+        $hostingServiceMock->expects(self::never())->method('getDkimRecord');
 
         $job = new ResetDnsTemplateJob(
             $this->dnsDeployment,

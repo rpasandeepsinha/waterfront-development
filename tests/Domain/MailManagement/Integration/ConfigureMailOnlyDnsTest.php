@@ -20,9 +20,9 @@ use Waterfront\Domain\MailManagement\Jobs\ConfigureMailOnlyDns;
 #[CoversClass(ConfigureMailOnlyDns::class)]
 class ConfigureMailOnlyDnsTest extends IntegrationTestCase
 {
-    public const string TEST_DOMAIN        = 'example.com';
+    public const string TEST_DOMAIN = 'example.com';
 
-    public const string TEST_PRIMARY_HOST  = 'mail.example.net';
+    public const string TEST_PRIMARY_HOST = 'mail.example.net';
 
     public const string TEST_FALLBACK_HOST = 'fallback.example.net';
 
@@ -45,18 +45,22 @@ class ConfigureMailOnlyDnsTest extends IntegrationTestCase
         $zone = new DnsZone(new Fqdn(self::TEST_DOMAIN));
         $zone->setRecords([]);
 
-        $this->dnsService->expects(self::exactly(2))->method('getDnsRecordsForDomain')->willReturn(new Collection($zone->getRecords()));
+        $this->dnsService
+            ->expects(self::exactly(2))
+            ->method('getDnsRecordsForDomain')
+            ->willReturn(new Collection($zone->getRecords()));
         $this->dnsService->expects(self::never())->method('deleteRecordFromObject');
         $this->dnsService->expects(self::exactly(3))->method('addRecordFromObject');
 
         $mailIpAddress = '127.0.0.1';
 
-        self::resolve(Dispatcher::class)->dispatchSync(new ConfigureMailOnlyDns(
-            self::TEST_DOMAIN,
-            self::TEST_PRIMARY_HOST,
-            self::TEST_FALLBACK_HOST,
-            $mailIpAddress
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatchSync(new ConfigureMailOnlyDns(
+                self::TEST_DOMAIN,
+                self::TEST_PRIMARY_HOST,
+                self::TEST_FALLBACK_HOST,
+                $mailIpAddress,
+            ));
     }
 
     #[Test]
@@ -69,24 +73,31 @@ class ConfigureMailOnlyDnsTest extends IntegrationTestCase
             new MxRecord(self::TEST_DOMAIN, self::TEST_FALLBACK_HOST, 20, 3600),
         ]);
 
-        $this->dnsService->expects(self::exactly(2))->method('getDnsRecordsForDomain')->willReturn(new Collection($zone->getRecords()));
+        $this->dnsService
+            ->expects(self::exactly(2))
+            ->method('getDnsRecordsForDomain')
+            ->willReturn(new Collection($zone->getRecords()));
         $this->dnsService->expects(self::exactly(3))->method('deleteRecordFromObject');
         $this->dnsService->expects(self::exactly(3))->method('addRecordFromObject');
 
         $mailIpAddress = '127.0.0.1';
 
-        self::resolve(Dispatcher::class)->dispatchSync(new ConfigureMailOnlyDns(
-            self::TEST_DOMAIN,
-            self::TEST_PRIMARY_HOST,
-            self::TEST_FALLBACK_HOST,
-            $mailIpAddress
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatchSync(new ConfigureMailOnlyDns(
+                self::TEST_DOMAIN,
+                self::TEST_PRIMARY_HOST,
+                self::TEST_FALLBACK_HOST,
+                $mailIpAddress,
+            ));
     }
 
     #[Test]
     public function setupNonexistingZone(): void
     {
-        $this->dnsService->expects(self::once())->method('getDnsRecordsForDomain')->willThrowException(new DnsZoneNotFoundException('Zone not found!!!'));
+        $this->dnsService
+            ->expects(self::once())
+            ->method('getDnsRecordsForDomain')
+            ->willThrowException(new DnsZoneNotFoundException('Zone not found!!!'));
         $this->dnsService->expects(self::never())->method('deleteRecordFromObject');
         $this->dnsService->expects(self::never())->method('addRecordFromObject');
 
@@ -94,11 +105,12 @@ class ConfigureMailOnlyDnsTest extends IntegrationTestCase
 
         $mailIpAddress = '127.0.0.1';
 
-        self::resolve(Dispatcher::class)->dispatchSync(new ConfigureMailOnlyDns(
-            self::TEST_DOMAIN,
-            self::TEST_PRIMARY_HOST,
-            self::TEST_FALLBACK_HOST,
-            $mailIpAddress
-        ));
+        self::resolve(Dispatcher::class)
+            ->dispatchSync(new ConfigureMailOnlyDns(
+                self::TEST_DOMAIN,
+                self::TEST_PRIMARY_HOST,
+                self::TEST_FALLBACK_HOST,
+                $mailIpAddress,
+            ));
     }
 }

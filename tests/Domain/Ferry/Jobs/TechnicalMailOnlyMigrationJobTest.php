@@ -80,7 +80,10 @@ class TechnicalMailOnlyMigrationJobTest extends IntegrationTestCase
 
         $hostingProduct = ProductFactory::new()->for($hostingGroup)->emailStart($hostingGroup)->createOne();
 
-        new ProductSpecFactory()->for($hostingProduct)->createOne(['name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value, 'value' => '1']);
+        new ProductSpecFactory()->for($hostingProduct)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '1',
+        ]);
 
         $this->mailOnlySubscription = SubscriptionFactory::new()
             ->for($customer)
@@ -91,14 +94,19 @@ class TechnicalMailOnlyMigrationJobTest extends IntegrationTestCase
             ]);
 
         /** @var Server $server */
-        $server = ServerFactory::new()->directadminMail()->createOne([
-            'hostname' => self::TEST_DIRECTADMIN_SERVER,
-            'domain' => self::TEST_DIRECTADMIN_SERVER,
-            'name' => self::TEST_DIRECTADMIN_SERVER,
-        ])->fresh(); // fresh or else the "wasRecentlyCreated" won't match in the mocked "with" params
+        $server = ServerFactory::new()
+            ->directadminMail()
+            ->createOne([
+                'hostname' => self::TEST_DIRECTADMIN_SERVER,
+                'domain' => self::TEST_DIRECTADMIN_SERVER,
+                'name' => self::TEST_DIRECTADMIN_SERVER,
+            ])
+            ->fresh(); // fresh or else the "wasRecentlyCreated" won't match in the mocked "with" params
         $this->server = $server;
 
-        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne(['reference_subscription_id' => 'sub_1337_1']);
+        $migratedSubscription = MigratedSubscriptionsFactory::new()->createOne([
+            'reference_subscription_id' => 'sub_1337_1',
+        ]);
         $this->mailOnlySubscription->migratedSubscriptions()->attach($migratedSubscription);
 
         $migratedCustomer = MigratedCustomersFactory::new()->createOne([
@@ -139,7 +147,7 @@ class TechnicalMailOnlyMigrationJobTest extends IntegrationTestCase
     #[DataProvider('mailOnlyMigrationJobProvider')]
     #[Test]
     public function mailOnlyMigrationJob(
-        string|null $subscriptionDomain,
+        ?string $subscriptionDomain,
         string $remoteDomain,
         bool $isReseller,
         bool $isUsingDefaultSpamExperts,
@@ -158,10 +166,10 @@ class TechnicalMailOnlyMigrationJobTest extends IntegrationTestCase
             $this->migratedCustomer->save();
         }
 
-        $daHostingService->method('getDefaultDomain')
-            ->willReturn($remoteDomain);
+        $daHostingService->method('getDefaultDomain')->willReturn($remoteDomain);
 
-        $daHostingService->method('getUserConfigAsDto')
+        $daHostingService
+            ->method('getUserConfigAsDto')
             ->willReturn(
                 new UserConfig(
                     dnscontrol: 'OFF', // Since email is never managed in DA itself it will always be off
@@ -175,7 +183,7 @@ class TechnicalMailOnlyMigrationJobTest extends IntegrationTestCase
                     package: 'basic',
                     usertype: $isReseller ? HostingUserType::RESELLER : HostingUserType::USER,
                     domain: $remoteDomain,
-                )
+                ),
             );
 
         $daHostingService->method('modifyCustomer')->willReturn(true);
@@ -190,13 +198,13 @@ class TechnicalMailOnlyMigrationJobTest extends IntegrationTestCase
             $this->migratedSubscription->reference_subscription_id ?? 'sub_1337_1',
             ProviderSlug::DIRECTADMIN->value,
             $this->server->getDomain(),
-            new DirectAdminHostingDetails($this->directAdminUsername)
+            new DirectAdminHostingDetails($this->directAdminUsername),
         );
 
         $job = new TechnicalMailOnlyMigrationJob(
             subscription: $this->mailOnlySubscription,
             failedTechnicalStatus: TechnicalStatus::FAILED->value,
-            payload: $payload
+            payload: $payload,
         );
 
         $adfService = self::resolve(AdfPayloadService::class);

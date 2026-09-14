@@ -79,10 +79,12 @@ abstract class RepairFailedDomainSubscriptionJob extends AbstractQueueableJob
     ): void {
         $logger->info(
             message: $this->dryRun ? $dryRunMessage : $executingMessage,
-            context: $this->buildLogContext($domainDeployment) + [
-                LoggingContextKeys::META => $meta + [
-                    'dry_run' => $this->dryRun,
-                ],
+            context: $this->buildLogContext($domainDeployment)
+            + [
+                LoggingContextKeys::META => $meta
+                    + [
+                        'dry_run' => $this->dryRun,
+                    ],
             ],
         );
     }

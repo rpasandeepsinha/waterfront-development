@@ -30,8 +30,8 @@ class CreateResellerHostingJob extends AbstractQueueableJob
         $logger->debug(
             sprintf(
                 'Subscription with UUID: {%s} for reseller hosting is triggered.',
-                $this->subscriptionUuid
-            )
+                $this->subscriptionUuid,
+            ),
         );
 
         $resellerHostingService->create(
@@ -40,7 +40,7 @@ class CreateResellerHostingJob extends AbstractQueueableJob
             $this->contactEmail,
             $this->serverId,
             $this->product,
-            $this->customer
+            $this->customer,
         );
     }
 

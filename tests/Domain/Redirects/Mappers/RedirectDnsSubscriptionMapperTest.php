@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Ramsey\Uuid\Uuid;
+use Tests\Factories\LegacyRedirectingServerFactory;
 use Tests\IntegrationTestCase;
 use Waterfront\Domain\DNS\Entities\DnsRecords\DefaultRecord;
 use Waterfront\Domain\DNS\Enums\DnsRecordType;
@@ -18,6 +19,12 @@ use Waterfront\Domain\Redirects\Mappers\RedirectDnsSubscriptionMapper;
 class RedirectDnsSubscriptionMapperTest extends IntegrationTestCase
 {
     private const string SUBSCRIPTION_UUID = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+
+    private const string REDIRECT_DNS = 'sandwaveio.dev';
+
+    private const string REDIRECT_IPV4 = '127.0.0.1';
+
+    private const string REDIRECT_IPV6 = '::1';
 
     private RedirectDnsSubscriptionMapper $mapper;
 
@@ -58,9 +65,9 @@ class RedirectDnsSubscriptionMapperTest extends IntegrationTestCase
     }
 
     #[Test]
-    public function assignsUuidToMatchingARecord(): void
+    public function doesNotAssignUuidToARecordPointingAtTheRedirectService(): void
     {
-        $record = new DefaultRecord(DnsRecordType::A->value, 'example.com', '127.0.0.1', 1200);
+        $record = new DefaultRecord(DnsRecordType::A->value, 'example.com', self::REDIRECT_IPV4, 1200);
 
         $result = $this->mapper->addSubscriptionUuidToDnsRecords(
             $this->createDnsRecordCollection([$record]),
@@ -68,26 +75,57 @@ class RedirectDnsSubscriptionMapperTest extends IntegrationTestCase
         );
 
         self::assertCount(1, $result);
-        self::assertSame(self::SUBSCRIPTION_UUID, $result->firstOrFail()->redirectUuid);
+        self::assertNull($result->firstOrFail()->redirectUuid);
     }
 
     #[Test]
-    public function assignsUuidToMatchingAaaaRecord(): void
+    public function doesNotAssignUuidToAaaaRecordPointingAtTheRedirectService(): void
     {
-        $record = new DefaultRecord(DnsRecordType::AAAA->value, 'example.com', '::1', 1200);
+        $record = new DefaultRecord(DnsRecordType::AAAA->value, 'example.com', self::REDIRECT_IPV6, 1200);
 
         $result = $this->mapper->addSubscriptionUuidToDnsRecords(
             $this->createDnsRecordCollection([$record]),
             Uuid::fromString(self::SUBSCRIPTION_UUID),
         );
 
-        self::assertSame(self::SUBSCRIPTION_UUID, $result->firstOrFail()->redirectUuid);
+        self::assertNull($result->firstOrFail()->redirectUuid);
+    }
+
+    #[Test]
+    public function doesNotAssignUuidToARecordPointingAtALegacyRedirectingServer(): void
+    {
+        $legacyServer = LegacyRedirectingServerFactory::new()->createOne();
+
+        $record = new DefaultRecord(DnsRecordType::A->value, 'example.com', $legacyServer->ipv4, 1200);
+
+        $result = $this->mapper->addSubscriptionUuidToDnsRecords(
+            $this->createDnsRecordCollection([$record]),
+            Uuid::fromString(self::SUBSCRIPTION_UUID),
+        );
+
+        self::assertNull($result->firstOrFail()->redirectUuid);
+    }
+
+    #[Test]
+    public function doesNotAssignUuidToAaaaRecordPointingAtALegacyRedirectingServer(): void
+    {
+        $legacyServer = LegacyRedirectingServerFactory::new()->createOne();
+        self::assertNotNull($legacyServer->ipv6);
+
+        $record = new DefaultRecord(DnsRecordType::AAAA->value, 'example.com', $legacyServer->ipv6, 1200);
+
+        $result = $this->mapper->addSubscriptionUuidToDnsRecords(
+            $this->createDnsRecordCollection([$record]),
+            Uuid::fromString(self::SUBSCRIPTION_UUID),
+        );
+
+        self::assertNull($result->firstOrFail()->redirectUuid);
     }
 
     #[Test]
     public function assignsUuidToMatchingCnameRecord(): void
     {
-        $record = new DefaultRecord(DnsRecordType::CNAME->value, 'www.example.com', 'sandwaveio.dev', 1200);
+        $record = new DefaultRecord(DnsRecordType::CNAME->value, 'www.example.com', self::REDIRECT_DNS, 1200);
 
         $result = $this->mapper->addSubscriptionUuidToDnsRecords(
             $this->createDnsRecordCollection([$record]),
@@ -100,7 +138,7 @@ class RedirectDnsSubscriptionMapperTest extends IntegrationTestCase
     #[Test]
     public function assignsUuidToMatchingAliasRecord(): void
     {
-        $record = new DefaultRecord(DnsRecordType::ALIAS->value, 'example.com', 'sandwaveio.dev', 1200);
+        $record = new DefaultRecord(DnsRecordType::ALIAS->value, 'example.com', self::REDIRECT_DNS, 1200);
 
         $result = $this->mapper->addSubscriptionUuidToDnsRecords(
             $this->createDnsRecordCollection([$record]),
@@ -111,7 +149,20 @@ class RedirectDnsSubscriptionMapperTest extends IntegrationTestCase
     }
 
     #[Test]
-    public function doesNotAssignUuidWhenSourceDoesNotMatch(): void
+    public function assignsUuidToMatchingCnameRecordWithTrailingDot(): void
+    {
+        $record = new DefaultRecord(DnsRecordType::CNAME->value, 'www.example.com', self::REDIRECT_DNS . '.', 1200);
+
+        $result = $this->mapper->addSubscriptionUuidToDnsRecords(
+            $this->createDnsRecordCollection([$record]),
+            Uuid::fromString(self::SUBSCRIPTION_UUID),
+        );
+
+        self::assertSame(self::SUBSCRIPTION_UUID, $result->firstOrFail()->redirectUuid);
+    }
+
+    #[Test]
+    public function doesNotAssignUuidToARecordWithUnrelatedContent(): void
     {
         $record = new DefaultRecord(DnsRecordType::A->value, 'other.com', '1.2.3.4', 1200);
 
@@ -124,9 +175,9 @@ class RedirectDnsSubscriptionMapperTest extends IntegrationTestCase
     }
 
     #[Test]
-    public function doesNotAssignUuidWhenTargetDoesNotMatch(): void
+    public function doesNotAssignUuidWhenCnameTargetDoesNotMatch(): void
     {
-        $record = new DefaultRecord(DnsRecordType::A->value, 'example.com', '5.6.7.8', 1200);
+        $record = new DefaultRecord(DnsRecordType::CNAME->value, 'www.example.com', 'other.example.net', 1200);
 
         $result = $this->mapper->addSubscriptionUuidToDnsRecords(
             $this->createDnsRecordCollection([$record]),
@@ -139,25 +190,25 @@ class RedirectDnsSubscriptionMapperTest extends IntegrationTestCase
     #[Test]
     public function handlesMixedRecordsWithPartialMatches(): void
     {
-        $aRecord = new DefaultRecord(DnsRecordType::A->value, 'example.com', '127.0.0.1', 1200);
+        $aRecordOnRedirectIp = new DefaultRecord(DnsRecordType::A->value, 'example.com', self::REDIRECT_IPV4, 1200);
         $txtRecord = new DefaultRecord(DnsRecordType::TXT->value, 'example.com', 'v=spf1', 3600);
-        $cnameRecord = new DefaultRecord(DnsRecordType::CNAME->value, 'www.example.com', 'sandwaveio.dev', 1200);
+        $cnameRecord = new DefaultRecord(DnsRecordType::CNAME->value, 'www.example.com', self::REDIRECT_DNS, 1200);
         $aNoMatch = new DefaultRecord(DnsRecordType::A->value, 'other.com', '9.9.9.9', 1200);
 
         $result = $this->mapper->addSubscriptionUuidToDnsRecords(
-            $this->createDnsRecordCollection([$aRecord, $txtRecord, $cnameRecord, $aNoMatch]),
+            $this->createDnsRecordCollection([$aRecordOnRedirectIp, $txtRecord, $cnameRecord, $aNoMatch]),
             Uuid::fromString(self::SUBSCRIPTION_UUID),
         );
 
         self::assertCount(4, $result);
-        self::assertSame(self::SUBSCRIPTION_UUID, $result->get(0)?->redirectUuid);
+        self::assertNull($result->get(0)?->redirectUuid);
         self::assertNull($result->get(1)?->redirectUuid);
         self::assertSame(self::SUBSCRIPTION_UUID, $result->get(2)?->redirectUuid);
         self::assertNull($result->get(3)?->redirectUuid);
     }
 
     #[Test]
-    public function doesNotAssignUuidWhenActiveRedirectsIsEmpty(): void
+    public function doesNotAssignUuidWhenNoLegacyRedirectingServersExist(): void
     {
         $record = new DefaultRecord(DnsRecordType::A->value, 'example.com', '1.2.3.4', 1200);
 
@@ -170,31 +221,32 @@ class RedirectDnsSubscriptionMapperTest extends IntegrationTestCase
     }
 
     #[Test]
-    public function matchesOnlyTheFirstMatchingRedirectAndBreaks(): void
+    public function assignsUuidToEveryMatchingRecordInTheCollection(): void
     {
-        $record = new DefaultRecord(DnsRecordType::A->value, 'example.com', '127.0.0.1', 1200);
+        $cnameRecord = new DefaultRecord(DnsRecordType::CNAME->value, 'www.example.com', self::REDIRECT_DNS, 1200);
+        $aliasRecord = new DefaultRecord(DnsRecordType::ALIAS->value, 'example.com', self::REDIRECT_DNS, 1200);
 
         $result = $this->mapper->addSubscriptionUuidToDnsRecords(
-            $this->createDnsRecordCollection([$record]),
-            Uuid::fromString(self::SUBSCRIPTION_UUID),
-        );
-
-        self::assertSame(self::SUBSCRIPTION_UUID, $result->firstOrFail()->redirectUuid);
-    }
-
-    #[Test]
-    public function handlesMultipleRedirectTypeRecordsWithDifferentSubscriptions(): void
-    {
-        $aRecord = new DefaultRecord(DnsRecordType::A->value, 'example.com', '127.0.0.1', 1200);
-        $aaaaRecord = new DefaultRecord(DnsRecordType::AAAA->value, 'example.com', '::1', 1200);
-
-        $result = $this->mapper->addSubscriptionUuidToDnsRecords(
-            $this->createDnsRecordCollection([$aRecord, $aaaaRecord]),
+            $this->createDnsRecordCollection([$cnameRecord, $aliasRecord]),
             Uuid::fromString(self::SUBSCRIPTION_UUID),
         );
 
         self::assertSame(self::SUBSCRIPTION_UUID, $result->get(0)?->redirectUuid);
         self::assertSame(self::SUBSCRIPTION_UUID, $result->get(1)?->redirectUuid);
+    }
+
+    #[Test]
+    public function assignsTheGivenSubscriptionUuidToEachMatchingRecord(): void
+    {
+        $otherUuid = Uuid::uuid4();
+        $record = new DefaultRecord(DnsRecordType::ALIAS->value, 'example.com', self::REDIRECT_DNS, 1200);
+
+        $result = $this->mapper->addSubscriptionUuidToDnsRecords(
+            $this->createDnsRecordCollection([$record]),
+            $otherUuid,
+        );
+
+        self::assertSame($otherUuid->toString(), $result->firstOrFail()->redirectUuid);
     }
 
     /**

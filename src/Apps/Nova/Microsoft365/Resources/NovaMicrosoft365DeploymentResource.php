@@ -48,7 +48,9 @@ class NovaMicrosoft365DeploymentResource extends Resource
 
     public function title(): string
     {
-        return $this->resource->kpn_order_id !== null ? (string) $this->resource->kpn_order_id : (string) $this->resource->id;
+        return $this->resource->kpn_order_id !== null
+            ? (string) $this->resource->kpn_order_id
+            : (string) $this->resource->id;
     }
 
     public static function label(): string
@@ -66,27 +68,57 @@ class NovaMicrosoft365DeploymentResource extends Resource
             BelongsTo::make(
                 self::translate('microsoft365-subscriptions.kpn-customer'),
                 'microsoft365CustomerInfo',
-                NovaMicrosoft365CustomerResource::class
-            )->searchable()->sortable(),
-            Text::make(self::translate('microsoft365-subscriptions.parent-subscription'), 'subscription_id')->onlyOnForms(),
-            Text::make(self::translate('subscription.relations.product'), fn (): string => $this->resource->subscription->children->count() === 0 ?
-                $this->resource->subscription->product->name :
-                $this->resource->subscription->children->firstOrFail()->product->name),
+                NovaMicrosoft365CustomerResource::class,
+            )
+                ->searchable()
+                ->sortable(),
+            Text::make(
+                self::translate('microsoft365-subscriptions.parent-subscription'),
+                'subscription_id',
+            )->onlyOnForms(),
+            Text::make(self::translate('subscription.relations.product'), fn (): string => $this->resource
+                ->subscription
+                ->children
+                ->count() === 0
+                    ? $this->resource->subscription->product->name
+                    : $this->resource
+                        ->subscription
+                        ->children
+                        ->firstOrFail()
+                        ->product
+                        ->name),
             Text::make(
                 self::translate('subscription.attributes.period'),
                 function (): string {
                     if ($this->resource->subscription->children->count() === 0) {
-                        return $this->resource->subscription->contract_period === 1 ?
-                            $this->resource->subscription->contract_period . ' ' . self::translate('subscription.attributes.month') :
-                            $this->resource->subscription->contract_period . ' ' . self::translate('subscription.attributes.period_name');
+                        return $this->resource->subscription->contract_period === 1
+                            ? $this->resource->subscription->contract_period
+                            . ' '
+                            . self::translate('subscription.attributes.month')
+                            : $this->resource->subscription->contract_period
+                            . ' '
+                            . self::translate('subscription.attributes.period_name');
                     }
-                    return $this->resource->subscription->children->firstOrFail()->contract_period === 1 ?
-                        $this->resource->subscription->children->firstOrFail()->contract_period . ' ' . self::translate('subscription.attributes.month') :
-                        $this->resource->subscription->children->firstOrFail()->contract_period . ' ' . self::translate('subscription.attributes.period_name');
-                }
+
+                    return $this->resource->subscription->children->firstOrFail()->contract_period === 1
+                        ? $this->resource->subscription->children->firstOrFail()->contract_period
+                        . ' '
+                        . self::translate('subscription.attributes.month')
+                        : $this->resource->subscription->children->firstOrFail()->contract_period
+                        . ' '
+                        . self::translate('subscription.attributes.period_name');
+                },
             )->exceptOnForms(),
-            Number::make('# Active seats', fn (): int => $this->resource->subscription->children->where('administrative_status', AdministrativeStatus::ACTIVE->value)->count()),
-            Number::make('# Canceled seats', fn (): int => $this->resource->subscription->children->where('administrative_status', AdministrativeStatus::CANCELED->value)->count()),
+            Number::make('# Active seats', fn (): int => $this->resource
+                ->subscription
+                ->children
+                ->where('administrative_status', AdministrativeStatus::ACTIVE->value)
+                ->count()),
+            Number::make('# Canceled seats', fn (): int => $this->resource
+                ->subscription
+                ->children
+                ->where('administrative_status', AdministrativeStatus::CANCELED->value)
+                ->count()),
             Number::make('KPN order ID', 'kpn_order_id')->sortable(),
             Select::make('KPN status', 'kpn_status')
                 ->options([
@@ -122,22 +154,22 @@ class NovaMicrosoft365DeploymentResource extends Resource
             HasMany::make(
                 self::translate('subscription.singular'),
                 'subscription',
-                NovaSubscriptionResource::class
+                NovaSubscriptionResource::class,
             ),
             HasMany::make(
                 self::translate('microsoft365-subscriptions.seats'),
                 'subscriptionChildren',
-                NovaSubscriptionResource::class
+                NovaSubscriptionResource::class,
             ),
             HasMany::make(
                 self::translate('nova-resource-labels.microsoft365-sync-logs'),
                 'microsoft365SyncLogs',
-                NovaMicrosoft365SyncLogsResource::class
+                NovaMicrosoft365SyncLogsResource::class,
             ),
             HasMany::make(
                 self::translate('nova-resource-labels.microsoft365-logs'),
                 'microsoft365HttpLogs',
-                NovaMicrosoft365LogsResource::class
+                NovaMicrosoft365LogsResource::class,
             ),
         ];
     }

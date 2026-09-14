@@ -17,8 +17,9 @@ use Webmozart\Assert\Assert;
 
 readonly class BaseTechnicalDeploymentResource
 {
-    public function __construct(private SubscriptionPolicy $subscriptionPolicy)
-    {
+    public function __construct(
+        private SubscriptionPolicy $subscriptionPolicy,
+    ) {
     }
 
     /**
@@ -33,11 +34,7 @@ readonly class BaseTechnicalDeploymentResource
      * }
      */
     public function toArray(
-        DomainDeployment|
-        HostingDeployment|
-        ResellerHostingDeployment|
-        VirtualMachineDeployment|
-        SslDeployment $technicalDeployment
+        DomainDeployment|HostingDeployment|ResellerHostingDeployment|VirtualMachineDeployment|SslDeployment $technicalDeployment,
     ): array {
         return [
             'id' => $technicalDeployment->id,
@@ -52,18 +49,14 @@ readonly class BaseTechnicalDeploymentResource
 
     private function getServiceProvider(
         Subscription $subscription,
-        HostingDeployment|
-        DomainDeployment|
-        ResellerHostingDeployment|
-        VirtualMachineDeployment|
-        SslDeployment $technicalDeployment
+        HostingDeployment|DomainDeployment|ResellerHostingDeployment|VirtualMachineDeployment|SslDeployment $technicalDeployment,
     ): ?string {
         return match ($subscription->product->productGroup->slug) {
             ProductGroupType::VPS => ProvisionProvider::CLOUDSTACK->value,
             ProductGroupType::RESELLER_HOSTING => $subscription->resellerHostingDeployment?->provider->slug->value,
             ProductGroupType::HOSTING => $this->determineActualHostingProvider($subscription, $technicalDeployment),
             ProductGroupType::EXTENSION => $subscription->domainDeployment->provider->slug->value ?? null,
-            ProductGroupType::SSL =>  $subscription->sslDeployment?->provider->slug->value,
+            ProductGroupType::SSL => $subscription->sslDeployment?->provider->slug->value,
             ProductGroupType::MANUAL_SUBSCRIPTION => null,
             default => null,
         };
@@ -71,23 +64,19 @@ readonly class BaseTechnicalDeploymentResource
 
     private function determineActualHostingProvider(
         Subscription $subscription,
-        HostingDeployment|
-        DomainDeployment|
-        ResellerHostingDeployment|
-        VirtualMachineDeployment|
-        SslDeployment $technicalDeployment
+        HostingDeployment|DomainDeployment|ResellerHostingDeployment|VirtualMachineDeployment|SslDeployment $technicalDeployment,
     ): ?string {
         $hostingDeployment = $technicalDeployment;
         Assert::isInstanceOf(
             $hostingDeployment,
             HostingDeployment::class,
-            'Deployment is not instance of HostingDeployment'
+            'Deployment is not instance of HostingDeployment',
         );
 
-        return match(true) {
+        return match (true) {
             $subscription->product->isSitebuilderProduct() => $hostingDeployment->sitebuilderProvider?->slug->value,
             $subscription->product->isMailOnlyServer() => $hostingDeployment->mailProvider?->slug->value,
-            default => $hostingDeployment->provider?->slug->value
+            default => $hostingDeployment->provider?->slug->value,
         };
     }
 }

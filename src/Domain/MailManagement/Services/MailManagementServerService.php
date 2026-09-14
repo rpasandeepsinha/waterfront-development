@@ -27,17 +27,13 @@ class MailManagementServerService
     {
         $usesMailOnlyServer = $this->productSpecRepository->booleanSpecificationIsTrue(
             $hostingDeployment->subscription->product,
-            ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER
+            ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER,
         );
 
-        $server = $usesMailOnlyServer
-            ? $hostingDeployment->mailOnlyServer
-            : $hostingDeployment->server;
+        $server = $usesMailOnlyServer ? $hostingDeployment->mailOnlyServer : $hostingDeployment->server;
 
         // Fallback for when product spec gets changed on production
-        $server ??= $usesMailOnlyServer
-            ? $hostingDeployment->server
-            : $hostingDeployment->mailOnlyServer;
+        $server ??= $usesMailOnlyServer ? $hostingDeployment->server : $hostingDeployment->mailOnlyServer;
 
         if ($server === null) {
             throw new RuntimeException(
@@ -48,10 +44,11 @@ class MailManagementServerService
                     $hostingDeployment->uuid,
                     $usesMailOnlyServer ? 'yes' : 'no',
                     $hostingDeployment->server_id,
-                    $hostingDeployment->mail_only_server_id
-                )
+                    $hostingDeployment->mail_only_server_id,
+                ),
             );
         }
+
         return $server;
     }
 
@@ -63,6 +60,7 @@ class MailManagementServerService
         $subscription = $this->deploymentRepository->getByActiveDomain($domain);
         $deployment = $subscription->hostingDeployment;
         Assert::notNull($deployment);
+
         return $this->getServer($deployment);
     }
 }

@@ -47,15 +47,25 @@ class SitebuilderTest extends IntegrationTestCase
         $this->customer = new CustomerFactory()->createOne();
         $hostingProductGroup = new ProductGroupFactory()->hosting()->createOne();
 
-        $this->sitebuilderProduct = new ProductFactory()->siteBuilder($hostingProductGroup)->createOne();
-        $subscription = new SubscriptionFactory()->for($this->sitebuilderProduct)->for($this->customer)->createOne();
+        $this->sitebuilderProduct = new ProductFactory()
+            ->siteBuilder($hostingProductGroup)
+            ->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->sitebuilderProduct)
+            ->for($this->customer)
+            ->createOne();
 
         $server = new ServerFactory()->createOne([
             'type' => ServerType::SITEBUILDER,
             'hostname' => 'sandwave.io',
         ]);
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $sitebuilderProvider = ProviderFactory::new()->createOne([
             'type' => ProviderType::SITEBUILDER,
             'slug' => ProviderSlug::BASEKIT,
@@ -94,8 +104,9 @@ class SitebuilderTest extends IntegrationTestCase
 
         $this->actingAsCustomer($this->customer)
             ->getJson(
-                $this->generateRoute('partners.sitebuilder.sso', $this->hostingDeployment->subscription_uuid)
-            )->assertOk()
+                $this->generateRoute('partners.sitebuilder.sso', $this->hostingDeployment->subscription_uuid),
+            )
+            ->assertOk()
             ->assertJsonFragment(['url' => 'https://flow.sandwave.io/login?hash=0123456789abcdef&siteRef=2']);
     }
 
@@ -121,15 +132,19 @@ class SitebuilderTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (GetSitebuilderSsoRequest $request) => $request->tag->toString() === $subscription->uuid && $request->context->toString() === $subscription->uuid
-                )
+                    fn (GetSitebuilderSsoRequest $request) => (
+                        $request->tag->toString() === $subscription->uuid
+                        && $request->context->toString() === $subscription->uuid
+                    ),
+                ),
             )
             ->willReturn($mockResult);
 
         $this->actingAsCustomer($this->customer)
             ->getJson(
-                $this->generateRoute('partners.sitebuilder.sso', $subscription->uuid)
-            )->assertOk()
+                $this->generateRoute('partners.sitebuilder.sso', $subscription->uuid),
+            )
+            ->assertOk()
             ->assertJsonFragment(['url' => $expectedSso]);
     }
 
@@ -141,8 +156,9 @@ class SitebuilderTest extends IntegrationTestCase
 
         $this->actingAsCustomer($this->customer)
             ->getJson(
-                $this->generateRoute('partners.sitebuilder.sso', $this->hostingDeployment->subscription_uuid)
-            )->assertServerError();
+                $this->generateRoute('partners.sitebuilder.sso', $this->hostingDeployment->subscription_uuid),
+            )
+            ->assertServerError();
     }
 
     #[Test]
@@ -153,8 +169,9 @@ class SitebuilderTest extends IntegrationTestCase
 
         $this->actingAsCustomer($this->customer)
             ->getJson(
-                $this->generateRoute('partners.sitebuilder.sso', $this->hostingDeployment->subscription_uuid)
-            )->assertServerError();
+                $this->generateRoute('partners.sitebuilder.sso', $this->hostingDeployment->subscription_uuid),
+            )
+            ->assertServerError();
     }
 
     #[Test]
@@ -165,7 +182,8 @@ class SitebuilderTest extends IntegrationTestCase
 
         $this->actingAsCustomer($this->customer)
             ->getJson(
-                $this->generateRoute('partners.sitebuilder.sso', $this->hostingDeployment->subscription_uuid)
-            )->assertServerError();
+                $this->generateRoute('partners.sitebuilder.sso', $this->hostingDeployment->subscription_uuid),
+            )
+            ->assertServerError();
     }
 }

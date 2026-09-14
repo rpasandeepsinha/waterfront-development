@@ -60,6 +60,7 @@ class HubspotSynchronizer
                     $hubspotUpdateDtos[] = $data;
                     continue;
                 }
+
                 $hubspotCreateDtos[] = $data;
             }
 
@@ -75,6 +76,7 @@ class HubspotSynchronizer
                     $hubspotUpdateDtos[] = $data;
                     continue;
                 }
+
                 $hubspotCreateDtos[] = $data;
             }
 
@@ -91,6 +93,7 @@ class HubspotSynchronizer
         if (count($hubspotCreateDtos) === 0) {
             return;
         }
+
         $event = $this->hubspotEventRepository->createPendingEvent($customerId, 'batch create subscriptions');
 
         $batches = array_chunk($hubspotCreateDtos, $this->config->createBatchSize);
@@ -99,8 +102,12 @@ class HubspotSynchronizer
                 $createResult = $this->subscriptionClient->createBatch($batch);
 
                 if ($createResult === null) {
-                    $this->logger->error(sprintf('create subscription batch with count: %s empty result', count($hubspotCreateDtos)));
+                    $this->logger->error(sprintf(
+                        'create subscription batch with count: %s empty result',
+                        count($hubspotCreateDtos),
+                    ));
                     $this->hubspotEventRepository->markEventAsFailed($event, 'Failed to batch create subscriptions');
+
                     return;
                 }
 
@@ -109,11 +116,12 @@ class HubspotSynchronizer
                 $this->logger->error(
                     sprintf(
                         'hubspotClientException for  create subscription batch with count: %s',
-                        count($hubspotCreateDtos)
+                        count($hubspotCreateDtos),
                     ),
-                    [LoggingContextKeys::EXCEPTION => $exception]
+                    [LoggingContextKeys::EXCEPTION => $exception],
                 );
                 $this->hubspotEventRepository->markEventAsFailed($event, $exception->getMessage());
+
                 return;
             }
         }
@@ -133,7 +141,9 @@ class HubspotSynchronizer
                 $syncObject->hubspot_object_id = $hubspotObject->hubspotId;
                 assert(is_string($hubspotObject->uuid));
                 $syncObject->sandwave_object_id = Uuid::fromString($hubspotObject->uuid);
-                $syncObject->sandwave_object_type = $hubspotObject->otsStatus === null ? HubspotObjectType::SUBSCRIPTION : HubspotObjectType::ONE_TIME_SUBSCRIPTION;
+                $syncObject->sandwave_object_type = $hubspotObject->otsStatus === null
+                    ? HubspotObjectType::SUBSCRIPTION
+                    : HubspotObjectType::ONE_TIME_SUBSCRIPTION;
                 $syncObject->synced_at = CarbonImmutable::now();
                 $syncObject->save();
             } catch (AssertionError $e) {
@@ -164,11 +174,12 @@ class HubspotSynchronizer
                 $this->logger->error(
                     sprintf(
                         'hubspotClientException for  update subscription batch with count: %s',
-                        count($hubspotUpdateDtos)
+                        count($hubspotUpdateDtos),
                     ),
-                    [LoggingContextKeys::EXCEPTION => $exception]
+                    [LoggingContextKeys::EXCEPTION => $exception],
                 );
                 $this->hubspotEventRepository->markEventAsFailed($event, $exception->getMessage());
+
                 return;
             }
         }
@@ -188,7 +199,7 @@ class HubspotSynchronizer
             } catch (AssertionError $e) {
                 $this->logger->error(
                     sprintf('failed to update hubspotSyncObject with uuid %s', $hubspotUpdateDto->uuid),
-                    [LoggingContextKeys::EXCEPTION => $e]
+                    [LoggingContextKeys::EXCEPTION => $e],
                 );
                 continue;
             }

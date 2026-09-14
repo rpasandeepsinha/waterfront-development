@@ -30,7 +30,7 @@ class DnsRecordValidator extends Validator
         array $data,
         array $rules,
         array $messages = [],
-        array $customAttributes = []
+        array $customAttributes = [],
     ) {
         parent::__construct($translator, $data, $rules, $messages, $customAttributes);
         $this->initialRules = $rules;

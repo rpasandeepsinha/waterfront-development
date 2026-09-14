@@ -42,7 +42,9 @@ class ManualMigrationController
 
         try {
             $subscriptionId = $this->manualMigrationService->migrate($request, $customer, $options);
-        } catch (MigratedCustomerValidationAndCreationException|NoSubscriptionsStoredException|ValidationPipelineException $e) {
+        } catch (
+            MigratedCustomerValidationAndCreationException|NoSubscriptionsStoredException|ValidationPipelineException $e
+        ) {
             throw ValidationException::withMessages(['error' => $e->getMessage()]);
         }
 

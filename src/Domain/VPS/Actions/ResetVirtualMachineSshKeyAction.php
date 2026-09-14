@@ -25,7 +25,7 @@ class ResetVirtualMachineSshKeyAction
         private readonly VirtualMachineService $virtualMachineService,
         private readonly SshKeyRepository $sshKeyRepository,
         private readonly ClientFactoryInterface $cloudStackClientFactory,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -47,6 +47,7 @@ class ResetVirtualMachineSshKeyAction
                     'new_ssh_key_id' => $newSshKey->id,
                 ],
             ]);
+
             return false;
         }
 
@@ -60,12 +61,13 @@ class ResetVirtualMachineSshKeyAction
                     'new_ssh_key_id' => $newSshKey->id,
                 ],
             ]);
+
             return false;
         }
 
         $isNewKeyLinkedToEnvironment = $this->sshKeyRepository->keyLinkedToManagerDomain(
             sshKey: $newSshKey,
-            domainId:$virtualMachineDeployment->managerDomainDeployment->id
+            domainId: $virtualMachineDeployment->managerDomainDeployment->id,
         );
 
         if (! $isNewKeyLinkedToEnvironment) {
@@ -78,7 +80,7 @@ class ResetVirtualMachineSshKeyAction
 
         $logMessage = sprintf(
             'Resetting SSH key for virtual machine with subscription uuid : %s',
-            $virtualMachineDeployment->subscription_uuid
+            $virtualMachineDeployment->subscription_uuid,
         );
         $this->logger->info($logMessage, [
             LoggingContextKeys::CUSTOMER_ID => $virtualMachineDeployment->subscription->customer_id,
@@ -97,7 +99,7 @@ class ResetVirtualMachineSshKeyAction
 
         return $this->virtualMachineService->resetSshKey(
             deployment: $virtualMachineDeployment,
-            newKeyName: $newSshKey->cloudstack_ssh_name
+            newKeyName: $newSshKey->cloudstack_ssh_name,
         );
     }
 
@@ -108,14 +110,14 @@ class ResetVirtualMachineSshKeyAction
         } catch (CloudstackNotFoundException $cloudstackNotFoundException) {
             throw new VirtualMachineNotFoundException(
                 message: $cloudstackNotFoundException->getMessage(),
-                previous: $cloudstackNotFoundException
+                previous: $cloudstackNotFoundException,
             );
         }
 
         if ($virtualMachine === null) {
             throw new VirtualMachineNotFoundException(sprintf(
                 'Virtual Machine for subscription with uuid %s not found ',
-                $virtualMachineDeployment->subscription_uuid
+                $virtualMachineDeployment->subscription_uuid,
             ));
         }
 
@@ -125,14 +127,16 @@ class ResetVirtualMachineSshKeyAction
     /**
      * @throws ClientFactoryException
      */
-    private function registerNewKeyInCloudstack(VirtualMachineDeployment $virtualMachineDeployment, SshKey $sshKey): void
-    {
+    private function registerNewKeyInCloudstack(
+        VirtualMachineDeployment $virtualMachineDeployment,
+        SshKey $sshKey,
+    ): void {
         Assert::string($sshKey->cloudstack_ssh_name);
 
         $client = $this->cloudStackClientFactory->create($virtualMachineDeployment->managerDomainDeployment);
         $client->registerSshKeyPair(
-            name:$sshKey->cloudstack_ssh_name,
-            publicKey: $sshKey->public_key
+            name: $sshKey->cloudstack_ssh_name,
+            publicKey: $sshKey->public_key,
         );
     }
 }

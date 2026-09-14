@@ -28,6 +28,7 @@ class SpamExpertsClientFaker extends SpamExpertsClient
         if ($domain === 'exception.com') {
             throw new SpamexpertsSsoException('example-exception');
         }
+
         return "my-token-for-domain-$domain";
     }
 }

@@ -17,7 +17,14 @@ class VatApiProvider extends BaseProvider implements DeferrableProvider
         // Register the main class to use with the facade
         $useFakeClient = Env::get('APP_FAKE_VAT_API_CLIENT');
         if ($useFakeClient === 'true' || $useFakeClient === true) {
-            $this->app->singleton(Vat::class, fn (): Vat => new Vat(null, $this->resolve(VatRateApiFaker::class), $this->resolve(VatNumberApiFaker::class)));
+            $this->app->singleton(
+                Vat::class,
+                fn (): Vat => new Vat(
+                    null,
+                    $this->resolve(VatRateApiFaker::class),
+                    $this->resolve(VatNumberApiFaker::class),
+                ),
+            );
         }
     }
 

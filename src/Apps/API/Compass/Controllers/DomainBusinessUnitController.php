@@ -68,7 +68,7 @@ class DomainBusinessUnitController
 
         $this->dispatcher->dispatch(new SetBusinessUnitOnDomainDeploymentsJob(
             businessUnitId: $businessUnitId,
-            domainDeploymentIds: [$domainDeployment->id]
+            domainDeploymentIds: [$domainDeployment->id],
         ));
 
         return new JsonResponse([

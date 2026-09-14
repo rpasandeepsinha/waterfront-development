@@ -33,15 +33,23 @@ class PasswordResetTest extends IntegrationTestCase
         parent::setUp();
         $this->customer = new CustomerFactory()->createOne();
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for(
-            new ProductFactory()->for(
-                new ProductGroupFactory()->hosting()
-            )->createOne()
-        )->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for(
+                new ProductFactory()->for(
+                    new ProductGroupFactory()->hosting(),
+                )->createOne(),
+            )
+            ->createOne();
 
         $this->hostingDeployment = new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
-            'provider_id' => new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]),
+            'provider_id' => new ProviderFactory()->createOne([
+                'type' => ProviderType::HOSTING,
+                'slug' => ProviderSlug::DIRECTADMIN,
+                'enabled' => true,
+                'default' => true,
+            ]),
             'server_id' => new ServerFactory()->directadmin()->createOne(),
         ]);
 
@@ -53,7 +61,12 @@ class PasswordResetTest extends IntegrationTestCase
     #[Test]
     public function integratedServiceThrowsRuntimeException(): void
     {
-        $provider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
+        $provider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $server = new ServerFactory()->plesk()->createOne();
 
         $this->hostingDeployment->update([
@@ -61,12 +74,14 @@ class PasswordResetTest extends IntegrationTestCase
             'provider_id' => $provider->id,
         ]);
 
-        $this->actingAsCustomer($this->customer)->get(
-            $this->generateRoute(
-                'partners.hosting.reset_password',
-                $this->hostingDeployment->subscription_uuid
+        $this->actingAsCustomer($this->customer)
+            ->get(
+                $this->generateRoute(
+                    'partners.hosting.reset_password',
+                    $this->hostingDeployment->subscription_uuid,
+                ),
             )
-        )->assertServerError();
+            ->assertServerError();
     }
 
     #[Test]
@@ -74,11 +89,14 @@ class PasswordResetTest extends IntegrationTestCase
     {
         self::assertEmailsSend([MailDirectAdminDetails::class]);
 
-        $this->actingAsCustomer($this->customer)->get(
-            $this->generateRoute(
-                'partners.hosting.reset_password',
-                $this->hostingDeployment->subscription_uuid
+        $this->actingAsCustomer($this->customer)
+            ->get(
+                $this->generateRoute(
+                    'partners.hosting.reset_password',
+                    $this->hostingDeployment->subscription_uuid,
+                ),
             )
-        )->assertJsonFragment(['username' => $this->hostingDeployment->directadmin_customer_username])->assertOk();
+            ->assertJsonFragment(['username' => $this->hostingDeployment->directadmin_customer_username])
+            ->assertOk();
     }
 }

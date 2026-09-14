@@ -44,7 +44,7 @@ class SitebuilderServiceProvider extends ServiceProvider implements DeferrablePr
         ], 'config');
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/config.php',
-            'sitebuilder'
+            'sitebuilder',
         );
     }
 }

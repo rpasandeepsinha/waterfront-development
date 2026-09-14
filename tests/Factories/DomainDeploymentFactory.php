@@ -56,25 +56,44 @@ class DomainDeploymentFactory extends Factory
             ->first();
 
         return $this->state(fn (): array => [
-            'provider_id' => $rtrProvider->id ?? ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => true, 'slug' => ProviderSlug::REALTIME_REGISTER]),
+            'provider_id' => $rtrProvider->id ?? ProviderFactory::new()->createOne([
+                'type' => ProviderType::DOMAIN,
+                'enabled' => true,
+                'default' => true,
+                'slug' => ProviderSlug::REALTIME_REGISTER,
+            ]),
         ]);
     }
 
     public function withOpenProvider(): self
     {
-        $openProvider = Provider::where('slug', ProviderSlug::OPEN_PROVIDER)->where('type', ProviderType::DOMAIN)->first();
+        $openProvider = Provider::where('slug', ProviderSlug::OPEN_PROVIDER)
+            ->where('type', ProviderType::DOMAIN)
+            ->first();
 
         return $this->state(fn (): array => [
-            'provider_id' => $openProvider->id ?? ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => true, 'slug' => ProviderSlug::OPEN_PROVIDER]),
+            'provider_id' => $openProvider->id ?? ProviderFactory::new()->createOne([
+                'type' => ProviderType::DOMAIN,
+                'enabled' => true,
+                'default' => true,
+                'slug' => ProviderSlug::OPEN_PROVIDER,
+            ]),
         ]);
     }
 
     public function withPlaceholderProvider(): self
     {
-        $placeholderProvider = Provider::where('slug', ProviderSlug::PLACEHOLDER)->where('type', ProviderType::DOMAIN)->first();
+        $placeholderProvider = Provider::where('slug', ProviderSlug::PLACEHOLDER)
+            ->where('type', ProviderType::DOMAIN)
+            ->first();
 
         return $this->state(fn (): array => [
-            'provider_id' => $placeholderProvider->id ?? ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => false, 'slug' => ProviderSlug::PLACEHOLDER]),
+            'provider_id' => $placeholderProvider->id ?? ProviderFactory::new()->createOne([
+                'type' => ProviderType::DOMAIN,
+                'enabled' => true,
+                'default' => false,
+                'slug' => ProviderSlug::PLACEHOLDER,
+            ]),
         ]);
     }
 

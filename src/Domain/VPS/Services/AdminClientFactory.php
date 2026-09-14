@@ -35,7 +35,7 @@ class AdminClientFactory implements AdminClientFactoryInterface
                 $environment->secret_key,
                 $this->guzzleClient,
             ),
-            CloudstackSerializerFactory::get()
+            CloudstackSerializerFactory::get(),
         );
     }
 }

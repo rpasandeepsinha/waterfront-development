@@ -19,8 +19,18 @@ readonly class ConnectorConfig
         public bool $verifySsl = true,
     ) {
         Assert::stringNotEmpty($this->baseUrl, message: 'The baseUrl can\'t be empty');
-        Assert::regex($this->baseUrl, pattern: '/^http(s)?:\/\//', message: 'The baseURL must start with http:// or https://');
-        Assert::stringNotEmpty($this->username, message: 'The redirect username is required and can not be set as empty');
-        Assert::stringNotEmpty($this->password, message: 'The redirect password is required and can not be set as empty');
+        Assert::regex(
+            $this->baseUrl,
+            pattern: '/^http(s)?:\/\//',
+            message: 'The baseURL must start with http:// or https://',
+        );
+        Assert::stringNotEmpty(
+            $this->username,
+            message: 'The redirect username is required and can not be set as empty',
+        );
+        Assert::stringNotEmpty(
+            $this->password,
+            message: 'The redirect password is required and can not be set as empty',
+        );
     }
 }

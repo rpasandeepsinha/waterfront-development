@@ -27,13 +27,11 @@ class TranslationUpdaterTest extends IntegrationTestCase
         $source = 'waterfront-backend';
 
         $loader = self::createMock(Loader::class);
-        $loader->expects(self::once())
-            ->method('load')
-            ->with($language, $source)
-            ->willReturn($translationLoaderContent);
+        $loader->expects(self::once())->method('load')->with($language, $source)->willReturn($translationLoaderContent);
 
         $filesystem = self::createMock(Filesystem::class);
-        $filesystem->expects(self::once())
+        $filesystem
+            ->expects(self::once())
             ->method('put')
             ->with(sprintf('%s-%s.json', $language, $source), json_encode(['data' => $translationContent]));
 
@@ -49,8 +47,7 @@ class TranslationUpdaterTest extends IntegrationTestCase
 
         $loader = self::resolve(Loader::class);
         $filesystem = self::createMock(Filesystem::class);
-        $filesystem->expects(self::never())
-            ->method('put');
+        $filesystem->expects(self::never())->method('put');
 
         $service = new TranslationUpdater($loader, $filesystem);
         $service->update($language, $source);

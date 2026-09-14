@@ -22,9 +22,7 @@ class DisableLetsEncryptAutoRenewTest extends TestCase
         Assert::assertSame('POST', $disableRequest->getMethod());
         Assert::assertSame('CMD_API_SSL', $disableRequest->getCommand());
 
-        $actualApiRequestBody = $disableRequest->getRequest()
-            ->getBody()
-            ->getContents();
+        $actualApiRequestBody = $disableRequest->getRequest()->getBody()->getContents();
 
         parse_str($actualApiRequestBody, $parsedBody);
         Assert::assertEqualsCanonicalizing([

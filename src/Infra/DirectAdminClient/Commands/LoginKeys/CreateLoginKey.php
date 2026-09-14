@@ -129,7 +129,8 @@ class CreateLoginKey extends DirectAdminCommand
 
     public function setClearKey(bool $clearKey): CreateLoginKey
     {
-        $clearKey ? $this->clearKey = 'yes' : $this->clearKey = 'no';
+        $clearKey ? ($this->clearKey = 'yes') : ($this->clearKey = 'no');
+
         return $this;
     }
 
@@ -140,19 +141,22 @@ class CreateLoginKey extends DirectAdminCommand
 
     public function setExpires(bool $expires = true): CreateLoginKey
     {
-        $expires ? $this->neverExpires = 'no' : $this->neverExpires = 'yes';
+        $expires ? ($this->neverExpires = 'no') : ($this->neverExpires = 'yes');
+
         return $this;
     }
 
     public function setAllowHtml(bool $allowHtml): CreateLoginKey
     {
-        $allowHtml ? $this->allowHtml = 'yes' : $this->allowHtml = 'no';
+        $allowHtml ? ($this->allowHtml = 'yes') : ($this->allowHtml = 'no');
+
         return $this;
     }
 
     public function setCurrentPassword(string $currentPassword): CreateLoginKey
     {
         $this->currentPassword = $currentPassword;
+
         return $this;
     }
 
@@ -164,6 +168,7 @@ class CreateLoginKey extends DirectAdminCommand
     public function setOneTimeLogin(bool $oneTimeLogin): CreateLoginKey
     {
         $this->oneTimeLogin = $oneTimeLogin;
+
         return $this;
     }
 
@@ -177,6 +182,7 @@ class CreateLoginKey extends DirectAdminCommand
     public function responseReceived(array $decodedContent): static
     {
         $this->setLoginUrlFromResponse($decodedContent);
+
         return parent::responseReceived($decodedContent);
     }
 
@@ -189,6 +195,7 @@ class CreateLoginKey extends DirectAdminCommand
     public function setKeyName(string $keyName): CreateLoginKey
     {
         $this->keyName = $keyName;
+
         return $this;
     }
 
@@ -200,6 +207,7 @@ class CreateLoginKey extends DirectAdminCommand
     public function setKey(string $key): CreateLoginKey
     {
         $this->key = $key;
+
         return $this;
     }
 
@@ -211,6 +219,7 @@ class CreateLoginKey extends DirectAdminCommand
     public function setExpiryTimestamp(string $expiryTimestamp): CreateLoginKey
     {
         $this->expiryTimestamp = $expiryTimestamp;
+
         return $this;
     }
 
@@ -222,6 +231,7 @@ class CreateLoginKey extends DirectAdminCommand
     public function setMaxUses(int $maxUses): CreateLoginKey
     {
         $this->maxUses = $maxUses;
+
         return $this;
     }
 
@@ -275,7 +285,8 @@ class CreateLoginKey extends DirectAdminCommand
                 $this->loginUrl = $response['details'];
             } else {
                 throw new DirectAdminResponseException(
-                    'Expected One-Time login URL to be created but received: ' . json_encode($response, JSON_THROW_ON_ERROR)
+                    'Expected One-Time login URL to be created but received: '
+                        . json_encode($response, JSON_THROW_ON_ERROR),
                 );
             }
         }

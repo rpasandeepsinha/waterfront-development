@@ -25,7 +25,10 @@ class NovaSubscriptionProductGroupFilter extends Filter
 
     public function apply(NovaRequest $request, Builder $query, mixed $value): Builder
     {
-        return $query->whereIn('product_uuid', Product::query()->where('product_group_id', $value)->pluck('uuid')->toArray());
+        return $query->whereIn(
+            'product_uuid',
+            Product::query()->where('product_group_id', $value)->pluck('uuid')->toArray(),
+        );
     }
 
     /**
@@ -33,9 +36,6 @@ class NovaSubscriptionProductGroupFilter extends Filter
      */
     public function options(NovaRequest $request): array
     {
-        return ProductGroup::query()
-            ->orderBy('name')
-            ->pluck('id', 'name')
-            ->toArray();
+        return ProductGroup::query()->orderBy('name')->pluck('id', 'name')->toArray();
     }
 }

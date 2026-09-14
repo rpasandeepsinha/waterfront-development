@@ -84,8 +84,9 @@ class NovaDomainSubscriptionResource extends Resource
             BelongsTo::make(
                 self::translate('subscription.domain-subscription.internal_subscription'),
                 'subscription',
-                NovaSubscriptionResource::class
-            )->sortable()
+                NovaSubscriptionResource::class,
+            )
+                ->sortable()
                 ->exceptOnForms(),
             Text::make(
                 self::translate('domain-providers.singular'),
@@ -93,29 +94,39 @@ class NovaDomainSubscriptionResource extends Resource
             )->readonly(),
             Select::make(
                 name: self::translate('domain-business-unit.singular'),
-                attribute: 'domain_business_unit_id'
+                attribute: 'domain_business_unit_id',
             )
-                ->options(fn (): array => DomainProviderBusinessUnit::get()->pluck('name', 'id')->toArray() + [null => self::translate('nova-action.select.reset_bu')])
+                ->options(
+                    fn (): array => (
+                        DomainProviderBusinessUnit::get()->pluck('name', 'id')->toArray()
+                        + [null => self::translate('nova-action.select.reset_bu')]
+                    ),
+                )
                 ->onlyOnForms(),
             Text::make(
                 self::translate('domain-business-unit.singular'),
                 'businessUnit.name',
-            )
-                ->exceptOnForms(),
+            )->exceptOnForms(),
             Text::make(
                 self::translate('subscription.attributes.domain_status'),
                 'domain_status',
-            )
-                ->exceptOnForms(),
+            )->exceptOnForms(),
             Code::make(self::translate('subscription.domain-subscription.last_result'), 'last_result')
                 ->exceptOnForms()
                 ->onlyOnDetail()
                 ->json(),
-            DateTime::make(self::translate('subscription.domain-subscription.last_result_received'), 'last_result_received')
+            DateTime::make(
+                self::translate('subscription.domain-subscription.last_result_received'),
+                'last_result_received',
+            )
                 ->displayUsing(fn () => $this->resource->last_result_received?->format(DateTimeFormat::DUTCH))
                 ->exceptOnForms()
                 ->sortable(),
-            HasMany::make(self::translate('subscription.domain-subscription.contact'), 'contactOwner', NovaDomainContactResource::class)->onlyOnDetail(),
+            HasMany::make(
+                self::translate('subscription.domain-subscription.contact'),
+                'contactOwner',
+                NovaDomainContactResource::class,
+            )->onlyOnDetail(),
         ];
     }
 

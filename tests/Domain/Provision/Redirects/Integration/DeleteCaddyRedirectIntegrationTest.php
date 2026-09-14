@@ -53,25 +53,21 @@ class DeleteCaddyRedirectIntegrationTest extends IntegrationTestCase
         $context = Uuid::uuid4();
         $caddyId = 'caddy-id';
 
-        $redirectDeployment = new RedirectDeploymentFactory()
-            ->createOne([
-                'source' => $domain,
-                'context_uuid' => $context->toString(),
-            ]);
+        $redirectDeployment = new RedirectDeploymentFactory()->createOne([
+            'source' => $domain,
+            'context_uuid' => $context->toString(),
+        ]);
 
-        $caddyRedirectDeployment = new CaddyRedirectDeploymentFactory()
-            ->for($redirectDeployment)
-            ->createOne(['caddy_id' => $caddyId]);
+        $caddyRedirectDeployment = new CaddyRedirectDeploymentFactory()->for($redirectDeployment)->createOne([
+            'caddy_id' => $caddyId,
+        ]);
 
         $request = new DeleteRedirectRequest(
             domainName: $domain,
             context: $context,
         );
 
-        $this->caddyClient
-            ->expects(self::once())
-            ->method('deleteRedirect')
-            ->with($caddyId);
+        $this->caddyClient->expects(self::once())->method('deleteRedirect')->with($caddyId);
 
         self::assertDatabaseCount(ProvisioningResult::class, 0);
         self::assertDatabaseCount(ProvisioningRequest::class, 1);
@@ -103,7 +99,7 @@ class DeleteCaddyRedirectIntegrationTest extends IntegrationTestCase
                 '{"domainName": "%s"}',
                 $domain,
             ),
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         self::assertSame($context->toString(), $savedRequest->tag->toString());
@@ -123,15 +119,14 @@ class DeleteCaddyRedirectIntegrationTest extends IntegrationTestCase
         $context = Uuid::uuid4();
         $caddyId = 'caddy-id';
 
-        $redirectDeployment = new RedirectDeploymentFactory()
-            ->createOne([
-                'source' => $domain,
-                'context_uuid' => $context->toString(),
-            ]);
+        $redirectDeployment = new RedirectDeploymentFactory()->createOne([
+            'source' => $domain,
+            'context_uuid' => $context->toString(),
+        ]);
 
-        $caddyRedirectDeployment = new CaddyRedirectDeploymentFactory()
-            ->for($redirectDeployment)
-            ->createOne(['caddy_id' => $caddyId]);
+        $caddyRedirectDeployment = new CaddyRedirectDeploymentFactory()->for($redirectDeployment)->createOne([
+            'caddy_id' => $caddyId,
+        ]);
 
         $request = new DeleteRedirectRequest(
             domainName: $domain,
@@ -140,10 +135,7 @@ class DeleteCaddyRedirectIntegrationTest extends IntegrationTestCase
 
         $expectedMessage = 'Failed to delete redirect';
         $saloonException = new SaloonException($expectedMessage);
-        $this->caddyClient
-            ->expects(self::once())
-            ->method('deleteRedirect')
-            ->willThrowException($saloonException);
+        $this->caddyClient->expects(self::once())->method('deleteRedirect')->willThrowException($saloonException);
 
         self::assertDatabaseCount(ProvisioningResult::class, 0);
         self::assertDatabaseCount(ProvisioningRequest::class, 1);
@@ -178,7 +170,7 @@ class DeleteCaddyRedirectIntegrationTest extends IntegrationTestCase
                 '{"domainName": "%s"}',
                 $domain,
             ),
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         self::assertSame($context->toString(), $savedRequest->tag->toString());

@@ -14,7 +14,7 @@ readonly class ValidationResult implements ValidationResultInterface
     public function __construct(
         public MigrationValidation $id,
         public string $message,
-        public string|null $referenceSubscriptionId = null,
+        public ?string $referenceSubscriptionId = null,
         public array $data = [],
     ) {
     }

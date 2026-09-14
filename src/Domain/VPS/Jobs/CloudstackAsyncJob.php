@@ -43,7 +43,7 @@ abstract class CloudstackAsyncJob extends AbstractQueueableJob
                 'Cloudstack %s has failed for subscription %s. Message: %s',
                 static::JOB_TYPE,
                 $this->deployment->subscription_uuid,
-                $exception->getMessage()
+                $exception->getMessage(),
             ),
             [
                 LoggingContextKeys::SUBSCRIPTION_UUID => $this->deployment->subscription_uuid,
@@ -51,7 +51,7 @@ abstract class CloudstackAsyncJob extends AbstractQueueableJob
                     'cloudstack_job' => $this->cloudstackJob->toArray(),
                 ],
                 LoggingContextKeys::EXCEPTION => $exception,
-            ]
+            ],
         );
 
         if ($this->cloudstackJob->status !== JobStatus::FAILED->value) {
@@ -78,16 +78,19 @@ abstract class CloudstackAsyncJob extends AbstractQueueableJob
         if ($jobResponse->status === JobStatus::PENDING->value) {
             $this->handlePending();
             $this->release(static::RETRY_DELAY_SECONDS * $this->attempts());
+
             return;
         }
 
         if ($jobResponse->status === JobStatus::FAILED->value) {
             $this->handleFailed($jobResponse);
+
             return;
         }
 
         if ($jobResponse->status === JobStatus::SUCCESS->value) {
             $this->handleSuccess($jobResponse);
+
             return;
         }
 
@@ -99,8 +102,8 @@ abstract class CloudstackAsyncJob extends AbstractQueueableJob
                     $jobResponse->jobId,
                     $this->deployment->subscription_uuid,
                     $jobResponse->status,
-                )
-            )
+                ),
+            ),
         );
     }
 
@@ -129,7 +132,7 @@ abstract class CloudstackAsyncJob extends AbstractQueueableJob
             static::JOB_TYPE,
             $jobResponse->jobId,
             $this->deployment->subscription_uuid,
-            json_encode($jobResponse->result, JSON_THROW_ON_ERROR)
+            json_encode($jobResponse->result, JSON_THROW_ON_ERROR),
         );
 
         Log::error($failedMessage, [
@@ -150,7 +153,7 @@ abstract class CloudstackAsyncJob extends AbstractQueueableJob
                 static::JOB_TYPE,
                 $jobResponse->jobId,
                 $this->deployment->subscription_uuid,
-            )
+            ),
         );
 
         if ($this->cloudstackJob->status !== JobStatus::SUCCESS->value) {

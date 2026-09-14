@@ -73,10 +73,11 @@ class Product extends Model implements AuditableContract
                     $str = trim(strtolower($model->name));
                     $productName = preg_replace('/[\s.,-]+/', '_', $str);
 
-                    $model->slug = $model->productGroup !== null ? strtolower($model->productGroup->slug->value)
-                        . '_' . $productName : $productName;
+                    $model->slug = $model->productGroup !== null
+                        ? strtolower($model->productGroup->slug->value) . '_' . $productName
+                        : $productName;
                 }
-            }
+            },
         );
     }
 
@@ -85,8 +86,10 @@ class Product extends Model implements AuditableContract
      */
     public function allowedProductUpgrades(): HasMany
     {
-        return $this->hasMany(ProductAllowedChange::class, 'from_product_id')
-            ->where('change_type', ProductChangeType::UPGRADE);
+        return $this->hasMany(ProductAllowedChange::class, 'from_product_id')->where(
+            'change_type',
+            ProductChangeType::UPGRADE,
+        );
     }
 
     /**
@@ -102,8 +105,10 @@ class Product extends Model implements AuditableContract
      */
     public function allowedProductDowngrades(): HasMany
     {
-        return $this->hasMany(ProductAllowedChange::class, 'from_product_id')
-            ->where('change_type', ProductChangeType::DOWNGRADE);
+        return $this->hasMany(ProductAllowedChange::class, 'from_product_id')->where(
+            'change_type',
+            ProductChangeType::DOWNGRADE,
+        );
     }
 
     /**
@@ -111,8 +116,10 @@ class Product extends Model implements AuditableContract
      */
     public function allowedProductReinstalls(): HasMany
     {
-        return $this->hasMany(ProductAllowedChange::class, 'from_product_id')
-            ->where('change_type', ProductChangeType::REINSTALL);
+        return $this->hasMany(ProductAllowedChange::class, 'from_product_id')->where(
+            'change_type',
+            ProductChangeType::REINSTALL,
+        );
     }
 
     /**
@@ -120,8 +127,7 @@ class Product extends Model implements AuditableContract
      */
     public function addonCouplings(): HasMany
     {
-        return $this->hasMany(ProductAddonCoupling::class, 'parent_product_id')
-            ->whereHas('addonProduct');
+        return $this->hasMany(ProductAddonCoupling::class, 'parent_product_id')->whereHas('addonProduct');
     }
 
     public function isBaseKitProduct(): bool
@@ -220,9 +226,10 @@ class Product extends Model implements AuditableContract
      */
     public function isMailOnlyServer(): bool
     {
-        return $this->productSpecs
-                ->firstWhere('name', ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value)
-                ?->value === '1';
+        return (
+            $this->productSpecs->firstWhere('name', ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value)?->value
+            === '1'
+        );
     }
 
     public function isDnsProduct(): bool
@@ -230,7 +237,7 @@ class Product extends Model implements AuditableContract
         return in_array(
             ProductType::tryFrom($this->slug),
             ProductType::getDnsProductTypes(),
-            true
+            true,
         );
     }
 

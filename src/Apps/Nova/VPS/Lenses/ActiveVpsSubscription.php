@@ -53,16 +53,18 @@ class ActiveVpsSubscription extends Lens
                             $priceQuery->where(
                                 'net_price',
                                 '!=',
-                                0
-                            )
-                                ->where('gross_price', '!=', 0);
-                        }
-                    )
-                        ->whereHas(
-                            'product.productGroup',
-                            fn (Builder $productGroupQuery): Builder => $productGroupQuery->where('slug', ProductGroupType::VPS)
-                        )
-                )->orderBy('created_at', 'desc')
+                                0,
+                            )->where('gross_price', '!=', 0);
+                        },
+                    )->whereHas(
+                        'product.productGroup',
+                        fn (Builder $productGroupQuery): Builder => $productGroupQuery->where(
+                            'slug',
+                            ProductGroupType::VPS,
+                        ),
+                    ),
+                )
+                ->orderBy('created_at', 'desc'),
         );
     }
 
@@ -72,14 +74,24 @@ class ActiveVpsSubscription extends Lens
             BelongsTo::make(
                 $this->translator->translate('subscription.relations.customer'),
                 'customer',
-                NovaCustomerResource::class
-            )->sortable()->searchable(),
+                NovaCustomerResource::class,
+            )
+                ->sortable()
+                ->searchable(),
 
-            Text::make($this->translator->translate('subscription.relations.product'), 'product')
-                ->resolveUsing(fn (): string => $this->resource->product->name),
+            Text::make(
+                $this->translator->translate('subscription.relations.product'),
+                'product',
+            )->resolveUsing(fn (): string => $this->resource->product->name),
 
-            Text::make($this->translator->translate('subscription.type.cloudstack-os'), 'vpsDeployment')
-                ->resolveUsing(fn () => $this->resource->children->firstWhere('product.productGroup.slug', ProductGroupType::CLOUDSTACK_OS)->product->name), // @phpstan-ignore-line property.notFound
+            Text::make($this->translator->translate('subscription.type.cloudstack-os'), 'vpsDeployment')->resolveUsing(
+                fn () => $this->resource
+                    ->children
+                    ->firstWhere('product.productGroup.slug', ProductGroupType::CLOUDSTACK_OS)
+                    // @phpstan-ignore-next-line property.notFound
+                    ->product
+                    ->name,
+            ),
 
             NovaSubscriptionTechnicalStatusSelectField::make()
                 ->displayUsingLabels()
@@ -89,11 +101,14 @@ class ActiveVpsSubscription extends Lens
                 ->required()
                 ->displayUsing(fn () => $this->resource->start_date->format(DateTimeFormat::DUTCHNOTIME)),
 
-            Date::make($this->translator->translate('subscription.attributes.end_date'), 'end_date')
-                ->displayUsing(fn () => $this->resource->end_date->format(DateTimeFormat::DUTCHNOTIME)),
+            Date::make($this->translator->translate('subscription.attributes.end_date'), 'end_date')->displayUsing(
+                fn () => $this->resource->end_date->format(DateTimeFormat::DUTCHNOTIME),
+            ),
 
-            NovaBoolField::make($this->translator->translate('nova-resource-labels.subscription.relation.note'), 'notes'),
-
+            NovaBoolField::make(
+                $this->translator->translate('nova-resource-labels.subscription.relation.note'),
+                'notes',
+            ),
         ];
     }
 

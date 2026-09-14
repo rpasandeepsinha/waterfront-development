@@ -77,7 +77,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
                 exception: new DeploymentNotFoundException(
-                    sprintf('No backup deployment found for the given tag [%s].', $provisionData->tagUuid)
+                    sprintf('No backup deployment found for the given tag [%s].', $provisionData->tagUuid),
                 ),
             );
         }
@@ -89,7 +89,10 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
                 exception: new DeploymentNotFoundException(
-                    sprintf('No related Acronis backup deployment found for backup deployment [%s].', $backupDeployment->uuid)
+                    sprintf(
+                        'No related Acronis backup deployment found for backup deployment [%s].',
+                        $backupDeployment->uuid,
+                    ),
                 ),
             );
         }
@@ -98,11 +101,11 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
 
         try {
             $ott = $acronisClient->userClient->getSso($acronisBackupDeployment->user_uuid);
-        } catch (SaloonException | AcronisSerializerException $exception) {
+        } catch (SaloonException|AcronisSerializerException $exception) {
             return new BackupSsoResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
 
@@ -129,7 +132,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
                 exception: new DeploymentNotFoundException(
-                    sprintf('No backup deployment found for the given tag [%s].', $provisionData->tagUuid)
+                    sprintf('No backup deployment found for the given tag [%s].', $provisionData->tagUuid),
                 ),
             );
         }
@@ -141,7 +144,10 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
                 exception: new DeploymentNotFoundException(
-                    sprintf('No related acronis backup deployment found for backup ceployment [%s].', $backupDeployment->uuid)
+                    sprintf(
+                        'No related acronis backup deployment found for backup ceployment [%s].',
+                        $backupDeployment->uuid,
+                    ),
                 ),
             );
         }
@@ -153,7 +159,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
             $tenant = $acronisClient->tenantClient->get($acronisTenantUuid);
             $tenant->enabled = false;
             $acronisClient->tenantClient->update($acronisTenantUuid, $tenant);
-        } catch (SaloonException | AcronisSerializerException $exception) {
+        } catch (SaloonException|AcronisSerializerException $exception) {
             $this->logger->warning(
                 'Failed to retrieve or suspend tenant at acronis',
                 LogContextBuilder::for($provisionData)->withException($exception)->build(),
@@ -162,7 +168,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
             return new BackupResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
 
@@ -176,7 +182,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
             );
 
             $acronisClient->tenantClient->delete($acronisTenantUuid, $tenant->version);
-        } catch (SaloonException | InvalidArgumentException $exception) {
+        } catch (SaloonException|InvalidArgumentException $exception) {
             $this->logger->warning(
                 'Failed to retrieve or delete tenant at acronis',
                 LogContextBuilder::for($provisionData)->withException($exception)->build(),
@@ -185,13 +191,13 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
             return new BackupResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
 
         try {
             $this->backupDeploymentRepository->deleteBackupAndChildren($backupDeployment);
-        } catch (Exception $exception) {  // @phpstan-ignore thecodingmachine.exceptionMustBeRethrown
+        } catch (Exception $exception) { // @phpstan-ignore thecodingmachine.exceptionMustBeRethrown
             $this->logger->warning(
                 'Failed to delete backup deployment records',
                 LogContextBuilder::for($provisionData)->withException($exception)->build(),
@@ -212,11 +218,13 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
             Assert::stringNotEmpty($tenant->id, 'Acronis createTenant did not return a tenant id.');
             $tenantId = $tenant->id;
             $user = $this->createService->findOrCreateUser($tenantId, $provisionData);
-        } catch (AcronisSerializerException | ExceptionInterface | FatalRequestException | RequestException | AcronisClientFactoryException $exception) {
+        } catch (
+            AcronisSerializerException|ExceptionInterface|FatalRequestException|RequestException|AcronisClientFactoryException $exception
+        ) {
             return new BackupCreateResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
 
@@ -233,7 +241,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                         'tenant_id' => $tenant->id,
                         'user' => $user->id,
                     ])
-                    ->build()
+                    ->build(),
             );
 
             $password = null;
@@ -244,7 +252,11 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
             tenantUuid: $tenant->id,
             acronisClient: $acronisClient,
         );
-        $this->createService->updateAccessPolicies(userId: $user->id, tenantId: $tenant->id, createData: $provisionData);
+        $this->createService->updateAccessPolicies(
+            userId: $user->id,
+            tenantId: $tenant->id,
+            createData: $provisionData,
+        );
         $this->createService->updatePricingToProduction($tenant->id);
 
         $requestId = $provisionData->requestId;
@@ -255,11 +267,11 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 tenant: Uuid::fromString($tenant->id),
                 user: Uuid::fromString($user->id),
             );
-        } catch (InvalidUuidStringException | AcronisCreateException $exception) {
+        } catch (InvalidUuidStringException|AcronisCreateException $exception) {
             return new BackupCreateResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
 
@@ -280,7 +292,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
                 exception: new DeploymentNotFoundException(
-                    sprintf('No backup deployment found for the given tag [%s].', $provisionData->tagUuid)
+                    sprintf('No backup deployment found for the given tag [%s].', $provisionData->tagUuid),
                 ),
             );
         }
@@ -292,7 +304,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
                 exception: new DeploymentNotFoundException(
-                    sprintf('No Acronis backup deployment found for the given tag [%s].', $provisionData->tagUuid)
+                    sprintf('No Acronis backup deployment found for the given tag [%s].', $provisionData->tagUuid),
                 ),
             );
         }
@@ -307,7 +319,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                     LogContextBuilder::for($provisionData)
                         ->with(LoggingContextKeys::PROVISIONING_REQUEST_ID, $provisionData->tagUuid)
                         ->withMeta(['user_id' => $userId])
-                        ->build()
+                        ->build(),
                 );
 
                 $updatePasswordResult = $acronisClient->userClient->updatePassword($userId, $provisionData->password);
@@ -320,20 +332,20 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                             sprintf(
                                 'Password could not be reset for the given tag [%s] and user_uuid [%s].',
                                 $provisionData->tagUuid,
-                                $acronisBackupDeployment->user_uuid->toString()
-                            )
+                                $acronisBackupDeployment->user_uuid->toString(),
+                            ),
                         ),
                     );
                 }
             }
 
             $hasAtLeastOne =
-                $provisionData->cloudStorageInGb !== null ||
-                $provisionData->localStorageInGb !== null ||
-                $provisionData->mobileDevices !== null ||
-                $provisionData->workStations !== null ||
-                $provisionData->vms !== null ||
-                $provisionData->servers !== null;
+                $provisionData->cloudStorageInGb !== null
+                || $provisionData->localStorageInGb !== null
+                || $provisionData->mobileDevices !== null
+                || $provisionData->workStations !== null
+                || $provisionData->vms !== null
+                || $provisionData->servers !== null;
 
             if (! $hasAtLeastOne) {
                 return new BackupUpdateResult(
@@ -357,11 +369,11 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                         'vms' => $provisionData->vms,
                         'servers' => $provisionData->servers,
                     ])
-                    ->build()
+                    ->build(),
             );
 
             $offeringItemsFromUpdate = $this->updateOfferingItems($provisionData, $tenantUuid, $acronisClient);
-        } catch (SaloonException | AcronisSerializerException $exception) {
+        } catch (SaloonException|AcronisSerializerException $exception) {
             $this->logger->warning(
                 'Failed to update backup',
                 LogContextBuilder::for($provisionData)->withException($exception)->build(),
@@ -370,7 +382,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
             return new BackupUpdateResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
 
@@ -381,17 +393,26 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
         );
     }
 
-    public function updateOfferingItems(OfferingItemsRequest $provisionData, string $tenantUuid, AcronisClient $acronisClient): OfferingItems
-    {
+    public function updateOfferingItems(
+        OfferingItemsRequest $provisionData,
+        string $tenantUuid,
+        AcronisClient $acronisClient,
+    ): OfferingItems {
         $offeringItems = $acronisClient->offeringItemsClient->get($tenantUuid);
 
         $acronisPropertyMap = $this->acronisOfferingItemHelper->getOfferingItemDto($provisionData);
 
         $offeringItemsPut = [];
         foreach ($acronisPropertyMap as $offeringItemDto) {
-            $infraId = $offeringItemDto->propertyName === OfferingItemPropertyName::CLOUD_STORAGE ? Infrastructure::RECOVERY1->value : null;
+            $infraId = $offeringItemDto->propertyName === OfferingItemPropertyName::CLOUD_STORAGE
+                ? Infrastructure::RECOVERY1->value
+                : null;
 
-            $item = $this->getCurrentOfferingItem($offeringItems->items ?? [], $offeringItemDto->propertyName, $infraId);
+            $item = $this->getCurrentOfferingItem(
+                $offeringItems->items ?? [],
+                $offeringItemDto->propertyName,
+                $infraId,
+            );
             if ($item === null) {
                 $offeringItemsPut[] = new OfferingItem(
                     applicationId: Application::CYBER_PROTECTION->value,
@@ -411,7 +432,11 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                  * This is not a separate spec/property on the request because of the risk of triggering errors.
                  */
                 if ($offeringItemDto->propertyName === OfferingItemPropertyName::M365_SEATS) {
-                    $offeringItemsPut = $this->addM365SeatsOfferingItems($tenantUuid, $offeringItemDto->status, $offeringItemsPut);
+                    $offeringItemsPut = $this->addM365SeatsOfferingItems(
+                        $tenantUuid,
+                        $offeringItemDto->status,
+                        $offeringItemsPut,
+                    );
                 }
 
                 /*
@@ -419,7 +444,11 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                  * This is not a separate spec/property on the request because of the risk of triggering errors.
                  */
                 if ($offeringItemDto->propertyName === OfferingItemPropertyName::GOOGLE_WORKSPACE_SEATS) {
-                    $offeringItemsPut = $this->addGoogleWorkspaceOfferingItems($tenantUuid, $offeringItemDto->status, $offeringItemsPut);
+                    $offeringItemsPut = $this->addGoogleWorkspaceOfferingItems(
+                        $tenantUuid,
+                        $offeringItemDto->status,
+                        $offeringItemsPut,
+                    );
                 }
             } else {
                 $item->status = $offeringItemDto->status;
@@ -433,6 +462,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 } else {
                     $item->quota->value = $offeringItemDto->quota;
                 }
+
                 $offeringItemsPut[] = $item;
             }
         }
@@ -454,7 +484,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
                 exception: new DeploymentNotFoundException(
-                    sprintf('No backup deployment found for the given tag [%s].', $provisionData->tagUuid)
+                    sprintf('No backup deployment found for the given tag [%s].', $provisionData->tagUuid),
                 ),
             );
         }
@@ -468,8 +498,8 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 exception: new DeploymentNotFoundException(
                     sprintf(
                         'No related Acronis backup deployment found for backup deployment [%s].',
-                        $backupDeployment->uuid
-                    )
+                        $backupDeployment->uuid,
+                    ),
                 ),
             );
         }
@@ -486,13 +516,10 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
 
         try {
             $tenant = $acronisClient->tenantClient->get($tenantUuid);
-        } catch (SaloonException | AcronisSerializerException $exception) {
+        } catch (SaloonException|AcronisSerializerException $exception) {
             $this->logger->warning(
                 'Failed to retrieve tenant at acronis',
-                LogContextBuilder::for($provisionData)
-                    ->withException($exception)
-                    ->withMeta($baseMeta)
-                    ->build(),
+                LogContextBuilder::for($provisionData)->withException($exception)->withMeta($baseMeta)->build(),
             );
 
             return new BackupResult(
@@ -505,7 +532,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
         try {
             $tenant->enabled = $enable;
             $acronisClient->tenantClient->update($tenantUuid, $tenant);
-        } catch (SaloonException | AcronisSerializerException $exception) {
+        } catch (SaloonException|AcronisSerializerException $exception) {
             $this->logger->warning(
                 'Failed to update tenant enabled state at acronis',
                 LogContextBuilder::for($provisionData)
@@ -536,7 +563,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
                 exception: new DeploymentNotFoundException(
-                    sprintf('No backup deployment found for the given tag [%s].', $provisionData->tagUuid)
+                    sprintf('No backup deployment found for the given tag [%s].', $provisionData->tagUuid),
                 ),
             );
         }
@@ -548,7 +575,10 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
                 exception: new DeploymentNotFoundException(
-                    sprintf('No related Acronis backup deployment found for backup deployment [%s].', $backupDeployment->uuid)
+                    sprintf(
+                        'No related Acronis backup deployment found for backup deployment [%s].',
+                        $backupDeployment->uuid,
+                    ),
                 ),
             );
         }
@@ -561,7 +591,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 tenantId: $tenantUuid,
                 usageNames: UsageName::STORAGE->value,
             );
-        } catch (SaloonException | AcronisSerializerException $exception) {
+        } catch (SaloonException|AcronisSerializerException $exception) {
             $this->logger->warning(
                 'Failed to retrieve tenant usages at acronis',
                 LogContextBuilder::for($provisionData)->withException($exception)->build(),
@@ -570,7 +600,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
             return new BackupUsagesResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
 
@@ -584,13 +614,17 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
     /**
      * @param OfferingItem[] $offeringItems
      */
-    private function getCurrentOfferingItem(array $offeringItems, OfferingItemPropertyName $name, ?string $infrastructure): ?OfferingItem
-    {
-        $item = array_values(array_filter($offeringItems, fn ($offeringItem) => $offeringItem->name === $name->value && $offeringItem->infraId === $infrastructure));
+    private function getCurrentOfferingItem(
+        array $offeringItems,
+        OfferingItemPropertyName $name,
+        ?string $infrastructure,
+    ): ?OfferingItem {
+        $item = array_values(array_filter(
+            $offeringItems,
+            fn ($offeringItem) => $offeringItem->name === $name->value && $offeringItem->infraId === $infrastructure,
+        ));
 
-        return count($item) > 0
-            ? $item[0]
-            : null;
+        return count($item) > 0 ? $item[0] : null;
     }
 
     /**
@@ -598,8 +632,11 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
      *
      * @return OfferingItem[]
      */
-    private function addM365SeatsOfferingItems(string $tenantUuid, OfferingItemStatus $status, array $offeringItemsPut): array
-    {
+    private function addM365SeatsOfferingItems(
+        string $tenantUuid,
+        OfferingItemStatus $status,
+        array $offeringItemsPut,
+    ): array {
         $offeringItemsPut[] = new OfferingItem(
             applicationId: Application::CYBER_PROTECTION->value,
             name: 'pg_base_m365_mailboxes',
@@ -625,6 +662,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 overage: null,
             ),
         );
+
         return $offeringItemsPut;
     }
 
@@ -633,8 +671,11 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
      *
      * @return OfferingItem[]
      */
-    private function addGoogleWorkspaceOfferingItems(string $tenantUuid, OfferingItemStatus $status, array $offeringItemsPut): array
-    {
+    private function addGoogleWorkspaceOfferingItems(
+        string $tenantUuid,
+        OfferingItemStatus $status,
+        array $offeringItemsPut,
+    ): array {
         $offeringItemsPut[] = new OfferingItem(
             applicationId: Application::CYBER_PROTECTION->value,
             name: 'pg_base_google_mail',
@@ -660,6 +701,7 @@ class AcronisProvisionService implements BackupProvisionServiceInterface
                 overage: null,
             ),
         );
+
         return $offeringItemsPut;
     }
 }

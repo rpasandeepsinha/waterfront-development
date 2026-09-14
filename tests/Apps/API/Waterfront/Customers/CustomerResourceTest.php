@@ -29,11 +29,13 @@ class CustomerResourceTest extends IntegrationTestCase
     #[Test]
     public function customerAgeWithoutCreateDate(): void
     {
-        $customer = new CustomerFactory()->withAddress()->createOne([
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'created_at' => null,
-        ]);
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne([
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'created_at' => null,
+            ]);
 
         $resource = CustomerResource::make($customer);
         $request = Request::create($this->generateRoute('partners.customers.who-am-i'));
@@ -47,10 +49,12 @@ class CustomerResourceTest extends IntegrationTestCase
     #[Test]
     public function customerAgeWithRecentCreateDate(): void
     {
-        $customer = new CustomerFactory()->withAddress()->createOne([
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-        ]);
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne([
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+            ]);
 
         $resource = CustomerResource::make($customer);
         $request = Request::create($this->generateRoute('partners.customers.who-am-i'));
@@ -64,10 +68,12 @@ class CustomerResourceTest extends IntegrationTestCase
     #[Test]
     public function whoAmIAsActingForWillReturnEmployeeSessionInformation(): void
     {
-        $customer = new CustomerFactory()->withAddress()->createOne([
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-        ]);
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne([
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+            ]);
 
         $this->actingAsEmployee();
         $uuid = UuidV4::uuid4();
@@ -84,20 +90,30 @@ class CustomerResourceTest extends IntegrationTestCase
             null,
             null,
             null,
-            new Session('aal2', true, new DateTimeImmutable(), [AuthenticationMethod::PASSWORD, AuthenticationMethod::TOTP]),
+            new Session(
+                'aal2',
+                true,
+                new DateTimeImmutable(),
+                [AuthenticationMethod::PASSWORD, AuthenticationMethod::TOTP],
+            ),
         );
         $authenticatedEmployee = new AuthenticatedEmployee(
             identitySchema: $identitySchema,
             verified: true,
         );
         $authenticationManager = self::createStub(AuthenticationManager::class);
-        $authenticationManager->method('getAuthenticatedEmployee')
-            ->willReturn($authenticatedEmployee);
-        $authenticationManager->method('getAuthenticatedSubject')
-            ->willReturn($authenticatedEmployee);
+        $authenticationManager->method('getAuthenticatedEmployee')->willReturn($authenticatedEmployee);
+        $authenticationManager->method('getAuthenticatedSubject')->willReturn($authenticatedEmployee);
 
-        $authenticationManager->method('getAuthenticatedCustomer')
-            ->willReturn(new AuthenticatedCustomer($customer, $authenticationManager->getAuthenticatedSubject()->identitySchema, true));
+        $authenticationManager
+            ->method('getAuthenticatedCustomer')
+            ->willReturn(
+                new AuthenticatedCustomer(
+                    $customer,
+                    $authenticationManager->getAuthenticatedSubject()->identitySchema,
+                    true,
+                ),
+            );
 
         $this->app->bind(AuthenticationManager::class, fn () => $authenticationManager);
         $data = $this->getJson($this->generateRoute('partners.customers.who-am-i'))->assertOk();
@@ -113,11 +129,13 @@ class CustomerResourceTest extends IntegrationTestCase
     #[Test]
     public function customerAgeWithOldCreateDate(): void
     {
-        $customer = new CustomerFactory()->withAddress()->createOne([
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'created_at' => CarbonImmutable::now()->subDays(16),
-        ]);
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne([
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'created_at' => CarbonImmutable::now()->subDays(16),
+            ]);
 
         $resource = CustomerResource::make($customer);
         $request = Request::create($this->generateRoute('partners.customers.who-am-i'));

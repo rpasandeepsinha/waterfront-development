@@ -127,16 +127,14 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
 
         $rtrProvider = ProviderFactory::new()->createOne(
             [
-                'type'    => ProviderType::DOMAIN,
-                'slug'    => ProviderSlug::REALTIME_REGISTER,
+                'type' => ProviderType::DOMAIN,
+                'slug' => ProviderSlug::REALTIME_REGISTER,
                 'enabled' => true,
                 'default' => true,
-            ]
+            ],
         );
 
-        $rtrContact = new DomainContactFactory()
-            ->for($this->customer)
-            ->createOne();
+        $rtrContact = new DomainContactFactory()->for($this->customer)->createOne();
 
         $rtrContact->providers()->attach($rtrProvider, ['external_contact' => self::TEST_HANDLE]);
 
@@ -146,14 +144,17 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
         $this->app->bind(function () use ($mockRtr): RealtimeRegister {
             $externalRtr = new RealtimeRegister('api-key');
             $externalRtr->setClient($mockRtr);
+
             return $externalRtr;
         });
 
-        $this->app->when(RtrService::class)
+        $this->app
+            ->when(RtrService::class)
             ->needs(RealtimeRegister::class)
             ->give(function () use ($mockRtr) {
                 $externalRtr = new RealtimeRegister('api-key');
                 $externalRtr->setClient($mockRtr);
+
                 return $externalRtr;
             });
 
@@ -164,28 +165,30 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
 
         $this->orderRoute = $this->generateRoute('partners.order.order');
 
-        $this->nlDomainProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
-        new ProductPriceComponentFactory()->for($this->nlDomainProduct)->registration()->createOne([
-            'billing_period'  => 12,
-            'contract_period' => 12,
-            'price'   => 99,
-        ]);
+        $this->nlDomainProduct = new ProductFactory()->nlDomain()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($this->nlDomainProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 99,
+            ]);
         new ProductSpecFactory()->for($this->nlDomainProduct)->createOne([
-            'name'  => ProductSpecName::DOMAIN_DNSSEC_ENABLED,
+            'name' => ProductSpecName::DOMAIN_DNSSEC_ENABLED,
             'value' => 'yes',
         ]);
 
-        $this->freeDnsProduct = new ProductFactory()
-            ->freeDns()
-            ->createOne();
+        $this->freeDnsProduct = new ProductFactory()->freeDns()->createOne();
 
-        new ProductPriceComponentFactory()->for($this->freeDnsProduct)->registration()->createOne([
-            'billing_period'  => 12,
-            'contract_period' => 12,
-            'price'   => 0,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->freeDnsProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 0,
+            ]);
     }
 
     #[Override]
@@ -193,9 +196,11 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
     {
         $regions = new DnsRegionFactory()->createMany(3);
         foreach ($regions as $index => $region) {
-            $region->dnsNameservers()->save(new DnsNameserverFactory()->makeOne([
-                'nameserver' => self::NAMESERVERS[$index],
-            ]));
+            $region
+                ->dnsNameservers()
+                ->save(new DnsNameserverFactory()->makeOne([
+                    'nameserver' => self::NAMESERVERS[$index],
+                ]));
         }
     }
 
@@ -227,25 +232,30 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
                     LoggingContextKeys::META => [
                         'domain.handles' => [
                             [
-                                'role'   => 'ADMIN',
+                                'role' => 'ADMIN',
                                 'handle' => self::TEST_HANDLE,
                             ],
                             [
-                                'role'   => 'BILLING',
+                                'role' => 'BILLING',
                                 'handle' => self::TEST_HANDLE,
                             ],
                             [
-                                'role'   => 'TECH',
+                                'role' => 'TECH',
                                 'handle' => self::TEST_HANDLE,
                             ],
                         ],
                     ],
-                ]
+                ],
             );
 
         $this->logger
             ->shouldNotReceive('debug')
-            ->withArgs(fn (string $message): bool => $message === 'Domain tld [{product.slug}] has zone check enabled. Skipping minimal transfer/registration.');
+            ->withArgs(
+                fn (string $message): bool => (
+                    $message
+                    === 'Domain tld [{product.slug}] has zone check enabled. Skipping minimal transfer/registration.'
+                ),
+            );
 
         $this->logger
             ->shouldReceive('info')
@@ -256,9 +266,9 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
         $response->assertOk();
 
         $domainSubscription = Subscription::where([
-            'customer_id'           => $this->customer->id,
-            'product_uuid'          => $this->nlDomainProduct->uuid,
-            'technical_status'      => DomainStatus::ACTIVE,
+            'customer_id' => $this->customer->id,
+            'product_uuid' => $this->nlDomainProduct->uuid,
+            'technical_status' => DomainStatus::ACTIVE,
             'administrative_status' => AdministrativeStatus::ACTIVE->value,
         ])->first();
 
@@ -267,12 +277,13 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
 
         $dnsChildSubscription = Subscription::with('dnsDeployment')
             ->where([
-                'customer_id'            => $this->customer->id,
-                'product_uuid'           => $this->freeDnsProduct->uuid,
-                'technical_status'       => TechnicalStatus::OK->value,
-                'administrative_status'  => AdministrativeStatus::ACTIVE->value,
+                'customer_id' => $this->customer->id,
+                'product_uuid' => $this->freeDnsProduct->uuid,
+                'technical_status' => TechnicalStatus::OK->value,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
                 'parent_subscription_id' => $domainSubscription->id,
-            ])->firstOrFail();
+            ])
+            ->firstOrFail();
 
         self::assertNotNull($dnsChildSubscription->dnsDeployment, 'DNS Deployment is null.');
         $nameservers = $dnsChildSubscription->dnsDeployment->dnsNameservers;
@@ -289,11 +300,14 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
         $premiumDnsProduct = new ProductFactory()
             ->premiumDns($this->freeDnsProduct->productGroup)
             ->createOne();
-        new ProductPriceComponentFactory()->for($premiumDnsProduct)->registration()->createOne([
-            'billing_period'  => 12,
-            'contract_period' => 12,
-            'price'   => 199,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($premiumDnsProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 199,
+            ]);
         new ProductSpecFactory()->for($premiumDnsProduct)->createOne([
             'name' => ProductSpecName::DNS_IS_PREMIUM->value,
             'value' => true,
@@ -340,25 +354,30 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
                     LoggingContextKeys::META => [
                         'domain.handles' => [
                             [
-                                'role'   => 'ADMIN',
+                                'role' => 'ADMIN',
                                 'handle' => self::TEST_HANDLE,
                             ],
                             [
-                                'role'   => 'BILLING',
+                                'role' => 'BILLING',
                                 'handle' => self::TEST_HANDLE,
                             ],
                             [
-                                'role'   => 'TECH',
+                                'role' => 'TECH',
                                 'handle' => self::TEST_HANDLE,
                             ],
                         ],
                     ],
-                ]
+                ],
             );
 
         $this->logger
             ->shouldNotReceive('debug')
-            ->withArgs(fn (string $message): bool => $message === 'Domain tld [{product.slug}] has zone check enabled. Skipping minimal transfer/registration.');
+            ->withArgs(
+                fn (string $message): bool => (
+                    $message
+                    === 'Domain tld [{product.slug}] has zone check enabled. Skipping minimal transfer/registration.'
+                ),
+            );
 
         $this->logger
             ->shouldReceive('info')
@@ -369,9 +388,9 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
         $response->assertOk();
 
         $domainSubscription = Subscription::where([
-            'customer_id'           => $this->customer->id,
-            'product_uuid'          => $this->nlDomainProduct->uuid,
-            'technical_status'      => DomainStatus::ACTIVE,
+            'customer_id' => $this->customer->id,
+            'product_uuid' => $this->nlDomainProduct->uuid,
+            'technical_status' => DomainStatus::ACTIVE,
             'administrative_status' => AdministrativeStatus::ACTIVE->value,
         ])->first();
 
@@ -380,12 +399,13 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
 
         $dnsChildSubscription = Subscription::with('dnsDeployment')
             ->where([
-                'customer_id'            => $this->customer->id,
-                'product_uuid'           => $premiumDnsProduct->uuid,
-                'technical_status'       => TechnicalStatus::OK->value,
-                'administrative_status'  => AdministrativeStatus::ACTIVE->value,
+                'customer_id' => $this->customer->id,
+                'product_uuid' => $premiumDnsProduct->uuid,
+                'technical_status' => TechnicalStatus::OK->value,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
                 'parent_subscription_id' => $domainSubscription->id,
-            ])->firstOrFail();
+            ])
+            ->firstOrFail();
 
         self::assertNotNull($dnsChildSubscription->dnsDeployment, 'DNS Deployment is null.');
         $nameservers = $dnsChildSubscription->dnsDeployment->dnsNameservers;
@@ -423,7 +443,12 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
 
         $this->logger
             ->shouldNotReceive('debug')
-            ->withArgs(fn (string $message): bool => $message === 'Domain tld [{product.slug}] has zone check enabled. Skipping minimal transfer/registration.');
+            ->withArgs(
+                fn (string $message): bool => (
+                    $message
+                    === 'Domain tld [{product.slug}] has zone check enabled. Skipping minimal transfer/registration.'
+                ),
+            );
 
         $this->logger
             ->shouldReceive('info')
@@ -434,9 +459,9 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
         $response->assertOk();
 
         $domainSubscription = Subscription::where([
-            'customer_id'           => $this->customer->id,
-            'product_uuid'          => $this->nlDomainProduct->uuid,
-            'technical_status'      => DomainStatus::ACTIVE->value,
+            'customer_id' => $this->customer->id,
+            'product_uuid' => $this->nlDomainProduct->uuid,
+            'technical_status' => DomainStatus::ACTIVE->value,
             'administrative_status' => AdministrativeStatus::ACTIVE->value,
         ])->first();
 
@@ -446,12 +471,13 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
 
         $dnsChildSubscription = Subscription::with('dnsDeployment')
             ->where([
-                'customer_id'            => $this->customer->id,
-                'product_uuid'           => $this->freeDnsProduct->uuid,
-                'technical_status'       => TechnicalStatus::OK->value,
-                'administrative_status'  => AdministrativeStatus::ACTIVE->value,
+                'customer_id' => $this->customer->id,
+                'product_uuid' => $this->freeDnsProduct->uuid,
+                'technical_status' => TechnicalStatus::OK->value,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
                 'parent_subscription_id' => $domainSubscription->id,
-            ])->firstOrFail();
+            ])
+            ->firstOrFail();
 
         self::assertNotNull($dnsChildSubscription->dnsDeployment, 'DNS Deployment is null.');
         $nameservers = $dnsChildSubscription->dnsDeployment->dnsNameservers;
@@ -465,9 +491,7 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
     #[Test]
     public function orderDomainWithZoneCheck(): void
     {
-        new ProductSpecFactory()
-            ->for($this->nlDomainProduct)
-            ->createOne();
+        new ProductSpecFactory()->for($this->nlDomainProduct)->createOne();
 
         $this->actingAsCustomer($this->customer);
         $orderJson = (string) file_get_contents(__DIR__ . '/data/domain-order.json');
@@ -486,28 +510,33 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
         $this->logger
             ->shouldReceive('debug')
             ->once()
-            ->withArgs(fn (string $message, array $context): bool => $message === 'Domain tld [{product.slug}] has zone check enabled. Skipping minimal transfer/registration.'
-                && $context[LoggingContextKeys::PRODUCT_SLUG] === $this->nlDomainProduct->slug
-                && $context[LoggingContextKeys::DOMAIN_NAME] === self::DOMAIN
-                && $context[LoggingContextKeys::PROVISIONING_TYPE] === 'domain.registration'
-                && is_string($context[LoggingContextKeys::SUBSCRIPTION_UUID])
-                && $context[LoggingContextKeys::SUBSCRIPTION_UUID] !== '');
+            ->withArgs(
+                fn (string $message, array $context): bool => (
+                    $message
+                    === 'Domain tld [{product.slug}] has zone check enabled. Skipping minimal transfer/registration.'
+                    && $context[LoggingContextKeys::PRODUCT_SLUG] === $this->nlDomainProduct->slug
+                    && $context[LoggingContextKeys::DOMAIN_NAME] === self::DOMAIN
+                    && $context[LoggingContextKeys::PROVISIONING_TYPE] === 'domain.registration'
+                    && is_string($context[LoggingContextKeys::SUBSCRIPTION_UUID])
+                    && $context[LoggingContextKeys::SUBSCRIPTION_UUID] !== ''
+                ),
+            );
 
         $this->logger
             ->shouldReceive('info')
             ->once()
             ->with(
                 'RegisterDomainJob started for domain domain-order-test.nl. Registration or transfer: domain.registration',
-                true
+                true,
             );
 
         $response = $this->post($this->orderRoute, $postData);
         $response->assertOk();
 
         $domainSubscription = Subscription::where([
-            'customer_id'           => $this->customer->id,
-            'product_uuid'          => $this->nlDomainProduct->uuid,
-            'technical_status'      => DomainStatus::ACTIVE,
+            'customer_id' => $this->customer->id,
+            'product_uuid' => $this->nlDomainProduct->uuid,
+            'technical_status' => DomainStatus::ACTIVE,
             'administrative_status' => AdministrativeStatus::ACTIVE->value,
         ])->first();
 
@@ -516,12 +545,13 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
 
         $dnsChildSubscription = Subscription::with('dnsDeployment')
             ->where([
-                'customer_id'            => $this->customer->id,
-                'product_uuid'           => $this->freeDnsProduct->uuid,
-                'technical_status'       => TechnicalStatus::OK->value,
-                'administrative_status'  => AdministrativeStatus::ACTIVE->value,
+                'customer_id' => $this->customer->id,
+                'product_uuid' => $this->freeDnsProduct->uuid,
+                'technical_status' => TechnicalStatus::OK->value,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
                 'parent_subscription_id' => $domainSubscription->id,
-            ])->firstOrFail();
+            ])
+            ->firstOrFail();
 
         self::assertNotNull($dnsChildSubscription->dnsDeployment, 'DNS Deployment is null.');
         $nameservers = $dnsChildSubscription->dnsDeployment->dnsNameservers;
@@ -535,9 +565,7 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
     #[Test]
     public function orderDomainWithZoneCheckTransfer(): void
     {
-        new ProductSpecFactory()
-            ->for($this->nlDomainProduct)
-            ->createOne();
+        new ProductSpecFactory()->for($this->nlDomainProduct)->createOne();
 
         $this->actingAsCustomer($this->customer);
         $orderJson = (string) file_get_contents(__DIR__ . '/data/domain-order-transfer.json');
@@ -556,28 +584,33 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
         $this->logger
             ->shouldReceive('debug')
             ->once()
-            ->withArgs(fn (string $message, array $context): bool => $message === 'Domain tld [{product.slug}] has zone check enabled. Skipping minimal transfer/registration.'
-                && $context[LoggingContextKeys::PRODUCT_SLUG] === $this->nlDomainProduct->slug
-                && $context[LoggingContextKeys::DOMAIN_NAME] === self::DOMAIN
-                && $context[LoggingContextKeys::PROVISIONING_TYPE] === 'domain.transfer'
-                && is_string($context[LoggingContextKeys::SUBSCRIPTION_UUID])
-                && $context[LoggingContextKeys::SUBSCRIPTION_UUID] !== '');
+            ->withArgs(
+                fn (string $message, array $context): bool => (
+                    $message
+                    === 'Domain tld [{product.slug}] has zone check enabled. Skipping minimal transfer/registration.'
+                    && $context[LoggingContextKeys::PRODUCT_SLUG] === $this->nlDomainProduct->slug
+                    && $context[LoggingContextKeys::DOMAIN_NAME] === self::DOMAIN
+                    && $context[LoggingContextKeys::PROVISIONING_TYPE] === 'domain.transfer'
+                    && is_string($context[LoggingContextKeys::SUBSCRIPTION_UUID])
+                    && $context[LoggingContextKeys::SUBSCRIPTION_UUID] !== ''
+                ),
+            );
 
         $this->logger
             ->shouldReceive('info')
             ->once()
             ->with(
                 'RegisterDomainJob started for domain domain-order-test.nl. Registration or transfer: domain.transfer',
-                true
+                true,
             );
 
         $response = $this->post($this->orderRoute, $postData);
         $response->assertOk();
 
         $domainSubscription = Subscription::where([
-            'customer_id'           => $this->customer->id,
-            'product_uuid'          => $this->nlDomainProduct->uuid,
-            'technical_status'      => TechnicalStatus::OK->value,
+            'customer_id' => $this->customer->id,
+            'product_uuid' => $this->nlDomainProduct->uuid,
+            'technical_status' => TechnicalStatus::OK->value,
             'administrative_status' => AdministrativeStatus::ACTIVE->value,
         ])->first();
 
@@ -587,12 +620,13 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
 
         $dnsChildSubscription = Subscription::with('dnsDeployment')
             ->where([
-                'customer_id'            => $this->customer->id,
-                'product_uuid'           => $this->freeDnsProduct->uuid,
-                'technical_status'       => TechnicalStatus::OK->value,
-                'administrative_status'  => AdministrativeStatus::ACTIVE->value,
+                'customer_id' => $this->customer->id,
+                'product_uuid' => $this->freeDnsProduct->uuid,
+                'technical_status' => TechnicalStatus::OK->value,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
                 'parent_subscription_id' => $domainSubscription->id,
-            ])->firstOrFail();
+            ])
+            ->firstOrFail();
 
         self::assertNotNull($dnsChildSubscription->dnsDeployment, 'DNS Deployment is null.');
         $nameservers = $dnsChildSubscription->dnsDeployment->dnsNameservers;
@@ -636,7 +670,8 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
 
     private function assertRtrTldInfoCalled(?string $jsonResponseFile = null): void
     {
-        $tldMetaDataResponse = (string) file_get_contents($jsonResponseFile ?? __DIR__ . '/response/rtr-tld-metadata-nl.json');
+        $tldMetaDataResponse = (string) file_get_contents($jsonResponseFile
+        ?? __DIR__ . '/response/rtr-tld-metadata-nl.json');
         $this->rtrClient
             ->shouldReceive('get')
             ->once()
@@ -653,32 +688,40 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
             ->withArgs(
                 function (string $endpoint, $registerPayload): bool {
                     $correctDomain = $endpoint === sprintf('v2/domains/%s', self::DOMAIN);
-                    $correctHandle = array_key_exists(
-                        'customer',
-                        $registerPayload
-                    ) && $registerPayload['customer'] === $this->rtrCustomer;
+                    $correctHandle =
+                        array_key_exists(
+                            'customer',
+                            $registerPayload,
+                        )
+                        && $registerPayload['customer'] === $this->rtrCustomer;
 
-                    $correctNameservers = array_key_exists(
-                        'ns',
-                        $registerPayload
-                    ) && $registerPayload['ns'] === self::NAMESERVERS;
-                    $correctKeyData = array_key_exists('keyData', $registerPayload)
+                    $correctNameservers =
+                        array_key_exists(
+                            'ns',
+                            $registerPayload,
+                        )
+                        && $registerPayload['ns'] === self::NAMESERVERS;
+                    $correctKeyData =
+                        array_key_exists('keyData', $registerPayload)
                         && $registerPayload['keyData'] === [
                             [
-                                'protocol'  => 3,
-                                'flags'     => 257,
+                                'protocol' => 3,
+                                'flags' => 257,
                                 'algorithm' => 13,
                                 'publicKey' => self::DNSSEC_PUBLIC_KEY,
                             ],
                         ];
                     $isMissingAuthCode = ! array_key_exists('authCode', $registerPayload);
+
                     // Including nameservers and DNSSEC assert that we do a 'regular' register with zone check enabled
-                    return $correctDomain
+                    return (
+                        $correctDomain
                         && $correctHandle
                         && $correctNameservers
                         && $correctKeyData
-                        && $isMissingAuthCode;
-                }
+                        && $isMissingAuthCode
+                    );
+                },
             )
             ->andReturn(new RealtimeRegisterResponse($registerResponse, [], 200));
     }
@@ -692,20 +735,19 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
             ->withArgs(
                 function (string $endpoint, $registerPayload): bool {
                     $correctDomain = $endpoint === sprintf('v2/domains/%s', self::DOMAIN);
-                    $correctHandle = array_key_exists(
-                        'customer',
-                        $registerPayload
-                    ) && $registerPayload['customer'] === $this->rtrCustomer;
+                    $correctHandle =
+                        array_key_exists(
+                            'customer',
+                            $registerPayload,
+                        )
+                        && $registerPayload['customer'] === $this->rtrCustomer;
                     $isMissingNs = ! array_key_exists('ns', $registerPayload);
                     $isMissingDnsSec = ! array_key_exists('keyData', $registerPayload);
                     $isMissingAuthCode = ! array_key_exists('authCode', $registerPayload);
+
                     // No nameservers and no DNSSEC assert that we do a minimal register
-                    return $correctDomain
-                        && $correctHandle
-                        && $isMissingNs
-                        && $isMissingDnsSec
-                        && $isMissingAuthCode;
-                }
+                    return $correctDomain && $correctHandle && $isMissingNs && $isMissingDnsSec && $isMissingAuthCode;
+                },
             )
             ->andReturn(new RealtimeRegisterResponse($registerResponse, [], 200));
     }
@@ -713,29 +755,31 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
     private function assertRtrUpdateDomainForPremiumDnsCalled(): void
     {
         $updateResponse = (string) file_get_contents(__DIR__ . '/response/rtr-update.json');
-        $this->rtrClient->shouldReceive('post')
+        $this->rtrClient
+            ->shouldReceive('post')
             ->once()
             ->withArgs(
                 function (string $endpoint, array $updatePayload) {
                     $correctEndpoint = $endpoint === sprintf('v2/domains/%s/update', self::DOMAIN);
-                    $correctNameservers = array_key_exists(
-                        'ns',
-                        $updatePayload
-                    ) && $updatePayload['ns'] === self::VANITY_NAMESERVERS;
-                    $correctKeyData = array_key_exists('keyData', $updatePayload)
+                    $correctNameservers =
+                        array_key_exists(
+                            'ns',
+                            $updatePayload,
+                        )
+                        && $updatePayload['ns'] === self::VANITY_NAMESERVERS;
+                    $correctKeyData =
+                        array_key_exists('keyData', $updatePayload)
                         && $updatePayload['keyData'] === [
                             [
-                                'protocol'  => 3,
-                                'flags'     => 257,
+                                'protocol' => 3,
+                                'flags' => 257,
                                 'algorithm' => 13,
                                 'publicKey' => self::DNSSEC_PUBLIC_KEY,
                             ],
                         ];
 
-                    return $correctEndpoint
-                        && $correctNameservers
-                        && $correctKeyData;
-                }
+                    return $correctEndpoint && $correctNameservers && $correctKeyData;
+                },
             )
             ->andReturn(new RealtimeRegisterResponse($updateResponse, [], 200));
     }
@@ -743,29 +787,31 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
     private function assertRtrUpdateDomainCalled(): void
     {
         $updateResponse = (string) file_get_contents(__DIR__ . '/response/rtr-update.json');
-        $this->rtrClient->shouldReceive('post')
+        $this->rtrClient
+            ->shouldReceive('post')
             ->once()
             ->withArgs(
                 function (string $endpoint, array $updatePayload) {
                     $correctEndpoint = $endpoint === sprintf('v2/domains/%s/update', self::DOMAIN);
-                    $correctNameservers = array_key_exists(
-                        'ns',
-                        $updatePayload
-                    ) && $updatePayload['ns'] === self::NAMESERVERS;
-                    $correctKeyData = array_key_exists('keyData', $updatePayload)
+                    $correctNameservers =
+                        array_key_exists(
+                            'ns',
+                            $updatePayload,
+                        )
+                        && $updatePayload['ns'] === self::NAMESERVERS;
+                    $correctKeyData =
+                        array_key_exists('keyData', $updatePayload)
                         && $updatePayload['keyData'] === [
                             [
-                                'protocol'  => 3,
-                                'flags'     => 257,
+                                'protocol' => 3,
+                                'flags' => 257,
                                 'algorithm' => 13,
                                 'publicKey' => self::DNSSEC_PUBLIC_KEY,
                             ],
                         ];
 
-                    return $correctEndpoint
-                        && $correctNameservers
-                        && $correctKeyData;
-                }
+                    return $correctEndpoint && $correctNameservers && $correctKeyData;
+                },
             )
             ->andReturn(new RealtimeRegisterResponse($updateResponse, [], 200));
     }
@@ -773,13 +819,16 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
     private function assertPdnsCheckPremiumZoneCalledConsecutive(): void
     {
         $getZoneResponse = (string) file_get_contents(__DIR__ . '/response/pdns-get-zone-premium.json');
-        $this->pdnsClient->shouldReceive('send')
+        $this->pdnsClient
+            ->shouldReceive('send')
             ->withArgs(
-                fn (Request $request) => rtrim($request->getUri()->getPath(), '.') === sprintf(
-                    'api/v1/servers/localhost/zones/%s',
-                    self::DOMAIN,
-                )
+                fn (Request $request) => (
+                    rtrim($request->getUri()->getPath(), '.') === sprintf(
+                        'api/v1/servers/localhost/zones/%s',
+                        self::DOMAIN,
+                    )
                     && $request->getMethod() === 'GET'
+                ),
             )
             ->andReturn(
                 // First call to check if zone exists from DnsCreationListener
@@ -802,14 +851,17 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
     private function assertPdnsModifyCalled(): void
     {
         $getZoneResponse = (string) file_get_contents(__DIR__ . '/response/pdns-get-zone-premium.json');
-        $this->pdnsClient->shouldReceive('send')
+        $this->pdnsClient
+            ->shouldReceive('send')
             ->once()
             ->withArgs(
-                fn (Request $request) => rtrim($request->getUri()->getPath(), '.') === sprintf(
-                    'api/v1/servers/localhost/zones/%s',
-                    self::DOMAIN,
-                )
+                fn (Request $request) => (
+                    rtrim($request->getUri()->getPath(), '.') === sprintf(
+                        'api/v1/servers/localhost/zones/%s',
+                        self::DOMAIN,
+                    )
                     && $request->getMethod() === 'PATCH'
+                ),
             )
             ->andReturn(
                 new Response(status: 200, headers: [], body: $getZoneResponse),
@@ -819,14 +871,17 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
     private function assertPdnsCheckZoneCalledConsecutive(): void
     {
         $getZoneResponse = (string) file_get_contents(__DIR__ . '/response/pdns-get-zone.json');
-        $this->pdnsClient->shouldReceive('send')
+        $this->pdnsClient
+            ->shouldReceive('send')
             ->times(4)
             ->withArgs(
-                fn (Request $request) => $request->getUri()->getPath() === sprintf(
-                    'api/v1/servers/localhost/zones/%s',
-                    self::DOMAIN
-                )
+                fn (Request $request) => (
+                    $request->getUri()->getPath() === sprintf(
+                        'api/v1/servers/localhost/zones/%s',
+                        self::DOMAIN,
+                    )
                     && $request->getMethod() === 'GET'
+                ),
             )
             ->andReturn(
                 new Response(status: 404, headers: [], body: '{error: "Not found"}'),
@@ -838,15 +893,16 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
                 new Response(
                     status: 200,
                     headers: [],
-                    body: $getZoneResponse
-                ),       // Fourth call from RtrService (getDomainKeyDataCollection -> enableDnssec)
+                    body: $getZoneResponse,
+                ), // Fourth call from RtrService (getDomainKeyDataCollection -> enableDnssec)
             );
     }
 
     private function assertPdnsCreateZoneCalled(): void
     {
         $createZoneResponse = (string) file_get_contents(__DIR__ . '/response/pdns-create-zone.json');
-        $this->pdnsClient->shouldReceive('send')
+        $this->pdnsClient
+            ->shouldReceive('send')
             ->once()
             ->withArgs(
                 function (Request $request) {
@@ -869,6 +925,7 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
                             $correctNameservers = false;
                             break;
                         }
+
                         $correctNameservers = $record['content'] === self::NAMESERVERS[$index] . '.';
                     }
 
@@ -876,11 +933,8 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
                     $correctEndpoint = $request->getUri()->getPath() === 'api/v1/servers/localhost/zones';
                     $correctMethod = $request->getMethod() === 'POST';
 
-                    return $correctNameservers
-                        && $correctDomain
-                        && $correctEndpoint
-                        && $correctMethod;
-                }
+                    return $correctNameservers && $correctDomain && $correctEndpoint && $correctMethod;
+                },
             )
             ->andReturn(new Response(200, [], $createZoneResponse));
     }
@@ -888,7 +942,8 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
     private function assertPdnsCreatePremiumZoneCalled(): void
     {
         $createZoneResponse = (string) file_get_contents(__DIR__ . '/response/pdns-create-zone-premium.json');
-        $this->pdnsClient->shouldReceive('send')
+        $this->pdnsClient
+            ->shouldReceive('send')
             ->once()
             ->withArgs(
                 function (Request $request) {
@@ -911,6 +966,7 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
                             $correctNameservers = false;
                             break;
                         }
+
                         $correctNameservers = $record['content'] === self::VANITY_NAMESERVERS[$index] . '.';
                     }
 
@@ -918,18 +974,16 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
                     $correctEndpoint = $request->getUri()->getPath() === 'api/v1/servers/localhost/zones';
                     $correctMethod = $request->getMethod() === 'POST';
 
-                    return $correctNameservers
-                        && $correctDomain
-                        && $correctEndpoint
-                        && $correctMethod;
-                }
+                    return $correctNameservers && $correctDomain && $correctEndpoint && $correctMethod;
+                },
             )
             ->andReturn(new Response(200, [], $createZoneResponse));
     }
 
     private function assertPdnsEnableMetaSoaEditCalled(): void
     {
-        $this->pdnsClient->shouldReceive('send')
+        $this->pdnsClient
+            ->shouldReceive('send')
             ->once()
             ->withArgs(
                 function (Request $request) {
@@ -943,20 +997,20 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
 
                     $correctEndpoint = $request->getUri()->getPath() === sprintf(
                         'api/v1/servers/localhost/zones/%s',
-                        self::DOMAIN
+                        self::DOMAIN,
                     );
                     $correctMethod = $request->getMethod() === 'PUT';
 
-                    return $correctEndpoint
-                        && $correctMethod;
-                }
+                    return $correctEndpoint && $correctMethod;
+                },
             )
             ->andReturn(new Response(status: 200, headers: []));
     }
 
     private function assertPdnsEnableMetaDataCalled(PowerDnsMetadataType $metaDataType): void
     {
-        $this->pdnsClient->shouldReceive('send')
+        $this->pdnsClient
+            ->shouldReceive('send')
             ->once()
             ->withArgs(
                 function (Request $request) use ($metaDataType) {
@@ -966,60 +1020,58 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
                         return false;
                     }
 
-                    $isAllowAxfr = array_key_exists('kind', $sendData)
-                        && $sendData['kind'] === $metaDataType->value;
+                    $isAllowAxfr = array_key_exists('kind', $sendData) && $sendData['kind'] === $metaDataType->value;
 
                     $correctEndpoint = $request->getUri()->getPath() === sprintf(
                         'api/v1/servers/localhost/zones/%s/metadata',
-                        self::DOMAIN
+                        self::DOMAIN,
                     );
                     $correctMethod = $request->getMethod() === 'POST';
 
-                    return $isAllowAxfr
-                        && $correctEndpoint
-                        && $correctMethod;
-                }
+                    return $isAllowAxfr && $correctEndpoint && $correctMethod;
+                },
             )
             ->andReturn(new Response(status: 200, headers: []));
     }
 
     private function assertPdnsSendNotifyCalled(): void
     {
-        $this->pdnsClient->shouldReceive('send')
+        $this->pdnsClient
+            ->shouldReceive('send')
             ->twice()
             ->withArgs(
                 function (Request $request) {
                     $correctEndpoint = $request->getUri()->getPath() === sprintf(
                         'api/v1/servers/localhost/zones/%s/notify',
-                        self::DOMAIN
+                        self::DOMAIN,
                     );
                     $correctMethod = $request->getMethod() === 'PUT';
 
-                    return $correctEndpoint
-                        && $correctMethod;
-                }
+                    return $correctEndpoint && $correctMethod;
+                },
             )
             ->andReturn(new Response(status: 200, headers: []));
 
-        $this->pdnsClient->shouldReceive('send')
+        $this->pdnsClient
+            ->shouldReceive('send')
             ->withArgs(
                 function (Request $request) {
                     $correctEndpoint = $request->getUri()->getPath() === sprintf(
                         'notify-gandi/%s',
-                        self::DOMAIN
+                        self::DOMAIN,
                     );
                     $correctMethod = $request->getMethod() === 'GET';
 
-                    return $correctEndpoint
-                        && $correctMethod;
-                }
+                    return $correctEndpoint && $correctMethod;
+                },
             )
             ->andReturn(new Response(status: 200, headers: [], body: ''));
     }
 
     private function assertPdnsUpdateLiveDnsCalled(): void
     {
-        $this->pdnsClient->shouldReceive('send')
+        $this->pdnsClient
+            ->shouldReceive('send')
             ->once()
             ->withArgs(
                 function (Request $request) {
@@ -1029,26 +1081,24 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
                         return false;
                     }
 
-                    $isLiveDnsUpdate = array_key_exists('account', $sendData)
-                        && $sendData['account'] === 'LiveDns';
+                    $isLiveDnsUpdate = array_key_exists('account', $sendData) && $sendData['account'] === 'LiveDns';
 
                     $correctEndpoint = $request->getUri()->getPath() === sprintf(
                         'api/v1/servers/localhost/zones/%s',
-                        self::DOMAIN
+                        self::DOMAIN,
                     );
                     $correctMethod = $request->getMethod() === 'PUT';
 
-                    return $isLiveDnsUpdate
-                        && $correctEndpoint
-                        && $correctMethod;
-                }
+                    return $isLiveDnsUpdate && $correctEndpoint && $correctMethod;
+                },
             )
             ->andReturn(new Response(status: 204, headers: []));
     }
 
     private function assertPdnsEnableDnsSecCalled(): void
     {
-        $this->pdnsClient->shouldReceive('send')
+        $this->pdnsClient
+            ->shouldReceive('send')
             ->once()
             ->withArgs(
                 function (Request $request) {
@@ -1062,15 +1112,12 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
                     $correctDomain = array_key_exists('name', $sendData) && $sendData['name'] === self::DOMAIN . '.';
                     $correctEndpoint = $request->getUri()->getPath() === sprintf(
                         'api/v1/servers/localhost/zones/%s.',
-                        self::DOMAIN
+                        self::DOMAIN,
                     );
                     $correctMethod = $request->getMethod() === 'PUT';
 
-                    return $dnsSecEnabled
-                        && $correctDomain
-                        && $correctEndpoint
-                        && $correctMethod;
-                }
+                    return $dnsSecEnabled && $correctDomain && $correctEndpoint && $correctMethod;
+                },
             )
             ->andReturn(new Response(status: 204, headers: []));
     }
@@ -1078,14 +1125,17 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
     private function assertPdnsGetZoneKeysCalled(): void
     {
         $zoneKeysResponse = (string) file_get_contents(__DIR__ . '/response/pdns-zone-keys.json');
-        $this->pdnsClient->shouldReceive('send')
+        $this->pdnsClient
+            ->shouldReceive('send')
             ->once()
             ->withArgs(
-                fn (Request $request) => $request->getUri()->getPath() === sprintf(
-                    'api/v1/servers/localhost/zones/%s/cryptokeys',
-                    self::DOMAIN
-                )
+                fn (Request $request) => (
+                    $request->getUri()->getPath() === sprintf(
+                        'api/v1/servers/localhost/zones/%s/cryptokeys',
+                        self::DOMAIN,
+                    )
                     && $request->getMethod() === 'GET'
+                ),
             )
             ->andReturn(new Response(status: 200, headers: [], body: $zoneKeysResponse));
     }
@@ -1099,35 +1149,45 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
             ->withArgs(
                 function (string $endpoint, $registerPayload): bool {
                     $correctDomain = $endpoint === sprintf('v2/domains/%s/transfer', self::DOMAIN);
-                    $correctHandle = array_key_exists(
-                        'customer',
-                        $registerPayload
-                    ) && $registerPayload['customer'] === $this->rtrCustomer;
+                    $correctHandle =
+                        array_key_exists(
+                            'customer',
+                            $registerPayload,
+                        )
+                        && $registerPayload['customer'] === $this->rtrCustomer;
 
-                    $correctNameservers = array_key_exists(
-                        'ns',
-                        $registerPayload
-                    ) && $registerPayload['ns'] === self::NAMESERVERS;
-                    $correctKeyData = array_key_exists('keyData', $registerPayload)
+                    $correctNameservers =
+                        array_key_exists(
+                            'ns',
+                            $registerPayload,
+                        )
+                        && $registerPayload['ns'] === self::NAMESERVERS;
+                    $correctKeyData =
+                        array_key_exists('keyData', $registerPayload)
                         && $registerPayload['keyData'] === [
                             [
-                                'protocol'  => 3,
-                                'flags'     => 257,
+                                'protocol' => 3,
+                                'flags' => 257,
                                 'algorithm' => 13,
                                 'publicKey' => self::DNSSEC_PUBLIC_KEY,
                             ],
                         ];
-                    $correctAuthCode = array_key_exists(
-                        'authcode',
-                        $registerPayload
-                    ) && $registerPayload['authcode'] === self::TRANSFER_CODE;
+                    $correctAuthCode =
+                        array_key_exists(
+                            'authcode',
+                            $registerPayload,
+                        )
+                        && $registerPayload['authcode'] === self::TRANSFER_CODE;
+
                     // Correct nameservers and DNSSEC assert that we do a 'regular' transfer with zone check enabled
-                    return $correctDomain
+                    return (
+                        $correctDomain
                         && $correctHandle
                         && $correctNameservers
                         && $correctKeyData
-                        && $correctAuthCode;
-                }
+                        && $correctAuthCode
+                    );
+                },
             )
             ->andReturn(new RealtimeRegisterResponse($registerResponse, [], 200));
     }
@@ -1141,23 +1201,24 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
             ->withArgs(
                 function (string $endpoint, $registerPayload): bool {
                     $correctDomain = $endpoint === sprintf('v2/domains/%s/transfer', self::DOMAIN);
-                    $correctHandle = array_key_exists(
-                        'customer',
-                        $registerPayload
-                    ) && $registerPayload['customer'] === $this->rtrCustomer;
+                    $correctHandle =
+                        array_key_exists(
+                            'customer',
+                            $registerPayload,
+                        )
+                        && $registerPayload['customer'] === $this->rtrCustomer;
                     $isMissingNs = ! array_key_exists('ns', $registerPayload);
                     $isMissingDnsSec = ! array_key_exists('keyData', $registerPayload);
-                    $correctAuthCode = array_key_exists(
-                        'authcode',
-                        $registerPayload
-                    ) && $registerPayload['authcode'] === self::TRANSFER_CODE;
+                    $correctAuthCode =
+                        array_key_exists(
+                            'authcode',
+                            $registerPayload,
+                        )
+                        && $registerPayload['authcode'] === self::TRANSFER_CODE;
+
                     // No nameservers and no DNSSEC assert that we do a minimal transfer
-                    return $correctDomain
-                        && $correctHandle
-                        && $isMissingNs
-                        && $isMissingDnsSec
-                        && $correctAuthCode;
-                }
+                    return $correctDomain && $correctHandle && $isMissingNs && $isMissingDnsSec && $correctAuthCode;
+                },
             )
             ->andReturn(new RealtimeRegisterResponse($registerResponse, [], 200));
     }
@@ -1179,10 +1240,11 @@ class OrderDomainIntegrationTest extends IntegrationTestCase
             $client = new GandiConnector(
                 $gandiMockConfig,
                 $this->app->make(LoggerInterface::class),
-                $this->app->make(JsonLogMasker::class)
+                $this->app->make(JsonLogMasker::class),
             );
 
             $client->withMockClient($mockGandiClient);
+
             return $client;
         });
     }

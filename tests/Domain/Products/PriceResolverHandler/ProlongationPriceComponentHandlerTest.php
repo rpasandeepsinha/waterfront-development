@@ -31,7 +31,7 @@ class ProlongationPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 1234,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
             new Price(
                 type: ProductPriceType::PROLONGATION,
@@ -41,7 +41,7 @@ class ProlongationPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 789,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
         ]);
 
@@ -67,7 +67,7 @@ class ProlongationPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 789,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
         ]);
 
@@ -91,7 +91,7 @@ class ProlongationPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 1234,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
         ]);
 
@@ -114,7 +114,7 @@ class ProlongationPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 1234,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
             new Price(
                 type: ProductPriceType::PROLONGATION,
@@ -124,7 +124,7 @@ class ProlongationPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 456,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
             new Price(
                 type: ProductPriceType::PROLONGATION,
@@ -134,7 +134,7 @@ class ProlongationPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 789,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
             new Price(
                 type: ProductPriceType::REGISTRATION,
@@ -144,7 +144,7 @@ class ProlongationPriceComponentHandlerTest extends IntegrationTestCase
                 regularPrice: 534,
                 contractPeriod: 12,
                 orderable: true,
-                is_default: false
+                is_default: false,
             ),
         ]);
 
@@ -155,7 +155,10 @@ class ProlongationPriceComponentHandlerTest extends IntegrationTestCase
             ->where('contractPeriod', 12)
             ->where('billingPeriod', 12)
             ->firstOrFail();
-        $prolongationYearlyBilling = array_find($basePriceYearlyBilling->possiblePriceComponents, fn (PriceComponent $priceComponent) => $priceComponent->type === PriceComponentType::PROLONGATION);
+        $prolongationYearlyBilling = array_find(
+            $basePriceYearlyBilling->possiblePriceComponents,
+            fn (PriceComponent $priceComponent) => $priceComponent->type === PriceComponentType::PROLONGATION,
+        );
         self::assertInstanceOf(ProlongationPriceComponent::class, $prolongationYearlyBilling);
         self::assertSame(789, $prolongationYearlyBilling->newPrice);
 
@@ -164,7 +167,10 @@ class ProlongationPriceComponentHandlerTest extends IntegrationTestCase
             ->where('contractPeriod', 12)
             ->where('billingPeriod', 1)
             ->firstOrFail();
-        $prolongationMonthlyBilling = array_find($basePriceMonthlyBilling->possiblePriceComponents, fn (PriceComponent $priceComponent) => $priceComponent->type === PriceComponentType::PROLONGATION);
+        $prolongationMonthlyBilling = array_find(
+            $basePriceMonthlyBilling->possiblePriceComponents,
+            fn (PriceComponent $priceComponent) => $priceComponent->type === PriceComponentType::PROLONGATION,
+        );
         self::assertInstanceOf(ProlongationPriceComponent::class, $prolongationMonthlyBilling);
         self::assertSame(456, $prolongationMonthlyBilling->newPrice);
     }

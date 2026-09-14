@@ -20,6 +20,7 @@ readonly class PaymentMandateRepository
          * assume the most recent mandate to be the right one. */
         /** @var Mandate $mandate */
         $mandate = $customer->mollieCustomer->mandates->last();
+
         return $mandate;
     }
 }

@@ -20,7 +20,7 @@ class AzureDataFactoryJobRequester extends AbstractQueueableJob implements JobRe
      */
     public function __construct(
         private readonly AzureDataFactoryMessage $message,
-        private readonly string $reference
+        private readonly string $reference,
     ) {
         parent::__construct();
     }
@@ -29,7 +29,7 @@ class AzureDataFactoryJobRequester extends AbstractQueueableJob implements JobRe
     {
         $apiUrl = sprintf(
             '%s/api/ConsumeFerryResponse',
-            $configuration->getAsString('ferry.ferry_azure_data_factory_job_api_url')
+            $configuration->getAsString('ferry.ferry_azure_data_factory_job_api_url'),
         );
 
         $this->logMessages($apiUrl, $logger);
@@ -40,7 +40,7 @@ class AzureDataFactoryJobRequester extends AbstractQueueableJob implements JobRe
             'x-functions-key' => $apiKey,
         ])->post(
             $apiUrl,
-            $this->message->toArray()
+            $this->message->toArray(),
         );
 
         if ($response->ok()) {
@@ -53,7 +53,7 @@ class AzureDataFactoryJobRequester extends AbstractQueueableJob implements JobRe
                     LoggingContextKeys::META => [
                         'reference' => $this->reference,
                     ],
-                ]
+                ],
             );
 
             return;
@@ -78,14 +78,14 @@ class AzureDataFactoryJobRequester extends AbstractQueueableJob implements JobRe
                 LoggingContextKeys::META => [
                     'reference' => $this->reference,
                 ],
-            ]
+            ],
         );
 
         throw new AzureWebhookException(sprintf(
             'Response from webhook to ADF resulted in an %d with body %s with payload %s',
             $response->status(),
             $response->body(),
-            json_encode($this->message->toArray(), JSON_THROW_ON_ERROR)
+            json_encode($this->message->toArray(), JSON_THROW_ON_ERROR),
         ));
     }
 
@@ -137,7 +137,7 @@ class AzureDataFactoryJobRequester extends AbstractQueueableJob implements JobRe
                         'reference' => $this->reference,
                         'message' => $messageData,
                     ],
-                ]
+                ],
             );
         } else {
             $messageParts = str_split($messageDataAsJson, $contextLengthLimit);
@@ -158,7 +158,7 @@ class AzureDataFactoryJobRequester extends AbstractQueueableJob implements JobRe
                             'reference' => $this->reference,
                             'message' => $messagePart,
                         ],
-                    ]
+                    ],
                 );
             }
         }

@@ -33,18 +33,18 @@ class DomainNameRuleTest extends IntegrationTestCase
     {
         return [
             // Valid domains
-            [true, 'www.google.com'],
-            [true, 'google.com'],
-            [true, 'GOOGLE.COM'],
-            [true, 'mkyong123.com'],
-            [true, 'mkyong-info.com'],
-            [true, 'sub.mkyong.com'],
-            [true, 'sub.mkyong-info.com'],
-            [true, 'mkyong.com.au'],
-            [true, 'mkyong.co.uk'],
-            [true, 'g.co'],
-            [true, 'mkyong.t.t.co'],
-            [true, 'a-1234567890-1234567890-1234567890-1234567890-1234567890-1234-z.eu.us'],
+            [true,  'www.google.com'],
+            [true,  'google.com'],
+            [true,  'GOOGLE.COM'],
+            [true,  'mkyong123.com'],
+            [true,  'mkyong-info.com'],
+            [true,  'sub.mkyong.com'],
+            [true,  'sub.mkyong-info.com'],
+            [true,  'mkyong.com.au'],
+            [true,  'mkyong.co.uk'],
+            [true,  'g.co'],
+            [true,  'mkyong.t.t.co'],
+            [true,  'a-1234567890-1234567890-1234567890-1234567890-1234567890-1234-z.eu.us'],
 
             // Invalid domains
             [false, 'mkyong.t.t.c'], // Tld must be between 2 and 6 long

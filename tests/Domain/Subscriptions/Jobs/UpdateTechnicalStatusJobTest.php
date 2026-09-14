@@ -29,7 +29,7 @@ class UpdateTechnicalStatusJobTest extends IntegrationTestCase
             ->technicalStatus(TechnicalStatus::PENDING->value)
             ->createOne();
 
-        $job = (new UpdateTechnicalStatusJob($subscription));
+        $job = new UpdateTechnicalStatusJob($subscription);
         $job->handle($subscriptionRepo);
 
         self::assertSame(TechnicalStatus::OK->value, $subscription->refresh()->technical_status);
@@ -47,7 +47,7 @@ class UpdateTechnicalStatusJobTest extends IntegrationTestCase
             ->technicalStatus($from)
             ->createOne();
 
-        $job = (new UpdateTechnicalStatusJob($subscription, $to));
+        $job = new UpdateTechnicalStatusJob($subscription, $to);
         $job->handle($subscriptionRepo);
 
         self::assertSame($to, $subscription->refresh()->technical_status);

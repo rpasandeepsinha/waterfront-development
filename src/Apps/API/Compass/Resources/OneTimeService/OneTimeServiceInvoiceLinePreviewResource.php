@@ -20,8 +20,8 @@ class OneTimeServiceInvoiceLinePreviewResource extends JsonResource
     {
         return [
             'domain' => $this->resource['domain'],
-            'title'  => $this->resource['title'],
-            'price'  => $this->resource['price'],
+            'title' => $this->resource['title'],
+            'price' => $this->resource['price'],
             'amount' => $this->resource['amount'],
         ];
     }

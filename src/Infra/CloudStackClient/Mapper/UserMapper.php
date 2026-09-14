@@ -19,10 +19,10 @@ class UserMapper implements Mapper
         assert(is_string($data['domainid']));
 
         return new User(
-            id:        $data['id'],
-            username:  $data['username'],
+            id: $data['id'],
+            username: $data['username'],
             accountId: $data['accountid'],
-            domainId:  $data['domainid'],
+            domainId: $data['domainid'],
         );
     }
 }

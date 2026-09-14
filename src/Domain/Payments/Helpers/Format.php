@@ -38,11 +38,11 @@ class Format
         $thousandsPower = count($thousandsSeperated) - 1;
 
         foreach ($thousandsSeperated as $numberPartial) {
-            $number += ((int) $numberPartial) * 1000 ** $thousandsPower;
+            $number += (int) $numberPartial * (1000 ** $thousandsPower);
             $thousandsPower--;
         }
 
-        return $number + ((float) $decimalsPartial);
+        return $number + (float) $decimalsPartial;
     }
 
     /**
@@ -71,12 +71,12 @@ class Format
      */
     private static function reverseSeparators(string $string): bool
     {
-        $multipleDots = (substr_count($string, '.') > 1);
+        $multipleDots = substr_count($string, '.') > 1;
         if ($multipleDots) {
             return false;
         }
 
-        $multipleCommas = (substr_count($string, ',') > 1);
+        $multipleCommas = substr_count($string, ',') > 1;
         if ($multipleCommas) {
             return true;
         }

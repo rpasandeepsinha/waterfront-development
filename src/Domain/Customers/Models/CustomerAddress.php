@@ -60,7 +60,9 @@ class CustomerAddress extends Model implements AuditableContract
 
     public function getStreetNumberLetters(): ?string
     {
-        return preg_replace('/[0-9]/', '', $this->street_number) !== '' ? preg_replace('/[0-9]/', '', $this->street_number) : null;
+        return preg_replace('/[0-9]/', '', $this->street_number) !== ''
+            ? preg_replace('/[0-9]/', '', $this->street_number)
+            : null;
     }
 
     /** @return array<string,array<string>> */

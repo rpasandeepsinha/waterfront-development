@@ -51,7 +51,15 @@ class NovaCreateDirectDebitMandateAction extends Action
         /** @var string $signatureDateValue */
         $signatureDateValue = $fields->get('signature_date');
 
-        $this->dispatcher->dispatch(new RequestDirectDebitMandateJob($consumerName, $consumerAccount, null, $customer, new CarbonImmutable($signatureDateValue)));
+        $this->dispatcher->dispatch(
+            new RequestDirectDebitMandateJob(
+                $consumerName,
+                $consumerAccount,
+                null,
+                $customer,
+                new CarbonImmutable($signatureDateValue),
+            ),
+        );
 
         return self::message($this->translator->translate('nova-action.success.create_direct_debit_mandate.async'));
     }
@@ -66,10 +74,7 @@ class NovaCreateDirectDebitMandateAction extends Action
                 ->rules('required')
                 ->required(),
 
-            Text::make('Consumer name', 'consumer_name')
-                ->required()
-                ->rules('required')
-                ->help('Example: John Doe'),
+            Text::make('Consumer name', 'consumer_name')->required()->rules('required')->help('Example: John Doe'),
 
             Text::make('Consumer IBAN', 'consumer_account')
                 ->required()

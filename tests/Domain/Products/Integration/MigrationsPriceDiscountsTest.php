@@ -31,11 +31,11 @@ use Waterfront\Domain\Products\ProductPrice\PriceResolver;
 #[CoversClass(MigrationsPriceDiscounts::class)]
 class MigrationsPriceDiscountsTest extends IntegrationTestCase
 {
-    private int $period         = 12;
+    private int $period = 12;
 
-    private int $shortPeriod    = 1;
+    private int $shortPeriod = 1;
 
-    private int $regularPrice   = 1000;
+    private int $regularPrice = 1000;
 
     private int $migrationPrice = 800;
 
@@ -63,25 +63,37 @@ class MigrationsPriceDiscountsTest extends IntegrationTestCase
         $this->priceResolver = self::resolve(PriceResolver::class);
 
         $productGroup = new ProductGroupFactory()->createOne(['slug' => ProductGroupType::EXTENSION]);
-        $this->domainProduct = new ProductFactory()->for($productGroup)->createOne(['slug' => $this->productSlug, 'name' => 'nl']);
-
-        $this->prolongationProductPrice = new ProductPriceComponentFactory()->for($this->domainProduct)->prolongation()->createOne([
-            'contract_period' => $this->period,
-            'billing_period' => $this->period,
-            'price' => $this->regularPrice,
+        $this->domainProduct = new ProductFactory()->for($productGroup)->createOne([
+            'slug' => $this->productSlug,
+            'name' => 'nl',
         ]);
+
+        $this->prolongationProductPrice = new ProductPriceComponentFactory()
+            ->for($this->domainProduct)
+            ->prolongation()
+            ->createOne([
+                'contract_period' => $this->period,
+                'billing_period' => $this->period,
+                'price' => $this->regularPrice,
+            ]);
         $this->prolongationProductPrice->refresh();
 
-        new ProductPriceComponentFactory()->for($this->domainProduct)->registration()->createOne([
-            'contract_period' => $this->period,
-            'billing_period' => $this->period,
-            'price' => $this->regularPrice,
-        ]);
-        new ProductPriceComponentFactory()->for($this->domainProduct)->prolongation()->createOne([
-            'contract_period' => $this->shortPeriod,
-            'billing_period' => $this->shortPeriod,
-            'price' => $this->regularPrice,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($this->domainProduct)
+            ->registration()
+            ->createOne([
+                'contract_period' => $this->period,
+                'billing_period' => $this->period,
+                'price' => $this->regularPrice,
+            ]);
+        new ProductPriceComponentFactory()
+            ->for($this->domainProduct)
+            ->prolongation()
+            ->createOne([
+                'contract_period' => $this->shortPeriod,
+                'billing_period' => $this->shortPeriod,
+                'price' => $this->regularPrice,
+            ]);
 
         $this->customer = new CustomerFactory()->createOne();
         $this->migratedCustomer = new MigratedCustomersFactory()->createOne([
@@ -98,13 +110,16 @@ class MigrationsPriceDiscountsTest extends IntegrationTestCase
             $this->period,
             $this->period,
             Price::fromPrice($this->prolongationProductPrice),
-            $this->customer
+            $this->customer,
         );
 
         $discount = $this->customer->productDiscounts->first();
         self::assertInstanceOf(ProductDiscount::class, $discount);
 
-        $price = ProductPriceComponent::where('product_id', $this->domainProduct->id)->where('contract_period', $this->period)->where('type', PriceComponentType::PROLONGATION_STAFFEL)->first();
+        $price = ProductPriceComponent::where('product_id', $this->domainProduct->id)
+            ->where('contract_period', $this->period)
+            ->where('type', PriceComponentType::PROLONGATION_STAFFEL)
+            ->first();
 
         self::assertInstanceOf(ProductPriceComponent::class, $price);
 
@@ -135,7 +150,7 @@ class MigrationsPriceDiscountsTest extends IntegrationTestCase
             $this->period,
             $this->period,
             Price::fromPrice($this->prolongationProductPrice),
-            $this->customer
+            $this->customer,
         );
 
         $discount = $this->customer->productDiscounts->first();
@@ -166,7 +181,7 @@ class MigrationsPriceDiscountsTest extends IntegrationTestCase
             $this->period,
             $this->period,
             Price::fromPrice($this->prolongationProductPrice),
-            $this->customer
+            $this->customer,
         );
 
         $discount = $this->customer->productDiscounts->first();
@@ -198,7 +213,7 @@ class MigrationsPriceDiscountsTest extends IntegrationTestCase
             $this->period,
             $this->period,
             Price::fromPrice($this->prolongationProductPrice),
-            $this->customer
+            $this->customer,
         );
     }
 }

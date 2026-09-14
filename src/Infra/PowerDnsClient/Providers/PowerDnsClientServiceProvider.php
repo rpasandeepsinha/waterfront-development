@@ -17,14 +17,17 @@ class PowerDnsClientServiceProvider extends BaseProvider
 
     public function register(): void
     {
-        $this->app->bind(InternalPowerDnsClient::class, fn () => new InternalPowerDnsClient($this->resolve(GuzzleClientFactory::class)->create()));
+        $this->app->bind(
+            InternalPowerDnsClient::class,
+            fn () => new InternalPowerDnsClient($this->resolve(GuzzleClientFactory::class)->create()),
+        );
     }
 
     private function registerConfig(): void
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/connection.php',
-            'powerdnsclient'
+            'powerdnsclient',
         );
     }
 }

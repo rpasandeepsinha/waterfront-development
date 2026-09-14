@@ -28,8 +28,7 @@ class CreditInvoicesRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'invoicesToCredit.*.waterfrontInvoiceId.exists'
-                => 'Invoice id :input does not exist in Waterfront.',
+            'invoicesToCredit.*.waterfrontInvoiceId.exists' => 'Invoice id :input does not exist in Waterfront.',
         ];
     }
 }

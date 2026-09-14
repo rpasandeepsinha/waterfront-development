@@ -13,8 +13,9 @@ use Waterfront\Support\Exceptions\NotImplementedException;
  */
 class NewsConsumerFactory
 {
-    public function __construct(private readonly ConfigurationInterface $configuration)
-    {
+    public function __construct(
+        private readonly ConfigurationInterface $configuration,
+    ) {
     }
 
     /**

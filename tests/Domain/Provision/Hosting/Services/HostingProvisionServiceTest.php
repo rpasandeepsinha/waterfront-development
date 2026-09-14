@@ -51,12 +51,14 @@ class HostingProvisionServiceTest extends TestCase
         $mockHostingProvisionService = self::createMock(HostingProvisionServiceInterface::class);
         $hostingProvisionService = new HostingProvisionService($mockHostingFactory);
 
-        $mockHostingFactory->expects(self::once())
+        $mockHostingFactory
+            ->expects(self::once())
             ->method('getProviderService')
             ->with(self::DEFAULT_PROVIDER)
             ->willReturn($mockHostingProvisionService);
 
-        $mockHostingProvisionService->expects(self::once())
+        $mockHostingProvisionService
+            ->expects(self::once())
             ->method('getSso')
             ->with($request)
             ->willReturn(new HostingResult($request, ProvisionStatus::PENDING));
@@ -75,14 +77,13 @@ class HostingProvisionServiceTest extends TestCase
         $mockValidator = self::createMock(Validator::class);
         $hostingProvisionService = new HostingProvisionService($mockHostingFactory);
 
-        $mockHostingFactory->expects(self::once())
+        $mockHostingFactory
+            ->expects(self::once())
             ->method('getValidator')
             ->with(self::DEFAULT_PROVIDER, $this->createRequestMock)
             ->willReturn($mockValidator);
 
-        $mockValidator->expects(self::once())
-            ->method('fails')
-            ->willReturn(false);
+        $mockValidator->expects(self::once())->method('fails')->willReturn(false);
 
         $result = $hostingProvisionService->validate($this->createRequestMock);
 
@@ -93,7 +94,10 @@ class HostingProvisionServiceTest extends TestCase
     public function invalidRequest(): void
     {
         $invalidRequest = self::createStub(HostingProvisionRequest::class);
-        $expectedExceptionMessage = sprintf('No implementation found in hosting service for request [%s]', $invalidRequest::class);
+        $expectedExceptionMessage = sprintf(
+            'No implementation found in hosting service for request [%s]',
+            $invalidRequest::class,
+        );
 
         $mockHostingFactory = self::createStub(HostingServiceFactory::class);
         $hostingProvisionService = new HostingProvisionService($mockHostingFactory);
@@ -110,7 +114,10 @@ class HostingProvisionServiceTest extends TestCase
     {
         $request = $this->createStub(HostingProvisionRequest::class);
         $invalidProvider = ProvisionProvider::RTR;
-        $expectedExceptionMessage = sprintf("Can't resolve hosting service from unknown provider [%s]", $invalidProvider->value);
+        $expectedExceptionMessage = sprintf(
+            "Can't resolve hosting service from unknown provider [%s]",
+            $invalidProvider->value,
+        );
 
         $request->provider = $invalidProvider;
 
@@ -119,7 +126,8 @@ class HostingProvisionServiceTest extends TestCase
         $mockHostingFactory = self::createMock(HostingServiceFactory::class);
         $hostingProvisionService = new HostingProvisionService($mockHostingFactory);
 
-        $mockHostingFactory->expects(self::once())
+        $mockHostingFactory
+            ->expects(self::once())
             ->method('getProviderService')
             ->with($invalidProvider)
             ->willThrowException($providerException);
@@ -144,26 +152,19 @@ class HostingProvisionServiceTest extends TestCase
         $mockValidator = self::createMock(Validator::class);
         $hostingProvisionService = new HostingProvisionService($mockHostingFactory);
 
-        $mockHostingFactory->expects(self::once())
+        $mockHostingFactory
+            ->expects(self::once())
             ->method('getValidator')
             ->with(self::DEFAULT_PROVIDER, $this->createRequestMock)
             ->willReturn($mockValidator);
 
-        $mockValidator->expects(self::once())
-            ->method('fails')
-            ->willReturn(true);
+        $mockValidator->expects(self::once())->method('fails')->willReturn(true);
 
-        $mockValidator->expects(self::once())
-            ->method('errors')
-            ->willReturn($messageBag);
+        $mockValidator->expects(self::once())->method('errors')->willReturn($messageBag);
 
-        $mockHostingFactory->expects(self::never())
-            ->method('getProviderService')
-            ->with(self::DEFAULT_PROVIDER);
+        $mockHostingFactory->expects(self::never())->method('getProviderService')->with(self::DEFAULT_PROVIDER);
 
-        $mockHostingProvisionService->expects(self::never())
-            ->method('create')
-            ->with($this->createRequestMock);
+        $mockHostingProvisionService->expects(self::never())->method('create')->with($this->createRequestMock);
 
         $result = $hostingProvisionService->validate($this->createRequestMock);
 

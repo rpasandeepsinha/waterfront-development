@@ -78,7 +78,8 @@ class ValidateDomainNameserverAndUpdateRegistryJobTest extends TestCase
         $this->app->bind(SubscriptionRepository::class, fn () => $mockSubscriptionRepository);
         $this->app->bind(LoggerInterface::class, fn () => $this->mockLogger);
 
-        $this->mockLogger->shouldReceive('error')
+        $this->mockLogger
+            ->shouldReceive('error')
             ->once()
             ->with(
                 'Error trying to validate DNS for domain {domain.name} job definitely failed after {job.attempt} attempts',
@@ -90,7 +91,7 @@ class ValidateDomainNameserverAndUpdateRegistryJobTest extends TestCase
                     LoggingContextKeys::META => [
                         'nameservers' => $this->testNameservers,
                     ],
-                ]
+                ],
             );
 
         $mockSubscriptionRepository
@@ -98,7 +99,8 @@ class ValidateDomainNameserverAndUpdateRegistryJobTest extends TestCase
             ->once()
             ->andReturn($mockSubscription);
 
-        $mockSubscription->shouldReceive('update')
+        $mockSubscription
+            ->shouldReceive('update')
             ->once()
             ->with([
                 'technical_status' => TechnicalStatus::FAILED->value,
@@ -117,64 +119,65 @@ class ValidateDomainNameserverAndUpdateRegistryJobTest extends TestCase
     {
         // I don't want to connect to the DB for this unit test.
         $domainSubscription = new Subscription([
-            'uuid'                => Uuid::uuid4()->toString(),
-            'product_uuid'        => Uuid::uuid4(),
-            'customer_id'         => 1,
-            'domain'              => self::DOMAIN,
-            'start_date'          => CarbonImmutable::now(),
-            'billing_period'      => 12,
-            'contract_period'     => 12,
+            'uuid' => Uuid::uuid4()->toString(),
+            'product_uuid' => Uuid::uuid4(),
+            'customer_id' => 1,
+            'domain' => self::DOMAIN,
+            'start_date' => CarbonImmutable::now(),
+            'billing_period' => 12,
+            'contract_period' => 12,
         ]);
 
         $domainDeployment = self::mock(DomainDeployment::class);
         $domainDeployment->shouldReceive('loadMissing');
-        $domainDeployment
-            ->shouldReceive('getAttribute')
-            ->with('subscription')
-            ->andReturn($domainSubscription);
+        $domainDeployment->shouldReceive('getAttribute')->with('subscription')->andReturn($domainSubscription);
 
         $nameservers = $this->testNameservers;
 
-        $this->mockDnsHelper->shouldReceive('createDnsQuery')
-            ->andReturn($this->mockDnsQuery);
+        $this->mockDnsHelper->shouldReceive('createDnsQuery')->andReturn($this->mockDnsQuery);
 
-        $this->mockDnsQuery->shouldReceive('query')
+        $this->mockDnsQuery
+            ->shouldReceive('query')
             ->times(3)
             ->with(self::DOMAIN, DNSTypes::NAME_NS)
             ->andReturn(
                 $this->mockDnsAnswer(self::DOMAIN, $nameservers[0]->hostname),
                 $this->mockDnsAnswer(self::DOMAIN, $nameservers[1]->hostname),
-                $this->mockDnsAnswer(self::DOMAIN, $nameservers[2]->hostname)
+                $this->mockDnsAnswer(self::DOMAIN, $nameservers[2]->hostname),
             );
 
-        $this->mockLogger->shouldReceive('debug')
+        $this->mockLogger
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 sprintf('Resolved domain {domain.name} with nameserver %s', $nameservers[0]->hostname),
-                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN]
+                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             );
 
-        $this->mockLogger->shouldReceive('debug')
+        $this->mockLogger
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 sprintf('Resolved domain {domain.name} with nameserver %s', $nameservers[1]->hostname),
-                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN]
+                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             );
 
-        $this->mockLogger->shouldReceive('debug')
+        $this->mockLogger
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 sprintf('Resolved domain {domain.name} with nameserver %s', $nameservers[2]->hostname),
-                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN]
+                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             );
 
         $this->mockLogger->shouldReceive('warning')->never();
 
-        $this->mockLogger->shouldReceive('debug')
+        $this->mockLogger
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 'All nameservers resolved for domain {domain.name}, updating registry',
-                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN]
+                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             );
 
         $this->mockDomainDeploymentRepository
@@ -194,7 +197,7 @@ class ValidateDomainNameserverAndUpdateRegistryJobTest extends TestCase
             logger: $this->mockLogger,
             dnsHelper: $this->mockDnsHelper,
             busDispatcher: $mockDispatcher,
-            domainDeploymentRepository: $this->mockDomainDeploymentRepository
+            domainDeploymentRepository: $this->mockDomainDeploymentRepository,
         );
     }
 
@@ -207,59 +210,60 @@ class ValidateDomainNameserverAndUpdateRegistryJobTest extends TestCase
         $this->app->bind(DnsHelper::class, fn () => $this->mockDnsHelper);
         $this->app->bind(DomainDeploymentRepository::class, fn () => $this->mockDomainDeploymentRepository);
 
-        $this->mockDnsHelper->shouldReceive('createDnsQuery')
-            ->andReturn($this->mockDnsQuery);
+        $this->mockDnsHelper->shouldReceive('createDnsQuery')->andReturn($this->mockDnsQuery);
 
-        $this->mockDnsQuery->shouldReceive('query')
+        $this->mockDnsQuery
+            ->shouldReceive('query')
             ->times(3)
             ->with(self::DOMAIN, DNSTypes::NAME_NS)
             ->andReturn(
                 $this->mockDnsAnswer(self::DOMAIN, $nameservers[0]->hostname),
                 $this->mockDnsAnswer(self::DOMAIN, $nameservers[1]->hostname),
-                $this->mockDnsAnswer(self::DOMAIN, $nameservers[2]->hostname)
+                $this->mockDnsAnswer(self::DOMAIN, $nameservers[2]->hostname),
             );
 
-        $this->mockLogger->shouldReceive('debug')
+        $this->mockLogger
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 sprintf('Resolved domain {domain.name} with nameserver %s', $nameservers[0]->hostname),
-                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN]
+                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             );
 
-        $this->mockLogger->shouldReceive('debug')
+        $this->mockLogger
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 sprintf('Resolved domain {domain.name} with nameserver %s', $nameservers[1]->hostname),
-                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN]
+                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             );
 
         $this->expectJobProcessLog();
 
-        $this->mockLogger->shouldReceive('debug')
+        $this->mockLogger
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 sprintf('Resolved domain {domain.name} with nameserver %s', $nameservers[2]->hostname),
-                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN]
+                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             );
 
         $this->mockLogger->shouldReceive('warning')->never();
 
-        $this->mockLogger->shouldReceive('debug')
+        $this->mockLogger
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 'All nameservers resolved for domain {domain.name}, updating registry',
-                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN]
+                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             );
 
-        $this->mockDomainDeploymentRepository
-            ->shouldReceive('getActiveDeploymentByDomain')
-            ->once()
-            ->andReturn(null);
+        $this->mockDomainDeploymentRepository->shouldReceive('getActiveDeploymentByDomain')->once()->andReturn(null);
 
         $expectedJobErrorMessage = sprintf(
             'Error when processing job (%s): Could not find domain deployment for domain %s',
             ValidateDomainNameserverAndUpdateRegistryJob::class,
-            self::DOMAIN
+            self::DOMAIN,
         );
 
         $this->mockLogger
@@ -267,10 +271,11 @@ class ValidateDomainNameserverAndUpdateRegistryJobTest extends TestCase
             ->once()
             ->withArgs(fn ($message) => $message === $expectedJobErrorMessage);
 
-        $this->mockLogger->shouldReceive('error')
+        $this->mockLogger
+            ->shouldReceive('error')
             ->once()
             ->withSomeOfArgs(
-                'Error trying to validate DNS for domain {domain.name} job definitely failed after {job.attempt} attempts'
+                'Error trying to validate DNS for domain {domain.name} job definitely failed after {job.attempt} attempts',
             );
 
         $mockSubscriptionRepository = self::mock(SubscriptionRepository::class);
@@ -282,7 +287,8 @@ class ValidateDomainNameserverAndUpdateRegistryJobTest extends TestCase
             ->once()
             ->andReturn($mockSubscription);
 
-        $mockSubscription->shouldReceive('update')
+        $mockSubscription
+            ->shouldReceive('update')
             ->once()
             ->with([
                 'technical_status' => TechnicalStatus::FAILED->value,
@@ -309,11 +315,9 @@ class ValidateDomainNameserverAndUpdateRegistryJobTest extends TestCase
         $this->app->bind(DnsHelper::class, fn () => $this->mockDnsHelper);
         $this->app->bind(DomainDeploymentRepository::class, fn () => $this->mockDomainDeploymentRepository);
 
-        $this->mockDnsHelper->shouldReceive('createDnsQuery')
-            ->andReturn($this->mockDnsQuery);
+        $this->mockDnsHelper->shouldReceive('createDnsQuery')->andReturn($this->mockDnsQuery);
 
-        $this->mockDnsQuery->shouldReceive('query')
-            ->andReturn(false);
+        $this->mockDnsQuery->shouldReceive('query')->andReturn(false);
 
         $this->expectJobProcessLog();
 
@@ -323,9 +327,9 @@ class ValidateDomainNameserverAndUpdateRegistryJobTest extends TestCase
             ->with(
                 sprintf(
                     'Could not resolve DNS for domain {domain.name} with nameserver %s',
-                    $nameservers[0]->hostname
+                    $nameservers[0]->hostname,
                 ),
-                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN]
+                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             );
 
         Queue::after(function (JobProcessed $event) {
@@ -351,9 +355,7 @@ class ValidateDomainNameserverAndUpdateRegistryJobTest extends TestCase
         $this->app->bind(DnsHelper::class, fn () => $this->mockDnsHelper);
         $this->app->bind(DomainDeploymentRepository::class, fn () => $this->mockDomainDeploymentRepository);
 
-        $this->mockDnsHelper
-            ->shouldReceive('createDnsQuery')
-            ->andReturn($this->mockDnsQuery);
+        $this->mockDnsHelper->shouldReceive('createDnsQuery')->andReturn($this->mockDnsQuery);
 
         $this->mockDnsQuery
             ->shouldReceive('query')
@@ -368,32 +370,28 @@ class ValidateDomainNameserverAndUpdateRegistryJobTest extends TestCase
             ->never()
             ->with(
                 sprintf('Resolved domain {domain.name} with nameserver %s', $nameservers[0]->hostname),
-                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN]
+                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             );
 
-        $this->mockLogger
-            ->shouldReceive('warning')
-            ->with(
-                sprintf('Resolved DNS for domain {domain.name} but nameserver %s is missing', $nameservers[0]->hostname),
-                [
-                    LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
-                    LoggingContextKeys::META        => [
-                        'nameservers_from_dns' => [$differentNS],
-                    ],
-                ]
-            );
+        $this->mockLogger->shouldReceive('warning')->with(
+            sprintf('Resolved DNS for domain {domain.name} but nameserver %s is missing', $nameservers[0]->hostname),
+            [
+                LoggingContextKeys::DOMAIN_NAME => self::DOMAIN,
+                LoggingContextKeys::META => [
+                    'nameservers_from_dns' => [$differentNS],
+                ],
+            ],
+        );
 
         $this->mockLogger
             ->shouldReceive('debug')
             ->never()
             ->with(
                 'All nameservers resolved for domain {domain.name}, updating registry',
-                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN]
+                [LoggingContextKeys::DOMAIN_NAME => self::DOMAIN],
             );
 
-        $this->mockDomainDeploymentRepository
-            ->shouldReceive('getActiveDeploymentByDomain')
-            ->never();
+        $this->mockDomainDeploymentRepository->shouldReceive('getActiveDeploymentByDomain')->never();
 
         $this->expectJobProcessLog();
 
@@ -421,42 +419,45 @@ class ValidateDomainNameserverAndUpdateRegistryJobTest extends TestCase
                 data: $nameserver,
                 domain: $domain,
                 string: sprintf('%s nameserver %s', $domain, $nameserver),
-                extras: []
-            )
+                extras: [],
+            ),
         );
+
         return $dnsAnswer;
     }
 
     private function expectJobProcessLog(): void
     {
-        $this->mockLogger->shouldReceive('info')
+        $this->mockLogger
+            ->shouldReceive('info')
             ->once()
             ->with(
                 sprintf(
                     'Job name: %s status: processing queue: sync',
-                    ValidateDomainNameserverAndUpdateRegistryJob::class
+                    ValidateDomainNameserverAndUpdateRegistryJob::class,
                 ),
                 [
                     LoggingContextKeys::QUEUE_NAME => 'sync',
                     LoggingContextKeys::QUEUE_MESSAGE_NAME => ValidateDomainNameserverAndUpdateRegistryJob::class,
                     LoggingContextKeys::QUEUE_JOB_ID => '',
                     LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                ]
+                ],
             );
 
-        $this->mockLogger->shouldReceive('info')
+        $this->mockLogger
+            ->shouldReceive('info')
             ->once()
             ->with(
                 sprintf(
                     'Job name: %s status: processed queue: sync',
-                    ValidateDomainNameserverAndUpdateRegistryJob::class
+                    ValidateDomainNameserverAndUpdateRegistryJob::class,
                 ),
                 [
                     LoggingContextKeys::QUEUE_NAME => 'sync',
                     LoggingContextKeys::QUEUE_MESSAGE_NAME => ValidateDomainNameserverAndUpdateRegistryJob::class,
                     LoggingContextKeys::QUEUE_JOB_ID => '',
                     LoggingContextKeys::QUEUE_ATTEMPT => 1,
-                ]
+                ],
             );
     }
 }

@@ -24,12 +24,17 @@ class DeleteSubscriptionMutationAction
         $renewalDays = $this->configuration->getAsInteger('constants.renewal-days') + 2;
         $renewalDate = CarbonImmutable::today()->subDays($renewalDays);
         if ($mutation->mutated_at !== null) {
-            throw new SubscriptionAlreadyMutatedException($this->translator->translate('subscription-mutation.not-allowed-to-delete'));
+            throw new SubscriptionAlreadyMutatedException($this->translator->translate(
+                'subscription-mutation.not-allowed-to-delete',
+            ));
         }
 
         if ($mutation->subscription->end_date >= $renewalDate) {
-            throw new RenewalDateTooNearToMutationException($this->translator->translate('subscription-mutation.too-close-to-renewal'));
+            throw new RenewalDateTooNearToMutationException($this->translator->translate(
+                'subscription-mutation.too-close-to-renewal',
+            ));
         }
+
         $mutation->delete();
     }
 }

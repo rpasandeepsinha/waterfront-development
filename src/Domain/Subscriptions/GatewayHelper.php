@@ -13,8 +13,9 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class GatewayHelper
 {
-    public function __construct(private readonly ProvisionGateway $provisionGateway)
-    {
+    public function __construct(
+        private readonly ProvisionGateway $provisionGateway,
+    ) {
     }
 
     public function hasSitebuilderDeploymentUsingGateway(Subscription $subscription): bool
@@ -24,8 +25,12 @@ class GatewayHelper
             throw new InvalidArgumentException('Only sitebuilder subscriptions are supported.');
         }
 
-        $query = new ProvisioningResultQueryFilters(tag: Uuid::fromString($subscription->uuid), requestType: ProvisionType::SITEBUILDER);
+        $query = new ProvisioningResultQueryFilters(
+            tag: Uuid::fromString($subscription->uuid),
+            requestType: ProvisionType::SITEBUILDER,
+        );
         $provisioningResults = $this->provisionGateway->fetch($query, 1);
+
         return ! $provisioningResults->isEmpty();
     }
 }

@@ -39,46 +39,69 @@ class Microsoft365TerminationListener
                 self::class,
                 $subscription->uuid,
             ));
+
             return;
         }
 
         $allNotDeletedChildren = $subscription->children->filter(
-            fn (Subscription $subscription) =>
-            $subscription->administrative_status !== AdministrativeStatus::ARCHIVED->value
+            fn (Subscription $subscription) => (
+                $subscription->administrative_status !== AdministrativeStatus::ARCHIVED->value
+            ),
         );
         $allNotDeletedChildrenCount = $allNotDeletedChildren->count();
 
         $cancelledExpiredChildren = $subscription->children->filter(
-            fn (Subscription $subscription) =>
+            fn (Subscription $subscription) => (
                 $subscription->administrative_status === AdministrativeStatus::EXPIRED->value
                 && $subscription->end_date < CarbonImmutable::now()
                 && $subscription->termination_date <= CarbonImmutable::now()
+            ),
         );
         $cancelledExpiredChildrenCount = $cancelledExpiredChildren->count();
 
         // The parent subscription is cancelled and expired
-        if ($subscription->administrative_status === AdministrativeStatus::ARCHIVED->value && $subscription->end_date < CarbonImmutable::now()) {
+        if (
+            $subscription->administrative_status === AdministrativeStatus::ARCHIVED->value
+            && $subscription->end_date < CarbonImmutable::now()
+        ) {
             $this->terminateOrder($microsoft365Deployment, $subscription, $allNotDeletedChildren);
+
             return;
         }
+
         // All child subscriptions are cancelled and expired
         if ($allNotDeletedChildrenCount === $cancelledExpiredChildrenCount) {
             $this->terminateOrder($microsoft365Deployment, $subscription, $allNotDeletedChildren);
+
             return;
         }
 
         if ($cancelledExpiredChildrenCount > 0 && $this->checkKpnStartDateForModify($microsoft365Deployment)) {
-            $this->logger->info(sprintf('Modifying m365 order for subscription {subscription.id}: {domain.name} removing %d seats', $cancelledExpiredChildrenCount), [
+            $this->logger->info(
+                sprintf(
+                    'Modifying m365 order for subscription {subscription.id}: {domain.name} removing %d seats',
+                    $cancelledExpiredChildrenCount,
+                ),
+                [
                     LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
-                ]);
+                ],
+            );
             try {
-                $this->microsoft365Service->modifyOrder((int) $microsoft365Deployment->kpn_order_id, -$cancelledExpiredChildrenCount);
+                $this->microsoft365Service->modifyOrder(
+                    (int) $microsoft365Deployment->kpn_order_id,
+                    -$cancelledExpiredChildrenCount,
+                );
                 foreach ($cancelledExpiredChildren as $canceledChild) {
                     $canceledChild->administrative_status = AdministrativeStatus::ARCHIVING->value;
                     $canceledChild->save();
                 }
-                $this->sendSeatsChangedEmail($subscription, $allNotDeletedChildrenCount, ($allNotDeletedChildrenCount - $cancelledExpiredChildrenCount));
+
+                $this->sendSeatsChangedEmail(
+                    $subscription,
+                    $allNotDeletedChildrenCount,
+                    $allNotDeletedChildrenCount - $cancelledExpiredChildrenCount,
+                );
             } catch (Office365Exception $e) {
                 Log::error(sprintf(
                     'Error while modifying order for KPN order_id: [%s] with amount: [%s]. With exception message: %s',
@@ -90,7 +113,7 @@ class Microsoft365TerminationListener
         }
     }
 
-    private function findMicrosoft365Subscription(Subscription $subscription): Microsoft365Deployment|null
+    private function findMicrosoft365Subscription(Subscription $subscription): ?Microsoft365Deployment
     {
         $microsoft365Deployment = Microsoft365Deployment::where('subscription_id', $subscription->id)->first();
 
@@ -98,8 +121,9 @@ class Microsoft365TerminationListener
             Log::error(sprintf(
                 'Missing Microsoft365 deployment for %s (%d)',
                 $subscription->uuid,
-                $subscription->id
+                $subscription->id,
             ));
+
             return null;
         }
 
@@ -113,7 +137,7 @@ class Microsoft365TerminationListener
             $subscription->product->name,
             $subscription->domain ?? '',
             $subscription->end_date->format('d M Y'),
-            'cancel_end_date'
+            'cancel_end_date',
         ));
     }
 
@@ -123,15 +147,18 @@ class Microsoft365TerminationListener
             $subscription->product->productGroup->name,
             $subscription->product->name,
             $old_seats,
-            $new_seats
+            $new_seats,
         ));
     }
 
     /**
      * @param Collection<int, Subscription> $allNotDeletedChildren
      */
-    private function terminateOrder(Microsoft365Deployment $microsoft365Deployment, Subscription $subscription, Collection $allNotDeletedChildren): void
-    {
+    private function terminateOrder(
+        Microsoft365Deployment $microsoft365Deployment,
+        Subscription $subscription,
+        Collection $allNotDeletedChildren,
+    ): void {
         $this->logger->info('Terminating m365 order for subscription {subscription.id}: {domain.name}', [
             LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
             LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
@@ -153,7 +180,7 @@ class Microsoft365TerminationListener
                     'Error while terminating order for KPN order_id: [%s]. With exception message: %s',
                     $microsoft365Deployment->kpn_order_id,
                     $e->getMessage(),
-                )
+                ),
             );
         }
     }
@@ -164,6 +191,7 @@ class Microsoft365TerminationListener
         if ($microsoft365Deployment->kpn_start_date === null) {
             return true;
         }
+
         return $microsoft365Deployment->kpn_start_date->diffInDays(CarbonImmutable::now(), true) < 7;
     }
 }

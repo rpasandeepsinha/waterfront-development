@@ -13,7 +13,8 @@ class DnsProvisioned
     use Dispatchable;
     use SerializesModels;
 
-    public function __construct(public DnsDeployment $dnsDeployment)
-    {
+    public function __construct(
+        public DnsDeployment $dnsDeployment,
+    ) {
     }
 }

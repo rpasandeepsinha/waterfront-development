@@ -118,8 +118,9 @@ class Microsoft365Service
                 sprintf(
                     "CreateKpnCustomer - customer id '%d' does not have a customer_address",
                     $customer->customer_number,
-                )
+                ),
             );
+
             return false;
         }
 
@@ -156,7 +157,7 @@ class Microsoft365Service
                 legalStatus: 'Onbekend',
                 externalId: null,
                 chamberOfCommerceNr: null,
-                partnerReference: $partnerReference
+                partnerReference: $partnerReference,
             );
 
             $successful = $response->isSuccess();
@@ -167,8 +168,8 @@ class Microsoft365Service
                         'CreateKpnCustomer - KPN error code: %d, message: %s, details: %s',
                         $response->getErrorCode(),
                         $response->getErrorMessage(),
-                        json_encode($response->getErrorDetails(), JSON_THROW_ON_ERROR)
-                    )
+                        json_encode($response->getErrorDetails(), JSON_THROW_ON_ERROR),
+                    ),
                 );
             }
 
@@ -179,7 +180,7 @@ class Microsoft365Service
                     sprintf(
                         'CreateKpnCustomer - KPN rate limit reached when creating KPN customer for customer_id %d',
                         $customer->customer_number,
-                    )
+                    ),
                 );
 
                 throw new TooManyRequestsHttpException(null, 'KPN rate limit reached for this endpoint.', $e);
@@ -189,7 +190,7 @@ class Microsoft365Service
                 sprintf(
                     'CreateKpnCustomer - KPN office package exception with message: %s',
                     $e->getMessage(),
-                )
+                ),
             );
         }
 
@@ -211,7 +212,10 @@ class Microsoft365Service
         $customerInfoMeta = $this->getCustomerInfoMeta($microsoft365CustomerInfo);
 
         $this->logger->debug(
-            sprintf('CreateTenant - Start creating tenant for customer_id: %d', $microsoft365CustomerInfo->customer->id),
+            sprintf(
+                'CreateTenant - Start creating tenant for customer_id: %d',
+                $microsoft365CustomerInfo->customer->id,
+            ),
             [
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::M365,
                 LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::MICROSOFT_IRMA,
@@ -219,10 +223,14 @@ class Microsoft365Service
                 LoggingContextKeys::META => [
                     'microsoft365_customer_info' => $customerInfoMeta,
                 ],
-            ]
+            ],
         );
 
-        $partnerReference = sprintf(self::REFERENCE_FORMAT_CUSTOMER, $microsoft365CustomerInfo->customer->id, $microsoft365CustomerInfo->id);
+        $partnerReference = sprintf(
+            self::REFERENCE_FORMAT_CUSTOMER,
+            $microsoft365CustomerInfo->customer->id,
+            $microsoft365CustomerInfo->id,
+        );
         $tenantName = $microsoft365CustomerInfo->tenant_name;
         $tenantId = $microsoft365CustomerInfo->tenant_id;
         $subscription = $microsoft365CustomerInfo->microsoft365Deployments->first()?->subscription;
@@ -254,11 +262,14 @@ class Microsoft365Service
                             LoggingContextKeys::META => [
                                 'microsoft365_customer_info' => $customerInfoMeta,
                             ],
-                        ]
+                        ],
                     );
                     if ($i === 4) {
                         $this->logger->error(
-                            sprintf("CreateTenant - Reached the 5 try limit when creating a tenant for customer_id: '%d'", $microsoft365CustomerInfo->customer->customer_number),
+                            sprintf(
+                                "CreateTenant - Reached the 5 try limit when creating a tenant for customer_id: '%d'",
+                                $microsoft365CustomerInfo->customer->customer_number,
+                            ),
                             [
                                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::M365,
                                 LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::MICROSOFT_IRMA,
@@ -266,8 +277,9 @@ class Microsoft365Service
                                 LoggingContextKeys::META => [
                                     'microsoft365_customer_info' => $customerInfoMeta,
                                 ],
-                            ]
+                            ],
                         );
+
                         return false;
                     }
                 } else {
@@ -298,7 +310,7 @@ class Microsoft365Service
                     'CreateTenant - KPN error code: %d, message: %s, details: %s',
                     $response->getErrorCode(),
                     $response->getErrorMessage(),
-                    json_encode($response->getErrorDetails(), JSON_THROW_ON_ERROR)
+                    json_encode($response->getErrorDetails(), JSON_THROW_ON_ERROR),
                 ),
                 [
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::M365,
@@ -307,7 +319,7 @@ class Microsoft365Service
                     LoggingContextKeys::META => [
                         'microsoft365_customer_info' => $customerInfoMeta,
                     ],
-                ]
+                ],
             );
         }
 
@@ -334,7 +346,7 @@ class Microsoft365Service
                 LoggingContextKeys::META => [
                     'microsoft365_customer_info' => $customerInfoMeta,
                 ],
-            ]
+            ],
         );
 
         $response = $this->officeClient->order->cloudLicense->create(
@@ -342,7 +354,11 @@ class Microsoft365Service
             customerId: Microsoft365Helper::customerIdToInt($microsoft365CustomerInfo->kpn_customer_id),
             productCode: $productCode,
             quantity: $amount,
-            partnerReference: sprintf(self::REFERENCE_FORMAT_ORDER, $microsoft365CustomerInfo->id, $microsoft365Deployment->id),
+            partnerReference: sprintf(
+                self::REFERENCE_FORMAT_ORDER,
+                $microsoft365CustomerInfo->id,
+                $microsoft365Deployment->id,
+            ),
         );
 
         $successful = $response->isSuccess();
@@ -353,7 +369,7 @@ class Microsoft365Service
                     'CreateOrder - KPN error code: %d, message: %s, details: %s',
                     $response->getErrorCode(),
                     $response->getErrorMessage(),
-                    json_encode($response->getErrorDetails(), JSON_THROW_ON_ERROR)
+                    json_encode($response->getErrorDetails(), JSON_THROW_ON_ERROR),
                 ),
                 [
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::M365,
@@ -362,7 +378,7 @@ class Microsoft365Service
                     LoggingContextKeys::META => [
                         'microsoft365_customer_info' => $customerInfoMeta,
                     ],
-                ]
+                ],
             );
         }
 
@@ -383,8 +399,8 @@ class Microsoft365Service
                 sprintf(
                     'CreateOrder - KPN error code: %d, message: %s',
                     $response->getErrorCode(),
-                    $response->getErrorMessage()
-                )
+                    $response->getErrorMessage(),
+                ),
             );
         }
 
@@ -431,14 +447,17 @@ class Microsoft365Service
                 sprintf(
                     'OrderSummary - KPN office package exception with message: %s',
                     $e->getMessage(),
-                )
+                ),
             );
 
             throw new OrderSummaryException('Something went wrong while retrieving order summary.', 0, $e);
         }
 
         if (in_array(sprintf('CustomerId %d not found', $customer), $response->getStatus()->getMessages(), true)) {
-            throw new OrderSummaryCustomerNotFoundException('Something went wrong while retrieving order summary.', 0);
+            throw new OrderSummaryCustomerNotFoundException(
+                'Something went wrong while retrieving order summary.',
+                0,
+            );
         }
 
         return $response->getPagedResult()->getResults();
@@ -477,22 +496,26 @@ class Microsoft365Service
     public function getTenantOrderId(int $customerId): ?int
     {
         try {
-            $response = $this->officeClient->order->summary(
-                customerId: $customerId,
-            );
+            $response =
+                $this->officeClient->order->summary(
+                    customerId: $customerId,
+                );
         } catch (Office365Exception $e) {
             $this->logger->error(
                 sprintf(
                     'GetTenantOrderId - KPN office package exception with message: %s',
                     $e->getMessage(),
-                )
+                ),
             );
 
             throw new OrderSummaryException('Something went wrong while retrieving tenant order ID.', 0, $e);
         }
 
         if (in_array(sprintf('CustomerId %d not found', $customerId), $response->getStatus()->getMessages(), true)) {
-            throw new OrderSummaryCustomerNotFoundException('Something went wrong while retrieving tenant order ID.', 0);
+            throw new OrderSummaryCustomerNotFoundException(
+                'Something went wrong while retrieving tenant order ID.',
+                0,
+            );
         }
 
         foreach ($response->getPagedResult()->getResults() as $summary) {
@@ -507,7 +530,7 @@ class Microsoft365Service
                             LoggingContextKeys::META => [
                                 'order_state' => $summary->getOrderState(),
                             ],
-                        ]
+                        ],
                     );
 
                     return null;
@@ -530,7 +553,7 @@ class Microsoft365Service
         } catch (Office365Exception $exception) {
             $this->logger->error(sprintf(
                 'TenantExists gave the following exception (%s).',
-                $exception->getMessage()
+                $exception->getMessage(),
             ));
 
             throw new TenantNameTakenException('Something went wrong while checking tenant names.', 0, $exception);
@@ -548,7 +571,11 @@ class Microsoft365Service
             orderId: (string) $microsoft365Deployment->kpn_order_id,
             desiredTerminateDate: CarbonImmutable::now()->subDays(4)->toDateTime(),
             terminateAsSoonAsPossible: true,
-            partnerReference: sprintf(self::REFERENCE_FORMAT_TERMINATE, $microsoft365Deployment->microsoft365CustomerInfo->id, $microsoft365Deployment->kpn_order_id),
+            partnerReference: sprintf(
+                self::REFERENCE_FORMAT_TERMINATE,
+                $microsoft365Deployment->microsoft365CustomerInfo->id,
+                $microsoft365Deployment->kpn_order_id,
+            ),
         );
 
         $successful = $response->isSuccess();
@@ -557,8 +584,8 @@ class Microsoft365Service
                 sprintf(
                     'TerminateOrder - KPN error code: %d, message: %s',
                     $response->getErrorCode(),
-                    $response->getErrorMessage()
-                )
+                    $response->getErrorMessage(),
+                ),
             );
         }
 
@@ -571,11 +598,15 @@ class Microsoft365Service
         if (! $customerInfo instanceof Microsoft365CustomerInfo) {
             return null;
         }
+
         Assert::notNull($customerInfo->tenant_name);
         $primaryDomain = $customerInfo->primary_domain ?? $customerInfo->tenant_name;
 
         $microsoft365TenantInfo = new Microsoft365TenantInfoDTO(
-            coupledDomainSubscriptionUuid: $this->domainDeploymentRepository->getDeploymentByDomainAndCustomer($primaryDomain, $customer)?->subscription->uuid,
+            coupledDomainSubscriptionUuid: $this->domainDeploymentRepository->getDeploymentByDomainAndCustomer(
+                $primaryDomain,
+                $customer,
+            )?->subscription->uuid,
             tenantId: $customerInfo->tenant_id,
             tenantName: $customerInfo->tenant_name,
             primaryDomain: $primaryDomain,
@@ -583,17 +614,28 @@ class Microsoft365Service
             availableActions: $customerInfo->mca_signed_at === null ? ['sign_mca'] : [],
         );
 
-        $microsoftSubscriptions = $customer->subscriptions()
+        $microsoftSubscriptions = $customer
+            ->subscriptions()
             ->whereNull('parent_subscription_id')
-            ->whereNotIn('administrative_status', [...AdministrativeStatus::administrativelyEnded(), AdministrativeStatus::ARCHIVING->value])
+            ->whereNotIn('administrative_status', [
+                ...AdministrativeStatus::administrativelyEnded(),
+                AdministrativeStatus::ARCHIVING->value,
+            ])
             ->whereHas('product.productGroup', function (Builder $q): void {
                 $q->where('slug', ProductGroupType::MICROSOFT_365);
-            })->get();
+            })
+            ->get();
 
         /** @var Subscription $subscription */
         foreach ($microsoftSubscriptions as $subscription) {
-            $childrenCount = $subscription->children->where('administrative_status', AdministrativeStatus::ACTIVE->value)->count();
-            $canceledChildrenCount = $subscription->children->where('administrative_status', AdministrativeStatus::CANCELED->value)->count();
+            $childrenCount = $subscription
+                ->children
+                ->where('administrative_status', AdministrativeStatus::ACTIVE->value)
+                ->count();
+            $canceledChildrenCount = $subscription
+                ->children
+                ->where('administrative_status', AdministrativeStatus::CANCELED->value)
+                ->count();
 
             $microsoft365Deployment = new Microsoft365DeploymentDTO(
                 id: $subscription->id,
@@ -626,8 +668,11 @@ class Microsoft365Service
         $tenantPrefix = $this->configuration->getAsString('microsoft365.tenant_prefix');
 
         if ($retry) {
-            return $this->addHostToTenant($tenantPrefix . $customer->id . 'r' . strtolower(Str::random(5)));
+            return $this->addHostToTenant(
+                $tenantPrefix . $customer->id . 'r' . strtolower(Str::random(5)),
+            );
         }
+
         return $this->addHostToTenant($tenantPrefix . $customer->id);
     }
 
@@ -642,7 +687,7 @@ class Microsoft365Service
         string $countryCode,
         string $phone1,
         ?string $email,
-        string $partnerReference
+        string $partnerReference,
     ): bool {
         try {
             $response = $this->officeClient->customer->modify(
@@ -666,7 +711,7 @@ class Microsoft365Service
                 legalStatus: 'Onbekend',
                 externalId: null,
                 chamberOfCommerceNr: null,
-                partnerReference: $partnerReference
+                partnerReference: $partnerReference,
             );
 
             $successful = $response->isSuccess();
@@ -677,8 +722,8 @@ class Microsoft365Service
                         'ModifyKpnCustomer - KPN error code: %d, message: %s, details: %s',
                         $response->getErrorCode(),
                         $response->getErrorMessage(),
-                        json_encode($response->getErrorDetails(), JSON_THROW_ON_ERROR)
-                    )
+                        json_encode($response->getErrorDetails(), JSON_THROW_ON_ERROR),
+                    ),
                 );
             }
 
@@ -688,7 +733,7 @@ class Microsoft365Service
                 sprintf(
                     'ModifyKpnCustomer - KPN office package exception with message: %s',
                     $e->getMessage(),
-                )
+                ),
             );
         }
 
@@ -700,7 +745,7 @@ class Microsoft365Service
         $tenantName = $this->addHostToTenant($tenantName);
 
         $tenantIdResult = $this->provisionGateway->request(
-            new Microsoft365TenantIdRequest($tenantName, Str::uuid())
+            new Microsoft365TenantIdRequest($tenantName, Str::uuid()),
         );
 
         Assert::isInstanceOf($tenantIdResult, TenantIdResult::class);
@@ -715,8 +760,9 @@ class Microsoft365Service
                         'tenant_name' => $tenantName,
                     ],
                     LoggingContextKeys::EXCEPTION => $tenantIdResult->exception,
-                ]
+                ],
             );
+
             return null;
         }
 
@@ -730,14 +776,21 @@ class Microsoft365Service
 
     public function hasDomainOwnership(string $tenantId): bool
     {
-        $ownership = $this->officeClient->customer->hasTenantDomainOwnership($this->configuration->getAsInteger('microsoft365.customer_placeholder_id'), $tenantId);
+        $ownership = $this->officeClient->customer->hasTenantDomainOwnership(
+            $this->configuration->getAsInteger('microsoft365.customer_placeholder_id'),
+            $tenantId,
+        );
 
         return $ownership->getIsDelegatedAccessAllowed();
     }
 
     public function getTenantDefaultDomainName(string $tenantName): string
     {
-        $tenant = $this->graphServiceClient->tenantRelationships()->findTenantInformationByDomainNameWithDomainName($tenantName)->get()->wait();
+        $tenant = $this->graphServiceClient
+            ->tenantRelationships()
+            ->findTenantInformationByDomainNameWithDomainName($tenantName)
+            ->get()
+            ->wait();
 
         Assert::isInstanceOf($tenant, TenantInformation::class);
 
@@ -748,8 +801,11 @@ class Microsoft365Service
         return $defaultDomainName;
     }
 
-    public function checkIfDomainExistsInMicrosoftAccount(string $domain, string $tenantId, Subscription $subscription): bool
-    {
+    public function checkIfDomainExistsInMicrosoftAccount(
+        string $domain,
+        string $tenantId,
+        Subscription $subscription,
+    ): bool {
         $getDomainRequest = new Microsoft365GetDomainRequest(
             domainName: $domain,
             context: Uuid::fromString($tenantId),
@@ -808,8 +864,11 @@ class Microsoft365Service
         return $deleteDomainResult instanceof DeleteDomainResult && $deleteDomainResult->succeeded;
     }
 
-    public function setDomainAsDefaultDomainInMicrosoftAccount(string $domain, string $tenantId, Subscription $subscription): bool
-    {
+    public function setDomainAsDefaultDomainInMicrosoftAccount(
+        string $domain,
+        string $tenantId,
+        Subscription $subscription,
+    ): bool {
         $setDefaultDomainRequest = new Microsoft365SetDomainAsDefaultDomainRequest(
             domainName: $domain,
             context: Uuid::fromString($tenantId),
@@ -817,13 +876,17 @@ class Microsoft365Service
         );
         $setDomainAsDefaultDomainResult = $this->provisionGateway->request($setDefaultDomainRequest);
 
-        return
+        return (
             $setDomainAsDefaultDomainResult instanceof SetDomainAsDefaultDomainResult
-            && $setDomainAsDefaultDomainResult->succeeded;
+            && $setDomainAsDefaultDomainResult->succeeded
+        );
     }
 
-    public function setServiceConfigurationRecordsForPrimaryDomain(string $domain, string $tenantId, Subscription $subscription): bool
-    {
+    public function setServiceConfigurationRecordsForPrimaryDomain(
+        string $domain,
+        string $tenantId,
+        Subscription $subscription,
+    ): bool {
         $serviceDnsRequest = new Microsoft365GetServiceDnsRecordsRequest(
             domainName: $domain,
             context: Uuid::fromString($tenantId),
@@ -841,7 +904,7 @@ class Microsoft365Service
 
             // @phpstan-ignore argument.type (PHPStan doesn't support parent::$prop::get() yet, see phpstan/phpstan#12336)
             return $this->updateDnsRecordsForPrimaryDomain($serviceDnsResult->records, $domain);
-        } catch (JsonException | GuzzleException | PdnsResponseException | DnsZoneNotFoundException $exception) {
+        } catch (JsonException|GuzzleException|PdnsResponseException|DnsZoneNotFoundException $exception) {
             $this->logger->error(
                 'Error while setting service DNS records for primary domain {domain.name}',
                 [
@@ -849,14 +912,18 @@ class Microsoft365Service
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::MICROSOFT_GRAPH,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::M365,
                     LoggingContextKeys::DOMAIN_NAME => $domain,
-                ]
+                ],
             );
+
             return false;
         }
     }
 
-    public function setVerificationDnsRecordsForPrimaryDomain(string $domain, string $tenantId, Subscription $subscription): bool
-    {
+    public function setVerificationDnsRecordsForPrimaryDomain(
+        string $domain,
+        string $tenantId,
+        Subscription $subscription,
+    ): bool {
         $verificationDnsRequest = new Microsoft365GetVerificationDnsRecordsRequest(
             domainName: $domain,
             context: Uuid::fromString($tenantId),
@@ -871,7 +938,7 @@ class Microsoft365Service
         try {
             // @phpstan-ignore argument.type (PHPStan doesn't support parent::$prop::get() yet, see phpstan/phpstan#12336)
             return $this->updateDnsRecordsForPrimaryDomain($verificationDnsResult->records, $domain);
-        } catch (JsonException | GuzzleException | PdnsResponseException | DnsZoneNotFoundException $exception) {
+        } catch (JsonException|GuzzleException|PdnsResponseException|DnsZoneNotFoundException $exception) {
             $this->logger->error(
                 'Error while setting verification DNS records for primary domain {domain.name}',
                 [
@@ -879,8 +946,9 @@ class Microsoft365Service
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::MICROSOFT_GRAPH,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::M365,
                     LoggingContextKeys::DOMAIN_NAME => $domain,
-                ]
+                ],
             );
+
             return false;
         }
     }
@@ -895,9 +963,10 @@ class Microsoft365Service
         $customerInfo = $customer->microsoft365CustomerInfo()->first();
         if (! $customerInfo instanceof Microsoft365CustomerInfo || $customerInfo->kpn_customer_id === null) {
             throw new MicrosoftCustomerNotFoundException(
-                message: 'Microsoft Customer has not yet been created or customer creation webhook has not been triggered yet.'
+                message: 'Microsoft Customer has not yet been created or customer creation webhook has not been triggered yet.',
             );
         }
+
         $kpnCustomerId = Microsoft365Helper::customerIdToInt($customerInfo->kpn_customer_id);
 
         $phoneNumber = $this->getPhoneNumberFromCustomer($customer);
@@ -937,10 +1006,13 @@ class Microsoft365Service
                         'firstName' => $customer->first_name,
                         'lastName' => $customer->last_name,
                     ],
-                ]
+                ],
             );
             throw new MicrosoftCustomerAgreementException(
-                message: sprintf('Could not retrieve microsoft customer agreement url for customer, exception: %s', $exception->getMessage()),
+                message: sprintf(
+                    'Could not retrieve microsoft customer agreement url for customer, exception: %s',
+                    $exception->getMessage(),
+                ),
                 previous: $exception,
             );
         }
@@ -955,9 +1027,10 @@ class Microsoft365Service
         $customerInfo = $customer->microsoft365CustomerInfo()->first();
         if (! $customerInfo instanceof Microsoft365CustomerInfo || $customerInfo->kpn_customer_id === null) {
             throw new MicrosoftCustomerNotFoundException(
-                message: 'Microsoft Customer has not yet been created or customer creation webhook has not been triggered yet.'
+                message: 'Microsoft Customer has not yet been created or customer creation webhook has not been triggered yet.',
             );
         }
+
         $kpnCustomerId = Microsoft365Helper::customerIdToInt($customerInfo->kpn_customer_id);
 
         try {
@@ -976,10 +1049,13 @@ class Microsoft365Service
                         'tenant_id' => $customerInfo->tenant_id,
                         'tenant_name' => $customerInfo->tenant_name,
                     ],
-                ]
+                ],
             );
             throw new MicrosoftCustomerAgreementException(
-                message: sprintf('Could not retrieve microsoft customer agreement for customer, exception: %s', $exception->getMessage()),
+                message: sprintf(
+                    'Could not retrieve microsoft customer agreement for customer, exception: %s',
+                    $exception->getMessage(),
+                ),
                 previous: $exception,
             );
         }
@@ -996,23 +1072,27 @@ class Microsoft365Service
         ]);
 
         /** @var Collection<int, Microsoft365Deployment> $microsoft365Deployments */
-        $microsoft365Deployments = $microsoft365CustomerInfo->microsoft365Deployments
-            ->filter(fn (Microsoft365Deployment $microsoft365Deployment) => ! in_array($microsoft365Deployment->subscription->administrative_status, [...AdministrativeStatus::administrativelyEnded(), AdministrativeStatus::ARCHIVING->value], true));
+        $microsoft365Deployments = $microsoft365CustomerInfo->microsoft365Deployments->filter(fn (Microsoft365Deployment $microsoft365Deployment) => ! in_array(
+            $microsoft365Deployment->subscription->administrative_status,
+            [...AdministrativeStatus::administrativelyEnded(), AdministrativeStatus::ARCHIVING->value],
+            true,
+        ));
 
         if ($microsoft365Deployments->isEmpty()) {
             $this->logger->error(
                 sprintf(
                     'deployments could not be found for customer info: [%d].',
-                    $microsoft365CustomerInfo->id
-                )
+                    $microsoft365CustomerInfo->id,
+                ),
             );
+
             return;
         }
 
         if ($microsoft365CustomerInfo->tenant_order_id === null) {
             try {
                 $tenantOrderIdSynchronized = $this->synchronizeTenantOrderIdFromOrderSummary($microsoft365CustomerInfo);
-            } catch (OrderSummaryCustomerNotFoundException | OrderSummaryException $exception) {
+            } catch (OrderSummaryCustomerNotFoundException|OrderSummaryException $exception) {
                 $this->logger->error(
                     'Tenant order summary retrieval failed',
                     [
@@ -1020,7 +1100,7 @@ class Microsoft365Service
                         LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::MICROSOFT_IRMA,
                         LoggingContextKeys::CUSTOMER_ID => $microsoft365CustomerInfo->customer->id,
                         LoggingContextKeys::EXCEPTION => $exception,
-                    ]
+                    ],
                 );
 
                 return;
@@ -1045,18 +1125,23 @@ class Microsoft365Service
                         'KPN product for product %d with contract period %d could not be found.',
                         $parentSubscription->product->slug,
                         $parentSubscription->contract_period,
-                    )
+                    ),
                 );
                 $parentSubscription->technical_status = TechnicalStatus::FAILED->value;
                 $parentSubscription->save();
 
                 return;
             }
+
             $this->createOrder(
                 microsoft365Deployment: $microsoft365Deployment,
                 productCode: $kpnProduct->kpn_product_code,
-                amount: $parentSubscription->children
-                    ->whereNotIn('administrative_status', [...AdministrativeStatus::administrativelyEnded(), AdministrativeStatus::ARCHIVING->value])
+                amount: $parentSubscription
+                    ->children
+                    ->whereNotIn('administrative_status', [
+                        ...AdministrativeStatus::administrativelyEnded(),
+                        AdministrativeStatus::ARCHIVING->value,
+                    ])
                     ->count(),
             );
         });
@@ -1074,12 +1159,14 @@ class Microsoft365Service
                     LoggingContextKeys::META => [
                         'microsoft365_customer_info_id' => $microsoft365CustomerInfo->id,
                     ],
-                ]
+                ],
             );
+
             return;
         }
 
-        $pendingCopilotDeployment = $this->microsoft365Repository->findPendingCopilotDeploymentForRetry($microsoft365CustomerInfo);
+        $pendingCopilotDeployment =
+            $this->microsoft365Repository->findPendingCopilotDeploymentForRetry($microsoft365CustomerInfo);
 
         if ($pendingCopilotDeployment === null) {
             return;
@@ -1095,8 +1182,9 @@ class Microsoft365Service
                     LoggingContextKeys::META => [
                         'microsoft365_customer_info_id' => $microsoft365CustomerInfo->id,
                     ],
-                ]
+                ],
             );
+
             return;
         }
 
@@ -1119,7 +1207,7 @@ class Microsoft365Service
                         'microsoft365_deployment_id' => $pendingCopilotDeployment->id,
                         'seat_count' => $activeChildCount,
                     ],
-                ]
+                ],
             );
 
             $successful = $this->createOrder(
@@ -1131,6 +1219,7 @@ class Microsoft365Service
             if ($successful) {
                 $pendingCopilotDeployment->kpn_status = Microsoft365OrderStatus::ACCEPTED;
                 $pendingCopilotDeployment->save();
+
                 return;
             }
 
@@ -1145,9 +1234,9 @@ class Microsoft365Service
                         'microsoft365_customer_info_id' => $microsoft365CustomerInfo->id,
                         'microsoft365_deployment_id' => $pendingCopilotDeployment->id,
                     ],
-                ]
+                ],
             );
-        } catch (JsonException | ModelNotFoundException | Office365Exception | TenantNameTakenException $exception) {
+        } catch (JsonException|ModelNotFoundException|Office365Exception|TenantNameTakenException $exception) {
             $this->logger->error(
                 'Pending Copilot retry failed',
                 [
@@ -1160,7 +1249,7 @@ class Microsoft365Service
                         'microsoft365_customer_info_id' => $microsoft365CustomerInfo->id,
                         'microsoft365_deployment_id' => $pendingCopilotDeployment->id,
                     ],
-                ]
+                ],
             );
         }
     }
@@ -1170,7 +1259,8 @@ class Microsoft365Service
      */
     private function getPhoneNumberFromCustomer(Customer $customer): string
     {
-        $phoneNumber = '00' . $customer->phone_country_code . $customer->phone_area_code . $customer->phone_subscriber_number;
+        $phoneNumber =
+            '00' . $customer->phone_country_code . $customer->phone_area_code . $customer->phone_subscriber_number;
         if ($customer->getPhoneNumberAttribute() === '') {
             $phoneNumber = $this->configuration->getAsString('microsoft365.default_company_phone_number');
             if ($phoneNumber === '') {
@@ -1179,6 +1269,7 @@ class Microsoft365Service
                 );
             }
         }
+
         return $phoneNumber;
     }
 
@@ -1232,10 +1323,11 @@ class Microsoft365Service
             }
 
             $dnsRecords = $powerDnsRecords->filter(
-                fn (DnsRecordInterface $powerDnsRecord) =>
-                strtolower($powerDnsRecord->getType()) === strtolower($dnsRecord->getType()) &&
-                $powerDnsRecord->getName() === $dnsRecord->getName() &&
-                $powerDnsRecord->getContent() === $dnsRecord->getContent()
+                fn (DnsRecordInterface $powerDnsRecord) => (
+                    strtolower($powerDnsRecord->getType()) === strtolower($dnsRecord->getType())
+                    && $powerDnsRecord->getName() === $dnsRecord->getName()
+                    && $powerDnsRecord->getContent() === $dnsRecord->getContent()
+                ),
             );
 
             if ($dnsRecords->count() > 0) {
@@ -1244,7 +1336,7 @@ class Microsoft365Service
 
             $this->dnsService->addRecordFromObject(
                 $domain,
-                $dnsRecord
+                $dnsRecord,
             );
         }
 
@@ -1263,8 +1355,13 @@ class Microsoft365Service
     {
         $powerDnsRecords = $this->dnsService->getDnsRecordsForDomain($domain);
 
-        $powerDnsRecordsRemove = $powerDnsRecords->filter(fn (DnsRecordInterface $record) => array_any($records, fn ($domainDnsRecord) => strtolower($record->getType()) !== strtolower($domainDnsRecord->getRecordType() ?? '') &&
-            $record->getName() !== $domainDnsRecord->getLabel()));
+        $powerDnsRecordsRemove = $powerDnsRecords->filter(fn (DnsRecordInterface $record) => array_any(
+            $records,
+            fn ($domainDnsRecord) => (
+                strtolower($record->getType()) !== strtolower($domainDnsRecord->getRecordType() ?? '')
+                && $record->getName() !== $domainDnsRecord->getLabel()
+            ),
+        ));
 
         foreach ($powerDnsRecordsRemove as $powerDnsRecord) {
             if ($powerDnsRecord->getType() === DnsRecordType::MX->value) {

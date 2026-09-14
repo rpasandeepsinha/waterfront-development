@@ -22,8 +22,9 @@ class HostingDnsUpdatingListener implements ShouldQueue
 
     public string $queue = QueueName::DNS->value;
 
-    public function __construct(private readonly DnsService $dnsService)
-    {
+    public function __construct(
+        private readonly DnsService $dnsService,
+    ) {
     }
 
     public function handle(ReplaceParkingAndUpdateDns $event): void
@@ -36,17 +37,17 @@ class HostingDnsUpdatingListener implements ShouldQueue
                     LoggingContextKeys::META => [
                         'dnsRecords' => $event->getChanges()->getChangedRows(),
                     ],
-                ]
+                ],
             );
             $this->dnsService->applyDiffReplacingParkingRecords(
                 $event->getDomain(),
                 $event->getChanges(),
             );
-        } catch (DnsZoneNotFoundException | GuzzleException | JsonException | PdnsResponseException $throwable) {
+        } catch (DnsZoneNotFoundException|GuzzleException|JsonException|PdnsResponseException $throwable) {
             Log::error(sprintf(
                 'Throwable catch: {%s} for domain {%s}',
                 $throwable->getMessage(),
-                $event->getDomain()
+                $event->getDomain(),
             ));
 
             $this->fail($throwable);

@@ -46,18 +46,18 @@ class SslDnsService
 
         $new = $this->dnsRecordHydrator->hydrate(
             [
-                'name'    => $certificate->getDnsRecord(),
-                'type'    => 'CNAME',
-                'ttl'     => 600,
+                'name' => $certificate->getDnsRecord(),
+                'type' => 'CNAME',
+                'ttl' => 600,
                 'content' => $certificate->getDnsValue(),
-            ]
+            ],
         );
 
         if ($old !== null) {
             Log::info(sprintf(
                 'Updating SSL CNAME record for %s (%d)',
                 $certificate->getDnsRecord(),
-                $certificate->getCertificateId()
+                $certificate->getCertificateId(),
             ));
 
             $change = new ChangedDnsRecord($old, $new);
@@ -65,7 +65,7 @@ class SslDnsService
             Log::info(sprintf(
                 'Creating new SSL CNAME record for %s (%d)',
                 $certificate->getDnsRecord(),
-                $certificate->getCertificateId()
+                $certificate->getCertificateId(),
             ));
 
             $change = new AddedDnsRecord($new);
@@ -102,7 +102,7 @@ class SslDnsService
                 '%s SSL certificate %s (%d)',
                 $e->getMessage(),
                 $certificate->getDnsRecord(),
-                $certificate->getCertificateId()
+                $certificate->getCertificateId(),
             ));
 
             $this->zoneExists = false;
@@ -112,7 +112,9 @@ class SslDnsService
 
         $this->zoneExists = true;
 
-        return array_find($zone->getRecords(), fn ($record) => $record->getType() === 'CNAME' &&
-            Str::endsWith($record->getContent(), '.sectigo.com'));
+        return array_find(
+            $zone->getRecords(),
+            fn ($record) => $record->getType() === 'CNAME' && Str::endsWith($record->getContent(), '.sectigo.com'),
+        );
     }
 }

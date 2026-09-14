@@ -35,7 +35,10 @@ class SubscriptionObserverTest extends IntegrationTestCase
     #[Test]
     public function populateStartDate(): void
     {
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne();
 
         self::assertSame($subscription->start_date->toDateString(), CarbonImmutable::now()->toDateString());
     }
@@ -43,16 +46,28 @@ class SubscriptionObserverTest extends IntegrationTestCase
     #[Test]
     public function populateNextBillingDate(): void
     {
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne();
 
-        self::assertSame($subscription->next_billing_date->toDateString(), $subscription->start_date->addMonths($subscription->billing_period)->toDateString());
+        self::assertSame(
+            $subscription->next_billing_date->toDateString(),
+            $subscription->start_date->addMonths($subscription->billing_period)->toDateString(),
+        );
     }
 
     #[Test]
     public function populateEndDate(): void
     {
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne();
 
-        self::assertSame($subscription->end_date->toDateString(), CarbonImmutable::now()->addMonths($subscription->contract_period)->toDateString());
+        self::assertSame(
+            $subscription->end_date->toDateString(),
+            CarbonImmutable::now()->addMonths($subscription->contract_period)->toDateString(),
+        );
     }
 }

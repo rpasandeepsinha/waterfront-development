@@ -50,11 +50,17 @@ class NovaMicrosoft365RetryOrderCreateActionTest extends IntegrationTestCase
             'slug' => 'microsoft-business-standard',
         ]);
 
-        new ProductPriceComponentFactory()->for($parentProduct)->registration()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($parentProduct)
+            ->registration()
+            ->createOne();
 
-        $parentSubscription = new SubscriptionFactory()->for($customer)->for($parentProduct)->createOne([
-            'contract_period' => 12,
-        ]);
+        $parentSubscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($parentProduct)
+            ->createOne([
+                'contract_period' => 12,
+            ]);
 
         new SubscriptionFactory()
             ->for($customer)
@@ -87,20 +93,25 @@ class NovaMicrosoft365RetryOrderCreateActionTest extends IntegrationTestCase
     public function handleCreatesTenantWhenNoExistingTenantOrderIsFound(): void
     {
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('synchronizeTenantOrderIdFromOrderSummary')
             ->with(self::callback(
-                fn (Microsoft365CustomerInfo $customerInfo): bool => $customerInfo->id === $this->microsoft365CustomerInfo->id
+                fn (Microsoft365CustomerInfo $customerInfo): bool => (
+                    $customerInfo->id === $this->microsoft365CustomerInfo->id
+                ),
             ))
             ->willReturn(false);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('createTenant')
             ->with(self::callback(
-                fn (Microsoft365CustomerInfo $customerInfo): bool => $customerInfo->id === $this->microsoft365CustomerInfo->id
+                fn (Microsoft365CustomerInfo $customerInfo): bool => (
+                    $customerInfo->id === $this->microsoft365CustomerInfo->id
+                ),
             ))
             ->willReturn(true);
-        $microsoft365Service->expects(self::never())
-            ->method('createOrder');
+        $microsoft365Service->expects(self::never())->method('createOrder');
 
         $response = $this->createAction($microsoft365Service)->handle(
             $this->getActionFields(),
@@ -117,15 +128,18 @@ class NovaMicrosoft365RetryOrderCreateActionTest extends IntegrationTestCase
     public function handleCreatesOrderWhenExistingTenantOrderIsFound(): void
     {
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('synchronizeTenantOrderIdFromOrderSummary')
             ->with(self::callback(
-                fn (Microsoft365CustomerInfo $customerInfo): bool => $customerInfo->id === $this->microsoft365CustomerInfo->id
+                fn (Microsoft365CustomerInfo $customerInfo): bool => (
+                    $customerInfo->id === $this->microsoft365CustomerInfo->id
+                ),
             ))
             ->willReturn(true);
-        $microsoft365Service->expects(self::never())
-            ->method('createTenant');
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service->expects(self::never())->method('createTenant');
+        $microsoft365Service
+            ->expects(self::once())
             ->method('createOrder')
             ->with(
                 $this->microsoft365Deployment,
@@ -149,16 +163,17 @@ class NovaMicrosoft365RetryOrderCreateActionTest extends IntegrationTestCase
     public function handleReturnsDangerWhenTenantOrderSummaryFails(): void
     {
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('synchronizeTenantOrderIdFromOrderSummary')
             ->with(self::callback(
-                fn (Microsoft365CustomerInfo $customerInfo): bool => $customerInfo->id === $this->microsoft365CustomerInfo->id
+                fn (Microsoft365CustomerInfo $customerInfo): bool => (
+                    $customerInfo->id === $this->microsoft365CustomerInfo->id
+                ),
             ))
             ->willThrowException(new OrderSummaryException('Something went wrong while retrieving order summary.'));
-        $microsoft365Service->expects(self::never())
-            ->method('createTenant');
-        $microsoft365Service->expects(self::never())
-            ->method('createOrder');
+        $microsoft365Service->expects(self::never())->method('createTenant');
+        $microsoft365Service->expects(self::never())->method('createOrder');
 
         $response = $this->createAction($microsoft365Service)->handle(
             $this->getActionFields(),

@@ -18,8 +18,9 @@ use Waterfront\Domain\Provision\Enums\ProvisionType;
 use Waterfront\Domain\Provision\Models\ProvisioningRequest;
 use Waterfront\Domain\Provision\Models\ProvisioningResult;
 use Waterfront\Domain\Provision\ProvisionGateway;
+use Waterfront\Domain\Provision\Redirects\Requests\DeleteRedirectRequest;
 use Waterfront\Domain\Provision\Redirects\Requests\ListRedirectsRequest;
-use Waterfront\Domain\Provision\Redirects\Results\RedirectResult;
+use Waterfront\Domain\Provision\Redirects\Results\ListRedirectResult;
 use Waterfront\Domain\Provision\Redirects\Services\CaddyProvisionService;
 use Waterfront\Domain\Provision\Repositories\ProvisioningRequestRepository;
 use Waterfront\Infra\CaddyClient\CaddyClient;
@@ -51,21 +52,18 @@ class ListCaddyRedirectsIntegrationTest extends IntegrationTestCase
     #[Test]
     public function listRedirectsSuccessful(): void
     {
-        $domain = 'yourhosting.nl';
+        $domain = 'yourhosting.nl/?campaign=facebook';
         $context = Uuid::uuid4();
         $caddyId = 'caddy-id';
 
-        new CaddyRedirectDeploymentFactory()
-            ->for(
-                new RedirectDeploymentFactory()
-                    ->createOne(
-                        [
-                            'source' => $domain,
-                            'context_uuid' => $context->toString(),
-                        ]
-                    )
-            )
-            ->createOne(['caddy_id' => $caddyId]);
+        new CaddyRedirectDeploymentFactory()->for(
+            new RedirectDeploymentFactory()->createOne(
+                [
+                    'source' => $domain,
+                    'context_uuid' => $context->toString(),
+                ],
+            ),
+        )->createOne(['caddy_id' => $caddyId]);
 
         $request = new ListRedirectsRequest(
             context: $context,
@@ -76,12 +74,14 @@ class ListCaddyRedirectsIntegrationTest extends IntegrationTestCase
             ->method('getRedirect')
             ->with(
                 $caddyId,
-            )->willReturn(new RedirectRoute(
+            )
+            ->willReturn(new RedirectRoute(
                 id: $caddyId,
                 match: [
                     new RedirectRouteMatch(
                         ['yourhosting.nl'],
-                        [],
+                        null,
+                        ['campaign' => ['facebook']],
                     ),
                 ],
                 handle: [
@@ -103,10 +103,15 @@ class ListCaddyRedirectsIntegrationTest extends IntegrationTestCase
         self::assertDatabaseCount(ProvisioningResult::class, 1);
         self::assertDatabaseCount(ProvisioningRequest::class, 2);
 
-        self::assertInstanceOf(RedirectResult::class, $result);
+        self::assertInstanceOf(ListRedirectResult::class, $result);
         self::assertSame(ProvisionStatus::SUCCESS, $result->provisionStatus);
 
         self::assertNull($result->exception);
+        self::assertNotNull($result->redirects);
+        $redirect = $result->redirects[0]->redirect;
+        self::assertNotNull($redirect);
+        self::assertSame($domain, $redirect->source);
+
         $savedRequest = $this->requestRepository->findById($request->requestId);
 
         self::assertNotNull($savedRequest);
@@ -114,7 +119,7 @@ class ListCaddyRedirectsIntegrationTest extends IntegrationTestCase
         self::assertSame(ProvisionRequestName::LIST_REDIRECTS, $savedRequest->request_name);
         self::assertSame(
             '[]',
-            $savedRequest->request_data
+            $savedRequest->request_data,
         );
 
         self::assertSame($context->toString(), $savedRequest->context_uuid?->toString());
@@ -124,5 +129,13 @@ class ListCaddyRedirectsIntegrationTest extends IntegrationTestCase
 
         self::assertNotNull($result);
         self::assertSame(ProvisionStatus::SUCCESS, $result->status);
+
+        $this->caddyClient->expects(self::once())->method('deleteRedirect')->with($caddyId);
+        $deleteResult = $this->gateway->request(new DeleteRedirectRequest(
+            domainName: $redirect->source,
+            context: $context,
+        ));
+
+        self::assertSame(ProvisionStatus::SUCCESS, $deleteResult->provisionStatus);
     }
 }

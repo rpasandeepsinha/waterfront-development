@@ -51,6 +51,7 @@ class NovaDnsDeploymentResource extends Resource
             NameserverType::VANITY => $this->resource->vanityNameservers->pluck('nameserver'),
         };
         $nameservers = $nameservers->toArray();
+
         /** @var string[] $nameservers */
 
         return [
@@ -59,7 +60,7 @@ class NovaDnsDeploymentResource extends Resource
             BelongsTo::make(
                 self::translate('subscription.domain-subscription.internal_subscription'),
                 'subscription',
-                NovaSubscriptionResource::class
+                NovaSubscriptionResource::class,
             )->sortable(),
             DateTime::make(self::translate('dns-deployment.last-received-internal-client-time'), 'last_result_received')
                 ->displayUsing(fn () => $this->resource->last_result_received?->format(DateTimeFormat::DUTCH))
@@ -68,20 +69,32 @@ class NovaDnsDeploymentResource extends Resource
             Code::make(self::translate('dns-deployment.last-received-internal-client-response'), 'last_result')
                 ->onlyOnDetail()
                 ->json(),
-            DateTime::make(self::translate('dns-deployment.last-received-premium-provider-time'), 'last_result_premium_provider_received')
-                ->displayUsing(fn () => $this->resource->last_result_premium_provider_received?->format(DateTimeFormat::DUTCH))
+            DateTime::make(
+                self::translate('dns-deployment.last-received-premium-provider-time'),
+                'last_result_premium_provider_received',
+            )
+                ->displayUsing(
+                    fn () => $this->resource->last_result_premium_provider_received?->format(DateTimeFormat::DUTCH),
+                )
                 ->onlyOnDetail()
                 ->sortable()
                 ->canSee(fn (): bool => $this->isPremiumDns()),
-            Code::make(self::translate('dns-deployment.last-received-premium-provider-response'), 'last_result_premium_provider')
+            Code::make(
+                self::translate('dns-deployment.last-received-premium-provider-response'),
+                'last_result_premium_provider',
+            )
                 ->onlyOnDetail()
                 ->json()
                 ->canSee(fn (): bool => $this->isPremiumDns()),
-            Code::make(self::translate('dns-deployment.last-received-premium-provider-response'), 'last_result_premium_provider')
+            Code::make(
+                self::translate('dns-deployment.last-received-premium-provider-response'),
+                'last_result_premium_provider',
+            )
                 ->onlyOnDetail()
                 ->json(),
-            Code::make(self::translate('subscription.domain-subscription.dns-nameservers'))
-                ->displayUsing(fn () => implode("\n", $nameservers)),
+            Code::make(self::translate('subscription.domain-subscription.dns-nameservers'))->displayUsing(
+                fn () => implode("\n", $nameservers),
+            ),
         ];
     }
 
@@ -113,6 +126,7 @@ class NovaDnsDeploymentResource extends Resource
         $subscription = $this->resource->subscription;
         /** @var DnsProductSpecRepository $dnsProductSpecRepo */
         $dnsProductSpecRepo = Container::getInstance()->make(DnsProductSpecRepository::class);
+
         return $dnsProductSpecRepo->isPremiumDns($subscription->product);
     }
 }

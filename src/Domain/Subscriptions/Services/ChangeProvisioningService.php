@@ -26,7 +26,7 @@ class ChangeProvisioningService
         private readonly ChangeDnsAction $changeDnsAction,
         private readonly ChangeBackupAction $changeBackupAction,
         private readonly UpgradeRedirectToHostingAction $upgradeRedirectToHostingAction,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -45,7 +45,7 @@ class ChangeProvisioningService
                     'from_product_slug' => $oldProduct->slug,
                     'to_product_slug' => $newProduct->slug,
                 ],
-            ]
+            ],
         );
 
         $oldProduct->loadMissing('productGroup');
@@ -69,7 +69,8 @@ class ChangeProvisioningService
             ProductGroupType::ONE_TIME_SERVICE,
             ProductGroupType::VOLUME_DISCOUNT,
             ProductGroupType::EXTENSION,
-            ProductGroupType::ADD_ON => throw new Exception("Found change for product and group that we don't support yet"),
+            ProductGroupType::ADD_ON,
+                => throw new Exception("Found change for product and group that we don't support yet"),
         };
     }
 
@@ -79,7 +80,12 @@ class ChangeProvisioningService
             throw new Exception('No deployment');
         }
 
-        $this->changeHostingAction->execute($subscription, $subscription->hostingDeployment, $oldProduct, $subscription->product);
+        $this->changeHostingAction->execute(
+            $subscription,
+            $subscription->hostingDeployment,
+            $oldProduct,
+            $subscription->product,
+        );
     }
 
     private function handleRedirect(Subscription $subscription, Product $newProduct): void

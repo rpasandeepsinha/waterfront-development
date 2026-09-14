@@ -31,6 +31,7 @@ class HostingDeploymentController
         $subscription = $this->subscriptionRepository->findByDomainAndType($domain, ProductGroupType::HOSTING);
 
         $hostingDeployment = $subscription->hostingDeployment;
+
         return DomainHostingResource::make($hostingDeployment)->toJson();
     }
 
@@ -45,7 +46,10 @@ class HostingDeploymentController
         }
 
         if ($provider->type !== ProviderType::HOSTING) {
-            return new JsonResponse(['message' => 'Provider is not a hosting provider', 'errors' => []], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return new JsonResponse([
+                'message' => 'Provider is not a hosting provider',
+                'errors' => [],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $hostingDeployment->provider_id = $provider->id;

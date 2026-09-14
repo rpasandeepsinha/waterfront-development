@@ -21,9 +21,16 @@ class ProductGroupPriceComponent extends PriceComponent
         public int $newPrice = 0,
         public ?int $appliedOrder = null,
     ) {
-        assert($percentageDiscount === null || ($percentageDiscount >= 0.0 && $percentageDiscount <= 100.0));
+        assert($percentageDiscount === null || $percentageDiscount >= 0.0 && $percentageDiscount <= 100.0);
         assert($fixedDiscount !== null || $percentageDiscount !== null || $fixedPrice !== null);
 
-        parent::__construct(PriceComponentType::PRODUCT_GROUP, $fixedDiscount, $percentageDiscount, $fixedPrice, $newPrice, $appliedOrder);
+        parent::__construct(
+            PriceComponentType::PRODUCT_GROUP,
+            $fixedDiscount,
+            $percentageDiscount,
+            $fixedPrice,
+            $newPrice,
+            $appliedOrder,
+        );
     }
 }

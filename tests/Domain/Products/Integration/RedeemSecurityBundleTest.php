@@ -55,23 +55,30 @@ class RedeemSecurityBundleTest extends IntegrationTestCase
         $this->customer = new CustomerFactory()->withAddress()->createOne();
 
         $dnsProductGroup = new ProductGroupFactory()->dns()->createOne();
-        $this->premiumDnsProduct = new ProductFactory()->for($dnsProductGroup)->createOne(['slug' => ProductType::PREMIUM_DNS->value]);
-        $this->freeDnsProduct = new ProductFactory()->for($dnsProductGroup)->createOne(['slug' => ProductType::FREE_DNS->value]);
+        $this->premiumDnsProduct = new ProductFactory()->for($dnsProductGroup)->createOne([
+            'slug' => ProductType::PREMIUM_DNS->value,
+        ]);
+        $this->freeDnsProduct = new ProductFactory()->for($dnsProductGroup)->createOne([
+            'slug' => ProductType::FREE_DNS->value,
+        ]);
         $this->acronisProduct = new ProductFactory()->backupAcronis()->createOne();
 
         foreach ([$this->premiumDnsProduct, $this->acronisProduct] as $product) {
-            new ProductPriceComponentFactory()->for($product)->registration()->createOne([
-                'billing_period'  => 12,
-                'contract_period' => 12,
-                'price'           => 500,
-            ]);
+            new ProductPriceComponentFactory()
+                ->for($product)
+                ->registration()
+                ->createOne([
+                    'billing_period' => 12,
+                    'contract_period' => 12,
+                    'price' => 500,
+                ]);
         }
 
         new ProductAllowedChangeFactory()
             ->upgradeChange()
             ->createOne([
                 'from_product_id' => $this->freeDnsProduct->id,
-                'to_product_id'   => $this->premiumDnsProduct->id,
+                'to_product_id' => $this->premiumDnsProduct->id,
             ]);
     }
 
@@ -215,7 +222,7 @@ class RedeemSecurityBundleTest extends IntegrationTestCase
             Invoice::query()
                 ->where('customer_id', $this->customer->id)
                 ->where('product_id', $this->premiumDnsProduct->id)
-                ->count()
+                ->count(),
         );
     }
 
@@ -243,7 +250,7 @@ class RedeemSecurityBundleTest extends IntegrationTestCase
             Subscription::query()
                 ->where('customer_id', $this->customer->id)
                 ->where('product_uuid', $this->acronisProduct->uuid)
-                ->count()
+                ->count(),
         );
     }
 
@@ -288,8 +295,7 @@ class RedeemSecurityBundleTest extends IntegrationTestCase
 
         $this->actingAsCustomer($this->customer);
 
-        $this->postJson($this->redeemRoute, ['products' => []])
-            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $this->postJson($this->redeemRoute, ['products' => []])->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     private function offering(bool $acronisFree): void
@@ -306,9 +312,10 @@ class RedeemSecurityBundleTest extends IntegrationTestCase
      */
     private function orderLines(): Collection
     {
-        return OrderLineItem::query()
-            ->whereHas('order', fn ($query) => $query->where('customer_id', $this->customer->id))
-            ->get();
+        return OrderLineItem::query()->whereHas('order', fn ($query) => $query->where(
+            'customer_id',
+            $this->customer->id,
+        ))->get();
     }
 
     private function suspendedDnsSubscription(string $domain): Subscription
@@ -318,7 +325,7 @@ class RedeemSecurityBundleTest extends IntegrationTestCase
             ->administrativeStatus(AdministrativeStatus::SUSPENDED->value)
             ->withPrice()
             ->createOne([
-                'customer_id'  => $this->customer->id,
+                'customer_id' => $this->customer->id,
                 'product_uuid' => $this->freeDnsProduct->uuid,
             ]);
     }
@@ -330,7 +337,7 @@ class RedeemSecurityBundleTest extends IntegrationTestCase
             ->administrativeStatusActive()
             ->withPrice()
             ->createOne([
-                'customer_id'  => $this->customer->id,
+                'customer_id' => $this->customer->id,
                 'product_uuid' => $this->freeDnsProduct->uuid,
             ]);
     }

@@ -42,9 +42,10 @@ class SendCreditInvoiceListener implements ShouldQueue
                 sprintf(
                     'Subscription with id : %d (uuid : %s) has been modified but does not need to be credited as it is not a downgrade',
                     $event->subscription->id,
-                    $event->subscription->uuid
-                )
+                    $event->subscription->uuid,
+                ),
             );
+
             return;
         }
 
@@ -56,9 +57,10 @@ class SendCreditInvoiceListener implements ShouldQueue
                     'Subscription with id : %d (uuid : %s) has no invoice line for the new product : %s',
                     $event->subscription->id,
                     $event->subscription->uuid,
-                    sprintf('%s (%s)', $event->subscription->product->name, ProductChangeType::DOWNGRADE->value)
-                )
+                    sprintf('%s (%s)', $event->subscription->product->name, ProductChangeType::DOWNGRADE->value),
+                ),
             );
+
             return;
         }
 
@@ -70,8 +72,9 @@ class SendCreditInvoiceListener implements ShouldQueue
                     'Subscription with id : %d (uuid : %s) has no invoice line that has paid, so there is nothing to credit',
                     $event->subscription->id,
                     $event->subscription->uuid,
-                )
+                ),
             );
+
             return;
         }
 
@@ -86,7 +89,7 @@ class SendCreditInvoiceListener implements ShouldQueue
             $this->harborApi->sendDowngrade(
                 originalInvoiceId: $invoiceLineToCredit->id,
                 creditInvoiceLineMessage: $invoiceMessages['creditInvoiceLineMessage'],
-                newInvoiceLineMessage: $invoiceMessages['newInvoiceLineMessage']
+                newInvoiceLineMessage: $invoiceMessages['newInvoiceLineMessage'],
             );
 
             /** @var array<array<string, mixed>> $createdCreditInvoice */
@@ -103,8 +106,9 @@ class SendCreditInvoiceListener implements ShouldQueue
                         $event->subscription->id,
                         $event->subscription->uuid,
                         $invoiceId,
-                    )
+                    ),
                 );
+
                 return;
             }
 
@@ -115,8 +119,9 @@ class SendCreditInvoiceListener implements ShouldQueue
                         $event->subscription->id,
                         $event->subscription->uuid,
                         $downgradeInvoiceLine->id,
-                    )
+                    ),
                 );
+
                 return;
             }
 
@@ -126,7 +131,7 @@ class SendCreditInvoiceListener implements ShouldQueue
                     $event->subscription->id,
                     $event->subscription->uuid,
                     $invoiceId,
-                )
+                ),
             );
         } catch (HarborApiResponseException $exception) {
             $lockDowngradeUpdate = $this->invoiceRepository->lockInvoiceLine($downgradeInvoiceLine->id);

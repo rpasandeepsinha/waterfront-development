@@ -47,11 +47,14 @@ class NovaCustomerAddressResource extends Resource
             BelongsTo::make(
                 self::translate('customer.singular'),
                 'customer',
-                NovaCustomerResource::class
+                NovaCustomerResource::class,
             ),
             Text::make(self::translate('customer.address.attributes.street_name'), 'street_name'),
             Text::make(self::translate('customer.address.attributes.street_number'), 'street_number'),
-            Text::make(self::translate('customer.address.attributes.street_number_addition'), 'street_number_addition')->nullable(),
+            Text::make(
+                self::translate('customer.address.attributes.street_number_addition'),
+                'street_number_addition',
+            )->nullable(),
             Text::make(self::translate('customer.address.attributes.zip_code'), 'zip_code'),
             Text::make(self::translate('customer.address.attributes.city'), 'city'),
             Country::make(self::translate('customer.address.attributes.country'), 'country_code'),

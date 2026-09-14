@@ -13,10 +13,12 @@ use Waterfront\Apps\Nova\Controllers\ExportController;
 Route::get('export/{filename}', [
     ExportController::class,
     'download',
-])->name('export')
-    ->withoutMiddleware(Kernel::MIDDLEWARE_GROUP_WEB)->middleware([
-    Kernel::MIDDLEWARE_GROUP_COMPASS_API,
-]);
+])
+    ->name('export')
+    ->withoutMiddleware(Kernel::MIDDLEWARE_GROUP_WEB)
+    ->middleware([
+        Kernel::MIDDLEWARE_GROUP_COMPASS_API,
+    ]);
 
 // Requests to / on the admin URL should redirect to /nova
 $domain = Config::get('nova.domain');

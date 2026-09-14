@@ -19,8 +19,11 @@ use Waterfront\Support\Helpers\DnsHelper;
  */
 class NameserverSetCurrent extends ManualMigrationJob
 {
-    public function handle(DnsDeploymentRepository $dnsDeploymentRepository, DnsHelper $dnsHelper, DnsExternalNameserverAssigner $nameserverAssigner): void
-    {
+    public function handle(
+        DnsDeploymentRepository $dnsDeploymentRepository,
+        DnsHelper $dnsHelper,
+        DnsExternalNameserverAssigner $nameserverAssigner,
+    ): void {
         $domainDeployment = $this->subscription->domainDeployment;
         $domain = $this->subscription->domain;
         assert($domain !== null);
@@ -41,7 +44,10 @@ class NameserverSetCurrent extends ManualMigrationJob
             throw new RuntimeException(sprintf('Failed to retrieve nameservers for domain: %s', $domain));
         }
 
-        $nameserverAssigner->assign($dnsDeployment, array_map(fn (array $nameserver) => new Nameserver($nameserver['target']), $nameservers));
+        $nameserverAssigner->assign($dnsDeployment, array_map(
+            fn (array $nameserver) => new Nameserver($nameserver['target']),
+            $nameservers,
+        ));
     }
 
     public function getMigrationStep(): MigrationStep

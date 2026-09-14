@@ -36,7 +36,7 @@ class OrderStatusTest extends IntegrationTestCase
             ->getJson($this->generateRoute('partners.order.status', ['order' => $order->id]))
             ->assertOk()
             ->assertExactJson([
-                'data' => [ 'payment_status' => 'pending'],
+                'data' => ['payment_status' => 'pending'],
             ]);
 
         $payment = new PaymentFactory()->createOne([
@@ -51,7 +51,7 @@ class OrderStatusTest extends IntegrationTestCase
             ->getJson($this->generateRoute('partners.order.status', ['order' => $order->id]))
             ->assertOk()
             ->assertExactJson([
-                'data' => [ 'payment_status' => 'failed'],
+                'data' => ['payment_status' => 'failed'],
             ]);
 
         $payment->status = PaymentStatus::PAID;
@@ -61,7 +61,7 @@ class OrderStatusTest extends IntegrationTestCase
             ->getJson($this->generateRoute('partners.order.status', ['order' => $order->id]))
             ->assertOk()
             ->assertExactJson([
-                'data' => [ 'payment_status' => 'paid'],
+                'data' => ['payment_status' => 'paid'],
             ]);
     }
 }

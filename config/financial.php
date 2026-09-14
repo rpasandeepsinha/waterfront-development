@@ -10,27 +10,27 @@ return [
     'administration_fees_ots_enabled' => Env::get('ADMINISTRATION_FEES_OTS_ENABLED', false),
     'bu-payt' => [
         'de-heeg' => [
-            'secret'            => Env::get('BU_PAYT_SECRET_DE_HEEG', ''),
+            'secret' => Env::get('BU_PAYT_SECRET_DE_HEEG', ''),
             'administration_id' => Env::get('BU_PAYT_ADMINISTRATION_ID_DE_HEEG', ''),
         ],
         'neostrada' => [
-            'secret'            => Env::get('BU_PAYT_SECRET_NEOSTRADA', ''),
+            'secret' => Env::get('BU_PAYT_SECRET_NEOSTRADA', ''),
             'administration_id' => Env::get('BU_PAYT_ADMINISTRATION_ID_NEOSTRADA', ''),
         ],
         'realhosting' => [
-            'secret'            => Env::get('BU_PAYT_SECRET_REALHOSTING', ''),
+            'secret' => Env::get('BU_PAYT_SECRET_REALHOSTING', ''),
             'administration_id' => Env::get('BU_PAYT_ADMINISTRATION_ID_REALHOSTING', ''),
         ],
         'sohosted' => [
-            'secret'            => Env::get('BU_PAYT_SECRET_SOHOSTED', ''),
+            'secret' => Env::get('BU_PAYT_SECRET_SOHOSTED', ''),
             'administration_id' => Env::get('BU_PAYT_ADMINISTRATION_ID_SOHOSTED', ''),
         ],
         'versio-2' => [
-            'secret'            => Env::get('BU_PAYT_SECRET_VERSIO_2', ''),
+            'secret' => Env::get('BU_PAYT_SECRET_VERSIO_2', ''),
             'administration_id' => Env::get('BU_PAYT_ADMINISTRATION_ID_VERSIO_2', ''),
         ],
         'yourhosting-2' => [
-            'secret'            => Env::get('BU_PAYT_SECRET_YOURHOSTING_2', ''),
+            'secret' => Env::get('BU_PAYT_SECRET_YOURHOSTING_2', ''),
             'administration_id' => Env::get('BU_PAYT_ADMINISTRATION_ID_YOURHOSTING_2', ''),
         ],
     ],

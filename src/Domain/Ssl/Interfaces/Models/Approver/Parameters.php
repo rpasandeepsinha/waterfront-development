@@ -27,7 +27,7 @@ class Parameters
 
     public static function create(array $data): Parameters
     {
-        $data = array_filter($data);
+        $data = array_filter($data, fn (mixed $value): bool => (bool) $value);
 
         self::validateRequiredFields($data);
 
@@ -59,7 +59,7 @@ class Parameters
         Log::info(sprintf(
             'Attempting to create a ssl product with external id: %d for domain: %s',
             $productId,
-            $domain
+            $domain,
         ));
 
         $this->productId = intval($productId);
@@ -80,7 +80,9 @@ class Parameters
     {
         foreach (self::$requiredFields as $fieldName) {
             if (! array_key_exists($fieldName, $data)) {
-                throw new InvalidArgumentException('Required field ' . $fieldName . ' is missing from the ssl approver data.');
+                throw new InvalidArgumentException(
+                    'Required field ' . $fieldName . ' is missing from the ssl approver data.',
+                );
             }
         }
     }

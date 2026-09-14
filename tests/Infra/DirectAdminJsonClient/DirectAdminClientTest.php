@@ -31,11 +31,11 @@ class DirectAdminClientTest extends TestCase
         $successUrlResponse = file_get_contents(__DIR__ . '/data/success-login-url.json');
 
         $mockResponse = self::mock(Response::class);
-        $mockResponse->shouldReceive('body')
-            ->andReturn($successUrlResponse);
+        $mockResponse->shouldReceive('body')->andReturn($successUrlResponse);
 
         $mockConnector = self::mock(DirectAdminConnector::class);
-        $mockConnector->shouldReceive('sendWithServer')
+        $mockConnector
+            ->shouldReceive('sendWithServer')
             ->once()
             ->with($server, CreateLoginUrl::class)
             ->andReturn($mockResponse);

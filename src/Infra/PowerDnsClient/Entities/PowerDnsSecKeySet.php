@@ -17,7 +17,7 @@ class PowerDnsSecKeySet
 
     public function findByType(
         string $type,
-        string $algorithm = 'ECDSAP256SHA256'
+        string $algorithm = 'ECDSAP256SHA256',
     ): PowerDnsSecKey {
         $keys = $this->getKeys();
 
@@ -39,7 +39,7 @@ class PowerDnsSecKeySet
 
         // When looking for keys They should always exist.
         throw new RuntimeException(
-            sprintf('Unable to acquire DNSSEC key for given type: %s', $type)
+            sprintf('Unable to acquire DNSSEC key for given type: %s', $type),
         );
     }
 
@@ -64,9 +64,10 @@ class PowerDnsSecKeySet
         if (json_last_error() !== JSON_ERROR_NONE) {
             $error = json_last_error();
             throw new InvalidArgumentException(
-                sprintf('Unable to parse string: %s error: %s', $keys, $error)
+                sprintf('Unable to parse string: %s error: %s', $keys, $error),
             );
         }
+
         return self::fromArray($keysArray);
     }
 

@@ -11,44 +11,21 @@ use Waterfront\Domain\Provision\Enums\ProvisionType;
 
 interface ProvisionRequestInterface
 {
-    public ProvisionRequestName $name {
-        get;
-    }
+    public ProvisionRequestName $name { get; }
 
-    public int $requestId {
-        get;
-        set;
-    }
+    public int $requestId { get; set; }
 
-    public UuidInterface $tag {
-        get;
-        set;
-    }
+    public UuidInterface $tag { get; set; }
 
-    public protected(set) ProvisionType $type {
-        get;
-        set;
-    }
+    public protected(set) ProvisionType $type { get; set; }
 
-    public ?ProvisionProvider $provider {
-        get;
-        set;
-    }
+    public ?ProvisionProvider $provider { get; set; }
 
-    public protected(set) bool $requiresValidation {
-        get;
-        set;
-    }
+    public protected(set) bool $requiresValidation { get; set; }
 
-    public ?UuidInterface $retryOf {
-        get;
-        set;
-    }
+    public ?UuidInterface $retryOf { get; set; }
 
-    public ?UuidInterface $retryRequester {
-        get;
-        set;
-    }
+    public ?UuidInterface $retryRequester { get; set; }
 
     /**
      * @phpstan-assert-if-true !null $this->retryOf

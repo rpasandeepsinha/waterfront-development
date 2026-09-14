@@ -18,8 +18,9 @@ class HubspotEmailJob extends AbstractQueueableJob
 
     public int $backoff = 60;
 
-    public function __construct(private readonly int $emailHistoryId)
-    {
+    public function __construct(
+        private readonly int $emailHistoryId,
+    ) {
         parent::__construct();
     }
 

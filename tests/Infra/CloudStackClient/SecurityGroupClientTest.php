@@ -23,23 +23,28 @@ class SecurityGroupClientTest extends TestCase
         $securityGroupId = 'baz';
 
         $mock = self::createMock(CloudStackBaseClient::class);
-        $mock->expects(self::exactly(2))
+        $mock
+            ->expects(self::exactly(2))
             ->method('execute')
             ->willReturnCallback(fn (string $command, array $params): array => match (true) {
-                $command === 'authorizeSecurityGroupIngress' && $params === [
-                    'account'         => $account,
-                    'domainid'        => $domainId,
-                    'cidrlist'        => '0.0.0.0/0',
-                    'protocol'        => 'ALL',
-                    'securitygroupid' => $securityGroupId,
-                ] => [],
-                $command === 'authorizeSecurityGroupIngress' && $params === [
-                    'account'         => $account,
-                    'domainid'        => $domainId,
-                    'cidrlist'        => '::/0',
-                    'protocol'        => 'ALL',
-                    'securitygroupid' => $securityGroupId,
-                ] => [],
+                $command === 'authorizeSecurityGroupIngress'
+                    && $params === [
+                        'account' => $account,
+                        'domainid' => $domainId,
+                        'cidrlist' => '0.0.0.0/0',
+                        'protocol' => 'ALL',
+                        'securitygroupid' => $securityGroupId,
+                    ]
+                    => [],
+                $command === 'authorizeSecurityGroupIngress'
+                    && $params === [
+                        'account' => $account,
+                        'domainid' => $domainId,
+                        'cidrlist' => '::/0',
+                        'protocol' => 'ALL',
+                        'securitygroupid' => $securityGroupId,
+                    ]
+                    => [],
                 default => throw new LogicException(),
             });
 
@@ -47,7 +52,7 @@ class SecurityGroupClientTest extends TestCase
         $client->authorizeSecurityGroupIngress(
             account: $account,
             domainId: $domainId,
-            securityGroupId: $securityGroupId
+            securityGroupId: $securityGroupId,
         );
     }
 }

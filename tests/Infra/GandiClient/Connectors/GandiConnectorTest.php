@@ -45,12 +45,13 @@ class GandiConnectorTest extends IntegrationTestCase
         $client = new GandiConnector(
             $debugConfig,
             $logger,
-            self::resolve(JsonLogMasker::class)
+            self::resolve(JsonLogMasker::class),
         );
 
         $client->withMockClient($mockClient);
 
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 '[GandiConnector] "{request.method} {request.uri}" {response.code}',
@@ -60,7 +61,7 @@ class GandiConnectorTest extends IntegrationTestCase
                     'request.method' => 'GET',
                     'response.code' => 418,
                     'response.data' => 'this-is-response-data',
-                ]
+                ],
             );
 
         $this->expectException(ClientException::class);
@@ -88,12 +89,13 @@ class GandiConnectorTest extends IntegrationTestCase
         $client = new GandiConnector(
             $debugConfig,
             $logger,
-            self::resolve(JsonLogMasker::class)
+            self::resolve(JsonLogMasker::class),
         );
 
         $client->withMockClient($mockClient);
 
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 '[GandiConnector] "{request.method} {request.uri}" {response.code}',
@@ -103,7 +105,7 @@ class GandiConnectorTest extends IntegrationTestCase
                     'request.method' => 'GET',
                     'response.code' => 200,
                     'response.data' => 'this-is-response-data',
-                ]
+                ],
             );
 
         $client->withMockClient($mockClient);

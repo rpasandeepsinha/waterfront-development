@@ -19,7 +19,7 @@ class Microsoft365AuthorizationUrlRequest extends Microsoft365ProvisionRequest
      */
     public function __construct(
         public readonly string $tenantName,
-        public protected(set) UuidInterface $context
+        public protected(set) UuidInterface $context,
     ) {
         $this->tag = $this->context;
     }

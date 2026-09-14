@@ -28,14 +28,14 @@ class HostingProductSpecRepositoryTest extends IntegrationTestCase
     public function allowHostingCouplingExpectTrue(): void
     {
         $product = new ProductFactory()
-             ->hostingBrons()
-             ->has(
-                 new ProductSpecFactory()->state([
-                     'name' => ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT->value,
-                     'value' => true,
-                 ])
-             )
-        ->createOne();
+            ->hostingBrons()
+            ->has(
+                new ProductSpecFactory()->state([
+                    'name' => ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT->value,
+                    'value' => true,
+                ]),
+            )
+            ->createOne();
 
         self::assertTrue($this->hostingProductSpecRepository->allowHostingCoupling($product));
     }
@@ -49,7 +49,7 @@ class HostingProductSpecRepositoryTest extends IntegrationTestCase
                 new ProductSpecFactory()->state([
                     'name' => ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT->value,
                     'value' => false,
-                ])
+                ]),
             )
             ->createOne();
 

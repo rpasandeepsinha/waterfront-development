@@ -18,7 +18,7 @@ class PaytMandateReferenceNullException extends Exception
                 $mandate->id,
             ),
             $code,
-            $previous
+            $previous,
         );
     }
 }

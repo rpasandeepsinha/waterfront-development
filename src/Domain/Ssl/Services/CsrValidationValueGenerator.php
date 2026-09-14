@@ -14,6 +14,7 @@ class CsrValidationValueGenerator
     public function getCnameValidationValue(string $csr): string
     {
         $sha = $this->getSha256HashFromCsr($csr);
+
         return sprintf('%s.sectigo.com.', substr_replace($sha, '.', 32, 0));
     }
 
@@ -40,15 +41,20 @@ class CsrValidationValueGenerator
     private function getBinaryCsr(string $csr): string
     {
         $data = \base64_decode(
-            \str_replace([
-                '-----BEGIN CERTIFICATE REQUEST-----',
-                '-----END CERTIFICATE REQUEST-----',
-                '-----BEGIN NEW CERTIFICATE REQUEST-----',
-                '-----END NEW CERTIFICATE REQUEST-----',
-            ], '', $csr),
-            true
+            \str_replace(
+                [
+                    '-----BEGIN CERTIFICATE REQUEST-----',
+                    '-----END CERTIFICATE REQUEST-----',
+                    '-----BEGIN NEW CERTIFICATE REQUEST-----',
+                    '-----END NEW CERTIFICATE REQUEST-----',
+                ],
+                '',
+                $csr,
+            ),
+            true,
         );
         assert($data !== false);
+
         return $data;
     }
 }

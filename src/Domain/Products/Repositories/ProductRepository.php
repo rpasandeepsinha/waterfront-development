@@ -58,8 +58,10 @@ class ProductRepository
         return Product::where('id', $id)->firstOrFail();
     }
 
-    public function findProductsByProductGroupSlugAndProductSlug(ProductGroupType $productGroup, string $productSlug): Product|null
-    {
+    public function findProductsByProductGroupSlugAndProductSlug(
+        ProductGroupType $productGroup,
+        string $productSlug,
+    ): ?Product {
         return Product::query()
             ->whereHas('productGroup', function (Builder $query) use ($productGroup): void {
                 $query->where('slug', $productGroup->value);
@@ -68,8 +70,10 @@ class ProductRepository
             ->first();
     }
 
-    public function findProductByProductGroupSlugAndWildcardProductSlug(ProductGroupType $productGroup, string $productSlug): Product|null
-    {
+    public function findProductByProductGroupSlugAndWildcardProductSlug(
+        ProductGroupType $productGroup,
+        string $productSlug,
+    ): ?Product {
         return Product::query()
             ->whereHas('productGroup', function (Builder $query) use ($productGroup): void {
                 $query->where('slug', $productGroup->value);
@@ -80,12 +84,16 @@ class ProductRepository
 
     public function slugExistsForGroup(string $slug, ProductGroupType $group): bool
     {
-        return Product::where('slug', $slug)->whereHas('productGroup', fn (Builder $q) => $q->where('slug', $group->value))->exists();
+        return Product::where('slug', $slug)
+            ->whereHas('productGroup', fn (Builder $q) => $q->where('slug', $group->value))
+            ->exists();
     }
 
     public function productExistsForGroup(string $uuid, ProductGroupType $group): bool
     {
-        return Product::where('uuid', $uuid)->whereHas('productGroup', fn (Builder $q) => $q->where('slug', $group->value))->exists();
+        return Product::where('uuid', $uuid)
+            ->whereHas('productGroup', fn (Builder $q) => $q->where('slug', $group->value))
+            ->exists();
     }
 
     /** @return Collection<int, Product> */
@@ -102,9 +110,7 @@ class ProductRepository
 
     public function getQuarantaineProduct(): ?Product
     {
-        $productGroup = ProductGroup::where('slug', ProductGroupType::ONE_TIME_SERVICE)
-            ->with(['products'])
-            ->first();
+        $productGroup = ProductGroup::where('slug', ProductGroupType::ONE_TIME_SERVICE)->with(['products'])->first();
 
         if ($productGroup === null || $productGroup->products->count() === 0) {
             return null;
@@ -113,7 +119,8 @@ class ProductRepository
         return Product::where('slug', 'quarantainekosten')
             ->whereHas('productGroup', function (Builder $builder): void {
                 $builder->where('slug', ProductGroupType::ONE_TIME_SERVICE);
-            })->first();
+            })
+            ->first();
     }
 
     public function hasPricesWithMultipleContractPeriods(Product $product): bool
@@ -148,10 +155,13 @@ class ProductRepository
     {
         return Product::query()
             ->whereHas('productSpecs', function (Builder $query): void {
-                $query
-                    ->where('name', ProductSpecName::HAS_SERVICE_PLUS->value)
-                    ->whereIn('value', [true, 'true', '1', 1, 'yes'])
-                ;
+                $query->where('name', ProductSpecName::HAS_SERVICE_PLUS->value)->whereIn('value', [
+                    true,
+                    'true',
+                    '1',
+                    1,
+                    'yes',
+                ]);
             })
             ->where('id', $product->id)
             ->exists();
@@ -160,9 +170,7 @@ class ProductRepository
     public function comesWithFreeProduct(Product $product): ?Product
     {
         $product->loadMissing(['productSpecs']);
-        $spec = $product->productSpecs
-            ->where('name', ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG->value)
-            ->first();
+        $spec = $product->productSpecs->where('name', ProductSpecName::COMES_WITH_FREE_PRODUCT_SLUG->value)->first();
 
         if ($spec instanceof ProductSpec) {
             return $this->findProductBySlug((string) $spec->value);

@@ -26,15 +26,15 @@ class VirtualMachineMapper implements Mapper
         assert(is_string($password) || is_null($password));
 
         return new VirtualMachine(
-            id:                $data['id'],
-            name:              $data['name'],
-            domainId:          $data['domainid'],
-            account:           $data['account'],
-            username:          $data['username'],
-            nic:               $data['nic'],
-            state:             CloudstackMachineState::from($data['state']),
+            id: $data['id'],
+            name: $data['name'],
+            domainId: $data['domainid'],
+            account: $data['account'],
+            username: $data['username'],
+            nic: $data['nic'],
+            state: CloudstackMachineState::from($data['state']),
             serviceOfferingId: $data['serviceofferingid'],
-            password:          $password,
+            password: $password,
         );
     }
 }

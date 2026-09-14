@@ -53,10 +53,7 @@ class NovaRedirectLegacyServerResource extends Resource
                 ->creationRules('ipv6', 'unique:hosting_redirecting_legacy_servers,ipv6', 'nullable')
                 ->updateRules('ipv6', 'unique:hosting_redirecting_legacy_servers,ipv6,{{resourceId}}', 'nullable')
                 ->sortable(),
-            Text::make('original_business_unit')
-                ->required()
-                ->rules('required')
-                ->sortable(),
+            Text::make('original_business_unit')->required()->rules('required')->sortable(),
         ];
     }
 

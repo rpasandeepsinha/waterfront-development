@@ -25,7 +25,7 @@ class TerminateResellerHostingJob extends AbstractQueueableJob
         $logger->info(sprintf(
             'Terminating resellerhosting for subscription %s (attempts: %d)',
             $this->resellerHostingDeployment->subscription_uuid,
-            $this->attempts()
+            $this->attempts(),
         ));
 
         $resellerHostingService->terminate($this->resellerHostingDeployment);

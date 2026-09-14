@@ -25,33 +25,39 @@ class AliasRecordValidationTest extends IntegrationTestCase
     public function missingContent(): void
     {
         $data = [
-            'type'     => DnsRecordType::ALIAS->value,
-            'name'     => 'google.com',
-            'ttl'      => '600',
+            'type' => DnsRecordType::ALIAS->value,
+            'name' => 'google.com',
+            'ttl' => '600',
             'disabled' => true,
         ];
 
         $validator = $this->createDnsRecordValidator($data);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     #[Test]
     public function invalidContentType(): void
     {
         $data = [
-            'type'     => 'ALIAS',
-            'name'     => 'google.com',
-            'content'  => 1,
-            'ttl'      => '600',
+            'type' => 'ALIAS',
+            'name' => 'google.com',
+            'content' => 1,
+            'ttl' => '600',
             'disabled' => true,
         ];
 
         $validator = $this->createDnsRecordValidator($data);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['content' => [self::resolve(TranslatorInterface::class)->translate('validation.string')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['content' => [self::resolve(TranslatorInterface::class)->translate('validation.string')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     #[DataProvider('providerInvalidFQDNS')]
@@ -59,10 +65,10 @@ class AliasRecordValidationTest extends IntegrationTestCase
     public function invalidFQDN(mixed $value): void
     {
         $data = [
-            'type'     => 'ALIAS',
-            'name'     => 'google.com',
-            'content'  => $value,
-            'ttl'      => '600',
+            'type' => 'ALIAS',
+            'name' => 'google.com',
+            'content' => $value,
+            'ttl' => '600',
             'disabled' => true,
         ];
 
@@ -71,7 +77,7 @@ class AliasRecordValidationTest extends IntegrationTestCase
         self::assertTrue($validator->fails());
         self::assertSame(
             ['content' => [self::resolve(TranslatorInterface::class)->translate('validation.fqdn')]],
-            $validator->errors()->toArray()
+            $validator->errors()->toArray(),
         );
     }
 
@@ -80,10 +86,10 @@ class AliasRecordValidationTest extends IntegrationTestCase
     public function validFQDN(string $value): void
     {
         $data = [
-            'type'     => 'ALIAS',
-            'name'     => 'k1._domainkey.hostname.nl.',
-            'content'  => $value,
-            'ttl'      => '600',
+            'type' => 'ALIAS',
+            'name' => 'k1._domainkey.hostname.nl.',
+            'content' => $value,
+            'ttl' => '600',
             'disabled' => true,
         ];
 

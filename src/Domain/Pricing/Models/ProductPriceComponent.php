@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Waterfront\Domain\Pricing\Enums\PriceComponentType;
 use Waterfront\Domain\Products\Models\Product;
-use Waterfront\Domain\Translations\Models\TranslationKey;
 
 /**
  * @property int                $id
@@ -21,8 +20,6 @@ use Waterfront\Domain\Translations\Models\TranslationKey;
  * @property non-negative-int   $price
  * @property bool               $orderable
  * @property Product            $product
- * @property ?int               $translation_key_id
- * @property ?TranslationKey    $priceExplanation
  * @property CarbonImmutable    $starts_at
  * @property ?CarbonImmutable   $expires_at
  * @property ?CarbonImmutable   $created_at
@@ -40,14 +37,6 @@ class ProductPriceComponent extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
-    }
-
-    /**
-     * @return BelongsTo<TranslationKey, $this>
-     */
-    public function priceExplanation(): BelongsTo
-    {
-        return $this->belongsTo(TranslationKey::class, 'translation_key_id');
     }
 
     protected function casts(): array

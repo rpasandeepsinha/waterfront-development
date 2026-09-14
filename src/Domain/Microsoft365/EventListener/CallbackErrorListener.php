@@ -16,8 +16,8 @@ class CallbackErrorListener implements ErrorObserverInterface
             sprintf(
                 '%s::execute -> KPN Microsoft webhook error with messages: %s',
                 self::class,
-                json_encode($error->getMessages(), JSON_THROW_ON_ERROR)
-            )
+                json_encode($error->getMessages(), JSON_THROW_ON_ERROR),
+            ),
         );
     }
 }

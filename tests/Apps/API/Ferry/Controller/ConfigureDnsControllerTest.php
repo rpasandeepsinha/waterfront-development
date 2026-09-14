@@ -94,7 +94,9 @@ class ConfigureDnsControllerTest extends IntegrationTestCase
         $dnsProductGroup = ProductGroupFactory::new()->dns()->createOne();
 
         $dnsProduct = ProductFactory::new()->for($dnsProductGroup)->createOne();
-        $freeDnsProduct = ProductFactory::new()->for($dnsProductGroup)->createOne(['slug' => ProductNotAllowedToMigrate::FREE_DNS->value]);
+        $freeDnsProduct = ProductFactory::new()->for($dnsProductGroup)->createOne([
+            'slug' => ProductNotAllowedToMigrate::FREE_DNS->value,
+        ]);
 
         $domainContact = DomainContactFactory::new()->for($this->customer)->createOne([
             'first_name' => 'test',
@@ -178,16 +180,15 @@ class ConfigureDnsControllerTest extends IntegrationTestCase
 
                     self::fail('Unknown request');
                 },
-            'dns.sandwaveio.test/presigned/' . self::TEST_DOMAIN =>
-                function (RequestInterface $request) {
-                    self::assertSame('GET', $request->getMethod());
+            'dns.sandwaveio.test/presigned/' . self::TEST_DOMAIN => function (RequestInterface $request) {
+                self::assertSame('GET', $request->getMethod());
 
-                    return new Response(
-                        200,
-                        [],
-                        '{"result": 1}'
-                    );
-                },
+                return new Response(
+                    200,
+                    [],
+                    '{"result": 1}',
+                );
+            },
         ], static function (RequestInterface $request) use (&$pdnsRequests): void {
             $pdnsRequests[] = $request;
         });
@@ -196,17 +197,21 @@ class ConfigureDnsControllerTest extends IntegrationTestCase
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.configure_dns', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.configure_dns', [
+                    'customer' => $this->customer->id,
+                ]),
                 [],
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
+                ],
             )
             ->assertStatus(SymfonyResponse::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [
                     [
-                        'message' => 'Configure DNS migration step not allowed for subscription: ' . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
+                        'message' =>
+                            'Configure DNS migration step not allowed for subscription: '
+                                . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
                         'parameters' => [
                             'customerId' => $this->customer->id,
                             'subscriptionId' => $invalidSubscription->id,
@@ -241,7 +246,7 @@ class ConfigureDnsControllerTest extends IntegrationTestCase
                 'masters' => [],
             ],
             $mastersDomainPayload,
-            'PDNS zone to master failed'
+            'PDNS zone to master failed',
         );
 
         self::assertSame('PATCH', $pdnsRequests[4]->getMethod());
@@ -302,7 +307,7 @@ class ConfigureDnsControllerTest extends IntegrationTestCase
                 'masters' => [],
             ],
             $mastersDnsPayload,
-            'PDNS zone to master failed'
+            'PDNS zone to master failed',
         );
 
         self::assertSame('GET', $pdnsRequests[9]->getMethod());
@@ -330,31 +335,35 @@ class ConfigureDnsControllerTest extends IntegrationTestCase
 
         $pdnsRequests = [];
 
-        $pdnsMock = $this->makePdnsWithMultipleResponses([
-            // get DNS zone
-            new Response(
-                404
-            ),
-            // create DNS zone
-            new Response(
-                200,
-                [],
-                $this->getMockedZoneResponseBody(self::TEST_DOMAIN)
-            ),
-        ], static function (RequestInterface $request) use (&$pdnsRequests): void {
-            $pdnsRequests[] = $request;
-        });
+        $pdnsMock = $this->makePdnsWithMultipleResponses(
+            [
+                // get DNS zone
+                new Response(
+                    404,
+                ),
+                // create DNS zone
+                new Response(
+                    200,
+                    [],
+                    $this->getMockedZoneResponseBody(self::TEST_DOMAIN),
+                ),
+            ],
+            static function (RequestInterface $request) use (&$pdnsRequests): void {
+                $pdnsRequests[] = $request;
+            },
+        );
 
         $this->pdns($pdnsMock);
 
-        $this
-            ->actingAsSystem()
+        $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.configure_dns', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.configure_dns', [
+                    'customer' => $this->customer->id,
+                ]),
                 [],
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
+                ],
             )
             ->assertStatus(SymfonyResponse::HTTP_MULTI_STATUS)
             ->assertExactJson([
@@ -379,72 +388,73 @@ class ConfigureDnsControllerTest extends IntegrationTestCase
     #[Test]
     public function configureDnsSuccessfullyWhenDnsZoneEmpty(): void
     {
-        DomainDeploymentFactory::new()
-            ->for($this->extensionSubscription)
-            ->withRtrProvider()
-            ->createOne();
+        DomainDeploymentFactory::new()->for($this->extensionSubscription)->withRtrProvider()->createOne();
 
         $this->createDefaultDNSTemplate();
 
         $pdnsRequests = [];
 
-        $pdnsMock = $this->makePdnsWithMultipleResponses([
-            // getDnsZone
-            new Response(
-                200,
-                [],
-                self::getMockedZoneResponseBodyWithRrsets(self::TEST_DOMAIN)
-            ),
-            // getDnsZone (changeToMasterAndEmptyMasters)
-            new Response(
-                200,
-                [],
-                self::getMockedZoneResponseBodyWithRrsets(self::TEST_DOMAIN)
-            ),
-            // changeToMasterAndEmptyMasters
-            new Response(
-                204,
-            ),
-            // getDnsZone (applyDiffToZone)
-            new Response(
-                200,
-                [],
-                self::getMockedZoneResponseBodyWithRrsets(self::TEST_DOMAIN)
-            ),
-            // patch zone records with new NS/SOA
-            new Response(
-                204,
-            ),
-            // getDnsZone (disable presigned)
-            new Response(
-                200,
-                [],
-                self::getMockedZoneResponseBodyWithNsRecords(self::TEST_DOMAIN)
-            ),
-            // patch zone records cleanup records
-            new Response(
-                204,
-            ),
-            // presigned
-            new Response(
-                200,
-                [],
-                '{"result": 1}'
-            ),
-        ], static function (RequestInterface $request) use (&$pdnsRequests): void {
-            $pdnsRequests[] = $request;
-        });
+        $pdnsMock = $this->makePdnsWithMultipleResponses(
+            [
+                // getDnsZone
+                new Response(
+                    200,
+                    [],
+                    self::getMockedZoneResponseBodyWithRrsets(self::TEST_DOMAIN),
+                ),
+                // getDnsZone (changeToMasterAndEmptyMasters)
+                new Response(
+                    200,
+                    [],
+                    self::getMockedZoneResponseBodyWithRrsets(self::TEST_DOMAIN),
+                ),
+                // changeToMasterAndEmptyMasters
+                new Response(
+                    204,
+                ),
+                // getDnsZone (applyDiffToZone)
+                new Response(
+                    200,
+                    [],
+                    self::getMockedZoneResponseBodyWithRrsets(self::TEST_DOMAIN),
+                ),
+                // patch zone records with new NS/SOA
+                new Response(
+                    204,
+                ),
+                // getDnsZone (disable presigned)
+                new Response(
+                    200,
+                    [],
+                    self::getMockedZoneResponseBodyWithNsRecords(self::TEST_DOMAIN),
+                ),
+                // patch zone records cleanup records
+                new Response(
+                    204,
+                ),
+                // presigned
+                new Response(
+                    200,
+                    [],
+                    '{"result": 1}',
+                ),
+            ],
+            static function (RequestInterface $request) use (&$pdnsRequests): void {
+                $pdnsRequests[] = $request;
+            },
+        );
 
         $this->pdns($pdnsMock);
 
-        $this
-            ->actingAsSystem()
+        $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.configure_dns', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.configure_dns', [
+                    'customer' => $this->customer->id,
+                ]),
                 [],
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
+                ],
             )
             ->assertStatus(SymfonyResponse::HTTP_MULTI_STATUS)
             ->assertExactJson([
@@ -470,7 +480,7 @@ class ConfigureDnsControllerTest extends IntegrationTestCase
         $patchBody = json_decode(
             json: $pdnsRequests[4]->getBody()->getContents(),
             associative: true,
-            flags: JSON_THROW_ON_ERROR
+            flags: JSON_THROW_ON_ERROR,
         );
         self::assertSame('NS', $patchBody['rrsets'][0]['type']);
         self::assertSame('REPLACE', $patchBody['rrsets'][0]['changetype']);
@@ -487,17 +497,21 @@ class ConfigureDnsControllerTest extends IntegrationTestCase
 
         $this->actingAsSystem()
             ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.configure_dns', ['customer' => $this->customer->id]),
+                $this->generateRoute('ferry.customers.subscriptions.configure_dns', [
+                    'customer' => $this->customer->id,
+                ]),
                 [],
                 [
                     'Authorization' => 'Bearer ferry_testing_api_key',
-                ]
+                ],
             )
             ->assertStatus(SymfonyResponse::HTTP_MULTI_STATUS)
             ->assertExactJson([
                 'failures' => [
                     [
-                        'message' => 'Configure DNS migration step not allowed for subscription: ' . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
+                        'message' =>
+                            'Configure DNS migration step not allowed for subscription: '
+                                . NotEligibleForMigrationException::administrativeStatusIncorrect(AdministrativeStatus::INACTIVE->value)->getMessage(),
                         'parameters' => [
                             'customerId' => $this->customer->id,
                             'subscriptionId' => $this->extensionSubscription->id,

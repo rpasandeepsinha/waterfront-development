@@ -21,18 +21,19 @@ class CustomerControllerTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->customer = new CustomerFactory()->withAddress()->createOne([
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'created_at' => CarbonImmutable::now()->subDays(16),
-        ]);
+        $this->customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne([
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'created_at' => CarbonImmutable::now()->subDays(16),
+            ]);
     }
 
     #[Test]
     public function whoAmI(): void
     {
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->getJson(
                 $this->generateRoute('partners.customers.who-am-i', $this->customer->uuid),
             )
@@ -48,8 +49,7 @@ class CustomerControllerTest extends IntegrationTestCase
     public function patchSucceeds(): void
     {
         $phoneNumber = '(+31) 6-11870760';
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->patchJson(
                 $this->generateRoute('partners.customers.patch', $this->customer->uuid),
                 [
@@ -67,7 +67,7 @@ class CustomerControllerTest extends IntegrationTestCase
                         'zip_code' => $this->customer->address?->zip_code,
                         'city' => $this->customer->address?->city,
                     ]],
-                ]
+                ],
             )
             ->assertOk();
 

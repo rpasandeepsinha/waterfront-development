@@ -24,7 +24,7 @@ class PuzzelCallbackTimeslotFactory extends Factory
         $base = CarbonImmutable::today()->setTime(
             hour: 9,
             minute: 0,
-            second: 0
+            second: 0,
         );
         $slot = $this->faker->numberBetween(0, 11);
 

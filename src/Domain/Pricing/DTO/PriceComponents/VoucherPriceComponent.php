@@ -23,9 +23,16 @@ class VoucherPriceComponent extends PriceComponent
         public Voucher $voucher,
         public ?int $appliedOrder = null,
     ) {
-        assert($percentageDiscount === null || ($percentageDiscount >= 0.0 && $percentageDiscount <= 100.0));
+        assert($percentageDiscount === null || $percentageDiscount >= 0.0 && $percentageDiscount <= 100.0);
         assert($fixedDiscount !== null || $percentageDiscount !== null);
 
-        parent::__construct(PriceComponentType::VOUCHER, $fixedDiscount, $percentageDiscount, null, $newPrice, $appliedOrder);
+        parent::__construct(
+            PriceComponentType::VOUCHER,
+            $fixedDiscount,
+            $percentageDiscount,
+            null,
+            $newPrice,
+            $appliedOrder,
+        );
     }
 }

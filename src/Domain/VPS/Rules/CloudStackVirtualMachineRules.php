@@ -31,12 +31,16 @@ class CloudStackVirtualMachineRules
             translator: $this->translator,
             productRepository: $this->productRepository,
             productSpecRepository: $this->productSpecRepository,
-            sshKeyRepository: $this->sshKeyRepository
+            sshKeyRepository: $this->sshKeyRepository,
         );
 
         return [
-            'subscriptions.vps.*.children'                  => ['required', sprintf('array:%s', ProductGroupType::CLOUDSTACK_OS->value), 'filled'],
-            'subscriptions.vps.*.children.cloudstack-os.*'  => ['required', $sshKeyRequiredRule],
+            'subscriptions.vps.*.children' => [
+                'required',
+                sprintf('array:%s', ProductGroupType::CLOUDSTACK_OS->value),
+                'filled',
+            ],
+            'subscriptions.vps.*.children.cloudstack-os.*' => ['required', $sshKeyRequiredRule],
         ];
     }
 }

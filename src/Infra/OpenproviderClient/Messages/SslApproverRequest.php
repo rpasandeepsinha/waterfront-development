@@ -25,7 +25,7 @@ class SslApproverRequest extends BaseRequest
         $message = parent::getMessage();
 
         $message[$this->endpoint] = [
-            'domain'    => $this->parameters->getDomain(),
+            'domain' => $this->parameters->getDomain(),
             'productId' => $this->parameters->getProductId(),
         ];
 

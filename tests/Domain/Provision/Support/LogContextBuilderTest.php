@@ -38,7 +38,7 @@ class LogContextBuilderTest extends TestCase
                 LoggingContextKeys::PROVISIONING_REQUEST_ID => 42,
                 LoggingContextKeys::PROVISIONING_CONTEXT => $context,
             ],
-            $built
+            $built,
         );
     }
 
@@ -51,9 +51,7 @@ class LogContextBuilderTest extends TestCase
 
         $exception = new RuntimeException('boom');
 
-        $built = LogContextBuilder::for($request)
-            ->withException($exception)
-            ->build();
+        $built = LogContextBuilder::for($request)->withException($exception)->build();
 
         self::assertSame($exception, $built[LoggingContextKeys::EXCEPTION]);
     }
@@ -65,9 +63,7 @@ class LogContextBuilderTest extends TestCase
         $request = new TerminateRedirectsRequest($context);
         $request->requestId = 1;
 
-        $built = LogContextBuilder::for($request)
-            ->withMeta(['caddy_id' => 'abc123'])
-            ->build();
+        $built = LogContextBuilder::for($request)->withMeta(['caddy_id' => 'abc123'])->build();
 
         self::assertSame(['caddy_id' => 'abc123'], $built[LoggingContextKeys::META]);
     }
@@ -79,9 +75,7 @@ class LogContextBuilderTest extends TestCase
         $request = new TerminateRedirectsRequest($context);
         $request->requestId = 1;
 
-        $built = LogContextBuilder::for($request)
-            ->with(LoggingContextKeys::CUSTOMER_ID, 99)
-            ->build();
+        $built = LogContextBuilder::for($request)->with(LoggingContextKeys::CUSTOMER_ID, 99)->build();
 
         self::assertSame(99, $built[LoggingContextKeys::CUSTOMER_ID]);
     }
@@ -116,7 +110,7 @@ class LogContextBuilderTest extends TestCase
                 LoggingContextKeys::META => ['caddy_id' => 'abc'],
                 LoggingContextKeys::DOMAIN_NAME => 'example.com',
             ],
-            $built
+            $built,
         );
     }
 }

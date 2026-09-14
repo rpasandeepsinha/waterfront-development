@@ -41,7 +41,7 @@ class SuspendSubscriptionService
             [
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-            ]
+            ],
         );
 
         $this->checkIfSubscriptionIsEligible($subscription);
@@ -68,14 +68,17 @@ class SuspendSubscriptionService
             [
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-            ]
+            ],
         );
         match ($subscription->product->productGroup->slug) {
             ProductGroupType::BACKUP => $this->dispatchSuspendBackup($subscription),
             ProductGroupType::REDIRECT => $this->dispatchSuspendRedirectJob($subscription),
             ProductGroupType::EXTENSION => $this->dispatchSuspendDomainJob($subscription),
             ProductGroupType::HOSTING => $this->dispatchSuspendHostingJob($subscription),
-            default => throw new NotImplementedException(sprintf('Products with product group "%s" can not be suspended.', $subscription->product->productGroup->slug->value))
+            default => throw new NotImplementedException(sprintf(
+                'Products with product group "%s" can not be suspended.',
+                $subscription->product->productGroup->slug->value,
+            )),
         };
     }
 
@@ -84,10 +87,11 @@ class SuspendSubscriptionService
      */
     public function checkIfSubscriptionIsEligible(Subscription $subscription): void
     {
-        if (
-            in_array($subscription->administrative_status, AdministrativeStatus::getIneligibleForSuspension(), true)
-        ) {
-            throw UnableToSuspendSubscriptionException::subscriptionAdministrativeOrTechnicalStatusNotSufficient(AuditLogEvent::SUSPENSION, $subscription);
+        if (in_array($subscription->administrative_status, AdministrativeStatus::getIneligibleForSuspension(), true)) {
+            throw UnableToSuspendSubscriptionException::subscriptionAdministrativeOrTechnicalStatusNotSufficient(
+                AuditLogEvent::SUSPENSION,
+                $subscription,
+            );
         }
     }
 
@@ -98,7 +102,11 @@ class SuspendSubscriptionService
         }
 
         if (
-            in_array(TechnicalStatus::from($subscription->technical_status), TechnicalStatus::getInEligibleForSuspension(), true)
+            in_array(
+                TechnicalStatus::from($subscription->technical_status),
+                TechnicalStatus::getInEligibleForSuspension(),
+                true,
+            )
             || ! in_array(
                 $subscription->product->productGroup->slug,
                 [
@@ -107,7 +115,7 @@ class SuspendSubscriptionService
                     ProductGroupType::BACKUP,
                     ProductGroupType::REDIRECT,
                 ],
-                true
+                true,
             )
         ) {
             return false;
@@ -135,8 +143,8 @@ class SuspendSubscriptionService
         $this->jobDispatcher->dispatch(
             new SuspendDomainJob(
                 domainDeployment: $subscription->domainDeployment,
-                sendMailAfterSuspensionSuccess: true
-            )
+                sendMailAfterSuspensionSuccess: true,
+            ),
         );
     }
 
@@ -146,6 +154,8 @@ class SuspendSubscriptionService
             return;
         }
 
-        $this->jobDispatcher->dispatch(new SuspendHostingJob($subscription->hostingDeployment, sendMailAfterSuspensionSuccess: true));
+        $this->jobDispatcher->dispatch(
+            new SuspendHostingJob($subscription->hostingDeployment, sendMailAfterSuspensionSuccess: true),
+        );
     }
 }

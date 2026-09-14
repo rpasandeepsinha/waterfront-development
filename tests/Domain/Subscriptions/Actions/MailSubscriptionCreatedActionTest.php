@@ -42,7 +42,8 @@ class MailSubscriptionCreatedActionTest extends IntegrationTestCase
         }
 
         $mailer = self::createMock(MailerInterface::class);
-        $mailer->expects(self::once())
+        $mailer
+            ->expects(self::once())
             ->method('send')
             ->with(
                 [$customer],

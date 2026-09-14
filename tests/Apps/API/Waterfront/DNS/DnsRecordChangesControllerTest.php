@@ -38,7 +38,10 @@ class DnsRecordChangesControllerTest extends IntegrationTestCase
         $this->customer = new CustomerFactory()->withAddress()->createOne();
 
         $productGroup = new ProductGroupFactory()->dns()->createOne();
-        $this->product = new ProductFactory()->for($productGroup)->premiumDns($productGroup)->createOne();
+        $this->product = new ProductFactory()
+            ->for($productGroup)
+            ->premiumDns($productGroup)
+            ->createOne();
 
         $this->subscription = new SubscriptionFactory()
             ->for($this->customer)
@@ -54,18 +57,17 @@ class DnsRecordChangesControllerTest extends IntegrationTestCase
             [
                 'name' => ProductSpecName::DNS_VISIBLE_LOG_LINES->value,
                 'value' => '10',
-            ]
+            ],
         );
 
         $translator = self::resolve(TranslatorInterface::class);
 
-        $response = $this->actingAsCustomer($this->customer)
-            ->getJson(
-                $this->generateRoute(
-                    'partners.dns.record-changes',
-                    ['subscription' => $this->subscription->uuid]
-                )
-            );
+        $response = $this->actingAsCustomer($this->customer)->getJson(
+            $this->generateRoute(
+                'partners.dns.record-changes',
+                ['subscription' => $this->subscription->uuid],
+            ),
+        );
 
         $response->assertOk();
 
@@ -78,7 +80,7 @@ class DnsRecordChangesControllerTest extends IntegrationTestCase
                 'record_type' => $dnsRecordChange->record_type->value,
                 'change_type' => $dnsRecordChange->change_type->value,
                 'agent_type' => $translator->translate(
-                    sprintf('dns.agent_type.%s', $dnsRecordChange->agent_type->value)
+                    sprintf('dns.agent_type.%s', $dnsRecordChange->agent_type->value),
                 ),
                 'content' => $dnsRecordChange->content,
                 'ttl' => $dnsRecordChange->ttl,
@@ -104,13 +106,12 @@ class DnsRecordChangesControllerTest extends IntegrationTestCase
     #[Test]
     public function noDnsRecordChangesCreated(): void
     {
-        $response = $this->actingAsCustomer($this->customer)
-            ->getJson(
-                $this->generateRoute(
-                    'partners.dns.record-changes',
-                    ['subscription' => $this->subscription->uuid]
-                )
-            );
+        $response = $this->actingAsCustomer($this->customer)->getJson(
+            $this->generateRoute(
+                'partners.dns.record-changes',
+                ['subscription' => $this->subscription->uuid],
+            ),
+        );
 
         $response->assertOk();
         $response->assertExactJson(['data' => []]);
@@ -119,15 +120,17 @@ class DnsRecordChangesControllerTest extends IntegrationTestCase
     #[Test]
     public function noSpecSet(): void
     {
-        new DnsRecordChangeFactory()->count(10)->for($this->subscription)->create();
+        new DnsRecordChangeFactory()
+            ->count(10)
+            ->for($this->subscription)
+            ->create();
 
-        $response = $this->actingAsCustomer($this->customer)
-            ->getJson(
-                $this->generateRoute(
-                    'partners.dns.record-changes',
-                    ['subscription' => $this->subscription->uuid]
-                )
-            );
+        $response = $this->actingAsCustomer($this->customer)->getJson(
+            $this->generateRoute(
+                'partners.dns.record-changes',
+                ['subscription' => $this->subscription->uuid],
+            ),
+        );
 
         $response->assertOk();
         $response->assertExactJson(['data' => []]);

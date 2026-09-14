@@ -9,7 +9,7 @@ class Domain
     public function __construct(
         public string $id,
         public string $name,
-        public string $parentDomainId
+        public string $parentDomainId,
     ) {
     }
 }

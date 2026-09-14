@@ -22,6 +22,6 @@ abstract class PriceComponent
         public int $newPrice,
         public ?int $appliedOrder,
     ) {
-        assert($percentageDiscount === null || ($percentageDiscount >= 0.0 && $percentageDiscount <= 100.0));
+        assert($percentageDiscount === null || $percentageDiscount >= 0.0 && $percentageDiscount <= 100.0);
     }
 }

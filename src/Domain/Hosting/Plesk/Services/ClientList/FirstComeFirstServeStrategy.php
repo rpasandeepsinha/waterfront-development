@@ -28,9 +28,10 @@ class FirstComeFirstServeStrategy implements ClientListStrategyInterface
         foreach ($clients as $client) {
             if (! is_null($interfaceCheck) && ! is_a($client, $interfaceCheck, true)) {
                 throw new InvalidArgumentException(
-                    'Class ' . $client::class . ' should implement ' . $interfaceCheck
+                    'Class ' . $client::class . ' should implement ' . $interfaceCheck,
                 );
             }
+
             $this->clients[] = $client;
         }
     }
@@ -45,6 +46,11 @@ class FirstComeFirstServeStrategy implements ClientListStrategyInterface
                 return $client;
             }
         }
-        throw new RuntimeException(sprintf('%s::selectClient I have no client for the server %s', self::class, $server->name));
+
+        throw new RuntimeException(sprintf(
+            '%s::selectClient I have no client for the server %s',
+            self::class,
+            $server->name,
+        ));
     }
 }

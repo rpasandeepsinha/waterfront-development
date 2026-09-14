@@ -15,8 +15,9 @@ class ManualSubscriptionTerminationListener implements ShouldQueue
 {
     public string $queue = QueueName::SUBSCRIPTIONS->value;
 
-    public function __construct(private readonly ManualProvisioningService $provisioningService)
-    {
+    public function __construct(
+        private readonly ManualProvisioningService $provisioningService,
+    ) {
     }
 
     public function handle(DispatchTerminateManualProvisioning $event): void
@@ -25,7 +26,7 @@ class ManualSubscriptionTerminationListener implements ShouldQueue
             Log::warning(sprintf(
                 'Termination for subscription with ID: {%s} (uuid: {%s}) was already in a deployed state. Skipping...',
                 $event->subscription->id,
-                $event->subscription->uuid
+                $event->subscription->uuid,
             ));
 
             return;

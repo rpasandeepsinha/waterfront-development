@@ -31,9 +31,7 @@ class ShouldHaveNoExistingCreateTagTest extends TestCase
     {
         $rule = new ShouldHaveNoExistingCreateTag(ProvisionType::HOSTING);
 
-        $this->mockRequestRepository
-            ->expects(self::never())
-            ->method('createRequestExists');
+        $this->mockRequestRepository->expects(self::never())->method('createRequestExists');
 
         $failMessage = null;
         $fail = $this->makeFailClosure($failMessage);
@@ -63,7 +61,7 @@ class ShouldHaveNoExistingCreateTagTest extends TestCase
 
         self::assertSame(
             'A create request for tag already exists in the [hosting] type.',
-            $failMessage
+            $failMessage,
         );
     }
 

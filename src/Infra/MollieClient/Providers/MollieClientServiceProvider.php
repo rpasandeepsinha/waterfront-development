@@ -26,7 +26,7 @@ class MollieClientServiceProvider extends ServiceProvider
         ], 'config');
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/config.php',
-            'mollieclient'
+            'mollieclient',
         );
     }
 
@@ -35,14 +35,15 @@ class MollieClientServiceProvider extends ServiceProvider
         if (Env::get('APP_FAKE_PAYMENT_CLIENT') === true) {
             $this->app->bind(
                 PaymentInterface::class,
-                MolliePaymentClientFaker::class
+                MolliePaymentClientFaker::class,
             );
         } else {
             $this->app->bind(
                 PaymentInterface::class,
-                MolliePaymentClient::class
+                MolliePaymentClient::class,
             );
-            $this->app->when(MolliePaymentClient::class)
+            $this->app
+                ->when(MolliePaymentClient::class)
                 ->needs(Client::class)
                 ->give(function ($app): Client {
                     $config = $app->get(Repository::class);
@@ -50,11 +51,12 @@ class MollieClientServiceProvider extends ServiceProvider
                     if (! $apiKey) {
                         throw new UnexpectedValueException('I have no mollie api key');
                     }
+
                     $uri = $config->get('mollieclient.credentials.api_url');
 
                     return new Client([
                         'base_uri' => $uri,
-                        'headers'  => [
+                        'headers' => [
                             'Authorization' => 'Bearer ' . $apiKey,
                         ],
                     ]);
@@ -65,14 +67,22 @@ class MollieClientServiceProvider extends ServiceProvider
             $config = $app->get(ConfigurationInterface::class);
             $serializer = MollieSerializerFactory::getSerializer();
 
-            return new MollieCustomerClient($config, $serializer, $config->getAsString('mollieclient.credentials.api_key'));
+            return new MollieCustomerClient(
+                $config,
+                $serializer,
+                $config->getAsString('mollieclient.credentials.api_key'),
+            );
         });
 
         $this->app->bind(function ($app): MollieMandateClient {
             $config = $app->get(ConfigurationInterface::class);
             $serializer = MollieSerializerFactory::getSerializer();
 
-            return new MollieMandateClient($config, $serializer, $config->getAsString('mollieclient.credentials.api_key'));
+            return new MollieMandateClient(
+                $config,
+                $serializer,
+                $config->getAsString('mollieclient.credentials.api_key'),
+            );
         });
     }
 

@@ -26,9 +26,11 @@ class ManualSubscriptionCreationListenerTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $productGroup = new ProductGroupFactory()->manualSubscription()->createOne([
-            'slug' => ProductGroupType::MANUAL_SUBSCRIPTION,
-        ]);
+        $productGroup = new ProductGroupFactory()
+            ->manualSubscription()
+            ->createOne([
+                'slug' => ProductGroupType::MANUAL_SUBSCRIPTION,
+            ]);
 
         $product = new ProductFactory()->createOne([
             'slug' => 'manual-testproduct',
@@ -49,7 +51,7 @@ class ManualSubscriptionCreationListenerTest extends IntegrationTestCase
         ]);
 
         $event = new DispatchCreateManualProvisioning(
-            $this->subscription
+            $this->subscription,
         );
 
         $listener = self::resolve(ManualSubscriptionCreationListener::class);

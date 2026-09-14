@@ -29,18 +29,22 @@ class BatchCreateFromExistingResult
      */
     public function getNewInvoices(): array
     {
-        return array_reduce($this->getResults(), function (array $newInvoices, CreateInvoiceFromResult $result) {
-            $newInvoices[] = $result->getNewInvoice();
+        return array_reduce(
+            $this->getResults(),
+            function (array $newInvoices, CreateInvoiceFromResult $result) {
+                $newInvoices[] = $result->getNewInvoice();
 
-            return $newInvoices;
-        }, []);
+                return $newInvoices;
+            },
+            [],
+        );
     }
 
     public function getResultByOriginalInvoice(Invoice $originalInvoice): ?CreateInvoiceFromResult
     {
         $matches = array_filter(
             $this->getResults(),
-            fn (CreateInvoiceFromResult $result): bool => $result->getOriginalInvoice()->id === $originalInvoice->id
+            fn (CreateInvoiceFromResult $result): bool => $result->getOriginalInvoice()->id === $originalInvoice->id,
         );
         $foundResult = reset($matches);
 

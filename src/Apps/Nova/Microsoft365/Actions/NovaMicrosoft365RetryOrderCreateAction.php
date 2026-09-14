@@ -47,16 +47,20 @@ class NovaMicrosoft365RetryOrderCreateAction extends Action
 
         if ($customerInfo->tenant_order_id === null) {
             try {
-                $tenantOrderIdSynchronized = $this->microsoft365Service->synchronizeTenantOrderIdFromOrderSummary($customerInfo);
+                $tenantOrderIdSynchronized =
+                    $this->microsoft365Service->synchronizeTenantOrderIdFromOrderSummary($customerInfo);
             } catch (OrderSummaryCustomerNotFoundException|OrderSummaryException) {
-                return self::danger($this->translator->translate('nova-action.failed.microsoft365-order-summary-retrieval'));
+                return self::danger($this->translator->translate(
+                    'nova-action.failed.microsoft365-order-summary-retrieval',
+                ));
             }
 
             if (! $tenantOrderIdSynchronized) {
                 try {
-                    $success = $this->microsoft365Service->createTenant(
-                        microsoft365CustomerInfo: $customerInfo
-                    );
+                    $success =
+                        $this->microsoft365Service->createTenant(
+                            microsoft365CustomerInfo: $customerInfo,
+                        );
                 } catch (TenantNameTakenException|Office365Exception $exception) {
                     Log::error(
                         sprintf(
@@ -70,7 +74,7 @@ class NovaMicrosoft365RetryOrderCreateAction extends Action
                             LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::MICROSOFT_IRMA,
                             LoggingContextKeys::CUSTOMER_ID => $customerInfo->customer->id,
                             LoggingContextKeys::EXCEPTION => $exception,
-                        ]
+                        ],
                     );
 
                     return self::danger($this->translator->translate('nova-action.failed.microsoft365-order-created'));
@@ -99,7 +103,8 @@ class NovaMicrosoft365RetryOrderCreateAction extends Action
                 $subscription = $microsoft365Deployment->subscription;
 
                 $kpnProduct = $this->microsoft365KpnProductRepository->getBySubscription($subscription);
-                $childCount = $microsoft365Deployment->subscriptionChildren
+                $childCount = $microsoft365Deployment
+                    ->subscriptionChildren
                     ->where('administrative_status', AdministrativeStatus::ACTIVE->value)
                     ->count();
 
@@ -126,7 +131,7 @@ class NovaMicrosoft365RetryOrderCreateAction extends Action
                             LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::MICROSOFT_IRMA,
                             LoggingContextKeys::CUSTOMER_ID => $customer->id,
                             LoggingContextKeys::EXCEPTION => $e,
-                        ]
+                        ],
                     );
 
                     return self::danger($this->translator->translate('nova-action.failed.microsoft365-order-created'));

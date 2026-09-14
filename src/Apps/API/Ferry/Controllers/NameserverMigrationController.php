@@ -24,20 +24,23 @@ class NameserverMigrationController
         private readonly MigratableSubscriptionRepository $migratableSubscriptionRepository,
         private readonly SubscriptionMigrationValidator $subscriptionMigrationValidator,
         private readonly ExecuteNameserverMigrationAction $executeNameserverMigrationAction,
-        private readonly ResponseDto $responseDto
+        private readonly ResponseDto $responseDto,
     ) {
     }
 
     public function migrateNameservers(Customer $customer): JsonResponse
     {
-        $subscriptions = $this->migratableSubscriptionRepository->getSubscriptionsForNameserverMigration($customer)
+        $subscriptions = $this->migratableSubscriptionRepository
+            ->getSubscriptionsForNameserverMigration($customer)
             ->filter(function ($subscription) use ($customer) {
                 try {
                     $this->subscriptionMigrationValidator->validateEligibleForNameserverMigration($subscription);
                 } catch (NotEligibleForMigrationException $e) {
                     $this->responseDto->addFailure($this->makeFailureDto($e, $customer, $subscription));
+
                     return false;
                 }
+
                 return true;
             });
 
@@ -52,8 +55,11 @@ class NameserverMigrationController
         return new JsonResponse($this->responseDto->toArray(), Response::HTTP_MULTI_STATUS);
     }
 
-    private function makeFailureDto(NotEligibleForMigrationException $e, Customer $customer, Subscription $subscription): FailureDto
-    {
+    private function makeFailureDto(
+        NotEligibleForMigrationException $e,
+        Customer $customer,
+        Subscription $subscription,
+    ): FailureDto {
         return FailureDto::create(
             sprintf('Nameserver migration step not allowed for subscription: %s', $e->getMessage()),
             [

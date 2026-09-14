@@ -53,34 +53,36 @@ class BackupControllerTest extends IntegrationTestCase
         $this->customer = new CustomerFactory()->createOne();
         $backupProductGroup = new ProductGroupFactory()->backup()->createOne();
 
-        $acronisProduct = new ProductFactory()->backupAcronis($backupProductGroup)->createOne();
-        $this->subscription = new SubscriptionFactory()->for($acronisProduct)->for($this->customer)->createOne();
+        $acronisProduct = new ProductFactory()
+            ->backupAcronis($backupProductGroup)
+            ->createOne();
+        $this->subscription = new SubscriptionFactory()
+            ->for($acronisProduct)
+            ->for($this->customer)
+            ->createOne();
     }
 
     #[Test]
     public function getSsoUrl(): void
     {
-        $acronisBackupDeployment = AcronisBackupDeploymentFactory::new()
-            ->for(
-                BackupDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->backup()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_BACKUP,
-                                'tag' => $this->subscription->uuid,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne();
+        $acronisBackupDeployment = AcronisBackupDeploymentFactory::new()->for(
+            BackupDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->backup()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_BACKUP,
+                        'tag' => $this->subscription->uuid,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne();
 
         $expectedSsoUrl = sprintf(
             '%s/idp/external-login#ott=%s&targetURI=%s',
             $acronisBackupDeployment->acronisProvider->endpoint,
             rawurlencode('0123456789abcdef'),
-            $acronisBackupDeployment->acronisProvider->sso_target_url
+            $acronisBackupDeployment->acronisProvider->sso_target_url,
         );
 
         $mockResult = self::createStub(BackupSsoResult::class);
@@ -95,36 +97,34 @@ class BackupControllerTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (GetBackupSsoRequest $request) => $request->tag->toString() === $this->subscription->uuid
-                )
+                    fn (GetBackupSsoRequest $request) => $request->tag->toString() === $this->subscription->uuid,
+                ),
             )
             ->willReturn($mockResult);
 
         $this->actingAsCustomer($this->customer)
             ->getJson(
-                $this->generateRoute('partners.backup.sso', $this->subscription->uuid)
-            )->assertOk()
+                $this->generateRoute('partners.backup.sso', $this->subscription->uuid),
+            )
+            ->assertOk()
             ->assertJsonFragment(['url' => $expectedSsoUrl]);
     }
 
     #[Test]
     public function getSsoUrlFailsExternal(): void
     {
-        AcronisBackupDeploymentFactory::new()
-            ->for(
-                BackupDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->backup()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_BACKUP,
-                                'tag' => $this->subscription->uuid,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne();
+        AcronisBackupDeploymentFactory::new()->for(
+            BackupDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->backup()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_BACKUP,
+                        'tag' => $this->subscription->uuid,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne();
 
         $expectedException = new SaloonException('Something went wrong');
         $mockResult = self::createStub(BackupSsoResult::class);
@@ -138,37 +138,38 @@ class BackupControllerTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (GetBackupSsoRequest $request) => $request->tag->toString() === $this->subscription->uuid
-                )
+                    fn (GetBackupSsoRequest $request) => $request->tag->toString() === $this->subscription->uuid,
+                ),
             )
             ->willReturn($mockResult);
         $this->app->bind(ProvisionGateway::class, fn (): ProvisionGateway => $gateway);
 
         $this->actingAsCustomer($this->customer)
             ->getJson(
-                $this->generateRoute('partners.backup.sso', $this->subscription->uuid)
-            )->assertUnprocessable()
-            ->assertJsonFragment(['message' => self::resolve(TranslatorInterface::class)->translate('backup.error.sso-could-not-be-generated')]);
+                $this->generateRoute('partners.backup.sso', $this->subscription->uuid),
+            )
+            ->assertUnprocessable()
+            ->assertJsonFragment([
+                'message' => self::resolve(TranslatorInterface::class)
+                    ->translate('backup.error.sso-could-not-be-generated'),
+            ]);
     }
 
     #[Test]
     public function getUsage(): void
     {
-        AcronisBackupDeploymentFactory::new()
-            ->for(
-                BackupDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->backup()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_BACKUP,
-                                'tag' => $this->subscription->uuid,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne();
+        AcronisBackupDeploymentFactory::new()->for(
+            BackupDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->backup()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_BACKUP,
+                        'tag' => $this->subscription->uuid,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne();
 
         $gigabyteInBytes = ByteHelper::BYTES_IN_GIB;
 
@@ -189,7 +190,7 @@ class BackupControllerTest extends IntegrationTestCase
                     quota: new Quota(
                         value: 50 * $gigabyteInBytes,
                         overage: 0,
-                        version: 1
+                        version: 1,
                     ),
                 ),
             ),
@@ -209,8 +210,8 @@ class BackupControllerTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (GetBackupUsageRequest $request) => $request->tagUuid->toString() === $this->subscription->uuid
-                )
+                    fn (GetBackupUsageRequest $request) => $request->tagUuid->toString() === $this->subscription->uuid,
+                ),
             )
             ->willReturn($mockResult);
 
@@ -226,21 +227,18 @@ class BackupControllerTest extends IntegrationTestCase
     #[Test]
     public function getUsageFailsExternal(): void
     {
-        AcronisBackupDeploymentFactory::new()
-            ->for(
-                BackupDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->backup()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_BACKUP,
-                                'tag' => $this->subscription->uuid,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne();
+        AcronisBackupDeploymentFactory::new()->for(
+            BackupDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->backup()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_BACKUP,
+                        'tag' => $this->subscription->uuid,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne();
 
         $mockResult = new BackupUsagesResult(
             provisionData: new GetBackupUsageRequest(tagUuid: Uuid::fromString($this->subscription->uuid)),
@@ -256,8 +254,8 @@ class BackupControllerTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (GetBackupUsageRequest $request) => $request->tagUuid->toString() === $this->subscription->uuid
-                )
+                    fn (GetBackupUsageRequest $request) => $request->tagUuid->toString() === $this->subscription->uuid,
+                ),
             )
             ->willReturn($mockResult);
 
@@ -265,28 +263,26 @@ class BackupControllerTest extends IntegrationTestCase
             ->getJson($this->generateRoute('partners.backup.usage', $this->subscription->uuid))
             ->assertUnprocessable()
             ->assertJsonFragment([
-                'message' => self::resolve(TranslatorInterface::class)->translate('backup.error.usage-could-not-be-fetched'),
+                'message' => self::resolve(TranslatorInterface::class)
+                    ->translate('backup.error.usage-could-not-be-fetched'),
             ]);
     }
 
     #[Test]
     public function getUsageFailsUnexpectedResultType(): void
     {
-        AcronisBackupDeploymentFactory::new()
-            ->for(
-                BackupDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->backup()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_BACKUP,
-                                'tag' => $this->subscription->uuid,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne();
+        AcronisBackupDeploymentFactory::new()->for(
+            BackupDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->backup()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_BACKUP,
+                        'tag' => $this->subscription->uuid,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne();
 
         $wrongResult = self::createStub(BackupSsoResult::class);
         $wrongResult->provisionStatus = ProvisionStatus::FAILED;
@@ -300,8 +296,8 @@ class BackupControllerTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (GetBackupUsageRequest $request) => $request->tagUuid->toString() === $this->subscription->uuid
-                )
+                    fn (GetBackupUsageRequest $request) => $request->tagUuid->toString() === $this->subscription->uuid,
+                ),
             )
             ->willReturn($wrongResult);
 
@@ -309,7 +305,8 @@ class BackupControllerTest extends IntegrationTestCase
             ->getJson($this->generateRoute('partners.backup.usage', $this->subscription->uuid))
             ->assertUnprocessable()
             ->assertJsonFragment([
-                'message' => self::resolve(TranslatorInterface::class)->translate('backup.error.usage-could-not-be-fetched'),
+                'message' => self::resolve(TranslatorInterface::class)
+                    ->translate('backup.error.usage-could-not-be-fetched'),
             ]);
     }
 }

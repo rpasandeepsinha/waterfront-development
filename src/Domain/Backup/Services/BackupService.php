@@ -50,7 +50,7 @@ class BackupService
     public function getSsoUrl(Subscription $subscription): BackupSsoResult
     {
         $backupSsoRequest = new GetBackupSsoRequest(
-            tagUuid: Uuid::fromString($subscription->uuid)
+            tagUuid: Uuid::fromString($subscription->uuid),
         );
 
         $backupResult = $this->provisionGateway->request($backupSsoRequest);
@@ -60,7 +60,7 @@ class BackupService
                 provisionData: $backupResult->provisionData,
                 provisionStatus: $backupResult->provisionStatus,
                 exception: $backupResult->exception,
-                validationResult: $backupResult->validationResult
+                validationResult: $backupResult->validationResult,
             );
         }
 
@@ -78,14 +78,14 @@ class BackupService
                 provisionData: $terminateResult->provisionData,
                 provisionStatus: $terminateResult->provisionStatus,
                 exception: $terminateResult->exception,
-                validationResult: $terminateResult->validationResult
+                validationResult: $terminateResult->validationResult,
             );
         }
 
         if ($terminateResult->failed) {
             $this->logger->info(
                 sprintf('Backup termination failed for subscription uuid %s', $subscription->uuid),
-                $this->getContextFromSubscriptionAndResult($subscription, $terminateResult)
+                $this->getContextFromSubscriptionAndResult($subscription, $terminateResult),
             );
 
             $subscription->technical_status = TechnicalStatus::DELETING_FAILED->value;
@@ -99,7 +99,7 @@ class BackupService
 
         $this->logger->debug(
             'Backup provision succeeded',
-            $this->getContextFromSubscriptionAndResult($subscription, $terminateResult)
+            $this->getContextFromSubscriptionAndResult($subscription, $terminateResult),
         );
 
         return $terminateResult;
@@ -124,7 +124,7 @@ class BackupService
                 provisionData: $result->provisionData,
                 provisionStatus: $result->provisionStatus,
                 exception: $result->exception,
-                validationResult: $result->validationResult
+                validationResult: $result->validationResult,
             );
         }
 
@@ -140,14 +140,14 @@ class BackupService
                 provisionData: $createResult->provisionData,
                 provisionStatus: $createResult->provisionStatus,
                 exception: $createResult->exception,
-                validationResult: $createResult->validationResult
+                validationResult: $createResult->validationResult,
             );
         }
 
         if ($createResult->failed) {
             $this->logger->info(
                 sprintf('Backup provision failed for subscription uuid %s', $subscription->uuid),
-                $this->getContextFromSubscriptionAndResult($subscription, $createResult)
+                $this->getContextFromSubscriptionAndResult($subscription, $createResult),
             );
 
             $subscription->technical_status = TechnicalStatus::FAILED->value;
@@ -161,7 +161,7 @@ class BackupService
 
         $this->logger->debug(
             'Backup provision succeeded',
-            $this->getContextFromSubscriptionAndResult($subscription, $createResult)
+            $this->getContextFromSubscriptionAndResult($subscription, $createResult),
         );
 
         return $createResult;
@@ -170,7 +170,7 @@ class BackupService
     public function getBackupUsage(Subscription $subscription): ?BackupUsage
     {
         $result = $this->provisionGateway->request(
-            new GetBackupUsageRequest(tagUuid: Uuid::fromString($subscription->uuid))
+            new GetBackupUsageRequest(tagUuid: Uuid::fromString($subscription->uuid)),
         );
 
         if (! $result instanceof BackupUsagesResult || $result->failed) {
@@ -209,7 +209,7 @@ class BackupService
 
         return new BackupUsage(
             cloudStorageGbUsed: ByteHelper::bytesToGiB($usedBytes),
-            cloudStorageGbTotal: $unlimited ? null : ByteHelper::bytesToGiB($totalBytes)
+            cloudStorageGbTotal: $unlimited ? null : ByteHelper::bytesToGiB($totalBytes),
         );
     }
 
@@ -222,6 +222,7 @@ class BackupService
     public function getOfferingItemsForProviderByTenant(AcronisProvider $provider, string $tenantUuid): OfferingItems
     {
         $acronisClient = $this->acronisClientFactory->create($provider);
+
         return $acronisClient->offeringItemsClient->get($tenantUuid);
     }
 
@@ -231,9 +232,13 @@ class BackupService
      * @throws RequestException
      * @throws ExceptionInterface
      */
-    public function getSsoForProviderByUuids(AcronisProvider $provider, string $userUuid, ?string $employeeUuid = null): OneTimeToken
-    {
+    public function getSsoForProviderByUuids(
+        AcronisProvider $provider,
+        string $userUuid,
+        ?string $employeeUuid = null,
+    ): OneTimeToken {
         $acronisClient = $this->acronisClientFactory->create($provider);
+
         return $acronisClient->userClient->getSso(
             userId: Uuid::fromString($userUuid),
             employeeUuid: $employeeUuid,
@@ -248,14 +253,17 @@ class BackupService
     public function getApplicationListFromProvider(AcronisProvider $provider): ?ApplicationsList
     {
         $acronisClient = $this->acronisClientFactory->create($provider);
+
         return $acronisClient->genericClient->listApplications();
     }
 
     /**
      * @return array<LoggingContextKeys, mixed>
      */
-    private function getContextFromSubscriptionAndResult(Subscription $subscription, AbstractProvisionResult $result): array
-    {
+    private function getContextFromSubscriptionAndResult(
+        Subscription $subscription,
+        AbstractProvisionResult $result,
+    ): array {
         $exception = $result->exception;
 
         $context = [

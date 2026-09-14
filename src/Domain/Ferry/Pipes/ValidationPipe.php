@@ -36,8 +36,8 @@ abstract class ValidationPipe implements ValidationPipeInterface
                 id: $migrationValidationKey,
                 message: $message,
                 referenceSubscriptionId: $referenceSubscriptionId,
-                data: $data
-            )
+                data: $data,
+            ),
         );
     }
 
@@ -54,12 +54,16 @@ abstract class ValidationPipe implements ValidationPipeInterface
             new ValidationErrorResult(
                 id: $migrationValidationKey,
                 messages: $messages,
-            )
+            ),
         );
     }
 
-    protected function finishPipe(MigrationValidation $completedPipeId, ValidationPayload $payload, LoggerInterface $logger, Closure $next): ValidationPayload
-    {
+    protected function finishPipe(
+        MigrationValidation $completedPipeId,
+        ValidationPayload $payload,
+        LoggerInterface $logger,
+        Closure $next,
+    ): ValidationPayload {
         /**
          * We'd rather log a split json string than have an error because the context is too big.
          *
@@ -112,7 +116,7 @@ abstract class ValidationPipe implements ValidationPipeInterface
     protected function getBusinessUnitOrFailValidation(
         string $businessUnitSlug,
         ProviderSlug $driver,
-        ValidationPayload $payload
+        ValidationPayload $payload,
     ): ?DomainProviderBusinessUnit {
         $container = Container::getInstance();
         $domainAndSslMigrationService = $container->make(DomainAndSslMigrationService::class);
@@ -125,13 +129,13 @@ abstract class ValidationPipe implements ValidationPipeInterface
                 "Couldn't find domain provider business unit by slug [%s] from backend %s, exception: %s",
                 $businessUnitSlug,
                 $driver->value,
-                $exception->getMessage()
+                $exception->getMessage(),
             );
 
             $this->addValidationResult(
                 $payload,
                 MigrationValidation::DOMAIN_MIGRATION_BUSINESS_UNIT_FAILED,
-                $message
+                $message,
             );
 
             $logger->debug($message, [
@@ -145,13 +149,13 @@ abstract class ValidationPipe implements ValidationPipeInterface
                 'No credentials set for [%s] with business unit [%s], exception: %s',
                 $driver->value,
                 $businessUnitSlug,
-                $exception->getMessage()
+                $exception->getMessage(),
             );
 
             $this->addValidationResult(
                 $payload,
                 MigrationValidation::DOMAIN_MIGRATION_DRIVER_CREDENTIALS_FAILED,
-                $message
+                $message,
             );
 
             $logger->debug($message, [
@@ -167,15 +171,15 @@ abstract class ValidationPipe implements ValidationPipeInterface
     {
         $completedMessage = sprintf(
             $this->getValidationIdentifier()->value . ' reference: %s',
-            $payload->validationReference
+            $payload->validationReference,
         );
 
         $payload->addValidationResult(
             $this->getValidationIdentifier(),
             new ValidationResult(
                 id: $completedPipeId,
-                message: $completedMessage
-            )
+                message: $completedMessage,
+            ),
         );
     }
 }

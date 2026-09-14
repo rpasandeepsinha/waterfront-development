@@ -22,7 +22,7 @@ class NovaFetchMandateAction extends Action
     public function __construct(
         private readonly TranslatorInterface $translator,
         private readonly MollieMandateManager $mollieMandateManager,
-        private readonly PaytMandateManager $paytMandateManager
+        private readonly PaytMandateManager $paytMandateManager,
     ) {
     }
 
@@ -51,15 +51,15 @@ class NovaFetchMandateAction extends Action
         try {
             $mollieResponseDTO = $this->mollieMandateManager->getMandate($mollieCustomer, $mandate);
 
-            $paytResponseDTO = $mandate->payt_mandate_reference_id !== null ?
-                $this->paytMandateManager->getMandate($mandate) : null;
+            $paytResponseDTO = $mandate->payt_mandate_reference_id !== null
+                ? $this->paytMandateManager->getMandate($mandate)
+                : null;
 
             return self::modal('modal-response', [
                 'title' => $this->translator->translate('nova-action.search.title'),
                 'code' => json_encode([
                     'Mollie' => $mollieSerializer->normalize($mollieResponseDTO),
-                    'Payt'   => $paytResponseDTO !== null ?
-                        $paytSerializer->normalize($paytResponseDTO) : null,
+                    'Payt' => $paytResponseDTO !== null ? $paytSerializer->normalize($paytResponseDTO) : null,
                 ], JSON_PRETTY_PRINT),
             ]);
         } catch (MollieMandateApiException|PaytMandateApiException $exception) {

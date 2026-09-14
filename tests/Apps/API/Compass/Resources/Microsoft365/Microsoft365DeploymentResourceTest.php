@@ -28,21 +28,36 @@ class Microsoft365DeploymentResourceTest extends IntegrationTestCase
             'slug' => 'microsoft-business-standard',
         ]);
 
-        $parentSubscription = new SubscriptionFactory()->for($customer)->for($parentProduct)->createOne();
+        $parentSubscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($parentProduct)
+            ->createOne();
 
-        new SubscriptionFactory()->count(2)->for($customer)->for($childProduct)
+        new SubscriptionFactory()
+            ->count(2)
+            ->for($customer)
+            ->for($childProduct)
             ->parentSubscription($parentSubscription)
             ->administrativeStatusActive()
             ->create();
-        new SubscriptionFactory()->for($customer)->for($childProduct)
+        new SubscriptionFactory()
+            ->for($customer)
+            ->for($childProduct)
             ->parentSubscription($parentSubscription)
             ->administrativeStatusCancelled()
             ->createOne();
 
         $microsoft365CustomerInfo = new Microsoft365CustomerInfoFactory()->for($customer)->createOne();
-        $microsoft365Deployment = new Microsoft365DeploymentFactory()->for($parentSubscription)->for($microsoft365CustomerInfo)->createOne();
+        $microsoft365Deployment = new Microsoft365DeploymentFactory()
+            ->for($parentSubscription)
+            ->for($microsoft365CustomerInfo)
+            ->createOne();
 
-        $microsoft365Deployment->loadMissing(['subscription.children.product', 'subscription.product', 'microsoft365CustomerInfo']);
+        $microsoft365Deployment->loadMissing([
+            'subscription.children.product',
+            'subscription.product',
+            'microsoft365CustomerInfo',
+        ]);
 
         $data = new Microsoft365DeploymentResource()->toArray($microsoft365Deployment);
 
@@ -58,12 +73,22 @@ class Microsoft365DeploymentResourceTest extends IntegrationTestCase
             'slug' => 'microsoft-business-standard-parent',
         ]);
 
-        $parentSubscription = new SubscriptionFactory()->for($customer)->for($parentProduct)->createOne();
+        $parentSubscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($parentProduct)
+            ->createOne();
 
         $microsoft365CustomerInfo = new Microsoft365CustomerInfoFactory()->for($customer)->createOne();
-        $microsoft365Deployment = new Microsoft365DeploymentFactory()->for($parentSubscription)->for($microsoft365CustomerInfo)->createOne();
+        $microsoft365Deployment = new Microsoft365DeploymentFactory()
+            ->for($parentSubscription)
+            ->for($microsoft365CustomerInfo)
+            ->createOne();
 
-        $microsoft365Deployment->loadMissing(['subscription.children.product', 'subscription.product', 'microsoft365CustomerInfo']);
+        $microsoft365Deployment->loadMissing([
+            'subscription.children.product',
+            'subscription.product',
+            'microsoft365CustomerInfo',
+        ]);
 
         $data = new Microsoft365DeploymentResource()->toArray($microsoft365Deployment);
 

@@ -43,7 +43,12 @@ class DomainRetrieveTest extends IntegrationTestCase
         parent::setUp();
         $this->customer = new CustomerFactory()->createOne();
 
-        $this->domainProvider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => true, 'slug' => ProviderSlug::OPEN_PROVIDER]);
+        $this->domainProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'enabled' => true,
+            'default' => true,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+        ]);
         $this->productGroup = new ProductGroupFactory()->createOne([
             'name' => ProductGroupType::EXTENSION,
             'slug' => ProductGroupType::EXTENSION,
@@ -61,7 +66,7 @@ class DomainRetrieveTest extends IntegrationTestCase
         $request = new DomainRetrieveRequest(
             new Client(),
             new Connection('https://test.nl', 'test-user', 'password'),
-            'example.org'
+            'example.org',
         );
 
         $requestXml = (string) file_get_contents(__DIR__ . '/data/openprovider_retrieve_request.xml');
@@ -78,12 +83,12 @@ class DomainRetrieveTest extends IntegrationTestCase
 
         $product = new ProductFactory()->for($this->productGroup)->createOne();
         $subscription = new SubscriptionFactory()->for($product)->createOne([
-            'customer_id'         => $this->customer->id,
-            'domain'              => $domain,
-            'start_date'          => CarbonImmutable::now(),
-            'contract_period'     => 12,
-            'end_date'            => null,
-            'cancel_date'         => null,
+            'customer_id' => $this->customer->id,
+            'domain' => $domain,
+            'start_date' => CarbonImmutable::now(),
+            'contract_period' => 12,
+            'end_date' => null,
+            'cancel_date' => null,
         ]);
 
         new DomainDeploymentFactory()->createOne([
@@ -95,7 +100,10 @@ class DomainRetrieveTest extends IntegrationTestCase
 
         $result = $domainClient->retrieveDomain($domain);
 
-        $subscription = Subscription::query()->whereProductGroupType(ProductGroupType::EXTENSION)->where('domain', $domain)->firstOrFail();
+        $subscription = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::EXTENSION)
+            ->where('domain', $domain)
+            ->firstOrFail();
         $domainSub = $subscription->domainDeployment;
         self::assertInstanceOf(DomainDeployment::class, $domainSub);
 
@@ -120,60 +128,60 @@ class DomainRetrieveTest extends IntegrationTestCase
         self::assertSame('2020-06-13 14:22:22', $result->getExpirationDateOpenprovider());
         self::assertSame(
             [
-            'owner'   => 'FL969344-NL',
-            'admin'   => 'FL969344-NL',
-            'tech'    => 'FL969344-NL',
-            'billing' => 'HANDLE-WITH-CARE',
+                'owner' => 'FL969344-NL',
+                'admin' => 'FL969344-NL',
+                'tech' => 'FL969344-NL',
+                'billing' => 'HANDLE-WITH-CARE',
             ],
-            $result->getHandles()?->toArray()
+            $result->getHandles()?->toArray(),
         );
         self::assertSame('externaltemplate', $result->getNsGroup());
         self::assertSame(
             [
                 [
-                    'id'    => '312592',
+                    'id' => '312592',
                     'seqNr' => '0',
-                    'name'  => 'ns1.customserver.nl',
-                    'ip'    => '52.57.114.204',
-                    'ip6'   => '2a05:d014:0f80:6e00:bde7:af96:9434:75d5',
+                    'name' => 'ns1.customserver.nl',
+                    'ip' => '52.57.114.204',
+                    'ip6' => '2a05:d014:0f80:6e00:bde7:af96:9434:75d5',
                 ],
                 [
-                    'id'    => '312595',
+                    'id' => '312595',
                     'seqNr' => '1',
-                    'name'  => 'ns2.customserver.be',
-                    'ip'    => '52.214.115.96',
-                    'ip6'   => '2a05:d018:061d:bd00:21bc:c938:d548:dab1',
+                    'name' => 'ns2.customserver.be',
+                    'ip' => '52.214.115.96',
+                    'ip6' => '2a05:d018:061d:bd00:21bc:c938:d548:dab1',
                 ],
                 [
-                    'id'    => '312598',
+                    'id' => '312598',
                     'seqNr' => '2',
-                    'name'  => 'ns3.customserver.eu',
-                    'ip'    => '52.56.134.244',
-                    'ip6'   => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
+                    'name' => 'ns3.customserver.eu',
+                    'ip' => '52.56.134.244',
+                    'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
                 ],
                 [
-                    'id'    => '312598',
+                    'id' => '312598',
                     'seqNr' => '3',
-                    'name'  => 'ns4.customserver.eu',
-                    'ip'    => '52.56.134.244',
-                    'ip6'   => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
+                    'name' => 'ns4.customserver.eu',
+                    'ip' => '52.56.134.244',
+                    'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
                 ],
                 [
-                    'id'    => '312598',
+                    'id' => '312598',
                     'seqNr' => '4',
-                    'name'  => 'ns5.customserver.eu',
-                    'ip'    => '52.56.134.244',
-                    'ip6'   => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
+                    'name' => 'ns5.customserver.eu',
+                    'ip' => '52.56.134.244',
+                    'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
                 ],
                 [
-                    'id'    => '312598',
+                    'id' => '312598',
                     'seqNr' => '5',
-                    'name'  => 'ns6.customserver.eu',
-                    'ip'    => '52.56.134.244',
-                    'ip6'   => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
+                    'name' => 'ns6.customserver.eu',
+                    'ip' => '52.56.134.244',
+                    'ip6' => '2a05:d01c:0433:e000:e62c:faa3:9834:41e7',
                 ],
             ],
-            $result->getNameServers()
+            $result->getNameServers(),
         );
         self::assertSame('x7SMn%$7%Xn9', $result->getAuthCode());
         self::assertSame(DomainStatus::ACTIVE->value, $result->getStatus());

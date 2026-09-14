@@ -25,6 +25,7 @@ class NovaDateStartFilter extends DateFilter
     public function apply(NovaRequest $request, Builder $query, mixed $value): Builder
     {
         assert(is_string($value) || is_null($value));
+
         return $query->where('created_at', '>=', CarbonImmutable::parse($value));
     }
 }

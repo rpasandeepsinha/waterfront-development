@@ -26,7 +26,8 @@ class PromotionPriceComponentHandler
         Assert::allInteger($productIds);
         $productIdsString = implode(',', array_map(fn ($id) => strval($id), $productIds));
 
-        $promotions = DB::select(<<<SQL
+        $promotions = DB::select(
+            <<<SQL
             select distinct on (product_price_components.product_id, product_price_components.contract_period, product_price_components.billing_period) product_price_components.product_id, product_price_components.id, product_price_components.contract_period, product_price_components.billing_period, product_price_components.price
             from product_price_components
             where product_price_components.product_id in ({$productIdsString})
@@ -34,7 +35,9 @@ class PromotionPriceComponentHandler
             and (product_price_components.expires_at is null or product_price_components.expires_at > :currentDate)
             and product_price_components.type = :priceType
             order by product_price_components.product_id, product_price_components.contract_period, product_price_components.billing_period, product_price_components.starts_at desc
-            SQL, ['currentDate' => CarbonImmutable::now(), 'priceType' => PriceComponentType::PROMOTION->value]);
+            SQL,
+            ['currentDate' => CarbonImmutable::now(), 'priceType' => PriceComponentType::PROMOTION->value],
+        );
 
         foreach ($promotions as $promotion) {
             $price = $prices
@@ -44,7 +47,12 @@ class PromotionPriceComponentHandler
                 ->where('billingPeriod', $promotion->billing_period)
                 ->firstOrFail();
 
-            $price->possiblePriceComponents[] = new PromotionPriceComponent(null, null, $promotion->price, $promotion->price);
+            $price->possiblePriceComponents[] = new PromotionPriceComponent(
+                null,
+                null,
+                $promotion->price,
+                $promotion->price,
+            );
         }
 
         return $prices;

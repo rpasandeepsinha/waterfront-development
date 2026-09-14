@@ -46,10 +46,10 @@ class DnsRecordsValidationService
     public function getDefaultRules(): array
     {
         return [
-            'type'     => ['bail', 'required', 'string', 'regex:/^[A-Z]+$/'],
-            'name'     => ['bail', 'required', 'string', 'max:255', $this->dnsTemplateFqdnRule],
-            'content'  => ['bail', 'required', 'string'],
-            'ttl'      => ['bail', 'required', 'int', 'between:0,2147483647'],
+            'type' => ['bail', 'required', 'string', 'regex:/^[A-Z]+$/'],
+            'name' => ['bail', 'required', 'string', 'max:255', $this->dnsTemplateFqdnRule],
+            'content' => ['bail', 'required', 'string'],
+            'ttl' => ['bail', 'required', 'int', 'between:0,2147483647'],
             'disabled' => ['bail', 'nullable', 'bool'],
         ];
     }
@@ -166,7 +166,7 @@ class DnsRecordsValidationService
     private function getMxRecordRules(): array
     {
         return [
-            'content'  => ['bail', 'required', 'string', $this->dnsTemplateFqdnRule],
+            'content' => ['bail', 'required', 'string', $this->dnsTemplateFqdnRule],
             'priority' => ['bail', 'required', 'int', 'between:0,65535'],
         ];
     }
@@ -187,10 +187,10 @@ class DnsRecordsValidationService
     private function getSrvRecordRules(): array
     {
         return [
-            'content'  => ['bail', 'required', 'string', $this->dnsTemplateFqdnRule],
+            'content' => ['bail', 'required', 'string', $this->dnsTemplateFqdnRule],
             'priority' => ['bail', 'required', 'int', 'between:0,65535'],
-            'weight'   => ['bail', 'required', 'int', 'between:0,65535'],
-            'port'     => ['bail', 'required', 'int', 'between:0,65535'],
+            'weight' => ['bail', 'required', 'int', 'between:0,65535'],
+            'port' => ['bail', 'required', 'int', 'between:0,65535'],
         ];
     }
 

@@ -43,17 +43,22 @@ class YourhostingNewsConsumerTest extends IntegrationTestCase
             $url => Http::response($contents, 200),
         ]);
 
-        $this->repo->expects(self::once())
+        $this->repo
+            ->expects(self::once())
             ->method('store')
-            ->with(self::callback(function (array $items) use ($newsItems) {
-                /** @var News[] $items */
-                self::assertCount(2, $items);
-                self::assertSame($newsItems[0]->id, $items[0]->id);
-                self::assertSame($newsItems[0]->title, $items[0]->title);
-                self::assertSame($newsItems[1]->id, $items[1]->id);
-                self::assertSame($newsItems[1]->title, $items[1]->title);
-                return true;
-            }), self::equalTo($expectedLanguage));
+            ->with(
+                self::callback(function (array $items) use ($newsItems) {
+                    /** @var News[] $items */
+                    self::assertCount(2, $items);
+                    self::assertSame($newsItems[0]->id, $items[0]->id);
+                    self::assertSame($newsItems[0]->title, $items[0]->title);
+                    self::assertSame($newsItems[1]->id, $items[1]->id);
+                    self::assertSame($newsItems[1]->title, $items[1]->title);
+
+                    return true;
+                }),
+                self::equalTo($expectedLanguage),
+            );
 
         $consumer = new YourhostingNewsConsumer($this->repo, $url, self::createStub(ConfigurationInterface::class));
         $consumer->consume($expectedLanguage, 5);
@@ -75,15 +80,20 @@ class YourhostingNewsConsumerTest extends IntegrationTestCase
             $url => Http::response($contents, 200),
         ]);
 
-        $this->repo->expects(self::once())
+        $this->repo
+            ->expects(self::once())
             ->method('store')
-            ->with(self::callback(function (array $items) use ($newsItems) {
-                /** @var News[] $items */
-                self::assertCount(1, $items);
-                self::assertSame($newsItems[0]->id, $items[0]->id);
-                self::assertSame($newsItems[0]->title, $items[0]->title);
-                return true;
-            }), self::equalTo($expectedLanguage));
+            ->with(
+                self::callback(function (array $items) use ($newsItems) {
+                    /** @var News[] $items */
+                    self::assertCount(1, $items);
+                    self::assertSame($newsItems[0]->id, $items[0]->id);
+                    self::assertSame($newsItems[0]->title, $items[0]->title);
+
+                    return true;
+                }),
+                self::equalTo($expectedLanguage),
+            );
 
         $consumer = new YourhostingNewsConsumer($this->repo, $url, self::createStub(ConfigurationInterface::class));
         $consumer->consume($expectedLanguage, 5);
@@ -99,9 +109,7 @@ class YourhostingNewsConsumerTest extends IntegrationTestCase
             $url => Http::response('{"data":{}}', 200),
         ]);
 
-        $this->repo->expects(self::once())
-            ->method('store')
-            ->with([]);
+        $this->repo->expects(self::once())->method('store')->with([]);
 
         $consumer = new YourhostingNewsConsumer($this->repo, $url, self::createStub(ConfigurationInterface::class));
         $consumer->consume($expectedLanguage, 5);

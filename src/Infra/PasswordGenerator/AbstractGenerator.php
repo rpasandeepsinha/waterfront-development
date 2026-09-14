@@ -92,7 +92,7 @@ abstract class AbstractGenerator
             }
         }
 
-        while ($this->length - count($passwordQueue['queue']) > 0) {
+        while (($this->length - count($passwordQueue['queue'])) > 0) {
             /**
              * Fallback for when an unforeseen case arises.
              */
@@ -110,6 +110,7 @@ abstract class AbstractGenerator
                 unset($ruleQueue[$currentRule->characterSet->name]);
             }
         }
+
         return $passwordQueue['queue'];
     }
 

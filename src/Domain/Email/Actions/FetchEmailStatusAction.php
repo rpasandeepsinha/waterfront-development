@@ -30,16 +30,13 @@ class FetchEmailStatusAction
     {
         try {
             Assert::string($emailHistory->hubspot_id);
-            $result  = $this->emailClient->getEmailStatus($emailHistory->hubspot_id);
+            $result = $this->emailClient->getEmailStatus($emailHistory->hubspot_id);
 
             $emailHistory->hubspot_status = $result->status->value;
             $emailHistory->last_result = (string) json_encode($result);
             $emailHistory->save();
-        } catch (HubspotAuthenticationException|
-            HubspotConflictException|
-            HubspotThrottledException|
-            HubspotUnexpectedResponseException|
-            HubspotJsonException $exception
+        } catch (
+            HubspotAuthenticationException|HubspotConflictException|HubspotThrottledException|HubspotUnexpectedResponseException|HubspotJsonException $exception
         ) {
             throw new FailedToFetchStatusException($exception->getMessage(), $exception->getCode(), $exception);
         }

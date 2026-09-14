@@ -18,8 +18,9 @@ class UnsuspendUser extends DirectAdminCommand
 
     protected string $method = 'POST';
 
-    public function __construct(private readonly string $user)
-    {
+    public function __construct(
+        private readonly string $user,
+    ) {
     }
 
     protected function createRequest(): Request

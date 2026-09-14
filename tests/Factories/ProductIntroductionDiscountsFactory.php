@@ -20,9 +20,9 @@ class ProductIntroductionDiscountsFactory extends Factory
     public function definition(): array
     {
         return [
-            'product_id'            => $this->faker->randomNumber(),
-            'max_uses_per_customer'  => $this->faker->randomNumber(),
-            'contract_period'       => 12,
+            'product_id' => $this->faker->randomNumber(),
+            'max_uses_per_customer' => $this->faker->randomNumber(),
+            'contract_period' => 12,
         ];
     }
 }

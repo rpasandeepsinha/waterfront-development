@@ -16,7 +16,7 @@ class SendManualTerminationReminder extends AbstractCommand
 {
     public function handle(
         SubscriptionRepository $subscriptionRepository,
-        ManualProvisioningService $manualProvisioningService
+        ManualProvisioningService $manualProvisioningService,
     ): int {
         $subscriptions = $subscriptionRepository->getNotTerminatedManualSubscriptions();
 
@@ -31,6 +31,7 @@ class SendManualTerminationReminder extends AbstractCommand
         }
 
         $this->line('There where no notifications to send.');
+
         return self::SUCCESS;
     }
 }

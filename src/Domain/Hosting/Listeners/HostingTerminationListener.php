@@ -10,8 +10,9 @@ use Waterfront\Domain\Hosting\Jobs\TerminateHosting as TerminateHostingJob;
 
 class HostingTerminationListener
 {
-    public function __construct(private readonly Dispatcher $dispatcher)
-    {
+    public function __construct(
+        private readonly Dispatcher $dispatcher,
+    ) {
     }
 
     public function handle(TerminateHosting $event): void

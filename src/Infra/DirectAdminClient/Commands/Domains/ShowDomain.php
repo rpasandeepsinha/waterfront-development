@@ -36,6 +36,7 @@ class ShowDomain extends DirectAdminCommand
     public function setDomain(string $domain): ShowDomain
     {
         $this->domainData['domain'] = $domain;
+
         return $this;
     }
 
@@ -46,13 +47,16 @@ class ShowDomain extends DirectAdminCommand
      */
     public function responseReceived(array $decodedContent): static
     {
-        if (! array_key_exists($this->domainData['domain'], $decodedContent) || $decodedContent[$this->domainData['domain']] === null) {
+        if (
+            ! array_key_exists($this->domainData['domain'], $decodedContent)
+            || $decodedContent[$this->domainData['domain']] === null
+        ) {
             throw new DirectAdminCommandException(
                 sprintf(
                     'Cannot retrieve domain data for domain %s. Response is missing the data; %s',
                     $this->domainData['domain'],
-                    json_encode($decodedContent, JSON_THROW_ON_ERROR)
-                )
+                    json_encode($decodedContent, JSON_THROW_ON_ERROR),
+                ),
             );
         }
 

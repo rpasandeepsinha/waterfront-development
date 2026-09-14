@@ -62,13 +62,15 @@ class CloudstackServiceTest extends IntegrationTestCase
         $clientAdminFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
         $clientFactoryMock = self::createStub(ClientFactoryInterface::class);
 
-        $baseClient->expects(self::once())
+        $baseClient
+            ->expects(self::once())
             ->method('execute')
             ->with('listServiceOfferings', [
                 'domainid' => $this->environment->domain_id,
                 'page' => 1,
                 'pagesize' => 500,
-            ])->willReturn([
+            ])
+            ->willReturn([
                 'count' => 1,
                 'serviceoffering' => [
                     [
@@ -92,17 +94,19 @@ class CloudstackServiceTest extends IntegrationTestCase
             command: 'listServiceOfferings',
             parameters: $params,
             type: 'serviceoffering',
-            mapper: new ServiceOfferingMapper()
+            mapper: new ServiceOfferingMapper(),
         );
 
-        $clientMock->expects(self::once())->method('listServiceOfferings')
+        $clientMock
+            ->expects(self::once())
+            ->method('listServiceOfferings')
             ->with($this->environment->domain_id)
             ->willReturn($iterator);
 
         $cloudstackService = new CloudstackService($clientAdminFactoryMock, $clientFactoryMock, $this->serializer);
 
         $offerings = $cloudstackService->getServiceOfferings(
-            environmentId: $this->environment->id
+            environmentId: $this->environment->id,
         );
 
         self::assertCount(1, $offerings);
@@ -119,13 +123,15 @@ class CloudstackServiceTest extends IntegrationTestCase
         $clientAdminFactoryMock->expects(self::once())->method('create')->willReturn($clientMock);
         $clientFactoryMock = self::createStub(ClientFactoryInterface::class);
 
-        $baseClient->expects(self::once())
+        $baseClient
+            ->expects(self::once())
             ->method('execute')
             ->with('listServiceOfferings', [
                 'domainid' => $this->environment->domain_id,
                 'page' => 1,
                 'pagesize' => 500,
-            ])->willReturn([
+            ])
+            ->willReturn([
                 'count' => 0,
                 'serviceoffering' => [],
             ]);
@@ -139,10 +145,11 @@ class CloudstackServiceTest extends IntegrationTestCase
             command: 'listServiceOfferings',
             parameters: $params,
             type: 'serviceoffering',
-            mapper: new ServiceOfferingMapper()
+            mapper: new ServiceOfferingMapper(),
         );
 
-        $clientMock->expects(self::once())
+        $clientMock
+            ->expects(self::once())
             ->method('listServiceOfferings')
             ->with($this->environment->domain_id)
             ->willReturn($iterator);
@@ -150,7 +157,7 @@ class CloudstackServiceTest extends IntegrationTestCase
         $cloudstackService = new CloudstackService($clientAdminFactoryMock, $clientFactoryMock, $this->serializer);
 
         $offerings = $cloudstackService->getServiceOfferings(
-            environmentId: $this->environment->id
+            environmentId: $this->environment->id,
         );
 
         self::assertCount(0, $offerings);
@@ -167,7 +174,7 @@ class CloudstackServiceTest extends IntegrationTestCase
         $this->expectException(CloudstackException::class);
         $this->expectExceptionMessageIs('Environment not found');
         $cloudstackService->getServiceOfferings(
-            environmentId: 1908
+            environmentId: 1908,
         );
     }
 }

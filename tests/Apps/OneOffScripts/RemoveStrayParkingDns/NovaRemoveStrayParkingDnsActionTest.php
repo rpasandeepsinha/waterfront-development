@@ -43,7 +43,8 @@ class NovaRemoveStrayParkingDnsActionTest extends IntegrationTestCase
         $this->logger = self::createStub(LoggerInterface::class);
 
         $this->dispatchedJobs = [];
-        $this->jobDispatcher->method('dispatch')
+        $this->jobDispatcher
+            ->method('dispatch')
             ->willReturnCallback(function (RemoveStrayParkingDnsJob $job): null {
                 $this->dispatchedJobs[] = $job;
 
@@ -53,8 +54,7 @@ class NovaRemoveStrayParkingDnsActionTest extends IntegrationTestCase
 
     public function testDryRunDispatchesJobPerDomainWithoutRegisteringExecution(): void
     {
-        $this->subscriptionRepository->method('getRecentDomainNames')
-            ->willReturn(['first.nl', 'second.nl']);
+        $this->subscriptionRepository->method('getRecentDomainNames')->willReturn(['first.nl', 'second.nl']);
 
         $actionResponse = $this->buildAction()->handle($this->fields(dryRun: true));
 
@@ -75,8 +75,7 @@ class NovaRemoveStrayParkingDnsActionTest extends IntegrationTestCase
 
     public function testRealRunDispatchesJobPerDomain(): void
     {
-        $this->subscriptionRepository->method('getRecentDomainNames')
-            ->willReturn(['first.nl', 'second.nl']);
+        $this->subscriptionRepository->method('getRecentDomainNames')->willReturn(['first.nl', 'second.nl']);
 
         $actionResponse = $this->buildAction()->handle($this->fields(dryRun: false));
 
@@ -95,8 +94,7 @@ class NovaRemoveStrayParkingDnsActionTest extends IntegrationTestCase
 
     public function testDispatchesNothingWhenNoRecentDomains(): void
     {
-        $this->subscriptionRepository->method('getRecentDomainNames')
-            ->willReturn([]);
+        $this->subscriptionRepository->method('getRecentDomainNames')->willReturn([]);
 
         $this->buildAction()->handle($this->fields(dryRun: true));
 
@@ -123,9 +121,7 @@ class NovaRemoveStrayParkingDnsActionTest extends IntegrationTestCase
     private function oneOffScript(): OneOffScript
     {
         /** @var OneOffScript $oneOffScript */
-        $oneOffScript = OneOffScript::query()
-            ->where('slug', NovaRemoveStrayParkingDnsAction::SLUG)
-            ->firstOrFail();
+        $oneOffScript = OneOffScript::query()->where('slug', NovaRemoveStrayParkingDnsAction::SLUG)->firstOrFail();
 
         return $oneOffScript;
     }

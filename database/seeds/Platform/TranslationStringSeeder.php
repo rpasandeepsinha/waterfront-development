@@ -26,7 +26,7 @@ class TranslationStringSeeder extends Seeder
 
     public function run(): void
     {
-        $localeIds  = TranslationLanguage::pluck('id', 'locale');
+        $localeIds = TranslationLanguage::pluck('id', 'locale');
 
         $translationKeysMap = $this->getTranslationKeysMap();
 
@@ -54,8 +54,8 @@ class TranslationStringSeeder extends Seeder
                     $languageId = Arr::get($localeIds, $locale);
                     assert(is_string($languageId) || is_int($languageId));
 
-                    $translationModel->language_id       = intval($languageId);
-                    $translationModel->key_id            = $translationKeyId;
+                    $translationModel->language_id = intval($languageId);
+                    $translationModel->key_id = $translationKeyId;
                     $translationModel->translated_string = $translatedString;
 
                     $translationStrings[] = $translationModel->toArray();

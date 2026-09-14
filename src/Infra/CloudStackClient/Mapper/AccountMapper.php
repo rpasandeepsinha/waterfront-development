@@ -18,8 +18,8 @@ class AccountMapper implements Mapper
         assert(is_string($data['domainid']));
 
         return new Account(
-            id:       $data['id'],
-            name:     $data['name'],
+            id: $data['id'],
+            name: $data['name'],
             domainId: $data['domainid'],
         );
     }

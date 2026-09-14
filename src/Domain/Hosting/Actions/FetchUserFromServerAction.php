@@ -51,14 +51,14 @@ class FetchUserFromServerAction
         [$userData, $error] = $this->attempt(
             $server,
             'user config',
-            fn (): array => $this->fetchUserConfig($server, $providerSlug, $identifier)
+            fn (): array => $this->fetchUserConfig($server, $providerSlug, $identifier),
         );
         $errors = $this->append($errors, $error);
 
         [$ssoUrl, $error] = $this->attempt(
             $server,
             'sso url',
-            fn (): string => $this->getSsoUrlAction->execute($server, $identifier, $ipAddress)
+            fn (): string => $this->getSsoUrlAction->execute($server, $identifier, $ipAddress),
         );
         $errors = $this->append($errors, $error);
 
@@ -69,14 +69,14 @@ class FetchUserFromServerAction
             [$mailForwards, $error] = $this->attempt(
                 $server,
                 'mail forwards',
-                fn (): array => $this->fetchMailForwards($server, $providerSlug, $identifier, $domain)
+                fn (): array => $this->fetchMailForwards($server, $providerSlug, $identifier, $domain),
             );
             $errors = $this->append($errors, $error);
 
             [$mailUsers, $error] = $this->attempt(
                 $server,
                 'mail users',
-                fn (): array => $this->fetchMailUsers($server, $providerSlug, $identifier, $domain)
+                fn (): array => $this->fetchMailUsers($server, $providerSlug, $identifier, $domain),
             );
             $errors = $this->append($errors, $error);
         }
@@ -101,21 +101,26 @@ class FetchUserFromServerAction
     {
         try {
             return [$lookup(), null];
-        } catch (Throwable $exception) {// @phpstan-ignore-line
+
+            // @phpstan-ignore-next-line
+        } catch (Throwable $exception) {
             $this->logger->warning(
                 'Fetching {meta} for a user failed on server {server.id}',
                 [
                     LoggingContextKeys::SERVER_ID => $server->id,
                     LoggingContextKeys::META => $lookupName,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
-            return [null, [
-                'message' => $exception->getMessage(),
-                'previous' => $exception->getPrevious()?->getMessage(),
-                'code' => $exception->getCode(),
-            ]];
+            return [
+                null,
+                [
+                    'message' => $exception->getMessage(),
+                    'previous' => $exception->getPrevious()?->getMessage(),
+                    'code' => $exception->getCode(),
+                ],
+            ];
         }
     }
 
@@ -142,7 +147,7 @@ class FetchUserFromServerAction
     private function fetchUserConfig(Server $server, ProviderSlug $providerSlug, string $identifier): array
     {
         $userConfig = new Collection(
-            $this->hostingService->getUserConfigAsAdmin($providerSlug->value, $identifier, $server)
+            $this->hostingService->getUserConfigAsAdmin($providerSlug->value, $identifier, $server),
         );
 
         if ($providerSlug === ProviderSlug::PLESK) {
@@ -155,8 +160,12 @@ class FetchUserFromServerAction
     /**
      * @return array<int, array{source: string, destinations: array<int, string>}>
      */
-    private function fetchMailForwards(Server $server, ProviderSlug $providerSlug, string $identifier, string $domain): array
-    {
+    private function fetchMailForwards(
+        Server $server,
+        ProviderSlug $providerSlug,
+        string $identifier,
+        string $domain,
+    ): array {
         $emailForwards = $this->mailManagementService->getEmailForwards(
             domain: $domain,
             server: $server,
@@ -179,8 +188,12 @@ class FetchUserFromServerAction
     /**
      * @return array<int, string>
      */
-    private function fetchMailUsers(Server $server, ProviderSlug $providerSlug, string $identifier, string $domain): array
-    {
+    private function fetchMailUsers(
+        Server $server,
+        ProviderSlug $providerSlug,
+        string $identifier,
+        string $domain,
+    ): array {
         $response = $this->mailManagementService->getEmailUsersRaw(
             providerSlug: $providerSlug,
             server: $server,
@@ -200,7 +213,7 @@ class FetchUserFromServerAction
             ServerType::PLESK => ProviderSlug::PLESK,
             ServerType::DIRECTADMIN, ServerType::DIRECTADMIN_MAIL => ProviderSlug::DIRECTADMIN,
             default => throw new UnexpectedValueException(
-                sprintf('Unable to resolve a driver for server with ID {%d}', $server->id)
+                sprintf('Unable to resolve a driver for server with ID {%d}', $server->id),
             ),
         };
     }

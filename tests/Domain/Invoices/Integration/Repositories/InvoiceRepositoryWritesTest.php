@@ -56,18 +56,24 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
         ]);
 
         $this->product = new ProductFactory()->for($hostingProductGroup)->createOne(['name' => 'Test-product']);
-        $this->subscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOne();
+        $this->subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne();
     }
 
     #[Test]
     public function createWillNotDispatchEvent(): void
     {
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOneQuietly([
-            'net_price' => 100,
-            'next_billing_date' => CarbonImmutable::now(),
-            'end_date' => CarbonImmutable::now()->addYear(),
-            'start_date' => CarbonImmutable::now(),
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOneQuietly([
+                'net_price' => 100,
+                'next_billing_date' => CarbonImmutable::now(),
+                'end_date' => CarbonImmutable::now()->addYear(),
+                'start_date' => CarbonImmutable::now(),
+            ]);
 
         $invoice = Invoice::query()->where('subscription_id', $subscription->id)->first();
         self::assertNull($invoice);
@@ -77,7 +83,7 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
         $this->repo = self::resolve(InvoiceRepository::class);
         $this->repo->create(
             subscription: $subscription,
-            dispatchInvoiceCreated: false
+            dispatchInvoiceCreated: false,
         );
 
         $invoice = Invoice::query()->where('subscription_id', $subscription->id)->first();
@@ -88,12 +94,15 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
     #[Test]
     public function createWillDispatchEvent(): void
     {
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOneQuietly([
-            'net_price' => 100,
-            'next_billing_date' => CarbonImmutable::now(),
-            'end_date' => CarbonImmutable::now()->addYear(),
-            'start_date' => CarbonImmutable::now(),
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOneQuietly([
+                'net_price' => 100,
+                'next_billing_date' => CarbonImmutable::now(),
+                'end_date' => CarbonImmutable::now()->addYear(),
+                'start_date' => CarbonImmutable::now(),
+            ]);
 
         $invoice = Invoice::query()->where('subscription_id', $subscription->id)->first();
         self::assertNull($invoice);
@@ -111,14 +120,17 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
     #[Test]
     public function createInvoice(): void
     {
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOneQuietly([
-            'net_price' => 100,
-            'next_billing_date' => CarbonImmutable::now()->addMonth(),
-            'end_date' => CarbonImmutable::now()->addYear(),
-            'start_date' => CarbonImmutable::now(),
-            'contract_period' => 24,
-            'billing_period' => 12,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOneQuietly([
+                'net_price' => 100,
+                'next_billing_date' => CarbonImmutable::now()->addMonth(),
+                'end_date' => CarbonImmutable::now()->addYear(),
+                'start_date' => CarbonImmutable::now(),
+                'contract_period' => 24,
+                'billing_period' => 12,
+            ]);
 
         $this->repo->createInvoice($subscription);
 
@@ -134,7 +146,10 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
         self::assertSame($invoice->gross_price, $subscription->gross_price);
         self::assertSame($invoice->net_price, $subscription->net_price);
         self::assertSame($subscription->domain, $invoice->title);
-        self::assertSame($subscription->product->name . ' invoice.description.for ' . $subscription->domain, $invoice->description);
+        self::assertSame(
+            $subscription->product->name . ' invoice.description.for ' . $subscription->domain,
+            $invoice->description,
+        );
         self::assertSame($subscription->domain, $invoice->group_label);
         self::assertSame(InvoiceLine::TYPE_DEFAULT, $invoice->type);
         self::assertNull($invoice->prepaid_reference);
@@ -143,14 +158,17 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
     #[Test]
     public function createInvoiceWithPrepaidReference(): void
     {
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOneQuietly([
-            'net_price' => 100,
-            'next_billing_date' => CarbonImmutable::now()->addMonth(),
-            'end_date' => CarbonImmutable::now()->addYear(),
-            'start_date' => CarbonImmutable::now(),
-            'contract_period' => 24,
-            'billing_period' => 12,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOneQuietly([
+                'net_price' => 100,
+                'next_billing_date' => CarbonImmutable::now()->addMonth(),
+                'end_date' => CarbonImmutable::now()->addYear(),
+                'start_date' => CarbonImmutable::now(),
+                'contract_period' => 24,
+                'billing_period' => 12,
+            ]);
         $order = new OrderFactory()->for($this->customer)->createOne();
         $payment = new PaymentFactory()
             ->for($this->customer)
@@ -175,7 +193,10 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
         self::assertSame($invoice->gross_price, $subscription->gross_price);
         self::assertSame($invoice->net_price, $subscription->net_price);
         self::assertSame($subscription->domain, $invoice->title);
-        self::assertSame($subscription->product->name . ' invoice.description.for ' . $subscription->domain, $invoice->description);
+        self::assertSame(
+            $subscription->product->name . ' invoice.description.for ' . $subscription->domain,
+            $invoice->description,
+        );
         self::assertSame($subscription->domain, $invoice->group_label);
         self::assertSame(InvoiceLine::TYPE_DEFAULT, $invoice->type);
         self::assertSame($payment->external_id, $invoice->prepaid_reference);
@@ -184,12 +205,15 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
     #[Test]
     public function createInvoiceOverrulesStartDate(): void
     {
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOneQuietly([
-            'net_price' => 100,
-            'next_billing_date' => CarbonImmutable::now(),
-            'end_date' => CarbonImmutable::now()->addYear(),
-            'start_date' => CarbonImmutable::now(),
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOneQuietly([
+                'net_price' => 100,
+                'next_billing_date' => CarbonImmutable::now(),
+                'end_date' => CarbonImmutable::now()->addYear(),
+                'start_date' => CarbonImmutable::now(),
+            ]);
 
         $startDate = CarbonImmutable::now()->addYear();
 
@@ -202,12 +226,15 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
     #[Test]
     public function createInvoiceOverrulesPaid(): void
     {
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOneQuietly([
-            'net_price' => 100,
-            'next_billing_date' => CarbonImmutable::now(),
-            'end_date' => CarbonImmutable::now()->addYear(),
-            'start_date' => CarbonImmutable::now(),
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOneQuietly([
+                'net_price' => 100,
+                'next_billing_date' => CarbonImmutable::now(),
+                'end_date' => CarbonImmutable::now()->addYear(),
+                'start_date' => CarbonImmutable::now(),
+            ]);
 
         $this->repo->createInvoice($subscription, null, true);
 
@@ -221,12 +248,15 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
         $nextBillingDate = CarbonImmutable::now();
         $subscriptionEndDate = CarbonImmutable::now();
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOneQuietly([
-            'net_price' => 100,
-            'next_billing_date' => $nextBillingDate,
-            'end_date' => $subscriptionEndDate,
-            'start_date' => CarbonImmutable::now()->subYear(),
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOneQuietly([
+                'net_price' => 100,
+                'next_billing_date' => $nextBillingDate,
+                'end_date' => $subscriptionEndDate,
+                'start_date' => CarbonImmutable::now()->subYear(),
+            ]);
 
         $this->repo->createInvoice($subscription, $subscription->next_billing_date, true);
 
@@ -257,28 +287,33 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
     #[Test]
     public function createNextSubscriptionInvoice(): void
     {
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'net_price' => 100,
-            'next_billing_date' => CarbonImmutable::now(),
-            'end_date' => CarbonImmutable::now()->addYear(),
-            'start_date' => CarbonImmutable::now(),
-            'domain' => 'next-subscription.test',
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'net_price' => 100,
+                'next_billing_date' => CarbonImmutable::now(),
+                'end_date' => CarbonImmutable::now()->addYear(),
+                'start_date' => CarbonImmutable::now(),
+                'domain' => 'next-subscription.test',
+            ]);
 
         $vatService = self::createMock(CustomerVatService::class);
-        $vatService->expects(self::once())
+        $vatService
+            ->expects(self::once())
             ->method('getCustomerVatData')
             ->willReturn(
                 new VatDTO(
                     vatCode: 'TEST1',
                     vatRate: 99,
-                )
+                ),
             );
 
         $eventDispatcher = self::createMock(Dispatcher::class);
-        $eventDispatcher->expects(self::once())
+        $eventDispatcher
+            ->expects(self::once())
             ->method('dispatch')
             ->with(self::isInstanceOf(InvoiceCreatedEvent::class));
 
@@ -289,18 +324,18 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
             190,
             null,
             CarbonImmutable::today(),
-            CarbonImmutable::now()->addYears(2)
+            CarbonImmutable::now()->addYears(2),
         );
 
         $repo = new InvoiceRepository(
             $vatService,
             $eventDispatcher,
-            self::resolve(TranslatorInterface::class)
+            self::resolve(TranslatorInterface::class),
         );
 
         $invoice = $repo->createNextSubscriptionInvoice(
             $subscription,
-            $nextInvoicePrice
+            $nextInvoicePrice,
         );
 
         self::assertSame($this->customer->id, $invoice->customer_id);
@@ -317,25 +352,33 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
         self::assertSame($nextInvoicePrice->grossPrice, $invoice->gross_price);
         self::assertSame($nextInvoicePrice->netPrice, $invoice->net_price);
         self::assertSame($subscription->domain, $invoice->title);
-        self::assertSame($subscription->product->name . ' invoice.description.for ' . $subscription->domain, $invoice->description);
+        self::assertSame(
+            $subscription->product->name . ' invoice.description.for ' . $subscription->domain,
+            $invoice->description,
+        );
     }
 
     #[Test]
     public function createNextSubscriptionInvoiceWithoutDispatching(): void
     {
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($this->product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->product)
+            ->createOne();
 
         $vatService = self::createStub(CustomerVatService::class);
-        $vatService->method('getCustomerVatData')
+        $vatService
+            ->method('getCustomerVatData')
             ->willReturn(
                 new VatDTO(
                     vatCode: 'TEST2',
                     vatRate: 1,
-                )
+                ),
             );
 
         $eventDispatcher = self::createMock(Dispatcher::class);
-        $eventDispatcher->expects(self::never())
+        $eventDispatcher
+            ->expects(self::never())
             ->method('dispatch')
             ->with(self::isInstanceOf(InvoiceCreatedEvent::class));
 
@@ -346,13 +389,13 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
             10,
             null,
             CarbonImmutable::today(),
-            CarbonImmutable::now()->addYears(1)
+            CarbonImmutable::now()->addYears(1),
         );
 
         $repo = new InvoiceRepository(
             $vatService,
             $eventDispatcher,
-            self::resolve(TranslatorInterface::class)
+            self::resolve(TranslatorInterface::class),
         );
 
         $invoice = $repo->createNextSubscriptionInvoice($subscription, $nextInvoicePrice, false);
@@ -365,9 +408,10 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
     {
         $order = new OrderFactory()->for($this->customer)->createOne();
 
-        $product = $this->product = new ProductFactory()
-            ->for(new ProductGroupFactory()->dns()->createOne())
-            ->createOne(['name' => 'ordered-product']);
+        $product =
+            $this->product = new ProductFactory()->for(new ProductGroupFactory()->dns()->createOne())->createOne([
+                'name' => 'ordered-product',
+            ]);
 
         $orderLine = new OrderLineItemFactory()
             ->for($order)
@@ -382,30 +426,32 @@ class InvoiceRepositoryWritesTest extends IntegrationTestCase
             ]);
 
         $vatService = self::createMock(CustomerVatService::class);
-        $vatService->expects(self::once())
+        $vatService
+            ->expects(self::once())
             ->method('getCustomerVatData')
             ->willReturn(
                 new VatDTO(
                     vatCode: 'TEST8',
                     vatRate: 50,
-                )
+                ),
             );
 
         $eventDispatcher = self::createMock(Dispatcher::class);
-        $eventDispatcher->expects(self::never())
+        $eventDispatcher
+            ->expects(self::never())
             ->method('dispatch')
             ->with(self::isInstanceOf(InvoiceCreatedEvent::class));
 
         $repo = new InvoiceRepository(
             $vatService,
             $eventDispatcher,
-            self::resolve(TranslatorInterface::class)
+            self::resolve(TranslatorInterface::class),
         );
 
         $invoice = $repo->createOrderLineSubscriptionInvoice(
             $this->customer,
             $orderLine,
-            'tr_order_mollie_ref'
+            'tr_order_mollie_ref',
         );
 
         self::assertSame($this->customer->id, $invoice->customer_id);

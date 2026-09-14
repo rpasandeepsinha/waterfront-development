@@ -25,7 +25,7 @@ readonly class PaymentMandateController
 
         return new JsonResponse(
             ['has_direct_debit' => $customer->has_direct_debit],
-            status: $customer->has_direct_debit ? Response::HTTP_OK : Response::HTTP_NOT_FOUND
+            status: $customer->has_direct_debit ? Response::HTTP_OK : Response::HTTP_NOT_FOUND,
         );
     }
 }

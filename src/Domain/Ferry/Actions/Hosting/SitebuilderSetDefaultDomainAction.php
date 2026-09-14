@@ -46,7 +46,7 @@ readonly class SitebuilderSetDefaultDomainAction
                 LoggingContextKeys::REQUEST_DATA => (string) json_encode($payload->toArray()),
                 LoggingContextKeys::SERVER_ID => $server->id,
                 LoggingContextKeys::SERVER_HOSTNAME => $server->hostname,
-            ]
+            ],
         );
 
         $subscription = $hostingDeployment->subscription;
@@ -63,20 +63,26 @@ readonly class SitebuilderSetDefaultDomainAction
                 $basekitSiteByRefResult = $this->provisionGateway->request($getBasekitSiteByRefRequest);
 
                 if (! $basekitSiteByRefResult instanceof BasekitSiteResult || $basekitSiteByRefResult->failed) {
-                    throw new HostingInstanceNotFoundException($payload, $server, $subscription, $basekitSiteByRefResult->exception);
+                    throw new HostingInstanceNotFoundException(
+                        $payload,
+                        $server,
+                        $subscription,
+                        $basekitSiteByRefResult->exception,
+                    );
                 }
 
                 $this->logger->debug(
                     'Setting default sitebuilder domain on subscription',
                     [
                         LoggingContextKeys::QUEUE_JOB_ID => $jobUuid,
-                        LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $migratedCustomer->reference_customer_number,
+                        LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                            $migratedCustomer->reference_customer_number,
                         LoggingContextKeys::SUBSCRIPTION_UUID => $hostingDeployment->subscription_uuid,
                         LoggingContextKeys::DOMAIN_NAME => $basekitSiteByRefResult->domain,
                         LoggingContextKeys::REQUEST_DATA => (string) json_encode($payload->toArray()),
                         LoggingContextKeys::SERVER_ID => $server->id,
                         LoggingContextKeys::SERVER_HOSTNAME => $server->hostname,
-                    ]
+                    ],
                 );
 
                 $subscription->domain = $basekitSiteByRefResult->domain;
@@ -91,13 +97,14 @@ readonly class SitebuilderSetDefaultDomainAction
                     'Setting default sitebuilder domain on subscription',
                     [
                         LoggingContextKeys::QUEUE_JOB_ID => $jobUuid,
-                        LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID => $migratedCustomer->reference_customer_number,
+                        LoggingContextKeys::MIGRATION_REFERENCE_CUSTOMER_ID =>
+                            $migratedCustomer->reference_customer_number,
                         LoggingContextKeys::SUBSCRIPTION_UUID => $hostingDeployment->subscription_uuid,
                         LoggingContextKeys::DOMAIN_NAME => $sitebuilderSite->getDomain(),
                         LoggingContextKeys::REQUEST_DATA => (string) json_encode($payload->toArray()),
                         LoggingContextKeys::SERVER_ID => $server->id,
                         LoggingContextKeys::SERVER_HOSTNAME => $server->hostname,
-                    ]
+                    ],
                 );
 
                 $subscription->domain = $sitebuilderSite->getDomain();
@@ -108,7 +115,7 @@ readonly class SitebuilderSetDefaultDomainAction
                 $subscription,
                 $payload,
                 $server,
-                $exception
+                $exception,
             );
         }
     }

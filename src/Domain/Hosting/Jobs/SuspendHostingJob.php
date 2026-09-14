@@ -39,7 +39,7 @@ class SuspendHostingJob extends AbstractQueueableJob
         HostingServiceFactory $hostingServiceFactory,
         SendSubscriptionSuspendedMailAction $sendSubscriptionSuspendedMailAction,
         StoreAuditLogAction $storeAuditLogAction,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ): void {
         $subscription = $this->hostingDeployment->subscription;
         $subscription->technical_status = TechnicalStatus::SUSPENDING->value;
@@ -65,7 +65,7 @@ class SuspendHostingJob extends AbstractQueueableJob
                 $this->informCustomer(
                     $subscription,
                     $sendSubscriptionSuspendedMailAction,
-                    $logger
+                    $logger,
                 );
             }
         } catch (NotImplementedException|InvalidArgumentException $exception) {
@@ -115,9 +115,12 @@ class SuspendHostingJob extends AbstractQueueableJob
     private function informCustomer(
         Subscription $subscription,
         SendSubscriptionSuspendedMailAction $sendSubscriptionSuspendedMailAction,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ): void {
-        $logger->info(sprintf('Suspension for subscription with uuid: %s successfully, informing the customer..', $subscription->uuid));
+        $logger->info(sprintf(
+            'Suspension for subscription with uuid: %s successfully, informing the customer..',
+            $subscription->uuid,
+        ));
         $sendSubscriptionSuspendedMailAction->execute($subscription);
     }
 }

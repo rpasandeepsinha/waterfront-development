@@ -40,14 +40,22 @@ class CertificateRequestTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $group =  new ProductGroupFactory()->ssl()->createOne();
+        $group = new ProductGroupFactory()->ssl()->createOne();
         $product = new ProductFactory()->for($group)->createOne();
 
-        $subscription = new SubscriptionFactory()->withCustomer()->for($product)->createOne([
-            'domain' => self::DOMAIN,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($product)
+            ->createOne([
+                'domain' => self::DOMAIN,
+            ]);
 
-        $rtrSslProvider = ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        $rtrSslProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $this->sslDeployment = new SslDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
@@ -75,7 +83,6 @@ class CertificateRequestTest extends IntegrationTestCase
             'notificationType' => NotificationType::SSLCertificateNotification->value,
             'isAsync' => false,
             'payload' => [
-
                 'certificateId' => self::TEST_CERTIFICATE_ID,
                 'domainName' => null,
                 'transferType' => null,
@@ -88,21 +95,30 @@ class CertificateRequestTest extends IntegrationTestCase
                 status: 200,
                 body: (string) json_encode([
                     'entities' => [$notification->toArray()],
-                ])
+                ]),
             ),
             new Response(
-                status: 201
+                status: 201,
             ),
         ]);
 
         $dispatcherMock = self::createMock(Dispatcher::class);
-        $dispatcherMock->expects(self::exactly(2))
+        $dispatcherMock
+            ->expects(self::exactly(2))
             ->method('dispatch')
             ->with(
                 ...self::withConsecutive(
-                    [self::callback(fn (UpdateSslExpireDate $event) => $event->sslDeployment->certificate_id === self::TEST_CERTIFICATE_ID)],
-                    [self::callback(fn (DownloadCertificate $event) => $event->getSslDeployment()->certificate_id === self::TEST_CERTIFICATE_ID)]
-                )
+                    [self::callback(
+                        fn (UpdateSslExpireDate $event) => (
+                            $event->sslDeployment->certificate_id === self::TEST_CERTIFICATE_ID
+                        ),
+                    )],
+                    [self::callback(
+                        fn (DownloadCertificate $event) => (
+                            $event->getSslDeployment()->certificate_id === self::TEST_CERTIFICATE_ID
+                        ),
+                    )],
+                ),
             );
 
         $this->instance(RealtimeRegister::class, $rtrClient);
@@ -144,21 +160,30 @@ class CertificateRequestTest extends IntegrationTestCase
                 status: 200,
                 body: (string) json_encode([
                     'entities' => [$notification->toArray()],
-                ])
+                ]),
             ),
             new Response(
-                status: 201
+                status: 201,
             ),
         ]);
 
         $dispatcherMock = self::createMock(Dispatcher::class);
-        $dispatcherMock->expects(self::exactly(2))
+        $dispatcherMock
+            ->expects(self::exactly(2))
             ->method('dispatch')
             ->with(
                 ...self::withConsecutive(
-                    [self::callback(fn (UpdateSslExpireDate $event) => $event->sslDeployment->certificate_id === self::TEST_CERTIFICATE_ID)],
-                    [self::callback(fn (DownloadCertificate $event) => $event->getSslDeployment()->certificate_id === self::TEST_CERTIFICATE_ID)]
-                )
+                    [self::callback(
+                        fn (UpdateSslExpireDate $event) => (
+                            $event->sslDeployment->certificate_id === self::TEST_CERTIFICATE_ID
+                        ),
+                    )],
+                    [self::callback(
+                        fn (DownloadCertificate $event) => (
+                            $event->getSslDeployment()->certificate_id === self::TEST_CERTIFICATE_ID
+                        ),
+                    )],
+                ),
             );
 
         $this->instance(RealtimeRegister::class, $rtrClient);
@@ -199,21 +224,30 @@ class CertificateRequestTest extends IntegrationTestCase
                 status: 200,
                 body: (string) json_encode([
                     'entities' => [$notification->toArray()],
-                ])
+                ]),
             ),
             new Response(
-                status: 201
+                status: 201,
             ),
         ]);
 
         $dispatcherMock = self::createMock(Dispatcher::class);
-        $dispatcherMock->expects(self::exactly(2))
+        $dispatcherMock
+            ->expects(self::exactly(2))
             ->method('dispatch')
             ->with(
                 ...self::withConsecutive(
-                    [self::callback(fn (UpdateSslExpireDate $event) => $event->sslDeployment->certificate_id === self::TEST_CERTIFICATE_ID)],
-                    [self::callback(fn (DownloadCertificate $event) => $event->getSslDeployment()->certificate_id === self::TEST_CERTIFICATE_ID)]
-                )
+                    [self::callback(
+                        fn (UpdateSslExpireDate $event) => (
+                            $event->sslDeployment->certificate_id === self::TEST_CERTIFICATE_ID
+                        ),
+                    )],
+                    [self::callback(
+                        fn (DownloadCertificate $event) => (
+                            $event->getSslDeployment()->certificate_id === self::TEST_CERTIFICATE_ID
+                        ),
+                    )],
+                ),
             );
 
         $this->instance(RealtimeRegister::class, $rtrClient);
@@ -229,11 +263,10 @@ class CertificateRequestTest extends IntegrationTestCase
         $domain = 'testqa137check.nl';
         $rtrProcessId = 2_323_533_016;
         $certificateId = 2_323_724_604;
-        $certificateListResponse = (string) file_get_contents(__DIR__ . '/../../../Domain/Ssl/data/list_certificates_response.json');
+        $certificateListResponse = (string) file_get_contents(__DIR__
+        . '/../../../Domain/Ssl/data/list_certificates_response.json');
 
-        $product = ProductFactory::new()
-            ->for($this->sslDeployment->subscription->product->productGroup)
-            ->createOne();
+        $product = ProductFactory::new()->for($this->sslDeployment->subscription->product->productGroup)->createOne();
 
         $subscription = SubscriptionFactory::new()
             ->withCustomer()
@@ -274,23 +307,32 @@ class CertificateRequestTest extends IntegrationTestCase
                 status: 200,
                 body: (string) json_encode([
                     'entities' => [$notification->toArray()],
-                ])
+                ]),
             ),
             new Response(
                 status: 200,
-                body: $certificateListResponse
+                body: $certificateListResponse,
             ),
             new Response(status: 201),
         ]);
 
         $dispatcherMock = self::createMock(Dispatcher::class);
-        $dispatcherMock->expects(self::exactly(2))
+        $dispatcherMock
+            ->expects(self::exactly(2))
             ->method('dispatch')
             ->with(
                 ...self::withConsecutive(
-                    [self::callback(fn (UpdateSslExpireDate $event): bool => $event->sslDeployment->certificate_id === $certificateId)],
-                    [self::callback(fn (DownloadCertificate $event): bool => $event->getSslDeployment()->certificate_id === $certificateId)]
-                )
+                    [self::callback(
+                        fn (UpdateSslExpireDate $event): bool => (
+                            $event->sslDeployment->certificate_id === $certificateId
+                        ),
+                    )],
+                    [self::callback(
+                        fn (DownloadCertificate $event): bool => (
+                            $event->getSslDeployment()->certificate_id === $certificateId
+                        ),
+                    )],
+                ),
             );
 
         $this->instance(RealtimeRegister::class, $rtrClient);

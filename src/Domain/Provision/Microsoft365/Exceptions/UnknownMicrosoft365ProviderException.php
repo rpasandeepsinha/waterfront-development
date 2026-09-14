@@ -10,6 +10,9 @@ class UnknownMicrosoft365ProviderException extends Microsoft365Exception
 {
     public function __construct(ProvisionProvider $provider)
     {
-        parent::__construct(message: sprintf("Can't resolve Microsoft365 service from unknown provider [%s]", $provider->value));
+        parent::__construct(message: sprintf(
+            "Can't resolve Microsoft365 service from unknown provider [%s]",
+            $provider->value,
+        ));
     }
 }

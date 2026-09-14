@@ -13,8 +13,8 @@ readonly class CreateSubscriptionDTO
      * @param array<int, non-empty-string>|null $labels
      */
     public function __construct(
-        public string|null $domain,
-        public string|null $extension,
+        public ?string $domain,
+        public ?string $extension,
         public string $slug,
         public int $billingPeriod,
         public int $contractPeriod,
@@ -26,8 +26,8 @@ readonly class CreateSubscriptionDTO
         public CarbonImmutable $startDate,
         public CarbonImmutable $nextContractDate,
         public CarbonImmutable $nextBillingDate,
-        public CarbonImmutable|null $cancelDate,
-        public array|null $labels,
+        public ?CarbonImmutable $cancelDate,
+        public ?array $labels,
         public CreateSubscriptionsDTO $createSubscriptions,
         public ImplementableProducts $implementableProduct,
     ) {

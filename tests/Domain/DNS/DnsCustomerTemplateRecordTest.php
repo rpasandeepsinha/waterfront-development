@@ -39,8 +39,13 @@ class DnsCustomerTemplateRecordTest extends TestCase
      */
     #[DataProvider('templateRecordDataProvider')]
     #[Test]
-    public function records(array $payload, string $expectedType, ?array $expectedRecordArray, ?string $exception, ?string $exceptionMessage): void
-    {
+    public function records(
+        array $payload,
+        string $expectedType,
+        ?array $expectedRecordArray,
+        ?string $exception,
+        ?string $exceptionMessage,
+    ): void {
         if ($exception !== null && $exceptionMessage !== null) {
             // $expectedRecordArray should be null when expecting an exception
             $this->expectExceptionMessageIs($exceptionMessage);

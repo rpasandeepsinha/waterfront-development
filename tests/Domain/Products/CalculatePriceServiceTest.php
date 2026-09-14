@@ -33,7 +33,10 @@ class CalculatePriceServiceTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
 
         $nlProduct = new ProductFactory()->nlDomain()->createOne();
-        $registrationPrice = new ProductPriceComponentFactory()->for($nlProduct)->registration()->createOne(['price' => 2000]);
+        $registrationPrice = new ProductPriceComponentFactory()
+            ->for($nlProduct)
+            ->registration()
+            ->createOne(['price' => 2000]);
 
         $simpleProductDto = new ProductWithPeriodsAndPrice(
             uuid: Uuid::uuid4(),
@@ -49,7 +52,8 @@ class CalculatePriceServiceTest extends IntegrationTestCase
             experimentSlug: null,
         );
 
-        $result = self::resolve(CalculatePriceService::class)->calculatePrices($customer, new Collection([$simpleProductDto]), []);
+        $result = self::resolve(CalculatePriceService::class)
+            ->calculatePrices($customer, new Collection([$simpleProductDto]), []);
 
         $calculatedDomainItem = $result->items->first();
 
@@ -64,7 +68,10 @@ class CalculatePriceServiceTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne(['vat_rate' => 15.00]);
 
         $nlProduct = new ProductFactory()->nlDomain()->createOne();
-        $registrationPrice = new ProductPriceComponentFactory()->for($nlProduct)->registration()->createOne(['price' => 2000]);
+        $registrationPrice = new ProductPriceComponentFactory()
+            ->for($nlProduct)
+            ->registration()
+            ->createOne(['price' => 2000]);
 
         $simpleProductDto = new ProductWithPeriodsAndPrice(
             uuid: Uuid::uuid4(),
@@ -80,7 +87,8 @@ class CalculatePriceServiceTest extends IntegrationTestCase
             experimentSlug: null,
         );
 
-        $result = self::resolve(CalculatePriceService::class)->calculatePrices($customer, new Collection([$simpleProductDto]), []);
+        $result = self::resolve(CalculatePriceService::class)
+            ->calculatePrices($customer, new Collection([$simpleProductDto]), []);
 
         $calculatedDomainItem = $result->items->first();
 
@@ -95,10 +103,23 @@ class CalculatePriceServiceTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne(['vat_rate' => 15.00]);
 
         $nlProduct = new ProductFactory()->nlDomain()->createOne();
-        $productPeriod = new ProductPeriodFactory()->for($nlProduct)->createOne(['action_period' => 6, 'action_period_price' => 99]);
+        $productPeriod = new ProductPeriodFactory()->for($nlProduct)->createOne([
+            'action_period' => 6,
+            'action_period_price' => 99,
+        ]);
         new ProductPriceComponentFactory()->for($nlProduct)->createMany([
-            ['type' => PriceComponentType::REGISTRATION, 'contract_period' => 12, 'billing_period' => 12, 'price' => 25175],
-            ['type' => PriceComponentType::PROMOTION, 'contract_period' => 12, 'billing_period' => 12, 'price' => 21395],
+            [
+                'type' => PriceComponentType::REGISTRATION,
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 25175,
+            ],
+            [
+                'type' => PriceComponentType::PROMOTION,
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 21395,
+            ],
         ]);
 
         $simpleProductDto = new ProductWithPeriodsAndPrice(
@@ -115,7 +136,8 @@ class CalculatePriceServiceTest extends IntegrationTestCase
             experimentSlug: null,
         );
 
-        $result = self::resolve(CalculatePriceService::class)->calculatePrices($customer, new Collection([$simpleProductDto]), []);
+        $result = self::resolve(CalculatePriceService::class)
+            ->calculatePrices($customer, new Collection([$simpleProductDto]), []);
 
         $calculatedDomainItem = $result->items->first();
 
@@ -133,7 +155,10 @@ class CalculatePriceServiceTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
 
         $nlProduct = new ProductFactory()->nlDomain()->createOne();
-        $registrationPrice = new ProductPriceComponentFactory()->for($nlProduct)->registration()->createOne(['price' => 2000]);
+        $registrationPrice = new ProductPriceComponentFactory()
+            ->for($nlProduct)
+            ->registration()
+            ->createOne(['price' => 2000]);
 
         $simpleProductDto = new ProductWithPeriodsAndPrice(
             uuid: Uuid::uuid4(),
@@ -149,7 +174,8 @@ class CalculatePriceServiceTest extends IntegrationTestCase
             experimentSlug: null,
         );
 
-        $result = self::resolve(CalculatePriceService::class)->calculatePrices($customer, new Collection([$simpleProductDto]), []);
+        $result = self::resolve(CalculatePriceService::class)
+            ->calculatePrices($customer, new Collection([$simpleProductDto]), []);
 
         $calculatedDomainItem = $result->items->first();
 
@@ -171,9 +197,18 @@ class CalculatePriceServiceTest extends IntegrationTestCase
             ->createOne(['key' => 'test.price.explanation']);
 
         $nlProduct = new ProductFactory()->nlDomain()->createOne();
-        new ProductPeriodFactory()->for($nlProduct)->for($priceExplanationTranslation, 'priceExplanation')->createOne();
-        new ProductPriceComponentFactory()->for($nlProduct)->createOne(['type' => PriceComponentType::REGISTRATION, 'price' => 25175]);
-        new ProductPriceComponentFactory()->for($nlProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 21395]);
+        new ProductPeriodFactory()
+            ->for($nlProduct)
+            ->for($priceExplanationTranslation, 'priceExplanation')
+            ->createOne();
+        new ProductPriceComponentFactory()->for($nlProduct)->createOne([
+            'type' => PriceComponentType::REGISTRATION,
+            'price' => 25175,
+        ]);
+        new ProductPriceComponentFactory()->for($nlProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 21395,
+        ]);
 
         $simpleProductDto = new ProductWithPeriodsAndPrice(
             uuid: Uuid::uuid4(),
@@ -189,7 +224,8 @@ class CalculatePriceServiceTest extends IntegrationTestCase
             experimentSlug: null,
         );
 
-        $result = self::resolve(CalculatePriceService::class)->calculatePrices($customer, new Collection([$simpleProductDto]), []);
+        $result = self::resolve(CalculatePriceService::class)
+            ->calculatePrices($customer, new Collection([$simpleProductDto]), []);
 
         $calculatedDomainItem = $result->items->first();
 
@@ -203,7 +239,10 @@ class CalculatePriceServiceTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
 
         $nlProduct = new ProductFactory()->nlDomain()->createOne();
-        $registrationPrice = new ProductPriceComponentFactory()->for($nlProduct)->registration()->createOne(['price' => 2000]);
+        $registrationPrice = new ProductPriceComponentFactory()
+            ->for($nlProduct)
+            ->registration()
+            ->createOne(['price' => 2000]);
 
         $simpleProductDto = new ProductWithPeriodsAndPrice(
             uuid: Uuid::uuid4(),
@@ -219,7 +258,8 @@ class CalculatePriceServiceTest extends IntegrationTestCase
             experimentSlug: null,
         );
 
-        $result = self::resolve(CalculatePriceService::class)->calculatePrices($customer, new Collection([$simpleProductDto]), []);
+        $result = self::resolve(CalculatePriceService::class)
+            ->calculatePrices($customer, new Collection([$simpleProductDto]), []);
 
         $calculatedDomainItem = $result->items->first();
 
@@ -233,21 +273,27 @@ class CalculatePriceServiceTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
 
         $hostingProduct = new ProductFactory()->hostingBrons()->createOne();
-        $hostingPrice = new ProductPriceComponentFactory()->for($hostingProduct)->registration()->createOne(['price' => 2000]);
+        $hostingPrice = new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->registration()
+            ->createOne(['price' => 2000]);
 
         new ProductSpecFactory()->createOne(
             [
                 'name' => ProductSpecName::HAS_SERVICE_PLUS->value,
                 'value' => '1',
                 'product_id' => $hostingProduct->id,
-            ]
+            ],
         );
 
         $transferServiceProduct = new ProductFactory()->for(new ProductGroupFactory()->oneTimeService())->createOne([
             'name' => 'transfer_service',
             'slug' => 'transfer_service',
         ]);
-        $transferServicePrice = new ProductPriceComponentFactory()->for($transferServiceProduct)->registration()->createOne(['price' => 1000]);
+        $transferServicePrice = new ProductPriceComponentFactory()
+            ->for($transferServiceProduct)
+            ->registration()
+            ->createOne(['price' => 1000]);
 
         $hostingProductDto = new ProductWithPeriodsAndPrice(
             uuid: Uuid::uuid4(),
@@ -277,11 +323,15 @@ class CalculatePriceServiceTest extends IntegrationTestCase
             experimentSlug: null,
         );
 
-        $result = self::resolve(CalculatePriceService::class)->calculatePrices($customer, new Collection([$hostingProductDto, $transferServiceProductDto]), []);
+        $result = self::resolve(CalculatePriceService::class)
+            ->calculatePrices($customer, new Collection([$hostingProductDto, $transferServiceProductDto]), []);
 
-        $transferProductPrice = $result->items->filter(
-            fn (ProductWithCalculatedPrice $dto) => $dto->productId === $transferServiceProduct->id
-        )->first();
+        $transferProductPrice = $result
+            ->items
+            ->filter(
+                fn (ProductWithCalculatedPrice $dto) => $dto->productId === $transferServiceProduct->id,
+            )
+            ->first();
 
         self::assertSame(1000, $transferProductPrice?->regularPrice->priceExclVat);
         self::assertSame(0, $transferProductPrice->appliedPrice->priceExclVat);

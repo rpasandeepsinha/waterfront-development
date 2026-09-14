@@ -29,8 +29,9 @@ class CustomerMigrationJob extends AbstractQueueableJob
     /**
      * @param array<mixed> $customerRawData
      */
-    public function __construct(private readonly array $customerRawData)
-    {
+    public function __construct(
+        private readonly array $customerRawData,
+    ) {
         parent::__construct();
     }
 
@@ -48,7 +49,7 @@ class CustomerMigrationJob extends AbstractQueueableJob
         $validator = $validatorFactory->make(
             $this->customerRawData,
             $rules,
-            $this->getCustomMessages()
+            $this->getCustomMessages(),
         );
 
         // Already went through validation.
@@ -77,11 +78,12 @@ class CustomerMigrationJob extends AbstractQueueableJob
                         AzureDataFactoryMessageType::MIGRATION_EXECUTED_UNSUCCESSFUL->value,
                         [
                             'validation_errors' => $exception->errors(),
-                        ]
+                        ],
                     ),
                     reference: $referenceCustomerId,
-                )
+                ),
             );
+
             return;
         }
 
@@ -109,8 +111,9 @@ class CustomerMigrationJob extends AbstractQueueableJob
                         $exceptionPayload,
                     ),
                     reference: $referenceCustomerId,
-                )
+                ),
             );
+
             return;
         }
 
@@ -119,15 +122,17 @@ class CustomerMigrationJob extends AbstractQueueableJob
                 message: AzureDataFactoryMessage::create(
                     AzureDataFactoryMessageType::MIGRATION_EXECUTED->value,
                     [
-                        ...$adfPayloadService->fetchMigrationBulkCustomerPayload(
-                            customerDTO: $customerDto,
-                            waterfrontCustomerId: $waterfrontCustomerId,
-                            migrationStep: MigrationStep::CUSTOMER
-                        )->toArray(),
-                    ]
+                        ...$adfPayloadService
+                            ->fetchMigrationBulkCustomerPayload(
+                                customerDTO: $customerDto,
+                                waterfrontCustomerId: $waterfrontCustomerId,
+                                migrationStep: MigrationStep::CUSTOMER,
+                            )
+                            ->toArray(),
+                    ],
                 ),
-                reference: $customerDto->buCustomerNumber
-            )
+                reference: $customerDto->buCustomerNumber,
+            ),
         );
     }
 
@@ -142,7 +147,7 @@ class CustomerMigrationJob extends AbstractQueueableJob
     private function getCustomMessages(): array
     {
         $bulkMessages = [];
-        $singleMessages =  MigrationValidationLibrary::customerMessages();
+        $singleMessages = MigrationValidationLibrary::customerMessages();
 
         foreach ($singleMessages as $key => $singleMessage) {
             $bulkMessages['*.' . $key] = $singleMessage;

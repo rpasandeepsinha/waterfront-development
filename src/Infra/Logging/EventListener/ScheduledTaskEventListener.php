@@ -11,8 +11,9 @@ use Psr\Log\LoggerInterface;
 
 class ScheduledTaskEventListener
 {
-    public function __construct(private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     public function handle(ScheduledTaskStarting|ScheduledTaskFinished|ScheduledTaskFailed $event): void

@@ -37,7 +37,10 @@ class GetIdentitiesForCustomerNumberActionTest extends TestCase
         $this->lighthouseApiService = self::createMock(LighthouseApiService::class);
 
         $logger = self::createStub(LoggerInterface::class);
-        $this->getIdentitiesForCustomerNumberAction = new GetIdentitiesForCustomerNumberAction($this->lighthouseApiService, $logger);
+        $this->getIdentitiesForCustomerNumberAction = new GetIdentitiesForCustomerNumberAction(
+            $this->lighthouseApiService,
+            $logger,
+        );
     }
 
     #[Test]
@@ -90,7 +93,7 @@ class GetIdentitiesForCustomerNumberActionTest extends TestCase
             CarbonImmutable::now(),
             null,
             new CustomerMetadataPublic([$customerNumber], [], ['waterfront'], null, null, null),
-            null
+            null,
         );
     }
 }

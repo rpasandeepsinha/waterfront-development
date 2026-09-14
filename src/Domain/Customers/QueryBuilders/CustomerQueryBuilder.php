@@ -25,13 +25,15 @@ class CustomerQueryBuilder extends Builder
             $keywords = explode(' ', $value);
 
             if (count($keywords) < 2) {
-                $builder->where('first_name', 'ILIKE', "%$value%")
-                    ->orWhere('last_name', 'ILIKE', "%$value%");
+                $builder->where('first_name', 'ILIKE', "%$value%")->orWhere('last_name', 'ILIKE', "%$value%");
             } else {
                 foreach ($keywords as $keyword) {
                     $builder->where(static function (Builder $builder) use ($keyword) {
-                        $builder->where('first_name', 'ILIKE', "%$keyword%")
-                            ->orWhere('last_name', 'ILIKE', "%$keyword%");
+                        $builder->where('first_name', 'ILIKE', "%$keyword%")->orWhere(
+                            'last_name',
+                            'ILIKE',
+                            "%$keyword%",
+                        );
                     });
                 }
             }

@@ -18,8 +18,9 @@ use Waterfront\Infra\DirectAdminClient\Exceptions\DirectAdminFieldException;
 
 readonly class Reseller
 {
-    public function __construct(private DirectAdminApiInterface $api)
-    {
+    public function __construct(
+        private DirectAdminApiInterface $api,
+    ) {
     }
 
     /**

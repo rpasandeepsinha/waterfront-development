@@ -9,7 +9,7 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 class TerminateMicrosoft365
 {
     public function __construct(
-        public readonly Subscription $subscription
+        public readonly Subscription $subscription,
     ) {
     }
 }

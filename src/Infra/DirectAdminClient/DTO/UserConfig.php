@@ -37,7 +37,7 @@ readonly class UserConfig implements SiteConfigInterface
         string $quota,
         private string $package,
         private HostingUserType $usertype,
-        private string|null $domain = null,
+        private ?string $domain = null,
     ) {
         $this->dnsControl = $dnscontrol === Parameters::STATE_ON;
         $this->ssl = $ssl === Parameters::STATE_ON;
@@ -49,7 +49,7 @@ readonly class UserConfig implements SiteConfigInterface
         $this->maxDiskSpaceInMB = $quota === 'unlimited' ? -1 : intval($quota);
     }
 
-    public function getDomain(): string|null
+    public function getDomain(): ?string
     {
         return $this->domain;
     }

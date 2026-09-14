@@ -34,16 +34,15 @@ class StoreCustomerAddressActionTest extends IntegrationTestCase
         $city = 'Kapelle';
         $country = 'NL';
 
-        $this->storeCustomerAddressAction
-            ->execute(
-                customer: $customer,
-                streetName: $streetName,
-                streetNumber: $streetNumber,
-                streetNumberAddition: $streetNumberAddition,
-                zipCode: $zip,
-                city: $city,
-                countryCode: $country,
-            );
+        $this->storeCustomerAddressAction->execute(
+            customer: $customer,
+            streetName: $streetName,
+            streetNumber: $streetNumber,
+            streetNumberAddition: $streetNumberAddition,
+            zipCode: $zip,
+            city: $city,
+            countryCode: $country,
+        );
 
         self::assertDatabaseHas(CustomerAddress::class, [
             'customer_id' => $customer->id,
@@ -64,16 +63,15 @@ class StoreCustomerAddressActionTest extends IntegrationTestCase
         $this->expectException(StoreCustomerAddressNoExistingCustomerException::class);
 
         try {
-            $this->storeCustomerAddressAction
-                ->execute(
-                    customer: $customer,
-                    streetName: 'street name',
-                    streetNumber: '11',
-                    streetNumberAddition: 'A',
-                    zipCode: '3321BT',
-                    city: 'Kapelle',
-                    countryCode: 'NL',
-                );
+            $this->storeCustomerAddressAction->execute(
+                customer: $customer,
+                streetName: 'street name',
+                streetNumber: '11',
+                streetNumberAddition: 'A',
+                zipCode: '3321BT',
+                city: 'Kapelle',
+                countryCode: 'NL',
+            );
         } finally {
             self::assertDatabaseEmpty(CustomerAddress::class);
         }

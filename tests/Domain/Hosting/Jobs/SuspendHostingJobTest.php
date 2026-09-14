@@ -57,9 +57,7 @@ class SuspendHostingJobTest extends IntegrationTestCase
 
         $this->hostingService = $this->createMock(HostingServiceInterface::class);
         $this->hostingServiceFactory = $this->createMock(HostingServiceFactory::class);
-        $this->hostingServiceFactory->expects(self::once())
-            ->method('defaultDriver')
-            ->willReturn($this->hostingService);
+        $this->hostingServiceFactory->expects(self::once())->method('defaultDriver')->willReturn($this->hostingService);
         $this->suspendMailAction = $this->createMock(SendSubscriptionSuspendedMailAction::class);
         $this->storeNameserversAction = $this->createMock(StoreAuditLogAction::class);
 
@@ -73,20 +71,21 @@ class SuspendHostingJobTest extends IntegrationTestCase
                 'technical_status' => TechnicalStatus::SUSPENDING->value,
             ]);
 
-        $hostingProvider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
-        $this->hostingDeployment = new HostingDeploymentFactory()
-            ->for($this->subscription, 'subscription')
-            ->createOne([
-                'provider_id' => $hostingProvider->id,
-            ]);
+        $hostingProvider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        $this->hostingDeployment = new HostingDeploymentFactory()->for($this->subscription, 'subscription')->createOne([
+            'provider_id' => $hostingProvider->id,
+        ]);
     }
 
     #[Test]
     public function suspendHostingSuccessfully(): void
     {
-        $this->hostingService->expects(self::once())
-            ->method('suspend')
-            ->with($this->hostingDeployment);
+        $this->hostingService->expects(self::once())->method('suspend')->with($this->hostingDeployment);
 
         $this->storeNameserversAction
             ->expects(self::once())
@@ -107,7 +106,7 @@ class SuspendHostingJobTest extends IntegrationTestCase
             $this->hostingServiceFactory,
             $this->suspendMailAction,
             $this->storeNameserversAction,
-            self::createStub(LoggerInterface::class)
+            self::createStub(LoggerInterface::class),
         );
 
         $this->subscription->refresh();
@@ -119,26 +118,23 @@ class SuspendHostingJobTest extends IntegrationTestCase
     #[Test]
     public function notImplementedException(): void
     {
-        $this->hostingService->expects(self::once())
+        $this->hostingService
+            ->expects(self::once())
             ->method('suspend')
             ->with($this->hostingDeployment)
             ->willThrowException(new NotImplementedException());
 
-        $this->storeNameserversAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->storeNameserversAction->expects(self::never())->method('execute');
 
         $suspendJob = new SuspendHostingJob($this->hostingDeployment, true);
         $suspendJob->handle(
             $this->hostingServiceFactory,
             $this->suspendMailAction,
             $this->storeNameserversAction,
-            self::createStub(LoggerInterface::class)
+            self::createStub(LoggerInterface::class),
         );
 
-        $this->suspendMailAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->suspendMailAction->expects(self::never())->method('execute');
 
         $this->subscription->refresh();
 
@@ -155,25 +151,22 @@ class SuspendHostingJobTest extends IntegrationTestCase
 
         $this->hostingDeployment->refresh();
 
-        $this->hostingService->expects(self::once())
+        $this->hostingService
+            ->expects(self::once())
             ->method('suspend')
             ->with($this->hostingDeployment)
             ->willThrowException(new InvalidArgumentException());
 
-        $this->storeNameserversAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->storeNameserversAction->expects(self::never())->method('execute');
 
-        $this->suspendMailAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->suspendMailAction->expects(self::never())->method('execute');
 
         $suspendJob = new SuspendHostingJob($this->hostingDeployment, true);
         $suspendJob->handle(
             $this->hostingServiceFactory,
             $this->suspendMailAction,
             $this->storeNameserversAction,
-            self::createStub(LoggerInterface::class)
+            self::createStub(LoggerInterface::class),
         );
 
         $this->subscription->refresh();
@@ -185,7 +178,12 @@ class SuspendHostingJobTest extends IntegrationTestCase
     #[Test]
     public function mailOnlySubscriptionSuspendSuccess(): void
     {
-        $mailProvider = ProviderFactory::new()->createOne(['type' => ProviderType::MAILONLY, 'slug' => ProviderSlug::DIRECTADMIN, 'default' => true, 'enabled' => true]);
+        $mailProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::MAILONLY,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'default' => true,
+            'enabled' => true,
+        ]);
 
         $this->hostingDeployment->update([
             'server_id' => null,
@@ -195,9 +193,7 @@ class SuspendHostingJobTest extends IntegrationTestCase
         ]);
         $this->hostingDeployment->refresh();
 
-        $this->hostingService->expects(self::once())
-            ->method('suspend')
-            ->with($this->hostingDeployment);
+        $this->hostingService->expects(self::once())->method('suspend')->with($this->hostingDeployment);
 
         $this->storeNameserversAction
             ->expects(self::once())
@@ -218,7 +214,7 @@ class SuspendHostingJobTest extends IntegrationTestCase
             $this->hostingServiceFactory,
             $this->suspendMailAction,
             $this->storeNameserversAction,
-            self::createStub(LoggerInterface::class)
+            self::createStub(LoggerInterface::class),
         );
 
         $this->subscription->refresh();
@@ -230,7 +226,12 @@ class SuspendHostingJobTest extends IntegrationTestCase
     #[Test]
     public function mailOnlyNoServerSuppliedInvalidArgumentExceptionThrown(): void
     {
-        $mailProvider = ProviderFactory::new()->createOne(['type' => ProviderType::MAILONLY, 'slug' => ProviderSlug::DIRECTADMIN, 'default' => true, 'enabled' => true]);
+        $mailProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::MAILONLY,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'default' => true,
+            'enabled' => true,
+        ]);
 
         $this->hostingDeployment->update([
             'server_id' => null,
@@ -240,25 +241,22 @@ class SuspendHostingJobTest extends IntegrationTestCase
         ]);
         $this->hostingDeployment->refresh();
 
-        $this->hostingService->expects(self::once())
+        $this->hostingService
+            ->expects(self::once())
             ->method('suspend')
             ->with($this->hostingDeployment)
             ->willThrowException(new InvalidArgumentException());
 
-        $this->storeNameserversAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->storeNameserversAction->expects(self::never())->method('execute');
 
-        $this->suspendMailAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->suspendMailAction->expects(self::never())->method('execute');
 
         $suspendJob = new SuspendHostingJob($this->hostingDeployment, true);
         $suspendJob->handle(
             $this->hostingServiceFactory,
             $this->suspendMailAction,
             $this->storeNameserversAction,
-            self::createStub(LoggerInterface::class)
+            self::createStub(LoggerInterface::class),
         );
 
         $this->subscription->refresh();
@@ -272,25 +270,22 @@ class SuspendHostingJobTest extends IntegrationTestCase
     {
         $exception = new JsonException();
 
-        $this->hostingService->expects(self::once())
+        $this->hostingService
+            ->expects(self::once())
             ->method('suspend')
             ->with($this->hostingDeployment)
             ->willThrowException($exception);
 
-        $this->storeNameserversAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->storeNameserversAction->expects(self::never())->method('execute');
 
-        $this->suspendMailAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->suspendMailAction->expects(self::never())->method('execute');
 
         $suspendJob = new SuspendHostingJob($this->hostingDeployment, true);
         $suspendJob->handle(
             $this->hostingServiceFactory,
             $this->suspendMailAction,
             $this->storeNameserversAction,
-            self::createStub(LoggerInterface::class)
+            self::createStub(LoggerInterface::class),
         );
 
         self::assertSame(AdministrativeStatus::SUSPENDED->value, $this->subscription->administrative_status);

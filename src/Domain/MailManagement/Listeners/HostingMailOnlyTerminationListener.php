@@ -10,8 +10,9 @@ use Waterfront\Support\Interfaces\Events\MailableEventInterface;
 
 class HostingMailOnlyTerminationListener
 {
-    public function __construct(private readonly Dispatcher $jobDispatcher)
-    {
+    public function __construct(
+        private readonly Dispatcher $jobDispatcher,
+    ) {
     }
 
     public function handle(MailableEventInterface $event): void

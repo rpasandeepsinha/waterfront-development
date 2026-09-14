@@ -16,8 +16,8 @@ readonly class SitebuilderSubscriptionPayload
         public string $referenceProductId,
         public string $referenceSubscriptionId,
         public SitebuilderBundleMigrationPayload $bundle,
-        public string|null $domain = null,
-        public string|null $extension = null,
+        public ?string $domain = null,
+        public ?string $extension = null,
     ) {
     }
 }

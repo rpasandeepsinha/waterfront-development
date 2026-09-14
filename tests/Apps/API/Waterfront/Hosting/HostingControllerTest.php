@@ -69,16 +69,18 @@ class HostingControllerTest extends IntegrationTestCase
         $this->customer = new CustomerFactory()->createOne();
 
         $productGroupDns = new ProductGroupFactory()->dns()->createOne();
-        $freeDnsProduct = new ProductFactory()->for($productGroupDns)->has(
-            new ProductSpecFactory()
-                ->state([
+        $freeDnsProduct = new ProductFactory()
+            ->for($productGroupDns)
+            ->has(
+                new ProductSpecFactory()->state([
                     'name' => ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT,
                     'value' => true,
-                ])
-        )->createOne([
-            'name' => ProductType::FREE_DNS->value,
-            'slug' => ProductType::FREE_DNS->value,
-        ]);
+                ]),
+            )
+            ->createOne([
+                'name' => ProductType::FREE_DNS->value,
+                'slug' => ProductType::FREE_DNS->value,
+            ]);
 
         $this->freeDnsSubscription = new SubscriptionFactory()
             ->for($this->customer)
@@ -92,7 +94,12 @@ class HostingControllerTest extends IntegrationTestCase
             ->forDomain(self::COUPLE_DOMAIN)
             ->createOne();
 
-        $this->provider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::PLACEHOLDER, 'enabled' => true, 'default' => true]);
+        $this->provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::PLACEHOLDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
     }
 
     #[Test]
@@ -105,7 +112,11 @@ class HostingControllerTest extends IntegrationTestCase
         $rawDirectAdminResponse = file_get_contents(__DIR__ . '/data/UserStatsNoDomainData.json');
         $directAdminResponse = [];
         if ($rawDirectAdminResponse !== false) {
-            $directAdminResponse = json_decode(json: $rawDirectAdminResponse, associative: true, flags: JSON_THROW_ON_ERROR);
+            $directAdminResponse = json_decode(
+                json: $rawDirectAdminResponse,
+                associative: true,
+                flags: JSON_THROW_ON_ERROR,
+            );
             assert(is_array($directAdminResponse));
         }
 
@@ -123,8 +134,13 @@ class HostingControllerTest extends IntegrationTestCase
             ->has(
                 new HostingDeploymentFactory()
                     ->for(new ServerFactory()->directadmin())
-                    ->for(new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]), 'provider')
-                    ->state(['directadmin_customer_username' => $daUser])
+                    ->for(new ProviderFactory()->createOne([
+                        'type' => ProviderType::HOSTING,
+                        'slug' => ProviderSlug::DIRECTADMIN,
+                        'enabled' => true,
+                        'default' => true,
+                    ]), 'provider')
+                    ->state(['directadmin_customer_username' => $daUser]),
             )
             ->createOne([
                 'customer_id' => $customerId,
@@ -135,16 +151,20 @@ class HostingControllerTest extends IntegrationTestCase
         self::assertInstanceOf(HostingDeployment::class, $hostingDeployment);
 
         // We expect the directadmin client to use the server we have attached to our hosting deployment
-        $directAdminMock->expects(self::once())
+        $directAdminMock
+            ->expects(self::once())
             ->method('useServer')
             ->willReturnCallback(function ($server) use ($hostingDeployment, $directAdminApiMock) {
                 self::assertSame($server->id, $hostingDeployment->server?->id);
+
                 return $directAdminApiMock;
             });
 
-        $directAdminApiMock->method('call')
+        $directAdminApiMock
+            ->method('call')
             ->willReturnCallback(function (DirectAdminCommand $command) use ($directAdminResponse): DirectAdminCommand {
                 self::assertInstanceOf(ShowUserStats::class, $command);
+
                 return new ShowUserStats()->responseReceived($directAdminResponse);
             });
 
@@ -152,7 +172,7 @@ class HostingControllerTest extends IntegrationTestCase
             ->getJson(
                 $this->generateRoute(
                     'partners.hosting.domain-slot',
-                    $hostingDeployment->subscription_uuid
+                    $hostingDeployment->subscription_uuid,
                 ),
             )
             ->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR)
@@ -169,7 +189,11 @@ class HostingControllerTest extends IntegrationTestCase
         $customerId = $this->customer->id;
 
         $rawDirectAdminResponse = (string) file_get_contents(__DIR__ . '/data/UserStats.json');
-        $directAdminResponse = json_decode(json: $rawDirectAdminResponse, associative: true, flags: JSON_THROW_ON_ERROR);
+        $directAdminResponse = json_decode(
+            json: $rawDirectAdminResponse,
+            associative: true,
+            flags: JSON_THROW_ON_ERROR,
+        );
         Assert::isArray($directAdminResponse);
 
         $directAdminMock = self::createMock(DirectAdmin::class);
@@ -184,9 +208,15 @@ class HostingControllerTest extends IntegrationTestCase
         $hostingSubscription = new SubscriptionFactory()
             ->for($hostingProduct)
             ->has(
-                new HostingDeploymentFactory()
-                    ->for(new ServerFactory()->directadmin())
-                    ->for(new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]), 'provider')
+                new HostingDeploymentFactory()->for(new ServerFactory()->directadmin())->for(
+                    new ProviderFactory()->createOne([
+                        'type' => ProviderType::HOSTING,
+                        'slug' => ProviderSlug::DIRECTADMIN,
+                        'enabled' => true,
+                        'default' => true,
+                    ]),
+                    'provider',
+                ),
             )
             ->createOne([
                 'customer_id' => $customerId,
@@ -197,16 +227,20 @@ class HostingControllerTest extends IntegrationTestCase
         self::assertInstanceOf(HostingDeployment::class, $hostingDeployment);
 
         // We expect the directadmin client to use the server we have attached to our hosting deployment
-        $directAdminMock->expects(self::once())
+        $directAdminMock
+            ->expects(self::once())
             ->method('useServer')
             ->willReturnCallback(function ($server) use ($hostingDeployment, $directAdminApiMock) {
                 self::assertSame($server->id, $hostingDeployment->server?->id);
+
                 return $directAdminApiMock;
             });
 
-        $directAdminApiMock->method('call')
+        $directAdminApiMock
+            ->method('call')
             ->willReturnCallback(function (DirectAdminCommand $command) use ($directAdminResponse): DirectAdminCommand {
                 self::assertInstanceOf(ShowUserStats::class, $command);
+
                 return new ShowUserStats()->responseReceived($directAdminResponse);
             });
 
@@ -214,7 +248,7 @@ class HostingControllerTest extends IntegrationTestCase
             ->getJson(
                 $this->generateRoute(
                     'partners.hosting.domain-slot',
-                    $hostingDeployment->subscription_uuid
+                    $hostingDeployment->subscription_uuid,
                 ),
             )
             ->assertSuccessful()
@@ -244,9 +278,9 @@ class HostingControllerTest extends IntegrationTestCase
             ->for($this->customer)
             ->for($hostingProduct)
             ->has(
-                new HostingDeploymentFactory()
-                    ->for(new ServerFactory()->plesk())
-                    ->for(new ProviderFactory()->pleskHosting()->createOne(['default' => true]), 'provider')
+                new HostingDeploymentFactory()->for(new ServerFactory()->plesk())->for(new ProviderFactory()
+                    ->pleskHosting()
+                    ->createOne(['default' => true]), 'provider'),
             )
             ->createOne([
                 'domain' => self::DOMAIN,
@@ -261,7 +295,8 @@ class HostingControllerTest extends IntegrationTestCase
         $this->app->bind(HostingPackageInterface::class, fn () => $mockHostingClient);
         $this->app->bind(CustomerInterface::class, fn () => $mockCustomerClient);
 
-        $mockCustomerClient->shouldReceive('setServer')
+        $mockCustomerClient
+            ->shouldReceive('setServer')
             ->withArgs(fn (Server $receivedServer) => $receivedServer->is($hostingDeployment->server))
             ->once();
 
@@ -275,7 +310,7 @@ class HostingControllerTest extends IntegrationTestCase
             guid: '1a34115d-7f71-4e79-87e5-bda5ef407cf6',
             externalId: null,
             parentId: null,
-            domainId: null
+            domainId: null,
         );
 
         $secondDomain = new Domain(
@@ -287,16 +322,13 @@ class HostingControllerTest extends IntegrationTestCase
             guid: '7d34115d-8h72-3a79-87e5-fgu2ef607cf8',
             externalId: null,
             parentId: null,
-            domainId: null
+            domainId: null,
         );
 
         $mockDomainResult = new CustomerGetDomainListResult();
         $mockDomainResult->domains = [$firstDomain, $secondDomain];
 
-        $mockCustomerClient
-            ->shouldReceive('getDomainList')
-            ->once()
-            ->andReturn($mockDomainResult);
+        $mockCustomerClient->shouldReceive('getDomainList')->once()->andReturn($mockDomainResult);
 
         $mockHostingClient
             ->shouldReceive('setServer')
@@ -304,21 +336,23 @@ class HostingControllerTest extends IntegrationTestCase
             ->once();
 
         /** @var array<mixed> $webspaceResponse */
-        $webspaceResponse = json_decode((string) file_get_contents(__DIR__ . '/data/get_webspace_response_multidomain.json'), true, 512, JSON_THROW_ON_ERROR);
+        $webspaceResponse = json_decode(
+            (string) file_get_contents(__DIR__ . '/data/get_webspace_response_multidomain.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
         $webspaceResult = new WebspaceGetResult();
         $webspaceResult->setResponseBody($webspaceResponse);
 
-        $mockHostingClient
-            ->shouldReceive('getWebspaces')
-            ->once()
-            ->andReturn($webspaceResult);
+        $mockHostingClient->shouldReceive('getWebspaces')->once()->andReturn($webspaceResult);
 
         $this->actingAsCustomer($this->customer)
             ->getJson(
                 $this->generateRoute(
                     'partners.hosting.domain-slot',
-                    $hostingDeployment->subscription_uuid
+                    $hostingDeployment->subscription_uuid,
                 ),
             )
             ->assertSuccessful()
@@ -350,9 +384,15 @@ class HostingControllerTest extends IntegrationTestCase
             ->for($this->customer)
             ->for($hostingProduct)
             ->has(
-                new HostingDeploymentFactory()
-                    ->for(new ServerFactory()->directadmin())
-                    ->for(new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]), 'provider')
+                new HostingDeploymentFactory()->for(new ServerFactory()->directadmin())->for(
+                    new ProviderFactory()->createOne([
+                        'type' => ProviderType::HOSTING,
+                        'slug' => ProviderSlug::DIRECTADMIN,
+                        'enabled' => true,
+                        'default' => true,
+                    ]),
+                    'provider',
+                ),
             )
             ->createOne([
                 'domain' => self::DOMAIN,
@@ -365,7 +405,7 @@ class HostingControllerTest extends IntegrationTestCase
             ->getJson(
                 $this->generateRoute(
                     'partners.hosting.domain-slot',
-                    $hostingDeployment->subscription_uuid
+                    $hostingDeployment->subscription_uuid,
                 ),
             )
             ->assertSuccessful()
@@ -389,18 +429,22 @@ class HostingControllerTest extends IntegrationTestCase
     public function decoupleHostingByDomainCommandException(): void
     {
         $customerId = $this->customer->id;
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $extensionProductGroup = new ProductGroupFactory()->extension()->createOne();
         $product = new ProductFactory()->for($extensionProductGroup);
 
         $hostingProductGroup = new ProductGroupFactory()->hosting()->createOne();
         $productHosting = new ProductFactory()->for($hostingProductGroup)->has(
-            new ProductSpecFactory()
-                ->state([
-                    'name' => ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT,
-                    'value' => true,
-                ])
+            new ProductSpecFactory()->state([
+                'name' => ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT,
+                'value' => true,
+            ]),
         );
 
         $domainSubscription = new SubscriptionFactory()
@@ -412,7 +456,7 @@ class HostingControllerTest extends IntegrationTestCase
             ]);
 
         new SubscriptionFactory()
-            ->has((new HostingDeploymentFactory()))
+            ->has(new HostingDeploymentFactory())
             ->for($productHosting)
             ->createOne([
                 'customer_id' => $customerId,
@@ -423,10 +467,12 @@ class HostingControllerTest extends IntegrationTestCase
         self::assertInstanceOf(DomainDeployment::class, $domainDeployment);
 
         $hostingService = self::createMock(DirectAdminHostingService::class);
-        $hostingService->expects(self::once())
+        $hostingService
+            ->expects(self::once())
             ->method('decoupleHostingByDomain')
             ->with(self::callback(function ($domainDeployment) use ($domainSubscription) {
                 self::assertSame($domainDeployment->id, $domainSubscription->domainDeployment?->id);
+
                 return true;
             }))
             ->willThrowException(new DirectAdminCommandException());
@@ -451,7 +497,12 @@ class HostingControllerTest extends IntegrationTestCase
     #[Test]
     public function decoupleHostingByDomainCoupleException(): void
     {
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $extensionProductGroup = new ProductGroupFactory()->extension()->createOne();
         $product = new ProductFactory()->for($extensionProductGroup);
@@ -468,18 +519,24 @@ class HostingControllerTest extends IntegrationTestCase
             ->postJson(
                 $this->generateRoute('partners.hosting.decouple', [
                     'domain' => self::DOMAIN,
-                ])
+                ]),
             )
             ->assertServerError()
             ->assertJson([
-                'message' => self::resolve(TranslatorInterface::class)->translate('hosting.decouple-domain-not-coupled'),
+                'message' => self::resolve(TranslatorInterface::class)
+                    ->translate('hosting.decouple-domain-not-coupled'),
             ]);
     }
 
     #[Test]
     public function decoupleHostingByDomain(): void
     {
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $extensionProductGroup = new ProductGroupFactory()->extension()->createOne();
         $product = new ProductFactory()->for($extensionProductGroup);
@@ -497,7 +554,7 @@ class HostingControllerTest extends IntegrationTestCase
 
         new SubscriptionFactory()
             ->for($this->customer)
-            ->has((new HostingDeploymentFactory()))
+            ->has(new HostingDeploymentFactory())
             ->for($hostingProduct)
             ->createOne([
                 'domain' => self::DOMAIN,
@@ -507,7 +564,7 @@ class HostingControllerTest extends IntegrationTestCase
             ->postJson(
                 $this->generateRoute('partners.hosting.decouple', [
                     'domain' => self::DOMAIN,
-                ])
+                ]),
             )
             ->assertSuccessful()
             ->assertJson([
@@ -518,7 +575,12 @@ class HostingControllerTest extends IntegrationTestCase
     #[Test]
     public function decoupleHostingByDomainFalseCoupleSpec(): void
     {
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $extensionProductGroup = new ProductGroupFactory()->extension()->createOne();
         $product = new ProductFactory()->for($extensionProductGroup);
@@ -536,13 +598,17 @@ class HostingControllerTest extends IntegrationTestCase
 
         new SubscriptionFactory()
             ->for($this->customer)
-            ->has((new HostingDeploymentFactory()))
+            ->has(new HostingDeploymentFactory())
             ->for($hostingProduct)
             ->createOne([
                 'domain' => self::DOMAIN,
             ]);
 
-        $hostingCouplingSpec = $this->freeDnsSubscription->product->productSpecs()->where('name', ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)->firstOrFail();
+        $hostingCouplingSpec = $this->freeDnsSubscription
+            ->product
+            ->productSpecs()
+            ->where('name', ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)
+            ->firstOrFail();
         $hostingCouplingSpec->value = false;
         $hostingCouplingSpec->save();
 
@@ -550,7 +616,7 @@ class HostingControllerTest extends IntegrationTestCase
             ->postJson(
                 $this->generateRoute('partners.hosting.decouple', [
                     'domain' => self::DOMAIN,
-                ])
+                ]),
             )
             ->assertForbidden();
     }
@@ -558,7 +624,12 @@ class HostingControllerTest extends IntegrationTestCase
     #[Test]
     public function getCoupledHostingByDomain(): void
     {
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $extensionProductGroup = new ProductGroupFactory()->extension()->createOne();
         $product = new ProductFactory()->for($extensionProductGroup);
 
@@ -572,7 +643,7 @@ class HostingControllerTest extends IntegrationTestCase
 
         $hostingSubscription = new SubscriptionFactory()
             ->for(new ProductFactory()->for(new ProductGroupFactory()->hosting()))
-            ->has((new HostingDeploymentFactory()))
+            ->has(new HostingDeploymentFactory())
             ->for($this->customer)
             ->createOne([
                 'domain' => self::DOMAIN,
@@ -584,7 +655,7 @@ class HostingControllerTest extends IntegrationTestCase
                 $this->generateRoute('partners.hosting.get-coupled', [
                     'domain' => self::DOMAIN,
                     'domain_subscription_uuid' => $domainSubscription->uuid,
-                ])
+                ]),
             )
             ->assertSuccessful()
             ->assertJson([
@@ -599,7 +670,12 @@ class HostingControllerTest extends IntegrationTestCase
     #[Test]
     public function getCoupledHostingByDomainReturnsNoContent(): void
     {
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $extensionProductGroup = new ProductGroupFactory()->extension()->createOne();
         $product = new ProductFactory()->for($extensionProductGroup);
@@ -607,10 +683,7 @@ class HostingControllerTest extends IntegrationTestCase
         $domainSubscription = new SubscriptionFactory()
             ->for($this->customer)
             ->has(
-                new DomainDeploymentFactory()
-                    ->for(new ProviderFactory()
-                        ->domainOpenProvider()
-                        ->createOne())
+                new DomainDeploymentFactory()->for(new ProviderFactory()->domainOpenProvider()->createOne()),
             )
             ->for($product)
             ->for(new CustomerFactory()->createOne()) // Different user than the one calling the API.
@@ -623,7 +696,7 @@ class HostingControllerTest extends IntegrationTestCase
                 $this->generateRoute('partners.hosting.get-coupled', [
                     'domain' => self::DOMAIN,
                     'domain_subscription_uuid' => $domainSubscription->uuid,
-                ])
+                ]),
             )
             ->assertForbidden();
     }
@@ -631,7 +704,12 @@ class HostingControllerTest extends IntegrationTestCase
     #[Test]
     public function getCoupledHostingByDomainNoResults(): void
     {
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $extensionProductGroup = new ProductGroupFactory()->extension()->createOne();
         $product = new ProductFactory()->for($extensionProductGroup);
@@ -649,7 +727,7 @@ class HostingControllerTest extends IntegrationTestCase
                 $this->generateRoute('partners.hosting.get-coupled', [
                     'domain' => self::DOMAIN,
                     'domain_subscription_uuid' => $domainSubscription->uuid,
-                ])
+                ]),
             )
             ->assertNoContent();
     }
@@ -657,21 +735,19 @@ class HostingControllerTest extends IntegrationTestCase
     #[Test]
     public function coupleDomainToExistingHosting(): void
     {
-        $hostingProduct = new ProductFactory()
-            ->for(
-                new ProductGroupFactory()->createOne([
-                    'slug' => ProductGroupType::HOSTING,
-                    'name' => 'hosting test',
-                ])
-            )->createOne();
+        $hostingProduct = new ProductFactory()->for(
+            new ProductGroupFactory()->createOne([
+                'slug' => ProductGroupType::HOSTING,
+                'name' => 'hosting test',
+            ]),
+        )->createOne();
 
-        $domainProduct = new ProductFactory()
-            ->for(
-                new ProductGroupFactory()->createOne([
-                    'slug' => ProductGroupType::EXTENSION,
-                    'name' => 'domain test',
-                ])
-            )->createOne();
+        $domainProduct = new ProductFactory()->for(
+            new ProductGroupFactory()->createOne([
+                'slug' => ProductGroupType::EXTENSION,
+                'name' => 'domain test',
+            ]),
+        )->createOne();
 
         $hostingSubscription = new SubscriptionFactory()
             ->for($this->customer)
@@ -691,7 +767,12 @@ class HostingControllerTest extends IntegrationTestCase
 
         new HostingDeploymentFactory()
             ->for(new ServerFactory()->directadmin()->createOne())
-            ->for(new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]), 'provider')
+            ->for(new ProviderFactory()->createOne([
+                'type' => ProviderType::HOSTING,
+                'slug' => ProviderSlug::DIRECTADMIN,
+                'enabled' => true,
+                'default' => true,
+            ]), 'provider')
             ->createOne([
                 'subscription_uuid' => $hostingSubscription->uuid,
             ]);
@@ -746,18 +827,24 @@ class HostingControllerTest extends IntegrationTestCase
         $expectedUrl = 'https://directadmin.sso.testing:1337/login-hash';
 
         $mockClient = self::createMock(DirectAdminClient::class);
-        $mockClient->expects(self::once())
-            ->method('createLoginUrl')
-            ->willReturn($expectedUrl);
+        $mockClient->expects(self::once())->method('createLoginUrl')->willReturn($expectedUrl);
 
         $this->app->bind(DirectAdminClient::class, fn () => $mockClient);
 
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $server = new ServerFactory()->directadmin()->createOne();
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($product)
+            ->createOne();
         $hostingDeployment = new HostingDeploymentFactory()->for($server)->createOne([
             'subscription_uuid' => $subscription->uuid,
         ]);
@@ -765,18 +852,27 @@ class HostingControllerTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->get(
                 $this->generateRoute('partners.hosting.sso', $hostingDeployment->subscription->uuid),
-            )->assertOk()
+            )
+            ->assertOk()
             ->assertJsonFragment(['url' => $expectedUrl]);
     }
 
     #[Test]
     public function ssoServerNotFound(): void
     {
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($product)
+            ->createOne();
 
         $hostingDeployment = new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
@@ -800,17 +896,25 @@ class HostingControllerTest extends IntegrationTestCase
     #[Test]
     public function ssoPlesk(): void
     {
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $server = new ServerFactory()
             ->plesk()
             ->createOne([
                 'hostname' => 'test.com',
                 'use_ssl' => true,
-        ]);
+            ]);
         $productGroup = new ProductGroupFactory()->hosting()->createOne();
         $product = new ProductFactory()->for($productGroup)->createOne();
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($product)
+            ->createOne();
         $hostingDeployment = new HostingDeploymentFactory()->for($server)->createOne([
             'subscription_uuid' => $subscription->uuid,
         ]);
@@ -818,15 +922,28 @@ class HostingControllerTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->get(
                 $this->generateRoute('partners.hosting.sso', $hostingDeployment->subscription->uuid),
-            )->assertOk()
-            ->assertJsonFragment(['url' => 'https://test.com:8443/enterprise/rsession_init.php?PHPSESSID=64b6f51df8b3e33875744dc1d194526f']); // only PHPSESSID comes from faker
+            )
+            ->assertOk()
+            ->assertJsonFragment([
+                'url' => 'https://test.com:8443/enterprise/rsession_init.php?PHPSESSID=64b6f51df8b3e33875744dc1d194526f',
+            ]); // only PHPSESSID comes from faker
     }
 
     #[Test]
     public function ssoPleskMail(): void
     {
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
-        $mailOnlyProvider = new ProviderFactory()->createOne(['type' => ProviderType::MAILONLY, 'slug' => ProviderSlug::PLESK, 'default' => true, 'enabled' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        $mailOnlyProvider = new ProviderFactory()->createOne([
+            'type' => ProviderType::MAILONLY,
+            'slug' => ProviderSlug::PLESK,
+            'default' => true,
+            'enabled' => true,
+        ]);
 
         $server = new ServerFactory()
             ->plesk()
@@ -840,7 +957,10 @@ class HostingControllerTest extends IntegrationTestCase
             'slug' => 'mail_only',
         ]);
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($product)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($product)
+            ->createOne();
         $hostingDeployment = new HostingDeploymentFactory()->for($server)->createOne([
             'subscription_uuid' => $subscription->uuid,
             'mail_only_provider_id' => $mailOnlyProvider->id,
@@ -848,8 +968,12 @@ class HostingControllerTest extends IntegrationTestCase
 
         $this->actingAsCustomer($this->customer)
             ->getJson(
-                $this->generateRoute('partners.hosting.sso', [$hostingDeployment->subscription->uuid, 'redirectToMail' => true]),
-            )->assertOk()
+                $this->generateRoute('partners.hosting.sso', [
+                    $hostingDeployment->subscription->uuid,
+                    'redirectToMail' => true,
+                ]),
+            )
+            ->assertOk()
             ->assertJsonFragment([
                 'url' => 'https://test.com:8443/enterprise/rsession_init.php?PHPSESSID=64b6f51df8b3e33875744dc1d194526f&success_redirect_url=%2Fsmb%2Femail-address%2Flist',
             ]);

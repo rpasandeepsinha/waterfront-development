@@ -56,12 +56,15 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
         $productGroup = new ProductGroupFactory()->microsoft365()->createOne();
         $this->childProduct = new ProductFactory()->for($productGroup)->createOne();
 
-        $this->childSubscription = new SubscriptionFactory()->for($this->customer)->for($this->childProduct)->createOne([
-            'net_price' => 100,
-            'gross_price' => 200,
-            'billing_period' => 1,
-            'contract_period' => 1,
-        ]);
+        $this->childSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->childProduct)
+            ->createOne([
+                'net_price' => 100,
+                'gross_price' => 200,
+                'billing_period' => 1,
+                'contract_period' => 1,
+            ]);
 
         $this->parentProduct = new ProductFactory()->for($productGroup)->createOne([
             'slug' => $this->childProduct->slug . '-parent',
@@ -72,9 +75,7 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
     public function createFirstTimeCustomerInfo(): void
     {
         $mockMicrosoftModuleMicrosoftService = self::createMock(Microsoft365Service::class);
-        $mockMicrosoftModuleMicrosoftService->expects(self::once())
-            ->method('createKpnCustomer')
-            ->willReturn(true);
+        $mockMicrosoftModuleMicrosoftService->expects(self::once())->method('createKpnCustomer')->willReturn(true);
 
         $this->app->bind(Microsoft365Service::class, fn () => $mockMicrosoftModuleMicrosoftService);
         $microsoft365Service = self::resolve(Microsoft365SubscriptionService::class);
@@ -136,11 +137,13 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
     public function dontCreateParentForChildIfPresent(): void
     {
         $microsoft365Service = self::resolve(Microsoft365SubscriptionService::class);
-        $anotherChildSubscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'customer_id' => $this->childSubscription->customer->id,
-            'product_uuid' => $this->childSubscription->product->uuid,
-            'contract_period' => $this->childSubscription->contract_period,
-        ]);
+        $anotherChildSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'customer_id' => $this->childSubscription->customer->id,
+                'product_uuid' => $this->childSubscription->product->uuid,
+                'contract_period' => $this->childSubscription->contract_period,
+            ]);
         new Microsoft365CustomerInfoFactory()->createOne([
             'customer_id' => $this->customer->id,
             'kpn_customer_id' => null,
@@ -152,7 +155,10 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
         $microsoft365Service->create(new Collection([$anotherChildSubscription]), null, null);
 
         self::assertSame(1, Subscription::where('product_uuid', $this->parentProduct->uuid)->count());
-        self::assertSame(1, Microsoft365Deployment::where('subscription_id', $this->childSubscription->parent_subscription_id)->count());
+        self::assertSame(
+            1,
+            Microsoft365Deployment::where('subscription_id', $this->childSubscription->parent_subscription_id)->count(),
+        );
     }
 
     #[Test]
@@ -163,10 +169,13 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
 
         $microsoft365Service = self::resolve(Microsoft365SubscriptionService::class);
 
-        $resellerSub = new SubscriptionFactory()->for($this->customer)->for($this->childProduct)->createOne([
-            'contract_period' => 1,
-            'billing_period' => 1,
-        ]);
+        $resellerSub = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->childProduct)
+            ->createOne([
+                'contract_period' => 1,
+                'billing_period' => 1,
+            ]);
 
         // setup existing customer
         $existingCustomerInfo = new Microsoft365CustomerInfoFactory()->for($this->customer)->createOne([
@@ -192,21 +201,36 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
                 'billing_period' => 1,
             ]);
 
-        new Microsoft365DeploymentFactory()->for($existingCustomerInfo)->for($existingParentSubscription)->createOne([
-            'kpn_status' => Microsoft365OrderStatus::ACTIVE,
-            'kpn_order_id' => '12345',
-        ]);
+        new Microsoft365DeploymentFactory()
+            ->for($existingCustomerInfo)
+            ->for($existingParentSubscription)
+            ->createOne([
+                'kpn_status' => Microsoft365OrderStatus::ACTIVE,
+                'kpn_order_id' => '12345',
+            ]);
 
         $tenantName = '1.onmicrosoft.com';
         $microsoft365Service->create(new Collection([$resellerSub]), $tenantName, '1234567890');
 
-        self::assertCount(2, Subscription::where('product_uuid', $this->parentProduct->uuid)->whereNull('parent_subscription_id')->get());
+        self::assertCount(
+            2,
+            Subscription::where('product_uuid', $this->parentProduct->uuid)->whereNull('parent_subscription_id')->get(),
+        );
         self::assertCount(1, Microsoft365Deployment::where('kpn_status', Microsoft365OrderStatus::PLACED)->get());
 
         self::assertCount(2, Microsoft365CustomerInfo::where('customer_id', $this->customer->id)->get());
-        self::assertCount(1, Microsoft365CustomerInfo::where('customer_id', $this->customer->id)->where('tenant_name', $tenantName)->get());
+        self::assertCount(
+            1,
+            Microsoft365CustomerInfo::where('customer_id', $this->customer->id)->where(
+                'tenant_name',
+                $tenantName,
+            )->get(),
+        );
 
-        $microsoft365Deployment = Microsoft365Deployment::where('kpn_status', Microsoft365OrderStatus::PLACED)->firstOrFail();
+        $microsoft365Deployment = Microsoft365Deployment::where(
+            'kpn_status',
+            Microsoft365OrderStatus::PLACED,
+        )->firstOrFail();
         $subscription = $microsoft365Deployment->subscription;
 
         self::assertCount(1, $existingParentSubscription->children);
@@ -238,12 +262,15 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
 
         $this->travel(2)->months();
 
-        $newChildSubscription = new SubscriptionFactory()->for($this->customer)->for($this->childProduct)->createOne([
-            'net_price' => 100,
-            'gross_price' => 200,
-            'billing_period' => 1,
-            'contract_period' => 1,
-        ]);
+        $newChildSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->childProduct)
+            ->createOne([
+                'net_price' => 100,
+                'gross_price' => 200,
+                'billing_period' => 1,
+                'contract_period' => 1,
+            ]);
 
         $microsoft365Service->create(new Collection([$newChildSubscription]), null, null);
         $newChildSubscription->refresh();
@@ -270,19 +297,18 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
         ]);
 
         $mockMicrosoftModuleMicrosoftService = self::createMock(Microsoft365Service::class);
-        $mockMicrosoftModuleMicrosoftService->expects(self::once())
+        $mockMicrosoftModuleMicrosoftService
+            ->expects(self::once())
             ->method('synchronizeTenantOrderIdFromOrderSummary')
             ->with(self::callback(
-                fn (Microsoft365CustomerInfo $customerInfo): bool => $customerInfo->id === $microsoft365CustomerInfo->id
+                fn (Microsoft365CustomerInfo $customerInfo): bool => (
+                    $customerInfo->id === $microsoft365CustomerInfo->id
+                ),
             ))
             ->willReturn(false);
-        $mockMicrosoftModuleMicrosoftService->expects(self::once())
-            ->method('createTenant')
-            ->willReturn(true);
-        $mockMicrosoftModuleMicrosoftService->expects(self::never())
-            ->method('createOrder');
-        $mockMicrosoftModuleMicrosoftService->expects(self::never())
-            ->method('modifyOrder');
+        $mockMicrosoftModuleMicrosoftService->expects(self::once())->method('createTenant')->willReturn(true);
+        $mockMicrosoftModuleMicrosoftService->expects(self::never())->method('createOrder');
+        $mockMicrosoftModuleMicrosoftService->expects(self::never())->method('modifyOrder');
 
         $this->app->bind(Microsoft365Service::class, fn () => $mockMicrosoftModuleMicrosoftService);
         $microsoft365Service = self::resolve(Microsoft365SubscriptionService::class);
@@ -292,7 +318,10 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
         $this->childSubscription->refresh();
         self::assertNotNull($this->childSubscription->parent_subscription_id);
 
-        $microsoft365Deployment = Microsoft365Deployment::where('subscription_id', $this->childSubscription->parent_subscription_id)->firstOrFail();
+        $microsoft365Deployment = Microsoft365Deployment::where(
+            'subscription_id',
+            $this->childSubscription->parent_subscription_id,
+        )->firstOrFail();
         self::assertSame($microsoft365CustomerInfo->id, $microsoft365Deployment->microsoft365_customer_info_id);
         self::assertSame(Microsoft365OrderStatus::PLACED, $microsoft365Deployment->kpn_status);
     }
@@ -312,15 +341,18 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
         ]);
 
         $mockMicrosoftModuleMicrosoftService = self::createMock(Microsoft365Service::class);
-        $mockMicrosoftModuleMicrosoftService->expects(self::once())
+        $mockMicrosoftModuleMicrosoftService
+            ->expects(self::once())
             ->method('synchronizeTenantOrderIdFromOrderSummary')
             ->with(self::callback(
-                fn (Microsoft365CustomerInfo $customerInfo): bool => $customerInfo->id === $microsoft365CustomerInfo->id
+                fn (Microsoft365CustomerInfo $customerInfo): bool => (
+                    $customerInfo->id === $microsoft365CustomerInfo->id
+                ),
             ))
             ->willReturn(true);
-        $mockMicrosoftModuleMicrosoftService->expects(self::never())
-            ->method('createTenant');
-        $mockMicrosoftModuleMicrosoftService->expects(self::once())
+        $mockMicrosoftModuleMicrosoftService->expects(self::never())->method('createTenant');
+        $mockMicrosoftModuleMicrosoftService
+            ->expects(self::once())
             ->method('createOrder')
             ->with(
                 self::isInstanceOf(Microsoft365Deployment::class),
@@ -328,8 +360,7 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
                 1,
             )
             ->willReturn(true);
-        $mockMicrosoftModuleMicrosoftService->expects(self::never())
-            ->method('modifyOrder');
+        $mockMicrosoftModuleMicrosoftService->expects(self::never())->method('modifyOrder');
 
         $this->app->bind(Microsoft365Service::class, fn () => $mockMicrosoftModuleMicrosoftService);
         $microsoft365Service = self::resolve(Microsoft365SubscriptionService::class);
@@ -339,7 +370,10 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
         $this->childSubscription->refresh();
         self::assertNotNull($this->childSubscription->parent_subscription_id);
 
-        $microsoft365Deployment = Microsoft365Deployment::where('subscription_id', $this->childSubscription->parent_subscription_id)->firstOrFail();
+        $microsoft365Deployment = Microsoft365Deployment::where(
+            'subscription_id',
+            $this->childSubscription->parent_subscription_id,
+        )->firstOrFail();
         self::assertSame($microsoft365CustomerInfo->id, $microsoft365Deployment->microsoft365_customer_info_id);
         self::assertSame(Microsoft365OrderStatus::PLACED, $microsoft365Deployment->kpn_status);
     }
@@ -364,7 +398,8 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
         $mockMicrosoft365Service->expects(self::never())->method('modifyOrder');
 
         $logger = $this->createLoggerMock();
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'M365 order missing KPN customer',
@@ -372,10 +407,13 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
                     $this->assertM365Context($context);
                     self::assertSame($this->customer->id, $context[LoggingContextKeys::CUSTOMER_ID]);
                     self::assertSame($microsoft365Deployment->id, $context[LoggingContextKeys::PROVISIONING_ID]);
-                    self::assertSame($microsoft365Deployment->subscription_id, $context[LoggingContextKeys::SUBSCRIPTION_ID]);
+                    self::assertSame(
+                        $microsoft365Deployment->subscription_id,
+                        $context[LoggingContextKeys::SUBSCRIPTION_ID],
+                    );
 
                     return true;
-                })
+                }),
             );
 
         $this->app->bind(Microsoft365Service::class, fn () => $mockMicrosoft365Service);
@@ -401,7 +439,8 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
         $exception = new Office365Exception('Modification failed');
 
         $mockMicrosoft365Service = self::createMock(Microsoft365Service::class);
-        $mockMicrosoft365Service->expects(self::once())
+        $mockMicrosoft365Service
+            ->expects(self::once())
             ->method('modifyOrder')
             ->with(12345, 1)
             ->willThrowException($exception);
@@ -409,15 +448,23 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
         $mockMicrosoft365Service->expects(self::never())->method('createOrder');
 
         $logger = $this->createLoggerMock();
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'M365 order modification failed',
-                self::callback(function (array $context) use ($microsoft365Deployment, $microsoft365CustomerInfo, $exception): bool {
+                self::callback(function (array $context) use (
+                    $microsoft365Deployment,
+                    $microsoft365CustomerInfo,
+                    $exception,
+                ): bool {
                     $this->assertM365Context($context);
                     self::assertSame($this->customer->id, $context[LoggingContextKeys::CUSTOMER_ID]);
                     self::assertSame($microsoft365Deployment->id, $context[LoggingContextKeys::PROVISIONING_ID]);
-                    self::assertSame($microsoft365Deployment->subscription_id, $context[LoggingContextKeys::SUBSCRIPTION_ID]);
+                    self::assertSame(
+                        $microsoft365Deployment->subscription_id,
+                        $context[LoggingContextKeys::SUBSCRIPTION_ID],
+                    );
                     self::assertSame($exception, $context[LoggingContextKeys::EXCEPTION]);
 
                     $meta = $this->contextMeta($context);
@@ -426,7 +473,7 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
                     self::assertSame(1, $meta['amount']);
 
                     return true;
-                })
+                }),
             );
 
         $this->app->bind(Microsoft365Service::class, fn () => $mockMicrosoft365Service);
@@ -457,10 +504,13 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
         $exception = new OrderSummaryException('Summary failed');
 
         $mockMicrosoft365Service = self::createMock(Microsoft365Service::class);
-        $mockMicrosoft365Service->expects(self::once())
+        $mockMicrosoft365Service
+            ->expects(self::once())
             ->method('synchronizeTenantOrderIdFromOrderSummary')
             ->with(self::callback(
-                fn (Microsoft365CustomerInfo $customerInfo): bool => $customerInfo->id === $microsoft365CustomerInfo->id
+                fn (Microsoft365CustomerInfo $customerInfo): bool => (
+                    $customerInfo->id === $microsoft365CustomerInfo->id
+                ),
             ))
             ->willThrowException($exception);
         $mockMicrosoft365Service->expects(self::never())->method('createTenant');
@@ -468,22 +518,30 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
         $mockMicrosoft365Service->expects(self::never())->method('modifyOrder');
 
         $logger = $this->createLoggerMock();
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'M365 tenant order summary failed',
-                self::callback(function (array $context) use ($microsoft365Deployment, $microsoft365CustomerInfo, $exception): bool {
+                self::callback(function (array $context) use (
+                    $microsoft365Deployment,
+                    $microsoft365CustomerInfo,
+                    $exception,
+                ): bool {
                     $this->assertM365Context($context);
                     self::assertSame($this->customer->id, $context[LoggingContextKeys::CUSTOMER_ID]);
                     self::assertSame($microsoft365Deployment->id, $context[LoggingContextKeys::PROVISIONING_ID]);
-                    self::assertSame($microsoft365Deployment->subscription_id, $context[LoggingContextKeys::SUBSCRIPTION_ID]);
+                    self::assertSame(
+                        $microsoft365Deployment->subscription_id,
+                        $context[LoggingContextKeys::SUBSCRIPTION_ID],
+                    );
                     self::assertSame($exception, $context[LoggingContextKeys::EXCEPTION]);
 
                     $meta = $this->contextMeta($context);
                     self::assertSame($microsoft365CustomerInfo->id, $meta['microsoft365_customer_info_id']);
 
                     return true;
-                })
+                }),
             );
 
         $this->app->bind(Microsoft365Service::class, fn () => $mockMicrosoft365Service);
@@ -516,7 +574,8 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
         $mockMicrosoft365Service = self::createMock(Microsoft365Service::class);
         $mockMicrosoft365Service->expects(self::never())->method('synchronizeTenantOrderIdFromOrderSummary');
         $mockMicrosoft365Service->expects(self::never())->method('createTenant');
-        $mockMicrosoft365Service->expects(self::once())
+        $mockMicrosoft365Service
+            ->expects(self::once())
             ->method('createOrder')
             ->with(
                 self::isInstanceOf(Microsoft365Deployment::class),
@@ -527,15 +586,23 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
         $mockMicrosoft365Service->expects(self::never())->method('modifyOrder');
 
         $logger = $this->createLoggerMock();
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'M365 order creation failed',
-                self::callback(function (array $context) use ($microsoft365Deployment, $microsoft365CustomerInfo, $exception): bool {
+                self::callback(function (array $context) use (
+                    $microsoft365Deployment,
+                    $microsoft365CustomerInfo,
+                    $exception,
+                ): bool {
                     $this->assertM365Context($context);
                     self::assertSame($this->customer->id, $context[LoggingContextKeys::CUSTOMER_ID]);
                     self::assertSame($microsoft365Deployment->id, $context[LoggingContextKeys::PROVISIONING_ID]);
-                    self::assertSame($microsoft365Deployment->subscription_id, $context[LoggingContextKeys::SUBSCRIPTION_ID]);
+                    self::assertSame(
+                        $microsoft365Deployment->subscription_id,
+                        $context[LoggingContextKeys::SUBSCRIPTION_ID],
+                    );
                     self::assertSame($exception, $context[LoggingContextKeys::EXCEPTION]);
 
                     $meta = $this->contextMeta($context);
@@ -544,7 +611,7 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
                     self::assertSame('test.onmicrosoft.com', $meta['tenant_name']);
 
                     return true;
-                })
+                }),
             );
 
         $this->app->bind(Microsoft365Service::class, fn () => $mockMicrosoft365Service);
@@ -560,7 +627,8 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
         $exception = new Office365Exception('KPN customer creation failed');
 
         $mockMicrosoft365Service = self::createMock(Microsoft365Service::class);
-        $mockMicrosoft365Service->expects(self::once())
+        $mockMicrosoft365Service
+            ->expects(self::once())
             ->method('createKpnCustomer')
             ->with(
                 self::callback(fn (Customer $customer): bool => $customer->id === $this->customer->id),
@@ -569,7 +637,8 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
             ->willThrowException($exception);
 
         $logger = $this->createLoggerMock();
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'M365 KPN customer creation failed',
@@ -583,7 +652,7 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
                     self::assertSame('tenant-id', $meta['tenant_id']);
 
                     return true;
-                })
+                }),
             );
 
         $this->app->bind(Microsoft365Service::class, fn () => $mockMicrosoft365Service);
@@ -603,17 +672,25 @@ class Microsoft365SubscriptionServiceTest extends IntegrationTestCase
     /**
      * @param array<string, mixed> $attributes
      */
-    private function createDeploymentForChild(Microsoft365CustomerInfo $customerInfo, array $attributes): Microsoft365Deployment
-    {
-        $parentSubscription = new SubscriptionFactory()->for($this->customer)->for($this->parentProduct)->createOne([
-            'billing_period' => $this->childSubscription->billing_period,
-            'contract_period' => $this->childSubscription->contract_period,
-        ]);
+    private function createDeploymentForChild(
+        Microsoft365CustomerInfo $customerInfo,
+        array $attributes,
+    ): Microsoft365Deployment {
+        $parentSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->parentProduct)
+            ->createOne([
+                'billing_period' => $this->childSubscription->billing_period,
+                'contract_period' => $this->childSubscription->contract_period,
+            ]);
 
         $this->childSubscription->parent_subscription_id = $parentSubscription->id;
         $this->childSubscription->save();
 
-        return new Microsoft365DeploymentFactory()->for($customerInfo)->for($parentSubscription)->createOne($attributes);
+        return new Microsoft365DeploymentFactory()
+            ->for($customerInfo)
+            ->for($parentSubscription)
+            ->createOne($attributes);
     }
 
     private function createLoggerMock(): LoggerInterface&MockObject

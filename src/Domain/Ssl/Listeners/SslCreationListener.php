@@ -43,14 +43,19 @@ class SslCreationListener implements ShouldQueue
                     'period' => $event->period,
                     'csr' => $event->csr,
                 ],
-            ]
+            ],
         );
 
         if (! $this->dnsService->hasDnsZone($event->domain)) {
             $this->logger->info(
-                sprintf('No dns zone found for %s during ssl creation after %d attempts', $event->domain, $this->attempts())
+                sprintf(
+                    'No dns zone found for %s during ssl creation after %d attempts',
+                    $event->domain,
+                    $this->attempts(),
+                ),
             );
             $this->release($this->backoff[$this->attempts() - 1]);
+
             return;
         }
 
@@ -62,7 +67,7 @@ class SslCreationListener implements ShouldQueue
                 LoggingContextKeys::META => [
                     'result' => json_encode($result->toArray()),
                 ],
-            ]
+            ],
         );
     }
 }

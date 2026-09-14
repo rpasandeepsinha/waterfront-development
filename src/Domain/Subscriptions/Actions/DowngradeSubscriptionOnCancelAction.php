@@ -20,7 +20,7 @@ class DowngradeSubscriptionOnCancelAction
     public function __construct(
         private readonly SubscriptionChangeService $subscriptionChangeService,
         private readonly ChangeDnsAction $changeDnsAction,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -32,16 +32,16 @@ class DowngradeSubscriptionOnCancelAction
             $this->subscriptionChangeService->change(
                 changeType: ProductChangeType::DOWNGRADE,
                 subscription: $subscription,
-                newProduct: $downgradeProduct
+                newProduct: $downgradeProduct,
             );
-        } catch (DowngradeCancelException | ModelNotFoundException | DnsChangeException | SubscriptionChangeException $e) {
+        } catch (DowngradeCancelException|ModelNotFoundException|DnsChangeException|SubscriptionChangeException $e) {
             $this->logger->error(
                 'Tried to downgrade subscription with uuid: {subscription.uuid} while canceled',
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
                     LoggingContextKeys::DOMAIN_NAME => $subscription->domain,
                     LoggingContextKeys::EXCEPTION => $e,
-                ]
+                ],
             );
         }
     }

@@ -73,9 +73,11 @@ class DomainNameControllerTest extends IntegrationTestCase
             ->for($this->customer)
             ->createOne();
 
-        new DomainDeploymentFactory()->withRtrProvider()->createOne([
-            'subscription_uuid' => $this->subscription->uuid,
-        ]);
+        new DomainDeploymentFactory()
+            ->withRtrProvider()
+            ->createOne([
+                'subscription_uuid' => $this->subscription->uuid,
+            ]);
 
         $this->domainService = self::createMock(DomainService::class);
 
@@ -91,14 +93,17 @@ class DomainNameControllerTest extends IntegrationTestCase
     #[Test]
     public function indexDnsSec(): void
     {
-        $this->domainService->expects(self::once())
+        $this->domainService
+            ->expects(self::once())
             ->method('retrieveDnssecKeys')
             ->with($this->subscription->domain)
             ->willReturn(['keys' => ['key1' => 1]]);
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute('partners.domain-name.dnssec', $this->subscription->domain)
-        )->assertOk()
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute('partners.domain-name.dnssec', $this->subscription->domain),
+            )
+            ->assertOk()
             ->assertJson([
                 'data' => [
                     'keys' => [],
@@ -115,20 +120,24 @@ class DomainNameControllerTest extends IntegrationTestCase
             'pubKey' => 'aliEt75mjEpujeIbjTpGOKerJpOXUMKEmot8V26L4vT6eZqNbW2fAqr9ejkPdbmwLYcCoUl0AtCipuzc1ES6XQ==',
         ];
 
-        $this->domainService->expects(self::once())
+        $this->domainService
+            ->expects(self::once())
             ->method('enableDnssec')
             ->with($this->subscription->domain)
             ->willReturn(true);
 
-        $this->domainService->expects(self::once())
+        $this->domainService
+            ->expects(self::once())
             ->method('retrieveDnssecKeys')
             ->with($this->subscription->domain)
             ->willReturn(['keys' => ['key1' => 1]]);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-name.enable-dnssec', $this->subscription->domain),
-            $requestData
-        )->assertOk()
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-name.enable-dnssec', $this->subscription->domain),
+                $requestData,
+            )
+            ->assertOk()
             ->assertJson([
                 'data' => [
                     'keys' => [
@@ -151,20 +160,24 @@ class DomainNameControllerTest extends IntegrationTestCase
         $this->productSpec->save();
         $this->productSpec->refresh();
 
-        $this->domainService->expects(self::once())
+        $this->domainService
+            ->expects(self::once())
             ->method('enableDnssec')
             ->with($this->subscription->domain)
             ->willReturn(true);
 
-        $this->domainService->expects(self::once())
+        $this->domainService
+            ->expects(self::once())
             ->method('retrieveDnssecKeys')
             ->with($this->subscription->domain)
             ->willReturn(['keys' => ['key1' => 1]]);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-name.enable-dnssec', $this->subscription->domain),
-            $requestData
-        )->assertOk()
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-name.enable-dnssec', $this->subscription->domain),
+                $requestData,
+            )
+            ->assertOk()
             ->assertJson([
                 'data' => [
                     'keys' => [
@@ -177,19 +190,23 @@ class DomainNameControllerTest extends IntegrationTestCase
     #[Test]
     public function enableDnsSecSuccessWithOutPostData(): void
     {
-        $this->domainService->expects(self::once())
+        $this->domainService
+            ->expects(self::once())
             ->method('enableDnssec')
             ->with($this->subscription->domain)
             ->willReturn(true);
 
-        $this->domainService->expects(self::once())
+        $this->domainService
+            ->expects(self::once())
             ->method('retrieveDnssecKeys')
             ->with($this->subscription->domain)
             ->willReturn(['keys' => ['key1' => 1]]);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-name.enable-dnssec', $this->subscription->domain),
-        )->assertOk()
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-name.enable-dnssec', $this->subscription->domain),
+            )
+            ->assertOk()
             ->assertJson([
                 'data' => [
                     'keys' => [
@@ -208,15 +225,18 @@ class DomainNameControllerTest extends IntegrationTestCase
             'pubKey' => 'aliEt75mjEpujeIbjTpGOKerJpOXUMKEmot8V26L4vT6eZqNbW2fAqr9ejkPdbmwLYcCoUl0AtCipuzc1ES6XQ==',
         ];
 
-        $this->domainService->expects(self::once())
+        $this->domainService
+            ->expects(self::once())
             ->method('enableDnssec')
             ->with($this->subscription->domain)
             ->willReturn(false);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-name.enable-dnssec', $this->subscription->domain),
-            $requestData
-        )->assertServerError()
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-name.enable-dnssec', $this->subscription->domain),
+                $requestData,
+            )
+            ->assertServerError()
             ->assertJson([
                 'message' => 'Could not enable DNSSEC',
             ]);
@@ -230,10 +250,12 @@ class DomainNameControllerTest extends IntegrationTestCase
             'alg' => 13,
         ];
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-name.enable-dnssec', $this->subscription->domain),
-            $requestData
-        )->assertUnprocessable()
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-name.enable-dnssec', $this->subscription->domain),
+                $requestData,
+            )
+            ->assertUnprocessable()
             ->assertJson([
                 'message' => 'Dit veld is verplicht wanneer flags / alg aanwezig is.',
                 'errors' => [
@@ -251,10 +273,12 @@ class DomainNameControllerTest extends IntegrationTestCase
             'pubKey' => '75mjEpujeIbjTpGOKerJpOXUMKEmot8V26L4vT6eZqNbW2fAqr9ejkPdbmwLYcCoUl0AtCipuzc1ES6XQ==',
         ];
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-name.enable-dnssec', $this->subscription->domain),
-            $requestData
-        )->assertUnprocessable()
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-name.enable-dnssec', $this->subscription->domain),
+                $requestData,
+            )
+            ->assertUnprocessable()
             ->assertJson([
                 'message' => 'Dit veld dient een geheel getal te zijn.',
                 'errors' => [
@@ -271,14 +295,15 @@ class DomainNameControllerTest extends IntegrationTestCase
         $domain = $this->subscription->domain;
 
         $mockLogger = self::createMock(LoggerInterface::class);
-        $mockLogger->expects(self::once())
+        $mockLogger
+            ->expects(self::once())
             ->method('notice')
             ->with(
                 'Retry Provisioning - Failed because DNS subscription could not be found for domain [{domain.name}]',
                 [
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->subscription->uuid,
-                ]
+                ],
             );
 
         $this->app->bind(LoggerInterface::class, fn () => $mockLogger);
@@ -296,10 +321,11 @@ class DomainNameControllerTest extends IntegrationTestCase
                 [
                     'contactId' => $domainContact->id,
                     'transferCode' => $transferCode,
-                ]
-            )->assertJson([
-                    'message' => sprintf('Could not retrieve DNS from domain [%s]', $domain),
-                ]);
+                ],
+            )
+            ->assertJson([
+                'message' => sprintf('Could not retrieve DNS from domain [%s]', $domain),
+            ]);
     }
 
     #[Test]
@@ -331,7 +357,8 @@ class DomainNameControllerTest extends IntegrationTestCase
 
         $dnsListenerMock = self::mock(DnsCreationListener::class);
         $dnsListenerMock->shouldReceive('setJob')->once();
-        $dnsListenerMock->shouldReceive('handle')
+        $dnsListenerMock
+            ->shouldReceive('handle')
             ->once()
             ->withArgs(fn (CreateDns $event) => $event->subscriptionUuid === $dnsSubscription->uuid);
 
@@ -339,7 +366,8 @@ class DomainNameControllerTest extends IntegrationTestCase
 
         $domainListenerMock = self::mock(DomainCreationListener::class);
         $domainListenerMock->shouldReceive('setJob')->once();
-        $domainListenerMock->shouldReceive('handle')
+        $domainListenerMock
+            ->shouldReceive('handle')
             ->once()
             ->withArgs(fn (CreateDomain $event) => $event->subscription->uuid === $this->subscription->uuid);
 
@@ -351,10 +379,12 @@ class DomainNameControllerTest extends IntegrationTestCase
                 [
                     'contactId' => $domainContact->id,
                     'transferCode' => $transferCode,
-                ]
-            )->assertJson([
-                    'message' => 'technical_subscription.provisioning.initiated_retry_success',
-                ])->assertOk();
+                ],
+            )
+            ->assertJson([
+                'message' => 'technical_subscription.provisioning.initiated_retry_success',
+            ])
+            ->assertOk();
 
         self::assertSame($transferCode, $this->subscription->domainDeployment->refresh()->transfer_secret);
     }
@@ -369,14 +399,17 @@ class DomainNameControllerTest extends IntegrationTestCase
             ->technicalStatusOk()
             ->createOne();
 
-        $this->domainNameCoupleAction->expects(self::once())
+        $this->domainNameCoupleAction
+            ->expects(self::once())
             ->method('execute')
             ->with($this->subscription->domain, $subscription->fresh());
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-name.couple', $this->subscription->uuid),
-            ['uuid' => $subscription->uuid],
-        )->assertOk()
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-name.couple', $this->subscription->uuid),
+                ['uuid' => $subscription->uuid],
+            )
+            ->assertOk()
             ->assertExactJson([
                 'message' => self::resolve(TranslatorInterface::class)->translate('status.success'),
             ]);
@@ -392,15 +425,18 @@ class DomainNameControllerTest extends IntegrationTestCase
             ->technicalStatusOk()
             ->createOne();
 
-        $this->domainNameCoupleAction->expects(self::once())
+        $this->domainNameCoupleAction
+            ->expects(self::once())
             ->method('execute')
             ->with($this->subscription->domain, $subscription->fresh())
             ->willThrowException(new DomainNameCoupleActionException((string) $this->subscription->domain));
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-name.couple', $this->subscription->uuid),
-            ['uuid' => Uuid::fromString($subscription->uuid)],
-        )->assertUnprocessable()
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-name.couple', $this->subscription->uuid),
+                ['uuid' => Uuid::fromString($subscription->uuid)],
+            )
+            ->assertUnprocessable()
             ->assertJsonFragment([
                 'message' => self::resolve(TranslatorInterface::class)->translate('domain-name.couple-failed'),
             ]);
@@ -416,18 +452,25 @@ class DomainNameControllerTest extends IntegrationTestCase
             ->technicalStatusOk()
             ->createOne();
 
-        $validator = Validator::make(['uuid' => Uuid::uuid4()], ['uuid' => [new DomainNameCoupleAllowedRule(self::resolve(ProvisioningRequestRepository::class))]]);
+        $validator = Validator::make([
+            'uuid' => Uuid::uuid4(),
+        ], ['uuid' => [new DomainNameCoupleAllowedRule(self::resolve(ProvisioningRequestRepository::class))]]);
 
-        $this->domainNameCoupleAction->expects(self::once())
+        $this->domainNameCoupleAction
+            ->expects(self::once())
             ->method('execute')
             ->with($this->subscription->domain, $subscription->fresh())
             ->willThrowException(new ValidationException($validator));
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.domain-name.couple', $this->subscription->uuid),
-            ['uuid' => Uuid::fromString($subscription->uuid)],
-        )->assertUnprocessable()
-            ->assertJsonFragment(['message' => self::resolve(TranslatorInterface::class)->translate('domain_name_couple_not_allowed')]);
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.domain-name.couple', $this->subscription->uuid),
+                ['uuid' => Uuid::fromString($subscription->uuid)],
+            )
+            ->assertUnprocessable()
+            ->assertJsonFragment([
+                'message' => self::resolve(TranslatorInterface::class)->translate('domain_name_couple_not_allowed'),
+            ]);
     }
 
     #[Test]
@@ -440,14 +483,15 @@ class DomainNameControllerTest extends IntegrationTestCase
             ->technicalStatusOk()
             ->createOne();
 
-        $this->domainNameDecoupleAction->expects(self::once())
+        $this->domainNameDecoupleAction
+            ->expects(self::once())
             ->method('execute')
             ->with($this->subscription->domain, $decoupleTarget->fresh());
 
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.domain-name.decouple', $this->subscription->uuid),
-                ['uuid' => $decoupleTarget->uuid]
+                ['uuid' => $decoupleTarget->uuid],
             )
             ->assertOk()
             ->assertExactJson([
@@ -465,7 +509,8 @@ class DomainNameControllerTest extends IntegrationTestCase
             ->technicalStatusOk()
             ->createOne();
 
-        $this->domainNameDecoupleAction->expects(self::once())
+        $this->domainNameDecoupleAction
+            ->expects(self::once())
             ->method('execute')
             ->with($this->subscription->domain, $decoupleTarget->fresh())
             ->willThrowException(new DomainNameDecoupleActionException((string) $this->subscription->domain));
@@ -473,12 +518,11 @@ class DomainNameControllerTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.domain-name.decouple', $this->subscription->uuid),
-                ['uuid' => $decoupleTarget->uuid]
+                ['uuid' => $decoupleTarget->uuid],
             )
             ->assertUnprocessable()
             ->assertJsonFragment([
-                'message' => self::resolve(TranslatorInterface::class)
-                    ->translate('domain-name.decouple-failed'),
+                'message' => self::resolve(TranslatorInterface::class)->translate('domain-name.decouple-failed'),
             ]);
     }
 }

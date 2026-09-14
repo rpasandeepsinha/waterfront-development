@@ -28,9 +28,7 @@ class NovaTestAcronisUserSsoAction extends Action
         private readonly AuthenticationManager $authenticationManager,
         private readonly BackupService $backupService,
     ) {
-        $this->sole()
-            ->showOnDetail()
-            ->showOnIndex();
+        $this->sole()->showOnDetail()->showOnIndex();
     }
 
     public function name(): string
@@ -46,7 +44,7 @@ class NovaTestAcronisUserSsoAction extends Action
         return [
             Text::make(
                 $this->translator->translate('nova-action.acronis-provider.test-user-sso.user_uuid'),
-                'user_uuid'
+                'user_uuid',
             )->rules('required', 'uuid'),
         ];
     }
@@ -69,15 +67,20 @@ class NovaTestAcronisUserSsoAction extends Action
                     $userUuid,
                     $provider->id,
                     $provider->name,
-                    $exception->getMessage()
+                    $exception->getMessage(),
                 ),
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::BACKUP,
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::ACRONIS,
-                ]
+                ],
             );
-            return self::danger($this->translator->translate('nova-action.acronis-provider.test-user-sso.failure') . ' => ' . $exception::class);
+
+            return self::danger(
+                $this->translator->translate('nova-action.acronis-provider.test-user-sso.failure')
+                . ' => '
+                . $exception::class,
+            );
         }
 
         $ssoUrl = sprintf(

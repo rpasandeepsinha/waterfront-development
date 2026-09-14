@@ -24,14 +24,17 @@ class VolumeDiscountServiceTest extends IntegrationTestCase
         $volumeDiscountProductGroup = new ProductGroupFactory()->volumeDiscount()->createOne();
         $volumeDiscountProduct = new ProductFactory()->for($volumeDiscountProductGroup)->createOne();
         $volumeDiscount = new ProductDiscountFactory()->for($volumeDiscountProduct)->createOne();
-        new ProductPriceComponentFactory()->for($volumeDiscountProduct)->registration()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($volumeDiscountProduct)
+            ->registration()
+            ->createOne();
 
         $volumeDiscountService = self::resolve(VolumeDiscountService::class);
         $volumeDiscountService->attach(
             $customer,
             $volumeDiscount,
             $volumeDiscountProduct,
-            12
+            12,
         );
 
         self::assertCount(1, $volumeDiscount->customers);

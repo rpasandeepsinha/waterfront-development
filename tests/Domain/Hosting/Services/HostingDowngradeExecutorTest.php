@@ -62,7 +62,8 @@ class HostingDowngradeExecutorTest extends IntegrationTestCase
         $this->subscription = SubscriptionFactory::new()
             ->withCustomer()
             ->has(HostingDeploymentFactory::new()->withPleskProvider())
-            ->for($this->oldProduct)->createOne();
+            ->for($this->oldProduct)
+            ->createOne();
 
         $hostingDeployment = $this->subscription->hostingDeployment;
         self::assertInstanceOf(HostingDeployment::class, $hostingDeployment);
@@ -72,14 +73,16 @@ class HostingDowngradeExecutorTest extends IntegrationTestCase
     #[Test]
     public function executesServicePlanChangeWhenDowngradeIsPossible(): void
     {
-        $this->downgradePossibilityChecker->expects(self::once())
+        $this->downgradePossibilityChecker
+            ->expects(self::once())
             ->method('canDowngradeToServicePlan')
             ->with(self::identicalTo($this->hostingDeployment), $this->newProduct->slug)
             ->willReturn(new DowngradeCheckResult(true, null));
 
         $expectedResult = new SubscriptionChangeResult(status: SubscriptionChangeResult::STATUS_OK);
 
-        $this->changeHostingAction->expects(self::once())
+        $this->changeHostingAction
+            ->expects(self::once())
             ->method('execute')
             ->with(
                 self::identicalTo($this->subscription),
@@ -104,7 +107,8 @@ class HostingDowngradeExecutorTest extends IntegrationTestCase
     #[Test]
     public function returnsErrorWithoutChangingServicePlanWhenUsageExceedsQuota(): void
     {
-        $this->downgradePossibilityChecker->expects(self::once())
+        $this->downgradePossibilityChecker
+            ->expects(self::once())
             ->method('canDowngradeToServicePlan')
             ->with(self::identicalTo($this->hostingDeployment), $this->newProduct->slug)
             ->willReturn(new DowngradeCheckResult(false, 'Disk usage (2000) exceeds quota (1000)'));
@@ -127,20 +131,27 @@ class HostingDowngradeExecutorTest extends IntegrationTestCase
     #[Test]
     public function returnsErrorAndLogsWarningWhenServicePlanChangeThrows(): void
     {
-        $this->downgradePossibilityChecker->expects(self::once())
+        $this->downgradePossibilityChecker
+            ->expects(self::once())
             ->method('canDowngradeToServicePlan')
             ->willReturn(new DowngradeCheckResult(true, null));
 
-        $this->changeHostingAction->expects(self::once())
+        $this->changeHostingAction
+            ->expects(self::once())
             ->method('execute')
             ->willThrowException(new RuntimeException('panel unreachable', 503));
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 'Technical hosting downgrade to product id {product.id} not performed for subscription {subscription.uuid}',
-                self::callback(fn (array $context): bool => ($context['subscription.uuid'] ?? null) === $this->subscription->uuid
-                    && ($context['product.id'] ?? null) === $this->newProduct->id)
+                self::callback(
+                    fn (array $context): bool => (
+                        ($context['subscription.uuid'] ?? null) === $this->subscription->uuid
+                        && ($context['product.id'] ?? null) === $this->newProduct->id
+                    ),
+                ),
             );
 
         $result = $this->executor->execute(

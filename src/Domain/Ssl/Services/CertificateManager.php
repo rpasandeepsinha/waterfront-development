@@ -10,7 +10,7 @@ use Waterfront\Domain\Ssl\Storage\CertificateCloud;
 class CertificateManager
 {
     public function __construct(
-        private readonly CertificateCloud $cloudDisk
+        private readonly CertificateCloud $cloudDisk,
     ) {
     }
 
@@ -19,7 +19,7 @@ class CertificateManager
         $this->cloudDisk->storeCertificate($domain, $certificate, Certificate::ROOT);
     }
 
-    public function getRootCertificate(string $domain): string|null
+    public function getRootCertificate(string $domain): ?string
     {
         return $this->cloudDisk->getCertificate($domain, Certificate::ROOT);
     }
@@ -29,7 +29,7 @@ class CertificateManager
         $this->cloudDisk->storeCertificate($domain, $certificate, Certificate::INTERMEDIATE);
     }
 
-    public function getIntermediateCertificate(string $domain): string|null
+    public function getIntermediateCertificate(string $domain): ?string
     {
         return $this->cloudDisk->getCertificate($domain, Certificate::INTERMEDIATE);
     }
@@ -39,7 +39,7 @@ class CertificateManager
         $this->cloudDisk->storeCertificate($domain, $certificate, Certificate::MAIN);
     }
 
-    public function getMainCertificate(string $domain): string|null
+    public function getMainCertificate(string $domain): ?string
     {
         return $this->cloudDisk->getCertificate($domain, Certificate::MAIN);
     }

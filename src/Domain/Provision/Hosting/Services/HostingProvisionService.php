@@ -19,8 +19,9 @@ use Waterfront\Domain\Provision\Services\AbstractProvisionService;
 
 class HostingProvisionService extends AbstractProvisionService implements ProvisionServiceInterface
 {
-    public function __construct(private readonly HostingServiceFactory $hostingServiceFactory)
-    {
+    public function __construct(
+        private readonly HostingServiceFactory $hostingServiceFactory,
+    ) {
     }
 
     public function validate(ProvisionRequestInterface $provisionData): ?ProvisionResultInterface
@@ -28,7 +29,7 @@ class HostingProvisionService extends AbstractProvisionService implements Provis
         try {
             $validator = $this->hostingServiceFactory->getValidator(
                 $this->getProviderForRequest($provisionData),
-                $provisionData
+                $provisionData,
             );
 
             if ($validator->fails()) {
@@ -45,7 +46,7 @@ class HostingProvisionService extends AbstractProvisionService implements Provis
     {
         try {
             $providerService = $this->hostingServiceFactory->getProviderService(
-                $this->getProviderForRequest($provisionData)
+                $this->getProviderForRequest($provisionData),
             );
         } catch (UnknownHostingProviderException $providerException) {
             return new HostingResult($provisionData, ProvisionStatus::FAILED, $providerException);
@@ -57,8 +58,8 @@ class HostingProvisionService extends AbstractProvisionService implements Provis
             default => new HostingResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: new UnknownHostingRequestException($provisionData)
-            )
+                exception: new UnknownHostingRequestException($provisionData),
+            ),
         };
     }
 

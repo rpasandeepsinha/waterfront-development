@@ -22,8 +22,8 @@ class VoucherService
 
     public function updateVoucher(Voucher $voucher, VoucherDTO $dto): Voucher
     {
-        $voucher->description     = $dto->description;
-        $voucher->max_claims      = $dto->maxClaims;
+        $voucher->description = $dto->description;
+        $voucher->max_claims = $dto->maxClaims;
         $voucher->expiration_date = $dto->expirationDate;
         $voucher->save();
 
@@ -35,20 +35,22 @@ class VoucherService
         $productGroup = ProductGroup::where('slug', $dto->productGroupSlug)->firstOrFail();
 
         $voucher = new Voucher();
-        $voucher->display_name                       = $dto->displayName;
-        $voucher->internal_name                      = $dto->internalName;
-        $voucher->description                        = $dto->description;
-        $voucher->code                               = $dto->code;
-        $voucher->amount                             = $dto->amount;
-        $voucher->amount_type                        = $dto->amountType;
-        $voucher->max_claims                         = $dto->maxClaims;
-        $voucher->billing_period                     = $dto->billingPeriod;
-        $voucher->contract_period                    = $dto->contractPeriod;
-        $voucher->expiration_date                    = $dto->expirationDate;
-        $voucher->apply_with_discount                = $dto->applyWithDiscount;
+        $voucher->display_name = $dto->displayName;
+        $voucher->internal_name = $dto->internalName;
+        $voucher->description = $dto->description;
+        $voucher->code = $dto->code;
+        $voucher->amount = $dto->amount;
+        $voucher->amount_type = $dto->amountType;
+        $voucher->max_claims = $dto->maxClaims;
+        $voucher->billing_period = $dto->billingPeriod;
+        $voucher->contract_period = $dto->contractPeriod;
+        $voucher->expiration_date = $dto->expirationDate;
+        $voucher->apply_with_discount = $dto->applyWithDiscount;
         $voucher->allow_multiple_claims_same_customer = $dto->allowMultipleClaimsSameCustomer;
-        $voucher->product_group_uuid                 = $productGroup->uuid;
-        $voucher->product_uuid                       = $dto->productSlug !== null ? Product::where('slug', $dto->productSlug)->firstOrFail()->uuid : null;
+        $voucher->product_group_uuid = $productGroup->uuid;
+        $voucher->product_uuid = $dto->productSlug !== null
+            ? Product::where('slug', $dto->productSlug)->firstOrFail()->uuid
+            : null;
         $voucher->save();
 
         return $voucher;
@@ -97,6 +99,9 @@ class VoucherService
 
     public function cantBeClaimedAgain(Voucher $voucher, Customer $customer): bool
     {
-        return $this->voucherRepository->hasCustomerClaimedVoucher($voucher->id, $customer->id) && ! $voucher->allow_multiple_claims_same_customer;
+        return (
+            $this->voucherRepository->hasCustomerClaimedVoucher($voucher->id, $customer->id)
+            && ! $voucher->allow_multiple_claims_same_customer
+        );
     }
 }

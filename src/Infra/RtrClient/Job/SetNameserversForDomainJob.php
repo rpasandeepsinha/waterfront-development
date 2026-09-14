@@ -21,8 +21,9 @@ use Webmozart\Assert\Assert;
 
 class SetNameserversForDomainJob extends AbstractQueueableJob
 {
-    public function __construct(public string $domain)
-    {
+    public function __construct(
+        public string $domain,
+    ) {
         parent::__construct();
     }
 
@@ -46,8 +47,9 @@ class SetNameserversForDomainJob extends AbstractQueueableJob
                 [
                     LoggingContextKeys::DOMAIN_NAME => $this->domain,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
+
             return;
         }
 
@@ -75,7 +77,10 @@ class SetNameserversForDomainJob extends AbstractQueueableJob
         Assert::notNull($dnsDeployment, sprintf('Expected to have DnsDeployment for domain %s', $this->domain));
 
         $domainDeployment = $dnsDeploymentRepository->getDomainDeployment($dnsDeployment);
-        Assert::notNull($domainDeployment, sprintf('Expected to have DomainDeployment with DNS for domain %s', $this->domain));
+        Assert::notNull($domainDeployment, sprintf(
+            'Expected to have DomainDeployment with DNS for domain %s',
+            $this->domain,
+        ));
 
         $nameservers = $dnsDeploymentRepository->getNameservers($dnsDeployment);
         $busDispatcher->dispatch(new UpdateDomainNameRegistrationJob($domainDeployment, $nameservers));

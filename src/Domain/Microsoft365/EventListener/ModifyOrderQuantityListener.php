@@ -17,14 +17,18 @@ class ModifyOrderQuantityListener implements OrderModifyQuantityObserverInterfac
 {
     public function execute(OrderModifyQuantity $modifyOrderQuantity, ?Status $status): void
     {
-        $microsoft365Deployment = Microsoft365Deployment::where('kpn_order_id', $modifyOrderQuantity->getOrderId())->first();
+        $microsoft365Deployment = Microsoft365Deployment::where(
+            'kpn_order_id',
+            $modifyOrderQuantity->getOrderId(),
+        )->first();
 
         if (! $microsoft365Deployment instanceof Microsoft365Deployment) {
             Log::error(sprintf(
                 '%s::execute -> Subscription failed to fetch using KPN Order ID %s.',
                 self::class,
-                $modifyOrderQuantity->getOrderId()
+                $modifyOrderQuantity->getOrderId(),
             ));
+
             return;
         }
 
@@ -36,8 +40,8 @@ class ModifyOrderQuantityListener implements OrderModifyQuantityObserverInterfac
                 self::class,
                 Microsoft365Deployment::class,
                 $microsoft365Deployment->id,
-                $microsoft365Deployment->kpn_order_id
-            )
+                $microsoft365Deployment->kpn_order_id,
+            ),
         );
 
         switch ($statusCode) {
@@ -49,19 +53,25 @@ class ModifyOrderQuantityListener implements OrderModifyQuantityObserverInterfac
                 $microsoft365Deployment->kpn_order_id = $modifyOrderQuantity->getUpgradeOrderId();
 
                 $subscription = $microsoft365Deployment->subscription;
-                $allArchivingChildren = $subscription->children->filter(fn (Subscription $subscription) => $subscription->administrative_status === AdministrativeStatus::ARCHIVING->value);
+                $allArchivingChildren = $subscription->children->filter(
+                    fn (Subscription $subscription) => (
+                        $subscription->administrative_status === AdministrativeStatus::ARCHIVING->value
+                    ),
+                );
 
                 foreach ($allArchivingChildren as $child) {
                     $child->administrative_status = AdministrativeStatus::ARCHIVED->value;
                     $child->save();
                 }
+
                 break;
             default:
                 Log::error(sprintf(
                     "%s::execute -> received KPN modify order webhook call with undocumented status code '%s'",
                     self::class,
-                    $statusCode
+                    $statusCode,
                 ));
+
                 return;
         }
 

@@ -12,7 +12,7 @@ class UnknownMicrosoft365RequestException extends Microsoft365Exception
     {
         $message = sprintf('No implementation found in Microsoft365 service for request [%s]', $request::class);
         parent::__construct(
-            $message
+            $message,
         );
     }
 }

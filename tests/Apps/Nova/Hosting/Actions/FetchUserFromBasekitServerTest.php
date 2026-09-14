@@ -27,16 +27,21 @@ class FetchUserFromBasekitServerTest extends IntegrationTestCase
             ->sitebuilder()
             ->createOne(['hostname' => 'single-server.nl']);
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::BASEKIT, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::BASEKIT,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $action = self::resolve(NovaFetchUserFromSitebuilderServer::class);
 
         $fields = new ActionFields(
             new Collection([
-               'sitebuilder_user_ref' => 12,
+                'sitebuilder_user_ref' => 12,
                 'sitebuilder_site_ref' => 44,
             ]),
-            new Collection()
+            new Collection(),
         );
         $payload = new Collection([$server]);
 
@@ -47,7 +52,7 @@ class FetchUserFromBasekitServerTest extends IntegrationTestCase
 
         self::assertSame(
             'Fetched sitebuilder user {12} from server with hostname {single-server.nl} with response:',
-            $modal->payload['title']
+            $modal->payload['title'],
         );
     }
 }

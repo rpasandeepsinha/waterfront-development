@@ -48,7 +48,7 @@ interface ResellerHostingServiceInterface
         string $subscriptionUuid,
         array $specs,
         int $providerId,
-        ?Server $server = null
+        ?Server $server = null,
     ): string;
 
     /**

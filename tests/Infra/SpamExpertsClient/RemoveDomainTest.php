@@ -42,7 +42,7 @@ class RemoveDomainTest extends IntegrationTestCase
 
         self::assertSame(
             'api/domain/remove/domain/' . urlencode($this->testDomain),
-            $clientRequest->getUri()->getPath()
+            $clientRequest->getUri()->getPath(),
         );
     }
 
@@ -54,7 +54,7 @@ class RemoveDomainTest extends IntegrationTestCase
     {
         $response = new GuzzleResponse(
             200,
-            ['Content-Type' => 'text/html']
+            ['Content-Type' => 'text/html'],
         );
 
         $response = new Response($response);
@@ -78,7 +78,7 @@ class RemoveDomainTest extends IntegrationTestCase
         $spamexperts = new SpamExpertsClient(
             httpClient: $client,
             logger: $this->resolve(LoggerInterface::class),
-            configuration: $this->resolve(ConfigurationInterface::class)
+            configuration: $this->resolve(ConfigurationInterface::class),
         );
 
         $spamexperts->removeDomain($this->testDomain);
@@ -99,7 +99,7 @@ class RemoveDomainTest extends IntegrationTestCase
         $spamexperts = new SpamExpertsClient(
             httpClient: $client,
             logger: $this->resolve(LoggerInterface::class),
-            configuration: $this->resolve(ConfigurationInterface::class)
+            configuration: $this->resolve(ConfigurationInterface::class),
         );
 
         $spamexperts->removeDomain($this->testDomain);

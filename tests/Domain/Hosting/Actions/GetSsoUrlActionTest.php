@@ -29,17 +29,23 @@ class GetSsoUrlActionTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $this->pleskServer = new ServerFactory()->plesk()->createOne([
-            'hostname' => 'plesk.sso.testing',
-        ]);
+        $this->pleskServer = new ServerFactory()
+            ->plesk()
+            ->createOne([
+                'hostname' => 'plesk.sso.testing',
+            ]);
 
-        $this->directadminServer = new ServerFactory()->directadmin()->createOne([
-            'hostname' => 'directadmin.sso.testing',
-        ]);
+        $this->directadminServer = new ServerFactory()
+            ->directadmin()
+            ->createOne([
+                'hostname' => 'directadmin.sso.testing',
+            ]);
 
-        $this->sitebuilderServer = new ServerFactory()->sitebuilder()->createOne([
-            'hostname' => 'https://sitebuilder.sso.testing/',
-        ]);
+        $this->sitebuilderServer = new ServerFactory()
+            ->sitebuilder()
+            ->createOne([
+                'hostname' => 'https://sitebuilder.sso.testing/',
+            ]);
     }
 
     #[Test]
@@ -59,9 +65,7 @@ class GetSsoUrlActionTest extends IntegrationTestCase
     public function getSslUrlActionDirectadminThrowsSsoResolveException(): void
     {
         $mockClient = self::createMock(DirectAdminClient::class);
-        $mockClient->expects(self::once())
-            ->method('createLoginUrl')
-            ->willReturn('');
+        $mockClient->expects(self::once())->method('createLoginUrl')->willReturn('');
 
         $this->app->bind(DirectAdminClient::class, fn () => $mockClient);
 

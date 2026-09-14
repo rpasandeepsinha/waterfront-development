@@ -39,7 +39,7 @@ class VpsCreationListener implements ShouldQueue
                 LoggingContextKeys::PROVISIONING_TYPE => ProductGroupType::VPS,
                 LoggingContextKeys::PROVISIONING_PROVIDER => 'cloudstack',
                 LoggingContextKeys::EXCEPTION => $exception,
-            ]
+            ],
         );
 
         $vpsSubscription = $this->subscriptionRepository->getByUuid($event->subscriptionUuid);
@@ -52,7 +52,7 @@ class VpsCreationListener implements ShouldQueue
                     LoggingContextKeys::PROVISIONING_TYPE => ProductGroupType::VPS,
                     LoggingContextKeys::PROVISIONING_PROVIDER => 'cloudstack',
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return;
@@ -62,9 +62,11 @@ class VpsCreationListener implements ShouldQueue
             'technical_status' => TechnicalStatus::FAILED->value,
         ]);
 
-        $vpsSubscription->children()->update([
-            'technical_status' => TechnicalStatus::FAILED->value,
-        ]);
+        $vpsSubscription
+            ->children()
+            ->update([
+                'technical_status' => TechnicalStatus::FAILED->value,
+            ]);
     }
 
     /**
@@ -79,7 +81,7 @@ class VpsCreationListener implements ShouldQueue
                 LoggingContextKeys::SUBSCRIPTION_UUID => $event->subscriptionUuid,
                 LoggingContextKeys::PROVISIONING_TYPE => ProductGroupType::VPS,
                 LoggingContextKeys::PROVISIONING_PROVIDER => 'cloudstack',
-            ]
+            ],
         );
 
         $vpsSubscription = $this->subscriptionRepository->getByUuid($event->subscriptionUuid);
@@ -87,7 +89,7 @@ class VpsCreationListener implements ShouldQueue
 
         $this->vpsService->create(
             subscription: $vpsSubscription,
-            sshKeyUuid: $event->sshKeyUuid
+            sshKeyUuid: $event->sshKeyUuid,
         );
     }
 }

@@ -53,10 +53,7 @@ class DeleteUserPackagesTest extends DirectAdminTestCase
 
         $this->api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->deleteUserPackage
-            ->addPackage('deleteme')
-            ->addPackage('deletemeaswell')
-            ->addPackage('dontkeepme');
+        $this->deleteUserPackage->addPackage('deleteme')->addPackage('deletemeaswell')->addPackage('dontkeepme');
 
         $responseCalled = $this->api->call($this->deleteUserPackage);
 
@@ -80,12 +77,11 @@ class DeleteUserPackagesTest extends DirectAdminTestCase
 
         $this->api = new DirectAdminApi($this->getTestServer(), $client);
 
-        $this->deleteUserPackage
-            ->setPackages([
-                'deleteone',
-                'deletetwo',
-                'deletethree',
-            ]);
+        $this->deleteUserPackage->setPackages([
+            'deleteone',
+            'deletetwo',
+            'deletethree',
+        ]);
 
         $responseCalled = $this->api->call($this->deleteUserPackage);
 

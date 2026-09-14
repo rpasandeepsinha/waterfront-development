@@ -36,9 +36,11 @@ class OrderManualSubscriptionTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->withAddress()->createOne();
 
-        $productGroup = new ProductGroupFactory()->manualSubscription()->createOne([
-            'slug' => ProductGroupType::MANUAL_SUBSCRIPTION,
-        ]);
+        $productGroup = new ProductGroupFactory()
+            ->manualSubscription()
+            ->createOne([
+                'slug' => ProductGroupType::MANUAL_SUBSCRIPTION,
+            ]);
 
         $this->product = new ProductFactory()->createOne([
             'slug' => 'manual-testproduct',
@@ -46,31 +48,40 @@ class OrderManualSubscriptionTest extends IntegrationTestCase
             'product_group_id' => $productGroup->id,
         ]);
 
-        new ProductPriceComponentFactory()->registration()->createOne([
-            'product_id' =>  $this->product->id,
-            'price' => 96,
-        ]);
+        new ProductPriceComponentFactory()
+            ->registration()
+            ->createOne([
+                'product_id' => $this->product->id,
+                'price' => 96,
+            ]);
 
-        $this->orderData = (array) json_decode((string) file_get_contents(__DIR__ . '/data/order_payload_manual_subscription.json'), true, 512, JSON_THROW_ON_ERROR);
+        $this->orderData = (array) json_decode(
+            (string) file_get_contents(__DIR__ . '/data/order_payload_manual_subscription.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
     }
 
     #[Test]
     public function orderSuccess(): void
     {
-        $response = $this
-            ->actingAsCustomer($this->customer)
-            ->json('post', $this->generateRoute('partners.order.order'), $this->orderData);
+        $response = $this->actingAsCustomer($this->customer)->json(
+            'post',
+            $this->generateRoute('partners.order.order'),
+            $this->orderData,
+        );
 
         $response->assertOk();
         $response->assertJsonFragment([
-            'status'           => 'ok',
+            'status' => 'ok',
         ]);
 
         self::assertDatabaseHas(
             'order_line_items',
             [
                 'product_name' => $this->product->name,
-            ]
+            ],
         );
     }
 
@@ -80,9 +91,11 @@ class OrderManualSubscriptionTest extends IntegrationTestCase
         /** @phpstan-ignore-next-line */
         $this->orderData['subscriptions']['manual-subscription'][0]['slug'] = 'wrong-product';
 
-        $response = $this
-            ->actingAsCustomer($this->customer)
-            ->json('post', $this->generateRoute('partners.order.order'), $this->orderData);
+        $response = $this->actingAsCustomer($this->customer)->json(
+            'post',
+            $this->generateRoute('partners.order.order'),
+            $this->orderData,
+        );
 
         $response->assertUnprocessable();
 
@@ -90,7 +103,7 @@ class OrderManualSubscriptionTest extends IntegrationTestCase
             'order_line_items',
             [
                 'product_name' => $this->product->name,
-            ]
+            ],
         );
     }
 
@@ -98,7 +111,12 @@ class OrderManualSubscriptionTest extends IntegrationTestCase
     public function combinationOrderSuccess(): void
     {
         new ServerFactory()->directadmin()->createOne();
-        new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $hostingGroup = new ProductGroupFactory()->hosting()->createOne();
 
         $hostingProduct = new ProductFactory()->createOne([
@@ -107,31 +125,41 @@ class OrderManualSubscriptionTest extends IntegrationTestCase
             'product_group_id' => $hostingGroup->id,
         ]);
 
-        new ProductPriceComponentFactory()->for($hostingProduct)->registration()->createOne(['price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->registration()
+            ->createOne(['price' => 96]);
 
-        $this->orderData = (array) json_decode((string) file_get_contents(__DIR__ . '/data/order_payload_combination_subscriptions.json'), true, 512, JSON_THROW_ON_ERROR);
+        $this->orderData = (array) json_decode(
+            (string) file_get_contents(__DIR__ . '/data/order_payload_combination_subscriptions.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
-        $response = $this
-            ->actingAsCustomer($this->customer)
-            ->json('post', $this->generateRoute('partners.order.order'), $this->orderData);
+        $response = $this->actingAsCustomer($this->customer)->json(
+            'post',
+            $this->generateRoute('partners.order.order'),
+            $this->orderData,
+        );
 
         $response->assertOk();
         $response->assertJsonFragment([
-            'status'           => 'ok',
+            'status' => 'ok',
         ]);
 
         self::assertDatabaseHas(
             'order_line_items',
             [
                 'product_name' => $this->product->name,
-            ]
+            ],
         );
 
         self::assertDatabaseHas(
             'order_line_items',
             [
                 'product_name' => $hostingProduct->name,
-            ]
+            ],
         );
     }
 }

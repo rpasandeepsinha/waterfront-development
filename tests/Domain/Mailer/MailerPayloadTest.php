@@ -38,7 +38,7 @@ class MailerPayloadTest extends IntegrationTestCase
         $order = ['extension' => 'bla.nl', 'nested' => ['a' => 'b', 'c' => 'd']];
         $total = '100.00';
 
-        $mail = new readonly class ($order, $total) implements MailTemplateInterface {
+        $mail = new readonly class($order, $total) implements MailTemplateInterface {
             /** @param mixed[] $order */
             public function __construct(
                 /** mixed[] */
@@ -54,22 +54,23 @@ class MailerPayloadTest extends IntegrationTestCase
         };
 
         $jsonResponse = <<<JSON
-{
-  "eventId": {
-    "created": "2024-10-07T13:00:56.048Z",
-    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-  },
-  "completedAt": "2024-10-07T13:00:56.048Z",
-  "statusId": "string",
-  "sendResult": "SENT",
-  "requestedAt": "2024-10-07T13:00:56.048Z",
-  "startedAt": "2024-10-07T13:00:56.048Z",
-  "status": "PENDING"
-}
-JSON;
+        {
+          "eventId": {
+            "created": "2024-10-07T13:00:56.048Z",
+            "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          },
+          "completedAt": "2024-10-07T13:00:56.048Z",
+          "statusId": "string",
+          "sendResult": "SENT",
+          "requestedAt": "2024-10-07T13:00:56.048Z",
+          "startedAt": "2024-10-07T13:00:56.048Z",
+          "status": "PENDING"
+        }
+        JSON;
 
         $hubspotClient = self::createMock(HubspotCrmHttpClient::class);
-        $hubspotClient->expects(self::once())
+        $hubspotClient
+            ->expects(self::once())
             ->method('post')
             ->with(self::isString(), self::callback(function (array $payload) {
                 self::assertArrayHasKey('customProperties', $payload);
@@ -83,6 +84,7 @@ JSON;
                     ],
                     'total' => '100.00',
                 ]);
+
                 return true;
             }))
             ->willReturn(json_decode($jsonResponse, true));

@@ -9,8 +9,10 @@ use Waterfront\Domain\ResellerHosting\Parameters\ResellerHostingParameters;
 
 class Request implements RequestInterface
 {
-    public function __construct(private readonly ResellerHostingParameters $parameters, public bool $maskSecrets = false)
-    {
+    public function __construct(
+        private readonly ResellerHostingParameters $parameters,
+        public bool $maskSecrets = false,
+    ) {
     }
 
     /**
@@ -22,10 +24,10 @@ class Request implements RequestInterface
             'reseller' => [
                 'add' => [
                     'gen-info' => [
-                        'pname'  => $this->parameters->contactPerson,
-                        'login'  => $this->parameters->username,
+                        'pname' => $this->parameters->contactPerson,
+                        'login' => $this->parameters->username,
                         'passwd' => ! $this->maskSecrets ? $this->parameters->password : '********',
-                        'email'  => $this->parameters->email,
+                        'email' => $this->parameters->email,
                     ],
                     'permissions' => [
                         'permission' => [

@@ -63,13 +63,11 @@ class DomainNameCoupleRepositoryTest extends TestCase
         $coupleType = ProvisionType::HOSTING;
         $deploymentUuid = Uuid::uuid4();
 
-        DomainNameCoupleDeploymentFactory::new()
-            ->hostingCoupling()
-            ->createOne([
-                'domain' => $domain,
-                'couple_type' => $coupleType->value,
-                'deployment_uuid' => $deploymentUuid->toString(),
-            ]);
+        DomainNameCoupleDeploymentFactory::new()->hostingCoupling()->createOne([
+            'domain' => $domain,
+            'couple_type' => $coupleType->value,
+            'deployment_uuid' => $deploymentUuid->toString(),
+        ]);
 
         $this->repo->delete($domain, ProvisionType::HOSTING, $deploymentUuid);
 
@@ -99,7 +97,7 @@ class DomainNameCoupleRepositoryTest extends TestCase
                         'couple_type' => ProvisionType::HOSTING,
                         'deployment_uuid' => $deploymentUuid->toString(),
                     ],
-                ]
+                ],
             );
 
         $this->repo->delete($domain, ProvisionType::HOSTING, $deploymentUuid);

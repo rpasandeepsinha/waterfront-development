@@ -40,16 +40,17 @@ class NovaMigratedSubscriptionResource extends Resource
     public function fields(NovaRequest $request)
     {
         return [
-            ID::make(self::translate('ID'), 'id')
-                ->sortable()
-                ->hideFromDetail(),
+            ID::make(self::translate('ID'), 'id')->sortable()->hideFromDetail(),
             Text::make(
                 self::translate('migrated.subscription.reference_name'),
-                fn (): string => implode(', ', $this->resource->migratedCustomers()->pluck('reference_name')->toArray())
+                fn (): string => implode(
+                    ', ',
+                    $this->resource->migratedCustomers()->pluck('reference_name')->toArray(),
+                ),
             ),
             Text::make(
                 self::translate('migrated.subscription.group_type'),
-                fn (): string => implode(', ', $this->resource->migratedCustomers()->pluck('group_type')->toArray())
+                fn (): string => implode(', ', $this->resource->migratedCustomers()->pluck('group_type')->toArray()),
             ),
             Text::make(self::translate('migrated.subscription.reference_subscription_id'), 'reference_subscription_id'),
             Text::make(self::translate('migrated.subscription.reference_product_id'), 'reference_product_id'),
@@ -57,12 +58,12 @@ class NovaMigratedSubscriptionResource extends Resource
             HasMany::make(
                 self::translate('nova-resource-labels.customers'),
                 'migratedCustomers',
-                NovaMigratedCustomerResource::class
+                NovaMigratedCustomerResource::class,
             ),
             HasMany::make(
                 self::translate('subscription.plural'),
                 'subscriptions',
-                NovaSubscriptionResource::class
+                NovaSubscriptionResource::class,
             ),
         ];
     }

@@ -73,7 +73,8 @@ abstract class AbstractConnector extends Connector
 
         $this->logger->warning(
             sprintf('[%s] Retrying request after transient HTTP failure.', $this->getBaseClassName()),
-            $context + [
+            $context
+            + [
                 LoggingContextKeys::RESPONSE_CODE => $exception->getResponse()->status(),
             ],
         );
@@ -91,9 +92,9 @@ abstract class AbstractConnector extends Connector
     protected function shouldRetry(FatalRequestException|RequestException $exception): bool
     {
         /*
-          Saloon uses FatalRequestException for connection level failures.
-          We should treat those as transient and always retry them
-        */
+         * Saloon uses FatalRequestException for connection level failures.
+         * We should treat those as transient and always retry them
+         */
         if ($exception instanceof FatalRequestException) {
             return true;
         }
@@ -113,12 +114,15 @@ abstract class AbstractConnector extends Connector
             if (! $sender instanceof GuzzleSender) {
                 $this->logger->warning(sprintf(
                     '[%s] could not add Sentry middleware to Guzzle since GuzzleSender is no longer the default sender.',
-                    $this->getBaseClassName()
+                    $this->getBaseClassName(),
                 ));
+
                 return;
             }
 
-            $sender->addMiddleware(fn (callable $handler) => function (RequestInterface $request, array $options) use ($handler) {
+            $sender->addMiddleware(fn (callable $handler) => function (RequestInterface $request, array $options) use (
+                $handler,
+            ) {
                 $stack = HandlerStack::create($handler);
                 $stack->push(GuzzleTracingMiddleware::trace());
 
@@ -127,7 +131,7 @@ abstract class AbstractConnector extends Connector
         } catch (Exception $exception) {
             $this->logger->error(sprintf(
                 '[%s] Error registering sentry middleware on client.',
-                $this->getBaseClassName()
+                $this->getBaseClassName(),
             ), [LoggingContextKeys::EXCEPTION => $exception]);
         }
     }
@@ -151,7 +155,7 @@ abstract class AbstractConnector extends Connector
 
                 $message = sprintf(
                     '[%s] "{request.method} {request.uri}" {response.code}',
-                    $this->getBaseClassName()
+                    $this->getBaseClassName(),
                 );
                 $this->logger->info(
                     $message,
@@ -161,11 +165,11 @@ abstract class AbstractConnector extends Connector
                         LoggingContextKeys::REQUEST_METHOD => $request->getMethod(),
                         LoggingContextKeys::RESPONSE_CODE => $response->status(),
                         LoggingContextKeys::RESPONSE_DATA => $responseBody,
-                    ]
+                    ],
                 );
             },
             name: 'loggingRequestResponse',
-            order: PipeOrder::FIRST
+            order: PipeOrder::FIRST,
         );
     }
 

@@ -15,7 +15,7 @@ class ExtensionMetaData extends MetaData
         ProductGroupType $type,
         public ?string $transferSecret,
         public ?bool $privateWhois,
-        public ?int $contactId
+        public ?int $contactId,
     ) {
         parent::__construct($type);
     }

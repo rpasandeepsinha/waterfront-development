@@ -62,9 +62,13 @@ class Microsoft365KpnOnboardingService
                         'microsoft365.deployment_id' => $microsoft365Deployment->id,
                         'microsoft365.primary_domain' => $defaultDomain,
                     ],
-                ]
+                ],
             );
-            $this->subscriptionRepository->setTechnicalStatus($microsoft365Deployment->subscription, TechnicalStatus::FAILED->value);
+            $this->subscriptionRepository->setTechnicalStatus(
+                $microsoft365Deployment->subscription,
+                TechnicalStatus::FAILED->value,
+            );
+
             return;
         }
 
@@ -78,15 +82,22 @@ class Microsoft365KpnOnboardingService
                         'microsoft365.deployment_id' => $microsoft365Deployment->id,
                         'microsoft365.log' => $log,
                     ],
-                ]
+                ],
             );
-            $this->subscriptionRepository->setTechnicalStatus($microsoft365Deployment->subscription, TechnicalStatus::FAILED->value);
+            $this->subscriptionRepository->setTechnicalStatus(
+                $microsoft365Deployment->subscription,
+                TechnicalStatus::FAILED->value,
+            );
+
             return;
         }
 
         $kpnCustomerId = str_replace('KPNOnboardingPac - ', '', $kpnOnBoardingPacMatch[0]);
 
-        $kpnOnBoardingPacMicrosoft365CustomerInfo = Microsoft365CustomerInfo::where('kpn_customer_id', Microsoft365Helper::customerIdToStringWithPrefix($kpnCustomerId))->first();
+        $kpnOnBoardingPacMicrosoft365CustomerInfo = Microsoft365CustomerInfo::where(
+            'kpn_customer_id',
+            Microsoft365Helper::customerIdToStringWithPrefix($kpnCustomerId),
+        )->first();
 
         if (! $kpnOnBoardingPacMicrosoft365CustomerInfo instanceof Microsoft365CustomerInfo) {
             $this->logger->error(
@@ -96,19 +107,24 @@ class Microsoft365KpnOnboardingService
                         'microsoft365.deployment_id' => $microsoft365Deployment->id,
                         'microsoft365.onboarding_pac' => $kpnCustomerId,
                     ],
-                ]
+                ],
             );
-            $this->subscriptionRepository->setTechnicalStatus($microsoft365Deployment->subscription, TechnicalStatus::FAILED->value);
+            $this->subscriptionRepository->setTechnicalStatus(
+                $microsoft365Deployment->subscription,
+                TechnicalStatus::FAILED->value,
+            );
+
             return;
         }
 
         $records = $this->dnsService->getDnsRecordsForDomain($defaultDomain);
 
         $kpnOnBoardingPacRecord = $records->filter(
-            fn (DnsRecordInterface $record) =>
-                $record->getType() === DnsRecordType::TXT->value &&
-                $record->getName() === 'kpnonboardingpac.' . $defaultDomain &&
-                $record->getContent() === $kpnCustomerId
+            fn (DnsRecordInterface $record) => (
+                $record->getType() === DnsRecordType::TXT->value
+                && $record->getName() === 'kpnonboardingpac.' . $defaultDomain
+                && $record->getContent() === $kpnCustomerId
+            ),
         );
 
         if ($kpnOnBoardingPacRecord->count() === 0) {
@@ -119,7 +135,7 @@ class Microsoft365KpnOnboardingService
                     name: 'kpnonboardingpac.' . $defaultDomain,
                     content: $kpnCustomerId,
                     ttl: 3600,
-                )
+                ),
             );
         }
 

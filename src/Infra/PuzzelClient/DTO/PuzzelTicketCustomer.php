@@ -8,9 +8,9 @@ readonly class PuzzelTicketCustomer
 {
     public function __construct(
         public string $email,
-        public string|null $firstName = null,
-        public string|null $lastName = null,
-        public string|null $phoneNumber = null,
+        public ?string $firstName = null,
+        public ?string $lastName = null,
+        public ?string $phoneNumber = null,
     ) {
     }
 }

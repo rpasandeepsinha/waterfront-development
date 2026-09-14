@@ -19,10 +19,8 @@ class MissingInvoiceLinesException extends SubscriptionCrediterException
         ];
 
         parent::__construct(sprintf(
-            (
-                'Attempted to credit a set of subscriptions that have no debit invoice lines. '
-                . 'Got these subscription ids: <%s>'
-            ),
+            'Attempted to credit a set of subscriptions that have no debit invoice lines. '
+            . 'Got these subscription ids: <%s>',
             implode(', ', array_map(fn (Subscription $subscription): int => $subscription->id, $subscriptions)),
         ));
     }

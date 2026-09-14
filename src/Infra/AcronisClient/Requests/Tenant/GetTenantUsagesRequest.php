@@ -28,9 +28,12 @@ class GetTenantUsagesRequest extends Request
      */
     protected function defaultQuery(): array
     {
-        return array_filter([
-            'usage_names' => $this->usageNames,
-            'editions' => $this->editions,
-        ], static fn ($value) => $value !== null);
+        return array_filter(
+            [
+                'usage_names' => $this->usageNames,
+                'editions' => $this->editions,
+            ],
+            static fn ($value) => $value !== null,
+        );
     }
 }

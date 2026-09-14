@@ -51,12 +51,12 @@ class IBANTest extends IntegrationTestCase
     public static function getValidIBANs(): array
     {
         return [
-            [ 'AL35202111090000000001234567' ],
-            [ 'AD1400080001001234567890' ],
-            [ 'DK9520000123456789' ],
-            [ 'FI1410093000123458' ],
-            [ 'IE64IRCE92050112345678' ],
-            [ 'NL02ABNA0123456789' ],
+            ['AL35202111090000000001234567'],
+            ['AD1400080001001234567890'],
+            ['DK9520000123456789'],
+            ['FI1410093000123458'],
+            ['IE64IRCE92050112345678'],
+            ['NL02ABNA0123456789'],
         ];
     }
 
@@ -66,8 +66,8 @@ class IBANTest extends IntegrationTestCase
     public static function getValidCountryIBANs(): array
     {
         return [
-            [ 'NL', 'NL91ABNA0417164300' ],
-            [ 'NL', 'NL02ABNA0123456789' ],
+            ['NL', 'NL91ABNA0417164300'],
+            ['NL', 'NL02ABNA0123456789'],
         ];
     }
 
@@ -77,15 +77,15 @@ class IBANTest extends IntegrationTestCase
     public static function getInvalidIBANs(): array
     {
         return [
-            [ 'AL35202161090000000001234567' ],
-            [ 'AD1400080401001234567890' ],
-            [ 'DK9520004123456789' ],
-            [ 'FI1410093030123458' ],
-            [ 'IE64IRCE92040112345678' ],
-            [ 'NL02ABNA0123656789' ],
-            [ 'NL02ABNA012ZZZ6789' ],
-            [ 'Random numbers' ],
-            [ 'Test' ],
+            ['AL35202161090000000001234567'],
+            ['AD1400080401001234567890'],
+            ['DK9520004123456789'],
+            ['FI1410093030123458'],
+            ['IE64IRCE92040112345678'],
+            ['NL02ABNA0123656789'],
+            ['NL02ABNA012ZZZ6789'],
+            ['Random numbers'],
+            ['Test'],
         ];
     }
 
@@ -95,9 +95,9 @@ class IBANTest extends IntegrationTestCase
     public static function getInvalidCountryIBANs(): array
     {
         return [
-            [ 'NL', 'NL91ABNA0457174300' ],
-            [ 'NL', 'DK9520000123456789' ],
-            [ 'NL', 'test' ],
+            ['NL', 'NL91ABNA0457174300'],
+            ['NL', 'DK9520000123456789'],
+            ['NL', 'test'],
         ];
     }
 }

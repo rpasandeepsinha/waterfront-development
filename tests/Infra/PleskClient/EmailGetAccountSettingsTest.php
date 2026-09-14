@@ -13,7 +13,8 @@ use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
 use Tests\IntegrationTestCase;
-use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailGetAccountSettings\Parameters as EmailGetAccountSettingsParameters;
+use Waterfront\Domain\Hosting\Interfaces\Hosting\Models\EmailGetAccountSettings\Parameters as EmailGetAccountSettingsParameters
+;
 use Waterfront\Infra\Configuration\ConfigurationInterface;
 use Waterfront\Infra\PleskClient\Fakers\HostingPackageClientFaker;
 use Waterfront\Infra\PleskClient\Messages\Connection;
@@ -28,12 +29,28 @@ class EmailGetAccountSettingsTest extends IntegrationTestCase
     {
         $mock = new MockHandler([
             function (RequestInterface $request) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_email_get_account_settings_request.xml'), (string) $request->getBody());
-                return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_email_get_account_settings_response.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_email_get_account_settings_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    200,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_email_get_account_settings_response.xml'),
+                );
             },
             function (RequestInterface $request) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_email_get_preferences_request.xml'), (string) $request->getBody());
-                return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_email_get_preferences_response.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_email_get_preferences_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    200,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_email_get_preferences_response.xml'),
+                );
             },
         ]);
         $handlerStack = HandlerStack::create($mock);
@@ -45,7 +62,7 @@ class EmailGetAccountSettingsTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: self::resolve(LoggerInterface::class),
-            connection: $connection
+            connection: $connection,
         );
 
         $data = require __DIR__ . '/data/pleskEmailGetAccountSettingsData.php';

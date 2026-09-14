@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Attribute\DiscriminatorMap;
 abstract class PaytWebhookContext
 {
     public function __construct(
-        public string|null $resourceType,
+        public ?string $resourceType,
     ) {
     }
 }

@@ -55,7 +55,7 @@ class DomainRegistrationRequest extends BaseRequest
                 'ip' => $nameserver->ipv4,
                 'ip6' => $nameserver->ipv6,
             ],
-            $this->parameters->getNameServers()
+            $this->parameters->getNameServers(),
         );
 
         $nameServers = [
@@ -66,16 +66,16 @@ class DomainRegistrationRequest extends BaseRequest
 
         // Name, handles etc.
         $message[$this->endpoint] = [
-            'ownerHandle'   => $this->handles->getOwnerHandle(),
-            'adminHandle'   => $this->handles->getAdminHandle(),
-            'techHandle'    => $this->handles->getTechHandle(),
+            'ownerHandle' => $this->handles->getOwnerHandle(),
+            'adminHandle' => $this->handles->getAdminHandle(),
+            'techHandle' => $this->handles->getTechHandle(),
             'billingHandle' => $this->handles->getBillingHandle(),
-            'domain'        => [
-                'name'      => $this->domain->getName(),
+            'domain' => [
+                'name' => $this->domain->getName(),
                 'extension' => $this->domain->getExtension(),
             ],
-            'period'        => $this->parameters->getPeriod(),
-            'nameServers'   => $nameServers,
+            'period' => $this->parameters->getPeriod(),
+            'nameServers' => $nameServers,
         ];
 
         $message = $this->setPrivateWhois($message);
@@ -118,10 +118,10 @@ class DomainRegistrationRequest extends BaseRequest
             $message[$this->endpoint]['dnssecKeys'] = [
                 'array' => [
                     'item' => [
-                        'flags'     => $dnssec[0]->getFlags(),
-                        'alg'       => $dnssec[0]->getAlgorithm(),
-                        'protocol'  => $dnssec[0]->getProtocol(),
-                        'pubKey'    => $dnssec[0]->getPubKey(),
+                        'flags' => $dnssec[0]->getFlags(),
+                        'alg' => $dnssec[0]->getAlgorithm(),
+                        'protocol' => $dnssec[0]->getProtocol(),
+                        'pubKey' => $dnssec[0]->getPubKey(),
                     ],
                 ],
             ];

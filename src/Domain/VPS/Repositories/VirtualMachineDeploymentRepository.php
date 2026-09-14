@@ -32,7 +32,7 @@ class VirtualMachineDeploymentRepository implements VirtualMachineDeploymentRepo
             throw new VirtualMachineNotFoundException(
                 sprintf('Virtual machine deployment "%s" not found.', $uuid),
                 0,
-                $exception
+                $exception,
             );
         }
     }
@@ -78,16 +78,21 @@ class VirtualMachineDeploymentRepository implements VirtualMachineDeploymentRepo
 
             return $parentSubscriptionWithChild->children->firstOrFail();
         } catch (ModelNotFoundException $exception) {
-            throw new VirtualMachineNotFoundException(sprintf(
-                'Could not find a subscription for VM %s with a Cloudstack OS as child subscription.',
-                $subscriptionUuid
-            ), $exception->getCode(), $exception);
+            throw new VirtualMachineNotFoundException(
+                sprintf(
+                    'Could not find a subscription for VM %s with a Cloudstack OS as child subscription.',
+                    $subscriptionUuid,
+                ),
+                $exception->getCode(),
+                $exception,
+            );
         }
     }
 
     public function updateCustomName(VirtualMachineDeployment $virtualMachineDeployment, string $customName): bool
     {
         $virtualMachineDeployment->custom_name = $customName;
+
         return $virtualMachineDeployment->save();
     }
 }

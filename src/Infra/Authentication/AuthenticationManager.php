@@ -120,12 +120,17 @@ class AuthenticationManager
             throw new AuthenticationException('Unable to convert the identity schema.');
         }
 
-        $verified = count(array_filter($identitySchema->verifiableAddresses ?? [], fn ($address) => $address->value === $identitySchema->traits?->email && $address->verified === true)) > 0;
+        $verified =
+            count(array_filter(
+                $identitySchema->verifiableAddresses ?? [],
+                fn ($address) => $address->value === $identitySchema->traits?->email && $address->verified === true,
+            )) > 0;
 
         if ($identitySchema->schemaId === SchemaId::EMPLOYEE && $request->header('x-customer-id') === null) {
             $this->authenticatedSubject = new AuthenticatedEmployee($identitySchema, $verified);
 
             $this->authManager->login($this->authenticatedSubject);
+
             return;
         }
 
@@ -138,24 +143,27 @@ class AuthenticationManager
                 $this->authenticatedSubject = new AuthenticatedCustomer($customer, $identitySchema, $verified);
 
                 $this->authManager->login($customer);
+
                 return;
             }
 
             throw new AuthenticationException(
                 sprintf(
                     'No customer found for customer number %d',
-                    $customerNumber
-                )
+                    $customerNumber,
+                ),
             );
         }
 
         if ($identitySchema->schemaId === SchemaId::CUSTOMER) {
             $this->authenticatedSubject = new AuthenticatedUnregisteredCustomer($identitySchema);
+
             return;
         }
 
         if ($identitySchema->schemaId === SchemaId::SYSTEM) {
             $this->authenticatedSubject = new AuthenticatedSystem($identitySchema);
+
             return;
         }
 
@@ -212,21 +220,32 @@ class AuthenticationManager
             } catch (InvalidArgumentException) {
                 throw new AuthenticationException('Invalid customer number in customer header.');
             }
+
             return (int) $customerHeader;
         }
 
-        $customerRelationItem = array_filter($identitySchema->metadataPublic->customerRelations ?? [], fn ($data) => $data->customerNumber === (int) $customerHeader);
+        $customerRelationItem = array_filter(
+            $identitySchema->metadataPublic->customerRelations ?? [],
+            fn ($data) => $data->customerNumber === (int) $customerHeader,
+        );
 
         if (count($customerRelationItem) === 1) {
             $customerRelationItem = array_values($customerRelationItem);
+
             return $customerRelationItem[0]->customerNumber;
         }
 
-        if (is_array($identitySchema->metadataPublic?->customerRelations) && count($identitySchema->metadataPublic->customerRelations) > 0) {
+        if (
+            is_array($identitySchema->metadataPublic?->customerRelations)
+            && count($identitySchema->metadataPublic->customerRelations) > 0
+        ) {
             return $identitySchema->metadataPublic->customerRelations[0]->customerNumber;
         }
 
-        if (is_array($identitySchema->metadataPublic?->customerNumbers) && count($identitySchema->metadataPublic->customerNumbers) > 0) {
+        if (
+            is_array($identitySchema->metadataPublic?->customerNumbers)
+            && count($identitySchema->metadataPublic->customerNumbers) > 0
+        ) {
             return $identitySchema->metadataPublic->customerNumbers[0];
         }
 

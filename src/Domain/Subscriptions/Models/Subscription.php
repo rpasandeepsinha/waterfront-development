@@ -24,6 +24,7 @@ use Waterfront\Domain\Customers\Models\MigratedSubscription;
 use Waterfront\Domain\DNS\Models\DnsDeployment;
 use Waterfront\Domain\DNS\Models\DnsRecordChange;
 use Waterfront\Domain\Domains\Models\DomainDeployment;
+use Waterfront\Domain\Experiment\Models\Experiment;
 use Waterfront\Domain\Hosting\Models\HostingDeployment;
 use Waterfront\Domain\Invoices\Models\Invoice;
 use Waterfront\Domain\Microsoft365\Models\Microsoft365CustomerInfo;
@@ -98,6 +99,7 @@ use Waterfront\Domain\VPS\Models\VolumeDeployment;
  * @property ?SubscriptionPrice                      $activePrice
  * @property Collection<int, SubscriptionPrice>      $prices
  * @property Collection<int, CustomerRetentionOffer> $retentionOffers
+ * @property Collection<int, Experiment>             $experiments
  * @property ?BackupDeployment                       $provisionBackupDeployment
  *
  * @method static SubscriptionQueryBuilder query()
@@ -198,6 +200,14 @@ class Subscription extends Model implements AuditableContract
     }
 
     /**
+     * @return BelongsToMany<Experiment, $this>
+     */
+    public function experiments(): BelongsToMany
+    {
+        return $this->belongsToMany(Experiment::class, 'experiment_subscriptions', 'subscription_id', 'experiment_id');
+    }
+
+    /**
      * @return HasOne<OrderLineItem, $this>
      */
     public function orderLineItem(): HasOne
@@ -264,7 +274,7 @@ class Subscription extends Model implements AuditableContract
             firstKey: 'tag',
             secondKey: 'origin_provisioning_request_id',
             localKey: 'uuid',
-            secondLocalKey: 'id'
+            secondLocalKey: 'id',
         );
     }
 
@@ -279,7 +289,7 @@ class Subscription extends Model implements AuditableContract
             firstKey: 'tag',
             secondKey: 'origin_provisioning_request_id',
             localKey: 'uuid',
-            secondLocalKey: 'id'
+            secondLocalKey: 'id',
         );
     }
 
@@ -294,7 +304,7 @@ class Subscription extends Model implements AuditableContract
             firstKey: 'tag',
             secondKey: 'origin_provisioning_request_id',
             localKey: 'uuid',
-            secondLocalKey: 'id'
+            secondLocalKey: 'id',
         );
     }
 
@@ -376,7 +386,7 @@ class Subscription extends Model implements AuditableContract
     public function transfers(): BelongsToMany
     {
         return $this->belongsToMany(
-            Transfer::class
+            Transfer::class,
         )->withPivot(['executed_at', 'failed_at']);
     }
 
@@ -388,6 +398,7 @@ class Subscription extends Model implements AuditableContract
         if ($this->parent_subscription_id === null) {
             return $this->hasOne(Microsoft365Deployment::class, 'subscription_id', 'id');
         }
+
         return $this->hasOne(Microsoft365Deployment::class, 'subscription_id', 'parent_subscription_id');
     }
 
@@ -403,7 +414,7 @@ class Subscription extends Model implements AuditableContract
                 'subscription_id',
                 'id',
                 'id',
-                'microsoft365_customer_info_id'
+                'microsoft365_customer_info_id',
             );
         }
 
@@ -413,7 +424,7 @@ class Subscription extends Model implements AuditableContract
             'subscription_id',
             'id',
             'parent_subscription_id',
-            'microsoft365_customer_info_id'
+            'microsoft365_customer_info_id',
         );
     }
 
@@ -462,7 +473,7 @@ class Subscription extends Model implements AuditableContract
             firstKey: 'tag',
             secondKey: 'origin_provisioning_request_id',
             localKey: 'uuid',
-            secondLocalKey: 'id'
+            secondLocalKey: 'id',
         );
     }
 

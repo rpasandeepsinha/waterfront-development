@@ -21,7 +21,14 @@ class StoreRequest extends BaseRequest
     {
         $factory = $this->container->make(DnsValidatorFactory::class);
         $factory->resolver(
-            function (DnsRecordsValidationService $service, Translator $translator, array $data, array $rules, array $messages, array $customAttributes): DnsRecordValidator {
+            function (
+                DnsRecordsValidationService $service,
+                Translator $translator,
+                array $data,
+                array $rules,
+                array $messages,
+                array $customAttributes,
+            ): DnsRecordValidator {
                 if (! array_key_exists('domain', $customAttributes)) {
                     $domain = $this->route('domain');
 
@@ -42,9 +49,10 @@ class StoreRequest extends BaseRequest
                 $nsSubdomainRule = $this->container->make(NsSubdomainName::class);
 
                 if (is_string($data['type']) && $data['type'] === DnsRecordType::NS->value) {
-                    $rules = [
-                        'name'  => ['bail', 'required', 'string', $nsSubdomainRule],
-                    ] + $validationService->getDefaultRules();
+                    $rules =
+                        [
+                            'name' => ['bail', 'required', 'string', $nsSubdomainRule],
+                        ] + $validationService->getDefaultRules();
                 }
 
                 return new DnsRecordValidator(
@@ -53,9 +61,9 @@ class StoreRequest extends BaseRequest
                     $data,
                     $rules,
                     $messages,
-                    $customAttributes
+                    $customAttributes,
                 );
-            }
+            },
         );
 
         return $factory;

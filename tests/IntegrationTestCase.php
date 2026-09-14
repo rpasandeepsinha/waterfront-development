@@ -16,9 +16,6 @@ use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\MockObject\Exception;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 use Ramsey\Uuid\UuidInterface;
-
-use function resolve as resolveFromContainer;
-
 use SandwaveIo\LighthouseAuthBase\Enum\AuthenticationMethod;
 use SandwaveIo\LighthouseAuthBase\Enum\SchemaId;
 use SandwaveIo\LighthouseAuthBase\Identity\KratosIdentity;
@@ -63,6 +60,7 @@ use Waterfront\Infra\Authentication\DTO\AuthenticatedSystem;
 use Waterfront\Infra\Authentication\DTO\AuthenticatedUnregisteredCustomer;
 use Waterfront\Infra\PowerDnsClient\PowerDnsClient;
 use Waterfront\Infra\Queue\HarborQueue;
+use function resolve as resolveFromContainer;
 
 abstract class IntegrationTestCase extends TestCase
 {
@@ -103,7 +101,15 @@ abstract class IntegrationTestCase extends TestCase
             null,
             null,
             null,
-            new MetadataPublic(['waterfront'], [$customer->customer_number], [], null, null, $this->customerPermissions(), null),
+            new MetadataPublic(
+                ['waterfront'],
+                [$customer->customer_number],
+                [],
+                null,
+                null,
+                $this->customerPermissions(),
+                null,
+            ),
             null,
             null,
         );
@@ -113,12 +119,9 @@ abstract class IntegrationTestCase extends TestCase
             verified: $verified,
         );
         $authenticationManager = self::createMock(AuthenticationManager::class);
-        $authenticationManager->method('getAuthenticatedCustomer')
-            ->willReturn($authenticatedCustomer);
-        $authenticationManager->method('getAuthenticatedSubject')
-            ->willReturn($authenticatedCustomer);
-        $authenticationManager->expects(self::never())
-            ->method('getAuthenticatedEmployee');
+        $authenticationManager->method('getAuthenticatedCustomer')->willReturn($authenticatedCustomer);
+        $authenticationManager->method('getAuthenticatedSubject')->willReturn($authenticatedCustomer);
+        $authenticationManager->expects(self::never())->method('getAuthenticatedEmployee');
 
         $this->app->bind(AuthenticationManager::class, fn () => $authenticationManager);
 
@@ -146,12 +149,9 @@ abstract class IntegrationTestCase extends TestCase
             identitySchema: $identitySchema,
         );
         $authenticationManager = self::createStub(AuthenticationManager::class);
-        $authenticationManager->method('getAuthenticatedEmployee')
-            ->willThrowException(new AuthenticationException());
-        $authenticationManager->method('getAuthenticatedSystem')
-            ->willThrowException(new AuthenticationException());
-        $authenticationManager->method('getAuthenticatedSubject')
-            ->willReturn($authenticatedCustomer);
+        $authenticationManager->method('getAuthenticatedEmployee')->willThrowException(new AuthenticationException());
+        $authenticationManager->method('getAuthenticatedSystem')->willThrowException(new AuthenticationException());
+        $authenticationManager->method('getAuthenticatedSubject')->willReturn($authenticatedCustomer);
 
         $this->app->bind(AuthenticationManager::class, fn () => $authenticationManager);
 
@@ -173,21 +173,22 @@ abstract class IntegrationTestCase extends TestCase
             null,
             new MetadataPublic([], [], [], null, null, $this->employeePermissions(), null),
             new MetadataAdmin(['developer']),
-            new Session('aal2', true, new DateTimeImmutable(), [AuthenticationMethod::PASSWORD, AuthenticationMethod::TOTP]),
+            new Session(
+                'aal2',
+                true,
+                new DateTimeImmutable(),
+                [AuthenticationMethod::PASSWORD, AuthenticationMethod::TOTP],
+            ),
         );
         $authenticatedEmployee = new AuthenticatedEmployee(
             identitySchema: $identitySchema,
             verified: true,
         );
         $authenticationManager = self::createStub(AuthenticationManager::class);
-        $authenticationManager->method('getAuthenticatedCustomer')
-            ->willThrowException(new AuthenticationException());
-        $authenticationManager->method('getAuthenticatedSystem')
-            ->willThrowException(new AuthenticationException());
-        $authenticationManager->method('getAuthenticatedEmployee')
-            ->willReturn($authenticatedEmployee);
-        $authenticationManager->method('getAuthenticatedSubject')
-            ->willReturn($authenticatedEmployee);
+        $authenticationManager->method('getAuthenticatedCustomer')->willThrowException(new AuthenticationException());
+        $authenticationManager->method('getAuthenticatedSystem')->willThrowException(new AuthenticationException());
+        $authenticationManager->method('getAuthenticatedEmployee')->willReturn($authenticatedEmployee);
+        $authenticationManager->method('getAuthenticatedSubject')->willReturn($authenticatedEmployee);
 
         $this->app->bind(AuthenticationManager::class, fn () => $authenticationManager);
 
@@ -212,17 +213,13 @@ abstract class IntegrationTestCase extends TestCase
             null,
         );
         $authenticatedSystem = new AuthenticatedSystem(
-            identitySchema: $identitySchema
+            identitySchema: $identitySchema,
         );
         $authenticationManager = self::createStub(AuthenticationManager::class);
-        $authenticationManager->method('getAuthenticatedCustomer')
-            ->willThrowException(new AuthenticationException());
-        $authenticationManager->method('getAuthenticatedEmployee')
-            ->willThrowException(new AuthenticationException());
-        $authenticationManager->method('getAuthenticatedSystem')
-            ->willReturn($authenticatedSystem);
-        $authenticationManager->method('getAuthenticatedSubject')
-            ->willReturn($authenticatedSystem);
+        $authenticationManager->method('getAuthenticatedCustomer')->willThrowException(new AuthenticationException());
+        $authenticationManager->method('getAuthenticatedEmployee')->willThrowException(new AuthenticationException());
+        $authenticationManager->method('getAuthenticatedSystem')->willReturn($authenticatedSystem);
+        $authenticationManager->method('getAuthenticatedSubject')->willReturn($authenticatedSystem);
 
         $this->app->bind(AuthenticationManager::class, fn () => $authenticationManager);
 
@@ -258,10 +255,11 @@ abstract class IntegrationTestCase extends TestCase
         assert(is_array($firstAssertion));
 
         $mailer = self::createMock(Mailer::class);
-        $mailer->expects(self::exactly(count($classNames)))
+        $mailer
+            ->expects(self::exactly(count($classNames)))
             ->method('send')
             ->with(
-                ...self::withConsecutive($firstAssertion, ...array_slice($assertions, 1))
+                ...self::withConsecutive($firstAssertion, ...array_slice($assertions, 1)),
             );
         $this->app->bind(Mailer::class, fn () => $mailer);
     }
@@ -281,6 +279,7 @@ abstract class IntegrationTestCase extends TestCase
     final protected function generateRoute(string $name, mixed $parameters = []): string
     {
         $router = self::resolve(UrlGenerator::class);
+
         return $router->route($name, $parameters);
     }
 
@@ -330,6 +329,7 @@ abstract class IntegrationTestCase extends TestCase
         foreach (Permissions::customerPermissions() as $permission) {
             $array[] = $permission->value;
         }
+
         return $array;
     }
 
@@ -342,6 +342,7 @@ abstract class IntegrationTestCase extends TestCase
         foreach (Permissions::employeePermissions() as $permission) {
             $array[] = $permission->value;
         }
+
         return $array;
     }
 }

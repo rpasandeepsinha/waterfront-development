@@ -10,15 +10,17 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 class ManualSubscriptionObserver
 {
     public function __construct(
-        private readonly ManualProvisioningService $manualSubscriptionService
+        private readonly ManualProvisioningService $manualSubscriptionService,
     ) {
     }
 
     public function updating(Subscription $subscription): void
     {
         $subscription->loadMissing(['product.productGroup']);
-        if ($subscription->isDirty('technical_status') &&
-            $this->manualSubscriptionService->manualProductIsActivate($subscription)) {
+        if (
+            $subscription->isDirty('technical_status')
+            && $this->manualSubscriptionService->manualProductIsActivate($subscription)
+        ) {
             $this->manualSubscriptionService->sendActivationNotification($subscription);
         }
     }

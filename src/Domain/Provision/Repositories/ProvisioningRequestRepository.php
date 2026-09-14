@@ -24,14 +24,6 @@ class ProvisioningRequestRepository
         return ProvisioningRequest::find($id);
     }
 
-    public function findByContextUuidAndType(UuidInterface $contextUuid, ProvisionType $requestType): ?ProvisioningRequest
-    {
-        return ProvisioningRequest::query()
-            ->where('context_uuid', $contextUuid)
-            ->where('request_type', $requestType)
-            ->first();
-    }
-
     /** @return Collection<int, ProvisioningRequest> */
     public function findByTag(UuidInterface $uuid): Collection
     {

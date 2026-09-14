@@ -31,9 +31,7 @@ class ShouldHaveOneExistingCreateTagTest extends TestCase
     {
         $rule = new ShouldHaveOneExistingCreateTag(ProvisionType::HOSTING);
 
-        $this->mockRequestRepository
-            ->expects(self::never())
-            ->method('createRequestCount');
+        $this->mockRequestRepository->expects(self::never())->method('createRequestCount');
 
         $failMessage = null;
         $fail = $this->makeFailClosure($failMessage);
@@ -52,17 +50,13 @@ class ShouldHaveOneExistingCreateTagTest extends TestCase
         $failMessage = null;
         $fail = $this->makeFailClosure($failMessage);
 
-        $this->mockRequestRepository
-            ->expects(self::once())
-            ->method('createRequestCount')
-            ->with($tag)
-            ->willReturn(2);
+        $this->mockRequestRepository->expects(self::once())->method('createRequestCount')->with($tag)->willReturn(2);
 
         $rule->validate('tag', $tag, $fail);
 
         self::assertSame(
             'The tag has multiple create requests linked for [hosting] type.',
-            $failMessage
+            $failMessage,
         );
     }
 
@@ -75,17 +69,13 @@ class ShouldHaveOneExistingCreateTagTest extends TestCase
         $failMessage = null;
         $fail = $this->makeFailClosure($failMessage);
 
-        $this->mockRequestRepository
-            ->expects(self::once())
-            ->method('createRequestCount')
-            ->with($tag)
-            ->willReturn(0);
+        $this->mockRequestRepository->expects(self::once())->method('createRequestCount')->with($tag)->willReturn(0);
 
         $rule->validate('tag', $tag, $fail);
 
         self::assertSame(
             'No create request with this tag in the [hosting] type.',
-            $failMessage
+            $failMessage,
         );
     }
 
@@ -94,11 +84,7 @@ class ShouldHaveOneExistingCreateTagTest extends TestCase
     {
         $tag = Uuid::uuid4()->toString();
 
-        $this->mockRequestRepository
-            ->expects(self::once())
-            ->method('createRequestCount')
-            ->with($tag)
-            ->willReturn(1);
+        $this->mockRequestRepository->expects(self::once())->method('createRequestCount')->with($tag)->willReturn(1);
 
         $rule = new ShouldHaveOneExistingCreateTag(ProvisionType::HOSTING);
 

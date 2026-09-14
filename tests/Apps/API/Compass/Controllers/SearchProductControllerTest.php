@@ -35,12 +35,10 @@ class SearchProductControllerTest extends IntegrationTestCase
         ]);
 
         $hostingProductGroup = new ProductGroupFactory()->hosting()->createOne();
-        $this->hostingProduct = new ProductFactory()
-            ->for($hostingProductGroup)
-            ->createOne([
-                'name' => 'wow',
-                'slug' => 'hosting_basic',
-            ]);
+        $this->hostingProduct = new ProductFactory()->for($hostingProductGroup)->createOne([
+            'name' => 'wow',
+            'slug' => 'hosting_basic',
+        ]);
     }
 
     #[Test]
@@ -56,7 +54,8 @@ class SearchProductControllerTest extends IntegrationTestCase
                     'uuid' => $this->hostingProduct->uuid,
                     'product_group' => $this->hostingProduct->productGroup->name,
                     'type' => SearchType::PRODUCT->value,
-                ]]);
+                ],
+            ]);
     }
 
     #[Test]
@@ -72,7 +71,8 @@ class SearchProductControllerTest extends IntegrationTestCase
                     'uuid' => $this->hostingProduct->uuid,
                     'product_group' => $this->hostingProduct->productGroup->name,
                     'type' => SearchType::PRODUCT->value,
-                ]]);
+                ],
+            ]);
     }
 
     #[Test]
@@ -88,7 +88,8 @@ class SearchProductControllerTest extends IntegrationTestCase
                     'uuid' => $this->extensionProduct->uuid,
                     'product_group' => $this->extensionProduct->productGroup->name,
                     'type' => SearchType::PRODUCT->value,
-                ]]);
+                ],
+            ]);
     }
 
     #[Test]
@@ -104,6 +105,7 @@ class SearchProductControllerTest extends IntegrationTestCase
                     'uuid' => $this->extensionProduct->uuid,
                     'product_group' => $this->extensionProduct->productGroup->name,
                     'type' => SearchType::PRODUCT->value,
-                ]]);
+                ],
+            ]);
     }
 }

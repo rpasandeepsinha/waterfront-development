@@ -8,21 +8,19 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
-
-use function Laravel\Prompts\text;
-
 use Symfony\Component\Console\Attribute\AsCommand;
+use function Laravel\Prompts\text;
 
 #[AsCommand(
     name: 'make:one-off-script',
     description: 'Create a new one-off script with its directory, Nova action, and test file',
-)
-]
+)]
 #[Signature('make:one-off-script {name?} {ticket?}')]
 class MakeOneOffScript extends AbstractCommand
 {
-    public function __construct(private readonly Filesystem $filesystem)
-    {
+    public function __construct(
+        private readonly Filesystem $filesystem,
+    ) {
         parent::__construct();
     }
 
@@ -151,77 +149,77 @@ class MakeOneOffScript extends AbstractCommand
     private function generateActionStub(string $name, string $className, string $slug, string $ticketUrl): string
     {
         return <<<PHP
-            <?php
+        <?php
 
-            declare(strict_types=1);
+        declare(strict_types=1);
 
-            namespace Waterfront\Apps\OneOffScripts\\{$name};
+        namespace Waterfront\Apps\OneOffScripts\\{$name};
 
-            use Laravel\Nova\Actions\ActionResponse;
-            use Laravel\Nova\Fields\ActionFields;
-            use Laravel\Nova\Fields\Boolean;
-            use Laravel\Nova\Fields\Field;
-            use Laravel\Nova\Http\Requests\NovaRequest;
-            use Psr\Log\LoggerInterface;
-            use Waterfront\Apps\Nova\OneOffScripts\NovaOneOffScriptAbstractAction;
-            use Waterfront\Support\Enums\LoggingContextKeys;
+        use Laravel\Nova\Actions\ActionResponse;
+        use Laravel\Nova\Fields\ActionFields;
+        use Laravel\Nova\Fields\Boolean;
+        use Laravel\Nova\Fields\Field;
+        use Laravel\Nova\Http\Requests\NovaRequest;
+        use Psr\Log\LoggerInterface;
+        use Waterfront\Apps\Nova\OneOffScripts\NovaOneOffScriptAbstractAction;
+        use Waterfront\Support\Enums\LoggingContextKeys;
 
-            class {$className} extends NovaOneOffScriptAbstractAction
-            {
-                public const string SLUG = '{$slug}';
+        class {$className} extends NovaOneOffScriptAbstractAction
+        {
+            public const string SLUG = '{$slug}';
 
-                public function __construct(
-                    private readonly LoggerInterface \$logger,
-                ) {
-                    parent::__construct();
-                }
-
-                /** @return array<Field> */
-                public function fields(NovaRequest \$request): array
-                {
-                    return [
-                        ...\$this->getOneOffScriptInfoFields(),
-                        Boolean::make('Dry run', 'dry-run')->default(true),
-                    ];
-                }
-
-                public function handle(ActionFields \$fields): ActionResponse
-                {
-                    \$isDryRun = \$fields->boolean('dry-run');
-
-                    \$this->logger->debug(
-                        sprintf('Executing one-time script %s', \$this->getOneOffScriptSlug()),
-                        [
-                            LoggingContextKeys::ONE_OFF_SCRIPT => \$this->getOneOffScriptSlug(),
-                            LoggingContextKeys::META => ['dry-run' => \$isDryRun],
-                        ]
-                    );
-
-                    if (\$isDryRun) {
-                        // TODO: Implement dry-run logic here.
-
-                        return self::message('Dry run completed.');
-                    }
-
-                    // TODO: Implement one-off script logic here.
-
-                    \$this->registerExecution();
-
-                    return self::message('One-off script executed successfully.');
-                }
-
-                protected function getOneOffScriptSlug(): string
-                {
-                    return self::SLUG;
-                }
-
-                protected function getOneOffScriptTicketUrl(): string
-                {
-                    return '{$ticketUrl}';
-                }
+            public function __construct(
+                private readonly LoggerInterface \$logger,
+            ) {
+                parent::__construct();
             }
 
-            PHP;
+            /** @return array<Field> */
+            public function fields(NovaRequest \$request): array
+            {
+                return [
+                    ...\$this->getOneOffScriptInfoFields(),
+                    Boolean::make('Dry run', 'dry-run')->default(true),
+                ];
+            }
+
+            public function handle(ActionFields \$fields): ActionResponse
+            {
+                \$isDryRun = \$fields->boolean('dry-run');
+
+                \$this->logger->debug(
+                    sprintf('Executing one-time script %s', \$this->getOneOffScriptSlug()),
+                    [
+                        LoggingContextKeys::ONE_OFF_SCRIPT => \$this->getOneOffScriptSlug(),
+                        LoggingContextKeys::META => ['dry-run' => \$isDryRun],
+                    ]
+                );
+
+                if (\$isDryRun) {
+                    // TODO: Implement dry-run logic here.
+
+                    return self::message('Dry run completed.');
+                }
+
+                // TODO: Implement one-off script logic here.
+
+                \$this->registerExecution();
+
+                return self::message('One-off script executed successfully.');
+            }
+
+            protected function getOneOffScriptSlug(): string
+            {
+                return self::SLUG;
+            }
+
+            protected function getOneOffScriptTicketUrl(): string
+            {
+                return '{$ticketUrl}';
+            }
+        }
+
+        PHP;
     }
 
     private function generateTestStub(string $name, string $className): string
@@ -229,71 +227,71 @@ class MakeOneOffScript extends AbstractCommand
         $fullClassName = sprintf('Waterfront\\Apps\\OneOffScripts\\%s\\%s', $name, $className);
 
         return <<<PHP
-            <?php
+        <?php
 
-            declare(strict_types=1);
+        declare(strict_types=1);
 
-            namespace Tests\Apps\OneOffScripts\\{$name};
+        namespace Tests\Apps\OneOffScripts\\{$name};
 
-            use Illuminate\Support\Collection;
-            use Laravel\Nova\Actions\Responses\Message as NovaMessage;
-            use Laravel\Nova\Fields\ActionFields;
-            use PHPUnit\Framework\Attributes\CoversClass;
-            use Psr\Log\LoggerInterface;
-            use Tests\IntegrationTestCase;
-            use {$fullClassName};
+        use Illuminate\Support\Collection;
+        use Laravel\Nova\Actions\Responses\Message as NovaMessage;
+        use Laravel\Nova\Fields\ActionFields;
+        use PHPUnit\Framework\Attributes\CoversClass;
+        use Psr\Log\LoggerInterface;
+        use Tests\IntegrationTestCase;
+        use {$fullClassName};
 
-            #[CoversClass({$className}::class)]
-            class {$className}Test extends IntegrationTestCase
+        #[CoversClass({$className}::class)]
+        class {$className}Test extends IntegrationTestCase
+        {
+            private LoggerInterface \$logger;
+
+            protected function setUp(): void
             {
-                private LoggerInterface \$logger;
+                parent::setUp();
 
-                protected function setUp(): void
-                {
-                    parent::setUp();
-
-                    \$this->logger = self::createStub(LoggerInterface::class);
-                }
-
-                public function testHandleDryRun(): void
-                {
-                    \$action = new {$className}(
-                        logger: \$this->logger,
-                    );
-
-                    \$actionFields = new ActionFields(
-                        new Collection(['dry-run' => true]),
-                        new Collection(),
-                    );
-
-                    \$actionResponse = \$action->handle(\$actionFields);
-
-                    \$responseData = \$actionResponse->jsonSerialize();
-                    self::assertArrayHasKey('message', \$responseData);
-                    self::assertInstanceOf(NovaMessage::class, \$responseData['message']);
-                    self::assertSame('Dry run completed.', (string) \$responseData['message']);
-                }
-
-                public function testHandle(): void
-                {
-                    \$action = new {$className}(
-                        logger: \$this->logger,
-                    );
-
-                    \$actionFields = new ActionFields(
-                        new Collection(['dry-run' => false]),
-                        new Collection(),
-                    );
-
-                    \$actionResponse = \$action->handle(\$actionFields);
-
-                    \$responseData = \$actionResponse->jsonSerialize();
-                    self::assertArrayHasKey('message', \$responseData);
-                    self::assertInstanceOf(NovaMessage::class, \$responseData['message']);
-                    self::assertSame('One-off script executed successfully.', (string) \$responseData['message']);
-                }
+                \$this->logger = self::createStub(LoggerInterface::class);
             }
 
-            PHP;
+            public function testHandleDryRun(): void
+            {
+                \$action = new {$className}(
+                    logger: \$this->logger,
+                );
+
+                \$actionFields = new ActionFields(
+                    new Collection(['dry-run' => true]),
+                    new Collection(),
+                );
+
+                \$actionResponse = \$action->handle(\$actionFields);
+
+                \$responseData = \$actionResponse->jsonSerialize();
+                self::assertArrayHasKey('message', \$responseData);
+                self::assertInstanceOf(NovaMessage::class, \$responseData['message']);
+                self::assertSame('Dry run completed.', (string) \$responseData['message']);
+            }
+
+            public function testHandle(): void
+            {
+                \$action = new {$className}(
+                    logger: \$this->logger,
+                );
+
+                \$actionFields = new ActionFields(
+                    new Collection(['dry-run' => false]),
+                    new Collection(),
+                );
+
+                \$actionResponse = \$action->handle(\$actionFields);
+
+                \$responseData = \$actionResponse->jsonSerialize();
+                self::assertArrayHasKey('message', \$responseData);
+                self::assertInstanceOf(NovaMessage::class, \$responseData['message']);
+                self::assertSame('One-off script executed successfully.', (string) \$responseData['message']);
+            }
+        }
+
+        PHP;
     }
 }

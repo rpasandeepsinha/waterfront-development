@@ -20,20 +20,20 @@ class VolumeMapper implements Mapper
         assert(is_string($data['type']));
         assert(is_string($data['state']));
         $virtualMachineId = $data['virtualmachineid'] ?? null;
-        $diskOfferingId   = $data['diskofferingid'] ?? null;
+        $diskOfferingId = $data['diskofferingid'] ?? null;
 
         assert(is_string($virtualMachineId) || is_null($virtualMachineId));
         assert(is_string($diskOfferingId) || is_null($diskOfferingId));
 
         return new Volume(
-            id:               $data['id'],
-            name:             $data['name'],
-            domainId:         $data['domainid'],
-            account:          $data['account'],
-            type:             $data['type'],
-            state:            $data['state'],
+            id: $data['id'],
+            name: $data['name'],
+            domainId: $data['domainid'],
+            account: $data['account'],
+            type: $data['type'],
+            state: $data['state'],
             virtualMachineId: $virtualMachineId,
-            diskOfferingId:   $diskOfferingId,
+            diskOfferingId: $diskOfferingId,
         );
     }
 }

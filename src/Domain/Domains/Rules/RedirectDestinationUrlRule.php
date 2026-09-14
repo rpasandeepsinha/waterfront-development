@@ -14,7 +14,7 @@ class RedirectDestinationUrlRule extends AbstractValidator
 {
     public function __construct(
         private readonly PublicSuffixList $rules,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -28,7 +28,7 @@ class RedirectDestinationUrlRule extends AbstractValidator
             return false;
         }
 
-        if (! ((bool) filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
+        if (! (bool) filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
             return false;
         }
 

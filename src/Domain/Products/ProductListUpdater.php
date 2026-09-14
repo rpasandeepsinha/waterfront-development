@@ -6,7 +6,7 @@ namespace Waterfront\Domain\Products;
 
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Waterfront\Apps\API\Atlantis\Resources\Products\ProductListResourceFactory;
-use Waterfront\Domain\Experiment\Models\Experiment;
+use Waterfront\Domain\Pricing\Services\PriceExperimentService;
 use Waterfront\Domain\Products\DTO\PriceRequest;
 use Waterfront\Domain\Products\DTO\RegistrationPriceRequest;
 use Waterfront\Domain\Products\Models\ProductGroup;
@@ -24,6 +24,7 @@ class ProductListUpdater
         private readonly ProductPromotionsRepository $productPromotionsRepository,
         private readonly HostingProductCompositionRepository $hostingProductCompositionsRepository,
         private readonly ProductRepository $productRepository,
+        private readonly PriceExperimentService $priceExperimentService,
     ) {
     }
 
@@ -38,20 +39,25 @@ class ProductListUpdater
 
         $hostingProductCompositions = $this->hostingProductCompositionsRepository->findAllHostingProductCompositions();
 
-        $experiments = Experiment::all();
+        $experiments = $this->priceExperimentService->getExperiments();
 
         if ($priceList->count() === 0) {
             return;
         }
 
         $list = $priceList->onlyOrderableProducts()->onlyProductsWithPrices();
-        $json = $this->productListResourceFactory->makeResource(
-            $list,
-            $productGroups,
-            $productPromotions,
-            $hostingProductCompositions,
-            $experiments,
-        )->toJson();
+        $json = $this->productListResourceFactory
+            ->makeResource(
+                $list,
+                $productGroups,
+                $productPromotions,
+                $hostingProductCompositions,
+                $experiments,
+            )
+            ->toJson();
+
+        file_put_contents(__DIR__ . '/bla.json', $json);
+
         $this->filesystem->put('product-list.json', $json);
     }
 }

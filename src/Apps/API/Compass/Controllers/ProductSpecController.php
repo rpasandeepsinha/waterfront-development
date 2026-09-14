@@ -30,7 +30,11 @@ class ProductSpecController
 
     public function getAllUniqueProductSpecs(Request $request): string
     {
-        $productSpecs = array_map(fn (ProductSpecName $productSpec): string => $productSpec->value, ProductSpecName::cases());
+        $productSpecs = array_map(
+            fn (ProductSpecName $productSpec): string => $productSpec->value,
+            ProductSpecName::cases(),
+        );
+
         return json_encode($productSpecs, JSON_THROW_ON_ERROR);
     }
 }

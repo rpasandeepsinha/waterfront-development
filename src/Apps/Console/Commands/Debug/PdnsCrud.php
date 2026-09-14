@@ -37,7 +37,7 @@ class PdnsCrud extends Command
     public function handle(
         DnsService $dnsService,
         DnsNameserverAssigner $dnsNameserverAssigner,
-        DnsDeploymentRepository $dnsDeploymentRepository
+        DnsDeploymentRepository $dnsDeploymentRepository,
     ): int {
         /** @var string $domain */
         $domain = $this->argument('domain');
@@ -54,7 +54,7 @@ class PdnsCrud extends Command
 
         $dnsZone = $dnsService->createDnsZone(
             domain: $domain,
-            nameservers: $nameservers
+            nameservers: $nameservers,
         );
 
         $this->info('Created DNS zone:');
@@ -67,8 +67,8 @@ class PdnsCrud extends Command
             new ARecord(
                 name: 'test.' . $domain,
                 content: '127.0.0.1',
-                ttl: 900
-            )
+                ttl: 900,
+            ),
         );
         $freshZone = $dnsService->getDnsZone($domain);
         $this->info(json_encode($freshZone->toArray(), JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
@@ -102,9 +102,9 @@ class PdnsCrud extends Command
                     $recordToRemove->getType(),
                     'changed.' . $domain,
                     $recordToRemove->getContent(),
-                    $recordToRemove->getTtl()
-                )
-            )
+                    $recordToRemove->getTtl(),
+                ),
+            ),
         );
 
         $this->info('Zone after changing record:');
@@ -130,13 +130,19 @@ class PdnsCrud extends Command
             $dnsService->getDnsZoneKey($domain);
         } catch (RuntimeException $exception) {
             if ($exception->getMessage() !== 'Unable to acquire DNSSEC key for given type: csk') {
-                throw new RuntimeException('Fetching DNSSEC after disabling did not throw the expected error.', previous: $exception);
+                throw new RuntimeException(
+                    'Fetching DNSSEC after disabling did not throw the expected error.',
+                    previous: $exception,
+                );
             }
+
             $this->info('The Keys no longer can be fetched as expected after disabling!');
         }
+
         $this->info('------------------------');
 
         $this->info('DONE!!!');
+
         return self::SUCCESS;
     }
 }

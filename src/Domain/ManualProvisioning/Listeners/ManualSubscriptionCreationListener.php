@@ -13,8 +13,9 @@ class ManualSubscriptionCreationListener implements ShouldQueue
 {
     public string $queue = QueueName::SUBSCRIPTIONS->value;
 
-    public function __construct(private readonly ManualProvisioningService $provisioningService)
-    {
+    public function __construct(
+        private readonly ManualProvisioningService $provisioningService,
+    ) {
     }
 
     public function handle(DispatchCreateManualProvisioning $event): void

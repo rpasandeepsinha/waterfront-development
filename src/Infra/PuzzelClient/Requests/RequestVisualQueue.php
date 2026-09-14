@@ -14,7 +14,7 @@ class RequestVisualQueue extends Request
 
     public function __construct(
         private readonly ConnectorConfig $connectorConfig,
-        private readonly int $visualQueueId
+        private readonly int $visualQueueId,
     ) {
     }
 

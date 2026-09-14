@@ -25,10 +25,10 @@ class CancelChildSubscriptionsRequest extends FormRequest
                 'required',
                 Rule::exists(
                     'subscriptions',
-                    'uuid'
+                    'uuid',
                 )->where(
                     'uuid',
-                    $subscriptionUuid
+                    $subscriptionUuid,
                 ),
             ],
             'amount' => ['required', 'integer', 'min:1'],

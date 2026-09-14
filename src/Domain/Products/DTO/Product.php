@@ -8,13 +8,12 @@ use Illuminate\Support\Collection;
 use Waterfront\Apps\API\Atlantis\Resources\Products\PriceResource;
 use Waterfront\Domain\Products\Enums\ProductGroupType;
 
-class Product
+readonly class Product
 {
     /**
      * @param Collection<int,Price> $prices
      */
     public function __construct(
-        // TODO: Make these properties READONLY when PHP8.1 is implemented.
         public string $uuid,
         public ProductGroupType $type,
         public string $name,

@@ -16,8 +16,9 @@ use Waterfront\Support\Jobs\AbstractQueueableJob;
  */
 abstract class ManualMigrationJob extends AbstractQueueableJob
 {
-    public function __construct(public readonly Subscription $subscription)
-    {
+    public function __construct(
+        public readonly Subscription $subscription,
+    ) {
         parent::__construct();
     }
 

@@ -33,7 +33,7 @@ class ValidateDomainNameserverAndUpdateRegistryJob extends AbstractQueueableJob
      */
     public function __construct(
         private readonly string $domain,
-        private readonly array $nameservers
+        private readonly array $nameservers,
     ) {
         parent::__construct();
     }
@@ -52,13 +52,15 @@ class ValidateDomainNameserverAndUpdateRegistryJob extends AbstractQueueableJob
                 LoggingContextKeys::META => [
                     'nameservers' => $this->nameservers,
                 ],
-            ]
+            ],
         );
 
         /** @var SubscriptionRepository $subscriptionRepository */
         $subscriptionRepository = $container->make(SubscriptionRepository::class);
-        $subscription = $subscriptionRepository
-            ->getSubscriptionByDomainAndGroup($this->domain, ProductGroupType::EXTENSION);
+        $subscription = $subscriptionRepository->getSubscriptionByDomainAndGroup(
+            $this->domain,
+            ProductGroupType::EXTENSION,
+        );
 
         $subscription->update([
             'technical_status' => TechnicalStatus::FAILED->value,
@@ -102,15 +104,16 @@ class ValidateDomainNameserverAndUpdateRegistryJob extends AbstractQueueableJob
                     sprintf('Could not resolve DNS for domain {domain.name} with nameserver %s', $ns->hostname),
                     [
                         LoggingContextKeys::DOMAIN_NAME => $this->domain,
-                    ]
+                    ],
                 );
                 $this->release($this->getBackoffDelay());
+
                 return;
             }
 
             $nameserversResponse = array_map(
                 fn (DNSResult $dnsResult) => $dnsResult->getData(),
-                [...$dnsAnswer]
+                [...$dnsAnswer],
             );
 
             if (! in_array($ns->hostname, $nameserversResponse, true)) {
@@ -118,13 +121,14 @@ class ValidateDomainNameserverAndUpdateRegistryJob extends AbstractQueueableJob
                     sprintf('Resolved DNS for domain {domain.name} but nameserver %s is missing', $ns->hostname),
                     [
                         LoggingContextKeys::DOMAIN_NAME => $this->domain,
-                        LoggingContextKeys::META        => [
+                        LoggingContextKeys::META => [
                             'nameservers_from_dns' => $nameserversResponse,
                         ],
-                    ]
+                    ],
                 );
 
                 $this->release($this->getBackoffDelay());
+
                 return;
             }
 
@@ -144,10 +148,11 @@ class ValidateDomainNameserverAndUpdateRegistryJob extends AbstractQueueableJob
                 new DomainDeploymentNotFoundException(
                     sprintf(
                         'Could not find domain deployment for domain %s',
-                        $this->domain
-                    )
-                )
+                        $this->domain,
+                    ),
+                ),
             );
+
             return;
         }
 

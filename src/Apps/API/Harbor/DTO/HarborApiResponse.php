@@ -36,6 +36,6 @@ class HarborApiResponse implements JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return [ 'data' => $this->getData() ];
+        return ['data' => $this->getData()];
     }
 }

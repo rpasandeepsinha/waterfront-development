@@ -39,7 +39,7 @@ return [
     //session cookie name
     'cookie' => Env::get(
         'SESSION_COOKIE',
-        Str::slug($appName, '_') . '_session'
+        Str::slug($appName, '_') . '_session',
     ),
 
     'path' => '/',

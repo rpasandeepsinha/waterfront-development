@@ -31,25 +31,29 @@ class NovaExportAnonymousDomainContactCustomersTest extends IntegrationTestCase
     #[Test]
     public function exportAnonymousDomainContactCustomers(): void
     {
-        $customer = new CustomerFactory()->withAddress()->createOne([
-            'phone_country_code' => '31',
-            'phone_area_code' => '6',
-            'phone_subscriber_number' => '12345678',
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne([
+                'phone_country_code' => '31',
+                'phone_area_code' => '6',
+                'phone_subscriber_number' => '12345678',
+            ]);
+        $domainProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
         ]);
-        $domainProvider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
         $anonymousHandle = '25B-BUNAME-anonymous';
 
-        DomainContactAnonymousHandleFactory::new()
-            ->create(['handle' => $anonymousHandle]);
+        DomainContactAnonymousHandleFactory::new()->create(['handle' => $anonymousHandle]);
 
-        $anonymizedContact = DomainContactFactory::new()
-            ->for($customer)
-            ->createOne();
+        $anonymizedContact = DomainContactFactory::new()->for($customer)->createOne();
         $anonymizedContact->providers()->attach(
             $domainProvider,
             [
                 'external_contact' => $anonymousHandle,
-            ]
+            ],
         );
 
         $product = ProductFactory::new()->nlDomain()->createOne();
@@ -57,8 +61,16 @@ class NovaExportAnonymousDomainContactCustomersTest extends IntegrationTestCase
         $subscription = SubscriptionFactory::new()->for($customer)->for($product)->createOne();
         $subscription2 = SubscriptionFactory::new()->for($customer)->for($product)->createOne();
 
-        DomainDeploymentFactory::new()->for($anonymizedContact, 'contactOwner')->for($subscription)->for($domainProvider, 'provider')->createOne();
-        DomainDeploymentFactory::new()->for($anonymizedContact, 'contactOwner')->for($subscription2)->for($domainProvider, 'provider')->createOne();
+        DomainDeploymentFactory::new()
+            ->for($anonymizedContact, 'contactOwner')
+            ->for($subscription)
+            ->for($domainProvider, 'provider')
+            ->createOne();
+        DomainDeploymentFactory::new()
+            ->for($anonymizedContact, 'contactOwner')
+            ->for($subscription2)
+            ->for($domainProvider, 'provider')
+            ->createOne();
 
         $expectedName = 'customer-anonymous-domain-contacts.csv';
         $expectedPutPath = 'exports/customer-anonymous-domain-contacts.csv';
@@ -75,17 +87,17 @@ class NovaExportAnonymousDomainContactCustomersTest extends IntegrationTestCase
                 $domains = explode("\n", $data);
                 self::assertCount(2, $domains);
                 self::assertEqualsCanonicalizing([$subscription->domain, $subscription2->domain], $domains);
+
                 return true;
             }))
             ->willReturn(null);
 
         $fileSystemManager = self::createStub(FilesystemManager::class);
-        $fileSystemManager->method('disk')
-            ->willReturn($fileSystem);
+        $fileSystemManager->method('disk')->willReturn($fileSystem);
 
         $novaExportAnonymousDomainContactCustomers = new NovaExportAnonymousDomainContactDomains(
             $fileSystemManager,
-            self::resolve(TranslatorInterface::class)
+            self::resolve(TranslatorInterface::class),
         );
 
         $result = $novaExportAnonymousDomainContactCustomers->handle($fields, $models);

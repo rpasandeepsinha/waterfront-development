@@ -42,15 +42,15 @@ class BackupPipeTest extends IntegrationTestCase
         bool $customerSsoException,
         array $expectedValidationResults,
     ): void {
-        $customer = include(__DIR__ . '/data/customer_correct.php');
-        $subscriptions = include(__DIR__ . '/data/subscriptions_correct.php');
+        $customer = include __DIR__ . '/data/customer_correct.php';
+        $subscriptions = include __DIR__ . '/data/subscriptions_correct.php';
 
         $validationReference = 'unique_reference_for_adf';
 
         $validationPayload = new ValidationPayload(
             validationReference: $validationReference,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
 
         $buTenantUuid = '190f3136-02e3-424d-8dab-51f3a4acca7e';
@@ -77,7 +77,9 @@ class BackupPipeTest extends IntegrationTestCase
 
         $backupGenericClient = $this->createStub(AcronisGenericClient::class);
         if ($buTenantException) {
-            $backupGenericClient->method('listApplications')->willThrowException(new Exception('listApplications exception'));
+            $backupGenericClient
+                ->method('listApplications')
+                ->willThrowException(new Exception('listApplications exception'));
         } else {
             $backupGenericClient->method('listApplications')->willReturn(new ApplicationsList(items: []));
         }
@@ -97,26 +99,28 @@ class BackupPipeTest extends IntegrationTestCase
         }
 
         $acronisClientFactory = $this->createStub(AcronisClientFactory::class);
-        $acronisClientFactory->method('create')->willReturn(new AcronisClient(
-            tenantId: $acronisProvider->tenant_uuid,
-            userClient: $backupUserClient,
-            offeringItemsClient: $backupOfferingClient,
-            tenantClient: $this->createStub(AcronisTenantClient::class),
-            genericClient: $backupGenericClient
-        ));
+        $acronisClientFactory
+            ->method('create')
+            ->willReturn(new AcronisClient(
+                tenantId: $acronisProvider->tenant_uuid,
+                userClient: $backupUserClient,
+                offeringItemsClient: $backupOfferingClient,
+                tenantClient: $this->createStub(AcronisTenantClient::class),
+                genericClient: $backupGenericClient,
+            ));
 
-        $this->app->bind(AcronisClientFactory::class, fn () =>  $acronisClientFactory);
+        $this->app->bind(AcronisClientFactory::class, fn () => $acronisClientFactory);
 
         $backupPipe = self::resolve(BackupPipe::class);
 
         $result = $backupPipe->handle(
             $validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame(
             $expectedValidationResults,
-            $result->validationResults
+            $result->validationResults,
         );
     }
 
@@ -134,9 +138,9 @@ class BackupPipeTest extends IntegrationTestCase
                 MigrationValidationPipes::BACKUP->value => [
                     [
                         'id' => MigrationValidation::DEFAULT_VALIDATION->value,
-                        'message' =>  [
+                        'message' => [
                             '0.backup_data.bu_tenant_uuid' => [
-                                 'Het geselecteerde veld is ongeldig.',
+                                'Het geselecteerde veld is ongeldig.',
                             ],
                         ],
                     ],

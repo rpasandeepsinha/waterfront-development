@@ -73,8 +73,7 @@ class EnableDomainAutoRenewJobTest extends IntegrationTestCase
             ->method('enableAutoRenewal')
             ->with($this->subscription->domain, $this->domainDeployment->provider->slug);
 
-        $this->domainEnableAutoRenewFailedMailer
-            ->expects(self::never())->method('execute');
+        $this->domainEnableAutoRenewFailedMailer->expects(self::never())->method('execute');
 
         $job = new EnableDomainAutoRenewJob($this->subscription);
         $job->handle($this->domainService, $this->domainEnableAutoRenewFailedMailer, $this->logger);
@@ -93,10 +92,7 @@ class EnableDomainAutoRenewJobTest extends IntegrationTestCase
             ->with($this->subscription->domain, $this->domainDeployment->provider->slug)
             ->willThrowException(new EnableAutorenewalFailedException());
 
-        $this->domainEnableAutoRenewFailedMailer
-            ->expects(self::once())
-            ->method('execute')
-            ->with($this->subscription);
+        $this->domainEnableAutoRenewFailedMailer->expects(self::once())->method('execute')->with($this->subscription);
 
         $job = new EnableDomainAutoRenewJob($this->subscription);
         $job->handle($this->domainService, $this->domainEnableAutoRenewFailedMailer, $this->logger);
@@ -113,22 +109,14 @@ class EnableDomainAutoRenewJobTest extends IntegrationTestCase
             ->withCustomer()
             ->for(new ProductFactory()->for($this->extensionProductGroup))
             ->createOne([
-            'technical_status' => TechnicalStatus::OK->value,
-        ]);
+                'technical_status' => TechnicalStatus::OK->value,
+            ]);
 
-        $this->domainService
-            ->expects(self::never())
-            ->method('enableAutoRenewal')
-            ->with($subscription->domain, '');
+        $this->domainService->expects(self::never())->method('enableAutoRenewal')->with($subscription->domain, '');
 
-        $this->domainEnableAutoRenewFailedMailer
-            ->expects(self::never())
-            ->method('execute')
-            ->with($subscription);
+        $this->domainEnableAutoRenewFailedMailer->expects(self::never())->method('execute')->with($subscription);
 
-        $this->logger
-            ->expects(self::once())
-            ->method('error');
+        $this->logger->expects(self::once())->method('error');
 
         $job = new EnableDomainAutoRenewJob($subscription);
         $job->handle($this->domainService, $this->domainEnableAutoRenewFailedMailer, $this->logger);
@@ -145,9 +133,9 @@ class EnableDomainAutoRenewJobTest extends IntegrationTestCase
             ->withCustomer()
             ->for(new ProductFactory()->for($this->extensionProductGroup))
             ->createOne([
-            'domain' => null,
-            'technical_status' => TechnicalStatus::OK->value,
-        ]);
+                'domain' => null,
+                'technical_status' => TechnicalStatus::OK->value,
+            ]);
 
         $domainDeployment = new DomainDeploymentFactory()
             ->withRtrProvider()
@@ -159,14 +147,9 @@ class EnableDomainAutoRenewJobTest extends IntegrationTestCase
             ->method('enableAutoRenewal')
             ->with($subscription->domain, $domainDeployment);
 
-        $this->domainEnableAutoRenewFailedMailer
-            ->expects(self::never())
-            ->method('execute')
-            ->with($subscription);
+        $this->domainEnableAutoRenewFailedMailer->expects(self::never())->method('execute')->with($subscription);
 
-        $this->logger
-            ->expects(self::once())
-            ->method('error');
+        $this->logger->expects(self::once())->method('error');
 
         $job = new EnableDomainAutoRenewJob($subscription);
         $job->handle($this->domainService, $this->domainEnableAutoRenewFailedMailer, $this->logger);

@@ -10,7 +10,7 @@ class InvoiceCreatedEvent
 {
     public function __construct(
         public Invoice $invoice,
-        public bool $isRenewed
+        public bool $isRenewed,
     ) {
     }
 }

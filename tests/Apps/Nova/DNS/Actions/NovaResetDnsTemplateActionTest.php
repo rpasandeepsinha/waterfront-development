@@ -94,9 +94,7 @@ class NovaResetDnsTemplateActionTest extends IntegrationTestCase
             ->parentSubscription($this->domainSubscription)
             ->createOne();
 
-        $this->dnsDeployment = new DnsDeploymentFactory()
-            ->for($this->dnsSubscription)
-            ->createOne();
+        $this->dnsDeployment = new DnsDeploymentFactory()->for($this->dnsSubscription)->createOne();
 
         $this->hostingSubscription = new SubscriptionFactory()
             ->for($customer)
@@ -233,9 +231,7 @@ class NovaResetDnsTemplateActionTest extends IntegrationTestCase
     #[Test]
     public function fullyWorkingAction(): void
     {
-        $this->mockDispatcher
-            ->expects(self::once())
-            ->method('dispatch');
+        $this->mockDispatcher->expects(self::once())->method('dispatch');
 
         $result = $this->runAction($this->dnsSubscription);
 
@@ -280,7 +276,7 @@ class NovaResetDnsTemplateActionTest extends IntegrationTestCase
                         'other.' . self::DOMAIN,
                         DnsRedirectProvisionOption::OVERRIDE,
                     ],
-                )
+                ),
             );
 
         $result = $this->runAction($this->redirectSubscription);
@@ -334,9 +330,7 @@ class NovaResetDnsTemplateActionTest extends IntegrationTestCase
             ->with($this->redirectSubscription)
             ->willReturn([]);
 
-        $this->mockRedirectDnsService
-            ->expects(self::never())
-            ->method('provisionDnsRecords');
+        $this->mockRedirectDnsService->expects(self::never())->method('provisionDnsRecords');
 
         $result = $this->runAction($this->redirectSubscription);
 
@@ -359,9 +353,7 @@ class NovaResetDnsTemplateActionTest extends IntegrationTestCase
                 ),
             );
 
-        $this->mockRedirectDnsService
-            ->expects(self::never())
-            ->method('provisionDnsRecords');
+        $this->mockRedirectDnsService->expects(self::never())->method('provisionDnsRecords');
 
         $result = $this->runAction($this->redirectSubscription);
 

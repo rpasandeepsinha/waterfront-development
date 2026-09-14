@@ -40,34 +40,34 @@ use Waterfront\Infra\RtrClient\Services\Ssl\CertificateDownloader;
 class InstallCertificateTest extends IntegrationTestCase
 {
     private const string TEST_CSR = <<<CSR
------BEGIN CERTIFICATE REQUEST-----
-not a real csr
------END CERTIFICATE REQUEST-----
-CSR;
+    -----BEGIN CERTIFICATE REQUEST-----
+    not a real csr
+    -----END CERTIFICATE REQUEST-----
+    CSR;
 
     private const string TEST_PVT = <<<PVT
------BEGIN PRIVATE KEY-----
-not a real private key
------END PRIVATE KEY-----
-PVT;
+    -----BEGIN PRIVATE KEY-----
+    not a real private key
+    -----END PRIVATE KEY-----
+    PVT;
 
     private const string TEST_CERT = <<<CERT_WRAP
------BEGIN CERTIFICATE-----
-not a real main certificate
------END CERTIFICATE-----
-CERT_WRAP;
+    -----BEGIN CERTIFICATE-----
+    not a real main certificate
+    -----END CERTIFICATE-----
+    CERT_WRAP;
 
     private const string TEST_INTERMEDIATE = <<<CERT_WRAP
------BEGIN CERTIFICATE-----
-not a real intermediate certificate
------END CERTIFICATE-----
-CERT_WRAP;
+    -----BEGIN CERTIFICATE-----
+    not a real intermediate certificate
+    -----END CERTIFICATE-----
+    CERT_WRAP;
 
     private const string TEST_ROOT = <<<CERT_WRAP
------BEGIN CERTIFICATE-----
-not a real root certificate
------END CERTIFICATE-----
-CERT_WRAP;
+    -----BEGIN CERTIFICATE-----
+    not a real root certificate
+    -----END CERTIFICATE-----
+    CERT_WRAP;
 
     private Product $hostingProduct;
 
@@ -91,15 +91,22 @@ CERT_WRAP;
             'product_group_id' => $productGroup->getKey(),
             'name' => $productGroup->slug,
         ]);
-        $hostingSubscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'customer_id' => $customer->getKey(),
-            'domain' => 'sandwave.io',
-            'product_uuid' => $this->hostingProduct->uuid,
-            'technical_status' => TechnicalStatus::OK->value,
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-        ]);
+        $hostingSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'customer_id' => $customer->getKey(),
+                'domain' => 'sandwave.io',
+                'product_uuid' => $this->hostingProduct->uuid,
+                'technical_status' => TechnicalStatus::OK->value,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+            ]);
 
-        $defaultHostingProvider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
+        $defaultHostingProvider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $this->hostingDeployment = new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $hostingSubscription->uuid,
@@ -108,11 +115,13 @@ CERT_WRAP;
             'basekit_server_id' => null,
         ]);
 
-        $this->sslSubscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'customer_id' => $customer->getKey(),
-            'product_uuid' => $this->hostingProduct->uuid,
-            'domain' => 'sandwave.io',
-        ]);
+        $this->sslSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'customer_id' => $customer->getKey(),
+                'product_uuid' => $this->hostingProduct->uuid,
+                'domain' => 'sandwave.io',
+            ]);
 
         $rtrProvider = ProviderFactory::new()->createOne([
             'type' => ProviderType::SSL,
@@ -168,14 +177,20 @@ CERT_WRAP;
         $csrManager->updatePrivateKey($domain, self::TEST_PVT);
 
         // Setup subscription as default hosting
-        $hostingProvider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLACEHOLDER, 'enabled' => true, 'default' => true]);
+        $hostingProvider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLACEHOLDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $this->hostingDeployment->provider_id = $hostingProvider->id;
         $this->hostingDeployment->sitebuilder_provider_id = null;
         $this->hostingDeployment->save();
 
         // Mock the gateway that will install the certificate to the correct hosting platform
         $placeholderServiceMock = self::createMock(HostingPlaceholderService::class);
-        $placeholderServiceMock->expects(self::once())
+        $placeholderServiceMock
+            ->expects(self::once())
             ->method('installCertificate')
             ->with($this->hostingDeployment->subscription_uuid, self::callback(
                 function (array $data) use ($domain) {
@@ -186,7 +201,7 @@ CERT_WRAP;
                     self::assertSame(self::TEST_INTERMEDIATE, $data['ca']);
 
                     return true;
-                }
+                },
             ))
             ->willReturn('ok');
 
@@ -196,7 +211,7 @@ CERT_WRAP;
 
         $installCertificateJob = new InstallCertificate($this->sslDeployment);
         $installCertificateJob->handle(
-            self::resolve(CertificateInstaller::class)
+            self::resolve(CertificateInstaller::class),
         );
     }
 
@@ -230,16 +245,18 @@ CERT_WRAP;
 
         // Mock the gateway that will install the certificate to the correct hosting platform
         $baseKitServiceMock = self::createMock(BaseKitService::class);
-        $baseKitServiceMock->expects(self::once())
+        $baseKitServiceMock
+            ->expects(self::once())
             ->method('setupSsl')
             ->with(self::callback(
-                fn (SslDeployment $sslDeployment): bool => $sslDeployment->getKey() === $this->sslDeployment->getKey()
+                fn (SslDeployment $sslDeployment): bool => $sslDeployment->getKey() === $this->sslDeployment->getKey(),
             ), self::callback(
-                fn (Server $server): bool => $server->getKey() === $this->hostingDeployment->basekitServer?->getKey()
+                fn (Server $server): bool => $server->getKey() === $this->hostingDeployment->basekitServer?->getKey(),
             ))
             ->willReturnCallback(function () {
                 $result = new SiteBuilderResult();
                 $result->setStatus(SiteBuilderResult::STATUS_OK);
+
                 return $result;
             });
 
@@ -249,7 +266,7 @@ CERT_WRAP;
 
         $installCertificateJob = new InstallCertificate($this->sslDeployment);
         $installCertificateJob->handle(
-            self::resolve(CertificateInstaller::class)
+            self::resolve(CertificateInstaller::class),
         );
     }
 }

@@ -23,7 +23,7 @@ class DnsTemplateFromArrayFactoryTest extends IntegrationTestCase
                 'default' => [],
                 'hosting' => [],
             ],
-            self::resolve(DnsRecordHydrator::class)
+            self::resolve(DnsRecordHydrator::class),
         );
 
         $actual = $factory->create('test.nl', 'default');

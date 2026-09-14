@@ -60,7 +60,7 @@ class ProductExperimentOfferings extends Model implements AuditableContract
             Customer::class,
             'product_experiment_offerings_customers',
             'product_experiment_offering_id',
-            'customer_id'
+            'customer_id',
         )
             ->withPivot(['redeemed_at'])
             ->withTimestamps();

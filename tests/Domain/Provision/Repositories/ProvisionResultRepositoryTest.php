@@ -35,11 +35,11 @@ class ProvisionResultRepositoryTest extends IntegrationTestCase
         $uuid = Uuid::uuid4();
         $filters = new ProvisioningResultQueryFilters(uuid: $uuid);
 
-        $expectedResult = ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new()->hosting())
-            ->createOne([
-                'uuid' => $uuid,
-            ]);
+        $expectedResult = ProvisioningResultFactory::new()->for(
+            ProvisioningRequestFactory::new()->hosting(),
+        )->createOne([
+            'uuid' => $uuid,
+        ]);
 
         $request = $expectedResult->provisioningRequest;
         $result = $this->repo->fetchProvisioningResults($filters, 1)->first();
@@ -87,23 +87,17 @@ class ProvisionResultRepositoryTest extends IntegrationTestCase
     public function filterOnProvisionStatusMultipleResultsAreCorrect(): void
     {
         $filters = new ProvisioningResultQueryFilters(provisionStatus: [ProvisionStatus::DELETING]);
-        ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new()->hosting())
-            ->createOne([
-                'status' => ProvisionStatus::DELETING,
-            ]);
+        ProvisioningResultFactory::new()->for(ProvisioningRequestFactory::new()->hosting())->createOne([
+            'status' => ProvisionStatus::DELETING,
+        ]);
 
-        ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new()->hosting())
-            ->createOne([
-                'status' => ProvisionStatus::DELETING,
-            ]);
+        ProvisioningResultFactory::new()->for(ProvisioningRequestFactory::new()->hosting())->createOne([
+            'status' => ProvisionStatus::DELETING,
+        ]);
 
-        ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new()->hosting())
-            ->createOne([
-                'status' => ProvisionStatus::PENDING,
-            ]);
+        ProvisioningResultFactory::new()->for(ProvisioningRequestFactory::new()->hosting())->createOne([
+            'status' => ProvisionStatus::PENDING,
+        ]);
 
         $results = $this->repo->fetchProvisioningResults($filters);
 
@@ -114,25 +108,26 @@ class ProvisionResultRepositoryTest extends IntegrationTestCase
     #[Test]
     public function filterOnFromDateAndStatus(): void
     {
-        $filters = new ProvisioningResultQueryFilters(provisionStatus: [ProvisionStatus::DELETING], fromDate: CarbonImmutable::now()->subWeek());
+        $filters = new ProvisioningResultQueryFilters(
+            provisionStatus: [ProvisionStatus::DELETING],
+            fromDate: CarbonImmutable::now()->subWeek(),
+        );
 
-        $superOld = ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new()->hosting())
-            ->createOne([
+        $superOld = ProvisioningResultFactory::new()->for(ProvisioningRequestFactory::new()->hosting())->createOne([
             'status' => ProvisionStatus::DELETING,
             'created_at' => CarbonImmutable::now()->subMonths(22),
         ]);
 
-        $shouldBeFound = ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new()->hosting())
-            ->createOne([
+        $shouldBeFound = ProvisioningResultFactory::new()->for(
+            ProvisioningRequestFactory::new()->hosting(),
+        )->createOne([
             'status' => ProvisionStatus::DELETING,
             'created_at' => CarbonImmutable::now()->subDay(),
         ]);
 
-        $shouldntBeFound = ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new()->hosting())
-            ->createOne([
+        $shouldntBeFound = ProvisioningResultFactory::new()->for(
+            ProvisioningRequestFactory::new()->hosting(),
+        )->createOne([
             'status' => ProvisionStatus::PENDING,
             'created_at' => CarbonImmutable::now()->subDay(),
         ]);
@@ -146,24 +141,21 @@ class ProvisionResultRepositoryTest extends IntegrationTestCase
     #[Test]
     public function filterOnBetweenDates(): void
     {
-        $filters = new ProvisioningResultQueryFilters(fromDate: CarbonImmutable::now()->subWeek(), toDate: CarbonImmutable::yesterday());
-        $superOld = ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new())
-            ->createOne([
-                'created_at' => CarbonImmutable::now()->subMonths(22),
-            ]);
+        $filters = new ProvisioningResultQueryFilters(
+            fromDate: CarbonImmutable::now()->subWeek(),
+            toDate: CarbonImmutable::yesterday(),
+        );
+        $superOld = ProvisioningResultFactory::new()->for(ProvisioningRequestFactory::new())->createOne([
+            'created_at' => CarbonImmutable::now()->subMonths(22),
+        ]);
 
-        $shouldBeFound = ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new())
-            ->createOne([
-                'created_at' => CarbonImmutable::now()->subDays(3),
-            ]);
+        $shouldBeFound = ProvisioningResultFactory::new()->for(ProvisioningRequestFactory::new())->createOne([
+            'created_at' => CarbonImmutable::now()->subDays(3),
+        ]);
 
-        $shouldntBeFound = ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new())
-            ->createOne([
-                'created_at' => CarbonImmutable::today(),
-            ]);
+        $shouldntBeFound = ProvisioningResultFactory::new()->for(ProvisioningRequestFactory::new())->createOne([
+            'created_at' => CarbonImmutable::today(),
+        ]);
 
         $results = $this->repo->fetchProvisioningResults($filters, 100);
 
@@ -213,26 +205,26 @@ class ProvisionResultRepositoryTest extends IntegrationTestCase
         $filters = new ProvisioningResultQueryFilters(
             fromDate: CarbonImmutable::now()->subWeek(),
             toDate: CarbonImmutable::yesterday(),
-            tag: $uuid
+            tag: $uuid,
         );
 
-        $superOld = ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new()->hosting()->state(['tag' => $uuid]))
-            ->createOne([
-                'created_at' => CarbonImmutable::now()->subMonths(22),
-            ]);
+        $superOld = ProvisioningResultFactory::new()->for(ProvisioningRequestFactory::new()->hosting()->state([
+            'tag' => $uuid,
+        ]))->createOne([
+            'created_at' => CarbonImmutable::now()->subMonths(22),
+        ]);
 
-        $shouldBeFound = ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new()->dns()->state(['tag' => $uuid]))
-            ->createOne([
-                'created_at' => CarbonImmutable::now()->subDays(3),
-            ]);
+        $shouldBeFound = ProvisioningResultFactory::new()->for(ProvisioningRequestFactory::new()->dns()->state([
+            'tag' => $uuid,
+        ]))->createOne([
+            'created_at' => CarbonImmutable::now()->subDays(3),
+        ]);
 
-        $shouldntBeFound = ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new()->vps()->state(['tag' => $uuid]))
-            ->createOne([
-                'created_at' => CarbonImmutable::now()->subDays(3),
-            ]);
+        $shouldntBeFound = ProvisioningResultFactory::new()->for(ProvisioningRequestFactory::new()->vps()->state([
+            'tag' => $uuid,
+        ]))->createOne([
+            'created_at' => CarbonImmutable::now()->subDays(3),
+        ]);
 
         $results = $this->repo->fetchProvisioningResults($filters, 100);
 
@@ -251,7 +243,7 @@ class ProvisionResultRepositoryTest extends IntegrationTestCase
                 ProvisioningRequestFactory::new()
                     ->hosting()
                     ->for(ProvisioningRequestFactory::new()->hosting(), 'retryOf')
-                    ->state(['requested_by_uuid' => Uuid::uuid4()])
+                    ->state(['requested_by_uuid' => Uuid::uuid4()]),
             )
             ->validationError()
             ->createOne();
@@ -278,10 +270,12 @@ class ProvisionResultRepositoryTest extends IntegrationTestCase
             ->for(
                 ProvisioningRequestFactory::new()
                     ->hosting()
-                    ->for(ProvisioningRequestFactory::new()->hosting()->state(['uuid' => $uuidExpectedInResults]), 'retryOf')
+                    ->for(ProvisioningRequestFactory::new()->hosting()->state([
+                        'uuid' => $uuidExpectedInResults,
+                    ]), 'retryOf')
                     ->state([
                         'requested_by_uuid' => Uuid::uuid4(),
-                    ])
+                    ]),
             )
             ->validationError()
             ->createOne();
@@ -291,7 +285,7 @@ class ProvisionResultRepositoryTest extends IntegrationTestCase
                 ProvisioningRequestFactory::new()
                     ->hosting()
                     ->for(ProvisioningRequestFactory::new()->hosting(), 'retryOf')
-                    ->state(['requested_by_uuid' => Uuid::uuid4()])
+                    ->state(['requested_by_uuid' => Uuid::uuid4()]),
             )
             ->validationError()
             ->createOne();
@@ -322,7 +316,7 @@ class ProvisionResultRepositoryTest extends IntegrationTestCase
                     ->for(ProvisioningRequestFactory::new()->hosting(), 'retryOf')
                     ->state([
                         'requested_by_uuid' => $uuidExpectedInResults,
-                    ])
+                    ]),
             )
             ->validationError()
             ->createOne();
@@ -334,7 +328,7 @@ class ProvisionResultRepositoryTest extends IntegrationTestCase
                     ->for(ProvisioningRequestFactory::new()->hosting(), 'retryOf')
                     ->state([
                         'requested_by_uuid' => $uuidExpectedInResults,
-                    ])
+                    ]),
             )
             ->validationError()
             ->createOne();
@@ -344,7 +338,7 @@ class ProvisionResultRepositoryTest extends IntegrationTestCase
                 ProvisioningRequestFactory::new()
                     ->hosting()
                     ->for(ProvisioningRequestFactory::new()->hosting(), 'retryOf')
-                    ->state(['requested_by_uuid' => Uuid::uuid4()])
+                    ->state(['requested_by_uuid' => Uuid::uuid4()]),
             )
             ->validationError()
             ->createOne();
@@ -368,23 +362,23 @@ class ProvisionResultRepositoryTest extends IntegrationTestCase
     {
         $requestUuid = Uuid::uuid4();
 
-        $oldest = ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new()->state(['uuid' => $requestUuid]))
-            ->createOne([
-                'created_at' => CarbonImmutable::now()->subDays(3),
-            ]);
+        $oldest = ProvisioningResultFactory::new()->for(ProvisioningRequestFactory::new()->state([
+            'uuid' => $requestUuid,
+        ]))->createOne([
+            'created_at' => CarbonImmutable::now()->subDays(3),
+        ]);
 
-        $newest = ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new()->state(['uuid' => $requestUuid]))
-            ->createOne([
-                'created_at' => CarbonImmutable::now()->subDay(),
-            ]);
+        $newest = ProvisioningResultFactory::new()->for(ProvisioningRequestFactory::new()->state([
+            'uuid' => $requestUuid,
+        ]))->createOne([
+            'created_at' => CarbonImmutable::now()->subDay(),
+        ]);
 
-        $middle = ProvisioningResultFactory::new()
-            ->for(ProvisioningRequestFactory::new()->state(['uuid' => $requestUuid]))
-            ->createOne([
-                'created_at' => CarbonImmutable::now()->subDays(2),
-            ]);
+        $middle = ProvisioningResultFactory::new()->for(ProvisioningRequestFactory::new()->state([
+            'uuid' => $requestUuid,
+        ]))->createOne([
+            'created_at' => CarbonImmutable::now()->subDays(2),
+        ]);
 
         $filters = new ProvisioningResultQueryFilters(requestUuid: $requestUuid);
         $results = $this->repo->fetchProvisioningResults($filters);

@@ -38,7 +38,7 @@ class AcronisOfferingItemsClient
         $filter ??= new OfferingItemsFilter();
         $response = $this->connector->send(new GetOfferingItemsRequest(
             tenantId: $tenantId,
-            filter: $filter
+            filter: $filter,
         ));
 
         try {
@@ -81,11 +81,15 @@ class AcronisOfferingItemsClient
     public function getPricing(string $tenantId): OfferingItemsPricingResponse
     {
         $response = $this->connector->send(new GetOfferingItemsPricingRequest(
-            tenantId: $tenantId
+            tenantId: $tenantId,
         ));
 
         try {
-            $pricing = AcronisSerializer::get()->deserialize($response->body(), OfferingItemsPricingResponse::class, 'json');
+            $pricing = AcronisSerializer::get()->deserialize(
+                $response->body(),
+                OfferingItemsPricingResponse::class,
+                'json',
+            );
         } catch (RuntimeException $exception) {
             throw new AcronisSerializerException(OfferingItemsPricingResponse::class, $response->body(), $exception);
         }
@@ -107,7 +111,11 @@ class AcronisOfferingItemsClient
         ));
 
         try {
-            $pricing = AcronisSerializer::get()->deserialize($response->body(), OfferingItemsPricingResponse::class, 'json');
+            $pricing = AcronisSerializer::get()->deserialize(
+                $response->body(),
+                OfferingItemsPricingResponse::class,
+                'json',
+            );
         } catch (RuntimeException $exception) {
             throw new AcronisSerializerException(OfferingItemsPricingResponse::class, $response->body(), $exception);
         }

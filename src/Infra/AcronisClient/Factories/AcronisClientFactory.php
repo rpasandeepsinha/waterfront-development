@@ -35,7 +35,7 @@ class AcronisClientFactory
     {
         $connector = new AcronisConnector(
             acronisConfig: new ConnectorConfig(
-                baseUrl:rtrim($acronisProvider->endpoint, '/'),
+                baseUrl: rtrim($acronisProvider->endpoint, '/'),
                 clientId: $acronisProvider->client_id->toString(),
                 clientSecret: $acronisProvider->client_secret,
                 retryConfig: $this->retryConfig,

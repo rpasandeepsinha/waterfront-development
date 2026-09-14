@@ -8,8 +8,10 @@ use Waterfront\Domain\Hosting\Interfaces\Hosting\RequestInterface;
 
 class Request implements RequestInterface
 {
-    public function __construct(private readonly int $siteId, private readonly string $destinationAddress)
-    {
+    public function __construct(
+        private readonly int $siteId,
+        private readonly string $destinationAddress,
+    ) {
     }
 
     /**

@@ -40,13 +40,15 @@ class Translator extends LaravelTranslator
             $locales = $fallback ? $this->localeArray($locale) : [$locale];
 
             foreach ($locales as $loopLocale) {
-                if (! is_null($line = $this->getLine(
-                    $namespace,
-                    $group,
-                    $loopLocale,
-                    $item,
-                    $replace
-                ))) {
+                if (! is_null(
+                    $line = $this->getLine(
+                        $namespace,
+                        $group,
+                        $loopLocale,
+                        $item,
+                        $replace,
+                    ),
+                )) {
                     return $line;
                 }
             }
@@ -78,6 +80,7 @@ class Translator extends LaravelTranslator
             if (is_array($value)) {
                 continue;
             }
+
             $shouldReplace[':' . Str::ucfirst($key)] = Str::ucfirst($value);
             $shouldReplace[':' . Str::upper($key)] = Str::upper($value);
             $shouldReplace[':' . $key] = $value;

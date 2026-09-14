@@ -17,6 +17,7 @@ use Tests\Factories\SubscriptionFactory;
 use Tests\IntegrationTestCase;
 use Waterfront\Domain\AuditLogs\Actions\StoreAuditLogAction;
 use Waterfront\Domain\AuditLogs\Enums\AuditLogEvent;
+use Waterfront\Domain\Domains\Exceptions\DomainForbiddenException;
 use Waterfront\Domain\Domains\Exceptions\DomainModificationFailedException;
 use Waterfront\Domain\Domains\Factories\DomainServiceFactory;
 use Waterfront\Domain\Domains\Interfaces\DomainDriverInterface;
@@ -24,10 +25,12 @@ use Waterfront\Domain\Domains\Jobs\SuspendDomainJob;
 use Waterfront\Domain\Domains\Models\DomainDeployment;
 use Waterfront\Domain\Email\Actions\SendSubscriptionSuspendedMailAction;
 use Waterfront\Domain\Notes\Actions\StoreNoteAction;
+use Waterfront\Domain\Provision\Enums\ProvisionType;
 use Waterfront\Domain\Subscriptions\Enums\AdministrativeStatus;
 use Waterfront\Domain\Subscriptions\Enums\SubscriptionCategory;
 use Waterfront\Domain\Subscriptions\Enums\TechnicalStatus;
 use Waterfront\Domain\Subscriptions\Models\Subscription;
+use Waterfront\Support\Enums\LoggingContextKeys;
 use Waterfront\Support\Exceptions\NotImplementedException;
 
 #[CoversClass(SuspendDomainJob::class)]
@@ -77,10 +80,7 @@ class SuspendDomainJobTest extends IntegrationTestCase
             ->method('suspend')
             ->with($this->domainDeployment->subscription->domain);
 
-        $this->domainServiceFactory
-            ->expects(self::once())
-            ->method('driver')
-            ->willReturn($this->domainDriver);
+        $this->domainServiceFactory->expects(self::once())->method('driver')->willReturn($this->domainDriver);
 
         $this->domainSuspendedMailer
             ->expects(self::once())
@@ -98,7 +98,7 @@ class SuspendDomainJobTest extends IntegrationTestCase
 
         $suspendJob = new SuspendDomainJob(
             $this->domainDeployment,
-            true
+            true,
         );
 
         $suspendJob->handle(
@@ -106,7 +106,7 @@ class SuspendDomainJobTest extends IntegrationTestCase
             $this->domainSuspendedMailer,
             $this->storeNameserversAction,
             self::createMock(LoggerInterface::class),
-            $this->createStub(StoreNoteAction::class)
+            $this->createStub(StoreNoteAction::class),
         );
 
         $this->subscription->refresh();
@@ -123,18 +123,13 @@ class SuspendDomainJobTest extends IntegrationTestCase
             ->method('suspend')
             ->willThrowException(new DomainModificationFailedException());
 
-        $this->domainServiceFactory
-            ->expects(self::once())
-            ->method('driver')
-            ->willReturn($this->domainDriver);
+        $this->domainServiceFactory->expects(self::once())->method('driver')->willReturn($this->domainDriver);
 
-        $this->domainSuspendedMailer
-            ->expects(self::never())
-            ->method('execute');
+        $this->domainSuspendedMailer->expects(self::never())->method('execute');
 
         $suspendJob = new SuspendDomainJob(
             $this->domainDeployment,
-            true
+            true,
         );
 
         $suspendJob->handle(
@@ -142,7 +137,7 @@ class SuspendDomainJobTest extends IntegrationTestCase
             $this->domainSuspendedMailer,
             $this->storeNameserversAction,
             self::createMock(LoggerInterface::class),
-            $this->createStub(StoreNoteAction::class)
+            $this->createStub(StoreNoteAction::class),
         );
 
         self::assertSame(AdministrativeStatus::SUSPENDED->value, $this->subscription->administrative_status);
@@ -157,18 +152,13 @@ class SuspendDomainJobTest extends IntegrationTestCase
             ->method('suspend')
             ->willThrowException(new NotImplementedException());
 
-        $this->domainServiceFactory
-            ->expects(self::once())
-            ->method('driver')
-            ->willReturn($this->domainDriver);
+        $this->domainServiceFactory->expects(self::once())->method('driver')->willReturn($this->domainDriver);
 
-        $this->domainSuspendedMailer
-            ->expects(self::never())
-            ->method('execute');
+        $this->domainSuspendedMailer->expects(self::never())->method('execute');
 
         $suspendJob = new SuspendDomainJob(
             $this->domainDeployment,
-            true
+            true,
         );
 
         $suspendJob->handle(
@@ -176,7 +166,52 @@ class SuspendDomainJobTest extends IntegrationTestCase
             $this->domainSuspendedMailer,
             $this->storeNameserversAction,
             self::createMock(LoggerInterface::class),
-            $this->createStub(StoreNoteAction::class)
+            $this->createStub(StoreNoteAction::class),
+        );
+
+        self::assertSame(AdministrativeStatus::SUSPENDED->value, $this->subscription->administrative_status);
+        self::assertSame(TechnicalStatus::SUSPENDING->value, $this->subscription->technical_status);
+    }
+
+    #[Test]
+    public function domainForbiddenExceptionFailsFast(): void
+    {
+        $this->domainDriver
+            ->expects(self::once())
+            ->method('suspend')
+            ->willThrowException(new DomainForbiddenException());
+
+        $this->domainServiceFactory->expects(self::once())->method('driver')->willReturn($this->domainDriver);
+
+        $this->domainSuspendedMailer->expects(self::never())->method('execute');
+
+        $loggerMock = self::createMock(LoggerInterface::class);
+        $loggerMock
+            ->expects(self::once())
+            ->method('error')
+            ->with(
+                'Failed suspend for {domain.name}, RTR access forbidden for business unit.',
+                self::callback(
+                    fn (array $context): bool => (
+                        $context[LoggingContextKeys::DOMAIN_NAME] === $this->domainDeployment->subscription->domain
+                        && $context[LoggingContextKeys::PROVISIONING_PROVIDER]
+                        === $this->domainDeployment->provider->slug
+                        && $context[LoggingContextKeys::PROVISIONING_TYPE] === ProvisionType::DOMAIN_NAME
+                    ),
+                ),
+            );
+
+        $suspendJob = new SuspendDomainJob(
+            $this->domainDeployment,
+            true,
+        );
+
+        $suspendJob->handle(
+            $this->domainServiceFactory,
+            $this->domainSuspendedMailer,
+            $this->storeNameserversAction,
+            $loggerMock,
+            $this->createStub(StoreNoteAction::class),
         );
 
         self::assertSame(AdministrativeStatus::SUSPENDED->value, $this->subscription->administrative_status);
@@ -195,7 +230,7 @@ class SuspendDomainJobTest extends IntegrationTestCase
 
         $suspendJob = new SuspendDomainJob(
             $this->domainDeployment,
-            true
+            true,
         );
 
         $suspendJob->handle(
@@ -203,7 +238,7 @@ class SuspendDomainJobTest extends IntegrationTestCase
             $this->domainSuspendedMailer,
             $this->storeNameserversAction,
             self::createMock(LoggerInterface::class),
-            $this->createStub(StoreNoteAction::class)
+            $this->createStub(StoreNoteAction::class),
         );
     }
 
@@ -211,23 +246,15 @@ class SuspendDomainJobTest extends IntegrationTestCase
     public function suspendDomainFailedTestFailedFunctionSendsAuditLog(): void
     {
         $exception = new DomainModificationFailedException();
-        $this->domainDriver
-            ->expects(self::once())
-            ->method('suspend')
-            ->willThrowException($exception);
+        $this->domainDriver->expects(self::once())->method('suspend')->willThrowException($exception);
 
-        $this->domainServiceFactory
-            ->expects(self::once())
-            ->method('driver')
-            ->willReturn($this->domainDriver);
+        $this->domainServiceFactory->expects(self::once())->method('driver')->willReturn($this->domainDriver);
 
-        $this->domainSuspendedMailer
-            ->expects(self::never())
-            ->method('execute');
+        $this->domainSuspendedMailer->expects(self::never())->method('execute');
 
         $suspendJob = new SuspendDomainJob(
             $this->domainDeployment,
-            true
+            true,
         );
 
         $suspendJob->handle(
@@ -235,7 +262,7 @@ class SuspendDomainJobTest extends IntegrationTestCase
             $this->domainSuspendedMailer,
             $this->storeNameserversAction,
             self::createMock(LoggerInterface::class),
-            $this->createStub(StoreNoteAction::class)
+            $this->createStub(StoreNoteAction::class),
         );
         self::assertSame(AdministrativeStatus::SUSPENDED->value, $this->subscription->administrative_status);
         self::assertSame(TechnicalStatus::SUSPENDING->value, $this->subscription->technical_status);

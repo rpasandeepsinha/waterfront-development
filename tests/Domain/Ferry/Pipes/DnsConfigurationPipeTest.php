@@ -36,13 +36,13 @@ class DnsConfigurationPipeTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $customer = include(__DIR__ . '/data/customer_bad_data.php');
-        $subscriptions = include(__DIR__ . '/data/subscriptions_correct_one_domain.php');
+        $customer = include __DIR__ . '/data/customer_bad_data.php';
+        $subscriptions = include __DIR__ . '/data/subscriptions_correct_one_domain.php';
 
         $this->validationPayload = new ValidationPayload(
             validationReference: self::REFERENCE,
             customer: $customer,
-            subscriptions: $subscriptions
+            subscriptions: $subscriptions,
         );
     }
 
@@ -66,11 +66,14 @@ class DnsConfigurationPipeTest extends IntegrationTestCase
 
         $dnsHelper = self::createMock(DnsHelper::class);
         if ($dnsHelperException) {
-            $dnsHelper->method('dnsGetRecord')->willThrowException(
-                new ErrorException('dns_get_record(): A temporary server error occurred.')
-            );
+            $dnsHelper
+                ->method('dnsGetRecord')
+                ->willThrowException(
+                    new ErrorException('dns_get_record(): A temporary server error occurred.'),
+                );
         } else {
-            $dnsHelper->expects(self::exactly(count($dnsGetRecordCalls)))
+            $dnsHelper
+                ->expects(self::exactly(count($dnsGetRecordCalls)))
                 ->method('dnsGetRecord')
                 ->willReturnOnConsecutiveCalls(...$dnsGetRecordCalls);
         }
@@ -91,35 +94,34 @@ class DnsConfigurationPipeTest extends IntegrationTestCase
 
         $retrieveResult = new RetrieveResult();
         $retrieveResult->setNameServers(
-            $useInternalNameservers ?
-            [
-                [
-                    'name' => 'ns1.testing.test',
+            $useInternalNameservers
+                ? [
+                    [
+                        'name' => 'ns1.testing.test',
+                    ],
+                    [
+                        'name' => 'ns2.testing.test',
+                    ],
+                ]
+                : [
+                    [
+                        'name' => 'masterserver.test',
+                    ],
+                    [
+                        'name' => 'masterserver2.test',
+                    ],
                 ],
-                [
-                    'name' => 'ns2.testing.test',
-                ],
-            ] :
-            [
-                [
-                    'name' => 'masterserver.test',
-                ],
-                [
-                    'name' => 'masterserver2.test',
-                ],
-            ]
         );
 
         $rtrService = $this->createStub(RtrService::class);
-        $rtrService->method('retrieveNameservers')
-            ->willReturn($retrieveResult);
+        $rtrService->method('retrieveNameservers')->willReturn($retrieveResult);
 
         $this->app->bind(RtrService::class, fn (): RtrService => $rtrService);
 
         $dnsConfigurationPipe = self::resolve(DnsConfigurationPipe::class);
         $validationPayload = $dnsConfigurationPipe->handle(
             $this->validationPayload,
-            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload
+            fn (ValidationPayload $validationPayload): ValidationPayload => $validationPayload,
         );
 
         self::assertSame(self::REFERENCE, $validationPayload->validationReference);
@@ -138,7 +140,7 @@ class DnsConfigurationPipeTest extends IntegrationTestCase
                 new Response(
                     200,
                     [],
-                    self::getStaticMockedZoneResponseBody('test-dns.test')
+                    self::getStaticMockedZoneResponseBody('test-dns.test'),
                 ),
             ], // Pdns response set
             'expectedADFPayload' => [
@@ -194,7 +196,7 @@ class DnsConfigurationPipeTest extends IntegrationTestCase
                 new Response(
                     404,
                     [],
-                    'not found'
+                    'not found',
                 ),
             ],
             'expectedADFPayload' => [
@@ -254,7 +256,7 @@ class DnsConfigurationPipeTest extends IntegrationTestCase
                 new Response(
                     404,
                     [],
-                    'not found'
+                    'not found',
                 ),
             ],
             'expectedADFPayload' => [
@@ -314,7 +316,7 @@ class DnsConfigurationPipeTest extends IntegrationTestCase
                 new Response(
                     500,
                     [],
-                    'random PowerDNS error'
+                    'random PowerDNS error',
                 ),
             ],
             'expectedADFPayload' => [
@@ -374,7 +376,7 @@ class DnsConfigurationPipeTest extends IntegrationTestCase
                 new Response(
                     404,
                     [],
-                    'not found'
+                    'not found',
                 ),
             ],
             'expectedADFPayload' => [
@@ -438,7 +440,7 @@ class DnsConfigurationPipeTest extends IntegrationTestCase
                         domain: 'test-dns.test',
                         kind: 'Slave',
                         nameserver: 'ns1.testing.test',
-                    )
+                    ),
                 ),
             ],
             'expectedADFPayload' => [
@@ -495,10 +497,10 @@ class DnsConfigurationPipeTest extends IntegrationTestCase
                     200,
                     [],
                     self::getStaticMockedZoneResponseBody(
-                        domain:'test-dns.test',
+                        domain: 'test-dns.test',
                         kind: 'Slave',
                         nameserver: 'ns1.testing.test',
-                    )
+                    ),
                 ),
             ],
             'expectedADFPayload' => [
@@ -560,7 +562,7 @@ class DnsConfigurationPipeTest extends IntegrationTestCase
                 new Response(
                     200,
                     [],
-                    self::getStaticMockedZoneResponseBody('test-dns.test', [], 'Slave')
+                    self::getStaticMockedZoneResponseBody('test-dns.test', [], 'Slave'),
                 ),
             ],
             'expectedADFPayload' => [],
@@ -575,7 +577,7 @@ class DnsConfigurationPipeTest extends IntegrationTestCase
                 new Response(
                     200,
                     [],
-                    self::getMockedZoneResponseBodyWithRrsets('test-dns.test', [], 'Slave')
+                    self::getMockedZoneResponseBodyWithRrsets('test-dns.test', [], 'Slave'),
                 ),
             ],
             'expectedADFPayload' => [

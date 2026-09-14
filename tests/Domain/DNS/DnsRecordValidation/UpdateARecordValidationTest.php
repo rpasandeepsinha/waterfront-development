@@ -35,9 +35,9 @@ class UpdateARecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'A',
-                'name'     => 'google.com',
-                'ttl'      => '600',
+                'type' => 'A',
+                'name' => 'google.com',
+                'ttl' => '600',
                 'disabled' => true,
             ],
         ];
@@ -45,7 +45,10 @@ class UpdateARecordValidationTest extends IntegrationTestCase
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     /**
@@ -56,10 +59,10 @@ class UpdateARecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'A',
-                'name'     => 'google.com',
-                'content'  => 1,
-                'ttl'      => '600',
+                'type' => 'A',
+                'name' => 'google.com',
+                'content' => 1,
+                'ttl' => '600',
                 'disabled' => true,
             ],
         ];
@@ -67,7 +70,10 @@ class UpdateARecordValidationTest extends IntegrationTestCase
         $validator = new UpdateDnsRecordValidator($this->validationService, $this->translator, $data, []);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.string')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.string')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     /**
@@ -78,10 +84,10 @@ class UpdateARecordValidationTest extends IntegrationTestCase
     {
         $data = [
             'new' => [
-                'type'     => 'A',
-                'name'     => 'google.com',
-                'content'  => '127.0.0',
-                'ttl'      => '600',
+                'type' => 'A',
+                'name' => 'google.com',
+                'content' => '127.0.0',
+                'ttl' => '600',
                 'disabled' => true,
             ],
         ];
@@ -91,7 +97,7 @@ class UpdateARecordValidationTest extends IntegrationTestCase
         self::assertTrue($validator->fails());
         self::assertSame(
             ['new.content' => [self::resolve(TranslatorInterface::class)->translate('validation.ipv4')]],
-            $validator->errors()->toArray()
+            $validator->errors()->toArray(),
         );
     }
 }

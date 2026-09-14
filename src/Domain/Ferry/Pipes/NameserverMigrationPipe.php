@@ -22,7 +22,7 @@ class NameserverMigrationPipe extends ValidationPipe
     public function __construct(
         private readonly DomainServiceFactory $domainServiceFactory,
         private readonly DnsMigrationService $dnsMigrationService,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -33,12 +33,12 @@ class NameserverMigrationPipe extends ValidationPipe
             [
                 LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
-            ]
+            ],
         );
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Start'
+            message: 'Start',
         );
 
         /** @var array<int, array<string,string>> $extensionSubscriptions */
@@ -55,14 +55,14 @@ class NameserverMigrationPipe extends ValidationPipe
             $payload->addValidationTimeline(
                 pipeline: $this->getValidationIdentifier(),
                 message: 'looping',
-                id: $domain
+                id: $domain,
             );
 
             /** @var string $stringedDriver */
-            $stringedDriver =  Arr::get(
+            $stringedDriver = Arr::get(
                 $subscription,
                 'driver',
-                ProviderSlug::REALTIME_REGISTER->value
+                ProviderSlug::REALTIME_REGISTER->value,
             );
 
             try {
@@ -85,13 +85,13 @@ class NameserverMigrationPipe extends ValidationPipe
                     'Unable to fetch Domain [%s] from backend [%s], error message: %s',
                     $domain,
                     $stringedDriver,
-                    $exception->getMessage()
+                    $exception->getMessage(),
                 );
 
                 $this->addValidationResult(
                     $payload,
                     MigrationValidation::NAMESERVER_FETCH_DOMAIN_FAILED,
-                    $message
+                    $message,
                 );
 
                 $this->logger->debug($message, [
@@ -139,7 +139,7 @@ class NameserverMigrationPipe extends ValidationPipe
                                 'hostname' => $hostname,
                                 'domain_status' => $fetchedDomain->status,
                             ],
-                        ]
+                        ],
                     );
                     continue;
                 }
@@ -157,7 +157,7 @@ class NameserverMigrationPipe extends ValidationPipe
                             LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                             LoggingContextKeys::SERVER_HOSTNAME => $hostname,
                             LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
-                        ]
+                        ],
                     );
 
                     continue;
@@ -168,13 +168,13 @@ class NameserverMigrationPipe extends ValidationPipe
                         $message = sprintf(
                             'Domain %s has an whitelabel nameserver (rdns) %s',
                             $domain,
-                            $rdnsNameserver
+                            $rdnsNameserver,
                         );
 
                         $this->addValidationResult(
                             $payload,
                             MigrationValidation::NAMESERVER_HAS_WHITELABEL_NAMESERVER,
-                            $message
+                            $message,
                         );
 
                         $this->logger->debug($message, [
@@ -189,13 +189,13 @@ class NameserverMigrationPipe extends ValidationPipe
                 $message = sprintf(
                     'Domain %s has non-migratable nameserver %s',
                     $domain,
-                    $hostname
+                    $hostname,
                 );
 
                 $this->addValidationResult(
                     $payload,
                     MigrationValidation::NAMESERVER_HAS_NON_MIGRATEABLE_NAMESERVER,
-                    $message
+                    $message,
                 );
 
                 $this->logger->debug($message, [
@@ -207,7 +207,7 @@ class NameserverMigrationPipe extends ValidationPipe
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Finish'
+            message: 'Finish',
         );
 
         return $this->finishPipe(MigrationValidation::NAMESERVER_PIPE_PASSED, $payload, $this->logger, $next);

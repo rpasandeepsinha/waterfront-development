@@ -22,8 +22,10 @@ use Webmozart\Assert\Assert;
 
 class VolumeDiscountService
 {
-    public function __construct(private readonly PriceResolver $priceResolver, private readonly PricePersistService $pricePersistService)
-    {
+    public function __construct(
+        private readonly PriceResolver $priceResolver,
+        private readonly PricePersistService $pricePersistService,
+    ) {
     }
 
     public function attach(Customer $customer, ProductDiscount $productDiscount, Product $product, int $period): void

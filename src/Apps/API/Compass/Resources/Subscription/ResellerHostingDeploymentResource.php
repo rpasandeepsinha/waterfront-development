@@ -35,6 +35,6 @@ class ResellerHostingDeploymentResource
      */
     public function toJson(ResellerHostingDeployment $deployment): string
     {
-        return json_encode($this->toArray($deployment), flags:JSON_THROW_ON_ERROR);
+        return json_encode($this->toArray($deployment), flags: JSON_THROW_ON_ERROR);
     }
 }

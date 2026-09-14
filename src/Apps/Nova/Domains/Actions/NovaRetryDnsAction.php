@@ -23,8 +23,10 @@ class NovaRetryDnsAction extends NovaSubscriptionAction
         private readonly RedeployDnsAction $action,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool =>
-                $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::DNS)
+            fn (NovaRequest $request): bool => $this->onlyForSubscriptionsWithProductGroupType(
+                $request,
+                ProductGroupType::DNS,
+            ),
         );
         $this->sole();
     }

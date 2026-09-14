@@ -41,8 +41,16 @@ class CreateSiteTest extends IntegrationTestCase
     {
         $mock = new MockHandler([
             function (RequestInterface $request, $options) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_create_site_request.xml'), (string) $request->getBody());
-                return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_create_site_response.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_create_site_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    200,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_create_site_response.xml'),
+                );
             },
         ]);
         $handlerStack = HandlerStack::create($mock);
@@ -54,7 +62,7 @@ class CreateSiteTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: $this->loggerMock,
-            connection: $connection
+            connection: $connection,
         );
 
         $result = $hostingPackageClient->createSite('sandwave.io', 333);
@@ -92,6 +100,9 @@ class CreateSiteTest extends IntegrationTestCase
         $response = new CreateSiteResponse(new Response(200, [], $xml));
 
         self::assertSame(1024, $response->getErrorCode());
-        self::assertSame('There are no available resources of this type (sites) left. Requested: 1; available: 0.', $response->getErrorText());
+        self::assertSame(
+            'There are no available resources of this type (sites) left. Requested: 1; available: 0.',
+            $response->getErrorText(),
+        );
     }
 }

@@ -86,18 +86,20 @@ class NovaOrderResource extends Resource
             BelongsTo::make(
                 self::translate('nova-resource-labels.customers'),
                 'customer',
-                NovaCustomerResource::class
+                NovaCustomerResource::class,
             ),
             Text::make(self::translate('order.attributes.status'), 'status')
                 ->hideWhenUpdating()
                 ->displayUsing(
                     function ($value) {
                         assert(is_string($value));
+
                         return self::translate(
-                            sprintf('orders.order_status.%s', $value)
+                            sprintf('orders.order_status.%s', $value),
                         );
-                    }
-                )->sortable(),
+                    },
+                )
+                ->sortable(),
             Currency::make(self::translate('order.attributes.total_amount'), 'total_price')
                 ->currency('EUR')
                 ->step('0.01')
@@ -112,40 +114,41 @@ class NovaOrderResource extends Resource
             HasMany::make(
                 self::translate('order.attributes.payments'),
                 'payments',
-                NovaPaymentResource::class
+                NovaPaymentResource::class,
             )->onlyOnDetail(),
             HasMany::make(
                 self::translate('order.attributes.order_line_items'),
                 'lineItems',
-                NovaOrderLineItemResource::class
+                NovaOrderLineItemResource::class,
             )->onlyOnDetail(),
-            Text::make(self::translate('order.attributes.ordered_by_uuid'), 'ordered_by_uuid')
-                ->onlyOnDetail(),
-            Text::make(self::translate('order.attributes.ordered_by_metadata'), 'ordered_by_metadata')
-                ->displayUsing(
-                    function ($value) {
-                        if (! is_string($value) || strlen($value) === 0) {
-                            return self::translate('order.attributes.ordered_by_metadata.customer');
-                        }
-
-                        $data = json_decode($value, true);
-
-                        if (! is_array($data) || ! array_key_exists('schemaId', $data)) {
-                            return null;
-                        }
-
-                        if ($data['schemaId'] === SchemaId::EMPLOYEE->value) {
-                            $email = null;
-                            if (array_key_exists('email', $data)) {
-                                $email = $data['email'];
-                            }
-
-                            return sprintf(self::translate('order.attributes.ordered_by_metadata.' . SchemaId::EMPLOYEE->value), $email);
-                        }
-
-                        return self::translate('order.attributes.ordered_by_metadata.' . $data['schemaId']);
+            Text::make(self::translate('order.attributes.ordered_by_uuid'), 'ordered_by_uuid')->onlyOnDetail(),
+            Text::make(self::translate('order.attributes.ordered_by_metadata'), 'ordered_by_metadata')->displayUsing(
+                function ($value) {
+                    if (! is_string($value) || strlen($value) === 0) {
+                        return self::translate('order.attributes.ordered_by_metadata.customer');
                     }
-                ),
+
+                    $data = json_decode($value, true);
+
+                    if (! is_array($data) || ! array_key_exists('schemaId', $data)) {
+                        return null;
+                    }
+
+                    if ($data['schemaId'] === SchemaId::EMPLOYEE->value) {
+                        $email = null;
+                        if (array_key_exists('email', $data)) {
+                            $email = $data['email'];
+                        }
+
+                        return sprintf(
+                            self::translate('order.attributes.ordered_by_metadata.' . SchemaId::EMPLOYEE->value),
+                            $email,
+                        );
+                    }
+
+                    return self::translate('order.attributes.ordered_by_metadata.' . $data['schemaId']);
+                },
+            ),
             DateTime::make(self::translate('nova-resource-labels.created-at'), 'created_at')
                 ->displayUsing(fn () => $this->resource->created_at?->format(DateTimeFormat::DUTCH))
                 ->sortable(),
@@ -154,7 +157,9 @@ class NovaOrderResource extends Resource
                 self::translate('order.attributes.voucher-claims'),
                 'voucherClaims',
                 NovaVoucherClaimsResource::class,
-            )->onlyOnDetail()->readonly(),
+            )
+                ->onlyOnDetail()
+                ->readonly(),
         ];
     }
 
@@ -166,7 +171,11 @@ class NovaOrderResource extends Resource
         return [
             new HtmlCard()
                 ->width('full')
-                ->html('<p class="text-80 font-light mt-2">' . self::translate('language.nova_info.searching_orders') . '</p>'),
+                ->html(
+                    '<p class="text-80 font-light mt-2">'
+                    . self::translate('language.nova_info.searching_orders')
+                    . '</p>',
+                ),
         ];
     }
 

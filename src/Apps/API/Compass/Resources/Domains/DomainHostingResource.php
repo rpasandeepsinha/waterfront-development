@@ -21,10 +21,12 @@ class DomainHostingResource extends JsonResource
 
         $providerArray = $this->providerAndSlug();
         try {
-            $providerArray['username'] = $hostingDeploymentService->getUsername($this->resource) ?? $hostingDeploymentService->getMailUsername($this->resource);
+            $providerArray['username'] =
+                $hostingDeploymentService->getUsername($this->resource) ?? $hostingDeploymentService->getMailUsername($this->resource);
         } catch (RuntimeException) {
             $providerArray['username'] = null;
         }
+
         $providerArray['last_result'] = $this->resource->last_created_result;
         $providerArray['id'] = $this->resource->id;
 
@@ -58,7 +60,7 @@ class DomainHostingResource extends JsonResource
         }
 
         return [
-            'provider' =>  $this->resource->provider?->slug->value,
+            'provider' => $this->resource->provider?->slug->value,
             'server_id' => $this->resource->server?->id,
             'server_ip' => $this->resource->server?->ipv4,
             'server_url' => $this->resource->server?->hostname,

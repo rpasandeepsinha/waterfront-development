@@ -7,7 +7,7 @@ namespace Tests\Domain\Provision\DomainNames\Coupling\Services;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Validator as ValidatorContract;
-use Mockery;  // @phpstan-ignore-line disallowed.namespace
+use Mockery; // @phpstan-ignore-line disallowed.namespace
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -57,7 +57,7 @@ class DomainNameCoupleServiceTest extends TestCase
 
         $this->context = Str::uuid();
 
-        $this->mockValidator  = self::mock(DomainNameCoupleValidator::class);
+        $this->mockValidator = self::mock(DomainNameCoupleValidator::class);
         $this->mockCoupleRepository = self::mock(DomainNameCoupleRepository::class);
         $this->mockDeploymentRepository = self::mock(ProvisioningDeploymentRepository::class);
 
@@ -70,9 +70,9 @@ class DomainNameCoupleServiceTest extends TestCase
          *
          * @phpstan-ignore disallowed.namespace
          */
-        $mockHostingService =  Mockery::mock(
+        $mockHostingService = Mockery::mock(
             HostingProvisionService::class,
-            DomainNameCoupleInterface::class
+            DomainNameCoupleInterface::class,
         );
 
         $this->mockHostingService = $mockHostingService;
@@ -81,7 +81,7 @@ class DomainNameCoupleServiceTest extends TestCase
             $this->mockValidator,
             $this->mockHostingService,
             $this->mockCoupleRepository,
-            $this->mockDeploymentRepository
+            $this->mockDeploymentRepository,
         );
     }
 
@@ -94,19 +94,15 @@ class DomainNameCoupleServiceTest extends TestCase
     #[Test]
     public function validateReturnsNullWhenValidatorPasses(): void
     {
-        $request =  $this->createStub(
-            ProvisionRequestInterface::class
+        $request = $this->createStub(
+            ProvisionRequestInterface::class,
         );
 
         $validator = self::mock(ValidatorContract::class, function (MockInterface $mock) {
-            $mock->shouldReceive('fails')
-                ->once()
-                ->andReturn(false);
+            $mock->shouldReceive('fails')->once()->andReturn(false);
         });
 
-        $this->mockValidator
-            ->shouldReceive('getValidatorByRequest')->once()->with($request)
-            ->andReturn($validator);
+        $this->mockValidator->shouldReceive('getValidatorByRequest')->once()->with($request)->andReturn($validator);
 
         self::assertNull($this->service->validate($request));
     }
@@ -114,14 +110,12 @@ class DomainNameCoupleServiceTest extends TestCase
     #[Test]
     public function validateReturnsValidationErrorWhenValidatorFails(): void
     {
-        $request =  $this->createStub(
-            ProvisionRequestInterface::class
+        $request = $this->createStub(
+            ProvisionRequestInterface::class,
         );
 
         $validator = self::mock(ValidatorContract::class, function (MockInterface $mock) {
-            $mock->shouldReceive('fails')
-                ->once()
-                ->andReturn(true);
+            $mock->shouldReceive('fails')->once()->andReturn(true);
         });
 
         $errorBag = self::mock(MessageBag::class, function (MockInterface $mock) {
@@ -130,9 +124,7 @@ class DomainNameCoupleServiceTest extends TestCase
 
         $validator->shouldReceive('errors')->andReturn($errorBag);
 
-        $this->mockValidator
-            ->shouldReceive('getValidatorByRequest')->once()->with($request)
-            ->andReturn($validator);
+        $this->mockValidator->shouldReceive('getValidatorByRequest')->once()->with($request)->andReturn($validator);
 
         $result = $this->service->validate($request);
 
@@ -154,7 +146,7 @@ class DomainNameCoupleServiceTest extends TestCase
             ->shouldReceive('getAttribute')
             ->with('request')
             ->andReturn(
-                ProvisioningRequestFactory::new()->hosting()->makeOne()
+                ProvisioningRequestFactory::new()->hosting()->makeOne(),
             );
 
         $modelThatWontCreate = new DomainNameCoupleDeployment();
@@ -175,10 +167,7 @@ class DomainNameCoupleServiceTest extends TestCase
 
         $thrownException = new CreateDomainNameCoupleDeploymentException($modelThatWontCreate);
 
-        $this->mockCoupleRepository
-            ->shouldReceive('create')
-            ->once()
-            ->andThrow($thrownException);
+        $this->mockCoupleRepository->shouldReceive('create')->once()->andThrow($thrownException);
 
         $result = $this->service->send($request);
 
@@ -198,7 +187,7 @@ class DomainNameCoupleServiceTest extends TestCase
             ->shouldReceive('getAttribute')
             ->with('request')
             ->andReturn(
-                ProvisioningRequestFactory::new()->hosting()->makeOne()
+                ProvisioningRequestFactory::new()->hosting()->makeOne(),
             );
 
         $request = new DomainNameDecoupleRequest($domain, $deploymentRequestUuid, $this->context);
@@ -214,9 +203,7 @@ class DomainNameCoupleServiceTest extends TestCase
             ->once()
             ->andReturn(new ProvisionResult($request, ProvisionStatus::SUCCESS));
 
-        $this->mockCoupleRepository
-            ->shouldReceive('delete')
-            ->once();
+        $this->mockCoupleRepository->shouldReceive('delete')->once();
 
         $result = $this->service->send($request);
 
@@ -236,7 +223,7 @@ class DomainNameCoupleServiceTest extends TestCase
             ->shouldReceive('getAttribute')
             ->with('request')
             ->andReturn(
-                ProvisioningRequestFactory::new()->hosting()->makeOne()
+                ProvisioningRequestFactory::new()->hosting()->makeOne(),
             );
 
         $modelThatWontDelete = new DomainNameCoupleDeployment();
@@ -259,10 +246,7 @@ class DomainNameCoupleServiceTest extends TestCase
 
         $thrownException = new DeleteDomainNameCoupleDeploymentException($modelThatWontDelete);
 
-        $this->mockCoupleRepository
-            ->shouldReceive('delete')
-            ->once()
-            ->andThrow($thrownException);
+        $this->mockCoupleRepository->shouldReceive('delete')->once()->andThrow($thrownException);
 
         $result = $this->service->send($request);
 
@@ -283,7 +267,7 @@ class DomainNameCoupleServiceTest extends TestCase
             ->shouldReceive('getAttribute')
             ->with('request')
             ->andReturn(
-                ProvisioningRequestFactory::new()->hosting()->makeOne()
+                ProvisioningRequestFactory::new()->hosting()->makeOne(),
             );
 
         $this->mockDeploymentRepository
@@ -318,7 +302,7 @@ class DomainNameCoupleServiceTest extends TestCase
         $this->expectException(UnknownDomainNameCoupleRequestException::class);
 
         $unknownRequestType = $this->createStub(
-            ProvisionRequestInterface::class
+            ProvisionRequestInterface::class,
         );
 
         $this->service->send($unknownRequestType);
@@ -329,7 +313,7 @@ class DomainNameCoupleServiceTest extends TestCase
     {
         self::assertSame(
             $this->mockHostingService,
-            $this->service->getServiceFromProvisionType(ProvisionType::HOSTING)
+            $this->service->getServiceFromProvisionType(ProvisionType::HOSTING),
         );
     }
 
@@ -340,7 +324,12 @@ class DomainNameCoupleServiceTest extends TestCase
 
         $hostingServiceWithoutCoupleInterface = self::mock(HostingProvisionService::class);
 
-        $svc = new DomainNameCoupleService($this->mockValidator, $hostingServiceWithoutCoupleInterface, $this->mockCoupleRepository, $this->mockDeploymentRepository);
+        $svc = new DomainNameCoupleService(
+            $this->mockValidator,
+            $hostingServiceWithoutCoupleInterface,
+            $this->mockCoupleRepository,
+            $this->mockDeploymentRepository,
+        );
         $svc->getServiceFromProvisionType(ProvisionType::HOSTING);
     }
 }

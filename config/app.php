@@ -59,7 +59,6 @@ use Waterfront\Infra\MicrosoftOnlineClient\Providers\MicrosoftOnlineClientServic
 use Waterfront\Infra\MollieClient\Providers\MollieClientServiceProvider;
 use Waterfront\Infra\News\Providers\NewsServiceProvider;
 use Waterfront\Infra\OpenproviderClient\Providers\OpenproviderClientProvider;
-use Waterfront\Infra\OpenSrsClient\Providers\OpenSrsClientProvider;
 use Waterfront\Infra\PaytClient\Providers\PaytClientServiceProvider;
 use Waterfront\Infra\PleskClient\Providers\PleskClientProvider;
 use Waterfront\Infra\PowerDnsClient\Providers\PowerDnsClientServiceProvider;
@@ -101,17 +100,17 @@ return [
     'debug' => Env::get('APP_DEBUG', false),
     'debug_tinker' => Env::get('APP_DEBUG_TINKER', false),
 
-    'url'               => Env::get('APP_URL', 'http://localhost:8080'),
-    'url_partner'       => Env::get('APP_URL_PARTNER', 'http://localhost:8080'),
-    'url_partner_api'   => Env::get('PARTNER_API_DOMAIN', 'https://api.sandwaveio.dev'),
-    'url_webhook'       => Env::get('APP_URL_WEBHOOK', 'https://localhost:8080'),
+    'url' => Env::get('APP_URL', 'http://localhost:8080'),
+    'url_partner' => Env::get('APP_URL_PARTNER', 'http://localhost:8080'),
+    'url_partner_api' => Env::get('PARTNER_API_DOMAIN', 'https://api.sandwaveio.dev'),
+    'url_webhook' => Env::get('APP_URL_WEBHOOK', 'https://localhost:8080'),
     'asset_url' => Env::get('ASSET_URL'),
 
     //Time & locales
     'timezone' => 'Europe/Amsterdam',
     'locale' => 'nl',
     'fallback_locale' => 'nl',
-    'faker_locale'    => 'nl_NL',
+    'faker_locale' => 'nl_NL',
 
     //Encryption
     'key' => Env::get('APP_KEY'),
@@ -167,7 +166,6 @@ return [
         MollieClientServiceProvider::class,
         NewsServiceProvider::class,
         OpenproviderClientProvider::class,
-        OpenSrsClientProvider::class,
         PaytClientServiceProvider::class,
         PleskClientProvider::class,
         PowerDnsClientServiceProvider::class,

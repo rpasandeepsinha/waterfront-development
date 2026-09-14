@@ -22,7 +22,7 @@ class ClientFactory implements ClientFactoryInterface
 
     public function __construct(
         private readonly AdminClientFactory $adminClientFactory,
-        private readonly ClientInterface $guzzleClient
+        private readonly ClientInterface $guzzleClient,
     ) {
     }
 
@@ -34,7 +34,7 @@ class ClientFactory implements ClientFactoryInterface
         if ($deployment->domain_id === null) {
             throw new ClientFactoryException(sprintf(
                 'ubscription domain with id: %s not set',
-                $deployment->id
+                $deployment->id,
             ));
         }
 
@@ -59,7 +59,7 @@ class ClientFactory implements ClientFactoryInterface
         if (! $users->valid()) {
             throw new ClientFactoryException(sprintf(
                 'loudStack user for given name: %s not found',
-                $deployment->username
+                $deployment->username,
             ));
         }
 
@@ -81,9 +81,9 @@ class ClientFactory implements ClientFactoryInterface
                 $deployment->environment->api_url,
                 $userKeys->apiKey,
                 $userKeys->secretKey,
-                $this->guzzleClient
+                $this->guzzleClient,
             ),
-            CloudstackSerializerFactory::get()
+            CloudstackSerializerFactory::get(),
         );
     }
 }

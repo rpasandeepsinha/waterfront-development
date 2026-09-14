@@ -63,12 +63,15 @@ class Microsoft365ServiceCustomerSharedTest extends IntegrationTestCase
         $childProduct = new ProductFactory()->for($this->productGroup)->createOne([
             'slug' => 'microsoft-business-standard',
         ]);
-        $this->orderedSeatSubscription = new SubscriptionFactory()->for($this->customer)->for($childProduct)->createOne([
-            'net_price' => 100,
-            'gross_price' => 100,
-            'contract_period' => 1,
-            'product_uuid' => $childProduct->uuid,
-        ]);
+        $this->orderedSeatSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($childProduct)
+            ->createOne([
+                'net_price' => 100,
+                'gross_price' => 100,
+                'contract_period' => 1,
+                'product_uuid' => $childProduct->uuid,
+            ]);
 
         $this->mockMicrosoft365ModuleMicrosoftService = self::createMock(Microsoft365Service::class);
         $this->app->bind(Microsoft365Service::class, fn () => $this->mockMicrosoft365ModuleMicrosoftService);
@@ -91,8 +94,14 @@ class Microsoft365ServiceCustomerSharedTest extends IntegrationTestCase
 
         self::assertNotNull($this->orderedSeatSubscription->parent);
         $parentSubscription = $this->orderedSeatSubscription->parent;
-        self::assertSame($this->orderedSeatSubscription->start_date->toDateString(), $parentSubscription->start_date->toDateString());
-        self::assertSame($this->orderedSeatSubscription->end_date->toDateString(), $parentSubscription->end_date->toDateString());
+        self::assertSame(
+            $this->orderedSeatSubscription->start_date->toDateString(),
+            $parentSubscription->start_date->toDateString(),
+        );
+        self::assertSame(
+            $this->orderedSeatSubscription->end_date->toDateString(),
+            $parentSubscription->end_date->toDateString(),
+        );
         self::assertSame($this->orderedSeatSubscription->contract_period, $parentSubscription->contract_period);
         self::assertSame(AdministrativeStatus::ACTIVE->value, $parentSubscription->administrative_status);
         self::assertSame(TechnicalStatus::REGISTRATION->value, $parentSubscription->technical_status);
@@ -127,9 +136,12 @@ class Microsoft365ServiceCustomerSharedTest extends IntegrationTestCase
             'product_uuid' => $this->parentProduct->uuid,
         ]);
 
-        new Microsoft365DeploymentFactory()->for($customerInfo)->for($parentSubscription)->createOne([
-            'kpn_order_id' => '123',
-        ]);
+        new Microsoft365DeploymentFactory()
+            ->for($customerInfo)
+            ->for($parentSubscription)
+            ->createOne([
+                'kpn_order_id' => '123',
+            ]);
 
         $this->mockMicrosoft365ModuleMicrosoftService->expects(self::never())->method('createKpnCustomer');
         $this->mockMicrosoft365ModuleMicrosoftService->expects(self::once())->method('modifyOrder');
@@ -148,9 +160,12 @@ class Microsoft365ServiceCustomerSharedTest extends IntegrationTestCase
             'product_uuid' => $this->parentProduct->uuid,
         ]);
 
-        new Microsoft365DeploymentFactory()->for($customerInfo)->for($parentSubscription)->createOne([
-            'kpn_order_id' => '123',
-        ]);
+        new Microsoft365DeploymentFactory()
+            ->for($customerInfo)
+            ->for($parentSubscription)
+            ->createOne([
+                'kpn_order_id' => '123',
+            ]);
 
         $anotherParentProduct = new ProductFactory()->for($this->productGroup)->createOne([
             'slug' => 'microsoft-business-basic-parent',
@@ -162,18 +177,25 @@ class Microsoft365ServiceCustomerSharedTest extends IntegrationTestCase
             'slug' => 'microsoft-business-basic',
         ]);
 
-        $anotherSeatSubscription = new SubscriptionFactory()->for($this->customer)->for($childProduct)->createOne([
-            'net_price' => 100,
-            'gross_price' => 100,
-            'contract_period' => 1,
-            'product_uuid' => $childProduct->uuid,
-        ]);
+        $anotherSeatSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($childProduct)
+            ->createOne([
+                'net_price' => 100,
+                'gross_price' => 100,
+                'contract_period' => 1,
+                'product_uuid' => $childProduct->uuid,
+            ]);
 
         $this->mockMicrosoft365ModuleMicrosoftService->expects(self::never())->method('createKpnCustomer');
         $this->mockMicrosoft365ModuleMicrosoftService->expects(self::once())->method('modifyOrder');
         $this->mockMicrosoft365ModuleMicrosoftService->expects(self::once())->method('createOrder');
 
-        $this->microsoft365Service->create(new Collection([$this->orderedSeatSubscription, $anotherSeatSubscription]), null, null);
+        $this->microsoft365Service->create(
+            new Collection([$this->orderedSeatSubscription, $anotherSeatSubscription]),
+            null,
+            null,
+        );
     }
 
     #[Test]
@@ -197,15 +219,21 @@ class Microsoft365ServiceCustomerSharedTest extends IntegrationTestCase
     {
         $customerInfo = new Microsoft365CustomerInfoFactory()->for($this->customer)->createOne();
 
-        $parentSubscription = new SubscriptionFactory()->for($this->customer)->for($this->parentProduct)->createOne([
-            'contract_period' => $this->orderedSeatSubscription->contract_period,
-            'administrative_status' => AdministrativeStatus::CANCELED->value,
-            'cancel_date' => CarbonImmutable::now(),
-        ]);
+        $parentSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($this->parentProduct)
+            ->createOne([
+                'contract_period' => $this->orderedSeatSubscription->contract_period,
+                'administrative_status' => AdministrativeStatus::CANCELED->value,
+                'cancel_date' => CarbonImmutable::now(),
+            ]);
 
-        new Microsoft365DeploymentFactory()->for($parentSubscription)->for($customerInfo)->createOne([
-            'kpn_order_id' => '123',
-        ]);
+        new Microsoft365DeploymentFactory()
+            ->for($parentSubscription)
+            ->for($customerInfo)
+            ->createOne([
+                'kpn_order_id' => '123',
+            ]);
 
         $this->orderedSeatSubscription->parent_subscription_id = $parentSubscription->id;
         $this->orderedSeatSubscription->administrative_status = AdministrativeStatus::CANCELED->value;
@@ -241,9 +269,12 @@ class Microsoft365ServiceCustomerSharedTest extends IntegrationTestCase
 
         new Microsoft365KpnProductFactory()->for($this->parentProduct)->createOne(['contract_period' => 1]);
 
-        new Microsoft365DeploymentFactory()->for($this->orderedSeatSubscription)->for($customerInfo)->createOne([
-            'kpn_order_id' => '1',
-        ]);
+        new Microsoft365DeploymentFactory()
+            ->for($this->orderedSeatSubscription)
+            ->for($customerInfo)
+            ->createOne([
+                'kpn_order_id' => '1',
+            ]);
 
         $this->travel(3)->months();
 
@@ -257,12 +288,15 @@ class Microsoft365ServiceCustomerSharedTest extends IntegrationTestCase
             'slug' => 'microsoft-business-basic',
         ]);
 
-        $childSubscription = new SubscriptionFactory()->for($this->customer)->for($childProduct)->createOne([
-            'net_price' => 100,
-            'gross_price' => 100,
-            'contract_period' => 1,
-            'product_uuid' => $childProduct->uuid,
-        ]);
+        $childSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($childProduct)
+            ->createOne([
+                'net_price' => 100,
+                'gross_price' => 100,
+                'contract_period' => 1,
+                'product_uuid' => $childProduct->uuid,
+            ]);
 
         //The parent subscription and the seat is currently canceled, it will reactivate the parent subscription.
         $this->mockMicrosoft365ModuleMicrosoftService->expects(self::never())->method('createKpnCustomer');
@@ -280,7 +314,10 @@ class Microsoft365ServiceCustomerSharedTest extends IntegrationTestCase
         self::assertSame(AdministrativeStatus::ACTIVE->value, $childSubscription->administrative_status);
         self::assertNotNull($childSubscription->parent);
         $parentSubscription = $childSubscription->parent;
-        self::assertSame($childSubscription->start_date->toDateString(), $parentSubscription->start_date->toDateString());
+        self::assertSame(
+            $childSubscription->start_date->toDateString(),
+            $parentSubscription->start_date->toDateString(),
+        );
         self::assertSame($childSubscription->end_date->toDateString(), $parentSubscription->end_date->toDateString());
         self::assertSame($childSubscription->contract_period, $parentSubscription->contract_period);
         self::assertSame(AdministrativeStatus::ACTIVE->value, $parentSubscription->administrative_status);

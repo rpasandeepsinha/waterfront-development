@@ -56,7 +56,10 @@ class FetchAuditLogsForCustomerActionTest extends IntegrationTestCase
         ]);
         $product = new ProductFactory()->for($prodGroup)->createOne([]);
 
-        $subscription = new SubscriptionFactory()->for($product)->for($this->customer)->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($this->customer)
+            ->createOne();
 
         new AuditFactory()->create([
             'event' => 'updated',
@@ -101,17 +104,20 @@ class FetchAuditLogsForCustomerActionTest extends IntegrationTestCase
     public function execute365(): void
     {
         $group = new ProductGroupFactory()->createOne([
-            'name'           => 'Microsoft 365',
-            'slug'           => ProductGroupType::MICROSOFT_365,
+            'name' => 'Microsoft 365',
+            'slug' => ProductGroupType::MICROSOFT_365,
         ]);
 
         $product = new ProductFactory()->for($group)->createOne([
             'slug' => 'microsoft-business-standard-parent',
         ]);
 
-        $mainSubscription = new SubscriptionFactory()->for($this->customer)->for($product)->makeOne([
-            'domain' => null,
-        ]);
+        $mainSubscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($product)
+            ->makeOne([
+                'domain' => null,
+            ]);
 
         $product->subscriptions()->save($mainSubscription);
 
@@ -139,7 +145,10 @@ class FetchAuditLogsForCustomerActionTest extends IntegrationTestCase
 
         $auditableDeployment = $lastAudit->auditable;
         self::assertInstanceOf(Microsoft365Deployment::class, $auditableDeployment);
-        self::assertSame(ProductGroupType::MICROSOFT_365, $auditableDeployment->subscription->product->productGroup->slug);
+        self::assertSame(
+            ProductGroupType::MICROSOFT_365,
+            $auditableDeployment->subscription->product->productGroup->slug,
+        );
         self::assertSame($customerInfo->tenant_name, $auditableDeployment->microsoft365CustomerInfo->tenant_name);
     }
 
@@ -167,8 +176,14 @@ class FetchAuditLogsForCustomerActionTest extends IntegrationTestCase
 
         $auditableDeployment = $lastAudit->auditable;
         self::assertInstanceOf(VirtualMachineDeployment::class, $auditableDeployment);
-        self::assertSame(ProductGroupType::CLOUDSTACK_VIRTUAL_MACHINE, $auditableDeployment->subscription->product->productGroup->slug);
-        self::assertSame($virtualMachineDomain->managerDomainDeployment->domain_name, $auditableDeployment->managerDomainDeployment->domain_name);
+        self::assertSame(
+            ProductGroupType::CLOUDSTACK_VIRTUAL_MACHINE,
+            $auditableDeployment->subscription->product->productGroup->slug,
+        );
+        self::assertSame(
+            $virtualMachineDomain->managerDomainDeployment->domain_name,
+            $auditableDeployment->managerDomainDeployment->domain_name,
+        );
     }
 
     #[Test]
@@ -180,8 +195,14 @@ class FetchAuditLogsForCustomerActionTest extends IntegrationTestCase
         ]);
         $product = new ProductFactory()->for($prodGroup)->createOne([]);
 
-        $subscription = new SubscriptionFactory()->for($product)->for($this->customer)->createOne();
-        $domainDeployment = new DomainDeploymentFactory()->for($subscription)->withPlaceholderProvider()->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($this->customer)
+            ->createOne();
+        $domainDeployment = new DomainDeploymentFactory()
+            ->for($subscription)
+            ->withPlaceholderProvider()
+            ->createOne();
 
         new AuditFactory()->create([
             'event' => 'created',
@@ -231,35 +252,52 @@ class FetchAuditLogsForCustomerActionTest extends IntegrationTestCase
 
         $virtualMachineProductGroup = new ProductGroupFactory()->cloudstackVirtualMachine()->createOne();
         $virtualMachineProduct = new ProductFactory()->for($virtualMachineProductGroup)->createOne();
-        new CloudstackEnvironmentProductFactory()->for($virtualMachineProduct)->for($environment)->create();
+        new CloudstackEnvironmentProductFactory()
+            ->for($virtualMachineProduct)
+            ->for($environment)
+            ->create();
 
         $volumeProductGroup = new ProductGroupFactory()->cloudstackVolume()->createOne();
         $volumeProduct = new ProductFactory()->for($volumeProductGroup)->createOne();
-        new CloudstackEnvironmentProductFactory()->for($volumeProduct)->for($environment)->create();
+        new CloudstackEnvironmentProductFactory()
+            ->for($volumeProduct)
+            ->for($environment)
+            ->create();
 
-        $virtualMachineSubscription = new SubscriptionFactory()->for($virtualMachineProduct)->for($customer)->createOne();
+        $virtualMachineSubscription = new SubscriptionFactory()
+            ->for($virtualMachineProduct)
+            ->for($customer)
+            ->createOne();
 
         new CloudstackVirtualMachineDeploymentFactory()->for($managerDomainDeployment)->create([
             'subscription_uuid' => $virtualMachineSubscription->uuid,
             'cloudstack_id' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
         ]);
 
-        $volumeSubscription = new SubscriptionFactory()->for($volumeProduct)->for($customer)->parentSubscription($virtualMachineSubscription)->createOne([
-            'uuid' => '45ff89c4-eeee-eeee-eeee-eeeeeeeeeeee',
-        ]);
+        $volumeSubscription = new SubscriptionFactory()
+            ->for($volumeProduct)
+            ->for($customer)
+            ->parentSubscription($virtualMachineSubscription)
+            ->createOne([
+                'uuid' => '45ff89c4-eeee-eeee-eeee-eeeeeeeeeeee',
+            ]);
 
         new CloudstackVolumeDeploymentFactory()->for($managerDomainDeployment)->create([
             'subscription_uuid' => $volumeSubscription->uuid,
             'cloudstack_id' => 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
         ]);
 
-        $volumeSubscriptionCanceled = new SubscriptionFactory()->for($volumeProduct)->for($customer)->parentSubscription($virtualMachineSubscription)->createOne([
-            'domain' => 'Volume 9',
-            'start_date' => new CarbonImmutable()->subWeek(),
-            'end_date' => new CarbonImmutable()->addMonth()->subWeek(),
-            'cancel_date' => new CarbonImmutable()->subDay(),
-            'administrative_status' => AdministrativeStatus::CANCELED->value,
-        ]);
+        $volumeSubscriptionCanceled = new SubscriptionFactory()
+            ->for($volumeProduct)
+            ->for($customer)
+            ->parentSubscription($virtualMachineSubscription)
+            ->createOne([
+                'domain' => 'Volume 9',
+                'start_date' => new CarbonImmutable()->subWeek(),
+                'end_date' => new CarbonImmutable()->addMonth()->subWeek(),
+                'cancel_date' => new CarbonImmutable()->subDay(),
+                'administrative_status' => AdministrativeStatus::CANCELED->value,
+            ]);
 
         new CloudstackVolumeDeploymentFactory()->for($managerDomainDeployment)->create([
             'subscription_uuid' => $volumeSubscriptionCanceled->uuid,

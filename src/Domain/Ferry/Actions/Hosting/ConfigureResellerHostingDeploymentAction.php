@@ -19,7 +19,7 @@ use Waterfront\Support\Enums\LoggingContextKeys;
 class ConfigureResellerHostingDeploymentAction
 {
     public function __construct(
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -44,7 +44,7 @@ class ConfigureResellerHostingDeploymentAction
                     'hosting_details' => $hostingDetails->toArray(),
                 ],
                 LoggingContextKeys::PROVISIONING_PROVIDER => $hostingProvider->slug,
-            ]
+            ],
         );
 
         /**

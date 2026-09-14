@@ -21,12 +21,14 @@ class CachedNewsRepository implements NewsRepository
 
     private readonly NewsConsumer $consumer;
 
-    public function __construct(private readonly ConfigurationInterface $configuration, NewsConsumerFactory $factory)
-    {
+    public function __construct(
+        private readonly ConfigurationInterface $configuration,
+        NewsConsumerFactory $factory,
+    ) {
         $this->consumer = $factory->create(
             $this,
             $this->configuration->getAsString('news.type'),
-            $this->configuration->getAsString('news.feed_uri')
+            $this->configuration->getAsString('news.feed_uri'),
         );
     }
 
@@ -59,10 +61,15 @@ class CachedNewsRepository implements NewsRepository
          * news cache itself, this is to avoid losing cached news when the
          * destination is offline.
          */
-        Cache::remember($localeCacheKey . '.LOCK', $this->configuration->getAsInteger('news.renew_interval_seconds'), function () use ($alternative): bool {
-            $this->consumer->consume($alternative, 2);
-            return true;
-        });
+        Cache::remember(
+            $localeCacheKey . '.LOCK',
+            $this->configuration->getAsInteger('news.renew_interval_seconds'),
+            function () use ($alternative): bool {
+                $this->consumer->consume($alternative, 2);
+
+                return true;
+            },
+        );
 
         // fall back to cache
         $news = Cache::get($localeCacheKey) ?? [];

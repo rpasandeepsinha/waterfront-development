@@ -42,41 +42,32 @@ class MailOnlyServiceForwardsTest extends IntegrationTestCase
 
         $customer = CustomerFactory::new()->createOne();
 
-        $hostingProductGroup = ProductGroupFactory::new()
-            ->hosting()
-            ->createOne([
-                'name' => 'Hosting',
-                'slug' => ProductGroupType::HOSTING,
-            ]);
+        $hostingProductGroup = ProductGroupFactory::new()->hosting()->createOne([
+            'name' => 'Hosting',
+            'slug' => ProductGroupType::HOSTING,
+        ]);
 
-        $mailOnlyProvider = ProviderFactory::new()
-            ->createOne([
-                'type' => ProviderType::MAILONLY,
-                'slug' => ProviderSlug::DIRECTADMIN,
-                'enabled' => true,
-                'default' => true,
-            ]);
+        $mailOnlyProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::MAILONLY,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
-        $server = ServerFactory::new()
-            ->directadmin()
-            ->createOne();
+        $server = ServerFactory::new()->directadmin()->createOne();
 
-        $product = ProductFactory::new()
-            ->mailOnly($hostingProductGroup)
-            ->createOne();
+        $product = ProductFactory::new()->mailOnly($hostingProductGroup)->createOne();
 
-        $subscription = SubscriptionFactory::new()
-            ->for($customer)
-            ->createOne([
-                'product_uuid' => $product->uuid,
-            ]);
+        $subscription = SubscriptionFactory::new()->for($customer)->createOne([
+            'product_uuid' => $product->uuid,
+        ]);
 
-        $this->hostingDeployment =  HostingDeploymentFactory::new()
-            ->for($server, 'mailOnlyServer')
-            ->for($mailOnlyProvider, 'mailProvider')
-            ->createOne([
-                'subscription_uuid' => $subscription->uuid,
-            ]);
+        $this->hostingDeployment = HostingDeploymentFactory::new()->for($server, 'mailOnlyServer')->for(
+            $mailOnlyProvider,
+            'mailProvider',
+        )->createOne([
+            'subscription_uuid' => $subscription->uuid,
+        ]);
     }
 
     #[Test]
@@ -96,7 +87,7 @@ class MailOnlyServiceForwardsTest extends IntegrationTestCase
             [
                 'destination@mail.test',
                 'another-destination@mail.test',
-            ]
+            ],
         );
 
         self::assertTrue($resultMultiple);
@@ -106,7 +97,7 @@ class MailOnlyServiceForwardsTest extends IntegrationTestCase
             'source-test',
             [
                 'destination@mail.test',
-            ]
+            ],
         );
 
         self::assertTrue($resultSingle);

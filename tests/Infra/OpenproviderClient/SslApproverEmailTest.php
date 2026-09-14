@@ -44,7 +44,7 @@ class SslApproverEmailTest extends TestCase
         $response = new Response(
             200,
             ['Content-Type' => 'text/xml'],
-            (string) file_get_contents(__DIR__ . '/data/openprovider_ssl_approver_response.xml')
+            (string) file_get_contents(__DIR__ . '/data/openprovider_ssl_approver_response.xml'),
         );
 
         $sslResponse = new SslApproverResponse($response);
@@ -58,7 +58,7 @@ class SslApproverEmailTest extends TestCase
                 'hostmaster@example.org',
             ],
             $result->getEmails(),
-            ' - retrieve SSL approver emails'
+            ' - retrieve SSL approver emails',
         );
     }
 

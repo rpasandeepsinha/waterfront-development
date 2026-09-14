@@ -42,9 +42,9 @@ class ProcessOrderLineItemActionTest extends IntegrationTestCase
         parent::setUp();
 
         $this->customer = new CustomerFactory()->createOne();
-        $this->subscriptionProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->other()->createOne())
-            ->createOne();
+        $this->subscriptionProduct = new ProductFactory()->for(
+            new ProductGroupFactory()->other()->createOne(),
+        )->createOne();
     }
 
     #[Test]
@@ -56,7 +56,8 @@ class ProcessOrderLineItemActionTest extends IntegrationTestCase
         $subscription = $this->buildSubscription();
 
         $subscriptionService = self::createMock(SubscriptionService::class);
-        $subscriptionService->expects(self::once())
+        $subscriptionService
+            ->expects(self::once())
             ->method('createSubscriptionFromOrderLineItem')
             ->with($orderLineItem, true)
             ->willReturn($subscription);
@@ -66,7 +67,7 @@ class ProcessOrderLineItemActionTest extends IntegrationTestCase
 
         $this->buildAction($subscriptionService, $oneTimeServiceCreator)->execute(
             $orderLineItem,
-            new ProcessOrderLineItemDTO(true, AdministrativeStatus::SUSPENDED, TechnicalStatus::PENDING, null)
+            new ProcessOrderLineItemDTO(true, AdministrativeStatus::SUSPENDED, TechnicalStatus::PENDING, null),
         );
 
         $subscription->refresh();
@@ -77,7 +78,10 @@ class ProcessOrderLineItemActionTest extends IntegrationTestCase
         $orderLineItem->refresh();
         self::assertSame($subscription->uuid, $orderLineItem->subscription_uuid);
         self::assertNotNull($orderLineItem->processed_at);
-        self::assertSame('2026-08-17 12:00:00', CarbonImmutable::parse($orderLineItem->processed_at)->toDateTimeString());
+        self::assertSame(
+            '2026-08-17 12:00:00',
+            CarbonImmutable::parse($orderLineItem->processed_at)->toDateTimeString(),
+        );
     }
 
     #[Test]
@@ -92,7 +96,12 @@ class ProcessOrderLineItemActionTest extends IntegrationTestCase
 
         $this->buildAction($subscriptionService, self::createStub(OneTimeServiceCreator::class))->execute(
             $orderLineItem,
-            new ProcessOrderLineItemDTO(false, AdministrativeStatus::ACTIVE, TechnicalStatus::OK, $parentSubscription->id)
+            new ProcessOrderLineItemDTO(
+                false,
+                AdministrativeStatus::ACTIVE,
+                TechnicalStatus::OK,
+                $parentSubscription->id,
+            ),
         );
 
         $subscription->refresh();
@@ -108,13 +117,11 @@ class ProcessOrderLineItemActionTest extends IntegrationTestCase
         $subscriptionService->expects(self::never())->method('createSubscriptionFromOrderLineItem');
 
         $oneTimeServiceCreator = self::createMock(OneTimeServiceCreator::class);
-        $oneTimeServiceCreator->expects(self::once())
-            ->method('createFromOrderLineItem')
-            ->with($orderLineItem);
+        $oneTimeServiceCreator->expects(self::once())->method('createFromOrderLineItem')->with($orderLineItem);
 
         $this->buildAction($subscriptionService, $oneTimeServiceCreator)->execute(
             $orderLineItem,
-            new ProcessOrderLineItemDTO(true, AdministrativeStatus::SUSPENDED, TechnicalStatus::PENDING, null)
+            new ProcessOrderLineItemDTO(true, AdministrativeStatus::SUSPENDED, TechnicalStatus::PENDING, null),
         );
     }
 
@@ -133,7 +140,7 @@ class ProcessOrderLineItemActionTest extends IntegrationTestCase
         try {
             $this->buildAction($subscriptionService, self::createStub(OneTimeServiceCreator::class))->execute(
                 $orderLineItem,
-                new ProcessOrderLineItemDTO(false, AdministrativeStatus::ACTIVE, TechnicalStatus::OK, null)
+                new ProcessOrderLineItemDTO(false, AdministrativeStatus::ACTIVE, TechnicalStatus::OK, null),
             );
         } catch (OrderLineItemNotProcessableException $exception) {
             self::assertSame('nova-action.process_order_line_item.already_processed', $exception->translationKey);
@@ -155,7 +162,7 @@ class ProcessOrderLineItemActionTest extends IntegrationTestCase
         try {
             $this->buildAction($subscriptionService, self::createStub(OneTimeServiceCreator::class))->execute(
                 $orderLineItem,
-                new ProcessOrderLineItemDTO(false, AdministrativeStatus::ACTIVE, TechnicalStatus::OK, null)
+                new ProcessOrderLineItemDTO(false, AdministrativeStatus::ACTIVE, TechnicalStatus::OK, null),
             );
         } catch (OrderLineItemNotProcessableException $exception) {
             self::assertSame('nova-action.process_order_line_item.invalid_status', $exception->translationKey);
@@ -187,7 +194,7 @@ class ProcessOrderLineItemActionTest extends IntegrationTestCase
         try {
             $this->buildAction($subscriptionService, self::createStub(OneTimeServiceCreator::class))->execute(
                 $orderLineItem,
-                new ProcessOrderLineItemDTO(false, AdministrativeStatus::ACTIVE, TechnicalStatus::OK, 999999)
+                new ProcessOrderLineItemDTO(false, AdministrativeStatus::ACTIVE, TechnicalStatus::OK, 999999),
             );
         } catch (OrderLineItemNotProcessableException $exception) {
             self::assertSame('nova-action.error.parent_subscription_not_exists', $exception->translationKey);
@@ -210,8 +217,10 @@ class ProcessOrderLineItemActionTest extends IntegrationTestCase
         );
     }
 
-    private function buildOrderLineItem(ProductGroupType $productGroupType, ?OrderStatus $orderStatus = null): OrderLineItem
-    {
+    private function buildOrderLineItem(
+        ProductGroupType $productGroupType,
+        ?OrderStatus $orderStatus = null,
+    ): OrderLineItem {
         $productGroup = new ProductGroupFactory()->createOne([
             'name' => $productGroupType->value,
             'slug' => $productGroupType->value,

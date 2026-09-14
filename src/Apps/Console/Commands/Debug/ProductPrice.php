@@ -18,7 +18,9 @@ use Waterfront\Domain\Products\ProductPrice\PriceResolver;
 use Waterfront\Domain\Products\Repositories\ProductRepository;
 
 #[AsCommand(name: 'debug:product-price')]
-#[Description('Output all internal information about configured prices for a product given a specific scenario (default=registration)')]
+#[Description(
+    'Output all internal information about configured prices for a product given a specific scenario (default=registration)',
+)]
 #[Signature('debug:product-price {productSlug} {scenario=registration}')]
 class ProductPrice extends Command
 {
@@ -64,9 +66,15 @@ class ProductPrice extends Command
                 $price->regularPrice,
                 $price->calculatedPrice,
                 $price->orderable,
-                implode(',', array_map(fn (PriceComponent $component) => $component->type->value, $price->possiblePriceComponents)),
-                implode(',', array_map(fn (PriceComponent $component) => $component->type->value, $price->appliedPriceComponents)),
-            ], $productPrices)
+                implode(',', array_map(
+                    fn (PriceComponent $component) => $component->type->value,
+                    $price->possiblePriceComponents,
+                )),
+                implode(',', array_map(
+                    fn (PriceComponent $component) => $component->type->value,
+                    $price->appliedPriceComponents,
+                )),
+            ], $productPrices),
         );
 
         return self::SUCCESS;

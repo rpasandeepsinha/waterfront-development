@@ -23,7 +23,7 @@ class SiteConfig implements SiteConfigInterface
         public readonly int $maxAmountDatabases,
         public readonly int $maxNetworkTrafficInMB,
         public readonly int $maxDiskSpaceInMB,
-        public readonly string|null $domain = null,
+        public readonly ?string $domain = null,
     ) {
         $this->isDnsControlEnabled = $zoneStatus === 'enabled';
         $this->isAdmin = $this->identifier === 'admin';
@@ -40,7 +40,7 @@ class SiteConfig implements SiteConfigInterface
         return true;
     }
 
-    public function getDomain(): string|null
+    public function getDomain(): ?string
     {
         return $this->domain;
     }

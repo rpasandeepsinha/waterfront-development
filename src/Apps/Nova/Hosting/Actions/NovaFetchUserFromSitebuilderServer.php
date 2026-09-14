@@ -50,7 +50,7 @@ class NovaFetchUserFromSitebuilderServer extends Action
         }
 
         $fetchedSitebuilder = [];
-        $exceptions  = [];
+        $exceptions = [];
 
         try {
             $basekitClient = $this->basekitFactory->make($server);
@@ -73,7 +73,7 @@ class NovaFetchUserFromSitebuilderServer extends Action
         $title = sprintf(
             'Fetched sitebuilder user {%s} from server with hostname {%s} with response:',
             $sitebuilderUserRef,
-            $server->hostname
+            $server->hostname,
         );
 
         return self::modal('modal-response', [

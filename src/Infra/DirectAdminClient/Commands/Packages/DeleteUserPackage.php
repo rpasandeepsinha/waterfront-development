@@ -39,6 +39,7 @@ class DeleteUserPackage extends DirectAdminCommand
     public function addPackage(string $keyname): DeleteUserPackage
     {
         $this->packages[] = $keyname;
+
         return $this;
     }
 
@@ -50,6 +51,7 @@ class DeleteUserPackage extends DirectAdminCommand
     public function setPackages(array $packages): DeleteUserPackage
     {
         $this->packages = $packages;
+
         return $this;
     }
 

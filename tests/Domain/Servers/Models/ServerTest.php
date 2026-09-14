@@ -34,19 +34,19 @@ class ServerTest extends IntegrationTestCase
         parent::setUp();
 
         $this->passwordCheck = 'testPassword';
-        $this->secretCheck   = 'testSecretKey';
-        $this->loginCheck    = 'testLoginKey';
+        $this->secretCheck = 'testSecretKey';
+        $this->loginCheck = 'testLoginKey';
 
         $this->server = new ServerFactory()->createOne([
-           'password' => null,
-           'secret_key' => null,
-           'loginkey'  => null,
+            'password' => null,
+            'secret_key' => null,
+            'loginkey' => null,
         ]);
 
         $this->presetServer = new ServerFactory()->createOne([
             'password' => $this->passwordCheck,
             'secret_key' => $this->secretCheck,
-            'loginkey'  => $this->loginCheck,
+            'loginkey' => $this->loginCheck,
         ]);
 
         $this->plainTekstValue = 'old_plain_tekst';
@@ -66,7 +66,7 @@ class ServerTest extends IntegrationTestCase
             'use_ssl' => true,
             'password' => $this->plainTekstValue,
             'secret_key' => $this->plainTekstValue,
-            'loginkey'  => $this->plainTekstValue,
+            'loginkey' => $this->plainTekstValue,
         ]);
 
         $this->plainServer = Server::findOrFail($plainId);
@@ -179,7 +179,7 @@ class ServerTest extends IntegrationTestCase
             'domain' => $domain,
             'password' => 'secret',
             'secret_key' => 'secret',
-            'loginkey'  => 'secret',
+            'loginkey' => 'secret',
         ];
 
         $server = new Server($data);
@@ -199,7 +199,7 @@ class ServerTest extends IntegrationTestCase
             'domain' => null,
             'password' => 'secret',
             'secret_key' => 'secret',
-            'loginkey'  => 'secret',
+            'loginkey' => 'secret',
         ];
 
         $server = new Server($data);
@@ -220,7 +220,7 @@ class ServerTest extends IntegrationTestCase
             'hostname' => $hostname,
             'password' => 'secret',
             'secret_key' => 'secret',
-            'loginkey'  => 'secret',
+            'loginkey' => 'secret',
         ]);
 
         $server->save();

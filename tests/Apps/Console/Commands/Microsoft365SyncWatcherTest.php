@@ -74,43 +74,77 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
 
         $productGroup = new ProductGroupFactory()->microsoft365()->createOne();
 
-        $this->parentProductOne = new ProductFactory()->for($productGroup)->createOne(['slug' => 'microsoft-business-standard-parent']);
-        $this->childProductOne = new ProductFactory()->for($productGroup)->createOne(['slug' => 'microsoft-business-standard']);
-        $parentProductTwo = new ProductFactory()->for($productGroup)->createOne(['slug' => 'microsoft-business-basic-parent']);
+        $this->parentProductOne = new ProductFactory()->for($productGroup)->createOne([
+            'slug' => 'microsoft-business-standard-parent',
+        ]);
+        $this->childProductOne = new ProductFactory()->for($productGroup)->createOne([
+            'slug' => 'microsoft-business-standard',
+        ]);
+        $parentProductTwo = new ProductFactory()->for($productGroup)->createOne([
+            'slug' => 'microsoft-business-basic-parent',
+        ]);
         $childProductTwo = new ProductFactory()->for($productGroup)->createOne(['slug' => 'microsoft-business-basic']);
 
-        $this->subscriptionOne = new SubscriptionFactory()->withCustomer()->for($this->parentProductOne)->createOne([
-            'product_uuid' => $this->parentProductOne->uuid,
-            'technical_status' => TechnicalStatus::OK->value,
-            'end_date' => CarbonImmutable::now()->addMonth(),
-            'next_billing_date' => CarbonImmutable::now()->addMonth(),
+        $this->subscriptionOne = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->parentProductOne)
+            ->createOne([
+                'product_uuid' => $this->parentProductOne->uuid,
+                'technical_status' => TechnicalStatus::OK->value,
+                'end_date' => CarbonImmutable::now()->addMonth(),
+                'next_billing_date' => CarbonImmutable::now()->addMonth(),
+            ]);
+
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->childProductOne)
+            ->parentSubscription($this->subscriptionOne)
+            ->state([
+                'product_uuid' => $this->childProductOne->uuid,
+                'technical_status' => TechnicalStatus::OK->value,
+                'end_date' => $this->subscriptionOne->end_date,
+                'next_billing_date' => $this->subscriptionOne->next_billing_date,
+            ])
+            ->createMany(5);
+
+        $subscriptionTwo = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($parentProductTwo)
+            ->createOne([
+                'product_uuid' => $parentProductTwo->uuid,
+                'technical_status' => TechnicalStatus::OK->value,
+                'end_date' => CarbonImmutable::now()->addMonth(),
+                'next_billing_date' => CarbonImmutable::now()->addMonth(),
+            ]);
+
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for($childProductTwo)
+            ->parentSubscription($subscriptionTwo)
+            ->state([
+                'product_uuid' => $childProductTwo->uuid,
+                'technical_status' => TechnicalStatus::OK->value,
+                'end_date' => $subscriptionTwo->end_date,
+                'next_billing_date' => $subscriptionTwo->next_billing_date,
+            ])
+            ->createMany(3);
+
+        $this->microsoft365KpnProduct = new Microsoft365KpnProductFactory()->for($this->parentProductOne)->createOne([
+            'kpn_product_code' => '120A00179B',
+            'contract_period' => 12,
         ]);
-
-        new SubscriptionFactory()->withCustomer()->for($this->childProductOne)->parentSubscription($this->subscriptionOne)->state([
-            'product_uuid' => $this->childProductOne->uuid,
-            'technical_status' => TechnicalStatus::OK->value,
-            'end_date' => $this->subscriptionOne->end_date,
-            'next_billing_date' => $this->subscriptionOne->next_billing_date,
-        ])->createMany(5);
-
-        $subscriptionTwo = new SubscriptionFactory()->withCustomer()->for($parentProductTwo)->createOne([
-            'product_uuid' => $parentProductTwo->uuid,
-            'technical_status' => TechnicalStatus::OK->value,
-            'end_date' => CarbonImmutable::now()->addMonth(),
-            'next_billing_date' => CarbonImmutable::now()->addMonth(),
+        $this->microsoft365CustomerInfo = new Microsoft365CustomerInfoFactory()->for($customer)->createOne([
+            'kpn_customer_id' => 'CID543598',
+            'synced_at' => CarbonImmutable::now()->subWeeks(3),
         ]);
-
-        new SubscriptionFactory()->withCustomer()->for($childProductTwo)->parentSubscription($subscriptionTwo)->state([
-            'product_uuid' => $childProductTwo->uuid,
-            'technical_status' => TechnicalStatus::OK->value,
-            'end_date' => $subscriptionTwo->end_date,
-            'next_billing_date' => $subscriptionTwo->next_billing_date,
-        ])->createMany(3);
-
-        $this->microsoft365KpnProduct = new Microsoft365KpnProductFactory()->for($this->parentProductOne)->createOne(['kpn_product_code' => '120A00179B', 'contract_period' => 12]);
-        $this->microsoft365CustomerInfo = new Microsoft365CustomerInfoFactory()->for($customer)->createOne(['kpn_customer_id' => 'CID543598', 'synced_at' => CarbonImmutable::now()->subWeeks(3)]);
-        $this->microsoft365DeploymentOne = new Microsoft365DeploymentFactory()->for($this->microsoft365CustomerInfo)->for($this->subscriptionOne)->createOne(['kpn_order_id' => 11118966]);
-        $this->microsoft365DeploymentTwo = new Microsoft365DeploymentFactory()->for($this->microsoft365CustomerInfo)->for($subscriptionTwo)->createOne(['kpn_order_id' => 11118967]);
+        $this->microsoft365DeploymentOne = new Microsoft365DeploymentFactory()
+            ->for($this->microsoft365CustomerInfo)
+            ->for($this->subscriptionOne)
+            ->createOne(['kpn_order_id' => 11118966]);
+        $this->microsoft365DeploymentTwo = new Microsoft365DeploymentFactory()
+            ->for($this->microsoft365CustomerInfo)
+            ->for($subscriptionTwo)
+            ->createOne(['kpn_order_id' => 11118967]);
     }
 
     #[Test]
@@ -123,7 +157,10 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
 
         $this->artisan(Microsoft365SyncWatcher::class)
             ->expectsOutput('Watching 1 Microsoft365 customers.')
-            ->expectsOutput(sprintf('Microsoft365 customer {%d} has successfully been checked.', $this->microsoft365CustomerInfo->id))
+            ->expectsOutput(sprintf(
+                'Microsoft365 customer {%d} has successfully been checked.',
+                $this->microsoft365CustomerInfo->id,
+            ))
             ->expectsOutput('Finished watching the Microsoft365 subscriptions.')
             ->assertOk();
 
@@ -134,8 +171,14 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
         self::assertNotNull($this->microsoft365DeploymentOne->kpn_start_date);
         self::assertNotNull($this->microsoft365DeploymentTwo->kpn_start_date);
 
-        self::assertSame(CarbonImmutable::parse('2022-08-08 11:49:52')->toDateTimeString(), $this->microsoft365DeploymentOne->kpn_start_date->toDateTimeString());
-        self::assertSame(CarbonImmutable::parse('2022-08-08 11:53:38')->toDateTimeString(), $this->microsoft365DeploymentTwo->kpn_start_date->toDateTimeString());
+        self::assertSame(
+            CarbonImmutable::parse('2022-08-08 11:49:52')->toDateTimeString(),
+            $this->microsoft365DeploymentOne->kpn_start_date->toDateTimeString(),
+        );
+        self::assertSame(
+            CarbonImmutable::parse('2022-08-08 11:53:38')->toDateTimeString(),
+            $this->microsoft365DeploymentTwo->kpn_start_date->toDateTimeString(),
+        );
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => sprintf(
@@ -156,8 +199,7 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
         $this->microsoft365DeploymentOne->refresh();
         self::assertCount(4, $this->microsoft365DeploymentOne->subscriptionChildren);
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => 'Found {5} seats in Irma and {4} seats in Waterfront with kpn_order_id {11118966} for kpn_customer_id {CID543598}!',
@@ -171,15 +213,18 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
     {
         $this->setupOfficeClientMock((string) file_get_contents(__DIR__ . '/data/OrderSummaryResponse_V1.xml'));
 
-        new SubscriptionFactory()->withCustomer()->for($this->childProductOne)->state([
-            'product_uuid' => $this->childProductOne->uuid,
-            'parent_subscription_id' => $this->subscriptionOne->id,
-        ])->createMany(3);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->childProductOne)
+            ->state([
+                'product_uuid' => $this->childProductOne->uuid,
+                'parent_subscription_id' => $this->subscriptionOne->id,
+            ])
+            ->createMany(3);
         $this->microsoft365DeploymentOne->refresh();
         self::assertCount(8, $this->microsoft365DeploymentOne->subscriptionChildren);
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => 'Found {5} seats in Irma and {8} seats in Waterfront with kpn_order_id {11118966} for kpn_customer_id {CID543598}!',
@@ -199,8 +244,7 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
         $this->microsoft365DeploymentOne->kpn_status = Microsoft365OrderStatus::FAILED;
         $this->microsoft365DeploymentOne->save();
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => sprintf('Microsoft365 customer {%d} has a failed state.', $this->microsoft365CustomerInfo->id),
@@ -208,7 +252,10 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
             'microsoft365_deployment_id' => null,
         ]);
         self::assertDatabaseHas('microsoft365_sync_log', [
-            'log' => sprintf('Microsoft365 subscription {%d} has a failed state.', $this->microsoft365DeploymentOne->id),
+            'log' => sprintf(
+                'Microsoft365 subscription {%d} has a failed state.',
+                $this->microsoft365DeploymentOne->id,
+            ),
             'microsoft365_customer_info_id' => $this->microsoft365CustomerInfo->id,
             'microsoft365_deployment_id' => $this->microsoft365DeploymentOne->id,
         ]);
@@ -222,11 +269,13 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
         $this->microsoft365CustomerInfo->technical_status = Microsoft365ProcessStatus::CUSTOMER_CREATED;
         $this->microsoft365CustomerInfo->save();
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
-            'log' => sprintf('Microsoft365 customer {%d} had a {placed} state and now has a {active} state despite having multiple subscriptions in irma.', $this->microsoft365CustomerInfo->id),
+            'log' => sprintf(
+                'Microsoft365 customer {%d} had a {placed} state and now has a {active} state despite having multiple subscriptions in irma.',
+                $this->microsoft365CustomerInfo->id,
+            ),
             'microsoft365_customer_info_id' => $this->microsoft365CustomerInfo->id,
             'microsoft365_deployment_id' => null,
         ]);
@@ -238,20 +287,28 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
     {
         $this->setupOfficeClientMock((string) file_get_contents(__DIR__ . '/data/OrderSummaryResponse_V1.xml'));
 
-        $ghost_subscription_1 = new SubscriptionFactory()->withCustomer()->for($this->childProductOne)->createOne([
-            'product_uuid' => $this->childProductOne->uuid,
-        ]);
+        $ghost_subscription_1 = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->childProductOne)
+            ->createOne([
+                'product_uuid' => $this->childProductOne->uuid,
+            ]);
 
-        $ghost_subscription_2 = new SubscriptionFactory()->withCustomer()->for($this->childProductOne)->createOne([
-            'product_uuid' => $this->childProductOne->uuid,
-        ]);
+        $ghost_subscription_2 = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->childProductOne)
+            ->createOne([
+                'product_uuid' => $this->childProductOne->uuid,
+            ]);
 
-        $ghost_subscription_3 = new SubscriptionFactory()->withCustomer()->for($this->childProductOne)->createOne([
-            'product_uuid' => $this->childProductOne->uuid,
-        ]);
+        $ghost_subscription_3 = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->childProductOne)
+            ->createOne([
+                'product_uuid' => $this->childProductOne->uuid,
+            ]);
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => sprintf(
@@ -267,13 +324,13 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
     public function tooManyRequests(): void
     {
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('orderSummary')
             ->willThrowException(new OrderSummaryException('Too Many Requests'));
         $this->app->bind(Microsoft365Service::class, fn () => $microsoft365Service);
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertFailed();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertFailed();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => 'Microsoft365 sync watcher has reached it\'s too many request limit!',
@@ -290,8 +347,7 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
         $this->microsoft365DeploymentOne->kpn_order_id = null;
         $this->microsoft365DeploymentOne->save();
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => 'Microsoft365 subscription was kpn_order_id {null} and is now updated to {11118966}. Updating subscription with the same product.',
@@ -314,8 +370,7 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
         $this->microsoft365KpnProduct->kpn_product_code = 'doesnotexists';
         $this->microsoft365KpnProduct->save();
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => 'Microsoft365 subscription with orderId {11118966} found in Irma but not in Waterfront. No other subscription found with this product.',
@@ -329,19 +384,31 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
     {
         $this->setupOfficeClientMock((string) file_get_contents(__DIR__ . '/data/OrderSummaryResponse_V1.xml'));
 
-        $extraSubscription = new SubscriptionFactory()->withCustomer()->for($this->parentProductOne)->createOne([
-            'product_uuid' => $this->parentProductOne->uuid,
-        ]);
+        $extraSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->parentProductOne)
+            ->createOne([
+                'product_uuid' => $this->parentProductOne->uuid,
+            ]);
 
-        $deletedSubscription = new SubscriptionFactory()->withCustomer()->for($this->parentProductOne)->administrativeStatusArchived()->createOne([
-            'product_uuid' => $this->parentProductOne->uuid,
-        ]);
+        $deletedSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->parentProductOne)
+            ->administrativeStatusArchived()
+            ->createOne([
+                'product_uuid' => $this->parentProductOne->uuid,
+            ]);
 
-        new Microsoft365DeploymentFactory()->for($this->microsoft365CustomerInfo)->for($extraSubscription)->createOne();
-        new Microsoft365DeploymentFactory()->for($this->microsoft365CustomerInfo)->for($deletedSubscription)->createOne();
+        new Microsoft365DeploymentFactory()
+            ->for($this->microsoft365CustomerInfo)
+            ->for($extraSubscription)
+            ->createOne();
+        new Microsoft365DeploymentFactory()
+            ->for($this->microsoft365CustomerInfo)
+            ->for($deletedSubscription)
+            ->createOne();
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => 'There are {3} subscriptions in Waterfront and {2} subscriptions in Irma.',
@@ -373,8 +440,7 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
             ->for($archivingYearlySubscription)
             ->createOne();
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseMissing('microsoft365_sync_log', [
             'log' => 'There are {3} subscriptions in Waterfront and {2} subscriptions in Irma.',
@@ -404,8 +470,7 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
             ->for($archivingMonthlySubscription)
             ->createOne();
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => 'There are {3} subscriptions in Waterfront and {2} subscriptions in Irma.',
@@ -422,8 +487,7 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
         $this->microsoft365DeploymentTwo->subscription->administrative_status = AdministrativeStatus::ARCHIVED->value;
         $this->microsoft365DeploymentTwo->subscription->save();
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => 'There are {1} subscriptions in Waterfront and {2} subscriptions in Irma.',
@@ -440,14 +504,13 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
         $this->microsoft365DeploymentOne->subscription->administrative_status = AdministrativeStatus::ARCHIVED->value;
         $this->microsoft365DeploymentOne->subscription->save();
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => sprintf(
                 'Subscription administrative {%d} has wrong administrative status {archived}. With {%d} seats not deleted.',
                 $this->microsoft365DeploymentOne->id,
-                $this->microsoft365DeploymentOne->subscription->children->count()
+                $this->microsoft365DeploymentOne->subscription->children->count(),
             ),
             'microsoft365_customer_info_id' => $this->microsoft365CustomerInfo->id,
             'microsoft365_deployment_id' => $this->microsoft365DeploymentOne->id,
@@ -465,18 +528,24 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
         $this->microsoft365DeploymentOne->subscription->technical_status = TechnicalStatus::REGISTRATION->value;
         $this->microsoft365DeploymentOne->subscription->save();
 
-        new SubscriptionFactory()->withCustomer()->for($this->childProductOne)->state([
-            'product_uuid' => $this->childProductOne->uuid,
-            'parent_subscription_id' => $this->subscriptionOne->id,
-            'technical_status' => TechnicalStatus::REGISTRATION->value,
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-        ])->createMany(5);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->childProductOne)
+            ->state([
+                'product_uuid' => $this->childProductOne->uuid,
+                'parent_subscription_id' => $this->subscriptionOne->id,
+                'technical_status' => TechnicalStatus::REGISTRATION->value,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+            ])
+            ->createMany(5);
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
-            'log' => sprintf('Microsoft365 subscription {%d} had a {placed} state and now has a {active} state.', $this->microsoft365DeploymentOne->id),
+            'log' => sprintf(
+                'Microsoft365 subscription {%d} had a {placed} state and now has a {active} state.',
+                $this->microsoft365DeploymentOne->id,
+            ),
             'microsoft365_customer_info_id' => $this->microsoft365CustomerInfo->id,
             'microsoft365_deployment_id' => $this->microsoft365DeploymentOne->id,
         ]);
@@ -492,7 +561,7 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
 
         $logCount = Microsoft365SyncLog::where('log', sprintf(
             'Microsoft365 subscription {%d} has seats with technical status {registration} changed to {ok}.',
-            $this->microsoft365DeploymentOne->id
+            $this->microsoft365DeploymentOne->id,
         ))->get();
         self::assertCount(5, $logCount);
 
@@ -501,7 +570,7 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
                 'Microsoft365 subscription {%d} has seats with end date {%s} changed to {%s}.',
                 $this->microsoft365DeploymentOne->id,
                 $this->subscriptionOne->children->firstOrFail()->end_date,
-                $this->subscriptionOne->end_date
+                $this->subscriptionOne->end_date,
             ),
             'microsoft365_customer_info_id' => $this->microsoft365CustomerInfo->id,
             'microsoft365_deployment_id' => $this->microsoft365DeploymentOne->id,
@@ -525,12 +594,14 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
         $this->microsoft365DeploymentOne->kpn_status = Microsoft365OrderStatus::ACCEPTED;
         $this->microsoft365DeploymentOne->save();
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertSame(Microsoft365OrderStatus::ACTIVE, $this->microsoft365DeploymentOne->refresh()->kpn_status);
         self::assertDatabaseHas('microsoft365_sync_log', [
-            'log' => sprintf('Microsoft365 subscription {%d} had a {accepted} state and now has a {active} state.', $this->microsoft365DeploymentOne->id),
+            'log' => sprintf(
+                'Microsoft365 subscription {%d} had a {accepted} state and now has a {active} state.',
+                $this->microsoft365DeploymentOne->id,
+            ),
             'microsoft365_customer_info_id' => $this->microsoft365CustomerInfo->id,
             'microsoft365_deployment_id' => $this->microsoft365DeploymentOne->id,
         ]);
@@ -545,11 +616,13 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
         $this->subscriptionOne->product_uuid = $this->childProductOne->uuid;
         $this->subscriptionOne->save();
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
-            'log' => sprintf('There are {1} subscriptions coupled to a seat product in the microsoft_365 group with the following id\'s: [{"id":%d}]', $this->subscriptionOne->id),
+            'log' => sprintf(
+                'There are {1} subscriptions coupled to a seat product in the microsoft_365 group with the following id\'s: [{"id":%d}]',
+                $this->subscriptionOne->id,
+            ),
         ]);
     }
 
@@ -571,18 +644,18 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
     public function orderSummaryRetrieveError(): void
     {
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('orderSummary')
             ->willThrowException(new OrderSummaryException('Something went wrong while retrieving order summary.'));
         $this->app->bind(Microsoft365Service::class, fn () => $microsoft365Service);
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => sprintf(
                 'Error while retrieving order summary for KPN customer with id {%s}. With exception message: Something went wrong while retrieving order summary.',
-                $this->microsoft365CustomerInfo->kpn_customer_id
+                $this->microsoft365CustomerInfo->kpn_customer_id,
             ),
             'microsoft365_customer_info_id' => $this->microsoft365CustomerInfo->id,
             'microsoft365_deployment_id' => null,
@@ -593,18 +666,20 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
     public function customerNotFound(): void
     {
         $microsoft365Service = self::createMock(Microsoft365Service::class);
-        $microsoft365Service->expects(self::once())
+        $microsoft365Service
+            ->expects(self::once())
             ->method('orderSummary')
-            ->willThrowException(new OrderSummaryCustomerNotFoundException('Something went wrong while retrieving order summary.'));
+            ->willThrowException(
+                new OrderSummaryCustomerNotFoundException('Something went wrong while retrieving order summary.'),
+            );
         $this->app->bind(Microsoft365Service::class, fn () => $microsoft365Service);
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => sprintf(
                 'KPN Customer with id: {%s} not found.',
-                $this->microsoft365CustomerInfo->kpn_customer_id
+                $this->microsoft365CustomerInfo->kpn_customer_id,
             ),
             'microsoft365_customer_info_id' => $this->microsoft365CustomerInfo->id,
             'microsoft365_deployment_id' => null,
@@ -618,25 +693,27 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
 
         $this->subscriptionOne->children()->delete();
 
-        $endDateChild = new SubscriptionFactory()->withCustomer()->for($this->childProductOne)->createOne([
-            'product_uuid' => $this->childProductOne->uuid,
-            'parent_subscription_id' => $this->subscriptionOne->id,
-            'end_date' => $this->subscriptionOne->end_date->addMonth(),
-            'next_billing_date' => $this->subscriptionOne->next_billing_date->addMonth(),
-        ]);
+        $endDateChild = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->childProductOne)
+            ->createOne([
+                'product_uuid' => $this->childProductOne->uuid,
+                'parent_subscription_id' => $this->subscriptionOne->id,
+                'end_date' => $this->subscriptionOne->end_date->addMonth(),
+                'next_billing_date' => $this->subscriptionOne->next_billing_date->addMonth(),
+            ]);
 
         $this->subscriptionOne->refresh();
         $endDateChild->refresh();
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => sprintf(
                 'Microsoft365 subscription {%d} has seats with end date {%s} changed to {%s}.',
                 $this->microsoft365DeploymentOne->id,
                 $endDateChild->end_date,
-                $this->subscriptionOne->end_date
+                $this->subscriptionOne->end_date,
             ),
             'microsoft365_customer_info_id' => $this->microsoft365CustomerInfo->id,
             'microsoft365_deployment_id' => $this->microsoft365DeploymentOne->id,
@@ -647,15 +724,21 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
                 'Microsoft365 subscription {%d} has seats with next billing date {%s} changed to {%s}.',
                 $this->microsoft365DeploymentOne->id,
                 $endDateChild->next_billing_date,
-                $this->subscriptionOne->next_billing_date
+                $this->subscriptionOne->next_billing_date,
             ),
             'microsoft365_customer_info_id' => $this->microsoft365CustomerInfo->id,
             'microsoft365_deployment_id' => $this->microsoft365DeploymentOne->id,
         ]);
 
         $endDateChild->refresh();
-        self::assertSame($this->subscriptionOne->end_date->toDateTimeString(), $endDateChild->end_date->toDateTimeString());
-        self::assertSame($this->subscriptionOne->next_billing_date->toDateTimeString(), $endDateChild->next_billing_date->toDateTimeString());
+        self::assertSame(
+            $this->subscriptionOne->end_date->toDateTimeString(),
+            $endDateChild->end_date->toDateTimeString(),
+        );
+        self::assertSame(
+            $this->subscriptionOne->next_billing_date->toDateTimeString(),
+            $endDateChild->next_billing_date->toDateTimeString(),
+        );
     }
 
     #[Test]
@@ -664,14 +747,13 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
         $this->microsoft365CustomerInfo->kpn_customer_id = '';
         $this->microsoft365CustomerInfo->save();
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => sprintf(
                 'Microsoft365 customer {%d} has a invalid kpn_customer_id {%s}.',
                 $this->microsoft365CustomerInfo->id,
-                $this->microsoft365CustomerInfo->kpn_customer_id
+                $this->microsoft365CustomerInfo->kpn_customer_id,
             ),
             'microsoft365_customer_info_id' => $this->microsoft365CustomerInfo->id,
             'microsoft365_deployment_id' => null,
@@ -688,14 +770,13 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
             $child->save();
         }
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         $logCount = Microsoft365SyncLog::where('log', sprintf(
             'Microsoft365 subscription {%d} has seats with technical status {%s} changed to {%s}.',
             $this->microsoft365DeploymentOne->id,
             TechnicalStatus::OK->value,
-            TechnicalStatus::DELETED->value
+            TechnicalStatus::DELETED->value,
         ))->get();
         self::assertCount(5, $logCount);
     }
@@ -718,8 +799,7 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
         $this->microsoft365DeploymentOne->kpn_status = Microsoft365OrderStatus::MODIFY_PENDING;
         $this->microsoft365DeploymentOne->save();
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         $this->microsoft365DeploymentOne->refresh();
         self::assertSame(Microsoft365OrderStatus::TERMINATED, $this->microsoft365DeploymentOne->kpn_status);
@@ -728,7 +808,7 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
             'log' => sprintf(
                 'Microsoft365 subscription {%d} has parent subscription and children which are all deleted. Changing kpn_status to {%s}.',
                 $this->microsoft365DeploymentOne->id,
-                Microsoft365OrderStatus::TERMINATED->value
+                Microsoft365OrderStatus::TERMINATED->value,
             ),
             'microsoft365_customer_info_id' => $this->microsoft365CustomerInfo->id,
             'microsoft365_deployment_id' => $this->microsoft365DeploymentOne->id,
@@ -752,21 +832,28 @@ class Microsoft365SyncWatcherTest extends IntegrationTestCase
         }
 
         self::assertSame(TechnicalStatus::OK->value, $this->subscriptionOne->technical_status);
-        self::assertCount(5, $this->subscriptionOne->children->where('technical_status', '<>', TechnicalStatus::DELETED->value));
+        self::assertCount(5, $this->subscriptionOne->children->where(
+            'technical_status',
+            '<>',
+            TechnicalStatus::DELETED->value,
+        ));
 
-        $this->artisan(Microsoft365SyncWatcher::class)
-            ->assertOk();
+        $this->artisan(Microsoft365SyncWatcher::class)->assertOk();
 
         $this->subscriptionOne->refresh();
 
         self::assertSame(TechnicalStatus::DELETED->value, $this->subscriptionOne->technical_status);
-        self::assertCount(0, $this->subscriptionOne->children->where('technical_status', '<>', TechnicalStatus::DELETED->value));
+        self::assertCount(0, $this->subscriptionOne->children->where(
+            'technical_status',
+            '<>',
+            TechnicalStatus::DELETED->value,
+        ));
 
         self::assertDatabaseHas('microsoft365_sync_log', [
             'log' => sprintf(
                 'Microsoft365 subscription {%d} has kpn_status terminated and administrative archived. Changing technical_status to {%s}.',
                 $this->microsoft365DeploymentOne->id,
-                TechnicalStatus::DELETED->value
+                TechnicalStatus::DELETED->value,
             ),
             'microsoft365_customer_info_id' => $this->microsoft365CustomerInfo->id,
             'microsoft365_deployment_id' => $this->microsoft365DeploymentOne->id,

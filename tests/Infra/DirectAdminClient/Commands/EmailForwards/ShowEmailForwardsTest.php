@@ -41,7 +41,7 @@ class ShowEmailForwardsTest extends DirectAdminTestCase
 
         $api = new DirectAdminApi(
             $this->getTestServer(),
-            new Client(['handler' => $handlerStack])
+            new Client(['handler' => $handlerStack]),
         );
 
         $command = $api->loginAs('fake-user')->call($command);
@@ -58,7 +58,7 @@ class ShowEmailForwardsTest extends DirectAdminTestCase
                 'destination@local.test',
                 'another@local.test',
             ],
-            $selectedForward->destinations
+            $selectedForward->destinations,
         );
 
         self::assertSame(
@@ -71,7 +71,7 @@ class ShowEmailForwardsTest extends DirectAdminTestCase
                     'wow@remote.test',
                 ],
             ],
-            $command->getFormValues()
+            $command->getFormValues(),
         );
     }
 
@@ -97,11 +97,13 @@ class ShowEmailForwardsTest extends DirectAdminTestCase
                 // Since we are injecting a custom client we need to ensure the same error handling
                 // as the client set through the normal flow.
                 'http_errors' => false,
-            ])
+            ]),
         );
 
         $this->expectException(DirectAdminCommandException::class);
-        $this->expectExceptionMessageIs('Failed [ShowEmailForwards]: Could not execute your request - You do not own that domain');
+        $this->expectExceptionMessageIs(
+            'Failed [ShowEmailForwards]: Could not execute your request - You do not own that domain',
+        );
 
         $api->loginAs('fake-user')->call($command);
     }

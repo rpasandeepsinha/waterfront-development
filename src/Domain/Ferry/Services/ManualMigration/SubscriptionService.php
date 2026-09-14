@@ -26,8 +26,11 @@ class SubscriptionService
      *
      * @throws NoSubscriptionsStoredException
      */
-    public function storeSubscription(Customer $customer, string $referenceCustomerId, array $subscription): Subscription
-    {
+    public function storeSubscription(
+        Customer $customer,
+        string $referenceCustomerId,
+        array $subscription,
+    ): Subscription {
         $subscriptionsToCreate = CreateSubscriptionsDTO::create(
             $customer,
             $referenceCustomerId,

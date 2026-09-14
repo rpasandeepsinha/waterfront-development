@@ -34,10 +34,6 @@ class NovaSubscriptionMigrationGroupTypeFilter extends Filter
      */
     public function options(NovaRequest $request): array
     {
-        return MigratedCustomer::query()
-            ->groupBy('group_type')
-            ->orderBy('group_type')
-            ->pluck('group_type')
-            ->toArray();
+        return MigratedCustomer::query()->groupBy('group_type')->orderBy('group_type')->pluck('group_type')->toArray();
     }
 }

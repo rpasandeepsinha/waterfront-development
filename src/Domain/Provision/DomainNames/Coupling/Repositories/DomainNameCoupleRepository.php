@@ -18,8 +18,9 @@ use Webmozart\Assert\Assert;
 
 class DomainNameCoupleRepository
 {
-    public function __construct(private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -51,7 +52,7 @@ class DomainNameCoupleRepository
     public function delete(
         string $domain,
         ProvisionType $coupleType,
-        UuidInterface $deploymentUuid
+        UuidInterface $deploymentUuid,
     ): void {
         $deployment = DomainNameCoupleDeployment::where([
             'domain' => $domain,
@@ -70,8 +71,9 @@ class DomainNameCoupleRepository
                         'couple_type' => $coupleType,
                         'deployment_uuid' => $deploymentUuid->toString(),
                     ],
-                ]
+                ],
             );
+
             return;
         }
 
@@ -80,8 +82,11 @@ class DomainNameCoupleRepository
         }
     }
 
-    public function coupleDomainToDomainNameDeployment(DomainNameCoupleDeployment $domainNameCoupleDeployment, Subscription $subscription, UuidInterface $deploymentUuid): void
-    {
+    public function coupleDomainToDomainNameDeployment(
+        DomainNameCoupleDeployment $domainNameCoupleDeployment,
+        Subscription $subscription,
+        UuidInterface $deploymentUuid,
+    ): void {
         Assert::string($subscription->domain);
         $domainNameCoupleDeployment->domain = $subscription->domain;
         $domainNameCoupleDeployment->deployment_uuid = $deploymentUuid;

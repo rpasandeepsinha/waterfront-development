@@ -44,7 +44,10 @@ class ModifyReseller extends DirectAdminCommand
 
         $this->succeeded = false;
 
-        if (array_key_exists('success', $decodedContent) && $decodedContent['success'] === 'Options changed successfully') {
+        if (
+            array_key_exists('success', $decodedContent)
+            && $decodedContent['success'] === 'Options changed successfully'
+        ) {
             $this->result = $decodedContent['success'];
             $this->succeeded = true;
         }
@@ -58,6 +61,7 @@ class ModifyReseller extends DirectAdminCommand
     public function setEmail(string $email): ModifyReseller
     {
         $this->resellerData['email'] = $email;
+
         return $this;
     }
 
@@ -67,6 +71,7 @@ class ModifyReseller extends DirectAdminCommand
     public function setPasswd(string $passwd): ModifyReseller
     {
         $this->resellerData['passwd'] = $passwd;
+
         return $this;
     }
 
@@ -76,6 +81,7 @@ class ModifyReseller extends DirectAdminCommand
     public function setLoginKeys(string $loginKeys): ModifyReseller
     {
         $this->resellerData['login_keys'] = $loginKeys;
+
         return $this;
     }
 
@@ -85,6 +91,7 @@ class ModifyReseller extends DirectAdminCommand
     public function setDomain(string $domain): ModifyReseller
     {
         $this->resellerData['domain'] = $domain;
+
         return $this;
     }
 
@@ -94,6 +101,7 @@ class ModifyReseller extends DirectAdminCommand
     public function setPackage(string $package): ModifyReseller
     {
         $this->resellerData['package'] = $package;
+
         return $this;
     }
 
@@ -104,6 +112,7 @@ class ModifyReseller extends DirectAdminCommand
     public function setIp(string $ip): ModifyReseller
     {
         $this->resellerData['ip'] = $ip;
+
         return $this;
     }
 
@@ -113,186 +122,217 @@ class ModifyReseller extends DirectAdminCommand
     public function setNotify(string $notify): ModifyReseller
     {
         $this->resellerData['notify'] = $notify;
+
         return $this;
     }
 
     public function setBandwidth(string $bandwidth): ModifyReseller
     {
         $this->resellerData['bandwidth'] = $bandwidth;
+
         return $this;
     }
 
     public function setUbandwidth(string $ubandwidth): ModifyReseller
     {
         $this->resellerData['ubandwidth'] = $ubandwidth;
+
         return $this;
     }
 
     public function setQuota(string $quota): ModifyReseller
     {
         $this->resellerData['quota'] = $quota;
+
         return $this;
     }
 
     public function setUquota(string $uquota): ModifyReseller
     {
         $this->resellerData['uquota'] = $uquota;
+
         return $this;
     }
 
     public function setVdomains(string $vdomains): ModifyReseller
     {
         $this->resellerData['vdomains'] = $vdomains;
+
         return $this;
     }
 
     public function setUvdomains(string $uvdomains): ModifyReseller
     {
         $this->resellerData['uvdomains'] = $uvdomains;
+
         return $this;
     }
 
     public function setNsubdomains(string $nsubdomains): ModifyReseller
     {
         $this->resellerData['nsubdomains'] = $nsubdomains;
+
         return $this;
     }
 
     public function setUnsubdomains(string $unsubdomains): ModifyReseller
     {
         $this->resellerData['unsubdomains'] = $unsubdomains;
+
         return $this;
     }
 
     public function setIps(string $ips): ModifyReseller
     {
         $this->resellerData['ips'] = $ips;
+
         return $this;
     }
 
     public function setNemails(string $nemails): ModifyReseller
     {
         $this->resellerData['nemails'] = $nemails;
+
         return $this;
     }
 
     public function setUnemails(string $unemails): ModifyReseller
     {
         $this->resellerData['unemails'] = $unemails;
+
         return $this;
     }
 
     public function setNemailf(string $nemailf): ModifyReseller
     {
         $this->resellerData['nemailf'] = $nemailf;
+
         return $this;
     }
 
     public function setUnemailf(string $unemailf): ModifyReseller
     {
         $this->resellerData['unemailf'] = $unemailf;
+
         return $this;
     }
 
     public function setNemailml(string $nemailml): ModifyReseller
     {
         $this->resellerData['nemailml'] = $nemailml;
+
         return $this;
     }
 
     public function setUnemailml(string $unemailml): ModifyReseller
     {
         $this->resellerData['unemailml'] = $unemailml;
+
         return $this;
     }
 
     public function setNemailr(string $nemailr): ModifyReseller
     {
         $this->resellerData['nemailr'] = $nemailr;
+
         return $this;
     }
 
     public function setUnemailr(string $unemailr): ModifyReseller
     {
         $this->resellerData['unemailr'] = $unemailr;
+
         return $this;
     }
 
     public function setMysql(string $mysql): ModifyReseller
     {
         $this->resellerData['mysql'] = $mysql;
+
         return $this;
     }
 
     public function setUmysql(string $umysql): ModifyReseller
     {
         $this->resellerData['umysql'] = $umysql;
+
         return $this;
     }
 
     public function setDomainptr(string $domainptr): ModifyReseller
     {
         $this->resellerData['domainptr'] = $domainptr;
+
         return $this;
     }
 
     public function setUdomainptr(string $udomainptr): ModifyReseller
     {
         $this->resellerData['udomainptr'] = $udomainptr;
+
         return $this;
     }
 
     public function setFtp(string $ftp): ModifyReseller
     {
         $this->resellerData['ftp'] = $ftp;
+
         return $this;
     }
 
     public function setUftp(string $uftp): ModifyReseller
     {
         $this->resellerData['uftp'] = $uftp;
+
         return $this;
     }
 
     public function setAftp(string $aftp): ModifyReseller
     {
         $this->resellerData['aftp'] = $aftp;
+
         return $this;
     }
 
     public function setPhp(string $php): ModifyReseller
     {
         $this->resellerData['php'] = $php;
+
         return $this;
     }
 
     public function setCgi(string $cgi): ModifyReseller
     {
         $this->resellerData['cgi'] = $cgi;
+
         return $this;
     }
 
     public function setSsl(string $ssl): ModifyReseller
     {
         $this->resellerData['ssl'] = $ssl;
+
         return $this;
     }
 
     public function setSsh(string $ssh): ModifyReseller
     {
         $this->resellerData['ssh'] = $ssh;
+
         return $this;
     }
 
     public function setUserssh(string $userssh): ModifyReseller
     {
         $this->resellerData['userssh'] = $userssh;
+
         return $this;
     }
 
     public function setDnscontrol(string $dnscontrol): ModifyReseller
     {
         $this->resellerData['dnscontrol'] = $dnscontrol;
+
         return $this;
     }
 
@@ -305,6 +345,7 @@ class ModifyReseller extends DirectAdminCommand
     public function setDns(string $dns): ModifyReseller
     {
         $this->resellerData['dns'] = $dns;
+
         return $this;
     }
 
@@ -319,6 +360,7 @@ class ModifyReseller extends DirectAdminCommand
          * @see https://www.directadmin.com/features.php?id=829
          */
         $this->resellerData['user'] = $reseller;
+
         return $this;
     }
 
@@ -329,12 +371,14 @@ class ModifyReseller extends DirectAdminCommand
     public function setServerip(string $serverip): ModifyReseller
     {
         $this->resellerData['serverip'] = $serverip;
+
         return $this;
     }
 
     public function setNusers(string $nusers): ModifyReseller
     {
         $this->resellerData['nusers'] = $nusers;
+
         return $this;
     }
 

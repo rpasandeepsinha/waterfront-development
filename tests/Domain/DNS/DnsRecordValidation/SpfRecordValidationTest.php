@@ -22,49 +22,58 @@ class SpfRecordValidationTest extends IntegrationTestCase
     public function missingContent(): void
     {
         $data = [
-            'type'     => 'SPF',
-            'name'     => 'google.com',
-            'ttl'      => '600',
+            'type' => 'SPF',
+            'name' => 'google.com',
+            'ttl' => '600',
             'disabled' => true,
         ];
 
         $validator = $this->createDnsRecordValidator($data);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     #[Test]
     public function invalidContentType(): void
     {
         $data = [
-            'type'     => 'SPF',
-            'name'     => 'google.com',
-            'content'  => 1,
-            'ttl'      => '600',
+            'type' => 'SPF',
+            'name' => 'google.com',
+            'content' => 1,
+            'ttl' => '600',
             'disabled' => true,
         ];
 
         $validator = $this->createDnsRecordValidator($data);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['content' => [self::resolve(TranslatorInterface::class)->translate('validation.string')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['content' => [self::resolve(TranslatorInterface::class)->translate('validation.string')]],
+            $validator->errors()->toArray(),
+        );
     }
 
     #[Test]
     public function emptyContent(): void
     {
         $data = [
-            'type'     => 'SPF',
-            'name'     => 'google.com',
-            'content'  => '',
-            'ttl'      => '600',
+            'type' => 'SPF',
+            'name' => 'google.com',
+            'content' => '',
+            'ttl' => '600',
             'disabled' => true,
         ];
 
         $validator = $this->createDnsRecordValidator($data);
 
         self::assertTrue($validator->fails());
-        self::assertSame(['content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]], $validator->errors()->toArray());
+        self::assertSame(
+            ['content' => [self::resolve(TranslatorInterface::class)->translate('validation.required')]],
+            $validator->errors()->toArray(),
+        );
     }
 }

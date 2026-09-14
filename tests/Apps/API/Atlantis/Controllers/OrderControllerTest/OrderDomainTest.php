@@ -33,40 +33,45 @@ class OrderDomainTest extends IntegrationTestCase
     public function orderDomain(): void
     {
         $customer = new CustomerFactory()->withAddress()->createOne();
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => true, 'slug' => ProviderSlug::REALTIME_REGISTER]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'enabled' => true,
+            'default' => true,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+        ]);
         $domainContact = DomainContactFactory::new()->for($customer)->createOne();
 
         Event::fake(
             [
                 CreateDns::class,
                 CreateDomain::class,
-            ]
+            ],
         );
 
         $rtrMock = self::mock(RtrService::class);
 
-        $rtrMock->shouldReceive('check')
-            ->with(self::DOMAIN)
-            ->andReturn(new CheckResult(self::DOMAIN, 'free'));
+        $rtrMock->shouldReceive('check')->with(self::DOMAIN)->andReturn(new CheckResult(self::DOMAIN, 'free'));
 
-        $rtrMock->shouldReceive('setHandle')
-            ->andReturnSelf();
+        $rtrMock->shouldReceive('setHandle')->andReturnSelf();
 
-        $rtrMock->shouldReceive('setClient')
-            ->andReturnSelf();
+        $rtrMock->shouldReceive('setClient')->andReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $rtrMock);
 
-        $domainProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
-        new ProductPriceComponentFactory()->for($domainProduct)->registration()->createOne(['price' => 499]);
+        $domainProduct = new ProductFactory()->nlDomain()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($domainProduct)
+            ->registration()
+            ->createOne(['price' => 499]);
 
         $freeDnsProduct = new ProductFactory()
             ->for(new ProductGroupFactory()->dns())
             ->freeDns()
             ->createOne();
-        new ProductPriceComponentFactory()->for($freeDnsProduct)->registration()->createOne(['price' => 0]);
+        new ProductPriceComponentFactory()
+            ->for($freeDnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/order_payload_domain.json');
 
@@ -76,13 +81,18 @@ class OrderDomainTest extends IntegrationTestCase
 
         self::assertDatabaseEmpty('subscriptions');
 
-        $response = $this
-            ->actingAsCustomer($customer)
-            ->postJson($this->generateRoute('partners.order.order'), $orderPayload);
+        $response = $this->actingAsCustomer($customer)->postJson(
+            $this->generateRoute('partners.order.order'),
+            $orderPayload,
+        );
 
         self::assertCount(2, Subscription::all());
-        $domainSubscription = Subscription::whereProductSlug($domainProduct->slug)->where('domain', self::DOMAIN)->firstOrFail();
-        $dnsSubscription = Subscription::whereProductSlug($freeDnsProduct->slug)->where('domain', self::DOMAIN)->firstOrFail();
+        $domainSubscription = Subscription::whereProductSlug($domainProduct->slug)
+            ->where('domain', self::DOMAIN)
+            ->firstOrFail();
+        $dnsSubscription = Subscription::whereProductSlug($freeDnsProduct->slug)
+            ->where('domain', self::DOMAIN)
+            ->firstOrFail();
 
         self::assertCount(1, $domainSubscription->children);
         self::assertSame($dnsSubscription->id, $domainSubscription->children->firstOrFail()->id);

@@ -21,14 +21,15 @@ class HandleCustomerBulkPayloadJob extends AbstractQueueableJob
     /**
      * @param array<int, array<mixed>> $customers
      */
-    public function __construct(private readonly array $customers)
-    {
+    public function __construct(
+        private readonly array $customers,
+    ) {
         parent::__construct();
     }
 
     public function handle(
         Dispatcher $dispatcher,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ): void {
         $amount = count($this->customers);
 

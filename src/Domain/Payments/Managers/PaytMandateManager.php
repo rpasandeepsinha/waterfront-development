@@ -27,8 +27,10 @@ class PaytMandateManager
     /**
      * @throws PaytMandateApiException|InvalidArgumentException
      */
-    public function findOrCreateMandate(Mandate $mandate, MollieMandateResponseDTO $mollieMandateResponse): PaytMandateResponseDTO
-    {
+    public function findOrCreateMandate(
+        Mandate $mandate,
+        MollieMandateResponseDTO $mollieMandateResponse,
+    ): PaytMandateResponseDTO {
         $existingPaytMandate = $this->findExistingPspMandate($mandate);
 
         if ($existingPaytMandate !== null) {
@@ -37,7 +39,10 @@ class PaytMandateManager
             return $existingPaytMandate;
         }
 
-        if ($mollieMandateResponse->details->consumerName === null || $mollieMandateResponse->details->consumerAccount === null) {
+        if (
+            $mollieMandateResponse->details->consumerName === null
+            || $mollieMandateResponse->details->consumerAccount === null
+        ) {
             throw new InvalidArgumentException('Mollie mandate details are incomplete for creating Payt mandate.');
         }
 
@@ -64,7 +69,7 @@ class PaytMandateManager
      * @throws PaytMandateIdNotNumericException
      * @throws PaytMandateApiException
      */
-    public function getMandate(Mandate $mandate): PaytMandateResponseDTO|null
+    public function getMandate(Mandate $mandate): ?PaytMandateResponseDTO
     {
         if ($mandate->payt_mandate_reference_id === null) {
             throw new PaytMandateReferenceNullException($mandate);
@@ -76,7 +81,7 @@ class PaytMandateManager
     /**
      * @throws PaytMandateApiException
      */
-    private function findExistingPspMandate(Mandate $mandate): PaytMandateResponseDTO|null
+    private function findExistingPspMandate(Mandate $mandate): ?PaytMandateResponseDTO
     {
         $pspMandates = $this->paytMandateClient->getPspMandatesByDebtorNumber(
             (string) $mandate->mollieCustomer->customer->customer_number,

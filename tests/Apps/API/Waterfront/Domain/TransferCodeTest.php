@@ -40,7 +40,10 @@ class TransferCodeTest extends IntegrationTestCase
 
         $productNl = new ProductFactory()->for($groupExtension)->createOne(['slug' => 'extension_nl']);
 
-        $this->subscription = new SubscriptionFactory()->for($this->customer)->for($productNl)->createOne();
+        $this->subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($productNl)
+            ->createOne();
 
         $provider = ProviderFactory::new()->createOne([
             'default' => true,
@@ -49,7 +52,10 @@ class TransferCodeTest extends IntegrationTestCase
             'enabled' => true,
         ]);
 
-        new DomainDeploymentFactory()->for($provider)->for($this->subscription)->createOne();
+        new DomainDeploymentFactory()
+            ->for($provider)
+            ->for($this->subscription)
+            ->createOne();
     }
 
     #[Test]
@@ -57,18 +63,21 @@ class TransferCodeTest extends IntegrationTestCase
     {
         $mockDomainProvider = $this->createDomainProviderMock();
 
-        $mockDomainProvider->expects(self::once())
-            ->method('modify')
-            ->with($this->subscription->domain, ['isLocked' => false]);
+        $mockDomainProvider->expects(self::once())->method('modify')->with($this->subscription->domain, [
+            'isLocked' => false,
+        ]);
 
-        $mockDomainProvider->expects(self::once())
+        $mockDomainProvider
+            ->expects(self::once())
             ->method('retrieveAuthCode')
             ->with($this->subscription->domain)
             ->willReturn(self::TRANSFER_CODE);
 
-        $response = $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute('partners.domain-name.transfer-code', $this->subscription->uuid)
-        )->assertOk();
+        $response = $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute('partners.domain-name.transfer-code', $this->subscription->uuid),
+            )
+            ->assertOk();
 
         $response->assertJson([
             'data' => [
@@ -82,20 +91,26 @@ class TransferCodeTest extends IntegrationTestCase
     {
         $mockDomainProvider = $this->createDomainProviderMock();
 
-        $mockDomainProvider->expects(self::once())
-            ->method('modify')
-            ->with($this->subscription->domain, ['isLocked' => false]);
+        $mockDomainProvider->expects(self::once())->method('modify')->with($this->subscription->domain, [
+            'isLocked' => false,
+        ]);
 
-        $mockDomainProvider->expects(self::once())
+        $mockDomainProvider
+            ->expects(self::once())
             ->method('retrieveAuthCode')
             ->with($this->subscription->domain)
             ->willThrowException(new Exception('external client exception'));
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute('partners.domain-name.transfer-code', $this->subscription->uuid)
-        )->assertServerError()
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute('partners.domain-name.transfer-code', $this->subscription->uuid),
+            )
+            ->assertServerError()
             ->assertJson([
-                'message' => 'Could not retrieve transfer code from domain provider for domain [' . $this->subscription->domain . ']',
+                'message' =>
+                    'Could not retrieve transfer code from domain provider for domain ['
+                        . $this->subscription->domain
+                        . ']',
             ]);
     }
 
@@ -104,22 +119,20 @@ class TransferCodeTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
 
-        $this->actingAsCustomer($customer)->getJson(
-            $this->generateRoute('partners.domain-name.transfer-code', $this->subscription->uuid)
-        )->assertForbidden();
+        $this->actingAsCustomer($customer)
+            ->getJson(
+                $this->generateRoute('partners.domain-name.transfer-code', $this->subscription->uuid),
+            )
+            ->assertForbidden();
     }
 
     private function createDomainProviderMock(): MockObject
     {
         $mockDomainProvider = $this->createMock(RtrService::class);
 
-        $mockDomainProvider
-            ->method('setHandle')
-            ->willReturnSelf();
+        $mockDomainProvider->method('setHandle')->willReturnSelf();
 
-        $mockDomainProvider
-            ->method('setClient')
-            ->willReturnSelf();
+        $mockDomainProvider->method('setClient')->willReturnSelf();
 
         $this->app->bind(RtrService::class, fn () => $mockDomainProvider);
 

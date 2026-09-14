@@ -34,7 +34,7 @@ class Result
      */
     public static function create(array $data): self
     {
-        $data = array_filter($data);
+        $data = array_filter($data, fn (mixed $value): bool => (bool) $value);
 
         return new Hydrator()->hydrate($data, new self());
     }
@@ -148,9 +148,11 @@ class Result
         return array_map(fn (array $mailAccount): MailAccount => new MailAccount(
             mailName: $mailAccount['mailname']['name'],
             mailboxEnabled: $mailAccount['mailname']['mailbox']['enabled'] === 'true',
-            mailboxUsage: array_key_exists('usage', $mailAccount['mailname']['mailbox']) ? (int) $mailAccount['mailname']['mailbox']['usage'] : 0,
+            mailboxUsage: array_key_exists('usage', $mailAccount['mailname']['mailbox'])
+                ? (int) $mailAccount['mailname']['mailbox']['usage']
+                : 0,
             forwarding: $mailAccount['mailname']['forwarding']['enabled'] === 'true',
-            forwardDestinationAddresses: $this->parseForwardAddresses($mailAccount['mailname']['forwarding'])
+            forwardDestinationAddresses: $this->parseForwardAddresses($mailAccount['mailname']['forwarding']),
         ), $mailAccountData);
     }
 
@@ -165,6 +167,7 @@ class Result
             if (is_string($forwardAddresses['address'])) {
                 return [$forwardAddresses['address']];
             }
+
             assert(is_array($forwardAddresses['address']));
 
             return $forwardAddresses['address'];

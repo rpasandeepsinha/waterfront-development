@@ -34,25 +34,23 @@ class ManageUsersTest extends IntegrationTestCase
             ->forDomain(self::TEST_DOMAIN)
             ->createOne();
 
-        HostingDeploymentFactory::new()
-            ->withMailOnlyProvider()
-            ->createOne([
-                'subscription_uuid' => $sub->uuid,
-            ]);
+        HostingDeploymentFactory::new()->withMailOnlyProvider()->createOne([
+            'subscription_uuid' => $sub->uuid,
+        ]);
     }
 
     #[Test]
     public function createUser(): void
     {
-        $hostname       = 'mytestserverhostname.com';
-        $email          = 'testmail';
-        $password       = 'testpassword1123';
+        $hostname = 'mytestserverhostname.com';
+        $email = 'testmail';
+        $password = 'testpassword1123';
         $domainUsername = 'testusername';
-        $domain         = self::TEST_DOMAIN;
+        $domain = self::TEST_DOMAIN;
 
         new ServerFactory()->createOne([
             'hostname' => $hostname,
-            'type'     => ServerType::DIRECTADMIN_MAIL,
+            'type' => ServerType::DIRECTADMIN_MAIL,
         ]);
         $service = self::resolve(MailManagementDirectAdminService::class);
         $result = $service->createUser(
@@ -62,7 +60,7 @@ class ManageUsersTest extends IntegrationTestCase
             $email,
             $password,
             444,
-            999
+            999,
         );
 
         self::assertSame('ok', $result->getStatus());
@@ -71,15 +69,15 @@ class ManageUsersTest extends IntegrationTestCase
     #[Test]
     public function createUserThrowsException(): void
     {
-        $hostname       = 'mytestserverhostname.com';
-        $email          = 'testmail';
-        $password       = 'testpassword1123';
+        $hostname = 'mytestserverhostname.com';
+        $email = 'testmail';
+        $password = 'testpassword1123';
         $domainUsername = 'testusername';
-        $domain         = self::TEST_DOMAIN;
+        $domain = self::TEST_DOMAIN;
 
         new ServerFactory()->createOne([
             'hostname' => $hostname,
-            'type'     => ServerType::DIRECTADMIN_MAIL,
+            'type' => ServerType::DIRECTADMIN_MAIL,
         ]);
 
         $this->app->extend(BehavesAsDirectAdmin::class, function () {
@@ -87,7 +85,11 @@ class ManageUsersTest extends IntegrationTestCase
             $daApiMock = self::createMock(DirectAdminApi::class);
             $daMock->expects(self::once())->method('useServer')->willReturn($daApiMock);
             $daApiMock->expects(self::once())->method('loginAs')->willReturn($daApiMock);
-            $daApiMock->expects(self::once())->method('call')->willThrowException(new DirectAdminResponseException('Error'));
+            $daApiMock
+                ->expects(self::once())
+                ->method('call')
+                ->willThrowException(new DirectAdminResponseException('Error'));
+
             return $daMock;
         });
 
@@ -100,21 +102,21 @@ class ManageUsersTest extends IntegrationTestCase
             $email,
             $password,
             444,
-            999
+            999,
         );
     }
 
     #[Test]
     public function deleteUser(): void
     {
-        $hostname        = 'mytestserverhostname.com';
-        $domainUser      = 'testowner';
+        $hostname = 'mytestserverhostname.com';
+        $domainUser = 'testowner';
         $mailPopImapUser = 'testpopuser';
-        $domain          = self::TEST_DOMAIN;
+        $domain = self::TEST_DOMAIN;
 
         new ServerFactory()->createOne([
             'hostname' => $hostname,
-            'type'     => ServerType::DIRECTADMIN_MAIL,
+            'type' => ServerType::DIRECTADMIN_MAIL,
         ]);
 
         $service = self::resolve(MailManagementDirectAdminService::class);
@@ -126,14 +128,14 @@ class ManageUsersTest extends IntegrationTestCase
     #[Test]
     public function deleteUserThrowsException(): void
     {
-        $hostname        = 'mytestserverhostname.com';
-        $domainUser      = 'testowner';
+        $hostname = 'mytestserverhostname.com';
+        $domainUser = 'testowner';
         $mailPopImapUser = 'testpopuser';
-        $domain          = self::TEST_DOMAIN;
+        $domain = self::TEST_DOMAIN;
 
         new ServerFactory()->createOne([
             'hostname' => $hostname,
-            'type'     => ServerType::DIRECTADMIN_MAIL,
+            'type' => ServerType::DIRECTADMIN_MAIL,
         ]);
 
         $this->app->extend(BehavesAsDirectAdmin::class, function () {
@@ -141,7 +143,11 @@ class ManageUsersTest extends IntegrationTestCase
             $daApiMock = self::createMock(DirectAdminApi::class);
             $daMock->expects(self::once())->method('useServer')->willReturn($daApiMock);
             $daApiMock->expects(self::once())->method('loginAs')->willReturn($daApiMock);
-            $daApiMock->expects(self::once())->method('call')->willThrowException(new DirectAdminResponseException('Error'));
+            $daApiMock
+                ->expects(self::once())
+                ->method('call')
+                ->willThrowException(new DirectAdminResponseException('Error'));
+
             return $daMock;
         });
 

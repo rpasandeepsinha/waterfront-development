@@ -78,7 +78,7 @@ class DnsLogServiceTest extends IntegrationTestCase
             change_type: DnsChangeType::CREATED,
             name: 'test',
             content: 'test',
-            ttl: 100
+            ttl: 100,
         );
 
         $this->customerDnsRecordChangeDTO = new DnsRecordChangeDTO(
@@ -86,7 +86,7 @@ class DnsLogServiceTest extends IntegrationTestCase
             change_type: DnsChangeType::CREATED,
             name: 'test',
             content: 'test',
-            ttl: 100
+            ttl: 100,
         );
 
         $dnsRecordChangeRepository = self::resolve(DnsRecordChangeRepository::class);
@@ -113,14 +113,10 @@ class DnsLogServiceTest extends IntegrationTestCase
         );
 
         $this->authenticationManager = self::createMock(AuthenticationManager::class);
-        $this->authenticationManager
-            ->method('getAuthenticatedSubject')
-            ->willReturn($authenticatedCustomer);
+        $this->authenticationManager->method('getAuthenticatedSubject')->willReturn($authenticatedCustomer);
 
         $this->systemHelper = self::createMock(SystemHelper::class);
-        $this->systemHelper
-            ->method('getClientIp')
-            ->willReturn(self::USER_IP_ADDRESS);
+        $this->systemHelper->method('getClientIp')->willReturn(self::USER_IP_ADDRESS);
 
         $this->dnsLogService = new DnsLogService(
             $dnsRecordChangeRepository,
@@ -135,12 +131,8 @@ class DnsLogServiceTest extends IntegrationTestCase
     {
         self::assertDatabaseEmpty('dns_record_changes');
 
-        $this->systemHelper->expects(self::once())
-            ->method('isRunningInConsole')
-            ->willReturn(true);
-        $this->systemHelper
-            ->method('getClientIp')
-            ->willReturn(self::LOCAL_IP_ADDRESS);
+        $this->systemHelper->expects(self::once())->method('isRunningInConsole')->willReturn(true);
+        $this->systemHelper->method('getClientIp')->willReturn(self::LOCAL_IP_ADDRESS);
 
         $this->dnsLogService->log($this->systemDnsRecordChangeDTO, self::DOMAIN);
 
@@ -233,18 +225,20 @@ class DnsLogServiceTest extends IntegrationTestCase
 
         $mxRecord = new MxRecord($testName, $testContent, $testPriority, $testTtl);
 
-        $mockSubscriptionRepository->expects(self::once())
+        $mockSubscriptionRepository
+            ->expects(self::once())
             ->method('getActiveDnsSubscription')
             ->with(self::DOMAIN)
             ->willReturn($this->premiumDnsSubscription);
 
-        $mockDnsRecordChangeRepository->expects(self::once())
+        $mockDnsRecordChangeRepository
+            ->expects(self::once())
             ->method('createDnsRecordChange')
             ->with(
                 $expectedDto,
                 $expectedAgentType,
                 $this->premiumDnsSubscription,
-                self::USER_IP_ADDRESS
+                self::USER_IP_ADDRESS,
             );
 
         $dnsLogService = new DnsLogService(
@@ -290,18 +284,20 @@ class DnsLogServiceTest extends IntegrationTestCase
 
         $mxRecord = new SrvRecord($testName, $testContent, $testPriority, $testWeight, $testPort, $testTtl);
 
-        $mockSubscriptionRepository->expects(self::once())
+        $mockSubscriptionRepository
+            ->expects(self::once())
             ->method('getActiveDnsSubscription')
             ->with(self::DOMAIN)
             ->willReturn($this->premiumDnsSubscription);
 
-        $mockDnsRecordChangeRepository->expects(self::once())
+        $mockDnsRecordChangeRepository
+            ->expects(self::once())
             ->method('createDnsRecordChange')
             ->with(
                 $expectedDto,
                 $expectedAgentType,
                 $this->premiumDnsSubscription,
-                self::USER_IP_ADDRESS
+                self::USER_IP_ADDRESS,
             );
 
         $dnsLogService = new DnsLogService(
@@ -333,7 +329,7 @@ class DnsLogServiceTest extends IntegrationTestCase
             sprintf(
                 'Cannot find subscription with domain %s for DNS log',
                 $extensionSubscription->domain,
-            )
+            ),
         );
 
         self::assertNotNull($extensionSubscription->domain);
@@ -368,13 +364,16 @@ class DnsLogServiceTest extends IntegrationTestCase
 
         $aRecord = new ARecord($testName, $testContent, $testTtl);
 
-        $mockDnsRecordChangeRepository->expects(self::once())
+        $mockDnsRecordChangeRepository
+            ->expects(self::once())
             ->method('createDnsRecordChange')
             ->with(
                 $expectedDto,
                 $expectedAgentType,
-                self::callback(fn (Subscription $subscription) => $subscription->id === $this->premiumDnsSubscription->id),
-                self::USER_IP_ADDRESS
+                self::callback(
+                    fn (Subscription $subscription) => $subscription->id === $this->premiumDnsSubscription->id,
+                ),
+                self::USER_IP_ADDRESS,
             );
 
         $dnsLogService = new DnsLogService(
@@ -436,29 +435,46 @@ class DnsLogServiceTest extends IntegrationTestCase
         $mockDnsRecordChangeRepository = self::mock(DnsRecordChangeRepository::class);
         $mockSubscriptionRepository = self::createMock(SubscriptionRepository::class);
 
-        $mockSubscriptionRepository->expects(self::exactly($expectedCalls))
+        $mockSubscriptionRepository
+            ->expects(self::exactly($expectedCalls))
             ->method('getActiveDnsSubscription')
             ->with(self::DOMAIN)
             ->willReturn($this->premiumDnsSubscription);
 
-        $mockDnsRecordChangeRepository->shouldReceive('createDnsRecordChange')
+        $mockDnsRecordChangeRepository
+            ->shouldReceive('createDnsRecordChange')
             ->once()
             ->withArgs(
-                fn (DnsRecordChangeDTO $dnsRecordChangeDTO, DnsAgentType $dnsAgentType, Subscription $subscription, string $ip_address) => $dnsRecordChangeDTO->record_type === $expectedADto->record_type
+                fn (
+                    DnsRecordChangeDTO $dnsRecordChangeDTO,
+                    DnsAgentType $dnsAgentType,
+                    Subscription $subscription,
+                    string $ip_address,
+                ) => (
+                    $dnsRecordChangeDTO->record_type === $expectedADto->record_type
                     && $dnsRecordChangeDTO->content === $expectedADto->content
                     && $dnsAgentType === $expectedAgentType
                     && $subscription->id === $this->premiumDnsSubscription->id
                     && $ip_address === self::USER_IP_ADDRESS
+                ),
             );
 
-        $mockDnsRecordChangeRepository->shouldReceive('createDnsRecordChange')
+        $mockDnsRecordChangeRepository
+            ->shouldReceive('createDnsRecordChange')
             ->once()
             ->withArgs(
-                fn (DnsRecordChangeDTO $dnsRecordChangeDTO, DnsAgentType $dnsAgentType, Subscription $subscription, string $ip_address) => $dnsRecordChangeDTO->record_type === $expectedCnameDto->record_type
+                fn (
+                    DnsRecordChangeDTO $dnsRecordChangeDTO,
+                    DnsAgentType $dnsAgentType,
+                    Subscription $subscription,
+                    string $ip_address,
+                ) => (
+                    $dnsRecordChangeDTO->record_type === $expectedCnameDto->record_type
                     && $dnsRecordChangeDTO->content === $expectedCnameDto->content
                     && $dnsAgentType === $expectedAgentType
                     && $subscription->id === $this->premiumDnsSubscription->id
                     && $ip_address === self::USER_IP_ADDRESS
+                ),
             );
 
         $dnsLogService = new DnsLogService(
@@ -471,7 +487,7 @@ class DnsLogServiceTest extends IntegrationTestCase
         $dnsLogService->logMultipleRecords(
             $records,
             self::DOMAIN,
-            $expectedChangeType
+            $expectedChangeType,
         );
     }
 }

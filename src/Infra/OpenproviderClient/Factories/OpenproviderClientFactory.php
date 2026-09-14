@@ -28,13 +28,13 @@ class OpenproviderClientFactory
         $connection = new Connection(
             $credentials->api_url,
             $credentials->username,
-            $credentials->password
+            $credentials->password,
         );
 
         return new OpenproviderClient(
             $this->httpClient,
             $connection,
-            $this->jobDispatcher
+            $this->jobDispatcher,
         );
     }
 }

@@ -30,8 +30,7 @@ enum SubscriptionCancelReason: string
     public function enforcesToCancelImmediately(): bool
     {
         return match ($this) {
-            self::REASON_REVOCATION,
-            self::REASON_FAILURE => true,
+            self::REASON_REVOCATION, self::REASON_FAILURE => true,
             default => false,
         };
     }
@@ -42,7 +41,8 @@ enum SubscriptionCancelReason: string
             self::REASON_REVOCATION,
             self::REASON_FAILURE,
             self::REASON_DISSATISFIED,
-            self::REASON_CANCELLATION_RENEWAL => true,
+            self::REASON_CANCELLATION_RENEWAL,
+                => true,
             default => false,
         };
     }
@@ -50,9 +50,7 @@ enum SubscriptionCancelReason: string
     public function allowedToCredit(): bool
     {
         return match ($this) {
-            self::REASON_DOMAIN_TRANSFERRED_AWAY,
-            self::REASON_TRANSFER,
-            self::REASON_BAD_DEBT => false,
+            self::REASON_DOMAIN_TRANSFERRED_AWAY, self::REASON_TRANSFER, self::REASON_BAD_DEBT => false,
             default => true,
         };
     }

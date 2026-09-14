@@ -43,6 +43,7 @@ class NovaCategorySubscriptionsFilter extends Filter
         foreach (SubscriptionCategory::cases() as $name) {
             $options[$name->value] = $name->value;
         }
+
         return $options;
     }
 }

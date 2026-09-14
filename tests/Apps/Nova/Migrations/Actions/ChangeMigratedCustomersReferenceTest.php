@@ -30,36 +30,33 @@ class ChangeMigratedCustomersReferenceTest extends IntegrationTestCase
         parent::setUp();
 
         $customer1 = CustomerFactory::new()->createOne();
-        $this->migratedCustomer1 = MigratedCustomersFactory::new()
-            ->createOne([
-                'administrative_successful' => false,
-                'enable_invoicing' => false,
-                'successful' => false,
-                'reference_name' => 'testUnit',
-                'reference_customer_number' => '123',
-            ]);
+        $this->migratedCustomer1 = MigratedCustomersFactory::new()->createOne([
+            'administrative_successful' => false,
+            'enable_invoicing' => false,
+            'successful' => false,
+            'reference_name' => 'testUnit',
+            'reference_customer_number' => '123',
+        ]);
         $this->migratedCustomer1->customers()->attach($customer1->id);
 
         $customer2 = CustomerFactory::new()->createOne();
-        $this->migratedCustomer2 = MigratedCustomersFactory::new()
-            ->createOne([
-                'administrative_successful' => true,
-                'enable_invoicing' => true,
-                'successful' => true,
-                'reference_name' => 'testUnit',
-                'reference_customer_number' => '456',
-            ]);
+        $this->migratedCustomer2 = MigratedCustomersFactory::new()->createOne([
+            'administrative_successful' => true,
+            'enable_invoicing' => true,
+            'successful' => true,
+            'reference_name' => 'testUnit',
+            'reference_customer_number' => '456',
+        ]);
         $this->migratedCustomer2->customers()->attach($customer2->id);
 
         $customer3 = CustomerFactory::new()->createOne();
-        $this->migratedCustomer3 = MigratedCustomersFactory::new()
-            ->createOne([
-                'administrative_successful' => false,
-                'enable_invoicing' => false,
-                'successful' => true,
-                'reference_name' => 'dontChange',
-                'reference_customer_number' => '123',
-            ]);
+        $this->migratedCustomer3 = MigratedCustomersFactory::new()->createOne([
+            'administrative_successful' => false,
+            'enable_invoicing' => false,
+            'successful' => true,
+            'reference_name' => 'dontChange',
+            'reference_customer_number' => '123',
+        ]);
         $this->migratedCustomer3->customers()->attach($customer3->id);
     }
 
@@ -87,11 +84,10 @@ class ChangeMigratedCustomersReferenceTest extends IntegrationTestCase
         $csv = (string) file_get_contents($fileLocation);
 
         $payload = [
-            'csv_upload' => UploadedFile::fake()
-                ->createWithContent(
-                    'server_import.csv',
-                    $csv,
-                ),
+            'csv_upload' => UploadedFile::fake()->createWithContent(
+                'server_import.csv',
+                $csv,
+            ),
             'business_unit' => 'testUnit',
         ];
 

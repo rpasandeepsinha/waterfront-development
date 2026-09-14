@@ -29,12 +29,10 @@ class AddSubscriptionDomainToSpamFilterActionTest extends TestCase
         $subscription->setRelation('hostingDeployment', $hostingDeployment);
 
         $spamExpertsClient = self::createMock(SpamExpertsClient::class);
-        $spamExpertsClient->expects(self::once())
-            ->method('addDomain')
-            ->with('sandwave.io', $spamExpertsCluster);
+        $spamExpertsClient->expects(self::once())->method('addDomain')->with('sandwave.io', $spamExpertsCluster);
 
         self::assertTrue(
-            new AddSubscriptionDomainToSpamFilterAction($spamExpertsClient)->execute($subscription)
+            new AddSubscriptionDomainToSpamFilterAction($spamExpertsClient)->execute($subscription),
         );
     }
 
@@ -45,12 +43,10 @@ class AddSubscriptionDomainToSpamFilterActionTest extends TestCase
         $subscription->setRelation('hostingDeployment', null);
 
         $spamExpertsClient = self::createMock(SpamExpertsClient::class);
-        $spamExpertsClient->expects(self::once())
-            ->method('addDomain')
-            ->with('sandwave.io', null);
+        $spamExpertsClient->expects(self::once())->method('addDomain')->with('sandwave.io', null);
 
         self::assertTrue(
-            new AddSubscriptionDomainToSpamFilterAction($spamExpertsClient)->execute($subscription)
+            new AddSubscriptionDomainToSpamFilterAction($spamExpertsClient)->execute($subscription),
         );
     }
 
@@ -63,7 +59,7 @@ class AddSubscriptionDomainToSpamFilterActionTest extends TestCase
         $spamExpertsClient->expects(self::never())->method('addDomain');
 
         self::assertFalse(
-            new AddSubscriptionDomainToSpamFilterAction($spamExpertsClient)->execute($subscription)
+            new AddSubscriptionDomainToSpamFilterAction($spamExpertsClient)->execute($subscription),
         );
     }
 
@@ -74,12 +70,13 @@ class AddSubscriptionDomainToSpamFilterActionTest extends TestCase
         $subscription->setRelation('hostingDeployment', null);
 
         $spamExpertsClient = self::createMock(SpamExpertsClient::class);
-        $spamExpertsClient->expects(self::once())
+        $spamExpertsClient
+            ->expects(self::once())
             ->method('addDomain')
             ->willThrowException(new RuntimeException('Domain already exists'));
 
         self::assertFalse(
-            new AddSubscriptionDomainToSpamFilterAction($spamExpertsClient)->execute($subscription)
+            new AddSubscriptionDomainToSpamFilterAction($spamExpertsClient)->execute($subscription),
         );
     }
 }

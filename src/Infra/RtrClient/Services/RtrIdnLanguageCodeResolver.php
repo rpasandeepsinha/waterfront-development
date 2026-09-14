@@ -33,7 +33,7 @@ class RtrIdnLanguageCodeResolver
             $germanLanguageCode !== null
             && $this->labelFitsAllowedCharacters(
                 $registeredLabel,
-                $germanLanguageCode->allowedCharacters ?? self::GERMAN_ALLOWED_CHARACTERS
+                $germanLanguageCode->allowedCharacters ?? self::GERMAN_ALLOWED_CHARACTERS,
             )
         ) {
             return self::GERMAN_LANGUAGE_CODE;

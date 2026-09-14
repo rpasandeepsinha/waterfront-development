@@ -25,9 +25,10 @@ class NovaResendMicrosoft365TerminationsAction extends NovaSubscriptionAction
         private readonly Microsoft365Service $microsoft365Service,
     ) {
         $this->canSee(
-            fn (NovaRequest $request): bool =>
+            fn (NovaRequest $request): bool => (
                 $this->onlyForSubscriptionsWithProductGroupType($request, ProductGroupType::MICROSOFT_365)
                 && $this->onlyForSingleCustomer($request)
+            ),
         );
     }
 
@@ -51,9 +52,11 @@ class NovaResendMicrosoft365TerminationsAction extends NovaSubscriptionAction
             if ($check === null) {
                 continue;
             }
+
             if ($subscription->parent_subscription_id === null) {
                 $cleanedSubscriptions->push($subscription);
             }
+
             assert($subscription->parent !== null);
             $cleanedSubscriptions->push($subscription->parent);
         }
@@ -65,7 +68,9 @@ class NovaResendMicrosoft365TerminationsAction extends NovaSubscriptionAction
             $microsoft365Deployment = $subscription->microsoft365Deployment;
 
             $archivingChildren = $subscription->children->filter(
-                fn (Subscription $subscription) => $subscription->administrative_status === AdministrativeStatus::ARCHIVING->value
+                fn (Subscription $subscription) => (
+                    $subscription->administrative_status === AdministrativeStatus::ARCHIVING->value
+                ),
             );
             $archivingChildrenCount = $archivingChildren->count();
 
@@ -74,8 +79,9 @@ class NovaResendMicrosoft365TerminationsAction extends NovaSubscriptionAction
                     sprintf(
                         'Subscription [%s] does not have a microsoft subscription.',
                         $subscription->id,
-                    )
+                    ),
                 );
+
                 return Action::message($this->translator->translate('nova-action.failed.no-microsoft365-subscription'));
             }
 
@@ -94,20 +100,29 @@ class NovaResendMicrosoft365TerminationsAction extends NovaSubscriptionAction
                     $this->microsoft365Service->terminateOrder($microsoft365Deployment);
                     continue;
                 }
-                $this->microsoft365Service->modifyOrder((int) $microsoft365Deployment->kpn_order_id, $archivingChildrenCount * -1);
+
+                $this->microsoft365Service->modifyOrder(
+                    (int) $microsoft365Deployment->kpn_order_id,
+                    $archivingChildrenCount * -1,
+                );
             } catch (Office365Exception $e) {
                 Log::error(
                     sprintf(
                         'Error while terminating order for KPN order_id [%s] with nova action. Exception message: %s',
                         $microsoft365Deployment->kpn_order_id,
                         $e->getMessage(),
-                    )
+                    ),
                 );
-                return Action::message($this->translator->translate('nova-action.failed.microsoft365-termination-error'));
+
+                return Action::message($this->translator->translate(
+                    'nova-action.failed.microsoft365-termination-error',
+                ));
             }
         }
 
-        return Action::message($this->translator->translate('nova-action.success.microsoft365-child-subscriptions-created'));
+        return Action::message($this->translator->translate(
+            'nova-action.success.microsoft365-child-subscriptions-created',
+        ));
     }
 
     private function checkMicrosoft365GroupAndStatus(Subscription $subscription): ?Subscription
@@ -118,6 +133,7 @@ class NovaResendMicrosoft365TerminationsAction extends NovaSubscriptionAction
         ) {
             return $subscription;
         }
+
         return null;
     }
 }

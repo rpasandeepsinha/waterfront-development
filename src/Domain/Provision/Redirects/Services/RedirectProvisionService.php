@@ -35,13 +35,13 @@ class RedirectProvisionService extends AbstractProvisionService implements Provi
         try {
             $validator = $this->redirectServiceFactory->getValidator(
                 provider: $this->getProviderForRequest($provisionData),
-                provisionRequest: $provisionData
+                provisionRequest: $provisionData,
             );
 
             if ($validator->fails()) {
                 return $this->createFailedValidationResult($provisionData, $validator);
             }
-        } catch (UnknownRedirectProviderException | UnknownRedirectRequestException $providerException) {
+        } catch (UnknownRedirectProviderException|UnknownRedirectRequestException $providerException) {
             return new RedirectResult($provisionData, ProvisionStatus::FAILED, $providerException);
         }
 
@@ -52,7 +52,7 @@ class RedirectProvisionService extends AbstractProvisionService implements Provi
     {
         try {
             $redirectService = $this->redirectServiceFactory->getProviderService(
-                provider: $this->getProviderForRequest($provisionData)
+                provider: $this->getProviderForRequest($provisionData),
             );
         } catch (UnknownRedirectProviderException $providerException) {
             return new RedirectResult($provisionData, ProvisionStatus::FAILED, $providerException);
@@ -70,8 +70,8 @@ class RedirectProvisionService extends AbstractProvisionService implements Provi
             default => new RedirectResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: new UnknownRedirectRequestException($provisionData)
-            )
+                exception: new UnknownRedirectRequestException($provisionData),
+            ),
         };
     }
 

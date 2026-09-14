@@ -35,7 +35,7 @@ class SuspendRedirectJobTest extends IntegrationTestCase
                 [
                     'technical_status' => TechnicalStatus::OK->value,
                     'suspended_at' => null,
-                ]
+                ],
             );
     }
 
@@ -46,16 +46,18 @@ class SuspendRedirectJobTest extends IntegrationTestCase
         $sendSubscriptionSuspendedMailAction = self::createMock(SendSubscriptionSuspendedMailAction::class);
         $provisionGateway = self::createMock(ProvisionGateway::class);
 
-        $provisionGateway->expects(self::once())
+        $provisionGateway
+            ->expects(self::once())
             ->method('request')
             ->willReturn(
                 new RedirectResult(
                     provisionData: self::createStub(ProvisionRequestInterface::class),
                     provisionStatus: ProvisionStatus::SUCCESS,
-                )
+                ),
             );
 
-        $sendSubscriptionSuspendedMailAction->expects(self::once())
+        $sendSubscriptionSuspendedMailAction
+            ->expects(self::once())
             ->method('execute')
             ->with($this->redirectSubscription);
 
@@ -78,17 +80,17 @@ class SuspendRedirectJobTest extends IntegrationTestCase
         $sendSubscriptionSuspendedMailAction = self::createMock(SendSubscriptionSuspendedMailAction::class);
         $provisionGateway = self::createMock(ProvisionGateway::class);
 
-        $provisionGateway->expects(self::once())
+        $provisionGateway
+            ->expects(self::once())
             ->method('request')
             ->willReturn(
                 new RedirectResult(
                     provisionData: self::createStub(ProvisionRequestInterface::class),
                     provisionStatus: ProvisionStatus::FAILED,
-                )
+                ),
             );
 
-        $sendSubscriptionSuspendedMailAction->expects(self::never())
-            ->method('execute');
+        $sendSubscriptionSuspendedMailAction->expects(self::never())->method('execute');
 
         $suspendRedirectJob = new SuspendRedirectJob($this->redirectSubscription);
         $suspendRedirectJob->handle(

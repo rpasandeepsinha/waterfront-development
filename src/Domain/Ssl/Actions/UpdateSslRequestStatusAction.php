@@ -101,27 +101,28 @@ class UpdateSslRequestStatusAction
 
     private function isWildcard(Subscription $subscription): bool
     {
-        $productSpec = $subscription->product->productSpecs()->where('name', 'ssl.product_id')
-            ->firstOrFail();
+        $productSpec = $subscription->product->productSpecs()->where('name', 'ssl.product_id')->firstOrFail();
 
         return SslProduct::fromNative($productSpec->value)->isWildcardSsl();
     }
 
     private function getCertificate(Subscription $subscription, string $sslDomain): ?Certificate
     {
-        $productSpec = $subscription->product->productSpecs()->where('name', 'ssl.product_id')
-            ->firstOrFail();
+        $productSpec = $subscription->product->productSpecs()->where('name', 'ssl.product_id')->firstOrFail();
 
-        return $this->rtrClient->certificates->listCertificates(
-            1,
-            0,
-            null,
-            [
-                'order' => '-startDate',
-                'domainName:eq' => $sslDomain,
-                'product:eq' => $productSpec->value,
-                'status:eq' => StatusEnum::STATUS_ACTIVE,
-            ]
-        )->offsetGet(0);
+        return $this->rtrClient
+            ->certificates
+            ->listCertificates(
+                1,
+                0,
+                null,
+                [
+                    'order' => '-startDate',
+                    'domainName:eq' => $sslDomain,
+                    'product:eq' => $productSpec->value,
+                    'status:eq' => StatusEnum::STATUS_ACTIVE,
+                ],
+            )
+            ->offsetGet(0);
     }
 }

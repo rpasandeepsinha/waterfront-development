@@ -23,37 +23,31 @@ class BackupDeploymentRepositoryTest extends IntegrationTestCase
     {
         $tag = Uuid::uuid4();
 
-        $success = AcronisBackupDeploymentFactory::new()
-            ->for(
-                BackupDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->backup()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_BACKUP,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne();
+        $success = AcronisBackupDeploymentFactory::new()->for(
+            BackupDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->backup()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_BACKUP,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne();
 
-        AcronisBackupDeploymentFactory::new()
-            ->for(
-                BackupDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->backup()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_BACKUP,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->failed(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne();
+        AcronisBackupDeploymentFactory::new()->for(
+            BackupDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->backup()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_BACKUP,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->failed(), 'result'),
+                'request',
+            ),
+        )->createOne();
 
         $backupDeploymentRepository = self::resolve(BackupDeploymentRepository::class);
         $receivedDeployment = $backupDeploymentRepository->findByTag($tag);
@@ -67,37 +61,31 @@ class BackupDeploymentRepositoryTest extends IntegrationTestCase
     {
         $tag = Uuid::uuid4();
 
-        AcronisBackupDeploymentFactory::new()
-            ->for(
-                BackupDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->backup()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_BACKUP,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->validationError(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne();
+        AcronisBackupDeploymentFactory::new()->for(
+            BackupDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->backup()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_BACKUP,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->validationError(), 'result'),
+                'request',
+            ),
+        )->createOne();
 
-        AcronisBackupDeploymentFactory::new()
-            ->for(
-                BackupDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->backup()
-                            ->state([
-                                'request_name' => ProvisionRequestName::CREATE_BACKUP,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->failed(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne();
+        AcronisBackupDeploymentFactory::new()->for(
+            BackupDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->backup()
+                    ->state([
+                        'request_name' => ProvisionRequestName::CREATE_BACKUP,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->failed(), 'result'),
+                'request',
+            ),
+        )->createOne();
 
         $backupDeploymentRepository = self::resolve(BackupDeploymentRepository::class);
         $receivedDeployment = $backupDeploymentRepository->findByTag($tag);

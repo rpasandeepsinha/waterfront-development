@@ -10,8 +10,10 @@ use Waterfront\Domain\Provision\Sitebuilder\Models\SitebuilderDeployment;
 
 class BasekitSitebuilderDeploymentRepository
 {
-    public function create(SitebuilderDeployment $sitebuilderDeployment, int $siteReference): BasekitSitebuilderDeployment
-    {
+    public function create(
+        SitebuilderDeployment $sitebuilderDeployment,
+        int $siteReference,
+    ): BasekitSitebuilderDeployment {
         $basekitSitebuilderDeployment = new BasekitSitebuilderDeployment();
         $basekitSitebuilderDeployment->uuid = Uuid::uuid4();
         $basekitSitebuilderDeployment->sitebuilder_deployment_id = $sitebuilderDeployment->id;

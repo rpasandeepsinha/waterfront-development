@@ -15,7 +15,7 @@ class PuzzelCallbackRequestRepository
 {
     public function findFirstFutureForCustomer(
         Customer $customer,
-        CarbonImmutable $now
+        CarbonImmutable $now,
     ): ?PuzzelCallbackRequest {
         return PuzzelCallbackRequest::query()
             ->where('customer_id', $customer->id)
@@ -32,7 +32,7 @@ class PuzzelCallbackRequestRepository
         string $name,
         string $requestCategory,
         string $requestDescription,
-        CarbonImmutable $desiredCallbackTime
+        CarbonImmutable $desiredCallbackTime,
     ): void {
         $callbackRequest = new PuzzelCallbackRequest();
         $callbackRequest->uuid = Uuid::uuid4();
@@ -51,14 +51,14 @@ class PuzzelCallbackRequestRepository
      */
     public function usageByDateAndTimeslot(
         CarbonImmutable $startDate,
-        CarbonImmutable $endDate
+        CarbonImmutable $endDate,
     ): Collection {
         $callbackRequests = PuzzelCallbackRequest::query()
             ->join(
                 'puzzel_callback_timeslots as timeslots',
                 'timeslots.id',
                 '=',
-                'puzzel_callback_requests.puzzel_callback_timeslot_id'
+                'puzzel_callback_requests.puzzel_callback_timeslot_id',
             )
             ->whereBetween('puzzel_callback_requests.desired_callback_time', [
                 $startDate,

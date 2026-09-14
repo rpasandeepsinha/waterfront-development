@@ -37,7 +37,10 @@ class NovaFetchDomainAndContactFromRtrTest extends IntegrationTestCase
     {
         Http::fake();
 
-        $incomingOutgoingResponse = json_encode(include __DIR__ . '/data/domain_details_valid.php', JSON_THROW_ON_ERROR);
+        $incomingOutgoingResponse = json_encode(
+            include __DIR__ . '/data/domain_details_valid.php',
+            JSON_THROW_ON_ERROR,
+        );
         $contactResponse = json_encode(include __DIR__ . '/data/contact_valid.php', JSON_THROW_ON_ERROR);
         $financialResponse = json_encode(include __DIR__ . '/data/contact_valid_financial.php', JSON_THROW_ON_ERROR);
 
@@ -45,34 +48,34 @@ class NovaFetchDomainAndContactFromRtrTest extends IntegrationTestCase
             // main domain fetch
             new Response(
                 status: 200,
-                body: $incomingOutgoingResponse
+                body: $incomingOutgoingResponse,
             ),
             // 2 local db entries fetched from rtr
             new Response(
                 status: 200,
-                body: $contactResponse
+                body: $contactResponse,
             ),
             new Response(
                 status: 200,
-                body: $financialResponse
+                body: $financialResponse,
             ),
             // registrant faked
             new Response(
                 status: 200,
-                body: $financialResponse
+                body: $financialResponse,
             ),
             // 3 times from contact array
             new Response(
                 status: 200,
-                body: $financialResponse
+                body: $financialResponse,
             ),
             new Response(
                 status: 200,
-                body: $financialResponse
+                body: $financialResponse,
             ),
             new Response(
                 status: 200,
-                body: $financialResponse
+                body: $financialResponse,
             ),
         ]);
 
@@ -82,32 +85,37 @@ class NovaFetchDomainAndContactFromRtrTest extends IntegrationTestCase
         $this->app->bind(RealtimeRegister::class, fn () => $sdk);
         $this->app->bind(RtrService::class, fn (): RtrService => $rtrService);
 
-        $customer = new CustomerFactory()->withAddress()->createOne([
-            'phone_country_code' => '31',
-            'phone_area_code' => '6',
-            'phone_subscriber_number' => '12345678',
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne([
+                'phone_country_code' => '31',
+                'phone_area_code' => '6',
+                'phone_subscriber_number' => '12345678',
+            ]);
+        $domainProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
         ]);
-        $domainProvider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
 
         $handle = '25B-BUNAME-handle_normal';
         $handle2 = '25B-BUNAME-handle_normal2';
 
-        $domainContact = DomainContactFactory::new()
-            ->for($customer)
-            ->createOne();
+        $domainContact = DomainContactFactory::new()->for($customer)->createOne();
 
         $domainContact->providers()->attach(
             $domainProvider,
             [
                 'external_contact' => $handle,
-            ]
+            ],
         );
 
         $domainContact->providers()->attach(
             $domainProvider,
             [
                 'external_contact' => $handle2,
-            ]
+            ],
         );
 
         $product = ProductFactory::new()->nlDomain()->createOne();
@@ -136,6 +144,9 @@ class NovaFetchDomainAndContactFromRtrTest extends IntegrationTestCase
         self::assertInstanceOf(Modal::class, $modal);
         self::assertIsString($modal->payload['code']);
         self::assertSame('Fetched domain details and handles from Rtr with response:', $modal->payload['title']);
-        self::assertSame(include __DIR__ . '/data/domain_and_contact_fetch_response.php', json_decode($modal->payload['code'], true));
+        self::assertSame(
+            include __DIR__ . '/data/domain_and_contact_fetch_response.php',
+            json_decode($modal->payload['code'], true),
+        );
     }
 }

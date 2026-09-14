@@ -65,7 +65,7 @@ class SshKey extends Model implements AuditableContract
             VirtualMachineDeployment::class,
             'cloudstack_vm_deployment_ssh_key',
             'ssh_key_id',
-            'vm_deployment_id'
+            'vm_deployment_id',
         )->withTimestamps();
     }
 
@@ -78,7 +78,7 @@ class SshKey extends Model implements AuditableContract
             ManagerDomainDeployment::class,
             'cloudstack_managerdomain_cloudstack_vm_ssh_keys',
             'ssh_key_id',
-            'manager_domain_deployment_id'
+            'manager_domain_deployment_id',
         )->withTimestamps();
     }
 

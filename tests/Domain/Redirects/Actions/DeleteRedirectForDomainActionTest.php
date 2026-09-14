@@ -32,23 +32,18 @@ class DeleteRedirectForDomainActionTest extends TestCase
         $this->subscription = new SubscriptionFactory()->makeOne();
         $this->redirectService = self::createMock(RedirectService::class);
         $configuration = self::createStub(ConfigurationInterface::class);
-        $configuration
-            ->method('getAsString')
-            ->willReturn(self::REDIRECT_DNS);
+        $configuration->method('getAsString')->willReturn(self::REDIRECT_DNS);
 
         $this->deleteRedirectForDomainAction = new DeleteRedirectForDomainAction(
             $this->redirectService,
-            $configuration
+            $configuration,
         );
     }
 
     #[Test]
     public function shouldDeleteRedirectWhenRemovingCnamePointingToRedirectService(): void
     {
-        $this->redirectService
-            ->expects(self::once())
-            ->method('deleteRedirect')
-            ->with($this->subscription, 'test.nl');
+        $this->redirectService->expects(self::once())->method('deleteRedirect')->with($this->subscription, 'test.nl');
 
         $oldRecord = [
             'name' => 'test.nl',
@@ -62,10 +57,7 @@ class DeleteRedirectForDomainActionTest extends TestCase
     #[Test]
     public function shouldDeleteRedirectWhenRemovingAliasPointingToRedirectService(): void
     {
-        $this->redirectService
-            ->expects(self::once())
-            ->method('deleteRedirect')
-            ->with($this->subscription, 'test.nl');
+        $this->redirectService->expects(self::once())->method('deleteRedirect')->with($this->subscription, 'test.nl');
 
         $oldRecord = [
             'name' => 'test.nl',
@@ -79,9 +71,7 @@ class DeleteRedirectForDomainActionTest extends TestCase
     #[Test]
     public function shouldNotDeleteRedirectWhenRemovingNonRedirectManagedRecord(): void
     {
-        $this->redirectService
-            ->expects(self::never())
-            ->method('deleteRedirect');
+        $this->redirectService->expects(self::never())->method('deleteRedirect');
 
         $oldRecord = [
             'name' => 'test.nl',
@@ -95,9 +85,7 @@ class DeleteRedirectForDomainActionTest extends TestCase
     #[Test]
     public function shouldNotDeleteRedirectWhenRemovingRecordNotPointingToRedirectService(): void
     {
-        $this->redirectService
-            ->expects(self::never())
-            ->method('deleteRedirect');
+        $this->redirectService->expects(self::never())->method('deleteRedirect');
 
         $oldRecord = [
             'name' => 'test.nl',
@@ -111,10 +99,7 @@ class DeleteRedirectForDomainActionTest extends TestCase
     #[Test]
     public function shouldDeleteRedirectWhenUpdatingManagedRecordToNonManagedRecord(): void
     {
-        $this->redirectService
-            ->expects(self::once())
-            ->method('deleteRedirect')
-            ->with($this->subscription, 'test.nl');
+        $this->redirectService->expects(self::once())->method('deleteRedirect')->with($this->subscription, 'test.nl');
 
         $oldRecord = [
             'name' => 'test.nl',
@@ -133,10 +118,7 @@ class DeleteRedirectForDomainActionTest extends TestCase
     #[Test]
     public function shouldDeleteRedirectWhenUpdatingRecordAwayFromRedirectService(): void
     {
-        $this->redirectService
-            ->expects(self::once())
-            ->method('deleteRedirect')
-            ->with($this->subscription, 'test.nl');
+        $this->redirectService->expects(self::once())->method('deleteRedirect')->with($this->subscription, 'test.nl');
 
         $oldRecord = [
             'name' => 'test.nl',
@@ -155,9 +137,7 @@ class DeleteRedirectForDomainActionTest extends TestCase
     #[Test]
     public function shouldNotDeleteRedirectWhenDnsContentHasNotChanged(): void
     {
-        $this->redirectService
-            ->expects(self::never())
-            ->method('deleteRedirect');
+        $this->redirectService->expects(self::never())->method('deleteRedirect');
 
         $oldRecord = [
             'name' => 'test.nl',

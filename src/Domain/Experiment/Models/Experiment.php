@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Waterfront\Domain\Experiment\Models;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -20,6 +21,8 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
  * @property ?CarbonImmutable              $created_at
  * @property ?CarbonImmutable              $updated_at
  * @property ?CarbonImmutable              $deleted_at
+ *
+ * @mixin Builder<Experiment>
  */
 class Experiment extends Model
 {
@@ -38,7 +41,12 @@ class Experiment extends Model
      */
     public function subscriptions(): BelongsToMany
     {
-        return $this->belongsToMany(Subscription::class, 'experiment_subscriptions', 'experiment_id', 'subscription_id');
+        return $this->belongsToMany(
+            Subscription::class,
+            'experiment_subscriptions',
+            'experiment_id',
+            'subscription_id',
+        );
     }
 
     protected function casts(): array

@@ -13,9 +13,7 @@ class RedirectRouteHandle
         get {
             $location = $this->headers['Location'] ?? null;
 
-            return ($location === null || $location === [])
-                ? null
-                : $location[0];
+            return $location === null || $location === [] ? null : $location[0];
         }
     }
 
@@ -24,9 +22,7 @@ class RedirectRouteHandle
         get {
             $contentType = $this->headers['Content-Type'] ?? null;
 
-            return ($contentType === null || $contentType === [])
-                ? null
-                : $contentType[0];
+            return $contentType === null || $contentType === [] ? null : $contentType[0];
         }
     }
 

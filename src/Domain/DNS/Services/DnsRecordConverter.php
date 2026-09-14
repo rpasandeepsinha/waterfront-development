@@ -37,7 +37,7 @@ class DnsRecordConverter
             $this->parseName($record, $zone),
             $this->normalizeContent($record, $zone),
             $record->ttl,
-            $record->disabled
+            $record->disabled,
         );
     }
 
@@ -47,7 +47,7 @@ class DnsRecordConverter
             $this->parseName($record, $zone),
             $record->content,
             $record->ttl,
-            $record->disabled
+            $record->disabled,
         );
     }
 
@@ -57,7 +57,7 @@ class DnsRecordConverter
             $this->parseName($record, $zone),
             $this->normalizeContent($record, $zone),
             $record->ttl,
-            $record->disabled
+            $record->disabled,
         );
     }
 
@@ -72,7 +72,7 @@ class DnsRecordConverter
             $this->normalizeContent($record, $zone),
             $record->priority,
             $record->ttl,
-            $record->disabled
+            $record->disabled,
         );
     }
 
@@ -97,7 +97,7 @@ class DnsRecordConverter
             $record->weight,
             $record->port,
             $record->ttl,
-            $record->disabled
+            $record->disabled,
         );
     }
 
@@ -107,7 +107,7 @@ class DnsRecordConverter
             $this->parseName($record, $zone),
             $record->content,
             $record->ttl,
-            $record->disabled
+            $record->disabled,
         );
     }
 
@@ -128,7 +128,8 @@ class DnsRecordConverter
             DnsRecordType::CNAME,
             DnsRecordType::MX,
             DnsRecordType::NS,
-            DnsRecordType::SRV => IdnHelper::toAscii($this->parseContent($record, $zone)),
+            DnsRecordType::SRV,
+                => IdnHelper::toAscii($this->parseContent($record, $zone)),
             default => $record->content,
         };
     }

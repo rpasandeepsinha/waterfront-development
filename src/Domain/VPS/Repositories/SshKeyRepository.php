@@ -50,20 +50,16 @@ class SshKeyRepository
 
     public function keyExists(int $customer_id, string $fingerprint): bool
     {
-        return SshKey::where('customer_id', $customer_id)
-            ->where('fingerprint', $fingerprint)->count() > 0;
+        return SshKey::where('customer_id', $customer_id)->where('fingerprint', $fingerprint)->count() > 0;
     }
 
     public function keyLinkedToManagerDomain(SshKey $sshKey, int $domainId): bool
     {
-        return  $sshKey->managerDomains()
-                ->where('manager_domain_deployment_id', $domainId)->exists();
+        return $sshKey->managerDomains()->where('manager_domain_deployment_id', $domainId)->exists();
     }
 
     public function findByCustomerAndUuid(Customer $customer, string $uuid): SshKey
     {
-        return SshKey::where('customer_id', $customer->id)
-            ->where('uuid', $uuid)
-            ->firstOrFail();
+        return SshKey::where('customer_id', $customer->id)->where('uuid', $uuid)->firstOrFail();
     }
 }

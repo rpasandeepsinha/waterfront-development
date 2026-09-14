@@ -32,7 +32,7 @@ class SitebuilderCreationListener implements ShouldQueue
         $this->eventDispatcher->dispatch(new CreateMailOnlyHosting(
             contactPersonName: $event->getContactPersonName(),
             contactEmail: $event->getContactEmail(),
-            subscription: $event->getSubscription()
+            subscription: $event->getSubscription(),
         ));
     }
 }

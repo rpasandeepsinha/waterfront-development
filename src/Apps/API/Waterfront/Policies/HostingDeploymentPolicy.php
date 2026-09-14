@@ -12,7 +12,7 @@ use Waterfront\Domain\Products\Repositories\ProductSpecRepository;
 class HostingDeploymentPolicy
 {
     public function __construct(
-        private readonly ProductSpecRepository $productSpecRepository
+        private readonly ProductSpecRepository $productSpecRepository,
     ) {
     }
 
@@ -115,15 +115,24 @@ class HostingDeploymentPolicy
     {
         $product = $deployment->subscription->product;
 
-        return $this->productSpecRepository->booleanSpecificationIsTrue($product, ProductSpecName::HOSTING_LEGACY_MAIL_ONLY);
+        return $this->productSpecRepository->booleanSpecificationIsTrue(
+            $product,
+            ProductSpecName::HOSTING_LEGACY_MAIL_ONLY,
+        );
     }
 
     private function hasLegacyOrMailManagementSpec(HostingDeployment $deployment): bool
     {
         $product = $deployment->subscription->product;
 
-        $hasLegacyMailSpec = $this->productSpecRepository->booleanSpecificationIsTrue($product, ProductSpecName::HOSTING_LEGACY_MAIL_ONLY);
-        $hasMailManagementSpec = $this->productSpecRepository->booleanSpecificationIsTrue($product, ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT);
+        $hasLegacyMailSpec = $this->productSpecRepository->booleanSpecificationIsTrue(
+            $product,
+            ProductSpecName::HOSTING_LEGACY_MAIL_ONLY,
+        );
+        $hasMailManagementSpec = $this->productSpecRepository->booleanSpecificationIsTrue(
+            $product,
+            ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT,
+        );
 
         return $hasLegacyMailSpec || $hasMailManagementSpec;
     }

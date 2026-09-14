@@ -70,18 +70,25 @@ class OrderController
             return new JsonResponse([], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $createDirectDebitMandate = $this->cartService->shouldCreateDirectDebitMandate($customer, $cartOrder->paymentMethod);
+        $createDirectDebitMandate = $this->cartService->shouldCreateDirectDebitMandate(
+            $customer,
+            $cartOrder->paymentMethod,
+        );
         $administrationFees = 0;
-        if (
-            $this->administrationFeesManager->shouldBeChargedWithOrder(
-                $customer,
-                $cartOrder->paymentMethod,
-                $createDirectDebitMandate,
-            )
-        ) {
+        if ($this->administrationFeesManager->shouldBeChargedWithOrder(
+            $customer,
+            $cartOrder->paymentMethod,
+            $createDirectDebitMandate,
+        )) {
             $administrationFees = $this->administrationFeesManager->getAdministrationFees($customer)->price ?? 0;
         }
-        $this->validationService->validateOrderTotalPrice($customer, $totalPriceDto, $identity->schemaId === SchemaId::EMPLOYEE, $administrationFees);
+
+        $this->validationService->validateOrderTotalPrice(
+            $customer,
+            $totalPriceDto,
+            $identity->schemaId === SchemaId::EMPLOYEE,
+            $administrationFees,
+        );
 
         $order = $this->orderService->processCartToOrder($cartOrder, $totalPriceDto, $administrationFees, $customer);
 
@@ -110,11 +117,11 @@ class OrderController
 
         return new JsonResponse(
             [
-                'transactionId'    => $order->uuid,
-                'status'           => $status,
-                'data'             => OrderResource::collection($order->lineItems->sortBy('id')),
-                'checkout_url'     => $checkoutUrl,
-            ]
+                'transactionId' => $order->uuid,
+                'status' => $status,
+                'data' => OrderResource::collection($order->lineItems->sortBy('id')),
+                'checkout_url' => $checkoutUrl,
+            ],
         );
     }
 
@@ -136,6 +143,7 @@ class OrderController
         } else {
             $status = PaymentStatus::FAILED;
         }
+
         return new JsonResponse([
             'data' => [
                 'payment_status' => $status,
@@ -160,10 +168,10 @@ class OrderController
         return new JsonResponse(
             [
                 'data' => [
-                    'transactionId'    => 'C' . $order->uuid,
-                    'checkout_url'     => $checkoutUrl,
+                    'transactionId' => 'C' . $order->uuid,
+                    'checkout_url' => $checkoutUrl,
                 ],
-            ]
+            ],
         );
     }
 }

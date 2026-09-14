@@ -47,8 +47,11 @@ class VirtualMachineTechnicalDeploymentResource
         VirtualMachineDeployment $deployment,
         string $ipv4Adress,
         string $ipv6Adress,
-        string $vpsStatus
+        string $vpsStatus,
     ): string {
-        return json_encode($this->toArray($deployment, $ipv4Adress, $ipv6Adress, $vpsStatus), flags:JSON_THROW_ON_ERROR);
+        return json_encode(
+            $this->toArray($deployment, $ipv4Adress, $ipv6Adress, $vpsStatus),
+            flags: JSON_THROW_ON_ERROR,
+        );
     }
 }

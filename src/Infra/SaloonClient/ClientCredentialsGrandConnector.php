@@ -36,7 +36,7 @@ abstract class ClientCredentialsGrandConnector extends AbstractConnector
         private readonly Repository $cache,
         private readonly array $scopes = [],
         private readonly string $scopeSeparator = ' ',
-        RetryConfig $retryConfig = new RetryConfig()
+        RetryConfig $retryConfig = new RetryConfig(),
     ) {
         parent::__construct($logger, $logMasker, $retryConfig);
     }
@@ -49,6 +49,7 @@ abstract class ClientCredentialsGrandConnector extends AbstractConnector
     {
         $authenticator = $this->fetchAuthenticator();
         parent::authenticate($authenticator);
+
         return parent::send($request, $mockClient, $handleRetry);
     }
 
@@ -66,7 +67,7 @@ abstract class ClientCredentialsGrandConnector extends AbstractConnector
         array $scopes = [],
         string $scopeSeparator = ' ',
         bool $returnResponse = false,
-        ?callable $requestModifier = null
+        ?callable $requestModifier = null,
     ): OAuthAuthenticator|Response {
         $this->oauthConfig()->validate(withRedirectUrl: false);
 
@@ -121,7 +122,7 @@ abstract class ClientCredentialsGrandConnector extends AbstractConnector
         $this->cache->set(
             key: $this->getCacheKey(),
             value: AccessTokenAuthenticatorSerializer::serialize($authenticator),
-            ttl: $ttl
+            ttl: $ttl,
         );
 
         return $authenticator;

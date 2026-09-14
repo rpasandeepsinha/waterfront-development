@@ -69,20 +69,21 @@ class ProvisionGatewayTest extends TestCase
         $provisionResult = new ProvisionResult($mockProvisionRequest, ProvisionStatus::SUCCESS);
         $requestId = 1;
 
-        $this->mockTypeSpecificService->expects(self::once())
+        $this->mockTypeSpecificService
+            ->expects(self::once())
             ->method('getDefaultProvider')
             ->willReturn(ProvisionProvider::PLESK);
 
-        $this->mockServiceFactory->expects(self::once())
-            ->method('create')
-            ->willReturn($this->mockTypeSpecificService);
+        $this->mockServiceFactory->expects(self::once())->method('create')->willReturn($this->mockTypeSpecificService);
 
-        $this->mockTypeSpecificService->expects(self::once())
+        $this->mockTypeSpecificService
+            ->expects(self::once())
             ->method('validate')
             ->with($mockProvisionRequest)
             ->willReturn(null);
 
-        $this->mockTypeSpecificService->expects(self::once())
+        $this->mockTypeSpecificService
+            ->expects(self::once())
             ->method('send')
             ->with($mockProvisionRequest)
             ->willReturn($provisionResult);
@@ -93,17 +94,14 @@ class ProvisionGatewayTest extends TestCase
             ->with($mockProvisionRequest)
             ->willReturn($requestId);
 
-        $this->mockTraceablityService
-            ->expects(self::once())
-            ->method('storeResult')
-            ->with($provisionResult, $requestId);
+        $this->mockTraceablityService->expects(self::once())->method('storeResult')->with($provisionResult, $requestId);
 
         $service = new ProvisionGateway(
             provisionServiceFactory: $this->mockServiceFactory,
             provisionTraceabilityService: $this->mockTraceablityService,
             repository: $this->createStub(ProvisioningResultRepository::class),
             logger: $this->mockLogger,
-            retryRequestValidator: $this->retryRequestValidator
+            retryRequestValidator: $this->retryRequestValidator,
         );
         $result = $service->request($mockProvisionRequest);
 
@@ -124,18 +122,18 @@ class ProvisionGatewayTest extends TestCase
             provisionData: $mockProvisionRequest,
             provisionStatus: ProvisionStatus::VALIDATION_ERROR,
             exception: $exception,
-            validationResult: $validationResult
+            validationResult: $validationResult,
         );
 
-        $this->mockServiceFactory->expects(self::once())
-            ->method('create')
-            ->willReturn($this->mockTypeSpecificService);
+        $this->mockServiceFactory->expects(self::once())->method('create')->willReturn($this->mockTypeSpecificService);
 
-        $this->mockTypeSpecificService->expects(self::once())
+        $this->mockTypeSpecificService
+            ->expects(self::once())
             ->method('getDefaultProvider')
             ->willReturn(ProvisionProvider::PLESK);
 
-        $this->mockTypeSpecificService->expects(self::once())
+        $this->mockTypeSpecificService
+            ->expects(self::once())
             ->method('validate')
             ->with($mockProvisionRequest)
             ->willReturn($mockResult);
@@ -146,24 +144,18 @@ class ProvisionGatewayTest extends TestCase
             ->with($mockProvisionRequest)
             ->willReturn($requestId);
 
-        $this->mockTraceablityService
-            ->expects(self::once())
-            ->method('storeResult')
-            ->with($mockResult, $requestId);
+        $this->mockTraceablityService->expects(self::once())->method('storeResult')->with($mockResult, $requestId);
 
-        $this->mockTraceablityService
-            ->expects(self::once())
-            ->method('storeResult');
+        $this->mockTraceablityService->expects(self::once())->method('storeResult');
 
-        $this->mockTypeSpecificService->expects(self::never())
-            ->method('send');
+        $this->mockTypeSpecificService->expects(self::never())->method('send');
 
         $service = new ProvisionGateway(
             provisionServiceFactory: $this->mockServiceFactory,
             provisionTraceabilityService: $this->mockTraceablityService,
             repository: $this->createStub(ProvisioningResultRepository::class),
             logger: $this->mockLogger,
-            retryRequestValidator: $this->retryRequestValidator
+            retryRequestValidator: $this->retryRequestValidator,
         );
         $result = $service->request($mockProvisionRequest);
 
@@ -179,16 +171,14 @@ class ProvisionGatewayTest extends TestCase
         $mockProvisionRequest = self::createMockRequest();
         $mockProvisionRequest->requestId = 1;
 
-        $this->mockTypeSpecificService->expects(self::once())
+        $this->mockTypeSpecificService
+            ->expects(self::once())
             ->method('getDefaultProvider')
             ->willReturn(ProvisionProvider::PLESK);
 
-        $this->mockServiceFactory->expects(self::once())
-            ->method('create')
-            ->willReturn($this->mockTypeSpecificService);
+        $this->mockServiceFactory->expects(self::once())->method('create')->willReturn($this->mockTypeSpecificService);
 
-        $this->mockTypeSpecificService->expects(self::never())
-            ->method('validate');
+        $this->mockTypeSpecificService->expects(self::never())->method('validate');
 
         $this->mockTraceablityService
             ->expects(self::once())
@@ -196,11 +186,10 @@ class ProvisionGatewayTest extends TestCase
             ->with($mockProvisionRequest)
             ->willReturn($requestId);
 
-        $this->mockTraceablityService
-            ->expects(self::once())
-            ->method('storeResult');
+        $this->mockTraceablityService->expects(self::once())->method('storeResult');
 
-        $this->mockTypeSpecificService->expects(self::once())
+        $this->mockTypeSpecificService
+            ->expects(self::once())
             ->method('send')
             ->with($mockProvisionRequest)
             ->willReturn(new ProvisionResult($mockProvisionRequest, ProvisionStatus::SUCCESS));
@@ -210,7 +199,7 @@ class ProvisionGatewayTest extends TestCase
             provisionTraceabilityService: $this->mockTraceablityService,
             repository: $this->createStub(ProvisioningResultRepository::class),
             logger: $this->mockLogger,
-            retryRequestValidator: $this->retryRequestValidator
+            retryRequestValidator: $this->retryRequestValidator,
         );
         $result = $service->request($mockProvisionRequest);
 
@@ -226,17 +215,14 @@ class ProvisionGatewayTest extends TestCase
 
         // Without both retryOf and retryRequester the request is not considered a retry,
         // so retry validation is skipped, and the regular gateway flow continues.
-        $this->mockProvisioningRequestRepository
-            ->expects(self::never())
-            ->method('findByUuid');
+        $this->mockProvisioningRequestRepository->expects(self::never())->method('findByUuid');
 
-        $this->mockTypeSpecificService->expects(self::once())
+        $this->mockTypeSpecificService
+            ->expects(self::once())
             ->method('getDefaultProvider')
             ->willReturn(ProvisionProvider::PLESK);
 
-        $this->mockServiceFactory->expects(self::once())
-            ->method('create')
-            ->willReturn($this->mockTypeSpecificService);
+        $this->mockServiceFactory->expects(self::once())->method('create')->willReturn($this->mockTypeSpecificService);
 
         $this->mockTraceablityService
             ->expects(self::once())
@@ -244,7 +230,8 @@ class ProvisionGatewayTest extends TestCase
             ->with($mockProvisionRequest)
             ->willReturn($requestId);
 
-        $this->mockTypeSpecificService->expects(self::once())
+        $this->mockTypeSpecificService
+            ->expects(self::once())
             ->method('send')
             ->with($mockProvisionRequest)
             ->willReturn(new ProvisionResult($mockProvisionRequest, ProvisionStatus::SUCCESS));
@@ -256,7 +243,7 @@ class ProvisionGatewayTest extends TestCase
             provisionTraceabilityService: $this->mockTraceablityService,
             repository: $this->createStub(ProvisioningResultRepository::class),
             logger: $this->mockLogger,
-            retryRequestValidator: $this->retryRequestValidator
+            retryRequestValidator: $this->retryRequestValidator,
         );
 
         $result = $service->request($mockProvisionRequest);
@@ -285,7 +272,7 @@ class ProvisionGatewayTest extends TestCase
             provisionTraceabilityService: $this->mockTraceablityService,
             repository: $this->createStub(ProvisioningResultRepository::class),
             logger: $this->mockLogger,
-            retryRequestValidator: $this->retryRequestValidator
+            retryRequestValidator: $this->retryRequestValidator,
         );
 
         $result = $service->request($mockProvisionRequest);
@@ -293,7 +280,7 @@ class ProvisionGatewayTest extends TestCase
         self::assertSame(ProvisionStatus::VALIDATION_ERROR, $result->provisionStatus);
         self::assertSame(
             [ProvisionErrorMessage::RETRY_ORIGIN_NOT_FOUND->value],
-            $result->validationResult?->messages['retryOf'] ?? null
+            $result->validationResult?->messages['retryOf'] ?? null,
         );
     }
 
@@ -323,7 +310,7 @@ class ProvisionGatewayTest extends TestCase
             provisionTraceabilityService: $this->mockTraceablityService,
             repository: $this->createStub(ProvisioningResultRepository::class),
             logger: $this->mockLogger,
-            retryRequestValidator: $this->retryRequestValidator
+            retryRequestValidator: $this->retryRequestValidator,
         );
 
         $result = $service->request($mockProvisionRequest);
@@ -331,7 +318,7 @@ class ProvisionGatewayTest extends TestCase
         self::assertSame(ProvisionStatus::VALIDATION_ERROR, $result->provisionStatus);
         self::assertSame(
             [ProvisionErrorMessage::RETRY_ORIGIN_TYPE_MISMATCH->value],
-            $result->validationResult?->messages['retryOf'] ?? null
+            $result->validationResult?->messages['retryOf'] ?? null,
         );
     }
 
@@ -361,7 +348,7 @@ class ProvisionGatewayTest extends TestCase
             provisionTraceabilityService: $this->mockTraceablityService,
             repository: $this->createStub(ProvisioningResultRepository::class),
             logger: $this->mockLogger,
-            retryRequestValidator: $this->retryRequestValidator
+            retryRequestValidator: $this->retryRequestValidator,
         );
 
         $result = $service->request($mockProvisionRequest);
@@ -369,7 +356,7 @@ class ProvisionGatewayTest extends TestCase
         self::assertSame(ProvisionStatus::VALIDATION_ERROR, $result->provisionStatus);
         self::assertSame(
             [ProvisionErrorMessage::RETRY_ORIGIN_NAME_MISMATCH->value],
-            $result->validationResult?->messages['retryOf'] ?? null
+            $result->validationResult?->messages['retryOf'] ?? null,
         );
     }
 
@@ -400,7 +387,7 @@ class ProvisionGatewayTest extends TestCase
             provisionTraceabilityService: $this->mockTraceablityService,
             repository: $this->createStub(ProvisioningResultRepository::class),
             logger: $this->mockLogger,
-            retryRequestValidator: $this->retryRequestValidator
+            retryRequestValidator: $this->retryRequestValidator,
         );
 
         $result = $service->request($mockProvisionRequest);
@@ -408,7 +395,7 @@ class ProvisionGatewayTest extends TestCase
         self::assertSame(ProvisionStatus::VALIDATION_ERROR, $result->provisionStatus);
         self::assertSame(
             [ProvisionErrorMessage::RETRY_ORIGIN_IS_RETRY->value],
-            $result->validationResult?->messages['retryOf'] ?? null
+            $result->validationResult?->messages['retryOf'] ?? null,
         );
     }
 
@@ -437,15 +424,15 @@ class ProvisionGatewayTest extends TestCase
             ->with($mockProvisionRequest->retryOf)
             ->willReturn($originRequest);
 
-        $this->mockTypeSpecificService->expects(self::once())
+        $this->mockTypeSpecificService
+            ->expects(self::once())
             ->method('getDefaultProvider')
             ->willReturn(ProvisionProvider::PLESK);
 
-        $this->mockServiceFactory->expects(self::once())
-            ->method('create')
-            ->willReturn($this->mockTypeSpecificService);
+        $this->mockServiceFactory->expects(self::once())->method('create')->willReturn($this->mockTypeSpecificService);
 
-        $this->mockTypeSpecificService->expects(self::once())
+        $this->mockTypeSpecificService
+            ->expects(self::once())
             ->method('send')
             ->with($mockProvisionRequest)
             ->willReturn($provisionResult);
@@ -456,17 +443,14 @@ class ProvisionGatewayTest extends TestCase
             ->with($mockProvisionRequest)
             ->willReturn($requestId);
 
-        $this->mockTraceablityService
-            ->expects(self::once())
-            ->method('storeResult')
-            ->with($provisionResult, $requestId);
+        $this->mockTraceablityService->expects(self::once())->method('storeResult')->with($provisionResult, $requestId);
 
         $service = new ProvisionGateway(
             provisionServiceFactory: $this->mockServiceFactory,
             provisionTraceabilityService: $this->mockTraceablityService,
             repository: $this->createStub(ProvisioningResultRepository::class),
             logger: $this->mockLogger,
-            retryRequestValidator: $this->retryRequestValidator
+            retryRequestValidator: $this->retryRequestValidator,
         );
 
         $result = $service->request($mockProvisionRequest);
@@ -491,7 +475,7 @@ class ProvisionGatewayTest extends TestCase
             provisionTraceabilityService: $this->mockTraceablityService,
             repository: $this->createStub(ProvisioningResultRepository::class),
             logger: $this->mockLogger,
-            retryRequestValidator: $this->retryRequestValidator
+            retryRequestValidator: $this->retryRequestValidator,
         );
 
         $this->mockLogger
@@ -500,9 +484,11 @@ class ProvisionGatewayTest extends TestCase
             ->with(
                 sprintf('Provisioning failed internally: %s', $exception->getMessage()),
                 self::callback(
-                    fn (array $context) => $context['exception'] instanceof Exception
+                    fn (array $context) => (
+                        $context['exception'] instanceof Exception
                         && $context[LoggingContextKeys::PROVISIONING_REQUEST_ID] === 0
-                )
+                    ),
+                ),
             );
 
         $result = $service->request($mockProvisionRequest);
@@ -573,9 +559,13 @@ class ProvisionGatewayTest extends TestCase
             ->expects(self::once())
             ->method('storeResult')
             ->with(
-                self::callback(fn (ProvisionResult $result) => $result->provisionStatus === ProvisionStatus::FAILED
-                    && $result->exception === $exception),
-                $requestId
+                self::callback(
+                    fn (ProvisionResult $result) => (
+                        $result->provisionStatus === ProvisionStatus::FAILED
+                        && $result->exception === $exception
+                    ),
+                ),
+                $requestId,
             );
 
         $service = new ProvisionGateway(
@@ -583,7 +573,7 @@ class ProvisionGatewayTest extends TestCase
             provisionTraceabilityService: $this->mockTraceablityService,
             repository: $this->createStub(ProvisioningResultRepository::class),
             logger: $this->mockLogger,
-            retryRequestValidator: $this->retryRequestValidator
+            retryRequestValidator: $this->retryRequestValidator,
         );
 
         $this->mockLogger
@@ -592,9 +582,11 @@ class ProvisionGatewayTest extends TestCase
             ->with(
                 sprintf('Provisioning failed internally: %s', $exception->getMessage()),
                 self::callback(
-                    fn (array $context) => $context['exception'] instanceof Exception
+                    fn (array $context) => (
+                        $context['exception'] instanceof Exception
                         && $context[LoggingContextKeys::PROVISIONING_REQUEST_ID] === $requestId
-                )
+                    ),
+                ),
             );
 
         $result = $service->request($mockProvisionRequest);
@@ -616,10 +608,7 @@ class ProvisionGatewayTest extends TestCase
             name: $requestName,
         );
 
-        $this->mockServiceFactory
-            ->expects(self::once())
-            ->method('create')
-            ->willReturn($this->mockTypeSpecificService);
+        $this->mockServiceFactory->expects(self::once())->method('create')->willReturn($this->mockTypeSpecificService);
 
         $this->mockTypeSpecificService
             ->expects(self::once())
@@ -636,7 +625,7 @@ class ProvisionGatewayTest extends TestCase
             provisionTraceabilityService: $this->mockTraceablityService,
             repository: $this->createStub(ProvisioningResultRepository::class),
             logger: $this->mockLogger,
-            retryRequestValidator: $this->retryRequestValidator
+            retryRequestValidator: $this->retryRequestValidator,
         );
 
         $expectedErrorMessage = sprintf(
@@ -652,9 +641,11 @@ class ProvisionGatewayTest extends TestCase
             ->with(
                 sprintf('Provisioning failed internally: %s', $expectedErrorMessage),
                 self::callback(
-                    fn (array $context) => $context['exception'] instanceof  StoreProvisionRequestException
+                    fn (array $context) => (
+                        $context['exception'] instanceof StoreProvisionRequestException
                         && $context[LoggingContextKeys::PROVISIONING_REQUEST_ID] === 0
-                )
+                    ),
+                ),
             );
 
         $result = $service->request($mockProvisionRequest);
@@ -672,17 +663,18 @@ class ProvisionGatewayTest extends TestCase
         $requestId = 1;
         $provider = ProvisionProvider::PLESK;
         $exception = new Exception('something went wrong when storing result');
-        $mockProvisionRequest = self::createMockRequest(
-            requiresValidation: true
-        );
+        $mockProvisionRequest =
+            self::createMockRequest(
+                requiresValidation: true,
+            );
         $mockProvisionRequest->requestId = $requestId;
 
-        $this->mockTypeSpecificService
-            ->expects(self::once())
-            ->method('getDefaultProvider')
-            ->willReturn($provider);
+        $this->mockTypeSpecificService->expects(self::once())->method('getDefaultProvider')->willReturn($provider);
 
-        $validationFailedResult = new ProvisionResult($this->createStub(ProvisionRequestInterface::class), ProvisionStatus::FAILED);
+        $validationFailedResult = new ProvisionResult(
+            $this->createStub(ProvisionRequestInterface::class),
+            ProvisionStatus::FAILED,
+        );
 
         $this->mockTypeSpecificService
             ->expects(self::once())
@@ -690,9 +682,7 @@ class ProvisionGatewayTest extends TestCase
             ->with($mockProvisionRequest)
             ->willReturn($validationFailedResult);
 
-        $this->mockServiceFactory->expects(self::once())
-            ->method('create')
-            ->willReturn($this->mockTypeSpecificService);
+        $this->mockServiceFactory->expects(self::once())->method('create')->willReturn($this->mockTypeSpecificService);
 
         $this->mockTraceablityService
             ->expects(self::once())
@@ -700,10 +690,7 @@ class ProvisionGatewayTest extends TestCase
             ->with($mockProvisionRequest, $provider)
             ->willReturn($requestId);
 
-        $this->mockTraceablityService
-            ->expects(self::once())
-            ->method('storeResult')
-            ->willThrowException($exception);
+        $this->mockTraceablityService->expects(self::once())->method('storeResult')->willThrowException($exception);
 
         $expectedErrorMessage = sprintf(
             'Unable to store provision result in the database from request [%d]. Provision Status: %s',
@@ -717,9 +704,11 @@ class ProvisionGatewayTest extends TestCase
             ->with(
                 sprintf('Provisioning failed internally: %s', $expectedErrorMessage),
                 self::callback(
-                    fn (array $context) => $context['exception'] instanceof  StoreProvisionResultException
-                    && $context[LoggingContextKeys::PROVISIONING_REQUEST_ID] === $requestId
-                )
+                    fn (array $context) => (
+                        $context['exception'] instanceof StoreProvisionResultException
+                        && $context[LoggingContextKeys::PROVISIONING_REQUEST_ID] === $requestId
+                    ),
+                ),
             );
 
         $service = new ProvisionGateway(
@@ -727,7 +716,7 @@ class ProvisionGatewayTest extends TestCase
             provisionTraceabilityService: $this->mockTraceablityService,
             repository: $this->createStub(ProvisioningResultRepository::class),
             logger: $this->mockLogger,
-            retryRequestValidator: $this->retryRequestValidator
+            retryRequestValidator: $this->retryRequestValidator,
         );
         $result = $service->request($mockProvisionRequest);
 
@@ -749,14 +738,9 @@ class ProvisionGatewayTest extends TestCase
 
         $provisionResult = new ProvisionResult($mockProvisionRequest, ProvisionStatus::SUCCESS);
 
-        $this->mockTypeSpecificService
-            ->expects(self::once())
-            ->method('getDefaultProvider')
-            ->willReturn($provider);
+        $this->mockTypeSpecificService->expects(self::once())->method('getDefaultProvider')->willReturn($provider);
 
-        $this->mockServiceFactory->expects(self::once())
-            ->method('create')
-            ->willReturn($this->mockTypeSpecificService);
+        $this->mockServiceFactory->expects(self::once())->method('create')->willReturn($this->mockTypeSpecificService);
 
         $this->mockTraceablityService
             ->expects(self::once())
@@ -764,15 +748,13 @@ class ProvisionGatewayTest extends TestCase
             ->with($mockProvisionRequest, $provider)
             ->willReturn($requestId);
 
-        $this->mockTypeSpecificService->expects(self::once())
+        $this->mockTypeSpecificService
+            ->expects(self::once())
             ->method('send')
             ->with($mockProvisionRequest)
             ->willReturn($provisionResult);
 
-        $this->mockTraceablityService
-            ->expects(self::once())
-            ->method('storeResult')
-            ->willThrowException($exception);
+        $this->mockTraceablityService->expects(self::once())->method('storeResult')->willThrowException($exception);
 
         $expectedErrorMessage = sprintf(
             'Unable to store provision result in the database from request [%d]. Provision Status: %s',
@@ -786,9 +768,11 @@ class ProvisionGatewayTest extends TestCase
             ->with(
                 sprintf('Provisioning failed internally: %s', $expectedErrorMessage),
                 self::callback(
-                    fn (array $context) => $context['exception'] instanceof  StoreProvisionResultException
-                    && $context[LoggingContextKeys::PROVISIONING_REQUEST_ID] === $requestId
-                )
+                    fn (array $context) => (
+                        $context['exception'] instanceof StoreProvisionResultException
+                        && $context[LoggingContextKeys::PROVISIONING_REQUEST_ID] === $requestId
+                    ),
+                ),
             );
 
         $service = new ProvisionGateway(
@@ -796,7 +780,7 @@ class ProvisionGatewayTest extends TestCase
             provisionTraceabilityService: $this->mockTraceablityService,
             repository: $this->createStub(ProvisioningResultRepository::class),
             logger: $this->mockLogger,
-            retryRequestValidator: $this->retryRequestValidator
+            retryRequestValidator: $this->retryRequestValidator,
         );
         $result = $service->request($mockProvisionRequest);
 
@@ -821,7 +805,7 @@ class ProvisionGatewayTest extends TestCase
         ?ProvisionProvider $provider = null,
         ?ProvisionType $type = null,
         ?ProvisionRequestName $name = null,
-        bool $requiresValidation = false
+        bool $requiresValidation = false,
     ): ProvisionRequestInterface|ProvisionContextRequestInterface {
         $tag ??= Uuid::uuid4();
 
@@ -830,7 +814,16 @@ class ProvisionGatewayTest extends TestCase
         $name ??= ProvisionRequestName::cases()[0];
 
         if ($context instanceof UuidInterface) {
-            return new class ($context, $tag, $retryOf, $retryRequester, $provider, $type, $name, $requiresValidation) implements ProvisionRequestInterface, ProvisionContextRequestInterface {
+            return new class(
+                $context,
+                $tag,
+                $retryOf,
+                $retryRequester,
+                $provider,
+                $type,
+                $name,
+                $requiresValidation,
+            ) implements ProvisionRequestInterface, ProvisionContextRequestInterface {
                 public int $requestId = 0;
 
                 public function __construct(
@@ -847,8 +840,7 @@ class ProvisionGatewayTest extends TestCase
 
                 public function isRetry(): bool
                 {
-                    return $this->retryOf instanceof UuidInterface
-                        && $this->retryRequester instanceof UuidInterface;
+                    return $this->retryOf instanceof UuidInterface && $this->retryRequester instanceof UuidInterface;
                 }
 
                 public function defaultLogContext(): array
@@ -863,7 +855,8 @@ class ProvisionGatewayTest extends TestCase
             };
         }
 
-        return new class ($tag, $retryOf, $retryRequester, $provider, $type, $name, $requiresValidation) implements ProvisionRequestInterface {
+        return new class($tag, $retryOf, $retryRequester, $provider, $type, $name, $requiresValidation) implements
+            ProvisionRequestInterface {
             public int $requestId = 0;
 
             public function __construct(
@@ -879,8 +872,7 @@ class ProvisionGatewayTest extends TestCase
 
             public function isRetry(): bool
             {
-                return $this->retryOf instanceof UuidInterface
-                    && $this->retryRequester instanceof UuidInterface;
+                return $this->retryOf instanceof UuidInterface && $this->retryRequester instanceof UuidInterface;
             }
 
             public function defaultLogContext(): array

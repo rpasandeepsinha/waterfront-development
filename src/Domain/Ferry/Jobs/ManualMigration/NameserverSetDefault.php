@@ -18,11 +18,16 @@ use Waterfront\Domain\Provision\DNS\Enums\NameserverType;
  */
 class NameserverSetDefault extends ManualMigrationJob
 {
-    public function handle(AssignNameserversToDomainAction $assignNameserversToDomainAction, DnsDeploymentRepository $dnsDeploymentRepository): void
-    {
+    public function handle(
+        AssignNameserversToDomainAction $assignNameserversToDomainAction,
+        DnsDeploymentRepository $dnsDeploymentRepository,
+    ): void {
         $domainDeployment = $this->subscription->domainDeployment;
         if ($domainDeployment === null) {
-            throw new RuntimeException(sprintf('Domain deployment not found for domain: %s', $this->subscription->domain));
+            throw new RuntimeException(sprintf(
+                'Domain deployment not found for domain: %s',
+                $this->subscription->domain,
+            ));
         }
 
         $dnsDeployment = $dnsDeploymentRepository->getDnsDeploymentFromDomainDeployment($domainDeployment);

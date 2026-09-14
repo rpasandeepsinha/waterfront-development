@@ -30,7 +30,10 @@ class DomainNameControllerTest extends IntegrationTestCase
             'domain' => 'testdomain.com',
         ];
 
-        $response = $this->actingAsCustomer($this->customer)->post('storefront/api/v1/domain-name/request-premium-price', $postData);
+        $response = $this->actingAsCustomer($this->customer)->post(
+            'storefront/api/v1/domain-name/request-premium-price',
+            $postData,
+        );
 
         $response->assertExactJson(['Price requested']);
         $response->assertOk();
@@ -43,7 +46,10 @@ class DomainNameControllerTest extends IntegrationTestCase
             'domain' => '',
         ];
 
-        $response = $this->actingAsCustomer($this->customer)->post('storefront/api/v1/domain-name/request-premium-price', $postData);
+        $response = $this->actingAsCustomer($this->customer)->post(
+            'storefront/api/v1/domain-name/request-premium-price',
+            $postData,
+        );
         $response->assertUnprocessable();
     }
 

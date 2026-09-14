@@ -35,7 +35,7 @@ class AnonymizeIdentitiesForCustomerAction
             throw new ResourceNotFoundException(
                 'Failed to find identities for customer',
                 $exception->getCode(),
-                $exception
+                $exception,
             );
         }
 
@@ -43,9 +43,16 @@ class AnonymizeIdentitiesForCustomerAction
             $this->anonymizeEmailHistoryForReceiverUuidAction->execute(Uuid::fromString($identity->id));
 
             try {
-                $this->removeCustomerNumberFromIdentityAction->execute(Uuid::fromString($identity->id), $customerNumber);
+                $this->removeCustomerNumberFromIdentityAction->execute(
+                    Uuid::fromString($identity->id),
+                    $customerNumber,
+                );
             } catch (DetachCustomerNumberFromIdentityFailedException $exception) {
-                throw AnonymizeCustomerException::failedToDetachCustomerNumberFromIdentity($customerNumber, $identity->id, $exception);
+                throw AnonymizeCustomerException::failedToDetachCustomerNumberFromIdentity(
+                    $customerNumber,
+                    $identity->id,
+                    $exception,
+                );
             }
         }
     }

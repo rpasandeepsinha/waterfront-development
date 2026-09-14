@@ -38,9 +38,7 @@ class Microsoft365CustomerInfoRepository
 
     public function findByCustomer(Customer $customer): ?Microsoft365CustomerInfo
     {
-        return Microsoft365CustomerInfo::query()
-            ->where('customer_id', $customer->id)
-            ->first();
+        return Microsoft365CustomerInfo::query()->where('customer_id', $customer->id)->first();
     }
 
     public function findByCustomerAndDomain(Customer $customer, ?string $domain): ?Microsoft365CustomerInfo
@@ -61,8 +59,6 @@ class Microsoft365CustomerInfoRepository
 
     public function findByTenantOrderId(int $tenantOrderId): ?Microsoft365CustomerInfo
     {
-        return Microsoft365CustomerInfo::query()
-            ->where('tenant_order_id', $tenantOrderId)
-            ->first();
+        return Microsoft365CustomerInfo::query()->where('tenant_order_id', $tenantOrderId)->first();
     }
 }

@@ -27,7 +27,8 @@ class UpdateTranslationsS3Test extends IntegrationTestCase
         new TranslationKeyFactory()->create(['source' => 'atlantis']);
 
         $translationUpdater = self::createMock(TranslationUpdater::class);
-        $translationUpdater->expects(self::exactly(4))
+        $translationUpdater
+            ->expects(self::exactly(4))
             ->method('update')
             ->with(
                 ...self::withConsecutive(
@@ -35,13 +36,11 @@ class UpdateTranslationsS3Test extends IntegrationTestCase
                     ['en', 'waterfront-backend'],
                     ['nl', 'atlantis'],
                     ['nl', 'waterfront-backend'],
-                )
+                ),
             );
 
         $kernel = self::createMock(Kernel::class);
-        $kernel->expects(self::once())
-            ->method('call')
-            ->with(TranslationsToDatabase::class);
+        $kernel->expects(self::once())->method('call')->with(TranslationsToDatabase::class);
 
         $service = new UpdateTranslationsS3();
         $service->handle($translationUpdater, $kernel, self::createStub(TranslationLoader::class));

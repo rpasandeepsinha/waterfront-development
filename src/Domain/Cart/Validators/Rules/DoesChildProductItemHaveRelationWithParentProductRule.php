@@ -17,7 +17,7 @@ class DoesChildProductItemHaveRelationWithParentProductRule extends AbstractVali
     public function __construct(
         private readonly TranslatorInterface $translator,
         private readonly ProductRepository $productRepository,
-        private readonly ProductAddonCouplingRepository $productAddonCouplingRepository
+        private readonly ProductAddonCouplingRepository $productAddonCouplingRepository,
     ) {
     }
 
@@ -49,7 +49,10 @@ class DoesChildProductItemHaveRelationWithParentProductRule extends AbstractVali
                 foreach ($children as $child) {
                     $childProduct = $productCollection->where('slug', $child['slug'])->first();
                     assert($childProduct instanceof Product);
-                    $valid = $this->productAddonCouplingRepository->existsForParentIdAndAddonId($parentProduct->id, $childProduct->id);
+                    $valid = $this->productAddonCouplingRepository->existsForParentIdAndAddonId(
+                        $parentProduct->id,
+                        $childProduct->id,
+                    );
 
                     if (! $valid) {
                         return false;
@@ -57,6 +60,7 @@ class DoesChildProductItemHaveRelationWithParentProductRule extends AbstractVali
                 }
             }
         }
+
         return true;
     }
 
@@ -94,6 +98,7 @@ class DoesChildProductItemHaveRelationWithParentProductRule extends AbstractVali
         }
 
         $uniqueSlugs = array_unique($slugs);
+
         return $this->productRepository->getProductsBySlugs($uniqueSlugs);
     }
 }

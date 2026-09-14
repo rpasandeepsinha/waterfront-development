@@ -17,7 +17,7 @@ class SendEmail extends AbstractQueueableJob
     }
 
     public function handle(
-        LegacyMailer $mailer
+        LegacyMailer $mailer,
     ): void {
         $mailer->send($this->emailHistoryId);
     }

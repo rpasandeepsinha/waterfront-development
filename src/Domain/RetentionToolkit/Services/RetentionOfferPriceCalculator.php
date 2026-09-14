@@ -34,10 +34,6 @@ readonly class RetentionOfferPriceCalculator
 {
     private const int ANNUAL_COMPARISON_PERIOD = 12;
 
-    private const int TK_OPTION_ONE_PROMOTION_MONTHS = 3;
-
-    private const int TK_OPTION_ONE_PROMOTION_MONTHLY_PRICE = 99;
-
     public function __construct(
         private RetentionOfferEligibilityService $eligibilityService,
         private PriceResolver $priceResolver,
@@ -63,6 +59,9 @@ readonly class RetentionOfferPriceCalculator
             );
         }
 
+        Assert::notNull($item->contractPeriod);
+        Assert::notNull($item->billingPeriod);
+
         $price = $this->calculate(
             subscription: $subscription,
             selectedAction: $item->selectedAction,
@@ -73,13 +72,15 @@ readonly class RetentionOfferPriceCalculator
 
         $calculationStatus = match ($price->eligibility->code) {
             RetentionOfferEligibilityCode::ELIGIBLE,
-            RetentionOfferEligibilityCode::NO_PRICE_REQUIRED => RetentionOfferCalculationStatus::CALCULATED,
+            RetentionOfferEligibilityCode::NO_PRICE_REQUIRED,
+                => RetentionOfferCalculationStatus::CALCULATED,
             RetentionOfferEligibilityCode::MISSING_PRICE => RetentionOfferCalculationStatus::MANUAL,
             RetentionOfferEligibilityCode::OPEN_MUTATION => RetentionOfferCalculationStatus::CONFLICT,
             RetentionOfferEligibilityCode::INELIGIBLE_PRODUCT,
             RetentionOfferEligibilityCode::INACTIVE_SUBSCRIPTION,
             RetentionOfferEligibilityCode::INVALID_CONTRACT_PERIOD,
-            RetentionOfferEligibilityCode::INVALID_BILLING_PERIOD => RetentionOfferCalculationStatus::INELIGIBLE,
+            RetentionOfferEligibilityCode::INVALID_BILLING_PERIOD,
+                => RetentionOfferCalculationStatus::INELIGIBLE,
         };
 
         if ($calculationStatus !== RetentionOfferCalculationStatus::CALCULATED) {
@@ -93,11 +94,10 @@ readonly class RetentionOfferPriceCalculator
         }
 
         if ($item->selectedAction === SelectedAction::BZ) {
-            return $this->itemCalculationFactory
-                ->createRetentionWithoutOfferResult(
-                    item: $item,
-                    price: $price,
-                );
+            return $this->itemCalculationFactory->createRetentionWithoutOfferResult(
+                item: $item,
+                price: $price,
+            );
         }
 
         $isCancellation = $item->selectedAction === SelectedAction::RF;
@@ -205,7 +205,7 @@ readonly class RetentionOfferPriceCalculator
                 ),
                 default => null,
             };
-        } catch (ItemNotFoundException | PriceResolvingException) {
+        } catch (ItemNotFoundException|PriceResolvingException) {
             return $this->withoutPrice(new RetentionOfferEligibilityResultDTO(
                 code: RetentionOfferEligibilityCode::MISSING_PRICE,
                 reason: 'No price could be resolved for the selected product and periods.',
@@ -217,21 +217,14 @@ readonly class RetentionOfferPriceCalculator
                 eligibility: $eligibility,
                 price: $price,
                 comparisonPrice: $comparisonPrice,
-                contractPeriod: $contractPeriod,
             );
         }
 
         $calculatedPrice = $price->calculatedPrice;
         Assert::natural($calculatedPrice);
 
-        $normalNetPrice = $selectedAction === SelectedAction::TK_OPTION_1
-            ? $price->regularPrice
-            : $calculatedPrice;
+        $normalNetPrice = $calculatedPrice;
 
-        /*
-         * DG Option 1A switches to a configured downgrade product at its
-         * resolved renewal price without an additional retention discount.
-         */
         if ($selectedAction === SelectedAction::DG_OPTION_1A) {
             return new RetentionOfferPriceDTO(
                 eligibility: $eligibility,
@@ -239,13 +232,6 @@ readonly class RetentionOfferPriceCalculator
                 normalNetPrice: $normalNetPrice,
                 offerNetPrice: $normalNetPrice,
                 discountAmount: 0,
-            );
-        }
-
-        if ($selectedAction === SelectedAction::TK_OPTION_1) {
-            return $this->calculateTkOptionOnePrice(
-                eligibility: $eligibility,
-                price: $price,
             );
         }
 
@@ -257,15 +243,10 @@ readonly class RetentionOfferPriceCalculator
         );
     }
 
-    /*
-     * DG Option 1D applies a discounted 24 or 36 month target product
-     * price and compares it with the equivalent annual renewal cost.
-     */
     private function calculateDgOptionOneDPrice(
         RetentionOfferEligibilityResultDTO $eligibility,
         Price $price,
         Price $comparisonPrice,
-        int $contractPeriod,
     ): RetentionOfferPriceDTO {
         $calculatedPrice = $price->calculatedPrice;
         Assert::natural($calculatedPrice);
@@ -273,13 +254,12 @@ readonly class RetentionOfferPriceCalculator
         $comparisonCalculatedPrice = $comparisonPrice->calculatedPrice;
         Assert::natural($comparisonCalculatedPrice);
 
-        $termMultiplier = intdiv(
-            $contractPeriod,
-            self::ANNUAL_COMPARISON_PERIOD,
+        $grossPrice = (int) round(
+            ($comparisonPrice->regularPrice * $price->billingPeriod) / self::ANNUAL_COMPARISON_PERIOD,
         );
-
-        $grossPrice = $comparisonPrice->regularPrice * $termMultiplier;
-        $normalNetPrice = $comparisonCalculatedPrice * $termMultiplier;
+        $normalNetPrice = (int) round(
+            ($comparisonCalculatedPrice * $price->billingPeriod) / self::ANNUAL_COMPARISON_PERIOD,
+        );
 
         if ($calculatedPrice >= $normalNetPrice) {
             return $this->withoutPrice(new RetentionOfferEligibilityResultDTO(
@@ -301,41 +281,6 @@ readonly class RetentionOfferPriceCalculator
         );
     }
 
-    /*
-     * TK Option 1 gives eligible hosting subscriptions three months at
-     * €0.99 and derives the remaining months from the selected term price.
-     */
-    private function calculateTkOptionOnePrice(
-        RetentionOfferEligibilityResultDTO $eligibility,
-        Price $price,
-    ): RetentionOfferPriceDTO {
-        $normalNetPrice = $price->regularPrice;
-
-        $offerNetPrice = $this->calculateTkOptionOneOfferNetPrice(
-            termRegularPrice: $normalNetPrice,
-            billingPeriod: $price->billingPeriod,
-        );
-
-        if ($offerNetPrice >= $normalNetPrice) {
-            return $this->withoutPrice(new RetentionOfferEligibilityResultDTO(
-                code: RetentionOfferEligibilityCode::MISSING_PRICE,
-                reason: 'The calculated TK Option 1 price does not provide a valid discount.',
-            ));
-        }
-
-        $discountAmount = $normalNetPrice - $offerNetPrice;
-        Assert::natural($offerNetPrice);
-        Assert::natural($discountAmount);
-
-        return new RetentionOfferPriceDTO(
-            eligibility: $eligibility,
-            grossPrice: $price->regularPrice,
-            normalNetPrice: $normalNetPrice,
-            offerNetPrice: $offerNetPrice,
-            discountAmount: $discountAmount,
-        );
-    }
-
     /**
      * Fixed-percentage offers:
      * - DM Option 1 gives eligible .nl and .com domains a 25% discount.
@@ -353,8 +298,7 @@ readonly class RetentionOfferPriceCalculator
         int $normalNetPrice,
     ): RetentionOfferPriceDTO {
         $priceFactor = match ($selectedAction) {
-            SelectedAction::DM_OPTION_1,
-            SelectedAction::TK_OPTION_5 => 0.75,
+            SelectedAction::DM_OPTION_1, SelectedAction::TK_OPTION_5 => 0.75,
             SelectedAction::TK_OPTION_2 => 0.85,
             SelectedAction::TK_OPTION_3 => 0.80,
             SelectedAction::TK_OPTION_6 => 0.50,
@@ -390,23 +334,6 @@ readonly class RetentionOfferPriceCalculator
             normalNetPrice: null,
             offerNetPrice: null,
             discountAmount: null,
-        );
-    }
-
-    private function calculateTkOptionOneOfferNetPrice(
-        int $termRegularPrice,
-        int $billingPeriod,
-    ): int {
-        $regularMonthlyPrice = $termRegularPrice / $billingPeriod;
-        $regularMonths =
-            $billingPeriod - self::TK_OPTION_ONE_PROMOTION_MONTHS;
-
-        return (int) round(
-            ($regularMonthlyPrice * $regularMonths)
-            + (
-                self::TK_OPTION_ONE_PROMOTION_MONTHS
-                * self::TK_OPTION_ONE_PROMOTION_MONTHLY_PRICE
-            ),
         );
     }
 
@@ -469,12 +396,11 @@ readonly class RetentionOfferPriceCalculator
         SubscriptionCancelReason $cancelReason,
         bool $includeCustomerCredit,
     ): RetentionCreditPreviewDTO {
-        $creditBatch = $this->creditSubscriptionService
-            ->getInvoiceLinesToCreditBatchFromDate(
-                subscription: $subscription,
-                creditFromDate: $effectiveDate,
-                cancelReason: $cancelReason,
-            );
+        $creditBatch = $this->creditSubscriptionService->getInvoiceLinesToCreditBatchFromDate(
+            subscription: $subscription,
+            creditFromDate: $effectiveDate,
+            cancelReason: $cancelReason,
+        );
 
         $creditTotal = 0;
         $replacesFutureInvoice = false;

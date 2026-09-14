@@ -78,23 +78,22 @@ class RedirectMigrationServiceTest extends IntegrationTestCase
     #[Test]
     public function createARecordIfExistsOnRootDomain(): void
     {
-        $this->redirectService->expects(self::once())
+        $this->redirectService
+            ->expects(self::once())
             ->method('createRedirect')
             ->willReturn(new RedirectResult(
                 provisionData: self::createStub(CreateRedirectRequest::class),
                 provisionStatus: ProvisionStatus::SUCCESS,
             ));
 
-        $this->redirectDnsService->expects(self::once())
-            ->method('cleanupDnsRecords')
-            ->with(self::DOMAIN, self::DOMAIN);
+        $this->redirectDnsService->expects(self::once())->method('cleanupDnsRecords')->with(self::DOMAIN, self::DOMAIN);
 
-        $this->redirectDnsService->expects(self::once())
+        $this->redirectDnsService
+            ->expects(self::once())
             ->method('provisionDnsRecords')
             ->with(self::DOMAIN, self::DOMAIN);
 
-        $this->dnsService->expects(self::never())
-            ->method('applyDiffToZone');
+        $this->dnsService->expects(self::never())->method('applyDiffToZone');
 
         $dnsZone = new DnsZone(fqdn: new Fqdn(self::DOMAIN));
         $dnsZone->setRecords([new ARecord(self::DOMAIN, '127.0.0.1', 600)]);
@@ -111,30 +110,32 @@ class RedirectMigrationServiceTest extends IntegrationTestCase
             'yourhosting.nl',
             '302',
             '4024007106668550',
-            'unknown'
+            'unknown',
         );
     }
 
     #[Test]
     public function createARecordIfExistsOnSubDomain(): void
     {
-        $this->redirectService->expects(self::once())
+        $this->redirectService
+            ->expects(self::once())
             ->method('createRedirect')
             ->willReturn(new RedirectResult(
                 provisionData: self::createStub(CreateRedirectRequest::class),
                 provisionStatus: ProvisionStatus::SUCCESS,
             ));
 
-        $this->redirectDnsService->expects(self::once())
+        $this->redirectDnsService
+            ->expects(self::once())
             ->method('cleanupDnsRecords')
             ->with(self::DOMAIN, self::SUBDOMAIN);
 
-        $this->redirectDnsService->expects(self::once())
+        $this->redirectDnsService
+            ->expects(self::once())
             ->method('provisionDnsRecords')
             ->with(self::DOMAIN, self::SUBDOMAIN);
 
-        $this->dnsService->expects(self::never())
-            ->method('applyDiffToZone');
+        $this->dnsService->expects(self::never())->method('applyDiffToZone');
 
         $dnsZone = new DnsZone(fqdn: new Fqdn(self::DOMAIN));
         $dnsZone->setRecords([new ARecord(self::SUBDOMAIN, '127.0.0.1', 600)]);
@@ -151,39 +152,39 @@ class RedirectMigrationServiceTest extends IntegrationTestCase
             'yourhosting.nl',
             '302',
             '4024007106668550',
-            'unknown'
+            'unknown',
         );
     }
 
     #[Test]
     public function createARecordIfExistsOnDomainFromConfig(): void
     {
-        $this->redirectService->expects(self::once())
+        $this->redirectService
+            ->expects(self::once())
             ->method('createRedirect')
             ->willReturn(new RedirectResult(
                 provisionData: self::createStub(CreateRedirectRequest::class),
                 provisionStatus: ProvisionStatus::SUCCESS,
             ));
 
-        $this->redirectDnsService->expects(self::once())
-            ->method('cleanupDnsRecords')
-            ->with(self::DOMAIN, self::DOMAIN);
+        $this->redirectDnsService->expects(self::once())->method('cleanupDnsRecords')->with(self::DOMAIN, self::DOMAIN);
 
-        $this->redirectDnsService->expects(self::once())
+        $this->redirectDnsService
+            ->expects(self::once())
             ->method('provisionDnsRecords')
             ->with(self::DOMAIN, self::DOMAIN);
 
-        $this->dnsService->expects(self::never())
-            ->method('applyDiffToZone');
+        $this->dnsService->expects(self::never())->method('applyDiffToZone');
 
         $dnsZone = new DnsZone(fqdn: new Fqdn(self::DOMAIN));
         $dnsZone->setRecords([new ARecord(self::DOMAIN, '127.0.0.1', 600)]);
 
-        $this->config->expects(self::exactly(2))
+        $this->config
+            ->expects(self::exactly(2))
             ->method('getAsString')
             ->with(...self::withConsecutive(
                 ['redirects.service.ipv4_host'],
-                ['redirects.service.ipv6_host']
+                ['redirects.service.ipv6_host'],
             ))
             ->willReturnOnConsecutiveCalls('127.0.0.1', '::1337');
 
@@ -194,30 +195,29 @@ class RedirectMigrationServiceTest extends IntegrationTestCase
             'yourhosting.nl',
             '302',
             '4024007106668550',
-            'unknown'
+            'unknown',
         );
     }
 
     #[Test]
     public function createAaaaRecordIfExistsOnRootDomain(): void
     {
-        $this->redirectService->expects(self::once())
+        $this->redirectService
+            ->expects(self::once())
             ->method('createRedirect')
             ->willReturn(new RedirectResult(
                 provisionData: self::createStub(CreateRedirectRequest::class),
                 provisionStatus: ProvisionStatus::SUCCESS,
             ));
 
-        $this->redirectDnsService->expects(self::once())
-            ->method('cleanupDnsRecords')
-            ->with(self::DOMAIN, self::DOMAIN);
+        $this->redirectDnsService->expects(self::once())->method('cleanupDnsRecords')->with(self::DOMAIN, self::DOMAIN);
 
-        $this->redirectDnsService->expects(self::once())
+        $this->redirectDnsService
+            ->expects(self::once())
             ->method('provisionDnsRecords')
             ->with(self::DOMAIN, self::DOMAIN);
 
-        $this->dnsService->expects(self::never())
-            ->method('applyDiffToZone');
+        $this->dnsService->expects(self::never())->method('applyDiffToZone');
 
         $dnsZone = new DnsZone(fqdn: new Fqdn(self::DOMAIN));
         $dnsZone->setRecords([new DefaultRecord('AAAA', self::DOMAIN, '::1', 600)]);
@@ -234,39 +234,39 @@ class RedirectMigrationServiceTest extends IntegrationTestCase
             'yourhosting.nl',
             '302',
             '4024007106668550',
-            'unknown'
+            'unknown',
         );
     }
 
     #[Test]
     public function createAaaaRecordIfExistsOnRootDomainFromConfig(): void
     {
-        $this->redirectService->expects(self::once())
+        $this->redirectService
+            ->expects(self::once())
             ->method('createRedirect')
             ->willReturn(new RedirectResult(
                 provisionData: self::createStub(CreateRedirectRequest::class),
                 provisionStatus: ProvisionStatus::SUCCESS,
             ));
 
-        $this->redirectDnsService->expects(self::once())
-            ->method('cleanupDnsRecords')
-            ->with(self::DOMAIN, self::DOMAIN);
+        $this->redirectDnsService->expects(self::once())->method('cleanupDnsRecords')->with(self::DOMAIN, self::DOMAIN);
 
-        $this->redirectDnsService->expects(self::once())
+        $this->redirectDnsService
+            ->expects(self::once())
             ->method('provisionDnsRecords')
             ->with(self::DOMAIN, self::DOMAIN);
 
-        $this->dnsService->expects(self::never())
-            ->method('applyDiffToZone');
+        $this->dnsService->expects(self::never())->method('applyDiffToZone');
 
         $dnsZone = new DnsZone(fqdn: new Fqdn(self::DOMAIN));
         $dnsZone->setRecords([new DefaultRecord('AAAA', self::DOMAIN, '::1337', 600)]);
 
-        $this->config->expects(self::exactly(2))
+        $this->config
+            ->expects(self::exactly(2))
             ->method('getAsString')
             ->with(...self::withConsecutive(
                 ['redirects.service.ipv4_host'],
-                ['redirects.service.ipv6_host']
+                ['redirects.service.ipv6_host'],
             ))
             ->willReturnOnConsecutiveCalls('127.0.0.1', '::1337');
 
@@ -277,28 +277,26 @@ class RedirectMigrationServiceTest extends IntegrationTestCase
             'yourhosting.nl',
             '302',
             '4024007106668550',
-            'unknown'
+            'unknown',
         );
     }
 
     #[Test]
     public function migrateRedirectWhenDnsDoesNotMatchWithLegacyRedirect(): void
     {
-        $this->redirectService->expects(self::once())
+        $this->redirectService
+            ->expects(self::once())
             ->method('createRedirect')
             ->willReturn(new RedirectResult(
                 provisionData: self::createStub(CreateRedirectRequest::class),
                 provisionStatus: ProvisionStatus::SUCCESS,
             ));
 
-        $this->redirectDnsService->expects(self::never())
-            ->method('cleanupDnsRecords');
+        $this->redirectDnsService->expects(self::never())->method('cleanupDnsRecords');
 
-        $this->redirectDnsService->expects(self::never())
-            ->method('provisionDnsRecords');
+        $this->redirectDnsService->expects(self::never())->method('provisionDnsRecords');
 
-        $this->dnsService->expects(self::never())
-            ->method('applyDiffToZone');
+        $this->dnsService->expects(self::never())->method('applyDiffToZone');
 
         $dnsZone = new DnsZone(fqdn: new Fqdn(self::DOMAIN));
         $dnsZone->setRecords([new ARecord(self::DOMAIN, '127.0.0.2', 600)]);
@@ -315,7 +313,7 @@ class RedirectMigrationServiceTest extends IntegrationTestCase
             'yourhosting.nl',
             '302',
             '4024007106668550',
-            'unknown'
+            'unknown',
         );
     }
 
@@ -325,29 +323,28 @@ class RedirectMigrationServiceTest extends IntegrationTestCase
         $dnsZone = new DnsZone(fqdn: new Fqdn(self::DOMAIN));
         $dnsZone->setRecords([new ARecord(self::DOMAIN, '127.0.0.1', 600)]);
 
-        $this->redirectService->expects(self::once())
+        $this->redirectService
+            ->expects(self::once())
             ->method('createRedirect')
             ->willReturn(new RedirectResult(
                 provisionData: self::createStub(CreateRedirectRequest::class),
                 provisionStatus: ProvisionStatus::SUCCESS,
             ));
 
-        $this->redirectDnsService->expects(self::once())
-            ->method('cleanupDnsRecords')
-            ->with(self::DOMAIN, self::DOMAIN);
+        $this->redirectDnsService->expects(self::once())->method('cleanupDnsRecords')->with(self::DOMAIN, self::DOMAIN);
 
-        $this->redirectDnsService->expects(self::once())
+        $this->redirectDnsService
+            ->expects(self::once())
             ->method('provisionDnsRecords')
             ->with(self::DOMAIN, self::DOMAIN)
             ->willThrowException(new PdnsResponseException('Failed to update DNS records.'));
 
         $currentZone = new DnsZone(fqdn: new Fqdn(self::DOMAIN));
         $currentZone->setRecords([new AliasRecord(self::DOMAIN, 'example.com', 600)]);
-        $this->dnsService->expects(self::once())
-            ->method('getDnsZone')
-            ->willReturn($currentZone);
+        $this->dnsService->expects(self::once())->method('getDnsZone')->willReturn($currentZone);
 
-        $this->dnsService->expects(self::once())
+        $this->dnsService
+            ->expects(self::once())
             ->method('applyDiffToZone')
             ->with(
                 $dnsZone,
@@ -365,9 +362,8 @@ class RedirectMigrationServiceTest extends IntegrationTestCase
                     self::assertSame('example.com', $removedRecord->getDnsRecord()->getContent());
 
                     return true;
-                })
-            )
-        ;
+                }),
+            );
 
         LegacyRedirectingServerFactory::new()->createOne([
             'hostname' => 'legacy-redirects-server.test',
@@ -384,28 +380,26 @@ class RedirectMigrationServiceTest extends IntegrationTestCase
             'yourhosting.nl',
             '302',
             '4024007106668550',
-            'unknown'
+            'unknown',
         );
     }
 
     #[Test]
     public function migrateRedirectWhenSubdomainHasLegacyDnsRecordsWhileRootDomainDoesNot(): void
     {
-        $this->redirectService->expects(self::once())
+        $this->redirectService
+            ->expects(self::once())
             ->method('createRedirect')
             ->willReturn(new RedirectResult(
                 provisionData: self::createStub(CreateRedirectRequest::class),
                 provisionStatus: ProvisionStatus::SUCCESS,
             ));
 
-        $this->redirectDnsService->expects(self::never())
-            ->method('cleanupDnsRecords');
+        $this->redirectDnsService->expects(self::never())->method('cleanupDnsRecords');
 
-        $this->redirectDnsService->expects(self::never())
-            ->method('provisionDnsRecords');
+        $this->redirectDnsService->expects(self::never())->method('provisionDnsRecords');
 
-        $this->dnsService->expects(self::never())
-            ->method('applyDiffToZone');
+        $this->dnsService->expects(self::never())->method('applyDiffToZone');
 
         $dnsZone = new DnsZone(fqdn: new Fqdn(self::DOMAIN));
         $dnsZone->setRecords([
@@ -425,7 +419,7 @@ class RedirectMigrationServiceTest extends IntegrationTestCase
             'yourhosting.nl',
             '302',
             '4024007106668550',
-            'unknown'
+            'unknown',
         );
     }
 }

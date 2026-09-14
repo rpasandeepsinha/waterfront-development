@@ -17,7 +17,7 @@ class PaytMandateIdNotNumericException extends Exception
                 $paytMandateId,
             ),
             $code,
-            $previous
+            $previous,
         );
     }
 }

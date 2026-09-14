@@ -15,8 +15,10 @@ class DomainMapper
     /**
      * @param array<int, array<string, mixed>> $technicalPayloads
      */
-    public function mapDomainWithTechnicalPayload(Subscription $subscription, array $technicalPayloads): DomainMigrationPayload|null
-    {
+    public function mapDomainWithTechnicalPayload(
+        Subscription $subscription,
+        array $technicalPayloads,
+    ): ?DomainMigrationPayload {
         /** @var MigratedSubscription $migratedSubscription */
         $migratedSubscription = $subscription->migratedSubscriptions()->firstOrFail();
         $referenceSubscriptionId = $migratedSubscription->reference_subscription_id;
@@ -27,17 +29,17 @@ class DomainMapper
 
         foreach ($technicalPayloads as $technicalPayload) {
             if (
-                array_key_exists('reference_subscription_id', $technicalPayload) &&
-                $technicalPayload['reference_subscription_id'] === $referenceSubscriptionId
+                array_key_exists('reference_subscription_id', $technicalPayload)
+                && $technicalPayload['reference_subscription_id'] === $referenceSubscriptionId
             ) {
                 /** @var string|null $referenceDnsTemplateId */
                 $referenceDnsTemplateId = Arr::get($technicalPayload, 'domain_data.reference_dns_template_id');
 
                 /** @var string $stringedDriver */
-                $stringedDriver =  Arr::get(
+                $stringedDriver = Arr::get(
                     $technicalPayload,
                     'driver',
-                    ProviderSlug::REALTIME_REGISTER->value
+                    ProviderSlug::REALTIME_REGISTER->value,
                 );
 
                 $driver = ProviderSlug::from($stringedDriver);

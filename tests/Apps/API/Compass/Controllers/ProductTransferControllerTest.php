@@ -37,7 +37,9 @@ class ProductTransferControllerTest extends IntegrationTestCase
         $subscription->transfers()->save($transfer);
 
         $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.subscriptions.subscription.product.transfers', ['subscription' => $subscription->id]))
+            ->getJson($this->generateRoute('admin.subscriptions.subscription.product.transfers', [
+                'subscription' => $subscription->id,
+            ]))
             ->assertOk()
             ->assertJsonCount(1, 'data');
     }

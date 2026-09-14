@@ -54,7 +54,7 @@ class NovaListMandateAction extends Action
                 'title' => $this->translator->translate('nova-action.search.title'),
                 'code' => json_encode([
                     'Mollie' => $mollieSerializer->normalize($mollieMandates),
-                    'Payt'   => $paytSerializer->normalize($paytMandates),
+                    'Payt' => $paytSerializer->normalize($paytMandates),
                 ], JSON_PRETTY_PRINT),
             ]);
         } catch (MollieMandateApiException|PaytMandateApiException $exception) {

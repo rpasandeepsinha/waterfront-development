@@ -123,14 +123,17 @@ class CustomersController
     ) {
     }
 
-    public function updateContact(UpdateContactRequest $request, Customer $customer, CustomerContact $customerContact): Response
-    {
+    public function updateContact(
+        UpdateContactRequest $request,
+        Customer $customer,
+        CustomerContact $customerContact,
+    ): Response {
         $dto = new ContactDTO(
             firstName: $request->first_name,
-            lastName:  $request->last_name,
-            company:   $request->company,
-            email:     $request->email,
-            type:      CustomerContactType::from($request->type),
+            lastName: $request->last_name,
+            company: $request->company,
+            email: $request->email,
+            type: CustomerContactType::from($request->type),
         );
         $this->updateCustomerContact->execute($customerContact, $dto);
 
@@ -150,7 +153,15 @@ class CustomersController
 
     public function createMandate(CreateMandateRequest $request, Customer $customer): JsonResponse
     {
-        $this->dispatcher->dispatch(new RequestDirectDebitMandateJob($request->consumer_name, $request->consumer_account, null, $customer, new CarbonImmutable($request->signature_date)));
+        $this->dispatcher->dispatch(
+            new RequestDirectDebitMandateJob(
+                $request->consumer_name,
+                $request->consumer_account,
+                null,
+                $customer,
+                new CarbonImmutable($request->signature_date),
+            ),
+        );
 
         return new JsonResponse(['message' => 'Request is successful', 'errors' => []], Response::HTTP_OK);
     }
@@ -178,12 +189,16 @@ class CustomersController
             Rule::unique('customers', 'email')->ignore($customer->uuid, 'uuid'),
         ];
 
-        $validator = Validator::make($request->all(), $rules + [
+        $validator = Validator::make(
+            $request->all(),
+            $rules
+            + [
                 'email' => $emailRule,
                 'payment_type' => ['required', Rule::in(PaymentType::cases())],
                 'payment_term' => ['required'],
                 'credit_limit' => ['required'],
-        ]);
+            ],
+        );
 
         if ($validator->fails()) {
             throw ValidationException::withMessages($validator->messages()->toArray());
@@ -195,7 +210,9 @@ class CustomersController
         $gender = Gender::from(strval($request->string('gender')));
         $streetName = strval($request->string('street_name'));
         $streetNumber = strval($request->string('street_number'));
-        $streetNumberAddition = $request->input('street_number_addition') !== null ? strval($request->string('street_number_addition')) : null;
+        $streetNumberAddition = $request->input('street_number_addition') !== null
+            ? strval($request->string('street_number_addition'))
+            : null;
         $zipCode = strval($request->string('zip_code'));
         $city = strval($request->string('city'));
         $organization = $request->input('organization') !== null ? strval($request->string('organization')) : null;
@@ -246,8 +263,15 @@ class CustomersController
         $pageSize = is_numeric($request->input('pageSize')) ? (int) $request->input('pageSize') : 100;
 
         $query = $this->orderFilter->apply(
-            Order::with(['customer', 'payments', 'lineItems', 'lineItems.order', 'lineItems.product.productGroup', 'lineItems.subscription'])->where('customer_id', $customer->id),
-            $request
+            Order::with([
+                'customer',
+                'payments',
+                'lineItems',
+                'lineItems.order',
+                'lineItems.product.productGroup',
+                'lineItems.subscription',
+            ])->where('customer_id', $customer->id),
+            $request,
         );
 
         $orders = $query->paginate($pageSize);
@@ -256,8 +280,7 @@ class CustomersController
         $totalOrders = Order::where('customer_id', $customer->id)->count();
 
         return OrderResource::collection($orders)->additional([
-            'meta' =>
-                ['totalOrders' => $totalOrders],
+            'meta' => ['totalOrders' => $totalOrders],
         ]);
     }
 
@@ -270,9 +293,9 @@ class CustomersController
         $notes->appends('pageSize', (string) $pageSize);
 
         $totalNotes = $notesBuilder->count();
+
         return NotesResource::collection($notes)->additional([
-            'meta' =>
-                ['totalNotes' => $totalNotes],
+            'meta' => ['totalNotes' => $totalNotes],
         ]);
     }
 
@@ -282,7 +305,7 @@ class CustomersController
 
         $query = $this->invoiceFilter->apply(
             $this->invoiceRepository->getUnprocessedInvoiceLinesForCustomer($customer),
-            $request
+            $request,
         );
 
         $invoiceLines = $query->paginate($pageSize);
@@ -307,14 +330,22 @@ class CustomersController
 
         if ($invoiceLines->count() !== count($invoiceLineIds)) {
             return new JsonResponse(
-                ['message' => $this->translator->translate('sidebar.action.send-invoice-lines-to-harbor.invoice-lines-not-for-customer')],
+                [
+                    'message' => $this->translator->translate(
+                        'sidebar.action.send-invoice-lines-to-harbor.invoice-lines-not-for-customer',
+                    ),
+                ],
                 Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
 
         if ($invoiceLines->contains(fn (Invoice $invoice): bool => $invoice->sent_to_harbor_at !== null)) {
             return new JsonResponse(
-                ['message' => $this->translator->translate('sidebar.action.send-invoice-lines-to-harbor.invoice-lines-already-sent')],
+                [
+                    'message' => $this->translator->translate(
+                        'sidebar.action.send-invoice-lines-to-harbor.invoice-lines-already-sent',
+                    ),
+                ],
                 Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
@@ -323,7 +354,9 @@ class CustomersController
 
         return new JsonResponse(
             [
-                'message' => $this->translator->translate('sidebar.action.send-invoice-lines-to-harbor.propagated-successfully'),
+                'message' => $this->translator->translate(
+                    'sidebar.action.send-invoice-lines-to-harbor.propagated-successfully',
+                ),
                 'errors' => [],
             ],
             Response::HTTP_OK,
@@ -345,6 +378,7 @@ class CustomersController
     public function show(Customer $customer): string
     {
         $customer->loadMissing(['address', 'migratedCustomers']);
+
         return CustomerResource::make($customer)->toJson();
     }
 
@@ -365,17 +399,29 @@ class CustomersController
         assert($toDate instanceof CarbonImmutable);
 
         if ($fromDate > $toDate) {
-            return new JsonResponse(['message' => 'Van datum moet kleiner zijn dan de einddatum'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return new JsonResponse([
+                'message' => 'Van datum moet kleiner zijn dan de einddatum',
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         if ($fromDate->year < 1980) {
-            return new JsonResponse(['message' => 'De van datum mag niet lager zijn dan 1980'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return new JsonResponse([
+                'message' => 'De van datum mag niet lager zijn dan 1980',
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $migrateCustomer = $customer->migratedCustomers->where('reference_customer_number', $referenceCustomerNumber)->firstOrFail();
+        $migrateCustomer = $customer
+            ->migratedCustomers
+            ->where('reference_customer_number', $referenceCustomerNumber)
+            ->firstOrFail();
 
         try {
-            $this->requestOldBuInvoices->handle($referenceCustomerNumber, $migrateCustomer->reference_name, $fromDate, $toDate);
+            $this->requestOldBuInvoices->handle(
+                $referenceCustomerNumber,
+                $migrateCustomer->reference_name,
+                $fromDate,
+                $toDate,
+            );
         } catch (GuzzleException $exception) {
             return new JsonResponse(['message' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -402,18 +448,18 @@ class CustomersController
                 'domainDeployment.provider',
                 'sslDeployment.provider',
                 'resellerHostingDeployment.provider',
-            ])
-            ->withCount(['mutations as pending_mutations_count' => fn ($q) => $q->whereNull('mutated_at')])
-            ->where('customer_id', $customer->id),
-            $request
+            ])->withCount(['mutations as pending_mutations_count' => fn ($q) => $q->whereNull('mutated_at')])->where(
+                'customer_id',
+                $customer->id,
+            ),
+            $request,
         );
 
         $subscriptions = $query->paginate($pageSize);
         $subscriptions->appends($request->except('page'));
 
         return SubscriptionResource::collection($subscriptions)->additional([
-            'meta' =>
-                ['totalSubscriptions' => $subscriptions->total()],
+            'meta' => ['totalSubscriptions' => $subscriptions->total()],
         ]);
     }
 
@@ -422,9 +468,10 @@ class CustomersController
         $pageSize = is_numeric($request->input('pageSize')) ? (int) $request->input('pageSize') : 25;
 
         $query = $this->oneTimeServiceFilter->apply(
-            OneTimeService::with(['customer', 'subscription', 'product'])
-                ->withCount('invoices')
-                ->where('customer_id', $customer->id),
+            OneTimeService::with(['customer', 'subscription', 'product'])->withCount('invoices')->where(
+                'customer_id',
+                $customer->id,
+            ),
             $request,
         );
 
@@ -432,8 +479,7 @@ class CustomersController
         $oneTimeServices->appends($request->except('page'));
 
         return ListOneTimeServiceResource::collection($oneTimeServices)->additional([
-            'meta' =>
-                ['totalOneTimeServices' => $oneTimeServices->total()],
+            'meta' => ['totalOneTimeServices' => $oneTimeServices->total()],
         ]);
     }
 
@@ -442,6 +488,7 @@ class CustomersController
         $pageSize = is_numeric($request->input('pageSize')) ? (int) $request->input('pageSize') : 100;
         $auditLogPaginator = $this->fetchAuditLogsForCustomerAction->execute($customer, $pageSize);
         $auditLogPaginator->appends('pageSize', (string) $pageSize);
+
         return AuditLogResource::collection($auditLogPaginator);
     }
 
@@ -466,7 +513,9 @@ class CustomersController
         $countryCode = strval($request->string('country_code'));
         $streetName = strval($request->string('street_name'));
         $streetNumber = strval($request->string('street_number'));
-        $streetNumberAddition = $request->input('street_number_addition') !== null ? strval($request->string('street_number_addition')) : null;
+        $streetNumberAddition = $request->input('street_number_addition') !== null
+            ? strval($request->string('street_number_addition'))
+            : null;
         $zipCode = strval($request->string('zip_code'));
         $city = strval($request->string('city'));
 
@@ -499,7 +548,7 @@ class CustomersController
             vat_number: null,
             paymentTerms: $this->configuration->getAsInteger('constants.payment-terms.default'),
             creditLimit: Customer::CREDIT_LIMIT,
-            dataLastConfirmedAt: new CarbonImmutable()
+            dataLastConfirmedAt: new CarbonImmutable(),
         );
 
         $this->storeCustomerAddressAction->execute(
@@ -526,20 +575,33 @@ class CustomersController
         } catch (ResourceNotFoundException) {
             //Identity does not yet exist, so create it.
             $this->lighthouseApiService->createKratosIdentity($email, $customer->customer_number);
-            return new HttpResponse(json_encode($customer->only('customer_number'), JSON_THROW_ON_ERROR), Response::HTTP_CREATED);
-        } catch (LighthouseException | JsonException $exception) {
+
+            return new HttpResponse(
+                json_encode($customer->only('customer_number'), JSON_THROW_ON_ERROR),
+                Response::HTTP_CREATED,
+            );
+        } catch (LighthouseException|JsonException $exception) {
             return new HttpResponse($exception->getMessage(), HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         $customerRelations = $identity->metadataPublic->customerRelations ?? [];
-        if (array_find($customerRelations, fn (CustomerRelation $relation) => $relation->customerNumber === $customer->customer_number) === null) {
-            $customerRelations = array_merge($customerRelations, [new CustomerRelation($customer->customer_number, null, null)]);
+        if (
+            array_find(
+                $customerRelations,
+                fn (CustomerRelation $relation) => $relation->customerNumber === $customer->customer_number,
+            ) === null
+        ) {
+            $customerRelations = array_merge($customerRelations, [new CustomerRelation(
+                $customer->customer_number,
+                null,
+                null,
+            )]);
         }
 
         $businessRelations = array_merge($identity->metadataPublic->businessRelations ?? [], ['waterfront']);
 
         $metadata = new CustomerMetadataPublic(
-            array_merge(($identity->metadataPublic->customerNumbers ?? []), [$customer->customer_number]),
+            array_merge($identity->metadataPublic->customerNumbers ?? [], [$customer->customer_number]),
             $customerRelations,
             array_unique($businessRelations),
             null,
@@ -559,10 +621,13 @@ class CustomersController
             CarbonImmutable::now(),
             [],
             $metadata,
-            null
+            null,
         ));
 
-        return new HttpResponse(json_encode($customer->only('customer_number'), JSON_THROW_ON_ERROR), Response::HTTP_CREATED);
+        return new HttpResponse(
+            json_encode($customer->only('customer_number'), JSON_THROW_ON_ERROR),
+            Response::HTTP_CREATED,
+        );
     }
 
     public function showWallet(Customer $customer): JsonResponse
@@ -578,14 +643,20 @@ class CustomersController
 
         if ($migratedCustomers->isEmpty()) {
             return new JsonResponse(
-                ['message' => $this->translator->translate('sidebar.action.enable-invoicing.not-migrated'), 'errors' => []],
+                [
+                    'message' => $this->translator->translate('sidebar.action.enable-invoicing.not-migrated'),
+                    'errors' => [],
+                ],
                 Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
 
         if ($migratedCustomers->every(static fn (MigratedCustomer $migration): bool => $migration->enable_invoicing)) {
             return new JsonResponse(
-                ['message' => $this->translator->translate('sidebar.action.enable-invoicing.already-enabled'), 'errors' => []],
+                [
+                    'message' => $this->translator->translate('sidebar.action.enable-invoicing.already-enabled'),
+                    'errors' => [],
+                ],
                 Response::HTTP_OK,
             );
         }
@@ -604,7 +675,10 @@ class CustomersController
         try {
             $this->dispatcher->dispatchSync(new UpdateCustomerVatRate($customer));
         } catch (VatFetchFailedException $e) {
-            return new JsonResponse(['message' => $e->getMessage(), 'errors' => []], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return new JsonResponse([
+                'message' => $e->getMessage(),
+                'errors' => [],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         return new JsonResponse(['message' => 'VAT rate updated successfully', 'errors' => []], Response::HTTP_OK);
@@ -616,7 +690,10 @@ class CustomersController
 
         return new JsonResponse([
             'data' => $productDiscounts
-                ->map(fn (ProductDiscount $productDiscount): array => ['id' => $productDiscount->id, 'name' => $productDiscount->name])
+                ->map(fn (ProductDiscount $productDiscount): array => [
+                    'id' => $productDiscount->id,
+                    'name' => $productDiscount->name,
+                ])
                 ->values()
                 ->all(),
         ], Response::HTTP_OK);

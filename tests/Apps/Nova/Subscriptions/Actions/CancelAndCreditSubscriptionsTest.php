@@ -94,27 +94,23 @@ class CancelAndCreditSubscriptionsTest extends IntegrationTestCase
             reasonOther: null,
             type: SubscriptionCancelType::CANCEL_END_DATE,
             typeOtherDate: null,
-            credit: false
+            credit: false,
         );
 
         $subscriptionsCollection = new Collection();
         foreach ($subscriptions as $data) {
             $subscriptionsCollection->add(
-                $this->getSubscription($data['status'], $data['end_date'])
+                $this->getSubscription($data['status'], $data['end_date']),
             );
         }
 
-        $this->creditSubscriptionService
-            ->expects(self::never())
-            ->method('creditSubscriptions');
+        $this->creditSubscriptionService->expects(self::never())->method('creditSubscriptions');
 
-        $this->cancelSubscriptionsAction
-            ->expects(self::never())
-            ->method('execute');
+        $this->cancelSubscriptionsAction->expects(self::never())->method('execute');
 
         $result = $this->runActionHandle(
             $fields,
-            $subscriptionsCollection
+            $subscriptionsCollection,
         );
 
         self::assertEmpty($result['message'] ?? '');
@@ -229,37 +225,41 @@ class CancelAndCreditSubscriptionsTest extends IntegrationTestCase
             ->expects($expectCredit ? self::once() : self::never())
             ->method('creditSubscriptions')
             ->with(self::callback(
-                static fn (Cancellation $cancellation): bool
-                => $cancellation->getSubscriptions()->count() === $expectedSubscriptionsInCancellation->count()
+                static fn (Cancellation $cancellation): bool => (
+                    $cancellation->getSubscriptions()->count() === $expectedSubscriptionsInCancellation->count()
                     && $expectedSubscriptionsInCancellation->diff($cancellation->getSubscriptions())->count() === 0
                     && $cancellation->getCancelReason() === $actionFieldsData['reason']
                     && $cancellation->getCancelReasonOther() === $actionFieldsData['reason_other']
                     && $cancellation->getCancelType() === $actionFieldsData['type']
                     && $cancellation->shouldCreditRelatedInvoices() === $actionFieldsData['credit']
-                    && $cancellation->getSelectedCancellationEndDate()?->format(DateTimeFormat::DATE)
-                    === $expectedCancellationEndDate->format(DateTimeFormat::DATE)
+                    && $cancellation
+                        ->getSelectedCancellationEndDate()
+                        ?->format(DateTimeFormat::DATE) === $expectedCancellationEndDate->format(DateTimeFormat::DATE)
                     && $cancellation->shouldCreditRelatedInvoices() === $expectCredit
+                ),
             ));
 
         $this->cancelSubscriptionsAction
             ->expects(self::once())
             ->method('execute')
             ->with(self::callback(
-                static fn (Cancellation $cancellation): bool
-                     => $cancellation->getSubscriptions()->count() === $expectedSubscriptionsInCancellation->count()
-                        && $expectedSubscriptionsInCancellation->diff($cancellation->getSubscriptions())->count() === 0
-                        && $cancellation->getCancelReason() === $actionFieldsData['reason']
-                        && $cancellation->getCancelReasonOther() === $actionFieldsData['reason_other']
-                        && $cancellation->getCancelType() === $actionFieldsData['type']
-                        && $cancellation->shouldCreditRelatedInvoices() === $actionFieldsData['credit']
-                        && $cancellation->getSelectedCancellationEndDate()?->format(DateTimeFormat::DATE)
-                            === $expectedCancellationEndDate->format(DateTimeFormat::DATE)
-                        && $cancellation->shouldCreditRelatedInvoices() === $expectCredit
+                static fn (Cancellation $cancellation): bool => (
+                    $cancellation->getSubscriptions()->count() === $expectedSubscriptionsInCancellation->count()
+                    && $expectedSubscriptionsInCancellation->diff($cancellation->getSubscriptions())->count() === 0
+                    && $cancellation->getCancelReason() === $actionFieldsData['reason']
+                    && $cancellation->getCancelReasonOther() === $actionFieldsData['reason_other']
+                    && $cancellation->getCancelType() === $actionFieldsData['type']
+                    && $cancellation->shouldCreditRelatedInvoices() === $actionFieldsData['credit']
+                    && $cancellation
+                        ->getSelectedCancellationEndDate()
+                        ?->format(DateTimeFormat::DATE) === $expectedCancellationEndDate->format(DateTimeFormat::DATE)
+                    && $cancellation->shouldCreditRelatedInvoices() === $expectCredit
+                ),
             ));
 
         $result = $this->runActionHandle(
             $fields,
-            $selectedSubscriptions
+            $selectedSubscriptions,
         );
 
         self::assertNotEmpty($result['message'] ?? '');
@@ -284,7 +284,8 @@ class CancelAndCreditSubscriptionsTest extends IntegrationTestCase
                     'end_date' => $now->addMonths(2),
                     'selected' => true,
                     'expected' => true,
-                ], [
+                ],
+                [
                     'status' => $statusActive,
                     'end_date' => $now->addMonths(2),
                     'selected' => true,
@@ -315,7 +316,7 @@ class CancelAndCreditSubscriptionsTest extends IntegrationTestCase
 
         $parentSubscription = $this->getSubscription(
             $statusActive,
-            $endDate
+            $endDate,
         );
 
         $childSubscriptionActive = $this->getSubscription($statusActive, $endDate);
@@ -329,33 +330,36 @@ class CancelAndCreditSubscriptionsTest extends IntegrationTestCase
             null,
             SubscriptionCancelType::CANCEL_END_DATE,
             null,
-            false
+            false,
         );
 
         $parentSubscription->refresh();
         $childSubscriptionActive->refresh();
         $childSubscriptionAlreadyCanceled->refresh();
 
-        $expectedSubscriptionsToCancel = [$parentSubscription->uuid, $childSubscriptionActive->uuid, $childSubscriptionAlreadyCanceled->uuid];
+        $expectedSubscriptionsToCancel = [
+            $parentSubscription->uuid,
+            $childSubscriptionActive->uuid,
+            $childSubscriptionAlreadyCanceled->uuid,
+        ];
 
-        $this->creditSubscriptionService
-            ->expects(self::never())
-            ->method('creditSubscriptions');
+        $this->creditSubscriptionService->expects(self::never())->method('creditSubscriptions');
 
         $this->cancelSubscriptionsAction
             ->expects(self::once())
             ->method('execute')
             ->with(self::callback(
-                static fn (Cancellation $cancellation): bool
-                    => $cancellation->getSubscriptions()->count() === 3
-                        && in_array($cancellation->getSubscriptions()[0]?->uuid, $expectedSubscriptionsToCancel, true)
-                        && in_array($cancellation->getSubscriptions()[1]?->uuid, $expectedSubscriptionsToCancel, true)
-                        && in_array($cancellation->getSubscriptions()[2]?->uuid, $expectedSubscriptionsToCancel, true)
+                static fn (Cancellation $cancellation): bool => (
+                    $cancellation->getSubscriptions()->count() === 3
+                    && in_array($cancellation->getSubscriptions()[0]?->uuid, $expectedSubscriptionsToCancel, true)
+                    && in_array($cancellation->getSubscriptions()[1]?->uuid, $expectedSubscriptionsToCancel, true)
+                    && in_array($cancellation->getSubscriptions()[2]?->uuid, $expectedSubscriptionsToCancel, true)
+                ),
             ));
 
         $this->runActionHandle(
             $actionFields,
-            new Collection([$parentSubscription])
+            new Collection([$parentSubscription]),
         );
     }
 
@@ -363,8 +367,7 @@ class CancelAndCreditSubscriptionsTest extends IntegrationTestCase
     #[Test]
     public function subscriptionWithCancelWithParentSpec(bool $allowCancelAsChild): void
     {
-        $nlDomain = new ProductFactory()
-            ->nlDomain();
+        $nlDomain = new ProductFactory()->nlDomain();
 
         $parentSubscription = new SubscriptionFactory()
             ->withCustomer()
@@ -377,7 +380,7 @@ class CancelAndCreditSubscriptionsTest extends IntegrationTestCase
                 new ProductSpecFactory()->state([
                     'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
                     'value' => $allowCancelAsChild,
-                ])
+                ]),
             )
             ->createOne();
 
@@ -392,12 +395,12 @@ class CancelAndCreditSubscriptionsTest extends IntegrationTestCase
             null,
             SubscriptionCancelType::CANCEL_END_DATE,
             null,
-            false
+            false,
         );
 
         $result = $this->runActionHandle(
             $actionFields,
-            new Collection([$childSubscription])
+            new Collection([$childSubscription]),
         );
 
         if ($allowCancelAsChild) {
@@ -436,16 +439,17 @@ class CancelAndCreditSubscriptionsTest extends IntegrationTestCase
             'slug' => 'microsoft-business-standard-parent',
         ]);
 
-        $childProduct = new ProductFactory()->for($productGroup)
+        $childProduct = new ProductFactory()
+            ->for($productGroup)
             ->has(
                 new ProductSpecFactory()->state([
                     'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
                     'value' => '1',
-                ])
+                ]),
             )
             ->createOne([
-            'slug' => 'microsoft-business-standard',
-        ]);
+                'slug' => 'microsoft-business-standard',
+            ]);
 
         $parentSubscription = new SubscriptionFactory()
             ->for($this->customer)
@@ -463,12 +467,12 @@ class CancelAndCreditSubscriptionsTest extends IntegrationTestCase
             null,
             SubscriptionCancelType::CANCEL_END_DATE,
             null,
-            false
+            false,
         );
 
         $result = $this->runActionHandle(
             $actionFields,
-            new Collection([$childSubscriptions->firstOrFail()])
+            new Collection([$childSubscriptions->firstOrFail()]),
         );
 
         $message = $result['message'];
@@ -501,7 +505,7 @@ class CancelAndCreditSubscriptionsTest extends IntegrationTestCase
         ?string $reasonOther,
         SubscriptionCancelType $type,
         ?string $typeOtherDate,
-        bool $credit
+        bool $credit,
     ): ActionFields {
         return new ActionFields(
             new Collection([
@@ -511,7 +515,7 @@ class CancelAndCreditSubscriptionsTest extends IntegrationTestCase
                 'type_other_date' => $typeOtherDate,
                 'credit' => $credit,
             ]),
-            new Collection([])
+            new Collection([]),
         );
     }
 
@@ -522,7 +526,7 @@ class CancelAndCreditSubscriptionsTest extends IntegrationTestCase
      */
     private function runActionHandle(
         ActionFields $fields,
-        Collection $collection
+        Collection $collection,
     ): ActionResponse {
         $action = new NovaCancelAndCreditSubscriptionsAction(
             $this->translator,
@@ -531,11 +535,12 @@ class CancelAndCreditSubscriptionsTest extends IntegrationTestCase
             $this->creditSubscriptionService,
             $this->cancelSubscriptionsAction,
             $this->productSpecRepository,
-            self::createStub(LoggerInterface::class)
+            self::createStub(LoggerInterface::class),
         );
 
         $result = $action->handle($fields, $collection);
         self::assertInstanceOf(ActionResponse::class, $result);
+
         return $result;
     }
 }

@@ -28,16 +28,18 @@ class GetAuditableNameAction
      * We're supporting old namespaces because models have moved, we don't have morphmapping yet.
      * In the audit log refactor we will start to support this so this can be less complex. (Ticket: WATER-4467)
      */
-    public function execute(Audit $audit): string|null
+    public function execute(Audit $audit): ?string
     {
         switch ($audit->auditable_type) {
             case Invoice::class:
                 /** @var Invoice $invoice */
                 $invoice = $audit->auditable;
+
                 return $invoice->description;
             case Subscription::class:
                 /** @var Subscription $subscription */
                 $subscription = $audit->auditable;
+
                 return $subscription->domain;
             case "Waterfront\Domain\Microsoft365\Models\Microsoft365Subscription":
             case Microsoft365Deployment::class:
@@ -81,6 +83,7 @@ class GetAuditableNameAction
             case Customer::class:
                 /** @var Customer $customer */
                 $customer = $audit->auditable;
+
                 return $customer->first_name . ' ' . $customer->last_name;
             case "App\Models\User":
                 try {

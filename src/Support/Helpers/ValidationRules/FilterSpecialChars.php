@@ -35,6 +35,7 @@ class FilterSpecialChars extends AbstractValidator
                 $this->foundCharacters .= $char;
             }
         }
+
         return $passes;
     }
 

@@ -13,15 +13,15 @@ class VpsDnsRecords
     {
         return [
             [
-                'name'    => '{domain}',
-                'type'    => 'A',
-                'ttl'     => 600,
+                'name' => '{domain}',
+                'type' => 'A',
+                'ttl' => 600,
                 'content' => '127.0.0.1',
             ],
             [
-                'name'    => '{domain}',
-                'type'    => 'AAAA',
-                'ttl'     => 600,
+                'name' => '{domain}',
+                'type' => 'AAAA',
+                'ttl' => 600,
                 'content' => '0:0:0:0:0:0:0:1',
             ],
         ];

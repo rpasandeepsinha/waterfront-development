@@ -31,7 +31,7 @@ class ExecuteTechnicalMailOnlyMigrationAction
                 $job = new TechnicalMailOnlyMigrationJob(
                     subscription: $subscription,
                     failedTechnicalStatus: TechnicalStatus::FAILED->value,
-                    payload: $hostingMigrationPayload
+                    payload: $hostingMigrationPayload,
                 );
 
                 $job->delay(self::DELAY);

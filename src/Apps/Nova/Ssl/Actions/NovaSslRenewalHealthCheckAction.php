@@ -64,13 +64,14 @@ class NovaSslRenewalHealthCheckAction extends Action
 
             $result = $this->sslMigrationPipe->handle(
                 $validationPayload,
-                fn (): ValidationPayload => $validationPayload
+                fn (): ValidationPayload => $validationPayload,
             );
 
             return self::modal('modal-response', [
                 'title' => $this->translator->translate('nova-action.ssl_renewal_health_check'),
                 'code' => json_encode($result->toArray(), JSON_PRETTY_PRINT),
             ]);
+
             /** @phpstan-ignore-next-line  */
         } catch (Throwable $exception) {
             return self::modal('modal-response', [
@@ -87,7 +88,7 @@ class NovaSslRenewalHealthCheckAction extends Action
     /**
      * @return array<mixed>|null
      */
-    private function getHostingPayload(Subscription $subscription): array|null
+    private function getHostingPayload(Subscription $subscription): ?array
     {
         if ($subscription->domain === null || $subscription->domain === '') {
             return null;
@@ -137,7 +138,7 @@ class NovaSslRenewalHealthCheckAction extends Action
             'reference_product_id' => 'fake',
             'reference_subscription_id' => 'fake',
             'hostname' => $server->hostname,
-            'driver' =>  $provider->slug->value,
+            'driver' => $provider->slug->value,
             'server_data' => $serverData,
             'domain' => $hostingSubscription->domain,
         ];
@@ -156,7 +157,7 @@ class NovaSslRenewalHealthCheckAction extends Action
                 'plesk_customer_id' => $hostingDeployment->plesk_customer_id,
                 'plesk_customer_username' => $hostingDeployment->plesk_customer_username,
             ],
-            default => []
+            default => [],
         };
     }
 }

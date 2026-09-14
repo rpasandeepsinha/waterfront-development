@@ -24,10 +24,12 @@ class PaginationIteratorTest extends TestCase
             ->expects(self::exactly(2))
             ->method('execute')
             ->willReturnCallback(fn (string $command, array $params): array => match (true) {
-                $command === 'listvolumes' && $params === [
-                    'page' => '1',
-                    'pagesize' => '2',
-                ] => [
+                $command === 'listvolumes'
+                    && $params === [
+                        'page' => '1',
+                        'pagesize' => '2',
+                    ]
+                    => [
                     'count' => 3,
                     'volume' => [
                         [
@@ -48,10 +50,12 @@ class PaginationIteratorTest extends TestCase
                         ],
                     ],
                 ],
-                $command === 'listvolumes' && $params === [
-                    'page' => '2',
-                    'pagesize' => '2',
-                ] => [
+                $command === 'listvolumes'
+                    && $params === [
+                        'page' => '2',
+                        'pagesize' => '2',
+                    ]
+                    => [
                     'count' => 3,
                     'volume' => [
                         [
@@ -117,10 +121,7 @@ class PaginationIteratorTest extends TestCase
     public function emptyResponse(): void
     {
         $client = self::createMock(CloudStackBaseClient::class);
-        $client
-            ->expects(self::once())
-            ->method('execute')
-            ->willReturn([]);
+        $client->expects(self::once())->method('execute')->willReturn([]);
 
         $iterator = new CloudStackPaginationIterator($client, 'listvolumes', [], 'volume', new VolumeMapper(), 2);
 

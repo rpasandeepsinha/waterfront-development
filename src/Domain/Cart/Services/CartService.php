@@ -15,6 +15,7 @@ use Waterfront\Domain\Cart\DTO\VoucherInformation;
 use Waterfront\Domain\Customers\Models\Customer;
 use Waterfront\Domain\Invoices\Services\AdministrationFeesManager;
 use Waterfront\Domain\Orders\DTO\CartOrder;
+use Waterfront\Domain\Orders\DTO\CartOrderLines\ExtensionLineItem;
 use Waterfront\Domain\Orders\DTO\CartOrderLines\LineItem;
 use Waterfront\Domain\Orders\DTO\CartOrderLines\OneTimeServiceLineItem;
 use Waterfront\Domain\Payments\Services\PaymentService;
@@ -43,19 +44,24 @@ class CartService
     ) {
     }
 
-    public function checkVouchersAndCalculateAppliedVoucherAppliedAmount(Customer $customer, Cart $cartOrder): TotalCollectionPrice
-    {
+    public function checkVouchersAndCalculateAppliedVoucherAppliedAmount(
+        Customer $customer,
+        Cart $cartOrder,
+    ): TotalCollectionPrice {
         $checkedVoucherCodes = $this->getValidVoucherCodes($cartOrder->vouchers ?? [], $customer);
-        $vouchers =  $this->getVouchers($checkedVoucherCodes);
+        $vouchers = $this->getVouchers($checkedVoucherCodes);
 
         if (count($cartOrder->cartItems) === 0) {
             $calculatedVoucherCart = new TotalCollectionPrice(
                 items: new Collection(),
                 vouchers: $checkedVoucherCodes,
                 totalExclVatPrice: 0,
-                totalInclVatPrice: 0
+                totalInclVatPrice: 0,
             );
-            $calculatedVoucherCart->vouchers = $this->findNotUsedVouchers($calculatedVoucherCart->vouchers, $checkedVoucherCodes);
+            $calculatedVoucherCart->vouchers = $this->findNotUsedVouchers(
+                $calculatedVoucherCart->vouchers,
+                $checkedVoucherCodes,
+            );
 
             return $calculatedVoucherCart;
         }
@@ -69,21 +75,12 @@ class CartService
         if (count($vouchers) > 0) {
             $calculatedVoucherCart = $this->calculateAppliedVoucherAppliedAmount($calculatedVoucherCart);
 
-            $calculatedVoucherCart->vouchers = $this->findNotUsedVouchers($calculatedVoucherCart->vouchers, $checkedVoucherCodes);
+            $calculatedVoucherCart->vouchers = $this->findNotUsedVouchers(
+                $calculatedVoucherCart->vouchers,
+                $checkedVoucherCodes,
+            );
         }
 
-        return $calculatedVoucherCart;
-    }
-
-    /**
-     * @param array<string, VoucherInformation> $checkedVouchersCodes
-     *
-     */
-    public function setMissingInvalidVouchers(TotalCollectionPrice $calculatedVoucherCart, array $checkedVouchersCodes): TotalCollectionPrice
-    {
-        foreach ($checkedVouchersCodes as $voucherCode => $voucherItem) {
-            $calculatedVoucherCart->vouchers[$voucherCode] ??= $voucherItem;
-        }
         return $calculatedVoucherCart;
     }
 
@@ -157,13 +154,16 @@ class CartService
                 $checkedVoucherCodes[$voucherCode]->message = $this->translator->translate('voucher.voucher_not_found');
                 continue;
             }
+
             $voucher = $this->voucherRepository->findByCode($voucherCode);
 
             $checkedVoucherCodes[$voucherCode]->name = $voucher->display_name;
             $checkedVoucherCodes[$voucherCode]->description = $voucher->description ?? '';
 
             if ($this->voucherService->isExpired($voucher)) {
-                $checkedVoucherCodes[$voucherCode]->message = $this->translator->translate('voucher.voucher_has_expired');
+                $checkedVoucherCodes[$voucherCode]->message = $this->translator->translate(
+                    'voucher.voucher_has_expired',
+                );
             } elseif ($this->voucherService->noClaimsLeft($voucher)) {
                 $checkedVoucherCodes[$voucherCode]->message = $this->translator->translate('voucher.no_claims_left');
             } elseif ($this->voucherService->cantBeClaimedAgain($voucher, $customer)) {
@@ -172,6 +172,7 @@ class CartService
                 $checkedVoucherCodes[$voucherCode]->valid = true;
             }
         }
+
         return $checkedVoucherCodes;
     }
 
@@ -195,7 +196,7 @@ class CartService
     public function convertTotalPriceCollectionToCartWithPricesStructure(
         TotalCollectionPrice $collection,
         Cart $cartOrder,
-        Customer $customer
+        Customer $customer,
     ): CartWithPrices {
         $cartItems = [];
         $totalPriceInclVat = 0;
@@ -209,6 +210,7 @@ class CartService
                     $specificProductFromCartOrder = $cartItem;
                 }
             }
+
             assert($specificProductFromCartOrder instanceof CartItemWithoutPrice);
 
             $cartItems[] = new CartItemWithPrice(
@@ -221,7 +223,7 @@ class CartService
                 price: $cartPrice,
                 priceType: $specificProductFromCartOrder->priceType,
                 quantity: $specificProductFromCartOrder->quantity,
-                metaData: $specificProductFromCartOrder->metaData
+                metaData: $specificProductFromCartOrder->metaData,
             );
 
             $totalPriceInclVat += $product->appliedPrice->priceInclVat;
@@ -232,13 +234,36 @@ class CartService
         $totalPriceInclVat += $this->calculatePriceService->calculateVatPrice($customer, $administrationFees);
         $totalPriceExclVat += $administrationFees;
 
-        return new CartWithPrices($cartItems, $totalPriceExclVat, $totalPriceInclVat, $administrationFees, $collection->vouchers);
+        return new CartWithPrices(
+            $cartItems,
+            $totalPriceExclVat,
+            $totalPriceInclVat,
+            $administrationFees,
+            $collection->vouchers,
+        );
     }
 
     public function shouldCreateDirectDebitMandate(Customer $customer, string $paymentMethod): bool
     {
-        return ! $customer->has_direct_debit
-            && $this->paymentService->isPaymentMethodThatSupportsDirectDebitCreation($paymentMethod);
+        return (
+            ! $customer->has_direct_debit
+            && $this->paymentService->isPaymentMethodThatSupportsDirectDebitCreation($paymentMethod)
+        );
+    }
+
+    /**
+     * @param array<string, VoucherInformation> $checkedVouchersCodes
+     *
+     */
+    private function setMissingInvalidVouchers(
+        TotalCollectionPrice $calculatedVoucherCart,
+        array $checkedVouchersCodes,
+    ): TotalCollectionPrice {
+        foreach ($checkedVouchersCodes as $voucherCode => $voucherItem) {
+            $calculatedVoucherCart->vouchers[$voucherCode] ??= $voucherItem;
+        }
+
+        return $calculatedVoucherCart;
     }
 
     private function convertCartItemToProductDTO(LineItem $cartItem): ProductWithPeriodsAndPrice
@@ -257,7 +282,9 @@ class CartService
 
         return new ProductWithPeriodsAndPrice(
             uuid: $cartItem->uuid,
-            parentItemUuid: $cartItem->parentSubscriptionUuid !== null ? Uuid::fromString($cartItem->parentSubscriptionUuid) : null,
+            parentItemUuid: $cartItem->parentSubscriptionUuid !== null
+                ? Uuid::fromString($cartItem->parentSubscriptionUuid)
+                : null,
             slug: $cartItem->slug,
             productId: $productModel->id,
             billingPeriod: $cartItem->billingPeriod,
@@ -266,19 +293,17 @@ class CartService
             price: null,
             parentSubscription: $parentSubscriptionModel,
             subscription: $subscriptionModel,
-            experimentSlug: $cartItem->experimentSlug,
+            experimentSlug: $cartItem instanceof ExtensionLineItem ? $cartItem->experimentSlug : null,
         );
     }
 
     private function getAdministrationFeesPrice(Cart $cart, Customer $customer): int
     {
-        if (
-            $this->administrationFeesManager->shouldBeChargedWithOrder(
-                $customer,
-                $cart->paymentMethod,
-                $this->shouldCreateDirectDebitMandate($customer, $cart->paymentMethod ?? ''),
-            )
-        ) {
+        if ($this->administrationFeesManager->shouldBeChargedWithOrder(
+            $customer,
+            $cart->paymentMethod,
+            $this->shouldCreateDirectDebitMandate($customer, $cart->paymentMethod ?? ''),
+        )) {
             return $this->administrationFeesManager->getAdministrationFees($customer)->price ?? 0;
         }
 
@@ -317,9 +342,11 @@ class CartService
                 if ($vouchers[$voucher->code]->claimedAmount === 0 && $voucher->valid) {
                     $voucher->message = $this->translator->translate('voucher.unused_voucher_found');
                 }
+
                 $voucher->claimedAmount = $vouchers[$voucher->code]->claimedAmount;
             }
         }
+
         return $knownVouchers;
     }
 
@@ -333,8 +360,12 @@ class CartService
         foreach ($cartOrder->cartItems as $lineItem) {
             $productModel = $this->productRepository->findProductBySlug($lineItem->productSlug);
 
-            $parentSubscription = $lineItem->parentSubscriptionUuid !== null ? $this->subscriptionRepository->getByUuid($lineItem->parentSubscriptionUuid) : null;
-            $subscription = $lineItem->subscriptionUuid !== null ? $this->subscriptionRepository->getByUuid($lineItem->subscriptionUuid) : null;
+            $parentSubscription = $lineItem->parentSubscriptionUuid !== null
+                ? $this->subscriptionRepository->getByUuid($lineItem->parentSubscriptionUuid)
+                : null;
+            $subscription = $lineItem->subscriptionUuid !== null
+                ? $this->subscriptionRepository->getByUuid($lineItem->subscriptionUuid)
+                : null;
 
             $products[] = new ProductWithPeriodsAndPrice(
                 uuid: $lineItem->itemUuid,

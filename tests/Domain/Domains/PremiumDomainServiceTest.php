@@ -48,16 +48,21 @@ class PremiumDomainServiceTest extends IntegrationTestCase
         $domain = 'testdomain.com';
         $customerEmailAddress = 'test@test.com';
 
-        $this->mailer->expects(self::once())
+        $this->mailer
+            ->expects(self::once())
             ->method('send')
             ->with(
                 self::callback(
-                    fn (array $recipients): bool => count($recipients) === 1
+                    fn (array $recipients): bool => (
+                        count($recipients) === 1
                         && $recipients[0]->getEmail() === 'support@test.com'
+                    ),
                 ),
                 self::callback(
-                    fn (MailTemplateInterface $template): bool => $template::class === PremiumDomainPriceRequested::class
-                )
+                    fn (MailTemplateInterface $template): bool => (
+                        $template::class === PremiumDomainPriceRequested::class
+                    ),
+                ),
             );
 
         $this->service->requestPremiumPricePerEmail($domain, $customerEmailAddress);
@@ -86,7 +91,7 @@ class PremiumDomainServiceTest extends IntegrationTestCase
         $this->expectException(InvalidArgumentException::class);
         $this->service->createProductPriceForPremiumDomain(
             new CheckResult('quick.bikes', CheckResult::STATUS_FREE, ''),
-            -1
+            -1,
         );
     }
 
@@ -96,7 +101,7 @@ class PremiumDomainServiceTest extends IntegrationTestCase
         $this->expectException(InvalidArgumentException::class);
         $this->service->createProductPriceForPremiumDomain(
             new CheckResult('quick.bikes', CheckResult::STATUS_FREE, '', false, 1000),
-            25
+            25,
         );
     }
 
@@ -106,7 +111,7 @@ class PremiumDomainServiceTest extends IntegrationTestCase
         $this->expectException(InvalidArgumentException::class);
         $this->service->createProductPriceForPremiumDomain(
             new CheckResult('quick.bikes', CheckResult::STATUS_FREE, ''),
-            25
+            25,
         );
     }
 
@@ -117,7 +122,7 @@ class PremiumDomainServiceTest extends IntegrationTestCase
         $this->expectException(InvalidArgumentException::class);
         $this->service->createProductPriceForPremiumDomain(
             new CheckResult('fast.cars', CheckResult::STATUS_FREE, '', true, 1000),
-            25
+            25,
         );
     }
 
@@ -127,13 +132,15 @@ class PremiumDomainServiceTest extends IntegrationTestCase
         $this->setupTestData();
         $product = $this->service->createProductPriceForPremiumDomain(
             new CheckResult('quick.bikes', CheckResult::STATUS_FREE, '', true, 14411),
-            25
+            25,
         );
 
         self::assertTrue($product->exists());
         self::assertSame('extension_premium_quick_bikes', $product->slug);
 
-        $registrationPrice = ProductPriceComponent::where('product_id', $product->id)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $registrationPrice = ProductPriceComponent::where('product_id', $product->id)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         self::assertSame(18014, $registrationPrice->price);
         self::assertSame(12, $registrationPrice->contract_period);

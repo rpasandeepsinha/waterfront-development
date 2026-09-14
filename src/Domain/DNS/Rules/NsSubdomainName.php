@@ -15,8 +15,9 @@ class NsSubdomainName extends AbstractValidator implements DataAwareRule
 {
     protected array $data = []; // @phpstan-ignore-line comes from laravel request so can't type it
 
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     // @phpstan-ignore-next-line Laravel interface implementation
@@ -63,6 +64,7 @@ class NsSubdomainName extends AbstractValidator implements DataAwareRule
                 if ($labelIndex !== 0 || $hasWildcardLabel) {
                     return false;
                 }
+
                 $hasWildcardLabel = true;
                 continue;
             }

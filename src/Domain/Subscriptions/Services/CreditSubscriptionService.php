@@ -34,7 +34,7 @@ class CreditSubscriptionService
      * @throws CreditSubscriptionsException
      */
     public function creditSubscriptions(
-        Cancellation $cancellation
+        Cancellation $cancellation,
     ): void {
         $this->logger->notice('Executing credit action', [
             LoggingContextKeys::META => [
@@ -62,6 +62,7 @@ class CreditSubscriptionService
     ): void {
         if ($invoiceLinesToCreditBatch->count() === 0) {
             $this->logger->info('No related invoice lines found with a remainder to credit');
+
             return;
         }
 
@@ -71,7 +72,7 @@ class CreditSubscriptionService
             throw new CreditSubscriptionsException(
                 sprintf('Failed crediting related invoices of selected subscriptions: %s', $exception->getMessage()),
                 0,
-                $exception
+                $exception,
             );
         }
     }
@@ -132,7 +133,7 @@ class CreditSubscriptionService
 
         $invoiceLines = $this->invoiceLineRepository->getNonCreditInvoiceLinesForSubscriptionAndEndDate(
             $subscription,
-            $creditFromDate
+            $creditFromDate,
         );
 
         $creditReason = $this->getCreditReasonFromCancelReason($cancelReason);
@@ -156,12 +157,15 @@ class CreditSubscriptionService
     {
         return match ($cancelReason) {
             SubscriptionCancelReason::REASON_ABUSE => InvoiceLineCreditReason::REASON_ABUSE,
-            default => InvoiceLineCreditReason::REASON_CANCELLATION
+            default => InvoiceLineCreditReason::REASON_CANCELLATION,
         };
     }
 
-    private function getCreditInvoiceStartDate(Invoice $invoiceLine, CarbonImmutable $cancellationEndDate, SubscriptionCancelReason $cancelReason): CarbonImmutable
-    {
+    private function getCreditInvoiceStartDate(
+        Invoice $invoiceLine,
+        CarbonImmutable $cancellationEndDate,
+        SubscriptionCancelReason $cancelReason,
+    ): CarbonImmutable {
         // in case the reason enforces a full credit, the original start date should also be used for the credit invoice
         if ($cancelReason->enforcesToCreditFully()) {
             return $invoiceLine->start_date;
@@ -180,12 +184,12 @@ class CreditSubscriptionService
      * To make things even more "exciting"; invoice lines can be credited partially,
      * so there may be multiple credit invoice lines for one single invoice line.
      */
-    private function getInvoiceLineRemainder(Invoice $invoiceLine, CarbonImmutable $fromDate, SubscriptionCancelReason $cancelReason): int
-    {
-        $creditInvoiceLines = $invoiceLine->childInvoices()
-            ->where('net_price', '<', 0)
-            ->get()
-            ->all();
+    private function getInvoiceLineRemainder(
+        Invoice $invoiceLine,
+        CarbonImmutable $fromDate,
+        SubscriptionCancelReason $cancelReason,
+    ): int {
+        $creditInvoiceLines = $invoiceLine->childInvoices()->where('net_price', '<', 0)->get()->all();
         // Subtract past applied credits and discounts.
         $remainder = array_reduce(
             $creditInvoiceLines,
@@ -211,7 +215,7 @@ class CreditSubscriptionService
         }
 
         $fromDays = (int) $fromDate->diffInDays($invoiceLine->start_date, true);
-        $percentageToCredit = ($endDays - $fromDays) / $endDays * 100;
+        $percentageToCredit = (($endDays - $fromDays) / $endDays) * 100;
 
         return (int) round($remainder * 0.01 * $percentageToCredit);
     }

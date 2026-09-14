@@ -50,18 +50,20 @@ class NovaOneOffScriptResource extends Resource
     {
         return [
             ID::make()->hideFromIndex(),
-            Text::make(self::translate('nova-resource-labels.one-off-script.field.slug'), 'slug')
-                ->readonly(),
-            URL::make(self::translate('nova-resource-labels.one-off-script.field.ticket_ref'), 'ticket_ref')
-                ->readonly(),
+            Text::make(self::translate('nova-resource-labels.one-off-script.field.slug'), 'slug')->readonly(),
+            URL::make(
+                self::translate('nova-resource-labels.one-off-script.field.ticket_ref'),
+                'ticket_ref',
+            )->readonly(),
             Text::make(self::translate('nova-resource-labels.one-off-script.field.output_last_run'), 'output_last_run')
                 ->onlyOnDetail()
                 ->asHtml()
                 ->readonly(),
-            DateTime::make(self::translate('nova-resource-labels.one-off-script.field.last_executed_at'), 'last_executed_at')
-                ->readonly(),
-            DateTime::make(self::translate('nova-resource-labels.created_at'), 'created_at')
-                ->readonly(),
+            DateTime::make(
+                self::translate('nova-resource-labels.one-off-script.field.last_executed_at'),
+                'last_executed_at',
+            )->readonly(),
+            DateTime::make(self::translate('nova-resource-labels.created_at'), 'created_at')->readonly(),
         ];
     }
 

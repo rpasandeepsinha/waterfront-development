@@ -89,7 +89,7 @@ class AssignNameserversToDomainAction
                 'subscription',
                 static function (Builder $builder) use ($domain): void {
                     $builder->where('domain', '=', $domain);
-                }
+                },
             )
             ->with(['provider', 'subscription'])
             ->firstOrFail();
@@ -108,7 +108,7 @@ class AssignNameserversToDomainAction
     private function provisionDns(
         Subscription $dnsSubscription,
         string $domain,
-        array $nameservers
+        array $nameservers,
     ): void {
         $isPremiumDns = $this->dnsProductSpecRepository->isPremiumDns($dnsSubscription->product);
 
@@ -123,7 +123,7 @@ class AssignNameserversToDomainAction
                     'nameservers' => $nameservers,
                     'is_premium_dns' => $isPremiumDns,
                 ],
-            ]
+            ],
         );
 
         if ($isPremiumDns) {
@@ -131,6 +131,7 @@ class AssignNameserversToDomainAction
             $dnsSubscription->save();
 
             $this->dnsService->enablePremiumDns($domain);
+
             return;
         }
 
@@ -145,7 +146,7 @@ class AssignNameserversToDomainAction
     private function provisionRegistry(
         DomainDeployment $domainDeployment,
         string $domain,
-        array $nameservers
+        array $nameservers,
     ): void {
         $this->logger->info(
             sprintf(
@@ -158,15 +159,15 @@ class AssignNameserversToDomainAction
                 LoggingContextKeys::META => [
                     'nameservers' => $nameservers,
                 ],
-            ]
+            ],
         );
 
         $this->domainServiceFactory->driver(
             $domainDeployment->provider->slug,
-            $domainDeployment->businessUnit
+            $domainDeployment->businessUnit,
         )->updateNameServers(
             $domain,
-            $nameservers
+            $nameservers,
         );
     }
 
@@ -182,6 +183,7 @@ class AssignNameserversToDomainAction
             $key = strtolower($ns->hostname);
             $uniqueNameservers[$key] = $ns;
         }
+
         return array_values($uniqueNameservers);
     }
 }

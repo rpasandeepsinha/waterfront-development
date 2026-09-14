@@ -20,7 +20,7 @@ class UserKeysMapper implements Mapper
         assert(is_string($data['apikey']));
 
         return new UserKeys(
-            apiKey:    $data['apikey'],
+            apiKey: $data['apikey'],
             secretKey: $data['secretkey'],
         );
     }

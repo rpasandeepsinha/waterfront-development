@@ -32,27 +32,24 @@ class VoucherControllerTest extends IntegrationTestCase
     #[Test]
     public function storeVoucherSuccessfully(): void
     {
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.product-config.voucher.store'), [
-                'displayName'                    => 'Summer Sale',
-                'internalName'                   => 'summer-sale-2024',
-                'description'                    => 'A summer discount',
-                'code'                           => 'SUMMER24',
-                'amount'                         => 1000,
-                'amountType'                     => VoucherAmountType::FIXED->value,
-                'applyWithDiscount'              => false,
-                'allowMultipleClaimsSameCustomer' => false,
-                'productGroupSlug'               => ProductGroupType::HOSTING->value,
-            ])
-            ->assertCreated()
-            ->assertJsonStructure(['uuid']);
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.product-config.voucher.store'), [
+            'displayName' => 'Summer Sale',
+            'internalName' => 'summer-sale-2024',
+            'description' => 'A summer discount',
+            'code' => 'SUMMER24',
+            'amount' => 1000,
+            'amountType' => VoucherAmountType::FIXED->value,
+            'applyWithDiscount' => false,
+            'allowMultipleClaimsSameCustomer' => false,
+            'productGroupSlug' => ProductGroupType::HOSTING->value,
+        ])->assertCreated()->assertJsonStructure(['uuid']);
 
         self::assertDatabaseHas('vouchers', [
-            'display_name'       => 'Summer Sale',
-            'internal_name'      => 'summer-sale-2024',
-            'code'               => 'SUMMER24',
-            'amount'             => 1000,
-            'amount_type'        => VoucherAmountType::FIXED->value,
+            'display_name' => 'Summer Sale',
+            'internal_name' => 'summer-sale-2024',
+            'code' => 'SUMMER24',
+            'amount' => 1000,
+            'amount_type' => VoucherAmountType::FIXED->value,
             'product_group_uuid' => $this->hostingGroup->uuid,
         ]);
     }
@@ -62,22 +59,20 @@ class VoucherControllerTest extends IntegrationTestCase
     {
         $product = new ProductFactory()->for($this->hostingGroup)->createOne(['slug' => 'hosting-brons']);
 
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.product-config.voucher.store'), [
-                'displayName'                    => 'Hosting Deal',
-                'internalName'                   => 'hosting-deal',
-                'code'                           => 'HOSTING10',
-                'amount'                         => 500,
-                'amountType'                     => VoucherAmountType::FIXED->value,
-                'applyWithDiscount'              => false,
-                'allowMultipleClaimsSameCustomer' => false,
-                'productSlug'                    => 'hosting-brons',
-                'productGroupSlug'               => ProductGroupType::HOSTING->value,
-            ])
-            ->assertCreated();
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.product-config.voucher.store'), [
+            'displayName' => 'Hosting Deal',
+            'internalName' => 'hosting-deal',
+            'code' => 'HOSTING10',
+            'amount' => 500,
+            'amountType' => VoucherAmountType::FIXED->value,
+            'applyWithDiscount' => false,
+            'allowMultipleClaimsSameCustomer' => false,
+            'productSlug' => 'hosting-brons',
+            'productGroupSlug' => ProductGroupType::HOSTING->value,
+        ])->assertCreated();
 
         self::assertDatabaseHas('vouchers', [
-            'code'         => 'HOSTING10',
+            'code' => 'HOSTING10',
             'product_uuid' => $product->uuid,
         ]);
     }
@@ -90,19 +85,17 @@ class VoucherControllerTest extends IntegrationTestCase
         ]);
         new ProductFactory()->for($extensionGroup)->createOne(['slug' => 'extension-nl']);
 
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.product-config.voucher.store'), [
-                'displayName'                    => 'Bad Voucher',
-                'internalName'                   => 'bad-voucher',
-                'code'                           => 'BAD10',
-                'amount'                         => 100,
-                'amountType'                     => VoucherAmountType::FIXED->value,
-                'applyWithDiscount'              => false,
-                'allowMultipleClaimsSameCustomer' => false,
-                'productSlug'                    => 'extension-nl',
-                'productGroupSlug'               => ProductGroupType::HOSTING->value,
-            ])
-            ->assertUnprocessable();
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.product-config.voucher.store'), [
+            'displayName' => 'Bad Voucher',
+            'internalName' => 'bad-voucher',
+            'code' => 'BAD10',
+            'amount' => 100,
+            'amountType' => VoucherAmountType::FIXED->value,
+            'applyWithDiscount' => false,
+            'allowMultipleClaimsSameCustomer' => false,
+            'productSlug' => 'extension-nl',
+            'productGroupSlug' => ProductGroupType::HOSTING->value,
+        ])->assertUnprocessable();
 
         self::assertDatabaseMissing('vouchers', ['code' => 'BAD10']);
     }
@@ -112,18 +105,16 @@ class VoucherControllerTest extends IntegrationTestCase
     {
         $existing = new VoucherFactory()->for($this->hostingGroup, 'productGroup')->createOne(['code' => 'DUPLICATE']);
 
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.product-config.voucher.store'), [
-                'displayName'                    => 'Some Voucher',
-                'internalName'                   => 'some-voucher',
-                'code'                           => $existing->code,
-                'amount'                         => 200,
-                'amountType'                     => VoucherAmountType::FIXED->value,
-                'applyWithDiscount'              => false,
-                'allowMultipleClaimsSameCustomer' => false,
-                'productGroupSlug'               => ProductGroupType::HOSTING->value,
-            ])
-            ->assertUnprocessable();
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.product-config.voucher.store'), [
+            'displayName' => 'Some Voucher',
+            'internalName' => 'some-voucher',
+            'code' => $existing->code,
+            'amount' => 200,
+            'amountType' => VoucherAmountType::FIXED->value,
+            'applyWithDiscount' => false,
+            'allowMultipleClaimsSameCustomer' => false,
+            'productGroupSlug' => ProductGroupType::HOSTING->value,
+        ])->assertUnprocessable();
     }
 
     #[Test]
@@ -137,8 +128,6 @@ class VoucherControllerTest extends IntegrationTestCase
     #[Test]
     public function listVouchers(): void
     {
-        $this->actingAsEmployee()
-            ->getJson($this->generateRoute('admin.product-config.voucher.list'))
-            ->assertOk();
+        $this->actingAsEmployee()->getJson($this->generateRoute('admin.product-config.voucher.list'))->assertOk();
     }
 }

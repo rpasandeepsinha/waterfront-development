@@ -21,7 +21,7 @@ class PaytMandateStillExistsException extends Exception
                 $mandate->mollieCustomer->mollie_customer_reference_id,
             ),
             $code,
-            $previous
+            $previous,
         );
     }
 }

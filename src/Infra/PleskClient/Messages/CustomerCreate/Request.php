@@ -9,8 +9,10 @@ use Waterfront\Domain\Hosting\Interfaces\Hosting\RequestInterface;
 
 class Request implements RequestInterface
 {
-    public function __construct(private readonly Parameters $parameters, public bool $maskSecrets = false)
-    {
+    public function __construct(
+        private readonly Parameters $parameters,
+        public bool $maskSecrets = false,
+    ) {
     }
 
     /**
@@ -22,10 +24,10 @@ class Request implements RequestInterface
             'customer' => [
                 'add' => [
                     'gen_info' => [
-                        'pname'  => $this->parameters->getContactPersonName(),
-                        'login'  => $this->parameters->getUsername(),
+                        'pname' => $this->parameters->getContactPersonName(),
+                        'login' => $this->parameters->getUsername(),
                         'passwd' => ! $this->maskSecrets ? $this->parameters->getPassword() : '********',
-                        'email'  => $this->parameters->getEmailAddress(),
+                        'email' => $this->parameters->getEmailAddress(),
                     ],
                 ],
             ],

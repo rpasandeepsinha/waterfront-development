@@ -55,26 +55,35 @@ class NovaSslDeploymentResource extends Resource
             BelongsTo::make(
                 self::translate('subscription.ssl-subscription.internal_subscription'),
                 'subscription',
-                NovaSubscriptionResource::class
-            )->sortable()
+                NovaSubscriptionResource::class,
+            )
+                ->sortable()
                 ->exceptOnForms(),
             Text::make(self::translate('subscription.ssl-subscription.certificate_id'), 'certificate_id')
                 ->resolveUsing(fn (): string => $this->resolveProviderIdentifier($this->resource->provider) ?? '---')
                 ->sortable(),
-            Text::make(self::translate('subscription.ssl-subscription.status'), 'status')
-                ->sortable(),
-            NovaBoolField::make(self::translate('subscription.ssl-subscription.dns_record'), 'dns_record')
-                ->sortable(),
-            NovaBoolField::make(self::translate('subscription.ssl-subscription.has_certificates'), 'has_certificates')
-                ->sortable(),
-            NovaBoolField::make(self::translate('subscription.ssl-subscription.has_private'), 'has_private')
-                ->sortable(),
-            DateTime::make(self::translate('subscription.ssl-subscription.last_result_received'), 'last_result_received')
+            Text::make(self::translate('subscription.ssl-subscription.status'), 'status')->sortable(),
+            NovaBoolField::make(self::translate('subscription.ssl-subscription.dns_record'), 'dns_record')->sortable(),
+            NovaBoolField::make(
+                self::translate('subscription.ssl-subscription.has_certificates'),
+                'has_certificates',
+            )->sortable(),
+            NovaBoolField::make(
+                self::translate('subscription.ssl-subscription.has_private'),
+                'has_private',
+            )->sortable(),
+            DateTime::make(
+                self::translate('subscription.ssl-subscription.last_result_received'),
+                'last_result_received',
+            )
                 ->displayUsing(fn () => $this->resource->last_result_received?->format(DateTimeFormat::DUTCH))
                 ->exceptOnForms()
                 ->onlyOnDetail()
                 ->sortable(),
-            DateTime::make(self::translate('subscription.ssl-subscription.webhook_request_received'), 'webhook_request_received')
+            DateTime::make(
+                self::translate('subscription.ssl-subscription.webhook_request_received'),
+                'webhook_request_received',
+            )
                 ->displayUsing(fn () => $this->resource->webhook_request_received?->format(DateTimeFormat::DUTCH))
                 ->exceptOnForms()
                 ->onlyOnDetail()
@@ -137,6 +146,7 @@ class NovaSslDeploymentResource extends Resource
                 if ($this->resource->certificate_id !== null) {
                     return (string) $this->resource->certificate_id;
                 }
+
                 return $this->resource->request_id !== null ? 'pid: ' . $this->resource->request_id : '-';
         }
 

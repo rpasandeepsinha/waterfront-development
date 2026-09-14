@@ -28,7 +28,11 @@ class TechnicalStepsTest extends IntegrationTestCase
     #[Test]
     public function calculateDomainSteps(): void
     {
-        $options = [ManualMigrationOption::DNSSEC_ENABLE, ManualMigrationOption::NAMESERVERS_UPDATE_NEW, ManualMigrationOption::DNS_NEW_EMPTY];
+        $options = [
+            ManualMigrationOption::DNSSEC_ENABLE,
+            ManualMigrationOption::NAMESERVERS_UPDATE_NEW,
+            ManualMigrationOption::DNS_NEW_EMPTY,
+        ];
 
         $steps = $this->technicalStepsService->getSteps(ProductGroupType::EXTENSION, $options, true);
 
@@ -39,7 +43,7 @@ class TechnicalStepsTest extends IntegrationTestCase
                 MigrationStep::NAMESERVER_SET_DEFAULT,
                 MigrationStep::ENABLE_DNSSEC,
             ],
-            $steps
+            $steps,
         );
     }
 

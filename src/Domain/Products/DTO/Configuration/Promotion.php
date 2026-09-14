@@ -12,7 +12,7 @@ use Waterfront\Domain\Products\Enums\ProductPromotionPlatform;
 readonly class Promotion
 {
     public function __construct(
-        public UuidInterface|null $uuid,
+        public ?UuidInterface $uuid,
         public ProductPromotionPlatform $platform,
         #[SerializedName('placement_url')]
         public string $placementUrl,

@@ -59,7 +59,7 @@ class DnsZoneServiceTest extends IntegrationTestCase
             ipv4: $ipv4,
             ipv6: $ipv6,
             ipv4Mail: $ipv4Mail,
-            ipv6Mail: $ipv6Mail
+            ipv6Mail: $ipv6Mail,
         );
 
         $records = $dnsZone->getAddedRows();
@@ -67,20 +67,22 @@ class DnsZoneServiceTest extends IntegrationTestCase
         foreach ($records as $record) {
             self::assertStringContainsString($domain, $record->getDnsRecord()->getName());
 
-            if ($record->getDnsRecord()->getType() === 'A'
+            if (
+                $record->getDnsRecord()->getType() === 'A'
                 && (
                     str_starts_with($record->getDnsRecord()->getName(), 'mail.')
-                ||  str_starts_with($record->getDnsRecord()->getName(), 'smtp.')
+                    || str_starts_with($record->getDnsRecord()->getName(), 'smtp.')
                 )
             ) {
                 self::assertSame($ipv4Mail, $record->getDnsRecord()->getContent());
                 continue;
             }
 
-            if ($record->getDnsRecord()->getType() === 'AAAA'
+            if (
+                $record->getDnsRecord()->getType() === 'AAAA'
                 && (
                     str_starts_with($record->getDnsRecord()->getName(), 'mail.')
-                    ||  str_starts_with($record->getDnsRecord()->getName(), 'smtp.')
+                    || str_starts_with($record->getDnsRecord()->getName(), 'smtp.')
                 )
             ) {
                 self::assertSame($ipv6Mail, $record->getDnsRecord()->getContent());

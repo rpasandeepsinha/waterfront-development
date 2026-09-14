@@ -20,15 +20,12 @@ class TransferSubscriptionsTest extends IntegrationTestCase
     {
         $transfer = new TransferFactory()->createOne([
             'from_customer_id' => new CustomerFactory()->createOne()->id,
-            'to_customer_id'   => new CustomerFactory()->createOne()->id,
+            'to_customer_id' => new CustomerFactory()->createOne()->id,
         ]);
 
         $executeTransferService = self::createMock(ExecuteTransferInterface::class);
 
-        $executeTransferService->expects(self::once())
-            ->method('execute')
-            ->with($transfer)
-            ->willReturn($transfer);
+        $executeTransferService->expects(self::once())->method('execute')->with($transfer)->willReturn($transfer);
 
         $job = new TransferSubscriptions($transfer);
         $job->handle($executeTransferService);

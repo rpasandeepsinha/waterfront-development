@@ -19,7 +19,7 @@ class RemoteDomainForbiddenException extends RuntimeException
             $driver->value,
             $subscription->domainDeployment?->businessUnit->slug ?? 'null',
             $subscription->customer_id,
-            $previous->getMessage()
+            $previous->getMessage(),
         );
         parent::__construct($message, $previous->getCode(), $previous);
     }

@@ -42,31 +42,42 @@ class MailUserResetTest extends IntegrationTestCase
             'type' => ServerType::DIRECTADMIN_MAIL,
             'hostname' => $this->domain,
         ]);
-        $productGroup  = new ProductGroupFactory()->createOne(['slug' => 'hosting']);
-        $product = new ProductFactory()->mailOnly($productGroup)->createOne();
+        $productGroup = new ProductGroupFactory()->createOne(['slug' => 'hosting']);
+        $product = new ProductFactory()
+            ->mailOnly($productGroup)
+            ->createOne();
 
-        new ProductSpecFactory()
-        ->for($product)
-        ->createOne([
-            'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+        new ProductSpecFactory()->for($product)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
             'value' => '1',
         ]);
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($product)->createOne([
-            'domain' => 'example.com',
-            'contract_period' => '12',
-            'gross_price' => 121,
-            'net_price' => 100,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($product)
+            ->createOne([
+                'domain' => 'example.com',
+                'contract_period' => '12',
+                'gross_price' => 121,
+                'net_price' => 100,
+            ]);
 
         new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
-            'mail_only_server_id'         => $server->id,
+            'mail_only_server_id' => $server->id,
             'directadmin_customer_username' => 'goodtest',
         ]);
 
-        $provider = ProviderFactory::new()->createOne(['type' => ProviderType::MAILONLY, 'slug' => ProviderSlug::DIRECTADMIN, 'default' => true, 'enabled' => true]);
-        $quota = ProviderSettingsFactory::new()->createOne(['provider_id' => $provider->id, 'key' => ProviderSettingKey::QUOTA]);
+        $provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::MAILONLY,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'default' => true,
+            'enabled' => true,
+        ]);
+        $quota = ProviderSettingsFactory::new()->createOne([
+            'provider_id' => $provider->id,
+            'key' => ProviderSettingKey::QUOTA,
+        ]);
         $provider->settings()->save($quota);
     }
 
@@ -82,7 +93,7 @@ class MailUserResetTest extends IntegrationTestCase
                 [
                     'password' => 'Admin123',
                     'password_confirmation' => 'Admin123',
-                ]
+                ],
             )
             ->assertOk()
             ->assertExactJson([
@@ -99,8 +110,9 @@ class MailUserResetTest extends IntegrationTestCase
                     'domain' => $this->domain,
                     'username' => 'mytestuser1',
                 ]),
-                []
-            )->assertUnprocessable();
+                [],
+            )
+            ->assertUnprocessable();
     }
 
     #[Test]
@@ -114,8 +126,9 @@ class MailUserResetTest extends IntegrationTestCase
                 ]),
                 [
                     'password' => 'Admin123',
-                ]
-            )->assertUnprocessable();
+                ],
+            )
+            ->assertUnprocessable();
     }
 
     #[Test]
@@ -130,8 +143,9 @@ class MailUserResetTest extends IntegrationTestCase
                 [
                     'password' => 'Admin123',
                     'password_confirmation' => 'Different',
-                ]
-            )->assertUnprocessable();
+                ],
+            )
+            ->assertUnprocessable();
     }
 
     #[Test]
@@ -146,8 +160,9 @@ class MailUserResetTest extends IntegrationTestCase
                 [
                     'password' => 'Admin123',
                     'password_confirmation' => 'Admin123',
-                ]
-            )->assertForbidden();
+                ],
+            )
+            ->assertForbidden();
     }
 
     #[Test]
@@ -162,11 +177,12 @@ class MailUserResetTest extends IntegrationTestCase
                 [
                     'password' => 'Admin123',
                     'password_confirmation' => 'Admin123',
-                ]
+                ],
             )
             ->assertNotFound()
             ->assertJson([
-                'message' =>  self::resolve(TranslatorInterface::class)->translate('mail-providers.errors.username-does-not-exist'),
+                'message' => self::resolve(TranslatorInterface::class)
+                    ->translate('mail-providers.errors.username-does-not-exist'),
             ]);
     }
 }

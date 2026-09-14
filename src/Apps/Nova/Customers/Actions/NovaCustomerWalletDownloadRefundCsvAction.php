@@ -54,11 +54,15 @@ class NovaCustomerWalletDownloadRefundCsvAction extends Action
         }
 
         if (! $this->allSelectedWalletsAreRefundable($models)) {
-            return self::danger($this->translator->translate('nova-action.customer.wallet.selection-contains-wallets-without-refund-request'));
+            return self::danger($this->translator->translate(
+                'nova-action.customer.wallet.selection-contains-wallets-without-refund-request',
+            ));
         }
 
         if (! $this->allSelectedWalletsAreNotAlreadyExported($models)) {
-            return self::danger($this->translator->translate('nova-action.customer.wallet.selection-contains-wallets-that-already-have-been-downloaded'));
+            return self::danger($this->translator->translate(
+                'nova-action.customer.wallet.selection-contains-wallets-that-already-have-been-downloaded',
+            ));
         }
 
         $now = CarbonImmutable::now();
@@ -77,7 +81,7 @@ class NovaCustomerWalletDownloadRefundCsvAction extends Action
                     $wallet->amount,
                 ], $models->all()),
             ),
-            $now
+            $now,
         );
         $this->updateAllDownloadedAtForWallets($models, $now);
 
@@ -93,11 +97,15 @@ class NovaCustomerWalletDownloadRefundCsvAction extends Action
     public function fields(NovaRequest $request): array
     {
         return [
-            NovaBoolField::make('Confirm', 'confirm_check')
-                ->help($this->translator->translate('nova-action.customer.wallet.download_refund_csv.confirmtext')),
-            Heading::make('<p class="text-red-600">LET OP! De export is gelimiteerd tot ' . self::$chunkCount . ' items!</p>
-<p>De export zal geen fout geven maar incompleet zijn indien er meer wallets geselecteerd worden.</p>')
-                ->asHtml(),
+            NovaBoolField::make('Confirm', 'confirm_check')->help($this->translator->translate(
+                'nova-action.customer.wallet.download_refund_csv.confirmtext',
+            )),
+            Heading::make(
+                '<p class="text-red-600">LET OP! De export is gelimiteerd tot '
+                . self::$chunkCount
+                . ' items!</p>
+<p>De export zal geen fout geven maar incompleet zijn indien er meer wallets geselecteerd worden.</p>',
+            )->asHtml(),
         ];
     }
 
@@ -106,9 +114,11 @@ class NovaCustomerWalletDownloadRefundCsvAction extends Action
      */
     private function allSelectedWalletsAreNotAlreadyExported(Collection $models): bool
     {
-        return $models->contains(
-            static fn (CustomerWallet $wallet) => $wallet->csv_downloaded_at !== null
-        ) === false;
+        return (
+            $models->contains(
+                static fn (CustomerWallet $wallet) => $wallet->csv_downloaded_at !== null,
+            ) === false
+        );
     }
 
     /**
@@ -116,12 +126,15 @@ class NovaCustomerWalletDownloadRefundCsvAction extends Action
      */
     private function allSelectedWalletsAreRefundable(Collection $models): bool
     {
-        return $models->contains(
-            static fn (CustomerWallet $wallet)
-                => $wallet->refund_requested_at === null
+        return (
+            $models->contains(
+                static fn (CustomerWallet $wallet) => (
+                    $wallet->refund_requested_at === null
                     || $wallet->bank_account_number === null
                     || $wallet->bank_account_name === null
-        ) === false;
+                ),
+            ) === false
+        );
     }
 
     private function storeCsv(string $csvContent, DateTimeImmutable $now): string
@@ -131,14 +144,13 @@ class NovaCustomerWalletDownloadRefundCsvAction extends Action
         $csvFileName = sprintf('customer-wallet-refunds-%s.csv', $now->format(DateTimeFormat::FILENAME));
 
         // First store it in the private exports dir so that we can hand it over for downloading.
-        $this->filesystemManager
-            ->disk('private')
-            ->put('exports/' . $csvFileName, $csvContent);
+        $this->filesystemManager->disk('private')->put('exports/' . $csvFileName, $csvContent);
 
         // Second store it on the cloud disk for historical reasons.
-        $this->filesystemManager
-            ->disk($this->configuration->getAsString('filesystems.cloud'))
-            ->put($csvFileName, $csvContent);
+        $this->filesystemManager->disk($this->configuration->getAsString('filesystems.cloud'))->put(
+            $csvFileName,
+            $csvContent,
+        );
 
         return $csvFileName;
     }

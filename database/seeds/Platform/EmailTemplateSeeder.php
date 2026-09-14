@@ -31,8 +31,10 @@ use Waterfront\Infra\Translation\TranslatorInterface;
 
 class EmailTemplateSeeder extends Seeder
 {
-    public function __construct(private readonly TranslatorInterface $translator, private readonly ReferenceRepository $referenceRepo)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+        private readonly ReferenceRepository $referenceRepo,
+    ) {
     }
 
     public function run(): void
@@ -277,7 +279,8 @@ class EmailTemplateSeeder extends Seeder
         $template->title = 'Manual subscription ordered employee';
         $template->slug = OrderedManualSubscriptionEmployee::getTemplateSlug();
         $template->subject = $this->translator->translate('email.manual-subscription.subject-employee-ordered');
-        $template->header = '<h2>' . $this->translator->translate('email.manual-subscription.header-employee-ordered') . '</h2>';
+        $template->header =
+            '<h2>' . $this->translator->translate('email.manual-subscription.header-employee-ordered') . '</h2>';
         $template->body = 'email.' . OrderedManualSubscriptionEmployee::getTemplateSlug();
         $template->footer = 'Footer placeholder';
         $template->save();
@@ -286,7 +289,8 @@ class EmailTemplateSeeder extends Seeder
         $template->title = 'Manual subscription activated customer';
         $template->slug = ActivatedManualSubscriptionCustomer::getTemplateSlug();
         $template->subject = $this->translator->translate('email.manual-subscription.subject-customer-activated');
-        $template->header = '<h2>' . $this->translator->translate('email.manual-subscription.header-customer-activated') . '</h2>';
+        $template->header =
+            '<h2>' . $this->translator->translate('email.manual-subscription.header-customer-activated') . '</h2>';
         $template->body = 'email.' . ActivatedManualSubscriptionCustomer::getTemplateSlug();
         $template->footer = 'Footer placeholder';
         $template->save();
@@ -295,7 +299,8 @@ class EmailTemplateSeeder extends Seeder
         $template->title = 'Manual subscription canceled employee';
         $template->slug = CanceledManualSubscriptionEmployee::getTemplateSlug();
         $template->subject = $this->translator->translate('email.manual-subscription.subject-employee-canceled');
-        $template->header = '<h2>' . $this->translator->translate('email.manual-subscription.header-employee-canceled') . '</h2>';
+        $template->header =
+            '<h2>' . $this->translator->translate('email.manual-subscription.header-employee-canceled') . '</h2>';
         $template->body = 'email.' . CanceledManualSubscriptionEmployee::getTemplateSlug();
         $template->footer = 'Footer placeholder';
         $template->save();
@@ -303,8 +308,11 @@ class EmailTemplateSeeder extends Seeder
         $template = new Template();
         $template->title = 'Manual subscription canceled reminder employee';
         $template->slug = CanceledReminderManualSubscription::getTemplateSlug();
-        $template->subject = $this->translator->translate('email.manual-subscription.subject-employee-canceled-reminder');
-        $template->header = '<h2>' . $this->translator->translate('email.manual-subscription.header-employee-canceled') . '</h2>';
+        $template->subject = $this->translator->translate(
+            'email.manual-subscription.subject-employee-canceled-reminder',
+        );
+        $template->header =
+            '<h2>' . $this->translator->translate('email.manual-subscription.header-employee-canceled') . '</h2>';
         $template->body = 'email.' . CanceledReminderManualSubscription::getTemplateSlug();
         $template->footer = 'Footer placeholder';
         $template->save();
@@ -313,7 +321,8 @@ class EmailTemplateSeeder extends Seeder
         $template->title = 'Premium domain price requested';
         $template->slug = PremiumDomainPriceRequested::getTemplateSlug();
         $template->subject = $this->translator->translate('email.premium-domain-price-requested.subject');
-        $template->header = '<h2>' . $this->translator->translate('email.premium-domain-price-requested.header') . '</h2>';
+        $template->header =
+            '<h2>' . $this->translator->translate('email.premium-domain-price-requested.header') . '</h2>';
         $template->body = 'email.' . PremiumDomainPriceRequested::getTemplateSlug();
         $template->footer = 'Footer placeholder';
         $template->save();
@@ -422,7 +431,8 @@ class EmailTemplateSeeder extends Seeder
         $template->title = $this->translator->translate('email.ssl-renewal-failed-missing-cname.title');
         $template->slug = SslRenewalFailedMissingCname::getTemplateSlug();
         $template->subject = $this->translator->translate('email.ssl-renewal-failed-missing-cname.subject');
-        $template->header = '<h2>' . $this->translator->translate('email.ssl-renewal-failed-missing-cname.header') . '</h2>';
+        $template->header =
+            '<h2>' . $this->translator->translate('email.ssl-renewal-failed-missing-cname.header') . '</h2>';
         $template->body = 'email.' . SslRenewalFailedMissingCname::getTemplateSlug();
         $template->footer = 'Footer placeholder';
         $template->save();
@@ -431,7 +441,8 @@ class EmailTemplateSeeder extends Seeder
         $template->title = $this->translator->translate('email.ssl-certificate-successfully-delivered.title');
         $template->slug = SslRenewalSucces::getTemplateSlug();
         $template->subject = $this->translator->translate('email.ssl-certificate-successfully-delivered.subject');
-        $template->header = '<h2>' . $this->translator->translate('email.ssl-certificate-successfully-delivered.header') . '</h2>';
+        $template->header =
+            '<h2>' . $this->translator->translate('email.ssl-certificate-successfully-delivered.header') . '</h2>';
         $template->body = 'email.' . SslRenewalSucces::getTemplateSlug();
         $template->footer = 'Footer placeholder';
         $template->save();

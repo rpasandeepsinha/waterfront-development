@@ -24,12 +24,16 @@ class CancelRequest extends FormRequest
         $uuids = $subscriptionService->getSubscriptionsQuery()->pluck('uuid');
 
         return [
-            'subscriptions'                      => ['required', 'array'],
-            'subscriptions.*'                    => ['array'],
-            'subscriptions.*.uuid'               => ['required', Rule::in($uuids)],
-            'subscriptions.*.cancel'             => ['required', 'boolean'],
-            'subscriptions.*.cancel_type'        => ['nullable', Rule::enum(SubscriptionCancelType::class), new ProductShouldDowngradeCancelType()],
-            'subscriptions.*.cancel_reason'      => ['required', Rule::enum(SubscriptionCancelReason::class)],
+            'subscriptions' => ['required', 'array'],
+            'subscriptions.*' => ['array'],
+            'subscriptions.*.uuid' => ['required', Rule::in($uuids)],
+            'subscriptions.*.cancel' => ['required', 'boolean'],
+            'subscriptions.*.cancel_type' => [
+                'nullable',
+                Rule::enum(SubscriptionCancelType::class),
+                new ProductShouldDowngradeCancelType(),
+            ],
+            'subscriptions.*.cancel_reason' => ['required', Rule::enum(SubscriptionCancelReason::class)],
         ];
     }
 }

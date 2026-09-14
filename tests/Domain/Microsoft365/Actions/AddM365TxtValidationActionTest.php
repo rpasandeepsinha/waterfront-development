@@ -52,7 +52,7 @@ class AddM365TxtValidationActionTest extends TestCase
             microsoft365Service: $this->microsoft365Service = self::createMock(Microsoft365Service::class),
             dnsDeploymentRepository: $this->dnsDeploymentRepository = self::createMock(DnsDeploymentRepository::class),
             dnsService: $this->dnsService = self::createMock(DnsService::class),
-            logger: $this->logger = self::createMock(LoggerInterface::class)
+            logger: $this->logger = self::createMock(LoggerInterface::class),
         );
 
         $this->customerInfo = new Microsoft365CustomerInfo();
@@ -64,7 +64,8 @@ class AddM365TxtValidationActionTest extends TestCase
     #[Test]
     public function addTxtValidationDnsRecord(): void
     {
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('getTenantDefaultDomainName')
             ->willReturn(self::PRIMARY_DOMAIN);
 
@@ -72,12 +73,14 @@ class AddM365TxtValidationActionTest extends TestCase
         $dnsDeployment->subscription = new Subscription();
         $dnsDeployment->subscription->domain = self::PRIMARY_DOMAIN;
 
-        $this->dnsDeploymentRepository->expects(self::once())
+        $this->dnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->with(self::PRIMARY_DOMAIN)
             ->willReturn($dnsDeployment);
 
-        $this->dnsService->expects(self::once())
+        $this->dnsService
+            ->expects(self::once())
             ->method('addRecordFromObject')
             ->with(
                 self::PRIMARY_DOMAIN,
@@ -85,8 +88,8 @@ class AddM365TxtValidationActionTest extends TestCase
                     'TXT',
                     'kpnonboardingpac.' . self::PRIMARY_DOMAIN,
                     '12345678',
-                    3600
-                )
+                    3600,
+                ),
             );
 
         $this->action->execute($this->customerInfo);
@@ -95,17 +98,17 @@ class AddM365TxtValidationActionTest extends TestCase
     #[Test]
     public function whenGraphClientThrowsGuzzleException(): void
     {
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('getTenantDefaultDomainName')
             ->willThrowException($exception = self::createMock(GuzzleException::class));
 
-        $this->dnsDeploymentRepository->expects(self::never())
-            ->method('getDnsDeploymentFromDomain');
+        $this->dnsDeploymentRepository->expects(self::never())->method('getDnsDeploymentFromDomain');
 
-        $this->dnsService->expects(self::never())
-            ->method('addRecordFromObject');
+        $this->dnsService->expects(self::never())->method('addRecordFromObject');
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Failed to add DNS record for M365 TXT record validation.',
@@ -116,7 +119,7 @@ class AddM365TxtValidationActionTest extends TestCase
                         'm365_tenant' => self::TENANT_NAME,
                         'm365_kpn_customer_id' => '12345678',
                     ],
-                ]
+                ],
             );
 
         $this->action->execute($this->customerInfo);
@@ -125,17 +128,18 @@ class AddM365TxtValidationActionTest extends TestCase
     #[Test]
     public function whenNoDnsDeploymentFound(): void
     {
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('getTenantDefaultDomainName')
             ->willReturn(self::PRIMARY_DOMAIN);
 
-        $this->dnsDeploymentRepository->expects(self::once())
+        $this->dnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->with(self::PRIMARY_DOMAIN)
             ->willReturn(null);
 
-        $this->dnsService->expects(self::never())
-            ->method('addRecordFromObject');
+        $this->dnsService->expects(self::never())->method('addRecordFromObject');
 
         $this->action->execute($this->customerInfo);
     }
@@ -143,7 +147,8 @@ class AddM365TxtValidationActionTest extends TestCase
     #[Test]
     public function dnsZoneNotFoundException(): void
     {
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('getTenantDefaultDomainName')
             ->willReturn(self::PRIMARY_DOMAIN);
 
@@ -151,16 +156,19 @@ class AddM365TxtValidationActionTest extends TestCase
         $dnsDeployment->subscription = new Subscription();
         $dnsDeployment->subscription->domain = self::PRIMARY_DOMAIN;
 
-        $this->dnsDeploymentRepository->expects(self::once())
+        $this->dnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->with(self::PRIMARY_DOMAIN)
             ->willReturn($dnsDeployment);
 
-        $this->dnsService->expects(self::once())
+        $this->dnsService
+            ->expects(self::once())
             ->method('addRecordFromObject')
             ->willThrowException($exception = self::createMock(DnsZoneNotFoundException::class));
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Failed to add DNS record for M365 TXT record validation.',
@@ -171,7 +179,7 @@ class AddM365TxtValidationActionTest extends TestCase
                         'm365_tenant' => self::TENANT_NAME,
                         'm365_kpn_customer_id' => '12345678',
                     ],
-                ]
+                ],
             );
 
         $this->action->execute($this->customerInfo);

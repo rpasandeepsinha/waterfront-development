@@ -11,7 +11,7 @@ use Waterfront\Domain\Ferry\Actions\Customers\EnableInvoicingForCustomerAction;
 class CustomerInvoiceController
 {
     public function __construct(
-        private readonly EnableInvoicingForCustomerAction $enableInvoicingForCustomerAction
+        private readonly EnableInvoicingForCustomerAction $enableInvoicingForCustomerAction,
     ) {
     }
 

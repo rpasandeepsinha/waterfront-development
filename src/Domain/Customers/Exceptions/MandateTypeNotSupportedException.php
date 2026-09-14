@@ -14,7 +14,7 @@ class MandateTypeNotSupportedException extends Exception
         parent::__construct(
             "Mandate type '$type' not supported",
             0,
-            $previous
+            $previous,
         );
     }
 }

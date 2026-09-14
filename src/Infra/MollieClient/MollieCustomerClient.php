@@ -22,7 +22,8 @@ class MollieCustomerClient
     public function __construct(
         ConfigurationInterface $config,
         private readonly SerializerInterface $serializer,
-        #[SensitiveParameter]private readonly string $apiKey,
+        #[SensitiveParameter]
+        private readonly string $apiKey,
     ) {
         $this->uri = $config->getAsString('mollieclient.credentials.api_url');
     }
@@ -44,9 +45,7 @@ class MollieCustomerClient
     {
         $payload = $this->serializer->serialize($mollieCustomer, 'json');
 
-        $response = $this->request()
-            ->withBody($payload)
-            ->post('customers');
+        $response = $this->request()->withBody($payload)->post('customers');
 
         return $this->serializer->deserialize($response->body(), MollieCustomerResponseDTO::class, 'json');
     }
@@ -54,13 +53,13 @@ class MollieCustomerClient
     /**
      * @throws MollieCustomerApiException
      */
-    public function updateCustomer(string $mollieCustomerId, MollieCustomerRequestDTO $mollieCustomer): MollieCustomerResponseDTO
-    {
+    public function updateCustomer(
+        string $mollieCustomerId,
+        MollieCustomerRequestDTO $mollieCustomer,
+    ): MollieCustomerResponseDTO {
         $payload = $this->serializer->serialize($mollieCustomer, 'json');
 
-        $response = $this->request()
-            ->withBody($payload)
-            ->patch(sprintf('customers/%s', $mollieCustomerId));
+        $response = $this->request()->withBody($payload)->patch(sprintf('customers/%s', $mollieCustomerId));
 
         return $this->serializer->deserialize($response->body(), MollieCustomerResponseDTO::class, 'json');
     }
@@ -71,20 +70,18 @@ class MollieCustomerClient
     private function request(): PendingRequest
     {
         return Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
-            ])
-            ->baseUrl($this->uri)
-            ->throw(function (Response $response, RequestException $exception): never {
-                /** @var array<string, string|null> $payload */
-                $payload = $response->json();
+            'Authorization' => 'Bearer ' . $this->apiKey,
+        ])->baseUrl($this->uri)->throw(function (Response $response, RequestException $exception): never {
+            /** @var array<string, string|null> $payload */
+            $payload = $response->json();
 
-                throw new MollieCustomerApiException(
-                    status: $response->status(),
-                    title: $payload['title'] ?? '',
-                    detail: $payload['detail'] ?? '',
-                    field: $payload['field'] ?? null,
-                    previous: $exception
-                );
-            });
+            throw new MollieCustomerApiException(
+                status: $response->status(),
+                title: $payload['title'] ?? '',
+                detail: $payload['detail'] ?? '',
+                field: $payload['field'] ?? null,
+                previous: $exception,
+            );
+        });
     }
 }

@@ -35,110 +35,87 @@ class ProductFactory extends Factory
 
     public function redirect(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->redirect())
-            ->state(fn (): array => [
-                'name' => ProductType::REDIRECT->value,
-                'slug' => ProductType::REDIRECT->value,
-            ]);
+        return $this->for($productGroup ?? new ProductGroupFactory()->redirect())->state(fn (): array => [
+            'name' => ProductType::REDIRECT->value,
+            'slug' => ProductType::REDIRECT->value,
+        ]);
     }
 
     public function freeRedirect(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->redirect())
-            ->state(fn (): array => [
-                'name' => ProductType::FREE_REDIRECT->value,
-                'slug' => ProductType::FREE_REDIRECT->value,
-            ]);
+        return $this->for($productGroup ?? new ProductGroupFactory()->redirect())->state(fn (): array => [
+            'name' => ProductType::FREE_REDIRECT->value,
+            'slug' => ProductType::FREE_REDIRECT->value,
+        ]);
     }
 
     public function nlDomain(): ProductFactory
     {
-        return $this
-            ->for(new ProductGroupFactory()->extension())
-            ->state(fn (): array => [
-                'name' => '.nl',
-                'slug' => 'extension_nl',
-            ]);
+        return $this->for(new ProductGroupFactory()->extension())->state(fn (): array => [
+            'name' => '.nl',
+            'slug' => 'extension_nl',
+        ]);
     }
 
     public function freeDns(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->dns())
-            ->state(fn (): array => [
-                'name' => ProductType::FREE_DNS->value,
-                'slug' => ProductType::FREE_DNS->value,
-            ]);
+        return $this->for($productGroup ?? new ProductGroupFactory()->dns())->state(fn (): array => [
+            'name' => ProductType::FREE_DNS->value,
+            'slug' => ProductType::FREE_DNS->value,
+        ]);
     }
 
     public function vps(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->vps())
-            ->state(fn (): array => [
-                'name' => 'vps',
-                'slug' => 'vps',
-            ]);
+        return $this->for($productGroup ?? new ProductGroupFactory()->vps())->state(fn (): array => [
+            'name' => 'vps',
+            'slug' => 'vps',
+        ]);
     }
 
     public function ubuntu(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->cloudstackOs())
-            ->state(fn (): array => [
-                'name' => 'ubuntu',
-                'slug' => 'ubuntu',
-            ]);
+        return $this->for($productGroup ?? new ProductGroupFactory()->cloudstackOs())->state(fn (): array => [
+            'name' => 'ubuntu',
+            'slug' => 'ubuntu',
+        ]);
     }
 
     public function sslSingleDomain(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->ssl())
-            ->state(fn (): array => [
-                'name' => 'Single Domain',
-                'slug' => 'single-domain',
-            ]);
+        return $this->for($productGroup ?? new ProductGroupFactory()->ssl())->state(fn (): array => [
+            'name' => 'Single Domain',
+            'slug' => 'single-domain',
+        ]);
     }
 
     public function premiumDns(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->dns())
-            ->state(fn (): array => [
-                'name' => ProductType::PREMIUM_DNS->value,
-                'slug' => ProductType::PREMIUM_DNS->value,
-            ]);
+        return $this->for($productGroup ?? new ProductGroupFactory()->dns())->state(fn (): array => [
+            'name' => ProductType::PREMIUM_DNS->value,
+            'slug' => ProductType::PREMIUM_DNS->value,
+        ]);
     }
 
     public function emailStart(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->hosting())
-            ->state(fn (): array => [
-                'name' => ProductType::EMAIL_START->value,
-                'slug' => ProductType::EMAIL_START->value,
-            ])
-            ->has(ProductSpecFactory::new()->enable(ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT));
+        return $this->for($productGroup ?? new ProductGroupFactory()->hosting())->state(fn (): array => [
+            'name' => ProductType::EMAIL_START->value,
+            'slug' => ProductType::EMAIL_START->value,
+        ])->has(ProductSpecFactory::new()->enable(ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT));
     }
 
     public function emailMax(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->hosting())
-            ->state(fn (): array => [
-                'name' => ProductType::EMAIL_MAX->value,
-                'slug' => ProductType::EMAIL_MAX->value,
-            ])
-            ->has(ProductSpecFactory::new()->enable(ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT));
+        return $this->for($productGroup ?? new ProductGroupFactory()->hosting())->state(fn (): array => [
+            'name' => ProductType::EMAIL_MAX->value,
+            'slug' => ProductType::EMAIL_MAX->value,
+        ])->has(ProductSpecFactory::new()->enable(ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT));
     }
 
     public function siteBuilder(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->hosting())
+        return $this->for($productGroup ?? new ProductGroupFactory()->hosting())
             ->state(fn (): array => [
                 'name' => 'sitebuilder',
                 'slug' => 'sitebuilder',
@@ -149,8 +126,7 @@ class ProductFactory extends Factory
 
     public function sitebuilderShop(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->hosting())
+        return $this->for($productGroup ?? new ProductGroupFactory()->hosting())
             ->state(fn (): array => [
                 'name' => 'sitebuilder-shop',
                 'slug' => 'sitebuilder-shop',
@@ -165,8 +141,7 @@ class ProductFactory extends Factory
 
     public function provisionSiteBuilder(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->hosting())
+        return $this->for($productGroup ?? new ProductGroupFactory()->hosting())
             ->state(fn (): array => [
                 'name' => 'sitebuilder',
                 'slug' => 'sitebuilder',
@@ -177,14 +152,13 @@ class ProductFactory extends Factory
                 ProductSpecFactory::new()->state([
                     'name' => ProductSpecName::BASEKIT_PACKAGE_REFERENCE->value,
                     'value' => 123,
-                ])
+                ]),
             );
     }
 
     public function mailOnly(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->hosting())
+        return $this->for($productGroup ?? new ProductGroupFactory()->hosting())
             ->state(fn (): array => [
                 'name' => 'MailOnly',
                 'slug' => ProductType::MAIL_ONLY->value,
@@ -195,57 +169,47 @@ class ProductFactory extends Factory
 
     public function withServicePlus(): ProductFactory
     {
-        return $this
-            ->has(ProductSpecFactory::new([
-                'name' => ProductSpecName::HAS_SERVICE_PLUS,
-                'value' => '1',
-            ]));
+        return $this->has(ProductSpecFactory::new([
+            'name' => ProductSpecName::HAS_SERVICE_PLUS,
+            'value' => '1',
+        ]));
     }
 
     public function hostingBrons(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->hosting())
-            ->state(fn (): array => [
-                'name' => 'hosting_brons',
-                'slug' => 'hosting_brons',
-            ]);
+        return $this->for($productGroup ?? new ProductGroupFactory()->hosting())->state(fn (): array => [
+            'name' => 'hosting_brons',
+            'slug' => 'hosting_brons',
+        ]);
     }
 
     public function hostingGold(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->hosting())
-            ->state(fn (): array => [
-                'name' => 'hosting_gold',
-                'slug' => 'hosting_gold',
-            ]);
+        return $this->for($productGroup ?? new ProductGroupFactory()->hosting())->state(fn (): array => [
+            'name' => 'hosting_gold',
+            'slug' => 'hosting_gold',
+        ]);
     }
 
     public function resellerHostingBrons(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->resellerHosting())
-            ->state(fn (): array => [
-                'name' => 'Reseller Hosting Brons',
-                'slug' => 'reseller-brons',
-            ]);
+        return $this->for($productGroup ?? new ProductGroupFactory()->resellerHosting())->state(fn (): array => [
+            'name' => 'Reseller Hosting Brons',
+            'slug' => 'reseller-brons',
+        ]);
     }
 
     public function administrationFees(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->other())
-            ->state(fn (): array => [
-                'name' => 'Administration fees',
-                'slug' => ProductType::ADMINISTRATION_FEES->value,
-            ]);
+        return $this->for($productGroup ?? new ProductGroupFactory()->other())->state(fn (): array => [
+            'name' => 'Administration fees',
+            'slug' => ProductType::ADMINISTRATION_FEES->value,
+        ]);
     }
 
     public function backupAcronis(?ProductGroup $productGroup = null): ProductFactory
     {
-        return $this
-            ->for($productGroup ?? new ProductGroupFactory()->backup())
+        return $this->for($productGroup ?? new ProductGroupFactory()->backup())
             ->state(fn (): array => [
                 'name' => 'Backup 50',
                 'slug' => 'backup-50',

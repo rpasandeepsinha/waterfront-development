@@ -44,25 +44,31 @@ class CartControllerTest extends IntegrationTestCase
     public function shouldProcessCartWithoutVoucher(): void
     {
         $dnsProduct = new ProductFactory()->freeDns()->createOne();
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne([
-            'price' => 0,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne([
+                'price' => 0,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
         $extensionGroup = new ProductGroupFactory()->extension()->createOne();
         $extensionProduct = new ProductFactory()->for($extensionGroup)->createOne([
             'slug' => 'extension_com',
             'name' => '.com',
         ]);
-        new ProductPriceComponentFactory()->for($extensionProduct)->registration()->createOne([
-            'price' => 100,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($extensionProduct)
+            ->registration()
+            ->createOne([
+                'price' => 100,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/cart_payload_without_vouchers.json');
-        $payload =  json_decode($json, true);
+        $payload = json_decode($json, true);
         self::assertIsArray($payload);
         $this->actingAsCustomer(CustomerFactory::new()->createOne())
             ->postJson($this->generateRoute('partners.cart.calculate'), $payload)
@@ -75,22 +81,28 @@ class CartControllerTest extends IntegrationTestCase
     public function shouldProcessCartForProductWithExperiment(): void
     {
         $dnsProduct = new ProductFactory()->freeDns()->createOne();
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne([
-            'price' => 0,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne([
+                'price' => 0,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
         $extensionGroup = new ProductGroupFactory()->extension()->createOne();
         $extensionProduct = new ProductFactory()->for($extensionGroup)->createOne([
             'slug' => 'extension_nl',
             'name' => '.nl',
         ]);
-        new ProductPriceComponentFactory()->for($extensionProduct)->registration()->createOne([
-            'price' => 100,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($extensionProduct)
+            ->registration()
+            ->createOne([
+                'price' => 100,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
         $experimentNl = new Experiment();
         $experimentNl->slug = ExperimentType::PRICING_LADDER;
@@ -102,17 +114,14 @@ class CartControllerTest extends IntegrationTestCase
         $experimentNl->products()->save($extensionProduct);
 
         $json = (string) file_get_contents(__DIR__ . '/data/cart_payload_for_product_with_experiment.json');
-        $payload =  json_decode($json, true);
+        $payload = json_decode($json, true);
 
         self::assertIsArray($payload);
         $this->actingAsCustomer(CustomerFactory::new()->createOne())
             ->postJson($this->generateRoute('partners.cart.calculate'), $payload)
             ->assertOk()
             ->assertJsonFragment(['productSlug' => $extensionProduct->slug])
-//            ->assertJsonFragment(['metaData' => [
-//                'domain' => 'test.nl',
-//                'experimentSlug' => 'experiment_nl_slug',
-//            ]])
+            ->assertJsonFragment(['experimentSlug' => 'pricing-ladder'])
             ->assertJsonFragment(['vouchers' => []]);
     }
 
@@ -120,28 +129,34 @@ class CartControllerTest extends IntegrationTestCase
     public function shouldProcessCartWithOnlyInvalidVouchers(): void
     {
         $dnsProduct = new ProductFactory()->freeDns()->createOne();
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne([
-            'price' => 0,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne([
+                'price' => 0,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
         $extensionGroup = new ProductGroupFactory()->extension()->createOne();
         $extensionProduct = new ProductFactory()->for($extensionGroup)->createOne([
             'slug' => 'extension_com',
             'name' => '.com',
         ]);
-        new ProductPriceComponentFactory()->for($extensionProduct)->registration()->createOne([
-            'price' => 100,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($extensionProduct)
+            ->registration()
+            ->createOne([
+                'price' => 100,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
         new VoucherFactory()->for($extensionGroup)->createOne(['code' => 'invalid-voucher-1', 'max_claims' => 0]);
         new VoucherFactory()->for($extensionGroup)->createOne(['code' => 'invalid-voucher-2', 'max_claims' => 0]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/cart_payload_with_invalid_vouchers.json');
-        $payload =  json_decode($json, true);
+        $payload = json_decode($json, true);
         self::assertIsArray($payload);
         $this->actingAsCustomer(CustomerFactory::new()->createOne())
             ->postJson($this->generateRoute('partners.cart.calculate'), $payload)
@@ -151,7 +166,8 @@ class CartControllerTest extends IntegrationTestCase
                 'code' => 'invalid-voucher-1',
                 'claimed_amount' => 0,
                 'valid' => false,
-            ])->assertJsonFragment([
+            ])
+            ->assertJsonFragment([
                 'code' => 'invalid-voucher-2',
                 'claimed_amount' => 0,
                 'valid' => false,
@@ -162,51 +178,87 @@ class CartControllerTest extends IntegrationTestCase
     public function shouldProcessCartWithVoucherAndReturnListWithAppliedVoucher(): void
     {
         $customer = new CustomerFactory()->withAddress()->createOne();
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => true, 'slug' => ProviderSlug::REALTIME_REGISTER]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'enabled' => true,
+            'default' => true,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+        ]);
 
         $dnsProduct = new ProductFactory()->freeDns()->createOne();
         ProductSpecFactory::new()
             ->enable(ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)
             ->for($dnsProduct)
             ->create();
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne(['price' => 0]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
 
         $resellerHosting = new ProductGroupFactory()->createOne(['slug' => ProductGroupType::RESELLER_HOSTING]);
 
-        $extensionGroup = new ProductGroupFactory()->extension()->createOne(['name' => 'extension']);
+        $extensionGroup = new ProductGroupFactory()
+            ->extension()
+            ->createOne(['name' => 'extension']);
         $extensionProduct = new ProductFactory()->for($extensionGroup)->createOne([
             'slug' => 'extension_com',
             'name' => '.com',
         ]);
 
-        new ProductPriceComponentFactory()->for($extensionProduct)->registration()->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()
+            ->for($extensionProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
         $nlProduct = new ProductFactory()->for($extensionGroup)->createOne([
             'slug' => 'extension_nl',
             'name' => '.nl',
         ]);
 
-        new ProductPriceComponentFactory()->for($nlProduct)->registration()->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()
+            ->for($nlProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
 
-        $hostingGroup = new ProductGroupFactory()->hosting()->createOne(['name' => 'hosting']);
+        $hostingGroup = new ProductGroupFactory()
+            ->hosting()
+            ->createOne(['name' => 'hosting']);
         $hostingProduct = new ProductFactory()->for($hostingGroup)->createOne([
             'slug' => 'hosting_premium',
             'name' => 'premium',
         ]);
-        new ProductPriceComponentFactory()->for($hostingProduct)->registration()->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
 
         $sslGroup = new ProductGroupFactory()->ssl()->createOne(['name' => 'ssl']);
         $sslProduct = new ProductFactory()->for($sslGroup)->createOne([
             'slug' => 'ssl_single_domain',
             'name' => 'Single Domain',
         ]);
-        new ProductPriceComponentFactory()->for($sslProduct)->registration()->createOne(['price' => 120]);
-        VoucherFactory::new()->for($sslGroup)->createOne(['code' => 'code', 'amount' => 100, 'amount_type' => VoucherAmountType::FIXED]);
-        VoucherFactory::new()->for($extensionGroup)->createOne(['code' => 'fiets', 'amount' => 100, 'amount_type' => VoucherAmountType::FIXED]);
-        VoucherFactory::new()->for($resellerHosting)->createOne(['code' => 'voucher', 'amount' => 100, 'amount_type' => VoucherAmountType::FIXED]);
+        new ProductPriceComponentFactory()
+            ->for($sslProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        VoucherFactory::new()->for($sslGroup)->createOne([
+            'code' => 'code',
+            'amount' => 100,
+            'amount_type' => VoucherAmountType::FIXED,
+        ]);
+        VoucherFactory::new()->for($extensionGroup)->createOne([
+            'code' => 'fiets',
+            'amount' => 100,
+            'amount_type' => VoucherAmountType::FIXED,
+        ]);
+        VoucherFactory::new()->for($resellerHosting)->createOne([
+            'code' => 'voucher',
+            'amount' => 100,
+            'amount_type' => VoucherAmountType::FIXED,
+        ]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/cart_payload.json');
 
-        $payload =  json_decode($json, true);
+        $payload = json_decode($json, true);
         self::assertIsArray($payload);
 
         $this->actingAsCustomer($customer)
@@ -222,51 +274,87 @@ class CartControllerTest extends IntegrationTestCase
     public function shouldProcessCartWithVoucherAndReturnListWithAppliedVoucherPercentage(): void
     {
         $customer = new CustomerFactory()->withAddress()->createOne();
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'enabled' => true, 'default' => true, 'slug' => ProviderSlug::REALTIME_REGISTER]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'enabled' => true,
+            'default' => true,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+        ]);
 
         $dnsProduct = new ProductFactory()->freeDns()->createOne();
         ProductSpecFactory::new()
             ->enable(ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)
             ->for($dnsProduct)
             ->create();
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne(['price' => 0]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
 
         $resellerHosting = new ProductGroupFactory()->createOne(['slug' => ProductGroupType::RESELLER_HOSTING]);
 
-        $extensionGroup = new ProductGroupFactory()->extension()->createOne(['name' => 'extension']);
+        $extensionGroup = new ProductGroupFactory()
+            ->extension()
+            ->createOne(['name' => 'extension']);
         $extensionProduct = new ProductFactory()->for($extensionGroup)->createOne([
             'slug' => 'extension_com',
             'name' => '.com',
         ]);
 
-        new ProductPriceComponentFactory()->for($extensionProduct)->registration()->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()
+            ->for($extensionProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
         $nlProduct = new ProductFactory()->for($extensionGroup)->createOne([
             'slug' => 'extension_nl',
             'name' => '.nl',
         ]);
 
-        new ProductPriceComponentFactory()->for($nlProduct)->registration()->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()
+            ->for($nlProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
 
-        $hostingGroup = new ProductGroupFactory()->hosting()->createOne(['name' => 'hosting']);
+        $hostingGroup = new ProductGroupFactory()
+            ->hosting()
+            ->createOne(['name' => 'hosting']);
         $hostingProduct = new ProductFactory()->for($hostingGroup)->createOne([
             'slug' => 'hosting_premium',
             'name' => 'premium',
         ]);
-        new ProductPriceComponentFactory()->for($hostingProduct)->registration()->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
 
         $sslGroup = new ProductGroupFactory()->ssl()->createOne(['name' => 'ssl']);
         $sslProduct = new ProductFactory()->for($sslGroup)->createOne([
             'slug' => 'ssl_single_domain',
             'name' => 'Single Domain',
         ]);
-        new ProductPriceComponentFactory()->for($sslProduct)->registration()->createOne(['price' => 120]);
-        VoucherFactory::new()->for($sslGroup)->createOne(['code' => 'code', 'amount' => 100, 'amount_type' => VoucherAmountType::FIXED]);
-        VoucherFactory::new()->for($extensionGroup)->createOne(['code' => 'fiets', 'amount' => 10, 'amount_type' => VoucherAmountType::PERCENTAGE]);
-        VoucherFactory::new()->for($resellerHosting)->createOne(['code' => 'voucher', 'amount' => 100, 'amount_type' => VoucherAmountType::FIXED]);
+        new ProductPriceComponentFactory()
+            ->for($sslProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        VoucherFactory::new()->for($sslGroup)->createOne([
+            'code' => 'code',
+            'amount' => 100,
+            'amount_type' => VoucherAmountType::FIXED,
+        ]);
+        VoucherFactory::new()->for($extensionGroup)->createOne([
+            'code' => 'fiets',
+            'amount' => 10,
+            'amount_type' => VoucherAmountType::PERCENTAGE,
+        ]);
+        VoucherFactory::new()->for($resellerHosting)->createOne([
+            'code' => 'voucher',
+            'amount' => 100,
+            'amount_type' => VoucherAmountType::FIXED,
+        ]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/cart_payload.json');
 
-        $payload =  json_decode($json, true);
+        $payload = json_decode($json, true);
         self::assertIsArray($payload);
 
         $this->actingAsCustomer($customer)
@@ -282,34 +370,43 @@ class CartControllerTest extends IntegrationTestCase
     public function shouldProcessCartWithOneTimeServiceAndAdminFee(): void
     {
         $dnsProduct = new ProductFactory()->freeDns()->createOne();
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne([
-            'price' => 0,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne([
+                'price' => 0,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
         $extensionGroup = new ProductGroupFactory()->extension()->createOne();
         $extensionProduct = new ProductFactory()->for($extensionGroup)->createOne([
             'slug' => 'extension_com',
         ]);
-        new ProductPriceComponentFactory()->for($extensionProduct)->registration()->createOne([
-            'price' => 100,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($extensionProduct)
+            ->registration()
+            ->createOne([
+                'price' => 100,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
         $otsGroup = new ProductGroupFactory()->oneTimeService()->createOne();
         $otsProduct = new ProductFactory()->for($otsGroup)->createOne([
             'slug' => 'one_time_service',
         ]);
-        new ProductPriceComponentFactory()->for($otsProduct)->registration()->createOne([
-            'price' => 200,
-            'billing_period' => 1,
-            'contract_period' => 1,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($otsProduct)
+            ->registration()
+            ->createOne([
+                'price' => 200,
+                'billing_period' => 1,
+                'contract_period' => 1,
+            ]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/cart_payload_with_ots.json');
-        $payload =  json_decode($json, true);
+        $payload = json_decode($json, true);
         self::assertIsArray($payload);
         $this->actingAsCustomer(CustomerFactory::new()->createOne())
             ->postJson($this->generateRoute('partners.cart.calculate'), $payload)
@@ -322,18 +419,32 @@ class CartControllerTest extends IntegrationTestCase
     public function fixedAmountVoucherShouldBeAppliedOverPromotion(): void
     {
         $hostingGroup = new ProductGroupFactory()->hosting()->createOne();
-        $bronsProduct = new ProductFactory()->hostingBrons($hostingGroup)->createOne();
-        new ProductPriceComponentFactory()->for($bronsProduct)->registration()->createOne([
-            'price' => 200000,
-            'billing_period' => 12,
+        $bronsProduct = new ProductFactory()
+            ->hostingBrons($hostingGroup)
+            ->createOne();
+        new ProductPriceComponentFactory()
+            ->for($bronsProduct)
+            ->registration()
+            ->createOne([
+                'price' => 200000,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
+        new ProductPriceComponentFactory()->for($bronsProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
             'contract_period' => 12,
+            'billing_period' => 12,
+            'price' => 100000,
         ]);
-        new ProductPriceComponentFactory()->for($bronsProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'contract_period' => 12, 'billing_period' => 12, 'price' => 100000]);
 
-        VoucherFactory::new()->for($hostingGroup)->createOne(['code' => 'hosting-5', 'amount' => 500, 'amount_type' => VoucherAmountType::FIXED]);
+        VoucherFactory::new()->for($hostingGroup)->createOne([
+            'code' => 'hosting-5',
+            'amount' => 500,
+            'amount_type' => VoucherAmountType::FIXED,
+        ]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/cart_payload_discount_price_lower.json');
-        $payload =  json_decode($json, true);
+        $payload = json_decode($json, true);
         self::assertIsArray($payload);
         $this->actingAsCustomer(CustomerFactory::new()->createOne())
             ->postJson($this->generateRoute('partners.cart.calculate'), $payload)
@@ -345,26 +456,36 @@ class CartControllerTest extends IntegrationTestCase
     public function whenAppliedAmountIsNegativeItShouldDefaultToZero(): void
     {
         $dnsProduct = new ProductFactory()->freeDns()->createOne();
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne([
-            'price' => 0,
-            'billing_period' => 12,
-            'contract_period' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne([
+                'price' => 0,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
 
         $extensionGroup = new ProductGroupFactory()->extension()->createOne();
         $productExtensionNl = new ProductFactory()->for($extensionGroup)->createOne([
             'slug' => 'extension_nl',
         ]);
-        new ProductPriceComponentFactory()->for($productExtensionNl)->registration()->createOne([
-            'price' => 100,
-            'billing_period' => 12,
-            'contract_period' => 12,
+        new ProductPriceComponentFactory()
+            ->for($productExtensionNl)
+            ->registration()
+            ->createOne([
+                'price' => 100,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ]);
+
+        VoucherFactory::new()->for($extensionGroup)->createOne([
+            'code' => 'nl-5',
+            'amount' => 500,
+            'amount_type' => VoucherAmountType::FIXED,
         ]);
 
-        VoucherFactory::new()->for($extensionGroup)->createOne(['code' => 'nl-5', 'amount' => 500, 'amount_type' => VoucherAmountType::FIXED]);
-
         $json = (string) file_get_contents(__DIR__ . '/data/cart_payload_discount_result_in_negative_price.json');
-        $payload =  json_decode($json, true);
+        $payload = json_decode($json, true);
         self::assertIsArray($payload);
         $this->actingAsCustomer(CustomerFactory::new()->createOne())
             ->postJson($this->generateRoute('partners.cart.calculate'), $payload)
@@ -393,8 +514,14 @@ class CartControllerTest extends IntegrationTestCase
         $product->product_group_id = $group->id;
         $product->save();
 
-        new ProductPriceComponentFactory()->for($product)->registration()->createOne(['price' => 2499]);
-        new ProductPriceComponentFactory()->for($product)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 399]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne(['price' => 2499]);
+        new ProductPriceComponentFactory()->for($product)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 399,
+        ]);
 
         $group = new ProductGroup();
         $group->uuid = Str::uuid()->toString();
@@ -423,10 +550,19 @@ class CartControllerTest extends IntegrationTestCase
         $price->starts_at = CarbonImmutable::now();
         $price->save();
 
-        VoucherFactory::new()->for(ProductGroup::where('slug', 'extension')->firstOrFail())->for(Product::where('slug', 'extension_nl')->firstOrFail())->createOne(['code' => 'KORTING', 'amount' => 15000, 'amount_type' => VoucherAmountType::FIXED, 'apply_with_discount' => false, 'allow_multiple_claims_same_customer' => false, 'max_claims' => null]);
+        VoucherFactory::new()->for(ProductGroup::where('slug', 'extension')->firstOrFail())->for(
+            Product::where('slug', 'extension_nl')->firstOrFail(),
+        )->createOne([
+            'code' => 'KORTING',
+            'amount' => 15000,
+            'amount_type' => VoucherAmountType::FIXED,
+            'apply_with_discount' => false,
+            'allow_multiple_claims_same_customer' => false,
+            'max_claims' => null,
+        ]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/cart_payload_multiple_items_same_product.json');
-        $payload =  json_decode($json, true);
+        $payload = json_decode($json, true);
         self::assertIsArray($payload);
         $response = $this->actingAsCustomer(CustomerFactory::new()->createOne())
             ->postJson($this->generateRoute('partners.cart.calculate'), $payload)
@@ -446,17 +582,28 @@ class CartControllerTest extends IntegrationTestCase
         $customer = new CustomerFactory()->createOne();
         $extensionGroup = new ProductGroupFactory()->extension()->createOne();
         $dnsGroup = new ProductGroupFactory()->dns()->createOne();
-        $freeDns = new ProductFactory()->freeDns($dnsGroup)->createOne();
-        new ProductPriceComponentFactory()->for($freeDns)->registration()->createOne(['price' => 0]);
+        $freeDns = new ProductFactory()
+            ->freeDns($dnsGroup)
+            ->createOne();
+        new ProductPriceComponentFactory()
+            ->for($freeDns)
+            ->registration()
+            ->createOne(['price' => 0]);
 
         $nlProduct = new ProductFactory()->for($extensionGroup)->createOne([
             'name' => '.nl',
             'slug' => 'extension_nl',
         ]);
-        new ProductPriceComponentFactory()->for($nlProduct)->registration()->createOne(['price' => 1399]);
+        new ProductPriceComponentFactory()
+            ->for($nlProduct)
+            ->registration()
+            ->createOne(['price' => 1399]);
 
         $volumeDiscount = new ProductDiscountFactory()->for($nlProduct)->createOne();
-        new CustomerProductDiscountFactory()->for($customer)->for($volumeDiscount)->createOne();
+        new CustomerProductDiscountFactory()
+            ->for($customer)
+            ->for($volumeDiscount)
+            ->createOne();
         $price = new ProductPriceComponentFactory()->createOne([
             'product_id' => $nlProduct->id,
             'type' => PriceComponentType::REGISTRATION_STAFFEL,
@@ -465,11 +612,18 @@ class CartControllerTest extends IntegrationTestCase
 
         $productDiscountService->attachPrice($volumeDiscount, $price);
 
-        new ProductPriceComponentFactory()->for($nlProduct)->registration()->createOne(['price' => 1000]);
-        new VoucherFactory()->for($extensionGroup)->createOne(['code' => 'domain-150', 'amount' => 15000, 'amount_type' => VoucherAmountType::FIXED]);
+        new ProductPriceComponentFactory()
+            ->for($nlProduct)
+            ->registration()
+            ->createOne(['price' => 1000]);
+        new VoucherFactory()->for($extensionGroup)->createOne([
+            'code' => 'domain-150',
+            'amount' => 15000,
+            'amount_type' => VoucherAmountType::FIXED,
+        ]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/cart_payload_with_volume_discount_prices.json');
-        $payload =  json_decode($json, true);
+        $payload = json_decode($json, true);
         self::assertIsArray($payload);
         $this->actingAsCustomer($customer)
             ->postJson($this->generateRoute('partners.cart.calculate'), $payload)
@@ -484,13 +638,28 @@ class CartControllerTest extends IntegrationTestCase
         $domainProduct = new ProductFactory()->nlDomain()->createOne();
         $hostingProduct = new ProductFactory()->hostingBrons()->createOne();
         $dnsProduct = new ProductFactory()->freeDns()->createOne();
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne(['price' => 0]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
         // year product
-        new ProductPriceComponentFactory()->for($domainProduct)->registration()->createOne(['contract_period' => 12, 'billing_period' => 12]);
-        new ProductPriceComponentFactory()->for($hostingProduct)->registration()->createOne(['contract_period' => 12, 'billing_period' => 12]);
+        new ProductPriceComponentFactory()
+            ->for($domainProduct)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12]);
         // multi year products
-        new ProductPriceComponentFactory()->for($domainProduct)->registration()->createOne(['contract_period' => 36, 'billing_period' => 36]);
-        new ProductPriceComponentFactory()->for($hostingProduct)->registration()->createOne(['contract_period' => 36, 'billing_period' => 36, 'price' => 50000]);
+        new ProductPriceComponentFactory()
+            ->for($domainProduct)
+            ->registration()
+            ->createOne(['contract_period' => 36, 'billing_period' => 36]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->registration()
+            ->createOne(['contract_period' => 36, 'billing_period' => 36, 'price' => 50000]);
 
         $hostingVoucher = new VoucherFactory()->for($hostingProduct->productGroup)->createOne([
             'amount_type' => VoucherAmountType::PERCENTAGE->value,
@@ -502,7 +671,7 @@ class CartControllerTest extends IntegrationTestCase
             'description' => 'descriptive description',
         ]);
         $json = (string) file_get_contents(__DIR__ . '/data/cart_with_domain_and_hosting_payload.json');
-        $payload =  json_decode($json, true);
+        $payload = json_decode($json, true);
 
         self::assertIsArray($payload);
         $this->actingAsCustomer(CustomerFactory::new()->createOne())
@@ -566,22 +735,39 @@ class CartControllerTest extends IntegrationTestCase
                 'name' => ProductSpecName::HAS_SERVICE_PLUS->value,
                 'value' => '1',
                 'product_id' => $hostingProduct->id,
-            ]
+            ],
         );
 
         $dnsProduct = new ProductFactory()->freeDns()->createOne();
-        new ProductPriceComponentFactory()->for($transferProduct)->registration()->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 7500]);
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne(['price' => 0]);
+        new ProductPriceComponentFactory()
+            ->for($transferProduct)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12, 'price' => 7500]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
         // year product
-        new ProductPriceComponentFactory()->for($domainProduct)->registration()->createOne(['contract_period' => 12, 'billing_period' => 12]);
-        new ProductPriceComponentFactory()->for($hostingProduct)->registration()->createOne(['contract_period' => 12, 'billing_period' => 12]);
-        new ProductPriceComponentFactory()->for($hostingKlein)->registration()->createOne(['contract_period' => 12, 'billing_period' => 12]);
+        new ProductPriceComponentFactory()
+            ->for($domainProduct)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12]);
+        new ProductPriceComponentFactory()
+            ->for($hostingKlein)
+            ->registration()
+            ->createOne(['contract_period' => 12, 'billing_period' => 12]);
 
         $json = (string) file_get_contents(__DIR__ . '/data/cart_transfer_service_payload.json');
-        $payload =  json_decode($json, true);
+        $payload = json_decode($json, true);
 
         self::assertIsArray($payload);
-        $response = $this->actingAsCustomer(CustomerFactory::new()->createOne())->postJson($this->generateRoute('partners.cart.calculate'), $payload)->assertOk();
+        $response = $this->actingAsCustomer(CustomerFactory::new()->createOne())
+            ->postJson($this->generateRoute('partners.cart.calculate'), $payload)
+            ->assertOk();
         $response->assertJsonFragment(
             [
                 'itemUuid' => 'f1c1b7e7-6bd1-4da2-9c68-7b96611ff4d2',
@@ -605,7 +791,7 @@ class CartControllerTest extends IntegrationTestCase
                 'priceType' => ProductPriceType::REGISTRATION->value,
                 'quantity' => 1,
                 'metaData' => null,
-            ]
+            ],
         );
         $response->assertJsonFragment(
             [
@@ -630,7 +816,7 @@ class CartControllerTest extends IntegrationTestCase
                 'priceType' => ProductPriceType::REGISTRATION->value,
                 'quantity' => 1,
                 'metaData' => null,
-            ]
+            ],
         );
     }
 }

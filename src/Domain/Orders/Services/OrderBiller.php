@@ -53,7 +53,7 @@ class OrderBiller
                 'lineItems.oneTimeService.subscription',
                 'lineItems.oneTimeService.subscription.customer',
                 'lineItems.oneTimeService.product',
-            ]
+            ],
         );
 
         $this->logger->info(
@@ -61,7 +61,7 @@ class OrderBiller
             [
                 LoggingContextKeys::ORDER_ID => $order->id,
                 LoggingContextKeys::CUSTOMER_ID => $order->customer->id,
-            ]
+            ],
         );
 
         $this->validateOrderIsInBillableState($order);
@@ -70,6 +70,7 @@ class OrderBiller
         if (count($billableLineItems) === 0) {
             $order->is_invoiced = true;
             $order->save();
+
             return;
         }
 
@@ -83,19 +84,29 @@ class OrderBiller
             foreach ($billableLineItems as $lineItem) {
                 if ($lineItem->product?->productGroup->slug === ProductGroupType::ONE_TIME_SERVICE) {
                     assert($lineItem->oneTimeService instanceof OneTimeService);
-                    $invoicesOts = $this->oneTimeServiceInvoiceService->createOneTimeServiceInvoices($lineItem->oneTimeService, $order->isPaid());
+                    $invoicesOts = $this->oneTimeServiceInvoiceService->createOneTimeServiceInvoices(
+                        $lineItem->oneTimeService,
+                        $order->isPaid(),
+                    );
                     $invoices = array_merge($invoices, $invoicesOts);
                     continue;
                 }
 
-                $newInvoice = $this->invoiceRepository->createOrderLineSubscriptionInvoice($order->customer, $lineItem, $prepaidReference);
+                $newInvoice = $this->invoiceRepository->createOrderLineSubscriptionInvoice(
+                    $order->customer,
+                    $lineItem,
+                    $prepaidReference,
+                );
 
-                if ($lineItem->subscription instanceof Subscription && $this->comesWithFreeProductInvoiceManager->isSubscriptionWhichComesWithFreeProduct($lineItem->subscription)) {
+                if (
+                    $lineItem->subscription instanceof Subscription
+                    && $this->comesWithFreeProductInvoiceManager->isSubscriptionWhichComesWithFreeProduct($lineItem->subscription)
+                ) {
                     $freeInvoice = $this->comesWithFreeProductInvoiceManager->createInvoice(
                         subscription: $lineItem->subscription,
                         paidInvoice: $newInvoice,
                         prepaidReference: $prepaidReference,
-                        dispatchInvoiceCreated: false
+                        dispatchInvoiceCreated: false,
                     );
                     if ($freeInvoice instanceof Invoice) {
                         $invoices[] = $freeInvoice;
@@ -115,7 +126,7 @@ class OrderBiller
                     administrationFees: $administrationFees,
                     administrationFeesPrice: $order->administration_fees,
                     prepaidReference: $prepaidReference,
-                    dispatchInvoiceCreated: false
+                    dispatchInvoiceCreated: false,
                 );
             }
 
@@ -126,7 +137,7 @@ class OrderBiller
                 [
                     LoggingContextKeys::ORDER_ID => $order->id,
                     LoggingContextKeys::CUSTOMER_ID => $order->customer->id,
-                ]
+                ],
             );
         } catch (Throwable $exception) {
             DB::rollBack();
@@ -149,7 +160,7 @@ class OrderBiller
                 customer: $order->customer,
                 invoices: $invoices,
                 createInvoiceInstantly: true,
-            )
+            ),
         );
     }
 
@@ -157,13 +168,13 @@ class OrderBiller
     {
         if ($order->is_invoiced) {
             throw new OrderAlreadyInvoicedException(
-                sprintf('Billing order aborted. Order %s has already been invoiced.', $order->id)
+                sprintf('Billing order aborted. Order %s has already been invoiced.', $order->id),
             );
         }
 
         if ($order->status !== OrderStatus::PROCESSED) {
             throw new OrderNotProcessedException(
-                sprintf('Billing order aborted. Order %s has not yet been fully processed.', $order->id)
+                sprintf('Billing order aborted. Order %s has not yet been fully processed.', $order->id),
             );
         }
     }
@@ -181,12 +192,11 @@ class OrderBiller
             }
 
             // If an OTS order, the OTS must be linked to the line item
-            if (
-                $lineItem->product?->productGroup->slug === ProductGroupType::ONE_TIME_SERVICE
-            ) {
+            if ($lineItem->product?->productGroup->slug === ProductGroupType::ONE_TIME_SERVICE) {
                 if (! $lineItem->oneTimeService instanceof OneTimeService) {
                     throw new IncompleteOrderLineException('order line missing OTS relation');
                 }
+
                 $billableItems[] = $lineItem;
                 continue;
             }
@@ -196,7 +206,6 @@ class OrderBiller
                 throw new IncompleteOrderLineException('order line missing subscription relation');
             }
 
-            // TODO see https://yh-jira.atlassian.net/browse/SWD-7876
             if ($lineItem->subscription->administrative_status === AdministrativeStatus::INACTIVE->value) {
                 $this->logger->warning(
                     'Billing skipped for order line item ({order_line.id}). Subscription ({subscription.id}) administrative status is INACTIVE.',

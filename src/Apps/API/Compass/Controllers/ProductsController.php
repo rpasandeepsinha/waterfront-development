@@ -72,8 +72,15 @@ class ProductsController
         $pageSize = is_numeric($request->input('pageSize')) ? (int) $request->input('pageSize') : 100;
 
         $query = $this->productFilter->apply(
-            Product::with(['productGroup', 'productSpecs', 'allowedChanges', 'productPromotions', 'addonCouplings.addonProduct', 'introductionDiscounts']),
-            $request
+            Product::with([
+                'productGroup',
+                'productSpecs',
+                'allowedChanges',
+                'productPromotions',
+                'addonCouplings.addonProduct',
+                'introductionDiscounts',
+            ]),
+            $request,
         );
 
         $products = $query->paginate($pageSize);
@@ -97,7 +104,10 @@ class ProductsController
 
     public function getAllProducts(): JsonResponse
     {
-        $products = Product::with(['productSpecs', 'productGroup', 'addonCouplings.addonProduct'])->orderBy('weight')->whereNull('deleted_at')->get();
+        $products = Product::with(['productSpecs', 'productGroup', 'addonCouplings.addonProduct'])
+            ->orderBy('weight')
+            ->whereNull('deleted_at')
+            ->get();
 
         $data = array_map(fn (Product $product) => $this->productPresenter->toArray($product), $products->all());
 
@@ -123,13 +133,16 @@ class ProductsController
     {
         $pageSize = is_numeric($request->input('pageSize')) ? (int) $request->input('pageSize') : 20;
         $promotions = $product->productPromotions()->paginate($pageSize);
+
         return ProductPromotionResource::collection($promotions);
     }
 
     public function showPublicProductPrices(Product $product): JsonResponse
     {
         $activePrices = $this->priceRepository->getActivePrices($product->id);
-        $data = array_map(fn (ProductPriceComponent $price) => $this->priceComponentPresenter->toArray($price), $activePrices->all());
+        $data = array_map(fn (ProductPriceComponent $price) => $this->priceComponentPresenter->toArray(
+            $price,
+        ), $activePrices->all());
 
         return new JsonResponse($data);
     }
@@ -137,11 +150,10 @@ class ProductsController
     public function showProductSpecs(Request $request, Product $product): ResourceCollection
     {
         $pageSize = is_numeric($request->input('pageSize')) ? (int) $request->input('pageSize') : 20;
-        $productSpecs = ProductSpec::query()
-            ->where('product_id', $product->id)
-            ->paginate($pageSize);
+        $productSpecs = ProductSpec::query()->where('product_id', $product->id)->paginate($pageSize);
 
         $productSpecs->appends('pageSize', (string) $pageSize);
+
         return ProductSpecResource::collection($productSpecs);
     }
 

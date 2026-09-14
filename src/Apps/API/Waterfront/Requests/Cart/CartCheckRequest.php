@@ -22,30 +22,37 @@ class CartCheckRequest extends FormRequest
     public function rules(): array
     {
         return [
-                'paymentMethod' => ['sometimes', 'required', 'string'],
+            'paymentMethod' => ['sometimes', 'required', 'string'],
 
-                'vouchers' => ['sometimes', 'array'],
-                'vouchers.*' => ['sometimes', 'required', 'string'],
+            'vouchers' => ['sometimes', 'array'],
+            'vouchers.*' => ['sometimes', 'required', 'string'],
 
-                'items' => ['array'],
-                'items.*.itemUuid'         => ['required', 'uuid'],
-                'items.*.parentItemUuid'   => ['sometimes', 'nullable', 'uuid'],
-                'items.*.parentSubscriptionUuid'  => ['sometimes', 'required',
-                    Rule::exists(sprintf('%s', Subscription::class), 'uuid')->where('administrative_status', AdministrativeStatus::ACTIVE->value),
-                ],
-                'items.*.productSlug'      => ['required', Rule::exists(Product::class, 'slug')],
-                'items.*.contractPeriod'  => ['required', 'integer', 'min:1'],
-                'items.*.billingPeriod'   => ['required', 'integer', 'min:1'],
-                'items.*.priceType'        => ['required', Rule::in([ProductPriceType::PROLONGATION, ProductPriceType::REGISTRATION])],
-                'items.*.quantity'         => ['required', 'integer', 'min:1'],
-                'items.*.metadata'         => ['nullable', 'array'],
-                'items.*.metadata.domain'  => ['sometimes', 'nullable', 'string'],
-                'items.*.metadata.transferCode'  => ['sometimes', 'nullable', 'string'],
-                'items.*.metadata.contactHandle'  => ['sometimes', 'nullable', 'int'],
-                'items.*.metadata.microsoft365TenantName'  => ['sometimes', 'nullable', 'string'],
-                'items.*.metadata.microsoft365TenantId'  => ['sometimes', 'nullable', 'string'],
-                'items.*.metadata.experimentSlug'  => ['sometimes', 'required', Rule::exists(Experiment::class, 'slug'),
+            'items' => ['array'],
+            'items.*.itemUuid' => ['required', 'uuid'],
+            'items.*.parentItemUuid' => ['sometimes', 'nullable', 'uuid'],
+            'items.*.parentSubscriptionUuid' => [
+                'sometimes',
+                'required',
+                Rule::exists(sprintf('%s', Subscription::class), 'uuid')->where(
+                    'administrative_status',
+                    AdministrativeStatus::ACTIVE->value,
+                ),
             ],
+            'items.*.productSlug' => ['required', Rule::exists(Product::class, 'slug')],
+            'items.*.contractPeriod' => ['required', 'integer', 'min:1'],
+            'items.*.billingPeriod' => ['required', 'integer', 'min:1'],
+            'items.*.priceType' => [
+                'required',
+                Rule::in([ProductPriceType::PROLONGATION, ProductPriceType::REGISTRATION]),
+            ],
+            'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'items.*.metadata' => ['nullable', 'array'],
+            'items.*.metadata.domain' => ['sometimes', 'nullable', 'string'],
+            'items.*.metadata.transferCode' => ['sometimes', 'nullable', 'string'],
+            'items.*.metadata.contactHandle' => ['sometimes', 'nullable', 'int'],
+            'items.*.metadata.microsoft365TenantName' => ['sometimes', 'nullable', 'string'],
+            'items.*.metadata.microsoft365TenantId' => ['sometimes', 'nullable', 'string'],
+            'items.*.metadata.experimentSlug' => ['sometimes', 'required', Rule::exists(Experiment::class, 'slug')],
         ];
     }
 }

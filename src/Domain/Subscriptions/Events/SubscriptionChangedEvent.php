@@ -12,7 +12,7 @@ class SubscriptionChangedEvent
     public function __construct(
         public Subscription $subscription,
         public int $charge,
-        public ProductChangeType $changeType
+        public ProductChangeType $changeType,
     ) {
     }
 }

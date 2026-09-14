@@ -27,7 +27,7 @@ class AcronisConnector extends ClientCredentialsGrandConnector
             logger: $this->logger,
             logMasker: $this->logMasker,
             cache: $this->cache,
-            retryConfig: $this->acronisConfig->retryConfig
+            retryConfig: $this->acronisConfig->retryConfig,
         );
     }
 

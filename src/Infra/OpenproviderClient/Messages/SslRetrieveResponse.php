@@ -92,7 +92,12 @@ class SslRetrieveResponse
         $xmlResponse = new SimpleXMLElement($reply);
         $responseCode = (int) $xmlResponse->reply->code;
 
-        $decoded = json_decode(json_encode($xmlResponse->reply->data, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
+        $decoded = json_decode(
+            json_encode($xmlResponse->reply->data, JSON_THROW_ON_ERROR),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
         assert(is_array($decoded));
 
         $this->responseData = $decoded;

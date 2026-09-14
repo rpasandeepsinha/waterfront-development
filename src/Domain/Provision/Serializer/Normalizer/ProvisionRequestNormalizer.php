@@ -21,7 +21,7 @@ use Webmozart\Assert\Assert;
 class ProvisionRequestNormalizer implements NormalizerInterface, DenormalizerInterface
 {
     public function __construct(
-        private readonly NormalizerInterface&DenormalizerInterface $normalizer
+        private readonly NormalizerInterface&DenormalizerInterface $normalizer,
     ) {
     }
 
@@ -32,8 +32,11 @@ class ProvisionRequestNormalizer implements NormalizerInterface, DenormalizerInt
      *
      * @return array<mixed>|string|int|float|bool|ArrayObject<int, mixed>|null
      */
-    public function normalize(mixed $data, ?string $format = null, array $context = []): array|string|int|float|bool|ArrayObject|null
-    {
+    public function normalize(
+        mixed $data,
+        ?string $format = null,
+        array $context = [],
+    ): array|string|int|float|bool|ArrayObject|null {
         if (! $data instanceof ProvisionRequestInterface) {
             throw NotNormalizableValueException::createForUnexpectedDataType(
                 message: 'Received incorrect data type during provision request normalization.',
@@ -114,10 +117,13 @@ class ProvisionRequestNormalizer implements NormalizerInterface, DenormalizerInt
     /**
      * @param array<mixed> $context
      */
-    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
-    {
-        return $type === ProvisionRequestInterface::class
-            || $type === ProvisionRequest::class;
+    public function supportsDenormalization(
+        mixed $data,
+        string $type,
+        ?string $format = null,
+        array $context = [],
+    ): bool {
+        return $type === ProvisionRequestInterface::class || $type === ProvisionRequest::class;
     }
 
     public function getSupportedTypes(?string $format): array

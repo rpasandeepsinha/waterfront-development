@@ -9,8 +9,9 @@ use Waterfront\Domain\Subscriptions\Repositories\SubscriptionRepository;
 
 class ProductGroupObserver
 {
-    public function __construct(private readonly SubscriptionRepository $subscriptionRepository)
-    {
+    public function __construct(
+        private readonly SubscriptionRepository $subscriptionRepository,
+    ) {
     }
 
     public function updated(ProductGroup $productGroup): void

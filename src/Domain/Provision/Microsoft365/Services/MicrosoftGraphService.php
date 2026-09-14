@@ -36,7 +36,7 @@ use Waterfront\Infra\Microsoft\Graph\Factory\GraphServiceClientFactory;
 readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInterface
 {
     public function __construct(
-        private GraphServiceClientFactory $graphClientFactory
+        private GraphServiceClientFactory $graphClientFactory,
     ) {
     }
 
@@ -57,7 +57,7 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
             return new GetDomainResult(
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::SUCCESS,
-                domain: $domain
+                domain: $domain,
             );
 
             // @phpstan-ignore-next-line GraphClient doesn't have clear exceptions
@@ -65,7 +65,7 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
             return new GetDomainResult(
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
     }
@@ -88,7 +88,7 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
             return new VerifyDomainResult(
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::SUCCESS,
-                domain: $domain
+                domain: $domain,
             );
 
             // @phpstan-ignore-next-line GraphClient doesn't have clear exceptions
@@ -96,7 +96,7 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
             return new VerifyDomainResult(
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
     }
@@ -120,7 +120,7 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
             return new CreateDomainResult(
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::SUCCESS,
-                domain: $createDomain
+                domain: $createDomain,
             );
 
             // @phpstan-ignore-next-line GraphClient doesn't have clear exceptions
@@ -128,7 +128,7 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
             return new CreateDomainResult(
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
     }
@@ -151,7 +151,7 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
             return new PromoteDomainResult(
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::SUCCESS,
-                isPromoted: true
+                isPromoted: true,
             );
 
             // @phpstan-ignore-next-line GraphClient doesn't have clear exceptions
@@ -160,7 +160,7 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::FAILED,
                 isPromoted: false,
-                exception: $exception
+                exception: $exception,
             );
         }
     }
@@ -178,7 +178,7 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
             return new DeleteDomainResult(
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::SUCCESS,
-                isDeleted: true
+                isDeleted: true,
             );
 
             // @phpstan-ignore thecodingmachine.exceptionMustBeRethrown
@@ -187,7 +187,7 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::FAILED,
                 isDeleted: false,
-                exception: $exception
+                exception: $exception,
             );
         }
     }
@@ -209,7 +209,7 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
             return new SetDomainAsDefaultDomainResult(
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::SUCCESS,
-                isDefault: true
+                isDefault: true,
             );
 
             // @phpstan-ignore-next-line GraphClient doesn't have clear exceptions
@@ -218,7 +218,7 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::FAILED,
                 isDefault: false,
-                exception: $exception
+                exception: $exception,
             );
         }
     }
@@ -234,14 +234,17 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
                 ->get()
                 ->wait();
 
-            if (! $domainDnsRecordCollection instanceof DomainDnsRecordCollectionResponse || $domainDnsRecordCollection->getValue() === null) {
+            if (
+                ! $domainDnsRecordCollection instanceof DomainDnsRecordCollectionResponse
+                || $domainDnsRecordCollection->getValue() === null
+            ) {
                 throw new ServiceDnsRecordsNotFoundException($request->domainName);
             }
 
             return new ServiceDnsRecordsResult(
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::SUCCESS,
-                records: $domainDnsRecordCollection->getValue()
+                records: $domainDnsRecordCollection->getValue(),
             );
 
             // @phpstan-ignore-next-line GraphClient doesn't have clear exceptions
@@ -249,7 +252,7 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
             return new ServiceDnsRecordsResult(
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
     }
@@ -265,14 +268,17 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
                 ->get()
                 ->wait();
 
-            if (! $domainDnsRecordCollection instanceof DomainDnsRecordCollectionResponse || $domainDnsRecordCollection->getValue() === null) {
+            if (
+                ! $domainDnsRecordCollection instanceof DomainDnsRecordCollectionResponse
+                || $domainDnsRecordCollection->getValue() === null
+            ) {
                 throw new VerificationDnsRecordsNotFoundException($request->domainName);
             }
 
             return new VerificationDnsRecordsResult(
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::SUCCESS,
-                records: $domainDnsRecordCollection->getValue()
+                records: $domainDnsRecordCollection->getValue(),
             );
 
             // @phpstan-ignore-next-line GraphClient doesn't have clear exceptions
@@ -280,7 +286,7 @@ readonly class MicrosoftGraphService implements Microsoft365ProvisionServiceInte
             return new VerificationDnsRecordsResult(
                 provisionData: $request,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
     }

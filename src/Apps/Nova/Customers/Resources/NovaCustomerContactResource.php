@@ -54,18 +54,16 @@ class NovaCustomerContactResource extends Resource
             CustomerContactType::TECHNICAL->value => self::translate('customer.contact.attributes.type.technical'),
             CustomerContactType::FINANCIAL->value => self::translate('customer.contact.attributes.type.financial'),
         ];
+
         return [
             BelongsTo::make(
                 self::translate('customer.singular'),
                 'customer',
-                NovaCustomerResource::class
+                NovaCustomerResource::class,
             ),
-            Text::make(self::translate('customer.attributes.first_name'), 'first_name')
-                ->required(),
-            Text::make(self::translate('customer.attributes.last_name'), 'last_name')
-                ->required(),
-            Text::make(self::translate('customer.contact.attributes.company'), 'company')
-                ->nullable(),
+            Text::make(self::translate('customer.attributes.first_name'), 'first_name')->required(),
+            Text::make(self::translate('customer.attributes.last_name'), 'last_name')->required(),
+            Text::make(self::translate('customer.contact.attributes.company'), 'company')->nullable(),
             Text::make(self::translate('customer.attributes.email'), 'email')
                 ->rules('required', 'email', 'max:254')
                 ->creationRules('unique:customer_contacts,email')

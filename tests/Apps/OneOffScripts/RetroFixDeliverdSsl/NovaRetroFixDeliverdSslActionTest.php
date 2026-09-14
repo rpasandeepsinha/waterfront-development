@@ -101,9 +101,7 @@ class NovaRetroFixDeliverdSslActionTest extends IntegrationTestCase
             ->forDomain('already-ok.com')
             ->createOne();
 
-        $this->logger
-            ->expects(self::once())
-            ->method('debug');
+        $this->logger->expects(self::once())->method('debug');
 
         $action = new NovaRetroFixDeliverdSslAction(
             logger: $this->logger,

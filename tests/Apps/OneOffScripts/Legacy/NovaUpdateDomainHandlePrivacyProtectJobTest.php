@@ -166,26 +166,26 @@ class NovaUpdateDomainHandlePrivacyProtectJobTest extends IntegrationTestCase
         // Create a DomainContact that exactly matches what createOrFindDomainContact would produce,
         // so firstOrCreate finds it rather than creating a new one
         $existingContact = DomainContactFactory::new()->createOne([
-            'customer_id'             => $this->customer->id,
-            'email'                   => $this->customer->email,
-            'first_name'              => $this->customer->first_name,
-            'last_name'               => $this->customer->last_name,
-            'phone_country_code'      => $this->customer->phone_country_code,
-            'phone_area_code'         => $this->customer->phone_area_code,
+            'customer_id' => $this->customer->id,
+            'email' => $this->customer->email,
+            'first_name' => $this->customer->first_name,
+            'last_name' => $this->customer->last_name,
+            'phone_country_code' => $this->customer->phone_country_code,
+            'phone_area_code' => $this->customer->phone_area_code,
             'phone_subscriber_number' => $this->customer->phone_subscriber_number,
-            'organization'            => $this->customer->organization,
-            'street_name'             => $this->customer->address->street_name,
-            'street_number'           => $this->customer->address->street_number,
-            'zip_code'                => $this->customer->address->zip_code,
-            'city'                    => $this->customer->address->city,
-            'country_code'            => $this->customer->address->country_code,
-            'default_owner'           => true,
+            'organization' => $this->customer->organization,
+            'street_name' => $this->customer->address->street_name,
+            'street_number' => $this->customer->address->street_number,
+            'zip_code' => $this->customer->address->zip_code,
+            'city' => $this->customer->address->city,
+            'country_code' => $this->customer->address->country_code,
+            'default_owner' => true,
         ]);
 
         // Deployment is already linked to this contact — simulates a previous successful run
         DomainDeploymentFactory::new()->withRtrProvider()->createOne([
             'subscription_uuid' => $this->subscription->uuid,
-            'contact_owner_id'  => $existingContact->id,
+            'contact_owner_id' => $existingContact->id,
         ]);
 
         $this->logger

@@ -49,7 +49,7 @@ class SecretKeyService
         if ($getKeysResult->getStatus() !== SecretKeyGetResult::STATUS_OK) {
             throw new RuntimeException(
                 'Error getting secret keys from Plesk: ' . $getKeysResult->getErrorMessage(),
-                $getKeysResult->getErrorCode()
+                $getKeysResult->getErrorCode(),
             );
         }
 
@@ -72,7 +72,7 @@ class SecretKeyService
         if ($createKeyResult->getStatus() !== SecretKeyCreateResult::STATUS_OK) {
             throw new RuntimeException(
                 'Error creating a secret key in Plesk: ' . $createKeyResult->getErrorMessage(),
-                $createKeyResult->getErrorCode()
+                $createKeyResult->getErrorCode(),
             );
         }
 

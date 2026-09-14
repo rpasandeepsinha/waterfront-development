@@ -11,8 +11,9 @@ class Request
 {
     private string $endpoint = 'api/authticket/create/username/{domain}';
 
-    public function __construct(private readonly HttpClient $httpClient)
-    {
+    public function __construct(
+        private readonly HttpClient $httpClient,
+    ) {
     }
 
     public function send(string $domain): ResponseInterface

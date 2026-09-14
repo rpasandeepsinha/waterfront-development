@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use Waterfront\Domain\Customers\Models\Customer;
+use Waterfront\Domain\Pricing\DTO\PriceComponents\PriceComponent;
 use Waterfront\Domain\Pricing\DTO\PriceComponents\ProlongationStaffelPriceComponent;
 use Waterfront\Domain\Pricing\DTO\PriceComponents\RegistrationStaffelPriceComponent;
 use Waterfront\Domain\Pricing\Enums\PriceComponentType;
@@ -46,7 +47,8 @@ readonly class ProductDiscountPriceComponentHandler
         Assert::allInteger($productIds);
         $productIdsString = implode(',', array_map(fn ($id) => strval($id), $productIds));
 
-        $staffelPrices = DB::select(<<<SQL
+        $staffelPrices = DB::select(
+            <<<SQL
             select distinct on (customer_product_discount.id, product_id, contract_period, billing_period, type) product_price_components.product_id, product_price_components.id, product_price_components.contract_period, product_price_components.billing_period, product_price_components.type, product_price_components.price
             from product_price_components
             join product_discount_prices on product_price_components.id = product_discount_prices.price_id
@@ -57,7 +59,14 @@ readonly class ProductDiscountPriceComponentHandler
                 and product_price_components.starts_at <= :currentDate
                 and (product_price_components.expires_at is null or product_price_components.expires_at > :currentDate)
             order by customer_product_discount.id, product_price_components.product_id, product_price_components.contract_period, product_price_components.billing_period, product_price_components.type, product_price_components.starts_at desc
-            SQL, ['currentDate' => CarbonImmutable::now(), 'customerId' => $customer->id, 'registrationStaffel' => PriceComponentType::REGISTRATION_STAFFEL->value, 'prolongationStaffel' => PriceComponentType::PROLONGATION_STAFFEL->value]);
+            SQL,
+            [
+                'currentDate' => CarbonImmutable::now(),
+                'customerId' => $customer->id,
+                'registrationStaffel' => PriceComponentType::REGISTRATION_STAFFEL->value,
+                'prolongationStaffel' => PriceComponentType::PROLONGATION_STAFFEL->value,
+            ],
+        );
 
         foreach ($staffelPrices as $staffelPrice) {
             $price = $prices
@@ -70,14 +79,51 @@ readonly class ProductDiscountPriceComponentHandler
             $type = PriceComponentType::from($staffelPrice->type);
 
             $priceComponent = match ($type) {
-                PriceComponentType::REGISTRATION_STAFFEL => new RegistrationStaffelPriceComponent(null, null, $staffelPrice->price, $staffelPrice->price),
-                PriceComponentType::PROLONGATION_STAFFEL => new ProlongationStaffelPriceComponent(null, null, $staffelPrice->price, $staffelPrice->price),
+                PriceComponentType::REGISTRATION_STAFFEL => new RegistrationStaffelPriceComponent(
+                    null,
+                    null,
+                    $staffelPrice->price,
+                    $staffelPrice->price,
+                ),
+                PriceComponentType::PROLONGATION_STAFFEL => new ProlongationStaffelPriceComponent(
+                    null,
+                    null,
+                    $staffelPrice->price,
+                    $staffelPrice->price,
+                ),
                 default => throw new RuntimeException(),
             };
 
             $price->possiblePriceComponents[] = $priceComponent;
+            $this->deduplicateDiscount($price, $type);
         }
 
         return $prices;
+    }
+
+    /**
+     * A customer can be part of multiple product discounts (aka "staffels"). Multiple product discounts can contain
+     * prices for the same product. If this is the case we should make sure deduplication always happens in a guaranteed
+     * way. The lowest price has precedence in this case.
+     */
+    private function deduplicateDiscount(Price $price, PriceComponentType $componentType): void
+    {
+        $staffelPriceComponents = array_filter(
+            $price->possiblePriceComponents,
+            fn (PriceComponent $priceComponent): bool => $priceComponent->type === $componentType,
+        );
+        $otherPriceComponents = array_filter(
+            $price->possiblePriceComponents,
+            fn (PriceComponent $priceComponent): bool => $priceComponent->type !== $componentType,
+        );
+
+        if (count($staffelPriceComponents) === 0) {
+            return;
+        }
+
+        $sorter = fn (PriceComponent $a, PriceComponent $b): int => $a->newPrice > $b->newPrice ? 1 : 0;
+        uasort($staffelPriceComponents, $sorter);
+
+        $price->possiblePriceComponents = array_merge($otherPriceComponents, [array_first($staffelPriceComponents)]);
     }
 }

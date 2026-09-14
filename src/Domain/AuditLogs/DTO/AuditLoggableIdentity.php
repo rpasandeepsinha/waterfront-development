@@ -18,7 +18,7 @@ class AuditLoggableIdentity
     public function __construct(
         public readonly UuidInterface $uuid,
         public readonly ?string $email,
-        public readonly ?string $schemaId
+        public readonly ?string $schemaId,
     ) {
     }
 
@@ -32,6 +32,7 @@ class AuditLoggableIdentity
             if ($this->email === null) {
                 return self::UNKNOWN;
             }
+
             return str_contains($this->email, '@sandwave') ? self::ADMIN : self::SUPPORT;
         }
 

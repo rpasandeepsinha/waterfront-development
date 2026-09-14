@@ -30,8 +30,9 @@ use Waterfront\Domain\Voucher\Models\VoucherClaim;
 
 class VoucherSeeder extends Seeder
 {
-    public function __construct(private readonly ReferenceRepository $referenceRepo)
-    {
+    public function __construct(
+        private readonly ReferenceRepository $referenceRepo,
+    ) {
     }
 
     public function run(): void
@@ -49,7 +50,10 @@ class VoucherSeeder extends Seeder
     {
         $voucher = $this->referenceRepo->get(ProductReference::VPS_CLOUD_20_VOUCHER, Voucher::class);
         $product = $this->referenceRepo->get(ProductReference::VPS_CLOUD_20, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::VPS_CLOUD_20_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::VPS_CLOUD_20_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $order = new Order();
         $order->uuid = Str::uuid()->toString();
@@ -87,7 +91,10 @@ class VoucherSeeder extends Seeder
     private function unlimitedClaimsPercentageAmount(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::DOMAIN_BE, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::DOMAIN_BE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::DOMAIN_BE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $voucher = new Voucher();
         $voucher->uuid = Str::uuid()->toString();
@@ -108,7 +115,7 @@ class VoucherSeeder extends Seeder
         $order->status = OrderStatus::IN_PROGRESS;
         $order->payment_method = PaymentMethod::INVOICE;
         $order->administration_fees = 0;
-        $order->total_price = intval($price->price - $voucher->amount / 100 * $price->price);
+        $order->total_price = intval($price->price - (($voucher->amount / 100) * $price->price));
         $order->customer_id = $customer->id;
         $order->ordered_by_uuid = $customer->uuid;
         $order->ordered_by_metadata = (string) json_encode([
@@ -123,7 +130,7 @@ class VoucherSeeder extends Seeder
         $orderItem->product_name = $product->name;
         $orderItem->status = OrderLineItemStatus::REGISTRATION;
         $orderItem->gross_price = $price->price;
-        $orderItem->net_price = intval($price->price - $voucher->amount / 100 * $price->price);
+        $orderItem->net_price = intval($price->price - (($voucher->amount / 100) * $price->price));
         $orderItem->billing_period = $price->billing_period;
         $orderItem->contract_period = $price->contract_period;
         $orderItem->should_invoice = true;
@@ -139,7 +146,10 @@ class VoucherSeeder extends Seeder
     private function noClaimsLeft(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::DOMAIN_BE, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::DOMAIN_BE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::DOMAIN_BE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $voucher = new Voucher();
         $voucher->uuid = Str::uuid()->toString();
@@ -192,7 +202,10 @@ class VoucherSeeder extends Seeder
     private function alreadyClaimedByCustomer(Customer $customer): void
     {
         $product = $this->referenceRepo->get(ProductReference::DOMAIN_BE, Product::class);
-        $price = $this->referenceRepo->get(ProductReference::DOMAIN_BE_REGISTRATION_PRICE, ProductPriceComponent::class);
+        $price = $this->referenceRepo->get(
+            ProductReference::DOMAIN_BE_REGISTRATION_PRICE,
+            ProductPriceComponent::class,
+        );
 
         $voucher = new Voucher();
         $voucher->uuid = Str::uuid()->toString();

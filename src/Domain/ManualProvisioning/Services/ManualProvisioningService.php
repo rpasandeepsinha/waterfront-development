@@ -12,8 +12,9 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class ManualProvisioningService
 {
-    public function __construct(private readonly MailNotificationService $mailNotificationService)
-    {
+    public function __construct(
+        private readonly MailNotificationService $mailNotificationService,
+    ) {
     }
 
     /**
@@ -49,8 +50,10 @@ class ManualProvisioningService
 
     public function manualProductIsActivate(Subscription $subscription): bool
     {
-        return $subscription->product->productGroup->slug === ProductGroupType::MANUAL_SUBSCRIPTION
-            && $subscription->technical_status === TechnicalStatus::OK->value;
+        return (
+            $subscription->product->productGroup->slug === ProductGroupType::MANUAL_SUBSCRIPTION
+            && $subscription->technical_status === TechnicalStatus::OK->value
+        );
     }
 
     public function sendActivationNotification(Subscription $subscription): void
@@ -60,7 +63,7 @@ class ManualProvisioningService
         $this->mailNotificationService->sendActivationNotification($provisionDetails);
     }
 
-    public function getProvisionDetails(Subscription $subscription): ProvisionDetails
+    private function getProvisionDetails(Subscription $subscription): ProvisionDetails
     {
         return new ProvisionDetails(
             customerId: $subscription->customer_id,
@@ -70,7 +73,7 @@ class ManualProvisioningService
             customerEmail: $subscription->customer->email,
             customerUuid: $subscription->customer->uuid,
             subscriptionId: $subscription->id,
-            productName: $subscription->product->name
+            productName: $subscription->product->name,
         );
     }
 }

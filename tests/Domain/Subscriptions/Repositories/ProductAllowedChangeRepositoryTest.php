@@ -148,7 +148,7 @@ class ProductAllowedChangeRepositoryTest extends IntegrationTestCase
         $isAllowed = $this->repository->isProductChangeAllowed(
             changeType: ProductChangeType::UPGRADE,
             fromProduct: $this->freeDnsProduct,
-            toProduct: $this->superDnsProduct
+            toProduct: $this->superDnsProduct,
         );
 
         self::assertTrue($isAllowed);
@@ -160,7 +160,7 @@ class ProductAllowedChangeRepositoryTest extends IntegrationTestCase
         $isAllowed = $this->repository->isProductChangeAllowed(
             changeType: ProductChangeType::UPGRADE,
             fromProduct: $this->freeDnsProduct,
-            toProduct: $this->superDnsProduct
+            toProduct: $this->superDnsProduct,
         );
 
         self::assertFalse($isAllowed);
@@ -170,37 +170,37 @@ class ProductAllowedChangeRepositoryTest extends IntegrationTestCase
     {
         ProductAllowedChangeFactory::new()->upgradeChange()->create([
             'from_product_id' => $this->freeDnsProduct->id,
-            'to_product_id' =>  $this->superDnsProduct->id,
+            'to_product_id' => $this->superDnsProduct->id,
             'display_order' => 3,
         ]);
 
         ProductAllowedChangeFactory::new()->upgradeChange()->create([
             'from_product_id' => $this->freeDnsProduct->id,
-            'to_product_id' =>  $this->premiumDnsProduct->id,
+            'to_product_id' => $this->premiumDnsProduct->id,
             'display_order' => 2,
         ]);
 
         ProductAllowedChangeFactory::new()->upgradeChange()->create([
             'from_product_id' => $this->freeDnsProduct->id,
-            'to_product_id' =>  $this->basicDnsProduct->id,
+            'to_product_id' => $this->basicDnsProduct->id,
             'display_order' => 1,
         ]);
 
         ProductAllowedChangeFactory::new()->upgradeChange()->create([
             'from_product_id' => $this->basicDnsProduct->id,
-            'to_product_id' =>  $this->premiumDnsProduct->id,
+            'to_product_id' => $this->premiumDnsProduct->id,
             'display_order' => 1,
         ]);
 
         ProductAllowedChangeFactory::new()->upgradeChange()->create([
             'from_product_id' => $this->basicDnsProduct->id,
-            'to_product_id' =>  $this->superDnsProduct->id,
+            'to_product_id' => $this->superDnsProduct->id,
             'display_order' => 2,
         ]);
 
         ProductAllowedChangeFactory::new()->upgradeChangeSupportOnly()->create([
             'from_product_id' => $this->basicDnsProduct->id,
-            'to_product_id' =>  $this->supportOnlyDnsProduct->id,
+            'to_product_id' => $this->supportOnlyDnsProduct->id,
             'display_order' => 3,
         ]);
     }
@@ -209,31 +209,31 @@ class ProductAllowedChangeRepositoryTest extends IntegrationTestCase
     {
         ProductAllowedChangeFactory::new()->downgradeChange()->create([
             'from_product_id' => $this->premiumDnsProduct->id,
-            'to_product_id' =>  $this->superDnsProduct->id,
+            'to_product_id' => $this->superDnsProduct->id,
             'display_order' => 1,
         ]);
 
         ProductAllowedChangeFactory::new()->downgradeChange()->create([
             'from_product_id' => $this->premiumDnsProduct->id,
-            'to_product_id' =>  $this->basicDnsProduct->id,
+            'to_product_id' => $this->basicDnsProduct->id,
             'display_order' => 2,
         ]);
 
         ProductAllowedChangeFactory::new()->downgradeChange()->create([
             'from_product_id' => $this->premiumDnsProduct->id,
-            'to_product_id' =>  $this->freeDnsProduct->id,
+            'to_product_id' => $this->freeDnsProduct->id,
             'display_order' => 3,
         ]);
 
         ProductAllowedChangeFactory::new()->downgradeChangeSupportOnly()->create([
             'from_product_id' => $this->premiumDnsProduct->id,
-            'to_product_id' =>  $this->supportOnlyDnsProduct->id,
+            'to_product_id' => $this->supportOnlyDnsProduct->id,
             'display_order' => 4,
         ]);
 
         ProductAllowedChangeFactory::new()->downgradeChange()->create([
             'from_product_id' => $this->basicDnsProduct->id,
-            'to_product_id' =>  $this->freeDnsProduct->id,
+            'to_product_id' => $this->freeDnsProduct->id,
         ]);
     }
 }

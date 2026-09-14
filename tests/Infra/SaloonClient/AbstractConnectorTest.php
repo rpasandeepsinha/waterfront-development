@@ -34,7 +34,7 @@ class AbstractConnectorTest extends TestCase
             'c' => 'd',
         ];
 
-        $client = new class (logger: $mockLogger, logMasker: $maskStub) extends AbstractConnector {
+        $client = new class(logger: $mockLogger, logMasker: $maskStub) extends AbstractConnector {
             public function resolveBaseUrl(): string
             {
                 return 'https://test.com/';
@@ -43,11 +43,11 @@ class AbstractConnectorTest extends TestCase
 
         $clientBasename = basename(str_replace('\\', '/', $client::class));
 
-        $getRequest = new class ($username) extends Request {
+        $getRequest = new class($username) extends Request {
             protected Method $method = Method::GET;
 
             public function __construct(
-                private readonly string $username
+                private readonly string $username,
             ) {
             }
 
@@ -57,7 +57,7 @@ class AbstractConnectorTest extends TestCase
             }
         };
 
-        $postRequest = new class ($postData) extends Request implements HasBody {
+        $postRequest = new class($postData) extends Request implements HasBody {
             use HasJsonBody;
 
             protected Method $method = Method::POST;
@@ -66,7 +66,7 @@ class AbstractConnectorTest extends TestCase
              * @param array<string, string> $postData
              */
             public function __construct(
-                private readonly array $postData
+                private readonly array $postData,
             ) {
             }
 
@@ -91,7 +91,8 @@ class AbstractConnectorTest extends TestCase
 
         $client->withMockClient($mockClient);
 
-        $mockLogger->expects('info')
+        $mockLogger
+            ->expects('info')
             ->once()
             ->with(
                 sprintf('[%s] "{request.method} {request.uri}" {response.code}', $clientBasename),
@@ -101,12 +102,13 @@ class AbstractConnectorTest extends TestCase
                     'request.method' => 'GET',
                     'response.code' => 200,
                     'response.data' => 'this-is-response-data',
-                ]
+                ],
             );
 
         $client->send($getRequest);
 
-        $mockLogger->expects('info')
+        $mockLogger
+            ->expects('info')
             ->once()
             ->with(
                 sprintf('[%s] "{request.method} {request.uri}" {response.code}', $clientBasename),
@@ -116,7 +118,7 @@ class AbstractConnectorTest extends TestCase
                     'request.method' => 'POST',
                     'response.code' => 201,
                     'response.data' => '',
-                ]
+                ],
             );
 
         $client->send($postRequest);
@@ -132,7 +134,7 @@ class AbstractConnectorTest extends TestCase
             'email' => 'john@example.com',
         ];
 
-        $client = new class (logger: $mockLogger, logMasker: $maskStub) extends AbstractConnector {
+        $client = new class(logger: $mockLogger, logMasker: $maskStub) extends AbstractConnector {
             public function resolveBaseUrl(): string
             {
                 return 'https://test.com/';
@@ -143,15 +145,17 @@ class AbstractConnectorTest extends TestCase
              * We read the stream contents, moving the pointer to the end, and return
              * a new request with an empty body just like a real consumer would do.
              */
-            public function handlePsrRequest(RequestInterface $request, PendingRequest $pendingRequest): RequestInterface
-            {
+            public function handlePsrRequest(
+                RequestInterface $request,
+                PendingRequest $pendingRequest,
+            ): RequestInterface {
                 return $request->withBody(Utils::streamFor(''));
             }
         };
 
         $clientBasename = basename(str_replace('\\', '/', $client::class));
 
-        $postRequest = new class ($postData) extends Request implements HasBody {
+        $postRequest = new class($postData) extends Request implements HasBody {
             use HasJsonBody;
 
             protected Method $method = Method::PUT;
@@ -160,7 +164,7 @@ class AbstractConnectorTest extends TestCase
              * @param array<string, string> $postData
              */
             public function __construct(
-                private readonly array $postData
+                private readonly array $postData,
             ) {
             }
 
@@ -184,7 +188,8 @@ class AbstractConnectorTest extends TestCase
 
         $client->withMockClient($mockClient);
 
-        $mockLogger->expects('info')
+        $mockLogger
+            ->expects('info')
             ->once()
             ->with(
                 sprintf('[%s] "{request.method} {request.uri}" {response.code}', $clientBasename),
@@ -194,7 +199,7 @@ class AbstractConnectorTest extends TestCase
                     'request.method' => 'PUT',
                     'response.code' => 200,
                     'response.data' => '{"status":"ok"}',
-                ]
+                ],
             );
 
         $client->send($postRequest);

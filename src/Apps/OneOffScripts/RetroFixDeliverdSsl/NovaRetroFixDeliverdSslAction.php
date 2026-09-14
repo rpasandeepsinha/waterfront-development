@@ -46,7 +46,7 @@ class NovaRetroFixDeliverdSslAction extends NovaOneOffScriptAbstractAction
             [
                 LoggingContextKeys::ONE_OFF_SCRIPT => $this->getOneOffScriptSlug(),
                 LoggingContextKeys::META => ['dry-run' => $isDryRun],
-            ]
+            ],
         );
 
         $subscriptions = Subscription::whereProductGroupType(ProductGroupType::SSL)

@@ -9,16 +9,20 @@ use Waterfront\Domain\Providers\Enums\ProviderSlug;
 
 class NoCredentialsForDomainBusinessUnitException extends Exception
 {
-    public function __construct(string $businessUnitSlug, ProviderSlug $providerSlug, int $code = 0, ?Exception $previous = null)
-    {
+    public function __construct(
+        string $businessUnitSlug,
+        ProviderSlug $providerSlug,
+        int $code = 0,
+        ?Exception $previous = null,
+    ) {
         parent::__construct(
             sprintf(
                 'The given business unit slug [%s] does not have credentials for the given provider [%s]. Please ensure that the business unit & credentials exists and is correctly configured.',
                 $businessUnitSlug,
-                $providerSlug->value
+                $providerSlug->value,
             ),
             $code,
-            $previous
+            $previous,
         );
     }
 }

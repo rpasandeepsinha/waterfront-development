@@ -77,34 +77,26 @@ class UpdateDnsTest extends integrationTestCase
             ->forDomain($domain)
             ->createOne();
 
-        SslDeploymentFactory::new()
-            ->for($this->sslProvider)
-            ->for($domainSslSubscription)
-            ->createOne();
+        SslDeploymentFactory::new()->for($this->sslProvider)->for($domainSslSubscription)->createOne();
 
         $retrieveSslClient = self::createStub(OpenproviderClient::class);
-        $retrieveSslClient->method('retrieveSsl')
-            ->willReturn($this->sslRetrieveResult);
+        $retrieveSslClient->method('retrieveSsl')->willReturn($this->sslRetrieveResult);
 
         $openProviderClientFactory = self::createMock(OpenproviderClientFactory::class);
-        $openProviderClientFactory->expects(self::once())
-            ->method('create')
-            ->willReturn($retrieveSslClient);
+        $openProviderClientFactory->expects(self::once())->method('create')->willReturn($retrieveSslClient);
 
         $sslDnsService = self::createMock(SslDnsService::class);
-        $sslDnsService->expects(self::once())
-            ->method('updateDns')
-            ->with($this->sslRetrieveResult, $expectedDomain);
+        $sslDnsService->expects(self::once())->method('updateDns')->with($this->sslRetrieveResult, $expectedDomain);
 
         $job = new UpdateDns(
             domain: $domain,
-            recursive: true
+            recursive: true,
         );
 
         $job->handle(
             sslDnsService: $sslDnsService,
             openproviderClientFactory: $openProviderClientFactory,
-            rules: self::resolve(PublicSuffixList::class)
+            rules: self::resolve(PublicSuffixList::class),
         );
     }
 

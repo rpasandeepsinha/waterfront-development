@@ -39,6 +39,7 @@ class DeleteLoginKeys extends DirectAdminCommand
     public function addKey(string $keyname): DeleteLoginKeys
     {
         $this->keys[] = $keyname;
+
         return $this;
     }
 
@@ -50,6 +51,7 @@ class DeleteLoginKeys extends DirectAdminCommand
     public function setKeys(array $keys): DeleteLoginKeys
     {
         $this->keys = $keys;
+
         return $this;
     }
 

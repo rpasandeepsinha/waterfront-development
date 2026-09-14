@@ -11,7 +11,7 @@ readonly class TechnicalMigrationDomain
 {
     public function __construct(
         public Subscription $subscription,
-        public DomainDetailsDTO $domainDetails
+        public DomainDetailsDTO $domainDetails,
     ) {
     }
 }

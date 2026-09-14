@@ -26,7 +26,10 @@ class InternalNameserverControllerTest extends IntegrationTestCase
             ->assertJsonCount(2, 'data')
             ->assertJsonFragment(['nameserver_hostname' => 'ns1.ferry.internal'])
             ->assertJsonFragment(['nameserver_hostname' => 'ns2.ferry.internal'])
-            ->assertJsonStructure(['data' => [['id', 'nameserver_hostname', 'created_at', 'updated_at']], 'meta' => ['total']]);
+            ->assertJsonStructure([
+                'data' => [['id', 'nameserver_hostname', 'created_at', 'updated_at']],
+                'meta' => ['total'],
+            ]);
     }
 
     #[Test]
@@ -44,12 +47,9 @@ class InternalNameserverControllerTest extends IntegrationTestCase
     #[Test]
     public function storeCreatesTheNameserver(): void
     {
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.migrations.internal-nameservers.store'), [
-                'nameserver_hostname' => 'ns1.ferry.internal',
-            ])
-            ->assertCreated()
-            ->assertJsonStructure(['message', 'errors']);
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.migrations.internal-nameservers.store'), [
+            'nameserver_hostname' => 'ns1.ferry.internal',
+        ])->assertCreated()->assertJsonStructure(['message', 'errors']);
 
         self::assertDatabaseHas(FerryInternalNameserver::class, ['nameserver_hostname' => 'ns1.ferry.internal']);
     }
@@ -59,12 +59,9 @@ class InternalNameserverControllerTest extends IntegrationTestCase
     {
         FerryInternalNameserverFactory::new()->createOne(['nameserver_hostname' => 'ns1.ferry.internal']);
 
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.migrations.internal-nameservers.store'), [
-                'nameserver_hostname' => 'ns1.ferry.internal',
-            ])
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['nameserver_hostname']);
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.migrations.internal-nameservers.store'), [
+            'nameserver_hostname' => 'ns1.ferry.internal',
+        ])->assertUnprocessable()->assertJsonValidationErrors(['nameserver_hostname']);
     }
 
     #[Test]
@@ -83,8 +80,10 @@ class InternalNameserverControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->patchJson(
-                $this->generateRoute('admin.migrations.internal-nameservers.update', ['ferryInternalNameserver' => $nameserver->id]),
-                ['nameserver_hostname' => 'ns2.ferry.internal']
+                $this->generateRoute('admin.migrations.internal-nameservers.update', [
+                    'ferryInternalNameserver' => $nameserver->id,
+                ]),
+                ['nameserver_hostname' => 'ns2.ferry.internal'],
             )
             ->assertOk()
             ->assertJsonStructure(['message', 'errors']);
@@ -100,8 +99,10 @@ class InternalNameserverControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->patchJson(
-                $this->generateRoute('admin.migrations.internal-nameservers.update', ['ferryInternalNameserver' => $nameserver->id]),
-                ['nameserver_hostname' => 'ns1.ferry.internal']
+                $this->generateRoute('admin.migrations.internal-nameservers.update', [
+                    'ferryInternalNameserver' => $nameserver->id,
+                ]),
+                ['nameserver_hostname' => 'ns1.ferry.internal'],
             )
             ->assertOk();
 
@@ -116,8 +117,10 @@ class InternalNameserverControllerTest extends IntegrationTestCase
 
         $this->actingAsEmployee()
             ->patchJson(
-                $this->generateRoute('admin.migrations.internal-nameservers.update', ['ferryInternalNameserver' => $nameserver->id]),
-                ['nameserver_hostname' => 'ns1.ferry.internal']
+                $this->generateRoute('admin.migrations.internal-nameservers.update', [
+                    'ferryInternalNameserver' => $nameserver->id,
+                ]),
+                ['nameserver_hostname' => 'ns1.ferry.internal'],
             )
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['nameserver_hostname']);
@@ -132,7 +135,9 @@ class InternalNameserverControllerTest extends IntegrationTestCase
         $nameserver = FerryInternalNameserverFactory::new()->createOne(['nameserver_hostname' => 'ns1.ferry.internal']);
 
         $this->actingAsEmployee()
-            ->deleteJson($this->generateRoute('admin.migrations.internal-nameservers.destroy', ['ferryInternalNameserver' => $nameserver->id]))
+            ->deleteJson($this->generateRoute('admin.migrations.internal-nameservers.destroy', [
+                'ferryInternalNameserver' => $nameserver->id,
+            ]))
             ->assertOk()
             ->assertJsonStructure(['message', 'errors']);
 

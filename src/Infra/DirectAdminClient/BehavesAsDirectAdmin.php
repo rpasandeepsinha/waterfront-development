@@ -33,7 +33,11 @@ interface BehavesAsDirectAdmin
      */
     public function resellerPackage(?DirectAdminServer $server = null): ResellerPackage;
 
-    public function sslCerificate(DirectAdminCommand $sslCommand, string $username, ?DirectAdminServer $server = null): DirectAdminCommand;
+    public function sslCerificate(
+        DirectAdminCommand $sslCommand,
+        string $username,
+        ?DirectAdminServer $server = null,
+    ): DirectAdminCommand;
 
     public function useServer(DirectAdminServer $server): DirectAdminApiInterface;
 

@@ -12,7 +12,7 @@ class ModifyHandles implements HandleInterface
         private readonly string $owner,
         private readonly ?string $admin = null,
         private readonly ?string $tech = null,
-        private readonly ?string $billing = null
+        private readonly ?string $billing = null,
     ) {
     }
 
@@ -41,11 +41,14 @@ class ModifyHandles implements HandleInterface
      */
     public function toArray(): array
     {
-        return array_filter([
-            'owner'   => $this->getOwnerHandle(),
-            'admin'   => $this->getAdminHandle(),
-            'tech'    => $this->getTechHandle(),
-            'billing' => $this->getBillingHandle(),
-        ]);
+        return array_filter(
+            [
+                'owner' => $this->getOwnerHandle(),
+                'admin' => $this->getAdminHandle(),
+                'tech' => $this->getTechHandle(),
+                'billing' => $this->getBillingHandle(),
+            ],
+            fn (mixed $value): bool => (bool) $value,
+        );
     }
 }

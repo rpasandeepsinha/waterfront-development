@@ -45,7 +45,7 @@ class CaddyValidator implements RedirectValidatorInterface
             TerminateRedirectsRequest::class => $this->getTerminateRedirectsValidator($provisionRequest),
             SuspendRedirectRequest::class => $this->getContextOnlyValidator($provisionRequest),
             UnsuspendRedirectRequest::class => $this->getContextOnlyValidator($provisionRequest),
-            default => throw new UnknownRedirectRequestException($provisionRequest)
+            default => throw new UnknownRedirectRequestException($provisionRequest),
         };
     }
 
@@ -59,10 +59,15 @@ class CaddyValidator implements RedirectValidatorInterface
         ];
 
         $rules = [
-            'domain' => ['required', $this->redirectFromUrlRule, 'max:255', Rule::unique('redirect_deployments', 'source')->withoutTrashed()],
+            'domain' => [
+                'required',
+                $this->redirectFromUrlRule,
+                'max:255',
+                Rule::unique('redirect_deployments', 'source')->withoutTrashed(),
+            ],
             'destinationUrl' => ['required', $this->redirectDestinationUrlRule, 'max:255'],
-            'redirectType'   => ['required', Rule::enum(RedirectType::class)],
-            'context'        => ['required', 'uuid'],
+            'redirectType' => ['required', Rule::enum(RedirectType::class)],
+            'context' => ['required', 'uuid'],
         ];
 
         return $this->validatorFactory->make($requestData, $rules);

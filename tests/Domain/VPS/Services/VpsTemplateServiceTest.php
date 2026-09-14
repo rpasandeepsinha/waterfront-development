@@ -34,7 +34,7 @@ use Waterfront\Support\Enums\LoggingContextKeys;
 #[CoversClass(VpsTemplateService::class)]
 class VpsTemplateServiceTest extends IntegrationTestCase
 {
-    private const string CLOUDSTACK_TEMPLATE_SLUG  = 'Ubuntu-24.04';
+    private const string CLOUDSTACK_TEMPLATE_SLUG = 'Ubuntu-24.04';
     private const string WF_PRODUCT_SLUG = 'ubuntu-24.04-ssh';
 
     private ProductRepository&MockInterface $productRepository;
@@ -64,11 +64,13 @@ class VpsTemplateServiceTest extends IntegrationTestCase
             $this->productRepository,
             $this->adminClientFactory,
             $this->productSpecRepository,
-            $this->logger
+            $this->logger,
         );
 
         $this->environment = new CloudstackEnvironmentFactory()->createOne();
-        $this->product = new ProductFactory()->ubuntu()->createOne(['slug' => self::WF_PRODUCT_SLUG]);
+        $this->product = new ProductFactory()
+            ->ubuntu()
+            ->createOne(['slug' => self::WF_PRODUCT_SLUG]);
     }
 
     #[Test]
@@ -95,14 +97,9 @@ class VpsTemplateServiceTest extends IntegrationTestCase
             ->andReturn(true);
 
         $clientMock = self::mock(CloudStackClient::class);
-        $clientMock->shouldReceive('listTemplates')
-            ->once()
-            ->andReturn([]);
+        $clientMock->shouldReceive('listTemplates')->once()->andReturn([]);
 
-        $this->adminClientFactory
-            ->shouldReceive('create')
-            ->once()
-            ->andReturn($clientMock);
+        $this->adminClientFactory->shouldReceive('create')->once()->andReturn($clientMock);
 
         $this->productSpecRepository
             ->shouldReceive('getStringValueOfSpecification')
@@ -144,12 +141,14 @@ class VpsTemplateServiceTest extends IntegrationTestCase
             ->andReturn(self::CLOUDSTACK_TEMPLATE_SLUG);
 
         $templateResponse = json_decode(
-            json: (string) file_get_contents(__DIR__ . '/../data/templates/list-templates-ubuntu-with-and-without-ssh.json'),
+            json: (string) file_get_contents(__DIR__
+            . '/../data/templates/list-templates-ubuntu-with-and-without-ssh.json'),
             associative: true,
-            flags: JSON_THROW_ON_ERROR
+            flags: JSON_THROW_ON_ERROR,
         );
 
-        $mockBaseClient->shouldReceive('execute')
+        $mockBaseClient
+            ->shouldReceive('execute')
             ->once()
             ->with(
                 'listTemplates',
@@ -162,8 +161,9 @@ class VpsTemplateServiceTest extends IntegrationTestCase
                             'value' => self::CLOUDSTACK_TEMPLATE_SLUG,
                         ],
                     ],
-                ]
-            )->andReturn($templateResponse);
+                ],
+            )
+            ->andReturn($templateResponse);
 
         $this->productSpecRepository
             ->shouldReceive('booleanSpecificationIsTrue')
@@ -175,7 +175,7 @@ class VpsTemplateServiceTest extends IntegrationTestCase
 
         $templateTag = current(array_filter(
             $template->tags,
-            fn (TemplateTag $templateTag) => $templateTag->key === 'template_slug'
+            fn (TemplateTag $templateTag) => $templateTag->key === 'template_slug',
         ));
 
         self::assertTrue($template->sshKeyEnabled);
@@ -199,14 +199,15 @@ class VpsTemplateServiceTest extends IntegrationTestCase
             ->with($this->product, ProductSpecName::VPS_CLOUDSTACK_TEMPLATE_SLUG)
             ->andReturn(null);
 
-        $this->logger->shouldReceive('debug')
+        $this->logger
+            ->shouldReceive('debug')
             ->once()
             ->with(
                 sprintf(
                     'No Cloudstack template set as product spec, searching for template slug %s from product slug %s on environment %s',
                     $this->product->slug,
                     self::CLOUDSTACK_TEMPLATE_SLUG,
-                    $this->environment->slug
+                    $this->environment->slug,
                 ),
                 [
                     LoggingContextKeys::PRODUCT_SLUG => $this->product->slug,
@@ -216,7 +217,7 @@ class VpsTemplateServiceTest extends IntegrationTestCase
                         'template_slug_cloudstack' => self::CLOUDSTACK_TEMPLATE_SLUG,
                         'environment_slug' => $this->environment->slug,
                     ],
-                ]
+                ],
             );
 
         $mockBaseClient = self::mock(CloudStackBaseClient::class);
@@ -227,12 +228,14 @@ class VpsTemplateServiceTest extends IntegrationTestCase
             ->andReturn(new CloudStackClient($mockBaseClient, CloudstackSerializerFactory::get()));
 
         $templateResponse = json_decode(
-            json: (string) file_get_contents(__DIR__ . '/../data/templates/list-templates-ubuntu-with-and-without-ssh.json'),
+            json: (string) file_get_contents(__DIR__
+            . '/../data/templates/list-templates-ubuntu-with-and-without-ssh.json'),
             associative: true,
-            flags: JSON_THROW_ON_ERROR
+            flags: JSON_THROW_ON_ERROR,
         );
 
-        $mockBaseClient->shouldReceive('execute')
+        $mockBaseClient
+            ->shouldReceive('execute')
             ->once()
             ->with(
                 'listTemplates',
@@ -245,8 +248,9 @@ class VpsTemplateServiceTest extends IntegrationTestCase
                             'value' => self::CLOUDSTACK_TEMPLATE_SLUG,
                         ],
                     ],
-                ]
-            )->andReturn($templateResponse);
+                ],
+            )
+            ->andReturn($templateResponse);
 
         $this->productSpecRepository
             ->shouldReceive('booleanSpecificationIsTrue')
@@ -258,7 +262,7 @@ class VpsTemplateServiceTest extends IntegrationTestCase
 
         $templateTag = current(array_filter(
             $template->tags,
-            fn (TemplateTag $templateTag) => $templateTag->key === 'template_slug'
+            fn (TemplateTag $templateTag) => $templateTag->key === 'template_slug',
         ));
 
         self::assertTrue($template->sshKeyEnabled);
@@ -290,12 +294,14 @@ class VpsTemplateServiceTest extends IntegrationTestCase
             ->andReturn(self::CLOUDSTACK_TEMPLATE_SLUG);
 
         $templateResponse = json_decode(
-            json: (string) file_get_contents(__DIR__ . '/../data/templates/list-templates-ubuntu-with-and-without-ssh.json'),
+            json: (string) file_get_contents(__DIR__
+            . '/../data/templates/list-templates-ubuntu-with-and-without-ssh.json'),
             associative: true,
-            flags: JSON_THROW_ON_ERROR
+            flags: JSON_THROW_ON_ERROR,
         );
 
-        $mockBaseClient->shouldReceive('execute')
+        $mockBaseClient
+            ->shouldReceive('execute')
             ->once()
             ->with(
                 'listTemplates',
@@ -308,8 +314,9 @@ class VpsTemplateServiceTest extends IntegrationTestCase
                             'value' => self::CLOUDSTACK_TEMPLATE_SLUG,
                         ],
                     ],
-                ]
-            )->andReturn($templateResponse);
+                ],
+            )
+            ->andReturn($templateResponse);
 
         $this->productSpecRepository
             ->shouldReceive('booleanSpecificationIsTrue')
@@ -321,7 +328,7 @@ class VpsTemplateServiceTest extends IntegrationTestCase
 
         $templateTag = current(array_filter(
             $template->tags,
-            fn (TemplateTag $templateTag) => $templateTag->key === 'template_slug'
+            fn (TemplateTag $templateTag) => $templateTag->key === 'template_slug',
         ));
 
         self::assertFalse($template->sshKeyEnabled);
@@ -353,12 +360,14 @@ class VpsTemplateServiceTest extends IntegrationTestCase
             ->andReturn(new CloudStackClient($mockBaseClient, CloudstackSerializerFactory::get()));
 
         $templateResponse = json_decode(
-            json: (string) file_get_contents(__DIR__ . '/../data/templates/list-templates-ubuntu-with-duplicate-tags.json'),
+            json: (string) file_get_contents(__DIR__
+            . '/../data/templates/list-templates-ubuntu-with-duplicate-tags.json'),
             associative: true,
-            flags: JSON_THROW_ON_ERROR
+            flags: JSON_THROW_ON_ERROR,
         );
 
-        $mockBaseClient->shouldReceive('execute')
+        $mockBaseClient
+            ->shouldReceive('execute')
             ->once()
             ->with(
                 'listTemplates',
@@ -371,8 +380,9 @@ class VpsTemplateServiceTest extends IntegrationTestCase
                             'value' => self::CLOUDSTACK_TEMPLATE_SLUG,
                         ],
                     ],
-                ]
-            )->andReturn($templateResponse);
+                ],
+            )
+            ->andReturn($templateResponse);
 
         $this->productSpecRepository
             ->shouldReceive('booleanSpecificationIsTrue')
@@ -380,13 +390,14 @@ class VpsTemplateServiceTest extends IntegrationTestCase
             ->with($this->product, ProductSpecName::SSH_KEY_REQUIRED)
             ->andReturn(true);
 
-        $this->logger->shouldReceive('warning')
+        $this->logger
+            ->shouldReceive('warning')
             ->once()
             ->with(
                 sprintf(
                     'Found multiple templates with value [%s] for single slug [%s].',
                     self::CLOUDSTACK_TEMPLATE_SLUG,
-                    self::WF_PRODUCT_SLUG
+                    self::WF_PRODUCT_SLUG,
                 ),
                 [
                     LoggingContextKeys::PRODUCT_SLUG => self::WF_PRODUCT_SLUG,
@@ -396,12 +407,12 @@ class VpsTemplateServiceTest extends IntegrationTestCase
                         'template_slug_cloudstack' => self::CLOUDSTACK_TEMPLATE_SLUG,
                         'total_found_templates' => 3, // 3 templates with same tag in the json test file.
                         'template_list' => [
-                            '9948bc15-31ab-4762-939e-7e02d082126a',  // template ids from the json test file.
+                            '9948bc15-31ab-4762-939e-7e02d082126a', // template ids from the json test file.
                             '4fd4c8e9-9139-4c54-aad6-6044c5f4c082',
                             'a008d6fe-39a8-4d28-bfd7-e77fff177618',
                         ],
                     ],
-                ]
+                ],
             );
 
         $this->service->getTemplateByProduct($this->product, $this->environment);
@@ -432,10 +443,11 @@ class VpsTemplateServiceTest extends IntegrationTestCase
         $templateResponse = json_decode(
             json: (string) file_get_contents(__DIR__ . '/../data/templates/list-templates-single-item.json'),
             associative: true,
-            flags: JSON_THROW_ON_ERROR
+            flags: JSON_THROW_ON_ERROR,
         );
 
-        $mockBaseClient->shouldReceive('execute')
+        $mockBaseClient
+            ->shouldReceive('execute')
             ->once()
             ->with(
                 'listTemplates',
@@ -448,8 +460,9 @@ class VpsTemplateServiceTest extends IntegrationTestCase
                             'value' => self::CLOUDSTACK_TEMPLATE_SLUG,
                         ],
                     ],
-                ]
-            )->andReturn($templateResponse);
+                ],
+            )
+            ->andReturn($templateResponse);
 
         $this->productSpecRepository
             ->shouldReceive('booleanSpecificationIsTrue')
@@ -461,7 +474,7 @@ class VpsTemplateServiceTest extends IntegrationTestCase
 
         $templateTag = current(array_filter(
             $template->tags,
-            fn (TemplateTag $templateTag) => $templateTag->key === 'template_slug'
+            fn (TemplateTag $templateTag) => $templateTag->key === 'template_slug',
         ));
 
         self::assertTrue($template->passwordEnabled);

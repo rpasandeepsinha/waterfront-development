@@ -8,7 +8,7 @@ class UserKeys
 {
     public function __construct(
         public string $apiKey,
-        public string $secretKey
+        public string $secretKey,
     ) {
     }
 }

@@ -17,7 +17,7 @@ class RemoveDomainFromSpamFilter extends AbstractQueueableJob
 {
     public function __construct(
         private readonly string $domain,
-        private readonly SpamExpertsCluster|null $spamExpertsCluster,
+        private readonly ?SpamExpertsCluster $spamExpertsCluster,
     ) {
         parent::__construct();
     }
@@ -32,13 +32,13 @@ class RemoveDomainFromSpamFilter extends AbstractQueueableJob
         } catch (SpamexpertsNoSuchDomainException) {
             Log::warning(sprintf(
                 'Failed to remove domain %s from spam filter because domain was not found.',
-                $this->domain
+                $this->domain,
             ));
         } catch (Throwable $exception) {
             throw new LogicException(
                 'Failed to remove domain from spam filter: ' . $exception->getMessage(),
                 $exception->getCode(),
-                $exception
+                $exception,
             );
         }
     }

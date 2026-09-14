@@ -97,8 +97,10 @@ class PlaceHolderDeploymentFactory
         return $sslDeployment;
     }
 
-    private function createHostingPlaceHolder(Subscription $subscription, ImplementableProducts $implementableProduct): void
-    {
+    private function createHostingPlaceHolder(
+        Subscription $subscription,
+        ImplementableProducts $implementableProduct,
+    ): void {
         if ($subscription->product->isRedirectProduct()) {
             return;
         }
@@ -113,7 +115,7 @@ class PlaceHolderDeploymentFactory
             if (! $this->sitebuilderService->hasSitebuilderThroughGateway($email)) {
                 $sitebuilderProvider = $this->providerRepository->getByType(
                     ProviderType::SITEBUILDER,
-                    ProviderSlug::PLACEHOLDER
+                    ProviderSlug::PLACEHOLDER,
                 );
                 $hostingDeployment->sitebuilderProvider()->associate($sitebuilderProvider);
             }
@@ -158,7 +160,7 @@ class PlaceHolderDeploymentFactory
     {
         Log::debug(sprintf(
             'PlaceHolder creation. Given product group slug: %s does not support deployments! no placeholder needed!',
-            $productGroupSlug->value
+            $productGroupSlug->value,
         ));
 
         return true;

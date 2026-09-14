@@ -66,13 +66,25 @@ class SslSeeder extends Seeder
 
         ProductSpec::insert([
             ['name' => 'ssl.product_id', 'value' => 31, 'product_id' => $product->id],
-            ['name' => ProductSpecName::PRODUCT_COMPARISON_BADGE, 'value' => 'pages.steps.cross-sell.hosting.most-popular', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::PRODUCT_COMPARISON_BADGE,
+                'value' => 'pages.steps.cross-sell.hosting.most-popular',
+                'product_id' => $product->id,
+            ],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 399);
 
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
-        $prolongationPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::PROLONGATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
+        $prolongationPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::PROLONGATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::SSL_SINGLE_DOMAIN_REGISTRATION_PRICE, $defaultPrice);
         $this->referenceRepo->set(ProductReference::SSL_SINGLE_DOMAIN_PROLONGATION_PRICE, $prolongationPrice);
@@ -135,7 +147,11 @@ class SslSeeder extends Seeder
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, 1599);
-        $defaultPrice = $prices->where('contract_period', 12)->where('billing_period', 1)->where('type', PriceComponentType::REGISTRATION)->firstOrFail();
+        $defaultPrice = $prices
+            ->where('contract_period', 12)
+            ->where('billing_period', 1)
+            ->where('type', PriceComponentType::REGISTRATION)
+            ->firstOrFail();
 
         $this->referenceRepo->set(ProductReference::SSL_EXTENDED_VALIDATION_REGISTRATION_PRICE, $defaultPrice);
     }

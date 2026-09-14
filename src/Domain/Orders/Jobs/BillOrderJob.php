@@ -45,7 +45,7 @@ class BillOrderJob extends AbstractQueueableJob implements ShouldBeUnique
             $logger->critical(
                 'Error billing a order with id {order.id}, job failed without exception',
                 [
-                    LoggingContextKeys::ORDER_ID  => $this->order->id,
+                    LoggingContextKeys::ORDER_ID => $this->order->id,
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::QUEUE_JOB_ID => $this->job?->getJobId(),
                 ],
@@ -57,7 +57,7 @@ class BillOrderJob extends AbstractQueueableJob implements ShouldBeUnique
         $logger->critical(
             sprintf('Error billing a order, job failed with exception message: %s', $exception->getMessage()),
             [
-                LoggingContextKeys::ORDER_ID  => $this->order->id,
+                LoggingContextKeys::ORDER_ID => $this->order->id,
                 LoggingContextKeys::EXCEPTION => $exception,
                 LoggingContextKeys::QUEUE_JOB_ID => $this->job?->getJobId(),
             ],
@@ -66,7 +66,7 @@ class BillOrderJob extends AbstractQueueableJob implements ShouldBeUnique
 
     public function handle(
         LoggerInterface $logger,
-        OrderBiller $orderBiller
+        OrderBiller $orderBiller,
     ): void {
         $logger->debug(
             'Starting BillOrderJob for order {order.id} with attempt {job.attempt}/{job.max_attempts}',
@@ -74,7 +74,7 @@ class BillOrderJob extends AbstractQueueableJob implements ShouldBeUnique
                 LoggingContextKeys::ORDER_ID => $this->order->id,
                 LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                 LoggingContextKeys::QUEUE_JOB_ID => $this->job?->getJobId(),
-            ]
+            ],
         );
 
         try {
@@ -87,7 +87,7 @@ class BillOrderJob extends AbstractQueueableJob implements ShouldBeUnique
                     LoggingContextKeys::QUEUE_ATTEMPT => $this->attempts(),
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::QUEUE_JOB_ID => $this->job?->getJobId(),
-                ]
+                ],
             );
         }
     }

@@ -25,7 +25,10 @@ class ResellerHostingServiceFactory
         return match ($driver) {
             ProviderSlug::DIRECTADMIN => $this->directAdminResellerHostingService,
             ProviderSlug::PLACEHOLDER => $this->resellerHostingPlaceholderService,
-            default => throw new RuntimeException(sprintf('Reseller hosting driver %s doesn\'t exist.', $driver->value)),
+            default => throw new RuntimeException(sprintf(
+                'Reseller hosting driver %s doesn\'t exist.',
+                $driver->value,
+            )),
         };
     }
 

@@ -19,7 +19,7 @@ class InsightsFormatter extends JsonFormatter
         int $batchMode = self::BATCH_MODE_JSON,
         bool $appendNewline = true,
         bool $ignoreEmptyContextAndExtra = false,
-        bool $includeStacktraces = false
+        bool $includeStacktraces = false,
     ) {
         parent::__construct($batchMode, $appendNewline, $ignoreEmptyContextAndExtra, $includeStacktraces);
         $this->setMaxNormalizeDepth(self::LOG_DEPTH);
@@ -42,7 +42,7 @@ class InsightsFormatter extends JsonFormatter
 
         // Extract attributes from context
         $attributesFromContext = array_intersect_key($context, array_flip(
-            $this->getContextKeysForAttributes()
+            $this->getContextKeysForAttributes(),
         ));
 
         // Remove extracted attributes from context

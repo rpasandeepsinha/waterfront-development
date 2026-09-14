@@ -13,14 +13,12 @@ class CustomerRepository
 {
     public function findByCustomerNumber(int $customerNumber): ?Customer
     {
-        return Customer::where('customer_number', $customerNumber)
-            ->first();
+        return Customer::where('customer_number', $customerNumber)->first();
     }
 
     public function findByCustomerNumberWithMigratedCustomer(int $customerNumber): ?Customer
     {
-        return Customer::where('customer_number', $customerNumber)->with('migratedCustomers')
-            ->first();
+        return Customer::where('customer_number', $customerNumber)->with('migratedCustomers')->first();
     }
 
     /**
@@ -30,20 +28,13 @@ class CustomerRepository
     {
         return Customer::whereHas(
             'migratedCustomers',
-            static fn (Builder $builder) => $builder->where('reference_customer_number', 'ilike', "%$reference%")
+            static fn (Builder $builder) => $builder->where('reference_customer_number', 'ilike', "%$reference%"),
         )->get();
     }
 
     public function findByUuid(UuidInterface $uuid): ?Customer
     {
-        return Customer::where('uuid', $uuid->toString())
-            ->first();
-    }
-
-    public function findByEmail(string $email): ?Customer
-    {
-        return Customer::where('email', $email)
-            ->first();
+        return Customer::where('uuid', $uuid->toString())->first();
     }
 
     public function getById(int $id): Customer

@@ -23,21 +23,22 @@ class StoreRequest extends FormRequest
 
         /** @var array<mixed> $countryCodeArray */
         $countryCodeArray = array_keys($countries);
+
         return [
-            'email'         => [
+            'email' => [
                 'required',
                 'email:filter',
                 'between:3,191',
             ],
-            'first_name'    => ['required', 'max:255',  new FilterSpecialChars()],
-            'last_name'     => ['required', 'max:255',  new FilterSpecialChars()],
-            'phone_number'  => ['required', (new Phone())],
-            'organization'  => ['nullable', 'max:255', new FilterSpecialChars()],
-            'street_name'   => ['required', 'max:60', new FilterSpecialChars(',.'), 'regex:/\D/'],
+            'first_name' => ['required', 'max:255', new FilterSpecialChars()],
+            'last_name' => ['required', 'max:255', new FilterSpecialChars()],
+            'phone_number' => ['required', new Phone()],
+            'organization' => ['nullable', 'max:255', new FilterSpecialChars()],
+            'street_name' => ['required', 'max:60', new FilterSpecialChars(',.'), 'regex:/\D/'],
             'street_number' => ['required', 'integer', 'max_digits:5'],
-            'zip_code'      => ['required', 'string', 'postal_code_with:country_code'],
-            'city'          => ['required', 'max:85',  new FilterSpecialChars()],
-            'country_code'  => ['required', Rule::in($countryCodeArray)],
+            'zip_code' => ['required', 'string', 'postal_code_with:country_code'],
+            'city' => ['required', 'max:85', new FilterSpecialChars()],
+            'country_code' => ['required', Rule::in($countryCodeArray)],
         ];
     }
 }

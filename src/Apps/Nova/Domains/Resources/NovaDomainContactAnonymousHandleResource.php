@@ -42,10 +42,7 @@ class NovaDomainContactAnonymousHandleResource extends Resource
                 ->rules('required', 'unique:domain_contact_anonymous_handles,handle')
                 ->help(self::translate('domain-contact-anonymous-handles.handle_help'))
                 ->sortable(),
-            Text::make('original_business_unit')
-                ->required()
-                ->rules('required')
-                ->sortable(),
+            Text::make('original_business_unit')->required()->rules('required')->sortable(),
         ];
     }
 

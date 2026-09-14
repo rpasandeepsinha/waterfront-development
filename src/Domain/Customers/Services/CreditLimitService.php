@@ -9,8 +9,9 @@ use Waterfront\Domain\Invoices\Repositories\InvoiceRepository;
 
 class CreditLimitService
 {
-    public function __construct(private readonly InvoiceRepository $invoiceRepository)
-    {
+    public function __construct(
+        private readonly InvoiceRepository $invoiceRepository,
+    ) {
     }
 
     public function getDisposableAmount(Customer $customer): int

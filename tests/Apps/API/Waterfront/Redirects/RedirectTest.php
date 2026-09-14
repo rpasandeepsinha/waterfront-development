@@ -85,7 +85,7 @@ class RedirectTest extends IntegrationTestCase
                         redirectType: $type,
                     ),
                 ),
-            ]
+            ],
         );
 
         $this->mockProvisionGateway
@@ -93,8 +93,8 @@ class RedirectTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (ListRedirectsRequest $request) => $request->context->toString() === $this->subscription->uuid
-                )
+                    fn (ListRedirectsRequest $request) => $request->context->toString() === $this->subscription->uuid,
+                ),
             )
             ->willReturn($listRedirectResult);
 
@@ -131,8 +131,8 @@ class RedirectTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (ListRedirectsRequest $request) => $request->context->toString() === $this->subscription->uuid
-                )
+                    fn (ListRedirectsRequest $request) => $request->context->toString() === $this->subscription->uuid,
+                ),
             )
             ->willReturn($listRedirectResult);
 
@@ -152,13 +152,13 @@ class RedirectTest extends IntegrationTestCase
     #[Test]
     public function indexUnauthorized(): void
     {
-        $this
-            ->actingAsCustomer(new CustomerFactory()->createOne())
+        $this->actingAsCustomer(new CustomerFactory()->createOne())
             ->getJson(
                 $this->generateRoute('partners.redirects.getDeployment', [
                     'subscription' => $this->subscription,
                 ]),
-            )->assertForbidden();
+            )
+            ->assertForbidden();
     }
 
     #[Test]
@@ -172,37 +172,37 @@ class RedirectTest extends IntegrationTestCase
             new Response(
                 201,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
         ]);
 
@@ -224,12 +224,18 @@ class RedirectTest extends IntegrationTestCase
         $this->mockProvisionGateway
             ->expects(self::once())
             ->method('request')
-            ->willReturnCallback(function (mixed $request) use ($redirectResult, $source, $target, $type): RedirectResult {
+            ->willReturnCallback(function (mixed $request) use (
+                $redirectResult,
+                $source,
+                $target,
+                $type,
+            ): RedirectResult {
                 self::assertInstanceOf(CreateRedirectRequest::class, $request);
                 self::assertSame($this->subscription->uuid, $request->context->toString());
                 self::assertSame($source, $request->domain);
                 self::assertSame($target, $request->destinationUrl);
                 self::assertSame($type, $request->redirectType);
+
                 return $redirectResult;
             });
 
@@ -242,7 +248,7 @@ class RedirectTest extends IntegrationTestCase
                     'source' => $source,
                     'target' => $target,
                     'type' => $type->value,
-                ]
+                ],
             )
             ->assertCreated()
             ->assertExactJson([
@@ -280,12 +286,18 @@ class RedirectTest extends IntegrationTestCase
         $this->mockProvisionGateway
             ->expects(self::once())
             ->method('request')
-            ->willReturnCallback(function (mixed $request) use ($redirectResult, $source, $target, $type): RedirectResult {
+            ->willReturnCallback(function (mixed $request) use (
+                $redirectResult,
+                $source,
+                $target,
+                $type,
+            ): RedirectResult {
                 self::assertInstanceOf(CreateRedirectRequest::class, $request);
                 self::assertSame($this->subscription->uuid, $request->context->toString());
                 self::assertSame($source, $request->domain);
                 self::assertSame($target, $request->destinationUrl);
                 self::assertSame($type, $request->redirectType);
+
                 return $redirectResult;
             });
 
@@ -298,7 +310,7 @@ class RedirectTest extends IntegrationTestCase
                     'source' => $source,
                     'target' => $target,
                     'type' => $type->value,
-                ]
+                ],
             )
             ->assertUnprocessable()
             ->assertExactJson([
@@ -311,8 +323,7 @@ class RedirectTest extends IntegrationTestCase
     public function storeUnauthorized(): void
     {
         $customer = new CustomerFactory()->createOne();
-        $this
-            ->actingAsCustomer($customer)
+        $this->actingAsCustomer($customer)
             ->postJson(
                 $this->generateRoute('partners.redirects.store', [
                     'subscription' => $this->subscription,
@@ -321,15 +332,15 @@ class RedirectTest extends IntegrationTestCase
                     'source' => 'subdomain.testdomain.nl',
                     'target' => 'https://newdomainhere.nl/',
                     'type' => RedirectType::TEMPORARY->value,
-                ]
-            )->assertForbidden();
+                ],
+            )
+            ->assertForbidden();
     }
 
     #[Test]
     public function storeInvalid(): void
     {
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.redirects.store', [
                     'subscription' => $this->subscription,
@@ -338,7 +349,7 @@ class RedirectTest extends IntegrationTestCase
                     'source' => 'subdomain',
                     'target' => 'https/newdomainhere.nl/',
                     'type' => RedirectType::TEMPORARY->value,
-                ]
+                ],
             )
             ->assertUnprocessable()
             ->assertJsonFragment([
@@ -360,42 +371,42 @@ class RedirectTest extends IntegrationTestCase
             new Response(
                 201,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
         ]);
 
@@ -433,16 +444,25 @@ class RedirectTest extends IntegrationTestCase
         $this->mockProvisionGateway
             ->expects(self::exactly(2))
             ->method('request')
-            ->willReturnCallback(function (mixed $request) use ($deleteResult, $createResult, $oldSource, $newSource, $newType): RedirectResult {
+            ->willReturnCallback(function (mixed $request) use (
+                $deleteResult,
+                $createResult,
+                $oldSource,
+                $newSource,
+                $newType,
+            ): RedirectResult {
                 if ($request instanceof DeleteRedirectRequest) {
                     self::assertSame($oldSource, $request->domainName);
                     self::assertEquals(Uuid::fromString($this->subscription->uuid), $request->context);
+
                     return $deleteResult;
                 }
+
                 self::assertInstanceOf(CreateRedirectRequest::class, $request);
                 self::assertSame($oldSource, $request->domain);
                 self::assertSame($newSource, $request->destinationUrl);
                 self::assertSame($newType, $request->redirectType);
+
                 return $createResult;
             });
 
@@ -462,7 +482,7 @@ class RedirectTest extends IntegrationTestCase
                         'target' => $newTarget,
                         'type' => $newType->value,
                     ],
-                ]
+                ],
             )
             ->assertOk()
             ->assertExactJson([
@@ -497,12 +517,14 @@ class RedirectTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (UpdateRedirectRequest $request) => $request->context->toString() === $this->subscription->uuid
+                    fn (UpdateRedirectRequest $request) => (
+                        $request->context->toString() === $this->subscription->uuid
                         && $request->oldSource === $source
                         && $request->newSource === $source
                         && $request->destinationUrl === $newTarget
                         && $request->redirectType === $newType
-                )
+                    ),
+                ),
             )
             ->willReturn($redirectResult);
 
@@ -522,7 +544,7 @@ class RedirectTest extends IntegrationTestCase
                         'target' => $newTarget,
                         'type' => $newType->value,
                     ],
-                ]
+                ],
             )
             ->assertOk()
             ->assertExactJson([
@@ -552,12 +574,14 @@ class RedirectTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (UpdateRedirectRequest $request) => $request->context->toString() === $this->subscription->uuid
+                    fn (UpdateRedirectRequest $request) => (
+                        $request->context->toString() === $this->subscription->uuid
                         && $request->oldSource === $source
                         && $request->newSource === $source
                         && $request->destinationUrl === $newTarget
                         && $request->redirectType === $newType
-                )
+                    ),
+                ),
             )
             ->willReturn(new RedirectResult(
                 provisionData: $provisionData,
@@ -580,7 +604,7 @@ class RedirectTest extends IntegrationTestCase
                         'target' => $newTarget,
                         'type' => $newType->value,
                     ],
-                ]
+                ],
             )
             ->assertUnprocessable()
             ->assertExactJson([
@@ -593,8 +617,7 @@ class RedirectTest extends IntegrationTestCase
     public function updateUnauthorized(): void
     {
         $customer = new CustomerFactory()->createOne();
-        $this
-            ->actingAsCustomer($customer)
+        $this->actingAsCustomer($customer)
             ->patchJson(
                 $this->generateRoute('partners.redirects.update', [
                     'subscription' => $this->subscription,
@@ -610,15 +633,15 @@ class RedirectTest extends IntegrationTestCase
                         'target' => 'https://newdomainhere.nl/',
                         'type' => RedirectType::PERMANENT->value,
                     ],
-                ]
-            )->assertForbidden();
+                ],
+            )
+            ->assertForbidden();
     }
 
     #[Test]
     public function updateInvalid(): void
     {
-        $this
-            ->actingAsCustomer($this->customer)
+        $this->actingAsCustomer($this->customer)
             ->patchJson(
                 $this->generateRoute('partners.redirects.update', [
                     'subscription' => $this->subscription,
@@ -631,7 +654,7 @@ class RedirectTest extends IntegrationTestCase
                         'source' => 'seconddomain',
                         'target' => 'https:/newdomainhere.nl/',
                     ],
-                ]
+                ],
             )
             ->assertJsonFragment([
                 'errors' => [
@@ -645,7 +668,8 @@ class RedirectTest extends IntegrationTestCase
                         'Dit veld is geen geldige link.',
                     ],
                 ],
-            ])->assertUnprocessable();
+            ])
+            ->assertUnprocessable();
     }
 
     #[Test]
@@ -657,27 +681,27 @@ class RedirectTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody(self::DOMAIN)
+                $this->getMockedZoneResponseBody(self::DOMAIN),
             ),
         ]);
 
@@ -694,9 +718,11 @@ class RedirectTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (DeleteRedirectRequest $request) => $request->context->toString() === $this->subscription->uuid
+                    fn (DeleteRedirectRequest $request) => (
+                        $request->context->toString() === $this->subscription->uuid
                         && $request->domainName === $source
-                )
+                    ),
+                ),
             )
             ->willReturn(new RedirectResult(
                 provisionData: $provisionData,
@@ -711,7 +737,8 @@ class RedirectTest extends IntegrationTestCase
                 [
                     'source' => $source,
                 ],
-            )->assertOk();
+            )
+            ->assertOk();
     }
 
     #[Test]
@@ -730,9 +757,11 @@ class RedirectTest extends IntegrationTestCase
             ->method('request')
             ->with(
                 self::callback(
-                    fn (DeleteRedirectRequest $request) => $request->context->toString() === $this->subscription->uuid
+                    fn (DeleteRedirectRequest $request) => (
+                        $request->context->toString() === $this->subscription->uuid
                         && $request->domainName === $source
-                )
+                    ),
+                ),
             )
             ->willReturn(new RedirectResult(
                 provisionData: $provisionData,
@@ -759,8 +788,7 @@ class RedirectTest extends IntegrationTestCase
     public function destroyUnauthorized(): void
     {
         $customer = new CustomerFactory()->createOne();
-        $this
-            ->actingAsCustomer($customer)
+        $this->actingAsCustomer($customer)
             ->deleteJson(
                 $this->generateRoute('partners.redirects.destroy', [
                     'subscription' => $this->subscription,
@@ -768,6 +796,7 @@ class RedirectTest extends IntegrationTestCase
                 [
                     'source' => 'subdomain.testdomain.nl',
                 ],
-            )->assertForbidden();
+            )
+            ->assertForbidden();
     }
 }

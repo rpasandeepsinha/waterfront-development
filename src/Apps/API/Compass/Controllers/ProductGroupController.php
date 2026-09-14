@@ -18,8 +18,7 @@ class ProductGroupController
         $productGroups->appends('pageSize', (string) $pageSize);
 
         return ProductGroupDetailsResource::collection($productGroups)->additional([
-            'meta' =>
-                ['totalProductGroups' => $productGroups->total()],
+            'meta' => ['totalProductGroups' => $productGroups->total()],
         ]);
     }
 

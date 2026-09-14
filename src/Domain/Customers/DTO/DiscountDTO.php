@@ -12,7 +12,7 @@ readonly class DiscountDTO
         public int $price,
         public int $contractPeriod,
         public int $billingPeriod,
-        public Price $baseProductProlongationPrice
+        public Price $baseProductProlongationPrice,
     ) {
     }
 }

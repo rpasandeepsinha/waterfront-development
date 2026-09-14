@@ -54,36 +54,41 @@ class FirstTimeMicrosoftCustomerOrderTest extends IntegrationTestCase
 
         Model::preventLazyLoading(false);
 
-        $this->customer = new CustomerFactory()
-            ->withAddress()
-            ->createOne();
+        $this->customer = new CustomerFactory()->withAddress()->createOne();
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         Event::fake(
             [
                 CreateDns::class,
                 CreateDomain::class,
-            ]
+            ],
         );
 
-        $nlProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
-        new ProductPriceComponentFactory()->for($nlProduct)->registration()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 99,
-        ]);
+        $nlProduct = new ProductFactory()->nlDomain()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($nlProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 99,
+            ]);
 
-        $dnsProduct = new ProductFactory()
-            ->freeDns()
-            ->createOne();
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne([
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'price' => 0,
-        ]);
+        $dnsProduct = new ProductFactory()->freeDns()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'price' => 0,
+            ]);
 
         $productGroup = new ProductGroupFactory()->microsoft365()->createOne();
         $parentProduct = new ProductFactory()->for($productGroup)->createOne([
@@ -91,10 +96,13 @@ class FirstTimeMicrosoftCustomerOrderTest extends IntegrationTestCase
             'name' => 'Business Standard parent',
         ]);
 
-        new ProductPriceComponentFactory()->for($parentProduct)->registration()->createOne([
-            'billing_period' => 1,
-            'contract_period' => 1,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($parentProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 1,
+                'contract_period' => 1,
+            ]);
 
         new Microsoft365KpnProductFactory()->for($parentProduct)->createOne([
             'kpn_product_code' => 'ABC',
@@ -105,18 +113,22 @@ class FirstTimeMicrosoftCustomerOrderTest extends IntegrationTestCase
             'name' => 'Business Standard',
         ]);
 
-        new ProductPriceComponentFactory()->for($childProduct)->registration()->createOne([
-            'billing_period' => 1,
-            'contract_period' => 1,
-            'price' => 12,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($childProduct)
+            ->registration()
+            ->createOne([
+                'billing_period' => 1,
+                'contract_period' => 1,
+                'price' => 12,
+            ]);
     }
 
     #[Test]
     public function firstTimeCustomerOrderWithDomain(): void
     {
         $rtrMock = self::mock(RtrService::class);
-        $rtrMock->shouldReceive('check')
+        $rtrMock
+            ->shouldReceive('check')
             ->with('domain-order-test.nl')
             ->andReturn(new CheckResult('domain-order-test.nl', 'free'));
 
@@ -126,15 +138,11 @@ class FirstTimeMicrosoftCustomerOrderTest extends IntegrationTestCase
         $this->app->bind(RtrService::class, fn () => $rtrMock);
 
         $mockMicrosoftModuleMicrosoftService = $this->createMock(Microsoft365Service::class);
-        $mockMicrosoftModuleMicrosoftService
-            ->expects(self::once())
-            ->method('createKpnCustomer')
-            ->willReturn(true);
+        $mockMicrosoftModuleMicrosoftService->expects(self::once())->method('createKpnCustomer')->willReturn(true);
         $this->app->bind(Microsoft365Service::class, fn () => $mockMicrosoftModuleMicrosoftService);
 
         $mockMailer = $this->createMock(MailerInterface::class);
-        $mockMailer->expects(self::exactly(2))
-            ->method('send');
+        $mockMailer->expects(self::exactly(2))->method('send');
         $this->app->bind(MailerInterface::class, fn () => $mockMailer);
 
         $json = (string) file_get_contents(__DIR__ . '/data/order_payload_microsoft365_domain.json');
@@ -156,7 +164,8 @@ class FirstTimeMicrosoftCustomerOrderTest extends IntegrationTestCase
         $microsoft365CustomerInfo->refresh();
         self::assertSame(Microsoft365ProcessStatus::CUSTOMER_CREATED, $microsoft365CustomerInfo->technical_status);
 
-        $subscription = Subscription::query()->where('customer_id', $this->customer->id)
+        $subscription = Subscription::query()
+            ->where('customer_id', $this->customer->id)
             ->whereNull('parent_subscription_id')
             ->whereProductGroupType(ProductGroupType::MICROSOFT_365)
             ->whereProductSlug('microsoft-business-standard-parent')
@@ -189,15 +198,11 @@ class FirstTimeMicrosoftCustomerOrderTest extends IntegrationTestCase
     public function firstTimeCustomerOrder(): void
     {
         $mockMicrosoftModuleMicrosoftService = $this->createMock(Microsoft365Service::class);
-        $mockMicrosoftModuleMicrosoftService
-            ->expects(self::once())
-            ->method('createKpnCustomer')
-            ->willReturn(true);
+        $mockMicrosoftModuleMicrosoftService->expects(self::once())->method('createKpnCustomer')->willReturn(true);
         $this->app->bind(Microsoft365Service::class, fn () => $mockMicrosoftModuleMicrosoftService);
 
         $mockMailer = $this->createMock(MailerInterface::class);
-        $mockMailer->expects(self::exactly(2))
-            ->method('send');
+        $mockMailer->expects(self::exactly(2))->method('send');
         $this->app->bind(MailerInterface::class, fn () => $mockMailer);
 
         $json = (string) file_get_contents(__DIR__ . '/data/order_payload_microsoft365.json');
@@ -245,8 +250,10 @@ class FirstTimeMicrosoftCustomerOrderTest extends IntegrationTestCase
         });
     }
 
-    private function triggerKPNCustomerCreationResponseEvent(int $waterfrontCustomerId, int $microsoft365CustomerInfoId): void
-    {
+    private function triggerKPNCustomerCreationResponseEvent(
+        int $waterfrontCustomerId,
+        int $microsoft365CustomerInfoId,
+    ): void {
         $kpnCustomer = EntityHelper::deserializeArray(KpnCustomer::class, [
             'Name' => 'John Doe',
             'Street' => 'Javalaan',

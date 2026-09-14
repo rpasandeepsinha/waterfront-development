@@ -21,7 +21,14 @@ class UpdateRequest extends BaseRequest
     {
         $factory = $this->container->make(DnsValidatorFactory::class);
         $factory->resolver(
-            function (DnsRecordsValidationService $service, Translator $translator, array $data, array $rules, array $messages, array $customAttributes): UpdateDnsRecordValidator {
+            function (
+                DnsRecordsValidationService $service,
+                Translator $translator,
+                array $data,
+                array $rules,
+                array $messages,
+                array $customAttributes,
+            ): UpdateDnsRecordValidator {
                 if (! array_key_exists('domain', $customAttributes)) {
                     $domain = $this->route('domain');
 
@@ -42,9 +49,10 @@ class UpdateRequest extends BaseRequest
                 $nsSubdomainRule = $this->container->make(NsSubdomainName::class);
 
                 if (is_string($data['new']['type']) && $data['new']['type'] === DnsRecordType::NS->value) {
-                    $rules = [
-                        'name'  => ['bail', 'required', 'string', $nsSubdomainRule],
-                    ] + $validationService->getDefaultRules();
+                    $rules =
+                        [
+                            'name' => ['bail', 'required', 'string', $nsSubdomainRule],
+                        ] + $validationService->getDefaultRules();
                 }
 
                 return new UpdateDnsRecordValidator(
@@ -53,9 +61,9 @@ class UpdateRequest extends BaseRequest
                     $data,
                     $rules,
                     $messages,
-                    $customAttributes
+                    $customAttributes,
                 );
-            }
+            },
         );
 
         return $factory;

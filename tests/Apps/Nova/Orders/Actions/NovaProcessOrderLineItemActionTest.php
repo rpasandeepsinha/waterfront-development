@@ -31,11 +31,9 @@ class NovaProcessOrderLineItemActionTest extends IntegrationTestCase
     #[Test]
     public function dangerMessageWhenOrderIsOnHold(): void
     {
-        $order = new OrderFactory()
-            ->for(new CustomerFactory())
-            ->createOne([
-                'status' => OrderStatus::ON_HOLD,
-            ]);
+        $order = new OrderFactory()->for(new CustomerFactory())->createOne([
+            'status' => OrderStatus::ON_HOLD,
+        ]);
 
         $otsGroup = new ProductGroupFactory()->oneTimeService()->createOne();
         $otsProduct = new ProductFactory()->for($otsGroup)->createOne([
@@ -66,11 +64,9 @@ class NovaProcessOrderLineItemActionTest extends IntegrationTestCase
     #[Test]
     public function handleOneTimeServiceOrderLineItem(): void
     {
-        $order = new OrderFactory()
-            ->for(new CustomerFactory())
-            ->createOne([
-                'status' => OrderStatus::IN_PROGRESS,
-            ]);
+        $order = new OrderFactory()->for(new CustomerFactory())->createOne([
+            'status' => OrderStatus::IN_PROGRESS,
+        ]);
 
         $otsGroup = new ProductGroupFactory()->oneTimeService()->createOne();
         $otsProduct = new ProductFactory()->for($otsGroup)->createOne([
@@ -83,9 +79,7 @@ class NovaProcessOrderLineItemActionTest extends IntegrationTestCase
             ->for($otsProduct)
             ->createOne();
         $oneTimeServiceCreator = self::createMock(OneTimeServiceCreator::class);
-        $oneTimeServiceCreator->expects(self::once())
-            ->method('createFromOrderLineItem')
-            ->with($orderLineItem);
+        $oneTimeServiceCreator->expects(self::once())->method('createFromOrderLineItem')->with($orderLineItem);
 
         $action = new NovaProcessOrderLineItemAction(
             self::resolve(TranslatorInterface::class),
@@ -106,11 +100,9 @@ class NovaProcessOrderLineItemActionTest extends IntegrationTestCase
     #[Test]
     public function handleOneTimeServiceAlreadyCreated(): void
     {
-        $order = new OrderFactory()
-            ->for(new CustomerFactory())
-            ->createOne([
-                'status' => OrderStatus::IN_PROGRESS,
-            ]);
+        $order = new OrderFactory()->for(new CustomerFactory())->createOne([
+            'status' => OrderStatus::IN_PROGRESS,
+        ]);
 
         $otsGroup = new ProductGroupFactory()->oneTimeService()->createOne();
         $otsProduct = new ProductFactory()->for($otsGroup)->createOne([
@@ -120,7 +112,12 @@ class NovaProcessOrderLineItemActionTest extends IntegrationTestCase
 
         $ots = new OneTimeServiceFactory()
             ->for(new CustomerFactory()->createOne())
-            ->for(new SubscriptionFactory()->withCustomer()->for($otsProduct)->createOne())
+            ->for(
+                new SubscriptionFactory()
+                    ->withCustomer()
+                    ->for($otsProduct)
+                    ->createOne(),
+            )
             ->for($otsProduct)
             ->createOne();
 
@@ -132,8 +129,7 @@ class NovaProcessOrderLineItemActionTest extends IntegrationTestCase
                 'processed_at' => CarbonImmutable::now(),
             ]);
         $oneTimeServiceCreator = self::createMock(OneTimeServiceCreator::class);
-        $oneTimeServiceCreator->expects(self::never())
-            ->method('createFromOrderLineItem');
+        $oneTimeServiceCreator->expects(self::never())->method('createFromOrderLineItem');
 
         $action = new NovaProcessOrderLineItemAction(
             self::resolve(TranslatorInterface::class),

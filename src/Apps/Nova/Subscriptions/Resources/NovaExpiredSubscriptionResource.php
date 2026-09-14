@@ -26,7 +26,9 @@ class NovaExpiredSubscriptionResource extends NovaSubscriptionResource
 
     public static function indexQuery(NovaRequest $request, Builder $query): Builder
     {
-        return $query
-            ->whereIn('administrative_status', [AdministrativeStatus::EXPIRED->value, AdministrativeStatus::INACTIVE->value]);
+        return $query->whereIn('administrative_status', [
+            AdministrativeStatus::EXPIRED->value,
+            AdministrativeStatus::INACTIVE->value,
+        ]);
     }
 }

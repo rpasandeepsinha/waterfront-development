@@ -74,26 +74,52 @@ class CalculatePriceService
                 $productPriceRequest = null;
 
                 // With the checks in requiresProRata() we can only reach this point for upgrades and adding addons
-                if ($productDto->subscription !== null && $this->isUpgrade($productDto->subscription->product, $productModel)) {
+                if (
+                    $productDto->subscription !== null
+                    && $this->isUpgrade($productDto->subscription->product, $productModel)
+                ) {
                     $subscription = $productDto->subscription;
-                    $productPriceRequest = new UpgradePriceRequest($productModel, $subscription->next_billing_date, $subscription->net_price);
+                    $productPriceRequest = new UpgradePriceRequest(
+                        $productModel,
+                        $subscription->next_billing_date,
+                        $subscription->net_price,
+                    );
                 } else {
                     Assert::isInstanceOf($productDto->parentSubscription, Subscription::class);
                     $subscription = $productDto->parentSubscription;
-                    $productPriceRequest = new AddonRegistrationPriceRequest($productModel, $subscription->next_billing_date);
+                    $productPriceRequest = new AddonRegistrationPriceRequest(
+                        $productModel,
+                        $subscription->next_billing_date,
+                    );
                 }
 
-                $proRataPricelist = $this->priceResolver->getPriceList(new PriceRequest([$productPriceRequest], $customer, [], true));
-                $productDto->price = $proRataPricelist->getProductPrice($productModel->slug, $subscription->contract_period, $subscription->billing_period);
+                $proRataPricelist = $this->priceResolver->getPriceList(
+                    new PriceRequest([$productPriceRequest], $customer, [], true),
+                );
+                $productDto->price = $proRataPricelist->getProductPrice(
+                    $productModel->slug,
+                    $subscription->contract_period,
+                    $subscription->billing_period,
+                );
             } else {
                 $price = $this->findAndPop(
                     $prices,
-                    fn (Price $price) => $price->billingPeriod === $productDto->billingPeriod && $price->contractPeriod === $productDto->contractPeriod && $price->type === ProductPriceType::REGISTRATION && $price->productId === $productDto->productId
+                    fn (Price $price) => (
+                        $price->billingPeriod === $productDto->billingPeriod
+                        && $price->contractPeriod === $productDto->contractPeriod
+                        && $price->type === ProductPriceType::REGISTRATION
+                        && $price->productId === $productDto->productId
+                    ),
                 );
 
                 if (! $price instanceof Price) {
                     throw new ItemNotFoundException(
-                        sprintf('No base price found for product with slug %s, contract period %d, billing period %d', $productDto->slug, $productDto->contractPeriod, $productDto->billingPeriod),
+                        sprintf(
+                            'No base price found for product with slug %s, contract period %d, billing period %d',
+                            $productDto->slug,
+                            $productDto->contractPeriod,
+                            $productDto->billingPeriod,
+                        ),
                     );
                 }
 
@@ -102,9 +128,17 @@ class CalculatePriceService
 
             // Transfer service should be free if the parent hosting subscription has service plus product spec enabled
             if ($productDto->slug === ProductSlug::TRANSFER_SERVICE->value) {
-                $parent = array_find($products->all(), fn (ProductWithPeriodsAndPrice $hostingProduct) => $hostingProduct->uuid->toString() === $productDto->parentItemUuid?->toString());
+                $parent = array_find(
+                    $products->all(),
+                    fn (ProductWithPeriodsAndPrice $hostingProduct) => (
+                        $hostingProduct->uuid->toString() === $productDto->parentItemUuid?->toString()
+                    ),
+                );
 
-                if ($parent !== null && $this->productRepository->hasServicePlus($this->productRepository->findProductById($parent->productId))) {
+                if (
+                    $parent !== null
+                    && $this->productRepository->hasServicePlus($this->productRepository->findProductById($parent->productId))
+                ) {
                     $productDto->price->calculatedPrice = 0;
                 }
             }
@@ -114,7 +148,7 @@ class CalculatePriceService
 
             $voucherPriceComponent = array_find(
                 $productDto->price->appliedPriceComponents,
-                fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::VOUCHER
+                fn (PriceComponent $priceComponent): bool => $priceComponent->type === PriceComponentType::VOUCHER,
             );
             $cartVoucher = null;
             $priceExplanation = null;
@@ -157,7 +191,10 @@ class CalculatePriceService
                 $productDto->productId,
                 $productDto->billingPeriod,
                 $productDto->contractPeriod,
-                new RegularPrice(priceInclVat: $this->calculateVatPrice($customer, $productDto->price->regularPrice), priceExclVat: $productDto->price->regularPrice),
+                new RegularPrice(
+                    priceInclVat: $this->calculateVatPrice($customer, $productDto->price->regularPrice),
+                    priceExclVat: $productDto->price->regularPrice,
+                ),
                 new AppliedPrice(
                     priceInclVat: $this->calculateVatPrice($customer, $productDto->price->calculatedPrice),
                     priceExclVat: $productDto->price->calculatedPrice,
@@ -165,7 +202,7 @@ class CalculatePriceService
                     actionPeriod: $actionPeriod,
                     actionPeriodPrice: $actionPeriodPrice,
                     voucher: $cartVoucher,
-                    priceExplanation: $priceExplanation
+                    priceExplanation: $priceExplanation,
                 ),
                 $productDto->price,
             );
@@ -177,7 +214,12 @@ class CalculatePriceService
         Assert::natural($totalPriceExclVat);
         Assert::natural($totalPriceInclVat);
 
-        return new TotalCollectionPrice(new Collection($calculatedProducts), $usedVouchersOnOrder, $totalPriceExclVat, $totalPriceInclVat);
+        return new TotalCollectionPrice(
+            new Collection($calculatedProducts),
+            $usedVouchersOnOrder,
+            $totalPriceExclVat,
+            $totalPriceInclVat,
+        );
     }
 
     public function calculateVatPrice(Customer $customer, int $price): int
@@ -233,19 +275,26 @@ class CalculatePriceService
         return $this->productAllowedChangeRepository->isProductChangeAllowed(
             ProductChangeType::UPGRADE,
             $fromProduct,
-            $toProduct
+            $toProduct,
         );
     }
 
-    private function translatePriceExplanation(?TranslationKey $translationKey): string|null
+    private function translatePriceExplanation(?TranslationKey $translationKey): ?string
     {
         if ($translationKey === null) {
             return null;
         }
 
-        $displayLanguage = $this->authenticationManager->getAuthenticatedCustomer()->identitySchema->metadataPublic->displayLanguage ?? Language::NL;
+        $displayLanguage = $this->authenticationManager
+            ->getAuthenticatedCustomer()
+            ->identitySchema
+            ->metadataPublic
+            ->displayLanguage ?? Language::NL;
 
-        return $this->translator->translate($translationKey->key, locale: $displayLanguage === Language::NL ? 'nl' : 'en');
+        return $this->translator->translate(
+            $translationKey->key,
+            locale: $displayLanguage === Language::NL ? 'nl' : 'en',
+        );
     }
 
     /**
@@ -264,7 +313,14 @@ class CalculatePriceService
 
         foreach ($products as $productDto) {
             $productIds[] = $productDto->productId;
-            $key = sprintf('%d-%s-%d-%d-%s', $productDto->productId, $productDto->priceType->value, $productDto->contractPeriod, $productDto->billingPeriod, $productDto->experimentSlug);
+            $key = sprintf(
+                '%d#%s#%d#%d#%s',
+                $productDto->productId,
+                $productDto->priceType->value,
+                $productDto->contractPeriod,
+                $productDto->billingPeriod,
+                $productDto->experimentSlug,
+            );
 
             if (array_key_exists($key, $quantities)) {
                 $quantities[$key] = $quantities[$key] + 1;
@@ -277,7 +333,7 @@ class CalculatePriceService
         $productPriceRequests = [];
 
         foreach ($quantities as $key => $quantity) {
-            $keyParts = explode('-', $key);
+            $keyParts = explode('#', $key);
             $type = ProductPriceType::from($keyParts[1]);
             $contractPeriod = (int) $keyParts[2];
             $billingPeriod = (int) $keyParts[3];
@@ -285,8 +341,20 @@ class CalculatePriceService
             $product = $products->findOrFail((int) $keyParts[0]);
 
             $productPriceRequests[] = match ($type) {
-                ProductPriceType::REGISTRATION => new RegistrationPriceRequest($product, $quantity, $contractPeriod, $billingPeriod, $experimentSlug),
-                ProductPriceType::PROLONGATION => new ProlongationPriceRequest($product, $quantity, $contractPeriod, $billingPeriod, $experimentSlug),
+                ProductPriceType::REGISTRATION => new RegistrationPriceRequest(
+                    $product,
+                    $quantity,
+                    $contractPeriod,
+                    $billingPeriod,
+                    $experimentSlug,
+                ),
+                ProductPriceType::PROLONGATION => new ProlongationPriceRequest(
+                    $product,
+                    $quantity,
+                    $contractPeriod,
+                    $billingPeriod,
+                    $experimentSlug,
+                ),
             };
         }
 

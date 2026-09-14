@@ -13,8 +13,9 @@ use Waterfront\Domain\Sitebuilder\Services\BaseKitService;
 
 class SitebuilderServiceFactory
 {
-    public function __construct(private readonly BaseKitService $baseKitService)
-    {
+    public function __construct(
+        private readonly BaseKitService $baseKitService,
+    ) {
     }
 
     public function driver(?string $driverSlug = null): SitebuilderDriverInterface
@@ -34,7 +35,10 @@ class SitebuilderServiceFactory
 
         return match ($driver->slug) {
             ProviderSlug::BASEKIT => $this->baseKitService,
-            default => throw new RuntimeException(sprintf('Sitebuilder driver %s doesn\'t exist.', $driver->slug->value)),
+            default => throw new RuntimeException(sprintf(
+                'Sitebuilder driver %s doesn\'t exist.',
+                $driver->slug->value,
+            )),
         };
     }
 

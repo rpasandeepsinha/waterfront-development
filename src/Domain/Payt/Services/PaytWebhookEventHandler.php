@@ -21,8 +21,9 @@ use Webmozart\Assert\Assert;
 
 readonly class PaytWebhookEventHandler
 {
-    public function __construct(private Dispatcher $dispatcher)
-    {
+    public function __construct(
+        private Dispatcher $dispatcher,
+    ) {
     }
 
     public function handleEvent(PaytWebhookPayload $payload, string $businessUnit): void
@@ -30,8 +31,9 @@ readonly class PaytWebhookEventHandler
         match ($payload->event->eventName) {
             PaytWebhookEvent::INVOICE_NEW_COMMENT,
             PaytWebhookEvent::CASE_NEW_COMMENT,
-            PaytWebhookEvent::DEBTOR_NEW_COMMENT => $this->handleNewComment($payload, $businessUnit),
-            default => new InvalidArgumentException(sprintf('Event: %s not supported', $payload->event->eventName))
+            PaytWebhookEvent::DEBTOR_NEW_COMMENT,
+                => $this->handleNewComment($payload, $businessUnit),
+            default => new InvalidArgumentException(sprintf('Event: %s not supported', $payload->event->eventName)),
         };
     }
 

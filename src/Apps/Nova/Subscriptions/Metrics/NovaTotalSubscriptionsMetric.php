@@ -19,7 +19,7 @@ class NovaTotalSubscriptionsMetric extends Value
 
     public function __construct(
         private readonly TranslatorInterface $translator,
-        string|null $component = null,
+        ?string $component = null,
     ) {
         parent::__construct($component);
     }
@@ -38,7 +38,9 @@ class NovaTotalSubscriptionsMetric extends Value
 
         return $this->result($subscriptionCount)
             ->format('0')
-            ->suffix($this->translator->translate('nova_dashboard.metrics.from_migrations', ['count' => $migratedSubscriptionsCount]));
+            ->suffix($this->translator->translate('nova_dashboard.metrics.from_migrations', [
+                'count' => $migratedSubscriptionsCount,
+            ]));
     }
 
     public function name(): string

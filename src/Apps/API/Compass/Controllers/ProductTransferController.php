@@ -33,7 +33,11 @@ readonly class ProductTransferController
         $transferTypeParam = $request->input('transferType');
         $transferType = is_string($transferTypeParam) ? TransferType::tryFrom($transferTypeParam) : null;
 
-        $transfers = $this->productTransferRepository->findByTransferTypeAndCustomerPaginated($customer, $transferType, $pageSize);
+        $transfers = $this->productTransferRepository->findByTransferTypeAndCustomerPaginated(
+            $customer,
+            $transferType,
+            $pageSize,
+        );
 
         return TransferResource::collection($transfers)->additional([
             'meta' => [
@@ -47,7 +51,9 @@ readonly class ProductTransferController
         try {
             $this->transferService->retry($productTransfer);
         } catch (InvalidArgumentException|TransferException $exception) {
-            return new HttpResponse(['errors' => $exception->getMessage()], status: Response::HTTP_UNPROCESSABLE_ENTITY);
+            return new HttpResponse([
+                'errors' => $exception->getMessage(),
+            ], status: Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         return new HttpResponse(status: Response::HTTP_NO_CONTENT);

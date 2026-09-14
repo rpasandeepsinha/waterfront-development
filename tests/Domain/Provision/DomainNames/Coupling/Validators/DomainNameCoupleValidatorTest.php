@@ -58,11 +58,15 @@ class DomainNameCoupleValidatorTest extends TestCase
         $this->app->bind(function (): ProvisioningDeploymentRepository {
             $mock = self::mock(ProvisioningDeploymentRepository::class);
             $mock->expects('findDeploymentByRequestUuid')->andReturnNull();
+
             return $mock;
         });
 
         $mockTranslator = self::createMock(Translator::class);
-        $mockTranslator->expects(self::once())->method('get')->willReturn(ProvisionErrorMessage::DEPLOYMENT_NOT_FOUND->value);
+        $mockTranslator
+            ->expects(self::once())
+            ->method('get')
+            ->willReturn(ProvisionErrorMessage::DEPLOYMENT_NOT_FOUND->value);
         $this->app->bind(Translator::class, fn () => $mockTranslator);
 
         $domainNameCoupleValidator = new DomainNameCoupleValidator(
@@ -78,7 +82,7 @@ class DomainNameCoupleValidatorTest extends TestCase
                 domain: 'yourhosting.nl',
                 requestUuid: Uuid::uuid4(),
                 context: $this->context,
-            )
+            ),
         );
         $validator->validate();
     }
@@ -89,7 +93,11 @@ class DomainNameCoupleValidatorTest extends TestCase
         $request = new ProvisioningRequestFactory()->redirect()->makeOne();
 
         $mockTranslator = self::mock(Translator::class);
-        $mockTranslator->expects('get')->once()->with('validation.domain_name', [], null)->andReturn('Dit veld bevat geen geldige domeinnaam.');
+        $mockTranslator
+            ->expects('get')
+            ->once()
+            ->with('validation.domain_name', [], null)
+            ->andReturn('Dit veld bevat geen geldige domeinnaam.');
         $mockTranslator->expects('get')->once()->with('validation.attributes')->andReturn('velden');
         $this->app->bind(Translator::class, fn () => $mockTranslator);
 
@@ -106,7 +114,7 @@ class DomainNameCoupleValidatorTest extends TestCase
                 domain: 'invalid',
                 requestUuid: $request->uuid,
                 context: $this->context,
-            )
+            ),
         );
         $validator->validate();
     }
@@ -114,24 +122,27 @@ class DomainNameCoupleValidatorTest extends TestCase
     #[Test]
     public function validationShouldFailIfCoupleNotAllowed(): void
     {
-        $redirectRequest = ProvisioningRequestFactory::new()
-            ->redirect()
-            ->makeOne();
+        $redirectRequest = ProvisioningRequestFactory::new()->redirect()->makeOne();
 
         $this->app->bind(function (): ProvisioningDeploymentRepository {
             $mock = self::mock(ProvisioningDeploymentRepository::class);
             $mock->expects('findDeploymentByRequestUuid')->andReturn(RedirectDeploymentFactory::new()->makeOne());
+
             return $mock;
         });
 
         $this->app->bind(function () use ($redirectRequest): ProvisioningRequestRepository {
             $mock = self::mock(ProvisioningRequestRepository::class);
             $mock->expects('findByUuid')->andReturn($redirectRequest);
+
             return $mock;
         });
 
         $mockTranslator = self::createMock(Translator::class);
-        $mockTranslator->expects(self::once())->method('get')->willReturn(ProvisionErrorMessage::DOMAIN_NAME_COUPLE_NOT_ALLOWED->value);
+        $mockTranslator
+            ->expects(self::once())
+            ->method('get')
+            ->willReturn(ProvisionErrorMessage::DOMAIN_NAME_COUPLE_NOT_ALLOWED->value);
         $this->app->bind(Translator::class, fn () => $mockTranslator);
 
         $redirectRequest->setRelation('deployment', RedirectDeploymentFactory::new()->makeOne());
@@ -151,7 +162,7 @@ class DomainNameCoupleValidatorTest extends TestCase
                 domain: 'couple.nl',
                 requestUuid: $redirectRequest->uuid,
                 context: $this->context,
-            )
+            ),
         )->validate();
     }
 }

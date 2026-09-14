@@ -18,7 +18,7 @@ class ResellerHostingUnableToModifySettingsException extends Exception
                 $subscription->id,
             ),
             0,
-            $previous
+            $previous,
         );
     }
 }

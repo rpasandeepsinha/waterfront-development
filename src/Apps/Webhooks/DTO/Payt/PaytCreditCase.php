@@ -11,16 +11,16 @@ class PaytCreditCase extends PaytWebhookContext
      */
     public function __construct(
         public int $id,
-        public string|null $resourceType,
-        public string|null $creditCaseNumber,
-        public string|null $interest,
-        public string|null $collectionCosts,
-        public string|null $openInterestAndCollectionCosts,
-        public string|null $link,
-        public string|null $publicLink,
+        public ?string $resourceType,
+        public ?string $creditCaseNumber,
+        public ?string $interest,
+        public ?string $collectionCosts,
+        public ?string $openInterestAndCollectionCosts,
+        public ?string $link,
+        public ?string $publicLink,
         public array $invoices,
-        public PaytDebtor|null $debtor,
-        public PaytAdministration|null $administration,
+        public ?PaytDebtor $debtor,
+        public ?PaytAdministration $administration,
     ) {
         parent::__construct($resourceType);
     }

@@ -40,12 +40,12 @@ class SslReissueRequest extends BaseRequest
         $message = parent::getMessage();
 
         $message[$this->endpoint] = [
-            'id'                      => $this->certificateId,
-            'csr'                     => $this->parameters->getCsr(),
-            'softwareId'              => $this->parameters->getSoftwareId(),
-            'organizationHandle'      => $this->handles->getOwnerHandle(),
-            'technicalHandle'         => $this->handles->getTechHandle(),
-            'approverEmail'           => $this->parameters->getApproverEmail(),
+            'id' => $this->certificateId,
+            'csr' => $this->parameters->getCsr(),
+            'softwareId' => $this->parameters->getSoftwareId(),
+            'organizationHandle' => $this->handles->getOwnerHandle(),
+            'technicalHandle' => $this->handles->getTechHandle(),
+            'approverEmail' => $this->parameters->getApproverEmail(),
             'domainValidationMethods' => ['array' => ['item' => $this->parameters->getDomainValidationMethods()]],
         ];
 

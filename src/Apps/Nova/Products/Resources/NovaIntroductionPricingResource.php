@@ -36,18 +36,20 @@ class NovaIntroductionPricingResource extends Resource
             BelongsTo::make(
                 self::translate('introduction-pricing.attributes.product'),
                 'product',
-                NovaProductResource::class
+                NovaProductResource::class,
             )->searchable(),
             Number::make(
                 self::translate('introduction-pricing.attributes.period'),
                 'contract_period',
-            )
-                ->creationRules([
-                    'required',
-                    Rule::unique('product_introduction_discounts')->where(fn ($query) => $query->where('product_id', $request->product)
+            )->creationRules([
+                'required',
+                Rule::unique('product_introduction_discounts')->where(
+                    fn ($query) => $query
+                        ->where('product_id', $request->product)
                         ->where('contract_period', $request->contract_period)
-                        ->whereNull('deleted_at')),
-                ]),
+                        ->whereNull('deleted_at'),
+                ),
+            ]),
             Number::make(
                 self::translate('introduction-pricing.attributes.amount'),
                 'max_uses_per_customer',

@@ -46,8 +46,8 @@ class NameServerController
 
             return new JsonResponse([
                 'data' => [
-                    'nameservers'          => $result->getNameServers(),
-                    'nameservergroup'      => $result->getNsGroup(),
+                    'nameservers' => $result->getNameServers(),
+                    'nameservergroup' => $result->getNsGroup(),
                     'isDefaultNameservers' => $result->getIsDefaultNameservers(),
                 ],
             ]);
@@ -56,16 +56,16 @@ class NameServerController
             // a placeholder provider is being used, it will show the migration warning
             return new JsonResponse([
                 'data' => [
-                    'nameservers'          => [],
-                    'nameservergroup'      => '',
+                    'nameservers' => [],
+                    'nameservergroup' => '',
                     'isDefaultNameservers' => false,
                 ],
             ]);
-        } catch (RealtimeRegisterClientException | OpenProviderResultException | DomainDoesNotExistException $e) {
+        } catch (RealtimeRegisterClientException|OpenProviderResultException|DomainDoesNotExistException $e) {
             return new JsonResponse([
-                'reason'               => $e->getMessage(),
-                'nameservers'          => [],
-                'nameservergroup'      => null,
+                'reason' => $e->getMessage(),
+                'nameservers' => [],
+                'nameservergroup' => null,
                 'isDefaultNameservers' => null,
             ], Response::HTTP_SERVICE_UNAVAILABLE);
         }
@@ -113,6 +113,7 @@ class NameServerController
 
             $resetNameServersSuccess = false;
         }
+
         return new JsonResponse([
             $this->translator->translate('status.success') => $resetNameServersSuccess,
         ]);

@@ -53,6 +53,7 @@ class NovaCustomerWalletResource extends Resource
     public function filters(NovaRequest $request): array
     {
         $translator = resolve(TranslatorInterface::class);
+
         return [
             new NovaWalletRefundFilter(NovaWalletRefundFilter::FILTER_IS_REQUESTED, $translator),
             new NovaWalletRefundFilter(NovaWalletRefundFilter::FILTER_IS_CSV_DOWNLOADED, $translator),
@@ -76,8 +77,9 @@ class NovaCustomerWalletResource extends Resource
     public function fields(NovaRequest $request): array
     {
         return [
-            BelongsTo::make(self::translate('customer.singular'), 'customer', NovaCustomerResource::class)
-                ->readonly(static fn (NovaRequest $request) => $request->isUpdateOrUpdateAttachedRequest()),
+            BelongsTo::make(self::translate('customer.singular'), 'customer', NovaCustomerResource::class)->readonly(
+                static fn (NovaRequest $request) => $request->isUpdateOrUpdateAttachedRequest(),
+            ),
             Currency::make(self::translate('customer.wallet.attributes.amount'), 'amount')
                 ->currency('EUR')
                 ->step('0.01')

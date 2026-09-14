@@ -38,7 +38,7 @@ class EmailService
         $templateData = $unpackedJson['template_data'];
         $templateType = KratosTemplates::from(strval($unpackedJson['template_type']));
 
-        $templateDataDto = match($templateType) {
+        $templateDataDto = match ($templateType) {
             KratosTemplates::VERIFICATION_NEW_IDENTITY => new NewIdentityTemplateData(
                 activationCode: $templateData['recovery_code'],
                 activationUrl: $templateData['recovery_link'] . '&code=' . $templateData['recovery_code'],
@@ -60,25 +60,42 @@ class EmailService
             recipient: $unpackedJson['recipient'],
             templateType: $templateType,
             templateData: $templateDataDto,
-            identity: $identity
+            identity: $identity,
         );
     }
 
-    public function matchTemplateTypeAndSendEmail(KratosEmail $kratosEmail, string $name, string $toEmail, string $identityUuid): void
-    {
+    public function matchTemplateTypeAndSendEmail(
+        KratosEmail $kratosEmail,
+        string $name,
+        string $toEmail,
+        string $identityUuid,
+    ): void {
         $recipient = new Recipient($name, $toEmail, Uuid::fromString($identityUuid));
 
-        match($kratosEmail->templateData::class) {
+        match ($kratosEmail->templateData::class) {
             NewIdentityTemplateData::class => $this->sendActivationMail->execute(
                 $recipient,
-                new MailActivateNewIdentity($kratosEmail->templateData->activationCode, $kratosEmail->templateData->activationUrl)
+                new MailActivateNewIdentity(
+                    $kratosEmail->templateData->activationCode,
+                    $kratosEmail->templateData->activationUrl,
+                ),
             ),
             ActivationTemplateData::class => $this->sendActivationMail->execute(
                 $recipient,
-                new MailActivateAccount($kratosEmail->templateData->activationCode, $kratosEmail->templateData->activationUrl)
+                new MailActivateAccount(
+                    $kratosEmail->templateData->activationCode,
+                    $kratosEmail->templateData->activationUrl,
+                ),
             ),
-            RecoveryTemplateData::class => $this->sendRecoveryCodeMail->execute($recipient, $kratosEmail->templateData->recoveryCode, $kratosEmail->templateData->recoveryLink),
-            default => throw new NotImplementedException(sprintf('Template type %s not implemented', $kratosEmail->templateType::class)),
+            RecoveryTemplateData::class => $this->sendRecoveryCodeMail->execute(
+                $recipient,
+                $kratosEmail->templateData->recoveryCode,
+                $kratosEmail->templateData->recoveryLink,
+            ),
+            default => throw new NotImplementedException(sprintf(
+                'Template type %s not implemented',
+                $kratosEmail->templateType::class,
+            )),
         };
     }
 }

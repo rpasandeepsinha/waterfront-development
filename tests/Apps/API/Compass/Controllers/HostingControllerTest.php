@@ -46,19 +46,21 @@ class HostingControllerTest extends IntegrationTestCase
         $response = $this->actingAsEmployee()
             ->postJson(
                 $this->generateRoute('admin.hosting.retry.hosting', ['subscription' => $subscription->uuid]),
-                ['hosting_type' => HostingRetryType::BASIC->value, 'server_id' => $server->id]
+                ['hosting_type' => HostingRetryType::BASIC->value, 'server_id' => $server->id],
             )
             ->assertOk();
 
         self::assertSame(
             self::resolve(TranslatorInterface::class)->translate('action.retry-hosting.retried-successfully'),
-            $response->json('message')
+            $response->json('message'),
         );
 
         Event::assertDispatched(
             CreateHosting::class,
-            fn (CreateHosting $event): bool => $event->subscriptionUuid === $subscription->uuid
+            fn (CreateHosting $event): bool => (
+                $event->subscriptionUuid === $subscription->uuid
                 && $event->serverId === $server->id
+            ),
         );
     }
 
@@ -72,13 +74,13 @@ class HostingControllerTest extends IntegrationTestCase
         $this->actingAsEmployee()
             ->postJson(
                 $this->generateRoute('admin.hosting.retry.hosting', ['subscription' => $subscription->uuid]),
-                ['hosting_type' => HostingRetryType::BASIC->value]
+                ['hosting_type' => HostingRetryType::BASIC->value],
             )
             ->assertOk();
 
         Event::assertDispatched(
             CreateHosting::class,
-            fn (CreateHosting $event): bool => $event->serverId === null
+            fn (CreateHosting $event): bool => $event->serverId === null,
         );
     }
 
@@ -92,13 +94,13 @@ class HostingControllerTest extends IntegrationTestCase
         $response = $this->actingAsEmployee()
             ->postJson(
                 $this->generateRoute('admin.hosting.retry.hosting', ['subscription' => $subscription->uuid]),
-                ['hosting_type' => HostingRetryType::BASIC->value]
+                ['hosting_type' => HostingRetryType::BASIC->value],
             )
             ->assertUnprocessable();
 
         self::assertSame(
             self::resolve(TranslatorInterface::class)->translate('action.retry-hosting.subscription-invalid-for-retry'),
-            $response->json('message')
+            $response->json('message'),
         );
 
         Event::assertNotDispatched(CreateHosting::class);
@@ -114,7 +116,7 @@ class HostingControllerTest extends IntegrationTestCase
         $this->actingAsEmployee()
             ->postJson(
                 $this->generateRoute('admin.hosting.retry.hosting', ['subscription' => $subscription->uuid]),
-                ['hosting_type' => 'not-a-hosting-type']
+                ['hosting_type' => 'not-a-hosting-type'],
             )
             ->assertUnprocessable()
             ->assertJsonValidationErrorFor('hosting_type');
@@ -132,7 +134,7 @@ class HostingControllerTest extends IntegrationTestCase
         $this->actingAsEmployee()
             ->postJson(
                 $this->generateRoute('admin.hosting.retry.hosting', ['subscription' => $subscription->uuid]),
-                ['hosting_type' => HostingRetryType::BASIC->value, 'server_id' => 999999]
+                ['hosting_type' => HostingRetryType::BASIC->value, 'server_id' => 999999],
             )
             ->assertUnprocessable()
             ->assertJsonValidationErrorFor('server_id');

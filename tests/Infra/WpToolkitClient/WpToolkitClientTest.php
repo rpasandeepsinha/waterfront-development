@@ -37,8 +37,8 @@ class WpToolkitClientTest extends TestCase
             guzzleClient: self::createStub(guzzleClient::class),
             connectionDetails: new ConnectionDetails(
                 pleskHost: $this->pleskTestApiUrl,
-                token: ''
-            )
+                token: '',
+            ),
         );
     }
 
@@ -52,8 +52,8 @@ class WpToolkitClientTest extends TestCase
             guzzleClient: self::createStub(guzzleClient::class),
             connectionDetails: new ConnectionDetails(
                 pleskHost: $this->pleskTestApiUrl,
-                username: 'username'
-            )
+                username: 'username',
+            ),
         );
     }
 
@@ -71,8 +71,8 @@ class WpToolkitClientTest extends TestCase
             guzzleClient: new guzzleClient(['handler' => HandlerStack::create($mock)]),
             connectionDetails: new ConnectionDetails(
                 pleskHost: $this->pleskTestApiUrl,
-                token: 'xxxxxx'
-            )
+                token: 'xxxxxx',
+            ),
         );
 
         $client->getExistingInstallations();
@@ -93,8 +93,8 @@ class WpToolkitClientTest extends TestCase
             connectionDetails: new ConnectionDetails(
                 pleskHost: $this->pleskTestApiUrl,
                 username: 'username',
-                password: 'password'
-            )
+                password: 'password',
+            ),
         );
 
         $client->getExistingInstallations();
@@ -118,8 +118,8 @@ class WpToolkitClientTest extends TestCase
             connectionDetails: new ConnectionDetails(
                 pleskHost: $this->pleskTestApiUrl,
                 username: 'username',
-                password: 'password'
-            )
+                password: 'password',
+            ),
         );
 
         $responseJson = $client->getExistingInstallations();
@@ -145,8 +145,8 @@ class WpToolkitClientTest extends TestCase
             connectionDetails: new ConnectionDetails(
                 pleskHost: $this->pleskTestApiUrl,
                 username: 'username',
-                password: 'password'
-            )
+                password: 'password',
+            ),
         );
 
         $responseJson = $client->getCredentials(1908);
@@ -167,7 +167,11 @@ class WpToolkitClientTest extends TestCase
         $this->expectExceptionMessageIsOrContains('Kan de WordPress-installatie met het opgegeven kenmerk niet vinden');
 
         $mock = new MockHandler([
-            new Response(404, [], '{"meta":{"status":404,"message":"Kan de WordPress-installatie met het opgegeven kenmerk niet vinden"}'),
+            new Response(
+                404,
+                [],
+                '{"meta":{"status":404,"message":"Kan de WordPress-installatie met het opgegeven kenmerk niet vinden"}',
+            ),
         ]);
 
         $client = new Client(
@@ -175,8 +179,8 @@ class WpToolkitClientTest extends TestCase
             connectionDetails: new ConnectionDetails(
                 pleskHost: $this->pleskTestApiUrl,
                 username: 'username',
-                password: 'test'
-            )
+                password: 'test',
+            ),
         );
 
         $client->getCredentials(1908);

@@ -10,8 +10,9 @@ use Webmozart\Assert\Assert;
 
 class EmailAddress implements NormalizableInterface
 {
-    public function __construct(public readonly string $emailAddress)
-    {
+    public function __construct(
+        public readonly string $emailAddress,
+    ) {
         Assert::email($this->emailAddress);
     }
 

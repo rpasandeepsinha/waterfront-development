@@ -52,8 +52,8 @@ readonly class AsynchronousCloudstackResponse
                 sprintf(
                     'No VM data availabe for job %s with status %d',
                     $this->jobId,
-                    $this->status
-                )
+                    $this->status,
+                ),
             );
         }
 
@@ -73,8 +73,8 @@ readonly class AsynchronousCloudstackResponse
                 sprintf(
                     'No reinstall data available for job %s with status %d',
                     $this->jobId,
-                    $this->status
-                )
+                    $this->status,
+                ),
             );
         }
 
@@ -84,18 +84,22 @@ readonly class AsynchronousCloudstackResponse
 
     private function hasVirtualMachineData(): bool
     {
-        return $this->status === JobStatus::SUCCESS->value &&
-            $this->instanceType === 'VirtualMachine' &&
-            $this->resultType === 'object' &&
-            is_array($this->result) &&
-            array_key_exists('virtualmachine', $this->result);
+        return (
+            $this->status === JobStatus::SUCCESS->value
+            && $this->instanceType === 'VirtualMachine'
+            && $this->resultType === 'object'
+            && is_array($this->result)
+            && array_key_exists('virtualmachine', $this->result)
+        );
     }
 
     private function hasReinstallData(): bool
     {
-        return $this->status === JobStatus::SUCCESS->value &&
-            $this->resultType === 'object' &&
-            is_array($this->result) &&
-            array_key_exists('virtualmachine', $this->result);
+        return (
+            $this->status === JobStatus::SUCCESS->value
+            && $this->resultType === 'object'
+            && is_array($this->result)
+            && array_key_exists('virtualmachine', $this->result)
+        );
     }
 }

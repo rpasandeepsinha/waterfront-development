@@ -12,9 +12,7 @@ class SubscriptionObserver
 {
     public function creating(Subscription $subscription): void
     {
-        $this->populateStartDate($subscription)
-            ->populateNextBillingDate($subscription)
-            ->populateEndDate($subscription);
+        $this->populateStartDate($subscription)->populateNextBillingDate($subscription)->populateEndDate($subscription);
     }
 
     public function updating(Subscription $subscription): void
@@ -27,12 +25,14 @@ class SubscriptionObserver
         Log::info(sprintf(
             'Deleting Subscription : %s domain: %s',
             $subscription->uuid,
-            $subscription->domain
+            $subscription->domain,
         ));
 
-        $subscription->getDeployments()->each(function ($deployment): void {
-            $deployment->delete(); // soft-deleted
-        });
+        $subscription
+            ->getDeployments()
+            ->each(function ($deployment): void {
+                $deployment->delete(); // soft-deleted
+            });
     }
 
     private function populateStartDate(Subscription $subscription): self

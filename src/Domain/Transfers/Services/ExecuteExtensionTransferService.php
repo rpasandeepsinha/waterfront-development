@@ -19,7 +19,7 @@ class ExecuteExtensionTransferService implements ExecuteExtensionTransferInterfa
 {
     public function __construct(
         private readonly DomainService $domainService,
-        private readonly DomainContactService $domainContactService
+        private readonly DomainContactService $domainContactService,
     ) {
     }
 
@@ -35,7 +35,7 @@ class ExecuteExtensionTransferService implements ExecuteExtensionTransferInterfa
         if (is_null($deployment)) {
             throw new TransferException(sprintf(
                 'Unable to find domain subscription for domain {%s}.',
-                $domain
+                $domain,
             ));
         }
 
@@ -56,8 +56,8 @@ class ExecuteExtensionTransferService implements ExecuteExtensionTransferInterfa
                 sprintf(
                     'Error updating domain contact for domain: %s with message: %s',
                     $domain,
-                    $exception->getMessage()
-                )
+                    $exception->getMessage(),
+                ),
             );
         }
 

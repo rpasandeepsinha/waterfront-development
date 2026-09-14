@@ -67,11 +67,27 @@ class DnsSeeder extends Seeder
         ProductSpec::insert([
             ['name' => ProductSpecName::DNS_VISIBLE_LOG_LINES->value, 'value' => 5000, 'product_id' => $product->id],
             ['name' => ProductSpecName::DNS_CAN_EDIT_RECORDS->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::PRODUCT_ALLOW_CANCEL_AS_CHILD->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::DNS_IS_PREMIUM->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED->value, 'value' => ProductType::BASIC_DNS->value, 'product_id' => $product->id],
-            ['name' => ProductSpecName::PRODUCT_COMPARISON_BADGE, 'value' => 'pages.steps.cross-sell.hosting.most-popular', 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::PRODUCT_DOWNGRADE_WHEN_CANCELED->value,
+                'value' => ProductType::BASIC_DNS->value,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::PRODUCT_COMPARISON_BADGE,
+                'value' => 'pages.steps.cross-sell.hosting.most-popular',
+                'product_id' => $product->id,
+            ],
         ]);
     }
 
@@ -89,11 +105,23 @@ class DnsSeeder extends Seeder
         $this->referenceRepo->set(ProductReference::DNS_FREE, $product);
 
         ProductSpec::insert([
-            ['name' => 'product.product-should-be-hidden-in-shoppingcart', 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => 'product.product-should-be-hidden-in-shoppingcart',
+                'value' => true,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::DNS_VISIBLE_LOG_LINES->value, 'value' => 0, 'product_id' => $product->id],
             ['name' => ProductSpecName::DNS_CAN_EDIT_RECORDS->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::PRODUCT_MERGE_INVOICE_INTO_PARENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::PRODUCT_MERGE_INVOICE_INTO_PARENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
     }
 

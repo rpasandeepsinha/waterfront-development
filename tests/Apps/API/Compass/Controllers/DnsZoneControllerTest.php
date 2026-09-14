@@ -48,9 +48,7 @@ class DnsZoneControllerTest extends IntegrationTestCase
             ->createOne();
 
         new DomainDeploymentFactory()
-            ->for(new ProviderFactory()
-                ->domainOpenProvider()
-                ->createOne())
+            ->for(new ProviderFactory()->domainOpenProvider()->createOne())
             ->for($this->domainSubscription)
             ->createOne();
     }
@@ -68,27 +66,22 @@ class DnsZoneControllerTest extends IntegrationTestCase
         DnsDeploymentFactory::new()->for($dnsSubscription)->create();
 
         $dnsServiceMock = self::createMock(DnsService::class);
-        $nameServerAssignerMock =  self::createMock(DnsNameserverAssigner::class);
+        $nameServerAssignerMock = self::createMock(DnsNameserverAssigner::class);
 
         $controller = new DnsZoneController(
             dnsService: $dnsServiceMock,
             nameserverAssigner: $nameServerAssignerMock,
             dnsProductSpecRepository: self::resolve(DnsProductSpecRepository::class),
-            subscriptionRepository: self::resolve(SubscriptionRepository::class)
+            subscriptionRepository: self::resolve(SubscriptionRepository::class),
         );
 
-        $nameServerAssignerMock->expects(self::once())
-            ->method('clear');
+        $nameServerAssignerMock->expects(self::once())->method('clear');
 
-        $nameServerAssignerMock->expects(self::once())
-            ->method('assign')
-            ->willReturn([]);
+        $nameServerAssignerMock->expects(self::once())->method('assign')->willReturn([]);
 
-        $dnsServiceMock->expects(self::once())
-            ->method('createDnsZone');
+        $dnsServiceMock->expects(self::once())->method('createDnsZone');
 
-        $dnsServiceMock->expects(self::never())
-            ->method('sendNotify');
+        $dnsServiceMock->expects(self::never())->method('sendNotify');
 
         $controller->store(self::DOMAIN);
     }
@@ -113,27 +106,22 @@ class DnsZoneControllerTest extends IntegrationTestCase
         DnsDeploymentFactory::new()->for($dnsSubscription)->create();
 
         $dnsServiceMock = self::createMock(DnsService::class);
-        $nameServerAssignerMock =  self::createMock(DnsNameserverAssigner::class);
+        $nameServerAssignerMock = self::createMock(DnsNameserverAssigner::class);
 
         $controller = new DnsZoneController(
             dnsService: $dnsServiceMock,
             nameserverAssigner: $nameServerAssignerMock,
             dnsProductSpecRepository: self::resolve(DnsProductSpecRepository::class),
-            subscriptionRepository: self::resolve(SubscriptionRepository::class)
+            subscriptionRepository: self::resolve(SubscriptionRepository::class),
         );
 
-        $nameServerAssignerMock->expects(self::once())
-            ->method('clear');
+        $nameServerAssignerMock->expects(self::once())->method('clear');
 
-        $nameServerAssignerMock->expects(self::once())
-            ->method('assign')
-            ->willReturn([]);
+        $nameServerAssignerMock->expects(self::once())->method('assign')->willReturn([]);
 
-        $dnsServiceMock->expects(self::once())
-            ->method('createDnsZone');
+        $dnsServiceMock->expects(self::once())->method('createDnsZone');
 
-        $dnsServiceMock->expects(self::once())
-            ->method('sendNotify');
+        $dnsServiceMock->expects(self::once())->method('sendNotify');
 
         $controller->store(self::DOMAIN);
     }
@@ -155,9 +143,7 @@ class DnsZoneControllerTest extends IntegrationTestCase
             ->parentSubscription($this->domainSubscription)
             ->createOne();
 
-        $dnsDeployment = DnsDeploymentFactory::new()
-            ->for($dnsSubscription)
-            ->createOne();
+        $dnsDeployment = DnsDeploymentFactory::new()->for($dnsSubscription)->createOne();
 
         self::assertNotNull($this->domainSubscription->domainDeployment);
 
@@ -166,27 +152,22 @@ class DnsZoneControllerTest extends IntegrationTestCase
         $dnsDeployment->dnsNameservers()->saveMany($existingNameservers);
 
         $dnsServiceMock = self::createMock(DnsService::class);
-        $nameServerAssignerMock =  self::createMock(DnsNameserverAssigner::class);
+        $nameServerAssignerMock = self::createMock(DnsNameserverAssigner::class);
 
         $controller = new DnsZoneController(
             dnsService: $dnsServiceMock,
             nameserverAssigner: $nameServerAssignerMock,
             dnsProductSpecRepository: self::resolve(DnsProductSpecRepository::class),
-            subscriptionRepository: self::resolve(SubscriptionRepository::class)
+            subscriptionRepository: self::resolve(SubscriptionRepository::class),
         );
 
-        $nameServerAssignerMock->expects(self::once())
-            ->method('clear');
+        $nameServerAssignerMock->expects(self::once())->method('clear');
 
-        $nameServerAssignerMock->expects(self::once())
-            ->method('assign')
-            ->willReturn([]);
+        $nameServerAssignerMock->expects(self::once())->method('assign')->willReturn([]);
 
-        $dnsServiceMock->expects(self::once())
-            ->method('createDnsZone');
+        $dnsServiceMock->expects(self::once())->method('createDnsZone');
 
-        $dnsServiceMock->expects(self::once())
-            ->method('sendNotify');
+        $dnsServiceMock->expects(self::once())->method('sendNotify');
 
         $controller->store(self::DOMAIN);
     }
@@ -195,9 +176,11 @@ class DnsZoneControllerTest extends IntegrationTestCase
     public function deleteDnsZone(): void
     {
         $dnsMock = self::createMock(DnsService::class);
-        $dnsMock->expects(
-            self::once()
-        )->method('deleteZone')
+        $dnsMock
+            ->expects(
+                self::once(),
+            )
+            ->method('deleteZone')
             ->with(self::DOMAIN);
 
         $this->app->bind(DnsService::class, fn () => $dnsMock);

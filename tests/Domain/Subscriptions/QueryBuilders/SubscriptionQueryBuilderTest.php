@@ -33,13 +33,19 @@ class SubscriptionQueryBuilderTest extends IntegrationTestCase
     #[Test]
     public function whereLikeDomain(): void
     {
-        new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->productGroup))->createOne([
-            'domain' => 'sandwaveio.dev',
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->productGroup))
+            ->createOne([
+                'domain' => 'sandwaveio.dev',
+            ]);
 
-        new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->productGroup))->createOne([
-            'domain' => 's4ndw4v310.dev',
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->productGroup))
+            ->createOne([
+                'domain' => 's4ndw4v310.dev',
+            ]);
 
         $count = Subscription::query()->whereLikeDomain('sandwave')->count();
 
@@ -49,13 +55,19 @@ class SubscriptionQueryBuilderTest extends IntegrationTestCase
     #[Test]
     public function whereAdministrativeStatusActive(): void
     {
-        new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->productGroup))->createOne([
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->productGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+            ]);
 
-        new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->productGroup))->createOne([
-            'administrative_status' => AdministrativeStatus::ARCHIVED->value,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->productGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::ARCHIVED->value,
+            ]);
 
         $count = Subscription::query()->whereAdministrativeStatusActive()->count();
 
@@ -66,12 +78,15 @@ class SubscriptionQueryBuilderTest extends IntegrationTestCase
     public function whereProductGroup(): void
     {
         $product = new ProductFactory()->createOne([
-           'product_group_id' => $this->productGroup->id,
+            'product_group_id' => $this->productGroup->id,
         ]);
 
-        new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->productGroup))->createOne([
-            'product_uuid' => $product->uuid,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->productGroup))
+            ->createOne([
+                'product_uuid' => $product->uuid,
+            ]);
 
         $count = Subscription::query()->whereProductGroup($this->productGroup->uuid)->count();
 
@@ -94,22 +109,27 @@ class SubscriptionQueryBuilderTest extends IntegrationTestCase
             'slug' => 'hosting_mail_only',
         ]);
 
-        $spec = new ProductSpecFactory()
+        $spec = new ProductSpecFactory()->for($product)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+            'value' => '0',
+        ]);
+
+        new SubscriptionFactory()
+            ->withCustomer()
             ->for($product)
-            ->createOne([
-                'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
-                'value' => '0',
-            ]);
+            ->createOne();
 
-        new SubscriptionFactory()->withCustomer()->for($product)->createOne();
-
-        $count = Subscription::query()->whereProductSpecNameAndValueIsTrue(ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER)->count();
+        $count = Subscription::query()
+            ->whereProductSpecNameAndValueIsTrue(ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER)
+            ->count();
         self::assertSame(0, $count, 'should not return 1 since the spec is not true');
 
         $spec->value = 1;
         $spec->save();
 
-        $count = Subscription::query()->whereProductSpecNameAndValueIsTrue(ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER)->count();
+        $count = Subscription::query()
+            ->whereProductSpecNameAndValueIsTrue(ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER)
+            ->count();
         self::assertSame(1, $count);
     }
 
@@ -128,13 +148,17 @@ class SubscriptionQueryBuilderTest extends IntegrationTestCase
             'product_group_id' => $productGroup->id,
         ]);
 
-        new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product->uuid,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product->uuid,
+            ]);
 
-        new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product2->uuid,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product2->uuid,
+            ]);
 
         $count = Subscription::query()->whereProductName('VPS')->count();
 
@@ -154,13 +178,17 @@ class SubscriptionQueryBuilderTest extends IntegrationTestCase
             'product_group_id' => $this->productGroup->id,
         ]);
 
-        new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product->uuid,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product->uuid,
+            ]);
 
-        new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product2->uuid,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product2->uuid,
+            ]);
 
         $count = Subscription::query()->whereProductSlug('sandwave')->count();
 
@@ -185,17 +213,25 @@ class SubscriptionQueryBuilderTest extends IntegrationTestCase
 
         // Each product a subscription and we only will search for and expect the first 2 to be found
         $expectedSubscriptionIds = [];
-        $expectedSubscriptionIds[] = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product->uuid,
-        ])->id;
+        $expectedSubscriptionIds[] = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product->uuid,
+            ])
+            ->id;
 
-        $expectedSubscriptionIds[] = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product2->uuid,
-        ])->id;
+        $expectedSubscriptionIds[] = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product2->uuid,
+            ])
+            ->id;
 
-        new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product3->uuid,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product3->uuid,
+            ]);
 
         $subscriptions = Subscription::query()->whereProductSlugs([ProductType::BASIC_DNS, 'sandwave2'])->get();
 
@@ -216,13 +252,17 @@ class SubscriptionQueryBuilderTest extends IntegrationTestCase
             'product_group_id' => $this->productGroup->id,
         ]);
 
-        new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product->uuid,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product->uuid,
+            ]);
 
-        new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product2->uuid,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product2->uuid,
+            ]);
 
         $count = Subscription::query()->whereProductNames([':)', 'VPS v2'])->count();
 
@@ -232,8 +272,14 @@ class SubscriptionQueryBuilderTest extends IntegrationTestCase
     #[Test]
     public function whereProductUuid(): void
     {
-        $subscription = new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->productGroup))->createOne();
-        new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->productGroup))->create();
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->productGroup))
+            ->createOne();
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->productGroup))
+            ->create();
 
         $count = Subscription::query()->whereProductUuid($subscription->product_uuid)->count();
 

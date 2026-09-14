@@ -50,18 +50,19 @@ class Microsoft365CustomerAgreementSignedTest extends IntegrationTestCase
             dateAgreed: new DateTime(),
         );
 
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('getMicrosoftCustomerAgreement')
             ->with($this->customer)
             ->willReturn($customerAgreementResponse);
 
-        $this->microsoft365Service->expects(self::once())
-            ->method('prepareOrders');
+        $this->microsoft365Service->expects(self::once())->method('prepareOrders');
 
         $this->actingAsCustomer($this->customer)
             ->postJson(
-                $this->generateRoute('partners.microsoft365.microsoft-customer-agreement-signed')
-            )->assertNoContent();
+                $this->generateRoute('partners.microsoft365.microsoft-customer-agreement-signed'),
+            )
+            ->assertNoContent();
     }
 
     #[Test]
@@ -75,18 +76,21 @@ class Microsoft365CustomerAgreementSignedTest extends IntegrationTestCase
             dateAgreed: null,
         );
 
-        $this->microsoft365Service->expects(self::once())
+        $this->microsoft365Service
+            ->expects(self::once())
             ->method('getMicrosoftCustomerAgreement')
             ->with($this->customer)
             ->willReturn($customerAgreementResponse);
 
         $this->actingAsCustomer($this->customer)
             ->postJson(
-                $this->generateRoute('partners.microsoft365.microsoft-customer-agreement-signed')
-            )->assertUnprocessable()
+                $this->generateRoute('partners.microsoft365.microsoft-customer-agreement-signed'),
+            )
+            ->assertUnprocessable()
             ->assertJsonFragment([
                 'message' => 'microsoft365.error.mca-not-signed',
-            ])->assertJsonFragment([
+            ])
+            ->assertJsonFragment([
                 'errors' => [
                     'mca' => [
                         'microsoft365.error.mca-not-signed',

@@ -27,7 +27,10 @@ class IdentitySerializerFactory
 
         $extractor = new PropertyInfoExtractor([], [new PhpDocExtractor(), new ReflectionExtractor()]);
         $classMetadataFactory = new ClassMetadataFactory(new AttributeLoader());
-        $metadataAwareNameConverter = new MetadataAwareNameConverter($classMetadataFactory, new CamelCaseToSnakeCaseNameConverter());
+        $metadataAwareNameConverter = new MetadataAwareNameConverter(
+            $classMetadataFactory,
+            new CamelCaseToSnakeCaseNameConverter(),
+        );
 
         $normalizer = [
             new DateTimeNormalizer(),

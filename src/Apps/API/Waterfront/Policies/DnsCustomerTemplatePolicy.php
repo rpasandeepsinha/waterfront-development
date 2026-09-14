@@ -49,6 +49,7 @@ class DnsCustomerTemplatePolicy
         $this->customerPolicy->assertCanManageDnsTemplates();
 
         $subject = $this->authManager->getAuthenticatedCustomer();
+
         return $subject->customer->id === $template->customer_id;
     }
 }

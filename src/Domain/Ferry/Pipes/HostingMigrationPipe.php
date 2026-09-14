@@ -76,7 +76,7 @@ class HostingMigrationPipe extends ValidationPipe
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Start'
+            message: 'Start',
         );
 
         /** @var array<int, array<string, mixed>> $hostingPayloadsArray */
@@ -84,7 +84,7 @@ class HostingMigrationPipe extends ValidationPipe
 
         $validator = $this->validatorFactory->make(
             $hostingPayloadsArray,
-            MigrationValidationLibrary::getHostingBaseRules()
+            MigrationValidationLibrary::getHostingBaseRules(),
         );
 
         try {
@@ -96,24 +96,39 @@ class HostingMigrationPipe extends ValidationPipe
                 messages: $exception->validator->errors()->toArray(),
             );
 
-            return $this->finishPipe(MigrationValidation::HOSTING_MIGRATION_PIPE_PASSED, $payload, $this->logger, $next);
+            return $this->finishPipe(
+                MigrationValidation::HOSTING_MIGRATION_PIPE_PASSED,
+                $payload,
+                $this->logger,
+                $next,
+            );
         }
 
         try {
             /** @var array<int, ValidationHostingSubscriptionPayload> $hostingPayloads */
-            $hostingPayloads = $this->serializer->denormalize($hostingPayloadsArray, ValidationHostingSubscriptionPayload::class . '[]');
-        } catch (MissingConstructorArgumentsException|NotNormalizableValueException|PartialDenormalizationException $exception) {
+            $hostingPayloads = $this->serializer->denormalize(
+                $hostingPayloadsArray,
+                ValidationHostingSubscriptionPayload::class . '[]',
+            );
+        } catch (
+            MissingConstructorArgumentsException|NotNormalizableValueException|PartialDenormalizationException $exception
+        ) {
             $this->addValidationResult(
                 validationPayload: $payload,
                 migrationValidationKey: MigrationValidation::HOSTING_MIGRATION_PAYLOAD_INVALID,
                 message: 'Unable to denormalize hosting migration validation payload',
                 data: [
-                    'payload'   => $hostingPayloadsArray,
+                    'payload' => $hostingPayloadsArray,
                     'exception' => $exception->getMessage(),
                 ],
             );
 
-            return $this->finishPipe(MigrationValidation::HOSTING_MIGRATION_PIPE_PASSED, $payload, $this->logger, $next);
+            return $this->finishPipe(
+                MigrationValidation::HOSTING_MIGRATION_PIPE_PASSED,
+                $payload,
+                $this->logger,
+                $next,
+            );
         }
 
         foreach ($hostingPayloads as $hostingPayload) {
@@ -122,7 +137,7 @@ class HostingMigrationPipe extends ValidationPipe
             $payload->addValidationTimeline(
                 pipeline: $this->getValidationIdentifier(),
                 message: 'looping',
-                id: $referenceSubscriptionId
+                id: $referenceSubscriptionId,
             );
 
             $hostingMigrationPayload = $this->createHostingMigrationPayloadDto($payload, $hostingPayload);
@@ -134,7 +149,7 @@ class HostingMigrationPipe extends ValidationPipe
             $server = $this->checkServerExists(
                 $payload,
                 $hostingMigrationPayload,
-                $referenceSubscriptionId
+                $referenceSubscriptionId,
             );
 
             if ($server === null) {
@@ -145,7 +160,7 @@ class HostingMigrationPipe extends ValidationPipe
                 $payload,
                 $hostingMigrationPayload,
                 $server,
-                $referenceSubscriptionId
+                $referenceSubscriptionId,
             );
 
             if (! $hostingExists) {
@@ -157,7 +172,7 @@ class HostingMigrationPipe extends ValidationPipe
                 $hostingMigrationPayload,
                 $server,
                 $referenceSubscriptionId,
-                $payload->getJobId()
+                $payload->getJobId(),
             );
 
             if ($isReseller) {
@@ -171,7 +186,7 @@ class HostingMigrationPipe extends ValidationPipe
                     $payload,
                     $hostingMigrationPayload,
                     $server,
-                    $referenceSubscriptionId
+                    $referenceSubscriptionId,
                 );
 
                 if (! $ssoCanBeGenerated) {
@@ -185,14 +200,14 @@ class HostingMigrationPipe extends ValidationPipe
                 $payload,
                 $server,
                 $referenceSubscriptionId,
-                $payload->getJobId()
+                $payload->getJobId(),
             );
 
             if (in_array($hostingMigrationPayload->driver, $this->checksDnsSettings, true)) {
                 $usingHostingServerAsNameserver = $this->verifyHostingServerIsNameserver(
                     $hostingMigrationPayload,
                     $payload,
-                    $server
+                    $server,
                 );
 
                 $usingLocalDomain = $this->verifyLocalDomain($payload);
@@ -202,7 +217,7 @@ class HostingMigrationPipe extends ValidationPipe
                     $hostingMigrationPayload,
                     $usingHostingServerAsNameserver,
                     $usingLocalDomain,
-                    $referenceSubscriptionId
+                    $referenceSubscriptionId,
                 );
             }
 
@@ -210,13 +225,13 @@ class HostingMigrationPipe extends ValidationPipe
                 payload: $payload,
                 hostingSubscriptionPayload: $hostingPayload,
                 hostingMigrationPayload: $hostingMigrationPayload,
-                server: $server
+                server: $server,
             );
         }
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Finish'
+            message: 'Finish',
         );
 
         return $this->finishPipe(MigrationValidation::HOSTING_MIGRATION_PIPE_PASSED, $payload, $this->logger, $next);
@@ -229,8 +244,8 @@ class HostingMigrationPipe extends ValidationPipe
 
     private function createHostingMigrationPayloadDto(
         ValidationPayload $payload,
-        ValidationHostingSubscriptionPayload $hostingPayload
-    ): HostingMigrationPayload|null {
+        ValidationHostingSubscriptionPayload $hostingPayload,
+    ): ?HostingMigrationPayload {
         try {
             return HostingMigrationPayload::fromArray([
                 'subscriptions' => new Collection(),
@@ -256,13 +271,12 @@ class HostingMigrationPipe extends ValidationPipe
     private function checkServerExists(
         ValidationPayload $payload,
         HostingMigrationPayload $hostingMigrationPayload,
-        string $referenceSubscriptionId
-    ): Server|null {
+        string $referenceSubscriptionId,
+    ): ?Server {
         $server = null;
 
         try {
-            $server = $this->serverRepository
-                ->findByHostname($hostingMigrationPayload->serverName);
+            $server = $this->serverRepository->findByHostname($hostingMigrationPayload->serverName);
         } catch (ModelNotFoundException) {
             $message = sprintf(
                 'Hosting server of type "%s" and hostname "%s" not found',
@@ -274,7 +288,7 @@ class HostingMigrationPipe extends ValidationPipe
                 validationPayload: $payload,
                 migrationValidationKey: MigrationValidation::HOSTING_MIGRATION_SERVER_INVALID,
                 message: $message,
-                referenceSubscriptionId: $referenceSubscriptionId
+                referenceSubscriptionId: $referenceSubscriptionId,
             );
 
             $this->logger->debug($message, [
@@ -286,16 +300,21 @@ class HostingMigrationPipe extends ValidationPipe
         return $server;
     }
 
-    private function checkHostingInstanceExists(ValidationPayload $payload, HostingMigrationPayload $hostingMigrationPayload, Server $server, string $referenceSubscriptionId): bool
-    {
+    private function checkHostingInstanceExists(
+        ValidationPayload $payload,
+        HostingMigrationPayload $hostingMigrationPayload,
+        Server $server,
+        string $referenceSubscriptionId,
+    ): bool {
         try {
             $this->siteDto = $this->hostingService->getUserConfigAsDto(
                 $hostingMigrationPayload->driver,
                 $hostingMigrationPayload->hostingDetails->getUsername(),
-                $server
+                $server,
             );
 
             return true;
+
             // @phpstan-ignore-next-line
         } catch (Throwable $exception) {
             $message = sprintf(
@@ -322,13 +341,17 @@ class HostingMigrationPipe extends ValidationPipe
         return false;
     }
 
-    private function checkHostingSSOCanBeGenerated(ValidationPayload $payload, HostingMigrationPayload $hostingMigrationPayload, Server $server, string $referenceSubscriptionId): bool
-    {
+    private function checkHostingSSOCanBeGenerated(
+        ValidationPayload $payload,
+        HostingMigrationPayload $hostingMigrationPayload,
+        Server $server,
+        string $referenceSubscriptionId,
+    ): bool {
         try {
             $this->getSsoUrlAction->execute(
                 $server,
                 $hostingMigrationPayload->hostingDetails->getUsername(),
-                '127.0.0.1'
+                '127.0.0.1',
             );
 
             return true;
@@ -340,7 +363,7 @@ class HostingMigrationPipe extends ValidationPipe
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                     LoggingContextKeys::REQUEST_DATA => (string) json_encode($hostingMigrationPayload->toArray()),
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             $this->addValidationResult(
@@ -362,14 +385,14 @@ class HostingMigrationPipe extends ValidationPipe
     private function verifyHostingServerIsNameserver(
         HostingMigrationPayload $hostingMigrationPayload,
         ValidationPayload $payload,
-        Server $server
+        Server $server,
     ): bool {
         try {
             return $this->hostingService->isUsingHostingServerAsNameserver(
                 $hostingMigrationPayload->driver,
                 $server->ipv4,
                 $server->ipv6,
-                $this->siteDto
+                $this->siteDto,
             );
         } catch (ErrorException $exception) {
             $this->logger->error(
@@ -379,7 +402,7 @@ class HostingMigrationPipe extends ValidationPipe
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                     LoggingContextKeys::REQUEST_DATA => (string) json_encode($hostingMigrationPayload->toArray()),
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             return false;
@@ -428,7 +451,7 @@ class HostingMigrationPipe extends ValidationPipe
             $hostingMigrationPayload->referenceSubscriptionId,
             $usingHostingServerAsNameserver,
             $usingLocalDomain,
-            $usingHostingServerAsNameserver && ! $usingLocalDomain // true = ON, false = OFF
+            $usingHostingServerAsNameserver && ! $usingLocalDomain, // true = ON, false = OFF
         );
 
         $this->addValidationResult(
@@ -447,7 +470,7 @@ class HostingMigrationPipe extends ValidationPipe
     private function logSsoState(
         SiteConfigInterface $config,
         HostingMigrationPayload $hostingMigrationPayload,
-        ValidationPayload $payload
+        ValidationPayload $payload,
     ): void {
         $this->logger->debug(
             'Attempting to generate a SSO link for a hosting user',
@@ -458,7 +481,7 @@ class HostingMigrationPipe extends ValidationPipe
                     'sso_enabled' => $config->hasSsoEnabled(),
                 ],
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
-            ]
+            ],
         );
     }
 
@@ -492,9 +515,10 @@ class HostingMigrationPipe extends ValidationPipe
                         'username' => $hostingMigrationPayload->hostingDetails->getUsername(),
                     ],
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $validationPayload->validationReference,
-                ]
+                ],
             );
         }
+
         return $this->siteDto->isReseller();
     }
 
@@ -550,10 +574,10 @@ class HostingMigrationPipe extends ValidationPipe
             message: $message,
             referenceSubscriptionId: $referenceSubscriptionId,
             data: [
-                'user_config'    => $this->siteDto->toFerryArray(),
-                'user_stats'     => [], // TODO Will add support for stats later https://yh-jira.atlassian.net/browse/FR-1212
+                'user_config' => $this->siteDto->toFerryArray(),
+                'user_stats' => [], // TODO Will add support for stats later https://yh-jira.atlassian.net/browse/FR-1212
                 'package_config' => $package->toFerryArray(),
-            ]
+            ],
         );
 
         $this->logger->debug($message, [
@@ -587,7 +611,7 @@ class HostingMigrationPipe extends ValidationPipe
                     'remote_package' => $this->siteDto->getPackage(),
                     'payload_package' => $hostingSubscriptionPayload->slug,
                     'username' => $hostingMigrationPayload->hostingDetails->getUsername(),
-                ]
+                ],
             );
 
             $this->logger->debug($message, [

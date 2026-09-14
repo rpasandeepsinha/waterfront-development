@@ -46,13 +46,13 @@ class OneTimeServiceInvoiceService
          * into separate collections for each customer.
          */
         $oneTimeServicesPerCustomer = $oneTimeServices->groupBy(
-            fn (OneTimeService $oneTimeService) => $oneTimeService->customer_id
+            fn (OneTimeService $oneTimeService) => $oneTimeService->customer_id,
         );
 
         foreach ($oneTimeServicesPerCustomer as $customerOneTimeServices) {
             DB::transaction(function () use ($customerOneTimeServices) {
                 $customerOneTimeServices->each(
-                    fn (OneTimeService $oneTimeService) => $this->createOneTimeServiceInvoices($oneTimeService)
+                    fn (OneTimeService $oneTimeService) => $this->createOneTimeServiceInvoices($oneTimeService),
                 );
             });
             $this->sendInvoicesToHarbor($customerOneTimeServices);
@@ -72,7 +72,10 @@ class OneTimeServiceInvoiceService
         $invoiceLinesPreview = [];
 
         foreach ($contexts as $context) {
-            $grossPrice = $this->grossPriceResolver->getGrossPrice($context->product, $context->subscription->product->id);
+            $grossPrice = $this->grossPriceResolver->getGrossPrice(
+                $context->product,
+                $context->subscription->product->id,
+            );
             $netPrice = $this->resolveNetPrice($grossPrice, $context->discountPercentage);
             $invoiceLinesPreview[] = [
                 'subscriptionId' => $context->subscription->id,
@@ -103,25 +106,26 @@ class OneTimeServiceInvoiceService
         /** @var Invoice[] $createdInvoices */
         $createdInvoices = [];
         for ($i = 1; $i <= $oneTimeService->amount; $i++) {
-            $createdInvoices[] = $invoice = Invoice::create([
-                'subscription_id'    => $oneTimeService->subscription->id,
-                'customer_id'        => $customer->id,
-                'product_id'         => $product->id,
-                'vat_code'           => $customerVatDTO->vatCode,
-                'vat_rate'           => $customerVatDTO->vatRate,
-                'ledger_code'        => $product->productGroup->ledger_code,
-                'paid'               => $isPaid,
-                'domain'             => $subscription->domain,
-                'start_date'         => $oneTimeService->execution_date,
-                'end_date'           => $oneTimeService->execution_date,
-                'period'             => 0,
-                'gross_price'        => $grossPrice,
-                'net_price'          => $netPrice,
-                'title'              => $subscription->domain ?? $product->name,
-                'description'        => $this->resolveInvoiceDescription($product),
-                'type'               => InvoiceLine::TYPE_DEFAULT,
-                'group_label'        => $subscription->domain,
-            ]);
+            $createdInvoices[] =
+                $invoice = Invoice::create([
+                    'subscription_id' => $oneTimeService->subscription->id,
+                    'customer_id' => $customer->id,
+                    'product_id' => $product->id,
+                    'vat_code' => $customerVatDTO->vatCode,
+                    'vat_rate' => $customerVatDTO->vatRate,
+                    'ledger_code' => $product->productGroup->ledger_code,
+                    'paid' => $isPaid,
+                    'domain' => $subscription->domain,
+                    'start_date' => $oneTimeService->execution_date,
+                    'end_date' => $oneTimeService->execution_date,
+                    'period' => 0,
+                    'gross_price' => $grossPrice,
+                    'net_price' => $netPrice,
+                    'title' => $subscription->domain ?? $product->name,
+                    'description' => $this->resolveInvoiceDescription($product),
+                    'type' => InvoiceLine::TYPE_DEFAULT,
+                    'group_label' => $subscription->domain,
+                ]);
 
             $oneTimeService->invoices()->attach($invoice);
         }
@@ -133,15 +137,16 @@ class OneTimeServiceInvoiceService
                 LoggingContextKeys::META => [
                     'one_time_service.id' => $oneTimeService->id,
                 ],
-            ]
+            ],
         );
+
         return $createdInvoices;
     }
 
     protected function resolveNetPrice(int $grossPrice, int $discountPercentage): int
     {
         return (int) round(
-            $grossPrice * (1 - ($discountPercentage * 0.01))
+            $grossPrice * (1 - ($discountPercentage * 0.01)),
         );
     }
 
@@ -168,7 +173,7 @@ class OneTimeServiceInvoiceService
                         product: $oneTimeServiceProduct,
                         subscription: $subscription,
                     );
-                }
+                },
             ));
         }
 
@@ -177,8 +182,9 @@ class OneTimeServiceInvoiceService
         if ($invoicesToDispatch->isEmpty()) {
             $this->logger->critical(sprintf(
                 'Invoice one-time services action resulted in zero invoices to dispatch: %s',
-                $oneTimeServices->implode(fn (OneTimeService $oneTimeService) => $oneTimeService->id)
+                $oneTimeServices->implode(fn (OneTimeService $oneTimeService) => $oneTimeService->id),
             ));
+
             return;
         }
 
@@ -190,8 +196,8 @@ class OneTimeServiceInvoiceService
                     $this->administrationFeesManager->createAdministrationFeesInvoice(
                         customer: $customer,
                         administrationFees: $administrationFees,
-                        dispatchInvoiceCreated: false
-                    )
+                        dispatchInvoiceCreated: false,
+                    ),
                 );
             }
         }
@@ -210,6 +216,7 @@ class OneTimeServiceInvoiceService
 
         if (! array_key_exists($customer->id, $vatCache)) {
             $customerVatDTO = $this->vatService->getCustomerVatData($customer);
+
             return $vatCache[$customer->id] = $customerVatDTO;
         }
 

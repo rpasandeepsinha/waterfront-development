@@ -25,7 +25,7 @@ class SubscriptionChangeFactory extends Factory
     {
         return [
             'uuid' => Uuid::uuid4(),
-            'subscription_uuid' =>  Uuid::uuid4(),
+            'subscription_uuid' => Uuid::uuid4(),
             'from_product_uuid' => Uuid::uuid4(),
             'to_product_uuid' => Uuid::uuid4(),
             'status' => SubscriptionChangeStatus::COMPLETED,

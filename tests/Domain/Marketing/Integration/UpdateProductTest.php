@@ -21,9 +21,7 @@ class UpdateProductTest extends IntegrationTestCase
         $yesterday = CarbonImmutable::yesterday();
         CarbonImmutable::setTestNow($yesterday);
 
-        $extensionProduct = new ProductFactory()
-            ->nlDomain()
-            ->createOne();
+        $extensionProduct = new ProductFactory()->nlDomain()->createOne();
         $subscription = new SubscriptionFactory()
             ->withCustomer()
             ->for($extensionProduct)

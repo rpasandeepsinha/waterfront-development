@@ -25,20 +25,23 @@ class BackupMigrationController
         private readonly MigratableSubscriptionRepository $migratableSubscriptionRepository,
         private readonly SubscriptionMigrationValidator $subscriptionMigrationValidator,
         private readonly ExecuteTechnicalBackupMigrationAction $executeBackupMigrationAction,
-        private readonly ResponseDto $responseDto
+        private readonly ResponseDto $responseDto,
     ) {
     }
 
     public function execute(BackupMigrationRequest $request, Customer $customer): JsonResponse
     {
-        $subscriptions = $this->migratableSubscriptionRepository->getSubscriptionsForBackupMigration($customer)
+        $subscriptions = $this->migratableSubscriptionRepository
+            ->getSubscriptionsForBackupMigration($customer)
             ->filter(function ($subscription) use ($customer) {
                 try {
                     $this->subscriptionMigrationValidator->validateEligibleForBackupMigration($subscription);
                 } catch (NotEligibleForMigrationException $e) {
                     $this->responseDto->addFailure($this->makeFailureDto($e, $customer, $subscription));
+
                     return false;
                 }
+
                 return true;
             });
 
@@ -53,8 +56,11 @@ class BackupMigrationController
         return new JsonResponse($this->responseDto->toArray(), Response::HTTP_MULTI_STATUS);
     }
 
-    private function makeFailureDto(NotEligibleForMigrationException $e, Customer $customer, Subscription $subscription): FailureDto
-    {
+    private function makeFailureDto(
+        NotEligibleForMigrationException $e,
+        Customer $customer,
+        Subscription $subscription,
+    ): FailureDto {
         return FailureDto::create(
             sprintf('Backup migration step not allowed for subscription: %s', $e->getMessage()),
             [

@@ -23,7 +23,7 @@ class SslServiceProvider extends BaseProvider implements DeferrableProvider
         $cloudFilesystem = Storage::disk($configuration->getAsString('filesystems.cloud'));
 
         $this->app->bind(function () use ($configuration, $cloudFilesystem): CsrManager {
-            $strategy  = $this->resolve(OpenSslExtensionStrategy::class);
+            $strategy = $this->resolve(OpenSslExtensionStrategy::class);
 
             $sslDisk = new KeyCloud(
                 $configuration->getAsString('app.ssl_crypto'),

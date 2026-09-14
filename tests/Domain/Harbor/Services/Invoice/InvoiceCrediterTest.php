@@ -58,8 +58,8 @@ class InvoiceCrediterTest extends IntegrationTestCase
             new InvoiceToCredit(
                 invoice: $debitInvoice,
                 amountToCredit: $amountToCredit,
-                creditStartDate: $expectedCreditStartDate
-            )
+                creditStartDate: $expectedCreditStartDate,
+            ),
         );
         $creditInvoice = $creditResult->getCreditInvoice();
 
@@ -153,7 +153,7 @@ class InvoiceCrediterTest extends IntegrationTestCase
         $creditResult = $this->invoiceCrediter->credit(
             new InvoiceToCredit(
                 invoice: $debitInvoice,
-            )
+            ),
         );
         $creditInvoice = $creditResult->getCreditInvoice();
 

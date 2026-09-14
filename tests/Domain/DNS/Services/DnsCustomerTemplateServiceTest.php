@@ -89,7 +89,7 @@ class DnsCustomerTemplateServiceTest extends IntegrationTestCase
         self::assertSame(
             $originalTemplate->toArray(),
             $template->toArray(),
-            'The array payload of the created template did not equal the payload of the model return form the DnsTemplateService class'
+            'The array payload of the created template did not equal the payload of the model return form the DnsTemplateService class',
         );
     }
 
@@ -107,18 +107,20 @@ class DnsCustomerTemplateServiceTest extends IntegrationTestCase
             'default' => true,
         ]);
 
-        $domainGroup   =  new ProductGroupFactory()->createOne(['slug' => ProductGroupType::EXTENSION]);
-        $product      = new ProductFactory()->for($domainGroup)->createOne([
+        $domainGroup = new ProductGroupFactory()->createOne(['slug' => ProductGroupType::EXTENSION]);
+        $product = new ProductFactory()->for($domainGroup)->createOne([
             'name' => 'DNS Templates',
             'slug' => 'dns_templates',
         ]);
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid'       => $product->uuid,
-            'domain'             => 'domain.com',
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product->uuid,
+                'domain' => 'domain.com',
+            ]);
         $domainDeployment = DomainDeployment::create([
             'subscription_uuid' => $subscription->uuid,
-            'provider_id'       => $provider->id,
+            'provider_id' => $provider->id,
         ]);
 
         $this->customer->subscriptions()->save($subscription);
@@ -151,7 +153,7 @@ class DnsCustomerTemplateServiceTest extends IntegrationTestCase
         $records = $this->getExampleRecords();
 
         $originalIp = '127.0.0.1';
-        $changedIp  = '192.168.2.2';
+        $changedIp = '192.168.2.2';
 
         $originalTemplate = DnsCustomerTemplate::create([
             'name' => 'exampleExistingTemplate',
@@ -190,19 +192,21 @@ class DnsCustomerTemplateServiceTest extends IntegrationTestCase
         ]);
 
         $productGroup = new ProductGroupFactory()->createOne(['slug' => ProductGroupType::EXTENSION]);
-        $product      = new ProductFactory()->for($productGroup)->createOne([
+        $product = new ProductFactory()->for($productGroup)->createOne([
             'name' => 'DNS Templates',
             'slug' => 'dns_templates',
         ]);
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid'       => $product->uuid,
-            'domain'             => $domain,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $product->uuid,
+                'domain' => $domain,
+            ]);
 
         $domainDeployment = DomainDeployment::create([
             'subscription_uuid' => $subscription->uuid,
-            'template_id'       => $originalTemplate->id,
-            'provider_id'       => $provider->id,
+            'template_id' => $originalTemplate->id,
+            'provider_id' => $provider->id,
         ]);
 
         $this->customer->subscriptions()->save($subscription);
@@ -231,7 +235,7 @@ class DnsCustomerTemplateServiceTest extends IntegrationTestCase
 
         self::assertSame(
             Arr::flatten($domains),
-            $collection->map(fn (array $domain) => Arr::get($domain, 'domain'))->toArray()
+            $collection->map(fn (array $domain) => Arr::get($domain, 'domain'))->toArray(),
         );
     }
 
@@ -307,12 +311,12 @@ class DnsCustomerTemplateServiceTest extends IntegrationTestCase
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test.com')
+                $this->getMockedZoneResponseBody('test.com'),
             ),
             new Response(
                 404,
                 [],
-                'Zone not found!'
+                'Zone not found!',
             ),
         ]);
 
@@ -325,67 +329,67 @@ class DnsCustomerTemplateServiceTest extends IntegrationTestCase
             new Response(
                 201,
                 [],
-                $this->getMockedZoneResponseBody('test.com')
+                $this->getMockedZoneResponseBody('test.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test.com')
+                $this->getMockedZoneResponseBody('test.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test.com')
+                $this->getMockedZoneResponseBody('test.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test.com')
+                $this->getMockedZoneResponseBody('test.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test.com')
+                $this->getMockedZoneResponseBody('test.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test.com')
+                $this->getMockedZoneResponseBody('test.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test.com')
+                $this->getMockedZoneResponseBody('test.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test.com')
+                $this->getMockedZoneResponseBody('test.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test.com')
+                $this->getMockedZoneResponseBody('test.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test.com')
+                $this->getMockedZoneResponseBody('test.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test.com')
+                $this->getMockedZoneResponseBody('test.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test.com')
+                $this->getMockedZoneResponseBody('test.com'),
             ),
             new Response(
                 200,
                 [],
-                $this->getMockedZoneResponseBody('test.com')
+                $this->getMockedZoneResponseBody('test.com'),
             ),
         ]);
 

@@ -63,11 +63,11 @@ class TechnicalSitebuilderMigrationJob extends MigrationJob implements ShouldQue
 
     private SitebuilderProxy $sitebuilderProxy;
 
-    private readonly string|null $originalSubscriptionDomain;
+    private readonly ?string $originalSubscriptionDomain;
 
     public function __construct(
         public Subscription $subscription,
-        protected string|null $failedTechnicalStatus,
+        protected ?string $failedTechnicalStatus,
         protected SitebuilderBundleMigrationPayload $payload,
     ) {
         parent::__construct($subscription, $failedTechnicalStatus);
@@ -108,43 +108,40 @@ class TechnicalSitebuilderMigrationJob extends MigrationJob implements ShouldQue
         $subscription = $this->subscription;
         $migratedCustomer = $this->migratedCustomer;
 
-        $hostingDeployment = $this->subscriptionRepository
-            ->findHostingDeploymentBySubscription($subscription);
+        $hostingDeployment = $this->subscriptionRepository->findHostingDeploymentBySubscription($subscription);
 
         // Sitebuilder
         $sitebuilderPayload = $this->payload->sitebuilder;
 
-        $sitebuilderServer = $this->serverRepository
-            ->findByHostname($sitebuilderPayload->serverName);
+        $sitebuilderServer = $this->serverRepository->findByHostname($sitebuilderPayload->serverName);
 
-        $sitebuilderProvider = $this->providerRepository
-            ->getByType(
-                ProviderType::SITEBUILDER,
-                ProviderSlug::from($sitebuilderPayload->driver)
-            );
+        $sitebuilderProvider = $this->providerRepository->getByType(
+            ProviderType::SITEBUILDER,
+            ProviderSlug::from($sitebuilderPayload->driver),
+        );
 
         $this->fetchAndVerifySitebuilderInstance(
             subscription: $subscription,
             migratedCustomer: $migratedCustomer,
             payload: $sitebuilderPayload,
-            server: $sitebuilderServer
+            server: $sitebuilderServer,
         );
 
         // Mail only
         $mailOnlyPayload = $this->payload->mailOnly;
 
-        $mailOnlyServer = $this->serverRepository
-            ->findByHostname($mailOnlyPayload->serverName);
+        $mailOnlyServer = $this->serverRepository->findByHostname($mailOnlyPayload->serverName);
 
-        $mailOnlyProvider = $this->getMailProvider(
-            payload: $mailOnlyPayload,
-        );
+        $mailOnlyProvider =
+            $this->getMailProvider(
+                payload: $mailOnlyPayload,
+            );
 
         $this->fetchAndVerifyMailOnlyInstance(
             payload: $mailOnlyPayload,
             subscription: $subscription,
             migratedCustomer: $migratedCustomer,
-            server: $mailOnlyServer
+            server: $mailOnlyServer,
         );
 
         // 1. set remote connection data
@@ -157,24 +154,24 @@ class TechnicalSitebuilderMigrationJob extends MigrationJob implements ShouldQue
             sitebuilderProvider: $sitebuilderProvider,
             mailOnlyServer: $mailOnlyServer,
             mailOnlyProvider: $mailOnlyProvider,
-            payload: $payload
+            payload: $payload,
         );
     }
 
     protected function rollback(Throwable $throwable): void
     {
-        $hostingDeployment = $this->subscriptionRepository
-            ->findHostingDeploymentBySubscription($this->subscription);
+        $hostingDeployment = $this->subscriptionRepository->findHostingDeploymentBySubscription($this->subscription);
 
         // Clear technical details based on the driver provided
         $sitebuilderHostingDetails = $this->payload->sitebuilder->hostingDetails;
 
         // Sitebuilder
         match (true) {
-            $sitebuilderHostingDetails instanceof SitebuilderBaseKitDetails => $this->sitebuilderProxy->rollbackSitebuilderDeployementFromMigration(
+            $sitebuilderHostingDetails instanceof SitebuilderBaseKitDetails
+                => $this->sitebuilderProxy->rollbackSitebuilderDeployementFromMigration(
                 subscription: $this->subscription,
                 sitebuilderBaseKitDetails: $sitebuilderHostingDetails,
-                hostingDeployment: $hostingDeployment
+                hostingDeployment: $hostingDeployment,
             ),
             default => throw new HostingDetailsNotSupportedException($sitebuilderHostingDetails),
         };
@@ -200,11 +197,10 @@ class TechnicalSitebuilderMigrationJob extends MigrationJob implements ShouldQue
         $hostingDeployment->mailOnlyServer()->disassociate();
 
         // Set mail provider to Placeholder
-        $mailOnlyProvider = $this->providerRepository
-            ->getByType(
-                ProviderType::MAILONLY,
-                ProviderSlug::PLACEHOLDER
-            );
+        $mailOnlyProvider = $this->providerRepository->getByType(
+            ProviderType::MAILONLY,
+            ProviderSlug::PLACEHOLDER,
+        );
         $hostingDeployment->mailProvider()->associate($mailOnlyProvider);
 
         $hostingDeployment->save();
@@ -217,7 +213,7 @@ class TechnicalSitebuilderMigrationJob extends MigrationJob implements ShouldQue
         Subscription $subscription,
         MigratedCustomer $migratedCustomer,
         HostingMigrationPayload $payload,
-        Server $server
+        Server $server,
     ): void {
         $this->sitebuilderSiteFetchAction->execute(
             subscription: $subscription,
@@ -248,7 +244,7 @@ class TechnicalSitebuilderMigrationJob extends MigrationJob implements ShouldQue
         HostingMigrationPayload $payload,
         Subscription $subscription,
         MigratedCustomer $migratedCustomer,
-        Server $server
+        Server $server,
     ): void {
         $mailDto = $this->hostingInstanceFetchAction->execute(
             subscription: $subscription,
@@ -328,10 +324,9 @@ class TechnicalSitebuilderMigrationJob extends MigrationJob implements ShouldQue
             $providerType = ProviderType::MAILONLY;
         }
 
-        return $this->providerRepository
-            ->getByType(
-                $providerType,
-                ProviderSlug::from($payload->driver)
-            );
+        return $this->providerRepository->getByType(
+            $providerType,
+            ProviderSlug::from($payload->driver),
+        );
     }
 }

@@ -31,8 +31,16 @@ class ResellerHostingPlaceholderService extends PlaceHolderService implements Re
         throw new NotImplementedException();
     }
 
-    public function create(string $contactPersonName, string $contactEmail, string $customerEmail, UuidInterface $customerUuid, string $subscriptionUuid, array $specs, int $providerId, ?Server $server = null): string
-    {
+    public function create(
+        string $contactPersonName,
+        string $contactEmail,
+        string $customerEmail,
+        UuidInterface $customerUuid,
+        string $subscriptionUuid,
+        array $specs,
+        int $providerId,
+        ?Server $server = null,
+    ): string {
         throw new NotImplementedException();
     }
 
@@ -44,7 +52,7 @@ class ResellerHostingPlaceholderService extends PlaceHolderService implements Re
     public function terminate(ResellerHostingDeployment $deployment): bool
     {
         $this->notificationService->sendTerminationNotification(
-            $this->getProvisionDetailFromSubscription($deployment->subscription)
+            $this->getProvisionDetailFromSubscription($deployment->subscription),
         );
 
         return true;
@@ -65,8 +73,11 @@ class ResellerHostingPlaceholderService extends PlaceHolderService implements Re
         throw new NotImplementedException();
     }
 
-    public function coupleExistingDomain(ResellerHostingDeployment $resellerHostingDeployment, Subscription $domainDeployment, AppResellerHostingDomainCoupleParameters $parameters): bool
-    {
+    public function coupleExistingDomain(
+        ResellerHostingDeployment $resellerHostingDeployment,
+        Subscription $domainDeployment,
+        AppResellerHostingDomainCoupleParameters $parameters,
+    ): bool {
         throw new NotImplementedException();
     }
 

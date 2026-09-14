@@ -10,14 +10,14 @@ readonly class PaytDebtorDTO
         public string $id,
         public string $debtorNumber,
         public string $name,
-        public string|null $callPhoneNumber,
-        public string|null $smsPhoneNumber,
-        public string|null $primaryEmailAddress,
-        public string|null $invoiceEmailAddress,
-        public string|null $debtorIdentifier,
-        public string|null $languageCode,
-        public PaytDebtorPostalAddressDTO|null $postalAddress,
-        public string|null $administrationId,
+        public ?string $callPhoneNumber,
+        public ?string $smsPhoneNumber,
+        public ?string $primaryEmailAddress,
+        public ?string $invoiceEmailAddress,
+        public ?string $debtorIdentifier,
+        public ?string $languageCode,
+        public ?PaytDebtorPostalAddressDTO $postalAddress,
+        public ?string $administrationId,
     ) {
     }
 }

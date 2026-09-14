@@ -34,8 +34,10 @@ class SitebuilderMapper
             $referenceSubscriptionId = $payload['reference_subscription_id'];
 
             $filteredSubscriptions = $subscriptions->filter(
-                fn (Subscription $subscription): bool =>
-                    $subscription->migratedSubscriptions->contains('reference_subscription_id', $referenceSubscriptionId)
+                fn (Subscription $subscription): bool => $subscription->migratedSubscriptions->contains(
+                    'reference_subscription_id',
+                    $referenceSubscriptionId,
+                ),
             );
 
             if ($filteredSubscriptions->isEmpty()) {
@@ -65,7 +67,7 @@ class SitebuilderMapper
                     LoggingContextKeys::META => [
                         'mismatched_subscription_references' => $mismatchedReferences,
                     ],
-                ]
+                ],
             );
         }
 

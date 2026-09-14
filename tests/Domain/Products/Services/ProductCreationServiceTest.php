@@ -47,7 +47,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
     #[Test]
     public function creationSuccess(): void
     {
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, null, null, null, null);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+        );
 
         $this->productCreationService->storeProductLine($dto);
 
@@ -60,7 +72,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
     #[Test]
     public function creationWithSpecificationsSuccess(): void
     {
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), [new Specifications('test.key', 'test.value')], null, null, null, null, null);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            [new Specifications('test.key', 'test.value')],
+            null,
+            null,
+            null,
+            null,
+            null,
+        );
 
         $product = $this->productCreationService->storeProductLine($dto);
 
@@ -97,7 +121,7 @@ class ProductCreationServiceTest extends IntegrationTestCase
             null,
             null,
             null,
-            null
+            null,
         );
 
         $product = $this->productCreationService->storeProductLine($dto);
@@ -143,7 +167,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
             weight: 5,
         );
 
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, [$promotion], null, null, null);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            [$promotion],
+            null,
+            null,
+            null,
+        );
 
         $product = $this->productCreationService->storeProductLine($dto);
 
@@ -186,7 +222,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
             weight: 2,
         );
 
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, [$firstPromotion, $secondPromotion], null, null, null);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            [$firstPromotion, $secondPromotion],
+            null,
+            null,
+            null,
+        );
 
         $product = $this->productCreationService->storeProductLine($dto);
 
@@ -213,7 +261,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
             additionalPrices: null,
         );
 
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, null, [$priceEntry], null, null);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            null,
+            [$priceEntry],
+            null,
+            null,
+        );
 
         $product = $this->productCreationService->storeProductLine($dto);
 
@@ -241,7 +301,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
             ],
         );
 
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, null, [$priceEntry], null, null);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            null,
+            [$priceEntry],
+            null,
+            null,
+        );
 
         $product = $this->productCreationService->storeProductLine($dto);
 
@@ -292,7 +364,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
             additionalPrices: null,
         );
 
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, null, [$firstEntry, $secondEntry], null, null);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            null,
+            [$firstEntry, $secondEntry],
+            null,
+            null,
+        );
 
         $product = $this->productCreationService->storeProductLine($dto);
 
@@ -351,7 +435,7 @@ class ProductCreationServiceTest extends IntegrationTestCase
             null,
             [$firstEntry, $secondEntry, $thirdEntry, $fourthEntry],
             null,
-            null
+            null,
         );
 
         $product = $this->productCreationService->storeProductLine($dto);
@@ -384,7 +468,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
             additionalPrices: [new AdditionalPriceDTO(type: PriceComponentType::PROLONGATION, price: 750)],
         );
 
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, null, [$firstEntry], null, null);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            null,
+            [$firstEntry],
+            null,
+            null,
+        );
 
         $product = $this->productCreationService->storeProductLine($dto);
 
@@ -413,7 +509,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
             additionalPrices: [new AdditionalPriceDTO(type: PriceComponentType::PROLONGATION, price: 500)],
         );
 
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, null, [$firstEntry], null, null);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            null,
+            [$firstEntry],
+            null,
+            null,
+        );
 
         $product = $this->productCreationService->storeProductLine($dto);
 
@@ -433,10 +541,22 @@ class ProductCreationServiceTest extends IntegrationTestCase
         $firstAddon = new ProductFactory()->for($addonGroup)->createOne(['slug' => 'first-addon']);
         $secondAddon = new ProductFactory()->for($addonGroup)->createOne(['slug' => 'second-addon']);
 
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, null, null, [
-            new ProductAddonDTO($firstAddon->id),
-            new ProductAddonDTO($secondAddon->id),
-        ], null);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            null,
+            null,
+            [
+                new ProductAddonDTO($firstAddon->id),
+                new ProductAddonDTO($secondAddon->id),
+            ],
+            null,
+        );
 
         $product = $this->productCreationService->storeProductLine($dto);
 
@@ -454,7 +574,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
     #[Test]
     public function creationWithoutAddonsCouplesNothing(): void
     {
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, null, null, null, null);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+        );
 
         $this->productCreationService->storeProductLine($dto);
 
@@ -470,7 +602,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
             firstMonthsDiscountPeriod: 3,
         );
 
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, null, null, null, [$configuration]);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            null,
+            null,
+            null,
+            [$configuration],
+        );
 
         $product = $this->productCreationService->storeProductLine($dto);
 
@@ -499,7 +643,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
             firstMonthsDiscountPeriod: 12,
         );
 
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, null, null, null, [$firstConfiguration, $secondConfiguration]);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            null,
+            null,
+            null,
+            [$firstConfiguration, $secondConfiguration],
+        );
 
         $product = $this->productCreationService->storeProductLine($dto);
 
@@ -527,7 +683,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
             firstMonthsDiscountPeriod: null,
         );
 
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, null, null, null, [$configuration]);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            null,
+            null,
+            null,
+            [$configuration],
+        );
 
         $product = $this->productCreationService->storeProductLine($dto);
 
@@ -542,7 +710,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
     #[Test]
     public function creationWithoutIntroductionPriceConfigurationStoresNoDiscounts(): void
     {
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, null, null, null, null);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+        );
 
         $this->productCreationService->storeProductLine($dto);
 
@@ -564,7 +744,19 @@ class ProductCreationServiceTest extends IntegrationTestCase
             firstMonthsDiscountPeriod: 3,
         );
 
-        $dto = new CreateProductDTO('test', 'test', null, ProductGroupType::EXTENSION, new ShopConfig(true), null, null, null, null, null, [$configuration]);
+        $dto = new CreateProductDTO(
+            'test',
+            'test',
+            null,
+            ProductGroupType::EXTENSION,
+            new ShopConfig(true),
+            null,
+            null,
+            null,
+            null,
+            null,
+            [$configuration],
+        );
 
         $productCreationService->storeProductLine($dto);
 

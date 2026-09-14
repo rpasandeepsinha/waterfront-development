@@ -41,7 +41,8 @@ readonly class ApplyRetentionCancellationAction
             throw new LogicException('A calculated RF action must have cancellation details.');
         }
 
-        $isLateBusinessCancellation = $customerType === CustomerType::BUSINESS && $cancellationDate->greaterThan($subscription->end_date);
+        $isLateBusinessCancellation =
+            $customerType === CustomerType::BUSINESS && $cancellationDate->greaterThan($subscription->end_date);
 
         /*
          * In the edge case of a late business cancellation, renew first so cancellation
@@ -55,8 +56,7 @@ readonly class ApplyRetentionCancellationAction
         $creditTotal = $result->creditTotal;
         Assert::notNull($creditTotal);
 
-        $shouldCreditRelatedInvoices = $cancelReason->allowedToCredit()
-            && $creditTotal > 0;
+        $shouldCreditRelatedInvoices = $cancelReason->allowedToCredit() && $creditTotal > 0;
 
         $cancellation = new Cancellation(
             subscriptions: new Collection([$subscription]),
@@ -70,8 +70,7 @@ readonly class ApplyRetentionCancellationAction
         $invoiceLinesToCredit = null;
 
         if ($cancellation->shouldCreditRelatedInvoices()) {
-            $invoiceLinesToCredit = $this->creditSubscriptionService
-                ->getInvoiceLinesToCreditBatch($cancellation);
+            $invoiceLinesToCredit = $this->creditSubscriptionService->getInvoiceLinesToCreditBatch($cancellation);
         }
 
         $this->cancelSubscriptionsAction->execute($cancellation);

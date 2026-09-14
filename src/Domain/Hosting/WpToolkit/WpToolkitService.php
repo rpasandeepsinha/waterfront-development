@@ -25,7 +25,7 @@ class WpToolkitService
 
     public function __construct(
         private readonly WpToolkitSerializerFactory $serializerFactory,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
         $this->serializer = $this->serializerFactory->get();
     }
@@ -39,22 +39,22 @@ class WpToolkitService
                 LoggingContextKeys::SERVER_HOSTNAME => $server->hostname,
                 LoggingContextKeys::SERVER_TYPE => $server->type,
                 LoggingContextKeys::META => [
-                    'Authentication-type' =>  $server->secret_key !== ''
+                    'Authentication-type' => $server->secret_key !== ''
                         ? 'Token Authentication'
                         : 'User-Password Authentication',
                 ],
-            ]
+            ],
         );
 
         $this->client = new Client(
-            guzzleClient:  $guzzleClient ?? new GuzzleClient(),
+            guzzleClient: $guzzleClient ?? new GuzzleClient(),
             connectionDetails: new ConnectionDetails(
                 pleskHost: $server->hostname,
                 pleskPort: $server->port ?? 8443,
                 username: $server->username,
                 password: $server->password,
-                token: $server->secret_key !== '' ? $server->secret_key : null
-            )
+                token: $server->secret_key !== '' ? $server->secret_key : null,
+            ),
         );
 
         return $this;
@@ -92,9 +92,9 @@ class WpToolkitService
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::META => [
-                    'WpToolkitInstallationId' => $installationId,
+                        'WpToolkitInstallationId' => $installationId,
                     ],
-                ]
+                ],
             );
         }
 

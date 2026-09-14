@@ -81,18 +81,16 @@ class SetBackupSuspensionStateIntegrationTest extends IntegrationTestCase
             ->has(ProvisioningResultFactory::new()->success(), 'result')
             ->createOne();
 
-        $backupDeployment = BackupDeploymentFactory::new()
-            ->createOne([
-                'origin_provisioning_request_id' => $originRequest->id,
-            ]);
+        $backupDeployment = BackupDeploymentFactory::new()->createOne([
+            'origin_provisioning_request_id' => $originRequest->id,
+        ]);
 
-        AcronisBackupDeploymentFactory::new()
-            ->createOne([
-                'backup_deployment_id' => $backupDeployment->id,
-                'acronis_provider_id' => $acronisProvider->id,
-                'tenant_uuid' => $tenantUuid,
-                'user_uuid' => $userUuid,
-            ]);
+        AcronisBackupDeploymentFactory::new()->createOne([
+            'backup_deployment_id' => $backupDeployment->id,
+            'acronis_provider_id' => $acronisProvider->id,
+            'tenant_uuid' => $tenantUuid,
+            'user_uuid' => $userUuid,
+        ]);
 
         $tenantVersion = 1559561146223;
 
@@ -104,11 +102,7 @@ class SetBackupSuspensionStateIntegrationTest extends IntegrationTestCase
         );
 
         $tenantClient = self::createMock(AcronisTenantClient::class);
-        $tenantClient
-            ->expects(self::once())
-            ->method('get')
-            ->with($tenantUuid->toString())
-            ->willReturn($tenant);
+        $tenantClient->expects(self::once())->method('get')->with($tenantUuid->toString())->willReturn($tenant);
 
         $tenantClient
             ->expects(self::once())
@@ -191,7 +185,10 @@ class SetBackupSuspensionStateIntegrationTest extends IntegrationTestCase
 
         self::assertCount(1, $result->validationResult->messages);
         self::assertArrayHasKey('tag', $result->validationResult->messages);
-        self::assertSame(['No create request with this tag in the [backup] type.'], $result->validationResult->messages['tag']);
+        self::assertSame(
+            ['No create request with this tag in the [backup] type.'],
+            $result->validationResult->messages['tag'],
+        );
 
         self::assertDatabaseCount(ProvisioningResult::class, 1);
         self::assertDatabaseCount(ProvisioningRequest::class, 1);
@@ -249,9 +246,7 @@ class SetBackupSuspensionStateIntegrationTest extends IntegrationTestCase
             ->with($tenantUuid->toString())
             ->willThrowException($expectedException);
 
-        $tenantClient
-            ->expects(self::never())
-            ->method('update');
+        $tenantClient->expects(self::never())->method('update');
 
         $acronisClientFactory = self::createMock(AcronisClientFactory::class);
         $acronisClientFactory
@@ -343,16 +338,9 @@ class SetBackupSuspensionStateIntegrationTest extends IntegrationTestCase
         $expectedException = new SaloonException('Something went wrong');
 
         $tenantClient = self::createMock(AcronisTenantClient::class);
-        $tenantClient
-            ->expects(self::once())
-            ->method('get')
-            ->with($tenantUuid->toString())
-            ->willReturn($tenant);
+        $tenantClient->expects(self::once())->method('get')->with($tenantUuid->toString())->willReturn($tenant);
 
-        $tenantClient
-            ->expects(self::once())
-            ->method('update')
-            ->willThrowException($expectedException);
+        $tenantClient->expects(self::once())->method('update')->willThrowException($expectedException);
 
         $acronisClientFactory = self::createMock(AcronisClientFactory::class);
         $acronisClientFactory

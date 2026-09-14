@@ -8,8 +8,8 @@ enum ProviderType: string
 {
     case BACKUP = 'backup';
     case HOSTING = 'hosting';
-    case DOMAIN  = 'domain';
-    case SSL  = 'ssl';
+    case DOMAIN = 'domain';
+    case SSL = 'ssl';
     case SITEBUILDER = 'sitebuilder';
     case MAILONLY = 'mail-only';
 }

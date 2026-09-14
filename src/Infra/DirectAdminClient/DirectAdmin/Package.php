@@ -18,8 +18,9 @@ use Waterfront\Infra\DirectAdminClient\Exceptions\DirectAdminPackagNotFoundExcep
 
 class Package
 {
-    public function __construct(private readonly DirectAdminApiInterface $api)
-    {
+    public function __construct(
+        private readonly DirectAdminApiInterface $api,
+    ) {
     }
 
     /**
@@ -34,6 +35,7 @@ class Package
         }
 
         $packageSettings['packagename'] = $packageName;
+
         return $this->create($packageSettings);
     }
 

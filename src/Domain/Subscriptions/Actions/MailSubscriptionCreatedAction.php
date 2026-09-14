@@ -13,8 +13,10 @@ use Webmozart\Assert\Assert;
 
 class MailSubscriptionCreatedAction
 {
-    public function __construct(private readonly MailerInterface $mailer, private readonly ApplicationConfig $applicationConfig)
-    {
+    public function __construct(
+        private readonly MailerInterface $mailer,
+        private readonly ApplicationConfig $applicationConfig,
+    ) {
     }
 
     /**
@@ -72,7 +74,7 @@ class MailSubscriptionCreatedAction
 
         $product['period_unit'] = $contractPeriod === 1 ? 'month' : 'months';
 
-        if ($contractPeriod % 12 === 0) {
+        if (($contractPeriod % 12) === 0) {
             $contractPeriod = intdiv($contractPeriod, 12);
 
             $product['contract_period'] = $contractPeriod;

@@ -39,6 +39,7 @@ readonly class CustomerVatService
         if ($customer->vat_rate === null) {
             $this->updateCustomerVat($customer);
         }
+
         Assert::notNull($customer->vat_rate);
         $countryCode = $customer->address->country_code ?? self::COUNTRY_CODE_NL;
         $vatCode = $countryCode . (int) $customer->vat_rate;
@@ -64,7 +65,8 @@ readonly class CustomerVatService
         $countryCode = $customer->address->country_code ?? self::COUNTRY_CODE_NL;
         $vatRate = $this->getEuropeanVatRateCached($customer, $countryCode);
 
-        $customer->icp = $this->validateEuropeanVatNumber($customer, $countryCode)
+        $customer->icp =
+            $this->validateEuropeanVatNumber($customer, $countryCode)
             && $this->vat->countryInEurope($countryCode)
             && $countryCode !== self::COUNTRY_CODE_NL;
 
@@ -81,8 +83,11 @@ readonly class CustomerVatService
     {
         if ($countryCode === '') {
             $this->logger->critical(
-                sprintf('Failed to get VAT rate for customer %s, because they country code provided was an empty string.', $customer->id),
-                [LoggingContextKeys::CUSTOMER_ID => $customer->id]
+                sprintf(
+                    'Failed to get VAT rate for customer %s, because they country code provided was an empty string.',
+                    $customer->id,
+                ),
+                [LoggingContextKeys::CUSTOMER_ID => $customer->id],
             );
 
             throw new InvalidCountryCodeException($countryCode);
@@ -104,9 +109,15 @@ readonly class CustomerVatService
             Cache::put($cacheKey, $vatRate, $this->configuration->getAsInteger('cache.vat_rate_lifetime'));
         } elseif ($this->vat->countryInEurope($countryCode)) {
             $this->logger->alert(
-                sprintf('VIES service returned a vat rate of %f%% for country %s. Falling back to
-                %s for customer %s', $vatRate, $countryCode, $this->applicationConfig->defaultTaxRate, $customer->id),
-                [LoggingContextKeys::CUSTOMER_ID => $customer->id]
+                sprintf(
+                    'VIES service returned a vat rate of %f%% for country %s. Falling back to
+                %s for customer %s',
+                    $vatRate,
+                    $countryCode,
+                    $this->applicationConfig->defaultTaxRate,
+                    $customer->id,
+                ),
+                [LoggingContextKeys::CUSTOMER_ID => $customer->id],
             );
 
             return (float) $this->applicationConfig->defaultTaxRate;
@@ -139,21 +150,27 @@ readonly class CustomerVatService
                     Cache::put(
                         key: $cacheKey,
                         value: true,
-                        ttl: 1209600 // two weeks
+                        ttl: 1209600, // two weeks
                     );
                 }
             }
         } catch (VatFetchFailedException|VatNumberValidateFailedException $exception) {
-            $customer->vatErrors()->create([
-                'status_code' => $exception->getCode(),
-                'message' => $exception->getMessage(),
-            ]);
+            $customer
+                ->vatErrors()
+                ->create([
+                    'status_code' => $exception->getCode(),
+                    'message' => $exception->getMessage(),
+                ]);
             $this->logger->critical(
-                sprintf('VAT number validation failed for customer %s, Exception: %s', $customer->id, $exception->getMessage()),
+                sprintf(
+                    'VAT number validation failed for customer %s, Exception: %s',
+                    $customer->id,
+                    $exception->getMessage(),
+                ),
                 [
                     LoggingContextKeys::CUSTOMER_ID => $customer->id,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
         }
 

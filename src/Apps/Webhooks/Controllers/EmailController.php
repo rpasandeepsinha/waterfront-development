@@ -19,8 +19,10 @@ use Waterfront\Support\Enums\LoggingContextKeys;
 
 class EmailController
 {
-    public function __construct(private readonly TranslatorInterface $translator, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     public function sendEmail(Request $request, EmailService $emailService): JsonResponse
@@ -32,6 +34,7 @@ class EmailController
                 LoggingContextKeys::EXCEPTION => $exception,
             ]);
             $this->logger->notice(sprintf('Unable to parse kratos data: %s', json_encode($request->getContent())));
+
             return new JsonResponse(status: Response::HTTP_NO_CONTENT);
         }
 
@@ -48,6 +51,7 @@ class EmailController
             $this->logger->notice('Sending mail failed: {exception.message}', [
                 LoggingContextKeys::EXCEPTION => $exception,
             ]);
+
             return new JsonResponse(status: Response::HTTP_NO_CONTENT);
         }
 

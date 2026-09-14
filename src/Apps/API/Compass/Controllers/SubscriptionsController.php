@@ -104,7 +104,9 @@ class SubscriptionsController
         try {
             $this->subscriptionMetadataService->assignEmployee($subscription, $assigneeUuid);
         } catch (RuntimeException) {
-            throw ValidationException::withMessages(['message' => $this->translator->translate('subscription.metadata.failed-to-assign')]);
+            throw ValidationException::withMessages([
+                'message' => $this->translator->translate('subscription.metadata.failed-to-assign'),
+            ]);
         }
 
         return new Response(['message' => 'success'], Response::HTTP_OK);
@@ -114,7 +116,12 @@ class SubscriptionsController
     {
         $category = $request->input('category');
 
-        $request->validate(['category' => ['required', 'sometimes', 'string', Rule::in(SubscriptionCategory::cases())]]);
+        $request->validate(['category' => [
+            'required',
+            'sometimes',
+            'string',
+            Rule::in(SubscriptionCategory::cases()),
+        ]]);
 
         if ($category !== null) {
             Assert::string($category);
@@ -136,17 +143,15 @@ class SubscriptionsController
                 'customer',
                 'product.productGroup',
                 'retentionOffers',
-            ])
-                ->withCount(['mutations as pending_mutations_count' => fn ($q) => $q->whereNull('mutated_at')]),
-            $request
+            ])->withCount(['mutations as pending_mutations_count' => fn ($q) => $q->whereNull('mutated_at')]),
+            $request,
         );
 
         $subscriptions = $query->paginate($pageSize);
         $subscriptions->appends($request->except('page'));
 
         return SubscriptionResource::collection($subscriptions)->additional([
-            'meta' =>
-                ['totalSubscriptions' => $subscriptions->total()],
+            'meta' => ['totalSubscriptions' => $subscriptions->total()],
         ]);
     }
 
@@ -200,10 +205,14 @@ class SubscriptionsController
         $total = $transformedRequests->count();
         $paginatedItems = $transformedRequests->slice(($page - 1) * $pageSize, $pageSize)->values();
 
-        $hasCreateRequest = $paginatedItems->contains(fn (ProvisioningRequestDTO $dto) => $dto->requestName->isCreateRequest());
+        $hasCreateRequest = $paginatedItems->contains(
+            fn (ProvisioningRequestDTO $dto) => $dto->requestName->isCreateRequest(),
+        );
 
         if (! $hasCreateRequest) {
-            $createRequest = $transformedRequests->first(fn (ProvisioningRequestDTO $dto) => $dto->requestName->isCreateRequest());
+            $createRequest = $transformedRequests->first(
+                fn (ProvisioningRequestDTO $dto) => $dto->requestName->isCreateRequest(),
+            );
 
             if ($createRequest !== null) {
                 $paginatedItems->prepend($createRequest);
@@ -215,7 +224,7 @@ class SubscriptionsController
             $total,
             $pageSize,
             $page,
-            ['path' => $request->url(), 'query' => $request->query()]
+            ['path' => $request->url(), 'query' => $request->query()],
         );
 
         return ProvisionGroupedRequestResource::collection($paginator)->additional([
@@ -260,6 +269,7 @@ class SubscriptionsController
         } else {
             $subscription = $this->SubscriptionRepository->findById((int) $identifier);
         }
+
         return SubscriptionResource::make($subscription ?? throw new ModelNotFoundException())->toJson();
     }
 
@@ -274,7 +284,9 @@ class SubscriptionsController
             'sslDeployment',
             'category',
             'microsoft365Deployment',
-            'resellerHostingDeployment'])->where('domain', $domain)
+            'resellerHostingDeployment',
+        ])
+            ->where('domain', $domain)
             ->whereNotIn('administrative_status', AdministrativeStatus::administrativelyEnded())
             ->get();
 
@@ -293,6 +305,7 @@ class SubscriptionsController
         } catch (RenewalDateTooNearToMutationException|SubscriptionAlreadyMutatedException $exception) {
             return new Response(['message' => $exception->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
@@ -301,9 +314,9 @@ class SubscriptionsController
         $pageSize = is_numeric($request->input('pageSize')) ? (int) $request->input('pageSize') : 100;
         $subscriptionChanges = $subscription->subscriptionChanges()->paginate($pageSize);
         $totalChanges = $subscription->subscriptionChanges()->count();
+
         return SubscriptionChangesResource::collection($subscriptionChanges)->additional([
-            'meta' =>
-                ['totalChanges' => $totalChanges],
+            'meta' => ['totalChanges' => $totalChanges],
         ]);
     }
 
@@ -312,6 +325,7 @@ class SubscriptionsController
         $pageSize = is_numeric($request->input('pageSize')) ? (int) $request->input('pageSize') : 100;
         $auditLogPaginator = $this->fetchAuditLogsForSubscriptionAction->execute($subscription, $pageSize);
         $auditLogPaginator->appends('pageSize', (string) $pageSize);
+
         return AuditLogResource::collection($auditLogPaginator);
     }
 
@@ -324,9 +338,9 @@ class SubscriptionsController
         $notes->appends('pageSize', (string) $pageSize);
 
         $totalNotes = $notesBuilder->count();
+
         return NotesResource::collection($notes)->additional([
-            'meta' =>
-                ['totalNotes' => $totalNotes],
+            'meta' => ['totalNotes' => $totalNotes],
         ]);
     }
 
@@ -342,13 +356,18 @@ class SubscriptionsController
         Assert::nullOrPositiveInteger($renewalPrice);
 
         if ($renewalPrice !== null) {
-            $priceRequest = new PriceRequest([new ProlongationPriceRequest($subscription->product)], $subscription->customer);
+            $priceRequest = new PriceRequest(
+                [new ProlongationPriceRequest($subscription->product)],
+                $subscription->customer,
+            );
             $priceList = $this->priceResolver->getPriceList($priceRequest);
 
             try {
                 $price = $priceList->getProductPrice($subscription->product->slug, $billingPeriod, $contractPeriod);
             } catch (ItemNotFoundException) {
-                throw ValidationException::withMessages(['message' => $this->translator->translate('price-resolver.no-price-found')]);
+                throw ValidationException::withMessages([
+                    'message' => $this->translator->translate('price-resolver.no-price-found'),
+                ]);
             }
 
             Assert::natural($price->calculatedPrice);
@@ -356,7 +375,9 @@ class SubscriptionsController
 
             // SWD-16582: The percentage of discount should always be lower than 50
             if ($calculatedPercentage < 50) {
-                throw ValidationException::withMessages(['discount' => $this->translator->translate('contract-extension.percentage-too-high')]);
+                throw ValidationException::withMessages([
+                    'discount' => $this->translator->translate('contract-extension.percentage-too-high'),
+                ]);
             }
         }
 
@@ -394,7 +415,10 @@ class SubscriptionsController
     {
         $subscription->loadMissing(['customer', 'product.productGroup']);
 
-        $startDate = CarbonImmutable::createFromFormat(DateTimeFormat::DATE, $request->string('start_date')->toString());
+        $startDate = CarbonImmutable::createFromFormat(
+            DateTimeFormat::DATE,
+            $request->string('start_date')->toString(),
+        );
         $endDate = CarbonImmutable::createFromFormat(DateTimeFormat::DATE, $request->string('end_date')->toString());
         Assert::isInstanceOf($startDate, CarbonImmutable::class);
         Assert::isInstanceOf($endDate, CarbonImmutable::class);

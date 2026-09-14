@@ -27,8 +27,12 @@ class DnsValidatorFactory extends Factory
      *
      * @throws ValidationException
      */
-    protected function resolve(array $data, array $rules, array $messages, array $customAttributes): Validator|DnsRecordValidator
-    {
+    protected function resolve(
+        array $data,
+        array $rules,
+        array $messages,
+        array $customAttributes,
+    ): Validator|DnsRecordValidator {
         $validationService = Container::getInstance()->make(DnsRecordsValidationService::class);
 
         if (is_null($this->resolver)) {
@@ -38,7 +42,7 @@ class DnsValidatorFactory extends Factory
                 $data,
                 $rules,
                 $messages,
-                $customAttributes
+                $customAttributes,
             );
         }
 
@@ -49,7 +53,7 @@ class DnsValidatorFactory extends Factory
             $data,
             $rules,
             $messages,
-            $customAttributes
+            $customAttributes,
         );
         assert($validator instanceof Validator);
 

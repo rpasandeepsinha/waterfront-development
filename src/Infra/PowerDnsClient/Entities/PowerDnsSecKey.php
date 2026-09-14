@@ -88,16 +88,16 @@ class PowerDnsSecKey
     public function toArray(): array
     {
         return [
-            'id'         => $this->getId(),
-            'type'       => $this->getType(),
-            'keytype'    => $this->getKeyType(),
-            'active'     => $this->isActive(),
-            'published'  => $this->isPublished(),
-            'dnskey'     => $this->getDnsKey(),
-            'ds'         => $this->getDs(),
+            'id' => $this->getId(),
+            'type' => $this->getType(),
+            'keytype' => $this->getKeyType(),
+            'active' => $this->isActive(),
+            'published' => $this->isPublished(),
+            'dnskey' => $this->getDnsKey(),
+            'ds' => $this->getDs(),
             'privatekey' => $this->getPrivatekey(),
-            'algorithm'  => $this->getAlgorithm(),
-            'bits'       => $this->getBits(),
+            'algorithm' => $this->getAlgorithm(),
+            'bits' => $this->getBits(),
         ];
     }
 

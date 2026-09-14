@@ -8,7 +8,7 @@ class AccessPoint
 {
     public function __construct(
         public string $number,
-        public string $countryCode
+        public string $countryCode,
     ) {
     }
 }

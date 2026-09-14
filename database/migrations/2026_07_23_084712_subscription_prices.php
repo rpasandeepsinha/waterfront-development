@@ -7,7 +7,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
+return new class() extends Migration {
     public function up(): void
     {
         DB::table('custom_price_reasons')->delete();
@@ -54,13 +54,19 @@ return new class () extends Migration {
         Schema::table('subscription_price_components', function (Blueprint $table) {
             $table->dropConstrainedForeignId('subscription_id');
 
-            $table->foreignId('subscription_price_id')->references('id')->on('subscription_prices')->onDelete('cascade');
+            $table
+                ->foreignId('subscription_price_id')
+                ->references('id')
+                ->on('subscription_prices')
+                ->onDelete('cascade');
 
             $table->unique(['subscription_price_id', 'order_applied']);
             $table->unique(['subscription_price_id', 'type']);
         });
 
-        DB::statement('ALTER TABLE order_line_price_components DROP CONSTRAINT version_non_negative_check, DROP COLUMN version');
+        DB::statement(
+            'ALTER TABLE order_line_price_components DROP CONSTRAINT version_non_negative_check, DROP COLUMN version',
+        );
 
         Schema::table('order_line_price_components', function (Blueprint $table) {
             $table->dropConstrainedForeignId('order_line_item_id');
@@ -74,7 +80,11 @@ return new class () extends Migration {
         Schema::table('custom_price_reasons', function (Blueprint $table) {
             $table->dropConstrainedForeignId('subscription_price_component_id');
 
-            $table->foreignId('subscription_price_id')->references('id')->on('subscription_prices')->onDelete('cascade');
+            $table
+                ->foreignId('subscription_price_id')
+                ->references('id')
+                ->on('subscription_prices')
+                ->onDelete('cascade');
         });
 
         // For existing subscriptions it's impossible to figure out which components led to it's current price. We

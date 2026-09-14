@@ -36,7 +36,7 @@ use Waterfront\Domain\Subscriptions\Repositories\SubscriptionRepository;
 
 class TechnicalMailOnlyMigrationJob extends MigrationJob implements ShouldQueue
 {
-    private string|null $originalSubscriptionDomain = null;
+    private ?string $originalSubscriptionDomain = null;
 
     private ConfigureMailOnlyDeploymentAction $configureMailOnlyDeploymentAction;
 
@@ -64,7 +64,7 @@ class TechnicalMailOnlyMigrationJob extends MigrationJob implements ShouldQueue
 
     public function __construct(
         public Subscription $subscription,
-        protected string|null $failedTechnicalStatus,
+        protected ?string $failedTechnicalStatus,
         protected HostingMigrationPayload $payload,
     ) {
         parent::__construct(
@@ -87,11 +87,9 @@ class TechnicalMailOnlyMigrationJob extends MigrationJob implements ShouldQueue
         $migratedCustomer = $this->migratedCustomer;
         $this->originalSubscriptionDomain = $subscription->domain;
 
-        $hostingDeployment = $this->subscriptionRepository
-            ->findHostingDeploymentBySubscription($subscription);
+        $hostingDeployment = $this->subscriptionRepository->findHostingDeploymentBySubscription($subscription);
 
-        $server = $this->serverRepository
-            ->findByHostname($payload->serverName);
+        $server = $this->serverRepository->findByHostname($payload->serverName);
 
         $mailProvider = $this->getMailProvider(
             payload: $payload,
@@ -102,7 +100,7 @@ class TechnicalMailOnlyMigrationJob extends MigrationJob implements ShouldQueue
             payload: $payload,
             subscription: $subscription,
             migratedCustomer: $migratedCustomer,
-            server: $server
+            server: $server,
         );
 
         $this->migrateMailOnly(
@@ -121,23 +119,22 @@ class TechnicalMailOnlyMigrationJob extends MigrationJob implements ShouldQueue
 
     protected function registerServices(): void
     {
-        $this->configureMailOnlyDeploymentAction         = self::resolve(ConfigureMailOnlyDeploymentAction::class);
-        $this->serverRepository                          = self::resolve(ServerRepository::class);
-        $this->subscriptionRepository                    = self::resolve(SubscriptionRepository::class);
-        $this->providerRepository                        = self::resolve(ProviderRepository::class);
-        $this->hostingInstanceFetchAction                = self::resolve(HostingInstanceFetchAction::class);
-        $this->hostingInstanceIsResellerAction           = self::resolve(HostingInstanceIsResellerAction::class);
-        $this->hostingDeploymentSetDefaultDomainAction   = self::resolve(HostingDeploymentSetDefaultDomainAction::class);
-        $this->allowAllDirectAdminFeatureSetAction       = self::resolve(AllowAllDirectAdminFeatureSetAction::class);
-        $this->modifyHostingDnsSettingsAction            = self::resolve(ModifyHostingDnsSettingsAction::class);
-        $this->productSpecRepository                     = self::resolve(ProductSpecRepository::class);
-        $this->hostingCanGenerateSSOAction               = self::resolve(HostingCanGenerateSSOAction::class);
+        $this->configureMailOnlyDeploymentAction = self::resolve(ConfigureMailOnlyDeploymentAction::class);
+        $this->serverRepository = self::resolve(ServerRepository::class);
+        $this->subscriptionRepository = self::resolve(SubscriptionRepository::class);
+        $this->providerRepository = self::resolve(ProviderRepository::class);
+        $this->hostingInstanceFetchAction = self::resolve(HostingInstanceFetchAction::class);
+        $this->hostingInstanceIsResellerAction = self::resolve(HostingInstanceIsResellerAction::class);
+        $this->hostingDeploymentSetDefaultDomainAction = self::resolve(HostingDeploymentSetDefaultDomainAction::class);
+        $this->allowAllDirectAdminFeatureSetAction = self::resolve(AllowAllDirectAdminFeatureSetAction::class);
+        $this->modifyHostingDnsSettingsAction = self::resolve(ModifyHostingDnsSettingsAction::class);
+        $this->productSpecRepository = self::resolve(ProductSpecRepository::class);
+        $this->hostingCanGenerateSSOAction = self::resolve(HostingCanGenerateSSOAction::class);
     }
 
     protected function rollback(Throwable $throwable): void
     {
-        $hostingDeployment = $this->subscriptionRepository
-            ->findHostingDeploymentBySubscription($this->subscription);
+        $hostingDeployment = $this->subscriptionRepository->findHostingDeploymentBySubscription($this->subscription);
 
         // Clear technical details based on the driver provided
         $hostingDetails = $this->payload->hostingDetails;
@@ -160,11 +157,10 @@ class TechnicalMailOnlyMigrationJob extends MigrationJob implements ShouldQueue
         $hostingDeployment->mailOnlyServer()->disassociate();
 
         // set provider to Placeholder
-        $mailOnlyProvider = $this->providerRepository
-            ->getByType(
-                ProviderType::MAILONLY,
-                ProviderSlug::PLACEHOLDER
-            );
+        $mailOnlyProvider = $this->providerRepository->getByType(
+            ProviderType::MAILONLY,
+            ProviderSlug::PLACEHOLDER,
+        );
         $hostingDeployment->mailProvider()->associate($mailOnlyProvider);
 
         $hostingDeployment->save();
@@ -177,7 +173,7 @@ class TechnicalMailOnlyMigrationJob extends MigrationJob implements ShouldQueue
         HostingMigrationPayload $payload,
         Subscription $subscription,
         MigratedCustomer $migratedCustomer,
-        Server $server
+        Server $server,
     ): void {
         $this->mailOnlyDto = $this->hostingInstanceFetchAction->execute(
             subscription: $subscription,
@@ -193,7 +189,7 @@ class TechnicalMailOnlyMigrationJob extends MigrationJob implements ShouldQueue
                 migratedCustomer: $migratedCustomer,
                 payload: $payload,
                 server: $server,
-                jobUuid: $this->getJobId()
+                jobUuid: $this->getJobId(),
             );
         }
 
@@ -254,20 +250,22 @@ class TechnicalMailOnlyMigrationJob extends MigrationJob implements ShouldQueue
 
     private function getMailProvider(
         HostingMigrationPayload $payload,
-        Product $product
+        Product $product,
     ): Provider {
         if ($payload->hostingDetails instanceof PleskHostingDetails) {
             $providerType = ProviderType::HOSTING;
         } else {
-            $providerType = $this->productSpecRepository->booleanSpecificationIsTrue($product, ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER) ?
-                ProviderType::MAILONLY :
-                ProviderType::HOSTING;
+            $providerType = $this->productSpecRepository->booleanSpecificationIsTrue(
+                $product,
+                ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER,
+            )
+                ? ProviderType::MAILONLY
+                : ProviderType::HOSTING;
         }
 
-        return $this->providerRepository
-            ->getByType(
-                $providerType,
-                ProviderSlug::from($payload->driver)
-            );
+        return $this->providerRepository->getByType(
+            $providerType,
+            ProviderSlug::from($payload->driver),
+        );
     }
 }

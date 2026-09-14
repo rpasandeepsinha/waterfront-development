@@ -82,12 +82,20 @@ class OrderService
             }
 
             if ($item->subscription->product->uuid !== $item->product_uuid) {
-                $isUpgradeAllowed = $this->productAllowedChangeRepository->isProductChangeAllowed(ProductChangeType::UPGRADE, $item->subscription->product, $item->product);
+                $isUpgradeAllowed = $this->productAllowedChangeRepository->isProductChangeAllowed(
+                    ProductChangeType::UPGRADE,
+                    $item->subscription->product,
+                    $item->product,
+                );
 
                 if ($isUpgradeAllowed) {
                     $customIndefinitePrice = $this->findCustomIndefinitePrice($item);
 
-                    $mutation = $this->subscriptionChangeService->createUpgradeMutation($item->subscription, $item->product, $customIndefinitePrice);
+                    $mutation = $this->subscriptionChangeService->createUpgradeMutation(
+                        $item->subscription,
+                        $item->product,
+                        $customIndefinitePrice,
+                    );
                     $changeObject = $this->subscriptionChangeService->change(
                         changeType: ProductChangeType::UPGRADE,
                         subscription: $item->subscription,
@@ -104,7 +112,7 @@ class OrderService
                             $item->subscription,
                             $customIndefinitePrice->newPrice,
                             false,
-                            CustomPriceReasonType::ORDER_LINE_CUSTOM_PRICE
+                            CustomPriceReasonType::ORDER_LINE_CUSTOM_PRICE,
                         );
                     }
 
@@ -118,7 +126,13 @@ class OrderService
             }
 
             $product = $item->subscription->product->uuid === $item->product_uuid ? null : $item->product;
-            $mutation = $this->extendContractAction->execute($item->subscription, $item->billing_period, $item->contract_period, null, $product);
+            $mutation = $this->extendContractAction->execute(
+                $item->subscription,
+                $item->billing_period,
+                $item->contract_period,
+                null,
+                $product,
+            );
 
             $item->subscription_mutation_id = $mutation->id;
             $item->processed_at = CarbonImmutable::now();
@@ -143,7 +157,7 @@ class OrderService
         Log::info(sprintf(
             'Order %d created for customer %d',
             $order->id,
-            $customer->id
+            $customer->id,
         ));
 
         return $order->refresh();
@@ -151,11 +165,15 @@ class OrderService
 
     public function markNonProcessedAsAbuseForCustomer(Customer $customer): void
     {
-        $orders = $this->orderRepository->getOrdersByCustomerAndStatus($customer, [OrderStatus::IN_PROGRESS, OrderStatus::ON_HOLD]);
+        $orders = $this->orderRepository->getOrdersByCustomerAndStatus($customer, [
+            OrderStatus::IN_PROGRESS,
+            OrderStatus::ON_HOLD,
+        ]);
         foreach ($orders as $order) {
             $order->status = OrderStatus::ABUSE;
             $order->save();
         }
+
         $customer->refresh();
     }
 
@@ -164,11 +182,12 @@ class OrderService
         $order->loadMissing('lineItems.parent.subscription');
 
         return $order->lineItems->every(
-            fn (OrderLineItem $item) =>
-            $item->parent_subscription_uuid !== null ||
-            $item->subscription_uuid !== null  ||
-            // Upgrade with addon
-            $item->parent?->subscription instanceof Subscription
+            fn (OrderLineItem $item) => (
+                $item->parent_subscription_uuid !== null
+                || $item->subscription_uuid !== null ||
+                // Upgrade with addon
+                $item->parent?->subscription instanceof Subscription
+            ),
         );
     }
 
@@ -201,14 +220,17 @@ class OrderService
         CartOrderSubscription $cartOrders,
         Order $order,
         TotalCollectionPrice $totalCollectionPrice,
-        ?OrderLineItem $parentOrderLineItem = null
+        ?OrderLineItem $parentOrderLineItem = null,
     ): void {
         foreach ($cartOrders as $cartLineItem) {
             $calculatedPrice = $this->getActualNetPriceIfVoucherIsApplied($totalCollectionPrice, $cartLineItem->uuid);
             $orderLineItem = $this->lineItemCreator->create($cartLineItem, $order, $calculatedPrice->price);
 
             foreach ($totalCollectionPrice->items as $productWithCalculatedPrice) {
-                if ($productWithCalculatedPrice->uuid->toString() === $cartLineItem->uuid->toString() && $productWithCalculatedPrice->appliedPrice->voucher instanceof CartVoucher) {
+                if (
+                    $productWithCalculatedPrice->uuid->toString() === $cartLineItem->uuid->toString()
+                    && $productWithCalculatedPrice->appliedPrice->voucher instanceof CartVoucher
+                ) {
                     $voucher = $productWithCalculatedPrice->appliedPrice->voucher;
                     $this->voucherService->claimVoucher($voucher->id, $orderLineItem->id, $voucher->appliedAmount);
                 }
@@ -220,9 +242,16 @@ class OrderService
 
             if ($cartLineItem->oneTimeServices !== null) {
                 foreach ($cartLineItem->oneTimeServices as $oneTimeService) {
-                    $calculatedPrice = $this->getActualNetPriceIfVoucherIsApplied($totalCollectionPrice, $oneTimeService->uuid);
+                    $calculatedPrice = $this->getActualNetPriceIfVoucherIsApplied(
+                        $totalCollectionPrice,
+                        $oneTimeService->uuid,
+                    );
 
-                    $oneTimeServiceLineItem = $this->lineItemCreator->create($oneTimeService, $order, $calculatedPrice->price);
+                    $oneTimeServiceLineItem = $this->lineItemCreator->create(
+                        $oneTimeService,
+                        $order,
+                        $calculatedPrice->price,
+                    );
                     $oneTimeServiceLineItem->parent()->associate($orderLineItem);
                     $oneTimeServiceLineItem->save();
                 }
@@ -254,14 +283,18 @@ class OrderService
         return $order;
     }
 
-    private function getActualNetPriceIfVoucherIsApplied(TotalCollectionPrice $totalCollectionPrice, UuidInterface $uuid): ProductWithCalculatedPrice
-    {
+    private function getActualNetPriceIfVoucherIsApplied(
+        TotalCollectionPrice $totalCollectionPrice,
+        UuidInterface $uuid,
+    ): ProductWithCalculatedPrice {
         foreach ($totalCollectionPrice->items as $productWithCalculatedPrice) {
             if ($productWithCalculatedPrice->uuid->toString() === $uuid->toString()) {
                 return $productWithCalculatedPrice;
             }
         }
 
-        throw new RuntimeException("This should never happen, as there's always a cart item with the requested uuid after validation.");
+        throw new RuntimeException(
+            "This should never happen, as there's always a cart item with the requested uuid after validation.",
+        );
     }
 }

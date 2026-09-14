@@ -14,8 +14,9 @@ use Webmozart\Assert\Assert;
 
 class StoreCustomerAction
 {
-    public function __construct(private readonly StoreNoteAction $storeNoteAction)
-    {
+    public function __construct(
+        private readonly StoreNoteAction $storeNoteAction,
+    ) {
     }
 
     public function execute(

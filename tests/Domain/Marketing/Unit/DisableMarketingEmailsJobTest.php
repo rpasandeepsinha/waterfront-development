@@ -24,32 +24,43 @@ class DisableMarketingEmailsJobTest extends TestCase
     public function disableMarketingEmails(): void
     {
         $crmClient = $this->createMock(HubspotCrmHttpClient::class);
-        $crmClient->expects(self::once())->method('post')->willReturn([
-            'results' => [
-                [
-                    'id' => '1',
-                    'properties' => [
-                        'sw_uuid' => 'xxx-yyy-zzz',
-                        'sw_customer_number'    => '123456789',
-                        'email' => 'test@example.net',
-                        'firstname' => 'john',
-                        'lastname' => 'doe',
-                        'marketing_opt_in' => 'true',
+        $crmClient
+            ->expects(self::once())
+            ->method('post')
+            ->willReturn([
+                'results' => [
+                    [
+                        'id' => '1',
+                        'properties' => [
+                            'sw_uuid' => 'xxx-yyy-zzz',
+                            'sw_customer_number' => '123456789',
+                            'email' => 'test@example.net',
+                            'firstname' => 'john',
+                            'lastname' => 'doe',
+                            'marketing_opt_in' => 'true',
+                        ],
                     ],
                 ],
-            ],
-        ]);
-        $crmClient->expects(self::once())->method('patch')->with(
-            self::callback(function ($uri) {
-                self::assertSame('objects/contacts/1', $uri);
-                return true;
-            }),
-            self::callback(fn ($body) => json_encode([
-                    'properties' => [
-                        'marketing_opt_in' => 'false',
-                    ],
-                ], JSON_THROW_ON_ERROR) === json_encode($body, JSON_THROW_ON_ERROR)),
-        );
+            ]);
+        $crmClient
+            ->expects(self::once())
+            ->method('patch')
+            ->with(
+                self::callback(function ($uri) {
+                    self::assertSame('objects/contacts/1', $uri);
+
+                    return true;
+                }),
+                self::callback(
+                    fn ($body) => (
+                        json_encode([
+                            'properties' => [
+                                'marketing_opt_in' => 'false',
+                            ],
+                        ], JSON_THROW_ON_ERROR) === json_encode($body, JSON_THROW_ON_ERROR)
+                    ),
+                ),
+            );
 
         $eventRepository = $this->createStub(HubspotEventRepository::class);
         $eventRepository->method('createPendingEvent')->willReturn(new HubspotEvent());
@@ -68,13 +79,13 @@ class DisableMarketingEmailsJobTest extends TestCase
             'marketing_mail_surveys',
             'marketing_mail_newsletter',
             1,
-            1
+            1,
         );
 
         $job = new DisableMarketingEmailsJob($customer);
         $job->handle(
             new ContactsClient($crmClient, HubspotSerializerFactory::get(), $config),
-            $eventRepository
+            $eventRepository,
         );
     }
 }

@@ -30,7 +30,7 @@ class NovaProvisionResultResource extends Resource
     public static $globallySearchable = false;
 
     /** @var array<mixed> */
-    public static $with =  ['provisioningRequest'];
+    public static $with = ['provisioningRequest'];
 
     public static function getTranslationKey(): string
     {
@@ -47,8 +47,14 @@ class NovaProvisionResultResource extends Resource
         return [
             ID::make(),
             Text::make('UUID', 'uuid')->copyable()->readonly(),
-            BelongsTo::make(self::translate('provisioning-request.singular'), 'provisioningRequest', NovaProvisionRequestResource::class)
-                ->displayUsing(fn (mixed $resource) => $resource instanceof NovaProvisionRequestResource ? sprintf('%s (%d)', $resource->resource->request_name->value, $resource->resource->id) : $resource)
+            BelongsTo::make(
+                self::translate('provisioning-request.singular'),
+                'provisioningRequest',
+                NovaProvisionRequestResource::class,
+            )
+                ->displayUsing(fn (mixed $resource) => $resource instanceof NovaProvisionRequestResource
+                    ? sprintf('%s (%d)', $resource->resource->request_name->value, $resource->resource->id)
+                    : $resource)
                 ->readonly(),
 
             StatusBadgeConverter::createProvisionStatusBadge(self::translate('provisioning-result.attributes.status')),
@@ -57,8 +63,7 @@ class NovaProvisionResultResource extends Resource
                 ->resolveUsing(fn (mixed $result) => is_string($result) ? json_decode($result) : $result)
                 ->json()
                 ->readonly(),
-            DateTime::make(self::translate('provisioning-request.attributes.created_at'), 'created_at')
-                ->readonly(),
+            DateTime::make(self::translate('provisioning-request.attributes.created_at'), 'created_at')->readonly(),
             DateTime::make(self::translate('provisioning-request.attributes.updated_at'), 'updated_at')
                 ->onlyOnDetail()
                 ->readonly(),
@@ -70,7 +75,6 @@ class NovaProvisionResultResource extends Resource
      */
     public function filters(NovaRequest $request): array
     {
-        return [
-        ];
+        return [];
     }
 }

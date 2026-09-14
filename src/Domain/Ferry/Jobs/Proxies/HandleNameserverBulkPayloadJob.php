@@ -36,8 +36,9 @@ class HandleNameserverBulkPayloadJob extends AbstractQueueableJob
     /**
      * @param array<int, array<mixed>> $nameserverPayloads
      */
-    public function __construct(private readonly array $nameserverPayloads)
-    {
+    public function __construct(
+        private readonly array $nameserverPayloads,
+    ) {
         parent::__construct();
     }
 
@@ -76,13 +77,16 @@ class HandleNameserverBulkPayloadJob extends AbstractQueueableJob
 
             $migratedCustomer = $customer->migratedCustomers->first();
             if (! $migratedCustomer instanceof MigratedCustomer) {
-                $logger->warning('No migrated customer found for existing customer in ferry nameserver bulk migrations proxy job. Was this customer ID part of the migration? Skipping this payload.', [
-                    LoggingContextKeys::QUEUE_JOB_ID => $this->job?->getJobId(),
-                    LoggingContextKeys::CUSTOMER_ID => $waterfrontCustomerId,
-                    LoggingContextKeys::META => [
-                        'array_key' => $key,
+                $logger->warning(
+                    'No migrated customer found for existing customer in ferry nameserver bulk migrations proxy job. Was this customer ID part of the migration? Skipping this payload.',
+                    [
+                        LoggingContextKeys::QUEUE_JOB_ID => $this->job?->getJobId(),
+                        LoggingContextKeys::CUSTOMER_ID => $waterfrontCustomerId,
+                        LoggingContextKeys::META => [
+                            'array_key' => $key,
+                        ],
                     ],
-                ]);
+                );
                 continue;
             }
 
@@ -90,7 +94,7 @@ class HandleNameserverBulkPayloadJob extends AbstractQueueableJob
                 customer: $customer,
                 migratableSubscriptionRepository: $migratableSubscriptionRepository,
                 subscriptionMigrationValidator: $subscriptionMigrationValidator,
-                responseDto: $responseDto
+                responseDto: $responseDto,
             );
 
             if (! $subscriptions->isEmpty()) {
@@ -106,16 +110,18 @@ class HandleNameserverBulkPayloadJob extends AbstractQueueableJob
                     message: AzureDataFactoryMessage::create(
                         $messageType,
                         [
-                            ...$adfPayloadService->fetchTechnicalMigrationBulkCustomerStatePayload(
-                                customer: $customer,
-                                migratedCustomer: $migratedCustomer,
-                                migrationStep: MigrationStep::NAMESERVER
-                            )->toArray(),
+                            ...$adfPayloadService
+                                ->fetchTechnicalMigrationBulkCustomerStatePayload(
+                                    customer: $customer,
+                                    migratedCustomer: $migratedCustomer,
+                                    migrationStep: MigrationStep::NAMESERVER,
+                                )
+                                ->toArray(),
                             ...$validationPayload,
-                        ]
+                        ],
                     ),
-                    reference: $migratedCustomer->reference_customer_number
-                )
+                    reference: $migratedCustomer->reference_customer_number,
+                ),
             );
         }
 
@@ -139,22 +145,28 @@ class HandleNameserverBulkPayloadJob extends AbstractQueueableJob
         Customer $customer,
         MigratableSubscriptionRepository $migratableSubscriptionRepository,
         SubscriptionMigrationValidator $subscriptionMigrationValidator,
-        ResponseDto $responseDto
+        ResponseDto $responseDto,
     ): Collection {
-        return $migratableSubscriptionRepository->getSubscriptionsForNameserverMigration($customer)
+        return $migratableSubscriptionRepository
+            ->getSubscriptionsForNameserverMigration($customer)
             ->filter(function ($subscription) use ($customer, $subscriptionMigrationValidator, $responseDto) {
                 try {
                     $subscriptionMigrationValidator->validateEligibleForDomainMigration($subscription);
                 } catch (NotEligibleForMigrationException $e) {
                     $responseDto->addFailure($this->makeFailureDto($e, $customer, $subscription));
+
                     return false;
                 }
+
                 return true;
             });
     }
 
-    private function makeFailureDto(NotEligibleForMigrationException $e, Customer $customer, Subscription $subscription): FailureDto
-    {
+    private function makeFailureDto(
+        NotEligibleForMigrationException $e,
+        Customer $customer,
+        Subscription $subscription,
+    ): FailureDto {
         return FailureDto::create(
             sprintf('Nameserver migration step not allowed for subscription: %s', $e->getMessage()),
             [
@@ -173,7 +185,13 @@ class HandleNameserverBulkPayloadJob extends AbstractQueueableJob
             'Created jobs to configure nameservers for every eligible subscription',
             [
                 Parameter::create('customerId', $customer->id),
-                Parameter::create('subscriptionIds', $subscriptions->map(fn ($s) => $s->id)->sort()->join(',')),
+                Parameter::create(
+                    'subscriptionIds',
+                    $subscriptions
+                        ->map(fn ($s) => $s->id)
+                        ->sort()
+                        ->join(','),
+                ),
             ],
         );
     }
@@ -189,8 +207,8 @@ class HandleNameserverBulkPayloadJob extends AbstractQueueableJob
             throw new UnexpectedValueException(
                 sprintf(
                     'Value for %s needs to be a number',
-                    $key
-                )
+                    $key,
+                ),
             );
         }
 

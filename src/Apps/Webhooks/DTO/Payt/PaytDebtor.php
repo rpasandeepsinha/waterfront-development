@@ -7,12 +7,12 @@ namespace Waterfront\Apps\Webhooks\DTO\Payt;
 class PaytDebtor extends PaytWebhookContext
 {
     public function __construct(
-        string|null $resourceType,
+        ?string $resourceType,
         public int $id,
-        public string|null $companyName,
-        public string|null $name,
-        public string|null $debtorCode,
-        public PaytAdministration|null $administration,
+        public ?string $companyName,
+        public ?string $name,
+        public ?string $debtorCode,
+        public ?PaytAdministration $administration,
     ) {
         parent::__construct($resourceType);
     }

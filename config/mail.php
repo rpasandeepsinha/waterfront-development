@@ -8,7 +8,6 @@ use Illuminate\Support\Env;
 $application = Application::getInstance();
 
 return [
-
     // default mailer
     'default' => Env::get('MAIL_MAILER', 'smtp'),
 
@@ -38,7 +37,7 @@ return [
     //global from address settings
     'from' => [
         'address' => Env::get('MAIL_FROM_ADDRESS'),
-        'name'    => Env::get('MAIL_FROM_NAME'),
+        'name' => Env::get('MAIL_FROM_NAME'),
     ],
 
     //mail markdown settings

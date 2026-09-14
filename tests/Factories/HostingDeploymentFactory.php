@@ -26,7 +26,7 @@ class HostingDeploymentFactory extends Factory
             'plesk_customer_username' => $this->faker->name(),
             'directadmin_customer_username' => $this->faker->text(10),
             'plesk_customer_id' => $this->faker->randomNumber(),
-            'server_id'         => (new ServerFactory()),
+            'server_id' => new ServerFactory(),
             'subscription_uuid' => Uuid::uuid4(),
         ];
     }
@@ -34,7 +34,12 @@ class HostingDeploymentFactory extends Factory
     public function withPleskProvider(): HostingDeploymentFactory
     {
         return $this->state(fn () => [
-            'provider_id' => new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true])->id,
+            'provider_id' => new ProviderFactory()->createOne([
+                'type' => ProviderType::HOSTING,
+                'slug' => ProviderSlug::PLESK,
+                'enabled' => true,
+                'default' => true,
+            ])->id,
             'server_id' => new ServerFactory()->plesk()->createOne()->id,
             'directadmin_customer_username' => null,
         ]);
@@ -45,7 +50,12 @@ class HostingDeploymentFactory extends Factory
         return $this->state(fn () => [
             'provider_id' => null,
             'server_id' => null,
-            'mail_only_provider_id' => new ProviderFactory()->createOne(['type' => ProviderType::MAILONLY, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true])->id,
+            'mail_only_provider_id' => new ProviderFactory()->createOne([
+                'type' => ProviderType::MAILONLY,
+                'slug' => ProviderSlug::DIRECTADMIN,
+                'enabled' => true,
+                'default' => true,
+            ])->id,
             'mail_only_server_id' => new ServerFactory()->directadminMail()->createOne()->id,
             'plesk_customer_id' => null,
             'plesk_customer_username' => null,
@@ -55,7 +65,12 @@ class HostingDeploymentFactory extends Factory
     public function withDirectAdminProvider(): HostingDeploymentFactory
     {
         return $this->state(fn () => [
-            'provider_id' => new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true])->id,
+            'provider_id' => new ProviderFactory()->createOne([
+                'type' => ProviderType::HOSTING,
+                'slug' => ProviderSlug::DIRECTADMIN,
+                'enabled' => true,
+                'default' => true,
+            ])->id,
             'server_id' => new ServerFactory()->directadmin()->createOne()->id,
             'plesk_customer_id' => null,
             'plesk_customer_username' => null,

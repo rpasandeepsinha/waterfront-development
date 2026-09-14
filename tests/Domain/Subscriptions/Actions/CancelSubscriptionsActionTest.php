@@ -48,13 +48,9 @@ class CancelSubscriptionsActionTest extends IntegrationTestCase
         $this->endDate = $this->now->addMonths(6);
         CarbonImmutable::setTestNow($this->now);
 
-        $this->customer = new CustomerFactory()
-            ->withAddress()
-            ->createOne();
+        $this->customer = new CustomerFactory()->withAddress()->createOne();
 
-        $this->product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension())
-            ->createOne();
+        $this->product = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne();
 
         $this->cancelSubscriptionsAction = self::resolve(CancelSubscriptionsAction::class);
 
@@ -66,7 +62,7 @@ class CancelSubscriptionsActionTest extends IntegrationTestCase
     {
         $subscriptions = new Collection([$this->getSubscription(
             AdministrativeStatus::ACTIVE->value,
-            $this->endDate
+            $this->endDate,
         )]);
 
         $cancelTypeOtherDate = $this->now->subDays(12);
@@ -85,7 +81,10 @@ class CancelSubscriptionsActionTest extends IntegrationTestCase
             $subscription->refresh();
 
             self::assertSame(AdministrativeStatus::ARCHIVED->value, $subscription->administrative_status);
-            self::assertSame($cancelTypeOtherDate->format(DateTimeFormat::DATE), $subscription->end_date->format(DateTimeFormat::DATE));
+            self::assertSame(
+                $cancelTypeOtherDate->format(DateTimeFormat::DATE),
+                $subscription->end_date->format(DateTimeFormat::DATE),
+            );
         }
     }
 
@@ -94,7 +93,7 @@ class CancelSubscriptionsActionTest extends IntegrationTestCase
     {
         $subscriptions = new Collection([$this->getSubscription(
             AdministrativeStatus::ACTIVE->value,
-            $this->endDate
+            $this->endDate,
         )]);
 
         $cancelTypeOtherDate = $this->now->addDays(17);
@@ -104,7 +103,7 @@ class CancelSubscriptionsActionTest extends IntegrationTestCase
             null,
             SubscriptionCancelType::CANCEL_OTHER,
             $cancelTypeOtherDate,
-            false
+            false,
         );
 
         $this->cancelSubscriptionsAction->execute($cancellation);
@@ -113,7 +112,10 @@ class CancelSubscriptionsActionTest extends IntegrationTestCase
             $subscription->refresh();
 
             self::assertSame(AdministrativeStatus::CANCELED->value, $subscription->administrative_status);
-            self::assertSame($cancelTypeOtherDate->format(DateTimeFormat::DATE), $subscription->end_date->format(DateTimeFormat::DATE));
+            self::assertSame(
+                $cancelTypeOtherDate->format(DateTimeFormat::DATE),
+                $subscription->end_date->format(DateTimeFormat::DATE),
+            );
         }
     }
 
@@ -122,7 +124,7 @@ class CancelSubscriptionsActionTest extends IntegrationTestCase
     {
         $subscriptions = new Collection([$this->getSubscription(
             AdministrativeStatus::ACTIVE->value,
-            $this->endDate
+            $this->endDate,
         )]);
 
         $cancelTypeOtherDate = null;
@@ -132,7 +134,7 @@ class CancelSubscriptionsActionTest extends IntegrationTestCase
             null,
             SubscriptionCancelType::CANCEL_END_DATE,
             $cancelTypeOtherDate,
-            false
+            false,
         );
 
         $this->cancelSubscriptionsAction->execute($cancellation);
@@ -141,13 +143,16 @@ class CancelSubscriptionsActionTest extends IntegrationTestCase
             $subscription->refresh();
 
             self::assertSame(AdministrativeStatus::CANCELED->value, $subscription->administrative_status);
-            self::assertSame($this->endDate->format(DateTimeFormat::DATE), $subscription->end_date->format(DateTimeFormat::DATE));
+            self::assertSame(
+                $this->endDate->format(DateTimeFormat::DATE),
+                $subscription->end_date->format(DateTimeFormat::DATE),
+            );
         }
     }
 
     private function getSubscription(
         string $administrativeStatus,
-        CarbonImmutable $endDate
+        CarbonImmutable $endDate,
     ): Subscription {
         return new SubscriptionFactory()
             ->for($this->customer)

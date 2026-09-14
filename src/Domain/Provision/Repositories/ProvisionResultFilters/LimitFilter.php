@@ -10,7 +10,7 @@ use Waterfront\Domain\Provision\Models\ProvisioningResult;
 class LimitFilter
 {
     public function __construct(
-        private readonly ?int $limit
+        private readonly ?int $limit,
     ) {
     }
 

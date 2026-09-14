@@ -58,7 +58,7 @@ class SubscriptionMigrationBulkControllerTest extends IntegrationTestCase
     {
         $productGroupExtension = ProductGroupFactory::new()->extension()->createOne();
         $productGroupDns = ProductGroupFactory::new()->dns()->createOne();
-        $productGroupHosting =  ProductGroupFactory::new()->hosting()->createOne();
+        $productGroupHosting = ProductGroupFactory::new()->hosting()->createOne();
         $productGroupVolumeDiscount = ProductGroupFactory::new()->volumeDiscount()->createOne();
 
         $mailOnlyProvider = ProviderFactory::new()->emailOnlyPlaceholder()->createOne();
@@ -68,7 +68,9 @@ class SubscriptionMigrationBulkControllerTest extends IntegrationTestCase
         $productExtension = ProductFactory::new()->for($productGroupExtension)->createOne(['slug' => 'extension_com']);
         $productDns = ProductFactory::new()->for($productGroupDns)->createOne(['slug' => ProductType::FREE_DNS->value]);
         $productSitebuilder = ProductFactory::new()->siteBuilder($productGroupHosting)->createOne();
-        $productVolumeDiscount = ProductFactory::new()->for($productGroupVolumeDiscount)->createOne(['slug' => 'volume_discount_brons']);
+        $productVolumeDiscount = ProductFactory::new()->for($productGroupVolumeDiscount)->createOne([
+            'slug' => 'volume_discount_brons',
+        ]);
 
         $productPriceData = [
             'billing_period' => 12,
@@ -93,9 +95,7 @@ class SubscriptionMigrationBulkControllerTest extends IntegrationTestCase
         $migratedCustomer = $referenceCustomer;
         $migratedCustomer->customers()->attach($customer);
 
-        ProductDiscountFactory::new()
-            ->for($productVolumeDiscount)
-            ->createOne();
+        ProductDiscountFactory::new()->for($productVolumeDiscount)->createOne();
 
         new ProductPriceComponentFactory()
             ->for($productExtension)
@@ -132,16 +132,10 @@ class SubscriptionMigrationBulkControllerTest extends IntegrationTestCase
         $this->app->bind(SitebuilderService::class, fn () => $mockSitebuilderService);
 
         // return false for first sitebuilder
-        $mockSitebuilderService
-            ->expects('hasSitebuilderThroughGateway')
-            ->twice()
-            ->andReturnFalse();
+        $mockSitebuilderService->expects('hasSitebuilderThroughGateway')->twice()->andReturnFalse();
 
         // return true for the remaining sitebuilder (gateway one).
-        $mockSitebuilderService
-            ->expects('hasSitebuilderThroughGateway')
-            ->zeroOrMoreTimes()
-            ->andReturnTrue();
+        $mockSitebuilderService->expects('hasSitebuilderThroughGateway')->zeroOrMoreTimes()->andReturnTrue();
 
         $postData = [
             [
@@ -201,7 +195,8 @@ class SubscriptionMigrationBulkControllerTest extends IntegrationTestCase
                             'start_date' => '2022-08-10T11:31:08+02:00',
                             'next_contract_date' => '2022-08-10T11:31:08+02:00',
                             'next_billing_date' => '2022-08-10T11:31:08+02:00',
-                        ], [
+                        ],
+                        [
                             'slug' => $productSitebuilder->slug,
                             'contract_period' => 12,
                             'billing_period' => 12,
@@ -219,19 +214,26 @@ class SubscriptionMigrationBulkControllerTest extends IntegrationTestCase
 
         Http::fake();
 
-        $response = $this
-            ->actingAsSystem($this->uuid)
-            ->postJson(
-                $this->generateRoute('ferry.customers.subscriptions.create.bulk'),
-                $postData,
-                [
-                    'Authorization' => 'Bearer ferry_testing_api_key',
-                    'X-Requested-With' => 'XMLHttpRequest',
-                ]
-            );
+        $response = $this->actingAsSystem($this->uuid)->postJson(
+            $this->generateRoute('ferry.customers.subscriptions.create.bulk'),
+            $postData,
+            [
+                'Authorization' => 'Bearer ferry_testing_api_key',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
+        );
 
-        $sitebuilder = MigratedSubscription::where('reference_subscription_id', $sitebuilderReferenceSubscriptionId)->firstOrFail()->subscriptions()->firstOrFail();
-        $gatewaySitebuilder = MigratedSubscription::where('reference_subscription_id', $gatewaySitebuilderReferenceSubscriptionId)->firstOrFail()->subscriptions()->firstOrFail();
+        $sitebuilder = MigratedSubscription::where('reference_subscription_id', $sitebuilderReferenceSubscriptionId)
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
+        $gatewaySitebuilder = MigratedSubscription::where(
+            'reference_subscription_id',
+            $gatewaySitebuilderReferenceSubscriptionId,
+        )
+            ->firstOrFail()
+            ->subscriptions()
+            ->firstOrFail();
 
         $domainSubscription = Subscription::query()
             ->where('domain', $domain)
@@ -272,7 +274,10 @@ class SubscriptionMigrationBulkControllerTest extends IntegrationTestCase
 
         self::assertDatabaseHas('notes', [
             'noted_by_uuid' => $this->uuid,
-            'noted_by_metadata' => json_encode(['email' => 'pieter@post.nl', 'schemaId' => 'system'], JSON_THROW_ON_ERROR),
+            'noted_by_metadata' => json_encode([
+                'email' => 'pieter@post.nl',
+                'schemaId' => 'system',
+            ], JSON_THROW_ON_ERROR),
             'customer_id' => $customer->id,
             'note' => $internalComment,
         ]);
@@ -280,25 +285,27 @@ class SubscriptionMigrationBulkControllerTest extends IntegrationTestCase
         self::assertTrue($domainSubscription->exists());
         self::assertTrue($migratedCustomer->customers()->where('id', $customer->id)->exists());
         self::assertTrue($customer->migratedCustomers()->where('id', $migratedCustomer->id)->exists());
-        $createdMigratedCustomer = MigratedCustomer::query()->where('reference_customer_number', $referenceCustomerId)->first();
+        $createdMigratedCustomer = MigratedCustomer::query()
+            ->where('reference_customer_number', $referenceCustomerId)
+            ->first();
         self::assertInstanceOf(MigratedCustomer::class, $createdMigratedCustomer);
         self::assertNotNull($createdMigratedCustomer->migrated_at);
 
         self::assertDatabaseHas('domain_deployments', [
             'subscription_uuid' => $domainSubscription->uuid,
-            'provider_id'       => $domainProvider->id,
+            'provider_id' => $domainProvider->id,
         ]);
 
         self::assertDatabaseHas('hosting_deployments', [
             'subscription_uuid' => $sitebuilder->uuid,
-            'provider_id'       => null,
+            'provider_id' => null,
             'mail_only_provider_id' => $mailOnlyProvider->id,
             'sitebuilder_provider_id' => $sitebuilderProvider->id,
         ]);
 
         self::assertDatabaseHas('hosting_deployments', [
             'subscription_uuid' => $gatewaySitebuilder->uuid,
-            'provider_id'       => null,
+            'provider_id' => null,
             'mail_only_provider_id' => $mailOnlyProvider->id,
             'sitebuilder_provider_id' => null,
         ]);

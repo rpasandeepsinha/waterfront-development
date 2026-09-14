@@ -30,11 +30,11 @@ class GetSubjectTypeActionTest extends TestCase
     public static function namespaceStrings(): array
     {
         return [
-            [Subscription::class, 'Subscription'],
-            [DomainDeployment::class, 'DomainDeployment'],
+            [Subscription::class,                         'Subscription'],
+            [DomainDeployment::class,                     'DomainDeployment'],
             ['Modules\DomainService\Models\Subscription', 'DomainDeployment'],
-            [SslDeployment::class, 'SslDeployment'],
-            ['Modules\SslService\Models\Subscription', 'SslDeployment'],
+            [SslDeployment::class,                        'SslDeployment'],
+            ['Modules\SslService\Models\Subscription',    'SslDeployment'],
         ];
     }
 }

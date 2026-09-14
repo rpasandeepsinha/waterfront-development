@@ -27,7 +27,12 @@ class FetchUserFromServerTest extends IntegrationTestCase
             ->directadmin()
             ->createOne(['hostname' => 'single-server.nl']);
 
-        ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $action = self::resolve(NovaFetchUserFromServer::class);
 
@@ -37,7 +42,7 @@ class FetchUserFromServerTest extends IntegrationTestCase
                 'username' => 'myname',
                 'domain' => 'testdomain.test',
             ]),
-            new Collection()
+            new Collection(),
         );
         $payload = new Collection([$server]);
 
@@ -48,7 +53,7 @@ class FetchUserFromServerTest extends IntegrationTestCase
 
         self::assertSame(
             'Fetched user {test} from server with hostname {single-server.nl} with response:',
-            $modal->payload['title']
+            $modal->payload['title'],
         );
     }
 }

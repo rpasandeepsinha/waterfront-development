@@ -204,28 +204,73 @@ class AcronisSeeder extends Seeder
         $product->save();
 
         ProductSpec::insert([
-            ['name' => ProductSpecName::ACRONIS_CLOUD_STORAGE_GB->value, 'value' => $plan['cloud_storage_gb'], 'product_id' => $product->id],
-            ['name' => ProductSpecName::ACRONIS_LOCAL_STORAGE_GB->value, 'value' => $plan['local_storage_gb'], 'product_id' => $product->id],
-            ['name' => ProductSpecName::ACRONIS_MOBILE_DEVICES->value, 'value' => $plan['mobile_devices'], 'product_id' => $product->id],
-            ['name' => ProductSpecName::ACRONIS_WORKSTATIONS->value, 'value' => $plan['workstations'], 'product_id' => $product->id],
-            ['name' => ProductSpecName::ACRONIS_VMS->value, 'value' => $plan['virtual_machines'], 'product_id' => $product->id],
-            ['name' => ProductSpecName::ACRONIS_SERVERS->value, 'value' => $plan['servers'], 'product_id' => $product->id],
-            ['name' => ProductSpecName::ACRONIS_HOSTING_SERVERS->value, 'value' => $plan['hosting_servers'], 'product_id' => $product->id],
-            ['name' => ProductSpecName::ACRONIS_M365_SEATS->value, 'value' => $plan['m365_seats'], 'product_id' => $product->id],
-            ['name' => ProductSpecName::ACRONIS_M365_SHAREPOINT_SITES->value, 'value' => $plan['m365_sharepoint_sites'], 'product_id' => $product->id],
-            ['name' => ProductSpecName::ACRONIS_M365_TEAMS->value, 'value' => $plan['m365_teams'], 'product_id' => $product->id],
-            ['name' => ProductSpecName::ACRONIS_GOOGLE_WORKSPACE_SEATS->value, 'value' => $plan['google_workspace_seats'], 'product_id' => $product->id],
-            ['name' => ProductSpecName::ACRONIS_WEBSITES->value, 'value' => $plan['websites'], 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::ACRONIS_CLOUD_STORAGE_GB->value,
+                'value' => $plan['cloud_storage_gb'],
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_LOCAL_STORAGE_GB->value,
+                'value' => $plan['local_storage_gb'],
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_MOBILE_DEVICES->value,
+                'value' => $plan['mobile_devices'],
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_WORKSTATIONS->value,
+                'value' => $plan['workstations'],
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_VMS->value,
+                'value' => $plan['virtual_machines'],
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_SERVERS->value,
+                'value' => $plan['servers'],
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_HOSTING_SERVERS->value,
+                'value' => $plan['hosting_servers'],
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_M365_SEATS->value,
+                'value' => $plan['m365_seats'],
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_M365_SHAREPOINT_SITES->value,
+                'value' => $plan['m365_sharepoint_sites'],
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_M365_TEAMS->value,
+                'value' => $plan['m365_teams'],
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_GOOGLE_WORKSPACE_SEATS->value,
+                'value' => $plan['google_workspace_seats'],
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::ACRONIS_WEBSITES->value,
+                'value' => $plan['websites'],
+                'product_id' => $product->id,
+            ],
         ]);
 
         $prices = ProductPriceGenerator::generateStandardPrices($product, $plan['basePrice']);
 
         $this->referenceRepo->set($this->productReferenceForSize($size), $product);
 
-        $defaultPrice = $prices
-            ->where('contract_period', 1)
-            ->where('billing_period', 1)
-            ->firstOrFail();
+        $defaultPrice = $prices->where('contract_period', 1)->where('billing_period', 1)->firstOrFail();
 
         $this->referenceRepo->set($this->priceReferenceForSize($size), $defaultPrice);
     }

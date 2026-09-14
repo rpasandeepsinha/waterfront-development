@@ -23,7 +23,7 @@ class NovaFindMollieCustomerAction extends Action
 
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private readonly MollieCustomerClient $mollieCustomerClient
+        private readonly MollieCustomerClient $mollieCustomerClient,
     ) {
     }
 

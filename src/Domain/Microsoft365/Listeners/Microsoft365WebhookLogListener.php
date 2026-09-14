@@ -50,7 +50,9 @@ class Microsoft365WebhookLogListener
         }
 
         if ($kpn_order_id === null && $kpn_customer_id !== null) {
-            $microsoft365Deployment = Microsoft365CustomerInfo::where('kpn_customer_id', $kpn_customer_id)->first()?->microsoft365Deployments->first();
+            $microsoft365Deployment = Microsoft365CustomerInfo::where('kpn_customer_id', $kpn_customer_id)
+                ->first()
+                ?->microsoft365Deployments->first();
 
             // When we receive a customer creation response we don't have the kpn_customer_id yet. So we can't look it up.
             if ($microsoft365Deployment instanceof Microsoft365Deployment) {
@@ -61,7 +63,9 @@ class Microsoft365WebhookLogListener
         // Ensures that the subscription id is set for termination logs when the kpn_order_id has just been changed.
         if ($subscription_id === null) {
             $orderIdString = '<OrderId>' . $kpn_order_id . '</OrderId>';
-            $microsoft365ModifyLog = Microsoft365HttpLog::where('xml_root_name', 'ModifyOrderQuantityResponse_V1')->where('log', 'LIKE', "%$orderIdString%")->first();
+            $microsoft365ModifyLog = Microsoft365HttpLog::where('xml_root_name', 'ModifyOrderQuantityResponse_V1')
+                ->where('log', 'LIKE', "%$orderIdString%")
+                ->first();
 
             if ($microsoft365ModifyLog instanceof Microsoft365HttpLog) {
                 $subscription_id = $microsoft365ModifyLog->subscription_id;
@@ -87,7 +91,7 @@ class Microsoft365WebhookLogListener
             Assert::isInstanceOf(
                 $microsoft365Deployment,
                 Microsoft365Deployment::class,
-                'Deployment is not instance of Microsoft365Deployment'
+                'Deployment is not instance of Microsoft365Deployment',
             );
             $log->kpn_customer_id = $microsoft365Deployment->microsoft365CustomerInfo->kpn_customer_id;
         }
@@ -103,7 +107,9 @@ class Microsoft365WebhookLogListener
             $microsoft365Deployment = Microsoft365Deployment::find(end($partialPartnerReference));
             $microsoft365Customer = Microsoft365CustomerInfo::find(end($partialPartnerReference));
             $log->kpn_order_id = $kpn_order_id;
-            $log->kpn_customer_id = $microsoft365Deployment?->microsoft365CustomerInfo->kpn_customer_id ?? $microsoft365Customer?->kpn_customer_id;
+            $log->kpn_customer_id =
+                $microsoft365Deployment?->microsoft365CustomerInfo->kpn_customer_id
+                ?? $microsoft365Customer?->kpn_customer_id;
         }
 
         $log->save();

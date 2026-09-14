@@ -11,17 +11,18 @@ use Waterfront\Domain\Mailer\Templates\MailActivateNewIdentity;
 
 class SendActivationMail
 {
-    public function __construct(private readonly MailerInterface $mailer)
-    {
+    public function __construct(
+        private readonly MailerInterface $mailer,
+    ) {
     }
 
     public function execute(
         Recipient $recipient,
-        MailActivateAccount|MailActivateNewIdentity $template
+        MailActivateAccount|MailActivateNewIdentity $template,
     ): void {
         $this->mailer->send(
             recipients: [$recipient],
-            template: $template
+            template: $template,
         );
     }
 }

@@ -72,35 +72,32 @@ class ChangeHostingActionTest extends IntegrationTestCase
         ]);
 
         // "Basic" hosting product.
-        new ProductFactory()
-            ->for($this->hostingProductGroup)
-            ->createOne([
-                'name' => 'basic',
-            ]);
+        new ProductFactory()->for($this->hostingProductGroup)->createOne([
+            'name' => 'basic',
+        ]);
 
         // "Premium" hosting product.
-        $premiumHostingProduct = new ProductFactory()
-            ->for($this->hostingProductGroup)
-            ->createOne([
-                'name' => 'premium',
-            ]);
+        $premiumHostingProduct = new ProductFactory()->for($this->hostingProductGroup)->createOne([
+            'name' => 'premium',
+        ]);
 
-        new ProductFactory()
-            ->for($this->hostingProductGroup)
-            ->createOne([
-                'name' => 'super',
-            ]);
+        new ProductFactory()->for($this->hostingProductGroup)->createOne([
+            'name' => 'super',
+        ]);
 
-        $this->provider = ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
+        $this->provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         // Initial subscription with the "Premium" hosting product.
         $this->subscription = new SubscriptionFactory()
             ->for($this->customer)
             ->for($premiumHostingProduct)
             ->has(
-                new HostingDeploymentFactory()
-                    ->for($this->provider, 'provider')
-                    ->for(new ServerFactory())
+                new HostingDeploymentFactory()->for($this->provider, 'provider')->for(new ServerFactory()),
             )
             ->createOne([
                 'technical_status' => TechnicalStatus::OK->value,
@@ -129,7 +126,7 @@ class ChangeHostingActionTest extends IntegrationTestCase
         string $updateAfterXDays,
         array $fromProductAttributes,
         array $toProductAttributes,
-        ProductChangeType $changeType
+        ProductChangeType $changeType,
     ): void {
         Queue::fake();
         CarbonImmutable::setTestNow($updateAfterXDays);
@@ -144,21 +141,15 @@ class ChangeHostingActionTest extends IntegrationTestCase
         new TemplateFactory()->createOne([
             'slug' => MailUpgradeProduct::getTemplateSlug(),
         ]);
-        $fromProduct = new ProductFactory()
-            ->for($this->hostingProductGroup)
-            ->createOne($fromProductAttributes);
+        $fromProduct = new ProductFactory()->for($this->hostingProductGroup)->createOne($fromProductAttributes);
 
-        $toProduct = new ProductFactory()
-            ->for($this->hostingProductGroup)
-            ->createOne($toProductAttributes);
+        $toProduct = new ProductFactory()->for($this->hostingProductGroup)->createOne($toProductAttributes);
 
         $subscription = new SubscriptionFactory()
             ->for($this->customer)
             ->for($fromProduct)
             ->has(
-                new HostingDeploymentFactory()
-                    ->for($this->provider, 'provider')
-                    ->for(new ServerFactory())
+                new HostingDeploymentFactory()->for($this->provider, 'provider')->for(new ServerFactory()),
             )
             ->createOne([
                 'technical_status' => TechnicalStatus::OK->value,
@@ -177,7 +168,7 @@ class ChangeHostingActionTest extends IntegrationTestCase
             $subscription,
             $subscription->hostingDeployment,
             $subscription->product,
-            $toProduct
+            $toProduct,
         );
 
         self::assertSame('ok', $result->status);
@@ -295,7 +286,7 @@ class ChangeHostingActionTest extends IntegrationTestCase
         self::expectException(HostingProviderNotFoundException::class);
         self::expectExceptionMessageIs(sprintf(
             'No hosting provider found for subscription with UUID "%s".',
-            $this->subscription->uuid
+            $this->subscription->uuid,
         ));
 
         $this->subscription->hostingDeployment?->update([
@@ -304,7 +295,12 @@ class ChangeHostingActionTest extends IntegrationTestCase
 
         $hostingDeployment = $this->subscription->hostingDeployment;
         self::assertInstanceOf(HostingDeployment::class, $hostingDeployment);
-        $this->changeHostingAction->execute($this->subscription, $hostingDeployment, $this->subscription->product, $this->subscription->product);
+        $this->changeHostingAction->execute(
+            $this->subscription,
+            $hostingDeployment,
+            $this->subscription->product,
+            $this->subscription->product,
+        );
     }
 
     #[Test]
@@ -312,21 +308,15 @@ class ChangeHostingActionTest extends IntegrationTestCase
     {
         Queue::fake();
 
-        $fromProduct = new ProductFactory()
-            ->for($this->hostingProductGroup)
-            ->createOne(['name' => 'super']);
+        $fromProduct = new ProductFactory()->for($this->hostingProductGroup)->createOne(['name' => 'super']);
 
-        new ProductFactory()
-            ->for($this->hostingProductGroup)
-            ->createOne(['name' => 'basic']);
+        new ProductFactory()->for($this->hostingProductGroup)->createOne(['name' => 'basic']);
 
         $subscription = new SubscriptionFactory()
             ->for($this->customer)
             ->for($fromProduct)
             ->has(
-                new HostingDeploymentFactory()
-                    ->for($this->provider, 'provider')
-                    ->for(new ServerFactory())
+                new HostingDeploymentFactory()->for($this->provider, 'provider')->for(new ServerFactory()),
             )
             ->createOne([
                 'technical_status' => TechnicalStatus::OK->value,
@@ -340,7 +330,8 @@ class ChangeHostingActionTest extends IntegrationTestCase
         $mockHostingServiceFactory = self::mock(HostingServiceFactory::class);
         $mockLogging = self::mock(LoggerInterface::class);
 
-        $mockLogging->expects('info')
+        $mockLogging
+            ->expects('info')
             ->once()
             ->with(
                 'Changing service plan for subscription {subscription.uuid} to product id {product.id}',
@@ -354,7 +345,7 @@ class ChangeHostingActionTest extends IntegrationTestCase
                         'from_remote_service_plan' => null,
                         'to_product_slug' => $subscription->product->slug,
                     ],
-                ]
+                ],
             );
 
         $exception = new Exception('errors during change');
@@ -381,7 +372,7 @@ class ChangeHostingActionTest extends IntegrationTestCase
                         'to_product_slug' => $subscription->product->slug,
                     ],
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
         $changeHostingAction = new ChangeHostingAction($mockHostingServiceFactory, $mockLogging);
@@ -390,7 +381,7 @@ class ChangeHostingActionTest extends IntegrationTestCase
             $subscription,
             $subscription->hostingDeployment,
             $subscription->product,
-            $subscription->product
+            $subscription->product,
         );
 
         self::assertSame(SubscriptionChangeResult::STATUS_ERROR, $result->status);
@@ -403,9 +394,7 @@ class ChangeHostingActionTest extends IntegrationTestCase
     {
         Queue::fake();
 
-        $newProduct = new ProductFactory()
-            ->for($this->hostingProductGroup)
-            ->createOne(['name' => 'target-plan']);
+        $newProduct = new ProductFactory()->for($this->hostingProductGroup)->createOne(['name' => 'target-plan']);
 
         $hostingDeployment = $this->subscription->hostingDeployment;
         Assert::notNull($hostingDeployment);

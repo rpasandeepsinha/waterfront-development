@@ -12,7 +12,7 @@ class MailPleskEmailOnlyDetails implements MailTemplateInterface
         public readonly string $username,
         public readonly string $domain,
         public readonly ?string $ipv4_address,
-        public readonly string $password
+        public readonly string $password,
     ) {
     }
 

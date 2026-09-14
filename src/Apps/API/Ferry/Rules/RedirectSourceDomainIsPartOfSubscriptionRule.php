@@ -20,21 +20,16 @@ class RedirectSourceDomainIsPartOfSubscriptionRule implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (
-            ! is_string($value)
-        ) {
+        if (! is_string($value)) {
             // The source needs to be an url
             $fail('The source field needs to be a valid string representing a domain. "example.domain.com"');
+
             return;
         }
 
-        $domain = $this->publicSuffixList
-            ->getRules()
-            ->resolve($value);
+        $domain = $this->publicSuffixList->getRules()->resolve($value);
 
-        $registrableDomain = $domain
-            ->registrableDomain()
-            ->toString();
+        $registrableDomain = $domain->registrableDomain()->toString();
 
         $foundMatchingDomainToSource = $this->customer
             ->subscriptions()
@@ -45,7 +40,9 @@ class RedirectSourceDomainIsPartOfSubscriptionRule implements ValidationRule
             ->exists();
 
         if (! $foundMatchingDomainToSource) {
-            $fail("The source field with value: $value has no representation as a redirect subscription domain: $registrableDomain");
+            $fail(
+                "The source field with value: $value has no representation as a redirect subscription domain: $registrableDomain",
+            );
         }
     }
 }

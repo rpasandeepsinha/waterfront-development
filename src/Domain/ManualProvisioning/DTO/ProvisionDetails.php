@@ -21,7 +21,7 @@ class ProvisionDetails implements Arrayable
         private readonly string $customerEmail,
         private readonly UuidInterface $customerUuid,
         private readonly int $subscriptionId,
-        private readonly string $productName
+        private readonly string $productName,
     ) {
         Assert::greaterThan($this->customerId, 0);
         Assert::greaterThan($this->customerNumber, 0);

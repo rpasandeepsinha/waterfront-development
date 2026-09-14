@@ -24,7 +24,7 @@ class BackupCreationListener implements ShouldQueue
     {
         $this->backupService->create(
             subscription: $createBackupEvent->subscription,
-            createRequest: $createBackupEvent->createBackupRequest
+            createRequest: $createBackupEvent->createBackupRequest,
         );
     }
 }

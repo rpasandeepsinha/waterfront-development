@@ -45,18 +45,20 @@ class RetryHostingAction
                 'Deleting hosting deployment',
                 [
                     LoggingContextKeys::SERVER_ID => $subscription->hostingDeployment?->server_id,
-                    LoggingContextKeys::PROVISIONING_PROVIDER => $subscription->hostingDeployment?->provider?->slug->value,
+                    LoggingContextKeys::PROVISIONING_PROVIDER =>
+                        $subscription->hostingDeployment?->provider?->slug->value,
                     LoggingContextKeys::META => [
                         'sitebuilder_provider_id' => $subscription->hostingDeployment?->sitebuilder_provider_id,
                         'mail_only_provider_id' => $subscription->hostingDeployment?->mail_only_provider_id,
                         'basekit_user_ref' => $subscription->hostingDeployment?->basekit_user_ref,
                         'basekit_site_ref' => $subscription->hostingDeployment?->basekit_site_ref,
                         'basekit_server_id' => $subscription->hostingDeployment?->basekit_server_id,
-                        'directadmin_customer_username' => $subscription->hostingDeployment?->directadmin_customer_username,
+                        'directadmin_customer_username' =>
+                            $subscription->hostingDeployment?->directadmin_customer_username,
                         'plesk_customer_id' => $subscription->hostingDeployment?->plesk_customer_id,
                         'plesk_customer_username' => $subscription->hostingDeployment?->plesk_customer_username,
                     ],
-                ]
+                ],
             );
             $subscription->hostingDeployment?->forceDelete();
         }
@@ -71,7 +73,7 @@ class RetryHostingAction
                 $subscription->customer,
                 $subscription->product,
                 $serverId,
-            )
+            ),
         );
     }
 
@@ -82,7 +84,7 @@ class RetryHostingAction
         $this->eventDispatcher->dispatch(new CreateSitebuilder(
             $subscription->customer->name,
             $subscription->customer->email,
-            $subscription
+            $subscription,
         ));
     }
 
@@ -93,7 +95,7 @@ class RetryHostingAction
         $this->eventDispatcher->dispatch(new CreateMailOnlyHosting(
             $subscription->customer->name,
             $subscription->customer->email,
-            $subscription
+            $subscription,
         ));
     }
 
@@ -107,8 +109,8 @@ class RetryHostingAction
                 contactEmail: $subscription->customer->email,
                 serverId: $serverId,
                 customer: $subscription->customer,
-                product: $subscription->product
-            )
+                product: $subscription->product,
+            ),
         );
     }
 }

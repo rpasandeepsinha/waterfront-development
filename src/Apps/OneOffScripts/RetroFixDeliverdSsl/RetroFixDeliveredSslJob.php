@@ -29,9 +29,16 @@ class RetroFixDeliveredSslJob extends AbstractQueueableJob
     ): void {
         $sslDeployment = $this->subscription->sslDeployment;
 
-        if ($this->subscription->domain === null || $sslDeployment === null || $sslDeployment->status === 'Installation error.') {
+        if (
+            $this->subscription->domain === null
+            || $sslDeployment === null
+            || $sslDeployment->status === 'Installation error.'
+        ) {
             $logger->info(
-                sprintf('Skipping subscription %d due to missing domain or SSL deployment or installation error.', $this->subscription->id),
+                sprintf(
+                    'Skipping subscription %d due to missing domain or SSL deployment or installation error.',
+                    $this->subscription->id,
+                ),
                 [
                     LoggingContextKeys::ONE_OFF_SCRIPT => NovaRetroFixDeliverdSslAction::SLUG,
                     LoggingContextKeys::META => [
@@ -43,8 +50,9 @@ class RetroFixDeliveredSslJob extends AbstractQueueableJob
                             'ssl_domain' => $this->subscription->domain,
                         ],
                     ],
-                ]
+                ],
             );
+
             return;
         }
 
@@ -53,7 +61,11 @@ class RetroFixDeliveredSslJob extends AbstractQueueableJob
         $hasCompletedSsl = $latestProcess !== null && $latestProcess->status === ProcessStatusEnum::STATUS_COMPLETED;
 
         $logger->info(
-            sprintf('Checked SSL deployment for with domain %s, ssl completed at RTR: %s', $this->subscription->domain, $hasCompletedSsl ? 'yes' : 'no'),
+            sprintf(
+                'Checked SSL deployment for with domain %s, ssl completed at RTR: %s',
+                $this->subscription->domain,
+                $hasCompletedSsl ? 'yes' : 'no',
+            ),
             [
                 LoggingContextKeys::ONE_OFF_SCRIPT => NovaRetroFixDeliverdSslAction::SLUG,
                 LoggingContextKeys::META => [
@@ -66,7 +78,7 @@ class RetroFixDeliveredSslJob extends AbstractQueueableJob
                         'latest_process_status' => $latestProcess?->status,
                     ],
                 ],
-            ]
+            ],
         );
 
         if ($hasCompletedSsl && ! $this->isDryRun) {

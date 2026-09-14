@@ -45,15 +45,23 @@ class NovaCloudStackEnvironmentProductResource extends Resource
             BelongsTo::make(
                 self::translate('cloudstack-environments.singular'),
                 'environment',
-                NovaCloudStackEnvironmentResource::class
+                NovaCloudStackEnvironmentResource::class,
             ),
             BelongsTo::make(
                 self::translate('product.singular'),
                 'product',
-                NovaProductResource::class
+                NovaProductResource::class,
+            )->relatableQueryUsing(fn (
+                NovaRequest $request,
+                Builder $query,
+            ): Builder => $query->whereHas('productGroup', fn (Builder $query) => $query->where(
+                'slug',
+                ProductGroupType::VPS,
+            ))),
+            Text::make(
+                self::translate('cloudstack-environment-products.attributes.product_identifier'),
+                'product_identifier',
             )
-            ->relatableQueryUsing(fn (NovaRequest $request, Builder $query): Builder => $query->whereHas('productGroup', fn (Builder $query) => $query->where('slug', ProductGroupType::VPS))),
-            Text::make(self::translate('cloudstack-environment-products.attributes.product_identifier'), 'product_identifier')
                 ->rules('uuid')
                 ->help(self::translate('cloudstack-environment-products.attributes_help.product_identifier'))
                 ->required(),

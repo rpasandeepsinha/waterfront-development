@@ -19,28 +19,32 @@ class PuzzelBlockedDateControllerTest extends IntegrationTestCase
     public function list(): void
     {
         $pastDate = PuzzelBlockedDateFactory::new()->createOne([
-            'date'   => CarbonImmutable::now()->subDay(),
+            'date' => CarbonImmutable::now()->subDay(),
             'reason' => 'past date',
         ]);
 
-        PuzzelBlockedDateFactory::new()
-            ->forEachSequence([
-                    'date'   => CarbonImmutable::now()->addDay(),
-                    'reason' => 'future 1',
-                ], [
-                    'date'   => CarbonImmutable::now()->addDays(2),
-                    'reason' => 'future 2',
-                ], [
-                    'date'   => CarbonImmutable::now()->addDays(3),
-                    'reason' => 'future 3',
-                ], [
-                    'date'   => CarbonImmutable::now()->addDays(4),
-                    'reason' => 'future 4',
-                ], [
-                    'date'   => CarbonImmutable::now()->addDays(5),
-                    'reason' => 'future 5',
-                ])
-            ->create();
+        PuzzelBlockedDateFactory::new()->forEachSequence(
+            [
+                'date' => CarbonImmutable::now()->addDay(),
+                'reason' => 'future 1',
+            ],
+            [
+                'date' => CarbonImmutable::now()->addDays(2),
+                'reason' => 'future 2',
+            ],
+            [
+                'date' => CarbonImmutable::now()->addDays(3),
+                'reason' => 'future 3',
+            ],
+            [
+                'date' => CarbonImmutable::now()->addDays(4),
+                'reason' => 'future 4',
+            ],
+            [
+                'date' => CarbonImmutable::now()->addDays(5),
+                'reason' => 'future 5',
+            ],
+        )->create();
 
         $todayDate = PuzzelBlockedDateFactory::new()->createOne([
             'date' => CarbonImmutable::now()->addHour(),
@@ -50,7 +54,7 @@ class PuzzelBlockedDateControllerTest extends IntegrationTestCase
             ->get($this->generateRoute('admin.puzzel.blocked-dates.list'))
             ->assertJsonCount(6, 'data')
             ->assertJsonMissing(
-                ['reason' => $pastDate->reason]
+                ['reason' => $pastDate->reason],
             )
             ->assertJsonFragment(['pageSize' => 100])
             ->assertJsonFragment(
@@ -68,13 +72,13 @@ class PuzzelBlockedDateControllerTest extends IntegrationTestCase
     public function destroy(): void
     {
         $blockedDate = PuzzelBlockedDateFactory::new()->createOne([
-            'date'   => CarbonImmutable::now(),
+            'date' => CarbonImmutable::now(),
             'reason' => 'Test reason',
         ]);
 
-        $this->actingAsEmployee()
-            ->deleteJson($this->generateRoute('admin.puzzel.blocked-dates.destroy'), ['id' => $blockedDate->id])
-            ->assertNoContent();
+        $this->actingAsEmployee()->deleteJson($this->generateRoute('admin.puzzel.blocked-dates.destroy'), [
+            'id' => $blockedDate->id,
+        ])->assertNoContent();
 
         $this->assertDatabaseMissing($blockedDate);
     }
@@ -82,9 +86,9 @@ class PuzzelBlockedDateControllerTest extends IntegrationTestCase
     #[Test]
     public function destroyNotFound(): void
     {
-        $this->actingAsEmployee()
-            ->deleteJson($this->generateRoute('admin.puzzel.blocked-dates.destroy'), ['id' => 1337])
-            ->assertUnprocessable();
+        $this->actingAsEmployee()->deleteJson($this->generateRoute('admin.puzzel.blocked-dates.destroy'), [
+            'id' => 1337,
+        ])->assertUnprocessable();
     }
 
     #[Test]
@@ -94,23 +98,19 @@ class PuzzelBlockedDateControllerTest extends IntegrationTestCase
         $dateNoReason = CarbonImmutable::now()->addDays(2);
         $reason = 'Holiday';
 
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.puzzel.blocked-dates.store'), [
-                'date'   => $date->toDateTimeString(),
-                'reason' => $reason,
-            ])
-            ->assertNoContent();
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.puzzel.blocked-dates.store'), [
+            'date' => $date->toDateTimeString(),
+            'reason' => $reason,
+        ])->assertNoContent();
 
         $this->assertDatabaseHas(PuzzelBlockedDate::class, [
             'reason' => $reason,
-            'date'   => $date->toDateTimeString(),
+            'date' => $date->toDateTimeString(),
         ]);
 
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.puzzel.blocked-dates.store'), [
-                'date' => $dateNoReason->toDateTimeString(),
-            ])
-            ->assertNoContent();
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.puzzel.blocked-dates.store'), [
+            'date' => $dateNoReason->toDateTimeString(),
+        ])->assertNoContent();
 
         $this->assertDatabaseHas(PuzzelBlockedDate::class, [
             'date' => $dateNoReason->toDateTimeString(),
@@ -120,22 +120,16 @@ class PuzzelBlockedDateControllerTest extends IntegrationTestCase
     #[Test]
     public function storeInvalidDate(): void
     {
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.puzzel.blocked-dates.store'), [
-                'date' => 'invalid-date',
-            ])
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['date']);
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.puzzel.blocked-dates.store'), [
+            'date' => 'invalid-date',
+        ])->assertUnprocessable()->assertJsonValidationErrors(['date']);
     }
 
     #[Test]
     public function storeInvalidDateToday(): void
     {
-        $this->actingAsEmployee()
-            ->postJson($this->generateRoute('admin.puzzel.blocked-dates.store'), [
-                'date' => CarbonImmutable::yesterday()->toDateTimeString(),
-            ])
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['date']);
+        $this->actingAsEmployee()->postJson($this->generateRoute('admin.puzzel.blocked-dates.store'), [
+            'date' => CarbonImmutable::yesterday()->toDateTimeString(),
+        ])->assertUnprocessable()->assertJsonValidationErrors(['date']);
     }
 }

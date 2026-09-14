@@ -71,6 +71,7 @@ class GetBasekitBySiteRefIntegrationTest extends IntegrationTestCase
                 logger: $app->make(LoggerInterface::class),
             );
             $basekit->sitesApi = $mockSitesApi;
+
             return $basekit;
         });
 
@@ -93,23 +94,20 @@ class GetBasekitBySiteRefIntegrationTest extends IntegrationTestCase
             'user_ref' => 42,
         ]);
 
-        BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->sitebuilder()
-                            ->state([
-                                'request_name' => ProvisionRequestName::GET_BASEKIT_SITE_BY_REF_REQUEST,
-                                'context_uuid' => $contextUuid,
-                                'uuid' => $originRequestUuid,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne(['site_ref' => $siteRef]);
+        BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->sitebuilder()
+                    ->state([
+                        'request_name' => ProvisionRequestName::GET_BASEKIT_SITE_BY_REF_REQUEST,
+                        'context_uuid' => $contextUuid,
+                        'uuid' => $originRequestUuid,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne(['site_ref' => $siteRef]);
 
         $basekitSite = new Site(
             $siteRef,
@@ -127,15 +125,11 @@ class GetBasekitBySiteRefIntegrationTest extends IntegrationTestCase
             null,
         );
 
-        $this->mockSitesApi
-            ->expects('get')
-            ->once()
-            ->with($siteRef)
-            ->andReturn($basekitSite);
+        $this->mockSitesApi->expects('get')->once()->with($siteRef)->andReturn($basekitSite);
 
         $request = new GetBasekitSiteByRefRequest(
             context: $contextUuid,
-            siteRef: $siteRef
+            siteRef: $siteRef,
         );
 
         $request->provider = ProvisionProvider::BASEKIT;
@@ -159,8 +153,8 @@ class GetBasekitBySiteRefIntegrationTest extends IntegrationTestCase
             $savedRequest->request_data,
             sprintf(
                 '{"siteRef": %d}',
-                $siteRef
-            )
+                $siteRef,
+            ),
         );
 
         $savedResult = $this->resultRepository
@@ -182,34 +176,27 @@ class GetBasekitBySiteRefIntegrationTest extends IntegrationTestCase
             'user_ref' => 42,
         ]);
 
-        BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->sitebuilder()
-                            ->state([
-                                'request_name' => ProvisionRequestName::GET_BASEKIT_SITE_BY_REF_REQUEST,
-                                'context_uuid' => $contextUuid,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    )
-            )
-            ->createOne(['site_ref' => $siteRef]);
+        BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->sitebuilder()
+                    ->state([
+                        'request_name' => ProvisionRequestName::GET_BASEKIT_SITE_BY_REF_REQUEST,
+                        'context_uuid' => $contextUuid,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+        )->createOne(['site_ref' => $siteRef]);
 
         $expectedException = new BaseKitRequestException('Something went wrong');
 
-        $this->mockSitesApi
-            ->expects('get')
-            ->once()
-            ->with($siteRef)
-            ->andThrow($expectedException);
+        $this->mockSitesApi->expects('get')->once()->with($siteRef)->andThrow($expectedException);
 
         $request = new GetBasekitSiteByRefRequest(
             context: $contextUuid,
-            siteRef: $siteRef
+            siteRef: $siteRef,
         );
 
         $request->provider = ProvisionProvider::BASEKIT;
@@ -233,8 +220,8 @@ class GetBasekitBySiteRefIntegrationTest extends IntegrationTestCase
             $savedRequest->request_data,
             sprintf(
                 '{"siteRef": %d}',
-                $siteRef
-            )
+                $siteRef,
+            ),
         );
 
         $savedResult = $this->resultRepository

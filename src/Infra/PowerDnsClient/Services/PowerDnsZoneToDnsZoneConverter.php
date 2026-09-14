@@ -19,7 +19,7 @@ class PowerDnsZoneToDnsZoneConverter
 {
     public function __construct(
         private readonly DnsRecordHydrator $dnsRecordHydrator,
-        private readonly PowerDnsRecordContentSerializer $serializer
+        private readonly PowerDnsRecordContentSerializer $serializer,
     ) {
     }
 
@@ -45,7 +45,7 @@ class PowerDnsZoneToDnsZoneConverter
             id: $dnsZone->getFqdn()->toNative(),
             name: $dnsZone->getFqdn()->toNative(),
             rawResponse: [],
-            dnssec: $dnsZone->hasDnsSec()
+            dnssec: $dnsZone->hasDnsSec(),
         );
 
         foreach ($dnsZone->getRecords() as $record) {
@@ -53,7 +53,7 @@ class PowerDnsZoneToDnsZoneConverter
                 $record->getName() . '.',
                 $record->getType(),
                 $record->getTtl() ?? 86400,
-                $this->convertToPowerDnsRecord($record)
+                $this->convertToPowerDnsRecord($record),
             );
         }
 
@@ -69,8 +69,11 @@ class PowerDnsZoneToDnsZoneConverter
         return $powerDnsZone;
     }
 
-    private function convertToDnsRecord(ResourceRecordSet $recordSet, PowerDnsRecord $record, bool $validate): DnsRecordInterface
-    {
+    private function convertToDnsRecord(
+        ResourceRecordSet $recordSet,
+        PowerDnsRecord $record,
+        bool $validate,
+    ): DnsRecordInterface {
         $data = $this->serializer->unserialize($recordSet->type, $record->content);
         $data['name'] = $recordSet->name;
         $data['disabled'] = $record->disabled;

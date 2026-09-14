@@ -33,8 +33,10 @@ use Waterfront\Domain\Transfers\Models\Transfer;
 
 class TransferService
 {
-    public function __construct(private readonly MailerInterface $mailer, private readonly Dispatcher $jobDispatcher)
-    {
+    public function __construct(
+        private readonly MailerInterface $mailer,
+        private readonly Dispatcher $jobDispatcher,
+    ) {
     }
 
     public function hasOpenTransfer(Subscription $subscription): bool
@@ -59,7 +61,7 @@ class TransferService
                     new MailTransferCancelledSender($this->getDomains($transfer)),
                     new MailTransferCancelledReceiver($this->getDomains($transfer)),
                     $transfer->fromCustomer,
-                    $transfer->toCustomer
+                    $transfer->toCustomer,
                 );
                 break;
 
@@ -68,7 +70,7 @@ class TransferService
                     new MailTransferFailedSender($this->getDomains($transfer)),
                     new MailTransferFailedReceiver($this->getDomains($transfer)),
                     $transfer->toCustomer,
-                    $transfer->fromCustomer
+                    $transfer->fromCustomer,
                 );
                 break;
 
@@ -77,7 +79,7 @@ class TransferService
                     new MailTransferCompletedSender($this->getDomains($transfer)),
                     new MailTransferCompletedReceiver($this->getDomains($transfer)),
                     $transfer->fromCustomer,
-                    $transfer->toCustomer
+                    $transfer->toCustomer,
                 );
                 break;
 
@@ -86,7 +88,7 @@ class TransferService
                     new MailTransferRejectedSender($this->getDomains($transfer)),
                     new MailTransferRejectedReceiver($this->getDomains($transfer)),
                     $transfer->fromCustomer,
-                    $transfer->toCustomer
+                    $transfer->toCustomer,
                 );
                 break;
 
@@ -95,7 +97,7 @@ class TransferService
                     new MailTransferStartedSender($this->getDomains($transfer)),
                     new MailTransferStartedReceiver($this->getDomains($transfer)),
                     $transfer->toCustomer,
-                    $transfer->fromCustomer
+                    $transfer->fromCustomer,
                 );
                 break;
 
@@ -104,7 +106,7 @@ class TransferService
                     new MailTransferAcceptedSender($this->getDomains($transfer)),
                     new MailTransferAcceptedReceiver($this->getDomains($transfer)),
                     $transfer->toCustomer,
-                    $transfer->fromCustomer
+                    $transfer->fromCustomer,
                 );
                 break;
 
@@ -113,7 +115,7 @@ class TransferService
                     new MailTransferCreatedSender($this->getDomains($transfer)),
                     new MailTransferCreatedReceiver($this->getDomains($transfer)),
                     $transfer->fromCustomer,
-                    $transfer->toCustomer
+                    $transfer->toCustomer,
                 );
         }
     }
@@ -127,15 +129,15 @@ class TransferService
     public function createTransfer(
         Collection $subscriptions,
         Customer $from,
-        Customer $receiver
+        Customer $receiver,
     ): Transfer {
         if (! $this->validateSubscriptions($subscriptions, $from)) {
             $subscriptionIds = json_encode(
                 $subscriptions->map(fn (Subscription $subscription): int => $subscription->id),
-                JSON_THROW_ON_ERROR
+                JSON_THROW_ON_ERROR,
             );
             throw new InvalidArgumentException(
-                "Subscription set: {$subscriptionIds} or initiating customer {$from->contact_name} is not allowed to transfer."
+                "Subscription set: {$subscriptionIds} or initiating customer {$from->contact_name} is not allowed to transfer.",
             );
         }
 
@@ -193,11 +195,12 @@ class TransferService
      */
     public function validateSubscriptions(
         Collection $subscriptions,
-        Customer $from
+        Customer $from,
     ): bool {
         /** @var bool $validated */
-        $validated = $this->filterAvailableSubscriptions($subscriptions, $from)
-            ->pipe(fn (Collection $filtered): bool => $filtered->count() === $subscriptions->count());
+        $validated = $this->filterAvailableSubscriptions($subscriptions, $from)->pipe(
+            fn (Collection $filtered): bool => $filtered->count() === $subscriptions->count(),
+        );
 
         return $validated;
     }
@@ -215,7 +218,10 @@ class TransferService
     public function retry(Transfer $transfer): void
     {
         if (! $transfer->isAccepted()) {
-            throw new InvalidArgumentException(sprintf('Cannot retry transferring a non-accepted transfer. Transfer ID: %s', $transfer->id));
+            throw new InvalidArgumentException(sprintf(
+                'Cannot retry transferring a non-accepted transfer. Transfer ID: %s',
+                $transfer->id,
+            ));
         }
 
         $this->jobDispatcher->dispatch(new TransferSubscriptions($transfer));
@@ -227,13 +233,16 @@ class TransferService
     private function getDomains(Transfer $transfer): array
     {
         /** @var string[] $domains */
-        $domains = $transfer->subscriptions->map(
-            fn (Subscription $subscription): string => sprintf(
-                '%s (%s)',
-                $subscription->domain,
-                $subscription->product->name
+        $domains = $transfer
+            ->subscriptions
+            ->map(
+                fn (Subscription $subscription): string => sprintf(
+                    '%s (%s)',
+                    $subscription->domain,
+                    $subscription->product->name,
+                ),
             )
-        )->toArray();
+            ->toArray();
 
         return $domains;
     }
@@ -245,7 +254,7 @@ class TransferService
         MailTemplateInterface $titleToSender,
         MailTemplateInterface $titleFromSender,
         Customer $sender,
-        Customer $receiver
+        Customer $receiver,
     ): void {
         $this->mailer->send([$sender], $titleToSender);
         $this->mailer->send([$receiver], $titleFromSender);
@@ -258,11 +267,13 @@ class TransferService
 
     private function validateSubscription(Subscription $subscription, Customer $from): bool
     {
-        return $from->id === $subscription->customer_id
+        return (
+            $from->id === $subscription->customer_id
             && ! $this->hasOpenTransfer($subscription)
             && ! $this->subscriptionHasDnsTemplate($subscription)
             && $subscription->product->productGroup->slug !== ProductGroupType::VOLUME_DISCOUNT
-            && $subscription->product->productGroup->slug !== ProductGroupType::MICROSOFT_365;
+            && $subscription->product->productGroup->slug !== ProductGroupType::MICROSOFT_365
+        );
     }
 
     private function subscriptionHasDnsTemplate(Subscription $subscription): bool
@@ -277,9 +288,10 @@ class TransferService
      */
     private function filterAvailableSubscriptions(
         Collection $subscriptions,
-        Customer $from
+        Customer $from,
     ): Collection {
-        return $subscriptions
-            ->filter(fn (Subscription $subscription): bool => $this->validateSubscription($subscription, $from));
+        return $subscriptions->filter(
+            fn (Subscription $subscription): bool => $this->validateSubscription($subscription, $from),
+        );
     }
 }

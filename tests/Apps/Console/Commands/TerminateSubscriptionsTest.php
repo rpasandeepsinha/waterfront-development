@@ -34,26 +34,30 @@ class TerminateSubscriptionsTest extends IntegrationTestCase
         $yesterday = $now->modify('-1 days')->format(DateTimeFormat::DEFAULT);
         $productGroup = new ProductGroupFactory()->createOne(['slug' => ProductGroupType::EXTENSION]);
         $product = new ProductFactory()->for($productGroup)->createOne();
-        $subscriptions = new SubscriptionFactory()->withCustomer()->createMany([
-            [
+        $subscriptions = new SubscriptionFactory()
+            ->withCustomer()
+            ->createMany([
+                [
+                    'product_uuid' => $product->uuid,
+                    'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                    'technical_status' => TechnicalStatus::OK->value,
+                    'end_date' => $yesterday,
+                    'termination_date' => $yesterday,
+                ],
+                [
+                    'product_uuid' => $product->uuid,
+                    'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                    'technical_status' => TechnicalStatus::OK->value,
+                    'end_date' => $yesterday,
+                    'termination_date' => $yesterday,
+                ],
+            ]);
+        $subscription3 = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
                 'product_uuid' => $product->uuid,
-                'administrative_status' => AdministrativeStatus::EXPIRED->value,
-                'technical_status' => TechnicalStatus::OK->value,
-                'end_date' => $yesterday,
-                'termination_date' => $yesterday,
-            ],
-            [
-                'product_uuid' => $product->uuid,
-                'administrative_status' => AdministrativeStatus::EXPIRED->value,
-                'technical_status' => TechnicalStatus::OK->value,
-                'end_date' => $yesterday,
-                'termination_date' => $yesterday,
-            ],
-        ]);
-        $subscription3 = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $product->uuid,
-            'administrative_status' => AdministrativeStatus::CANCELED->value,
-        ]);
+                'administrative_status' => AdministrativeStatus::CANCELED->value,
+            ]);
 
         $subscription1 = $subscriptions->first();
         $subscription2 = $subscriptions->last();
@@ -65,9 +69,15 @@ class TerminateSubscriptionsTest extends IntegrationTestCase
 
         Queue::assertPushed(TerminateSubscription::class, 2);
 
-        Queue::assertPushedOn(QueueName::SUBSCRIPTIONS->value, fn (TerminateSubscription $job) => $subscription1->id === $job->subscription->id);
+        Queue::assertPushedOn(
+            QueueName::SUBSCRIPTIONS->value,
+            fn (TerminateSubscription $job) => $subscription1->id === $job->subscription->id,
+        );
 
-        Queue::assertPushedOn(QueueName::SUBSCRIPTIONS->value, fn (TerminateSubscription $job) => $subscription2->id === $job->subscription->id);
+        Queue::assertPushedOn(
+            QueueName::SUBSCRIPTIONS->value,
+            fn (TerminateSubscription $job) => $subscription2->id === $job->subscription->id,
+        );
 
         Queue::assertNotPushed(fn (TerminateSubscription $job) => $subscription3->id === $job->subscription->id);
     }

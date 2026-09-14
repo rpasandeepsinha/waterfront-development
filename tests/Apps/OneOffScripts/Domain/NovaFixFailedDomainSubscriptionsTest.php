@@ -45,17 +45,13 @@ class NovaFixFailedDomainSubscriptionsTest extends IntegrationTestCase
     #[Test]
     public function handleQueuesDiagnoseJobForEachFailedSubscriptionInDryRun(): void
     {
-        $subscriptionOne = SubscriptionFactory::new()
-            ->forDomain('example-one.test')
-            ->makeOne();
+        $subscriptionOne = SubscriptionFactory::new()->forDomain('example-one.test')->makeOne();
 
         $domainDeploymentOne = new DomainDeployment();
         $domainDeploymentOne->id = 501;
         $subscriptionOne->setRelation('domainDeployment', $domainDeploymentOne);
 
-        $subscriptionTwo = SubscriptionFactory::new()
-            ->forDomain('example-two.test')
-            ->makeOne();
+        $subscriptionTwo = SubscriptionFactory::new()->forDomain('example-two.test')->makeOne();
 
         $domainDeploymentTwo = new DomainDeployment();
         $domainDeploymentTwo->id = 502;
@@ -114,9 +110,7 @@ class NovaFixFailedDomainSubscriptionsTest extends IntegrationTestCase
     #[Test]
     public function handleQueuesDiagnoseJobWithDryRunDisabled(): void
     {
-        $subscription = SubscriptionFactory::new()
-            ->forDomain('example-three.test')
-            ->makeOne();
+        $subscription = SubscriptionFactory::new()->forDomain('example-three.test')->makeOne();
 
         $domainDeployment = new DomainDeployment();
         $domainDeployment->id = 601;
@@ -170,9 +164,7 @@ class NovaFixFailedDomainSubscriptionsTest extends IntegrationTestCase
             ->method('getFailedDomainSubscriptionsWithDeployment')
             ->willReturn(new EloquentCollection());
 
-        $this->dispatcher
-            ->expects(self::never())
-            ->method('dispatch');
+        $this->dispatcher->expects(self::never())->method('dispatch');
 
         $actionFields = new ActionFields(
             new Collection(['dry-run' => true]),

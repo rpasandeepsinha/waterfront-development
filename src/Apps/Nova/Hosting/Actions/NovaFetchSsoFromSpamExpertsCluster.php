@@ -20,7 +20,7 @@ class NovaFetchSsoFromSpamExpertsCluster extends Action
 {
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private readonly SpamExpertsClient $spamExpertsClient
+        private readonly SpamExpertsClient $spamExpertsClient,
     ) {
         $this->sole();
     }
@@ -40,14 +40,14 @@ class NovaFetchSsoFromSpamExpertsCluster extends Action
         $cluster = $models->firstOrFail();
         $domain = (string) $fields->string('domain');
 
-        $sso         = null;
-        $exceptions  = [];
+        $sso = null;
+        $exceptions = [];
 
         try {
             $sso = sprintf(
                 '%s/?authticket=%s',
                 $cluster->hostname,
-                $this->spamExpertsClient->generateSsoToken($domain, $cluster)
+                $this->spamExpertsClient->generateSsoToken($domain, $cluster),
             );
         } catch (Throwable $exception) {
             $exceptions[] = [
@@ -66,7 +66,7 @@ class NovaFetchSsoFromSpamExpertsCluster extends Action
         $title = sprintf(
             'Fetched SSO for domain {%s} from cluster hostname {%s} with response:',
             $domain,
-            $cluster->hostname
+            $cluster->hostname,
         );
 
         return self::modal('modal-response', [
@@ -82,9 +82,7 @@ class NovaFetchSsoFromSpamExpertsCluster extends Action
     public function fields(NovaRequest $request): array
     {
         return [
-            Text::make('domain', 'domain')
-                ->rules('required')
-                ->required(),
+            Text::make('domain', 'domain')->rules('required')->required(),
         ];
     }
 }

@@ -80,7 +80,7 @@ class AnonymizeCustomerAction
         $customer->first_name = "anonymized-first_name-{$customer->customer_number}";
         $customer->last_name = "anonymized-last_name-{$customer->customer_number}";
         $customer->email = "anonymized.customer.{$customer->customer_number}@sandwave.io";
-        $customer->organization =  'anonymized-organisation';
+        $customer->organization = 'anonymized-organisation';
         $customer->department = 'anonymized-department';
         $customer->phone_country_code = '31';
         $customer->phone_area_code = '6';

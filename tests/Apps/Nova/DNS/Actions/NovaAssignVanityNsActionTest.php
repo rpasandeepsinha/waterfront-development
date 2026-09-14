@@ -61,15 +61,14 @@ class NovaAssignVanityNsActionTest extends IntegrationTestCase
             ->for(new ProductFactory()->premiumDns())
             ->createOne();
 
-        $this->mockDnsProductSpecRepository
-            ->expects('isPremiumDns')
-            ->times(2)
-            ->andReturn(true);
+        $this->mockDnsProductSpecRepository->expects('isPremiumDns')->times(2)->andReturn(true);
 
         $this->mockDnsVanityAssigner
             ->expects('assign')
             ->twice()
-            ->withArgs(fn (DnsDeployment $dnsDeployment) => $dnsDeployment->subscription_uuid === $dnsSubscription->uuid);
+            ->withArgs(
+                fn (DnsDeployment $dnsDeployment) => $dnsDeployment->subscription_uuid === $dnsSubscription->uuid,
+            );
 
         $models = new Collection([$dnsSubscription]);
         $actionFields = $this->getFields([]);
@@ -84,7 +83,7 @@ class NovaAssignVanityNsActionTest extends IntegrationTestCase
     #[Test]
     public function assignNameserversWithDnsDeploymentWithoutVanity(): void
     {
-        $dnsSubscription =  new SubscriptionFactory()
+        $dnsSubscription = new SubscriptionFactory()
             ->withCustomer()
             ->for(new ProductFactory()->premiumDns())
             ->createOne();
@@ -94,15 +93,14 @@ class NovaAssignVanityNsActionTest extends IntegrationTestCase
             ->withInternalNameserver()
             ->createOne();
 
-        $this->mockDnsProductSpecRepository
-            ->expects('isPremiumDns')
-            ->once()
-            ->andReturn(true);
+        $this->mockDnsProductSpecRepository->expects('isPremiumDns')->once()->andReturn(true);
 
         $this->mockDnsVanityAssigner
             ->expects('assign')
             ->once()
-            ->withArgs(fn (DnsDeployment $dnsDeployment) => $dnsDeployment->subscription_uuid === $dnsSubscription->uuid);
+            ->withArgs(
+                fn (DnsDeployment $dnsDeployment) => $dnsDeployment->subscription_uuid === $dnsSubscription->uuid,
+            );
 
         $models = new Collection([$dnsSubscription]);
         $actionFields = $this->getFields([]);
@@ -124,15 +122,14 @@ class NovaAssignVanityNsActionTest extends IntegrationTestCase
             ->withVanityNameserver()
             ->createOne();
 
-        $this->mockDnsProductSpecRepository
-            ->expects('isPremiumDns')
-            ->once()
-            ->andReturn(true);
+        $this->mockDnsProductSpecRepository->expects('isPremiumDns')->once()->andReturn(true);
 
         $this->mockDnsVanityAssigner
             ->expects('assign')
             ->once()
-            ->withArgs(fn (DnsDeployment $dnsDeployment) => $dnsDeployment->subscription_uuid === $dnsSubscription->uuid);
+            ->withArgs(
+                fn (DnsDeployment $dnsDeployment) => $dnsDeployment->subscription_uuid === $dnsSubscription->uuid,
+            );
 
         $models = new Collection([$dnsSubscription]);
         $actionFields = $this->getFields([]);
@@ -152,10 +149,7 @@ class NovaAssignVanityNsActionTest extends IntegrationTestCase
             ->for(new ProductFactory()->premiumDns())
             ->createOne();
 
-        $this->mockDnsProductSpecRepository
-            ->expects('isPremiumDns')
-            ->once()
-            ->andReturn(false);
+        $this->mockDnsProductSpecRepository->expects('isPremiumDns')->once()->andReturn(false);
 
         $this->mockDnsVanityAssigner->expects('assign')->never();
 

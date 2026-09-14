@@ -48,11 +48,11 @@ class TechnicalResellerHostingMigrationJob extends MigrationJob
 
     private SiteConfigInterface $siteDto;
 
-    private readonly string|null $originalSubscriptionDomain;
+    private readonly ?string $originalSubscriptionDomain;
 
     public function __construct(
         public Subscription $subscription,
-        protected string|null $failedTechnicalStatus,
+        protected ?string $failedTechnicalStatus,
         protected HostingMigrationPayload $payload,
     ) {
         parent::__construct($this->subscription, $this->failedTechnicalStatus);
@@ -76,17 +76,14 @@ class TechnicalResellerHostingMigrationJob extends MigrationJob
         $subscription = $this->subscription;
         $migratedCustomer = $this->migratedCustomer;
 
-        $server = $this->serverRepository
-            ->findByHostname($payload->serverName);
+        $server = $this->serverRepository->findByHostname($payload->serverName);
 
         $hostingProvider = Provider::query()
             ->where('slug', $payload->driver)
             ->where('type', ProviderType::HOSTING)
             ->firstOrFail();
 
-        $resellerHostingDeployment = $this->subscription
-            ->resellerHostingDeployment()
-            ->firstOrFail();
+        $resellerHostingDeployment = $this->subscription->resellerHostingDeployment()->firstOrFail();
 
         // Start fetching and verifying procedures for the remote backend
         //
@@ -98,7 +95,7 @@ class TechnicalResellerHostingMigrationJob extends MigrationJob
             subscription: $subscription,
             migratedCustomer: $migratedCustomer,
             payload: $payload,
-            server: $server
+            server: $server,
         );
 
         // All checks done, now commit the needed changes to the entities locally and remote.
@@ -121,9 +118,7 @@ class TechnicalResellerHostingMigrationJob extends MigrationJob
     protected function rollback(Throwable $throwable): void
     {
         /** @var ResellerHostingDeployment $resellerHostingDeployment */
-        $resellerHostingDeployment = $this->subscription
-            ->resellerHostingDeployment()
-            ->firstOrFail();
+        $resellerHostingDeployment = $this->subscription->resellerHostingDeployment()->firstOrFail();
 
         // Clear technical details based on the driver provided
         $hostingDetails = $this->payload->hostingDetails;
@@ -172,14 +167,14 @@ class TechnicalResellerHostingMigrationJob extends MigrationJob
         Subscription $subscription,
         MigratedCustomer $migratedCustomer,
         HostingMigrationPayload $payload,
-        Server $server
+        Server $server,
     ): void {
         $this->siteDto = $this->hostingInstanceFetchAction->execute(
             subscription: $subscription,
             migratedCustomer: $migratedCustomer,
             payload: $payload,
             server: $server,
-            jobUuid: $this->getJobId()
+            jobUuid: $this->getJobId(),
         );
 
         $this->verifyReseller(
@@ -197,7 +192,7 @@ class TechnicalResellerHostingMigrationJob extends MigrationJob
                 migratedCustomer: $migratedCustomer,
                 payload: $payload,
                 server: $server,
-                jobUuid: $this->getJobId()
+                jobUuid: $this->getJobId(),
             );
         }
     }
@@ -221,7 +216,7 @@ class TechnicalResellerHostingMigrationJob extends MigrationJob
             server: $server,
             hostingProvider: $hostingProvider,
             hostingDetails: $hostingDetails,
-            payload: $payload
+            payload: $payload,
         );
 
         // Configure the backend to either enable or disable dns management in the external panel
@@ -247,7 +242,7 @@ class TechnicalResellerHostingMigrationJob extends MigrationJob
             server: $server,
             hostingProvider: $hostingProvider,
             hostingDetails: $hostingDetails,
-            jobUuid: $this->getJobId()
+            jobUuid: $this->getJobId(),
         );
 
         if ($resellerHostingDeployment->subscription->domain === null) {
@@ -257,7 +252,7 @@ class TechnicalResellerHostingMigrationJob extends MigrationJob
                 migratedCustomer: $migratedCustomer,
                 payload: $payload,
                 server: $server,
-                jobUuid: $this->getJobId()
+                jobUuid: $this->getJobId(),
             );
         }
     }
@@ -269,28 +264,26 @@ class TechnicalResellerHostingMigrationJob extends MigrationJob
         // Subscription now has a real and COMPLETE backend coupling instead of the default placeholder setup.
         $domain = $this->resolveDomain($subscription);
 
-        $isUsingLocalDomain = $this->subscriptionRepository
-            ->subscriptionExistsForCustomerIdAndDomainForType(
-                customerId: $subscription->customer->id,
-                domain: $domain,
-                productGroupType: ProductGroupType::EXTENSION
-            );
+        $isUsingLocalDomain = $this->subscriptionRepository->subscriptionExistsForCustomerIdAndDomainForType(
+            customerId: $subscription->customer->id,
+            domain: $domain,
+            productGroupType: ProductGroupType::EXTENSION,
+        );
 
         $this->resellerHostingModifySiteForMigrationAction->execute(
             subscription: $subscription,
             migratedCustomer: $migratedCustomer,
             hostingMigrationPayload: $this->payload,
             jobUuid: $this->getJobId(),
-            isUsingLocalDomain: $isUsingLocalDomain
+            isUsingLocalDomain: $isUsingLocalDomain,
         );
     }
 
     private function resolveDomain(Subscription $subscription): string
     {
         $subscription = $subscription->refresh();
-        return is_string($subscription->domain)
-            ? $subscription->domain
-            : '';
+
+        return is_string($subscription->domain) ? $subscription->domain : '';
     }
 
     private function verifyReseller(
@@ -299,7 +292,7 @@ class TechnicalResellerHostingMigrationJob extends MigrationJob
         MigratedCustomer $migratedCustomer,
         string $username,
         string $driver,
-        string $jobUuid
+        string $jobUuid,
     ): void {
         if (! $siteConfig->isReseller()) {
             $this->logger->debug(
@@ -314,7 +307,7 @@ class TechnicalResellerHostingMigrationJob extends MigrationJob
                         'username' => $username,
                         'payload.driver' => $driver,
                     ],
-                ]
+                ],
             );
 
             throw new ResellerHostingMigrationIsNotAResellerException(

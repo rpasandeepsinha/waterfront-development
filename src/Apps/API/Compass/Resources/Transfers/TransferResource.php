@@ -25,8 +25,13 @@ class TransferResource extends JsonResource
         $transferSubscriptions = $this->resource->subscriptions;
 
         $availableActions = [];
-        if ($this->resource->isAccepted() &&
-            array_any((array) $transferSubscriptions->getIterator(), fn (Subscription $subscription, int $key) => $subscription->pivot->failed_at !== null)) {
+        if (
+            $this->resource->isAccepted()
+            && array_any(
+                (array) $transferSubscriptions->getIterator(),
+                fn (Subscription $subscription, int $key) => $subscription->pivot->failed_at !== null,
+            )
+        ) {
             $availableActions[] = 'canRetry';
         }
 

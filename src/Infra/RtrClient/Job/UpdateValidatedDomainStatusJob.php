@@ -39,14 +39,14 @@ class UpdateValidatedDomainStatusJob extends AbstractQueueableJob
         SubscriptionRepository $subscriptionRepository,
         LoggerInterface $logger,
     ): void {
-        $domainDeployment = $domainDeploymentRepository
-            ->getActiveDeploymentByDomain($this->domainName);
+        $domainDeployment = $domainDeploymentRepository->getActiveDeploymentByDomain($this->domainName);
 
         if ($domainDeployment === null) {
             $logger->info(
                 'RTR validation skipped: active domain deployment not found',
                 $this->buildLogContext(null),
             );
+
             return;
         }
 
@@ -60,6 +60,7 @@ class UpdateValidatedDomainStatusJob extends AbstractQueueableJob
                 'RTR validation skipped: domain provider is not RTR',
                 $this->buildLogContext($domainDeployment),
             );
+
             return;
         }
 
@@ -68,6 +69,7 @@ class UpdateValidatedDomainStatusJob extends AbstractQueueableJob
                 'RTR validation skipped: domain already validated',
                 $this->buildLogContext($domainDeployment),
             );
+
             return;
         }
 
@@ -76,6 +78,7 @@ class UpdateValidatedDomainStatusJob extends AbstractQueueableJob
                 'RTR validation skipped: domain requires nameserver activation',
                 $this->buildLogContext($domainDeployment),
             );
+
             return;
         }
 
@@ -84,24 +87,34 @@ class UpdateValidatedDomainStatusJob extends AbstractQueueableJob
                 'RTR validation skipped: domain is not pending validation',
                 $this->buildLogContext($domainDeployment),
             );
+
             return;
         }
 
         $subscription = $domainDeployment->subscription;
-        if (
-            ! in_array($subscription->technical_status, [
+        if (! in_array(
+            $subscription->technical_status,
+            [
                 TechnicalStatus::PENDING->value,
                 DomainStatus::ACTIVE->value,
-            ], true)
-        ) {
+            ],
+            true,
+        )) {
             $logger->warning(
                 'RTR validation skipped: subscription status cannot be completed',
                 $this->buildLogContext($domainDeployment),
             );
+
             return;
         }
 
-        DB::transaction(function () use ($domainDeployment, $domainProviderHistory, $subscription, $subscriptionRepository, $domainDeploymentRepository): void {
+        DB::transaction(function () use (
+            $domainDeployment,
+            $domainProviderHistory,
+            $subscription,
+            $subscriptionRepository,
+            $domainDeploymentRepository,
+        ): void {
             $domainDeploymentRepository->setDomainStatus($domainDeployment, RtrDomainStatus::OK);
 
             if ($subscription->technical_status === TechnicalStatus::PENDING->value) {

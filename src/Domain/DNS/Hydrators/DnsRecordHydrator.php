@@ -28,14 +28,21 @@ class DnsRecordHydrator
     public function __construct(DnsValidatorFactory $validatorFactory)
     {
         $validatorFactory->resolver(
-            fn (DnsRecordsValidationService $validationService, Translator $translator, array $data, array $rules, array $messages, array $customAttributes): DnsRecordValidator => new DnsRecordValidator(
+            fn (
+                DnsRecordsValidationService $validationService,
+                Translator $translator,
+                array $data,
+                array $rules,
+                array $messages,
+                array $customAttributes,
+            ): DnsRecordValidator => new DnsRecordValidator(
                 $validationService,
                 $translator,
                 $data,
                 $rules,
                 $messages,
-                $customAttributes
-            )
+                $customAttributes,
+            ),
         );
 
         $this->validatorFactory = $validatorFactory;
@@ -77,7 +84,15 @@ class DnsRecordHydrator
             DnsRecordType::CNAME => new CnameRecord($name, $content, (int) $ttl, $disabled),
             DnsRecordType::MX => new MxRecord($name, $content, (int) $priority, (int) $ttl, $disabled),
             DnsRecordType::NS => new NsRecord($name, $content, (int) $ttl, $disabled),
-            DnsRecordType::SRV => new SrvRecord($name, $content, (int) $priority, (int) $weight, (int) $port, (int) $ttl, $disabled),
+            DnsRecordType::SRV => new SrvRecord(
+                $name,
+                $content,
+                (int) $priority,
+                (int) $weight,
+                (int) $port,
+                (int) $ttl,
+                $disabled,
+            ),
             default => new DefaultRecord($type, $name, $content, (int) $ttl, $disabled),
         };
     }
@@ -97,7 +112,8 @@ class DnsRecordHydrator
             DnsRecordType::CNAME,
             DnsRecordType::MX,
             DnsRecordType::NS,
-            DnsRecordType::SRV => IdnHelper::toAscii($content),
+            DnsRecordType::SRV,
+                => IdnHelper::toAscii($content),
             default => $content,
         };
     }
@@ -116,8 +132,10 @@ class DnsRecordHydrator
 
         if ($validator->fails()) {
             Log::notice(
-                'Validation of data failed during DnsRecordHydrator::hydrate(). Errors: ' .
-                $validator->errors()->toJson() . ', Raw record data: ' . json_encode($data, JSON_THROW_ON_ERROR)
+                'Validation of data failed during DnsRecordHydrator::hydrate(). Errors: '
+                    . $validator->errors()->toJson()
+                    . ', Raw record data: '
+                    . json_encode($data, JSON_THROW_ON_ERROR),
             );
 
             throw new ValidationException($validator);

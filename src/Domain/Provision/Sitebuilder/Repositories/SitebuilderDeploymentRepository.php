@@ -21,7 +21,7 @@ use Waterfront\Support\Enums\LoggingContextKeys;
 class SitebuilderDeploymentRepository
 {
     public function __construct(
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -30,9 +30,7 @@ class SitebuilderDeploymentRepository
      */
     public function getSitebuilderDeploymentsByContext(BasekitContext $basekitContext): Collection
     {
-        return $basekitContext
-            ->sitebuilderDeployments()
-            ->get();
+        return $basekitContext->sitebuilderDeployments()->get();
     }
 
     public function create(int $requestId, string $domain): SitebuilderDeployment
@@ -52,19 +50,18 @@ class SitebuilderDeploymentRepository
     public function getByTag(UuidInterface $tag): Collection
     {
         /** @var Collection<int, SitebuilderDeployment> $deployments */
-        $deployments = SitebuilderDeployment::query()
-            ->whereHas('originRequest', function ($query) use ($tag) {
-                $query->where('tag', $tag)
-                    ->where('request_type', ProvisionType::SITEBUILDER)
-                    ->whereIn('request_name', [
-                        ProvisionRequestName::CREATE_SITEBUILDER,
-                        ProvisionRequestName::CREATE_BASEKIT_DEPLOYMENTS_FROM_MIGRATION,
-                    ])
-                    ->whereHas('result', function ($query) {
-                        $query->where('status', ProvisionStatus::SUCCESS);
-                    });
-            })
-            ->get();
+        $deployments = SitebuilderDeployment::query()->whereHas('originRequest', function ($query) use ($tag) {
+            $query
+                ->where('tag', $tag)
+                ->where('request_type', ProvisionType::SITEBUILDER)
+                ->whereIn('request_name', [
+                    ProvisionRequestName::CREATE_SITEBUILDER,
+                    ProvisionRequestName::CREATE_BASEKIT_DEPLOYMENTS_FROM_MIGRATION,
+                ])
+                ->whereHas('result', function ($query) {
+                    $query->where('status', ProvisionStatus::SUCCESS);
+                });
+        })->get();
 
         return $deployments;
     }
@@ -93,6 +90,7 @@ class SitebuilderDeploymentRepository
                     LoggingContextKeys::PROVISIONING_ID => $deployment->id,
                 ]);
             }
+
             return (bool) $deployment->delete();
         });
     }

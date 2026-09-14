@@ -25,31 +25,42 @@ class EnableMarketingEmailsJobTest extends TestCase
     public function enableMarketingEmails(): void
     {
         $crmClient = $this->createMock(HubspotCrmHttpClient::class);
-        $crmClient->expects(self::once())->method('post')->willReturn([
-            'results' => [
-                [
-                    'id' => '1',
-                    'properties' => [
-                        'sw_uuid' => 'xxx-yyy-zzz',
-                        'sw_customer_number'    => '123456789',
-                        'email' => 'test@example.net',
-                        'firstname' => 'john',
-                        'lastname' => 'doe',
+        $crmClient
+            ->expects(self::once())
+            ->method('post')
+            ->willReturn([
+                'results' => [
+                    [
+                        'id' => '1',
+                        'properties' => [
+                            'sw_uuid' => 'xxx-yyy-zzz',
+                            'sw_customer_number' => '123456789',
+                            'email' => 'test@example.net',
+                            'firstname' => 'john',
+                            'lastname' => 'doe',
+                        ],
                     ],
                 ],
-            ],
-        ]);
-        $crmClient->expects(self::once())->method('patch')->with(
-            self::callback(function ($uri) {
-                self::assertSame('objects/contacts/1', $uri);
-                return true;
-            }),
-            self::callback(fn ($body) => json_encode([
-                    'properties' => [
-                        'marketing_opt_in' => 'true',
-                    ],
-                ], JSON_THROW_ON_ERROR) === json_encode($body, JSON_THROW_ON_ERROR)),
-        );
+            ]);
+        $crmClient
+            ->expects(self::once())
+            ->method('patch')
+            ->with(
+                self::callback(function ($uri) {
+                    self::assertSame('objects/contacts/1', $uri);
+
+                    return true;
+                }),
+                self::callback(
+                    fn ($body) => (
+                        json_encode([
+                            'properties' => [
+                                'marketing_opt_in' => 'true',
+                            ],
+                        ], JSON_THROW_ON_ERROR) === json_encode($body, JSON_THROW_ON_ERROR)
+                    ),
+                ),
+            );
 
         $eventRepository = $this->createStub(HubspotEventRepository::class);
         $eventRepository->method('createPendingEvent')->willReturn(new HubspotEvent());
@@ -68,7 +79,7 @@ class EnableMarketingEmailsJobTest extends TestCase
             'marketing_mail_surveys',
             'marketing_mail_newsletter',
             1,
-            1
+            1,
         );
 
         $logger = $this->createStub(LoggerInterface::class);
@@ -76,7 +87,7 @@ class EnableMarketingEmailsJobTest extends TestCase
         $job->handle(
             new ContactsClient($crmClient, HubspotSerializerFactory::get(), $config),
             $eventRepository,
-            $logger
+            $logger,
         );
     }
 
@@ -99,7 +110,7 @@ class EnableMarketingEmailsJobTest extends TestCase
         $job->handle(
             new ContactsClient($crmClient, HubspotSerializerFactory::get(), self::createStub(HubspotConfigDTO::class)),
             $eventRepository,
-            $logger
+            $logger,
         );
     }
 
@@ -107,9 +118,12 @@ class EnableMarketingEmailsJobTest extends TestCase
     public function enableWithNonExistingContact(): void
     {
         $crmClient = $this->createMock(HubspotCrmHttpClient::class);
-        $crmClient->expects(self::once())->method('post')->willReturn([
-            'results' => [],
-        ]);
+        $crmClient
+            ->expects(self::once())
+            ->method('post')
+            ->willReturn([
+                'results' => [],
+            ]);
         $crmClient->expects(self::never())->method('patch');
 
         $eventRepository = $this->createMock(HubspotEventRepository::class);
@@ -132,14 +146,14 @@ class EnableMarketingEmailsJobTest extends TestCase
             'marketing_mail_surveys',
             'marketing_mail_newsletter',
             1,
-            1
+            1,
         );
 
         $job = new EnableMarketingEmailsJob($customer);
         $job->handle(
             new ContactsClient($crmClient, HubspotSerializerFactory::get(), $config),
             $eventRepository,
-            $logger
+            $logger,
         );
     }
 }

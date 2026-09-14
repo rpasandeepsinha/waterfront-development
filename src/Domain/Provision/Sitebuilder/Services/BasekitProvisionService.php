@@ -73,23 +73,24 @@ class BasekitProvisionService implements SitebuilderProvisionServiceInterface
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
                 exception: new DeploymentNotFoundException(
-                    sprintf('No sitebuilder deployment found for the given tag [%s].', $provisionData->tagUuid)
+                    sprintf('No sitebuilder deployment found for the given tag [%s].', $provisionData->tagUuid),
                 ),
             );
         }
 
         $this->logger->debug(
             'Adding SSL to Basekit sitebuilder deployment',
-            LogContextBuilder::for($provisionData)
-                ->with(LoggingContextKeys::DOMAIN_NAME, $sitebuilderDeployment->domain)
-                ->build()
+            LogContextBuilder::for($provisionData)->with(
+                LoggingContextKeys::DOMAIN_NAME,
+                $sitebuilderDeployment->domain,
+            )->build(),
         );
 
         try {
             $this->basekitClient->sslApi->addSsl(
                 domain: $sitebuilderDeployment->domain,
                 privateKey: $provisionData->privateKey,
-                certificate: $provisionData->mainCertificate
+                certificate: $provisionData->mainCertificate,
             );
         } catch (BaseKitClientException $exception) {
             $this->logger->warning(
@@ -97,13 +98,13 @@ class BasekitProvisionService implements SitebuilderProvisionServiceInterface
                 LogContextBuilder::for($provisionData)
                     ->withException($exception)
                     ->with(LoggingContextKeys::DOMAIN_NAME, $sitebuilderDeployment->domain)
-                    ->build()
+                    ->build(),
             );
 
             return new SitebuilderResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: new BasekitAddSslException(previous: $exception)
+                exception: new BasekitAddSslException(previous: $exception),
             );
         }
 
@@ -122,7 +123,7 @@ class BasekitProvisionService implements SitebuilderProvisionServiceInterface
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
                 exception: new DeploymentNotFoundException(
-                    sprintf('No sitebuilder deployment found for the given tag [%s].', $provisionData->tagUuid)
+                    sprintf('No sitebuilder deployment found for the given tag [%s].', $provisionData->tagUuid),
                 ),
             );
         }
@@ -133,7 +134,7 @@ class BasekitProvisionService implements SitebuilderProvisionServiceInterface
             return new SitebuilderSsoResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: new BasekitSiteRefNotFoundException($sitebuilderDeployment->uuid)
+                exception: new BasekitSiteRefNotFoundException($sitebuilderDeployment->uuid),
             );
         }
 
@@ -143,7 +144,7 @@ class BasekitProvisionService implements SitebuilderProvisionServiceInterface
             return new SitebuilderSsoResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: new BasekitUserRefNotFoundForContextException($provisionData->context)
+                exception: new BasekitUserRefNotFoundForContextException($provisionData->context),
             );
         }
 
@@ -153,7 +154,7 @@ class BasekitProvisionService implements SitebuilderProvisionServiceInterface
             return new SitebuilderSsoResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
 
@@ -161,7 +162,7 @@ class BasekitProvisionService implements SitebuilderProvisionServiceInterface
             '%s/login?hash=%s&siteRef=%s',
             $this->basekitConfig->ssoUrl,
             rawurlencode($hash),
-            $siteRef
+            $siteRef,
         );
 
         return new SitebuilderSsoResult(
@@ -203,13 +204,13 @@ class BasekitProvisionService implements SitebuilderProvisionServiceInterface
                 LogContextBuilder::for($provisionData)
                     ->withException($exception)
                     ->withMeta(['site_ref' => $provisionData->siteRef])
-                    ->build()
+                    ->build(),
             );
 
             return new BasekitSiteResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
     }
@@ -231,13 +232,13 @@ class BasekitProvisionService implements SitebuilderProvisionServiceInterface
                 LogContextBuilder::for($provisionData)
                     ->withException($exception)
                     ->withMeta(['user_ref' => $provisionData->userRef])
-                    ->build()
+                    ->build(),
             );
 
             return new BasekitUserResult(
                 provisionData: $provisionData,
                 provisionStatus: ProvisionStatus::FAILED,
-                exception: $exception
+                exception: $exception,
             );
         }
     }

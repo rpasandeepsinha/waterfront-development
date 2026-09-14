@@ -63,7 +63,7 @@ class WaitForVirtualMachineStoppedSetCredentialsJob extends AbstractQueueableJob
                 LoggingContextKeys::META => [
                     'job_id' => $this->cloudstackJob->job_id,
                 ],
-            ]
+            ],
         );
 
         // If waiting for a stopped vm fails, the VM is still operational for the customer
@@ -74,8 +74,11 @@ class WaitForVirtualMachineStoppedSetCredentialsJob extends AbstractQueueableJob
         $this->deployment->save();
     }
 
-    public function handle(VirtualMachineService $virtualMachineService, VpsService $vpsService, LoggerInterface $logger): void
-    {
+    public function handle(
+        VirtualMachineService $virtualMachineService,
+        VpsService $vpsService,
+        LoggerInterface $logger,
+    ): void {
         $virtualMachine = $virtualMachineService->findByDeployment($this->deployment);
         assert($virtualMachine !== null);
 
@@ -85,7 +88,7 @@ class WaitForVirtualMachineStoppedSetCredentialsJob extends AbstractQueueableJob
                     'Waiting for VM to stop, current state: %s, attempt: [%d/%d]',
                     $virtualMachine->state->value,
                     $this->attempts(),
-                    $this->tries
+                    $this->tries,
                 ),
                 [
                     LoggingContextKeys::SUBSCRIPTION_UUID => $this->deployment->subscription_uuid,
@@ -95,10 +98,11 @@ class WaitForVirtualMachineStoppedSetCredentialsJob extends AbstractQueueableJob
                     LoggingContextKeys::META => [
                         'job_id' => $this->cloudstackJob->job_id,
                     ],
-                ]
+                ],
             );
 
             $this->release($this->getBackoffDelay());
+
             return;
         }
 
@@ -106,13 +110,13 @@ class WaitForVirtualMachineStoppedSetCredentialsJob extends AbstractQueueableJob
         /** @var VirtualMachine $vpsData */
         $vpsData = $serializer->denormalize(
             $this->jobResponse->retrieveReinstallData(),
-            VirtualMachine::class
+            VirtualMachine::class,
         );
         $vpsService->mailCustomerVmDetails($this->deployment, $vpsData);
 
         $virtualMachineService->postReinstall(
             $this->deployment,
-            $this->cloudstackJob
+            $this->cloudstackJob,
         );
     }
 

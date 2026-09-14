@@ -69,6 +69,7 @@ class DomainNameController
     {
         $domainDeployment->loadMissing('subscription');
         $this->subscriptionPolicy->assertCanManageDomain($domainDeployment->subscription);
+
         return $this->domainDeploymentResource->toArray($domainDeployment);
     }
 
@@ -100,7 +101,7 @@ class DomainNameController
 
             return new JsonResponse(
                 ['message' => 'Domain not found at registry'],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
 
@@ -117,6 +118,7 @@ class DomainNameController
         if ($domainDeployment === null) {
             throw new UnauthorizedException();
         }
+
         $this->deploymentPolicy->assertCanUseDnsSec($domainDeployment);
 
         $this->subscriptionPolicy->assertCanManageDomain($domainDeployment->subscription);
@@ -138,7 +140,7 @@ class DomainNameController
                     '%d 3 %d %s',
                     $request->integer('flags'),
                     $request->integer('alg'),
-                    $request->string('pubKey')
+                    $request->string('pubKey'),
                 ),
             ]);
         }
@@ -153,7 +155,7 @@ class DomainNameController
 
         return new JsonResponse(
             ['message' => 'Could not enable DNSSEC'],
-            Response::HTTP_INTERNAL_SERVER_ERROR
+            Response::HTTP_INTERNAL_SERVER_ERROR,
         );
     }
 
@@ -175,7 +177,7 @@ class DomainNameController
         if (! $disabled) {
             return new JsonResponse(
                 ['message' => 'Could not disable DNSSEC'],
-                Response::HTTP_INTERNAL_SERVER_ERROR
+                Response::HTTP_INTERNAL_SERVER_ERROR,
             );
         }
 
@@ -192,10 +194,17 @@ class DomainNameController
         $this->subscriptionPolicy->assertCanManageDomain($domainDeployment->subscription);
         Assert::string($domainDeployment->subscription->domain);
 
-        $this->domainService->modify($domainDeployment->subscription->domain, ['isLocked' => false], $domainDeployment->provider->slug);
+        $this->domainService->modify(
+            $domainDeployment->subscription->domain,
+            ['isLocked' => false],
+            $domainDeployment->provider->slug,
+        );
 
         try {
-            $authCode = $this->domainService->retrieveAuthCode($domainDeployment->provider->slug, $domainDeployment->subscription->domain);
+            $authCode = $this->domainService->retrieveAuthCode(
+                $domainDeployment->provider->slug,
+                $domainDeployment->subscription->domain,
+            );
         } catch (Exception $exception) {
             Log::error(sprintf(
                 'Error retrieving domain transfercode for: [%s], Could not retrieve authcode from provider. Message: %s',
@@ -206,7 +215,7 @@ class DomainNameController
             return new JsonResponse([
                 'message' => sprintf(
                     'Could not retrieve transfer code from domain provider for domain [%s]',
-                    $domainDeployment->subscription->domain
+                    $domainDeployment->subscription->domain,
                 ),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -265,7 +274,10 @@ class DomainNameController
             $metaData->contactId = $request->contactId;
 
             if ($subscription->orderLineItem !== null) {
-                $subscription->orderLineItem->meta_data = $this->cartSerializerFactory->get()->encode($metaData, 'json');
+                $subscription->orderLineItem->meta_data = $this->cartSerializerFactory->get()->encode(
+                    $metaData,
+                    'json',
+                );
             }
         }
 
@@ -279,13 +291,13 @@ class DomainNameController
                 [
                     LoggingContextKeys::DOMAIN_NAME => $domain,
                     LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-                ]
+                ],
             );
 
             return new JsonResponse([
                 'message' => sprintf(
                     'Could not retrieve DNS from domain [%s]',
-                    $domain
+                    $domain,
                 ),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -296,7 +308,7 @@ class DomainNameController
             new CreateDns(
                 $dnsSubscription->uuid,
                 $subscription->domain,
-            )
+            ),
         );
 
         $this->eventDispatcher->dispatch(
@@ -304,10 +316,12 @@ class DomainNameController
                 $domain,
                 $subscription,
                 $domainDeployment,
-            )
+            ),
         );
 
-        return new JsonResponse(['message' => $this->translator->translate('technical_subscription.provisioning.initiated_retry_success')]);
+        return new JsonResponse([
+            'message' => $this->translator->translate('technical_subscription.provisioning.initiated_retry_success'),
+        ]);
     }
 
     /**

@@ -69,8 +69,7 @@ class HostingService
      */
     public function decoupleHostingByDomain(DomainDeployment $domainDeployment): void
     {
-        $this->hostingServiceFactory
-            ->defaultDriver()->decoupleHostingByDomain($domainDeployment);
+        $this->hostingServiceFactory->defaultDriver()->decoupleHostingByDomain($domainDeployment);
     }
 
     public function getCoupledHostingByDomain(DomainDeployment $domainDeployment): ?HostingDeployment
@@ -85,14 +84,18 @@ class HostingService
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::DOMAIN_NAME => $domainDeployment->subscription->domain,
-                ]
+                ],
             );
             throw new HostingException(
-                self::class . '::getCoupledHostingByDomain - exception code: ' . $exception->getCode()
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString(),
+                self::class
+                    . '::getCoupledHostingByDomain - exception code: '
+                    . $exception->getCode()
+                    . ', message: '
+                    . $exception->getMessage()
+                    . ', trace: '
+                    . $exception->getTraceAsString(),
                 $exception->getCode(),
-                $exception
+                $exception,
             );
         }
     }
@@ -110,30 +113,34 @@ class HostingService
      */
     public function coupleDomainToExistingHosting(
         DomainDeployment $domainDeployment,
-        HostingDeployment $hostingDeployment
+        HostingDeployment $hostingDeployment,
     ): bool {
         try {
             $providerSlug = $this->getProviderSlug($hostingDeployment->subscription);
 
-            return $this->hostingServiceFactory
-                ->driver(ProviderSlug::from($providerSlug ?? ''))
-                ->coupleDomainToExistingHosting($domainDeployment, $hostingDeployment);
+            return $this->hostingServiceFactory->driver(ProviderSlug::from($providerSlug
+            ?? ''))->coupleDomainToExistingHosting($domainDeployment, $hostingDeployment);
         } catch (Exception $exception) {
             $this->logger->error(
                 'Could not couple domain to existing hosting {domain.name}',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
                     LoggingContextKeys::DOMAIN_NAME => $domainDeployment->subscription->domain,
-                ]
+                ],
             );
 
             throw new HostingException(
-                self::class . '::coupleDomainToExistingHosting - domain: ' . $domainDeployment->subscription->domain
-                . ', exception code: ' . $exception->getCode()
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString(),
+                self::class
+                    . '::coupleDomainToExistingHosting - domain: '
+                    . $domainDeployment->subscription->domain
+                    . ', exception code: '
+                    . $exception->getCode()
+                    . ', message: '
+                    . $exception->getMessage()
+                    . ', trace: '
+                    . $exception->getTraceAsString(),
                 $exception->getCode(),
-                $exception
+                $exception,
             );
         }
     }
@@ -157,12 +164,14 @@ class HostingService
         if ($serverId !== null && $serverId !== 0) {
             $server = Server::find($serverId);
         } else {
-            $server = $this->hostingServiceFactory
-                ->defaultDriver()
-                ->findServer();
+            $server = $this->hostingServiceFactory->defaultDriver()->findServer();
         }
 
-        Assert::isInstanceOf($server, Server::class, message: 'There is a server required, before we can start with creation of hosting');
+        Assert::isInstanceOf(
+            $server,
+            Server::class,
+            message: 'There is a server required, before we can start with creation of hosting',
+        );
 
         $this->logger->info(
             'Create hosting',
@@ -175,28 +184,29 @@ class HostingService
                     'contact person' => $contactPersonName,
                     'email' => $contactEmail,
                 ],
-            ]
+            ],
         );
 
         /** @var Subscription $subscription */
         $subscription = $this->subscriptionRepository->getByUuid($subscriptionUuid);
 
         try {
-            $status = $this->hostingServiceFactory
-                ->defaultDriver()
-                ->create(
-                    contactPersonName: $contactPersonName,
-                    contactEmail: $contactEmail,
-                    customerEmail: $customer->email,
-                    customerUuid: $customer->uuid,
-                    subscriptionUuid: $subscriptionUuid,
-                    specs: $product->productSpecs->toArray(),
-                    server: $server,
-                    forwardingUrl: $forwardingUrl,
-                    domain: $domain
-                );
+            $status = $this->hostingServiceFactory->defaultDriver()->create(
+                contactPersonName: $contactPersonName,
+                contactEmail: $contactEmail,
+                customerEmail: $customer->email,
+                customerUuid: $customer->uuid,
+                subscriptionUuid: $subscriptionUuid,
+                specs: $product->productSpecs->toArray(),
+                server: $server,
+                forwardingUrl: $forwardingUrl,
+                domain: $domain,
+            );
 
-            if ($this->productSpecRepository->booleanSpecificationIsTrue($product, ProductSpecName::WAIT_FOR_WP_TOOLKIT)) {
+            if ($this->productSpecRepository->booleanSpecificationIsTrue(
+                $product,
+                ProductSpecName::WAIT_FOR_WP_TOOLKIT,
+            )) {
                 $status['result'] = TechnicalStatus::PENDING->value;
                 $job = new ReceiveWpInstallationIdJob($subscription->uuid, $server);
                 $this->busDispatcher->dispatch($job);
@@ -212,7 +222,7 @@ class HostingService
                     LoggingContextKeys::META => [
                         'product_specs' => $product->productSpecs->toArray(),
                     ],
-                ]
+                ],
             );
 
             // @todo: find a generic system for the status of the different actions.
@@ -231,7 +241,7 @@ class HostingService
     public function getSsoUrl(
         HostingDeployment $hostingDeployment,
         string $ipAddress,
-        bool $redirectToMail = false
+        bool $redirectToMail = false,
     ): string {
         /**
          * Upgrades/Downgrades are not working properly sometimes servers are not switched properly,
@@ -249,7 +259,7 @@ class HostingService
                 sprintf(
                     'Failed to generate SSO Url, No server attached to hosting deployment %s',
                     $hostingDeployment->uuid,
-                )
+                ),
             );
         }
 
@@ -257,8 +267,8 @@ class HostingService
             throw new SsoResolveException(
                 sprintf(
                     'Failed to generate SSO Url, No username found for hosting deployment %s',
-                    $hostingDeployment->uuid
-                )
+                    $hostingDeployment->uuid,
+                ),
             );
         }
 
@@ -270,7 +280,7 @@ class HostingService
             $username,
             $server,
             $ipAddress,
-            $redirectToMail
+            $redirectToMail,
         );
 
         if ($ssoUrl === '') {
@@ -279,8 +289,8 @@ class HostingService
                     'Could not retrieve SSO url for hosting deployment %s using server %d from IP %s',
                     $hostingDeployment->uuid,
                     $server->id,
-                    $ipAddress
-                )
+                    $ipAddress,
+                ),
             );
         }
 
@@ -310,14 +320,14 @@ class HostingService
                 [
                     LoggingContextKeys::SUBSCRIPTION_ID => $hostingDeployment->subscription->id,
                     LoggingContextKeys::DOMAIN_NAME => $hostingDeployment->subscription->domain,
-                ]
+                ],
             );
             throw new ModelNotFoundException(
                 sprintf(
                     'Server not found for subscription with id: %s and domain %s',
                     $hostingDeployment->subscription->id,
-                    $hostingDeployment->subscription->domain
-                )
+                    $hostingDeployment->subscription->domain,
+                ),
             );
         }
 
@@ -336,7 +346,7 @@ class HostingService
                 sprintf(
                     'Subscription %d is not a hosting subscription',
                     $subscription->id,
-                )
+                ),
             );
         }
 
@@ -350,15 +360,15 @@ class HostingService
                 sprintf(
                     'Server not found for subscription with id: %s and domain %s',
                     $subscription->id,
-                    $subscription->domain ?? 'domain not set'
-                )
+                    $subscription->domain ?? 'domain not set',
+                ),
             );
             throw new ModelNotFoundException(
                 sprintf(
                     'Server not found for subscription with id: %s and domain %s',
                     $subscription->id,
-                    $subscription->domain ?? 'domain not set'
-                )
+                    $subscription->domain ?? 'domain not set',
+                ),
             );
         }
 
@@ -368,6 +378,7 @@ class HostingService
 
         /** @var Provider $provider */
         $provider = $hostingDeployment->provider()->firstOrFail();
+
         return $this->hostingServiceFactory->driver($provider->slug)->modifyCustomer($parameters);
     }
 
@@ -392,9 +403,9 @@ class HostingService
      */
     public function getPackageOnServer(Server $server, string $packageName): array
     {
-        return $this->hostingServiceFactory
-            ->driver($this->hostingServiceFactory->getDriverFromServer($server))
-            ->getPackageOnServer($server, $packageName);
+        return $this->hostingServiceFactory->driver($this->hostingServiceFactory->getDriverFromServer(
+            $server,
+        ))->getPackageOnServer($server, $packageName);
     }
 
     /**
@@ -405,23 +416,27 @@ class HostingService
      */
     public function getPackageOnServerAsDto(Server $server, string $packageName): HostingOfferingInterface
     {
-        return $this->hostingServiceFactory
-            ->driver($this->hostingServiceFactory->getDriverFromServer($server))
-            ->getPackageOnServerAsDto($server, $packageName);
+        return $this->hostingServiceFactory->driver($this->hostingServiceFactory->getDriverFromServer(
+            $server,
+        ))->getPackageOnServerAsDto($server, $packageName);
     }
 
     /**
      * Get the URL to log into the server for SSO.
      */
-    public function getServerSsoUrl(Server $server, ProviderSlug $driver): string|null
+    public function getServerSsoUrl(Server $server, ProviderSlug $driver): ?string
     {
         try {
             return $this->hostingServiceFactory->driver($driver)->getServerSsoUrl($server->id);
         } catch (Exception $exception) {
             Log::error(
-                self::class . '::getServerSsoUrl - status code: ' . $exception->getCode()
-                . ', message: ' . $exception->getMessage()
-                . ', trace: ' . $exception->getTraceAsString()
+                self::class
+                    . '::getServerSsoUrl - status code: '
+                    . $exception->getCode()
+                    . ', message: '
+                    . $exception->getMessage()
+                    . ', trace: '
+                    . $exception->getTraceAsString(),
             );
 
             return null;
@@ -438,14 +453,14 @@ class HostingService
             Log::error(
                 sprintf(
                     'Server not found for subscription with id: %s',
-                    $subscription->id
-                )
+                    $subscription->id,
+                ),
             );
             throw new ModelNotFoundException(
                 sprintf(
                     'Server not found for subscription with id: %s',
                     $subscription->id,
-                )
+                ),
             );
         }
 
@@ -464,9 +479,10 @@ class HostingService
      */
     public function getUserConfigAsDto(string $driver, string $identifier, Server $server): SiteConfigInterface
     {
-        return $this->hostingServiceFactory
-            ->driver(ProviderSlug::from($driver))
-            ->getUserConfigAsDto($identifier, $server);
+        return $this->hostingServiceFactory->driver(ProviderSlug::from($driver))->getUserConfigAsDto(
+            $identifier,
+            $server,
+        );
     }
 
     /**
@@ -474,9 +490,7 @@ class HostingService
      */
     public function getUserConfig(string $driver, string $identifier, Server $server): array
     {
-        return $this->hostingServiceFactory
-            ->driver(ProviderSlug::from($driver))
-            ->getUserConfig($identifier, $server);
+        return $this->hostingServiceFactory->driver(ProviderSlug::from($driver))->getUserConfig($identifier, $server);
     }
 
     /**
@@ -486,9 +500,10 @@ class HostingService
      */
     public function getUserConfigAsAdmin(string $driver, string $identifier, Server $server): array
     {
-        return $this->hostingServiceFactory
-            ->driver(ProviderSlug::from($driver))
-            ->getUserConfigAsAdmin($identifier, $server);
+        return $this->hostingServiceFactory->driver(ProviderSlug::from($driver))->getUserConfigAsAdmin(
+            $identifier,
+            $server,
+        );
     }
 
     /**
@@ -499,12 +514,10 @@ class HostingService
         Assert::notNull($deployment->subscription->domain, 'Provided subscription has no domain');
         Assert::notNull($deployment->provider);
 
-        $success = $this->hostingServiceFactory
-            ->driver($deployment->provider->slug)
-            ->terminate(
-                $deployment->subscription->domain,
-                $deployment->subscription->uuid
-            );
+        $success = $this->hostingServiceFactory->driver($deployment->provider->slug)->terminate(
+            $deployment->subscription->domain,
+            $deployment->subscription->uuid,
+        );
 
         if ($success) {
             $deployment->subscription->technical_status = Result::STATUS_DELETED;
@@ -527,14 +540,14 @@ class HostingService
             Log::error(
                 sprintf(
                     'Server not found for subscription with id: %s',
-                    $subscription->id
-                )
+                    $subscription->id,
+                ),
             );
             throw new ModelNotFoundException(
                 sprintf(
                     'Server not found for subscription with id: %s',
-                    $subscription->id
-                )
+                    $subscription->id,
+                ),
             );
         }
 
@@ -549,22 +562,20 @@ class HostingService
         return $this->hostingServiceFactory->driver($driver)->resetPassword($parameters, $subscription->customer->uuid);
     }
 
-    public function getDefaultDomain(ProviderSlug $driver, string $username, Server $server): string|null
+    public function getDefaultDomain(ProviderSlug $driver, string $username, Server $server): ?string
     {
         Log::info(
             self::class . '::getDefaultDomain - Get default domain',
             [
                 LoggingContextKeys::META => [
-                    'driver'   => $driver->value,
+                    'driver' => $driver->value,
                     'username' => $username,
-                    'server'   => $server->hostname,
+                    'server' => $server->hostname,
                 ],
-            ]
+            ],
         );
 
-        return $this->hostingServiceFactory
-            ->driver($driver)
-            ->getDefaultDomain($username, $server);
+        return $this->hostingServiceFactory->driver($driver)->getDefaultDomain($username, $server);
     }
 
     /**
@@ -573,13 +584,15 @@ class HostingService
      */
     public function isUsingHostingServerAsNameserver(
         string $driver,
-        string|null $ipv4HostingServer,
-        string|null $ipv6HostingServer,
-        SiteConfigInterface $siteConfig
+        ?string $ipv4HostingServer,
+        ?string $ipv6HostingServer,
+        SiteConfigInterface $siteConfig,
     ): bool {
-        return $this->hostingServiceFactory
-            ->driver(ProviderSlug::from($driver))
-            ->isUsingHostingServerAsNameserver($ipv4HostingServer, $ipv6HostingServer, $siteConfig);
+        return $this->hostingServiceFactory->driver(ProviderSlug::from($driver))->isUsingHostingServerAsNameserver(
+            $ipv4HostingServer,
+            $ipv6HostingServer,
+            $siteConfig,
+        );
     }
 
     /**
@@ -604,7 +617,7 @@ class HostingService
                 LoggingContextKeys::META => [
                     'domains' => $domains,
                 ],
-            ]
+            ],
         );
 
         return $domains;
@@ -616,9 +629,10 @@ class HostingService
      */
     public function isDkimEnabled(string $driver, HostingDeployment $hostingDeployment, string $domain): bool
     {
-        return $this->hostingServiceFactory
-            ->driver(ProviderSlug::from($driver))
-            ->isDkimEnabled($hostingDeployment, $domain);
+        return $this->hostingServiceFactory->driver(ProviderSlug::from($driver))->isDkimEnabled(
+            $hostingDeployment,
+            $domain,
+        );
     }
 
     /**
@@ -634,12 +648,14 @@ class HostingService
                 LoggingContextKeys::PROVISIONING_PROVIDER => ProviderSlug::tryFrom($driver)->value ?? $driver,
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING,
                 LoggingContextKeys::PROVISIONING_ID => $hostingDeployment->id,
-            ]
+            ],
         );
 
-        $this->hostingServiceFactory
-            ->driver(ProviderSlug::from($driver))
-            ->setDkim($hostingDeployment, $domain, $enable);
+        $this->hostingServiceFactory->driver(ProviderSlug::from($driver))->setDkim(
+            $hostingDeployment,
+            $domain,
+            $enable,
+        );
     }
 
     /**
@@ -648,9 +664,10 @@ class HostingService
      */
     public function getDkimRecord(string $driver, HostingDeployment $hostingDeployment, string $domain): ?DnsRecord
     {
-        $dnsRecord = $this->hostingServiceFactory
-            ->driver(ProviderSlug::from($driver))
-            ->getDkimRecord($hostingDeployment, $domain);
+        $dnsRecord = $this->hostingServiceFactory->driver(ProviderSlug::from($driver))->getDkimRecord(
+            $hostingDeployment,
+            $domain,
+        );
 
         $this->logger->debug(
             'Retrieved DKIM DNS record for {domain.name}',
@@ -659,14 +676,16 @@ class HostingService
                 LoggingContextKeys::PROVISIONING_PROVIDER => ProviderSlug::tryFrom($driver)->value ?? $driver,
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING,
                 LoggingContextKeys::PROVISIONING_ID => $hostingDeployment->id,
-                LoggingContextKeys::META => $dnsRecord === null ? null : [
-                    'dkim_dns_record' => [
-                        'type' => $dnsRecord->type,
-                        'host' => $dnsRecord->host,
-                        'value' => $dnsRecord->value,
+                LoggingContextKeys::META => $dnsRecord === null
+                    ? null
+                    : [
+                        'dkim_dns_record' => [
+                            'type' => $dnsRecord->type,
+                            'host' => $dnsRecord->host,
+                            'value' => $dnsRecord->value,
+                        ],
                     ],
-                ],
-            ]
+            ],
         );
 
         return $dnsRecord;
@@ -686,7 +705,10 @@ class HostingService
             return $subscription->hostingDeployment->provider?->slug->value;
         }
 
-        $this->logger->notice(sprintf('Subscription with id: %d was a hosting deployment but was not coupled to a provider.', $subscription->id));
+        $this->logger->notice(sprintf(
+            'Subscription with id: %d was a hosting deployment but was not coupled to a provider.',
+            $subscription->id,
+        ));
 
         return Provider::where('default', true)->where('type', ProviderType::HOSTING)->first()?->slug->value;
     }

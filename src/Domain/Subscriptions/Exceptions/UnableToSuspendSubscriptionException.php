@@ -10,8 +10,10 @@ use Waterfront\Domain\Subscriptions\Models\Subscription;
 
 class UnableToSuspendSubscriptionException extends Exception
 {
-    public static function subscriptionAdministrativeOrTechnicalStatusNotSufficient(AuditLogEvent $type, Subscription $subscription): self
-    {
+    public static function subscriptionAdministrativeOrTechnicalStatusNotSufficient(
+        AuditLogEvent $type,
+        Subscription $subscription,
+    ): self {
         return new self(
             sprintf(
                 '%s of subscription with id: %d and domain %s is not possible because the
@@ -20,8 +22,8 @@ class UnableToSuspendSubscriptionException extends Exception
                 $subscription->id,
                 $subscription->domain,
                 $subscription->administrative_status,
-                $subscription->technical_status
-            )
+                $subscription->technical_status,
+            ),
         );
     }
 }

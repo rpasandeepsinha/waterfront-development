@@ -36,7 +36,7 @@ class SslRenewalTest extends TestCase
         self::assertXmlStringEqualsXmlString(
             $requestXml,
             $request->getXml(),
-            'The xml of the request does not match the expected values'
+            'The xml of the request does not match the expected values',
         );
     }
 
@@ -46,7 +46,7 @@ class SslRenewalTest extends TestCase
         $response = new Response(
             200,
             ['Content-Type' => 'text/xml'],
-            (string) file_get_contents(__DIR__ . '/data/openprovider_ssl_renew_response.xml')
+            (string) file_get_contents(__DIR__ . '/data/openprovider_ssl_renew_response.xml'),
         );
 
         $sslResponse = new SslRenewResponse($response);

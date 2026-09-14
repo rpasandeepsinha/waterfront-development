@@ -40,7 +40,7 @@ class CreateDirectDebitMandateAction
         string $consumerName,
         string $consumerAccount, // IBAN
         CarbonImmutable $signatureDate, // Y-m-d will be used
-        string|null $consumerBic = null,
+        ?string $consumerBic = null,
     ): Mandate {
         $this->logger->debug(sprintf('Creating mandate for customer %s', $customer->customer_number), [
             LoggingContextKeys::CUSTOMER_ID => $customer->id,
@@ -50,7 +50,7 @@ class CreateDirectDebitMandateAction
             $customer->name,
             $customer->email,
             $customer->locale,
-            new MollieCustomerMetadataDTO(debtorId: $customer->customer_number)
+            new MollieCustomerMetadataDTO(debtorId: $customer->customer_number),
         );
 
         $mollieCustomerResponseDTO = $this->mollieCustomerManager->findOrCreate(
@@ -63,7 +63,8 @@ class CreateDirectDebitMandateAction
         ]);
 
         /** @var MollieCustomer $mollieCustomer */
-        $mollieCustomer = $customer->mollieCustomer()
+        $mollieCustomer = $customer
+            ->mollieCustomer()
             ->where('mollie_customer_reference_id', $mollieCustomerResponseDTO->id)
             ->firstOrFail();
 
@@ -79,12 +80,20 @@ class CreateDirectDebitMandateAction
             $mollieMandateCreateDTO,
         );
 
-        $this->logger->debug(sprintf('Using Mollie customer %s mandate %s', $mollieCustomerResponseDTO->id, $mollieMandateResponseDTO->id), [
-            LoggingContextKeys::CUSTOMER_ID => $customer->id,
-        ]);
+        $this->logger->debug(
+            sprintf(
+                'Using Mollie customer %s mandate %s',
+                $mollieCustomerResponseDTO->id,
+                $mollieMandateResponseDTO->id,
+            ),
+            [
+                LoggingContextKeys::CUSTOMER_ID => $customer->id,
+            ],
+        );
 
         /** @var Mandate $mandate */
-        $mandate = $mollieCustomer->mandates()
+        $mandate = $mollieCustomer
+            ->mandates()
             ->where('mollie_mandate_reference_id', $mollieMandateResponseDTO->id)
             ->firstOrFail();
 

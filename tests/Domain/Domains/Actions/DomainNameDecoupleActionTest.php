@@ -65,9 +65,9 @@ class DomainNameDecoupleActionTest extends IntegrationTestCase
             ->success()
             ->createOne();
 
-        DomainNameCoupleDeploymentFactory::new()
-            ->hostingCoupling()
-            ->createOne(['origin_provisioning_request_id' => $provisioningResult->request_id]);
+        DomainNameCoupleDeploymentFactory::new()->hostingCoupling()->createOne([
+            'origin_provisioning_request_id' => $provisioningResult->request_id,
+        ]);
 
         $provisioningFilteredResult = new ProvisioningFilteredResult(
             resultId: $provisioningResult->id,
@@ -89,15 +89,26 @@ class DomainNameDecoupleActionTest extends IntegrationTestCase
         $result = self::createStub(DomainNameDecoupleResult::class);
         $result->provisionStatus = ProvisionStatus::SUCCESS;
 
-        $this->mockGateway->shouldReceive('fetch')
+        $this->mockGateway
+            ->shouldReceive('fetch')
             ->once()
-            ->withArgs(fn (ProvisioningResultQueryFilters $filters, int $limit) => $filters->tag?->toString() === $subscription->uuid && $limit === 1)
+            ->withArgs(
+                fn (ProvisioningResultQueryFilters $filters, int $limit) => (
+                    $filters->tag?->toString() === $subscription->uuid
+                    && $limit === 1
+                ),
+            )
             ->andReturn(new Collection([$provisioningFilteredResult]));
 
         $this->mockGateway
             ->shouldReceive('request')
             ->once()
-            ->withArgs(fn (DomainNameDecoupleRequest $request) => $request->domain === $domain && $request->requestUuid->equals($provisioningFilteredResult->requestUuid))
+            ->withArgs(
+                fn (DomainNameDecoupleRequest $request) => (
+                    $request->domain === $domain
+                    && $request->requestUuid->equals($provisioningFilteredResult->requestUuid)
+                ),
+            )
             ->andReturn($result);
 
         $this->mockLogger->shouldNotReceive('warning');
@@ -118,23 +129,26 @@ class DomainNameDecoupleActionTest extends IntegrationTestCase
             ->shouldReceive('fetch')
             ->once()
             ->withArgs(
-                fn (ProvisioningResultQueryFilters $filters, int $limit) => $filters->tag?->toString() === $subscription->uuid && $limit === 1
+                fn (ProvisioningResultQueryFilters $filters, int $limit) => (
+                    $filters->tag?->toString() === $subscription->uuid
+                    && $limit === 1
+                ),
             )
             ->andReturn(new Collection([]));
 
         $this->mockLogger
             ->shouldReceive('warning')
-        ->once()
-        ->with(
-            'No provisioning data found during domain decoupling for subscription {subscription.id} with UUID {subscription.uuid}.',
-            [
-                LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::INTERNAL,
-                LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME_COUPLING,
-                LoggingContextKeys::DOMAIN_NAME => $domain,
-                LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
-                LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
-            ]
-        );
+            ->once()
+            ->with(
+                'No provisioning data found during domain decoupling for subscription {subscription.id} with UUID {subscription.uuid}.',
+                [
+                    LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::INTERNAL,
+                    LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME_COUPLING,
+                    LoggingContextKeys::DOMAIN_NAME => $domain,
+                    LoggingContextKeys::SUBSCRIPTION_ID => $subscription->id,
+                    LoggingContextKeys::SUBSCRIPTION_UUID => $subscription->uuid,
+                ],
+            );
 
         $this->expectException(DomainNameDecoupleActionException::class);
         $this->expectExceptionMessageIs(sprintf('No provisioning data found for subscription %s', $subscription->uuid));
@@ -156,9 +170,9 @@ class DomainNameDecoupleActionTest extends IntegrationTestCase
             ->success()
             ->createOne();
 
-        DomainNameCoupleDeploymentFactory::new()
-            ->hostingCoupling()
-            ->createOne(['origin_provisioning_request_id' => $provisioningResult->request_id]);
+        DomainNameCoupleDeploymentFactory::new()->hostingCoupling()->createOne([
+            'origin_provisioning_request_id' => $provisioningResult->request_id,
+        ]);
 
         $provisioningFilteredResult = new ProvisioningFilteredResult(
             resultId: $provisioningResult->id,
@@ -183,15 +197,26 @@ class DomainNameDecoupleActionTest extends IntegrationTestCase
         $result->provisionStatus = ProvisionStatus::FAILED;
         $result->exception = $exceptionDuringDecouple;
 
-        $this->mockGateway->shouldReceive('fetch')
+        $this->mockGateway
+            ->shouldReceive('fetch')
             ->once()
-            ->withArgs(fn (ProvisioningResultQueryFilters $filters, int $limit) => $filters->tag?->toString() === $subscription->uuid && $limit === 1)
+            ->withArgs(
+                fn (ProvisioningResultQueryFilters $filters, int $limit) => (
+                    $filters->tag?->toString() === $subscription->uuid
+                    && $limit === 1
+                ),
+            )
             ->andReturn(new Collection([$provisioningFilteredResult]));
 
         $this->mockGateway
             ->shouldReceive('request')
             ->once()
-            ->withArgs(fn (DomainNameDecoupleRequest $request) => $request->domain === $domain && $request->requestUuid->equals($provisioningFilteredResult->requestUuid))
+            ->withArgs(
+                fn (DomainNameDecoupleRequest $request) => (
+                    $request->domain === $domain
+                    && $request->requestUuid->equals($provisioningFilteredResult->requestUuid)
+                ),
+            )
             ->andReturn($result);
 
         $this->mockLogger
@@ -208,7 +233,7 @@ class DomainNameDecoupleActionTest extends IntegrationTestCase
                         'couple_request_uuid' => $provisioningResult->provisioningRequest->uuid,
                     ],
                     LoggingContextKeys::EXCEPTION => $exceptionDuringDecouple,
-                ]
+                ],
             );
 
         $this->expectException(DomainNameDecoupleActionException::class);

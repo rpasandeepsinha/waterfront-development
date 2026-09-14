@@ -69,20 +69,20 @@ class Parameters
 
     public static function create(array $data): Parameters
     {
-        $data = array_filter($data);
+        $data = array_filter($data, fn (mixed $value): bool => (bool) $value);
         $data = self::customerOrCompanyData($data);
         self::validateRequiredFields($data);
 
         Log::info(sprintf(
             'Encoded data: %s',
-            json_encode($data, JSON_THROW_ON_ERROR)
+            json_encode($data, JSON_THROW_ON_ERROR),
         ));
 
         $hydrator = new Hydrator();
 
         Log::info(sprintf(
             'Hydrated data: %s',
-            $hydrator->hydrate($data, new self())->toString()
+            $hydrator->hydrate($data, new self())->toString(),
         ));
 
         return $hydrator->hydrate($data, new self());
@@ -108,7 +108,7 @@ class Parameters
         Log::info(sprintf(
             'Attempting to create an ssl product with external id: %s for domain: %s',
             $productId,
-            $domain
+            $domain,
         ));
 
         $this->productId = $productId;
@@ -165,6 +165,7 @@ class Parameters
         if ($this->city !== null) {
             return $this->city;
         }
+
         $city = Arr::get($this->customer, 'address.city', 'default');
         assert(is_string($city));
 

@@ -54,8 +54,16 @@ class SubscriptionAddonServiceTest extends IntegrationTestCase
         $addonCoupling->addon_product_id = $alreadyBoughAddonProduct->id;
         $addonCoupling->save();
 
-        $subscription = SubscriptionFactory::new()->administrativeStatusActive()->for($customer)->for($product)->createOne();
-        SubscriptionFactory::new()->administrativeStatusActive()->for($customer)->for($alreadyBoughAddonProduct)->createOne(['parent_subscription_id' => $subscription->id]);
+        $subscription = SubscriptionFactory::new()
+            ->administrativeStatusActive()
+            ->for($customer)
+            ->for($product)
+            ->createOne();
+        SubscriptionFactory::new()
+            ->administrativeStatusActive()
+            ->for($customer)
+            ->for($alreadyBoughAddonProduct)
+            ->createOne(['parent_subscription_id' => $subscription->id]);
 
         $addons = $this->subscriptionAddonAdditionService->getPotentialAddons($subscription);
 
@@ -76,7 +84,10 @@ class SubscriptionAddonServiceTest extends IntegrationTestCase
         $product = ProductFactory::new()->for($productGroup)->createOne();
         $addonProduct = ProductFactory::new()->for($addonGroup)->createOne();
 
-        ProductPriceComponentFactory::new()->for($addonProduct)->registration()->createOne(['price' => 1200, 'starts_at' => $startDate]);
+        ProductPriceComponentFactory::new()
+            ->for($addonProduct)
+            ->registration()
+            ->createOne(['price' => 1200, 'starts_at' => $startDate]);
 
         $addonCoupling = new ProductAddonCoupling();
         $addonCoupling->parent_product_id = $product->id;

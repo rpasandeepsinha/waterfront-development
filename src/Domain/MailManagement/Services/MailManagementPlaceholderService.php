@@ -32,13 +32,26 @@ class MailManagementPlaceholderService implements MailManagementDriverInterface
         throw new NotImplementedException();
     }
 
-    public function createUser(string $hostname, string $domain, string $domainUser, string $mailUser, string $password, int $limit, int $quota): Result
-    {
+    public function createUser(
+        string $hostname,
+        string $domain,
+        string $domainUser,
+        string $mailUser,
+        string $password,
+        int $limit,
+        int $quota,
+    ): Result {
         throw new NotImplementedException();
     }
 
-    public function resetPassword(string $hostname, string $domain, string $domainUser, string $mailUser, string $password, int $quota): Result
-    {
+    public function resetPassword(
+        string $hostname,
+        string $domain,
+        string $domainUser,
+        string $mailUser,
+        string $password,
+        int $quota,
+    ): Result {
         throw new NotImplementedException();
     }
 
@@ -52,8 +65,13 @@ class MailManagementPlaceholderService implements MailManagementDriverInterface
         throw new NotImplementedException();
     }
 
-    public function createEmailForward(Server $server, string $identifier, string $domain, string $sourceEmailAddressUsername, array $destinationEmailAddresses): bool
-    {
+    public function createEmailForward(
+        Server $server,
+        string $identifier,
+        string $domain,
+        string $sourceEmailAddressUsername,
+        array $destinationEmailAddresses,
+    ): bool {
         throw new NotImplementedException();
     }
 

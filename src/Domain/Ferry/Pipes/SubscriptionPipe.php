@@ -28,7 +28,7 @@ class SubscriptionPipe extends ValidationPipe
         private readonly ProductRepository $productRepository,
         private readonly SubscriptionMigrationRules $migrationSubscriptionRules,
         private readonly LoggerInterface $logger,
-        private readonly ValidatorFactory $validatorFactory
+        private readonly ValidatorFactory $validatorFactory,
     ) {
     }
 
@@ -39,12 +39,12 @@ class SubscriptionPipe extends ValidationPipe
             [
                 LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                 LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
-            ]
+            ],
         );
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Start'
+            message: 'Start',
         );
 
         // No Bu would be caught in the customerPipe.
@@ -74,7 +74,7 @@ class SubscriptionPipe extends ValidationPipe
 
             $payload->addValidationTimeline(
                 pipeline: $this->getValidationIdentifier(),
-                message: 'validation'
+                message: 'validation',
             );
 
             return $this->finishPipe(MigrationValidation::SUBSCRIPTION_PIPE_PASSED, $payload, $this->logger, $next);
@@ -91,17 +91,21 @@ class SubscriptionPipe extends ValidationPipe
             $payload->addValidationTimeline(
                 pipeline: $this->getValidationIdentifier(),
                 message: 'looping',
-                id: $referenceSubscriptionId
+                id: $referenceSubscriptionId,
             );
 
-            $exists = $this->migratableSubscriptionRepository->isSubscriptionAlreadyCreated($referenceSubscriptionId, $referenceProductId, $bu);
+            $exists = $this->migratableSubscriptionRepository->isSubscriptionAlreadyCreated(
+                $referenceSubscriptionId,
+                $referenceProductId,
+                $bu,
+            );
 
             if ($exists) {
                 $validationMessage = sprintf(
                     'Migration Subscription for reference Product ID: {%s} and reference Subscription ID: {%s} with migration reference: %s already exists',
                     $referenceProductId,
                     $referenceSubscriptionId,
-                    $payload->validationReference
+                    $payload->validationReference,
                 );
 
                 $this->logger->debug($validationMessage, [
@@ -112,7 +116,7 @@ class SubscriptionPipe extends ValidationPipe
 
             $volumeDiscountProduct = $this->productRepository->findProductsByProductGroupSlugAndProductSlug(
                 productGroup: ProductGroupType::VOLUME_DISCOUNT,
-                productSlug: $subscription['slug']
+                productSlug: $subscription['slug'],
             );
 
             if ($volumeDiscountProduct instanceof Product) {
@@ -130,14 +134,18 @@ class SubscriptionPipe extends ValidationPipe
                         LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                     ]);
 
-                    $this->addValidationResult($payload, MigrationValidation::SUBSCRIPTION_VOLUME_DISCOUNT_PRODUCT_INCORRECT, $validationMessage);
+                    $this->addValidationResult(
+                        $payload,
+                        MigrationValidation::SUBSCRIPTION_VOLUME_DISCOUNT_PRODUCT_INCORRECT,
+                        $validationMessage,
+                    );
                 }
             }
         }
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Finish'
+            message: 'Finish',
         );
 
         return $this->finishPipe(MigrationValidation::SUBSCRIPTION_PIPE_PASSED, $payload, $this->logger, $next);

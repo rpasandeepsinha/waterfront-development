@@ -66,18 +66,29 @@ class DkimTest extends IntegrationTestCase
         $this->customer = new CustomerFactory()->createOne();
         $this->hostingProductGroup = new ProductGroupFactory()->hosting()->createOne();
 
-        $subscription = new SubscriptionFactory()->for(
-            new ProductFactory()->for($this->hostingProductGroup)->createOne()
-        )->for($this->customer)->createOne();
-        $provider = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true]);
+        $subscription = new SubscriptionFactory()
+            ->for(
+                new ProductFactory()->for($this->hostingProductGroup)->createOne(),
+            )
+            ->for($this->customer)
+            ->createOne();
+        $provider = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
-        $this->dnsProduct =  new ProductFactory()->for(
-            new ProductGroupFactory()->dns()
+        $this->dnsProduct = new ProductFactory()->for(
+            new ProductGroupFactory()->dns(),
         )->createOne();
 
-        $this->dnsSubscription = new SubscriptionFactory()->for(
-            $this->dnsProduct
-        )->for($this->customer)->createOne();
+        $this->dnsSubscription = new SubscriptionFactory()
+            ->for(
+                $this->dnsProduct,
+            )
+            ->for($this->customer)
+            ->createOne();
 
         $this->hostingDeployment = new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
@@ -99,11 +110,15 @@ class DkimTest extends IntegrationTestCase
     {
         $provider = ProviderFactory::new()->domainOpenProvider()->createOne();
 
-        $subscription = new SubscriptionFactory()->for(
-            new ProductFactory()->for(
-                new ProductGroupFactory()->extension()
-            )->createOne()
-        )->for($this->customer)->forDomain('sandwave.io')->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for(
+                new ProductFactory()->for(
+                    new ProductGroupFactory()->extension(),
+                )->createOne(),
+            )
+            ->for($this->customer)
+            ->forDomain('sandwave.io')
+            ->createOne();
 
         new DomainDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
@@ -122,21 +137,25 @@ class DkimTest extends IntegrationTestCase
             ->withInternalNameserver()
             ->createOne();
 
-        $this->hostingService->method('getCustomerDomainsForDkim')
-            ->willReturn(['sandwave.io', 'external.nl']);
+        $this->hostingService->method('getCustomerDomainsForDkim')->willReturn(['sandwave.io', 'external.nl']);
 
-        $this->actingAsCustomer($this->customer)->withoutExceptionHandling()->getJson(
-            $this->generateRoute(
-                'partners.hosting.list-hosting-domains',
-                $this->hostingDeployment->subscription_uuid
+        $this->actingAsCustomer($this->customer)
+            ->withoutExceptionHandling()
+            ->getJson(
+                $this->generateRoute(
+                    'partners.hosting.list-hosting-domains',
+                    $this->hostingDeployment->subscription_uuid,
+                ),
             )
-        )->assertOk()->assertJsonFragment([
-            'domain' => 'sandwave.io',
-            'is_external' => false,
-        ])->assertJsonFragment([
-            'domain' => 'external.nl',
-            'is_external' => true,
-        ]);
+            ->assertOk()
+            ->assertJsonFragment([
+                'domain' => 'sandwave.io',
+                'is_external' => false,
+            ])
+            ->assertJsonFragment([
+                'domain' => 'external.nl',
+                'is_external' => true,
+            ]);
     }
 
     #[Test]
@@ -145,26 +164,34 @@ class DkimTest extends IntegrationTestCase
         $provider = ProviderFactory::new()->domainOpenProvider()->createOne();
         ProviderFactory::new()->emailOnlyDirectAdmin()->createOne(['default' => true]);
 
-        $subscription = new SubscriptionFactory()->for(
-            new ProductFactory()->for(
-                new ProductGroupFactory()->extension()
-            )->createOne()
-        )->for($this->customer)->forDomain('sandwave.io')->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for(
+                new ProductFactory()->for(
+                    new ProductGroupFactory()->extension(),
+                )->createOne(),
+            )
+            ->for($this->customer)
+            ->forDomain('sandwave.io')
+            ->createOne();
 
         new DomainDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
             'provider_id' => $provider->id,
         ]);
 
-        $hostingSubscription = new SubscriptionFactory()->for(
-            new ProductFactory()->mailOnly($this->hostingProductGroup)->createOne()
-        )->for($this->customer)->forDomain('sandwave.io')->createOne();
+        $hostingSubscription = new SubscriptionFactory()
+            ->for(
+                new ProductFactory()
+                    ->mailOnly($this->hostingProductGroup)
+                    ->createOne(),
+            )
+            ->for($this->customer)
+            ->forDomain('sandwave.io')
+            ->createOne();
 
-        $hostingDeployment =  new HostingDeploymentFactory()
-            ->for($hostingSubscription)
-            ->createOne([
-                'provider_id' => null,
-            ]);
+        $hostingDeployment = new HostingDeploymentFactory()->for($hostingSubscription)->createOne([
+            'provider_id' => null,
+        ]);
 
         $dnsSubscription = new SubscriptionFactory()
             ->for($this->customer)
@@ -178,18 +205,20 @@ class DkimTest extends IntegrationTestCase
             ->withInternalNameserver()
             ->createOne();
 
-        $this->hostingService->method('getCustomerDomainsForDkim')
-            ->willReturn(['sandwave.io']);
+        $this->hostingService->method('getCustomerDomainsForDkim')->willReturn(['sandwave.io']);
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute(
-                'partners.hosting.list-hosting-domains',
-                $hostingDeployment->subscription_uuid
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute(
+                    'partners.hosting.list-hosting-domains',
+                    $hostingDeployment->subscription_uuid,
+                ),
             )
-        )->assertOk()->assertJsonFragment([
-            'domain' => 'sandwave.io',
-            'is_external' => false,
-        ]);
+            ->assertOk()
+            ->assertJsonFragment([
+                'domain' => 'sandwave.io',
+                'is_external' => false,
+            ]);
     }
 
     #[Test]
@@ -197,24 +226,32 @@ class DkimTest extends IntegrationTestCase
     {
         $provider = ProviderFactory::new()->domainOpenProvider()->createOne();
 
-        $subscription = new SubscriptionFactory()->for(
-            new ProductFactory()->for(
-                new ProductGroupFactory()->extension()
-            )->createOne()
-        )->for($this->customer)->forDomain('sandwave.io')->createOne();
+        $subscription = new SubscriptionFactory()
+            ->for(
+                new ProductFactory()->for(
+                    new ProductGroupFactory()->extension(),
+                )->createOne(),
+            )
+            ->for($this->customer)
+            ->forDomain('sandwave.io')
+            ->createOne();
 
         new DomainDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
             'provider_id' => $provider->id,
         ]);
 
-        $hostingSubscription = new SubscriptionFactory()->for(
-            new ProductFactory()->siteBuilder($this->hostingProductGroup)->createOne()
-        )->for($this->customer)->forDomain('sandwave.io')->createOne();
+        $hostingSubscription = new SubscriptionFactory()
+            ->for(
+                new ProductFactory()
+                    ->siteBuilder($this->hostingProductGroup)
+                    ->createOne(),
+            )
+            ->for($this->customer)
+            ->forDomain('sandwave.io')
+            ->createOne();
 
-        $hostingDeployment =  new HostingDeploymentFactory()
-             ->for($hostingSubscription)
-             ->createOne();
+        $hostingDeployment = new HostingDeploymentFactory()->for($hostingSubscription)->createOne();
 
         $dnsSubscription = new SubscriptionFactory()
             ->for($this->customer)
@@ -228,21 +265,25 @@ class DkimTest extends IntegrationTestCase
             ->withInternalNameserver()
             ->createOne();
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute(
-                'partners.hosting.list-hosting-domains',
-                $hostingDeployment->subscription_uuid
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute(
+                    'partners.hosting.list-hosting-domains',
+                    $hostingDeployment->subscription_uuid,
+                ),
             )
-        )->assertNoContent();
+            ->assertNoContent();
     }
 
     #[Test]
     public function listDomainsDkimException(): void
     {
-        $this->hostingService->method('getCustomerDomainsForDkim')
+        $this->hostingService
+            ->method('getCustomerDomainsForDkim')
             ->willThrowException($exception = new DirectAdminCommandException());
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 'Could not retrieve list of domains for hosting deployment {provisioning.id}',
@@ -250,18 +291,21 @@ class DkimTest extends IntegrationTestCase
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING,
                     LoggingContextKeys::PROVISIONING_ID => $this->hostingDeployment->id,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
         $this->app->bind(LoggerInterface::class, fn () => $this->logger);
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute(
-                'partners.hosting.list-hosting-domains',
-                $this->hostingDeployment->subscription_uuid
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute(
+                    'partners.hosting.list-hosting-domains',
+                    $this->hostingDeployment->subscription_uuid,
+                ),
             )
-        )->assertUnprocessable()->assertJsonFragment([
-            'message' => 'dkim.error.could-not-retrieve',
-        ]);
+            ->assertUnprocessable()
+            ->assertJsonFragment([
+                'message' => 'dkim.error.could-not-retrieve',
+            ]);
     }
 
     #[Test]
@@ -273,28 +317,32 @@ class DkimTest extends IntegrationTestCase
             value: 'vdkimxxx',
         );
 
-        $this->hostingService->method('getDkimRecord')
-            ->willReturn($dnsRecord);
+        $this->hostingService->method('getDkimRecord')->willReturn($dnsRecord);
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute(
-                'partners.hosting.dkim-record',
-                ['hostingDeployment' => $this->hostingDeployment->subscription_uuid, 'domain' => 'sandwave.io']
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute(
+                    'partners.hosting.dkim-record',
+                    ['hostingDeployment' => $this->hostingDeployment->subscription_uuid, 'domain' => 'sandwave.io'],
+                ),
             )
-        )->assertOk()->assertJsonFragment([
-            'name' => 'x._domainkey1',
-            'value' => 'vdkimxxx',
-            'enabled' => true,
-        ]);
+            ->assertOk()
+            ->assertJsonFragment([
+                'name' => 'x._domainkey1',
+                'value' => 'vdkimxxx',
+                'enabled' => true,
+            ]);
     }
 
     #[Test]
     public function dkimDetailException(): void
     {
-        $this->hostingService->method('getDkimRecord')
+        $this->hostingService
+            ->method('getDkimRecord')
             ->willThrowException($exception = new DirectAdminCommandException());
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 'Could not retrieve dkim record for domain {domain.name}',
@@ -303,18 +351,21 @@ class DkimTest extends IntegrationTestCase
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING,
                     LoggingContextKeys::PROVISIONING_ID => $this->hostingDeployment->id,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
         $this->app->bind(LoggerInterface::class, fn () => $this->logger);
 
-        $this->actingAsCustomer($this->customer)->getJson(
-            $this->generateRoute(
-                'partners.hosting.dkim-record',
-                ['hostingDeployment' => $this->hostingDeployment->subscription_uuid, 'domain' => 'sandwave.io']
+        $this->actingAsCustomer($this->customer)
+            ->getJson(
+                $this->generateRoute(
+                    'partners.hosting.dkim-record',
+                    ['hostingDeployment' => $this->hostingDeployment->subscription_uuid, 'domain' => 'sandwave.io'],
+                ),
             )
-        )->assertUnprocessable()->assertJsonFragment([
-            'message' => 'dkim.error.could-not-retrieve',
-        ]);
+            ->assertUnprocessable()
+            ->assertJsonFragment([
+                'message' => 'dkim.error.could-not-retrieve',
+            ]);
     }
 
     #[Test]
@@ -326,27 +377,29 @@ class DkimTest extends IntegrationTestCase
             [
                 'subscription_uuid' => $this->dnsSubscription->uuid,
                 'nameserver_type' => NameserverType::INTERNAL,
-            ]
+            ],
         );
-        $this->dnsDeploymentRepository->expects(self::once())
+        $this->dnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->with($domain)
             ->willReturn($dnsDeployment);
         $this->app->bind(DnsDeploymentRepository::class, fn () => $this->dnsDeploymentRepository);
 
-        $this->hostingService->expects(self::once())
+        $this->hostingService
+            ->expects(self::once())
             ->method('getDkimRecord')
             ->willReturn(
                 $dnsRecord = new DnsRecord(
                     type: 'TXT',
                     host: '_domainkey2.sandwave.io.',
-                    value: 'v=DKIM1; p=differentDKIM'
-                )
+                    value: 'v=DKIM1; p=differentDKIM',
+                ),
             );
-        $this->hostingService->expects(self::once())
-            ->method('setDkim');
+        $this->hostingService->expects(self::once())->method('setDkim');
 
-        $this->dnsService->expects(self::once())
+        $this->dnsService
+            ->expects(self::once())
             ->method('addRecordFromObject')
             ->with(
                 $domain,
@@ -355,20 +408,26 @@ class DkimTest extends IntegrationTestCase
                     name: $dnsRecord->host,
                     content: $dnsRecord->value,
                     ttl: 3600,
-                )
+                ),
             );
-        $this->dnsService->expects(self::never())
-            ->method('deleteRecordFromObject');
+        $this->dnsService->expects(self::never())->method('deleteRecordFromObject');
         $this->app->bind(DnsService::class, fn () => $this->dnsService);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute(
-                'partners.hosting.enable-dkim',
-                ['hostingDeployment' => $this->hostingDeployment->subscription_uuid, 'domain' => $domain, 'enabled' => true]
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute(
+                    'partners.hosting.enable-dkim',
+                    [
+                        'hostingDeployment' => $this->hostingDeployment->subscription_uuid,
+                        'domain' => $domain,
+                        'enabled' => true,
+                    ],
+                ),
             )
-        )->assertOk()->assertJsonFragment([
-            'message' => 'success',
-        ]);
+            ->assertOk()
+            ->assertJsonFragment([
+                'message' => 'success',
+            ]);
     }
 
     #[Test]
@@ -380,29 +439,30 @@ class DkimTest extends IntegrationTestCase
             [
                 'subscription_uuid' => $this->dnsSubscription->uuid,
                 'nameserver_type' => NameserverType::VANITY,
-            ]
+            ],
         );
-        $this->dnsDeploymentRepository->expects(self::once())
+        $this->dnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->with($domain)
             ->willReturn($dnsDeployment);
         $this->app->bind(DnsDeploymentRepository::class, fn () => $this->dnsDeploymentRepository);
 
-        $this->hostingService->expects(self::once())
+        $this->hostingService
+            ->expects(self::once())
             ->method('getDkimRecord')
             ->willReturn(
                 $dnsRecord = new DnsRecord(
                     type: 'TXT',
                     host: '_domainkey2.sandwave.io.',
-                    value: 'v=DKIM1; p=differentDKIM'
-                )
+                    value: 'v=DKIM1; p=differentDKIM',
+                ),
             );
-        $this->hostingService->expects(self::once())
-            ->method('setDkim');
+        $this->hostingService->expects(self::once())->method('setDkim');
 
-        $this->dnsService->expects(self::never())
-            ->method('addRecordFromObject');
-        $this->dnsService->expects(self::once())
+        $this->dnsService->expects(self::never())->method('addRecordFromObject');
+        $this->dnsService
+            ->expects(self::once())
             ->method('deleteRecordFromObject')
             ->with(
                 $domain,
@@ -411,18 +471,25 @@ class DkimTest extends IntegrationTestCase
                     name: $dnsRecord->host,
                     content: $dnsRecord->value,
                     ttl: 3600,
-                )
+                ),
             );
         $this->app->bind(DnsService::class, fn () => $this->dnsService);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute(
-                'partners.hosting.enable-dkim',
-                ['hostingDeployment' => $this->hostingDeployment->subscription_uuid, 'domain' => $domain, 'enabled' => false]
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute(
+                    'partners.hosting.enable-dkim',
+                    [
+                        'hostingDeployment' => $this->hostingDeployment->subscription_uuid,
+                        'domain' => $domain,
+                        'enabled' => false,
+                    ],
+                ),
             )
-        )->assertOk()->assertJsonFragment([
-            'message' => 'success',
-        ]);
+            ->assertOk()
+            ->assertJsonFragment([
+                'message' => 'success',
+            ]);
     }
 
     #[Test]
@@ -434,33 +501,37 @@ class DkimTest extends IntegrationTestCase
             [
                 'subscription_uuid' => $this->dnsSubscription->uuid,
                 'nameserver_type' => NameserverType::EXTERNAL,
-            ]
+            ],
         );
-        $this->dnsDeploymentRepository->expects(self::once())
+        $this->dnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->with($domain)
             ->willReturn($dnsDeployment);
         $this->app->bind(DnsDeploymentRepository::class, fn () => $this->dnsDeploymentRepository);
 
-        $this->hostingService->expects(self::never())
-            ->method('getDkimRecord');
-        $this->hostingService->expects(self::once())
-            ->method('setDkim');
+        $this->hostingService->expects(self::never())->method('getDkimRecord');
+        $this->hostingService->expects(self::once())->method('setDkim');
 
-        $this->dnsService->expects(self::never())
-            ->method('addRecordFromObject');
-        $this->dnsService->expects(self::never())
-            ->method('deleteRecordFromObject');
+        $this->dnsService->expects(self::never())->method('addRecordFromObject');
+        $this->dnsService->expects(self::never())->method('deleteRecordFromObject');
         $this->app->bind(DnsService::class, fn () => $this->dnsService);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute(
-                'partners.hosting.enable-dkim',
-                ['hostingDeployment' => $this->hostingDeployment->subscription_uuid, 'domain' => $domain, 'enabled' => true]
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute(
+                    'partners.hosting.enable-dkim',
+                    [
+                        'hostingDeployment' => $this->hostingDeployment->subscription_uuid,
+                        'domain' => $domain,
+                        'enabled' => true,
+                    ],
+                ),
             )
-        )->assertOk()->assertJsonFragment([
-            'message' => 'success',
-        ]);
+            ->assertOk()
+            ->assertJsonFragment([
+                'message' => 'success',
+            ]);
     }
 
     #[Test]
@@ -468,40 +539,44 @@ class DkimTest extends IntegrationTestCase
     {
         $domain = 'sandwave.io';
 
-        $this->dnsDeploymentRepository->expects(self::once())
+        $this->dnsDeploymentRepository
+            ->expects(self::once())
             ->method('getDnsDeploymentFromDomain')
             ->with($domain)
             ->willReturn(null);
         $this->app->bind(DnsDeploymentRepository::class, fn () => $this->dnsDeploymentRepository);
 
-        $this->hostingService->expects(self::never())
-            ->method('getDkimRecord');
-        $this->hostingService->expects(self::once())
-            ->method('setDkim');
+        $this->hostingService->expects(self::never())->method('getDkimRecord');
+        $this->hostingService->expects(self::once())->method('setDkim');
 
-        $this->dnsService->expects(self::never())
-            ->method('addRecordFromObject');
-        $this->dnsService->expects(self::never())
-            ->method('deleteRecordFromObject');
+        $this->dnsService->expects(self::never())->method('addRecordFromObject');
+        $this->dnsService->expects(self::never())->method('deleteRecordFromObject');
         $this->app->bind(DnsService::class, fn () => $this->dnsService);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute(
-                'partners.hosting.enable-dkim',
-                ['hostingDeployment' => $this->hostingDeployment->subscription_uuid, 'domain' => $domain, 'enabled' => false]
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute(
+                    'partners.hosting.enable-dkim',
+                    [
+                        'hostingDeployment' => $this->hostingDeployment->subscription_uuid,
+                        'domain' => $domain,
+                        'enabled' => false,
+                    ],
+                ),
             )
-        )->assertOk()->assertJsonFragment([
-            'message' => 'success',
-        ]);
+            ->assertOk()
+            ->assertJsonFragment([
+                'message' => 'success',
+            ]);
     }
 
     #[Test]
     public function enableDkimException(): void
     {
-        $this->hostingService->method('setDkim')
-            ->willThrowException($exception = new DirectAdminCommandException());
+        $this->hostingService->method('setDkim')->willThrowException($exception = new DirectAdminCommandException());
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('warning')
             ->with(
                 'Could not toggle dkim for domain {domain.name}',
@@ -510,17 +585,24 @@ class DkimTest extends IntegrationTestCase
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::HOSTING,
                     LoggingContextKeys::PROVISIONING_ID => $this->hostingDeployment->id,
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
         $this->app->bind(LoggerInterface::class, fn () => $this->logger);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute(
-                'partners.hosting.enable-dkim',
-                ['hostingDeployment' => $this->hostingDeployment->subscription_uuid, 'domain' => 'sandwave.io', 'enabled' => true]
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute(
+                    'partners.hosting.enable-dkim',
+                    [
+                        'hostingDeployment' => $this->hostingDeployment->subscription_uuid,
+                        'domain' => 'sandwave.io',
+                        'enabled' => true,
+                    ],
+                ),
             )
-        )->assertUnprocessable()->assertJsonFragment([
-            'message' => 'dkim.error.could-not-retrieve',
-        ]);
+            ->assertUnprocessable()
+            ->assertJsonFragment([
+                'message' => 'dkim.error.could-not-retrieve',
+            ]);
     }
 }

@@ -17,7 +17,7 @@ class ManualProvisioningServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/config.php',
-            'manual-provisioning'
+            'manual-provisioning',
         );
     }
 }

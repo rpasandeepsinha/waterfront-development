@@ -22,6 +22,7 @@ class InvoiceFactory extends Factory
     public function definition(): array
     {
         $domainName = $this->faker->domainName();
+
         return [
             'start_date' => CarbonImmutable::now()->subYears(2)->toDateString(),
             'end_date' => CarbonImmutable::now()->subYears()->toDateString(),
@@ -43,7 +44,7 @@ class InvoiceFactory extends Factory
 
     public function withCustomer(): self
     {
-        return $this->for((new CustomerFactory()));
+        return $this->for(new CustomerFactory());
     }
 
     public function sentToHarbor(): self

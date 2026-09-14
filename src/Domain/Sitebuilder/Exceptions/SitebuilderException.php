@@ -13,7 +13,7 @@ class SitebuilderException extends RuntimeException
         string $message = '',
         int $code = 0,
         ?Throwable $previous = null,
-        public ?string $domain = null
+        public ?string $domain = null,
     ) {
         parent::__construct($message, $code, $previous);
     }

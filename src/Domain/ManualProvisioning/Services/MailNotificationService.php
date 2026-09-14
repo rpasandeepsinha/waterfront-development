@@ -33,7 +33,7 @@ class MailNotificationService
         $this->employeeRecipient = new Recipient(
             $this->configuration->getAsString('manual-provisioning.notification-receiver-name'),
             $this->configuration->getAsString('manual-provisioning.notification-email'),
-            Uuid::fromString($this->configuration->getAsString('auth.console_identity_uuid'))
+            Uuid::fromString($this->configuration->getAsString('auth.console_identity_uuid')),
         );
     }
 
@@ -48,7 +48,7 @@ class MailNotificationService
                 $data->getCustomerEmail(),
                 $data->getProductName(),
                 $data->getSubscriptionId(),
-            )
+            ),
         );
     }
 
@@ -63,7 +63,7 @@ class MailNotificationService
                 $data->getCustomerEmail(),
                 $data->getProductName(),
                 $data->getSubscriptionId(),
-            )
+            ),
         );
     }
 
@@ -78,7 +78,7 @@ class MailNotificationService
                 $data->getCustomerEmail(),
                 $data->getProductName(),
                 $data->getSubscriptionId(),
-            )
+            ),
         );
     }
 
@@ -93,7 +93,7 @@ class MailNotificationService
                 $data->getCustomerEmail(),
                 $data->getProductName(),
                 $data->getSubscriptionId(),
-            )
+            ),
         );
     }
 
@@ -114,7 +114,7 @@ class MailNotificationService
         return new Recipient(
             $data->getCustomerFirstName(),
             $data->getCustomerEmail(),
-            $data->getCustomerUuid()
+            $data->getCustomerUuid(),
         );
     }
 }

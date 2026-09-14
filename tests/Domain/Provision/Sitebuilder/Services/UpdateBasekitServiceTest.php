@@ -75,31 +75,35 @@ class UpdateBasekitServiceTest extends TestCase
         $existingAccountPackageToBeRemoved = $this->getAccountPackageWithPackageRef(7330); // 7330 is not in the update request, so will be removed
 
         $basekitContext = BasekitContextFactory::new()->makeOne(['user_ref' => self::USER_REFERENCE]);
-        $this->baseKitContextRepository->expects(self::once())
+        $this->baseKitContextRepository
+            ->expects(self::once())
             ->method('findByContext')
             ->with($context)
             ->willReturn($basekitContext);
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('listUserPackages')
             ->with($basekitContext->user_ref)
             ->willReturn(
                 [
                     $existingAccountPackageToBeKept,
                     $existingAccountPackageToBeRemoved,
-                ]
+                ],
             );
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('deleteUserPackage')
             ->with($basekitContext->user_ref, $existingAccountPackageToBeRemoved->ref);
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('addUserPackage')
             ->with(
                 $basekitContext->user_ref,
                 $newPackageId,
-                $request->contractPeriod
+                $request->contractPeriod,
             );
 
         $result = $this->updateBasekitService->update($request);
@@ -118,30 +122,34 @@ class UpdateBasekitServiceTest extends TestCase
         );
 
         $basekitContext = BasekitContextFactory::new()->makeOne(['user_ref' => self::USER_REFERENCE]);
-        $this->baseKitContextRepository->expects(self::once())
+        $this->baseKitContextRepository
+            ->expects(self::once())
             ->method('findByContext')
             ->with($context)
             ->willReturn($basekitContext);
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('listUserPackages')
             ->with($basekitContext->user_ref)
             ->willReturn(
                 [
                     $accountPackage = $this->getAccountPackageWithPackageRef(1337),
-                ]
+                ],
             );
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('deleteUserPackage')
             ->with($basekitContext->user_ref, $accountPackage->ref);
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('addUserPackage')
             ->with(
                 $basekitContext->user_ref,
                 $packageId,
-                $newContractPeriod
+                $newContractPeriod,
             );
 
         $result = $this->updateBasekitService->update($request);
@@ -160,23 +168,26 @@ class UpdateBasekitServiceTest extends TestCase
         );
 
         $basekitContext = BasekitContextFactory::new()->makeOne(['user_ref' => self::USER_REFERENCE]);
-        $this->baseKitContextRepository->expects(self::once())
+        $this->baseKitContextRepository
+            ->expects(self::once())
             ->method('findByContext')
             ->with($context)
             ->willReturn($basekitContext);
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('listUserPackages')
             ->with($basekitContext->user_ref)
             ->willReturn(
                 $accountPackages = [
                     $this->getAccountPackageWithPackageRef(1337),
                     $this->getAccountPackageWithPackageRef(7330),
-                ]
+                ],
             );
 
         $index = 0;
-        $this->packagesApi->expects(self::exactly(count($accountPackages)))
+        $this->packagesApi
+            ->expects(self::exactly(count($accountPackages)))
             ->method('deleteUserPackage')
             ->with(
                 $basekitContext->user_ref,
@@ -186,14 +197,15 @@ class UpdateBasekitServiceTest extends TestCase
             );
 
         $packageIndex = 0;
-        $this->packagesApi->expects(self::exactly(count($packages)))
+        $this->packagesApi
+            ->expects(self::exactly(count($packages)))
             ->method('addUserPackage')
             ->with(
                 $basekitContext->user_ref,
                 self::callback(function ($packageId) use ($packages, &$packageIndex): bool {
                     return $packageId === $packages[$packageIndex++];
                 }),
-                $newContractPeriod
+                $newContractPeriod,
             );
 
         $result = $this->updateBasekitService->update($request);
@@ -213,17 +225,19 @@ class UpdateBasekitServiceTest extends TestCase
         $request->provider = ProvisionProvider::BASEKIT;
 
         BasekitContextFactory::new()->makeOne(['user_ref' => self::USER_REFERENCE]);
-        $this->baseKitContextRepository->expects(self::once())
+        $this->baseKitContextRepository
+            ->expects(self::once())
             ->method('findByContext')
             ->with($context)
             ->willReturn(null);
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 sprintf(
                     'Failed to retrieve context "%s"',
-                    $request->context
+                    $request->context,
                 ),
                 [
                     LoggingContextKeys::PROVISIONING_CONTEXT => $context,
@@ -231,17 +245,14 @@ class UpdateBasekitServiceTest extends TestCase
                     LoggingContextKeys::PROVISIONING_PROVIDER => ProvisionProvider::BASEKIT,
                     LoggingContextKeys::PROVISIONING_REQUEST_ID => 0,
                     LoggingContextKeys::EXCEPTION => new BasekitUserRefNotFoundForContextException($request->context),
-                ]
+                ],
             );
 
-        $this->packagesApi->expects(self::never())
-            ->method('listUserPackages');
+        $this->packagesApi->expects(self::never())->method('listUserPackages');
 
-        $this->packagesApi->expects(self::never())
-            ->method('deleteUserPackage');
+        $this->packagesApi->expects(self::never())->method('deleteUserPackage');
 
-        $this->packagesApi->expects(self::never())
-            ->method('addUserPackage');
+        $this->packagesApi->expects(self::never())->method('addUserPackage');
 
         $result = $this->updateBasekitService->update($request);
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
@@ -260,26 +271,28 @@ class UpdateBasekitServiceTest extends TestCase
         );
         $request->provider = ProvisionProvider::BASEKIT;
 
-        $basekitContext = BasekitContextFactory::new()
-            ->makeOne([
-                'user_ref' => self::USER_REFERENCE,
-                'context_uuid' => $context,
-            ]);
-        $this->baseKitContextRepository->expects(self::once())
+        $basekitContext = BasekitContextFactory::new()->makeOne([
+            'user_ref' => self::USER_REFERENCE,
+            'context_uuid' => $context,
+        ]);
+        $this->baseKitContextRepository
+            ->expects(self::once())
             ->method('findByContext')
             ->with($context)
             ->willReturn($basekitContext);
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('listUserPackages')
             ->willThrowException($exception = new UnexpectedValueException('User reference not found.'));
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 sprintf(
                     'Failed to retrieve user packages for user %d',
-                    $basekitContext->user_ref
+                    $basekitContext->user_ref,
                 ),
                 [
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
@@ -290,14 +303,12 @@ class UpdateBasekitServiceTest extends TestCase
                     LoggingContextKeys::META => [
                         'basekit_user_ref' => $basekitContext->user_ref,
                     ],
-                ]
+                ],
             );
 
-        $this->packagesApi->expects(self::never())
-            ->method('deleteUserPackage');
+        $this->packagesApi->expects(self::never())->method('deleteUserPackage');
 
-        $this->packagesApi->expects(self::never())
-            ->method('addUserPackage');
+        $this->packagesApi->expects(self::never())->method('addUserPackage');
 
         $result = $this->updateBasekitService->update($request);
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
@@ -316,37 +327,40 @@ class UpdateBasekitServiceTest extends TestCase
         );
         $request->provider = ProvisionProvider::BASEKIT;
 
-        $basekitContext = BasekitContextFactory::new()
-            ->makeOne([
-                'user_ref' => self::USER_REFERENCE,
-                'context_uuid' => $context,
-            ]);
-        $this->baseKitContextRepository->expects(self::once())
+        $basekitContext = BasekitContextFactory::new()->makeOne([
+            'user_ref' => self::USER_REFERENCE,
+            'context_uuid' => $context,
+        ]);
+        $this->baseKitContextRepository
+            ->expects(self::once())
             ->method('findByContext')
             ->with($context)
             ->willReturn($basekitContext);
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('listUserPackages')
             ->with($basekitContext->user_ref)
             ->willReturn(
                 [
                     $this->getAccountPackageWithPackageRef(1337),
                     $removeAccountPackage = $this->getAccountPackageWithPackageRef(7330),
-                ]
+                ],
             );
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('deleteUserPackage')
             ->willThrowException($exception = new UnexpectedValueException('Account package reference not found.'));
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 sprintf(
                     'Failed to delete account package %d for user %d',
                     $removeAccountPackage->package->ref,
-                    $basekitContext->user_ref
+                    $basekitContext->user_ref,
                 ),
                 [
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
@@ -359,11 +373,10 @@ class UpdateBasekitServiceTest extends TestCase
                         'basekit_package_ref' => $removeAccountPackage->package->ref,
                         'basekit_user_ref' => $basekitContext->user_ref,
                     ],
-                ]
+                ],
             );
 
-        $this->packagesApi->expects(self::never())
-            ->method('addUserPackage');
+        $this->packagesApi->expects(self::never())->method('addUserPackage');
 
         $result = $this->updateBasekitService->update($request);
         self::assertSame(ProvisionStatus::FAILED, $result->provisionStatus);
@@ -382,41 +395,45 @@ class UpdateBasekitServiceTest extends TestCase
         );
         $request->provider = ProvisionProvider::BASEKIT;
 
-        $basekitContext = BasekitContextFactory::new()
-            ->makeOne([
-                'user_ref' => self::USER_REFERENCE,
-                'context_uuid' => $context,
-            ]);
-        $this->baseKitContextRepository->expects(self::once())
+        $basekitContext = BasekitContextFactory::new()->makeOne([
+            'user_ref' => self::USER_REFERENCE,
+            'context_uuid' => $context,
+        ]);
+        $this->baseKitContextRepository
+            ->expects(self::once())
             ->method('findByContext')
             ->with($context)
             ->willReturn($basekitContext);
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('listUserPackages')
             ->with($basekitContext->user_ref)
             ->willReturn(
                 [
                     $this->getAccountPackageWithPackageRef(1337),
                     $removeAccountPackage = $this->getAccountPackageWithPackageRef(7330),
-                ]
+                ],
             );
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('deleteUserPackage')
             ->with($basekitContext->user_ref, $removeAccountPackage->ref);
 
-        $this->packagesApi->expects(self::once())
+        $this->packagesApi
+            ->expects(self::once())
             ->method('addUserPackage')
             ->willThrowException($exception = new UnexpectedValueException('Package reference not found.'));
 
-        $this->logger->expects(self::once())
+        $this->logger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 sprintf(
                     'Failed to add package %d for user %d',
                     $newPackageId,
-                    $basekitContext->user_ref
+                    $basekitContext->user_ref,
                 ),
                 [
                     LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::SITEBUILDER,
@@ -429,7 +446,7 @@ class UpdateBasekitServiceTest extends TestCase
                         'basekit_user_ref' => $basekitContext->user_ref,
                         'basekit_subscription_period' => $request->contractPeriod,
                     ],
-                ]
+                ],
             );
 
         $result = $this->updateBasekitService->update($request);

@@ -19,13 +19,11 @@ Route::domain($partnerDomain)
     ->prefix('webhooks')
     ->middleware(Kernel::MIDDLEWARE_GROUP_SYSTEM_AUTH_WEBHOOK)
     ->group(function (): void {
-        Route::prefix('email')
-            ->as('email.')
-            ->group(
-                static function (): void {
-                    Route::post('/send', [EmailController::class, 'sendEmail'])->name('send');
-                }
-            );
+        Route::prefix('email')->as('email.')->group(
+            static function (): void {
+                Route::post('/send', [EmailController::class, 'sendEmail'])->name('send');
+            },
+        );
     });
 
 Route::domain($webhookDomain)
@@ -33,7 +31,8 @@ Route::domain($webhookDomain)
     ->prefix('webhooks')
     ->middleware(Kernel::MIDDLEWARE_GROUP_SYSTEM_AUTH_WEBHOOK)
     ->group(function (): void {
-        Route::get('/get-customer-data', [HubspotController::class, 'getCustomerData'])->name('hubspot.get-customer-data');
-        Route::post('/payt/{businessUnit}/webhook', [PaytController::class, 'handleEvent'])
-            ->name('payt.new-event');
+        Route::get('/get-customer-data', [HubspotController::class, 'getCustomerData'])->name(
+            'hubspot.get-customer-data',
+        );
+        Route::post('/payt/{businessUnit}/webhook', [PaytController::class, 'handleEvent'])->name('payt.new-event');
     });

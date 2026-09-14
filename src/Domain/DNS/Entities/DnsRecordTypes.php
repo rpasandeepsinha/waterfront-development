@@ -12,17 +12,17 @@ class DnsRecordTypes
     public static function getModifiable(): array
     {
         return [
-            'A'      => 'A',
-            'AAAA'   => 'AAAA',
-            'ALIAS'  => 'ALIAS',
-            'CAA'    => 'CAA',
-            'CNAME'  => 'CNAME',
-            'MX'     => 'MX',
-            'NS'     => 'NS',
-            'TXT'    => 'TXT',
-            'SPF'    => 'SPF',
-            'SRV'    => 'SRV',
-            'TLSA'   => 'TLSA',
+            'A' => 'A',
+            'AAAA' => 'AAAA',
+            'ALIAS' => 'ALIAS',
+            'CAA' => 'CAA',
+            'CNAME' => 'CNAME',
+            'MX' => 'MX',
+            'NS' => 'NS',
+            'TXT' => 'TXT',
+            'SPF' => 'SPF',
+            'SRV' => 'SRV',
+            'TLSA' => 'TLSA',
         ];
     }
 }

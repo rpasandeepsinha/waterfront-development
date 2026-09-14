@@ -19,7 +19,7 @@ use Webmozart\Assert\Assert;
 class SendDcvReminderEmail extends AbstractQueueableJob
 {
     public function __construct(
-        public readonly int $sslDeploymentId
+        public readonly int $sslDeploymentId,
     ) {
         parent::__construct();
     }
@@ -29,7 +29,7 @@ class SendDcvReminderEmail extends AbstractQueueableJob
         CustomerSharedSslService $customerSharedSslService,
         DcvCnameValidatorService $cnameValidatorService,
         MailerInterface $mailer,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ): void {
         $sslDeployment = $sslDeploymentRepository->findForReminderById($this->sslDeploymentId);
 
@@ -38,7 +38,10 @@ class SendDcvReminderEmail extends AbstractQueueableJob
         }
 
         $subscription = $sslDeployment->subscription;
-        Assert::notNull($subscription->domain, sprintf('Cannot send DCV reminder: subscription %s has no domain', $subscription->uuid));
+        Assert::notNull(
+            $subscription->domain,
+            sprintf('Cannot send DCV reminder: subscription %s has no domain', $subscription->uuid),
+        );
 
         try {
             $dcv = $customerSharedSslService->getDcvDetails($sslDeployment);
@@ -56,8 +59,9 @@ class SendDcvReminderEmail extends AbstractQueueableJob
                     LoggingContextKeys::META => [
                         'reason' => 'dcv_details_null',
                     ],
-                ]
+                ],
             );
+
             return;
         }
 
@@ -73,8 +77,8 @@ class SendDcvReminderEmail extends AbstractQueueableJob
                 domain: $subscription->domain,
                 cnameName: $dcv->dnsRecord,
                 cnameValue: $dcv->dnsContent,
-                expirydate: $expiryDate
-            )
+                expirydate: $expiryDate,
+            ),
         );
     }
 

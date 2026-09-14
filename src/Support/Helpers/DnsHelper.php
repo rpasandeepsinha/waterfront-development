@@ -25,14 +25,14 @@ class DnsHelper
         int $type = DNS_ANY,
         ?array &$authoritative_name_servers = null,
         ?array &$additional_records = null,
-        bool $raw = false
+        bool $raw = false,
     ): array|false {
         return dns_get_record(
             $hostname,
             $type,
             $authoritative_name_servers,
             $additional_records,
-            $raw
+            $raw,
         );
     }
 
@@ -40,7 +40,7 @@ class DnsHelper
     {
         // By default, if you don't pick a nameserver yourself, it uses /etc/resolv.conf
         // and for us that means AWS. This would be ideal, but they don't support DNSSEC.
-        $resolver = new Resolver(['nameservers' => [ '1.1.1.1' ]]);
+        $resolver = new Resolver(['nameservers' => ['1.1.1.1']]);
         $resolver->dnssec = true;
 
         try {

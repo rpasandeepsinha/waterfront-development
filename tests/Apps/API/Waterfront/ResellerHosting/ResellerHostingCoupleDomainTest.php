@@ -52,8 +52,18 @@ class ResellerHostingCoupleDomainTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
 
-        $daProviderKey = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::DIRECTADMIN, 'enabled' => true, 'default' => true])->id;
-        $pleskProviderKey = new ProviderFactory()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true])->id;
+        $daProviderKey = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'enabled' => true,
+            'default' => true,
+        ])->id;
+        $pleskProviderKey = new ProviderFactory()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ])->id;
         $openProviderKey = ProviderFactory::new()->createOne([
             'type' => ProviderType::DOMAIN,
             'slug' => ProviderSlug::OPEN_PROVIDER,
@@ -178,16 +188,18 @@ class ResellerHostingCoupleDomainTest extends IntegrationTestCase
         ]);
 
         $productGroupDns = new ProductGroupFactory()->dns()->createOne();
-        $freeDnsProduct = new ProductFactory()->for($productGroupDns)->has(
-            new ProductSpecFactory()
-                ->state([
+        $freeDnsProduct = new ProductFactory()
+            ->for($productGroupDns)
+            ->has(
+                new ProductSpecFactory()->state([
                     'name' => ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT,
                     'value' => true,
-                ])
-        )->createOne([
-            'name' => ProductType::FREE_DNS->value,
-            'slug' => ProductType::FREE_DNS->value,
-        ]);
+                ]),
+            )
+            ->createOne([
+                'name' => ProductType::FREE_DNS->value,
+                'slug' => ProductType::FREE_DNS->value,
+            ]);
 
         $this->freeDnsSubscription = new SubscriptionFactory()
             ->for($this->customer)
@@ -237,7 +249,7 @@ class ResellerHostingCoupleDomainTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.reseller-hosting.couple-domain', $parameters),
-                $parameters
+                $parameters,
             )
             ->assertOk()
             ->assertSee(self::resolve(TranslatorInterface::class)->translate('resellerhosting.couple-domain-success'));
@@ -248,7 +260,11 @@ class ResellerHostingCoupleDomainTest extends IntegrationTestCase
     {
         $domain = 'openprovider.nl';
 
-        $hostingCouplingSpec = $this->freeDnsSubscription->product->productSpecs()->where('name', ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)->firstOrFail();
+        $hostingCouplingSpec = $this->freeDnsSubscription
+            ->product
+            ->productSpecs()
+            ->where('name', ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)
+            ->firstOrFail();
         $hostingCouplingSpec->value = false;
         $hostingCouplingSpec->save();
 
@@ -262,7 +278,7 @@ class ResellerHostingCoupleDomainTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.reseller-hosting.couple-domain', $parameters),
-                $parameters
+                $parameters,
             )
             ->assertForbidden();
     }
@@ -282,7 +298,7 @@ class ResellerHostingCoupleDomainTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.reseller-hosting.couple-domain', $parameters),
-                $parameters
+                $parameters,
             )
             ->assertUnprocessable()
             ->assertSee(self::resolve(TranslatorInterface::class)->translate('resellerhosting.couple-domain-binding'));
@@ -307,17 +323,21 @@ class ResellerHostingCoupleDomainTest extends IntegrationTestCase
         $this->app->bind(CsrManager::class, fn (): CsrManager => $csrManagerMock);
 
         $resellerHostingService = self::createStub(ResellerHostingService::class);
-        $resellerHostingService->method('coupleExistingDomain')->willThrowException(new ResellerHostingSslCoupleException());
+        $resellerHostingService
+            ->method('coupleExistingDomain')
+            ->willThrowException(new ResellerHostingSslCoupleException());
 
         $this->app->bind(ResellerHostingService::class, fn (): ResellerHostingService => $resellerHostingService);
 
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.reseller-hosting.couple-domain', $parameters),
-                $parameters
+                $parameters,
             )
             ->assertUnprocessable()
-            ->assertSee(self::resolve(TranslatorInterface::class)->translate('resellerhosting.install-certificate-failed'));
+            ->assertSee(
+                self::resolve(TranslatorInterface::class)->translate('resellerhosting.install-certificate-failed'),
+            );
     }
 
     #[Test]
@@ -356,8 +376,8 @@ class ResellerHostingCoupleDomainTest extends IntegrationTestCase
             )
             ->assertForbidden()
             ->assertJsonFragment([
-                    'message' => 'This action is unauthorized.',
-                ]);
+                'message' => 'This action is unauthorized.',
+            ]);
     }
 
     #[Test]
@@ -372,7 +392,7 @@ class ResellerHostingCoupleDomainTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.reseller-hosting.couple-domain', $parameters),
-                $parameters
+                $parameters,
             )
             ->assertForbidden()
             ->assertJsonFragment([
@@ -470,10 +490,13 @@ class ResellerHostingCoupleDomainTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.reseller-hosting.couple-domain', $parameters),
-                $parameters
+                $parameters,
             )
             ->assertUnprocessable()
-            ->assertSee(self::resolve(TranslatorInterface::class)->translate('resellerhosting.couple-domain-no-dns-subscription'));
+            ->assertSee(
+                self::resolve(TranslatorInterface::class)
+                    ->translate('resellerhosting.couple-domain-no-dns-subscription'),
+            );
     }
 
     #[Test]
@@ -513,7 +536,7 @@ class ResellerHostingCoupleDomainTest extends IntegrationTestCase
         $this->actingAsCustomer($this->customer)
             ->postJson(
                 $this->generateRoute('partners.reseller-hosting.couple-domain', $parameters),
-                $parameters
+                $parameters,
             )
             ->assertOk()
             ->assertSee(self::resolve(TranslatorInterface::class)->translate('resellerhosting.couple-domain-success'));

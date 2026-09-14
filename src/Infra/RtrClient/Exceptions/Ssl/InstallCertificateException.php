@@ -15,23 +15,25 @@ class InstallCertificateException extends Exception
             sprintf(
                 'Could not prepare install parameters for ssl deployment #%s: %s',
                 $sslDeploymentId,
-                $previousException->getMessage()
+                $previousException->getMessage(),
             ),
             0,
-            $previousException
+            $previousException,
         );
     }
 
-    public static function couldNotFindHostingSubscriptionForCertificate(int $sslDeploymentId, Throwable $previousException): self
-    {
+    public static function couldNotFindHostingSubscriptionForCertificate(
+        int $sslDeploymentId,
+        Throwable $previousException,
+    ): self {
         return new self(
             sprintf(
                 'Could not find hosting deployment for ssl deployment #%s: %s',
                 $sslDeploymentId,
-                $previousException->getMessage()
+                $previousException->getMessage(),
             ),
             0,
-            $previousException
+            $previousException,
         );
     }
 
@@ -41,8 +43,8 @@ class InstallCertificateException extends Exception
             sprintf(
                 'Could not install certificate on hosting server for ssl deployment #%s, install returned: %s',
                 $sslDeploymentId,
-                $installResult
-            )
+                $installResult,
+            ),
         );
     }
 }

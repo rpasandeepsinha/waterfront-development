@@ -88,9 +88,7 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
                 'end_date' => CarbonImmutable::yesterday(),
             ]);
 
-        $this->deprovisionService
-            ->expects(self::once())
-            ->method('deprovision');
+        $this->deprovisionService->expects(self::once())->method('deprovision');
 
         $this->subscriptionTerminateService->terminate($subscription);
 
@@ -122,9 +120,13 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
             ->method('deprovision')
             ->with(
                 ...self::withConsecutive(
-                    [self::callback(fn (Subscription $subscription): bool => $subscription->id === $childSubscription->id)],
-                    [self::callback(fn (Subscription $subscription): bool => $subscription->id === $parentSubscription->id)],
-                )
+                    [self::callback(
+                        fn (Subscription $subscription): bool => $subscription->id === $childSubscription->id,
+                    )],
+                    [self::callback(
+                        fn (Subscription $subscription): bool => $subscription->id === $parentSubscription->id,
+                    )],
+                ),
             );
 
         $this->subscriptionTerminateService->terminate($parentSubscription);
@@ -181,9 +183,7 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
                 'end_date' => CarbonImmutable::tomorrow(),
             ]);
 
-        $this->deprovisionService
-            ->expects(self::exactly(2))
-            ->method('deprovision');
+        $this->deprovisionService->expects(self::exactly(2))->method('deprovision');
 
         $this->subscriptionTerminateService->terminate($parentSubscription);
 
@@ -261,9 +261,11 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
     public function terminateSitebuilderSubscriptionWithProvisioningRequests(): void
     {
         $group = new ProductGroupFactory()->createOne(['slug' => ProductGroupType::HOSTING]);
-        $product = new ProductFactory()->siteBuilder($group)
+        $product = new ProductFactory()
+            ->siteBuilder($group)
             ->createOne();
-        $subscription = new SubscriptionFactory()->for($this->customer)
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
             ->administrativeStatusCancelled()
             ->createOne([
                 'contract_period' => 12,
@@ -299,16 +301,16 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
             'directadmin_customer_username' => 'mail',
         ]);
 
-        $provRequest = new ProvisioningRequestFactory()->sitebuilder()->createOne([
-            'tag' => $subscription->uuid,
-            'request_type' => ProvisionType::SITEBUILDER,
-            'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-        ]);
+        $provRequest = new ProvisioningRequestFactory()
+            ->sitebuilder()
+            ->createOne([
+                'tag' => $subscription->uuid,
+                'request_type' => ProvisionType::SITEBUILDER,
+                'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+            ]);
 
         $sitebuilderMock = $this->createMock(BaseKitService::class);
-        $sitebuilderMock
-            ->expects(self::never())
-            ->method('deleteSite');
+        $sitebuilderMock->expects(self::never())->method('deleteSite');
         $this->app->bind(BaseKitService::class, fn () => $sitebuilderMock);
 
         $sidebuilderRequestResult = new SitebuilderResult(
@@ -331,7 +333,7 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
             requestUuid: Uuid::uuid4(),
             requestName: ProvisionRequestName::CREATE_SITEBUILDER,
             requestType: ProvisionType::SITEBUILDER,
-            provider: ProvisionProvider::BASEKIT
+            provider: ProvisionProvider::BASEKIT,
         );
 
         $provisionGatewayMock = $this->createMock(ProvisionGateway::class);
@@ -341,16 +343,24 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
             ->with(
                 self::callback(
                     fn (
-                        ProvisioningResultQueryFilters $filters
-                    ) => $filters->requestType === ProvisionType::SITEBUILDER && $filters->tag?->toString() === $subscription->uuid
-                )
+                        ProvisioningResultQueryFilters $filters,
+                    ) => (
+                        $filters->requestType === ProvisionType::SITEBUILDER
+                        && $filters->tag?->toString() === $subscription->uuid
+                    ),
+                ),
             )
             ->willReturn(new Collection([$expectedCreateRequest]));
-        $provisionGatewayMock->expects(self::once())->method('request')
+        $provisionGatewayMock
+            ->expects(self::once())
+            ->method('request')
             ->with(
                 self::callback(
-                    fn ($request) => $request->context->toString() === $subscription->uuid && $request->tag->toString() === $subscription->uuid
-                )
+                    fn ($request) => (
+                        $request->context->toString() === $subscription->uuid
+                        && $request->tag->toString() === $subscription->uuid
+                    ),
+                ),
             )
             ->willReturn($sidebuilderRequestResult);
         $this->app->bind(ProvisionGateway::class, fn () => $provisionGatewayMock);
@@ -392,29 +402,43 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
         $productSpec->product_id = $randomAddon1->id;
         $productSpec->save();
 
-        $subscription = new SubscriptionFactory()->for($baseSitebuilder)->for($this->customer)->administrativeStatusExpired()->createOne([
-            'technical_status' => TechnicalStatus::OK->value,
-            'end_date' => CarbonImmutable::yesterday(),
-            'termination_date' => CarbonImmutable::yesterday(),
-        ]);
-        new SubscriptionFactory()->for($randomAddon1)->for($this->customer)->administrativeStatusExpired()->createOne([
-            'technical_status' => TechnicalStatus::OK->value,
-            'parent_subscription_id' => $subscription->id,
-            'end_date' => CarbonImmutable::yesterday(),
-            'termination_date' => CarbonImmutable::yesterday(),
-        ]);
-        new SubscriptionFactory()->for($randomAddon2)->for($this->customer)->administrativeStatusExpired()->createOne([
-            'technical_status' => TechnicalStatus::OK->value,
-            'parent_subscription_id' => $subscription->id,
-            'end_date' => CarbonImmutable::yesterday(),
-            'termination_date' => CarbonImmutable::yesterday(),
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($baseSitebuilder)
+            ->for($this->customer)
+            ->administrativeStatusExpired()
+            ->createOne([
+                'technical_status' => TechnicalStatus::OK->value,
+                'end_date' => CarbonImmutable::yesterday(),
+                'termination_date' => CarbonImmutable::yesterday(),
+            ]);
+        new SubscriptionFactory()
+            ->for($randomAddon1)
+            ->for($this->customer)
+            ->administrativeStatusExpired()
+            ->createOne([
+                'technical_status' => TechnicalStatus::OK->value,
+                'parent_subscription_id' => $subscription->id,
+                'end_date' => CarbonImmutable::yesterday(),
+                'termination_date' => CarbonImmutable::yesterday(),
+            ]);
+        new SubscriptionFactory()
+            ->for($randomAddon2)
+            ->for($this->customer)
+            ->administrativeStatusExpired()
+            ->createOne([
+                'technical_status' => TechnicalStatus::OK->value,
+                'parent_subscription_id' => $subscription->id,
+                'end_date' => CarbonImmutable::yesterday(),
+                'termination_date' => CarbonImmutable::yesterday(),
+            ]);
 
-        new ProvisioningRequestFactory()->sitebuilder()->createOne([
-            'tag' => $subscription->uuid,
-            'request_type' => ProvisionType::SITEBUILDER,
-            'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-        ]);
+        new ProvisioningRequestFactory()
+            ->sitebuilder()
+            ->createOne([
+                'tag' => $subscription->uuid,
+                'request_type' => ProvisionType::SITEBUILDER,
+                'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+            ]);
 
         $sidebuilderRequestResult = new SitebuilderResult(
             provisionData: self::createStub(ProvisionRequestInterface::class),
@@ -435,7 +459,7 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
             requestUuid: Uuid::uuid4(),
             requestName: ProvisionRequestName::CREATE_SITEBUILDER,
             requestType: ProvisionType::SITEBUILDER,
-            provider: ProvisionProvider::BASEKIT
+            provider: ProvisionProvider::BASEKIT,
         );
 
         $provisionGatewayMock = $this->createMock(ProvisionGateway::class);
@@ -445,9 +469,12 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
             ->with(
                 self::callback(
                     fn (
-                        ProvisioningResultQueryFilters $filters
-                    ) => $filters->requestType === ProvisionType::SITEBUILDER && $filters->tag?->toString() === $subscription->uuid
-                )
+                        ProvisioningResultQueryFilters $filters,
+                    ) => (
+                        $filters->requestType === ProvisionType::SITEBUILDER
+                        && $filters->tag?->toString() === $subscription->uuid
+                    ),
+                ),
             )
             ->willReturn(new Collection([$expectedCreateRequest]));
         $provisionGatewayMock->expects(self::exactly(1))->method('request')->willReturn($sidebuilderRequestResult);
@@ -498,26 +525,38 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
         $productSpec->product_id = $randomAddon2->id;
         $productSpec->save();
 
-        $subscription = new SubscriptionFactory()->for($baseSitebuilder)->for($this->customer)->createOne([
-            'technical_status' => TechnicalStatus::OK->value,
-        ]);
-        new SubscriptionFactory()->for($randomAddon1)->for($this->customer)->createOne([
-            'technical_status' => TechnicalStatus::OK->value,
-            'parent_subscription_id' => $subscription->id,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($baseSitebuilder)
+            ->for($this->customer)
+            ->createOne([
+                'technical_status' => TechnicalStatus::OK->value,
+            ]);
+        new SubscriptionFactory()
+            ->for($randomAddon1)
+            ->for($this->customer)
+            ->createOne([
+                'technical_status' => TechnicalStatus::OK->value,
+                'parent_subscription_id' => $subscription->id,
+            ]);
 
-        new SubscriptionFactory()->for($randomAddon2)->for($this->customer)->administrativeStatusExpired()->createOne([
-            'technical_status' => TechnicalStatus::OK->value,
-            'parent_subscription_id' => $subscription->id,
-            'end_date' => CarbonImmutable::yesterday(),
-            'termination_date' => CarbonImmutable::yesterday(),
-        ]);
+        new SubscriptionFactory()
+            ->for($randomAddon2)
+            ->for($this->customer)
+            ->administrativeStatusExpired()
+            ->createOne([
+                'technical_status' => TechnicalStatus::OK->value,
+                'parent_subscription_id' => $subscription->id,
+                'end_date' => CarbonImmutable::yesterday(),
+                'termination_date' => CarbonImmutable::yesterday(),
+            ]);
 
-        $request = new ProvisioningRequestFactory()->sitebuilder()->createOne([
-            'tag' => $subscription->uuid,
-            'request_type' => ProvisionType::SITEBUILDER,
-            'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
-        ]);
+        $request = new ProvisioningRequestFactory()
+            ->sitebuilder()
+            ->createOne([
+                'tag' => $subscription->uuid,
+                'request_type' => ProvisionType::SITEBUILDER,
+                'request_name' => ProvisionRequestName::CREATE_SITEBUILDER,
+            ]);
 
         $request->refresh();
 
@@ -530,7 +569,7 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
             tagUuid: Uuid::fromString($subscription->uuid),
             context: Uuid::fromString($subscription->uuid),
             packages: [0001, 420],
-            contractPeriod: $subscription->contract_period
+            contractPeriod: $subscription->contract_period,
         );
         $expectedCreateRequest = new ProvisioningFilteredResult(
             resultId: 1,
@@ -546,7 +585,7 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
             requestUuid: Uuid::uuid4(),
             requestName: ProvisionRequestName::CREATE_SITEBUILDER,
             requestType: ProvisionType::SITEBUILDER,
-            provider: ProvisionProvider::BASEKIT
+            provider: ProvisionProvider::BASEKIT,
         );
 
         $provisionGatewayMock = $this->createMock(ProvisionGateway::class);
@@ -556,14 +595,21 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
             ->with(
                 self::callback(
                     fn (
-                        ProvisioningResultQueryFilters $filters
-                    ) => $filters->requestType === ProvisionType::SITEBUILDER && $filters->tag?->toString() === $subscription->uuid
-                )
+                        ProvisioningResultQueryFilters $filters,
+                    ) => (
+                        $filters->requestType === ProvisionType::SITEBUILDER
+                        && $filters->tag?->toString() === $subscription->uuid
+                    ),
+                ),
             )
             ->willReturn(new Collection([$expectedCreateRequest]));
-        $provisionGatewayMock->expects(self::exactly(1))->method('request')->with($request)->willReturn(
-            $sidebuilderRequestResult
-        );
+        $provisionGatewayMock
+            ->expects(self::exactly(1))
+            ->method('request')
+            ->with($request)
+            ->willReturn(
+                $sidebuilderRequestResult,
+            );
 
         $subscriptionService = new SubscriptionTerminateService(
             self::createMock(LoggerInterface::class),
@@ -603,20 +649,30 @@ class SubscriptionTerminateServiceTest extends IntegrationTestCase
         $productSpec->product_id = $randomAddon2->id;
         $productSpec->save();
 
-        $subscription = new SubscriptionFactory()->for($baseSitebuilder)->for($this->customer)->createOne([
-            'technical_status' => TechnicalStatus::OK->value,
-        ]);
-        new SubscriptionFactory()->for($randomAddon1)->for($this->customer)->createOne([
-            'technical_status'       => TechnicalStatus::OK->value,
-            'parent_subscription_id' => $subscription->id,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($baseSitebuilder)
+            ->for($this->customer)
+            ->createOne([
+                'technical_status' => TechnicalStatus::OK->value,
+            ]);
+        new SubscriptionFactory()
+            ->for($randomAddon1)
+            ->for($this->customer)
+            ->createOne([
+                'technical_status' => TechnicalStatus::OK->value,
+                'parent_subscription_id' => $subscription->id,
+            ]);
 
-        new SubscriptionFactory()->for($randomAddon2)->for($this->customer)->administrativeStatusExpired()->createOne([
-            'technical_status'       => TechnicalStatus::OK->value,
-            'parent_subscription_id' => $subscription->id,
-            'end_date'               => CarbonImmutable::yesterday(),
-            'termination_date'       => CarbonImmutable::yesterday(),
-        ]);
+        new SubscriptionFactory()
+            ->for($randomAddon2)
+            ->for($this->customer)
+            ->administrativeStatusExpired()
+            ->createOne([
+                'technical_status' => TechnicalStatus::OK->value,
+                'parent_subscription_id' => $subscription->id,
+                'end_date' => CarbonImmutable::yesterday(),
+                'termination_date' => CarbonImmutable::yesterday(),
+            ]);
 
         $provisionGatewayMock = $this->createMock(ProvisionGateway::class);
         $provisionGatewayMock->expects(self::never())->method('request');

@@ -31,8 +31,8 @@ class DnsNameserverRetriever
                 sprintf(
                     'Requested nameservers from %s region(s), but only %s exist(s)',
                     $amount,
-                    $nameservers->count()
-                )
+                    $nameservers->count(),
+                ),
             );
         }
 

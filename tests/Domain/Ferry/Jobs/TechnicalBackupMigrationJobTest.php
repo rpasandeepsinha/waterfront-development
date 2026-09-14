@@ -44,9 +44,9 @@ class TechnicalBackupMigrationJobTest extends IntegrationTestCase
         Http::fake();
 
         $customer = CustomerFactory::new()->createOne();
-        $backupProduct = ProductFactory::new()
-            ->backupAcronis(ProductGroupFactory::new()->backup()->createOne())
-            ->createOne();
+        $backupProduct = ProductFactory::new()->backupAcronis(
+            ProductGroupFactory::new()->backup()->createOne(),
+        )->createOne();
 
         $this->subscription = SubscriptionFactory::new()
             ->for($customer)
@@ -87,27 +87,27 @@ class TechnicalBackupMigrationJobTest extends IntegrationTestCase
         $backupService = self::createMock(BackupService::class);
 
         if ($listApplicationsException) {
-            $backupService->method('getApplicationListFromProvider')
+            $backupService
+                ->method('getApplicationListFromProvider')
                 ->willThrowException(new Exception('listApplications exception'));
         } else {
-            $backupService->method('getApplicationListFromProvider')
-                ->willReturn(null);
+            $backupService->method('getApplicationListFromProvider')->willReturn(null);
         }
 
         if ($offeringItemsException) {
-            $backupService->method('getOfferingItemsForProviderByTenant')
+            $backupService
+                ->method('getOfferingItemsForProviderByTenant')
                 ->willThrowException(new Exception('getOfferingItems exception'));
         } else {
-            $backupService->method('getOfferingItemsForProviderByTenant')
+            $backupService
+                ->method('getOfferingItemsForProviderByTenant')
                 ->willReturn(new OfferingItems(checkUsage: false, offeringItems: []));
         }
 
         if ($ssoException) {
-            $backupService->method('getSsoForProviderByUuids')
-                ->willThrowException(new Exception('getSso exception'));
+            $backupService->method('getSsoForProviderByUuids')->willThrowException(new Exception('getSso exception'));
         } else {
-            $backupService->method('getSsoForProviderByUuids')
-                ->willReturn(new OneTimeToken(ott: 'test'));
+            $backupService->method('getSsoForProviderByUuids')->willReturn(new OneTimeToken(ott: 'test'));
         }
 
         $this->app->bind(BackupService::class, fn (): BackupService => $backupService);

@@ -6,7 +6,7 @@ use Waterfront\Domain\Ferry\Enums\AzureDataFactoryMessageType;
 use Waterfront\Domain\Ferry\Enums\MigrationValidation;
 use Waterfront\Domain\Ferry\Enums\MigrationValidationPipes;
 
-return[
+return [
     'type' => AzureDataFactoryMessageType::VALIDATION_EXECUTED->value,
     'data' => [
         'reference' => 'unique_reference_for_adf',

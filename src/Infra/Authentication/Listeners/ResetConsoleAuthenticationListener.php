@@ -11,8 +11,9 @@ use Waterfront\Infra\Authentication\AuthenticationManager;
 
 class ResetConsoleAuthenticationListener
 {
-    public function __construct(private readonly AuthenticationManager $authenticationManager)
-    {
+    public function __construct(
+        private readonly AuthenticationManager $authenticationManager,
+    ) {
     }
 
     public function handle(JobProcessing $jobProcessing): void

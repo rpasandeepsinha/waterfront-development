@@ -42,7 +42,7 @@ class ImportHostingServersActionTest extends IntegrationTestCase
 
         $importedCount = $this->action->execute(
             ServerType::PLESK,
-            $this->csv('server_import_plesk_success')
+            $this->csv('server_import_plesk_success'),
         );
 
         self::assertSame(1, $importedCount);
@@ -76,7 +76,7 @@ class ImportHostingServersActionTest extends IntegrationTestCase
 
         $importedCount = $this->action->execute(
             ServerType::DIRECTADMIN,
-            $this->csv('server_import_directadmin_success')
+            $this->csv('server_import_directadmin_success'),
         );
 
         self::assertSame(1, $importedCount);
@@ -108,7 +108,7 @@ class ImportHostingServersActionTest extends IntegrationTestCase
         try {
             $this->action->execute(
                 ServerType::DIRECTADMIN,
-                $this->csv('server_import_plesk_success')
+                $this->csv('server_import_plesk_success'),
             );
             self::fail('Expected a ValidationException.');
         } catch (ValidationException $exception) {
@@ -127,13 +127,13 @@ class ImportHostingServersActionTest extends IntegrationTestCase
         try {
             $this->action->execute(
                 ServerType::PLESK,
-                $this->csv('server_import_columns_dont_match')
+                $this->csv('server_import_columns_dont_match'),
             );
             self::fail('Expected a ValidationException.');
         } catch (ValidationException $exception) {
             self::assertSame(
                 ['Regel 2: deze regel heeft 10 kolommen, de header rij heeft er 13.'],
-                $exception->errors()['csv_upload']
+                $exception->errors()['csv_upload'],
             );
         }
 
@@ -146,7 +146,7 @@ class ImportHostingServersActionTest extends IntegrationTestCase
         try {
             $this->action->execute(
                 ServerType::PLESK,
-                $this->csv('server_import_validation_errors')
+                $this->csv('server_import_validation_errors'),
             );
             self::fail('Expected a ValidationException.');
         } catch (ValidationException $exception) {
@@ -157,7 +157,7 @@ class ImportHostingServersActionTest extends IntegrationTestCase
                     'Regel 2, ipv6: Dit veld is geen valide versie 6 ip adres.',
                     'Regel 2, secret_key: Dit veld is verplicht.',
                 ],
-                $exception->errors()['csv_upload']
+                $exception->errors()['csv_upload'],
             );
         }
 
@@ -170,7 +170,7 @@ class ImportHostingServersActionTest extends IntegrationTestCase
         try {
             $this->action->execute(
                 ServerType::PLESK,
-                $this->csv('server_import_plesk_bad_third_row')
+                $this->csv('server_import_plesk_bad_third_row'),
             );
             self::fail('Expected a ValidationException.');
         } catch (ValidationException $exception) {
@@ -180,7 +180,7 @@ class ImportHostingServersActionTest extends IntegrationTestCase
                     'Regel 4, hostname: Dit veld bevat geen geldige domeinnaam.',
                     'Regel 4, ipv4: Dit veld is geen valide versie 4 ip adres.',
                 ],
-                $exception->errors()['csv_upload']
+                $exception->errors()['csv_upload'],
             );
         }
 
@@ -192,14 +192,12 @@ class ImportHostingServersActionTest extends IntegrationTestCase
     {
         $importedCount = $this->action->execute(
             ServerType::PLESK,
-            $this->csv('server_import_plesk_no_php_version')
+            $this->csv('server_import_plesk_no_php_version'),
         );
 
         self::assertSame(1, $importedCount);
 
-        $pleskServer = Server::query()
-            ->where('hostname', 'import-no-php-version.dev')
-            ->firstOrFail();
+        $pleskServer = Server::query()->where('hostname', 'import-no-php-version.dev')->firstOrFail();
 
         self::assertSame('plesk-php71-fastcgi', $pleskServer->php_version);
     }
@@ -216,7 +214,7 @@ class ImportHostingServersActionTest extends IntegrationTestCase
         try {
             $this->action->execute(
                 ServerType::PLESK,
-                $this->csv('server_import_plesk_success')
+                $this->csv('server_import_plesk_success'),
             );
             self::fail('Expected a ValidationException.');
         } catch (ValidationException $exception) {
@@ -225,7 +223,7 @@ class ImportHostingServersActionTest extends IntegrationTestCase
                     'Regel 2, hostname: Dit veld is niet uniek.',
                     'Regel 2, ipv4: Dit veld is niet uniek.',
                 ],
-                $exception->errors()['csv_upload']
+                $exception->errors()['csv_upload'],
             );
         }
 
@@ -244,7 +242,7 @@ class ImportHostingServersActionTest extends IntegrationTestCase
 
         $importedCount = $this->action->execute(
             ServerType::PLESK,
-            $this->csv('server_import_plesk_success')
+            $this->csv('server_import_plesk_success'),
         );
 
         self::assertSame(1, $importedCount);
@@ -257,7 +255,10 @@ class ImportHostingServersActionTest extends IntegrationTestCase
         $rows = [];
         for ($i = 1; $i <= 1001; $i++) {
             $ipv4 = sprintf('10.40.%d.%d', intdiv($i, 256), $i % 256);
-            $rows[] = "sandwave,cap-$i.example.com,8443,$ipv4,2001:db8:4::" . dechex($i) . ",key-$i,1,400,plesk-php82-fastcgi,1";
+            $rows[] =
+                "sandwave,cap-$i.example.com,8443,$ipv4,2001:db8:4::"
+                . dechex($i)
+                . ",key-$i,1,400,plesk-php82-fastcgi,1";
         }
 
         try {
@@ -266,7 +267,7 @@ class ImportHostingServersActionTest extends IntegrationTestCase
         } catch (ValidationException $exception) {
             self::assertSame(
                 ['Het bestand bevat 1001 regels; er kunnen er maximaal 1000 tegelijk geïmporteerd worden.'],
-                $exception->errors()['csv_upload']
+                $exception->errors()['csv_upload'],
             );
         }
 

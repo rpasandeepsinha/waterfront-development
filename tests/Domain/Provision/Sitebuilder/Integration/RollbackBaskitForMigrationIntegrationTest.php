@@ -59,25 +59,22 @@ class RollbackBaskitForMigrationIntegrationTest extends IntegrationTestCase
             'user_ref' => self::USER_REF,
         ]);
 
-        $basekit = BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->sitebuilder()
-                            ->state([
-                                'request_name' => self::REQUEST_NAME,
-                                'context_uuid' => $contextUuid,
-                                'tag' => $tag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    ),
-                'sitebuilderDeployment'
-            )
-            ->createOne([
-                'site_ref' => self::SITE_REF,
-            ]);
+        $basekit = BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->sitebuilder()
+                    ->state([
+                        'request_name' => self::REQUEST_NAME,
+                        'context_uuid' => $contextUuid,
+                        'tag' => $tag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+            'sitebuilderDeployment',
+        )->createOne([
+            'site_ref' => self::SITE_REF,
+        ]);
 
         self::assertDatabaseCount(BasekitContext::class, 1);
         self::assertDatabaseCount(SitebuilderDeployment::class, 1);
@@ -118,41 +115,35 @@ class RollbackBaskitForMigrationIntegrationTest extends IntegrationTestCase
             'user_ref' => self::USER_REF,
         ]);
 
-        $basekitA = BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->sitebuilder()
-                            ->state([
-                                'request_name' => self::REQUEST_NAME,
-                                'context_uuid' => $contextUuid,
-                                'tag' => $tagToDelete,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    ),
-                'sitebuilderDeployment'
-            )
-            ->createOne();
+        $basekitA = BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->sitebuilder()
+                    ->state([
+                        'request_name' => self::REQUEST_NAME,
+                        'context_uuid' => $contextUuid,
+                        'tag' => $tagToDelete,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+            'sitebuilderDeployment',
+        )->createOne();
 
-        $basekitB = BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->sitebuilder()
-                            ->state([
-                                'request_name' => self::REQUEST_NAME,
-                                'context_uuid' => $contextUuid,
-                                'tag' => $otherTag,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    ),
-                'sitebuilderDeployment'
-            )
-            ->createOne();
+        $basekitB = BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->sitebuilder()
+                    ->state([
+                        'request_name' => self::REQUEST_NAME,
+                        'context_uuid' => $contextUuid,
+                        'tag' => $otherTag,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+            'sitebuilderDeployment',
+        )->createOne();
 
         $provisionRequest = new RollbackBasekitDeploymentsFromMigrationRequest(
             context: $contextUuid,
@@ -197,33 +188,26 @@ class RollbackBaskitForMigrationIntegrationTest extends IntegrationTestCase
             'user_ref' => self::USER_REF,
         ]);
 
-        BasekitSitebuilderDeploymentFactory::new()
-            ->for(
-                SitebuilderDeploymentFactory::new()
-                    ->for(
-                        ProvisioningRequestFactory::new()
-                            ->sitebuilder()
-                            ->state([
-                                'request_name' => self::REQUEST_NAME,
-                                'context_uuid' => $contextUuid,
-                                'tag' => $tagUuid,
-                            ])
-                            ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                        'request'
-                    ),
-                'sitebuilderDeployment'
-            )
-            ->createOne();
+        BasekitSitebuilderDeploymentFactory::new()->for(
+            SitebuilderDeploymentFactory::new()->for(
+                ProvisioningRequestFactory::new()
+                    ->sitebuilder()
+                    ->state([
+                        'request_name' => self::REQUEST_NAME,
+                        'context_uuid' => $contextUuid,
+                        'tag' => $tagUuid,
+                    ])
+                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
+                'request',
+            ),
+            'sitebuilderDeployment',
+        )->createOne();
 
         $mockDeploymentRepo = $this->createStub(SitebuilderDeploymentRepository::class);
 
-        $mockDeploymentRepo
-            ->method('countCreateRequestsByTag')
-            ->willReturn(1);
+        $mockDeploymentRepo->method('countCreateRequestsByTag')->willReturn(1);
 
-        $mockDeploymentRepo
-            ->method('findByTag')
-            ->willReturn(null);
+        $mockDeploymentRepo->method('findByTag')->willReturn(null);
 
         $this->app->instance(SitebuilderDeploymentRepository::class, $mockDeploymentRepo);
 
@@ -253,19 +237,17 @@ class RollbackBaskitForMigrationIntegrationTest extends IntegrationTestCase
             'user_ref' => self::USER_REF,
         ]);
 
-        $sitebuilder = SitebuilderDeploymentFactory::new()
-            ->for(
-                ProvisioningRequestFactory::new()
-                    ->sitebuilder()
-                    ->state([
-                        'request_name' => self::REQUEST_NAME,
-                        'context_uuid' => $contextUuid,
-                        'tag' => $tag,
-                    ])
-                    ->has(ProvisioningResultFactory::new()->success(), 'result'),
-                'request'
-            )
-            ->createOne();
+        $sitebuilder = SitebuilderDeploymentFactory::new()->for(
+            ProvisioningRequestFactory::new()
+                ->sitebuilder()
+                ->state([
+                    'request_name' => self::REQUEST_NAME,
+                    'context_uuid' => $contextUuid,
+                    'tag' => $tag,
+                ])
+                ->has(ProvisioningResultFactory::new()->success(), 'result'),
+            'request',
+        )->createOne();
 
         $provisionRequest = new RollbackBasekitDeploymentsFromMigrationRequest(
             context: $contextUuid,

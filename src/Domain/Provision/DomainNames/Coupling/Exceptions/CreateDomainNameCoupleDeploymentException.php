@@ -17,9 +17,9 @@ class CreateDomainNameCoupleDeploymentException extends ProvisionException
                 'Could not create domain name deployment for domain %s with %s uuid %s',
                 $deployment->domain,
                 $deployment->couple_type->value,
-                $deployment->uuid
+                $deployment->uuid,
             ),
-            previous: $previous
+            previous: $previous,
         );
     }
 }

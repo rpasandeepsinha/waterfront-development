@@ -42,7 +42,8 @@ class ValidateContactNotificationHandlerTest extends TestCase
         ]);
 
         $dispatcher = self::createStub(Dispatcher::class);
-        $dispatcher->method('dispatch')
+        $dispatcher
+            ->method('dispatch')
             ->willReturnCallback(
                 static function (UpdateValidatedDomainStatusJob $job) use (&$dispatchedDomainNames): void {
                     $dispatchedDomainNames[] = $job->domainName;
@@ -78,11 +79,11 @@ class ValidateContactNotificationHandlerTest extends TestCase
         ]);
 
         $dispatcher = self::createMock(Dispatcher::class);
-        $dispatcher->expects(self::never())
-            ->method('dispatch');
+        $dispatcher->expects(self::never())->method('dispatch');
 
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('info')
             ->with(
                 'RTR contact validation skipped: included domains missing',
@@ -134,7 +135,8 @@ class ValidateContactNotificationHandlerTest extends TestCase
         ]);
 
         $dispatcher = self::createStub(Dispatcher::class);
-        $dispatcher->method('dispatch')
+        $dispatcher
+            ->method('dispatch')
             ->willReturnCallback(
                 static function (UpdateValidatedDomainStatusJob $job) use (&$dispatchedDomainNames): void {
                     $dispatchedDomainNames[] = $job->domainName;

@@ -50,7 +50,7 @@ class HostingModifySiteForMigrationAction
                         'isUsingLocalDomain' => $isUsingLocalDomain,
                         'referenceSubscriptionId' => $referenceSubscriptionId,
                     ],
-                ]
+                ],
             );
         } else {
             // rollback
@@ -65,7 +65,7 @@ class HostingModifySiteForMigrationAction
                         'ssoSetting' => $ssoSetting,
                         'referenceSubscriptionId' => $referenceSubscriptionId,
                     ],
-                ]
+                ],
             );
         }
 

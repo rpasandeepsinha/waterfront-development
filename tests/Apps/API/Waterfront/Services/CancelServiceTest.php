@@ -58,19 +58,21 @@ class CancelServiceTest extends IntegrationTestCase
     {
         $subscription = $this->createDomainSubscription($this->customer);
 
-        $response = $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.subscriptions.cancel'),
-            [
-                'subscriptions' => [
-                    [
-                        'uuid'   => $subscription->uuid,
-                        'cancel' => true,
-                        'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
-                        'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+        $response = $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.subscriptions.cancel'),
+                [
+                    'subscriptions' => [
+                        [
+                            'uuid' => $subscription->uuid,
+                            'cancel' => true,
+                            'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
+                            'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+                        ],
                     ],
                 ],
-            ]
-        )->assertOk();
+            )
+            ->assertOk();
 
         self::assertSame($subscription->id, $response->json('data.0.id'));
         self::assertSame(AdministrativeStatus::CANCELED->value, $response->json('data.0.administrative_status'));
@@ -81,19 +83,21 @@ class CancelServiceTest extends IntegrationTestCase
     {
         $subscription = $this->createDomainSubscription($this->customer);
 
-        $response = $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.subscriptions.cancel'),
-            [
-                'subscriptions' => [
-                    [
-                        'uuid'   => $subscription->uuid,
-                        'cancel' => false,
-                        'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
-                        'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+        $response = $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.subscriptions.cancel'),
+                [
+                    'subscriptions' => [
+                        [
+                            'uuid' => $subscription->uuid,
+                            'cancel' => false,
+                            'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
+                            'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+                        ],
                     ],
                 ],
-            ]
-        )->assertOk();
+            )
+            ->assertOk();
 
         self::assertSame($subscription->id, $response->json('data.0.id'));
         self::assertSame(AdministrativeStatus::ACTIVE->value, $response->json('data.0.administrative_status'));
@@ -104,17 +108,20 @@ class CancelServiceTest extends IntegrationTestCase
     {
         $parentSubscription = $this->createMicrosoft365Subscription($this->customer);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.subscriptions.cancel.child-subscriptions'),
-            [
-                'parent' => $parentSubscription->uuid,
-                'amount' => 2,
-            ]
-        )->assertOk();
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.subscriptions.cancel.child-subscriptions'),
+                [
+                    'parent' => $parentSubscription->uuid,
+                    'amount' => 2,
+                ],
+            )
+            ->assertOk();
 
-        $childSubscriptions = Subscription::where('parent_subscription_id', $parentSubscription->id)
-            ->where('administrative_status', AdministrativeStatus::CANCELED->value)
-            ->get();
+        $childSubscriptions = Subscription::where('parent_subscription_id', $parentSubscription->id)->where(
+            'administrative_status',
+            AdministrativeStatus::CANCELED->value,
+        )->get();
 
         self::assertCount(2, $childSubscriptions);
     }
@@ -124,17 +131,20 @@ class CancelServiceTest extends IntegrationTestCase
     {
         $parentSubscription = $this->createMicrosoft365Subscription($this->customer);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.subscriptions.cancel.child-subscriptions'),
-            [
-                'parent' => $parentSubscription->uuid,
-                'amount' => 3,
-            ]
-        )->assertOk();
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.subscriptions.cancel.child-subscriptions'),
+                [
+                    'parent' => $parentSubscription->uuid,
+                    'amount' => 3,
+                ],
+            )
+            ->assertOk();
 
-        $childSubscriptions = Subscription::where('parent_subscription_id', $parentSubscription->id)
-            ->where('administrative_status', AdministrativeStatus::CANCELED->value)
-            ->get();
+        $childSubscriptions = Subscription::where('parent_subscription_id', $parentSubscription->id)->where(
+            'administrative_status',
+            AdministrativeStatus::CANCELED->value,
+        )->get();
 
         self::assertCount(3, $childSubscriptions);
         self::assertDatabaseHas('subscriptions', [
@@ -148,16 +158,18 @@ class CancelServiceTest extends IntegrationTestCase
     {
         $parentSubscription = $this->createMicrosoft365Subscription($this->customer);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.subscriptions.cancel.child-subscriptions'),
-            [
-                'parent' => $parentSubscription->uuid,
-                'amount' => 5,
-            ]
-        )
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.subscriptions.cancel.child-subscriptions'),
+                [
+                    'parent' => $parentSubscription->uuid,
+                    'amount' => 5,
+                ],
+            )
             ->assertBadRequest()
             ->assertJsonFragment([
-                'message' => self::resolve(TranslatorInterface::class)->translate('service.cancel.child-subscriptions.fail'),
+                'message' => self::resolve(TranslatorInterface::class)
+                    ->translate('service.cancel.child-subscriptions.fail'),
             ]);
     }
 
@@ -166,19 +178,21 @@ class CancelServiceTest extends IntegrationTestCase
     {
         $subscription = $this->createHostingSubscription($this->customer);
 
-        $response = $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.subscriptions.cancel'),
-            [
-                'subscriptions' => [
-                    [
-                        'uuid'   => $subscription->uuid,
-                        'cancel' => true,
-                        'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
-                        'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+        $response = $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.subscriptions.cancel'),
+                [
+                    'subscriptions' => [
+                        [
+                            'uuid' => $subscription->uuid,
+                            'cancel' => true,
+                            'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
+                            'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+                        ],
                     ],
                 ],
-            ]
-        )->assertOk();
+            )
+            ->assertOk();
 
         self::assertSame($subscription->id, $response->json('data.0.id'));
         self::assertSame(AdministrativeStatus::CANCELED->value, $response->json('data.0.administrative_status'));
@@ -189,19 +203,21 @@ class CancelServiceTest extends IntegrationTestCase
     {
         $subscription = $this->createSslDeployment($this->customer);
 
-        $response = $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.subscriptions.cancel'),
-            [
-                'subscriptions' => [
-                    [
-                        'uuid'   => $subscription->uuid,
-                        'cancel' => true,
-                        'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
-                        'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+        $response = $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.subscriptions.cancel'),
+                [
+                    'subscriptions' => [
+                        [
+                            'uuid' => $subscription->uuid,
+                            'cancel' => true,
+                            'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
+                            'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+                        ],
                     ],
                 ],
-            ]
-        )->assertOk();
+            )
+            ->assertOk();
 
         self::assertSame($subscription->id, $response->json('data.0.id'));
         self::assertSame(AdministrativeStatus::CANCELED->value, $response->json('data.0.administrative_status'));
@@ -226,31 +242,33 @@ class CancelServiceTest extends IntegrationTestCase
         $hostingDeployment->server_id = $server->id;
         $hostingDeployment->save();
 
-        $response = $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.subscriptions.cancel'),
-            [
-                'subscriptions' => [
-                    [
-                        'uuid' => $domainSubscription->uuid,
-                        'cancel' => true,
-                        'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
-                        'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
-                    ],
-                    [
-                        'uuid' => $hostingSubscription->uuid,
-                        'cancel' => true,
-                        'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
-                        'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
-                    ],
-                    [
-                        'uuid'   => $sslDeployment->uuid,
-                        'cancel' => true,
-                        'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
-                        'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+        $response = $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.subscriptions.cancel'),
+                [
+                    'subscriptions' => [
+                        [
+                            'uuid' => $domainSubscription->uuid,
+                            'cancel' => true,
+                            'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
+                            'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+                        ],
+                        [
+                            'uuid' => $hostingSubscription->uuid,
+                            'cancel' => true,
+                            'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
+                            'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+                        ],
+                        [
+                            'uuid' => $sslDeployment->uuid,
+                            'cancel' => true,
+                            'cancel_type' => SubscriptionCancelType::CANCEL_END_DATE,
+                            'cancel_reason' => SubscriptionCancelReason::REASON_CANCELLATION,
+                        ],
                     ],
                 ],
-            ]
-        )->assertOk();
+            )
+            ->assertOk();
 
         $idList = [$domainSubscription->id, $hostingSubscription->id, $sslDeployment->id];
 
@@ -269,25 +287,34 @@ class CancelServiceTest extends IntegrationTestCase
 
     private function createDomainSubscription(Customer $customer): Subscription
     {
-        $provider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        $provider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
         $productGroup = new ProductGroupFactory()->createOne(['slug' => 'extension']);
         $product = new ProductFactory()->createOne(['name' => 'extension', 'product_group_id' => $productGroup->id]);
-        $productPrice = new ProductPriceComponentFactory()->registration()->createOne(['product_id' => $product->id]);
-        new ProductPriceComponentFactory()->prolongation()->createOne(['product_id' => $product->id]);
+        $productPrice = new ProductPriceComponentFactory()
+            ->registration()
+            ->createOne(['product_id' => $product->id]);
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->createOne(['product_id' => $product->id]);
         $subscriptionPartnerRepository = self::resolve(SubscriptionRepository::class);
 
         $subscription = $subscriptionPartnerRepository->create(
             $customer,
             [
-                'domain'             => self::DOMAIN,
-                'product_name'       => $product->name,
-                'product_uuid'       => $product->uuid,
-                'gross_price'        => $productPrice->price,
-                'net_price'          => $productPrice->price,
-                'status'             => DomainStatus::ACTIVE->value,
-                'billing_period'     => 12,
-                'contract_period'    => 12,
-            ]
+                'domain' => self::DOMAIN,
+                'product_name' => $product->name,
+                'product_uuid' => $product->uuid,
+                'gross_price' => $productPrice->price,
+                'net_price' => $productPrice->price,
+                'status' => DomainStatus::ACTIVE->value,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ],
         );
 
         DomainDeployment::create([
@@ -303,62 +330,80 @@ class CancelServiceTest extends IntegrationTestCase
         $server = new ServerFactory()->createOne(['type' => ServerType::PLESK]);
         $productGroup = new ProductGroupFactory()->createOne(['slug' => 'hosting']);
         $product = new ProductFactory()->createOne(['name' => 'basic', 'product_group_id' => $productGroup->id]);
-        $productPrice = new ProductPriceComponentFactory()->registration()->createOne(['product_id' => $product->id]);
-        new ProductPriceComponentFactory()->prolongation()->createOne(['product_id' => $product->id]);
+        $productPrice = new ProductPriceComponentFactory()
+            ->registration()
+            ->createOne(['product_id' => $product->id]);
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->createOne(['product_id' => $product->id]);
 
         $subscriptionPartnerRepository = self::resolve(SubscriptionRepository::class);
 
         $subscription = $subscriptionPartnerRepository->create(
             $customer,
             [
-                'domain'             => self::DOMAIN,
-                'product_name'       => $product->name,
-                'product_uuid'       => $product->uuid,
-                'gross_price'        => $productPrice->price,
-                'net_price'          => $productPrice->price,
-                'status'             => DomainStatus::ACTIVE->value,
-                'contract_period'    => 12,
-                'billing_period'     => 12,
-            ]
+                'domain' => self::DOMAIN,
+                'product_name' => $product->name,
+                'product_uuid' => $product->uuid,
+                'gross_price' => $productPrice->price,
+                'net_price' => $productPrice->price,
+                'status' => DomainStatus::ACTIVE->value,
+                'contract_period' => 12,
+                'billing_period' => 12,
+            ],
         );
 
-        new HostingDeploymentFactory()->withPleskProvider()->createOne([
-            'subscription_uuid' => $subscription->uuid,
-            'server_id' => $server->id,
-        ]);
+        new HostingDeploymentFactory()
+            ->withPleskProvider()
+            ->createOne([
+                'subscription_uuid' => $subscription->uuid,
+                'server_id' => $server->id,
+            ]);
 
         return $subscription;
     }
 
     private function createSslDeployment(Customer $customer): Subscription
     {
-        $sslProvider = ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        $sslProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $productGroup = new ProductGroupFactory()->createOne(['slug' => 'ssl']);
-        $product = new ProductFactory()->createOne(['slug' => 'ssl_single_domain', 'product_group_id' => $productGroup->id]);
-        $productPrice = new ProductPriceComponentFactory()->registration()->createOne(['product_id' => $product->id]);
-        new ProductPriceComponentFactory()->prolongation()->createOne(['product_id' => $product->id]);
+        $product = new ProductFactory()->createOne([
+            'slug' => 'ssl_single_domain',
+            'product_group_id' => $productGroup->id,
+        ]);
+        $productPrice = new ProductPriceComponentFactory()
+            ->registration()
+            ->createOne(['product_id' => $product->id]);
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->createOne(['product_id' => $product->id]);
 
         $subscriptionPartnerRepository = self::resolve(SubscriptionRepository::class);
 
         $subscription = $subscriptionPartnerRepository->create(
             $customer,
             [
-                'domain'             => self::DOMAIN,
-                'product_name'       => $product->name,
-                'product_uuid'       => $product->uuid,
-                'gross_price'        => $productPrice->price,
-                'net_price'          => $productPrice->price,
-                'status'             => DomainStatus::ACTIVE->value,
-                'billing_period'     => 12,
-                'contract_period'    => 12,
-            ]
+                'domain' => self::DOMAIN,
+                'product_name' => $product->name,
+                'product_uuid' => $product->uuid,
+                'gross_price' => $productPrice->price,
+                'net_price' => $productPrice->price,
+                'status' => DomainStatus::ACTIVE->value,
+                'billing_period' => 12,
+                'contract_period' => 12,
+            ],
         );
 
         SslDeployment::create([
             'subscription_uuid' => $subscription->uuid,
             'certificate_id' => 123,
-            'request_id'     => 123,
+            'request_id' => 123,
             'provider_id' => $sslProvider->id,
         ]);
 
@@ -368,36 +413,52 @@ class CancelServiceTest extends IntegrationTestCase
     private function createMicrosoft365Subscription(Customer $customer): Subscription
     {
         $productGroup = new ProductGroupFactory()->createOne(['slug' => 'microsoft-365']);
-        $parentProduct = new ProductFactory()->createOne(['name' => 'microsoft-business-basic-parent', 'product_group_id' => $productGroup->id]);
-        $product = new ProductFactory()->createOne(['name' => 'microsoft-business-basic', 'product_group_id' => $productGroup->id]);
-        new ProductPriceComponentFactory()->prolongation()->createOne(['product_id' => $product->id]);
-
-        $parentSubscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => $parentProduct->uuid,
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-            'customer_id' => $customer->id,
+        $parentProduct = new ProductFactory()->createOne([
+            'name' => 'microsoft-business-basic-parent',
+            'product_group_id' => $productGroup->id,
         ]);
-
-        new SubscriptionFactory()->withCustomer()->createOne([
-            'parent_subscription_id' => $parentSubscription->id,
-            'product_uuid' => $product->uuid,
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-            'customer_id' => $customer->id,
+        $product = new ProductFactory()->createOne([
+            'name' => 'microsoft-business-basic',
+            'product_group_id' => $productGroup->id,
         ]);
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->createOne(['product_id' => $product->id]);
 
-        new SubscriptionFactory()->withCustomer()->createOne([
-            'parent_subscription_id' => $parentSubscription->id,
-            'product_uuid' => $product->uuid,
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-            'customer_id' => $customer->id,
-        ]);
+        $parentSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => $parentProduct->uuid,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                'customer_id' => $customer->id,
+            ]);
 
-        new SubscriptionFactory()->withCustomer()->createOne([
-            'parent_subscription_id' => $parentSubscription->id,
-            'product_uuid' => $product->uuid,
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-            'customer_id' => $customer->id,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'parent_subscription_id' => $parentSubscription->id,
+                'product_uuid' => $product->uuid,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                'customer_id' => $customer->id,
+            ]);
+
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'parent_subscription_id' => $parentSubscription->id,
+                'product_uuid' => $product->uuid,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                'customer_id' => $customer->id,
+            ]);
+
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'parent_subscription_id' => $parentSubscription->id,
+                'product_uuid' => $product->uuid,
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                'customer_id' => $customer->id,
+            ]);
 
         return $parentSubscription;
     }

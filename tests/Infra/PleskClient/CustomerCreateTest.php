@@ -43,7 +43,11 @@ class CustomerCreateTest extends IntegrationTestCase
         ]);
         $handlerStack = HandlerStack::create($mock);
         $handlerStack->push(fn (callable $handler) => function (RequestInterface $request, $options) use ($handler) {
-            self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_customer_create_request.xml'), (string) $request->getBody());
+            self::assertSame(
+                (string) file_get_contents(__DIR__ . '/data/plesk_customer_create_request.xml'),
+                (string) $request->getBody(),
+            );
+
             return $handler($request, $options);
         });
 
@@ -54,7 +58,7 @@ class CustomerCreateTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: $this->loggerMock,
-            connection: $connection
+            connection: $connection,
         );
 
         $data = require __DIR__ . '/data/pleskCreateData.php';
@@ -77,16 +81,17 @@ class CustomerCreateTest extends IntegrationTestCase
             client: $client,
             configuration: self::resolve(ConfigurationInterface::class),
             logger: $this->loggerMock,
-            connection: $connection
+            connection: $connection,
         );
 
-        $this->loggerMock->expects(self::once())
+        $this->loggerMock
+            ->expects(self::once())
             ->method('debug')
             ->with(
                 sprintf(
                     'Sending Plesk request: %s',
-                    file_get_contents(__DIR__ . '/data/plesk_customer_create_request_log.xml')
-                )
+                    file_get_contents(__DIR__ . '/data/plesk_customer_create_request_log.xml'),
+                ),
             );
 
         $data = require __DIR__ . '/data/pleskCreateData.php';

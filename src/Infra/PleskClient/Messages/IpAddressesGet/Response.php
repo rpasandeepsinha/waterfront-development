@@ -49,6 +49,7 @@ class Response extends BaseResponse
             $this->status = self::STATUS_ERROR;
             $this->errorCode = $this->statusCode;
             $this->errorText = $this->statusMessage;
+
             return;
         }
 

@@ -42,9 +42,15 @@ class DeleteSiteTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
 
-        $productHosting = new ProductFactory()->siteBuilder()->for(new ProductGroupFactory()->hosting())->createOne();
+        $productHosting = new ProductFactory()
+            ->siteBuilder()
+            ->for(new ProductGroupFactory()->hosting())
+            ->createOne();
 
-        $this->subscription = new SubscriptionFactory()->for($customer)->for($productHosting)->createOne();
+        $this->subscription = new SubscriptionFactory()
+            ->for($customer)
+            ->for($productHosting)
+            ->createOne();
 
         $this->sitebuilderProvider = ProviderFactory::new()->createOne([
             'type' => ProviderType::SITEBUILDER,

@@ -26,6 +26,7 @@ class DeleteUsers extends DirectAdminCommand
     public function setUsernames(array $usernames): DeleteUsers
     {
         $this->usernames = $usernames;
+
         return $this;
     }
 
@@ -37,6 +38,7 @@ class DeleteUsers extends DirectAdminCommand
     public function addUser(string $username): DeleteUsers
     {
         $this->usernames[] = $username;
+
         return $this;
     }
 
@@ -60,7 +62,8 @@ class DeleteUsers extends DirectAdminCommand
      */
     private function getPostBody(): StreamInterface
     {
-        $params = [
+        $params =
+            [
                 'confirmed' => 'Confirm',
                 'delete' => 'yes',
             ] + $this->getUsersToDelete();

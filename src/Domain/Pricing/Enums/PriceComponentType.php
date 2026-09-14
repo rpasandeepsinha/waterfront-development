@@ -19,4 +19,5 @@ enum PriceComponentType: string
     case CUSTOM_ONE_OFF = 'custom-one-off';
     // An indefinite custom subscription price.
     case CUSTOM_INDEFINITE = 'custom-indefinite';
+    case EXPERIMENT_PRICE_LADDER = 'experiment-price-ladder';
 }

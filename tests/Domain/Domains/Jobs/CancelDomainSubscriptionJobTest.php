@@ -32,6 +32,7 @@ use Waterfront\Domain\Subscriptions\Enums\SubscriptionCancelType;
 use Waterfront\Domain\Subscriptions\Enums\TechnicalStatus;
 use Waterfront\Domain\Subscriptions\Models\Subscription;
 use Waterfront\Domain\Subscriptions\Services\CancellationService;
+use Waterfront\Infra\Translation\TranslatorInterface;
 
 #[CoversClass(CancelDomainSubscriptionJob::class)]
 class CancelDomainSubscriptionJobTest extends IntegrationTestCase
@@ -53,7 +54,9 @@ class CancelDomainSubscriptionJobTest extends IntegrationTestCase
 
         $this->subscription = new SubscriptionFactory()
             ->withCustomer()
-            ->for(new ProductFactory()->for(new ProductGroupFactory()->createOne(['slug' => ProductGroupType::EXTENSION])))
+            ->for(new ProductFactory()->for(new ProductGroupFactory()->createOne([
+                'slug' => ProductGroupType::EXTENSION,
+            ])))
             ->createOne([
                 'domain' => self::DOMAIN_NAME,
                 'administrative_status' => AdministrativeStatus::ACTIVE->value,
@@ -69,15 +72,24 @@ class CancelDomainSubscriptionJobTest extends IntegrationTestCase
     #[Test]
     public function transferredOutDomain(): void
     {
-        $this->cancellationService->shouldReceive('cancel')
+        $this->cancellationService
+            ->shouldReceive('cancel')
             ->once()
             ->withArgs(
-                fn (Subscription $subscription, SubscriptionCancelType $cancelType, SubscriptionCancelReason $cancelReason, bool $sendMail) => $subscription->uuid === $this->subscription->uuid
+                fn (
+                    Subscription $subscription,
+                    SubscriptionCancelType $cancelType,
+                    SubscriptionCancelReason $cancelReason,
+                    bool $sendMail,
+                ) => (
+                    $subscription->uuid === $this->subscription->uuid
                     && $cancelType === SubscriptionCancelType::CANCEL_END_DATE
                     && $sendMail === false
+                ),
             );
 
-        $this->domainService->shouldReceive('disableAutoRenewal')
+        $this->domainService
+            ->shouldReceive('disableAutoRenewal')
             ->once()
             ->andThrow(new DisableAutorenewalFailedException());
 
@@ -91,23 +103,27 @@ class CancelDomainSubscriptionJobTest extends IntegrationTestCase
     #[Test]
     public function notTransferredOutDomain(): void
     {
-        $this->cancellationService->shouldReceive('cancel')
+        $this->cancellationService
+            ->shouldReceive('cancel')
             ->once()
             ->withArgs(
-                fn (Subscription $subscription, SubscriptionCancelType $cancelType, SubscriptionCancelReason $cancelReason, bool $sendMail) => $subscription->uuid === $this->subscription->uuid
+                fn (
+                    Subscription $subscription,
+                    SubscriptionCancelType $cancelType,
+                    SubscriptionCancelReason $cancelReason,
+                    bool $sendMail,
+                ) => (
+                    $subscription->uuid === $this->subscription->uuid
                     && $cancelType === SubscriptionCancelType::CANCEL_END_DATE
                     && $sendMail === false
+                ),
             );
 
         $driver = $this->mock(DomainDriverInterface::class);
-        $driver->shouldReceive('modify')
-            ->once()
-            ->andReturnTrue();
+        $driver->shouldReceive('modify')->once()->andReturnTrue();
 
         $domainServiceFactory = $this->mock(DomainServiceFactory::class);
-        $domainServiceFactory->shouldReceive('driver')
-            ->once()
-            ->andReturn($driver);
+        $domainServiceFactory->shouldReceive('driver')->once()->andReturn($driver);
 
         $domainService = new DomainService(
             $this->createStub(NameserverAssignerFactory::class),
@@ -119,6 +135,7 @@ class CancelDomainSubscriptionJobTest extends IntegrationTestCase
             self::createStub(DnsService::class),
             self::resolve(DomainDeploymentRepository::class),
             self::resolve(DomainProviderBusinessUnitRepository::class),
+            self::createStub(TranslatorInterface::class),
         );
 
         $cancelJob = new CancelDomainSubscriptionJob(self::DOMAIN_NAME);

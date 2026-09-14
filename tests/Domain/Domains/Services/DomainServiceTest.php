@@ -58,9 +58,19 @@ class DomainServiceTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
 
-        $this->domainProviderOpen = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        $this->domainProviderOpen = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
-        $this->domainProviderRtr = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::REALTIME_REGISTER, 'enabled' => true, 'default' => true]);
+        $this->domainProviderRtr = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::REALTIME_REGISTER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $productGroup = new ProductGroupFactory()->createOne([
             'name' => 'Domein',
@@ -123,20 +133,15 @@ class DomainServiceTest extends IntegrationTestCase
         $this->domainContact->providers()->attach($this->domainProviderRtr, ['external_contact' => $externalContact]);
 
         $rtrServiceMock = self::createMock(RtrService::class);
-        $rtrServiceMock->expects(self::once())->method('destroyContact')
-            ->willReturn(new Result(true));
+        $rtrServiceMock->expects(self::once())->method('destroyContact')->willReturn(new Result(true));
 
-        $rtrServiceMock
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrServiceMock->method('setHandle')->willReturnSelf();
 
-        $rtrServiceMock
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrServiceMock->method('setClient')->willReturnSelf();
 
         $this->app->instance(
             RtrService::class,
-            $rtrServiceMock
+            $rtrServiceMock,
         );
 
         $this->domainService = self::resolve(DomainService::class);
@@ -185,20 +190,18 @@ class DomainServiceTest extends IntegrationTestCase
         $this->domainContact->providers()->attach($this->domainProviderRtr, ['external_contact' => $externalContact]);
 
         $rtrServiceMock = self::createMock(RtrService::class);
-        $rtrServiceMock->expects(self::once())->method('destroyContact')
+        $rtrServiceMock
+            ->expects(self::once())
+            ->method('destroyContact')
             ->willThrowException(new LogicException('testmessage', 1001));
 
-        $rtrServiceMock
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrServiceMock->method('setHandle')->willReturnSelf();
 
-        $rtrServiceMock
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrServiceMock->method('setClient')->willReturnSelf();
 
         $this->app->instance(
             RtrService::class,
-            $rtrServiceMock
+            $rtrServiceMock,
         );
 
         $this->domainService = self::resolve(DomainService::class);
@@ -222,10 +225,12 @@ class DomainServiceTest extends IntegrationTestCase
     #[Test]
     public function destroyContactWithMultipleAttachedProviders(): void
     {
-        $extraSubscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain' => 'dummyfakeTwo.nl',
-            'product_uuid' => $this->subscription->product_uuid,
-        ]);
+        $extraSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => 'dummyfakeTwo.nl',
+                'product_uuid' => $this->subscription->product_uuid,
+            ]);
 
         new DomainDeploymentFactory()->createOne([
             'subscription_uuid' => $extraSubscription->uuid,
@@ -239,31 +244,23 @@ class DomainServiceTest extends IntegrationTestCase
         $this->domainContact->providers()->attach($this->domainProviderRtr, ['external_contact' => $externalContact2]);
 
         $domainServiceMock = self::createMock(OpenproviderDomainService::class);
-        $domainServiceMock->expects(self::once())
-            ->method('setClient')
-            ->willReturnSelf();
-        $domainServiceMock->expects(self::once())->method('destroyContact')
-            ->willReturn(new Result(true));
+        $domainServiceMock->expects(self::once())->method('setClient')->willReturnSelf();
+        $domainServiceMock->expects(self::once())->method('destroyContact')->willReturn(new Result(true));
         $this->app->instance(
             OpenproviderDomainService::class,
-            $domainServiceMock
+            $domainServiceMock,
         );
 
         $rtrServiceMock = self::createMock(RtrService::class);
-        $rtrServiceMock->expects(self::once())->method('destroyContact')
-            ->willReturn(new Result(true));
+        $rtrServiceMock->expects(self::once())->method('destroyContact')->willReturn(new Result(true));
 
-        $rtrServiceMock
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrServiceMock->method('setHandle')->willReturnSelf();
 
-        $rtrServiceMock
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrServiceMock->method('setClient')->willReturnSelf();
 
         $this->app->instance(
             RtrService::class,
-            $rtrServiceMock
+            $rtrServiceMock,
         );
 
         $this->domainService = self::resolve(DomainService::class);
@@ -286,10 +283,12 @@ class DomainServiceTest extends IntegrationTestCase
     #[Test]
     public function destroyContactFailedWithMultipleAttachedProviders(): void
     {
-        $extraSubscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain' => 'dummyfakeTwo.nl',
-            'product_uuid' => $this->subscription->product_uuid,
-        ]);
+        $extraSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => 'dummyfakeTwo.nl',
+                'product_uuid' => $this->subscription->product_uuid,
+            ]);
 
         new DomainDeploymentFactory()->createOne([
             'subscription_uuid' => $extraSubscription->uuid,
@@ -303,38 +302,34 @@ class DomainServiceTest extends IntegrationTestCase
         $this->domainContact->providers()->attach($this->domainProviderRtr, ['external_contact' => $externalContact2]);
 
         $domainServiceMock = self::createMock(OpenproviderDomainService::class);
-        $domainServiceMock->expects(self::once())
-            ->method('setClient')
-            ->willReturnSelf();
-        $domainServiceMock->expects(self::once())->method('destroyContact')
+        $domainServiceMock->expects(self::once())->method('setClient')->willReturnSelf();
+        $domainServiceMock
+            ->expects(self::once())
+            ->method('destroyContact')
             ->willThrowException(new LogicException('testmessage', 1001));
         $this->app->instance(
             OpenproviderDomainService::class,
-            $domainServiceMock
+            $domainServiceMock,
         );
 
         $rtrServiceMock = self::createMock(RtrService::class);
-        $rtrServiceMock->expects(self::once())->method('destroyContact')
-            ->willReturn(new Result(true));
+        $rtrServiceMock->expects(self::once())->method('destroyContact')->willReturn(new Result(true));
 
-        $rtrServiceMock
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrServiceMock->method('setHandle')->willReturnSelf();
 
-        $rtrServiceMock
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrServiceMock->method('setClient')->willReturnSelf();
 
         Log::shouldReceive('error')
             ->once()
             ->withArgs(function ($message): bool {
                 $logMessage = 'Failed deleting domain contact at provider: openprovider,';
+
                 return str_contains($message, $logMessage);
             });
 
         $this->app->instance(
             RtrService::class,
-            $rtrServiceMock
+            $rtrServiceMock,
         );
 
         $this->domainService = self::resolve(DomainService::class);
@@ -365,10 +360,12 @@ class DomainServiceTest extends IntegrationTestCase
         ]);
 
         //extra subscription
-        $extraSubscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain' => 'dummyfakeTwo.nl',
-            'product_uuid' => $this->subscription->product_uuid,
-        ]);
+        $extraSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => 'dummyfakeTwo.nl',
+                'product_uuid' => $this->subscription->product_uuid,
+            ]);
 
         new DomainDeploymentFactory()->createOne([
             'subscription_uuid' => $extraSubscription->uuid,
@@ -382,20 +379,15 @@ class DomainServiceTest extends IntegrationTestCase
         $this->domainContact->providers()->attach($this->domainProviderRtr, ['external_contact' => $externalContact2]);
 
         $rtrServiceMock = self::createMock(RtrService::class);
-        $rtrServiceMock->expects(self::exactly(2))->method('destroyContact')
-            ->willReturn(new Result(true));
+        $rtrServiceMock->expects(self::exactly(2))->method('destroyContact')->willReturn(new Result(true));
 
-        $rtrServiceMock
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrServiceMock->method('setHandle')->willReturnSelf();
 
-        $rtrServiceMock
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrServiceMock->method('setClient')->willReturnSelf();
 
         $this->app->instance(
             RtrService::class,
-            $rtrServiceMock
+            $rtrServiceMock,
         );
 
         $this->domainService = self::resolve(DomainService::class);
@@ -426,10 +418,12 @@ class DomainServiceTest extends IntegrationTestCase
         ]);
 
         //extra subscription
-        $extraSubscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain' => 'dummyfakeTwo.nl',
-            'product_uuid' => $this->subscription->product_uuid,
-        ]);
+        $extraSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => 'dummyfakeTwo.nl',
+                'product_uuid' => $this->subscription->product_uuid,
+            ]);
 
         new DomainDeploymentFactory()->createOne([
             'subscription_uuid' => $extraSubscription->uuid,
@@ -444,34 +438,32 @@ class DomainServiceTest extends IntegrationTestCase
 
         $rtrServiceMock = self::createMock(RtrService::class);
         $matcher = self::exactly(2);
-        $rtrServiceMock->expects($matcher)
+        $rtrServiceMock
+            ->expects($matcher)
             ->method('destroyContact')
             ->willReturnCallback(
                 fn () => match ($matcher->numberOfInvocations()) {
                     1 => throw new LogicException('testmessage', 1001),
                     2 => new Result(true),
-                    default => throw new NotImplementedException()
-                }
+                    default => throw new NotImplementedException(),
+                },
             );
 
-        $rtrServiceMock
-            ->method('setHandle')
-            ->willReturnSelf();
+        $rtrServiceMock->method('setHandle')->willReturnSelf();
 
-        $rtrServiceMock
-            ->method('setClient')
-            ->willReturnSelf();
+        $rtrServiceMock->method('setClient')->willReturnSelf();
 
         Log::shouldReceive('error')
             ->once()
             ->withArgs(function ($message): bool {
                 $logMessage = 'Failed deleting domain contact at provider: realtime_register,';
+
                 return str_contains($message, $logMessage);
             });
 
         $this->app->instance(
             RtrService::class,
-            $rtrServiceMock
+            $rtrServiceMock,
         );
 
         $this->domainService = self::resolve(DomainService::class);
@@ -516,21 +508,16 @@ class DomainServiceTest extends IntegrationTestCase
 
         $this->app->bind(RtrService::class, fn () => $mockDomainProvider);
 
-        $mockDomainProvider->expects(self::exactly(0))
-            ->method('retrieveRenewalDate')
-            ->willReturn($externalDate);
+        $mockDomainProvider->expects(self::exactly(0))->method('retrieveRenewalDate')->willReturn($externalDate);
 
-        $mockDomainProvider->expects(self::once())
+        $mockDomainProvider
+            ->expects(self::once())
             ->method('transfer')
             ->willReturn(new TransferResult(TechnicalStatus::PENDING->value));
 
-        $mockDomainProvider
-            ->method('setHandle')
-            ->willReturnSelf();
+        $mockDomainProvider->method('setHandle')->willReturnSelf();
 
-        $mockDomainProvider
-            ->method('setClient')
-            ->willReturnSelf();
+        $mockDomainProvider->method('setClient')->willReturnSelf();
 
         $this->domainService = self::resolve(DomainService::class);
 
@@ -544,7 +531,7 @@ class DomainServiceTest extends IntegrationTestCase
             $this->customer,
             false,
             false,
-            $transferSecret
+            $transferSecret,
         );
 
         $this->subscription = $this->subscription->refresh();

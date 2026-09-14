@@ -64,7 +64,11 @@ class ValidDnsPresentForNewCoupledHostingRuleTest extends IntegrationTestCase
             ],
         ];
 
-        $this->buildRuleForInput($input)->validate('domain', self::DOMAIN, self::assertClosureIsCalled(! $dnsAllowsHosting));
+        $this->buildRuleForInput($input)->validate(
+            'domain',
+            self::DOMAIN,
+            self::assertClosureIsCalled(! $dnsAllowsHosting),
+        );
     }
 
     #[DataProvider('dnsAllowsHostingDataProvider')]
@@ -91,7 +95,11 @@ class ValidDnsPresentForNewCoupledHostingRuleTest extends IntegrationTestCase
             ],
         ];
 
-        $this->buildRuleForInput($input)->validate('domain', self::DOMAIN, self::assertClosureIsCalled(! $dnsAllowsHosting));
+        $this->buildRuleForInput($input)->validate(
+            'domain',
+            self::DOMAIN,
+            self::assertClosureIsCalled(! $dnsAllowsHosting),
+        );
     }
 
     #[Test]
@@ -124,17 +132,13 @@ class ValidDnsPresentForNewCoupledHostingRuleTest extends IntegrationTestCase
 
     private function buildDnsProduct(bool $allowsHostingCoupling): Product
     {
-        $dnsProduct = ProductFactory::new()
-            ->for(ProductGroupFactory::new()->dns())
-            ->createOne();
+        $dnsProduct = ProductFactory::new()->for(ProductGroupFactory::new()->dns())->createOne();
 
         if ($allowsHostingCoupling) {
-            ProductSpecFactory::new()
-                ->for($dnsProduct)
-                ->createOne([
-                    'name' => ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT,
-                    'value' => '1',
-                ]);
+            ProductSpecFactory::new()->for($dnsProduct)->createOne([
+                'name' => ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT,
+                'value' => '1',
+            ]);
         }
 
         return $dnsProduct;

@@ -22,7 +22,8 @@ class MollieMandateClient
     public function __construct(
         ConfigurationInterface $config,
         private readonly SerializerInterface $serializer,
-        #[SensitiveParameter]private readonly string $apiKey
+        #[SensitiveParameter]
+        private readonly string $apiKey,
     ) {
         $this->uri = $config->getAsString('mollieclient.credentials.api_url');
     }
@@ -30,13 +31,13 @@ class MollieMandateClient
     /**
      * @throws MollieMandateApiException
      */
-    public function createMandate(string $mollieCustomerId, MollieMandateCreateInterface $mollieMandateCreateDTO): MollieMandateResponseDTO
-    {
+    public function createMandate(
+        string $mollieCustomerId,
+        MollieMandateCreateInterface $mollieMandateCreateDTO,
+    ): MollieMandateResponseDTO {
         $payload = $this->serializer->serialize($mollieMandateCreateDTO, 'json');
 
-        $response = $this->request()
-            ->withBody($payload)
-            ->post("customers/$mollieCustomerId/mandates");
+        $response = $this->request()->withBody($payload)->post("customers/$mollieCustomerId/mandates");
 
         return $this->serializer->deserialize($response, MollieMandateResponseDTO::class, 'json');
     }
@@ -85,20 +86,18 @@ class MollieMandateClient
     private function request(): PendingRequest
     {
         return Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
-            ])
-            ->baseUrl($this->uri)
-            ->throw(function (Response $response, RequestException $exception): never {
-                /** @var array<string, string|null> $payload */
-                $payload = $response->json();
+            'Authorization' => 'Bearer ' . $this->apiKey,
+        ])->baseUrl($this->uri)->throw(function (Response $response, RequestException $exception): never {
+            /** @var array<string, string|null> $payload */
+            $payload = $response->json();
 
-                throw new MollieMandateApiException(
-                    status: $response->status(),
-                    title: $payload['title'] ?? '',
-                    detail: $payload['detail'] ?? '',
-                    field: $payload['field'] ?? null,
-                    previous: $exception
-                );
-            });
+            throw new MollieMandateApiException(
+                status: $response->status(),
+                title: $payload['title'] ?? '',
+                detail: $payload['detail'] ?? '',
+                field: $payload['field'] ?? null,
+                previous: $exception,
+            );
+        });
     }
 }

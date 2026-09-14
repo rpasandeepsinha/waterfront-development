@@ -21,12 +21,15 @@ class DnsRecordToPowerDnsDehydrator
         if ($record instanceof CnameRecord) {
             return $this->dehydrateCnameRecord($record);
         }
+
         if ($record instanceof MxRecord) {
             return $this->dehydrateMxRecord($record);
         }
+
         if ($record instanceof SrvRecord) {
             return $this->dehydrateSrvRecord($record);
         }
+
         if ($record instanceof NsRecord) {
             return $this->dehydrateNsRecord($record);
         }
@@ -42,10 +45,10 @@ class DnsRecordToPowerDnsDehydrator
     private function dehydrateCnameRecord(CnameRecord $record): array
     {
         return [
-            'type'     => $record->getType(),
-            'name'     => $record->getNamePlusDot(),
-            'content'  => $record->getContentPlusDot(),
-            'ttl'      => $record->getTtl(),
+            'type' => $record->getType(),
+            'name' => $record->getNamePlusDot(),
+            'content' => $record->getContentPlusDot(),
+            'ttl' => $record->getTtl(),
             'disabled' => $record->isDisabled(),
         ];
     }
@@ -56,11 +59,11 @@ class DnsRecordToPowerDnsDehydrator
     private function dehydrateMxRecord(MxRecord $record): array
     {
         return [
-            'type'     => $record->getType(),
-            'name'     => $record->getNamePlusDot(),
-            'content'  => $record->getContentPlusDot(),
+            'type' => $record->getType(),
+            'name' => $record->getNamePlusDot(),
+            'content' => $record->getContentPlusDot(),
             'priority' => $record->getPriority(),
-            'ttl'      => $record->getTtl(),
+            'ttl' => $record->getTtl(),
             'disabled' => $record->isDisabled(),
         ];
     }
@@ -71,13 +74,13 @@ class DnsRecordToPowerDnsDehydrator
     private function dehydrateSrvRecord(SrvRecord $record): array
     {
         return [
-            'type'     => $record->getType(),
-            'name'     => $record->getNamePlusDot(),
-            'content'  => $record->getContentPlusDot(),
+            'type' => $record->getType(),
+            'name' => $record->getNamePlusDot(),
+            'content' => $record->getContentPlusDot(),
             'priority' => $record->getPriority(),
-            'weight'   => $record->getWeight(),
-            'port'     => $record->getPort(),
-            'ttl'      => $record->getTtl(),
+            'weight' => $record->getWeight(),
+            'port' => $record->getPort(),
+            'ttl' => $record->getTtl(),
             'disabled' => $record->isDisabled(),
         ];
     }
@@ -88,10 +91,10 @@ class DnsRecordToPowerDnsDehydrator
     private function dehydrateNsRecord(NsRecord $record): array
     {
         return [
-            'type'     => $record->getType(),
-            'name'     => $record->getName(),
-            'content'  => $record->getContentPlusDot(),
-            'ttl'      => $record->getTtl(),
+            'type' => $record->getType(),
+            'name' => $record->getName(),
+            'content' => $record->getContentPlusDot(),
+            'ttl' => $record->getTtl(),
             'disabled' => $record->isDisabled(),
         ];
     }
@@ -102,10 +105,10 @@ class DnsRecordToPowerDnsDehydrator
     private function dehydrateDefaultRecord(DefaultRecord $record): array
     {
         return [
-            'type'     => $record->getType(),
-            'name'     => $record->getNamePlusDot(),
-            'content'  => $record->getContent(),
-            'ttl'      => $record->getTtl(),
+            'type' => $record->getType(),
+            'name' => $record->getNamePlusDot(),
+            'content' => $record->getContent(),
+            'ttl' => $record->getTtl(),
             'disabled' => $record->isDisabled(),
         ];
     }

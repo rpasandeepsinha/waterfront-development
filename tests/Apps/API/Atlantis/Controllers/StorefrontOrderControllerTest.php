@@ -42,12 +42,30 @@ class StorefrontOrderControllerTest extends IntegrationTestCase
             ->enable(ProductSpecName::DNS_CAN_COUPLE_HOSTING_OR_REDIRECT)
             ->for($dnsProduct)
             ->create();
-        new ProductPriceComponentFactory()->for($dnsProduct)->registration()->createOne(['price' => 0]);
+        new ProductPriceComponentFactory()
+            ->for($dnsProduct)
+            ->registration()
+            ->createOne(['price' => 0]);
 
         new ServerFactory()->createOne();
-        $domainProvider = ProviderFactory::new()->createOne(['type' => ProviderType::DOMAIN, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
-        ProviderFactory::new()->createOne(['type' => ProviderType::HOSTING, 'slug' => ProviderSlug::PLESK, 'enabled' => true, 'default' => true]);
-        ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        $domainProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::DOMAIN,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::HOSTING,
+            'slug' => ProviderSlug::PLESK,
+            'enabled' => true,
+            'default' => true,
+        ]);
+        ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $extensionGroup = new ProductGroupFactory()->createOne([
             'slug' => ProductGroupType::EXTENSION,
@@ -67,28 +85,46 @@ class StorefrontOrderControllerTest extends IntegrationTestCase
             'slug' => 'ssl_single_domain',
         ]);
         new ProductSpecFactory()->for($sslProduct)->createOne(['name' => 'ssl.product_id', 'value' => $sslProduct->id]);
-        new ProductPriceComponentFactory()->for($sslProduct)->registration()->createOne([
-            'price' => 120,
+        new ProductPriceComponentFactory()
+            ->for($sslProduct)
+            ->registration()
+            ->createOne([
+                'price' => 120,
+            ]);
+        new ProductPriceComponentFactory()->for($sslProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
         ]);
-        new ProductPriceComponentFactory()->for($sslProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
         $comProduct = new ProductFactory()->for($extensionGroup)->createOne([
             'name' => '.com',
             'slug' => 'extension_com',
         ]);
 
         new ProductSpecFactory()->for($comProduct)->createOne(
-            ['name' => 'domain.provider_id', 'value' => $domainProvider->id]
+            ['name' => 'domain.provider_id', 'value' => $domainProvider->id],
         );
-        new ProductPriceComponentFactory()->for($comProduct)->registration()->createOne(['price' => 120]);
-        new ProductPriceComponentFactory()->for($comProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($comProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($comProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
 
         $hostingProduct = new ProductFactory()->for($hostingGroup)->createOne([
             'name' => 'premium',
             'slug' => 'hosting_premium',
         ]);
 
-        new ProductPriceComponentFactory()->for($hostingProduct)->registration()->createOne(['price' => 120]);
-        new ProductPriceComponentFactory()->for($hostingProduct)->createOne(['type' => PriceComponentType::PROMOTION, 'price' => 96]);
+        new ProductPriceComponentFactory()
+            ->for($hostingProduct)
+            ->registration()
+            ->createOne(['price' => 120]);
+        new ProductPriceComponentFactory()->for($hostingProduct)->createOne([
+            'type' => PriceComponentType::PROMOTION,
+            'price' => 96,
+        ]);
     }
 
     #[Test]
@@ -98,13 +134,13 @@ class StorefrontOrderControllerTest extends IntegrationTestCase
         $customer = new CustomerFactory()->withAddress()->createOne();
 
         $this->app->bind(Dispatcher::class, fn () => self::createStub(Dispatcher::class));
-        $response = (string) $this
-            ->actingAsCustomer($customer)
+        $response = (string) $this->actingAsCustomer($customer)
             ->json(
                 'post',
                 $this->generateRoute('partners.order.order'),
-                (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR)
-            )->getContent();
+                (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR),
+            )
+            ->getContent();
 
         /** @var array<mixed> $responseData */
         $responseData = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
@@ -122,15 +158,17 @@ class StorefrontOrderControllerTest extends IntegrationTestCase
     public function orderSuccessNeedsPayment(): void
     {
         $json = (string) file_get_contents(__DIR__ . '/data/order_payload.json');
-        $customer = new CustomerFactory()->withAddress()->createOne(['payment_type' => PaymentType::DIRECT]);
+        $customer = new CustomerFactory()
+            ->withAddress()
+            ->createOne(['payment_type' => PaymentType::DIRECT]);
 
-        $response = (string) $this
-            ->actingAsCustomer($customer, verified: false)
+        $response = (string) $this->actingAsCustomer($customer, verified: false)
             ->json(
                 'post',
                 $this->generateRoute('partners.order.order'),
-                (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR)
-            )->getContent();
+                (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR),
+            )
+            ->getContent();
 
         /** @var array<mixed> $responseData */
         $responseData = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
@@ -149,32 +187,27 @@ class StorefrontOrderControllerTest extends IntegrationTestCase
         $mockDnsService = self::mock(DnsService::class);
         $dnsZone = new DnsZone(new Fqdn('test.com'));
         $this->app->bind(DnsService::class, fn (): DnsService => $mockDnsService);
-        $mockDnsService->shouldReceive('hasDnsZone')
-            ->andReturnTrue();
+        $mockDnsService->shouldReceive('hasDnsZone')->andReturnTrue();
 
-        $mockDnsService->shouldReceive('getDnsZone')
-            ->with('test.com')
-            ->andReturn($dnsZone);
+        $mockDnsService->shouldReceive('getDnsZone')->with('test.com')->andReturn($dnsZone);
 
-        $mockDnsService->shouldReceive('applyDiffToZone')
-            ->andReturn($dnsZone);
+        $mockDnsService->shouldReceive('applyDiffToZone')->andReturn($dnsZone);
 
         $mockDomainService = self::mock(DomainService::class);
         $this->app->bind(DomainService::class, fn (): DomainService => $mockDomainService);
 
-        $mockDomainService->shouldReceive('register')
-            ->andReturn(new RegistrationResult(DomainStatus::ACTIVE));
+        $mockDomainService->shouldReceive('register')->andReturn(new RegistrationResult(DomainStatus::ACTIVE));
 
         $json = (string) file_get_contents(__DIR__ . '/data/order_payload.json');
         $customer = new CustomerFactory()->createOne();
 
-        $response = (string) $this
-            ->actingAsCustomer($customer)
+        $response = (string) $this->actingAsCustomer($customer)
             ->json(
                 'post',
                 $this->generateRoute('partners.order.order'),
-                (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR)
-            )->getContent();
+                (array) json_decode($json, true, 512, JSON_THROW_ON_ERROR),
+            )
+            ->getContent();
 
         /** @var array<mixed> $result */
         $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);

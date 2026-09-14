@@ -17,7 +17,7 @@ class Revision implements DomainObjectInterface
         public ?int $processId,
         public int $revision,
         public RevisionType $type,
-        public DomainDetails $entity
+        public DomainDetails $entity,
     ) {
     }
 
@@ -33,7 +33,7 @@ class Revision implements DomainObjectInterface
             $json['processId'] ?? null,
             $json['revision'],
             RevisionType::from($json['type']),
-            DomainDetails::fromArray($json['entity'])
+            DomainDetails::fromArray($json['entity']),
         );
     }
 
@@ -49,11 +49,11 @@ class Revision implements DomainObjectInterface
     public function toArray(): array
     {
         return [
-            'date'              => $this->date->format('Y-m-d\TH:i:s\Z'),
-            'processId'         => $this->processId,
-            'revision'          => $this->revision,
-            'type'              => $this->type->value,
-            'entity'            => $this->entity->toArray(),
+            'date' => $this->date->format('Y-m-d\TH:i:s\Z'),
+            'processId' => $this->processId,
+            'revision' => $this->revision,
+            'type' => $this->type->value,
+            'entity' => $this->entity->toArray(),
         ];
     }
 }

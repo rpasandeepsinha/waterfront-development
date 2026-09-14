@@ -45,7 +45,10 @@ class TransferAcceptTest extends IntegrationTestCase
 
         $product = new ProductFactory()->for(new ProductGroupFactory()->extension()->createOne())->createOne();
 
-        $this->subscription = new SubscriptionFactory()->for($product)->for($this->fromOwner)->createOne();
+        $this->subscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($this->fromOwner)
+            ->createOne();
         $this->randomCustomer = new CustomerFactory()->createOne();
     }
 
@@ -59,9 +62,11 @@ class TransferAcceptTest extends IntegrationTestCase
 
         $transfer = $this->populateCoupledTransfer();
 
-        $this->actingAsCustomer($this->receiverOwner)->postJson(
-            $this->generateRoute('partners.transfers.accept', ['transfer' => $transfer->uuid])
-        )->assertOk();
+        $this->actingAsCustomer($this->receiverOwner)
+            ->postJson(
+                $this->generateRoute('partners.transfers.accept', ['transfer' => $transfer->uuid]),
+            )
+            ->assertOk();
 
         $transfer->refresh();
         self::assertNotNull($transfer->accepted_at, 'Transfer is accepted so accepted_at should be set.');
@@ -79,11 +84,17 @@ class TransferAcceptTest extends IntegrationTestCase
         $transfer = $this->populateCoupledTransfer();
         $transfer->accept();
 
-        $response = $this->actingAsCustomer($this->receiverOwner)->postJson(
-            $this->generateRoute('partners.transfers.accept', ['transfer' => $transfer->uuid])
-        )->assertForbidden();
+        $response = $this->actingAsCustomer($this->receiverOwner)
+            ->postJson(
+                $this->generateRoute('partners.transfers.accept', ['transfer' => $transfer->uuid]),
+            )
+            ->assertForbidden();
 
-        self::assertSame('This action is unauthorized.', $response->json('message'), 'Transfer was already accept and thus request could not be done');
+        self::assertSame(
+            'This action is unauthorized.',
+            $response->json('message'),
+            'Transfer was already accept and thus request could not be done',
+        );
         self::assertNotNull($transfer->accepted_at, 'Transfer is accepted so accepted_at should be set.');
     }
 
@@ -92,9 +103,11 @@ class TransferAcceptTest extends IntegrationTestCase
     {
         $randomUUid = Uuid::uuid4();
 
-        $this->actingAsCustomer($this->fromOwner)->postJson(
-            $this->generateRoute('partners.transfers.accept', ['transfer' => $randomUUid])
-        )->assertNotFound();
+        $this->actingAsCustomer($this->fromOwner)
+            ->postJson(
+                $this->generateRoute('partners.transfers.accept', ['transfer' => $randomUUid]),
+            )
+            ->assertNotFound();
     }
 
     #[Test]
@@ -104,9 +117,11 @@ class TransferAcceptTest extends IntegrationTestCase
         $transfer->to_customer_id = $this->randomCustomer->id;
         $transfer->save();
 
-        $this->actingAsCustomer($this->fromOwner)->postJson(
-            $this->generateRoute('partners.transfers.accept', ['transfer' => $transfer->uuid])
-        )->assertForbidden();
+        $this->actingAsCustomer($this->fromOwner)
+            ->postJson(
+                $this->generateRoute('partners.transfers.accept', ['transfer' => $transfer->uuid]),
+            )
+            ->assertForbidden();
     }
 
     private function populateCoupledTransfer(): Transfer

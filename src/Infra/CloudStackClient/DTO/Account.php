@@ -9,7 +9,7 @@ class Account
     public function __construct(
         public string $id,
         public string $name,
-        public string $domainId
+        public string $domainId,
     ) {
     }
 }

@@ -24,13 +24,13 @@ class VerificationDnsRecordsResult extends Microsoft365Result
         public ProvisionStatus $provisionStatus,
         public ?array $records = null,
         public ?Throwable $exception = null,
-        public ?ValidationResult $validationResult = null
+        public ?ValidationResult $validationResult = null,
     ) {
         parent::__construct(
             provisionData: $provisionData,
             provisionStatus: $provisionStatus,
             exception: $exception,
-            validationResult: $validationResult
+            validationResult: $validationResult,
         );
     }
 }

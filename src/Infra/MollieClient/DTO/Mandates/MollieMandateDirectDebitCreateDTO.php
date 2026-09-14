@@ -14,8 +14,8 @@ class MollieMandateDirectDebitCreateDTO implements MollieMandateCreateInterface
         public readonly string $consumerName,
         public readonly string $consumerAccount,
         public readonly string $signatureDate, // Y-m-d
-        public readonly string|null $consumerBic = null,
-        public string|null $mandateReference = null // our own reference
+        public readonly ?string $consumerBic = null,
+        public ?string $mandateReference = null, // our own reference
     ) {
         $this->method = MollieMandateMethod::DIRECTDEBIT;
     }

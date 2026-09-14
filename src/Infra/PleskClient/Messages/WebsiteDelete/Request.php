@@ -9,8 +9,9 @@ use Waterfront\Domain\Hosting\Interfaces\Hosting\RequestInterface;
 
 class Request implements RequestInterface
 {
-    public function __construct(private readonly Parameters $parameters)
-    {
+    public function __construct(
+        private readonly Parameters $parameters,
+    ) {
     }
 
     /**

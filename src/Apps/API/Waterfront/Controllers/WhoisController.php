@@ -41,9 +41,10 @@ class WhoisController
     {
         $domainDeployment = DomainDeployment::whereHas(
             'subscription',
-            fn (Builder $query) => $query
-                ->where('domain', $domain)
-        )->with('provider')->first();
+            fn (Builder $query) => $query->where('domain', $domain),
+        )
+            ->with('provider')
+            ->first();
 
         if ($domainDeployment === null) {
             throw new AuthorizationException();
@@ -62,20 +63,25 @@ class WhoisController
             if ($handles !== null) {
                 $provider = $domainDeployment->provider->slug;
 
-                $ownerHandleInfoArray = $this->domainService->retrieveContactHandle($handles->getOwnerHandle(), $provider, $domainDeployment->businessUnit)->toArray();
+                $ownerHandleInfoArray = $this->domainService
+                    ->retrieveContactHandle($handles->getOwnerHandle(), $provider, $domainDeployment->businessUnit)
+                    ->toArray();
                 $adminHandle = $handles->getAdminHandle();
                 assert(is_string($adminHandle));
-                $adminHandleInfoArray = $this->domainService->retrieveContactHandle($adminHandle, $provider, $domainDeployment->businessUnit)->toArray();
+                $adminHandleInfoArray = $this->domainService
+                    ->retrieveContactHandle($adminHandle, $provider, $domainDeployment->businessUnit)
+                    ->toArray();
                 $isPrivate = $retrievedDomain->getIsPrivateWhoisEnabled();
             }
 
             return new JsonResponse([
-               'data' => [
-                 'owner' => $ownerHandleInfoArray,
-                 'admin' => $adminHandleInfoArray,
-                 'is_private' => $isPrivate,
-               ]]);
-        } catch (RealtimeRegisterClientException | OpenProviderResultException | DomainDoesNotExistException $exception) {
+                'data' => [
+                    'owner' => $ownerHandleInfoArray,
+                    'admin' => $adminHandleInfoArray,
+                    'is_private' => $isPrivate,
+                ],
+            ]);
+        } catch (RealtimeRegisterClientException|OpenProviderResultException|DomainDoesNotExistException $exception) {
             return new JsonResponse([
                 'reason' => $exception->getMessage(),
                 'customer' => $this->translator->translate('partners.api.whoiscontroller.failed-to-retrieve-result'),
@@ -104,10 +110,12 @@ class WhoisController
 
         $this->productPolicy->assertCanManageWhois($domain);
 
-        if ($subscription->product->productSpecs->where('name', 'domain.allow_whois')->pluck('value')->first() === '0') {
+        if (
+            $subscription->product->productSpecs->where('name', 'domain.allow_whois')->pluck('value')->first() === '0'
+        ) {
             return new JsonResponse([
-                'reason'    => 'Not allowed to update whois for extension.',
-                'customer'  => $this->translator->translate('partners.api.whoiscontroller.whois-update-not-allowed'),
+                'reason' => 'Not allowed to update whois for extension.',
+                'customer' => $this->translator->translate('partners.api.whoiscontroller.whois-update-not-allowed'),
             ], Response::HTTP_FORBIDDEN);
         }
 
@@ -116,8 +124,12 @@ class WhoisController
 
         return new JsonResponse(
             [
-                $this->translator->translate('status.success') => $domainService->modifyHandle($domain, $request->all(), $domainDeployment->provider->slug),
-            ]
+                $this->translator->translate('status.success') => $domainService->modifyHandle(
+                    $domain,
+                    $request->all(),
+                    $domainDeployment->provider->slug,
+                ),
+            ],
         );
     }
 
@@ -150,7 +162,7 @@ class WhoisController
         if (! $enabled) {
             return new JsonResponse(
                 ['message' => 'Could not enable private whois'],
-                Response::HTTP_INTERNAL_SERVER_ERROR
+                Response::HTTP_INTERNAL_SERVER_ERROR,
             );
         }
 
@@ -188,7 +200,7 @@ class WhoisController
         if (! $disabled) {
             return new JsonResponse(
                 ['message' => 'Could not disable private whois'],
-                Response::HTTP_INTERNAL_SERVER_ERROR
+                Response::HTTP_INTERNAL_SERVER_ERROR,
             );
         }
 

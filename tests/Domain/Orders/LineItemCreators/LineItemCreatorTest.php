@@ -51,13 +51,15 @@ class LineItemCreatorTest extends IntegrationTestCase
         ]);
 
         $this->testOrder = new OrderFactory()->for(new CustomerFactory())->createOne();
-        $this->product = new ProductFactory()->for($productGroup)
-            ->createOne(['slug' => self::TEST_PRODUCT_SLUG]);
-        new ProductPriceComponentFactory()->for($this->product)->registration()->createOne([
-            'contract_period' => 12,
-            'billing_period' => 12,
-            'price' => 100,
-        ]);
+        $this->product = new ProductFactory()->for($productGroup)->createOne(['slug' => self::TEST_PRODUCT_SLUG]);
+        new ProductPriceComponentFactory()
+            ->for($this->product)
+            ->registration()
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 100,
+            ]);
 
         $this->lineItemCreator = self::resolve(LineItemCreator::class);
     }
@@ -75,10 +77,20 @@ class LineItemCreatorTest extends IntegrationTestCase
             status: ProductPriceType::REGISTRATION,
             children: null,
             oneTimeServices: null,
-            experimentSlug: null,
         );
 
-        $price = new Price(ProductPriceType::REGISTRATION, $lineItem->billingPeriod, $this->product->id, $this->product->productGroup->uuid, 100, $lineItem->contractPeriod, true, true, appliedPriceComponents: [new RegistrationPriceComponent(100)], calculatedPrice: 100);
+        $price = new Price(
+            ProductPriceType::REGISTRATION,
+            $lineItem->billingPeriod,
+            $this->product->id,
+            $this->product->productGroup->uuid,
+            100,
+            $lineItem->contractPeriod,
+            true,
+            true,
+            appliedPriceComponents: [new RegistrationPriceComponent(100)],
+            calculatedPrice: 100,
+        );
 
         $orderLineItem = $this->lineItemCreator->create($lineItem, $this->testOrder, $price);
 
@@ -108,10 +120,20 @@ class LineItemCreatorTest extends IntegrationTestCase
             status: null,
             children: null,
             oneTimeServices: null,
-            experimentSlug: null,
         );
 
-        $price = new Price(ProductPriceType::REGISTRATION, $lineItem->billingPeriod, $this->product->id, $this->product->productGroup->uuid, 100, $lineItem->contractPeriod, true, true, appliedPriceComponents: [new RegistrationPriceComponent(100)], calculatedPrice: 100);
+        $price = new Price(
+            ProductPriceType::REGISTRATION,
+            $lineItem->billingPeriod,
+            $this->product->id,
+            $this->product->productGroup->uuid,
+            100,
+            $lineItem->contractPeriod,
+            true,
+            true,
+            appliedPriceComponents: [new RegistrationPriceComponent(100)],
+            calculatedPrice: 100,
+        );
 
         $orderLineItem = $this->lineItemCreator->create($lineItem, $this->testOrder, $price);
 
@@ -132,10 +154,20 @@ class LineItemCreatorTest extends IntegrationTestCase
             status: null,
             children: null,
             oneTimeServices: null,
-            experimentSlug: null,
         );
 
-        $price = new Price(ProductPriceType::REGISTRATION, $lineItem->billingPeriod, $this->product->id, $this->product->productGroup->uuid, 100, $lineItem->contractPeriod, true, true, appliedPriceComponents: [new RegistrationPriceComponent(100)], calculatedPrice: 100);
+        $price = new Price(
+            ProductPriceType::REGISTRATION,
+            $lineItem->billingPeriod,
+            $this->product->id,
+            $this->product->productGroup->uuid,
+            100,
+            $lineItem->contractPeriod,
+            true,
+            true,
+            appliedPriceComponents: [new RegistrationPriceComponent(100)],
+            calculatedPrice: 100,
+        );
 
         $orderLineItem = $this->lineItemCreator->create($lineItem, $this->testOrder, $price);
 
@@ -155,10 +187,20 @@ class LineItemCreatorTest extends IntegrationTestCase
             status: null,
             children: null,
             oneTimeServices: null,
-            experimentSlug: null,
         );
 
-        $price = new Price(ProductPriceType::REGISTRATION, $lineItem->billingPeriod, $this->product->id, $this->product->productGroup->uuid, 100, $lineItem->contractPeriod, true, true, appliedPriceComponents: [new RegistrationPriceComponent(100)], calculatedPrice: 100);
+        $price = new Price(
+            ProductPriceType::REGISTRATION,
+            $lineItem->billingPeriod,
+            $this->product->id,
+            $this->product->productGroup->uuid,
+            100,
+            $lineItem->contractPeriod,
+            true,
+            true,
+            appliedPriceComponents: [new RegistrationPriceComponent(100)],
+            calculatedPrice: 100,
+        );
 
         $this->expectException(ProductNotFoundException::class);
         $this->expectExceptionMessageIs(sprintf('Could not find product with slug %s', 'non-existing'));
@@ -178,14 +220,16 @@ class LineItemCreatorTest extends IntegrationTestCase
             'slug' => ProductGroupType::EXTENSION,
         ]);
 
-        $product = new ProductFactory()->for($productGroup)
-            ->createOne(['slug' => ProductGroupType::EXTENSION->value]);
+        $product = new ProductFactory()->for($productGroup)->createOne(['slug' => ProductGroupType::EXTENSION->value]);
 
-        new ProductPriceComponentFactory()->for($product)->registration()->createOne([
-            'contract_period' => 12,
-            'billing_period' => 12,
-            'price' => 100,
-        ]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->registration()
+            ->createOne([
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'price' => 100,
+            ]);
 
         $lineItem = new ExtensionLineItem(
             uuid: Uuid::uuid4(),
@@ -204,11 +248,24 @@ class LineItemCreatorTest extends IntegrationTestCase
             contactId: $contactId,
         );
 
-        $price = new Price(ProductPriceType::REGISTRATION, $lineItem->billingPeriod, $this->product->id, $this->product->productGroup->uuid, 100, $lineItem->contractPeriod, true, true, appliedPriceComponents: [new RegistrationPriceComponent(100)], calculatedPrice: 100);
+        $price = new Price(
+            ProductPriceType::REGISTRATION,
+            $lineItem->billingPeriod,
+            $this->product->id,
+            $this->product->productGroup->uuid,
+            100,
+            $lineItem->contractPeriod,
+            true,
+            true,
+            appliedPriceComponents: [new RegistrationPriceComponent(100)],
+            calculatedPrice: 100,
+        );
 
         $orderLineItem = $this->lineItemCreator->create($lineItem, $this->testOrder, $price);
 
-        $metaData = self::resolve(CartSerializerFactory::class)->get()->deserialize($orderLineItem->meta_data, MetaData::class, 'json');
+        $metaData = self::resolve(CartSerializerFactory::class)
+            ->get()
+            ->deserialize($orderLineItem->meta_data, MetaData::class, 'json');
         self::assertInstanceOf(ExtensionMetaData::class, $metaData);
         self::assertSame($transferSecret, $metaData->transferSecret);
         self::assertTrue($metaData->privateWhois);
@@ -228,7 +285,6 @@ class LineItemCreatorTest extends IntegrationTestCase
             status: ProductPriceType::REGISTRATION,
             children: null,
             oneTimeServices: null,
-            experimentSlug: null,
         );
 
         $price = new Price(
@@ -241,7 +297,7 @@ class LineItemCreatorTest extends IntegrationTestCase
             true,
             true,
             calculatedPrice: 20,
-            appliedPriceComponents: [new ProductGroupPriceComponent(null, 80, null, 20, 1)]
+            appliedPriceComponents: [new ProductGroupPriceComponent(null, 80, null, 20, 1)],
         );
 
         $orderLineItem = $this->lineItemCreator->create($lineItem, $this->testOrder, $price);

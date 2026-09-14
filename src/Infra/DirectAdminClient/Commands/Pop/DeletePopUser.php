@@ -73,9 +73,9 @@ class DeletePopUser extends DirectAdminCommand
     private function getPostBody(): StreamInterface
     {
         $params = [
-            'action'	=> 'delete',
-            'domain'	=> $this->getDomain(),
-            'user'	    => $this->getUser(),
+            'action' => 'delete',
+            'domain' => $this->getDomain(),
+            'user' => $this->getUser(),
         ];
 
         return Utils::streamFor(http_build_query($params));

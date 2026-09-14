@@ -84,10 +84,11 @@ class HarborTest extends IntegrationTestCase
         $harbor->shouldReceive('amqpConnection')->andReturn($connection);
 
         $customer = new CustomerFactory()->withAddress()->createOne();
-        $product  = new ProductFactory()->nlDomain()->createOne();
+        $product = new ProductFactory()->nlDomain()->createOne();
         $subscription = new SubscriptionFactory()
             ->for($customer)
-            ->for($product)->createOne();
+            ->for($product)
+            ->createOne();
 
         $invoice = new InvoiceFactory()
             ->for($customer)
@@ -111,7 +112,7 @@ class HarborTest extends IntegrationTestCase
         Config::set('harbor.enabled', false);
 
         $serializer = new JsonSerializer();
-        $harbor     = new Harbor(
+        $harbor = new Harbor(
             $serializer,
             self::resolve(InvoiceRepository::class),
             self::resolve(MessageService::class),
@@ -126,7 +127,7 @@ class HarborTest extends IntegrationTestCase
         );
 
         $customer = new CustomerFactory()->withAddress()->createOne();
-        $product  = new ProductFactory()->nlDomain()->createOne();
+        $product = new ProductFactory()->nlDomain()->createOne();
         $subscription = new SubscriptionFactory()
             ->for($customer)
             ->for($product)
@@ -154,7 +155,7 @@ class HarborTest extends IntegrationTestCase
     public function propagateInvoiceAddressNotFound(): void
     {
         $serializer = new JsonSerializer();
-        $harbor     = new Harbor(
+        $harbor = new Harbor(
             $serializer,
             self::resolve(InvoiceRepository::class),
             self::resolve(MessageService::class),
@@ -169,7 +170,7 @@ class HarborTest extends IntegrationTestCase
         );
 
         $customer = new CustomerFactory()->createOne();
-        $product  = new ProductFactory()->nlDomain()->createOne();
+        $product = new ProductFactory()->nlDomain()->createOne();
         $subscription = new SubscriptionFactory()
             ->for($customer)
             ->for($product)
@@ -213,7 +214,7 @@ class HarborTest extends IntegrationTestCase
         $harbor->shouldReceive('amqpConnection')->andReturn($connection);
 
         $customer = new CustomerFactory()->withAddress()->createOne();
-        $product  = new ProductFactory()->nlDomain()->createOne();
+        $product = new ProductFactory()->nlDomain()->createOne();
         $subscription = new SubscriptionFactory()
             ->for($customer)
             ->for($product)
@@ -242,10 +243,9 @@ class HarborTest extends IntegrationTestCase
             ->method('handle')
             ->with(
                 self::equalTo(
-                    new DebtorSsoUrl(123, 'http://newurlgoeshere.dev/', 'http://newurlgoeshere.dev/')
-                )
-            )
-        ;
+                    new DebtorSsoUrl(123, 'http://newurlgoeshere.dev/', 'http://newurlgoeshere.dev/'),
+                ),
+            );
 
         $harbor = new Harbor(
             $serializer,
@@ -291,8 +291,8 @@ class HarborTest extends IntegrationTestCase
             ->method('handle')
             ->with(
                 self::equalTo(
-                    new InvoicePaymentAnnouncement([1, 2, 3], $now->getTimestamp())
-                )
+                    new InvoicePaymentAnnouncement([1, 2, 3], $now->getTimestamp()),
+                ),
             );
 
         $harbor = new Harbor(
@@ -331,8 +331,8 @@ class HarborTest extends IntegrationTestCase
             ->method('handle')
             ->with(
                 self::equalTo(
-                    new WithdrawInvoicePaymentAnnouncement([1, 2, 3])
-                )
+                    new WithdrawInvoicePaymentAnnouncement([1, 2, 3]),
+                ),
             );
 
         $harbor = new Harbor(
@@ -369,17 +369,17 @@ class HarborTest extends IntegrationTestCase
         $debtCollectionStatusUpdatedHandler
             ->expects(self::once())
             ->method('handle')
-                    ->with(
-                        self::equalTo(
-                            new DebtCollectionStatusUpdated(
-                                customerNumber: 1337,
-                                customerDebtCollectionStatus: DebtCollectionStatus::BAD_DEBT,
-                                invoiceNumber: 20240000002,
-                                invoiceDebtCollectionStatus: DebtCollectionStatus::BAD_DEBT,
-                                subscriptions: [['id' => 1111, 'debt_collection_status' => DebtCollectionStatus::BAD_DEBT]],
-                            )
-                        )
-                    );
+            ->with(
+                self::equalTo(
+                    new DebtCollectionStatusUpdated(
+                        customerNumber: 1337,
+                        customerDebtCollectionStatus: DebtCollectionStatus::BAD_DEBT,
+                        invoiceNumber: 20240000002,
+                        invoiceDebtCollectionStatus: DebtCollectionStatus::BAD_DEBT,
+                        subscriptions: [['id' => 1111, 'debt_collection_status' => DebtCollectionStatus::BAD_DEBT]],
+                    ),
+                ),
+            );
 
         /**
          *
@@ -434,7 +434,7 @@ class HarborTest extends IntegrationTestCase
                         1337,
                         true,
                     ),
-                )
+                ),
             );
 
         $harbor = new Harbor(
@@ -481,14 +481,15 @@ class HarborTest extends IntegrationTestCase
             ->expects(self::once())
             ->method('handle')
             ->willThrowException(
-                new Exception('Fake exception')
+                new Exception('Fake exception'),
             );
 
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
-                self::stringContains('Failed to process received message HarborMessage')
+                self::stringContains('Failed to process received message HarborMessage'),
             );
 
         $harbor = new Harbor(
@@ -522,13 +523,14 @@ class HarborTest extends IntegrationTestCase
         $this->expectException(SerializerException::class);
 
         $logger = self::createMock(LoggerInterface::class);
-        $logger->expects(self::once())
+        $logger
+            ->expects(self::once())
             ->method('error')
             ->with(
-                self::stringContains('Failed deserializing HarborMessage')
+                self::stringContains('Failed deserializing HarborMessage'),
             );
 
-        $harbor     = new Harbor(
+        $harbor = new Harbor(
             $serializer,
             self::resolve(InvoiceRepository::class),
             self::resolve(MessageService::class),
@@ -581,14 +583,16 @@ class HarborTest extends IntegrationTestCase
 
         /** @var Mockery\MockInterface $channel */
         $channel = $connection->channel();
-        $channel->shouldHaveReceived('basic_publish')
+        $channel
+            ->shouldHaveReceived('basic_publish')
             ->withArgs(static function (AMQPMessage $amqpMessage) use ($serializer, $customer): bool {
                 $messageSend = $serializer->decode($amqpMessage->getBody());
-                return
+
+                return (
                     $messageSend instanceof DebtorInvoiceLines
                     && $messageSend->getDebtor()->getEmail() === $customer->email
                     && count($messageSend->getInvoiceLines()) === 0
-                ;
+                );
             });
     }
 
@@ -596,7 +600,7 @@ class HarborTest extends IntegrationTestCase
     public function anonymizedCustomerDidNotPropogate(): void
     {
         $anonymizeIdentitiesActionMock = self::createStub(
-            AnonymizeIdentitiesForCustomerAction::class
+            AnonymizeIdentitiesForCustomerAction::class,
         );
 
         $this->app->bind(AnonymizeIdentitiesForCustomerAction::class, fn () => $anonymizeIdentitiesActionMock);

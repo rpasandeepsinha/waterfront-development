@@ -55,41 +55,43 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
         $exception = new RegisterDomainNameException(
             sprintf(
                 'Error registering domain: Domain is missing from Subscription (%s)',
-                $domainSubscription->uuid
-            )
+                $domainSubscription->uuid,
+            ),
         );
 
         $expectedLastResult = json_encode([
-            'message'   => 'Domain registration failed',
+            'message' => 'Domain registration failed',
             'exception' => $exception->getMessage(),
-            'trace'     => $exception->getTraceAsString(),
+            'trace' => $exception->getTraceAsString(),
         ]);
 
         $mockLogger = $this->createMock(LoggerInterface::class);
         $this->app->bind(LoggerInterface::class, fn () => $mockLogger);
 
-        $mockLogger->expects(self::once())
-        ->method('error')
-        ->with(
-            'Error RegisterDomainJob ({transfer_or_registration}) for domain {domain.name} job definitely failed after {job.attempt} attempts',
-            [
-                LoggingContextKeys::DOMAIN_NAME => null,
-                LoggingContextKeys::SUBSCRIPTION_UUID => $domainSubscription->uuid,
-                LoggingContextKeys::SUBSCRIPTION_ID => $domainSubscription->id,
-                LoggingContextKeys::EXCEPTION => $exception,
-                LoggingContextKeys::PROVISIONING_TYPE => 'domain.registration',
-                LoggingContextKeys::QUEUE_ATTEMPT => 1,
-            ]
-        );
+        $mockLogger
+            ->expects(self::once())
+            ->method('error')
+            ->with(
+                'Error RegisterDomainJob ({transfer_or_registration}) for domain {domain.name} job definitely failed after {job.attempt} attempts',
+                [
+                    LoggingContextKeys::DOMAIN_NAME => null,
+                    LoggingContextKeys::SUBSCRIPTION_UUID => $domainSubscription->uuid,
+                    LoggingContextKeys::SUBSCRIPTION_ID => $domainSubscription->id,
+                    LoggingContextKeys::EXCEPTION => $exception,
+                    LoggingContextKeys::PROVISIONING_TYPE => 'domain.registration',
+                    LoggingContextKeys::QUEUE_ATTEMPT => 1,
+                ],
+            );
 
         $mockMailer = $this->createMock(MailerInterface::class);
         $this->app->bind(MailerInterface::class, fn () => $mockMailer);
 
-        $mockMailer->expects(self::once())
+        $mockMailer
+            ->expects(self::once())
             ->method('send')
             ->with(
                 [$domainSubscription->customer],
-                new MailDomainCreationFailed('-', 'rtr-error.general')
+                new MailDomainCreationFailed('-', 'rtr-error.general'),
             );
 
         self::assertNotNull($domainSubscription->domainDeployment);
@@ -103,7 +105,7 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
         self::assertNotNull($domainSubscription->domainDeployment?->last_result_received);
         self::assertSame(
             $expectedLastResult,
-            $domainSubscription->domainDeployment->last_result
+            $domainSubscription->domainDeployment->last_result,
         );
     }
 
@@ -131,13 +133,16 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
         $mockMailer = $this->createMock(MailerInterface::class);
         $this->app->bind(MailerInterface::class, fn () => $mockMailer);
 
-        $mockMailer->expects(self::never())
-            ->method('send');
+        $mockMailer->expects(self::never())->method('send');
 
         self::assertNotNull($domainSubscription->domainDeployment);
 
         $job = new RegisterDomainNameJob($domainSubscription->domainDeployment);
-        $job->handle(self::resolve(DomainService::class), self::resolve(SubscriptionRepository::class), self::resolve(LoggerInterface::class));
+        $job->handle(
+            self::resolve(DomainService::class),
+            self::resolve(SubscriptionRepository::class),
+            self::resolve(LoggerInterface::class),
+        );
 
         $domainSubscription->refresh();
 
@@ -173,7 +178,8 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
         $mockLogger = $this->mock(LoggerInterface::class);
         $mockRegistrationResult = self::createMock(RegistrationResult::class);
 
-        $mockLogger->shouldReceive('info')
+        $mockLogger
+            ->shouldReceive('info')
             ->once()
             ->with('RegisterDomainJob started for domain register-domain-job-test.nl. Registration or transfer: domain.registration', [
                 LoggingContextKeys::DOMAIN_NAME => $domainSubscription->domain,
@@ -182,15 +188,19 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
             ]);
 
-        $mockSubRepo->expects(self::once())
+        $mockSubRepo
+            ->expects(self::once())
             ->method('setTechnicalStatus')
             ->with(
-                self::callback(fn (Subscription $receivedSubscription) => $receivedSubscription->id === $domainSubscription->id),
-                TechnicalStatus::PENDING->value
+                self::callback(
+                    fn (Subscription $receivedSubscription) => $receivedSubscription->id === $domainSubscription->id,
+                ),
+                TechnicalStatus::PENDING->value,
             )
             ->willReturn(true);
 
-        $mockDomainService->expects(self::once())
+        $mockDomainService
+            ->expects(self::once())
             ->method('register')
             ->with(
                 $domainSubscription->domainDeployment,
@@ -202,15 +212,12 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
             )
             ->willReturn($mockRegistrationResult);
 
-        $mockRegistrationResult->expects(self::exactly(3))
-            ->method('getStatus')
-            ->willReturn(DomainStatus::ACTIVE);
+        $mockRegistrationResult->expects(self::exactly(3))->method('getStatus')->willReturn(DomainStatus::ACTIVE);
 
-        $mockRegistrationResult->expects(self::exactly(3))
-            ->method('getReason')
-            ->willReturn('Registration successful');
+        $mockRegistrationResult->expects(self::exactly(3))->method('getReason')->willReturn('Registration successful');
 
-        $mockLogger->shouldReceive('info')
+        $mockLogger
+            ->shouldReceive('info')
             ->once()
             ->with(
                 'RegisterDomainJob status after registration: {domain_registration.status}. Reason: {domain_registration.reason}',
@@ -223,7 +230,7 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
                         'domain_registration.status' => DomainStatus::ACTIVE->value,
                         'domain_registration.reason' => 'Registration successful',
                     ],
-                ]
+                ],
             );
 
         $job->handle($mockDomainService, $mockSubRepo, $mockLogger);
@@ -262,7 +269,8 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
         $mockLogger = $this->mock(LoggerInterface::class);
         $mockRegistrationResult = self::createMock(RegistrationResult::class);
 
-        $mockLogger->shouldReceive('info')
+        $mockLogger
+            ->shouldReceive('info')
             ->once()
             ->with(
                 'RegisterDomainJob status after registration: {domain_registration.status}. Reason: {domain_registration.reason}',
@@ -275,18 +283,22 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
                         'domain_registration.status' => 'ACT',
                         'domain_registration.reason' => 'Registration successful',
                     ],
-                ]
+                ],
             );
 
-        $mockSubRepo->expects(self::once())
+        $mockSubRepo
+            ->expects(self::once())
             ->method('setTechnicalStatus')
             ->with(
-                self::callback(fn (Subscription $receivedSubscription) => $receivedSubscription->id === $domainSubscription->id),
-                TechnicalStatus::PENDING->value
+                self::callback(
+                    fn (Subscription $receivedSubscription) => $receivedSubscription->id === $domainSubscription->id,
+                ),
+                TechnicalStatus::PENDING->value,
             )
             ->willReturn(true);
 
-        $mockDomainService->expects(self::once())
+        $mockDomainService
+            ->expects(self::once())
             ->method('register')
             ->with(
                 $domainSubscription->domainDeployment,
@@ -298,15 +310,12 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
             )
             ->willReturn($mockRegistrationResult);
 
-        $mockRegistrationResult->expects(self::exactly(3))
-            ->method('getStatus')
-            ->willReturn(DomainStatus::ACTIVE);
+        $mockRegistrationResult->expects(self::exactly(3))->method('getStatus')->willReturn(DomainStatus::ACTIVE);
 
-        $mockRegistrationResult->expects(self::exactly(3))
-            ->method('getReason')
-            ->willReturn('Registration successful');
+        $mockRegistrationResult->expects(self::exactly(3))->method('getReason')->willReturn('Registration successful');
 
-        $mockLogger->shouldReceive('info')
+        $mockLogger
+            ->shouldReceive('info')
             ->once()
             ->with('RegisterDomainJob started for domain register-domain-job-test.nl. Registration or transfer: domain.registration', [
                 LoggingContextKeys::DOMAIN_NAME => $domainSubscription->domain,
@@ -345,14 +354,10 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
         $registrationResult->setReason('{"domainName":"register-domain-job-test.nl"}');
 
         $mockDomainService = $this->createMock(DomainService::class);
-        $mockDomainService->expects(self::once())
-            ->method('register')
-            ->willReturn($registrationResult);
+        $mockDomainService->expects(self::once())->method('register')->willReturn($registrationResult);
 
         $mockSubRepo = $this->createMock(SubscriptionRepository::class);
-        $mockSubRepo->expects(self::once())
-            ->method('setTechnicalStatus')
-            ->willReturn(true);
+        $mockSubRepo->expects(self::once())->method('setTechnicalStatus')->willReturn(true);
 
         $job = new RegisterDomainNameJob($domainSubscription->domainDeployment);
         $job->handle($mockDomainService, $mockSubRepo, self::createStub(LoggerInterface::class));
@@ -361,7 +366,10 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
 
         self::assertSame(TechnicalStatus::PENDING->value, $domainSubscription->technical_status);
         self::assertNotNull($domainSubscription->domainDeployment?->last_result_received);
-        self::assertSame('{"domainName":"register-domain-job-test.nl"}', $domainSubscription->domainDeployment->last_result);
+        self::assertSame(
+            '{"domainName":"register-domain-job-test.nl"}',
+            $domainSubscription->domainDeployment->last_result,
+        );
     }
 
     /**
@@ -394,24 +402,29 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
         $mockLogger = $this->mock(LoggerInterface::class);
         $mockTransferResult = self::createMock(TransferResult::class);
 
-        $mockLogger->shouldReceive('info')
+        $mockLogger
+            ->shouldReceive('info')
             ->once()
             ->with('RegisterDomainJob started for domain register-domain-job-test.nl. Registration or transfer: domain.transfer', [
                 LoggingContextKeys::DOMAIN_NAME => $domainSubscription->domain,
                 LoggingContextKeys::SUBSCRIPTION_UUID => $domainSubscription->uuid,
                 LoggingContextKeys::SUBSCRIPTION_ID => $domainSubscription->id,
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::DOMAIN_NAME,
-        ]);
+            ]);
 
-        $mockSubRepo->expects(self::once())
+        $mockSubRepo
+            ->expects(self::once())
             ->method('setTechnicalStatus')
             ->with(
-                self::callback(fn (Subscription $receivedSubscription) => $receivedSubscription->id === $domainSubscription->id),
-                TechnicalStatus::PENDING->value
+                self::callback(
+                    fn (Subscription $receivedSubscription) => $receivedSubscription->id === $domainSubscription->id,
+                ),
+                TechnicalStatus::PENDING->value,
             )
             ->willReturn(true);
 
-        $mockDomainService->expects(self::once())
+        $mockDomainService
+            ->expects(self::once())
             ->method('transfer')
             ->with(
                 $domainSubscription->domainDeployment,
@@ -420,19 +433,16 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
                 $domainSubscription->customer,
                 $domainSubscription->domainDeployment->private_whois_enabled,
                 $domainSubscription->domainDeployment->dnssec_enabled,
-                $transferSecret
+                $transferSecret,
             )
             ->willReturn($mockTransferResult);
 
-        $mockTransferResult->expects(self::exactly(3))
-            ->method('getStatus')
-            ->willReturn(TechnicalStatus::OK->value);
+        $mockTransferResult->expects(self::exactly(3))->method('getStatus')->willReturn(TechnicalStatus::OK->value);
 
-        $mockTransferResult->expects(self::exactly(3))
-            ->method('getReason')
-            ->willReturn('Transfer successful');
+        $mockTransferResult->expects(self::exactly(3))->method('getReason')->willReturn('Transfer successful');
 
-        $mockLogger->shouldReceive('info')
+        $mockLogger
+            ->shouldReceive('info')
             ->once()
             ->with(
                 'RegisterDomainJob status after transfer: {status}. Reason: {reason}',
@@ -445,7 +455,7 @@ class RegisterDomainNameJobTest extends IntegrationTestCase
                         'domain_transfer.status' => TechnicalStatus::OK->value,
                         'domain_transfer.reason' => 'Transfer successful',
                     ],
-                ]
+                ],
             );
 
         $job->handle($mockDomainService, $mockSubRepo, $mockLogger);

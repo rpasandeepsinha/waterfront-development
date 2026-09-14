@@ -58,9 +58,10 @@ class VirtualMachineTest extends IntegrationTestCase
         parent::setUp();
         Model::preventLazyLoading(false);
 
-        $this->customer = $customer = new CustomerFactory()->createOne([
-            'organization' => 'cloudstack',
-        ]);
+        $this->customer =
+            $customer = new CustomerFactory()->createOne([
+                'organization' => 'cloudstack',
+            ]);
 
         $environment = new CloudstackEnvironmentFactory()->createOne();
 
@@ -70,15 +71,16 @@ class VirtualMachineTest extends IntegrationTestCase
             ->createOne();
 
         $virtualMachineProductGroup = new ProductGroupFactory()->vps()->createOne();
-        $this->virtualMachineProduct = new ProductFactory()
-            ->for($virtualMachineProductGroup)
-            ->createOne();
+        $this->virtualMachineProduct = new ProductFactory()->for($virtualMachineProductGroup)->createOne();
 
         new ProductPriceComponentFactory()
             ->for($this->virtualMachineProduct)
             ->registration()
             ->createOne();
-        new ProductPriceComponentFactory()->for($this->virtualMachineProduct)->prolongation()->createOne();
+        new ProductPriceComponentFactory()
+            ->for($this->virtualMachineProduct)
+            ->prolongation()
+            ->createOne();
 
         new CloudstackEnvironmentProductFactory()
             ->for($this->virtualMachineProduct)
@@ -87,21 +89,30 @@ class VirtualMachineTest extends IntegrationTestCase
 
         $volumeProductGroup = new ProductGroupFactory()->cloudstackVolume()->createOne();
         $volumeProduct = new ProductFactory()->for($volumeProductGroup)->createOne();
-        new ProductPriceComponentFactory()->for($volumeProduct)->registration()->createOne();
-        new ProductPriceComponentFactory()->for($volumeProduct)->prolongation()->createOne();
-        new CloudstackEnvironmentProductFactory()->for($volumeProduct)->for($environment)->create();
+        new ProductPriceComponentFactory()
+            ->for($volumeProduct)
+            ->registration()
+            ->createOne();
+        new ProductPriceComponentFactory()
+            ->for($volumeProduct)
+            ->prolongation()
+            ->createOne();
+        new CloudstackEnvironmentProductFactory()
+            ->for($volumeProduct)
+            ->for($environment)
+            ->create();
 
         $vpsSubscription = new SubscriptionFactory()
             ->for($this->virtualMachineProduct)
             ->for($customer)
             ->createOne(['uuid' => '45ff89c4-aaaa-aaaa-aaaa-aaaaaaaaaaaa']);
 
-        $this->virtualMachineDeployment = new CloudstackVirtualMachineDeploymentFactory()
-            ->for($managerDomainDeployment)
-            ->createOne([
-                'subscription_uuid' => $vpsSubscription->uuid,
-                'cloudstack_id'     => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-            ]);
+        $this->virtualMachineDeployment = new CloudstackVirtualMachineDeploymentFactory()->for(
+            $managerDomainDeployment,
+        )->createOne([
+            'subscription_uuid' => $vpsSubscription->uuid,
+            'cloudstack_id' => 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+        ]);
 
         $osProduct = new ProductFactory()->ubuntu()->createOne();
 
@@ -123,21 +134,23 @@ class VirtualMachineTest extends IntegrationTestCase
         int $calls,
         string $method,
         array $expectedContent,
-        int $expectedStatusCode
+        int $expectedStatusCode,
     ): void {
         $this->setupMockingVps($method, $calls);
 
         $resetSshKeyActionMock = self::createStub(ResetVirtualMachineSshKeyAction::class);
         $this->app->bind(ResetVirtualMachineSshKeyAction::class, fn () => $resetSshKeyActionMock);
 
-        $response = $this->actingAsCustomer($this->customer)->patchJson(
-            $this->generateRoute('partners.cloudstack.virtual-machine.state', [
-                'subscription' => $uuid,
-            ]),
-            [
-                'state' => $state,
-            ]
-        )->assertStatus($expectedStatusCode);
+        $response = $this->actingAsCustomer($this->customer)
+            ->patchJson(
+                $this->generateRoute('partners.cloudstack.virtual-machine.state', [
+                    'subscription' => $uuid,
+                ]),
+                [
+                    'state' => $state,
+                ],
+            )
+            ->assertStatus($expectedStatusCode);
 
         self::assertJson($response->content(), json_encode($expectedContent, JSON_THROW_ON_ERROR));
     }
@@ -201,24 +214,29 @@ class VirtualMachineTest extends IntegrationTestCase
     public function reinstallEndpoint(): void
     {
         $vpsService = self::mock(VirtualMachineServiceInterface::class);
-        $vpsService->shouldReceive('reinstall')
+        $vpsService
+            ->shouldReceive('reinstall')
             ->once()
             ->withArgs(
-                fn (VirtualMachineDeployment $deployment, string $newProductUuid, ?string $sshKeyUuid = null) =>
-                $deployment->is($this->virtualMachineDeployment)
+                fn (
+                    VirtualMachineDeployment $deployment,
+                    string $newProductUuid,
+                    ?string $sshKeyUuid = null,
+                ) => $deployment->is($this->virtualMachineDeployment),
             )
             ->andReturnTrue();
         $this->app->bind(VirtualMachineServiceInterface::class, fn () => $vpsService);
 
         $changeService = self::createMock(SubscriptionChangeService::class);
-        $changeService->expects(self::once())
+        $changeService
+            ->expects(self::once())
             ->method('change')
             ->with(
                 ProductChangeType::REINSTALL,
                 self::assertCallbackIsModel($this->osSubscription),
                 self::callback(fn (Product $prod) => $prod->uuid === $this->osSubscription->product->uuid),
                 false,
-                false
+                false,
             );
         $this->app->bind(SubscriptionChangeService::class, fn () => $changeService);
 
@@ -229,7 +247,7 @@ class VirtualMachineTest extends IntegrationTestCase
                 $this->generateRoute('partners.cloudstack.virtual-machine.reinstall', [
                     'subscription' => $this->virtualMachineDeployment->subscription->uuid,
                 ]),
-                ['os_product_uuid' => $this->osSubscription->product->uuid]
+                ['os_product_uuid' => $this->osSubscription->product->uuid],
             )
             ->assertOk()
             ->assertJsonFragment(['status' => 'success']);
@@ -245,7 +263,7 @@ class VirtualMachineTest extends IntegrationTestCase
                 $this->generateRoute('partners.cloudstack.virtual-machine.reinstall', [
                     'subscription' => $this->virtualMachineDeployment->subscription->uuid,
                 ]),
-                ['os_product_uuid' => $this->osSubscription->product->uuid]
+                ['os_product_uuid' => $this->osSubscription->product->uuid],
             )
             ->assertJsonFragment(['error' => 'vps.reinstall-failed']);
     }
@@ -266,18 +284,21 @@ class VirtualMachineTest extends IntegrationTestCase
         );
 
         $virtualMachineDeploymentRepository = self::createMock(VirtualMachineDeploymentRepositoryInterface::class);
-        $virtualMachineDeploymentRepository->expects(self::once())
+        $virtualMachineDeploymentRepository
+            ->expects(self::once())
             ->method('findBySubscriptionUuid')
             ->with($this->virtualMachineDeployment->subscription_uuid, $this->customer->id)
             ->willReturn($this->virtualMachineDeployment);
-        $this->app->bind(VirtualMachineDeploymentRepositoryInterface::class, fn () => $virtualMachineDeploymentRepository);
+        $this->app->bind(
+            VirtualMachineDeploymentRepositoryInterface::class,
+            fn () => $virtualMachineDeploymentRepository,
+        );
 
         $vpsService = self::createMock(VirtualMachineServiceInterface::class);
-        $vpsService->expects(self::once())
-            ->method('findByDeployment')
-            ->willReturn($vm);
+        $vpsService->expects(self::once())->method('findByDeployment')->willReturn($vm);
 
-        $vpsService->expects(self::once())
+        $vpsService
+            ->expects(self::once())
             ->method('resetPassword')
             ->with($this->virtualMachineDeployment, $password)
             ->willReturn(true);
@@ -287,13 +308,16 @@ class VirtualMachineTest extends IntegrationTestCase
         $resetSshKeyActionMock = self::createStub(ResetVirtualMachineSshKeyAction::class);
         $this->app->bind(ResetVirtualMachineSshKeyAction::class, fn () => $resetSshKeyActionMock);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.cloudstack.virtual-machine.reset-password', [
-                'subscription' => $this->virtualMachineDeployment->subscription_uuid,
-                'password' => $password,
-                'password_confirmation' => $password,
-            ])
-        )->assertOk()->assertJsonFragment(['status' => 'success']);
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.cloudstack.virtual-machine.reset-password', [
+                    'subscription' => $this->virtualMachineDeployment->subscription_uuid,
+                    'password' => $password,
+                    'password_confirmation' => $password,
+                ]),
+            )
+            ->assertOk()
+            ->assertJsonFragment(['status' => 'success']);
     }
 
     #[Test]
@@ -312,18 +336,21 @@ class VirtualMachineTest extends IntegrationTestCase
         );
 
         $virtualMachineDeploymentRepository = self::createMock(VirtualMachineDeploymentRepositoryInterface::class);
-        $virtualMachineDeploymentRepository->expects(self::once())
+        $virtualMachineDeploymentRepository
+            ->expects(self::once())
             ->method('findBySubscriptionUuid')
             ->with($this->virtualMachineDeployment->subscription_uuid, $this->customer->id)
             ->willReturn($this->virtualMachineDeployment);
-        $this->app->bind(VirtualMachineDeploymentRepositoryInterface::class, fn () => $virtualMachineDeploymentRepository);
+        $this->app->bind(
+            VirtualMachineDeploymentRepositoryInterface::class,
+            fn () => $virtualMachineDeploymentRepository,
+        );
 
         $vpsService = self::createMock(VirtualMachineServiceInterface::class);
-        $vpsService->expects(self::once())
-            ->method('findByDeployment')
-            ->willReturn($vm);
+        $vpsService->expects(self::once())->method('findByDeployment')->willReturn($vm);
 
-        $vpsService->expects(self::once())
+        $vpsService
+            ->expects(self::once())
             ->method('resetPassword')
             ->with($this->virtualMachineDeployment, $password)
             ->willReturn(false);
@@ -333,13 +360,16 @@ class VirtualMachineTest extends IntegrationTestCase
         $resetSshKeyActionMock = self::createStub(ResetVirtualMachineSshKeyAction::class);
         $this->app->bind(ResetVirtualMachineSshKeyAction::class, fn () => $resetSshKeyActionMock);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.cloudstack.virtual-machine.reset-password', [
-                'subscription' => $this->virtualMachineDeployment->subscription_uuid,
-                'password' => $password,
-                'password_confirmation' => $password,
-            ])
-        )->assertUnprocessable()->assertJsonFragment(['message' => 'vps.reset-password-failed']);
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.cloudstack.virtual-machine.reset-password', [
+                    'subscription' => $this->virtualMachineDeployment->subscription_uuid,
+                    'password' => $password,
+                    'password_confirmation' => $password,
+                ]),
+            )
+            ->assertUnprocessable()
+            ->assertJsonFragment(['message' => 'vps.reset-password-failed']);
     }
 
     #[Test]
@@ -348,31 +378,36 @@ class VirtualMachineTest extends IntegrationTestCase
         $password = 'SUPER-secret-password1';
 
         $virtualMachineDeploymentRepository = self::createMock(VirtualMachineDeploymentRepositoryInterface::class);
-        $virtualMachineDeploymentRepository->expects(self::once())
+        $virtualMachineDeploymentRepository
+            ->expects(self::once())
             ->method('findBySubscriptionUuid')
             ->with($this->virtualMachineDeployment->subscription_uuid, $this->customer->id)
             ->willThrowException(new VirtualMachineNotFoundException());
-        $this->app->bind(VirtualMachineDeploymentRepositoryInterface::class, fn () => $virtualMachineDeploymentRepository);
+        $this->app->bind(
+            VirtualMachineDeploymentRepositoryInterface::class,
+            fn () => $virtualMachineDeploymentRepository,
+        );
 
         $vpsService = self::createMock(VirtualMachineServiceInterface::class);
-        $vpsService->expects(self::never())
-            ->method('findByDeployment');
+        $vpsService->expects(self::never())->method('findByDeployment');
 
-        $vpsService->expects(self::never())
-            ->method('resetPassword');
+        $vpsService->expects(self::never())->method('resetPassword');
 
         $this->app->bind(VirtualMachineServiceInterface::class, fn () => $vpsService);
 
         $resetSshKeyActionMock = self::createStub(ResetVirtualMachineSshKeyAction::class);
         $this->app->bind(ResetVirtualMachineSshKeyAction::class, fn () => $resetSshKeyActionMock);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.cloudstack.virtual-machine.reset-password', [
-                'subscription' => $this->virtualMachineDeployment->subscription_uuid,
-                'password' => $password,
-                'password_confirmation' => $password,
-            ])
-        )->assertNotFound()->assertJsonFragment(['message' => 'vps.not-found']);
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.cloudstack.virtual-machine.reset-password', [
+                    'subscription' => $this->virtualMachineDeployment->subscription_uuid,
+                    'password' => $password,
+                    'password_confirmation' => $password,
+                ]),
+            )
+            ->assertNotFound()
+            ->assertJsonFragment(['message' => 'vps.not-found']);
     }
 
     #[Test]
@@ -391,70 +426,75 @@ class VirtualMachineTest extends IntegrationTestCase
         );
 
         $virtualMachineDeploymentRepository = self::createMock(VirtualMachineDeploymentRepositoryInterface::class);
-        $virtualMachineDeploymentRepository->expects(self::once())
+        $virtualMachineDeploymentRepository
+            ->expects(self::once())
             ->method('findBySubscriptionUuid')
             ->with($this->virtualMachineDeployment->subscription_uuid, $this->customer->id)
             ->willReturn($this->virtualMachineDeployment);
-        $this->app->bind(VirtualMachineDeploymentRepositoryInterface::class, fn () => $virtualMachineDeploymentRepository);
+        $this->app->bind(
+            VirtualMachineDeploymentRepositoryInterface::class,
+            fn () => $virtualMachineDeploymentRepository,
+        );
 
         $vpsService = self::createMock(VirtualMachineServiceInterface::class);
-        $vpsService->expects(self::once())
-            ->method('findByDeployment')
-            ->willReturn($vm);
+        $vpsService->expects(self::once())->method('findByDeployment')->willReturn($vm);
 
-        $vpsService->expects(self::never())
-            ->method('resetPassword');
+        $vpsService->expects(self::never())->method('resetPassword');
 
         $this->app->bind(VirtualMachineServiceInterface::class, fn () => $vpsService);
 
         $resetSshKeyActionMock = self::createStub(ResetVirtualMachineSshKeyAction::class);
         $this->app->bind(ResetVirtualMachineSshKeyAction::class, fn () => $resetSshKeyActionMock);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.cloudstack.virtual-machine.reset-password', [
-                'subscription' => $this->virtualMachineDeployment->subscription_uuid,
-                'password' => $password,
-                'password_confirmation' => $password,
-            ])
-        )->assertUnprocessable()->assertJsonFragment(['message' => 'vps.not-stopped']);
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.cloudstack.virtual-machine.reset-password', [
+                    'subscription' => $this->virtualMachineDeployment->subscription_uuid,
+                    'password' => $password,
+                    'password_confirmation' => $password,
+                ]),
+            )
+            ->assertUnprocessable()
+            ->assertJsonFragment(['message' => 'vps.not-stopped']);
     }
 
     #[Test]
     public function resetSshKeyEndpointSuccess(): void
     {
-        $sshKey =  new SshKeyFactory()->for($this->customer)->createOne();
+        $sshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
         $resetSshKeyActionMock = self::createMock(ResetVirtualMachineSshKeyAction::class);
-        $resetSshKeyActionMock->expects(self::once())->method('execute')
-            ->willReturn(true);
+        $resetSshKeyActionMock->expects(self::once())->method('execute')->willReturn(true);
 
         $this->app->bind(ResetVirtualMachineSshKeyAction::class, fn () => $resetSshKeyActionMock);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.cloudstack.virtual-machine.reset-vm-sshkey', [
-                'subscription' => $this->virtualMachineDeployment->subscription_uuid,
-                'ssh_uuid' => $sshKey->uuid->toString(),
-            ])
-        )->assertStatus(Response::HTTP_NO_CONTENT);
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.cloudstack.virtual-machine.reset-vm-sshkey', [
+                    'subscription' => $this->virtualMachineDeployment->subscription_uuid,
+                    'ssh_uuid' => $sshKey->uuid->toString(),
+                ]),
+            )
+            ->assertStatus(Response::HTTP_NO_CONTENT);
     }
 
     #[Test]
     public function resetSshKeyEndpointFailedDueGeneralError(): void
     {
-        $sshKey =  new SshKeyFactory()->for($this->customer)->createOne();
+        $sshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
         $resetSshKeyActionMock = self::createMock(ResetVirtualMachineSshKeyAction::class);
-        $resetSshKeyActionMock->expects(self::once())->method('execute')
-            ->willReturn(false);
+        $resetSshKeyActionMock->expects(self::once())->method('execute')->willReturn(false);
 
         $this->app->bind(ResetVirtualMachineSshKeyAction::class, fn () => $resetSshKeyActionMock);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.cloudstack.virtual-machine.reset-vm-sshkey', [
-                'subscription' => $this->virtualMachineDeployment->subscription_uuid,
-                'ssh_uuid' => $sshKey->uuid->toString(),
-            ])
-        )
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.cloudstack.virtual-machine.reset-vm-sshkey', [
+                    'subscription' => $this->virtualMachineDeployment->subscription_uuid,
+                    'ssh_uuid' => $sshKey->uuid->toString(),
+                ]),
+            )
             ->assertUnprocessable()
             ->assertJsonFragment(['message' => 'ssh-key.general-reset.error']);
     }
@@ -462,20 +502,23 @@ class VirtualMachineTest extends IntegrationTestCase
     #[Test]
     public function resetSshKeyEndpointFailedDueVmNotFound(): void
     {
-        $sshKey =  new SshKeyFactory()->for($this->customer)->createOne();
+        $sshKey = new SshKeyFactory()->for($this->customer)->createOne();
 
         $resetSshKeyActionMock = self::createMock(ResetVirtualMachineSshKeyAction::class);
-        $resetSshKeyActionMock->expects(self::once())->method('execute')
+        $resetSshKeyActionMock
+            ->expects(self::once())
+            ->method('execute')
             ->willThrowException(new VirtualMachineNotFoundException('test message'));
 
         $this->app->bind(ResetVirtualMachineSshKeyAction::class, fn () => $resetSshKeyActionMock);
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.cloudstack.virtual-machine.reset-vm-sshkey', [
-                'subscription' => $this->virtualMachineDeployment->subscription_uuid,
-                'ssh_uuid' => $sshKey->uuid->toString(),
-            ])
-        )
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.cloudstack.virtual-machine.reset-vm-sshkey', [
+                    'subscription' => $this->virtualMachineDeployment->subscription_uuid,
+                    'ssh_uuid' => $sshKey->uuid->toString(),
+                ]),
+            )
             ->assertNotFound()
             ->assertJsonFragment(['message' => 'ssh-key.notfound-reset.error']);
     }
@@ -483,9 +526,7 @@ class VirtualMachineTest extends IntegrationTestCase
     #[Test]
     public function indexEndpoint(): void
     {
-        $this->virtualMachineDeployment = new CloudstackVirtualMachineDeploymentFactory()
-            ->for($this->virtualMachineDeployment->managerDomainDeployment)
-            ->createOne([
+        $this->virtualMachineDeployment = new CloudstackVirtualMachineDeploymentFactory()->for($this->virtualMachineDeployment->managerDomainDeployment)->createOne([
             'subscription_uuid' => new SubscriptionFactory()
                 ->for($this->virtualMachineProduct)
                 ->for($this->customer)
@@ -507,7 +548,8 @@ class VirtualMachineTest extends IntegrationTestCase
         $this->app->bind(VirtualMachineServiceInterface::class, fn () => $mockVirtualMachineService);
 
         $mockNic = $this->createMockNic();
-        $mockVirtualMachineService->expects(self::once())
+        $mockVirtualMachineService
+            ->expects(self::once())
             ->method('findVirtualMachines')
             ->with($this->virtualMachineDeployment->managerDomainDeployment)
             ->willReturn([
@@ -591,27 +633,23 @@ class VirtualMachineTest extends IntegrationTestCase
             ->createOne();
 
         // Add 2 new Virtual machines to the second environment
-        new CloudstackVirtualMachineDeploymentFactory()
-            ->for($secondManagerDomainDeployment)
-            ->createOne([
-                'subscription_uuid' => new SubscriptionFactory()
-                    ->for($this->virtualMachineProduct)
-                    ->for($this->customer)
-                    ->createOne()
-                    ->uuid,
-                'cloudstack_id' => 'cccccccc-cccc-2222-cccc-cccccccccccc',
-            ]);
+        new CloudstackVirtualMachineDeploymentFactory()->for($secondManagerDomainDeployment)->createOne([
+            'subscription_uuid' => new SubscriptionFactory()
+                ->for($this->virtualMachineProduct)
+                ->for($this->customer)
+                ->createOne()
+                ->uuid,
+            'cloudstack_id' => 'cccccccc-cccc-2222-cccc-cccccccccccc',
+        ]);
 
-        new CloudstackVirtualMachineDeploymentFactory()
-            ->for($secondManagerDomainDeployment)
-            ->createOne([
-                'subscription_uuid' => new SubscriptionFactory()
-                    ->for($this->virtualMachineProduct)
-                    ->for($this->customer)
-                    ->createOne()
-                    ->uuid,
-                'cloudstack_id' => 'bbbbbbbb-bbbb-2222-bbbb-bbbbbbbbbbbb',
-            ]);
+        new CloudstackVirtualMachineDeploymentFactory()->for($secondManagerDomainDeployment)->createOne([
+            'subscription_uuid' => new SubscriptionFactory()
+                ->for($this->virtualMachineProduct)
+                ->for($this->customer)
+                ->createOne()
+                ->uuid,
+            'cloudstack_id' => 'bbbbbbbb-bbbb-2222-bbbb-bbbbbbbbbbbb',
+        ]);
 
         // vps without manager domain
         new SubscriptionFactory()
@@ -624,7 +662,8 @@ class VirtualMachineTest extends IntegrationTestCase
 
         $mockNic = $this->createMockNic();
         // find virtual machines for the first manager domain (on the first env).
-        $mockVirtualMachineService->shouldReceive('findVirtualMachines')
+        $mockVirtualMachineService
+            ->shouldReceive('findVirtualMachines')
             ->once()
             ->withArgs(fn (ManagerDomainDeployment $managerDomainDeployment) => $managerDomainDeployment->is($this->virtualMachineDeployment->managerDomainDeployment))
             ->andReturn([
@@ -661,9 +700,14 @@ class VirtualMachineTest extends IntegrationTestCase
             ]);
 
         // find virtual machines for the second manager domain (on the second env).
-        $mockVirtualMachineService->shouldReceive('findVirtualMachines')
+        $mockVirtualMachineService
+            ->shouldReceive('findVirtualMachines')
             ->once()
-            ->withArgs(fn (ManagerDomainDeployment $managerDomainDeployment) => $managerDomainDeployment->is($secondManagerDomainDeployment))
+            ->withArgs(
+                fn (ManagerDomainDeployment $managerDomainDeployment) => $managerDomainDeployment->is(
+                    $secondManagerDomainDeployment,
+                ),
+            )
             ->andReturn([
                 new VirtualMachine(
                     id: 'cccccccc-cccc-2222-cccc-cccccccccccc',
@@ -720,16 +764,18 @@ class VirtualMachineTest extends IntegrationTestCase
         $mockVirtualMachineService = self::createMock(VirtualMachineServiceInterface::class);
         $this->app->bind(VirtualMachineServiceInterface::class, fn () => $mockVirtualMachineService);
 
-        $mockVirtualMachineService->expects(self::once())
+        $mockVirtualMachineService
+            ->expects(self::once())
             ->method('getConsole')
             ->with(self::assertCallbackIsModel($this->virtualMachineDeployment))
             ->willReturn($expectedUrl);
 
-        $this->actingAsCustomer($this->customer)->get(
-            $this->generateRoute('partners.cloudstack.virtual-machine.console', [
-                'subscription' => $this->virtualMachineDeployment->subscription_uuid,
-            ])
-        )
+        $this->actingAsCustomer($this->customer)
+            ->get(
+                $this->generateRoute('partners.cloudstack.virtual-machine.console', [
+                    'subscription' => $this->virtualMachineDeployment->subscription_uuid,
+                ]),
+            )
             ->assertOk()
             ->assertJsonFragment([
                 'message' => 'success',
@@ -744,16 +790,18 @@ class VirtualMachineTest extends IntegrationTestCase
         $mockVirtualMachineService = self::createMock(VirtualMachineServiceInterface::class);
         $this->app->bind(VirtualMachineServiceInterface::class, fn () => $mockVirtualMachineService);
 
-        $mockVirtualMachineService->expects(self::once())
+        $mockVirtualMachineService
+            ->expects(self::once())
             ->method('getConsole')
             ->with(self::assertCallbackIsModel($this->virtualMachineDeployment))
             ->willThrowException(new VirtualMachineNotFoundException('exception message'));
 
-        $this->actingAsCustomer($this->customer)->get(
-            $this->generateRoute('partners.cloudstack.virtual-machine.console', [
-                'subscription' => $this->virtualMachineDeployment->subscription_uuid,
-            ])
-        )
+        $this->actingAsCustomer($this->customer)
+            ->get(
+                $this->generateRoute('partners.cloudstack.virtual-machine.console', [
+                    'subscription' => $this->virtualMachineDeployment->subscription_uuid,
+                ]),
+            )
             ->assertNotFound()
             ->assertJsonMissing(['console_url'])
             ->assertJsonFragment([
@@ -767,12 +815,15 @@ class VirtualMachineTest extends IntegrationTestCase
     {
         $custom_name = 'sandwave vps';
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.cloudstack.virtual-machine.custom-name', [
-                'subscription' => $this->virtualMachineDeployment->subscription_uuid,
-                'custom_name' => $custom_name,
-            ])
-        )->assertOk()->assertJsonFragment(['message' => 'success']);
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.cloudstack.virtual-machine.custom-name', [
+                    'subscription' => $this->virtualMachineDeployment->subscription_uuid,
+                    'custom_name' => $custom_name,
+                ]),
+            )
+            ->assertOk()
+            ->assertJsonFragment(['message' => 'success']);
 
         self::assertSame($custom_name, $this->virtualMachineDeployment->refresh()->custom_name);
     }
@@ -780,12 +831,15 @@ class VirtualMachineTest extends IntegrationTestCase
     #[Test]
     public function updateCustomNameTooLongError(): void
     {
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.cloudstack.virtual-machine.custom-name', [
-                'subscription' => $this->virtualMachineDeployment->subscription_uuid,
-                'custom_name' => 'sandwave sandwave sandwave sandwave sandwave sandwave sandwave sandwave sandwave',
-            ])
-        )->assertUnprocessable()->assertJsonFragment(['custom_name' => ['Dit veld mag niet groter zijn dan 50 karakters.']]);
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.cloudstack.virtual-machine.custom-name', [
+                    'subscription' => $this->virtualMachineDeployment->subscription_uuid,
+                    'custom_name' => 'sandwave sandwave sandwave sandwave sandwave sandwave sandwave sandwave sandwave',
+                ]),
+            )
+            ->assertUnprocessable()
+            ->assertJsonFragment(['custom_name' => ['Dit veld mag niet groter zijn dan 50 karakters.']]);
     }
 
     #[Test]
@@ -793,12 +847,15 @@ class VirtualMachineTest extends IntegrationTestCase
     {
         $this->virtualMachineDeployment->delete();
 
-        $this->actingAsCustomer($this->customer)->postJson(
-            $this->generateRoute('partners.cloudstack.virtual-machine.custom-name', [
-                'subscription' => $this->virtualMachineDeployment->subscription_uuid,
-                'custom_name' => 'sandwave vps',
-            ])
-        )->assertNotFound()->assertJsonFragment(['message' => 'vps.not-found']);
+        $this->actingAsCustomer($this->customer)
+            ->postJson(
+                $this->generateRoute('partners.cloudstack.virtual-machine.custom-name', [
+                    'subscription' => $this->virtualMachineDeployment->subscription_uuid,
+                    'custom_name' => 'sandwave vps',
+                ]),
+            )
+            ->assertNotFound()
+            ->assertJsonFragment(['message' => 'vps.not-found']);
     }
 
     private function createMockNic(): Nic

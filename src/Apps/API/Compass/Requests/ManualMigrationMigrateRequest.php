@@ -53,7 +53,10 @@ class ManualMigrationMigrateRequest extends FormRequest
                 $domainNameRule,
                 function (string $attribute, mixed $value, Closure $fail) use ($subscriptionRepo, $translator) {
                     assert(is_string($value));
-                    $domainAlreadyInUse = $subscriptionRepo->domainAlreadyInUse($value, ProductGroupType::EXTENSION->value);
+                    $domainAlreadyInUse = $subscriptionRepo->domainAlreadyInUse(
+                        $value,
+                        ProductGroupType::EXTENSION->value,
+                    );
 
                     if ($domainAlreadyInUse) {
                         $fail($translator->translate('validation.product_group_already_exists_on_domain'));
@@ -89,7 +92,10 @@ class ManualMigrationMigrateRequest extends FormRequest
     {
         return [
             'hostname' => ['required', 'string'],
-            'provider' => ['required', Rule::enum(ProviderSlug::class)->only([ProviderSlug::DIRECTADMIN, ProviderSlug::PLESK])],
+            'provider' => [
+                'required',
+                Rule::enum(ProviderSlug::class)->only([ProviderSlug::DIRECTADMIN, ProviderSlug::PLESK]),
+            ],
             'username' => ['required', 'string'],
             'plesk_customer_id' => [
                 'sometimes',

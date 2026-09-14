@@ -71,13 +71,11 @@ class AnonymizeIdentitiesActionTest extends TestCase
 
         $identity = $this->provideIdentity(Uuid::uuid4()->toString(), 'test@test.nl', $customerNumber);
 
-        $this->getIdentitiesForCustomerNumberAction
-            ->expects(self::once())
-            ->method('execute')
-            ->willReturn([$identity]);
+        $this->getIdentitiesForCustomerNumberAction->expects(self::once())->method('execute')->willReturn([$identity]);
 
         $this->removeCustomerNumberFromIdentityAction
-            ->expects(self::once())->method('execute')
+            ->expects(self::once())
+            ->method('execute')
             ->willThrowException(new DetachCustomerNumberFromIdentityFailedException());
 
         self::expectException(AnonymizeCustomerException::class);
@@ -92,13 +90,9 @@ class AnonymizeIdentitiesActionTest extends TestCase
 
         $identity = $this->provideIdentity(Uuid::uuid4()->toString(), 'test@test.nl', $customerNumber);
 
-        $this->getIdentitiesForCustomerNumberAction
-            ->expects(self::once())
-            ->method('execute')
-            ->willReturn([$identity]);
+        $this->getIdentitiesForCustomerNumberAction->expects(self::once())->method('execute')->willReturn([$identity]);
 
-        $this->removeCustomerNumberFromIdentityAction
-            ->expects(self::once())->method('execute');
+        $this->removeCustomerNumberFromIdentityAction->expects(self::once())->method('execute');
 
         $this->anonymizeIdentitiesForCustomerAction->execute(123);
     }
@@ -118,8 +112,7 @@ class AnonymizeIdentitiesActionTest extends TestCase
             ->method('execute')
             ->willReturn([$identity, $identity2, $identity3, $identity4]);
 
-        $this->removeCustomerNumberFromIdentityAction
-            ->expects(self::exactly(4))->method('execute');
+        $this->removeCustomerNumberFromIdentityAction->expects(self::exactly(4))->method('execute');
 
         $this->anonymizeIdentitiesForCustomerAction->execute(123);
     }
@@ -138,7 +131,7 @@ class AnonymizeIdentitiesActionTest extends TestCase
             CarbonImmutable::now(),
             [],
             new CustomerMetadataPublic([$customerNumber], [], ['waterfront'], null, null, null),
-            null
+            null,
         );
     }
 }

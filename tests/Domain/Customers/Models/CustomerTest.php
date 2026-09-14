@@ -57,7 +57,7 @@ class CustomerTest extends IntegrationTestCase
 
         self::assertFalse(
             $customer->isCompany(),
-            'Customer without organization, vat and coc number did not give false'
+            'Customer without organization, vat and coc number did not give false',
         );
 
         $customer->organization = 'Sandwave';
@@ -65,7 +65,7 @@ class CustomerTest extends IntegrationTestCase
 
         self::assertFalse(
             $customer->isCompany(),
-            'Customer without vat and coc number did not give false'
+            'Customer without vat and coc number did not give false',
         );
 
         $customer->vat_number = 'NL000099998B99';
@@ -73,14 +73,14 @@ class CustomerTest extends IntegrationTestCase
 
         self::assertFalse(
             $customer->isCompany(),
-            'Customer without organization, coc number did not give false'
+            'Customer without organization, coc number did not give false',
         );
         $customer->coc_number = 'NL000099998B99';
         $customer->save();
 
         self::assertTrue(
             $customer->isCompany(),
-            'Customer with organization, vat and coc number did not give back true'
+            'Customer with organization, vat and coc number did not give back true',
         );
     }
 
@@ -121,7 +121,10 @@ class CustomerTest extends IntegrationTestCase
             self::expectException(NumberParseException::class);
         } catch (NumberParseException $e) {
             self::assertSame(NumberParseException::NOT_A_NUMBER, $e->getCode());
-            self::assertSame(self::resolve(TranslatorInterface::class)->translate('customer.phone-country-error'), $e->getMessage());
+            self::assertSame(
+                self::resolve(TranslatorInterface::class)->translate('customer.phone-country-error'),
+                $e->getMessage(),
+            );
         }
     }
 
@@ -147,7 +150,10 @@ class CustomerTest extends IntegrationTestCase
             self::expectException(NumberParseException::class);
         } catch (NumberParseException $e) {
             self::assertSame(NumberParseException::NOT_A_NUMBER, $e->getCode());
-            self::assertSame(self::resolve(TranslatorInterface::class)->translate('customer.phone-country-error'), $e->getMessage());
+            self::assertSame(
+                self::resolve(TranslatorInterface::class)->translate('customer.phone-country-error'),
+                $e->getMessage(),
+            );
         }
     }
 

@@ -27,7 +27,7 @@ class TransferredOutNotificationListener
         }
 
         $this->transferDomainNotificationHandler->handle(
-            $newNotificationEvent->getNotification()
+            $newNotificationEvent->getNotification(),
         );
     }
 }

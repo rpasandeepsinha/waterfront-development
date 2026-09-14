@@ -24,8 +24,9 @@ class MigrationStateFilter
      */
     private const array ALWAYS_SELECTED_COLUMNS = ['id', 'uuid'];
 
-    public function __construct(private readonly Sorting $sorting)
-    {
+    public function __construct(
+        private readonly Sorting $sorting,
+    ) {
     }
 
     /**
@@ -61,13 +62,10 @@ class MigrationStateFilter
      */
     private function applyProductJoin(Builder $query, Request $request, string $search, bool $hasProductSort): bool
     {
-        $needsProductJoin = $this->isSearchable($search)
-            || $request->filled('product_group')
-            || $hasProductSort;
+        $needsProductJoin = $this->isSearchable($search) || $request->filled('product_group') || $hasProductSort;
 
         if ($needsProductJoin) {
-            $query->leftJoin('products', 'products.uuid', '=', 'subscriptions.product_uuid')
-                ->select('subscriptions.*');
+            $query->leftJoin('products', 'products.uuid', '=', 'subscriptions.product_uuid')->select('subscriptions.*');
         }
 
         return $needsProductJoin;
@@ -88,18 +86,23 @@ class MigrationStateFilter
             $builder->where('subscriptions.domain', 'ilike', $term);
 
             if ($joinedProducts) {
-                $builder->orWhere('products.name', 'ilike', $term)
-                    ->orWhere('products.slug', 'ilike', $term);
+                $builder->orWhere('products.name', 'ilike', $term)->orWhere('products.slug', 'ilike', $term);
             }
 
             $builder->orWhereHas('customer.migratedCustomers', function (Builder $migratedCustomer) use ($term): void {
-                $migratedCustomer->where('group_type', 'ilike', $term)
-                    ->orWhere('reference_customer_number', 'ilike', $term);
+                $migratedCustomer->where('group_type', 'ilike', $term)->orWhere(
+                    'reference_customer_number',
+                    'ilike',
+                    $term,
+                );
             });
 
             $builder->orWhereHas('customer', function (Builder $customer) use ($term): void {
-                $customer->where('email', 'ilike', $term)
-                    ->orWhereRaw('cast(customers.customer_number as text) ilike ?', [$term]);
+                $customer->where(
+                    'email',
+                    'ilike',
+                    $term,
+                )->orWhereRaw('cast(customers.customer_number as text) ilike ?', [$term]);
             });
 
             $builder->orWhereHas('migratedSubscriptions', function (Builder $migratedSubscription) use ($term): void {
@@ -175,7 +178,10 @@ class MigrationStateFilter
                 TechnicalStatus::PENDING->value,
                 DomainStatus::FAILED->value,
             ]),
-            'administratively-not-successful' => $this->whereMigratedCustomerFlagIsFalse($query, 'administrative_successful'),
+            'administratively-not-successful' => $this->whereMigratedCustomerFlagIsFalse(
+                $query,
+                'administrative_successful',
+            ),
             'invoicing-not-enabled' => $this->whereMigratedCustomerFlagIsFalse($query, 'enable_invoicing'),
             'migration-not-successful' => $this->whereMigratedCustomerFlagIsFalse($query, 'successful'),
             default => $query,
@@ -227,7 +233,7 @@ class MigrationStateFilter
             } else {
                 $query->orderBy(
                     Product::select($column)->whereColumn('uuid', 'subscriptions.product_uuid'),
-                    $direction
+                    $direction,
                 );
             }
 

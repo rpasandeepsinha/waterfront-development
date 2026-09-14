@@ -85,17 +85,27 @@ class Microsoft365KpnOnBoardingServiceTest extends IntegrationTestCase
             'slug' => 'microsoft-business-standard',
         ]);
 
-        $this->parentSubscription = new SubscriptionFactory()->for($customer)->technicalStatusOk()->createOne([
-            'product_uuid' => $parentProduct->uuid,
-        ]);
+        $this->parentSubscription = new SubscriptionFactory()
+            ->for($customer)
+            ->technicalStatusOk()
+            ->createOne([
+                'product_uuid' => $parentProduct->uuid,
+            ]);
 
-        new SubscriptionFactory()->for($customer)->parentSubscription($this->parentSubscription)->technicalStatusOk()->createOne([
-            'product_uuid' => $childProduct->uuid,
-        ]);
+        new SubscriptionFactory()
+            ->for($customer)
+            ->parentSubscription($this->parentSubscription)
+            ->technicalStatusOk()
+            ->createOne([
+                'product_uuid' => $childProduct->uuid,
+            ]);
 
-        $this->microsoft365Deployment = new Microsoft365DeploymentFactory()->for($this->parentSubscription)->for($this->microsoft365CustomerInfo)->createOne([
-            'kpn_order_id' => self::KPN_ORDER_ID,
-        ]);
+        $this->microsoft365Deployment = new Microsoft365DeploymentFactory()
+            ->for($this->parentSubscription)
+            ->for($this->microsoft365CustomerInfo)
+            ->createOne([
+                'kpn_order_id' => self::KPN_ORDER_ID,
+            ]);
 
         $domainSubscription = new SubscriptionFactory()
             ->for($customer)
@@ -119,9 +129,7 @@ class Microsoft365KpnOnBoardingServiceTest extends IntegrationTestCase
             ->parentSubscription($domainSubscription)
             ->createOne();
 
-        $this->dnsDeployment = new DnsDeploymentFactory()
-            ->for($dnsSubscription)
-            ->createOne();
+        $this->dnsDeployment = new DnsDeploymentFactory()->for($dnsSubscription)->createOne();
 
         Assert::notNull($this->microsoft365CustomerInfo->kpn_customer_id);
         $this->log = (string) file_get_contents(__DIR__ . '/../Data/OrderDeclinedV2.xml');
@@ -136,7 +144,8 @@ class Microsoft365KpnOnBoardingServiceTest extends IntegrationTestCase
     {
         $this->dnsDeployment->delete();
 
-        $this->mockLogger->expects(self::once())
+        $this->mockLogger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'No DNS deployment found for Microsoft 365 with primary domain {microsoft365.primary_domain}',
@@ -145,7 +154,7 @@ class Microsoft365KpnOnBoardingServiceTest extends IntegrationTestCase
                         'microsoft365.deployment_id' => $this->microsoft365Deployment->id,
                         'microsoft365.primary_domain' => self::DOMAIN,
                     ],
-                ]
+                ],
             );
 
         $this->runHandleKpnOnBoardingPac();
@@ -159,7 +168,8 @@ class Microsoft365KpnOnBoardingServiceTest extends IntegrationTestCase
         $this->log = str_replace('KPN_DEPLOYMENT_ID', strval($this->microsoft365Deployment->id), $this->log);
         $this->log = str_replace('KPN_CUSTOMER_ID', '', $this->log);
 
-        $this->mockLogger->expects(self::once())
+        $this->mockLogger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'Could not find customer number in the microsoft365 log',
@@ -168,7 +178,7 @@ class Microsoft365KpnOnBoardingServiceTest extends IntegrationTestCase
                         'microsoft365.deployment_id' => $this->microsoft365Deployment->id,
                         'microsoft365.log' => $this->log,
                     ],
-                ]
+                ],
             );
 
         $this->runHandleKpnOnBoardingPac();
@@ -182,7 +192,8 @@ class Microsoft365KpnOnBoardingServiceTest extends IntegrationTestCase
         $this->microsoft365CustomerInfo->kpn_customer_id = 'CID1';
         $this->microsoft365CustomerInfo->save();
 
-        $this->mockLogger->expects(self::once())
+        $this->mockLogger
+            ->expects(self::once())
             ->method('error')
             ->with(
                 'No Microsoft365 customer info found for KPN onboarding pac {microsoft365.onboarding_pac}',
@@ -191,7 +202,7 @@ class Microsoft365KpnOnBoardingServiceTest extends IntegrationTestCase
                         'microsoft365.deployment_id' => $this->microsoft365Deployment->id,
                         'microsoft365.onboarding_pac' => $this->kpnCustomerIdWithoutCid,
                     ],
-                ]
+                ],
             );
 
         $this->runHandleKpnOnBoardingPac();
@@ -224,10 +235,7 @@ class Microsoft365KpnOnBoardingServiceTest extends IntegrationTestCase
             ttl: 3600,
         );
 
-        $this->mockDnsService
-            ->expects(self::once())
-            ->method('addRecordFromObject')
-            ->with(self::DOMAIN, $txtRecord);
+        $this->mockDnsService->expects(self::once())->method('addRecordFromObject')->with(self::DOMAIN, $txtRecord);
 
         $this->runHandleKpnOnBoardingPac();
     }

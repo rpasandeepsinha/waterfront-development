@@ -41,11 +41,11 @@ class CertificateDownloadTest extends IntegrationTestCase
      * @var array<string, string|array<string, string>>
      */
     private const array DEFAULT_CUSTOMER_DATA = [
-        'name'       => 'Sandwaveio',
+        'name' => 'Sandwaveio',
         'department' => 'Team Aquatic',
-        'address'    => [
-            'city'         => 'Vlissingen',
-            'province'     => 'Zeeland',
+        'address' => [
+            'city' => 'Vlissingen',
+            'province' => 'Zeeland',
             'country_code' => 'NL',
         ],
     ];
@@ -76,16 +76,21 @@ class CertificateDownloadTest extends IntegrationTestCase
                 self::resolve(OpenSslExtensionStrategy::class),
                 new KeyCloud($cryptoKey, $sslFilesystem),
                 new LocalDisk(
-                    $this->app->storagePath('framework/testing/disks/' . $this->localTestDisk)
-                )
+                    $this->app->storagePath('framework/testing/disks/' . $this->localTestDisk),
+                ),
             );
         });
 
         $this->app->singleton(CertificateManager::class, fn (): CertificateManager => new CertificateManager(
-            new CertificateCloud($sslFilesystem)
+            new CertificateCloud($sslFilesystem),
         ));
 
-        $this->sslProvider = ProviderFactory::new()->createOne(['type' => ProviderType::SSL, 'slug' => ProviderSlug::OPEN_PROVIDER, 'enabled' => true, 'default' => true]);
+        $this->sslProvider = ProviderFactory::new()->createOne([
+            'type' => ProviderType::SSL,
+            'slug' => ProviderSlug::OPEN_PROVIDER,
+            'enabled' => true,
+            'default' => true,
+        ]);
 
         $productGroup = new ProductGroupFactory()->ssl()->createOne();
 
@@ -96,14 +101,17 @@ class CertificateDownloadTest extends IntegrationTestCase
 
         $this->customer = new CustomerFactory()->createOne();
 
-        $this->subscription = new SubscriptionFactory()->for($this->product)->for($this->customer)->createOne([
-            'domain' => self::DOMAIN,
-            'gross_price' => 100,
-            'net_price' => 100,
-            'technical_status' => DomainStatus::ACTIVE->value,
-            'contract_period' => 12,
-            'billing_period' => 12,
-        ]);
+        $this->subscription = new SubscriptionFactory()
+            ->for($this->product)
+            ->for($this->customer)
+            ->createOne([
+                'domain' => self::DOMAIN,
+                'gross_price' => 100,
+                'net_price' => 100,
+                'technical_status' => DomainStatus::ACTIVE->value,
+                'contract_period' => 12,
+                'billing_period' => 12,
+            ]);
 
         new SslDeploymentFactory()->createOne([
             'subscription_uuid' => $this->subscription->uuid,
@@ -111,8 +119,7 @@ class CertificateDownloadTest extends IntegrationTestCase
         ]);
 
         $rtrMock = self::mock(RtrSslService::class);
-        $rtrMock->shouldReceive('getSslCnameRecord')
-            ->andReturn(null);
+        $rtrMock->shouldReceive('getSslCnameRecord')->andReturn(null);
         $this->app->bind(RtrSslService::class, fn () => $rtrMock);
 
         $this->saveMainCertificate();
@@ -156,10 +163,7 @@ class CertificateDownloadTest extends IntegrationTestCase
         $downloadLinks = $this->getCertificateDownloadLinks();
         $keyDownloadLink = $downloadLinks['Private key'];
 
-        $response = $this
-            ->actingAsCustomer($this->customer)
-            ->get($keyDownloadLink)
-            ->assertOk();
+        $response = $this->actingAsCustomer($this->customer)->get($keyDownloadLink)->assertOk();
 
         self::assertStringStartsWith('-----BEGIN PRIVATE KEY-----', strval($response->getContent()));
         self::assertStringEndsWith('-----END PRIVATE KEY-----' . PHP_EOL, strval($response->getContent()));
@@ -174,10 +178,7 @@ class CertificateDownloadTest extends IntegrationTestCase
         $downloadLinks = $this->getCertificateDownloadLinks();
         $rootDownloadLink = $downloadLinks['Root'];
 
-        $response = $this
-            ->actingAsCustomer($this->customer)
-            ->get($rootDownloadLink)
-            ->assertOk();
+        $response = $this->actingAsCustomer($this->customer)->get($rootDownloadLink)->assertOk();
 
         self::assertStringStartsWith('-----BEGIN CERTIFICATE-----', strval($response->getContent()));
         self::assertStringEndsWith('-----END CERTIFICATE-----', strval($response->getContent()));
@@ -192,10 +193,7 @@ class CertificateDownloadTest extends IntegrationTestCase
         $downloadLinks = $this->getCertificateDownloadLinks();
         $intermediateDownloadLink = $downloadLinks['Intermediate'];
 
-        $response = $this
-            ->actingAsCustomer($this->customer)
-            ->get($intermediateDownloadLink)
-            ->assertOk();
+        $response = $this->actingAsCustomer($this->customer)->get($intermediateDownloadLink)->assertOk();
 
         self::assertStringStartsWith('-----BEGIN CERTIFICATE-----', strval($response->getContent()));
         self::assertStringEndsWith('-----END CERTIFICATE-----', strval($response->getContent()));
@@ -210,10 +208,7 @@ class CertificateDownloadTest extends IntegrationTestCase
         $downloadLinks = $this->getCertificateDownloadLinks();
         $crtDownloadLink = $downloadLinks['Certificate'];
 
-        $response = $this
-            ->actingAsCustomer($this->customer)
-            ->get($crtDownloadLink)
-            ->assertOk();
+        $response = $this->actingAsCustomer($this->customer)->get($crtDownloadLink)->assertOk();
 
         self::assertStringStartsWith('-----BEGIN CERTIFICATE-----', strval($response->getContent()));
         self::assertStringEndsWith('-----END CERTIFICATE-----', strval($response->getContent()));
@@ -231,9 +226,7 @@ class CertificateDownloadTest extends IntegrationTestCase
         $notMyCertificates = $this->getCertificateDownloadLinks();
         $notMyCrtDownloadLink = $notMyCertificates['Certificate'];
 
-        $evilResponse = $this
-            ->actingAsCustomer($evilCustomer)
-            ->get($notMyCrtDownloadLink);
+        $evilResponse = $this->actingAsCustomer($evilCustomer)->get($notMyCrtDownloadLink);
         $evilResponse->assertNotFound();
 
         $this->expectException(AssertionFailedError::class);
@@ -254,22 +247,26 @@ class CertificateDownloadTest extends IntegrationTestCase
         // So let's have this user registers another domain:
         $evilDomain = 'evil-' . self::DOMAIN;
 
-        $subscription = new SubscriptionFactory()->for($this->product)->for($evilCustomer)->createOne([
-            'domain' => $evilDomain,
-            'gross_price' => 100,
-            'net_price' => 100,
-            'technical_status' => DomainStatus::ACTIVE->value,
-            'contract_period' => 12,
-            'billing_period' => 12,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($this->product)
+            ->for($evilCustomer)
+            ->createOne([
+                'domain' => $evilDomain,
+                'gross_price' => 100,
+                'net_price' => 100,
+                'technical_status' => DomainStatus::ACTIVE->value,
+                'contract_period' => 12,
+                'billing_period' => 12,
+            ]);
 
         new SslDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
             'provider_id' => $this->sslProvider->id,
         ]);
 
-        $myServicesResponse = $this->actingAsCustomer($evilCustomer)
-            ->getJson($this->generateRoute('partners.ssl.deployment', ['sslDeployment' => $this->subscription->uuid]));
+        $myServicesResponse = $this->actingAsCustomer(
+            $evilCustomer,
+        )->getJson($this->generateRoute('partners.ssl.deployment', ['sslDeployment' => $this->subscription->uuid]));
 
         $myServicesResponse->assertForbidden();
     }
@@ -279,9 +276,9 @@ class CertificateDownloadTest extends IntegrationTestCase
      */
     private function makeServicesRequest(): TestResponse
     {
-        return $this
-            ->actingAsCustomer($this->customer)
-            ->json('get', $this->generateRoute('partners.ssl.deployment', ['sslDeployment' => $this->subscription->uuid]));
+        return $this->actingAsCustomer($this->customer)->json('get', $this->generateRoute('partners.ssl.deployment', [
+            'sslDeployment' => $this->subscription->uuid,
+        ]));
     }
 
     /**
@@ -301,6 +298,7 @@ class CertificateDownloadTest extends IntegrationTestCase
     {
         /** @var string[] $json */
         $json = (array) $response->json('certificates');
+
         return $json;
     }
 

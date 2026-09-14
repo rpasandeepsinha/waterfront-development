@@ -31,12 +31,12 @@ class InvoiceJobDispatcher
         foreach ($customers as $customer) {
             $this->logger->info(sprintf(
                 'Dispatching invoice renewal job for customer %d',
-                $customer->id
+                $customer->id,
             ));
 
             $command = new CreateSubscriptionInvoicesForCustomer(
                 $customer,
-                $billingDate
+                $billingDate,
             );
             $command->onQueue('subscriptions');
 

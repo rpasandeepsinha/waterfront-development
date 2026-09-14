@@ -24,7 +24,7 @@ class UpdateZoneToMasterAction
         $this->dnsMigrationService->changeToMasterAndEmptyMasters(
             $domain,
             $subscriptionId,
-            $migratedCustomerReference
+            $migratedCustomerReference,
         );
     }
 }

@@ -6,7 +6,7 @@ namespace Waterfront\Infra\DirectAdminClient\Enums;
 
 enum HostingUserType: string
 {
-    case USER     = 'user';
+    case USER = 'user';
     case RESELLER = 'reseller';
-    case ADMIN    = 'admin';
+    case ADMIN = 'admin';
 }

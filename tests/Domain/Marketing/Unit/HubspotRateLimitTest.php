@@ -28,7 +28,8 @@ class HubspotRateLimitTest extends TestCase
 
         $hubspotEventRepository = self::createStub(HubspotEventRepository::class);
         $hubspotContactsClient = self::createMock(ContactsClient::class);
-        $hubspotContactsClient->expects(self::once())
+        $hubspotContactsClient
+            ->expects(self::once())
             ->method('findBySandwaveUuid')
             ->willThrowException(new HubspotThrottledException());
 
@@ -36,7 +37,7 @@ class HubspotRateLimitTest extends TestCase
         $command->handle(
             $hubspotContactsClient,
             $hubspotEventRepository,
-            new HubspotContactFactory()
+            new HubspotContactFactory(),
         );
 
         Sleep::assertSleptTimes(1);
@@ -57,7 +58,7 @@ class HubspotRateLimitTest extends TestCase
         $command->handle(
             $hubspotContactsClient,
             $hubspotEventRepository,
-            new HubspotContactFactory()
+            new HubspotContactFactory(),
         );
 
         Sleep::assertNeverSlept();

@@ -32,15 +32,18 @@ class DomainDeploymentResource
         $dnsDeployment = $domain !== null ? $this->dnsDeploymentRepository->getDnsDeploymentFromDomain($domain) : null;
 
         $baseDeploymentResource = $this->baseTechnicalDeploymentResource->toArray($deployment);
-        $availableActions = [...$baseDeploymentResource['available_actions'], ...$this->deploymentPolicy->getAvailableActions($deployment)];
+        $availableActions = [
+            ...$baseDeploymentResource['available_actions'],
+            ...$this->deploymentPolicy->getAvailableActions($deployment),
+        ];
 
         return [
             ...$baseDeploymentResource,
             'domain_contact_id' => $deployment->contact_owner_id,
             'domain_status' => $deployment->domain_status?->value,
             'has_dns_zone' => ! is_null($domain) && $this->dnsService->hasDnsZone($domain),
-            'has_custom_nameservers' => $dnsDeployment !== null
-                && $dnsDeployment->nameserver_type === NameserverType::EXTERNAL,
+            'has_custom_nameservers' =>
+                $dnsDeployment !== null && $dnsDeployment->nameserver_type === NameserverType::EXTERNAL,
             'last_result' => $this->rtrErrorParseService->getTranslatedRtrError($deployment->last_result ?? ''),
             'available_actions' => $availableActions,
         ];
@@ -51,6 +54,6 @@ class DomainDeploymentResource
      */
     public function toJson(DomainDeployment $deployment): string
     {
-        return json_encode($this->toArray($deployment), flags:JSON_THROW_ON_ERROR);
+        return json_encode($this->toArray($deployment), flags: JSON_THROW_ON_ERROR);
     }
 }

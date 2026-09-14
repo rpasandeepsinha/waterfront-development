@@ -7,11 +7,12 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
+return new class() extends Migration {
     public function up(): void
     {
         Schema::table('customer_retention_offers', function (Blueprint $table): void {
-            $table->foreignId('subscription_mutation_id')
+            $table
+                ->foreignId('subscription_mutation_id')
                 ->nullable()
                 ->constrained('subscription_mutations')
                 ->nullOnDelete();

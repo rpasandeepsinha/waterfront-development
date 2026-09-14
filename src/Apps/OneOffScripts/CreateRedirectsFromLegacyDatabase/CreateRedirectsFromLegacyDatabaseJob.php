@@ -65,14 +65,17 @@ class CreateRedirectsFromLegacyDatabaseJob extends AbstractQueueableJob
                     'Redirect subscription id:[%d] - uuid: [%s] has no domain',
                     $this->subscription->id,
                     $this->subscription->uuid,
-                )
+                ),
             );
         }
 
         $caddyContext = $this->findOrCreateContext($domain);
         $this->createRedirectsFromLegacy($caddyContext);
 
-        $redisFactory->connection()->sAdd(NovaCreateRedirectsFromLegacyDatabaseAction::REDIS_PROCESSED_KEY, $this->subscription->uuid);
+        $redisFactory->connection()->sAdd(
+            NovaCreateRedirectsFromLegacyDatabaseAction::REDIS_PROCESSED_KEY,
+            $this->subscription->uuid,
+        );
     }
 
     protected function getQueueName(): QueueName
@@ -91,7 +94,7 @@ class CreateRedirectsFromLegacyDatabaseJob extends AbstractQueueableJob
 
         $legacyRedirects = $legacyRepository->listRedirects(
             customerId: $this->subscription->customer_id,
-            domain: $domain
+            domain: $domain,
         );
 
         $existingRedirects = $redirectDeploymentRepository->findAllByContext($context)->pluck('source')->toArray();
@@ -102,7 +105,12 @@ class CreateRedirectsFromLegacyDatabaseJob extends AbstractQueueableJob
                 continue;
             }
 
-            $redirectString = sprintf('[%s] --[%s]--> [%s].', $legacyRedirect->source, $legacyRedirect->type, $legacyRedirect->destination);
+            $redirectString = sprintf(
+                '[%s] --[%s]--> [%s].',
+                $legacyRedirect->source,
+                $legacyRedirect->type,
+                $legacyRedirect->destination,
+            );
 
             $createRequest = new CreateRedirectRequest(
                 domain: $legacyRedirect->source,
@@ -134,7 +142,7 @@ class CreateRedirectsFromLegacyDatabaseJob extends AbstractQueueableJob
                         'provision_request_id' => $this->dryRun ? 'N/A' : $result->provisionData->requestId,
                         'provision_validation' => $this->dryRun ? 'N/A' : $result->validationResult,
                     ],
-                ]
+                ],
             );
 
             $this->dnsUpdater->updateDnsRecordToCaddy(rootDomain: $domain, source: $legacyRedirect->source);
@@ -195,7 +203,11 @@ class CreateRedirectsFromLegacyDatabaseJob extends AbstractQueueableJob
     private function handleExistingRedirect(Redirect $legacyRedirect, string $domain, UuidInterface $context): void
     {
         $this->logger->info(
-            sprintf('Redirect with source [%s] already exists for context [%s], skipping creation', $legacyRedirect->source, $context),
+            sprintf(
+                'Redirect with source [%s] already exists for context [%s], skipping creation',
+                $legacyRedirect->source,
+                $context,
+            ),
             [
                 LoggingContextKeys::DOMAIN_NAME => $domain,
                 LoggingContextKeys::PROVISIONING_CONTEXT => $context,
@@ -203,7 +215,7 @@ class CreateRedirectsFromLegacyDatabaseJob extends AbstractQueueableJob
                 LoggingContextKeys::PROVISIONING_TYPE => ProvisionType::REDIRECT,
                 LoggingContextKeys::ONE_OFF_SCRIPT => NovaCreateRedirectsFromLegacyDatabaseAction::SLUG,
                 LoggingContextKeys::META => ['dry-run' => $this->dryRun],
-            ]
+            ],
         );
 
         $this->dnsUpdater->updateDnsRecordToCaddy(rootDomain: $domain, source: $legacyRedirect->source);

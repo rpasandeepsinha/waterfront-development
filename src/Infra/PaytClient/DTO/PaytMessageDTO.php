@@ -12,10 +12,10 @@ readonly class PaytMessageDTO
         public string $id,
         public string $senderType,
         public string $content,
-        public string|null $sentAt,
-        public string|null $receivedAt,
-        public string|null $subject,
-        public string|null $creditCaseId,
+        public ?string $sentAt,
+        public ?string $receivedAt,
+        public ?string $subject,
+        public ?string $creditCaseId,
     ) {
     }
 }

@@ -70,8 +70,7 @@ class FetchServerPackagesActionTest extends TestCase
     #[Test]
     public function anUnrecognisedShapeIsLoggedRatherThanSilentlyEmpty(): void
     {
-        $this->hostingService->method('getPackagesOnServer')
-            ->willReturn(['unexpected' => ['some' => 'structure']]);
+        $this->hostingService->method('getPackagesOnServer')->willReturn(['unexpected' => ['some' => 'structure']]);
 
         $this->logger->expects(self::once())->method('warning');
 
@@ -83,7 +82,8 @@ class FetchServerPackagesActionTest extends TestCase
     #[Test]
     public function aFailureToReachTheServerIsReportedNotThrown(): void
     {
-        $this->hostingService->method('getPackagesOnServer')
+        $this->hostingService
+            ->method('getPackagesOnServer')
             ->willThrowException(new DriverNotDefinedException('server unreachable', 503));
 
         $this->logger->expects(self::once())->method('warning');
@@ -93,14 +93,15 @@ class FetchServerPackagesActionTest extends TestCase
         self::assertSame([], $result->packages);
         self::assertSame(
             [['message' => 'server unreachable', 'code' => 503]],
-            $result->errors
+            $result->errors,
         );
     }
 
     #[Test]
     public function itReturnsPackageDetails(): void
     {
-        $this->hostingService->expects(self::once())
+        $this->hostingService
+            ->expects(self::once())
             ->method('getPackageOnServer')
             ->with(self::anything(), 'basic')
             ->willReturn(['bandwidth' => 'unlimited', 'mysql' => '10']);
@@ -114,7 +115,8 @@ class FetchServerPackagesActionTest extends TestCase
     #[Test]
     public function aFailingDetailLookupIsReportedNotThrown(): void
     {
-        $this->hostingService->method('getPackageOnServer')
+        $this->hostingService
+            ->method('getPackageOnServer')
             ->willThrowException(new DriverNotDefinedException('no such package', 404));
 
         $this->logger->expects(self::once())->method('warning');

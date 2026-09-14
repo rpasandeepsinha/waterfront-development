@@ -56,7 +56,10 @@ class MigratedSubscription extends Model
      */
     public function withTechnicalSuccess(): BelongsToMany
     {
-        return $this->belongsToMany(Subscription::class)->whereIn('technical_status', [DomainStatus::ACTIVE->value, TechnicalStatus::OK->value]);
+        return $this->belongsToMany(Subscription::class)->whereIn('technical_status', [
+            DomainStatus::ACTIVE->value,
+            TechnicalStatus::OK->value,
+        ]);
     }
 
     protected function casts(): array

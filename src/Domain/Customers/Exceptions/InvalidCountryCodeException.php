@@ -13,7 +13,7 @@ class InvalidCountryCodeException extends Exception
         parent::__construct(
             "Invalid country code '$countryCode'",
             $code,
-            $exception
+            $exception,
         );
     }
 }

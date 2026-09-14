@@ -25,9 +25,12 @@ class GetTenantRequest extends Request
 
     protected function defaultQuery(): array
     {
-        return array_filter([
-            'embed_path' => $this->embedPath,
-            'allow_deleted' => $this->allowDeleted,
-        ], static fn (mixed $value): bool => $value !== null);
+        return array_filter(
+            [
+                'embed_path' => $this->embedPath,
+                'allow_deleted' => $this->allowDeleted,
+            ],
+            static fn (mixed $value): bool => $value !== null,
+        );
     }
 }

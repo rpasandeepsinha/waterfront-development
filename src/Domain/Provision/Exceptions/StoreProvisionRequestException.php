@@ -20,7 +20,7 @@ class StoreProvisionRequestException extends ProvisionException
                 $request->tag->toString(),
             ),
             code: $code,
-            previous: $previous
+            previous: $previous,
         );
     }
 }

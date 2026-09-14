@@ -56,7 +56,7 @@ class MigrationValidationLibrary
         LoggerInterface $logger,
         Repository $cache,
         Vat $vat,
-        array $customerData
+        array $customerData,
     ): array {
         /** @var array<mixed> $countries */
         $countries = Countries::getList('nl');
@@ -65,83 +65,88 @@ class MigrationValidationLibrary
         $customerCountryCode = Arr::get($customerData, 'addresses.0.countryCode', '');
 
         $rules = [
-            'firstName'                             => ['required', 'string', 'min:1', 'max:255'],
-            'lastName'                              => ['required', 'string', 'min:1', 'max:255'],
-            'gender'                                => 'required|in:M,F,X',
-            'email'                                 => ['required', 'email', 'max:255', new CustomerEmailAllowedInMigration()],
-            'phone'                                 => ['required', (new Phone())],
-            'language'                              => ['sometimes', Rule::in(Locale::cases())],
-            'addresses'                             => 'required|array',
-            'addresses.*.streetName'                => ['required', 'min:1', 'max:255'],
-            'addresses.*.streetNumber'              => ['required', 'max:30'],
-            'addresses.*.streetNumberAddition'      => ['sometimes', 'required', 'string', 'max:10'],
-            'addresses.*.zipCode'                   => ['required', 'postal_code_with:countryCode'],
-            'addresses.*.city'                      => ['required', 'max:255'],
-            'addresses.*.countryCode'               => ['required', Rule::in(array_keys($countries))],
-            'department'                            => ['nullable', 'min:1', 'max:255'],
-            'organization'                          => ['nullable', 'required_with:vat_number', 'min:1', 'max:255'],
-            'cocNumber'                             => ['sometimes', 'string', 'min:1', 'max:16', 'nullable'],
-            'vatNumber'                             => ['sometimes', 'nullable', 'string', new VatCode($vat, $customerCountryCode, $logger, $cache)],
-            'creditLimit'                           => 'int',
-            'purchaseReference'                     => 'max:255',
-            'paymentTerms'                          => 'required|int|min:1',
-            'referenceName'                         => ['required', 'string', 'max:255', 'doesnt_end_with:dev,Dev,dry,Dry,SIT'],
-            'referenceCustomerId'                   => 'required|string|max:255',
-            'groupType'                             => 'required|max:255',
-            'contacts'                              => 'array',
-            'contacts.*.firstName'                  => ['required', 'string', 'min:1', 'max:255'],
-            'contacts.*.lastName'                   => ['required', 'string', 'min:1', 'max:255'],
-            'contacts.*.company'                   => ['sometimes', 'nullable', 'string', 'min:1', 'max:255'],
-            'contacts.*.email'                      => 'required|email|max:255',
-            'contacts.*.type'                       => ['required', Rule::in(CustomerContactType::cases())],
-            'validated'                             => 'boolean',
-            'internalNote'                          => 'sometimes|string|nullable',
-            'customerSince'                         => 'sometimes|nullable|date_format:Y-m-d',
-            'product_group_discounts'               => 'array|sometimes',
+            'firstName' => ['required', 'string', 'min:1', 'max:255'],
+            'lastName' => ['required', 'string', 'min:1', 'max:255'],
+            'gender' => 'required|in:M,F,X',
+            'email' => ['required', 'email', 'max:255', new CustomerEmailAllowedInMigration()],
+            'phone' => ['required', new Phone()],
+            'language' => ['sometimes', Rule::in(Locale::cases())],
+            'addresses' => 'required|array',
+            'addresses.*.streetName' => ['required', 'min:1', 'max:255'],
+            'addresses.*.streetNumber' => ['required', 'max:30'],
+            'addresses.*.streetNumberAddition' => ['sometimes', 'required', 'string', 'max:10'],
+            'addresses.*.zipCode' => ['required', 'postal_code_with:countryCode'],
+            'addresses.*.city' => ['required', 'max:255'],
+            'addresses.*.countryCode' => ['required', Rule::in(array_keys($countries))],
+            'department' => ['nullable', 'min:1', 'max:255'],
+            'organization' => ['nullable', 'required_with:vat_number', 'min:1', 'max:255'],
+            'cocNumber' => ['sometimes', 'string', 'min:1', 'max:16', 'nullable'],
+            'vatNumber' => [
+                'sometimes',
+                'nullable',
+                'string',
+                new VatCode($vat, $customerCountryCode, $logger, $cache),
+            ],
+            'creditLimit' => 'int',
+            'purchaseReference' => 'max:255',
+            'paymentTerms' => 'required|int|min:1',
+            'referenceName' => ['required', 'string', 'max:255', 'doesnt_end_with:dev,Dev,dry,Dry,SIT'],
+            'referenceCustomerId' => 'required|string|max:255',
+            'groupType' => 'required|max:255',
+            'contacts' => 'array',
+            'contacts.*.firstName' => ['required', 'string', 'min:1', 'max:255'],
+            'contacts.*.lastName' => ['required', 'string', 'min:1', 'max:255'],
+            'contacts.*.company' => ['sometimes', 'nullable', 'string', 'min:1', 'max:255'],
+            'contacts.*.email' => 'required|email|max:255',
+            'contacts.*.type' => ['required', Rule::in(CustomerContactType::cases())],
+            'validated' => 'boolean',
+            'internalNote' => 'sometimes|string|nullable',
+            'customerSince' => 'sometimes|nullable|date_format:Y-m-d',
+            'product_group_discounts' => 'array|sometimes',
             'product_group_discounts.*.product_group_type' => [
                 'required',
                 'distinct',
                 Rule::enum(ProductGroupType::class),
             ],
             'product_group_discounts.*.discount_percentage' => 'decimal:0,2|required|min:1|max:100',
-            'products_discounts'                    => 'array|sometimes',
-            'products_discounts.*'                  => [
+            'products_discounts' => 'array|sometimes',
+            'products_discounts.*' => [
                 'required',
                 new MigrationCustomerCanCreateDiscount(
                     $priceResolver,
                     $translator,
-                    $migrationsPriceDiscounts
+                    $migrationsPriceDiscounts,
                 ),
             ],
-            'products_discounts.*.slug'             => 'string|required',
-            'products_discounts.*.contract_period'  => 'int|required',
-            'products_discounts.*.billing_period'   => 'int|required',
-            'products_discounts.*.price'            => 'int|required',
-            'wallet_credit_balance'                 => 'int|min:0',
-            'mandates'                              => 'sometimes|nullable|array',
-            'mandates.*.type'                       => 'required|in:directdebit',
-            'mandates.*.signature_date'             => 'required|date_format:Y-m-d',
-            'mandates.*.consumer_name'              => 'required_if:mandates.*.type,directdebit|string',
-            'mandates.*.consumer_account'           => [
+            'products_discounts.*.slug' => 'string|required',
+            'products_discounts.*.contract_period' => 'int|required',
+            'products_discounts.*.billing_period' => 'int|required',
+            'products_discounts.*.price' => 'int|required',
+            'wallet_credit_balance' => 'int|min:0',
+            'mandates' => 'sometimes|nullable|array',
+            'mandates.*.type' => 'required|in:directdebit',
+            'mandates.*.signature_date' => 'required|date_format:Y-m-d',
+            'mandates.*.consumer_name' => 'required_if:mandates.*.type,directdebit|string',
+            'mandates.*.consumer_account' => [
                 'required_if:mandates.*.type,directdebit',
                 'string',
                 new IBAN(),
             ],
-            'mandates.*.consumer_bic'               => 'present_if:mandates.*.type,directdebit|string|nullable',
+            'mandates.*.consumer_bic' => 'present_if:mandates.*.type,directdebit|string|nullable',
 
-            'dnsTemplates'                                 => 'sometimes|nullable|array',
-            'dnsTemplates.*.name'                          => 'required|string',
-            'dnsTemplates.*.reference_template_id'         => 'required|string',
+            'dnsTemplates' => 'sometimes|nullable|array',
+            'dnsTemplates.*.name' => 'required|string',
+            'dnsTemplates.*.reference_template_id' => 'required|string',
             'dnsTemplates.*.records.*.reference_record_id' => 'required|string',
-            'dnsTemplates.*.records.*.type'                => [
+            'dnsTemplates.*.records.*.type' => [
                 'bail',
                 'required',
                 'string',
                 Rule::enum(DnsRecordType::class),
             ],
 
-            'labels'                                => 'sometimes|nullable|array',
-            'labels.*'                              => 'required|string',
+            'labels' => 'sometimes|nullable|array',
+            'labels.*' => 'required|string',
         ];
 
         if (array_key_exists('dnsTemplates', $customerData) && is_array($customerData['dnsTemplates'])) {
@@ -167,7 +172,7 @@ class MigrationValidationLibrary
         Translator $translator,
         LoggerInterface $logger,
         Customer $customer,
-        bool $pipelineRun = false
+        bool $pipelineRun = false,
     ): array {
         $referenceCustomerModelName = MigratedCustomer::class;
 
@@ -185,7 +190,10 @@ class MigrationValidationLibrary
             $domainHasNoSubdomainRule,
             $nonMigratedSubscriptionAlreadyExistsRule,
         ];
-        $specificRules[sprintf('subscriptions.%s.*.extension', ImplementableProducts::DOMAIN_EXTENSION->value)] = 'required|string';
+        $specificRules[sprintf(
+            'subscriptions.%s.*.extension',
+            ImplementableProducts::DOMAIN_EXTENSION->value,
+        )] = 'required|string';
 
         $specificRules[sprintf('subscriptions.%s.*.domain', ImplementableProducts::SSL->value)] = [
             'required',
@@ -208,8 +216,9 @@ class MigrationValidationLibrary
                 $nonMigratedSubscriptionAlreadyExistsRule,
                 $priceResolver,
                 $logger,
-                $pipelineRun
-            ), ...$specificRules,
+                $pipelineRun,
+            ),
+            ...$specificRules,
         ];
     }
 
@@ -230,8 +239,8 @@ class MigrationValidationLibrary
     public static function getRedirectBaseRules(
         DomainNameRule $domainNameRule,
         PublicSuffixList $publicSuffixList,
-        Customer|null $customer,
-        string|null $domain
+        ?Customer $customer,
+        ?string $domain,
     ): array {
         $sourceRules = [
             'sometimes',
@@ -248,7 +257,10 @@ class MigrationValidationLibrary
         ];
 
         if ($customer !== null) {
-            $sourceRules = array_merge($sourceRules, [new RedirectSourceDomainIsPartOfSubscriptionRule($customer, $publicSuffixList)]);
+            $sourceRules = array_merge($sourceRules, [new RedirectSourceDomainIsPartOfSubscriptionRule(
+                $customer,
+                $publicSuffixList,
+            )]);
         }
 
         return [
@@ -258,7 +270,7 @@ class MigrationValidationLibrary
                 'sometimes',
                 'url',
             ],
-            '*.type'        => [
+            '*.type' => [
                 'sometimes',
                 'string',
                 new Enum(RedirectType::class),
@@ -350,14 +362,14 @@ class MigrationValidationLibrary
             '*.server_data.directadmin_customer_name' => [
                 sprintf(
                     'required_if:*.driver,%s',
-                    ProviderSlug::DIRECTADMIN->value
+                    ProviderSlug::DIRECTADMIN->value,
                 ),
                 'string',
             ],
             '*.server_data.plesk_customer_username' => [
                 sprintf(
                     'required_if:*.driver,%s',
-                    ProviderSlug::PLESK->value
+                    ProviderSlug::PLESK->value,
                 ),
                 'string',
             ],
@@ -388,7 +400,7 @@ class MigrationValidationLibrary
             '*.server_data.directadmin_customer_name' => [
                 sprintf(
                     'required_if:*.driver,%s',
-                    ProviderSlug::DIRECTADMIN->value
+                    ProviderSlug::DIRECTADMIN->value,
                 ),
                 'string',
             ],
@@ -415,14 +427,14 @@ class MigrationValidationLibrary
             '*.server_data.directadmin_customer_name' => [
                 sprintf(
                     'required_if:*.driver,%s',
-                    ProviderSlug::DIRECTADMIN->value
+                    ProviderSlug::DIRECTADMIN->value,
                 ),
                 'string',
             ],
             '*.server_data.plesk_customer_username' => [
                 sprintf(
                     'required_if:*.driver,%s',
-                    ProviderSlug::PLESK->value
+                    ProviderSlug::PLESK->value,
                 ),
                 'string',
             ],
@@ -456,14 +468,14 @@ class MigrationValidationLibrary
             '*.bundle.mail_only.server_data.directadmin_customer_name' => [
                 sprintf(
                     'required_if:*.driver,%s',
-                    ProviderSlug::DIRECTADMIN->value
+                    ProviderSlug::DIRECTADMIN->value,
                 ),
                 'string',
             ],
             '*.bundle.mail_only.server_data.plesk_customer_username' => [
                 sprintf(
                     'required_if:*.driver,%s',
-                    ProviderSlug::PLESK->value
+                    ProviderSlug::PLESK->value,
                 ),
                 'string',
             ],
@@ -484,14 +496,14 @@ class MigrationValidationLibrary
             '*.bundle.sitebuilder.server_data.basekit_user_ref' => [
                 sprintf(
                     'required_if:*.bundle.sitebuilder.driver,%s',
-                    ProviderSlug::BASEKIT->value
+                    ProviderSlug::BASEKIT->value,
                 ),
                 'integer',
             ],
             '*.bundle.sitebuilder.server_data.basekit_site_ref' => [
                 sprintf(
                     'required_if:*.bundle.sitebuilder.driver,%s',
-                    ProviderSlug::BASEKIT->value
+                    ProviderSlug::BASEKIT->value,
                 ),
                 'integer',
             ],
@@ -523,33 +535,32 @@ class MigrationValidationLibrary
                 unset($recordRules['type']);
 
                 // Extra record name rules
-                $recordRules['name'][] =
-                    function (string $attribute, mixed $value, Closure $fail) {
-                        if (! is_string($value)) {
-                            return;
-                        }
+                $recordRules['name'][] = function (string $attribute, mixed $value, Closure $fail) {
+                    if (! is_string($value)) {
+                        return;
+                    }
 
-                        // Specific for Versio 1.0 migrations
-                        if (! str_contains($value, '@') || str_contains($value, '|DOMAIN|')) {
-                            $fail('Record name must contain an @ and not contain |DOMAIN|');
-                        }
-                    };
+                    // Specific for Versio 1.0 migrations
+                    if (! str_contains($value, '@') || str_contains($value, '|DOMAIN|')) {
+                        $fail('Record name must contain an @ and not contain |DOMAIN|');
+                    }
+                };
 
                 // Extra record content rules
-                $recordRules['content'][] =
-                    function (string $attribute, mixed $value, Closure $fail) {
-                        if (! is_string($value)) {
-                            return;
-                        }
+                $recordRules['content'][] = function (string $attribute, mixed $value, Closure $fail) {
+                    if (! is_string($value)) {
+                        return;
+                    }
 
-                        // Specific for Versio 1.0 migrations
-                        if (str_contains($value, '|DOMAIN|')) {
-                            $fail('Record content must contain an @ and not contain |DOMAIN|');
-                        }
-                    };
+                    // Specific for Versio 1.0 migrations
+                    if (str_contains($value, '|DOMAIN|')) {
+                        $fail('Record content must contain an @ and not contain |DOMAIN|');
+                    }
+                };
 
                 foreach ($recordRules as $recordAttribute => $rulesPerAttribute) {
-                    $dnsTemplateRecordRules["dnsTemplates.$templateIndex.records.$recordIndex.$recordAttribute"] = $rulesPerAttribute;
+                    $dnsTemplateRecordRules["dnsTemplates.$templateIndex.records.$recordIndex.$recordAttribute"] =
+                        $rulesPerAttribute;
                 }
             }
         }
@@ -569,7 +580,7 @@ class MigrationValidationLibrary
         LoggerInterface $logger,
         bool $pipelineRun = false,
     ): array {
-        $rules    = [];
+        $rules = [];
         foreach (ImplementableProducts::cases() as $implementableProduct) {
             $groupSlug = ImplementableProducts::getProductGroupTypeSlug($implementableProduct);
             $productKey = $implementableProduct->value;
@@ -590,7 +601,7 @@ class MigrationValidationLibrary
                     $productExists = Product::query()
                         ->whereHas(
                             'productGroup',
-                            fn (Builder $query) => $query->where('slug', $groupSlug)
+                            fn (Builder $query) => $query->where('slug', $groupSlug),
                         )
                         ->where('slug', $value)
                         ->exists();
@@ -618,10 +629,27 @@ class MigrationValidationLibrary
 
             $rules[sprintf('subscriptions.%s.*.contract_period', $productKey)] = 'required|min:1|integer:strict';
             $rules[sprintf('subscriptions.%s.*.billing_period', $productKey)] = 'required|min:1|integer:strict';
-            $rules[sprintf('subscriptions.%s.*.start_date', $productKey)] = ['required', 'date',  Rule::date()->after($oldestStartDateAllowed)];
-            $rules[sprintf('subscriptions.%s.*.next_contract_date', $productKey)] = ['required', 'date',  Rule::date()->after($oldestNextDateAllowed)];
-            $rules[sprintf('subscriptions.%s.*.next_billing_date', $productKey)] = ['required', 'date',  Rule::date()->after($oldestNextDateAllowed)];
-            $rules[sprintf('subscriptions.%s.*.cancel_date', $productKey)] = ['sometimes', 'nullable', 'date',  Rule::date()->after($oldestCancelDateAllowed)];
+            $rules[sprintf('subscriptions.%s.*.start_date', $productKey)] = [
+                'required',
+                'date',
+                Rule::date()->after($oldestStartDateAllowed),
+            ];
+            $rules[sprintf('subscriptions.%s.*.next_contract_date', $productKey)] = [
+                'required',
+                'date',
+                Rule::date()->after($oldestNextDateAllowed),
+            ];
+            $rules[sprintf('subscriptions.%s.*.next_billing_date', $productKey)] = [
+                'required',
+                'date',
+                Rule::date()->after($oldestNextDateAllowed),
+            ];
+            $rules[sprintf('subscriptions.%s.*.cancel_date', $productKey)] = [
+                'sometimes',
+                'nullable',
+                'date',
+                Rule::date()->after($oldestCancelDateAllowed),
+            ];
             $rules[sprintf('subscriptions.%s.*.reference_subscription_id', $productKey)] = 'required|string';
             $rules[sprintf('subscriptions.%s.*.reference_product_id', $productKey)] = 'required|string';
             $rules[sprintf('subscriptions.%s.*.reference_net_price', $productKey)] = [
@@ -640,7 +668,10 @@ class MigrationValidationLibrary
             if (! $pipelineRun) {
                 $rules[sprintf('subscriptions.%s.*.labels.*', $productKey)] = 'required|string';
             } else {
-                $rules[sprintf('subscriptions.%s.*.labels.*', $productKey)] = 'required|string|in_array:customer.labels.*';
+                $rules[sprintf(
+                    'subscriptions.%s.*.labels.*',
+                    $productKey,
+                )] = 'required|string|in_array:customer.labels.*';
             }
         }
 

@@ -51,26 +51,20 @@ class CreateOneTimeServiceActionTest extends IntegrationTestCase
         $this->endDate = $now->addMonths(6);
         CarbonImmutable::setTestNow($now);
 
-        $this->customer = new CustomerFactory()
-            ->withAddress()
-            ->createOne();
+        $this->customer = new CustomerFactory()->withAddress()->createOne();
 
         $extensionGroup = new ProductGroupFactory()->extension()->createOne();
-        $this->subscriptionProduct1 = new ProductFactory()
-            ->for($extensionGroup)
-            ->createOne([
-                'slug' => 'product-1',
-            ]);
+        $this->subscriptionProduct1 = new ProductFactory()->for($extensionGroup)->createOne([
+            'slug' => 'product-1',
+        ]);
 
-        $this->subscriptionProduct2 = new ProductFactory()
-            ->for($extensionGroup)
-            ->createOne([
-                'slug' => 'product-2',
-            ]);
+        $this->subscriptionProduct2 = new ProductFactory()->for($extensionGroup)->createOne([
+            'slug' => 'product-2',
+        ]);
 
-        $this->oneTimeServiceProduct = new ProductFactory()
-            ->for(new ProductGroupFactory()->oneTimeService())
-            ->createOne();
+        $this->oneTimeServiceProduct = new ProductFactory()->for(
+            new ProductGroupFactory()->oneTimeService(),
+        )->createOne();
         $price = new ProductPriceComponentFactory()
             ->oneTimeService()
             ->for($this->oneTimeServiceProduct)
@@ -86,7 +80,7 @@ class CreateOneTimeServiceActionTest extends IntegrationTestCase
         $alternativePrice->save();
 
         $this->oneTimeServiceInvoicingAction = new CreateOneTimeServiceAction(
-            self::resolve(OneTimeServiceCreator::class)
+            self::resolve(OneTimeServiceCreator::class),
         );
 
         // Acting user required for audit logging (notes)
@@ -105,7 +99,7 @@ class CreateOneTimeServiceActionTest extends IntegrationTestCase
         int $discountPercentage,
         OneTimeServiceStatus $status,
         ?string $comment,
-        array $expectedGrossPrices
+        array $expectedGrossPrices,
     ): void {
         $products = [
             $this->subscriptionProduct1->slug => $this->subscriptionProduct1,
@@ -125,8 +119,8 @@ class CreateOneTimeServiceActionTest extends IntegrationTestCase
                     status: $status,
                     executionDate: $executionDate,
                     comment: $comment,
-                    grossPrice: null
-                )
+                    grossPrice: null,
+                ),
             );
         }
 

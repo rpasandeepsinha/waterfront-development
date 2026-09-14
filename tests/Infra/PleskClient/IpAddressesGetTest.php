@@ -28,8 +28,16 @@ class IpAddressesGetTest extends IntegrationTestCase
         $mock = new MockHandler([
             new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_ip_addresses_get_response.xml')),
             function (RequestInterface $request) {
-                self::assertSame((string) file_get_contents(__DIR__ . '/data/plesk_ip_addresses_get_request.xml'), (string) $request->getBody());
-                return new Response(200, [], (string) file_get_contents(__DIR__ . '/data/plesk_ip_addresses_get_request.xml'));
+                self::assertSame(
+                    (string) file_get_contents(__DIR__ . '/data/plesk_ip_addresses_get_request.xml'),
+                    (string) $request->getBody(),
+                );
+
+                return new Response(
+                    200,
+                    [],
+                    (string) file_get_contents(__DIR__ . '/data/plesk_ip_addresses_get_request.xml'),
+                );
             },
         ]);
         $handlerStack = HandlerStack::create($mock);

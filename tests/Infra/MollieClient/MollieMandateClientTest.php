@@ -38,26 +38,25 @@ class MollieMandateClientTest extends IntegrationTestCase
     public function createMandateSuccessDirectDebit(): void
     {
         Http::fake([
-            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" =>
-                function (Request $request) {
-                    self::assertSame('POST', $request->method());
+            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" => function (Request $request) {
+                self::assertSame('POST', $request->method());
 
-                    self::assertSame(
-                        [
-                            'method' => 'directdebit',
-                            'consumerName' => 'John',
-                            'consumerAccount' => 'NL18RABO0123459876',
-                            'signatureDate' => '2023-05-08',
-                            'consumerBic' => 'RABONL2U',
-                            'mandateReference' => 'test',
-                        ],
-                        $request->data()
-                    );
+                self::assertSame(
+                    [
+                        'method' => 'directdebit',
+                        'consumerName' => 'John',
+                        'consumerAccount' => 'NL18RABO0123459876',
+                        'signatureDate' => '2023-05-08',
+                        'consumerBic' => 'RABONL2U',
+                        'mandateReference' => 'test',
+                    ],
+                    $request->data(),
+                );
 
-                    $expectedListData = include __DIR__ . '/data/mandates/create_mandate_directdebit_response.php';
+                $expectedListData = include __DIR__ . '/data/mandates/create_mandate_directdebit_response.php';
 
-                    return Http::response($expectedListData, 201);
-                },
+                return Http::response($expectedListData, 201);
+            },
         ]);
 
         $mollieMandate = $this->client->createMandate(
@@ -68,7 +67,7 @@ class MollieMandateClientTest extends IntegrationTestCase
                 signatureDate: '2023-05-08',
                 consumerBic: 'RABONL2U',
                 mandateReference: 'test',
-            )
+            ),
         );
 
         self::assertSame('mdt_h3gAaD5zP', $mollieMandate->id);
@@ -86,14 +85,13 @@ class MollieMandateClientTest extends IntegrationTestCase
     public function createMandateUnprocessableEntityDirectDebit(): void
     {
         Http::fake([
-            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" =>
-                function (Request $request) {
-                    self::assertSame('POST', $request->method());
+            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" => function (Request $request) {
+                self::assertSame('POST', $request->method());
 
-                    $expectedListData = include __DIR__ . '/data/mandates/errors/directdebit_unprocessable_entity.php';
+                $expectedListData = include __DIR__ . '/data/mandates/errors/directdebit_unprocessable_entity.php';
 
-                    return Http::response($expectedListData, 422);
-                },
+                return Http::response($expectedListData, 422);
+            },
         ]);
 
         self::expectException(MollieMandateApiException::class);
@@ -104,8 +102,8 @@ class MollieMandateClientTest extends IntegrationTestCase
                 422,
                 'Unprocessable Entity',
                 'The bank account is invalid',
-                'consumerAccount'
-            )
+                'consumerAccount',
+            ),
         );
 
         $this->client->createMandate(
@@ -115,7 +113,7 @@ class MollieMandateClientTest extends IntegrationTestCase
                 consumerAccount: 'COMPLETELY_WRONG',
                 signatureDate: '2023-09-05',
                 consumerBic: 'NOTGOOD',
-            )
+            ),
         );
     }
 
@@ -123,14 +121,13 @@ class MollieMandateClientTest extends IntegrationTestCase
     public function createMandateSuccessPaypal(): void
     {
         Http::fake([
-            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" =>
-                function (Request $request) {
-                    self::assertSame('POST', $request->method());
+            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" => function (Request $request) {
+                self::assertSame('POST', $request->method());
 
-                    $expectedListData = include __DIR__ . '/data/mandates/create_mandate_paypal_response.php';
+                $expectedListData = include __DIR__ . '/data/mandates/create_mandate_paypal_response.php';
 
-                    return Http::response($expectedListData, 201);
-                },
+                return Http::response($expectedListData, 201);
+            },
         ]);
 
         $mollieMandate = $this->client->createMandate(
@@ -140,7 +137,7 @@ class MollieMandateClientTest extends IntegrationTestCase
                 consumerEmail: 'test@testing.test',
                 paypalBillingAgreementId: 'paypalTestBillingAgreement',
                 signatureDate: '2023-09-05',
-            )
+            ),
         );
 
         self::assertSame('mdt_Uq9stfyFwz', $mollieMandate->id);
@@ -158,14 +155,13 @@ class MollieMandateClientTest extends IntegrationTestCase
     public function createMandateUnprocessableEntityPaypal(): void
     {
         Http::fake([
-            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" =>
-                function (Request $request) {
-                    self::assertSame('POST', $request->method());
+            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" => function (Request $request) {
+                self::assertSame('POST', $request->method());
 
-                    $expectedListData = include __DIR__ . '/data/mandates/errors/paypal_unprocessable_entity.php';
+                $expectedListData = include __DIR__ . '/data/mandates/errors/paypal_unprocessable_entity.php';
 
-                    return Http::response($expectedListData, 422);
-                },
+                return Http::response($expectedListData, 422);
+            },
         ]);
 
         self::expectException(MollieMandateApiException::class);
@@ -176,8 +172,8 @@ class MollieMandateClientTest extends IntegrationTestCase
                 422,
                 'Unprocessable Entity',
                 'The Billing Agreement ID does already exist.',
-                'paypalBillingAgreementId'
-            )
+                'paypalBillingAgreementId',
+            ),
         );
 
         $this->client->createMandate(
@@ -187,7 +183,7 @@ class MollieMandateClientTest extends IntegrationTestCase
                 consumerEmail: 'test@testing.test',
                 paypalBillingAgreementId: 'testing',
                 signatureDate: '2023-09-05',
-            )
+            ),
         );
     }
 
@@ -207,7 +203,7 @@ class MollieMandateClientTest extends IntegrationTestCase
 
         $mollieMandate = $this->client->getMandate(
             $this->mollieCustomerId,
-            $this->mollieMandateId
+            $this->mollieMandateId,
         );
 
         self::assertSame('mdt_Uq9stfyFwz', $mollieMandate->id);
@@ -243,13 +239,13 @@ class MollieMandateClientTest extends IntegrationTestCase
                 404,
                 'Not Found',
                 'No mandate exists with token mdt_Uq9stfyFwa.',
-                ''
-            )
+                '',
+            ),
         );
 
         $this->client->getMandate(
             $this->mollieCustomerId,
-            $this->mollieMandateId
+            $this->mollieMandateId,
         );
     }
 
@@ -257,12 +253,11 @@ class MollieMandateClientTest extends IntegrationTestCase
     public function listMandate(): void
     {
         Http::fake([
-            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" =>
-                function (Request $request) {
-                    self::assertSame('GET', $request->method());
+            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" => function (Request $request) {
+                self::assertSame('GET', $request->method());
 
-                    return Http::response(include __DIR__ . '/data/mandates/list_mandates_response.php');
-                },
+                return Http::response(include __DIR__ . '/data/mandates/list_mandates_response.php');
+            },
         ]);
 
         $mandates = $this->client->listMandates($this->mollieCustomerId);
@@ -284,12 +279,11 @@ class MollieMandateClientTest extends IntegrationTestCase
     public function listMandateNotFound(): void
     {
         Http::fake([
-            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" =>
-                function (Request $request) {
-                    self::assertSame('GET', $request->method());
+            "api.mollie.sandwaveio.test/v2/customers/$this->mollieCustomerId/mandates" => function (Request $request) {
+                self::assertSame('GET', $request->method());
 
-                    return Http::response(include __DIR__ . '/data/mandates/errors/list_not_found.php', 404);
-                },
+                return Http::response(include __DIR__ . '/data/mandates/errors/list_not_found.php', 404);
+            },
         ]);
 
         self::expectException(MollieMandateApiException::class);
@@ -300,8 +294,8 @@ class MollieMandateClientTest extends IntegrationTestCase
                 404,
                 'Not Found',
                 'No customer exists with token cst_gbPhDjoPSn.',
-                ''
-            )
+                '',
+            ),
         );
 
         $this->client->listMandates($this->mollieCustomerId);
@@ -342,8 +336,8 @@ class MollieMandateClientTest extends IntegrationTestCase
                 410,
                 'Gone',
                 'The mandate is no longer available',
-                ''
-            )
+                '',
+            ),
         );
 
         $this->client->revokeMandate($this->mollieCustomerId, $this->mollieMandateId);

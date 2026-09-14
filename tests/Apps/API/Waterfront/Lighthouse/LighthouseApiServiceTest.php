@@ -39,7 +39,9 @@ class LighthouseApiServiceTest extends IntegrationTestCase
     {
         $identity = (string) file_get_contents(__DIR__ . '/../Customers/data/kratosIdentity.json');
         Http::fake([
-            'https://api.lighthouse.sandwaveio.dev/kratos/identities/search?customerNumber=1' => Http::response((string) json_encode([json_decode($identity)])),
+            'https://api.lighthouse.sandwaveio.dev/kratos/identities/search?customerNumber=1' => Http::response((string) json_encode([json_decode(
+                $identity,
+            )])),
             'https://api.lighthouse.sandwaveio.dev/kratos/identities/john@example.dev' => Http::response($identity),
         ]);
 

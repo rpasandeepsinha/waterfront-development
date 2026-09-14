@@ -63,7 +63,11 @@ class VersioHostingSeeder extends Seeder
             ['name' => 'hosting.limits.virtual_hosts', 'value' => 2, 'product_id' => $product->id],
             ['name' => 'services.technical_grace_period', 'value' => 30, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -193,7 +197,11 @@ class VersioHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_db', 'value' => -1, 'product_id' => $product->id],
             ['name' => ProductSpecName::SHOP_IS_MAILHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -273,7 +281,11 @@ class VersioHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_box', 'value' => -1, 'product_id' => $product->id],
             ['name' => ProductSpecName::SHOP_IS_WEBHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -353,7 +365,11 @@ class VersioHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_db', 'value' => -1, 'product_id' => $product->id],
             ['name' => ProductSpecName::SHOP_IS_MAILHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -433,7 +449,11 @@ class VersioHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_box', 'value' => -1, 'product_id' => $product->id],
             ['name' => ProductSpecName::SHOP_IS_WEBHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -513,7 +533,11 @@ class VersioHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_db', 'value' => -1, 'product_id' => $product->id],
             ['name' => ProductSpecName::SHOP_IS_MAILHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -593,7 +617,11 @@ class VersioHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_box', 'value' => 100, 'product_id' => $product->id],
             ['name' => ProductSpecName::SHOP_IS_WEBHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -673,7 +701,11 @@ class VersioHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_db', 'value' => 2, 'product_id' => $product->id],
             ['name' => ProductSpecName::SHOP_IS_MAILHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -753,7 +785,11 @@ class VersioHostingSeeder extends Seeder
             ['name' => 'hosting.limits.max_box', 'value' => 50, 'product_id' => $product->id],
             ['name' => ProductSpecName::SHOP_IS_WEBHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -833,7 +869,11 @@ class VersioHostingSeeder extends Seeder
             ['name' => 'hosting.limits.disk_space', 'value' => 5368709120, 'product_id' => $product->id],
             ['name' => ProductSpecName::SHOP_IS_MAILHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => false, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => false,
+                'product_id' => $product->id,
+            ],
             ['name' => 'hosting.limits.max_db', 'value' => 1, 'product_id' => $product->id],
             ['name' => 'hosting.limits.virtual_hosts', 'value' => 1, 'product_id' => $product->id],
             ['name' => 'services.technical_grace_period', 'value' => 30, 'product_id' => $product->id],
@@ -957,8 +997,16 @@ class VersioHostingSeeder extends Seeder
             ['name' => ProductSpecName::HOSTING_SERVICES_SPAM_FILTER, 'value' => 'yes', 'product_id' => $product->id],
             ['name' => ProductSpecName::SHOP_IS_WEBHOSTING_PRODUCT, 'value' => false, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => false, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
+            [
+                'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
             ['name' => ProductSpecName::HOSTING_LEGACY_MAIL_ONLY->value, 'value' => true, 'product_id' => $product->id],
             ['name' => 'services.technical_grace_period', 'value' => 30, 'product_id' => $product->id],
         ]);
@@ -1060,7 +1108,11 @@ class VersioHostingSeeder extends Seeder
             ['name' => 'hosting.limits.virtual_hosts', 'value' => 10, 'product_id' => $product->id],
             ['name' => 'services.technical_grace_period', 'value' => 30, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1161,7 +1213,11 @@ class VersioHostingSeeder extends Seeder
             ['name' => 'hosting.limits.disk_space', 'value' => 21474836480, 'product_id' => $product->id],
             ['name' => 'services.technical_grace_period', 'value' => 30, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1273,7 +1329,11 @@ class VersioHostingSeeder extends Seeder
             ['name' => 'hosting.limits.disk_space', 'value' => 16106127360, 'product_id' => $product->id],
             ['name' => 'services.technical_grace_period', 'value' => 30, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();
@@ -1393,7 +1453,11 @@ class VersioHostingSeeder extends Seeder
             ['name' => 'hosting.limits.virtual_hosts', 'value' => 10, 'product_id' => $product->id],
             ['name' => 'services.technical_grace_period', 'value' => 30, 'product_id' => $product->id],
             ['name' => ProductSpecName::HOSTING_HAS_WEBSITE->value, 'value' => true, 'product_id' => $product->id],
-            ['name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value, 'value' => true, 'product_id' => $product->id],
+            [
+                'name' => ProductSpecName::HOSTING_HAS_MAIL_MANAGEMENT->value,
+                'value' => true,
+                'product_id' => $product->id,
+            ],
         ]);
 
         $price = new ProductPriceComponent();

@@ -31,7 +31,7 @@ readonly class CancelSubscriptionsAction
      * @throws CancelCreditSubscriptionsException
      */
     public function execute(
-        Cancellation $cancellation
+        Cancellation $cancellation,
     ): void {
         $this->logger->notice('Executing cancel action', [
             LoggingContextKeys::META => [
@@ -40,7 +40,9 @@ readonly class CancelSubscriptionsAction
                     'reason' => $cancellation->getCancelReason()->value,
                     'reason_other' => $cancellation->getCancelReasonOther(),
                     'type' => $cancellation->getCancelType()->value,
-                    'type_other_date' => $cancellation->getSelectedCancellationEndDate()?->format(DateTimeFormat::DUTCH),
+                    'type_other_date' => $cancellation
+                        ->getSelectedCancellationEndDate()
+                        ?->format(DateTimeFormat::DUTCH),
                     'credit' => (int) $cancellation->shouldCreditRelatedInvoices(),
                 ],
             ],
@@ -51,10 +53,12 @@ readonly class CancelSubscriptionsAction
 
             $cancelReasonNote = sprintf(
                 'Reason: %s %s, type: %s, marked for credit: %s.',
-                $this->translator->translate('cancel_subscriptions.reason.' . strtolower($cancellation->getCancelReason()->name)),
+                $this->translator->translate(
+                    'cancel_subscriptions.reason.' . strtolower($cancellation->getCancelReason()->name),
+                ),
                 $cancellation->getCancelReasonOther(),
                 $this->translator->translate('cancel_subscriptions.cancel_type.' . strtolower($cancelType->name)),
-                $cancellation->shouldCreditRelatedInvoices() ? 'yes' : 'no'
+                $cancellation->shouldCreditRelatedInvoices() ? 'yes' : 'no',
             );
 
             foreach ($cancellation->getSubscriptions() as $subscription) {
@@ -79,7 +83,7 @@ readonly class CancelSubscriptionsAction
             throw new CancelCreditSubscriptionsException(
                 sprintf('Failed to cancel selected subscriptions: %s', $exception->getMessage()),
                 0,
-                $exception
+                $exception,
             );
         }
     }

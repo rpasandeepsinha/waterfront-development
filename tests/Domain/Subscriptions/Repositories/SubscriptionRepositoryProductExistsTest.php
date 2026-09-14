@@ -27,8 +27,8 @@ class SubscriptionRepositoryProductExistsTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        $group = new ProductGroupFactory()->createOne([ 'slug' => ProductGroupType::HOSTING, 'name' => 'Hosting' ]);
-        $product = new ProductFactory()->createOne([ 'product_group_id' => $group->id ]);
+        $group = new ProductGroupFactory()->createOne(['slug' => ProductGroupType::HOSTING, 'name' => 'Hosting']);
+        $product = new ProductFactory()->createOne(['product_group_id' => $group->id]);
 
         // Customer without subscription
         new CustomerFactory()->createOne(['id' => 1]);
@@ -81,8 +81,13 @@ class SubscriptionRepositoryProductExistsTest extends IntegrationTestCase
 
     #[DataProvider('productExistsData')]
     #[Test]
-    public function productExists(ProductGroupType $slug, string $domain, int | null $customerId, bool $expectation, string $message): void
-    {
+    public function productExists(
+        ProductGroupType $slug,
+        string $domain,
+        ?int $customerId,
+        bool $expectation,
+        string $message,
+    ): void {
         $repository = new SubscriptionRepository(
             self::createStub(PriceResolver::class),
             self::createStub(PricePersistService::class),
@@ -101,27 +106,141 @@ class SubscriptionRepositoryProductExistsTest extends IntegrationTestCase
     public static function productExistsData(): array
     {
         return [
-            [ProductGroupType::HOSTING, 'customerWithDomain.nl', 2, true, 'product of group exists on domain for customer with product'],
-            [ProductGroupType::HOSTING, 'customerWithDomain.nl', 1, false, 'product of group does not exist domain for customer without product'],
-            [ProductGroupType::HOSTING, 'customerWithDomain.nl', null, true, 'product of group exists on domain for any customer'],
-            [ProductGroupType::HOSTING, '_testdomain123.nl', 2, false, 'product of group does not exists on domain for customer with product'],
-            [ProductGroupType::HOSTING, '_testdomain123.nl', 1, false, 'product of group does not exists on domain for customer without product'],
-            [ProductGroupType::HOSTING, '_testdomain123.nl', null, false, 'product of group does not exists on domain for any customer'],
-            [ProductGroupType::DNS, 'customerWithDomain.nl', 2, false, 'product of group does not exists on domain for customer'],
-            [ProductGroupType::DNS, 'customerWithDomain.nl', 1, false, 'product of group does not exists on domain for customer'],
+            [
+                ProductGroupType::HOSTING,
+                'customerWithDomain.nl',
+                2,
+                true,
+                'product of group exists on domain for customer with product',
+            ],
+            [
+                ProductGroupType::HOSTING,
+                'customerWithDomain.nl',
+                1,
+                false,
+                'product of group does not exist domain for customer without product',
+            ],
+            [
+                ProductGroupType::HOSTING,
+                'customerWithDomain.nl',
+                null,
+                true,
+                'product of group exists on domain for any customer',
+            ],
+            [
+                ProductGroupType::HOSTING,
+                '_testdomain123.nl',
+                2,
+                false,
+                'product of group does not exists on domain for customer with product',
+            ],
+            [
+                ProductGroupType::HOSTING,
+                '_testdomain123.nl',
+                1,
+                false,
+                'product of group does not exists on domain for customer without product',
+            ],
+            [
+                ProductGroupType::HOSTING,
+                '_testdomain123.nl',
+                null,
+                false,
+                'product of group does not exists on domain for any customer',
+            ],
+            [
+                ProductGroupType::DNS,
+                'customerWithDomain.nl',
+                2,
+                false,
+                'product of group does not exists on domain for customer',
+            ],
+            [
+                ProductGroupType::DNS,
+                'customerWithDomain.nl',
+                1,
+                false,
+                'product of group does not exists on domain for customer',
+            ],
             [ProductGroupType::DNS, '_testdomain123.nl', 2, false, 'product of group does not exists for any customer'],
             [ProductGroupType::DNS, '_testdomain123.nl', 1, false, 'product of group does not exists for any customer'],
-            [ProductGroupType::DNS, 'customerWithDomain.nl', null, false, 'product of group does not exists on domain for customer'],
-            [ProductGroupType::DNS, '_testdomain123.nl', null, false, 'product of group does not exists for any customer'],
-            [ProductGroupType::HOSTING, 'customerWithSecondDomain.nl', 1, false, 'cancelled product of group does not exist domain for customer without product'],
-            [ProductGroupType::HOSTING, 'customerWithSecondDomain.nl', 2, true, 'cancelled product of group does exist on domain for customer without product'],
-            [ProductGroupType::HOSTING, 'customerWithSecondDomain.nl', null, true, 'cancelled product of group exists on domain for any customer'],
-            [ProductGroupType::HOSTING, 'customerWithThirdDomain.nl', 1, false, 'deleted product of group does not exist domain for customer without product'],
-            [ProductGroupType::HOSTING, 'customerWithThirdDomain.nl', 2, false, 'deleted product of group does exist on domain for customer without product'],
-            [ProductGroupType::HOSTING, 'customerWithThirdDomain.nl', null, false, 'deleted product of group exists on domain for any customer'],
-            [ProductGroupType::HOSTING, 'customerWithFourthDomain.nl', 1, false, 'random status product of group does not exist domain for customer without product'],
-            [ProductGroupType::HOSTING, 'customerWithFourthDomain.nl', 2, true, 'random status product of group does exist on domain for customer without product'],
-            [ProductGroupType::HOSTING, 'customerWithFourthDomain.nl', null, true, 'random status product of group exists on domain for any customer'],
+            [
+                ProductGroupType::DNS,
+                'customerWithDomain.nl',
+                null,
+                false,
+                'product of group does not exists on domain for customer',
+            ],
+            [
+                ProductGroupType::DNS,
+                '_testdomain123.nl',
+                null,
+                false,
+                'product of group does not exists for any customer',
+            ],
+            [
+                ProductGroupType::HOSTING,
+                'customerWithSecondDomain.nl',
+                1,
+                false,
+                'cancelled product of group does not exist domain for customer without product',
+            ],
+            [
+                ProductGroupType::HOSTING,
+                'customerWithSecondDomain.nl',
+                2,
+                true,
+                'cancelled product of group does exist on domain for customer without product',
+            ],
+            [
+                ProductGroupType::HOSTING,
+                'customerWithSecondDomain.nl',
+                null,
+                true,
+                'cancelled product of group exists on domain for any customer',
+            ],
+            [
+                ProductGroupType::HOSTING,
+                'customerWithThirdDomain.nl',
+                1,
+                false,
+                'deleted product of group does not exist domain for customer without product',
+            ],
+            [
+                ProductGroupType::HOSTING,
+                'customerWithThirdDomain.nl',
+                2,
+                false,
+                'deleted product of group does exist on domain for customer without product',
+            ],
+            [
+                ProductGroupType::HOSTING,
+                'customerWithThirdDomain.nl',
+                null,
+                false,
+                'deleted product of group exists on domain for any customer',
+            ],
+            [
+                ProductGroupType::HOSTING,
+                'customerWithFourthDomain.nl',
+                1,
+                false,
+                'random status product of group does not exist domain for customer without product',
+            ],
+            [
+                ProductGroupType::HOSTING,
+                'customerWithFourthDomain.nl',
+                2,
+                true,
+                'random status product of group does exist on domain for customer without product',
+            ],
+            [
+                ProductGroupType::HOSTING,
+                'customerWithFourthDomain.nl',
+                null,
+                true,
+                'random status product of group exists on domain for any customer',
+            ],
         ];
     }
 }

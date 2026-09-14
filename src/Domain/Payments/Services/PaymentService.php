@@ -40,8 +40,11 @@ class PaymentService
     /**
      * @throws PaymentException
      */
-    public function createPayment(Customer $customer, PaymentParameters $parameters, ?bool $createDirectDebitMandate): Payment
-    {
+    public function createPayment(
+        Customer $customer,
+        PaymentParameters $parameters,
+        ?bool $createDirectDebitMandate,
+    ): Payment {
         $result = $this->client->createPayment($parameters);
         if ($result->getStatus() === Result::STATUS_ERROR) {
             throw new CreatePaymentException($result->getErrorMessage(), $result->getErrorCode());
@@ -57,7 +60,7 @@ class PaymentService
 
         $payment = new Payment();
         $payment->external_id = $paymentData['id'];
-        $payment->amount = (int) (round(Format::stringToNumber($paymentData['amount']['value']) * 100));
+        $payment->amount = (int) round(Format::stringToNumber($paymentData['amount']['value']) * 100);
         $payment->status = PaymentStatus::from($paymentData['status']);
         $payment->create_direct_debit_mandate = $createDirectDebitMandate;
 
@@ -122,24 +125,40 @@ class PaymentService
             $this->logger->info('Payments: customer already has direct debit mandate, skipping creation from payment result', [
                 LoggingContextKeys::CUSTOMER_ID => $customer->id,
             ]);
+
             return;
         }
 
         /** @var string|null $consumerAccount */
         $consumerAccount = Arr::get($paymentResult->getPaymentData(), 'details.consumerAccount');
         if ($consumerAccount === null) {
-            $this->logger->error('Payments: cannot create direct debit mandate from payment result - details.consumerAccount is missing from response data', [
-                LoggingContextKeys::CUSTOMER_ID => $customer->id,
-                LoggingContextKeys::RESPONSE_DATA => (string) json_encode($paymentResult),
-            ]);
+            $this->logger->error(
+                'Payments: cannot create direct debit mandate from payment result - details.consumerAccount is missing from response data',
+                [
+                    LoggingContextKeys::CUSTOMER_ID => $customer->id,
+                    LoggingContextKeys::RESPONSE_DATA => (string) json_encode($paymentResult),
+                ],
+            );
+
             return;
         }
 
-        $this->logger->debug(sprintf('Dispatching request direct debit mandate job for customer %s', $customer->customer_number), [
-            LoggingContextKeys::CUSTOMER_ID => $customer->id,
-            LoggingContextKeys::RESPONSE_DATA => (string) json_encode($paymentResult),
-        ]);
+        $this->logger->debug(
+            sprintf('Dispatching request direct debit mandate job for customer %s', $customer->customer_number),
+            [
+                LoggingContextKeys::CUSTOMER_ID => $customer->id,
+                LoggingContextKeys::RESPONSE_DATA => (string) json_encode($paymentResult),
+            ],
+        );
 
-        $this->jobDispatcher->dispatch(new RequestDirectDebitMandateJob($customer->name, $consumerAccount, null, $customer, CarbonImmutable::now()));
+        $this->jobDispatcher->dispatch(
+            new RequestDirectDebitMandateJob(
+                $customer->name,
+                $consumerAccount,
+                null,
+                $customer,
+                CarbonImmutable::now(),
+            ),
+        );
     }
 }

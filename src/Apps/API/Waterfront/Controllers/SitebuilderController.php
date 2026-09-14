@@ -34,8 +34,9 @@ class SitebuilderController
             $this->logger->error(sprintf(
                 'Failed to generate sso url for domain : {%s} message: {%s}',
                 $domain,
-                $e->getMessage()
+                $e->getMessage(),
             ));
+
             return new JsonResponse(['message' => 'Failed to generate SSO Url'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 

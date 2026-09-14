@@ -9,8 +9,9 @@ use Waterfront\Domain\Translations\Models\TranslationString;
 
 class TranslationStringObserver
 {
-    public function __construct(private readonly TranslationLoader $loader)
-    {
+    public function __construct(
+        private readonly TranslationLoader $loader,
+    ) {
     }
 
     public function updated(TranslationString $translationString): void

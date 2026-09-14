@@ -65,8 +65,9 @@ class Harbor implements CommunicatesWithHarbor
                 'Not propagating invoice {invoice_line.wf_id} as Harbor is currently disabled.',
                 [
                     LoggingContextKeys::INVOICE_LINE_ID => $invoice->id,
-            ]
+                ],
             );
+
             return;
         }
 
@@ -74,20 +75,23 @@ class Harbor implements CommunicatesWithHarbor
             'Getting information to propagate invoice {invoice_line.wf_id} to Harbor.',
             [
                 LoggingContextKeys::INVOICE_LINE_ID => $invoice->id,
-            ]
+            ],
         );
 
         if ($invoice->exists === false) {
             throw InvoiceLineToHarborException::invoiceNotStoredInWaterfront(
                 $invoice->customer_id,
-                $invoice->subscription_id
+                $invoice->subscription_id,
             );
         }
 
         $customer = $invoice->customer;
         $subscription = $invoice->subscription;
         $product = $invoice->product;
-        $prepaidReference = $invoice->prepaid_reference ?? $this->invoiceRepository->findPrepaidPayment($invoice->paid, $subscription);
+        $prepaidReference = $invoice->prepaid_reference ?? $this->invoiceRepository->findPrepaidPayment(
+            $invoice->paid,
+            $subscription,
+        );
 
         if ($invoice->vat_code === null || $invoice->vat_rate === null) {
             $customerVatDTO = $this->vatService->getCustomerVatData($customer);
@@ -96,12 +100,16 @@ class Harbor implements CommunicatesWithHarbor
             $invoice->vat_rate = $customerVatDTO->vatRate;
         }
 
-        $message = $this->messageService->build($customer, [$invoice], [new InvoiceLineMessageConfig(
-            invoice: $invoice,
-            product: $product,
-            subscription: $subscription,
-            prepaidReference: $prepaidReference,
-        )]);
+        $message = $this->messageService->build(
+            $customer,
+            [$invoice],
+            [new InvoiceLineMessageConfig(
+                invoice: $invoice,
+                product: $product,
+                subscription: $subscription,
+                prepaidReference: $prepaidReference,
+            )],
+        );
 
         $this->logger->debug(
             'Propagating invoice {invoice_line.wf_id} to Harbor.',
@@ -109,7 +117,7 @@ class Harbor implements CommunicatesWithHarbor
                 LoggingContextKeys::INVOICE_LINE_ID => $invoice->id,
                 LoggingContextKeys::CUSTOMER_ID => $customer->id,
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription?->id,
-            ]
+            ],
         );
 
         $this->sendMessage($message);
@@ -120,7 +128,7 @@ class Harbor implements CommunicatesWithHarbor
                 LoggingContextKeys::INVOICE_LINE_ID => $invoice->id,
                 LoggingContextKeys::CUSTOMER_ID => $customer->id,
                 LoggingContextKeys::SUBSCRIPTION_ID => $subscription?->id,
-            ]
+            ],
         );
 
         $invoice->sent_to_harbor_at = CarbonImmutable::now();
@@ -137,9 +145,10 @@ class Harbor implements CommunicatesWithHarbor
             $this->logger->warning(
                 'Not propagating customer {customer.id} as Harbor is currently disabled.',
                 [
-                LoggingContextKeys::CUSTOMER_ID => $customer->id,
-            ]
+                    LoggingContextKeys::CUSTOMER_ID => $customer->id,
+                ],
             );
+
             return;
         }
 
@@ -147,7 +156,7 @@ class Harbor implements CommunicatesWithHarbor
             'Getting information to propagate customer {customer.id} to Harbor.',
             [
                 LoggingContextKeys::CUSTOMER_ID => $customer->id,
-            ]
+            ],
         );
 
         $message = $this->buildMessageForCustomerOnly($customer);
@@ -156,7 +165,7 @@ class Harbor implements CommunicatesWithHarbor
             'Propagating customer {customer.id} to Harbor.',
             [
                 LoggingContextKeys::CUSTOMER_ID => $customer->id,
-            ]
+            ],
         );
 
         $this->sendMessage($message);
@@ -165,7 +174,7 @@ class Harbor implements CommunicatesWithHarbor
             'Successfully propagated customer {customer.id} to Harbor.',
             [
                 LoggingContextKeys::CUSTOMER_ID => $customer->id,
-            ]
+            ],
         );
     }
 
@@ -179,7 +188,7 @@ class Harbor implements CommunicatesWithHarbor
             $this->configuration->getAsInteger('harbor.port'),
             $this->configuration->getAsString('harbor.user'),
             $this->configuration->getAsString('harbor.password'),
-            $this->configuration->getAsString('harbor.vhost')
+            $this->configuration->getAsString('harbor.vhost'),
         );
     }
 
@@ -209,7 +218,7 @@ class Harbor implements CommunicatesWithHarbor
                 default:
                     $this->logger->error(sprintf(
                         'No handler defined for received message: %s',
-                        $message::class
+                        $message::class,
                     ));
             }
 
@@ -219,7 +228,7 @@ class Harbor implements CommunicatesWithHarbor
                 'Failed deserializing HarborMessage: {exception.message}',
                 [
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
             throw $exception;
         } catch (Throwable $throwable) {
@@ -227,7 +236,7 @@ class Harbor implements CommunicatesWithHarbor
                 'Failed to process received message HarborMessage: {exception.message}',
                 [
                     LoggingContextKeys::EXCEPTION => $throwable,
-                ]
+                ],
             );
             throw $throwable;
         }
@@ -244,13 +253,16 @@ class Harbor implements CommunicatesWithHarbor
         $serializedMessage = $this->jsonSerializer->encode($message);
 
         $channel = $connection->channel();
-        $channel->queue_bind(queue: $this->configuration->getAsString('harbor.queue_incoming'), exchange: $this->configuration->getAsString('harbor.exchange'));
+        $channel->queue_bind(
+            queue: $this->configuration->getAsString('harbor.queue_incoming'),
+            exchange: $this->configuration->getAsString('harbor.exchange'),
+        );
 
         try {
             $channel->basic_publish(
                 msg: new AMQPMessage(
                     body: $serializedMessage,
-                    properties: ['delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT]
+                    properties: ['delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT],
                 ),
                 exchange: 'messages',
             );
@@ -271,7 +283,7 @@ class Harbor implements CommunicatesWithHarbor
                 $exception,
                 $channel->is_open(),
                 $connection->isConnected(),
-                $connection->isBlocked()
+                $connection->isBlocked(),
             );
         }
 

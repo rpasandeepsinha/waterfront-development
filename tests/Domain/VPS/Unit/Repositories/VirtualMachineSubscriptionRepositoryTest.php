@@ -52,7 +52,7 @@ class VirtualMachineSubscriptionRepositoryTest extends IntegrationTestCase
 
         $expectedMessage = sprintf(
             'Could not find a subscription for VM %s with a Cloudstack OS as child subscription.',
-            $vpsSubscription->uuid
+            $vpsSubscription->uuid,
         );
 
         $this->expectException(VirtualMachineNotFoundException::class);

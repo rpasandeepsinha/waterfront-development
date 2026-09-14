@@ -37,7 +37,7 @@ parameters:
 			path: database/seeds/Scenarios/BulkSeeder.php
 
 		-
-			message: '#^Thrown exceptions in a catch block must bundle the previous exception \(see throw statement line 46\)\.$#'
+			message: '#^Thrown exceptions in a catch block must bundle the previous exception \(see throw statement line 48\)\.$#'
 			identifier: thecodingmachine.previousExceptionNotBundled
 			count: 1
 			path: src/Apps/API/Compass/Controllers/ManualMigrationController.php
@@ -130,7 +130,7 @@ parameters:
 			path: src/Apps/API/Waterfront/Controllers/DomainContactController.php
 
 		-
-			message: '#^Thrown exceptions in a catch block must bundle the previous exception \(see throw statement line 238\)\.$#'
+			message: '#^Thrown exceptions in a catch block must bundle the previous exception \(see throw statement line 240\)\.$#'
 			identifier: thecodingmachine.previousExceptionNotBundled
 			count: 1
 			path: src/Apps/API/Waterfront/Controllers/DomainContactController.php
@@ -388,12 +388,6 @@ parameters:
 			path: src/Apps/Nova/NovaServiceProvider.php
 
 		-
-			message: '#^Parameter \#2 \$callback of function array_filter expects \(callable\(mixed\)\: bool\)\|null, Closure\(mixed\)\: mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Apps/Nova/OneTimeServices/Filters/NovaStatusFilter.php
-
-		-
 			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Waterfront\\Domain\\Products\\Models\\Product\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: method.unresolvableReturnType
 			count: 2
@@ -586,34 +580,16 @@ parameters:
 			path: src/Domain/DNS/Services/Templates/TemplateService.php
 
 		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Domains/DTO/Extension.php
-
-		-
 			message: '#^Method Waterfront\\Domain\\Domains\\DTO\\Extension\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Domain/Domains/DTO/Extension.php
 
 		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Domains/DTO/HandleParameters.php
-
-		-
 			message: '#^Method Waterfront\\Domain\\Domains\\DTO\\HandleParameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Domain/Domains/DTO/HandleParameters.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Domains/DTO/ModifyHandles.php
 
 		-
 			message: '#^Method Waterfront\\Domain\\Domains\\DTO\\ModifyParameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
@@ -628,12 +604,6 @@ parameters:
 			path: src/Domain/Domains/DTO/ModifyParameters.php
 
 		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Domains/DTO/RegistrationParameters.php
-
-		-
 			message: '#^Method Waterfront\\Domain\\Domains\\DTO\\RegistrationParameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -644,12 +614,6 @@ parameters:
 			identifier: varTag.nativeType
 			count: 1
 			path: src/Domain/Domains/DTO/RetrieveResult.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Domains/DTO/TransferParameters.php
 
 		-
 			message: '#^Method Waterfront\\Domain\\Domains\\DTO\\TransferParameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
@@ -946,12 +910,6 @@ parameters:
 			path: src/Domain/Hosting/Interfaces/Hosting/Models/DeleteCustomer/Parameters.php
 
 		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Hosting/Interfaces/Hosting/Models/DeleteCustomer/Result.php
-
-		-
 			message: '#^Class "Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\DeleteCustomer\\Result" is not allowed to extend "Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\Result"\. Try to extend abstract classes only\.$#'
 			identifier: sandwave.custom
 			count: 1
@@ -1024,12 +982,6 @@ parameters:
 			path: src/Domain/Hosting/Interfaces/Hosting/Models/SecretKeyCreate/Result.php
 
 		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Hosting/Interfaces/Hosting/Models/SecretKeyGet/Result.php
-
-		-
 			message: '#^Method Waterfront\\Domain\\Hosting\\Interfaces\\Hosting\\Models\\SecretKeyGet\\Result\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1040,12 +992,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Domain/Hosting/Models/SpamExpertsCluster.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Hosting/Plesk/Services/PleskHostingService.php
 
 		-
 			message: '#^In method "Waterfront\\Domain\\Hosting\\Plesk\\Services\\PleskHostingService\:\:installCertificate", caught "Exception" must be rethrown\.$#'
@@ -1118,12 +1064,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Domain/MailManagement/Services/MailManagementService.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Mailer/PayloadSerializer.php
 
 		-
 			message: '#^Access to an undefined property Waterfront\\Infra\\HubspotClient\\DTO\\HubspotContactRequestDTO\:\:\$isMarketable\.$#'
@@ -1211,12 +1151,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Domain/Payments/Models/Payment.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Payments/Models/Result.php
 
 		-
 			message: '#^Method Waterfront\\Domain\\Payments\\Models\\Result\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
@@ -1441,22 +1375,10 @@ parameters:
 			path: src/Domain/Ssl/Factories/SslServiceFactory.php
 
 		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Ssl/Interfaces/Models/Approver/Parameters.php
-
-		-
 			message: '#^Method Waterfront\\Domain\\Ssl\\Interfaces\\Models\\Approver\\Parameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Domain/Ssl/Interfaces/Models/Approver/Parameters.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Ssl/Interfaces/Models/Approver/Result.php
 
 		-
 			message: '#^Method Waterfront\\Domain\\Ssl\\Interfaces\\Models\\Approver\\Result\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
@@ -1465,22 +1387,10 @@ parameters:
 			path: src/Domain/Ssl/Interfaces/Models/Approver/Result.php
 
 		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Ssl/Interfaces/Models/CertificateInstall/Parameters.php
-
-		-
 			message: '#^Method Waterfront\\Domain\\Ssl\\Interfaces\\Models\\CertificateInstall\\Parameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Domain/Ssl/Interfaces/Models/CertificateInstall/Parameters.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Ssl/Interfaces/Models/Parameters.php
 
 		-
 			message: '#^Method Waterfront\\Domain\\Ssl\\Interfaces\\Models\\Parameters\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
@@ -1489,22 +1399,10 @@ parameters:
 			path: src/Domain/Ssl/Interfaces/Models/Parameters.php
 
 		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Ssl/Interfaces/Models/Result.php
-
-		-
 			message: '#^Method Waterfront\\Domain\\Ssl\\Interfaces\\Models\\Result\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Domain/Ssl/Interfaces/Models/Result.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Domain/Ssl/Models/CsrData.php
 
 		-
 			message: '#^Namespace Carbon\\Carbon is forbidden, Carbon is mutable, please use CarbonImmutable instead\.$#'
@@ -1639,7 +1537,7 @@ parameters:
 			path: src/Domain/Subscriptions/Services/SubscriptionChangeService.php
 
 		-
-			message: '#^Thrown exceptions in a catch block must bundle the previous exception \(see throw statement line 64\)\.$#'
+			message: '#^Thrown exceptions in a catch block must bundle the previous exception \(see throw statement line 68\)\.$#'
 			identifier: thecodingmachine.previousExceptionNotBundled
 			count: 1
 			path: src/Domain/Subscriptions/Services/SubscriptionMetadataService.php
@@ -1870,12 +1768,6 @@ parameters:
 			path: src/Infra/News/Repositories/CachedNewsRepository.php
 
 		-
-			message: '#^Class "Waterfront\\Infra\\OpenSrsClient\\Fakers\\OpenSrsClientFaker" is not allowed to extend "Waterfront\\Infra\\OpenSrsClient\\OpenSrsClient"\. Try to extend abstract classes only\.$#'
-			identifier: sandwave.custom
-			count: 1
-			path: src/Infra/OpenSrsClient/Fakers/OpenSrsClientFaker.php
-
-		-
 			message: '#^Class "Waterfront\\Infra\\OpenproviderClient\\Fakers\\OpenproviderClientFaker" is not allowed to extend "Waterfront\\Infra\\OpenproviderClient\\OpenproviderClient"\. Try to extend abstract classes only\.$#'
 			identifier: sandwave.custom
 			count: 1
@@ -1898,12 +1790,6 @@ parameters:
 			identifier: equal.notAllowed
 			count: 1
 			path: src/Infra/OpenproviderClient/Messages/DomainHandleResponse.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Infra/OpenproviderClient/Messages/DomainModifyRequest.php
 
 		-
 			message: '#^Parameter \#1 \$message of method Waterfront\\Infra\\OpenproviderClient\\Messages\\DomainModifyRequest\:\:setPrivateWhois\(\) expects array\<array\<mixed\>\>, array\<mixed\> given\.$#'
@@ -1934,12 +1820,6 @@ parameters:
 			identifier: equal.notAllowed
 			count: 1
 			path: src/Infra/OpenproviderClient/Messages/ExtensionRetrieveResponse.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Infra/OpenproviderClient/Messages/NameServer.php
 
 		-
 			message: '#^Loose comparison via "\=\=" is not allowed\.$#'
@@ -2020,24 +1900,6 @@ parameters:
 			path: src/Infra/PleskClient/Fakers/PleskClientFaker.php
 
 		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Infra/PleskClient/Messages/CustomerGetDomainList/CustomerGetDomainListResult.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Infra/PleskClient/Messages/DnsGetRecords/DnsRecordsResult.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Infra/PleskClient/Messages/EmailGetAccountSettings/Result.php
-
-		-
 			message: '#^Cannot access offset ''result'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -2054,24 +1916,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Infra/PleskClient/Messages/EmailGetAccountSettings/Result.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Infra/PleskClient/Messages/EmailGetPreferences/Result.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Infra/PleskClient/Messages/HostingCreate/MailOnlyRequest.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Infra/PleskClient/Messages/HostingCreate/Request.php
 
 		-
 			message: '#^Loose comparison via "\!\=" is not allowed\.$#'
@@ -2150,12 +1994,6 @@ parameters:
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Infra/RtrClient/Services/RtrService.php
-
-		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
-			identifier: arrayFilter.strict
-			count: 1
-			path: src/Infra/RtrClient/Services/Ssl/CertificateDownloader.php
 
 		-
 			message: '#^Class "Waterfront\\Infra\\SpamExpertsClient\\SpamExpertsClientFaker" is not allowed to extend "Waterfront\\Infra\\SpamExpertsClient\\SpamExpertsClient"\. Try to extend abstract classes only\.$#'

@@ -23,16 +23,20 @@ class PleskClientException extends Exception
                 $errorCode,
                 $ErrorMessage,
             ),
-            $errorCode
+            $errorCode,
         );
     }
 
-    public static function noPleskClientSessionTokenFound(string $username, string $ipAddress, string $statusMessage, int $responseCode): self
-    {
+    public static function noPleskClientSessionTokenFound(
+        string $username,
+        string $ipAddress,
+        string $statusMessage,
+        int $responseCode,
+    ): self {
         $message = sprintf(
             'There was no session token retrieved for the username : %s coming from ip address : %s.',
             $username,
-            $ipAddress
+            $ipAddress,
         );
 
         Log::info(
@@ -42,10 +46,10 @@ class PleskClientException extends Exception
                     'result' => sprintf(
                         'Received the status message %s with the response code %s',
                         $statusMessage,
-                        $responseCode
+                        $responseCode,
                     ),
                 ],
-            ]
+            ],
         );
 
         return new PleskClientException(
@@ -58,7 +62,7 @@ class PleskClientException extends Exception
         return new PleskClientException(
             sprintf(
                 'The certificate installation failed for domain: %s.',
-                $domain
+                $domain,
             ),
             $code,
         );
@@ -69,7 +73,7 @@ class PleskClientException extends Exception
         return new PleskClientException(
             sprintf(
                 'Can not select the certificate for domain: %s.',
-                $domain
+                $domain,
             ),
             $code,
         );
@@ -85,7 +89,7 @@ class PleskClientException extends Exception
         return new PleskClientException(
             sprintf(
                 'The API url %s is invalid.',
-                $apiUrl
+                $apiUrl,
             ),
         );
     }
@@ -95,7 +99,7 @@ class PleskClientException extends Exception
         return new PleskClientException(
             sprintf(
                 '%s',
-                $argument
+                $argument,
             ),
         );
     }
@@ -105,7 +109,7 @@ class PleskClientException extends Exception
         return new PleskClientException(
             sprintf(
                 'Service plan %s was not found on the given plesk server',
-                $servicePlanName
+                $servicePlanName,
             ),
         );
     }
@@ -115,7 +119,7 @@ class PleskClientException extends Exception
         return new PleskClientException(
             sprintf(
                 'Technical downgrade cannot be performed. Mailname %s mailbox type does not match forwarding type',
-                $mailName
+                $mailName,
             ),
         );
     }

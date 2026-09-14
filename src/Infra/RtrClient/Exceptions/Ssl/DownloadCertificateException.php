@@ -14,23 +14,27 @@ class DownloadCertificateException extends Exception
         return new self(
             sprintf(
                 'Cannot download certificate without certificate id on SSL deployment #%s',
-                $sslDeploymentId
-            )
+                $sslDeploymentId,
+            ),
         );
     }
 
-    public static function couldNotDownloadCertificate(int $sslDeploymentId, int $rtrCertificateId, string $format, Throwable $previousException): self
-    {
+    public static function couldNotDownloadCertificate(
+        int $sslDeploymentId,
+        int $rtrCertificateId,
+        string $format,
+        Throwable $previousException,
+    ): self {
         return new self(
             sprintf(
                 'Download certificate #%s failed for ssl deployment #%s in format %s: %s',
                 $rtrCertificateId,
                 $sslDeploymentId,
                 $format,
-                $previousException->getMessage()
+                $previousException->getMessage(),
             ),
             0,
-            $previousException
+            $previousException,
         );
     }
 
@@ -40,10 +44,10 @@ class DownloadCertificateException extends Exception
             sprintf(
                 'Could not store certificate #%s: %s',
                 $sslDeploymentId,
-                $previousException->getMessage()
+                $previousException->getMessage(),
             ),
             0,
-            $previousException
+            $previousException,
         );
     }
 }

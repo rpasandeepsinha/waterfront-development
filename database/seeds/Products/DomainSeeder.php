@@ -13,7 +13,6 @@ use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use Waterfront\Domain\Domains\Models\DomainProviderBusinessUnit;
 use Waterfront\Domain\Domains\Models\OpenproviderProviderCredentials;
-use Waterfront\Domain\Domains\Models\OpenSrsProviderCredentials;
 use Waterfront\Domain\Domains\Models\RtrProviderCredentials;
 use Waterfront\Domain\Pricing\Enums\PriceComponentType;
 use Waterfront\Domain\Pricing\Models\ProductIntroductionDiscount;
@@ -155,6 +154,17 @@ class DomainSeeder extends Seeder
         $price->expires_at = null;
         $price->save();
 
+        $price = new ProductPriceComponent();
+        $price->product_id = $product->id;
+        $price->price = 1250;
+        $price->contract_period = 12;
+        $price->billing_period = 12;
+        $price->orderable = true;
+        $price->starts_at = CarbonImmutable::now();
+        $price->type = PriceComponentType::EXPERIMENT_PRICE_LADDER;
+        $price->expires_at = null;
+        $price->save();
+
         $productPromotion = new ProductPromotion();
         $productPromotion->product_id = $product->id;
         $productPromotion->uuid = Uuid::uuid4();
@@ -171,6 +181,12 @@ class DomainSeeder extends Seeder
         $productPromotion->start_date = CarbonImmutable::today()->subMonth();
         $productPromotion->end_date = CarbonImmutable::today()->addMonths(6);
         $productPromotion->save();
+
+        $introductionPrice = new ProductIntroductionDiscount();
+        $introductionPrice->product_id = $product->id;
+        $introductionPrice->contract_period = 12;
+        $introductionPrice->max_uses_per_customer = 5;
+        $introductionPrice->save();
     }
 
     private function be(ProductGroup $group): void
@@ -195,9 +211,27 @@ class DomainSeeder extends Seeder
         ]);
 
         $priceDataList = [
-            ['contract_period' => 12, 'billing_period' => 12, 'regular_price' => 3299, 'promotion_price' => 499, 'is_default' => true],
-            ['contract_period' => 24, 'billing_period' => 24, 'regular_price' => 5298, 'promotion_price' => 998, 'is_default' => false],
-            ['contract_period' => 36, 'billing_period' => 36, 'regular_price' => 6897, 'promotion_price' => 1497, 'is_default' => false],
+            [
+                'contract_period' => 12,
+                'billing_period' => 12,
+                'regular_price' => 3299,
+                'promotion_price' => 499,
+                'is_default' => true,
+            ],
+            [
+                'contract_period' => 24,
+                'billing_period' => 24,
+                'regular_price' => 5298,
+                'promotion_price' => 998,
+                'is_default' => false,
+            ],
+            [
+                'contract_period' => 36,
+                'billing_period' => 36,
+                'regular_price' => 6897,
+                'promotion_price' => 1497,
+                'is_default' => false,
+            ],
         ];
 
         foreach ($priceDataList as $priceData) {
@@ -885,13 +919,6 @@ class DomainSeeder extends Seeder
         $opProvider->enabled = false;
         $opProvider->default = false;
         $opProvider->save();
-
-        $openSrsProvider = new Provider();
-        $openSrsProvider->type = ProviderType::DOMAIN;
-        $openSrsProvider->slug = ProviderSlug::OPEN_SRS;
-        $openSrsProvider->enabled = false;
-        $openSrsProvider->default = false;
-        $openSrsProvider->save();
     }
 
     private function getDefaultProviderId(): int
@@ -917,8 +944,14 @@ class DomainSeeder extends Seeder
 
     private function providerCredentials(): void
     {
-        $wfBusinessUnit = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_BUSINESS_UNIT_WATERFRONT, DomainProviderBusinessUnit::class);
-        $argeWebBusinessUnit = $this->referenceRepo->get(ProductReference::DOMAIN_PROVIDER_BUSINESS_UNIT_ARGEWEB, DomainProviderBusinessUnit::class);
+        $wfBusinessUnit = $this->referenceRepo->get(
+            ProductReference::DOMAIN_PROVIDER_BUSINESS_UNIT_WATERFRONT,
+            DomainProviderBusinessUnit::class,
+        );
+        $argeWebBusinessUnit = $this->referenceRepo->get(
+            ProductReference::DOMAIN_PROVIDER_BUSINESS_UNIT_ARGEWEB,
+            DomainProviderBusinessUnit::class,
+        );
 
         $wfRtrProviderCredentials = new RtrProviderCredentials();
         $wfRtrProviderCredentials->api_url = 'http://mock:3000/rtr/';
@@ -947,19 +980,5 @@ class DomainSeeder extends Seeder
         $argeWebOpProviderCredentials->password = 'password';
         $argeWebOpProviderCredentials->domain_business_unit_id = $argeWebBusinessUnit->id;
         $argeWebOpProviderCredentials->save();
-
-        $wfOpenSrsProviderCredentials = new OpenSrsProviderCredentials();
-        $wfOpenSrsProviderCredentials->api_url = 'http://mock:3000/opensrs';
-        $wfOpenSrsProviderCredentials->username = 'username';
-        $wfOpenSrsProviderCredentials->api_key = 'api_key';
-        $wfOpenSrsProviderCredentials->domain_business_unit_id = $wfBusinessUnit->id;
-        $wfOpenSrsProviderCredentials->save();
-
-        $argeWebOpenSrsProviderCredentials = new OpenSrsProviderCredentials();
-        $argeWebOpenSrsProviderCredentials->api_url = 'http://mock:3000/opensrs';
-        $argeWebOpenSrsProviderCredentials->username = 'username';
-        $argeWebOpenSrsProviderCredentials->api_key = 'api_key';
-        $argeWebOpenSrsProviderCredentials->domain_business_unit_id = $argeWebBusinessUnit->id;
-        $argeWebOpenSrsProviderCredentials->save();
     }
 }

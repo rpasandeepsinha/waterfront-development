@@ -61,7 +61,7 @@ class MailOnlyMigrationPipe extends ValidationPipe
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Start'
+            message: 'Start',
         );
 
         /** @var array<int, array<string, mixed>> $mailOnlyPayloadsArray */
@@ -69,7 +69,7 @@ class MailOnlyMigrationPipe extends ValidationPipe
 
         $validator = $this->validatorFactory->make(
             $mailOnlyPayloadsArray,
-            MigrationValidationLibrary::getMailOnlyBaseRules()
+            MigrationValidationLibrary::getMailOnlyBaseRules(),
         );
 
         try {
@@ -81,24 +81,39 @@ class MailOnlyMigrationPipe extends ValidationPipe
                 messages: $exception->validator->errors()->toArray(),
             );
 
-            return $this->finishPipe(MigrationValidation::MAIL_ONLY_MIGRATION_PIPE_PASSED, $payload, $this->logger, $next);
+            return $this->finishPipe(
+                MigrationValidation::MAIL_ONLY_MIGRATION_PIPE_PASSED,
+                $payload,
+                $this->logger,
+                $next,
+            );
         }
 
         try {
             /** @var array<int, ValidationHostingSubscriptionPayload> $mailOnlyPayloads */
-            $mailOnlyPayloads = $this->serializer->denormalize($mailOnlyPayloadsArray, ValidationHostingSubscriptionPayload::class . '[]');
-        } catch (MissingConstructorArgumentsException|NotNormalizableValueException|PartialDenormalizationException $exception) {
+            $mailOnlyPayloads = $this->serializer->denormalize(
+                $mailOnlyPayloadsArray,
+                ValidationHostingSubscriptionPayload::class . '[]',
+            );
+        } catch (
+            MissingConstructorArgumentsException|NotNormalizableValueException|PartialDenormalizationException $exception
+        ) {
             $this->addValidationResult(
                 validationPayload: $payload,
                 migrationValidationKey: MigrationValidation::MAIL_ONLY_MIGRATION_PAYLOAD_INVALID,
                 message: 'Unable to denormalize mail only migration validation payload',
                 data: [
-                    'payload'   => $mailOnlyPayloadsArray,
+                    'payload' => $mailOnlyPayloadsArray,
                     'exception' => $exception->getMessage(),
                 ],
             );
 
-            return $this->finishPipe(MigrationValidation::MAIL_ONLY_MIGRATION_PIPE_PASSED, $payload, $this->logger, $next);
+            return $this->finishPipe(
+                MigrationValidation::MAIL_ONLY_MIGRATION_PIPE_PASSED,
+                $payload,
+                $this->logger,
+                $next,
+            );
         }
 
         foreach ($mailOnlyPayloads as $mailOnlyPayload) {
@@ -107,7 +122,7 @@ class MailOnlyMigrationPipe extends ValidationPipe
             $payload->addValidationTimeline(
                 pipeline: $this->getValidationIdentifier(),
                 message: 'looping',
-                id: $referenceSubscriptionId
+                id: $referenceSubscriptionId,
             );
 
             $mailOnlyMigrationPayload = $this->createMailOnlyMigrationPayloadDto($payload, $mailOnlyPayload);
@@ -119,7 +134,7 @@ class MailOnlyMigrationPipe extends ValidationPipe
             $server = $this->checkServerExists(
                 $payload,
                 $mailOnlyMigrationPayload,
-                $referenceSubscriptionId
+                $referenceSubscriptionId,
             );
 
             if ($server === null) {
@@ -130,7 +145,7 @@ class MailOnlyMigrationPipe extends ValidationPipe
                 $payload,
                 $mailOnlyMigrationPayload,
                 $server,
-                $referenceSubscriptionId
+                $referenceSubscriptionId,
             );
 
             if (! $mailOnlyExists) {
@@ -142,7 +157,7 @@ class MailOnlyMigrationPipe extends ValidationPipe
                 $mailOnlyMigrationPayload,
                 $server,
                 $referenceSubscriptionId,
-                $payload->getJobId()
+                $payload->getJobId(),
             );
 
             if (! $mailOnlyMigrationPayload->hostingDetails instanceof DirectAdminHostingDetails) {
@@ -150,7 +165,7 @@ class MailOnlyMigrationPipe extends ValidationPipe
                     payload: $payload,
                     hostingMigrationPayload: $mailOnlyMigrationPayload,
                     server: $server,
-                    referenceSubscriptionId: $referenceSubscriptionId
+                    referenceSubscriptionId: $referenceSubscriptionId,
                 );
             }
         }
@@ -159,7 +174,7 @@ class MailOnlyMigrationPipe extends ValidationPipe
 
         $payload->addValidationTimeline(
             pipeline: $this->getValidationIdentifier(),
-            message: 'Finish'
+            message: 'Finish',
         );
 
         return $this->finishPipe(MigrationValidation::MAIL_ONLY_MIGRATION_PIPE_PASSED, $payload, $this->logger, $next);
@@ -172,8 +187,8 @@ class MailOnlyMigrationPipe extends ValidationPipe
 
     private function createMailOnlyMigrationPayloadDto(
         ValidationPayload $payload,
-        ValidationHostingSubscriptionPayload $hostingPayload
-    ): HostingMigrationPayload|null {
+        ValidationHostingSubscriptionPayload $hostingPayload,
+    ): ?HostingMigrationPayload {
         try {
             return HostingMigrationPayload::fromArray([
                 'subscriptions' => new Collection(),
@@ -199,13 +214,12 @@ class MailOnlyMigrationPipe extends ValidationPipe
     private function checkServerExists(
         ValidationPayload $payload,
         HostingMigrationPayload $hostingMigrationPayload,
-        string $referenceSubscriptionId
-    ): Server|null {
+        string $referenceSubscriptionId,
+    ): ?Server {
         $server = null;
 
         try {
-            $server = $this->serverRepository
-                ->findByHostname($hostingMigrationPayload->serverName);
+            $server = $this->serverRepository->findByHostname($hostingMigrationPayload->serverName);
         } catch (ModelNotFoundException) {
             $message = sprintf(
                 'Hosting server of type "%s" and hostname "%s" not found',
@@ -217,7 +231,7 @@ class MailOnlyMigrationPipe extends ValidationPipe
                 validationPayload: $payload,
                 migrationValidationKey: MigrationValidation::MAIL_ONLY_MIGRATION_SERVER_INVALID,
                 message: $message,
-                referenceSubscriptionId: $referenceSubscriptionId
+                referenceSubscriptionId: $referenceSubscriptionId,
             );
 
             $this->logger->debug($message, [
@@ -229,13 +243,17 @@ class MailOnlyMigrationPipe extends ValidationPipe
         return $server;
     }
 
-    private function checkMailOnlyInstanceExists(ValidationPayload $payload, HostingMigrationPayload $hostingMigrationPayload, Server $server, string $referenceSubscriptionId): bool
-    {
+    private function checkMailOnlyInstanceExists(
+        ValidationPayload $payload,
+        HostingMigrationPayload $hostingMigrationPayload,
+        Server $server,
+        string $referenceSubscriptionId,
+    ): bool {
         try {
             $this->siteDto = $this->hostingService->getUserConfigAsDto(
                 $hostingMigrationPayload->driver,
                 $hostingMigrationPayload->hostingDetails->getUsername(),
-                $server
+                $server,
             );
 
             return true;
@@ -294,22 +312,28 @@ class MailOnlyMigrationPipe extends ValidationPipe
                         'username' => $hostingMigrationPayload->hostingDetails->getUsername(),
                     ],
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $validationPayload->validationReference,
-                ]
+                ],
             );
         }
+
         return $this->siteDto->isReseller();
     }
 
-    private function checkMailOnlySSOCanBeGenerated(ValidationPayload $payload, HostingMigrationPayload $hostingMigrationPayload, Server $server, string $referenceSubscriptionId): bool
-    {
+    private function checkMailOnlySSOCanBeGenerated(
+        ValidationPayload $payload,
+        HostingMigrationPayload $hostingMigrationPayload,
+        Server $server,
+        string $referenceSubscriptionId,
+    ): bool {
         try {
             $this->getSsoUrlAction->execute(
                 $server,
                 $hostingMigrationPayload->hostingDetails->getUsername(),
-                '127.0.0.1'
+                '127.0.0.1',
             );
 
             return true;
+
             /** @phpstan-ignore-next-line */
         } catch (Throwable $exception) {
             $this->logger->debug(
@@ -319,7 +343,7 @@ class MailOnlyMigrationPipe extends ValidationPipe
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
                     LoggingContextKeys::REQUEST_DATA => (string) json_encode($hostingMigrationPayload->toArray()),
                     LoggingContextKeys::EXCEPTION => $exception,
-                ]
+                ],
             );
 
             $this->addValidationResult(
@@ -351,21 +375,21 @@ class MailOnlyMigrationPipe extends ValidationPipe
         if (! $legacySpamExpertsServerExists) {
             $message = sprintf(
                 'There is no legacy SpamExperts servers configured for business unit %s',
-                $businessUnit
+                $businessUnit,
             );
 
             $this->addValidationResult(
                 $payload,
                 MigrationValidation::MAIL_ONLY_NO_LEGACY_SPAMEXPERTS_SERVERS_CONFIGURED,
-                $message
+                $message,
             );
 
-            $this->logger->error(
+            $this->logger->warning(
                 $message,
                 [
                     LoggingContextKeys::QUEUE_JOB_ID => $payload->getJobId(),
                     LoggingContextKeys::MIGRATION_VALIDATION_REFERENCE => $payload->validationReference,
-                ]
+                ],
             );
         }
     }

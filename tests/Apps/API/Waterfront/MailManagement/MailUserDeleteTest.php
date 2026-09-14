@@ -40,30 +40,38 @@ class MailUserDeleteTest extends IntegrationTestCase
             'type' => ServerType::DIRECTADMIN_MAIL,
             'hostname' => $this->domain,
         ]);
-        $productGroup  = new ProductGroupFactory()->createOne(['slug' => 'hosting']);
-        $product = new ProductFactory()->mailOnly($productGroup)->createOne();
+        $productGroup = new ProductGroupFactory()->createOne(['slug' => 'hosting']);
+        $product = new ProductFactory()
+            ->mailOnly($productGroup)
+            ->createOne();
 
-        new ProductSpecFactory()
-        ->for($product)
-        ->createOne([
-            'name'  => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
+        new ProductSpecFactory()->for($product)->createOne([
+            'name' => ProductSpecName::HOSTING_USES_MAIL_ONLY_SERVER->value,
             'value' => '1',
         ]);
 
-        $subscription = new SubscriptionFactory()->for($this->customer)->for($product)->createOne([
-            'domain' => 'example.com',
-            'contract_period' => '12',
-            'gross_price' => 121,
-            'net_price' => 100,
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->for($this->customer)
+            ->for($product)
+            ->createOne([
+                'domain' => 'example.com',
+                'contract_period' => '12',
+                'gross_price' => 121,
+                'net_price' => 100,
+            ]);
 
         new HostingDeploymentFactory()->createOne([
             'subscription_uuid' => $subscription->uuid,
-            'mail_only_server_id'         => $server->id,
+            'mail_only_server_id' => $server->id,
             'directadmin_customer_username' => 'goodtest',
         ]);
 
-        ProviderFactory::new()->create(['type' => ProviderType::MAILONLY, 'slug' => ProviderSlug::DIRECTADMIN, 'default' => true, 'enabled' => true]);
+        ProviderFactory::new()->create([
+            'type' => ProviderType::MAILONLY,
+            'slug' => ProviderSlug::DIRECTADMIN,
+            'default' => true,
+            'enabled' => true,
+        ]);
     }
 
     #[Test]
@@ -74,7 +82,7 @@ class MailUserDeleteTest extends IntegrationTestCase
                 $this->generateRoute('partners.mail.delete-user', [
                     'domain' => $this->domain,
                     'username' => 'mytestuser1',
-                ])
+                ]),
             )
             ->assertOk()
             ->assertExactJson([
@@ -90,8 +98,9 @@ class MailUserDeleteTest extends IntegrationTestCase
                 $this->generateRoute('partners.mail.delete-user', [
                     'domain' => 'wrongdomain.nl',
                     'username' => 'mytestuser1',
-                ])
-            )->assertForbidden();
+                ]),
+            )
+            ->assertForbidden();
     }
 
     #[Test]
@@ -102,11 +111,12 @@ class MailUserDeleteTest extends IntegrationTestCase
                 $this->generateRoute('partners.mail.delete-user', [
                     'domain' => 'example.com',
                     'username' => 'nonexistinguser',
-                ])
+                ]),
             )
             ->assertNotFound()
             ->assertJson([
-                'message' =>  self::resolve(TranslatorInterface::class)->translate('mail-providers.errors.username-does-not-exist'),
+                'message' => self::resolve(TranslatorInterface::class)
+                    ->translate('mail-providers.errors.username-does-not-exist'),
             ]);
     }
 }

@@ -29,7 +29,10 @@ class SubscriptionFormatterTest extends IntegrationTestCase
 
         $customer = new CustomerFactory()->createOne();
         $product = new ProductFactory()->nlDomain()->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($product)
+            ->createOne();
 
         $httpRequest = ManualMigrationValidateRequest::create('', parameters: [
             'billing_period' => 12,
@@ -48,7 +51,10 @@ class SubscriptionFormatterTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
         $product = new ProductFactory()->hostingBrons()->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($product)
+            ->createOne();
 
         $httpRequest = ManualMigrationMigrateRequest::create('', parameters: [
             'billing_period' => 12,
@@ -72,7 +78,10 @@ class SubscriptionFormatterTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
         $product = new ProductFactory()->hostingBrons()->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($product)
+            ->createOne();
 
         $httpRequest = ManualMigrationMigrateRequest::create('', parameters: [
             'billing_period' => 12,
@@ -99,7 +108,10 @@ class SubscriptionFormatterTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
         $product = new ProductFactory()->nlDomain()->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($product)
+            ->createOne();
 
         $httpRequest = ManualMigrationValidateRequest::create('', parameters: [
             'customer_number' => (string) $customer->customer_number,
@@ -118,7 +130,10 @@ class SubscriptionFormatterTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
         $product = new ProductFactory()->nlDomain()->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($product)
+            ->createOne();
 
         $httpRequest = ManualMigrationValidateRequest::create('', parameters: [
             'customer_number' => (string) $customer->customer_number,
@@ -137,7 +152,10 @@ class SubscriptionFormatterTest extends IntegrationTestCase
     {
         $customer = new CustomerFactory()->createOne();
         $product = new ProductFactory()->nlDomain()->createOne();
-        new ProductPriceComponentFactory()->prolongation()->for($product)->createOne();
+        new ProductPriceComponentFactory()
+            ->prolongation()
+            ->for($product)
+            ->createOne();
 
         $httpRequest = ManualMigrationMigrateRequest::create('', parameters: [
             'billing_period' => 12,
@@ -154,6 +172,9 @@ class SubscriptionFormatterTest extends IntegrationTestCase
         Assert::assertIsArray($result['domain_extensions']);
         Assert::assertIsArray($result['domain_extensions'][0]);
         Assert::assertSame('vevida', $result['domain_extensions'][0]['reference_domain_provider_business_unit_slug']);
-        Assert::assertSame(ManualMigrationDomainProvider::OPENPROVIDER->value, $result['domain_extensions'][0]['driver']);
+        Assert::assertSame(
+            ManualMigrationDomainProvider::OPENPROVIDER->value,
+            $result['domain_extensions'][0]['driver'],
+        );
     }
 }

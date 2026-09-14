@@ -56,18 +56,28 @@ class ModifyOrderQuantityListenerTest extends IntegrationTestCase
             'slug' => 'microsoft-business-standard',
         ]);
 
-        $this->parentSubscription = new SubscriptionFactory()->withCustomer()->for($parentProduct)->createOne();
+        $this->parentSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for($parentProduct)
+            ->createOne();
 
-        new SubscriptionFactory()->for($this->childProduct)->for($customer)->parentSubscription($this->parentSubscription)->createOne([
-            'technical_status' => TechnicalStatus::OK->value,
-        ]);
+        new SubscriptionFactory()
+            ->for($this->childProduct)
+            ->for($customer)
+            ->parentSubscription($this->parentSubscription)
+            ->createOne([
+                'technical_status' => TechnicalStatus::OK->value,
+            ]);
 
         $microsoft365CustomerInfo = new Microsoft365CustomerInfoFactory()->for($customer)->createOne();
 
-        $this->microsoft365Deployment = new Microsoft365DeploymentFactory()->for($this->parentSubscription)->for($microsoft365CustomerInfo)->createOne([
-            'kpn_order_id' => 123,
-            'kpn_status' => Microsoft365OrderStatus::ACTIVE,
-        ]);
+        $this->microsoft365Deployment = new Microsoft365DeploymentFactory()
+            ->for($this->parentSubscription)
+            ->for($microsoft365CustomerInfo)
+            ->createOne([
+                'kpn_order_id' => 123,
+                'kpn_status' => Microsoft365OrderStatus::ACTIVE,
+            ]);
     }
 
     #[Test]
@@ -77,20 +87,29 @@ class ModifyOrderQuantityListenerTest extends IntegrationTestCase
         $numberOfSeats = 3;
 
         $this->createExtraChildSubscriptions($numberToCreate);
-        $activeChildrenCount = $this->microsoft365Deployment->subscription->children->where('technical_status', TechnicalStatus::OK->value)->count();
+        $activeChildrenCount = $this->microsoft365Deployment
+            ->subscription
+            ->children
+            ->where('technical_status', TechnicalStatus::OK->value)
+            ->count();
 
         self::assertSame(Microsoft365OrderStatus::ACTIVE, $this->microsoft365Deployment->kpn_status);
         self::assertSame($activeChildrenCount, $numberOfSeats);
 
         // modify the quantity by adding 1 extra, this is the waterfront part
         // it creates new child subscription with the modify_pending status
-        new SubscriptionFactory()->withCustomer()->count(1)->for($this->childProduct)->parentSubscription($this->parentSubscription)->createOne([
-            'technical_status' => TechnicalStatus::REGISTRATION->value,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->count(1)
+            ->for($this->childProduct)
+            ->parentSubscription($this->parentSubscription)
+            ->createOne([
+                'technical_status' => TechnicalStatus::REGISTRATION->value,
+            ]);
 
         // create modify order quantity entity to change the seats to a total of 3
         $modifyOrderQuantity = $this->createModifyOrderQuantity($this->microsoft365Deployment, 1, true, 124);
-        $status = (new Status('Modified', []));
+        $status = new Status('Modified', []);
 
         // KPN will first send a Modified Response
         new ModifyOrderQuantityListener()->execute($modifyOrderQuantity, $status);
@@ -101,22 +120,38 @@ class ModifyOrderQuantityListenerTest extends IntegrationTestCase
 
         // the terminate order response will contain the "old" order id and not the upgrade order id
         $terminate = $this->createTerminateOrder($this->microsoft365Deployment->kpn_order_id);
-        $status = (new Status('Success', []));
+        $status = new Status('Success', []);
 
         // After the modified response we will get a terminate and create response
         new TerminateOrderListener()->execute($terminate, $status);
 
         $cloudLicense = $this->createCloudLicense($this->microsoft365Deployment->kpn_order_id, 3);
-        $status = (new Status('Accepted', []));
+        $status = new Status('Accepted', []);
 
         // After the modified response we will get a terminate and create response
         new CloudLicenseListener(self::createStub(Microsoft365Service::class))->execute($cloudLicense, $status);
 
         $this->microsoft365Deployment->refresh();
-        $okChildrenCount = $this->microsoft365Deployment->subscription->children->where('technical_status', TechnicalStatus::OK->value)->count();
-        $activeChildrenCount = $this->microsoft365Deployment->subscription->children->where('administrative_status', AdministrativeStatus::ACTIVE->value)->count();
-        $archivedChildrenCount = $this->microsoft365Deployment->subscription->children->where('administrative_status', AdministrativeStatus::ARCHIVED->value)->count();
-        $archivingChildrenCount = $this->microsoft365Deployment->subscription->children->where('administrative_status', AdministrativeStatus::ARCHIVING->value)->count();
+        $okChildrenCount = $this->microsoft365Deployment
+            ->subscription
+            ->children
+            ->where('technical_status', TechnicalStatus::OK->value)
+            ->count();
+        $activeChildrenCount = $this->microsoft365Deployment
+            ->subscription
+            ->children
+            ->where('administrative_status', AdministrativeStatus::ACTIVE->value)
+            ->count();
+        $archivedChildrenCount = $this->microsoft365Deployment
+            ->subscription
+            ->children
+            ->where('administrative_status', AdministrativeStatus::ARCHIVED->value)
+            ->count();
+        $archivingChildrenCount = $this->microsoft365Deployment
+            ->subscription
+            ->children
+            ->where('administrative_status', AdministrativeStatus::ARCHIVING->value)
+            ->count();
 
         self::assertSame($modifyOrderQuantity->getUpgradeOrderId(), $this->microsoft365Deployment->kpn_order_id);
         self::assertSame(Microsoft365OrderStatus::ACTIVE, $this->microsoft365Deployment->kpn_status);
@@ -135,23 +170,27 @@ class ModifyOrderQuantityListenerTest extends IntegrationTestCase
         $this->createExtraChildSubscriptions($numberToDelete);
 
         // pretend we terminated 1 seat from the waterfront UI and there is a child subscription with technical status "archived'
-        $this->microsoft365Deployment->subscription->children
-            ->where('technical_status', TechnicalStatus::OK->value)->first
-            ->update(
+        $this
+            ->microsoft365Deployment->subscription->children->where('technical_status', TechnicalStatus::OK->value)
+            ->first->update(
                 [
-                'technical_status' => TechnicalStatus::DELETED->value,
-                ]
+                    'technical_status' => TechnicalStatus::DELETED->value,
+                ],
             );
 
         // since 1 is archived, there also should be only active
         self::assertSame(
-            $this->microsoft365Deployment->subscription->children->where('technical_status', TechnicalStatus::OK->value)->count(),
-            $numberOfSeats - $numberToDelete
+            $this->microsoft365Deployment
+                ->subscription
+                ->children
+                ->where('technical_status', TechnicalStatus::OK->value)
+                ->count(),
+            $numberOfSeats - $numberToDelete,
         );
 
         // create modify order quantity entity to reflect the seats to a total of 1
         $modifyOrderQuantity = $this->createModifyOrderQuantity($this->microsoft365Deployment, $numberToDelete, true);
-        $status = (new Status('Modified', []));
+        $status = new Status('Modified', []);
 
         // KPN will first send a Modified Response
         new ModifyOrderQuantityListener()->execute($modifyOrderQuantity, $status);
@@ -162,19 +201,23 @@ class ModifyOrderQuantityListenerTest extends IntegrationTestCase
 
         // the terminate order response will contain the "old" order id and not the upgrade order id
         $terminate = $this->createTerminateOrder($this->microsoft365Deployment->kpn_order_id);
-        $status = (new Status('Success', []));
+        $status = new Status('Success', []);
 
         // After the modified response we will get a terminate and create response
         new TerminateOrderListener()->execute($terminate, $status);
 
         $cloudLicense = $this->createCloudLicense($this->microsoft365Deployment->kpn_order_id, 1);
-        $status = (new Status('Accepted', []));
+        $status = new Status('Accepted', []);
 
         // After the modified response we will get a terminate and create response
         new CloudLicenseListener(self::createStub(Microsoft365Service::class))->execute($cloudLicense, $status);
 
         $this->microsoft365Deployment->refresh();
-        $activeChildrenCount = $this->microsoft365Deployment->subscription->children->where('technical_status', TechnicalStatus::OK->value)->count();
+        $activeChildrenCount = $this->microsoft365Deployment
+            ->subscription
+            ->children
+            ->where('technical_status', TechnicalStatus::OK->value)
+            ->count();
 
         self::assertSame($modifyOrderQuantity->getUpgradeOrderId(), $this->microsoft365Deployment->kpn_order_id);
         self::assertSame(Microsoft365OrderStatus::MODIFIED, $this->microsoft365Deployment->kpn_status);
@@ -183,14 +226,23 @@ class ModifyOrderQuantityListenerTest extends IntegrationTestCase
 
     private function createExtraChildSubscriptions(int $amount): void
     {
-        new SubscriptionFactory()->withCustomer()->for($this->childProduct)->parentSubscription($this->parentSubscription)->state([
-            'technical_status' => TechnicalStatus::OK->value,
-            'administrative_status' => AdministrativeStatus::ARCHIVING->value,
-        ])->createMany($amount);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for($this->childProduct)
+            ->parentSubscription($this->parentSubscription)
+            ->state([
+                'technical_status' => TechnicalStatus::OK->value,
+                'administrative_status' => AdministrativeStatus::ARCHIVING->value,
+            ])
+            ->createMany($amount);
     }
 
-    private function createModifyOrderQuantity(Microsoft365Deployment $microsoft365Deployment, int $numberOfSeats, bool $isDelta, ?int $kpnUpgradeOrderId = null): OrderModifyQuantity
-    {
+    private function createModifyOrderQuantity(
+        Microsoft365Deployment $microsoft365Deployment,
+        int $numberOfSeats,
+        bool $isDelta,
+        ?int $kpnUpgradeOrderId = null,
+    ): OrderModifyQuantity {
         $data = [
             'OrderId' => $microsoft365Deployment->kpn_order_id,
             'IsDelta' => $isDelta,

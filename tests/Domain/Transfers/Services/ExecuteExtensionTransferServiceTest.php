@@ -60,7 +60,7 @@ class ExecuteExtensionTransferServiceTest extends IntegrationTestCase
 
         $this->expectExceptionMessageIs(sprintf(
             'Unable to find domain subscription for domain {%s}.',
-            $this->testDomain
+            $this->testDomain,
         ));
 
         $this->extensionTransferService->execute($this->subscription, $this->receiver);
@@ -103,23 +103,25 @@ class ExecuteExtensionTransferServiceTest extends IntegrationTestCase
             'slug' => 'extension_nl',
         ]);
 
-        $this->subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'domain' => $this->testDomain,
-            'product_uuid' => $product->uuid,
-            'customer_id' => $this->from->id,
-        ]);
+        $this->subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'domain' => $this->testDomain,
+                'product_uuid' => $product->uuid,
+                'customer_id' => $this->from->id,
+            ]);
 
         $this->domainDeployment = new DomainDeploymentFactory()->for($provider)->createOne([
             'subscription_uuid' => $this->subscription->uuid,
         ]);
 
         $contact = new DomainContactFactory()->createOne([
-            'customer_id'   => $this->from->id,
+            'customer_id' => $this->from->id,
             'default_owner' => true,
         ]);
 
         new DomainContactFactory()->createOne([
-            'customer_id'   => $this->receiver->id,
+            'customer_id' => $this->receiver->id,
             'default_owner' => true,
         ]);
 

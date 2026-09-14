@@ -45,7 +45,7 @@ class NovaMigrateProvisionResultDataAction extends NovaOneOffScriptAbstractActio
             [
                 LoggingContextKeys::ONE_OFF_SCRIPT => $this->getOneOffScriptSlug(),
                 LoggingContextKeys::META => ['dry-run' => $isDryRun],
-            ]
+            ],
         );
 
         DB::table('provisioning_results')

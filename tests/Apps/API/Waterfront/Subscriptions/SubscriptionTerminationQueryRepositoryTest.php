@@ -36,11 +36,14 @@ class SubscriptionTerminationQueryRepositoryTest extends IntegrationTestCase
     #[Test]
     public function getAllDueForTerminationExpiredSuspend(): void
     {
-        $sub = new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->createOne([
-           'administrative_status' => AdministrativeStatus::EXPIRED->value,
-           'technical_status' => TechnicalStatus::SUSPENDED->value,
-           'termination_date' => CarbonImmutable::today(),
-        ]);
+        $sub = new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                'technical_status' => TechnicalStatus::SUSPENDED->value,
+                'termination_date' => CarbonImmutable::today(),
+            ]);
 
         $subs = $this->subscriptionRepository->getAllDueForTermination();
 
@@ -55,11 +58,14 @@ class SubscriptionTerminationQueryRepositoryTest extends IntegrationTestCase
     #[Test]
     public function getAllDueForTerminationDeletedOk(): void
     {
-        $sub = new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->createOne([
-            'administrative_status' => AdministrativeStatus::EXPIRED->value,
-            'technical_status' => TechnicalStatus::OK->value,
-            'termination_date' => CarbonImmutable::today(),
-        ]);
+        $sub = new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                'technical_status' => TechnicalStatus::OK->value,
+                'termination_date' => CarbonImmutable::today(),
+            ]);
         $subs = $this->subscriptionRepository->getAllDueForTermination();
         $subscription = $subs[0];
 
@@ -72,11 +78,14 @@ class SubscriptionTerminationQueryRepositoryTest extends IntegrationTestCase
     #[Test]
     public function getAllDueForTerminationSuspendSuspendNoResult(): void
     {
-        new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->createOne([
-            'administrative_status' => AdministrativeStatus::SUSPENDED->value,
-            'technical_status' => TechnicalStatus::SUSPENDED->value,
-            'termination_date' => CarbonImmutable::today(),
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::SUSPENDED->value,
+                'technical_status' => TechnicalStatus::SUSPENDED->value,
+                'termination_date' => CarbonImmutable::today(),
+            ]);
 
         $subs = $this->subscriptionRepository->getAllDueForTermination();
 
@@ -87,28 +96,40 @@ class SubscriptionTerminationQueryRepositoryTest extends IntegrationTestCase
     public function getAllDueForTerminationMultiple(): void
     {
         // mag
-        $sub1 = new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->createOne([
-            'administrative_status' => AdministrativeStatus::EXPIRED->value,
-            'technical_status' => TechnicalStatus::SUSPENDED->value,
-            'termination_date' => CarbonImmutable::today(),
-        ]);
-        $sub2 = new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->createOne([
-            'administrative_status' => AdministrativeStatus::EXPIRED->value,
-            'technical_status' => TechnicalStatus::OK->value,
-            'termination_date' => CarbonImmutable::today(),
-        ]);
+        $sub1 = new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                'technical_status' => TechnicalStatus::SUSPENDED->value,
+                'termination_date' => CarbonImmutable::today(),
+            ]);
+        $sub2 = new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                'technical_status' => TechnicalStatus::OK->value,
+                'termination_date' => CarbonImmutable::today(),
+            ]);
 
         // mag niet
-        new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->createOne([
-            'administrative_status' => AdministrativeStatus::ARCHIVED->value,
-            'technical_status' => TechnicalStatus::DELETED->value,
-            'termination_date' => CarbonImmutable::today(),
-        ]);
-        new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->createOne([
-            'administrative_status' => AdministrativeStatus::SUSPENDED->value,
-            'technical_status' => TechnicalStatus::SUSPENDED->value,
-            'termination_date' => CarbonImmutable::today(),
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::ARCHIVED->value,
+                'technical_status' => TechnicalStatus::DELETED->value,
+                'termination_date' => CarbonImmutable::today(),
+            ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::SUSPENDED->value,
+                'technical_status' => TechnicalStatus::SUSPENDED->value,
+                'termination_date' => CarbonImmutable::today(),
+            ]);
 
         $subs = $this->subscriptionRepository->getAllDueForTermination();
         $subscription1 = $subs->where('uuid', $sub1->uuid)->firstOrFail();
@@ -123,16 +144,23 @@ class SubscriptionTerminationQueryRepositoryTest extends IntegrationTestCase
     #[Test]
     public function getActiveParentForTerminationChildDeletedOk(): void
     {
-        $parentSub = new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->createOne([
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-            'technical_status' => TechnicalStatus::OK->value,
-        ]);
+        $parentSub = new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                'technical_status' => TechnicalStatus::OK->value,
+            ]);
 
-        $childSub = new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->parentSubscription($parentSub)->createOne([
-            'administrative_status' => AdministrativeStatus::EXPIRED->value,
-            'technical_status' => TechnicalStatus::OK->value,
-            'termination_date' => CarbonImmutable::today(),
-        ]);
+        $childSub = new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->parentSubscription($parentSub)
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                'technical_status' => TechnicalStatus::OK->value,
+                'termination_date' => CarbonImmutable::today(),
+            ]);
 
         $subs = $this->subscriptionRepository->getAllDueForTermination();
 
@@ -149,16 +177,23 @@ class SubscriptionTerminationQueryRepositoryTest extends IntegrationTestCase
     #[Test]
     public function getParentForTerminationExpiredParentWithChildDeleted(): void
     {
-        $parentSub = new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->createOne([
-            'administrative_status' => AdministrativeStatus::EXPIRED->value,
-            'technical_status' => TechnicalStatus::SUSPENDED->value,
-        ]);
+        $parentSub = new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                'technical_status' => TechnicalStatus::SUSPENDED->value,
+            ]);
 
-        new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->parentSubscription($parentSub)->createOne([
-            'administrative_status' => AdministrativeStatus::EXPIRED->value,
-            'technical_status' => TechnicalStatus::OK->value,
-            'termination_date' => CarbonImmutable::today(),
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->parentSubscription($parentSub)
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                'technical_status' => TechnicalStatus::OK->value,
+                'termination_date' => CarbonImmutable::today(),
+            ]);
 
         $subs = $this->subscriptionRepository->getAllDueForTermination();
 
@@ -172,16 +207,23 @@ class SubscriptionTerminationQueryRepositoryTest extends IntegrationTestCase
     #[Test]
     public function terminateGracedParentSubscriptionWithActiveChild(): void
     {
-        $parentSub = new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->createOne([
-            'administrative_status' => AdministrativeStatus::EXPIRED->value,
-            'technical_status' => TechnicalStatus::SUSPENDED->value,
-            'termination_date' => CarbonImmutable::today(),
-        ]);
+        $parentSub = new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                'technical_status' => TechnicalStatus::SUSPENDED->value,
+                'termination_date' => CarbonImmutable::today(),
+            ]);
 
-        new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->parentSubscription($parentSub)->createOne([
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-            'technical_status' => TechnicalStatus::OK->value,
-        ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->parentSubscription($parentSub)
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                'technical_status' => TechnicalStatus::OK->value,
+            ]);
 
         $subs = $this->subscriptionRepository->getAllDueForTermination();
 
@@ -195,31 +237,48 @@ class SubscriptionTerminationQueryRepositoryTest extends IntegrationTestCase
     #[Test]
     public function terminateMultipleParentSubscriptionWithChildSubs(): void
     {
-        $graceParentSub = new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->createOne([
-            'administrative_status' => AdministrativeStatus::EXPIRED->value,
-            'technical_status' => TechnicalStatus::SUSPENDED->value,
-            'termination_date' => CarbonImmutable::today(),
-        ]);
-        new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->parentSubscription($graceParentSub)->createOne([
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-            'technical_status' => TechnicalStatus::OK->value,
-        ]);
+        $graceParentSub = new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                'technical_status' => TechnicalStatus::SUSPENDED->value,
+                'termination_date' => CarbonImmutable::today(),
+            ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->parentSubscription($graceParentSub)
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                'technical_status' => TechnicalStatus::OK->value,
+            ]);
 
-        $parentSub = new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->createOne([
-            'administrative_status' => AdministrativeStatus::EXPIRED->value,
-            'technical_status' => TechnicalStatus::OK->value,
-            'termination_date' => CarbonImmutable::today(),
-        ]);
+        $parentSub = new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                'technical_status' => TechnicalStatus::OK->value,
+                'termination_date' => CarbonImmutable::today(),
+            ]);
 
-        $activeParentSubscription = new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->createOne([
-            'administrative_status' => AdministrativeStatus::ACTIVE->value,
-            'technical_status' => TechnicalStatus::OK->value,
-        ]);
-        new SubscriptionFactory()->withCustomer()->for(new ProductFactory()->for($this->hostingProductGroup))->parentSubscription($activeParentSubscription)->createOne([
-            'administrative_status' => AdministrativeStatus::EXPIRED->value,
-            'technical_status' => TechnicalStatus::OK->value,
-            'termination_date' => CarbonImmutable::today(),
-        ]);
+        $activeParentSubscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::ACTIVE->value,
+                'technical_status' => TechnicalStatus::OK->value,
+            ]);
+        new SubscriptionFactory()
+            ->withCustomer()
+            ->for(new ProductFactory()->for($this->hostingProductGroup))
+            ->parentSubscription($activeParentSubscription)
+            ->createOne([
+                'administrative_status' => AdministrativeStatus::EXPIRED->value,
+                'technical_status' => TechnicalStatus::OK->value,
+                'termination_date' => CarbonImmutable::today(),
+            ]);
 
         $subs = $this->subscriptionRepository->getAllDueForTermination();
 
@@ -227,6 +286,9 @@ class SubscriptionTerminationQueryRepositoryTest extends IntegrationTestCase
         self::assertTrue($subs->contains('uuid', $graceParentSub->uuid));
         self::assertTrue($subs->contains('uuid', $parentSub->uuid));
         self::assertTrue($subs->contains('uuid', $activeParentSubscription->uuid));
-        self::assertSame(AdministrativeStatus::ACTIVE->value, $subs->where('uuid', $activeParentSubscription->uuid)->firstOrFail()->administrative_status);
+        self::assertSame(
+            AdministrativeStatus::ACTIVE->value,
+            $subs->where('uuid', $activeParentSubscription->uuid)->firstOrFail()->administrative_status,
+        );
     }
 }

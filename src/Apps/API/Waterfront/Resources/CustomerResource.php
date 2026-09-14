@@ -35,10 +35,10 @@ class CustomerResource extends Resource
         $customerPolicy = Container::getInstance()->make(CustomerPolicy::class);
 
         /** @var SubscriptionRepository $subscriptionRepo */
-        $subscriptionRepo =  Container::getInstance()->make(SubscriptionRepository::class);
+        $subscriptionRepo = Container::getInstance()->make(SubscriptionRepository::class);
 
         /** @var AuthenticationManager $authManager */
-        $authManager =  Container::getInstance()->make(AuthenticationManager::class);
+        $authManager = Container::getInstance()->make(AuthenticationManager::class);
         $identity = $authManager->getAuthenticatedSubject()->identitySchema;
 
         /** @var ?Microsoft365CustomerInfo $microsoft365CustomerInfo */
@@ -59,15 +59,15 @@ class CustomerResource extends Resource
             'vat_number' => $this->vat_number,
             'vat_rate' => $this->vat_rate,
             'purchase_reference' => $this->purchase_reference,
-            'terms_of_payment'   => $this->terms_of_payment,
-            'credit_limit'       => $this->credit_limit,
-            'department'         => $this->department,
-            'address'            => CustomerAddressResource::make($this->address),
-            'available_actions'  => $customerPolicy->getAvailableActions(),
-            'has_wallet'         => ($this->wallet instanceof CustomerWallet),
+            'terms_of_payment' => $this->terms_of_payment,
+            'credit_limit' => $this->credit_limit,
+            'department' => $this->department,
+            'address' => CustomerAddressResource::make($this->address),
+            'available_actions' => $customerPolicy->getAvailableActions(),
+            'has_wallet' => $this->wallet instanceof CustomerWallet,
             'has_direct_debit' => $this->has_direct_debit,
-            'invoice_history_url'   => $this->invoice_history_url,
-            'data_last_confirmed_at'         => $this->data_last_confirmed_at,
+            'invoice_history_url' => $this->invoice_history_url,
+            'data_last_confirmed_at' => $this->data_last_confirmed_at,
             'customer_age_in_weeks' => $this->getCustomerAgeInWeeks(),
             'has_microsoft365_tenant' => $microsoft365CustomerInfo !== null,
             'microsoft365_tenant_name' => $microsoft365CustomerInfo?->tenant_name,
@@ -88,7 +88,7 @@ class CustomerResource extends Resource
     private function getAvailableCustomers(KratosIdentity $identity): array
     {
         /** @var CustomerRepository $customerRepo */
-        $customerRepo =  Container::getInstance()->make(CustomerRepository::class);
+        $customerRepo = Container::getInstance()->make(CustomerRepository::class);
 
         $availableCustomers = [];
         foreach ($identity->metadataPublic->customerRelations ?? [] as $customerRelation) {
@@ -102,9 +102,12 @@ class CustomerResource extends Resource
                 'name' => $customer->contact_name,
                 'company_name' => $customer->organization ?? null,
                 'department_name' => $customer->department ?? null,
-                'migration_information' => $customer->migratedCustomers->count() >=  1 ? $customer->migratedCustomers->first()?->only(['reference_customer_number', 'reference_name']) : null,
+                'migration_information' => $customer->migratedCustomers->count() >= 1
+                    ? $customer->migratedCustomers->first()?->only(['reference_customer_number', 'reference_name'])
+                    : null,
             ];
         }
+
         return $availableCustomers;
     }
 

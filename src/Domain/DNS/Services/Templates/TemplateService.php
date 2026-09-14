@@ -37,16 +37,16 @@ class TemplateService
      */
     public function findOrCreateTemplate(
         Customer $customer,
-        array $payload
+        array $payload,
     ): DnsCustomerTemplate {
-        $name    = Arr::get($payload, 'name') ?? $this->generateTemplateName($customer);
+        $name = Arr::get($payload, 'name') ?? $this->generateTemplateName($customer);
         $records = Arr::get($payload, 'records', []);
         assert(is_string($name));
         assert(is_array($records));
 
         $template = DnsCustomerTemplate::where([
             'customer_id' => $customer->id,
-            'name'        => $name,
+            'name' => $name,
         ])->first();
 
         return $template ?? $this->createTemplate($customer, $name, $records);
@@ -57,7 +57,7 @@ class TemplateService
      */
     public function updateTemplate(DnsCustomerTemplate $template, array $payload): DnsCustomerTemplate
     {
-        $name    = Arr::get($payload, 'name', false);
+        $name = Arr::get($payload, 'name', false);
         $records = Arr::get($payload, 'records', []);
         assert(is_array($records));
 
@@ -103,14 +103,12 @@ class TemplateService
     public function getSubscriptions(DnsCustomerTemplate $template): Collection
     {
         /** @var Collection<int, Subscription> $collection */
-        $collection = $this
-            ->subscriptionService
+        $collection = $this->subscriptionService
             ->getSubscriptionsQuery()
             ->whereHas('domainDeployment')
             ->whereHas('product.productGroup', fn (Builder $query): Builder => $query->whereIn(
                 'uuid',
-                ProductGroup::whereIn('slug', [ProductGroupType::EXTENSION])
-                    ->pluck('uuid')
+                ProductGroup::whereIn('slug', [ProductGroupType::EXTENSION])->pluck('uuid'),
             ))
             ->whereNotIn('administrative_status', [AdministrativeStatus::ARCHIVED->value])
             ->orderBy('domain')
@@ -121,15 +119,13 @@ class TemplateService
             Assert::notNull($subscription->domain, 'Provided subscription has no domain');
 
             return [
-                'domain'    => $subscription->domain,
+                'domain' => $subscription->domain,
                 'available' => $this->checkDomainTemplateAvailability($subscription),
-                'linked'    => $subscription->domainDeployment?->template_id === $template->id,
+                'linked' => $subscription->domainDeployment?->template_id === $template->id,
             ];
         };
 
-        return $collection
-            ->map($function)
-            ->sortBy('domain');
+        return $collection->map($function)->sortBy('domain');
     }
 
     /**
@@ -172,7 +168,8 @@ class TemplateService
 
     private function getDomainSubscription(string $domain): DomainDeployment
     {
-        $domainDeployment = Subscription::query()->whereProductGroupType(ProductGroupType::EXTENSION)
+        $domainDeployment = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::EXTENSION)
             ->where('domain', $domain)
             ->firstOrFail()
             ->domainDeployment;
@@ -187,7 +184,7 @@ class TemplateService
     private function createTemplate(
         Customer $customer,
         string $name,
-        array $records
+        array $records,
     ): DnsCustomerTemplate {
         $template = DnsCustomerTemplate::create([
             'name' => $name,
@@ -204,13 +201,14 @@ class TemplateService
         return sprintf(
             '%s-%s',
             $customer->name,
-            Str::random(10)
+            Str::random(10),
         );
     }
 
     private function checkDomainTemplateAvailability(Subscription $subscription): bool
     {
-        $dnsSubscriptionWithSameDomainExists = Subscription::query()->whereProductGroupType(ProductGroupType::DNS)
+        $dnsSubscriptionWithSameDomainExists = Subscription::query()
+            ->whereProductGroupType(ProductGroupType::DNS)
             ->where('domain', $subscription->domain)
             ->whereNot('administrative_status', AdministrativeStatus::ARCHIVED->value)
             ->exists();

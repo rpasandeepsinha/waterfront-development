@@ -14,7 +14,7 @@ readonly class MollieCustomerResponseDTO
         public string $name,
         public string $email,
         public string $locale,
-        public MollieCustomerMetadataDTO|null $metadata,
+        public ?MollieCustomerMetadataDTO $metadata,
         public DateTimeImmutable $createdAt,
     ) {
     }

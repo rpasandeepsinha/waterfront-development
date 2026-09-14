@@ -37,7 +37,9 @@ class ProductTest extends IntegrationTestCase
     #[Test]
     public function isBaseKitProduct(): void
     {
-        new ProductSpecFactory()->for($this->extensionProduct)->createOne(['name' => ProductSpecName::BASEKIT_PACKAGE_REFERENCE]);
+        new ProductSpecFactory()->for($this->extensionProduct)->createOne([
+            'name' => ProductSpecName::BASEKIT_PACKAGE_REFERENCE,
+        ]);
         self::assertTrue($this->extensionProduct->isBaseKitProduct());
 
         $newProduct = new ProductFactory()->createOne([

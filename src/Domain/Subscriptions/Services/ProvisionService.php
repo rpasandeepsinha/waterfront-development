@@ -11,6 +11,7 @@ use RuntimeException;
 use Waterfront\Domain\Backup\Events\CreateBackup;
 use Waterfront\Domain\Customers\Enums\Locale;
 use Waterfront\Domain\DNS\Events\CreateDns;
+use Waterfront\Domain\Domains\DomainService;
 use Waterfront\Domain\Domains\Enums\DomainStatus;
 use Waterfront\Domain\Domains\Events\CreateDomain;
 use Waterfront\Domain\Hosting\Events\CreateHosting;
@@ -54,13 +55,23 @@ readonly class ProvisionService
      */
     public function provision(array $subscriptions): void
     {
-        $m365Subscriptions = array_filter($subscriptions, fn (Subscription $subscription) => $subscription->product->productGroup->slug === ProductGroupType::MICROSOFT_365);
+        $m365Subscriptions = array_filter(
+            $subscriptions,
+            fn (Subscription $subscription) => (
+                $subscription->product->productGroup->slug === ProductGroupType::MICROSOFT_365
+            ),
+        );
 
         if (count($m365Subscriptions) > 0) {
             $this->provisionMicrosoft365($m365Subscriptions);
         }
 
-        $subscriptions = array_filter($subscriptions, fn (Subscription $subscription) => $subscription->product->productGroup->slug !== ProductGroupType::MICROSOFT_365);
+        $subscriptions = array_filter(
+            $subscriptions,
+            fn (Subscription $subscription) => (
+                $subscription->product->productGroup->slug !== ProductGroupType::MICROSOFT_365
+            ),
+        );
 
         foreach ($subscriptions as $subscription) {
             $event = match ($subscription->product->productGroup->slug) {
@@ -83,14 +94,24 @@ readonly class ProvisionService
                 ProductGroupType::MICROSOFT_365,
                 ProductGroupType::ONE_TIME_SERVICE,
                 ProductGroupType::VOLUME_DISCOUNT,
-                ProductGroupType::ADD_ON => null
+                ProductGroupType::ADD_ON,
+                    => null,
             };
 
             if ($event === null) {
                 continue;
             }
 
-            if (in_array($subscription->technical_status, [TechnicalStatus::OK->value, DomainStatus::ACTIVE->value, DomainStatus::REQUESTED->value, TechnicalStatus::PENDING->value], true)) {
+            if (in_array(
+                $subscription->technical_status,
+                [
+                    TechnicalStatus::OK->value,
+                    DomainStatus::ACTIVE->value,
+                    DomainStatus::REQUESTED->value,
+                    TechnicalStatus::PENDING->value,
+                ],
+                true,
+            )) {
                 continue;
             }
 
@@ -109,7 +130,7 @@ readonly class ProvisionService
     private function provisionMicrosoft365(array $subscriptions): void
     {
         $this->eventDispatcher->dispatch(
-            new CreateMicrosoft365($subscriptions)
+            new CreateMicrosoft365($subscriptions),
         );
     }
 
@@ -161,7 +182,7 @@ readonly class ProvisionService
 
         $transferSecret = $metaData->transferSecret ?? $subscription->orderLineItem?->transfer_secret;
 
-        if ($transferSecret !== 'deferred_transfer') {
+        if ($transferSecret !== DomainService::DEFERRED_TRANSFER) {
             $order = $subscription->orderLineItem?->order;
             if ($order !== null) {
                 $filteredLines = $order->lineItems->filter(fn (OrderLineItem $line) => $line->domain === $domain);
@@ -170,35 +191,42 @@ readonly class ProvisionService
                     if (count($filteredLine->children) === 0) {
                         continue;
                     }
-                    $item = $filteredLine->children->filter(fn (OrderLineItem $line) => $line->product?->slug === 'transfer_service');
+
+                    $item = $filteredLine->children->filter(
+                        fn (OrderLineItem $line) => $line->product?->slug === 'transfer_service',
+                    );
                     if (count($item) === 0) {
                         continue;
                     }
 
                     $noteMessage = sprintf(
-                        'Transfer_secret changed from %s to deferred_transfer',
+                        'Transfer_secret changed from %s to %s',
                         $transferSecret,
+                        DomainService::DEFERRED_TRANSFER,
                     );
 
                     $this->storeNoteAction->execute($noteMessage, $subscription);
 
-                    $transferSecret = 'deferred_transfer';
+                    $transferSecret = DomainService::DEFERRED_TRANSFER;
                 }
             }
         }
 
         $isUsingPrivateWhois = $this->builder->buildPrivateWhoisStatus($subscription, $metaData);
         $dnssecEnabled = $this->builder->buildDnssecEnabled($subscription);
-        $domainDeployment = $this->builder->buildDomainDeployment($subscription, $dnssecEnabled, $isUsingPrivateWhois, $transferSecret);
+        $domainDeployment = $this->builder->buildDomainDeployment(
+            $subscription,
+            $dnssecEnabled,
+            $isUsingPrivateWhois,
+            $transferSecret,
+        );
         $this->builder->buildOwnerAssociation($subscription, $metaData->contactId ?? 0);
 
-        return
-            new CreateDomain(
-                $domain,
-                $subscription,
-                $domainDeployment->refresh(),
-            )
-        ;
+        return new CreateDomain(
+            $domain,
+            $subscription,
+            $domainDeployment->refresh(),
+        );
     }
 
     private function provisionHosting(Subscription $subscription): CreateMailOnlyHosting|CreateSitebuilder|CreateHosting
@@ -206,23 +234,21 @@ readonly class ProvisionService
         if ($subscription->product->isSitebuilderProduct()) {
             assert(is_string($subscription->domain));
 
-            return
-                new CreateSitebuilder(
-                    $subscription->customer->name,
-                    $subscription->customer->email,
-                    $subscription
-                );
+            return new CreateSitebuilder(
+                $subscription->customer->name,
+                $subscription->customer->email,
+                $subscription,
+            );
         }
 
         if ($subscription->product->isMailOnlyServer()) {
             assert(is_string($subscription->domain));
 
-            return
-                new CreateMailOnlyHosting(
-                    $subscription->customer->name,
-                    $subscription->customer->email,
-                    $subscription
-                );
+            return new CreateMailOnlyHosting(
+                $subscription->customer->name,
+                $subscription->customer->email,
+                $subscription,
+            );
         }
 
         return new CreateHosting(
@@ -252,7 +278,7 @@ readonly class ProvisionService
             domain: $domain,
             period: $subscription->contract_period,
             sslDeployment: $subscription->sslDeployment,
-            csr: null
+            csr: null,
         );
     }
 
@@ -278,25 +304,22 @@ readonly class ProvisionService
             $subscription->customer->email,
             null,
             $subscription->customer,
-            $subscription->product
+            $subscription->product,
         );
     }
 
     private function provisionCloudStackVirtualMachine(Subscription $subscription): CreateVps
     {
-        $osSubscription = $this->vmSubscriptionRepository
-            ->getOsSubscriptionChildFromSubscriptionUuid($subscription->uuid);
+        $osSubscription = $this->vmSubscriptionRepository->getOsSubscriptionChildFromSubscriptionUuid($subscription->uuid);
         $osSubscriptionMetaData = null;
         if ($osSubscription->orderLineItem?->meta_data !== null) {
             $osSubscriptionMetaData = $this->getSubscriptionMetaData($osSubscription->orderLineItem->meta_data);
         }
 
-        return
-            new CreateVps(
-                $subscription->uuid,
-                $osSubscriptionMetaData?->sshKeyUuid
-            )
-        ;
+        return new CreateVps(
+            $subscription->uuid,
+            $osSubscriptionMetaData?->sshKeyUuid,
+        );
     }
 
     private function provisionRedirect(Subscription $subscription): null
@@ -320,8 +343,7 @@ readonly class ProvisionService
 
     private function getSubscriptionMetaData(string $metaData): OsMetaData
     {
-        $metaData = $this->cartSerializerFactory->get()
-            ->deserialize($metaData, MetaData::class, 'json');
+        $metaData = $this->cartSerializerFactory->get()->deserialize($metaData, MetaData::class, 'json');
 
         assert($metaData instanceof OsMetaData);
 

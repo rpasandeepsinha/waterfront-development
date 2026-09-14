@@ -20,7 +20,7 @@ enum CharacterSet
             self::LOWERCASE => range('a', 'z'),
             self::UPPERCASE => range('A', 'Z'),
             self::DIGIT => range(0, 9),
-            self::PUNCT => str_split('!"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~')
+            self::PUNCT => str_split('!"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~'),
         };
     }
 }

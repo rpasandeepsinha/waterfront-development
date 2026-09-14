@@ -59,13 +59,9 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
         $this->endDate = $this->now->addMonths(6);
         CarbonImmutable::setTestNow($this->now);
 
-        $this->customer = new CustomerFactory()
-            ->withAddress()
-            ->createOne();
+        $this->customer = new CustomerFactory()->withAddress()->createOne();
 
-        $this->product = new ProductFactory()
-            ->for(new ProductGroupFactory()->extension())
-            ->createOne();
+        $this->product = new ProductFactory()->for(new ProductGroupFactory()->extension())->createOne();
 
         $this->harborApi = self::createMock(HarborApi::class);
         $this->app->bind(HarborApi::class, fn () => $this->harborApi);
@@ -82,7 +78,7 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
         // Setup
         $subscription = $this->getSubscription(
             AdministrativeStatus::ACTIVE->value,
-            $this->endDate
+            $this->endDate,
         );
 
         $originalInvoice = $this->createInvoiceLine($subscription, $this->endDate, 100);
@@ -94,20 +90,15 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
             null,
             SubscriptionCancelType::CANCEL_DOWNGRADE,
             $cancelTypeOtherDate,
-            true
+            true,
         );
 
-        $this->harborApi
-            ->expects(self::once())
-            ->method('sendCredit');
+        $this->harborApi->expects(self::once())->method('sendCredit');
 
         // Run service
         $this->creditSubscriptionService->creditSubscriptions($cancellation);
 
-        $invoices = Invoice::query()
-            ->where('subscription_id', $subscription->id)
-            ->orderBy('id')
-            ->get();
+        $invoices = Invoice::query()->where('subscription_id', $subscription->id)->orderBy('id')->get();
 
         /* We now expect 1 invoice lines:
          * 0 is the original; 100
@@ -123,7 +114,7 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
         // Setup
         $subscription = $this->getSubscription(
             AdministrativeStatus::ACTIVE->value,
-            $this->endDate
+            $this->endDate,
         );
 
         /* The invoice is created for a 12-month period with a start date calculated on the given end date.
@@ -138,20 +129,15 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
             null,
             SubscriptionCancelType::CANCEL_DOWNGRADE,
             $cancelTypeOtherDate,
-            true
+            true,
         );
 
-        $this->harborApi
-            ->expects(self::once())
-            ->method('sendCredit');
+        $this->harborApi->expects(self::once())->method('sendCredit');
 
         // Run service
         $this->creditSubscriptionService->creditSubscriptions($cancellation);
 
-        $invoices = Invoice::query()
-            ->where('subscription_id', $subscription->id)
-            ->orderBy('id')
-            ->get();
+        $invoices = Invoice::query()->where('subscription_id', $subscription->id)->orderBy('id')->get();
 
         /* We now expect 1 invoice lines:
          * 0 is the original
@@ -159,6 +145,7 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
         self::assertCount(2, $invoices);
         self::assertSame($originalInvoice->id, $invoices[0]?->id);
         self::assertSame(-100, $invoices[1]?->net_price);
+
         // The start date of the credit must be same as original
     }
 
@@ -200,12 +187,14 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
 
     #[DataProvider('fullCreditIsEnforcedByReasonTypeData')]
     #[Test]
-    public function testCreditWhereFullCreditIsEnforcedByReasonType(SubscriptionCancelReason $reason, bool $fullCredit): void
-    {
+    public function testCreditWhereFullCreditIsEnforcedByReasonType(
+        SubscriptionCancelReason $reason,
+        bool $fullCredit,
+    ): void {
         // Setup
         $subscription = $this->getSubscription(
             AdministrativeStatus::ACTIVE->value,
-            $this->endDate
+            $this->endDate,
         );
 
         $originalInvoice = $this->createInvoiceLine($subscription, $this->endDate, 100);
@@ -217,20 +206,15 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
             null,
             SubscriptionCancelType::CANCEL_DOWNGRADE,
             $cancelTypeOtherDate,
-            true
+            true,
         );
 
-        $this->harborApi
-            ->expects(self::once())
-            ->method('sendCredit');
+        $this->harborApi->expects(self::once())->method('sendCredit');
 
         // Run service
         $this->creditSubscriptionService->creditSubscriptions($cancellation);
 
-        $invoices = Invoice::query()
-            ->where('subscription_id', $subscription->id)
-            ->orderBy('id')
-            ->get();
+        $invoices = Invoice::query()->where('subscription_id', $subscription->id)->orderBy('id')->get();
 
         /* We now expect 2 invoice lines:
          * 0 is the original; 100
@@ -253,7 +237,7 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
         // Setup
         $subscription = $this->getSubscription(
             AdministrativeStatus::ACTIVE->value,
-            $this->endDate
+            $this->endDate,
         );
 
         $originalInvoice = $this->createInvoiceLine($subscription, $this->now->addMonths(4), 100);
@@ -265,20 +249,15 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
             null,
             SubscriptionCancelType::CANCEL_OTHER,
             $cancelTypeOtherDate,
-            true
+            true,
         );
 
-        $this->harborApi
-            ->expects(self::never())
-            ->method('sendCredit');
+        $this->harborApi->expects(self::never())->method('sendCredit');
 
         // Run service
         $this->creditSubscriptionService->creditSubscriptions($cancellation);
 
-        $invoices = Invoice::query()
-            ->where('subscription_id', $subscription->id)
-            ->orderBy('id')
-            ->get();
+        $invoices = Invoice::query()->where('subscription_id', $subscription->id)->orderBy('id')->get();
 
         /* We now expect only 1 invoice line:
          * Only the original */
@@ -292,7 +271,7 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
         // Setup
         $subscription = $this->getSubscription(
             AdministrativeStatus::ACTIVE->value,
-            $this->endDate
+            $this->endDate,
         );
 
         $debitInvoiceLine = $this->createInvoiceLine($subscription, $this->endDate, 100);
@@ -305,20 +284,15 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
             null,
             SubscriptionCancelType::CANCEL_DOWNGRADE,
             $cancelTypeOtherDate,
-            true
+            true,
         );
 
-        $this->harborApi
-            ->expects(self::never())
-            ->method('sendCredit');
+        $this->harborApi->expects(self::never())->method('sendCredit');
 
         // Run service
         $this->creditSubscriptionService->creditSubscriptions($cancellation);
 
-        $invoices = Invoice::query()
-            ->where('subscription_id', $subscription->id)
-            ->orderBy('id')
-            ->get();
+        $invoices = Invoice::query()->where('subscription_id', $subscription->id)->orderBy('id')->get();
 
         /* We now expect only 2 invoice line:
          * Only the original and already existing credit line */
@@ -333,7 +307,7 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
         // Setup
         $subscription = $this->getSubscription(
             AdministrativeStatus::ACTIVE->value,
-            $this->endDate
+            $this->endDate,
         );
 
         $originalInvoice = $this->createInvoiceLine($subscription, $this->endDate, 100);
@@ -346,20 +320,15 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
             null,
             SubscriptionCancelType::CANCEL_DOWNGRADE,
             $cancelTypeOtherDate,
-            true
+            true,
         );
 
-        $this->harborApi
-            ->expects(self::once())
-            ->method('sendCredit');
+        $this->harborApi->expects(self::once())->method('sendCredit');
 
         // Run service
         $this->creditSubscriptionService->creditSubscriptions($cancellation);
 
-        $invoices = Invoice::query()
-            ->where('subscription_id', $subscription->id)
-            ->orderBy('id')
-            ->get();
+        $invoices = Invoice::query()->where('subscription_id', $subscription->id)->orderBy('id')->get();
 
         /* We now expect 4 invoice lines:
          * 2 are the original; 100 and -10
@@ -376,12 +345,12 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
     {
         $subscription1 = $this->getSubscription(
             AdministrativeStatus::ACTIVE->value,
-            $this->endDate
+            $this->endDate,
         );
 
         $subscription2 = $this->getSubscription(
             AdministrativeStatus::ACTIVE->value,
-            $this->endDate
+            $this->endDate,
         );
 
         $invoiceLine1 = $this->createInvoiceLine($subscription1, $this->endDate, 100);
@@ -395,7 +364,7 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
             null,
             SubscriptionCancelType::CANCEL_DOWNGRADE,
             $cancelTypeOtherDate,
-            true
+            true,
         );
 
         $batch = $this->creditSubscriptionService->getInvoiceLinesToCreditBatch($cancellation);
@@ -428,12 +397,11 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
             -10,
         );
 
-        $batch = $this->creditSubscriptionService
-            ->getInvoiceLinesToCreditBatchFromDate(
-                subscription: $subscription,
-                creditFromDate: $this->now,
-                cancelReason: SubscriptionCancelReason::REASON_REVOCATION,
-            );
+        $batch = $this->creditSubscriptionService->getInvoiceLinesToCreditBatchFromDate(
+            subscription: $subscription,
+            creditFromDate: $this->now,
+            cancelReason: SubscriptionCancelReason::REASON_REVOCATION,
+        );
 
         $invoicesToCredit = $batch->getInvoicesToCredit();
 
@@ -522,11 +490,13 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
 
     #[DataProvider('cancelReasonToCreditReason')]
     #[Test]
-    public function testCreditInvoiceLinesHaveCreditReason(SubscriptionCancelReason $cancelReason, InvoiceLineCreditReason $creditReason): void
-    {
+    public function testCreditInvoiceLinesHaveCreditReason(
+        SubscriptionCancelReason $cancelReason,
+        InvoiceLineCreditReason $creditReason,
+    ): void {
         $subscription = $this->getSubscription(
             AdministrativeStatus::ACTIVE->value,
-            $this->endDate
+            $this->endDate,
         );
 
         $this->createInvoiceLine($subscription, $this->endDate, 100);
@@ -538,7 +508,7 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
             null,
             SubscriptionCancelType::CANCEL_OTHER,
             $cancelTypeOtherDate,
-            true
+            true,
         );
 
         $this->harborApi
@@ -575,7 +545,7 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
         $this->endDate = $this->now->addDays(6)->addMonths(12);
         $subscription = $this->getSubscription(
             AdministrativeStatus::ACTIVE->value,
-            $this->endDate
+            $this->endDate,
         );
 
         $beforeRenewalInvoice = $this->createInvoiceLine($subscription, $this->endDate->subMonths(12), 100);
@@ -588,20 +558,15 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
             null,
             SubscriptionCancelType::CANCEL_OTHER,
             $cancelTypeOtherDate,
-            true
+            true,
         );
 
-        $this->harborApi
-            ->expects(self::once())
-            ->method('sendCredit');
+        $this->harborApi->expects(self::once())->method('sendCredit');
 
         // Run service
         $this->creditSubscriptionService->creditSubscriptions($cancellation);
 
-        $invoices = Invoice::query()
-            ->where('subscription_id', $subscription->id)
-            ->orderBy('id')
-            ->get();
+        $invoices = Invoice::query()->where('subscription_id', $subscription->id)->orderBy('id')->get();
 
         /* We only expect the renewal invoice to be credited */
         self::assertCount(4, $invoices);
@@ -619,7 +584,7 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
 
     private function getSubscription(
         string $administrativeStatus,
-        CarbonImmutable $endDate
+        CarbonImmutable $endDate,
     ): Subscription {
         return new SubscriptionFactory()
             ->for($this->customer)
@@ -640,7 +605,7 @@ class CreditSubscriptionServiceTest extends IntegrationTestCase
         Subscription $subscription,
         CarbonImmutable $endDate,
         int $price,
-        ?Invoice $parentInvoiceLine = null
+        ?Invoice $parentInvoiceLine = null,
     ): Invoice {
         return new InvoiceFactory()
             ->for($subscription)

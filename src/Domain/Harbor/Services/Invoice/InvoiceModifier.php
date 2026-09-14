@@ -38,7 +38,7 @@ class InvoiceModifier
                 fn (mixed $value, string $key): string => $key . '=' . $this->formatLogValue($value),
                 $values,
                 array_keys($values),
-            ))
+            )),
         ));
     }
 

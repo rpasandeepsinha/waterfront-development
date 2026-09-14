@@ -34,7 +34,7 @@ class PleskGetSsoUrlActionTest extends IntegrationTestCase
 
         self::assertSame(
             'https://plesk.sso.testing:8443/enterprise/rsession_init.php?PHPSESSID=64b6f51df8b3e33875744dc1d194526f',
-            $ssoUrl
+            $ssoUrl,
         );
     }
 
@@ -46,7 +46,7 @@ class PleskGetSsoUrlActionTest extends IntegrationTestCase
 
         self::assertSame(
             'https://plesk.sso.testing:8443/enterprise/rsession_init.php?PHPSESSID=64b6f51df8b3e33875744dc1d194526f&success_redirect_url=%2Fsmb%2Femail-address%2Flist',
-            $ssoUrl
+            $ssoUrl,
         );
     }
 }

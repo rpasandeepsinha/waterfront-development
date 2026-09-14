@@ -49,20 +49,19 @@ class CreditAndDispatchInvoiceLinesToHarborTest extends IntegrationTestCase
         $now = CarbonImmutable::now();
         CarbonImmutable::setTestNow($now);
 
-        $customer = new CustomerFactory()
-            ->withAddress()
-            ->withFinancialContact()
-            ->createOne();
+        $customer = new CustomerFactory()->withAddress()->withFinancialContact()->createOne();
 
-        $group = new ProductGroupFactory()
-            ->hosting()
-            ->createOne();
-        $product = new ProductFactory()
-            ->for($group)
-            ->createOne();
+        $group = new ProductGroupFactory()->hosting()->createOne();
+        $product = new ProductFactory()->for($group)->createOne();
 
-        $firstSubscription = new SubscriptionFactory()->for($product)->for($customer)->createOne();
-        $secondSubscription = new SubscriptionFactory()->for($product)->for($customer)->createOne();
+        $firstSubscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->createOne();
+        $secondSubscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->createOne();
 
         $firstParentInvoice = new InvoiceFactory()
             ->for($customer)
@@ -126,26 +125,25 @@ class CreditAndDispatchInvoiceLinesToHarborTest extends IntegrationTestCase
         $now = CarbonImmutable::now();
         CarbonImmutable::setTestNow($now);
 
-        $firstCustomer = new CustomerFactory()
-            ->withAddress()
-            ->withFinancialContact()
-            ->createOne();
+        $firstCustomer = new CustomerFactory()->withAddress()->withFinancialContact()->createOne();
 
-        $secondCustomer = new CustomerFactory()
-            ->withAddress()
-            ->withFinancialContact()
-            ->createOne();
+        $secondCustomer = new CustomerFactory()->withAddress()->withFinancialContact()->createOne();
 
-        $group = new ProductGroupFactory()
-            ->hosting()
-            ->createOne();
-        $product = new ProductFactory()
-            ->for($group)
-            ->createOne();
+        $group = new ProductGroupFactory()->hosting()->createOne();
+        $product = new ProductFactory()->for($group)->createOne();
 
-        $firstSubscription = new SubscriptionFactory()->for($product)->for($firstCustomer)->createOne();
-        $secondSubscription = new SubscriptionFactory()->for($product)->for($secondCustomer)->createOne();
-        $thirdSubscription = new SubscriptionFactory()->for($product)->for($firstCustomer)->createOne();
+        $firstSubscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($firstCustomer)
+            ->createOne();
+        $secondSubscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($secondCustomer)
+            ->createOne();
+        $thirdSubscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($firstCustomer)
+            ->createOne();
 
         $firstParentInvoice = new InvoiceFactory()
             ->for($firstCustomer)
@@ -191,21 +189,23 @@ class CreditAndDispatchInvoiceLinesToHarborTest extends IntegrationTestCase
         $now = CarbonImmutable::now();
         CarbonImmutable::setTestNow($now);
 
-        $customer = new CustomerFactory()
-            ->withAddress()
-            ->withFinancialContact()
-            ->createOne();
+        $customer = new CustomerFactory()->withAddress()->withFinancialContact()->createOne();
 
-        $group = new ProductGroupFactory()
-            ->hosting()
-            ->createOne();
-        $product = new ProductFactory()
-            ->for($group)
-            ->createOne();
+        $group = new ProductGroupFactory()->hosting()->createOne();
+        $product = new ProductFactory()->for($group)->createOne();
 
-        $firstSubscription = new SubscriptionFactory()->for($product)->for($customer)->createOne();
-        $secondSubscription = new SubscriptionFactory()->for($product)->for($customer)->createOne();
-        $thirdSubscription = new SubscriptionFactory()->for($product)->for($customer)->createOne();
+        $firstSubscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->createOne();
+        $secondSubscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->createOne();
+        $thirdSubscription = new SubscriptionFactory()
+            ->for($product)
+            ->for($customer)
+            ->createOne();
 
         $firstParentInvoice = new InvoiceFactory()
             ->for($customer)
@@ -253,9 +253,10 @@ class CreditAndDispatchInvoiceLinesToHarborTest extends IntegrationTestCase
         $invoiceToCreditBatch = new InvoiceToCreditBatch();
         foreach ($invoiceLines as $invoiceLine) {
             $invoiceToCreditBatch->add(
-                new InvoiceToCredit($invoiceLine, 50)
+                new InvoiceToCredit($invoiceLine, 50),
             );
         }
+
         return $invoiceToCreditBatch;
     }
 }

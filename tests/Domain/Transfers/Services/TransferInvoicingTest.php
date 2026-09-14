@@ -109,21 +109,25 @@ class TransferInvoicingTest extends IntegrationTestCase
         $now = CarbonImmutable::now();
         CarbonImmutable::setTestNow($now);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => Product::where('name', 'DNS')->firstOrFail()->uuid,
-            'customer_id' => $this->customerWithDiscount->id,
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'start_date' => $now,
-            'end_date' => $now->addYear(),
-            'next_billing_date' => $now->addYears(2),
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => Product::where('name', 'DNS')->firstOrFail()->uuid,
+                'customer_id' => $this->customerWithDiscount->id,
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'start_date' => $now,
+                'end_date' => $now->addYear(),
+                'next_billing_date' => $now->addYears(2),
+            ]);
 
         // renew
         self::resolve(Dispatcher::class)->dispatchSync(new RenewSubscription($subscription));
 
         CarbonImmutable::setTestNow($now->addYear());
-        $billingDate = CarbonImmutable::today()->addDays($this->renewalDays + $this->consolidatingDays)->addYear();
+        $billingDate = CarbonImmutable::today()
+            ->addDays($this->renewalDays + $this->consolidatingDays)
+            ->addYear();
         $this->invoiceCreator->invoiceCustomer($this->customerWithDiscount, $billingDate);
 
         $firstInvoice = Invoice::orderBy('id', 'desc')->firstOrFail();
@@ -135,7 +139,7 @@ class TransferInvoicingTest extends IntegrationTestCase
         $transfer = $this->transfers->createTransfer(
             $collection,
             $this->customerWithDiscount,
-            $this->customerWithoutDiscount
+            $this->customerWithoutDiscount,
         );
 
         $transfer->accept();
@@ -148,7 +152,9 @@ class TransferInvoicingTest extends IntegrationTestCase
         self::resolve(Dispatcher::class)->dispatchSync(new RenewSubscription($subscription));
 
         CarbonImmutable::setTestNow($now->addYears(2));
-        $billingDate = CarbonImmutable::today()->addDays($this->renewalDays + $this->consolidatingDays)->addYears(2);
+        $billingDate = CarbonImmutable::today()
+            ->addDays($this->renewalDays + $this->consolidatingDays)
+            ->addYears(2);
         $this->invoiceCreator->invoiceCustomer($subscription->customer, $billingDate);
 
         $secondInvoice = Invoice::orderBy('id', 'desc')->firstOrFail();
@@ -162,21 +168,25 @@ class TransferInvoicingTest extends IntegrationTestCase
         $now = CarbonImmutable::now();
         CarbonImmutable::setTestNow($now);
 
-        $subscription = new SubscriptionFactory()->withCustomer()->createOne([
-            'product_uuid' => Product::where('name', 'DNS')->firstOrFail()->uuid,
-            'customer_id' => $this->customerWithoutDiscount->id,
-            'billing_period' => 12,
-            'contract_period' => 12,
-            'start_date' => $now,
-            'end_date' => $now->addYear(),
-            'next_billing_date' => $now->addYears(2),
-        ]);
+        $subscription = new SubscriptionFactory()
+            ->withCustomer()
+            ->createOne([
+                'product_uuid' => Product::where('name', 'DNS')->firstOrFail()->uuid,
+                'customer_id' => $this->customerWithoutDiscount->id,
+                'billing_period' => 12,
+                'contract_period' => 12,
+                'start_date' => $now,
+                'end_date' => $now->addYear(),
+                'next_billing_date' => $now->addYears(2),
+            ]);
 
         // renew
         self::resolve(Dispatcher::class)->dispatchSync(new RenewSubscription($subscription));
 
         CarbonImmutable::setTestNow($now->addYear());
-        $billingDate = CarbonImmutable::today()->addDays($this->renewalDays + $this->consolidatingDays)->addYear();
+        $billingDate = CarbonImmutable::today()
+            ->addDays($this->renewalDays + $this->consolidatingDays)
+            ->addYear();
         $this->invoiceCreator->invoiceCustomer($subscription->customer, $billingDate);
 
         $firstInvoice = Invoice::orderBy('id', 'desc')->firstOrFail();
@@ -188,7 +198,7 @@ class TransferInvoicingTest extends IntegrationTestCase
         $transfer = $this->transfers->createTransfer(
             $collection,
             $this->customerWithoutDiscount,
-            $this->customerWithDiscount
+            $this->customerWithDiscount,
         );
 
         $transfer->accept();
@@ -201,7 +211,9 @@ class TransferInvoicingTest extends IntegrationTestCase
         self::resolve(Dispatcher::class)->dispatchSync(new RenewSubscription($subscription));
 
         CarbonImmutable::setTestNow($now->addYears(2));
-        $billingDate = CarbonImmutable::today()->addDays($this->renewalDays + $this->consolidatingDays)->addYears(2);
+        $billingDate = CarbonImmutable::today()
+            ->addDays($this->renewalDays + $this->consolidatingDays)
+            ->addYears(2);
         $this->invoiceCreator->invoiceCustomer($subscription->customer, $billingDate);
 
         $secondInvoice = Invoice::orderBy('id', 'desc')->firstOrFail();
@@ -222,10 +234,16 @@ class TransferInvoicingTest extends IntegrationTestCase
             'name' => 'DNS',
             'slug' => ProductType::BASIC_DNS->value,
         ]);
-        new ProductPriceComponentFactory()->for($product)->prolongation()->createOne(['price' => 250]);
+        new ProductPriceComponentFactory()
+            ->for($product)
+            ->prolongation()
+            ->createOne(['price' => 250]);
 
         $staffel = new ProductDiscountFactory()->for($product)->createOne();
-        new CustomerProductDiscountFactory()->for($discountCustomer)->for($staffel)->createOne();
+        new CustomerProductDiscountFactory()
+            ->for($discountCustomer)
+            ->for($staffel)
+            ->createOne();
         $staffelPrice = new ProductPriceComponentFactory()->for($product)->createOne([
             'type' => PriceComponentType::PROLONGATION_STAFFEL,
             'price' => 125,

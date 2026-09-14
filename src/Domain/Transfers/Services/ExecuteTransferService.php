@@ -44,8 +44,8 @@ class ExecuteTransferService implements ExecuteTransferInterface
                         'An error occurred while transferring with Transfer ID {%s}: {%s} with REASON: {%s}',
                         $transfer->id,
                         $subscription->id,
-                        $exception->getMessage()
-                    )
+                        $exception->getMessage(),
+                    ),
                 );
 
                 $this->logger->error($completedException->getMessage());
@@ -53,6 +53,7 @@ class ExecuteTransferService implements ExecuteTransferInterface
                 $subscription->pivot->failed_at = CarbonImmutable::now();
                 $subscription->pivot->reason_failed = $completedException->getMessage();
                 $subscription->pivot->save();
+
                 return;
             }
 
@@ -75,8 +76,11 @@ class ExecuteTransferService implements ExecuteTransferInterface
         $subscription->loadMissing(['product', 'product.productGroup']);
 
         match ($subscription->product->productGroup->slug) {
-            ProductGroupType::EXTENSION => $this->extensionTransferService->execute(subscription: $subscription, receiver: $transfer->toCustomer),
-            default => 'Do nothing'
+            ProductGroupType::EXTENSION => $this->extensionTransferService->execute(
+                subscription: $subscription,
+                receiver: $transfer->toCustomer,
+            ),
+            default => 'Do nothing',
         };
     }
 
@@ -99,13 +103,18 @@ class ExecuteTransferService implements ExecuteTransferInterface
             ProductGroupType::REDIRECT,
             ProductGroupType::RESELLER_HOSTING,
             ProductGroupType::SSL,
-            ProductGroupType::VPS => $this->updateCustomerId($subscription, $transfer->toCustomer),
+            ProductGroupType::VPS,
+                => $this->updateCustomerId($subscription, $transfer->toCustomer),
             ProductGroupType::DOMAIN_EXPANSION,
             ProductGroupType::RESELLER_DISCOUNT,
             ProductGroupType::MICROSOFT_365,
             ProductGroupType::MANUAL_SUBSCRIPTION,
             ProductGroupType::ONE_TIME_SERVICE,
-            ProductGroupType::VOLUME_DISCOUNT => throw new TransferException(sprintf('Transfer is not supported for product group %s', $subscription->product->productGroup->slug->value)),
+            ProductGroupType::VOLUME_DISCOUNT,
+                => throw new TransferException(sprintf(
+                'Transfer is not supported for product group %s',
+                $subscription->product->productGroup->slug->value,
+            )),
         };
     }
 
@@ -127,7 +136,7 @@ class ExecuteTransferService implements ExecuteTransferInterface
                 sprintf(
                     'Transfer has not been accepted. Transfer ID: {%s}',
                     $transfer->id,
-                )
+                ),
             );
         }
 
@@ -138,7 +147,7 @@ class ExecuteTransferService implements ExecuteTransferInterface
                 sprintf(
                     'Transfer contains subscriptions not owned by the initiating customer. Transfer ID: {%s}',
                     $transfer->id,
-                )
+                ),
             );
         }
 
@@ -149,7 +158,7 @@ class ExecuteTransferService implements ExecuteTransferInterface
                 sprintf(
                     'Transfer contains subscriptions with a more recent transfer not in accepted state, can not continue. Transfer ID: {%s}',
                     $transfer->id,
-                )
+                ),
             );
         }
     }
@@ -159,14 +168,18 @@ class ExecuteTransferService implements ExecuteTransferInterface
      */
     private function filterExecutedSubscriptions(Transfer $transfer): Collection
     {
-        return $transfer->subscriptions->filter(fn (Subscription $subscription) => $subscription->pivot->executed_at === null);
+        return $transfer->subscriptions->filter(
+            fn (Subscription $subscription) => $subscription->pivot->executed_at === null,
+        );
     }
 
     /**
      * @param Collection<int, Subscription> $subscriptions
      */
-    private function validateTransferSubscriptionsOriginatingCustomer(Transfer $transfer, Collection $subscriptions): bool
-    {
+    private function validateTransferSubscriptionsOriginatingCustomer(
+        Transfer $transfer,
+        Collection $subscriptions,
+    ): bool {
         $filter = fn (Subscription $subscription): bool => $subscription->customer_id === $transfer->from_customer_id;
 
         return $subscriptions->filter($filter)->count() === $subscriptions->count();
