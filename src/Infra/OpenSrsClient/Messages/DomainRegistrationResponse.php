@@ -35,7 +35,8 @@ class DomainRegistrationResponse extends BaseResponse
     private function reason(): string
     {
         $attributes = $this->getAttributes();
-        $error = isset($attributes['error']) && is_string($attributes['error']) ? $attributes['error'] : '';
+        $rawError = $attributes['error'] ?? null;
+        $error = is_string($rawError) ? $rawError : '';
 
         return trim($this->getResponseText() . ($error !== '' ? "\n" . $error : ''));
     }

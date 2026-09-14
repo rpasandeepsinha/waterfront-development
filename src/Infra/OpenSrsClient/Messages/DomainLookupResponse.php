@@ -36,8 +36,9 @@ class DomainLookupResponse extends BaseResponse
             default => CheckResult::STATUS_UNKNOWN,
         };
 
-        $reason = isset($attributes['reason']) && is_string($attributes['reason']) ? $attributes['reason'] : null;
-        $isPremium = isset($attributes['reason']) && $attributes['reason'] === 'Premium Name';
+        $rawReason = $attributes['reason'] ?? null;
+        $reason = is_string($rawReason) ? $rawReason : null;
+        $isPremium = $rawReason === 'Premium Name';
 
         return new CheckResult($domain, $status, $reason, $isPremium ?: null);
     }

@@ -1870,6 +1870,12 @@ parameters:
 			path: src/Infra/News/Repositories/CachedNewsRepository.php
 
 		-
+			message: '#^Class "Waterfront\\Infra\\OpenSrsClient\\Fakers\\OpenSrsClientFaker" is not allowed to extend "Waterfront\\Infra\\OpenSrsClient\\OpenSrsClient"\. Try to extend abstract classes only\.$#'
+			identifier: sandwave.custom
+			count: 1
+			path: src/Infra/OpenSrsClient/Fakers/OpenSrsClientFaker.php
+
+		-
 			message: '#^Class "Waterfront\\Infra\\OpenproviderClient\\Fakers\\OpenproviderClientFaker" is not allowed to extend "Waterfront\\Infra\\OpenproviderClient\\OpenproviderClient"\. Try to extend abstract classes only\.$#'
 			identifier: sandwave.custom
 			count: 1

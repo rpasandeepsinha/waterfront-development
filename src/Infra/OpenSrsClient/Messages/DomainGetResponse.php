@@ -63,8 +63,9 @@ class DomainGetResponse extends BaseResponse
         $attributes = $this->getAttributes();
 
         foreach (['domain_auth_info', 'registrar_auth', 'auth_info'] as $key) {
-            if (isset($attributes[$key]) && is_string($attributes[$key]) && $attributes[$key] !== '') {
-                return $attributes[$key];
+            $value = $attributes[$key] ?? null;
+            if (is_string($value) && $value !== '') {
+                return $value;
             }
         }
 
@@ -86,7 +87,7 @@ class DomainGetResponse extends BaseResponse
         foreach ($list as $nameServer) {
             $name = match (true) {
                 is_string($nameServer) => $nameServer,
-                is_array($nameServer) && isset($nameServer['name']) && is_string($nameServer['name']) => $nameServer['name'],
+                is_array($nameServer) && is_string($nameServer['name'] ?? null) => $nameServer['name'],
                 default => null,
             };
 
@@ -107,11 +108,9 @@ class DomainGetResponse extends BaseResponse
         }
 
         $identifier = static function (mixed $contact): ?string {
-            if (is_array($contact) && isset($contact['email']) && is_string($contact['email']) && $contact['email'] !== '') {
-                return $contact['email'];
-            }
+            $email = is_array($contact) ? ($contact['email'] ?? null) : null;
 
-            return null;
+            return is_string($email) && $email !== '' ? $email : null;
         };
 
         $owner = $identifier($contactSet['owner'] ?? null);
